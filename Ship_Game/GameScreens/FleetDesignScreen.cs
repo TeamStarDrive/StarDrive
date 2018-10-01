@@ -525,7 +525,7 @@ namespace Ship_Game
                                 ? Color.White
                                 : Color.Yellow));
                         string buildingat = "";
-                        foreach (Goal g in SelectedFleet.Owner.GetGSAI().Goals)
+                        foreach (Goal g in SelectedFleet.Owner.GetEmpireAI().Goals)
                         {
                             if (!(g.guid == node.GoalGUID) || g.GetPlanetWhereBuilding() == null)
                             {

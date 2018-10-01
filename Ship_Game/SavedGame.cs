@@ -1,3 +1,10 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
+using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -6,13 +13,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
-using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -272,11 +272,11 @@ namespace Ship_Game
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
                 
-                foreach (AO area in e.GetGSAI().AreasOfOperations)
+                foreach (AO area in e.GetEmpireAI().AreasOfOperations)
                 {
                     area.PrepareForSave();
                 }
-                empireToSave.AOs = e.GetGSAI().AreasOfOperations;
+                empireToSave.AOs = e.GetEmpireAI().AreasOfOperations;
                 empireToSave.FleetsList = new Array<FleetSave>();
                 foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
                 {
@@ -337,18 +337,18 @@ namespace Ship_Game
                 }
                 var gsaidata = new GSAISAVE
                 {
-                    UsedFleets = e.GetGSAI().UsedFleets,
+                    UsedFleets = e.GetEmpireAI().UsedFleets,
                     Goals      = new Array<GoalSave>(),
                     PinGuids   = new Array<Guid>(),
                     PinList    = new Array<ThreatMatrix.Pin>()
                 };
-                foreach (KeyValuePair<Guid, ThreatMatrix.Pin> guid in e.GetGSAI().ThreatMatrix.Pins)
+                foreach (KeyValuePair<Guid, ThreatMatrix.Pin> guid in e.GetEmpireAI().ThreatMatrix.Pins)
                 {
                     gsaidata.PinGuids.Add(guid.Key);
                     gsaidata.PinList.Add(guid.Value);
                 }
                 gsaidata.MilitaryTaskList = new Array<MilitaryTask>();
-                foreach (MilitaryTask task in e.GetGSAI().TaskList)
+                foreach (MilitaryTask task in e.GetEmpireAI().TaskList)
                 {
                     gsaidata.MilitaryTaskList.Add(task);
                     if (task.TargetPlanet == null)
@@ -357,7 +357,7 @@ namespace Ship_Game
                     }
                     task.TargetPlanetGuid = task.TargetPlanet.guid;
                 }
-                foreach (Goal g in e.GetGSAI().Goals)
+                foreach (Goal g in e.GetEmpireAI().Goals)
                 {
                     var gdata = new GoalSave
                     {

@@ -263,7 +263,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), TextCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
-                    orderby empire.Grossincome(1) descending
+                    orderby empire.GrossIncome(1) descending
                     select empire;
                 int rank = 1;
                 foreach (Empire e in MoneySortedList)
@@ -445,7 +445,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), TextCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
-                    orderby empire.Grossincome(1) descending
+                    orderby empire.GrossIncome(1) descending
                     select empire;
                 int rank = 1;
 
@@ -766,7 +766,7 @@ namespace Ship_Game
                     }
                     return str;
                 }
-                foreach(ThreatMatrix.Pin pins in PlayerEmpire.GetGSAI().ThreatMatrix.Pins.Values)
+                foreach(ThreatMatrix.Pin pins in PlayerEmpire.GetEmpireAI().ThreatMatrix.Pins.Values)
                 {
                     if (pins.Ship == null || pins.Ship.loyalty != e)
                         continue;
@@ -775,7 +775,7 @@ namespace Ship_Game
 
                 foreach(Empire ally in Friends)
                 {
-                    foreach (ThreatMatrix.Pin pins in ally.GetGSAI().ThreatMatrix.Pins.Values)
+                    foreach (ThreatMatrix.Pin pins in ally.GetEmpireAI().ThreatMatrix.Pins.Values)
                     {
                         if (pins.Ship == null || pins.Ship.loyalty != e)
                             continue;
@@ -857,7 +857,7 @@ namespace Ship_Game
                 }
                 HashSet<Ship> knownShips = new HashSet<Ship>();
 
-                foreach (ThreatMatrix.Pin pins in PlayerEmpire.GetGSAI().ThreatMatrix.Pins.Values)
+                foreach (ThreatMatrix.Pin pins in PlayerEmpire.GetEmpireAI().ThreatMatrix.Pins.Values)
                 {
                     if (pins.Ship == null || pins.Ship.loyalty != e)
                         continue;
@@ -866,7 +866,7 @@ namespace Ship_Game
 
                 foreach (Empire ally in Friends)
                 {
-                    foreach (ThreatMatrix.Pin pins in ally.GetGSAI().ThreatMatrix.Pins.Values)
+                    foreach (ThreatMatrix.Pin pins in ally.GetEmpireAI().ThreatMatrix.Pins.Values)
                     {
                         if (pins.Ship == null || pins.Ship.loyalty != e)
                             continue;
@@ -922,10 +922,10 @@ namespace Ship_Game
                 return scientificStr;
             }
             var techs = new HashSet<string>();
-            GetTechsFromPins(techs, PlayerEmpire.GetGSAI().ThreatMatrix.Pins.Values, e);
+            GetTechsFromPins(techs, PlayerEmpire.GetEmpireAI().ThreatMatrix.Pins.Values, e);
             foreach (Empire ally in Friends)
             {
-                GetTechsFromPins(techs, ally.GetGSAI().ThreatMatrix.Pins.Values, e);
+                GetTechsFromPins(techs, ally.GetEmpireAI().ThreatMatrix.Pins.Values, e);
             }
             foreach (string tech in techs)
             {

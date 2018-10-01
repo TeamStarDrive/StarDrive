@@ -702,7 +702,7 @@ namespace Ship_Game
 
         public bool Initialize(AgentMission TheMission, Empire Owner)
         {
-            float spyBudget =  Owner.GetGSAI().spyBudget;
+            float spyBudget =  Owner.GetEmpireAI().spyBudget;
             if (Owner.isPlayer)
                 spyBudget = Owner.Money;
             bool returnvalue = false;            
@@ -805,7 +805,7 @@ namespace Ship_Game
                 Owner.Money = spyBudget;
             else
             {
-                Owner.GetGSAI().spyBudget = spyBudget;
+                Owner.GetEmpireAI().spyBudget = spyBudget;
             }
             return returnvalue;
         }

@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -748,7 +748,7 @@ namespace Ship_Game
         public int GetPredictedEnemyPresence(float time, Empire us)
         {
              
-            float prediction =us.GetGSAI().ThreatMatrix.PingRadarStr(Position, 150000 *2,us);
+            float prediction =us.GetEmpireAI().ThreatMatrix.PingRadarStr(Position, 150000 *2,us);
             return (int)prediction;
 
         }

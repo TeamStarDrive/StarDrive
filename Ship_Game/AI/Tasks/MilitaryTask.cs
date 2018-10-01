@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace Ship_Game.AI.Tasks
 {
@@ -74,7 +74,7 @@ namespace Ship_Game.AI.Tasks
 
             EnemyStrength = Owner.currentMilitaryStrength * .001f;
             if (InitialEnemyStrength < 1)
-                InitialEnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(location, radius, Owner); ;
+                InitialEnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(location, radius, Owner); ;
 
             MinimumTaskForceStrength = EnemyStrength;
             this.Owner = Owner;
@@ -100,7 +100,7 @@ namespace Ship_Game.AI.Tasks
         {
             if (Owner.GetRelations(TargetPlanet.Owner).PreparingForWar)
             {
-                Owner.GetGSAI().DeclareWarOn(TargetPlanet.Owner,
+                Owner.GetEmpireAI().DeclareWarOn(TargetPlanet.Owner,
                     Owner.GetRelations(TargetPlanet.Owner).PreparingForWarType);
                 return true;
             }
@@ -110,7 +110,7 @@ namespace Ship_Game.AI.Tasks
         public void EndTask()
         {
             DebugInfoScreen.CanceledMtasksCount++;
-            Owner.GetGSAI().TaskList.QueuePendingRemoval(this);
+            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
             switch (type)
             {
                 case TaskType.Exploration:
@@ -147,7 +147,7 @@ namespace Ship_Game.AI.Tasks
 
             foreach (Guid goalGuid in HeldGoals)
             {
-                foreach (Goal g in Owner.GetGSAI().Goals)
+                foreach (Goal g in Owner.GetEmpireAI().Goals)
                 {
                     if (g.guid != goalGuid)
                         continue;
@@ -212,7 +212,7 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            Owner.GetGSAI().UsedFleets.Remove(WhichFleet);
+            Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
             Fleet.Reset();
 
             if (type == TaskType.Exploration)
@@ -245,10 +245,10 @@ namespace Ship_Game.AI.Tasks
 
         public void EndTaskWithMove()
         {
-            Owner.GetGSAI().TaskList.QueuePendingRemoval(this);
+            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
             foreach (Guid goalGuid in HeldGoals)
             {
-                foreach (Goal g in Owner.GetGSAI().Goals)
+                foreach (Goal g in Owner.GetEmpireAI().Goals)
                 {
                     if (g.guid != goalGuid)
                         continue;
@@ -257,7 +257,7 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            AO closestAO = Owner.GetGSAI().AreasOfOperations.FindMin(ao => AO.SqDist(ao.Center));
+            AO closestAO = Owner.GetEmpireAI().AreasOfOperations.FindMin(ao => AO.SqDist(ao.Center));
             if (closestAO == null)
             {
                 if (  !IsCoreFleetTask && WhichFleet != -1 && Owner != EmpireManager.Player)
@@ -287,7 +287,7 @@ namespace Ship_Game.AI.Tasks
                     }
 
                     TaskForce.Clear();
-                    Owner.GetGSAI().UsedFleets.Remove(WhichFleet);
+                    Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
                     Owner.GetFleet(WhichFleet).Reset();
                 }
             }
@@ -529,7 +529,7 @@ namespace Ship_Game.AI.Tasks
             Owner.GetFleet(WhichFleet).Ships.ApplyPendingRemovals();
             float currentEnemyStrength = 0f;
 
-            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in Owner.GetGSAI().ThreatMatrix.Pins)
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in Owner.GetEmpireAI().ThreatMatrix.Pins)
             {
                 if (Vector2.Distance(AO, pin.Value.Position) >= AORadius || pin.Value.Ship == null)
                     continue;
@@ -579,7 +579,7 @@ namespace Ship_Game.AI.Tasks
                         }
                     }
                     TaskForce.Clear();
-                    Owner.GetGSAI().UsedFleets.Remove(WhichFleet);
+                    Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
                     Owner.GetFleetsDict()[WhichFleet].Reset();
                 }
 
@@ -606,7 +606,7 @@ namespace Ship_Game.AI.Tasks
                     toLaunch.Clear();
                 }
             }
-            Owner.GetGSAI().TaskList.QueuePendingRemoval(this);
+            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
         }
 
         public void SetEmpire(Empire e)
@@ -662,7 +662,7 @@ namespace Ship_Game.AI.Tasks
         {
             for (int i = 1; i < 10; i++)
             {
-                if (Owner.GetGSAI().UsedFleets.Contains(i))
+                if (Owner.GetEmpireAI().UsedFleets.Contains(i))
                     continue;
 
                 return i;

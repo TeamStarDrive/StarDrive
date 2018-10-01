@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,6 +5,9 @@ using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -751,7 +751,7 @@ namespace Ship_Game
                     ship.AI.Target = null;
                     ship.AI.SetPriorityOrder(!Input.QueueAction);
                 }
-            PlayerEmpire.GetGSAI().DefensiveCoordinator.RemoveShipList(SelectedShipList);
+            PlayerEmpire.GetEmpireAI().DefensiveCoordinator.RemoveShipList(SelectedShipList);
 
             if (MoveFleetToShip(shipClicked, fleet)) return;
 
@@ -990,7 +990,7 @@ namespace Ship_Game
             }
             else if (SelectedShip != null && SelectedShip?.loyalty == player)
             {
-                player.GetGSAI().DefensiveCoordinator.Remove(SelectedShip);
+                player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
                 SelectedSomethingTimer = 3f;
                 if (UnselectableShip())
                 {
@@ -1035,7 +1035,7 @@ namespace Ship_Game
                 }
                 else if (SelectedShip != null && SelectedShip.loyalty.isPlayer)
                 {
-                    player.GetGSAI().DefensiveCoordinator.Remove(SelectedShip);
+                    player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
                     SelectedSomethingTimer = 3f;
 
                     if (shipClicked != null && shipClicked != SelectedShip)
@@ -1065,7 +1065,7 @@ namespace Ship_Game
                     {
                         foreach (Ship selectedShip in SelectedShipList)
                         {
-                            player.GetGSAI().DefensiveCoordinator.Remove(selectedShip);
+                            player.GetEmpireAI().DefensiveCoordinator.Remove(selectedShip);
                             RightClickOnShip(selectedShip, shipClicked);
                             RightClickOnPlanet(selectedShip, planetClicked);
                         }
@@ -1458,9 +1458,9 @@ namespace Ship_Game
         {
             lock (GlobalStats.ClickableItemLocker)
                 ItemsToBuild.Clear();
-            for (int index = 0; index < EmpireManager.Player.GetGSAI().Goals.Count; ++index)
+            for (int index = 0; index < EmpireManager.Player.GetEmpireAI().Goals.Count; ++index)
             {
-                Goal goal = player.GetGSAI().Goals[index];
+                Goal goal = player.GetEmpireAI().Goals[index];
                 if (!(goal is BuildConstructionShip))
                     continue;
                 const float radius = 100f;                    
@@ -1738,7 +1738,7 @@ namespace Ship_Game
 
         private void HandleInputScrap(InputState input)
         {
-            player.GetGSAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
+            player.GetEmpireAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
             bool flag = false;
             foreach (Ship ship in player.GetShips())
             {
@@ -1782,7 +1782,7 @@ namespace Ship_Game
                 }
                 ItemsToBuild.ApplyPendingRemovals();
             }
-            player.GetGSAI().Goals.ApplyPendingRemovals();
+            player.GetEmpireAI().Goals.ApplyPendingRemovals();
             SelectedItem = null;
         }
 

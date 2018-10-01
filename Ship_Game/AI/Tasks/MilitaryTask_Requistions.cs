@@ -1,18 +1,19 @@
-using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Linq;
 
-namespace Ship_Game.AI.Tasks {
+namespace Ship_Game.AI.Tasks
+{
     public partial class MilitaryTask
     {
         //public Planet TargetPlanet => TargetPlanet;
 
         private Array<Troop> GetTroopsOnPlanets(Array<Troop> potentialTroops, Vector2 rallyPoint, int needed = 0)
         {
-            var defenseDict = Owner.GetGSAI().DefensiveCoordinator.DefenseDict;
+            var defenseDict = Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict;
             var troopSystems = Owner.GetOwnedSystems().OrderBy(troopSource => defenseDict[troopSource].RankImportance)
                 .ThenBy(dist => dist.Position.SqDist(rallyPoint));
             foreach (SolarSystem system in troopSystems)
@@ -66,7 +67,7 @@ namespace Ship_Game.AI.Tasks {
 
             SystemCommander scom = null;
 
-            TargetPlanet.Owner?.GetGSAI().DefensiveCoordinator.DefenseDict
+            TargetPlanet.Owner?.GetEmpireAI().DefensiveCoordinator.DefenseDict
                 .TryGetValue(TargetPlanet.ParentSystem, out scom);
             float importance = 1;
 
@@ -74,7 +75,7 @@ namespace Ship_Game.AI.Tasks {
                 importance = 1 + scom.RankImportance * .01f;
 
             float distance = AORadius * importance;
-            minimumEscortStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(AO, distance, Owner);
+            minimumEscortStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(AO, distance, Owner);
             standardMinimum *= importance;            
 
             return  Math.Max(standardMinimum, minimumEscortStrength);
@@ -156,7 +157,7 @@ namespace Ship_Game.AI.Tasks {
             }
 
             Owner.GetFleetsDict()[FleetNum] = newFleet;
-            Owner.GetGSAI().UsedFleets.Add(FleetNum);
+            Owner.GetEmpireAI().UsedFleets.Add(FleetNum);
             WhichFleet = FleetNum;
             newFleet.FleetTask = this;
             foreach (Ship ship in elTaskForce)
@@ -165,7 +166,7 @@ namespace Ship_Game.AI.Tasks {
                 ship.AI.OrderQueue.Clear();
                 ship.AI.State = AIState.AwaitingOrders;
 
-                Owner.GetGSAI().RemoveShipFromForce(ship, closestAO);
+                Owner.GetEmpireAI().RemoveShipFromForce(ship, closestAO);
             }
             newFleet.AutoArrange();
             Step = 1;
@@ -184,7 +185,7 @@ namespace Ship_Game.AI.Tasks {
             ///// this is acessing a lot of other classes stuff. 
             int fleetNum = FindFleetNumber();
             Owner.GetFleetsDict()[fleetNum] = newFleet;
-            Owner.GetGSAI().UsedFleets.Add(fleetNum);
+            Owner.GetEmpireAI().UsedFleets.Add(fleetNum);
             WhichFleet = fleetNum;
             newFleet.FleetTask = this;
             foreach (Ship ship in ships)
@@ -193,7 +194,7 @@ namespace Ship_Game.AI.Tasks {
                 ship.AI.OrderQueue.Clear();
                 ship.AI.State = AIState.AwaitingOrders;
 
-                Owner.GetGSAI().RemoveShipFromForce(ship);
+                Owner.GetEmpireAI().RemoveShipFromForce(ship);
             }
             
             newFleet.AutoArrange();
@@ -281,7 +282,7 @@ namespace Ship_Game.AI.Tasks {
                 tfstrength < minimumEscortStrength)
             {
                 if (!IsCoreFleetTask)
-                    foreach (var kv in Owner.GetGSAI().DefensiveCoordinator.DefenseDict
+                    foreach (var kv in Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict
                         .OrderByDescending(system => system.Key.CombatInSystem
                             ? 1
                             : 2 * system.Key.Position.SqDist(TargetPlanet.Center))
@@ -303,7 +304,7 @@ namespace Ship_Game.AI.Tasks {
 
                             tfstrength = tfstrength + ship.GetStrength();
                             elTaskForce.Add(ship);
-                            Owner.GetGSAI().DefensiveCoordinator.Remove(ship);
+                            Owner.GetEmpireAI().DefensiveCoordinator.Remove(ship);
                         }
                     }
             }
@@ -318,7 +319,7 @@ namespace Ship_Game.AI.Tasks {
 
             float enemyShipStr = GetEnemyStrAtTarget();
             IOrderedEnumerable<AO> sorted =
-                from ao in Owner.GetGSAI().AreasOfOperations
+                from ao in Owner.GetEmpireAI().AreasOfOperations
                 where ao.GetCoreFleet().FleetTask == null || ao.GetCoreFleet().FleetTask.type != TaskType.AssaultPlanet
                 orderby ao.GetOffensiveForcePool().Where(combat => !combat.InCombat)
                             .Sum(strength => strength.BaseStrength) >= MinimumTaskForceStrength descending, Vector2.Distance(AO, ao.Center)
@@ -408,7 +409,7 @@ namespace Ship_Game.AI.Tasks {
 
                 if (Owner.GetRelations(TargetPlanet.Owner).PreparingForWar)
                 {
-                    Owner.GetGSAI().DeclareWarOn(TargetPlanet.Owner,
+                    Owner.GetEmpireAI().DeclareWarOn(TargetPlanet.Owner,
                         Owner.GetRelations(TargetPlanet.Owner).PreparingForWarType);
                 }
 
@@ -420,7 +421,7 @@ namespace Ship_Game.AI.Tasks {
                     type = TaskType.AssaultPlanet
                 };
 
-                closestAO.GetCoreFleet().Owner.GetGSAI().TasksToAdd.Add(assault);
+                closestAO.GetCoreFleet().Owner.GetEmpireAI().TasksToAdd.Add(assault);
                 assault.WhichFleet = closestAO.WhichFleet;
                 closestAO.GetCoreFleet().FleetTask = assault;
                 assault.IsCoreFleetTask = true;
@@ -434,7 +435,7 @@ namespace Ship_Game.AI.Tasks {
                     ship.fleet?.RemoveShip(ship);
 
                     ship.AI.OrderQueue.Clear();
-                    Owner.GetGSAI().DefensiveCoordinator.Remove(ship);
+                    Owner.GetEmpireAI().DefensiveCoordinator.Remove(ship);
 
 
                     closestAO.GetCoreFleet().AddShip(ship);
@@ -466,7 +467,7 @@ namespace Ship_Game.AI.Tasks {
                         Owner = Owner
                     };
 
-                    bomberFleet.Owner.GetGSAI().TasksToAdd.Add(GlassPlanet);
+                    bomberFleet.Owner.GetEmpireAI().TasksToAdd.Add(GlassPlanet);
                     GlassPlanet.WhichFleet = Owner.GetUnusedKeyForFleet();
                     Owner.GetFleetsDict().Add(GlassPlanet.WhichFleet, bomberFleet);
                     bomberFleet.FleetTask = GlassPlanet;
@@ -475,7 +476,7 @@ namespace Ship_Game.AI.Tasks {
                     foreach (Ship ship in bombTaskForce)
                     {
                         ship.AI.OrderQueue.Clear();
-                        Owner.GetGSAI().DefensiveCoordinator.Remove(ship);
+                        Owner.GetEmpireAI().DefensiveCoordinator.Remove(ship);
                         ship.fleet?.RemoveShip(ship);
 
                         bomberFleet.AddShip(ship);
@@ -483,7 +484,7 @@ namespace Ship_Game.AI.Tasks {
                     bomberFleet.AutoArrange();
                 }
                 Step = 1;
-                Owner.GetGSAI().TaskList.QueuePendingRemoval(this);
+                Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
             }
         }
 
@@ -600,7 +601,7 @@ namespace Ship_Game.AI.Tasks {
                 TargetPlanetGuid = TargetPlanet.guid
             };
 
-            closestCoreFleet.Owner.GetGSAI().TasksToAdd.Add(clearArea);
+            closestCoreFleet.Owner.GetEmpireAI().TasksToAdd.Add(clearArea);
             clearArea.WhichFleet       = closestAO.WhichFleet;
             closestCoreFleet.FleetTask = clearArea;
             clearArea.IsCoreFleetTask  = true;
@@ -608,7 +609,7 @@ namespace Ship_Game.AI.Tasks {
             clearArea.Step             = 1;
 
             if (Owner.GetRelations(TargetPlanet.Owner).PreparingForWar)
-                Owner.GetGSAI().DeclareWarOn(TargetPlanet.Owner,
+                Owner.GetEmpireAI().DeclareWarOn(TargetPlanet.Owner,
                     Owner.GetRelations(TargetPlanet.Owner).PreparingForWarType);
             
 
@@ -653,7 +654,7 @@ namespace Ship_Game.AI.Tasks {
             newFleet.Name = "Defensive Fleet";
             newFleet.AutoArrange();
             Owner.GetFleetsDict()[fleetId] = newFleet;
-            Owner.GetGSAI().UsedFleets.Add(fleetId);
+            Owner.GetEmpireAI().UsedFleets.Add(fleetId);
             WhichFleet = fleetId;
             newFleet.FleetTask = this;
 
@@ -669,7 +670,7 @@ namespace Ship_Game.AI.Tasks {
             float strengthNeeded = EnemyStrength;
 
             if (strengthNeeded < 1)
-                strengthNeeded = Owner.GetGSAI().ThreatMatrix.PingRadarStr(TargetPlanet.Center, 125000, Owner);   
+                strengthNeeded = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetPlanet.Center, 125000, Owner);   
             
             AO ao = FindClosestAO();
             
@@ -695,7 +696,7 @@ namespace Ship_Game.AI.Tasks {
 
         private AO FindClosestAO(float strWanted = 100)
         {
-            var aos = Owner.GetGSAI().AreasOfOperations;
+            var aos = Owner.GetEmpireAI().AreasOfOperations;
             if (aos.Count == 0)
             {
                 Log.Info($"{Owner.Name} has no areas of operation");
@@ -710,7 +711,7 @@ namespace Ship_Game.AI.Tasks {
 
         private Fleet FindClosestCoreFleet(float strWanted = 100)
         {
-            Array<AO> aos = Owner.GetGSAI().AreasOfOperations;
+            Array<AO> aos = Owner.GetEmpireAI().AreasOfOperations;
             if (aos.Count == 0)
             {
                 Log.Error($"{Owner.Name} has no areas of operation");
@@ -745,7 +746,7 @@ namespace Ship_Game.AI.Tasks {
             }
 
             EnemyStrength = 0f;
-            EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(AO, AORadius, Owner);
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(AO, AORadius, Owner);
             
             MinimumTaskForceStrength = EnemyStrength + 0.35f * EnemyStrength;
 
@@ -796,7 +797,7 @@ namespace Ship_Game.AI.Tasks {
 
         private void RequisitionForces()
         {
-            var sorted = Owner.GetGSAI().AreasOfOperations
+            var sorted = Owner.GetEmpireAI().AreasOfOperations
                 .OrderByDescending(ao => ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= MinimumTaskForceStrength)
                 .ThenBy(ao => Vector2.Distance(AO, ao.Center)).ToArray();
 
@@ -804,7 +805,7 @@ namespace Ship_Game.AI.Tasks {
                 return;
 
             AO closestAO = sorted[0];
-            EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner,factionOnly:false);
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner,factionOnly:false);
 
             MinimumTaskForceStrength = EnemyStrength;
             if (MinimumTaskForceStrength < 1f)

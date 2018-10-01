@@ -104,5 +104,21 @@ namespace Ship_Game
                 EmpireShipBonuses.RefreshBonuses(triggerer);
             }
         }
+        public float GetGroundCombatBonus(EmpireData data) => ArtifactBonusForEmpire(GroundCombatMod, data.Traits.Spiritual);
+        public float GetDiplomacyBonus(EmpireData data)    => ArtifactBonusForEmpire(DiplomacyMod   , data.Traits.Spiritual);
+        public float GetFertilityBonus(EmpireData data)    => ArtifactBonusForEmpire(FertilityMod   , data.Traits.Spiritual);
+        public float GetModuleHpMod(EmpireData data)       => ArtifactBonusForEmpire(ModuleHPMod    , data.Traits.Spiritual);
+        public float GetFlatMoneyBonus(EmpireData data)    => ArtifactBonusForEmpire(PlusFlatMoney  , data.Traits.Spiritual);
+        public float GetProductionBonus(EmpireData data)   => ArtifactBonusForEmpire(ProductionMod  , data.Traits.Spiritual);
+        public float GetResearchMod(EmpireData data)       => ArtifactBonusForEmpire(ResearchMod    , data.Traits.Spiritual);
+        public float GetSensorMod(EmpireData data)         => ArtifactBonusForEmpire(SensorMod      , data.Traits.Spiritual);
+        public float GetShieldPenMod(EmpireData data)      => ArtifactBonusForEmpire(ShieldPenBonus , data.Traits.Spiritual);
+        public float GetReproductionMod(EmpireData data)   => ArtifactBonusForEmpire(ReproductionMod, data.Traits.Spiritual);
+
+        private float ArtifactBonusForEmpire(float artifactBonus, float empireBonus)
+        {
+            if (artifactBonus <= 0) return 0;
+            return artifactBonus + artifactBonus * empireBonus;
+        }
     }
 }
