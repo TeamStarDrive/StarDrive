@@ -242,7 +242,7 @@ namespace Ship_Game.Universe.SolarBodies
                             {
                                 if (TroopsHere[i].GetOwner() == EmpireManager.Cordrazine && TroopsHere[i].TargetType == "Soft")
                                 {
-                                    Game1.Instance.SetSteamAchievment("Owlwoks_Freed");                                   
+                                    Game1.Instance.SetSteamAchievement("Owlwoks_Freed");                                   
                                     TroopsHere[i].SetOwner(bomb.Owner);
                                     TroopsHere[i].Name = Localizer.Token(EmpireManager.Cordrazine.data.TroopNameIndex);
                                     TroopsHere[i].Description = Localizer.Token(EmpireManager.Cordrazine.data.TroopDescriptionIndex);

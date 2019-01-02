@@ -11,9 +11,9 @@ namespace Ship_Game.GameScreens.MainMenu
         UILabel BBListHeader;
         UILabel ModListHeader;
         //Array<UILabel> Versions;
-        string URL = "https://api.bitbucket.org/2.0/repositories/CrunchyGremlin/sd-blackbox/downloads";
+        string URL = "http://api.bitbucket.org/2.0/repositories/CrunchyGremlin/sd-blackbox/downloads";
         string ModURL = "";
-        string DownLoadSite = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/downloads/";
+        string DownLoadSite = "http://bitbucket.org/CrunchyGremlin/sd-blackbox/downloads/";
         string ModDownLoadSite = "";
         public VersionChecking(GameScreen parent, int width, int height) : base(parent, width, height)
         {
