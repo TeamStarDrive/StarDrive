@@ -13,7 +13,7 @@ namespace Ship_Game
             : base(screen, SLMode.Save, "New Saved Setup", "Save Setup", "Saved Setups", "Saved Setup already exists.  Overwrite?")
         {
             this.screen = screen;
-            Path = string.Concat(Dir.ApplicationData, "/StarDrive/Saved Setups/");
+            Path = Dir.StarDriveAppData + "/Saved Setups/";
             //this.selectedFile = new FileData(null, new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode), this.TitleText);            // save some extra info for filtering purposes
             SS = new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode);
         }

@@ -935,7 +935,7 @@ namespace Ship_Game
         public void SaveShipDesign(string name)
         {
             ShipData toSave = CloneActiveHull(name);
-            SerializeShipDesign(toSave, $"{Dir.ApplicationData}/StarDrive/Saved Designs/{name}.xml");
+            SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/Saved Designs/{name}.xml");
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
@@ -948,7 +948,7 @@ namespace Ship_Game
         private void SaveWIP(object sender, EventArgs e)
         {
             ShipData toSave = CloneActiveHull($"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}");
-            SerializeShipDesign(toSave, $"{Dir.ApplicationData}/StarDrive/WIP/{toSave.Name}.xml");
+            SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.Name}.xml");
         }
 
         private void SaveWIPThenChangeHull(object sender, EventArgs e)

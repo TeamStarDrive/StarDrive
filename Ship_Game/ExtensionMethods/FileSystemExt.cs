@@ -36,16 +36,15 @@ namespace Ship_Game
         {
             return GetFiles(dir, "*."+ext, SearchOption.TopDirectoryOnly);
         }
-        public static FileInfo[] GetFiles(string dir, string[] exts)
+        public static FileInfo[] GetFiles(string dir, string[] extensions)
         {
-            FileInfo[] allFiles = new FileInfo[0];
-            FileInfo[] curerentFiles;
+            var allFiles = new FileInfo[0];
 
-            foreach (string ext in exts)
+            foreach (string ext in extensions)
             {
-                curerentFiles = GetFiles(dir, "*." + ext, SearchOption.AllDirectories);
-                if (curerentFiles.Length > 0)
-                    Array.Copy(curerentFiles, 0, allFiles, allFiles.Length, curerentFiles.Length);
+                FileInfo[] files = GetFiles(dir, "*." + ext, SearchOption.AllDirectories);
+                if (files.Length > 0)
+                    Array.Copy(files, 0, allFiles, allFiles.Length, files.Length);
             }
             return allFiles;
         }
@@ -82,9 +81,12 @@ namespace Ship_Game
                 CopyDir(subdir.FullName, Path.Combine(destDirName, subdir.Name), true);
         }
 
-        // System AppData folder
-        public static string ApplicationData => Environment.GetFolderPath(
-                                                Environment.SpecialFolder.ApplicationData);
+        private static string AppData => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+                                         .Replace('\\', '/');
+
+        // {AppData}/StarDrive/
+        // This is where all the saved games and cache files are stored
+        public static readonly string StarDriveAppData = AppData + "/StarDrive";
     }
 
     public static class FileSystemExtensions
