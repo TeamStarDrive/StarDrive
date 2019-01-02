@@ -574,9 +574,9 @@ namespace Ship_Game
             DeleteShipFromDir("Content/StarterShips", shipName);
             DeleteShipFromDir("Content/SavedDesigns", shipName);
 
-            string appData = Dir.ApplicationData;
-            DeleteShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
-            DeleteShipFromDir(appData + "/StarDrive/WIP", shipName);
+            string appData = Dir.StarDriveAppData;
+            DeleteShipFromDir(appData + "/Saved Designs", shipName);
+            DeleteShipFromDir(appData + "/WIP", shipName);
             GetShipTemplate(shipName).Deleted = true;
             foreach (Empire e in EmpireManager.Empires)
             {
@@ -1530,7 +1530,7 @@ namespace Ship_Game
             CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml"), readOnly: false, playerDesign: true);
+            CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
         }
 

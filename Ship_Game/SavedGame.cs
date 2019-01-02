@@ -567,12 +567,12 @@ namespace Ship_Game
             {
                 SaveData.Snapshots.Add(e.Key, e.Value);
             }
-            string path = Dir.ApplicationData;
+            string path = Dir.StarDriveAppData;
             SaveData.path       = path;
             SaveData.SaveAs     = saveAs;
             SaveData.Size       = new Vector2(screenToSave.UniverseSize);
             SaveData.FogMapName = saveAs + "fog";
-            screenToSave.FogMap.Save(path + "/StarDrive/Saved Games/Fog Maps/" + saveAs + "fog.png", ImageFileFormat.Png);
+            screenToSave.FogMap.Save($"{path}/Saved Games/Fog Maps/{saveAs}fog.png", ImageFileFormat.Png);
             SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};
             SaveThread.Start(SaveData);
         }
@@ -583,7 +583,7 @@ namespace Ship_Game
             try
             {
                 string ext = NewFormat ? NewExt : OldExt;
-                var info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ext);
+                var info = new FileInfo($"{data.path}/Saved Games/{data.SaveAs}{ext}");
                 using (FileStream writeStream = info.OpenWrite())
                 {
                     PerfTimer t = PerfTimer.StartNew();
@@ -629,7 +629,7 @@ namespace Ship_Game
                 ModName    = GlobalStats.ActiveMod?.mi.ModName ?? "",
                 Version    = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"])
             };
-            using (var wf = new StreamWriter(data.path + "/StarDrive/Saved Games/Headers/" + data.SaveAs + ".xml"))
+            using (var wf = new StreamWriter(data.path + "/Saved Games/Headers/" + data.SaveAs + ".xml"))
                 new XmlSerializer(typeof(HeaderData)).Serialize(wf, header);
 
             HelperFunctions.CollectMemory();
