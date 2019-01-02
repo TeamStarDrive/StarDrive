@@ -51,15 +51,15 @@ namespace Ship_Game
 
             Exiting += GameExiting;
 
-            string appData = Dir.ApplicationData;
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Games");
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Races");  // for saving custom races
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Setups"); // for saving new game setups
-            Directory.CreateDirectory(appData + "/StarDrive/Fleet Designs");
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Designs");
-            Directory.CreateDirectory(appData + "/StarDrive/WIP"); // huh????? @todo What's this for? CG:unfinished designs
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Headers");
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Fog Maps");
+            string appData = Dir.StarDriveAppData;
+            Directory.CreateDirectory(appData + "/Saved Games");
+            Directory.CreateDirectory(appData + "/Saved Races");  // for saving custom races
+            Directory.CreateDirectory(appData + "/Saved Setups"); // for saving new game setups
+            Directory.CreateDirectory(appData + "/Fleet Designs");
+            Directory.CreateDirectory(appData + "/Saved Designs");
+            Directory.CreateDirectory(appData + "/WIP"); // huh????? @todo What's this for? CG:unfinished designs
+            Directory.CreateDirectory(appData + "/Saved Games/Headers");
+            Directory.CreateDirectory(appData + "/Saved Games/Fog Maps");
 
             Graphics = new GraphicsDeviceManager(this)
             {
