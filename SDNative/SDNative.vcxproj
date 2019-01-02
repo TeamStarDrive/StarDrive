@@ -103,6 +103,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="lodepng\lodepng.h" />
     <ClInclude Include="NanoMesh\Nano\Mesh.h" />
     <ClInclude Include="rapidxml\rapidxml.hpp" />
     <ClInclude Include="rapidxml\rapidxml_iterators.hpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="NodeParser.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="lodepng\lodepng.cpp" />
     <ClCompile Include="MemoryUtils.cpp" />
     <ClCompile Include="NanoMesh\Nano\Mesh.cpp" />
     <ClCompile Include="NanoMesh\Nano\Mesh_Fbx.cpp" />
@@ -132,6 +134,7 @@
     <ClCompile Include="ShipDataSerializer.cpp" />
     <ClCompile Include="StaticMeshLoader.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
+    <ClCompile Include="util\save_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NanoMesh\Nano\mesh.natvis" />

@@ -220,6 +220,7 @@
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
     <Compile Include="Ship_Game\Data\DDSImage.cs" />
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
+    <Compile Include="Ship_Game\Data\ImageUtils.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
     <Compile Include="Ship_Game\Data\ResourceTests.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
