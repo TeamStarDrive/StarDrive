@@ -36,18 +36,6 @@ namespace Ship_Game
         {
             return GetFiles(dir, "*."+ext, SearchOption.TopDirectoryOnly);
         }
-        public static FileInfo[] GetFiles(string dir, string[] extensions)
-        {
-            var allFiles = new FileInfo[0];
-
-            foreach (string ext in extensions)
-            {
-                FileInfo[] files = GetFiles(dir, "*." + ext, SearchOption.AllDirectories);
-                if (files.Length > 0)
-                    Array.Copy(files, 0, allFiles, allFiles.Length, files.Length);
-            }
-            return allFiles;
-        }
 
         // Finds all subdirectories
         public static DirectoryInfo[] GetDirs(string dir, SearchOption option = SearchOption.AllDirectories)
@@ -62,7 +50,7 @@ namespace Ship_Game
 
         public static void CopyDir(string sourceDirName, string destDirName, bool copySubDirs)
         {
-            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+            var dir = new DirectoryInfo(sourceDirName);
             if (!dir.Exists)
                 throw new DirectoryNotFoundException($"Source directory does not exist or could not be found: {sourceDirName}");
 
