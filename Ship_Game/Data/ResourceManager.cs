@@ -214,6 +214,7 @@ namespace Ship_Game
         public static void LoadItAll()
         {
             Reset();
+            new ResourceTests().RunAll();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage();
             LoadTextures();
@@ -791,25 +792,25 @@ namespace Ship_Game
         //////////////////////////////////////////////////////////////////////////////////////////
 
 
-        // Gets a loaded texture using the given abstract texture path
-        public static Texture2D TextureOrNull(string texturePath)
+        // Gets a loaded texture using the given abstract texture path, ex: "Buildings/
+        public static Texture2D TextureOrNull(string textureNamePath)
         {
-            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : null;
+            return Textures.TryGetValue(textureNamePath, out Texture2D texture) ? texture : null;
         }
 
-        public static Texture2D TextureOrDefault(string texturePath, string defaultTex)
+        public static Texture2D TextureOrDefault(string textureNamePath, string defaultTex)
         {
-            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : Texture(defaultTex);
+            return Textures.TryGetValue(textureNamePath, out Texture2D texture) ? texture : Texture(defaultTex);
         }
 
-        public static Texture2D Texture(string texturePath)
+        public static Texture2D Texture(string textureNamePath)
         {
-            if (Textures.TryGetValue(texturePath, out Texture2D texture))
+            if (Textures.TryGetValue(textureNamePath, out Texture2D texture))
                 return texture;
-            if (LastFailedTexture != texturePath)
+            if (LastFailedTexture != textureNamePath)
             {
-                LastFailedTexture = texturePath;
-                Log.WarningWithCallStack($"texture path not found: '{texturePath}' replacing with 'NewUI/x_red'");
+                LastFailedTexture = textureNamePath;
+                Log.WarningWithCallStack($"texture path not found: '{textureNamePath}' replacing with 'NewUI/x_red'");
             }
             return Textures["NewUI/x_red"];
         }
@@ -827,9 +828,10 @@ namespace Ship_Game
         private static void LoadTexture(FileInfo info)
         {
             string relPath = info.CleanResPath(false);
+            string relPathNoExt = relPath.Substring(0, relPath.Length - 4);
+            string texName = relPathNoExt.Substring("Textures/".Length);
+
             var tex = RootContent.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
-            relPath = info.CleanResPath();
-            string texName = relPath.Substring("Textures/".Length);
             lock (Textures)
             {
                 Textures[texName] = tex;
@@ -838,9 +840,9 @@ namespace Ship_Game
 
         public static FileInfo[] GatherTextureFiles(string dir)
         {
-            string[] exts = {"png", "gif", "jpg", "xnb"};
+            string[] extensions = {"png", "gif", "jpg", "xnb"};
             var allFiles = new Array<FileInfo>();
-            foreach (string ext in exts)
+            foreach (string ext in extensions)
             {
                 allFiles.AddRange(GatherFilesUnified(dir, ext));
             }

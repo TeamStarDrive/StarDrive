@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -6,14 +7,11 @@ namespace Ship_Game
 {
     public class SubTexture
     {
-        // name="sprite1" x="461" y="1317" rotated="true" width="28" height="41" frameX="-237" frameY="-116" frameWidth="512" frameHeight="264"
+        // name="sprite1" x="461" y="1317" width="28" height="41"
         public string Name;        // name of the sprite for name-based lookup
         public int X, Y;           // position in sprite sheet
-        public int Width, Height;  // actual size of subtexture in sprite sheet
-        public int FrameX, FrameY; // trimmed offset from the original frame
-        public int FrameWidth, FrameHeight; // original size of the frame before trimming
-        public bool Rotated;       // rotated -90 ?
-        public Texture2D Texture; // associated texture
+        public int Width, Height;  // actual size of sub-texture in sprite sheet
+        public Texture2D Atlas;  // MAIN atlas texture
     }
 
     /// Generic TextureAtlas can be 
@@ -64,18 +62,83 @@ namespace Ship_Game
             return outInfo != null;
         }
 
-        // Since we do binary search by Sprite name, we need to sort them
+        // Since we do binary search by Sprite name, we need to sort them after loading
         private void SortSprites()
         {
             Sprites.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
         }
 
-        public static TextureAtlas Load(GameContentManager content, string textureName)
+        private struct TextureData
         {
-            if (GetAtlasDescr(textureName, out FileInfo info))
+            public string Name;
+            public int Width, Height;
+            public Color[] ColorData;
+            public byte[] RgbaData;
+        }
+
+        public static TextureAtlas CreateFromFolder(GameContentManager content, string folder)
+        {
+            FileInfo[] textureFiles = ResourceManager.GatherTextureFiles(folder);
+            var textureData = new Array<TextureData>(textureFiles.Length);
+
+            foreach (FileInfo info in textureFiles)
             {
-                var atlas = new TextureAtlas(textureName);
-                atlas.LoadDescriptor(info, textureName);
+                string relPath = info.CleanResPath(false);
+                string relPathNoExt = relPath.Substring(0, relPath.Length - 4);
+                string texName = relPathNoExt.Substring("Textures/".Length);
+
+                Texture2D texture = ResourceManager.LoadTexture(texName);
+                Console.WriteLine($"texture: {texName}  {texture.Width}x{texture.Height}  {texture.Format}");
+                
+                var data = new TextureData
+                {
+                    Name   = texName,
+                    Width  = texture.Width,
+                    Height = texture.Height,
+                };
+
+                if (texture.Format == SurfaceFormat.Dxt5)
+                {
+                    var rawTexture = new byte[data.Width * data.Height];
+                    texture.GetData(rawTexture);
+                    data.RgbaData = DDSImage.DecompressData(data.Width, data.Height, rawTexture, DDSImage.PixelFormat.DXT5);
+                }
+                else if (texture.Format == SurfaceFormat.Color)
+                {
+                    data.ColorData = new Color[texture.Width * texture.Height];
+                    texture.GetData(data.ColorData);
+                }
+                else
+                {
+                    Log.Error($"Unsupported atlas texture format: {texture.Format}");
+                }
+
+                textureData.Add(data);
+            }
+
+            // Sort textures in DESCENDING order
+            textureData.Sort((a, b) =>
+            {
+                if (a.Width > b.Width) return -1;
+                if (a.Width < b.Width) return +1;
+                if (a.Height > b.Height) return -1;
+                if (a.Height < b.Height) return +1;
+                return 0;
+            });
+
+            foreach (TextureData texture in textureData)
+            {
+
+            }
+            return null;
+        }
+
+        public static TextureAtlas LoadExisting(GameContentManager content, string atlasTexture)
+        {
+            if (GetAtlasDescr(atlasTexture, out FileInfo info))
+            {
+                var atlas = new TextureAtlas(atlasTexture);
+                atlas.LoadDescriptor(info, atlasTexture);
                 atlas.SortSprites();
                 return atlas;
             }
@@ -84,12 +147,12 @@ namespace Ship_Game
             TextureAtlas multiAtlas = null;
             for (int i = 0; ; ++i)
             {
-                string multiName = textureName + '-' + i;
+                string multiName = atlasTexture + '-' + i;
                 if (!GetAtlasDescr(multiName, out info))
                     break;
 
                 if (multiAtlas == null)
-                    multiAtlas = new TextureAtlas(textureName);
+                    multiAtlas = new TextureAtlas(atlasTexture);
 
                 multiAtlas.LoadDescriptor(info, multiName);
             }
@@ -108,11 +171,6 @@ namespace Ship_Game
         {
             var node = attr.GetNamedItem(name);
             return node != null ? int.Parse(node.Value) : 0;
-        }
-        private static bool GetBool(XmlNamedNodeMap attr, string name)
-        {
-            var node = attr.GetNamedItem(name);
-            return node != null && bool.Parse(node.Value);
         }
 
         private void LoadDescriptor(FileInfo descriptorInfo, string textureName)
@@ -147,13 +205,8 @@ namespace Ship_Game
                     Name        = name,
                     X           = GetInt(attr, "x"),
                     Y           = GetInt(attr, "y"),
-                    Rotated     = GetBool(attr,"rotated"),
                     Width       = GetInt(attr, "width"),
                     Height      = GetInt(attr, "height"),
-                    FrameX      = GetInt(attr, "frameX"),
-                    FrameY      = GetInt(attr, "frameY"),
-                    FrameWidth  = GetInt(attr, "frameWidth"),
-                    FrameHeight = GetInt(attr, "frameHeight")
                 };
                 Sprites.Add(subTex);
             }
