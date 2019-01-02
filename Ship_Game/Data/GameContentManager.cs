@@ -247,10 +247,23 @@ namespace Ship_Game
         }
 
 
+
         // Load the asset with the given name or path
         // Path must be relative to project root, such as:
         // "Textures/mytexture" or "Textures/mytexture.xnb"
         public override T Load<T>(string assetName)
+        {
+            return LoadAsset<T>(assetName, useCache: true);
+        }
+
+        // Circumvents texture cache
+        // The calling code must Dispose() the resource correctly.
+        public T LoadUncached<T>(string assetName)
+        {
+            return LoadAsset<T>(assetName, useCache: false);
+        }
+
+        private T LoadAsset<T>(string assetName, bool useCache)
         {
             var asset = new AssetName(assetName);
             if (LoadedAssets == null)
@@ -259,7 +272,7 @@ namespace Ship_Game
             if (EnableLoadInfoLog)
                 Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {asset.NoExt}");
 
-            if (TryGetAsset(asset.NoExt, out object existing))
+            if (useCache && TryGetAsset(asset.NoExt, out object existing))
             {
                 if (existing is T assetObj)
                     return assetObj;
@@ -276,7 +289,10 @@ namespace Ship_Game
             #if false
                 SlowCheckForResourceLeaks(asset.NoExt);
             #endif
-            lock (LoadSync) LoadedAssets.Add(asset.NoExt, loaded);
+            if (useCache)
+            {
+                lock (LoadSync) LoadedAssets.Add(asset.NoExt, loaded);
+            }
             return loaded;
         }
 

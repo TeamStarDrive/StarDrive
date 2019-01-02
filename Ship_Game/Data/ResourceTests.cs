@@ -23,7 +23,8 @@ namespace Ship_Game
 
         void TestTextureAtlas()
         {
-            TextureAtlas atlas = TextureAtlas.CreateFromFolder(ResourceManager.RootContent, "Textures/Buildings");
+            TextureAtlas atlas = TextureAtlas.CreateFromFolder(
+                ResourceManager.RootContent, "Textures/Modules");
 
 
         }
