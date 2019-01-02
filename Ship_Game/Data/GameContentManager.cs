@@ -35,7 +35,7 @@ namespace Ship_Game
             FixSunBurnTypeLoader();
         }
 
-        public GameContentManager(IServiceProvider services, string name) : base(services, "Content")
+        public GameContentManager(IServiceProvider services, string name, string rootDirectory = "Content") : base(services, rootDirectory)
         {
             Name = name;
             LoadedAssets     = (Dictionary<string, object>)GetField("loadedAssets");
