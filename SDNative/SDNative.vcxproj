@@ -61,7 +61,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS=1;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
@@ -71,7 +71,7 @@
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
@@ -83,7 +83,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS=1;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -91,10 +91,9 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
-      <MinimalRebuild>true</MinimalRebuild>
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
@@ -104,6 +103,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="lodepng\lodepng.h" />
     <ClInclude Include="NanoMesh\Nano\Mesh.h" />
     <ClInclude Include="rapidxml\rapidxml.hpp" />
     <ClInclude Include="rapidxml\rapidxml_iterators.hpp" />
@@ -116,11 +116,14 @@
     <ClInclude Include="ReCpp\rpp\strview.h" />
     <ClInclude Include="ReCpp\rpp\vec.h" />
     <ClInclude Include="ShipDataSerializer.h" />
+    <ClInclude Include="soil2\image_DXT.h" />
+    <ClInclude Include="soil2\image_helper.h" />
     <ClInclude Include="StaticMeshLoader.h" />
     <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="NodeParser.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="lodepng\lodepng.cpp" />
     <ClCompile Include="MemoryUtils.cpp" />
     <ClCompile Include="NanoMesh\Nano\Mesh.cpp" />
     <ClCompile Include="NanoMesh\Nano\Mesh_Fbx.cpp" />
@@ -131,8 +134,11 @@
     <ClCompile Include="ReCpp\rpp\strview.cpp" />
     <ClCompile Include="ReCpp\rpp\vec.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
+    <ClCompile Include="soil2\image_DXT.cpp" />
+    <ClCompile Include="soil2\image_helper.cpp" />
     <ClCompile Include="StaticMeshLoader.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
+    <ClCompile Include="util\save_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NanoMesh\Nano\mesh.natvis" />

@@ -39,35 +39,36 @@ namespace Ship_Game.Utils
             FilesAndLinks = new Dictionary<string, string>();
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create
-                    (url);
+                ServicePointManager.Expect100Continue = true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                var request = (HttpWebRequest)WebRequest.Create(url);
 
                 request.Method = "GET";
-                request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 58.0.3029.110 Safari / 537.36";
+                request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
                 request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+                request.AuthenticationLevel = System.Net.Security.AuthenticationLevel.None;
 
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                var response = (HttpWebResponse)request.GetResponse();
 
-                string content = string.Empty;
+                string content;
                 using (Stream stream = response.GetResponseStream())
                 {
-                    using (StreamReader sr = new StreamReader(stream))
-                    {
+                    using (var sr = new StreamReader(stream))
                         content = sr.ReadToEnd();
-                    }
                 }
-                BitbucketRest jObject = JsonConvert.DeserializeObject<BitbucketRest>(content);
+
+                var jObject = JsonConvert.DeserializeObject<BitbucketRest>(content);
 
                 WebData = jObject.values;
 
                 foreach (JObject o in jObject.values)
                 {
-                    var name = o["name"].ToString();
+                    string name = o["name"].ToString();
                     int dotIndex = name.LastIndexOf('.');
                     name = name.Substring(0, dotIndex);
-                    var link = o["links"]["self"]["href"].ToString();
+                    string link = o["links"]["self"]["href"].ToString();
                     FilesAndLinks.Add(name, link);
-
                 }
             }
             catch(Exception e)
@@ -75,9 +76,6 @@ namespace Ship_Game.Utils
                 Log.Error(e, $"Failing to communicate with website {url}");
                 FilesAndLinks = null;
             }
-
-
-
         }
 
         public Vector2 PopulateVersions(string versionText, GameScreen screen, Vector2 bodyTextStart)
