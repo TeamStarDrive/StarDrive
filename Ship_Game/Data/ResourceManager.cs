@@ -214,6 +214,7 @@ namespace Ship_Game
         public static void LoadItAll()
         {
             Reset();
+            new ResourceTests().RunAll();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage();
             LoadTextures();
@@ -382,10 +383,12 @@ namespace Ship_Game
         }
 
         // This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
-        public static FileInfo[] GatherFilesUnified(string dir, string ext)
+        public static FileInfo[] GatherFilesUnified(string dir, string ext, bool recursive = true)
         {
+            string pattern = "*."+ext;
+            SearchOption search = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             if (!GlobalStats.HasMod)
-                return Dir.GetFiles("Content/" + dir, ext);
+                return Dir.GetFiles("Content/" + dir, pattern, search);
 
             var infos = new Map<string, FileInfo>();
 
@@ -395,7 +398,7 @@ namespace Ship_Game
             // such as: "Mods/MyMod/Textures/TechIcons/Aeroponics.xnb" --> "Textures/TechIcons/Aeroponics.xnb"
             bool fileNames = ext == "xml";
 
-            FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, ext);
+            FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, pattern, search);
             string vanillaPath = Path.GetFullPath("Content/");
             foreach (FileInfo file in vanilla)
             {
@@ -404,7 +407,7 @@ namespace Ship_Game
             }
 
             // now pull everything from the modfolder and replace all matches
-            FileInfo[] mod = Dir.GetFiles(GlobalStats.ModPath + dir, ext);
+            FileInfo[] mod = Dir.GetFiles(GlobalStats.ModPath + dir, pattern, search);
             string fullModPath = Path.GetFullPath(GlobalStats.ModPath);
             foreach (FileInfo file in mod)
             {
@@ -424,6 +427,30 @@ namespace Ship_Game
                 infos[name] = file;
             }
 
+            return infos.Values.ToArray();
+        }
+
+        public static DirectoryInfo[] GatherDirsUnified(string dir)
+        {
+            if (!GlobalStats.HasMod)
+                return Dir.GetDirs("Content/" + dir);
+
+            var infos = new Map<string, DirectoryInfo>();
+            DirectoryInfo[] vanilla = Dir.GetDirs("Content/" + dir);
+            string vanillaPath = Path.GetFullPath("Content/");
+            foreach (DirectoryInfo info in vanilla)
+            {
+                string name = info.FullName.Substring(vanillaPath.Length);
+                infos[name] = info;
+            }
+
+            DirectoryInfo[] mod = Dir.GetDirs(GlobalStats.ModPath + dir);
+            string fullModPath = Path.GetFullPath(GlobalStats.ModPath);
+            foreach (DirectoryInfo info in mod)
+            {
+                string name = info.FullName.Substring(fullModPath.Length);
+                infos[name] = info;
+            }
             return infos.Values.ToArray();
         }
 
@@ -573,9 +600,9 @@ namespace Ship_Game
             DeleteShipFromDir("Content/StarterShips", shipName);
             DeleteShipFromDir("Content/SavedDesigns", shipName);
 
-            string appData = Dir.ApplicationData;
-            DeleteShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
-            DeleteShipFromDir(appData + "/StarDrive/WIP", shipName);
+            string appData = Dir.StarDriveAppData;
+            DeleteShipFromDir(appData + "/Saved Designs", shipName);
+            DeleteShipFromDir(appData + "/WIP", shipName);
             GetShipTemplate(shipName).Deleted = true;
             foreach (Empire e in EmpireManager.Empires)
             {
@@ -791,25 +818,25 @@ namespace Ship_Game
         //////////////////////////////////////////////////////////////////////////////////////////
 
 
-        // Gets a loaded texture using the given abstract texture path
-        public static Texture2D TextureOrNull(string texturePath)
+        // Gets a loaded texture using the given abstract texture path, ex: "Buildings/
+        public static Texture2D TextureOrNull(string textureNamePath)
         {
-            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : null;
+            return Textures.TryGetValue(textureNamePath, out Texture2D texture) ? texture : null;
         }
 
-        public static Texture2D TextureOrDefault(string texturePath, string defaultTex)
+        public static Texture2D TextureOrDefault(string textureNamePath, string defaultTex)
         {
-            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : Texture(defaultTex);
+            return Textures.TryGetValue(textureNamePath, out Texture2D texture) ? texture : Texture(defaultTex);
         }
 
-        public static Texture2D Texture(string texturePath)
+        public static Texture2D Texture(string textureNamePath)
         {
-            if (Textures.TryGetValue(texturePath, out Texture2D texture))
+            if (Textures.TryGetValue(textureNamePath, out Texture2D texture))
                 return texture;
-            if (LastFailedTexture != texturePath)
+            if (LastFailedTexture != textureNamePath)
             {
-                LastFailedTexture = texturePath;
-                Log.WarningWithCallStack($"texture path not found: '{texturePath}' replacing with 'NewUI/x_red'");
+                LastFailedTexture = textureNamePath;
+                Log.WarningWithCallStack($"texture path not found: '{textureNamePath}' replacing with 'NewUI/x_red'");
             }
             return Textures["NewUI/x_red"];
         }
@@ -827,22 +854,23 @@ namespace Ship_Game
         private static void LoadTexture(FileInfo info)
         {
             string relPath = info.CleanResPath(false);
+            string relPathNoExt = relPath.Substring(0, relPath.Length - 4);
+            string texName = relPathNoExt.Substring("Textures/".Length);
+
             var tex = RootContent.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
-            relPath = info.CleanResPath();
-            string texName = relPath.Substring("Textures/".Length);
             lock (Textures)
             {
                 Textures[texName] = tex;
             }
         }
 
-        public static FileInfo[] GatherTextureFiles(string dir)
+        public static FileInfo[] GatherTextureFiles(string dir, bool recursive)
         {
-            string[] exts = {"png", "gif", "jpg", "xnb"};
+            string[] extensions = {"png", "gif", "jpg", "xnb"};
             var allFiles = new Array<FileInfo>();
-            foreach (string ext in exts)
+            foreach (string ext in extensions)
             {
-                allFiles.AddRange(GatherFilesUnified(dir, ext));
+                allFiles.AddRange(GatherFilesUnified(dir, ext, recursive));
             }
             return allFiles.ToArray();
         }
@@ -850,7 +878,7 @@ namespace Ship_Game
         // This method is a hot path during Loading and accounts for ~25% of time spent
         private static void LoadTextures()
         {
-            FileInfo[] files = GatherTextureFiles("Textures");
+            FileInfo[] files = GatherTextureFiles("Textures", recursive:true);
 
         #if true // parallel texture load
             Parallel.For(files.Length, (start, end) => {
@@ -882,6 +910,22 @@ namespace Ship_Game
                 }
             }
         #endif
+        }
+
+        public static void LoadTextureAtlases()
+        {
+            RootContent.Load<TextureAtlas>("Textures");
+
+            DirectoryInfo[] dirs = GatherDirsUnified("Textures");
+            Parallel.For(dirs.Length, (start, end) => {
+                for (int i = start; i < end; ++i)
+                {
+                    DirectoryInfo dir = dirs[i];
+                    string name = dir.FullName.Substring(dir.FullName.IndexOf("Textures"))
+                                                .Replace('\\', '/');
+                    RootContent.Load<TextureAtlas>(name);
+                }
+            });
         }
 
         // Load texture with its abstract path such as
@@ -1528,7 +1572,7 @@ namespace Ship_Game
             CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml"), readOnly: false, playerDesign: true);
+            CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
         }
 

@@ -263,6 +263,7 @@ namespace Ship_Game
         public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
         public static Vector2 PosVec(this Rectangle r) => new Vector2(r.X, r.Y);
         public static Vector2 Center(this Rectangle r) => new Vector2(r.X + r.Width*0.5f, r.Y + r.Height*0.5f);
+        public static int Area(this Rectangle r) => r.Width * r.Height;
 
         public static Rectangle Bevel(this Rectangle r, int bevel)
             => new Rectangle(r.X - bevel, r.Y - bevel, r.Width + bevel*2, r.Height + bevel*2);
@@ -859,5 +860,19 @@ namespace Ship_Game
         }
 
         public static float Max3(float a, float b, float c) => Max(a, Max(b, c));
+
+        // compute the next highest power of 2 of 32-bit v
+        public static int RoundPowerOf2(this int value)
+        {
+            int v = value; 
+            v--;
+            v |= v >> 1;
+            v |= v >> 2;
+            v |= v >> 4;
+            v |= v >> 8;
+            v |= v >> 16;
+            v++;
+            return v;
+        }
     }
 }

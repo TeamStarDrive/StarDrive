@@ -51,27 +51,27 @@ namespace Ship_Game
 
             Exiting += GameExiting;
 
+            string appData = Dir.StarDriveAppData;
+            Directory.CreateDirectory(appData + "/Saved Games");
+            Directory.CreateDirectory(appData + "/Saved Races");  // for saving custom races
+            Directory.CreateDirectory(appData + "/Saved Setups"); // for saving new game setups
+            Directory.CreateDirectory(appData + "/Fleet Designs");
+            Directory.CreateDirectory(appData + "/Saved Designs");
+            Directory.CreateDirectory(appData + "/WIP"); // huh????? @todo What's this for? CG:unfinished designs
+            Directory.CreateDirectory(appData + "/Saved Games/Headers");
+            Directory.CreateDirectory(appData + "/Saved Games/Fog Maps");
+
             Graphics = new GraphicsDeviceManager(this)
             {
-                MinimumPixelShaderProfile  = ShaderProfile.PS_2_0,
-                MinimumVertexShaderProfile = ShaderProfile.VS_2_0
+                MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
+                MinimumVertexShaderProfile = ShaderProfile.VS_2_0,
+                PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8,
+                PreferMultiSampling = false
             };
-            string appData = Dir.ApplicationData;
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Games");
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Races");  // for saving custom races
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Setups"); // for saving new game setups
-            Directory.CreateDirectory(appData + "/StarDrive/Fleet Designs");
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Designs");
-            Directory.CreateDirectory(appData + "/StarDrive/WIP"); // huh????? @todo What's this for? CG:unfinished designs
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Headers");
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Fog Maps");
-
-            Graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
-            Graphics.PreferMultiSampling = false;
             Graphics.PreparingDeviceSettings += PrepareDeviceSettings;
 
             GraphicsSettings settings = GraphicsSettings.FromGlobalStats();
-            var currentMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+            DisplayMode currentMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
 
             // check if resolution from graphics settings is ok:
             if (currentMode.Width < settings.Width || currentMode.Height < settings.Height)
@@ -87,7 +87,7 @@ namespace Ship_Game
             Control.FromHandle(Window.Handle).Cursor = new Cursor(cursor.GetHicon());
             IsMouseVisible = true;
         }
-        public void SetSteamAchievment(string name)
+        public void SetSteamAchievement(string name)
         {
             if (SteamManager.SteamInitialize())
             {
@@ -158,7 +158,7 @@ namespace Ship_Game
 
         private void UpdateRendererPreferences(ref GraphicsSettings settings)
         {
-            var prefs = new LightingSystemPreferences
+            ScreenManager?.UpdatePreferences(new LightingSystemPreferences
             {
                 ShadowQuality   = settings.ShadowQuality,
                 MaxAnisotropy   = settings.MaxAnisotropy,
@@ -166,8 +166,7 @@ namespace Ship_Game
                 EffectDetail    = (DetailPreference) settings.EffectDetail,
                 TextureQuality  = (DetailPreference) settings.TextureQuality,
                 TextureSampling = (SamplingPreference) settings.TextureSampling
-            };
-            ScreenManager?.UpdatePreferences(prefs);
+            });
         }
 
 
@@ -219,7 +218,7 @@ namespace Ship_Game
             if (Debugger.IsAttached && settings.Mode == WindowMode.Fullscreen)
                 settings.Mode = WindowMode.Borderless;
 
-            Graphics.PreferredBackBufferWidth  = settings.Width;
+            Graphics.PreferredBackBufferWidth = settings.Width;
             Graphics.PreferredBackBufferHeight = settings.Height;
             Graphics.SynchronizeWithVerticalRetrace = true;
 
