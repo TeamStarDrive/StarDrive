@@ -383,10 +383,12 @@ namespace Ship_Game
         }
 
         // This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
-        public static FileInfo[] GatherFilesUnified(string dir, string ext)
+        public static FileInfo[] GatherFilesUnified(string dir, string ext, bool recursive = true)
         {
+            string pattern = "*."+ext;
+            SearchOption search = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             if (!GlobalStats.HasMod)
-                return Dir.GetFiles("Content/" + dir, ext);
+                return Dir.GetFiles("Content/" + dir, pattern, search);
 
             var infos = new Map<string, FileInfo>();
 
@@ -396,7 +398,7 @@ namespace Ship_Game
             // such as: "Mods/MyMod/Textures/TechIcons/Aeroponics.xnb" --> "Textures/TechIcons/Aeroponics.xnb"
             bool fileNames = ext == "xml";
 
-            FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, ext);
+            FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, pattern, search);
             string vanillaPath = Path.GetFullPath("Content/");
             foreach (FileInfo file in vanilla)
             {
@@ -405,7 +407,7 @@ namespace Ship_Game
             }
 
             // now pull everything from the modfolder and replace all matches
-            FileInfo[] mod = Dir.GetFiles(GlobalStats.ModPath + dir, ext);
+            FileInfo[] mod = Dir.GetFiles(GlobalStats.ModPath + dir, pattern, search);
             string fullModPath = Path.GetFullPath(GlobalStats.ModPath);
             foreach (FileInfo file in mod)
             {
@@ -425,6 +427,30 @@ namespace Ship_Game
                 infos[name] = file;
             }
 
+            return infos.Values.ToArray();
+        }
+
+        public static DirectoryInfo[] GatherDirsUnified(string dir)
+        {
+            if (!GlobalStats.HasMod)
+                return Dir.GetDirs("Content/" + dir);
+
+            var infos = new Map<string, DirectoryInfo>();
+            DirectoryInfo[] vanilla = Dir.GetDirs("Content/" + dir);
+            string vanillaPath = Path.GetFullPath("Content/");
+            foreach (DirectoryInfo info in vanilla)
+            {
+                string name = info.FullName.Substring(vanillaPath.Length);
+                infos[name] = info;
+            }
+
+            DirectoryInfo[] mod = Dir.GetDirs(GlobalStats.ModPath + dir);
+            string fullModPath = Path.GetFullPath(GlobalStats.ModPath);
+            foreach (DirectoryInfo info in mod)
+            {
+                string name = info.FullName.Substring(fullModPath.Length);
+                infos[name] = info;
+            }
             return infos.Values.ToArray();
         }
 
@@ -838,13 +864,13 @@ namespace Ship_Game
             }
         }
 
-        public static FileInfo[] GatherTextureFiles(string dir)
+        public static FileInfo[] GatherTextureFiles(string dir, bool recursive)
         {
             string[] extensions = {"png", "gif", "jpg", "xnb"};
             var allFiles = new Array<FileInfo>();
             foreach (string ext in extensions)
             {
-                allFiles.AddRange(GatherFilesUnified(dir, ext));
+                allFiles.AddRange(GatherFilesUnified(dir, ext, recursive));
             }
             return allFiles.ToArray();
         }
@@ -852,7 +878,7 @@ namespace Ship_Game
         // This method is a hot path during Loading and accounts for ~25% of time spent
         private static void LoadTextures()
         {
-            FileInfo[] files = GatherTextureFiles("Textures");
+            FileInfo[] files = GatherTextureFiles("Textures", recursive:true);
 
         #if true // parallel texture load
             Parallel.For(files.Length, (start, end) => {
@@ -884,6 +910,22 @@ namespace Ship_Game
                 }
             }
         #endif
+        }
+
+        public static void LoadTextureAtlases()
+        {
+            RootContent.Load<TextureAtlas>("Textures");
+
+            DirectoryInfo[] dirs = GatherDirsUnified("Textures");
+            Parallel.For(dirs.Length, (start, end) => {
+                for (int i = start; i < end; ++i)
+                {
+                    DirectoryInfo dir = dirs[i];
+                    string name = dir.FullName.Substring(dir.FullName.IndexOf("Textures"))
+                                                .Replace('\\', '/');
+                    RootContent.Load<TextureAtlas>(name);
+                }
+            });
         }
 
         // Load texture with its abstract path such as
