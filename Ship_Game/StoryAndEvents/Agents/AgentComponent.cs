@@ -83,8 +83,8 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            Texture2D money    = ResourceManager.Texture("NewUI/icon_money");
-            Texture2D iconLock = ResourceManager.Texture("NewUI/icon_lock");
+            SubTexture money    = ResourceManager.Texture("NewUI/icon_money");
+            SubTexture iconLock = ResourceManager.Texture("NewUI/icon_lock");
 
             batch.FillRectangle(SubRect, Color.Black);
             AgentSL.Draw(batch);
@@ -127,8 +127,8 @@ namespace Ship_Game
 
 	    private static void DrawAgent(SpriteBatch batch, ScrollList.Entry e, Agent agent)
 	    {
-            Texture2D spy  = ResourceManager.Texture("UI/icon_spy");
-            Texture2D star = ResourceManager.Texture("UI/icon_star");
+            SubTexture spy  = ResourceManager.Texture("UI/icon_spy");
+            SubTexture star = ResourceManager.Texture("UI/icon_star");
 
             var r = new Rectangle(e.X, e.Y, 25, 26);
 	        batch.Draw(spy, r, Color.White);

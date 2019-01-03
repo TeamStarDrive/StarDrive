@@ -725,7 +725,7 @@ namespace Ship_Game
                 Reset = false;
             }
 
-            Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+            SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
             vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
             foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
             {
@@ -913,7 +913,7 @@ namespace Ship_Game
                         $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
 
                     position.X = (entry.Right - 120);
-                    Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+                    SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
                     var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
                     batch.Draw(iconProd, destinationRectangle2, Color.White);
@@ -963,7 +963,7 @@ namespace Ship_Game
                 Reset = false;
             }
 
-            Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+            SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
             var topLeft = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
             foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
             {
@@ -1023,7 +1023,7 @@ namespace Ship_Game
 
                 if (qi.isBuilding)
                 {
-                    Texture2D icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
+                    SubTexture icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
                     batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
                     new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
                 }
@@ -1061,8 +1061,8 @@ namespace Ship_Game
                 if (!entry.TryGet(out Building building))
                     continue;
 
-                Texture2D icon = ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48");
-                Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+                SubTexture icon = ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48");
+                SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
 
                 bool unprofitable = !P.WeCanAffordThis(building, P.colonyType) && building.Maintenance > 0f;
                 Color buildColor = unprofitable ? Color.IndianRed : Color.White;
@@ -1384,7 +1384,7 @@ namespace Ship_Game
                 ResourceManager.Texture("UI/icon_offense"), "Fire Delay", signs: false);
         }
 
-        private void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch spriteBatch, float value, Texture2D texture, 
+        private void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch spriteBatch, float value, SubTexture texture, 
                                       string toolTip, bool percent = false, bool signs = true)
         {
             if (value.AlmostEqual(0))
@@ -1472,8 +1472,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Rectangle? nullable = null;
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), new Vector2(rect.X, rect.Y), nullable, Color.White, 0f, Vector2.Zero, numFood - i, SpriteEffects.None, 1f);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), new Vector2(rect.X, rect.Y), Color.White, 0f, Vector2.Zero, numFood - i, SpriteEffects.None, 1f);
                 }
                 rect.X = rect.X + (int)spacing;
             }
@@ -1485,8 +1484,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Rectangle? nullable1 = null;
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), new Vector2(rect.X, rect.Y), nullable1, Color.White, 0f, Vector2.Zero, numProd - i, SpriteEffects.None, 1f);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), new Vector2(rect.X, rect.Y), Color.White, 0f, Vector2.Zero, numProd - i, SpriteEffects.None, 1f);
                 }
                 rect.X = rect.X + (int)spacing;
             }
@@ -1498,8 +1496,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Rectangle? nullable2 = null;
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), new Vector2(rect.X, rect.Y), nullable2, Color.White, 0f, Vector2.Zero, numRes - i, SpriteEffects.None, 1f);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), new Vector2(rect.X, rect.Y), Color.White, 0f, Vector2.Zero, numRes - i, SpriteEffects.None, 1f);
                 }
                 rect.X = rect.X + (int)spacing;
             }
@@ -2515,7 +2512,7 @@ namespace Ship_Game
 
         private static Rectangle CursorRectForSlider(ColonySlider colonySlider)
         {
-            Texture2D crosshairTex = ResourceManager.Texture("NewUI/slider_crosshair");
+            SubTexture crosshairTex = ResourceManager.Texture("NewUI/slider_crosshair");
             int posX = colonySlider.sRect.X + (int)(colonySlider.sRect.Width * colonySlider.amount) - crosshairTex.Width / 2;
             int posY = colonySlider.sRect.Y + colonySlider.sRect.Height / 2 - crosshairTex.Height / 2;
             return new Rectangle(posX, posY, crosshairTex.Width, crosshairTex.Height);

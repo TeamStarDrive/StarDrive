@@ -130,7 +130,7 @@ namespace Ship_Game
         }
 
         // draws a projected circle, with an additional overlay texture
-        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, Texture2D overlay, Color overlayColor, float z = 0)
+        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, SubTexture overlay, Color overlayColor, float z = 0)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
             float scale = screenRadius / (overlay.Width * .5f);
@@ -138,7 +138,7 @@ namespace Ship_Game
             DrawCircle(screenPos, screenRadius, color, thickness);
         } 
 
-        public void DarwCircleOnPlanetTextured(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, Texture2D overlay, Color overlayColor)
+        public void DarwCircleOnPlanetTextured(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, SubTexture overlay, Color overlayColor)
             => DrawCircleProjected(posInWorld, radiusInWorld, color, thickness, overlay, overlayColor, 2500f);
 
 
@@ -170,16 +170,16 @@ namespace Ship_Game
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, Color color)
+        public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, Color color)
             => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, 0.0f, color);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawTextureProjected(Texture2D texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
+        public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
             => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, rotation, color);
 
 
 
-        public void DrawTextureWithToolTip(Texture2D texture, Color color, int tooltipID, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
+        public void DrawTextureWithToolTip(SubTexture texture, Color color, int tooltipID, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
         {
             var rectangle = new Rectangle(rectangleX, rectangleY, width, height);
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);
@@ -188,7 +188,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(tooltipID);                
         }
 
-        public void DrawTextureWithToolTip(Texture2D texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
+        public void DrawTextureWithToolTip(SubTexture texture, Color color, string text, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
         {
             var rectangle = new Rectangle(rectangleX, rectangleY, width, height);
             ScreenManager.SpriteBatch.Draw(texture, rectangle, color);

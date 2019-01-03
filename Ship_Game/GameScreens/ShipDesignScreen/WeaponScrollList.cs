@@ -267,7 +267,7 @@ namespace Ship_Game
                 else if (e.item is ShipModule mod)
                 {
                     bCursor.X += 5f;
-                    Texture2D modTexture = mod.ModuleTexture;
+                    SubTexture modTexture = mod.ModuleTexture;
                     var modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, modTexture.Width, modTexture.Height);
                     float aspectRatio = (float)modTexture.Width / modTexture.Height;
                     float w = modRect.Width;

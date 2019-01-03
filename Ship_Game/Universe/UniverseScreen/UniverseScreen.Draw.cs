@@ -49,7 +49,8 @@ namespace Ship_Game
             {
                 basicEffect.World = Matrix.CreateScale(4.1f) * world;
                 basicEffect.View = view;
-                basicEffect.Texture = ResourceManager.Texture("Atmos");
+                // @todo 3D Texture Atlas support?
+                basicEffect.Texture = ResourceManager.Texture("Atmos").Atlas;
                 basicEffect.TextureEnabled = true;
                 basicEffect.Projection = projection;
                 basicEffect.LightingEnabled = true;
@@ -183,7 +184,7 @@ namespace Ship_Game
                 float num = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2.X);
                 Rectangle destinationRectangle =
                     new Rectangle((int) vector2.X, (int) vector2.Y, (int) num * 2, (int) num * 2);
-                ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, null, new Color(70, 255, 255, 255), 0.0f,
+                ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, new Color(70, 255, 255, 255), 0.0f,
                     uiNode.Center(), SpriteEffects.None, 1f);
             }
         }
@@ -206,7 +207,7 @@ namespace Ship_Game
                     float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - screenPos.X) * 2.59999990463257f;
                     Rectangle local_7 = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)local_6, (int)local_6);
 
-                    ScreenManager.SpriteBatch.Draw(uiNode, local_7, null, Color.White, 0.0f, uiNode.Center(),
+                    ScreenManager.SpriteBatch.Draw(uiNode, local_7, Color.White, 0.0f, uiNode.Center(),
                         SpriteEffects.None, 1f);
                 }
         }
@@ -246,7 +247,7 @@ namespace Ship_Game
                             ProjectToScreenPosition(influ.Position.PointOnCircle(90f, influ.Radius)).X - nodePos.X);
 
                         Rectangle rect = new Rectangle((int)nodePos.X, (int)nodePos.Y, size * 5, size * 5);
-                        spriteBatch.Draw(nodeCorrected, rect, null, empireColor, 0.0f, nodeCorrected.Center(),
+                        spriteBatch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.Center(),
                             SpriteEffects.None, 1f);
 
                         foreach (Empire.InfluenceNode influ2 in empire.BorderNodes)
@@ -263,7 +264,7 @@ namespace Ship_Game
                             float rotation = nodePos.RadiansToTarget(endPos);
                             rect = new Rectangle((int)endPos.X, (int)endPos.Y, size * 3 / 2,
                                 (int)Vector2.Distance(nodePos, endPos));
-                            spriteBatch.Draw(nodeConnect, rect, null, empireColor, rotation, new Vector2(2f, 2f),
+                            spriteBatch.Draw(nodeConnect, rect, empireColor, rotation, new Vector2(2f, 2f),
                                 SpriteEffects.None, 1f);
                         }
                     }
@@ -315,7 +316,7 @@ namespace Ship_Game
                         (int) (ship.Position.Y * num),
                         (int) (ship.SensorRange * num * 2.0),
                         (int) (ship.SensorRange * num * 2.0));
-                    ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, null, new Color(255, 0, 0, 255), 0.0f,
+                    ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, new Color(255, 0, 0, 255), 0.0f,
                         uiNode.Center(), SpriteEffects.None, 1f);
                 }
             }
@@ -713,7 +714,7 @@ namespace Ship_Game
                         ScreenPos = vector2,
                         ClickRadius = 15f
                     });
-                    ScreenManager.SpriteBatch.Draw(icon, vector2, new Rectangle?(), empire.EmpireColor, 0.0f,
+                    ScreenManager.SpriteBatch.Draw(icon, vector2, empire.EmpireColor, 0.0f,
                         icon.Center(), 0.35f, SpriteEffects.None, 1f);
                     HelperFunctions.DrawDropShadowText(ScreenManager, fleet.Name,
                         new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
@@ -781,8 +782,8 @@ namespace Ship_Game
                             ResourceManager.Texture("Planets/" + planet.PlanetType).Height /
                             2f);
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Planets/" + planet.PlanetType), position,
-                            new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
+                            ResourceManager.Texture("Planets/" + planet.PlanetType), position, Color.White,
+                            0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                         origin =
                             new Vector2(
                                 ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
@@ -807,8 +808,8 @@ namespace Ship_Game
                             ResourceManager.Texture("Planets/" + planet.PlanetType).Height /
                             2f);
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Planets/" + planet.PlanetType), position,
-                            new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
+                            ResourceManager.Texture("Planets/" + planet.PlanetType), position, Color.White,
+                            0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                     }
                 }
             }
@@ -998,7 +999,7 @@ namespace Ship_Game
         public void DrawWeaponArc(ShipModule module, Vector2 posOnScreen, float rotation)
         {
             Color color = GetWeaponArcColor(module.InstalledWeapon);
-            Texture2D arc = GetArcTexture(module.FieldOfFire);
+            SubTexture arc = GetArcTexture(module.FieldOfFire);
             float arcLength = ProjectToScreenSize(module.InstalledWeapon.Range);
             DrawTextureSized(arc, posOnScreen, rotation, arcLength, arcLength, color);
         }
@@ -1185,11 +1186,11 @@ namespace Ship_Game
             if (LookingAtPlanet || viewState > UnivScreenState.SectorView || viewState < UnivScreenState.ShipView)
                 return;
             Vector2 mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-            Texture2D planetNamePointer = ResourceManager.Texture("UI/planetNamePointer");
-            Texture2D icon_fighting_small = ResourceManager.Texture("UI/icon_fighting_small");
-            Texture2D icon_spy_small = ResourceManager.Texture("UI/icon_spy_small");
-            Texture2D icon_anomaly_small = ResourceManager.Texture("UI/icon_anomaly_small");
-            Texture2D icon_troop = ResourceManager.Texture("UI/icon_troop");
+            SubTexture planetNamePointer = ResourceManager.Texture("UI/planetNamePointer");
+            SubTexture icon_fighting_small = ResourceManager.Texture("UI/icon_fighting_small");
+            SubTexture icon_spy_small = ResourceManager.Texture("UI/icon_spy_small");
+            SubTexture icon_anomaly_small = ResourceManager.Texture("UI/icon_anomaly_small");
+            SubTexture icon_troop = ResourceManager.Texture("UI/icon_troop");
             for (int k = 0; k < SolarSystemList.Count; k++)
             {
                 SolarSystem solarSystem = SolarSystemList[k];
@@ -1272,7 +1273,7 @@ namespace Ship_Game
             }
         }
 
-        public void DrawPointerWithText(Vector2 screenPos, Texture2D planetNamePointer, Color pointerColor, string text,
+        public void DrawPointerWithText(Vector2 screenPos, SubTexture planetNamePointer, Color pointerColor, string text,
             Color textColor, SpriteFont font = null, float xOffSet = 20f, float yOffSet = 37f)
         {
             font = font ?? Fonts.Tahoma10;
@@ -1284,10 +1285,10 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
         }
 
-        public void DrawSunModel(Matrix world, Texture2D texture, float scale)
+        public void DrawSunModel(Matrix world, SubTexture texture, float scale)
             => DrawTransparentModel(SunModel, world, texture, scale);
 
-        public void DrawTransparentModel(Model model, Matrix world, Texture2D projTex, float scale)
+        public void DrawTransparentModel(Model model, Matrix world, SubTexture projTex, float scale)
         {
             DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);
             ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
