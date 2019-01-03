@@ -41,16 +41,25 @@ namespace Ship_Game
             return colors;
         }
 
+        
         [DllImport("SDNative.dll")]
-        private static extern unsafe IntPtr SaveBGRAImageAsPNG(
-            [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* bgraImage);
+        static extern unsafe void ConvertBGRAtoRGBA(int width, int height, Color* rgbaImage);
 
-        public static unsafe void SaveAsPNG(string filename, int width, int height, Color[] bgraImage)
+        public static unsafe void ConvertToRGBA(int width, int height, Color[] bgraImage)
         {
             fixed (Color* pColor = bgraImage)
+                ConvertBGRAtoRGBA(width, height, pColor);
+        }
+
+        [DllImport("SDNative.dll")]
+        static extern unsafe IntPtr SaveImageAsPNG(
+            [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* rgbaImage);
+
+        public static unsafe void SaveAsPNG(string filename, int width, int height, Color[] rgbaImage)
+        {
+            fixed (Color* pColor = rgbaImage)
             {
-                // Color is a BGRA little-endian struct
-                IntPtr error = SaveBGRAImageAsPNG(filename, width, height, pColor);
+                IntPtr error = SaveImageAsPNG(filename, width, height, pColor);
                 if (error != IntPtr.Zero)
                 {
                     string message = Marshal.PtrToStringAnsi(error);
@@ -60,15 +69,14 @@ namespace Ship_Game
         }
 
         [DllImport("SDNative.dll")]
-        private static extern unsafe IntPtr SaveBGRAImageAsDDS(
-            [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* bgraImage);
+        static extern unsafe IntPtr SaveImageAsDDS(
+            [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* rgbaImage);
 
-        public static unsafe void SaveAsDDS(string filename, int width, int height, Color[] bgraImage)
+        public static unsafe void SaveAsDDS(string filename, int width, int height, Color[] rgbaImage)
         {
-            fixed (Color* pColor = bgraImage)
+            fixed (Color* pColor = rgbaImage)
             {
-                // Color is a BGRA little-endian struct
-                IntPtr error = SaveBGRAImageAsDDS(filename, width, height, pColor);
+                IntPtr error = SaveImageAsDDS(filename, width, height, pColor);
                 if (error != IntPtr.Zero)
                 {
                     string message = Marshal.PtrToStringAnsi(error);

@@ -9,34 +9,24 @@ struct Color
     byte b, g, r, a;
 };
 
-static std::vector<Color> BGRAtoRGBA(int w, int h, const Color* bgraImage)
+DLLEXPORT void __stdcall ConvertBGRAtoRGBA(int w, int h, Color* image)
 {
-    const int count = w * h;
-    std::vector<Color> rgbaImage;
-    rgbaImage.resize(count);
-
-    Color* rgba = rgbaImage.data();
-    const Color* bgra = bgraImage;
-
-    for (int i = 0; i < count; ++i)
-    {
-        Color c = bgra[i];
-        byte b = c.b;
-        c.b = c.r;
-        c.r = b;
-        rgba[i] = c;
-    }
-    return rgbaImage;
+	const int count = w * h;
+	for (int i = 0; i < count; ++i)
+	{
+		const byte temp = image[i].r;
+		image[i].r = image[i].b;
+		image[i].b = temp;
+	}
 }
 
 /**
  * @return Error string or null if no error happened.
  */
-DLLEXPORT const char* __stdcall SaveBGRAImageAsPNG(
-    const char* filename, int w, int h, const Color* bgraImage)
+DLLEXPORT const char* __stdcall SaveImageAsPNG(
+    const char* filename, int w, int h, const Color* rgbaImage)
 {
-    std::vector<Color> rgbaImage = BGRAtoRGBA(w, h, bgraImage);
-    unsigned error = lodepng::encode(filename, (const byte*)rgbaImage.data(), w, h, LCT_RGBA);
+    unsigned error = lodepng::encode(filename, (const byte*)rgbaImage, w, h, LCT_RGBA);
     if (error)
     {
         fprintf(stderr, "SaveImage failed: %s %dx%d %s\n",
@@ -49,12 +39,10 @@ DLLEXPORT const char* __stdcall SaveBGRAImageAsPNG(
 /**
  * @return Error string or null if no error happened
  */
-DLLEXPORT const char* __stdcall SaveBGRAImageAsDDS(
-    const char* filename, int w, int h, const Color* bgraImage)
+DLLEXPORT const char* __stdcall SaveImageAsDDS(
+    const char* filename, int w, int h, const Color* rgbaImage)
 {
-    std::vector<Color> rgbaImage = BGRAtoRGBA(w, h, bgraImage);
-
-    int error = save_image_as_DDS(filename, w, h, 4, (const byte*)rgbaImage.data());
+    int error = save_image_as_DDS(filename, w, h, 4, (const byte*)rgbaImage);
     if (error == 1)
         return "Invalid parameters for DDS";
     if (error == 2)
