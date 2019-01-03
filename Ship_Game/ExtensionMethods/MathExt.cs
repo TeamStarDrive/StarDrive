@@ -860,5 +860,19 @@ namespace Ship_Game
         }
 
         public static float Max3(float a, float b, float c) => Max(a, Max(b, c));
+
+        // compute the next highest power of 2 of 32-bit v
+        public static int RoundPowerOf2(this int value)
+        {
+            int v = value; 
+            v--;
+            v |= v >> 1;
+            v |= v >> 2;
+            v |= v >> 4;
+            v |= v >> 8;
+            v |= v >> 16;
+            v++;
+            return v;
+        }
     }
 }

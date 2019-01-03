@@ -40,7 +40,7 @@ namespace SDUnitTests
 
             Texture2D test = content.Load<Texture2D>(files[0].RelPathNoExt());
 
-            TextureAtlas atlas = TextureAtlas.CreateFromFolder(content, "Textures/Buildings");
+            TextureAtlas atlas = TextureAtlas.FromFolder(content, "Textures/Buildings");
 
             TestContext.Out.WriteLine("What!");
 
