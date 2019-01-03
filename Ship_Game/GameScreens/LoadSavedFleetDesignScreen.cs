@@ -11,13 +11,13 @@ namespace Ship_Game
 
         public LoadSavedFleetDesignScreen(GameScreen parent) : base(parent, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
-            Path = Dir.ApplicationData + "/StarDrive/Fleet Designs/";
+            Path = Dir.StarDriveAppData + "/Fleet Designs/";
         }
 
         public LoadSavedFleetDesignScreen(FleetDesignScreen caller) : base(caller, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
             parentScreen = caller;
-            Path = Dir.ApplicationData + "/StarDrive/Fleet Designs/";
+            Path = Dir.StarDriveAppData + "/Fleet Designs/";
         }
 
         protected override void Load()
