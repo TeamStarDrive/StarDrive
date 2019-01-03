@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -19,69 +20,38 @@ namespace Ship_Game
     }
 
     /// Generic TextureAtlas can be 
-    public class TextureAtlas
+    public class TextureAtlas : IDisposable
     {
         public string Name { get; private set; }
+        private readonly string CacheName;
+        string DescriptorPath => $"{TextureCacheDir}/{CacheName}.atlas";
+        string TexturePath    => $"{TextureCacheDir}/{CacheName}.dds";
+        private int Hash;
         public int Width  { get; private set; }
         public int Height { get; private set; }
         public Texture2D Atlas { get; private set; }
 
-        public  readonly Array<Texture2D> Textures = new Array<Texture2D>();
-        private readonly Array<SubTexture> Sprites = new Array<SubTexture>();
+        private readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
 
         protected TextureAtlas(string name)
         {
             Name = name;
+            CacheName = name.Replace('/', '_');
         }
 
-        protected TextureAtlas(GraphicsDevice device, string name, int width, int height)
+        ~TextureAtlas()
         {
-            Name = name;
-            Width = width;
-            Height = height;
-            Atlas = new Texture2D(device, width, height, 1, TextureUsage.AutoGenerateMipMap, SurfaceFormat.Color);
+            Atlas?.Dispose();
         }
 
-        public int SpriteCount => Sprites.Count;
-        public SubTexture this[int spriteIndex] => Sprites[spriteIndex];
-
-        public bool Good => Textures.Count > 0 && Sprites.Count > 0;
-
-        // Performs a binary search on the sprites
-        public SubTexture this[string name]
+        public void Dispose()
         {
-            get
-            {
-                int imin = 0, imax = Sprites.Count - 1;
-                if (imax >= 0) // since names are sorted, do binary search:
-                {
-                    while (imin < imax)
-                    {
-                        int imid = (imin + imax) >> 1;
-                        if (string.CompareOrdinal(Sprites[imid].Name, name) < 0)
-                            imin = imid + 1;
-                        else
-                            imax = imid;
-                    }
-                    if (imin <= imax && Sprites[imin].Name == name)
-                        return Sprites[imin];
-                }
-                return null; // not found
-            }
+            Atlas?.Dispose();
+            GC.SuppressFinalize(this);
         }
 
-        // @todo Make this fit into ResourceManager?
-        private static bool GetAtlasDescr(string textureName, out FileInfo outInfo)
-        {
-            outInfo = ResourceManager.GetModOrVanillaFile("Textures/" + textureName + ".xml");
-            return outInfo != null;
-        }
-
-        // Since we do binary search by Sprite name, we need to sort them after loading
-        private void SortSprites()
-        {
-            Sprites.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
-        }
+        public int SpriteCount => Textures.Count;
+        public SubTexture this[string name] => Textures[name];
 
         private static string PrepareTextureCacheDir()
         {
@@ -93,15 +63,43 @@ namespace Ship_Game
 
         private struct TextureData
         {
-            public string Name;
+            public readonly string Name;
             public int X, Y;
-            public int Width, Height;
-            public Color[] ColorData;
-            public override string ToString() => $"{{{X},{Y}}} {Width}x{Height}";
+            public readonly int Width;
+            public readonly int Height;
+            readonly Color[] ColorData;
 
-            public void SaveAsPng(string filename)
+            public override string ToString() => $"{{{X},{Y}}} {Width}x{Height}";
+            public int Area => Width * Height;
+
+            public TextureData(string texName, Texture2D tex)
             {
-                ImageUtils.SaveAsPng(filename, Width, Height, ColorData);
+                Name = texName;
+                X = 0;
+                Y = 0;
+                Width  = tex.Width;
+                Height = tex.Height;
+
+                if (tex.Format == SurfaceFormat.Dxt5)
+                {
+                    ColorData = ImageUtils.DecompressDXT5(tex);
+                }
+                else if (tex.Format == SurfaceFormat.Dxt1)
+                {
+                    ColorData = ImageUtils.DecompressDXT1(tex);
+                }
+                else if (tex.Format == SurfaceFormat.Color)
+                {
+                    ColorData = new Color[tex.Width * tex.Height];
+                    tex.GetData(ColorData);
+                }
+                else
+                {
+                    ColorData = new Color[0];
+                    Log.Error($"Unsupported atlas texture format: {tex.Format}");
+                }
+                // This is purely for debugging:
+                //ImageUtils.SaveAsPng($"{TextureCacheDir}/{texName}.png", Width, Height, ColorData);
             }
 
             public void CopyPixelsTo(Color[] atlas, int atlasWidth)
@@ -118,7 +116,7 @@ namespace Ship_Game
             }
         }
 
-        private static FileInfo[] GatherUniqueTextures(string folder)
+        static FileInfo[] GatherUniqueTextures(string folder)
         {
             FileInfo[] textureFiles = ResourceManager.GatherTextureFiles(folder);
             var uniqueTextures = new Map<string, FileInfo>();
@@ -138,98 +136,197 @@ namespace Ship_Game
             return uniqueTextures.Values.ToArray();
         }
 
-        private static TextureData GetTextureData(string texName, Texture2D tex)
+        static int CreateHash(FileInfo[] textures)
         {
-            var td = new TextureData
+            int hash = 5381;
+            void Combine(int hashCode) => hash = ((hash << 5) + hash) ^ hashCode;
+            Combine(textures.Length.GetHashCode());
+            foreach (FileInfo info in textures)
             {
-                Name   = texName,
-                Width  = tex.Width,
-                Height = tex.Height,
-            };
-
-            if (tex.Format == SurfaceFormat.Dxt5)
-            {
-                td.ColorData = ImageUtils.DecompressDXT5(tex);
+                Combine(info.LastWriteTimeUtc.GetHashCode());
+                Combine(info.Name.GetHashCode());
             }
-            else if (tex.Format == SurfaceFormat.Dxt1)
-            {
-                td.ColorData = ImageUtils.DecompressDXT1(tex);
-            }
-            else if (tex.Format == SurfaceFormat.Color)
-            {
-                td.ColorData = new Color[tex.Width * tex.Height];
-                tex.GetData(td.ColorData);
-            }
-            else
-            {
-                Log.Error($"Unsupported atlas texture format: {tex.Format}");
-            }
-            td.SaveAsPng($"{TextureCacheDir}/{texName}.png");
-            return td;
+            return hash;
         }
 
-        static void PackTextures(TextureData[] textures, out int atlasWidth, out int atlasHeight)
+        const int Padding = 2; // Atlas texture padding
+        const int MinFreeSpotSize = 16; // Minimum width/height for recycled free spots
+
+        static bool FillFreeSpot(Array<Rectangle> freeSpots, ref TextureData td)
         {
+            for (int j = 0; j < freeSpots.Count; ++j)
+            {
+                Rectangle r = freeSpots[j];
+                if (td.Width > r.Width || td.Height > r.Height)
+                    continue;
+                td.X = r.X;
+                td.Y = r.Y;
+                freeSpots.RemoveAt(j);
+                int fillX = td.Width  + Padding;
+                int fillY = td.Height + Padding;
+                int remX = r.Width  - fillX;
+                int remY = r.Height - fillY;
+                // We have remaining sections A, B, C that could be recycled
+                // So split it up if >= MinFreeSpotSize and push to freeSpots
+                // _____________
+                // |fill |  A  |
+                // |_____|_____|
+                // |  B  |  C  |
+                // |_____|_____|
+                if (remX >= MinFreeSpotSize) // A
+                    freeSpots.Add(new Rectangle(r.X+fillX, r.Y, remX, fillY));
+                if (remY >= MinFreeSpotSize) // B
+                    freeSpots.Add(new Rectangle(r.X, r.Y+fillY, fillX, remY));
+                if (remX >= MinFreeSpotSize && remY >= MinFreeSpotSize) // C
+                    freeSpots.Add(new Rectangle(r.X+fillX, r.Y+fillY, remX, remY));
+                return true; // success! we filled the free spot
+            }
+            return false;
+        }
+
+        void PackTextures(TextureData[] textures)
+        {
+            // Sort textures by AREA, DESCENDING
+            Array.Sort(textures, (a, b) => b.Area - a.Area);
+
             var freeSpots = new Array<Rectangle>();
 
-            atlasWidth = 2048;
-            atlasHeight = 1024;
+            Width  = 2048;
+            Height = 512;
             int cursorX = 0;
             int cursorY = 0;
             int bottomY = 0;
-            const int padding = 2;
 
             for (int i = 0; i < textures.Length; ++i)
             {
                 ref TextureData td = ref textures[i];
-                int remainingX = atlasWidth - cursorX;
+
+                // check if we can fit anything into existing free spots:
+                if (FillFreeSpot(freeSpots, ref td))
+                    continue;
+
+                int remainingX = Width - cursorX;
                 if (remainingX < td.Width)
                 {
                     freeSpots.Add(new Rectangle(cursorX, cursorY, remainingX, bottomY-cursorY));
                     cursorX = 0;
-                    cursorY = bottomY + padding;
+                    cursorY = bottomY + Padding;
                 }
 
                 int thisBottomY = cursorY + td.Height;
                 if (thisBottomY >= bottomY) bottomY = thisBottomY;
-                while (bottomY >= atlasHeight) atlasHeight += 1024;
+                while (bottomY >= Height) Height += 512;
 
                 td.X = cursorX;
                 td.Y = cursorY;
-                cursorX += td.Width + padding;
+                cursorX += td.Width + Padding;
+
+                // After filling our spot, there is a potential free spot.
+                // We know this because we fill our objects in descending order.
+                // ____________
+                // |  tdfill  |
+                // |__________|
+                // | freespot |
+                if (td.Width >= MinFreeSpotSize)
+                {
+                    int freeSpotY = cursorY + td.Height + Padding;
+                    int remainingY = bottomY - freeSpotY;
+                    if (remainingY >= MinFreeSpotSize)
+                        freeSpots.Add(new Rectangle(td.X, freeSpotY, td.Width, remainingY));
+                }
             }
 
-            Console.WriteLine($"Atlas: {atlasWidth}x{atlasHeight}px");
+            Console.WriteLine($"Packed Atlas {Name}: {Width}x{Height}px  {textures.Length} sub-textures");
         }
 
-        void CopyTextureData(TextureData[] textures)
+        void CreateAtlasTexture(GameContentManager content, TextureData[] textures)
         {
             var atlasColorData = new Color[Width * Height];
-            var subTextures = new SubTexture[textures.Length];
             for (int i = 0; i < textures.Length; ++i)
             {
                 ref TextureData td = ref textures[i];
                 td.CopyPixelsTo(atlasColorData, Width);
-                subTextures[i] = new SubTexture
+
+                Textures[td.Name] = new SubTexture
                 {
                     Name = td.Name,
                     X = td.X,
                     Y = td.Y,
                     Width = td.Width,
                     Height = td.Height,
-                    Atlas = Atlas
                 };
             }
 
-            Atlas.SetData(atlasColorData);
-            Atlas.Save($"{TextureCacheDir}/atlas.png", ImageFileFormat.Png);
+            // We compress the DDS color into DXT5 and then reload it through XNA
+            ImageUtils.SaveAsDDS(TexturePath, Width, Height, atlasColorData);
+            Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
+
+            // Initialize atlas reference
+            foreach (SubTexture t in Textures.Values)
+                t.Atlas = Atlas;
+
+            Console.WriteLine($"CreateAtlasTexture {Name} {Width}x{Height}");
+        }
+
+
+        void SaveAtlasDescriptor()
+        {
+            using (var fs = new StreamWriter(DescriptorPath))
+            {
+                fs.WriteLine(Hash);
+                fs.WriteLine(Name);
+                foreach (KeyValuePair<string, SubTexture> kv in Textures)
+                {
+                    SubTexture t = kv.Value;
+                    fs.WriteLine($"{t.X} {t.Y} {t.Width} {t.Height} {t.Name}");
+                }
+            }
+            Console.WriteLine($"SaveAtlas {Name}");
+        }
+
+        bool TryLoadCache(GameContentManager content)
+        {
+            if (!File.Exists(DescriptorPath) || !File.Exists(TexturePath))
+                return false; // neither atlas cache file exists, regenerate
+            using (var fs = new StreamReader(DescriptorPath))
+            {
+                int.TryParse(fs.ReadLine(), out int hash);
+                if (hash != Hash)
+                    return false; // hash mismatch, we need to regenerate cache
+
+                Textures.Clear();
+                Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
+
+                Name = fs.ReadLine();
+                var separator = new[] { ' ' };
+
+                string line;
+                while ((line = fs.ReadLine()) != null)
+                {
+                    string[] entry = line.Split(separator, 5);
+                    var t = new SubTexture();
+                    int.TryParse(entry[0], out t.X);
+                    int.TryParse(entry[1], out t.Y);
+                    int.TryParse(entry[2], out t.Width);
+                    int.TryParse(entry[3], out t.Height);
+                    t.Name = entry[4];
+                    Textures.Add(t.Name, t);
+                }
+            }
+            Console.WriteLine($"LoadAtlas {Name} {Atlas.Width}x{Atlas.Height} {Textures.Count} sub-textures");
+            return true; // we loaded everything
         }
 
         public static TextureAtlas CreateFromFolder(GameContentManager content, string folder)
         {
-            FileInfo[] textureFiles = GatherUniqueTextures(folder);
-            var textures = new TextureData[textureFiles.Length];
+            var atlas = new TextureAtlas(folder);
 
+            FileInfo[] textureFiles = GatherUniqueTextures(folder);
+            atlas.Hash = CreateHash(textureFiles);
+            if (atlas.TryLoadCache(content))
+                return atlas;
+
+            var textures = new TextureData[textureFiles.Length];
             for (int i = 0; i < textureFiles.Length; ++i)
             {
                 FileInfo info = textureFiles[i];
@@ -237,104 +334,15 @@ namespace Ship_Game
                 string texName = info.NameNoExt();
                 using (var tex = content.LoadUncached<Texture2D>(assetPath))
                 {
-                    Console.WriteLine($"texture: {texName}  {tex.Width}x{tex.Height}  {tex.Format}");
-                    textures[i] = GetTextureData(texName, tex);
+                    //Console.WriteLine($"texture: {texName}  {tex.Width}x{tex.Height}  {tex.Format}");
+                    textures[i] = new TextureData(texName, tex);
                 }
             }
 
-            Array.Sort(textures, (a, b) => // Sort textures in DESCENDING order
-            {
-                if (a.Width > b.Width) return -1;
-                if (a.Width < b.Width) return +1;
-                if (a.Height > b.Height) return -1;
-                if (a.Height < b.Height) return +1;
-                return 0;
-            });
-
-            PackTextures(textures, out int atlasWidth, out int atlasHeight);
-
-            var atlas = new TextureAtlas(content.Manager.GraphicsDevice, folder, atlasWidth, atlasHeight);
-            atlas.CopyTextureData(textures);
+            atlas.PackTextures(textures);
+            atlas.CreateAtlasTexture(content, textures);
+            atlas.SaveAtlasDescriptor();
             return atlas;
-        }
-
-        public static TextureAtlas LoadExisting(GameContentManager content, string atlasTexture)
-        {
-            if (GetAtlasDescr(atlasTexture, out FileInfo info))
-            {
-                var atlas = new TextureAtlas(atlasTexture);
-                atlas.LoadDescriptor(info, atlasTexture);
-                atlas.SortSprites();
-                return atlas;
-            }
-
-            // try multipack atlasses
-            TextureAtlas multiAtlas = null;
-            for (int i = 0; ; ++i)
-            {
-                string multiName = atlasTexture + '-' + i;
-                if (!GetAtlasDescr(multiName, out info))
-                    break;
-
-                if (multiAtlas == null)
-                    multiAtlas = new TextureAtlas(atlasTexture);
-
-                multiAtlas.LoadDescriptor(info, multiName);
-            }
-            multiAtlas?.SortSprites();
-            return multiAtlas;
-        }
-
-        private static XmlNode ChildNode(XmlNode node, string childTagName)
-        {
-            foreach (XmlNode child in node.ChildNodes)
-                if (child.Name == childTagName) return child;
-            return null;
-        }
-
-        private static int GetInt(XmlNamedNodeMap attr, string name)
-        {
-            var node = attr.GetNamedItem(name);
-            return node != null ? int.Parse(node.Value) : 0;
-        }
-
-        private void LoadDescriptor(FileInfo descriptorInfo, string textureName)
-        {
-            var xml = new XmlDocument();
-            using (var reader = descriptorInfo.OpenRead())
-                xml.Load(reader);
-
-            var root = ChildNode(xml, "TextureAtlas");
-            if (root == null)
-            {
-                Log.Error("Invalid TextureAtlas XML: {0}.xml", textureName);
-                return;
-            }
-
-            Texture2D tex = ResourceManager.LoadTexture(textureName);
-            if (tex == null)
-            {
-                Log.Error("Invalid TextureAtlas xnb: {0}.xnb", textureName);
-                return;
-            }
-            Textures.Add(tex);
-
-            foreach (XmlNode xSubTex in root.ChildNodes)
-            {
-                var attr = xSubTex.Attributes;
-                string name = attr?["name"]?.Value;
-                if (name == null) continue;
-
-                var subTex = new SubTexture
-                {
-                    Name        = name,
-                    X           = GetInt(attr, "x"),
-                    Y           = GetInt(attr, "y"),
-                    Width       = GetInt(attr, "width"),
-                    Height      = GetInt(attr, "height"),
-                };
-                Sprites.Add(subTex);
-            }
         }
     }
 }

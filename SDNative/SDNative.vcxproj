@@ -61,7 +61,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS=1;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
@@ -71,7 +71,7 @@
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
@@ -83,7 +83,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS=1;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -93,7 +93,7 @@
       <StringPooling>true</StringPooling>
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
@@ -116,6 +116,8 @@
     <ClInclude Include="ReCpp\rpp\strview.h" />
     <ClInclude Include="ReCpp\rpp\vec.h" />
     <ClInclude Include="ShipDataSerializer.h" />
+    <ClInclude Include="soil2\image_DXT.h" />
+    <ClInclude Include="soil2\image_helper.h" />
     <ClInclude Include="StaticMeshLoader.h" />
     <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="NodeParser.h" />
@@ -132,6 +134,8 @@
     <ClCompile Include="ReCpp\rpp\strview.cpp" />
     <ClCompile Include="ReCpp\rpp\vec.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
+    <ClCompile Include="soil2\image_DXT.cpp" />
+    <ClCompile Include="soil2\image_helper.cpp" />
     <ClCompile Include="StaticMeshLoader.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
     <ClCompile Include="util\save_image.cpp" />
