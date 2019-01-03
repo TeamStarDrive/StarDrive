@@ -20,6 +20,9 @@
     <Filter Include="lodepng">
       <UniqueIdentifier>{91652404-c87c-40f0-87a5-2279dcbfa4eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="soil2">
+      <UniqueIdentifier>{2a7b6833-5975-48a4-afbd-71592d8f3d31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShipDataSerializer.cpp">
@@ -63,6 +66,12 @@
     </ClCompile>
     <ClCompile Include="util\save_image.cpp">
       <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\image_DXT.cpp">
+      <Filter>soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="soil2\image_helper.cpp">
+      <Filter>soil2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +122,12 @@
     </ClInclude>
     <ClInclude Include="lodepng\lodepng.h">
       <Filter>lodepng</Filter>
+    </ClInclude>
+    <ClInclude Include="soil2\image_DXT.h">
+      <Filter>soil2</Filter>
+    </ClInclude>
+    <ClInclude Include="soil2\image_helper.h">
+      <Filter>soil2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

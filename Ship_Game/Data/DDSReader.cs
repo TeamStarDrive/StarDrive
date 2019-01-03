@@ -9,10 +9,9 @@ using System.IO;
 
 namespace Ship_Game
 {
-    #region DDSImage Class
-    public class DDSImage
+    public class DDSReader
     {
-        private DDSImage(byte[] ddsImage)
+        private DDSReader(byte[] ddsImage)
         {
             if (ddsImage == null) return;
             if (ddsImage.Length == 0) return;
@@ -29,7 +28,7 @@ namespace Ship_Game
             }
         }
 
-        private DDSImage(Stream ddsImage)
+        private DDSReader(Stream ddsImage)
         {
             if (ddsImage == null) return;
             if (!ddsImage.CanRead) return;
@@ -40,8 +39,7 @@ namespace Ship_Game
             }
         }
 
-        #region Private Methods
-        private void Parse(BinaryReader reader)
+        void Parse(BinaryReader reader)
         {
             var header = new DDSHeader();
 
@@ -64,7 +62,7 @@ namespace Ship_Game
             }
         }
 
-        private static byte[] ReadData(BinaryReader reader, DDSHeader header)
+        static byte[] ReadData(BinaryReader reader, DDSHeader header)
         {
             byte[] compdata;
             uint compsize;
@@ -99,7 +97,7 @@ namespace Ship_Game
             return compdata;
         }
 
-        private static bool ReadHeader(BinaryReader reader, ref DDSHeader header)
+        static bool ReadHeader(BinaryReader reader, ref DDSHeader header)
         {
             byte[] signature = reader.ReadBytes(4);
             if (!(signature[0] == 'D' && signature[1] == 'D' && signature[2] == 'S' && signature[3] == ' '))
@@ -144,7 +142,7 @@ namespace Ship_Game
             return true;
         }
 
-        private static PixelFormat GetFormat(in DDSHeader header, out uint blocksize)
+        static PixelFormat GetFormat(in DDSHeader header, out uint blocksize)
         {
             var format = PixelFormat.UNKNOWN;
             if ((header.pixelformat.flags & DDPF_FOURCC) == DDPF_FOURCC)
@@ -239,7 +237,7 @@ namespace Ship_Game
 
         #region Helper Methods
         // iCompFormatToBpp
-        private static uint PixelFormatToBpp(PixelFormat pf, uint rgbbitcount)
+        static uint PixelFormatToBpp(PixelFormat pf, uint rgbbitcount)
         {
             switch (pf)
             {
@@ -273,7 +271,7 @@ namespace Ship_Game
         }
 
         // iCompFormatToBpc
-        private static uint PixelFormatToBpc(PixelFormat pf)
+        static uint PixelFormatToBpc(PixelFormat pf)
         {
             switch (pf)
             {
@@ -292,7 +290,7 @@ namespace Ship_Game
             }
         }
 
-        private static bool Check16BitComponents(DDSHeader header)
+        static bool Check16BitComponents(DDSHeader header)
         {
             if (header.pixelformat.rgbbitcount != 32)
                 return false;
@@ -308,7 +306,7 @@ namespace Ship_Game
             return false;
         }
 
-        private static void CorrectPremult(uint pixnum, ref byte[] buffer)
+        static void CorrectPremult(uint pixnum, ref byte[] buffer)
         {
             for (uint i = 0; i < pixnum; i++)
             {
@@ -324,7 +322,7 @@ namespace Ship_Game
             }
         }
 
-        private static void ComputeMaskParams(uint mask, out int shift1, out int mul, out int shift2)
+        static void ComputeMaskParams(uint mask, out int shift1, out int mul, out int shift2)
         {
             shift1 = 0; mul = 1; shift2 = 0;
             while ((mask & 1) == 0)
@@ -345,7 +343,7 @@ namespace Ship_Game
             }
         }
 
-        private static unsafe void DxtcReadColors(byte* data, ref Colour8888[] op)
+        static unsafe void DxtcReadColors(byte* data, ref Colour8888[] op)
         {
             byte b0 = (byte)(data[0] & 0x1F);
             byte g0 = (byte)(((data[0] & 0xE0) >> 5) | ((data[1] & 0x7) << 3));
@@ -364,7 +362,7 @@ namespace Ship_Game
             op[1].blue = (byte)(b1 << 3 | b1 >> 2);
         }
 
-        private static void DxtcReadColor(ushort data, ref Colour8888 op)
+        static void DxtcReadColor(ushort data, ref Colour8888 op)
         {
             byte b = (byte)(data & 0x1f);
             byte g = (byte)((data & 0x7E0) >> 5);
@@ -375,7 +373,7 @@ namespace Ship_Game
             op.blue = (byte)(b << 3 | r >> 2);
         }
 
-        private static unsafe void DxtcReadColors(byte* data, ref Colour565 color_0, ref Colour565 color_1)
+        static unsafe void DxtcReadColors(byte* data, ref Colour565 color_0, ref Colour565 color_1)
         {
             color_0.blue = (byte)(data[0] & 0x1F);
             color_0.green = (byte)(((data[0] & 0xE0) >> 5) | ((data[1] & 0x7) << 3));
@@ -386,7 +384,7 @@ namespace Ship_Game
             color_1.red = (byte)((data[3] & 0xF8) >> 3);
         }
 
-        private static void GetBitsFromMask(uint mask, out uint shiftLeft, out uint shiftRight)
+        static void GetBitsFromMask(uint mask, out uint shiftLeft, out uint shiftRight)
         {
             if (mask == 0)
             {
@@ -413,7 +411,7 @@ namespace Ship_Game
         }
 
         // This function simply counts how many contiguous bits are in the mask.
-        private static uint CountBitsFromMask(uint mask)
+        static uint CountBitsFromMask(uint mask)
         {
             uint i, testBit = 0x01, count = 0;
             bool foundBit = false;
@@ -433,7 +431,7 @@ namespace Ship_Game
             return count;
         }
 
-        private static uint HalfToFloat(ushort y)
+        static uint HalfToFloat(ushort y)
         {
             int s = (y >> 15) & 0x00000001;
             int e = (y >> 10) & 0x0000001f;
@@ -481,7 +479,7 @@ namespace Ship_Game
             return (uint)((s << 31) | (e << 23) | m);
         }
 
-        private static unsafe void ConvFloat16ToFloat32(uint* dest, ushort* src, uint size)
+        static unsafe void ConvFloat16ToFloat32(uint* dest, ushort* src, uint size)
         {
             uint i;
             for (i = 0; i < size; ++i, ++dest, ++src)
@@ -492,7 +490,7 @@ namespace Ship_Game
             }
         }
 
-        private static unsafe void ConvG16R16ToFloat32(uint* dest, ushort* src, uint size)
+        static unsafe void ConvG16R16ToFloat32(uint* dest, ushort* src, uint size)
         {
             uint i;
             for (i = 0; i < size; i += 3)
@@ -505,7 +503,7 @@ namespace Ship_Game
             }
         }
 
-        private static unsafe void ConvR16ToFloat32(uint* dest, ushort* src, uint size)
+        static unsafe void ConvR16ToFloat32(uint* dest, ushort* src, uint size)
         {
             uint i;
             for (i = 0; i < size; i += 3)
@@ -1422,205 +1420,11 @@ namespace Ship_Game
             return rawData;
         }
 
-        #region UNUSED
-        static unsafe byte[] DecompressARGB(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
-        {
-            // allocate bitmap
-            int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
-            int bps = (int)(header.width * bpp * PixelFormatToBpc(pixelFormat));
-            int sizeofplane = (int)(bps * header.height);
-            int width = (int)header.width;
-            int height = (int)header.height;
-            int depth = (int)header.depth;
+        #endregion // Decompress
 
-            if (Check16BitComponents(header))
-                return DecompressARGB16(header, data, pixelFormat);
-
-            int sizeOfData = (int)((header.width * header.pixelformat.rgbbitcount / 8) * header.height * header.depth);
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
-
-            if ((pixelFormat == PixelFormat.LUMINANCE) && (header.pixelformat.rgbbitcount == 16) && (header.pixelformat.rbitmask == 0xFFFF))
-            {
-                Array.Copy(data, rawData, data.Length);
-                return rawData;
-            }
-
-            uint readI = 0;
-
-            GetBitsFromMask(header.pixelformat.rbitmask, out uint redL, out uint redR);
-            GetBitsFromMask(header.pixelformat.gbitmask, out uint greenL, out uint greenR);
-            GetBitsFromMask(header.pixelformat.bbitmask, out uint blueL, out uint blueR);
-            GetBitsFromMask(header.pixelformat.alphabitmask, out uint alphaL, out uint alphaR);
-            uint tempBpp = header.pixelformat.rgbbitcount / 8;
-
-            fixed (byte* bytePtr = data)
-            {
-                byte* temp = bytePtr;
-                for (int i = 0; i < sizeOfData; i += bpp)
-                {
-                    //@TODO: This is SLOOOW...
-                    //but the old version crashed in release build under
-                    //winxp (and xp is right to stop this code - I always
-                    //wondered that it worked the old way at all)
-                    if (sizeOfData - i < 4)
-                    { 
-                        //less than 4 byte to write?
-                        if (tempBpp == 3)
-                        { 
-                            //this branch is extra-SLOOOW
-                            readI = (uint)(*temp | ((*(temp + 1)) << 8) | ((*(temp + 2)) << 16));
-                        }
-                        else if (tempBpp == 1)
-                            readI = *(temp);
-                        else if (tempBpp == 2)
-                            readI = (uint)(temp[0] | (temp[1] << 8));
-                    }
-                    else
-                        readI = (uint)(temp[0] | (temp[1] << 8) | (temp[2] << 16) | (temp[3] << 24));
-                    temp += tempBpp;
-
-                    rawData[i] = (byte)((((int)readI & (int)header.pixelformat.rbitmask) >> (int)redR) << (int)redL);
-
-                    if (bpp >= 3)
-                    {
-                        rawData[i + 1] = (byte)((((int)readI & (int)header.pixelformat.gbitmask) >> (int)greenR) << (int)greenL);
-                        rawData[i + 2] = (byte)((((int)readI & header.pixelformat.bbitmask) >> (int)blueR) << (int)blueL);
-
-                        if (bpp == 4)
-                        {
-                            rawData[i + 3] = (byte)((((int)readI & (int)header.pixelformat.alphabitmask) >> (int)alphaR) << (int)alphaL);
-                            if (alphaL >= 7)
-                            {
-                                rawData[i + 3] = (byte)(rawData[i + 3] != 0 ? 0xFF : 0x00);
-                            }
-                            else if (alphaL >= 4)
-                            {
-                                rawData[i + 3] = (byte)(rawData[i + 3] | (rawData[i + 3] >> 4));
-                            }
-                        }
-                    }
-                    else if (bpp == 2)
-                    {
-                        rawData[i + 1] = (byte)((((int)readI & (int)header.pixelformat.alphabitmask) >> (int)alphaR) << (int)alphaL);
-                        if (alphaL >= 7)
-                        {
-                            rawData[i + 1] = (byte)(rawData[i + 1] != 0 ? 0xFF : 0x00);
-                        }
-                        else if (alphaL >= 4)
-                        {
-                            rawData[i + 1] = (byte)(rawData[i + 1] | (rawData[i + 3] >> 4));
-                        }
-                    }
-                }
-            }
-            return rawData;
-        }
-
-        static unsafe byte[] DecompressARGB16(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
-        {
-            // allocate bitmap
-            int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
-            int bps = (int)(header.width * bpp * PixelFormatToBpc(pixelFormat));
-            int sizeofplane = (int)(bps * header.height);
-            int width = (int)header.width;
-            int height = (int)header.height;
-            int depth = (int)header.depth;
-
-            int sizeOfData = (int)((header.width * header.pixelformat.rgbbitcount / 8) * header.height * header.depth);
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
-
-            uint readI = 0;
-
-            GetBitsFromMask(header.pixelformat.rbitmask, out uint redL, out uint redR);
-            GetBitsFromMask(header.pixelformat.gbitmask, out uint greenL, out uint greenR);
-            GetBitsFromMask(header.pixelformat.bbitmask, out uint blueL, out uint blueR);
-            GetBitsFromMask(header.pixelformat.alphabitmask, out uint alphaL, out uint alphaR);
-            uint redPad = 16 - CountBitsFromMask(header.pixelformat.rbitmask);
-            uint greenPad = 16 - CountBitsFromMask(header.pixelformat.gbitmask);
-            uint bluePad = 16 - CountBitsFromMask(header.pixelformat.bbitmask);
-            uint alphaPad = 16 - CountBitsFromMask(header.pixelformat.alphabitmask);
-
-            redL = redL + redPad;
-            greenL = greenL + greenPad;
-            blueL = blueL + bluePad;
-            alphaL = alphaL + alphaPad;
-
-            uint tempBpp = header.pixelformat.rgbbitcount / 8;
-            fixed (byte* bytePtr = data)
-            {
-                byte* temp = bytePtr;
-                fixed (byte* destPtr = rawData)
-                {
-                    byte* destData = destPtr;
-                    for (int i = 0; i < sizeOfData / 2; i += bpp)
-                    {
-                        //@TODO: This is SLOOOW...
-                        //but the old version crashed in release build under
-                        //winxp (and xp is right to stop this code - I always
-                        //wondered that it worked the old way at all)
-                        if (sizeOfData - i < 4)
-                        {
-                            //less than 4 byte to write?
-                            if (tempBpp == 3)
-                            {
-                                //this branch is extra-SLOOOW
-                                readI = (uint)(*temp | ((*(temp + 1)) << 8) | ((*(temp + 2)) << 16));
-                            }
-                            else if (tempBpp == 1)
-                                readI = *(temp);
-                            else if (tempBpp == 2)
-                                readI = (uint)(temp[0] | (temp[1] << 8));
-                        }
-                        else
-                            readI = (uint)(temp[0] | (temp[1] << 8) | (temp[2] << 16) | (temp[3] << 24));
-                        temp += tempBpp;
-
-                        ((ushort*)destData)[i + 2] = (ushort)((((int)readI & (int)header.pixelformat.rbitmask) >> (int)redR) << (int)redL);
-
-                        if (bpp >= 3)
-                        {
-                            ((ushort*)destData)[i + 1] = (ushort)((((int)readI & (int)header.pixelformat.gbitmask) >> (int)greenR) << (int)greenL);
-                            ((ushort*)destData)[i] = (ushort)((((int)readI & (int)header.pixelformat.bbitmask) >> (int)blueR) << (int)blueL);
-
-                            if (bpp == 4)
-                            {
-                                ((ushort*)destData)[i + 3] = (ushort)((((int)readI & (int)header.pixelformat.alphabitmask) >> (int)alphaR) << (int)alphaL);
-                                if (alphaL >= 7)
-                                {
-                                    ((ushort*)destData)[i + 3] = (ushort)(((ushort*)destData)[i + 3] != 0 ? 0xFF : 0x00);
-                                }
-                                else if (alphaL >= 4)
-                                {
-                                    ((ushort*)destData)[i + 3] = (ushort)(((ushort*)destData)[i + 3] | (((ushort*)destData)[i + 3] >> 4));
-                                }
-                            }
-                        }
-                        else if (bpp == 2)
-                        {
-                            ((ushort*)destData)[i + 1] = (ushort)((((int)readI & (int)header.pixelformat.alphabitmask) >> (int)alphaR) << (int)alphaL);
-                            if (alphaL >= 7)
-                            {
-                                ((ushort*)destData)[i + 1] = (ushort)(((ushort*)destData)[i + 1] != 0 ? 0xFF : 0x00);
-                            }
-                            else if (alphaL >= 4)
-                            {
-                                ((ushort*)destData)[i + 1] = (ushort)(((ushort*)destData)[i + 1] | (rawData[i + 3] >> 4));
-                            }
-                        }
-                    }
-                }
-            }
-            return rawData;
-        }
-        #endregion
-
-        #endregion
-
-        #endregion
 
         #region Nested Types
 
-        #region Colour8888
         [StructLayout(LayoutKind.Sequential)]
         private struct Colour8888
         {
@@ -1629,9 +1433,7 @@ namespace Ship_Game
             public byte blue;
             public byte alpha;
         }
-        #endregion
 
-        #region Colour565
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         private struct Colour565
         {
@@ -1639,9 +1441,7 @@ namespace Ship_Game
             public ushort green; //: 6;
             public ushort red; //: 5;
         }
-        #endregion
 
-        #region DDSStruct
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public struct DDSHeader
         {
@@ -1694,9 +1494,7 @@ namespace Ship_Game
             //}
             //#endif
         }
-        #endregion
 
-        #region DDSStruct Flags
         private const int DDSD_CAPS = 0x00000001;
         private const int DDSD_HEIGHT = 0x00000002;
         private const int DDSD_WIDTH = 0x00000004;
@@ -1705,16 +1503,12 @@ namespace Ship_Game
         private const int DDSD_MIPMAPCOUNT = 0x00020000;
         private const int DDSD_LINEARSIZE = 0x00080000;
         private const int DDSD_DEPTH = 0x00800000;
-        #endregion
 
-        #region pixelformat values
         private const int DDPF_ALPHAPIXELS = 0x00000001;
         private const int DDPF_FOURCC = 0x00000004;
         private const int DDPF_RGB = 0x00000040;
         private const int DDPF_LUMINANCE = 0x00020000;
-        #endregion
 
-        #region ddscaps
         // caps1
         private const int DDSCAPS_COMPLEX = 0x00000008;
         private const int DDSCAPS_TEXTURE = 0x00001000;
@@ -1728,9 +1522,7 @@ namespace Ship_Game
         private const int DDSCAPS2_CUBEMAP_POSITIVEZ = 0x00004000;
         private const int DDSCAPS2_CUBEMAP_NEGATIVEZ = 0x00008000;
         private const int DDSCAPS2_VOLUME = 0x00200000;
-        #endregion
 
-        #region fourccs
         private const uint FOURCC_DXT1 = 0x31545844;
         private const uint FOURCC_DXT2 = 0x32545844;
         private const uint FOURCC_DXT3 = 0x33545844;
@@ -1746,7 +1538,6 @@ namespace Ship_Game
         private const uint FOURCC_rNULL = 0x72;
         private const uint FOURCC_sNULL = 0x73;
         private const uint FOURCC_tNULL = 0x74;
-        #endregion
 
         /// <summary>
         /// Various pixel formats/compressors used by the DDS image.
@@ -1807,9 +1598,7 @@ namespace Ship_Game
 
         #endregion
     }
-    #endregion
 
-    #region Exception Types
     /// <summary>
     /// Thrown when an invalid file header has been encountered.
     /// </summary>
@@ -1818,18 +1607,9 @@ namespace Ship_Game
     }
 
     /// <summary>
-    /// Thrown when the data does not contain a DDS image.
-    /// </summary>
-    public class NotADDSImageException : Exception
-    {
-
-    }
-
-    /// <summary>
     /// Thrown when there is an unknown compressor used in the DDS file.
     /// </summary>
     public class UnknownFileFormatException : Exception
     {
     }
-    #endregion
 }

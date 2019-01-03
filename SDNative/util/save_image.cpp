@@ -1,4 +1,5 @@
 #include "../lodepng/lodepng.h"
+#include "../soil2/image_DXT.h"
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 using byte = unsigned char;
@@ -29,9 +30,9 @@ static std::vector<Color> BGRAtoRGBA(int w, int h, const Color* bgraImage)
 }
 
 /**
- * @return Error string or "" if no error happened.
+ * @return Error string or null if no error happened.
  */
-DLLEXPORT const char* __stdcall SaveBGRAImageAsPng(
+DLLEXPORT const char* __stdcall SaveBGRAImageAsPNG(
     const char* filename, int w, int h, const Color* bgraImage)
 {
     std::vector<Color> rgbaImage = BGRAtoRGBA(w, h, bgraImage);
@@ -42,4 +43,21 @@ DLLEXPORT const char* __stdcall SaveBGRAImageAsPng(
                 filename, w, h, lodepng_error_text(error));
     }
     return error ? lodepng_error_text(error) : nullptr;
+}
+
+
+/**
+ * @return Error string or null if no error happened
+ */
+DLLEXPORT const char* __stdcall SaveBGRAImageAsDDS(
+    const char* filename, int w, int h, const Color* bgraImage)
+{
+    std::vector<Color> rgbaImage = BGRAtoRGBA(w, h, bgraImage);
+
+    int error = save_image_as_DDS(filename, w, h, 4, (const byte*)rgbaImage.data());
+    if (error == 1)
+        return "Invalid parameters for DDS";
+    if (error == 2)
+        return "Failed to create DDS file. Directory not created? File already opened?";
+    return nullptr;
 }
