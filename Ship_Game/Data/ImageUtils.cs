@@ -15,7 +15,7 @@ namespace Ship_Game
         {
             var dxtData = new byte[tex.Width * tex.Height];
             tex.GetData(dxtData);
-            byte[] pixels = DDSImage.DecompressData(tex.Width, tex.Height, dxtData, DDSImage.PixelFormat.DXT5);
+            byte[] pixels = DDSReader.DecompressData(tex.Width, tex.Height, dxtData, DDSReader.PixelFormat.DXT5);
             return BytesToColor(pixels);
         }
 
@@ -23,7 +23,7 @@ namespace Ship_Game
         {
             var dxtData = new byte[(tex.Width * tex.Height) / 2];
             tex.GetData(dxtData);
-            byte[] pixels = DDSImage.DecompressData(tex.Width, tex.Height, dxtData, DDSImage.PixelFormat.DXT1);
+            byte[] pixels = DDSReader.DecompressData(tex.Width, tex.Height, dxtData, DDSReader.PixelFormat.DXT1);
             return BytesToColor(pixels);
         }
 
@@ -42,19 +42,37 @@ namespace Ship_Game
         }
 
         [DllImport("SDNative.dll")]
-        private static extern unsafe IntPtr SaveBGRAImageAsPng(
+        private static extern unsafe IntPtr SaveBGRAImageAsPNG(
             [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* bgraImage);
 
-        public static unsafe void SaveAsPng(string filename, int width, int height, Color[] bgraImage)
+        public static unsafe void SaveAsPNG(string filename, int width, int height, Color[] bgraImage)
         {
             fixed (Color* pColor = bgraImage)
             {
                 // Color is a BGRA little-endian struct
-                IntPtr error = SaveBGRAImageAsPng(filename, width, height, pColor);
+                IntPtr error = SaveBGRAImageAsPNG(filename, width, height, pColor);
                 if (error != IntPtr.Zero)
                 {
                     string message = Marshal.PtrToStringAnsi(error);
                     Log.Error($"Save PNG {filename} failed: {message}");
+                }
+            }
+        }
+
+        [DllImport("SDNative.dll")]
+        private static extern unsafe IntPtr SaveBGRAImageAsDDS(
+            [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* bgraImage);
+
+        public static unsafe void SaveAsDDS(string filename, int width, int height, Color[] bgraImage)
+        {
+            fixed (Color* pColor = bgraImage)
+            {
+                // Color is a BGRA little-endian struct
+                IntPtr error = SaveBGRAImageAsDDS(filename, width, height, pColor);
+                if (error != IntPtr.Zero)
+                {
+                    string message = Marshal.PtrToStringAnsi(error);
+                    Log.Error($"Save DDS {filename} failed: {message}");
                 }
             }
         }
