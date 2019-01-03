@@ -55,11 +55,11 @@ namespace Ship_Game
         private static readonly Color HoverColor  = new Color(164, 154, 133);
         private static readonly Color NormalColor = new Color(72, 61, 38);
 
-        private static Texture2D SliderKnob;
-        private static Texture2D SliderKnobHover;
-        private static Texture2D SliderMinute;
-        private static Texture2D SliderMinuteHover;
-        private static Texture2D SliderGradient;   // background gradient for the slider
+        private static SubTexture SliderKnob;
+        private static SubTexture SliderKnobHover;
+        private static SubTexture SliderMinute;
+        private static SubTexture SliderMinuteHover;
+        private static SubTexture SliderGradient;   // background gradient for the slider
 
         
         public FloatSlider(UIElementV2 parent, Rectangle r, int text) : this(parent, r, Localizer.Token(text))

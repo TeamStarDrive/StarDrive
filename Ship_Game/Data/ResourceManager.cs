@@ -18,7 +18,7 @@ namespace Ship_Game
     {
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
-        private static readonly Map<string, Texture2D> Textures   = new Map<string, Texture2D>();
+        private static readonly Map<string, SubTexture> Textures  = new Map<string, SubTexture>();
         public static Map<string, Ship> ShipsDict                 = new Map<string, Ship>();
         public static Map<string, Technology> TechTree            = new Map<string, Technology>(GlobalStats.CaseControl);
         private static readonly Array<Model> RoidsModels          = new Array<Model>();
@@ -41,9 +41,9 @@ namespace Ship_Game
 
         public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
-        public static Array<Texture2D> BigNebulas                 = new Array<Texture2D>();
-        public static Array<Texture2D> MedNebulas                 = new Array<Texture2D>();
-        public static Array<Texture2D> SmallNebulas               = new Array<Texture2D>();
+        public static Array<Texture2D> BigNebulae                 = new Array<Texture2D>();
+        public static Array<Texture2D> MedNebulae                 = new Array<Texture2D>();
+        public static Array<Texture2D> SmallNebulae               = new Array<Texture2D>();
         public static Array<Texture2D> SmallStars                 = new Array<Texture2D>();
         public static Array<Texture2D> MediumStars                = new Array<Texture2D>();
         public static Array<Texture2D> LargeStars                 = new Array<Texture2D>();
@@ -73,7 +73,6 @@ namespace Ship_Game
 
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager RootContent => Game1.Instance.Content;
-        private static string LastFailedTexture = "";
 
         public static Technology GetTreeTech(string techUid)
         {
@@ -214,10 +213,10 @@ namespace Ship_Game
         public static void LoadItAll()
         {
             Reset();
-            new ResourceTests().RunAll();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage();
-            LoadTextures();
+            //new ResourceTests().RunAll();
+            LoadTextureAtlases();
             LoadToolTips();
             LoadTroops();
             LoadHullBonuses();
@@ -233,7 +232,7 @@ namespace Ship_Game
             LoadProjectileMeshes();
             LoadRandomItems();
             LoadFlagTextures();
-            LoadNebulas();
+            LoadNebulae();
             LoadSmallStars();
             LoadMediumStars();
             LoadLargeStars();
@@ -261,7 +260,6 @@ namespace Ship_Game
 
             Log.ShowConsoleWindow();
             TestHullLoad();
-            //TestCompressedTextures();
             //TestTechTextures();
 
             Log.HideConsoleWindow();
@@ -290,23 +288,6 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
             Log.TestMessage("Hull Model Load Finished", waitForEnter: true);
             RootContent.EnableLoadInfoLog = false;
-        }
-
-        private static void TestCompressedTextures()
-        {
-            if (!Log.TestMessage("Test - Checking For Uncompressed Texture \n", waitForYes:true))
-                return;
-            foreach (KeyValuePair<string, Texture2D> textDic in Textures)
-            {
-                Texture2D tex  = textDic.Value;
-                SurfaceFormat texFormat = tex.Format;
-                if (texFormat != SurfaceFormat.Color)
-                    continue;
-                Log.TestMessage($"Uncompressed Texture {textDic.Key}", Log.Importance.Important);
-                Log.TestMessage($"{tex.ResourceType} Dimensions:{tex.Size()} \n");
-            }
-
-            Log.TestMessage("Test - Checking For Uncompressed Texture Finished", waitForEnter: true);
         }
 
         private static void TestTechTextures()
@@ -819,26 +800,31 @@ namespace Ship_Game
 
 
         // Gets a loaded texture using the given abstract texture path, ex: "Buildings/
-        public static Texture2D TextureOrNull(string textureNamePath)
+        public static SubTexture TextureOrNull(string textureNamePath)
         {
-            return Textures.TryGetValue(textureNamePath, out Texture2D texture) ? texture : null;
+            return Textures.TryGetValue(textureNamePath, out SubTexture texture) ? texture : null;
         }
 
-        public static Texture2D TextureOrDefault(string textureNamePath, string defaultTex)
+        public static SubTexture TextureOrDefault(string textureNamePath, string defaultTex)
         {
-            return Textures.TryGetValue(textureNamePath, out Texture2D texture) ? texture : Texture(defaultTex);
+            return Textures.TryGetValue(textureNamePath, out SubTexture texture) ? texture : Texture(defaultTex);
         }
 
-        public static Texture2D Texture(string textureNamePath)
+        public static SubTexture Texture(string textureNamePath)
         {
-            if (Textures.TryGetValue(textureNamePath, out Texture2D texture))
+            if (Textures.TryGetValue(textureNamePath, out SubTexture texture))
                 return texture;
-            if (LastFailedTexture != textureNamePath)
-            {
-                LastFailedTexture = textureNamePath;
-                Log.WarningWithCallStack($"texture path not found: '{textureNamePath}' replacing with 'NewUI/x_red'");
-            }
-            return Textures["NewUI/x_red"];
+
+            Log.WarningWithCallStack($"Texture path not found: '{textureNamePath}' replacing with 'NewUI/x_red'");
+
+            SubTexture errorTexture = Textures["NewUI/x_red"];
+            Textures[textureNamePath] = errorTexture; // so we don't get this error again
+            return errorTexture;
+        }
+
+        public static Texture2D Texture2D(string textureNamePath)
+        {
+            return RootContent.Load<Texture2D>("Textures/" + textureNamePath);
         }
 
         public static bool TextureLoaded(string texturePath)
@@ -846,22 +832,9 @@ namespace Ship_Game
             return Textures.ContainsKey(texturePath);
         }
 
-        public static Texture2D ProjTexture(string texturePath)
+        public static SubTexture ProjTexture(string texturePath)
         {
-            return ProjTextDict[texturePath];
-        }
-
-        private static void LoadTexture(FileInfo info)
-        {
-            string relPath = info.CleanResPath(false);
-            string relPathNoExt = relPath.Substring(0, relPath.Length - 4);
-            string texName = relPathNoExt.Substring("Textures/".Length);
-
-            var tex = RootContent.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
-            lock (Textures)
-            {
-                Textures[texName] = tex;
-            }
+            return new SubTexture(ProjTextDict[texturePath]);
         }
 
         public static FileInfo[] GatherTextureFiles(string dir, bool recursive)
@@ -875,86 +848,54 @@ namespace Ship_Game
             return allFiles.ToArray();
         }
 
-        // This method is a hot path during Loading and accounts for ~25% of time spent
-        private static void LoadTextures()
+        public static void LoadTextureAtlases()
         {
-            FileInfo[] files = GatherTextureFiles("Textures", recursive:true);
-
-        #if true // parallel texture load
-            Parallel.For(files.Length, (start, end) => {
-                for (int i = start; i < end; ++i)
-                    LoadTexture(files[i]);
-            });
-        #else
-            foreach (FileInfo info in files)
-                LoadTexture(info);
-        #endif
-
-        #if false
-            // check for any duplicate loads:
-            var field = typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance | BindingFlags.NonPublic);
-            var assets = field?.GetValue(ContentManager) as Map<string, object>;
-            if (assets != null && assets.Count != 0)
+            void LoadTexture(string folder)
             {
-                string[] keys = assets.Keys.Where(key => key != null).ToArray();
-                string[] names = keys.Select(key => Path.GetDirectoryName(key) + "\\" + Path.GetFileName(key)).ToArray();
-                for (int i = 0; i < names.Length; ++i)
+                var atlas = RootContent.Load<TextureAtlas>(folder);
+
+                string relativePath = "";
+                if (folder != "Textures")
+                    relativePath = folder.Substring("Textures/".Length) + "/";
+
+                lock (Textures)
                 {
-                    for (int j = 0; j < names.Length; ++j)
+                    foreach (SubTexture tex in atlas.Textures)
                     {
-                        if (i != j && names[i] == names[j])
-                        {
-                            Log.Warning("!! Duplicate texture load: \n    {0}\n    {1}", keys[i], keys[j]);
-                        }
+                        string name = relativePath + tex.Name;
+                        Textures[name] = tex;
                     }
                 }
             }
-        #endif
-        }
 
-        public static void LoadTextureAtlases()
-        {
-            RootContent.Load<TextureAtlas>("Textures");
+            LoadTexture("Textures");
 
             DirectoryInfo[] dirs = GatherDirsUnified("Textures");
-            Parallel.For(dirs.Length, (start, end) => {
+            Parallel.For(dirs.Length, (start, end) =>
+            {
                 for (int i = start; i < end; ++i)
                 {
                     DirectoryInfo dir = dirs[i];
                     string name = dir.FullName.Substring(dir.FullName.IndexOf("Textures"))
                                                 .Replace('\\', '/');
-                    RootContent.Load<TextureAtlas>(name);
+                    LoadTexture(name);
                 }
             });
         }
 
         // Load texture with its abstract path such as
         // "Explosions/smaller/shipExplosion"
-        public static Texture2D LoadTexture(string textureName)
+        public static SubTexture LoadTexture(string textureName)
         {
-            if (Textures.TryGetValue(textureName, out Texture2D tex))
-                return tex;
-            try
-            {
-                tex = RootContent.Load<Texture2D>("Textures/" + textureName);
-                Textures[textureName] = tex;
-            }
-            catch (Exception)
-            {
-            }
-            return tex;
+            return RootContent.Load<SubTexture>("Textures/" + textureName);;
         }
 
         // Load texture for a specific mod, such as modName="Overdrive"
         public static Texture2D LoadModTexture(string modName, string textureName)
         {
-            if (Textures.TryGetValue(textureName, out Texture2D tex))
-                return tex;
-
             string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
             if (File.Exists(modTexPath + ".xnb"))
-                return Textures[textureName] = RootContent.Load<Texture2D>(modTexPath);
-
+                return RootContent.Load<Texture2D>(modTexPath);
             return null;
         }
 
@@ -1297,24 +1238,28 @@ namespace Ship_Game
         }
 
         // Refactored by RedFox
-        private static void LoadNebulas()
+        private static void LoadNebulae()
         {
             foreach (FileInfo info in Dir.GetFiles("Content/Nebulas", "xnb"))
             {
                 string nameNoExt = info.NameNoExt();
                 var tex = RootContent.Load<Texture2D>("Nebulas/" + nameNoExt);
-                if      (tex.Width == 2048) BigNebulas.Add(tex);
-                else if (tex.Width == 1024) MedNebulas.Add(tex);
-                else                        SmallNebulas.Add(tex);
+                if      (tex.Width == 2048) BigNebulae.Add(tex);
+                else if (tex.Width == 1024) MedNebulae.Add(tex);
+                else                        SmallNebulae.Add(tex);
             }
         }
-        public static Texture2D MedNebula(int index)
+        public static SubTexture SmallNebulaRandom()
         {
-            return MedNebulas[index];
+            return new SubTexture(SmallNebulae[RandomMath.InRange(SmallNebulae.Count)]);
         }
-        public static Texture2D BigNebula(int index)
+        public static SubTexture MedNebula(int index)
         {
-            return BigNebulas[index];
+            return new SubTexture(MedNebulae[index]);
+        }
+        public static SubTexture BigNebula(int index)
+        {
+            return new SubTexture(BigNebulae[index]);
         }
         // Refactored by RedFox
         private static void LoadProjectileMesh(string projectileDir, string nameNoExt)
@@ -1399,10 +1344,10 @@ namespace Ship_Game
                     continue;
                 ShipModule_Deserialize data = pair.Entity;
 
-                data.UID = String.Intern(pair.Info.NameNoExt());
-                data.IconTexturePath = String.Intern(data.IconTexturePath);
+                data.UID = string.Intern(pair.Info.NameNoExt());
+                data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
-                    data.WeaponType = String.Intern(data.WeaponType);
+                    data.WeaponType = string.Intern(data.WeaponType);
 
                 if (GlobalStats.VerboseLogging)
                 {

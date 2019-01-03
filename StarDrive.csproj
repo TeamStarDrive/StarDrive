@@ -303,6 +303,7 @@
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\SpriteSystem\FadeInOutAnim.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\SpriteExtensions.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentMissionData.cs" />
     <Compile Include="Ship_Game\GameScreens\EspionageScreen.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\EventTypes.cs">

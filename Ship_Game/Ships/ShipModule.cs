@@ -193,7 +193,7 @@ namespace Ship_Game.Ships
         }
         public float WeaponECM = 0;
         
-        public Texture2D ModuleTexture => ResourceManager.Texture(IconTexturePath);
+        public SubTexture ModuleTexture => ResourceManager.Texture(IconTexturePath);
         public bool HasColonyBuilding => ModuleType == ShipModuleType.Colony || DeployBuildingOnColonize.NotEmpty();
 
         public float ActualPowerStoreMax   => PowerStoreMax * Bonuses.FuelCellMod;

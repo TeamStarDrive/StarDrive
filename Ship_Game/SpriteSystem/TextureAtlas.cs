@@ -1,25 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Xml;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Color = Microsoft.Xna.Framework.Graphics.Color;
 
 namespace Ship_Game
 {
     public class SubTexture
     {
         // name="sprite1" x="461" y="1317" width="28" height="41"
-        public string Name;        // name of the sprite for name-based lookup
-        public int X, Y;           // position in sprite sheet
-        public int Width, Height;  // actual size of sub-texture in sprite sheet
-        public Texture2D Atlas;  // MAIN atlas texture
+        public readonly string Name;        // name of the sprite for name-based lookup
+        public readonly int X;
+        public readonly int Y;
+        public readonly int Width;
+        public readonly int Height;
+        public readonly Texture2D Atlas;  // MAIN atlas texture
+
+        public Rectangle Rect => new Rectangle(X, Y, Width, Height);
+        public int Right  => X + Width;
+        public int Bottom => Y + Height;
+
+        public SubTexture(string name, int x, int y, int w, int h, Texture2D atlas)
+        {
+            Name = name;
+            X = x;
+            Y = y;
+            Width = w;
+            Height = h;
+            Atlas = atlas;
+        }
+
+        // special case: SubTexture is a container for a full texture
+        public SubTexture(Texture2D fullTexture)
+        {
+            Name   = "";
+            Width  = fullTexture.Width;
+            Height = fullTexture.Height;
+            Atlas  = fullTexture;
+        }
+
+        // UV-coordinates
+        public float CoordLeft   => X / (float)Atlas.Width;
+        public float CoordTop    => Y / (float)Atlas.Height;
+        public float CoordRight  => (X + (Width  - 1)) / (float)Atlas.Width;
+        public float CoordBottom => (Y + (Height - 1)) / (float)Atlas.Height;
+
+        public Vector2 CoordUpperLeft  => new Vector2(CoordLeft, CoordTop);
+        public Vector2 CoordLowerLeft  => new Vector2(CoordLeft, CoordBottom);
+        public Vector2 CoordLowerRight => new Vector2(CoordRight, CoordBottom);
+        public Vector2 CoordUpperRight => new Vector2(CoordRight, CoordTop);
+
+        public Vector2 Center() => new Vector2(Width / 2f, Height / 2f);
+        public Vector2 Size()   => new Vector2(Width, Height);
 
         public override string ToString()
-            => $"sub-tex  {Name} {X},{Y} {Width}x{Height}  atlas:{Atlas.Width}x{Atlas.Height}";
+            => $"sub-tex  {Name} {Rect.X},{Rect.Y} {Rect.Width}x{Rect.Height}  atlas:{Atlas.Width}x{Atlas.Height}";
     }
 
     /// Generic TextureAtlas which is used as a container
@@ -27,6 +63,8 @@ namespace Ship_Game
     public class TextureAtlas : IDisposable
     {
         const int Version = 1; // changing this will force all caches to regenerate
+        const int Padding = 2; // Atlas texture padding
+        const int MinFreeSpotSize = 16; // Minimum width/height for recycled free spots
 
         public string Name { get; private set; }
         readonly string CacheName;
@@ -38,13 +76,17 @@ namespace Ship_Game
         public Texture2D Atlas { get; private set; }
         Array<Rectangle> FreeSpots; // non-local for debugging purposes
 
-        readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
-        SubTexture[] SortedTextures = Empty<SubTexture>.Array;
+        readonly Map<string, SubTexture> Lookup = new Map<string, SubTexture>();
+        SubTexture[] Sorted = Empty<SubTexture>.Array;
 
         protected TextureAtlas(string name)
         {
             Name = name;
-            CacheName = name.Replace('/', '_');
+
+            CacheName = name;
+            if (CacheName.StartsWith("Textures/"))
+                CacheName = CacheName.Substring("Textures/".Length);
+            CacheName = CacheName.Replace('/', '_');
         }
 
         ~TextureAtlas()
@@ -59,15 +101,16 @@ namespace Ship_Game
         }
 
         public string SizeString => $"{$"{Width}x{Height}",9}";
-        public override string ToString() => $"atlas {SpriteCount} {SizeString} {Name}";
+        public override string ToString() => $"atlas {Count} {SizeString} {Name}";
 
-        public int SpriteCount => SortedTextures.Length;
-        public SubTexture this[int index] => SortedTextures[index];
-        public SubTexture this[string name] => Textures[name];
+        public IReadOnlyList<SubTexture> Textures => Sorted;
+        public int Count => Sorted.Length;
+        public SubTexture this[int index] => Sorted[index];
+        public SubTexture this[string name] => Lookup[name];
 
         public bool TryGetTexture(string name, out SubTexture texture)
         {
-            return Textures.TryGetValue(name, out texture);
+            return Lookup.TryGetValue(name, out texture);
         }
 
         static string PrepareTextureCacheDir()
@@ -164,9 +207,6 @@ namespace Ship_Game
             return hash;
         }
 
-        const int Padding = 0; // Atlas texture padding
-        const int MinFreeSpotSize = 16; // Minimum width/height for recycled free spots
-
         bool FillFreeSpot(TextureInfo td)
         {
             for (int j = 0; j < FreeSpots.Count; ++j)
@@ -223,10 +263,10 @@ namespace Ship_Game
             int cursorY = 0;
             int bottomY = 0;
 
-            // an 48x96 free spot filled by a 48x48 tex, will leave
-            // a 48x47 slot, which can no longer be filled
-            // so we add additional padding to cursor movement
-            const int cursorPadding = Padding * 2;
+            //// an 48x96 free spot filled by a 48x48 tex, will leave
+            //// a 48x47 slot, which can no longer be filled
+            //// so we add additional padding to cursor movement
+            //const int cursorPadding = Padding * 2;
 
             for (int i = 0; i < textures.Length; ++i)
             {
@@ -243,7 +283,7 @@ namespace Ship_Game
                     if (remainingX >= MinFreeSpotSize && remainingY >= MinFreeSpotSize)
                         FreeSpots.Add(new Rectangle(cursorX, cursorY, remainingX, remainingY));
                     cursorX = 0;
-                    cursorY = bottomY + Padding + cursorPadding;
+                    cursorY = bottomY + Padding;
                 }
                 int newBottomY = cursorY + td.Height;
                 if (newBottomY > bottomY) bottomY = newBottomY;
@@ -261,7 +301,7 @@ namespace Ship_Game
 
                 td.X = cursorX;
                 td.Y = cursorY;
-                int fillX = (td.Width + Padding + cursorPadding);
+                int fillX = (td.Width + Padding);
                 cursorX += fillX;
 
                 // After filling our spot, there is a potential free spot.
@@ -273,7 +313,7 @@ namespace Ship_Game
                 if (fillX >= MinFreeSpotSize)
                 {
                     int freeSpotY = (td.Y + td.Height + Padding);
-                    int freeSpotH = (bottomY - freeSpotY) + cursorPadding;
+                    int freeSpotH = (bottomY - freeSpotY);
                     if (freeSpotH >= MinFreeSpotSize)
                     {
                         FreeSpots.Add(new Rectangle(td.X, freeSpotY, fillX, freeSpotH));
@@ -310,36 +350,26 @@ namespace Ship_Game
         {
             Stopwatch s = Stopwatch.StartNew();
             var atlasColorData = new Color[Width * Height];
-            for (int i = 0; i < textures.Length; ++i)
-            {
-                TextureInfo td = textures[i];
-                td.CopyPixelsTo(atlasColorData, Width);
-                Textures[td.Name] = new SubTexture
-                {
-                    Name = td.Name,
-                    X = td.X,
-                    Y = td.Y,
-                    Width = td.Width,
-                    Height = td.Height,
-                };
-            }
 
-            foreach (Rectangle r in FreeSpots)
-                DrawRectangle(atlasColorData, r, Color.AliceBlue);
+            for (int i = 0; i < textures.Length; ++i)
+                textures[i].CopyPixelsTo(atlasColorData, Width);
+
+            //foreach (Rectangle r in FreeSpots)
+            //    DrawRectangle(atlasColorData, r, Color.AliceBlue);
             FreeSpots = null;
 
-            //HelperFunctions.CollectMemorySilent();
             // We compress the DDS color into DXT5 and then reload it through XNA
             ImageUtils.SaveAsDDS(TexturePath, Width, Height, atlasColorData);
             atlasColorData = null;
             
-            //HelperFunctions.CollectMemorySilent();
             Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
             //Atlas.Save($"{TextureCacheDir}/{CacheName}.png", ImageFileFormat.Png); // DEBUG, Slooooooowwww
 
-            // Initialize atlas reference
-            foreach (SubTexture t in Textures.Values)
-                t.Atlas = Atlas;
+            for (int i = 0; i < textures.Length; ++i)
+            {
+                TextureInfo td = textures[i];
+                Lookup[td.Name] = new SubTexture(td.Name, td.X, td.Y, td.Width, td.Height, Atlas);
+            }
 
             Log.Info($"CreateTexture    {SizeString} {Name} elapsed:{s.Elapsed.TotalMilliseconds}ms");
         }
@@ -350,10 +380,10 @@ namespace Ship_Game
             {
                 fs.WriteLine(Hash);
                 fs.WriteLine(Name);
-                foreach (KeyValuePair<string, SubTexture> kv in Textures)
+                foreach (KeyValuePair<string, SubTexture> kv in Lookup)
                 {
                     SubTexture t = kv.Value;
-                    fs.WriteLine($"{t.X} {t.Y} {t.Width} {t.Height} {t.Name}");
+                    fs.WriteLine($"{t.Rect.X} {t.Rect.Y} {t.Rect.Width} {t.Rect.Height} {t.Name}");
                 }
             }
         }
@@ -368,7 +398,7 @@ namespace Ship_Game
                 if (hash != Hash)
                     return false; // hash mismatch, we need to regenerate cache
 
-                Textures.Clear();
+                Lookup.Clear();
                 Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
                 Width = Atlas.Width;
                 Height = Atlas.Height;
@@ -380,18 +410,16 @@ namespace Ship_Game
                 while ((line = fs.ReadLine()) != null)
                 {
                     string[] entry = line.Split(separator, 5);
-                    var t = new SubTexture();
-                    int.TryParse(entry[0], out t.X);
-                    int.TryParse(entry[1], out t.Y);
-                    int.TryParse(entry[2], out t.Width);
-                    int.TryParse(entry[3], out t.Height);
-                    t.Name = entry[4];
-                    t.Atlas = Atlas;
-                    Textures.Add(t.Name, t);
+                    int.TryParse(entry[0], out int x);
+                    int.TryParse(entry[1], out int y);
+                    int.TryParse(entry[2], out int w);
+                    int.TryParse(entry[3], out int h);
+                    var t = new SubTexture(entry[4], x, y, w, h, Atlas);
+                    Lookup.Add(t.Name, t);
                 }
                 CreateSortedList();
             }
-            Log.Info($"LoadAtlas    {Textures.Count,3} {SizeString} {Name}");
+            Log.Info($"LoadAtlas    {Lookup.Count,3} {SizeString} {Name}");
             return true; // we loaded everything
         }
 
@@ -417,8 +445,8 @@ namespace Ship_Game
 
         void CreateSortedList()
         {
-            SortedTextures = Textures.Values.ToArray();
-            Array.Sort(SortedTextures, (a, b) => string.CompareOrdinal(a.Name, b.Name));
+            Sorted = Lookup.Values.ToArray();
+            Array.Sort(Sorted, (a, b) => string.CompareOrdinal(a.Name, b.Name));
         }
 
         public static TextureAtlas FromFolder(GameContentManager content, string folder, bool useCache = true)

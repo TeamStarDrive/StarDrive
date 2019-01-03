@@ -222,7 +222,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             Viewport viewport;
-            Texture2D nodeTexture = ResourceManager.Texture("UI/node");
+            SubTexture nodeTexture = ResourceManager.Texture("UI/node");
             ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
@@ -242,7 +242,7 @@ namespace Ship_Game
                 float ssRadius = Math.Abs(insetRadialSS.X - screenPos.X);
                 Rectangle nodeRect = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)ssRadius * 2, (int)ssRadius * 2);
                 Vector2 origin = new Vector2(nodeTexture.Width / 2f, nodeTexture.Height / 2f);
-                batch.Draw(nodeTexture, nodeRect, null, new Color(0, 255, 0, 75), 0f, origin, SpriteEffects.None, 1f);
+                batch.Draw(nodeTexture, nodeRect, new Color(0, 255, 0, 75), 0f, origin, SpriteEffects.None, 1f);
             }
             ClickableNodes.Clear();
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
@@ -569,7 +569,7 @@ namespace Ship_Game
             {
                 float scale;
                 Vector2 iconOrigin;
-                Texture2D item;
+                SubTexture item;
                 Ship ship = ActiveShipDesign;
                 {
                     scale = ship.SurfaceArea / (float) (30 + ResourceManager.Texture("TacticalIcons/symbol_fighter").Width);
@@ -583,7 +583,7 @@ namespace Ship_Game
                 }
                 float single = Mouse.GetState().X;
                 MouseState state = Mouse.GetState();
-                batch.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
+                batch.Draw(item, new Vector2(single, state.Y), EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
             DrawSelectedData(Game1.Instance.GameTime);
             Close.Draw(batch);
