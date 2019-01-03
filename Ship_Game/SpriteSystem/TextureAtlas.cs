@@ -70,6 +70,7 @@ namespace Ship_Game
         readonly string CacheName;
         string DescriptorPath => $"{TextureCacheDir}/{CacheName}.atlas";
         string TexturePath    => $"{TextureCacheDir}/{CacheName}.dds";
+        string TexturePathPNG => $"{TextureCacheDir}/{CacheName}.png";
         int Hash;
         public int Width  { get; private set; }
         public int Height { get; private set; }
@@ -359,11 +360,13 @@ namespace Ship_Game
             FreeSpots = null;
 
             // We compress the DDS color into DXT5 and then reload it through XNA
+            ImageUtils.ConvertToRGBA(Width, Height, atlasColorData);
             ImageUtils.SaveAsDDS(TexturePath, Width, Height, atlasColorData);
+            ImageUtils.SaveAsPNG(TexturePathPNG, Width, Height, atlasColorData);
             atlasColorData = null;
             
             Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
-            //Atlas.Save($"{TextureCacheDir}/{CacheName}.png", ImageFileFormat.Png); // DEBUG, Slooooooowwww
+            //Atlas.Save(TexturePathDbg, ImageFileFormat.Png); // DEBUG, Slooooooowwww
 
             for (int i = 0; i < textures.Length; ++i)
             {
