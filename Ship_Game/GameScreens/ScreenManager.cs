@@ -14,7 +14,7 @@ namespace Ship_Game
         private readonly Array<GameScreen> Screens = new Array<GameScreen>();
         public InputState input = new InputState();
         private readonly IGraphicsDeviceService GraphicsDeviceService;
-        private Texture2D BlankTexture;
+        private SubTexture BlankTexture;
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
         private readonly SceneState GameSceneState;

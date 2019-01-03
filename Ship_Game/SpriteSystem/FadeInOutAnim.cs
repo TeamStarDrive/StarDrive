@@ -5,14 +5,14 @@ namespace Ship_Game
 {
     public struct FadeInOutAnim
     {
-        private readonly Texture2D Texture;
+        private readonly SubTexture Texture;
         private readonly Rectangle Rect;
         private readonly int FadeIn;
         private readonly int Stay;
         private readonly int FadeOut;
         private readonly int End;
 
-        public FadeInOutAnim(Texture2D texture, Rectangle rect, int fadeIn, int stay, int fadeOut, int end)
+        public FadeInOutAnim(SubTexture texture, Rectangle rect, int fadeIn, int stay, int fadeOut, int end)
         {
             Texture = texture;
             Rect    = rect;

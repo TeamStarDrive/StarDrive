@@ -21,7 +21,7 @@ namespace Ship_Game
         public string ModuleUID;
         public ShipModule Module;
         public string SlotOptions;
-        public Texture2D Tex;
+        public SubTexture Tex;
 
         public SlotStruct()
         {
@@ -97,7 +97,7 @@ namespace Ship_Game
             return false;
         }
 
-        public void Draw(SpriteBatch sb, Texture2D texture, Color tint)
+        public void Draw(SpriteBatch sb, SubTexture texture, Color tint)
         {
             Rectangle rect = Module == null ? PQ.Rect : ModuleRect;
             sb.Draw(texture, rect, tint);

@@ -18,14 +18,14 @@ namespace Ship_Game
             {
                 for (int y = 0; y < BkgRect.Height; y += ItAmount)
                 {
-                    int bigIndex = RandomMath.InRange(ResourceManager.BigNebulas.Count);
+                    int bigIndex = RandomMath.InRange(ResourceManager.BigNebulae.Count);
                     var n = new Nebula
                     {
                         Position = new Vector2(RandomMath.RandomBetween(x, x + 256), RandomMath.RandomBetween(y, y + 256)),
                         index = bigIndex,
                         size  = 3,
-                        xClearanceNeeded = ResourceManager.BigNebulas[bigIndex].Width / 2,
-                        yClearanceNeeded = ResourceManager.BigNebulas[bigIndex].Height / 2
+                        xClearanceNeeded = ResourceManager.BigNebulae[bigIndex].Width / 2,
+                        yClearanceNeeded = ResourceManager.BigNebulae[bigIndex].Height / 2
                     };
                     if (NebulaPosOk(n))
                         Nebulas.Add(n);
@@ -35,26 +35,26 @@ namespace Ship_Game
             {
                 for (int y = 0; y < BkgRect.Height; y += ItAmount)
                 {
-                    int medIndex = RandomMath.InRange(ResourceManager.MedNebulas.Count);
+                    int medIndex = RandomMath.InRange(ResourceManager.MedNebulae.Count);
                     var n = new Nebula
                     {
                         Position = new Vector2(RandomMath.RandomBetween(x, x + 256), RandomMath.RandomBetween(y, y + 256)),
                         index = medIndex,
                         size = 1,
-                        xClearanceNeeded = ResourceManager.MedNebulas[medIndex].Width / 2,
-                        yClearanceNeeded = ResourceManager.MedNebulas[medIndex].Height / 2
+                        xClearanceNeeded = ResourceManager.MedNebulae[medIndex].Width / 2,
+                        yClearanceNeeded = ResourceManager.MedNebulae[medIndex].Height / 2
                     };
                     if (NebulaPosOk(n))
                         Nebulas.Add(n);
 
-                    int smallIndex = RandomMath.InRange(ResourceManager.SmallNebulas.Count);
+                    int smallIndex = RandomMath.InRange(ResourceManager.SmallNebulae.Count);
                     n = new Nebula
                     {
                         Position = new Vector2(RandomMath.RandomBetween(x, x + 256), RandomMath.RandomBetween(y, y + 256)),
                         index = smallIndex,
                         size = 1,
-                        xClearanceNeeded = ResourceManager.SmallNebulas[smallIndex].Width / 2,
-                        yClearanceNeeded = ResourceManager.SmallNebulas[smallIndex].Height / 2
+                        xClearanceNeeded = ResourceManager.SmallNebulae[smallIndex].Width / 2,
+                        yClearanceNeeded = ResourceManager.SmallNebulae[smallIndex].Height / 2
                     };
                     if (NebulaPosOk(n))
                     {
@@ -78,8 +78,8 @@ namespace Ship_Game
             var bgRect = new Rectangle((int)(Camera.Pos.X - Empire.Universe.Viewport.Width / 2f - Camera.Pos.X / 30f - 200f), 
                                        (int)(Camera.Pos.Y - (screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight / 2f) - Camera.Pos.Y / 30f) - 200, 2048, 2048);
             screenMgr.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
-            screenMgr.SpriteBatch.Draw(ResourceManager.BigNebulas[1], bgRect, new Color(255, 255, 255, 60));
-            screenMgr.SpriteBatch.Draw(ResourceManager.BigNebulas[3], bgRect, new Color(255, 255, 255, 60));
+            screenMgr.SpriteBatch.Draw(ResourceManager.BigNebulae[1], bgRect, new Color(255, 255, 255, 60));
+            screenMgr.SpriteBatch.Draw(ResourceManager.BigNebulae[3], bgRect, new Color(255, 255, 255, 60));
             screenMgr.SpriteBatch.End();
             LastCamPos = camPos;
         }
@@ -127,8 +127,8 @@ namespace Ship_Game
             }
             universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
                 SaveStateMode.None, Camera.Transform);
-            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[1], BkgRect, new Color(255, 255, 255, 60));
-            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[3], BkgRect, new Color(255, 255, 255, 60));
+            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulae[1], BkgRect, new Color(255, 255, 255, 60));
+            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulae[3], BkgRect, new Color(255, 255, 255, 60));
             if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
             {
                 float x1 = Camera.Pos.X;
@@ -161,8 +161,8 @@ namespace Ship_Game
             var bgRect = new Rectangle((int)((universe.Viewport.Width / -2f) - 200f), 
                 (int)(universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / -2f) - 200, 2048, 2048);
             universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
-            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[1], bgRect, new Color(255, 255, 255, 60));
-            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulas[3], bgRect, new Color(255, 255, 255, 60));
+            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulae[1], bgRect, new Color(255, 255, 255, 60));
+            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.BigNebulae[3], bgRect, new Color(255, 255, 255, 60));
             universe.ScreenManager.SpriteBatch.End();
         }
 

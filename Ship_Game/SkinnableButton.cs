@@ -30,15 +30,15 @@ namespace Ship_Game
         public Color BaseColor = Color.White;
 
         private readonly Color ToggleColor = new Color(33, 26, 18);
-        private readonly Texture2D Texture;
+        private readonly SubTexture Texture;
 
-        public SkinnableButton(Rectangle r, string TexturePath)
+        public SkinnableButton(Rectangle r, string texturePath)
         {
-            tPath = TexturePath;
+            tPath = texturePath;
             Texture = ResourceManager.Texture(tPath);
             this.r = r;
         }
-        public SkinnableButton(Rectangle r, Texture2D texture)
+        public SkinnableButton(Rectangle r, SubTexture texture)
         {
             Texture = texture;
             this.r = r;
