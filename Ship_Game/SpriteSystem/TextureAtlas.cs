@@ -30,6 +30,7 @@ namespace Ship_Game
         public int Width  { get; private set; }
         public int Height { get; private set; }
         public Texture2D Atlas { get; private set; }
+        private Array<Rectangle> FreeSpots; // non-local for debugging purposes
 
         private readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
 
@@ -149,36 +150,44 @@ namespace Ship_Game
             return hash;
         }
 
-        const int Padding = 2; // Atlas texture padding
+        const int Padding = 0; // Atlas texture padding
         const int MinFreeSpotSize = 16; // Minimum width/height for recycled free spots
 
-        static bool FillFreeSpot(Array<Rectangle> freeSpots, ref TextureData td)
+        bool FillFreeSpot(ref TextureData td)
         {
-            for (int j = 0; j < freeSpots.Count; ++j)
+            for (int j = 0; j < FreeSpots.Count; ++j)
             {
-                Rectangle r = freeSpots[j];
+                Rectangle r = FreeSpots[j];
                 if (td.Width > r.Width || td.Height > r.Height)
                     continue;
                 td.X = r.X;
                 td.Y = r.Y;
-                freeSpots.RemoveAt(j);
+                FreeSpots.RemoveAt(j);
                 int fillX = td.Width  + Padding;
                 int fillY = td.Height + Padding;
                 int remX = r.Width  - fillX;
                 int remY = r.Height - fillY;
-                // We have remaining sections A, B, C that could be recycled
-                // So split it up if >= MinFreeSpotSize and push to freeSpots
+                // We have remaining sections A, B that could be recycled
+                // So split it up if >= MinFreeSpotSize and insert to freeSpots
                 // _____________
                 // |fill |  A  |
-                // |_____|_____|
-                // |  B  |  C  |
-                // |_____|_____|
+                // |_____|  A  |
+                // |__B__|__A__|
                 if (remX >= MinFreeSpotSize) // A
-                    freeSpots.Add(new Rectangle(r.X+fillX, r.Y, remX, fillY));
-                if (remY >= MinFreeSpotSize) // B
-                    freeSpots.Add(new Rectangle(r.X, r.Y+fillY, fillX, remY));
-                if (remX >= MinFreeSpotSize && remY >= MinFreeSpotSize) // C
-                    freeSpots.Add(new Rectangle(r.X+fillX, r.Y+fillY, remX, remY));
+                {
+                    FreeSpots.Insert(j, new Rectangle(r.X+fillX, r.Y, remX, r.Height));
+                    if (remY >= MinFreeSpotSize) // B?
+                        FreeSpots.Insert(j, new Rectangle(r.X, r.Y+fillY, fillX, remY));
+                }
+                // _________
+                // |fill | |
+                // |_____|_|
+                // |B B B B|
+                // |B_B_B_B|
+                else if (remY >= MinFreeSpotSize)
+                {
+                    FreeSpots.Insert(j, new Rectangle(r.X, r.Y+fillY, fillX+remX, remY));
+                }
                 return true; // success! we filled the free spot
             }
             return false;
@@ -186,40 +195,44 @@ namespace Ship_Game
 
         void PackTextures(TextureData[] textures)
         {
+            Stopwatch s = Stopwatch.StartNew();
             // Sort textures by AREA, DESCENDING
             Array.Sort(textures, (a, b) => b.Area - a.Area);
 
-            var freeSpots = new Array<Rectangle>();
-
+            FreeSpots = new Array<Rectangle>();
             Width  = 2048;
             Height = 512;
             int cursorX = 0;
             int cursorY = 0;
             int bottomY = 0;
+            // an 48x96 free spot filled by a 48x48 tex, will leave
+            // a 48x47 slot, which can no longer be filled
+            // so we add additional padding to cursor movement
+            const int cursorPadding = Padding * 2;
 
             for (int i = 0; i < textures.Length; ++i)
             {
                 ref TextureData td = ref textures[i];
 
                 // check if we can fit anything into existing free spots:
-                if (FillFreeSpot(freeSpots, ref td))
+                if (FillFreeSpot(ref td))
                     continue;
 
                 int remainingX = Width - cursorX;
                 if (remainingX < td.Width)
                 {
-                    freeSpots.Add(new Rectangle(cursorX, cursorY, remainingX, bottomY-cursorY));
+                    FreeSpots.Add(new Rectangle(cursorX, cursorY, remainingX, bottomY-cursorY));
                     cursorX = 0;
-                    cursorY = bottomY + Padding;
+                    cursorY = bottomY + Padding + cursorPadding;
                 }
-
-                int thisBottomY = cursorY + td.Height;
-                if (thisBottomY >= bottomY) bottomY = thisBottomY;
+                int newBottomY = cursorY + td.Height;
+                if (newBottomY > bottomY) bottomY = newBottomY;
                 while (bottomY >= Height) Height += 512;
 
                 td.X = cursorX;
                 td.Y = cursorY;
-                cursorX += td.Width + Padding;
+                int fillX = (td.Width + Padding + cursorPadding);
+                cursorX += fillX;
 
                 // After filling our spot, there is a potential free spot.
                 // We know this because we fill our objects in descending order.
@@ -229,18 +242,44 @@ namespace Ship_Game
                 // | freespot |
                 if (td.Width >= MinFreeSpotSize)
                 {
-                    int freeSpotY = cursorY + td.Height + Padding;
-                    int remainingY = bottomY - freeSpotY;
-                    if (remainingY >= MinFreeSpotSize)
-                        freeSpots.Add(new Rectangle(td.X, freeSpotY, td.Width, remainingY));
+                    int freeSpotY = (td.Y + td.Height + Padding);
+                    int freeSpotH = (bottomY - freeSpotY) + cursorPadding;
+                    if (freeSpotH >= MinFreeSpotSize)
+                    {
+                        FreeSpots.Add(new Rectangle(td.X, freeSpotY, fillX, freeSpotH));
+                    }
                 }
             }
+            Console.WriteLine($"PackAtlas {Name} {Width}x{Height}px  {textures.Length} sub-textures  elapsed:{s.Elapsed.TotalMilliseconds}ms");
+        }
 
-            Console.WriteLine($"Packed Atlas {Name}: {Width}x{Height}px  {textures.Length} sub-textures");
+        void DrawRectangle(Color[] image, Rectangle r, Color color)
+        {
+            if (r.Height == 0) {Log.Error("DrawRectangle Height cannot be 0");return;}
+            if (r.Width == 0) {Log.Error("DrawRectangle Height cannot be 0");return;}
+
+            int x = r.X;
+            int y = r.Y;
+            int endX = x + (r.Width - 1);
+            if (endX >= Width) endX = Width - 1;
+            int endY = y + (r.Height - 1);
+            if (endY >= Height) endY = Height - 1;
+
+            for (int ix = x; ix <= endX; ++ix) // top and bottom ----
+            {
+                image[(y*Width) + ix] = color;
+                image[(endY*Width) + ix] = color;
+            }
+            for (int iy = y; iy <= endY; ++iy) // | left and right |
+            {
+                image[(iy*Width) + x] = color;
+                image[(iy*Width) + endX] = color;
+            }
         }
 
         void CreateAtlasTexture(GameContentManager content, TextureData[] textures)
         {
+            Stopwatch s = Stopwatch.StartNew();
             var atlasColorData = new Color[Width * Height];
             for (int i = 0; i < textures.Length; ++i)
             {
@@ -257,6 +296,12 @@ namespace Ship_Game
                 };
             }
 
+            foreach (Rectangle r in FreeSpots)
+            {
+                DrawRectangle(atlasColorData, r, Color.AliceBlue);
+            }
+            FreeSpots = null;
+
             // We compress the DDS color into DXT5 and then reload it through XNA
             ImageUtils.SaveAsDDS(TexturePath, Width, Height, atlasColorData);
             Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
@@ -265,7 +310,7 @@ namespace Ship_Game
             foreach (SubTexture t in Textures.Values)
                 t.Atlas = Atlas;
 
-            Console.WriteLine($"CreateAtlasTexture {Name} {Width}x{Height}");
+            Console.WriteLine($"CreateAtlasTexture {Name} {Width}x{Height}  elapsed:{s.Elapsed.TotalMilliseconds}ms");
         }
 
 
@@ -323,8 +368,8 @@ namespace Ship_Game
 
             FileInfo[] textureFiles = GatherUniqueTextures(folder);
             atlas.Hash = CreateHash(textureFiles);
-            if (atlas.TryLoadCache(content))
-                return atlas;
+            //if (atlas.TryLoadCache(content))
+            //    return atlas;
 
             var textures = new TextureData[textureFiles.Length];
             for (int i = 0; i < textureFiles.Length; ++i)
