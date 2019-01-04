@@ -1,6 +1,7 @@
 #include <lodepng/lodepng.h>
 #include <soil2/image_DXT.h>
 #include <libsquish/squish.h>
+#include <stb/stb_dxt.h>
 #include <cstdio>
 
 #define DLLEXPORT extern "C" __declspec(dllexport)

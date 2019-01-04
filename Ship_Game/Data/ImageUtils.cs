@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
@@ -11,7 +12,7 @@ namespace Ship_Game
     public static class ImageUtils
     {
         // Color is a BGRA little-endian struct
-        public static Color[] DecompressDXT5(Texture2D tex)
+        public static Color[] DecompressDxt5(Texture2D tex)
         {
             var dxtData = new byte[tex.Width * tex.Height];
             tex.GetData(dxtData);
@@ -19,7 +20,7 @@ namespace Ship_Game
             return BytesToColor(pixels);
         }
 
-        public static Color[] DecompressDXT1(Texture2D tex)
+        public static Color[] DecompressDxt1(Texture2D tex)
         {
             var dxtData = new byte[(tex.Width * tex.Height) / 2];
             tex.GetData(dxtData);
@@ -55,7 +56,7 @@ namespace Ship_Game
         static extern unsafe IntPtr SaveImageAsPNG(
             [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* rgbaImage);
 
-        public static unsafe void SaveAsPNG(string filename, int width, int height, Color[] rgbaImage)
+        public static unsafe void SaveAsPng(string filename, int width, int height, Color[] rgbaImage)
         {
             fixed (Color* pColor = rgbaImage)
             {
@@ -72,7 +73,7 @@ namespace Ship_Game
         static extern unsafe IntPtr SaveImageAsDDS(
             [MarshalAs(UnmanagedType.LPStr)] string filename, int width, int height, Color* rgbaImage);
 
-        public static unsafe void SaveAsDDS(string filename, int width, int height, Color[] rgbaImage)
+        public static unsafe void SaveAsDds(string filename, int width, int height, Color[] rgbaImage)
         {
             fixed (Color* pColor = rgbaImage)
             {
@@ -92,13 +93,38 @@ namespace Ship_Game
 
         public static unsafe void CopyPixelsTo(Color[] dst, int dstWidth, int x, int y, Color[] src, int w, int h)
         {
-            fixed(Color* pDst = dst)
+            fixed (Color* pDst = dst)
             {
-                fixed(Color* pSrc = src)
+                fixed (Color* pSrc = src)
                 {
                     CopyPixelsRGBA(pDst, dstWidth, x, y, pSrc, w, h);
                 }
             }
         }
+
+        public static void DrawRectangle(Color[] image, int width, int height, Rectangle r, Color color)
+        {
+            if (r.Height == 0) { Log.Error("DrawRectangle r.Height cannot be 0"); return; }
+            if (r.Width == 0)  { Log.Error("DrawRectangle r.Width  cannot be 0"); return; }
+
+            int x = r.X;
+            int y = r.Y;
+            int endX = x + (r.Width - 1);
+            if (endX >= width) endX = width - 1;
+            int endY = y + (r.Height - 1);
+            if (endY >= height) endY = height - 1;
+
+            for (int ix = x; ix <= endX; ++ix) // top and bottom ----
+            {
+                image[(y * width) + ix] = color;
+                image[(endY * width) + ix] = color;
+            }
+            for (int iy = y; iy <= endY; ++iy) // | left and right |
+            {
+                image[(iy * width) + x] = color;
+                image[(iy * width) + endX] = color;
+            }
+        }
+
     }
 }
