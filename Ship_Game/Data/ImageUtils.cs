@@ -84,5 +84,21 @@ namespace Ship_Game
                 }
             }
         }
+
+
+        [DllImport("SDNative.dll")]
+        static extern unsafe IntPtr CopyPixelsRGBA(
+            Color* dst, int dstWidth, int x, int y, Color* src, int w, int h);
+
+        public static unsafe void CopyPixelsTo(Color[] dst, int dstWidth, int x, int y, Color[] src, int w, int h)
+        {
+            fixed(Color* pDst = dst)
+            {
+                fixed(Color* pSrc = src)
+                {
+                    CopyPixelsRGBA(pDst, dstWidth, x, y, pSrc, w, h);
+                }
+            }
+        }
     }
 }

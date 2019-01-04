@@ -33,7 +33,7 @@ namespace Ship_Game
 		{
 			QuadEffect.View = view;
 			QuadEffect.Projection = projection;
-			QuadEffect.Texture = Texture.Atlas;
+			QuadEffect.Texture = Texture.Texture;
 			QuadEffect.Alpha = alpha;
 		    manager.GraphicsDevice.VertexDeclaration = quadVertexDecl;
 			QuadEffect.Begin();
@@ -56,7 +56,7 @@ namespace Ship_Game
 			QuadEffect.World      = Matrix.Identity;
 			QuadEffect.View       = view;
 			QuadEffect.Projection = projection;
-			QuadEffect.Texture    = Texture.Atlas;
+			QuadEffect.Texture    = Texture.Texture;
 			QuadEffect.Alpha      = Alpha;
 		    manager.GraphicsDevice.VertexDeclaration = quadVertexDecl;
 			QuadEffect.Begin();

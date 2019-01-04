@@ -50,7 +50,7 @@ namespace Ship_Game
                 basicEffect.World = Matrix.CreateScale(4.1f) * world;
                 basicEffect.View = view;
                 // @todo 3D Texture Atlas support?
-                basicEffect.Texture = ResourceManager.Texture("Atmos").Atlas;
+                basicEffect.Texture = ResourceManager.Texture("Atmos").Texture;
                 basicEffect.TextureEnabled = true;
                 basicEffect.Projection = projection;
                 basicEffect.LightingEnabled = true;

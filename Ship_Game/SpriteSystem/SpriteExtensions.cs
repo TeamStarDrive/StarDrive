@@ -13,20 +13,20 @@ namespace Ship_Game
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
                                 Vector2 position, Color color)
         {
-            batch.Draw(texture.Atlas, position, texture.Rect, color);
+            batch.Draw(texture.Texture, position, texture.Rect, color);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
                                 in Rectangle destinationRect, Color color)
         {
-            batch.Draw(texture.Atlas, destinationRect, texture.Rect, color);
+            batch.Draw(texture.Texture, destinationRect, texture.Rect, color);
         }
 
         public static void Draw(
             this SpriteBatch batch, SubTexture texture, Rectangle destinationRectangle,
             Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
-            batch.Draw(texture.Atlas, destinationRectangle, texture.Rect,
+            batch.Draw(texture.Texture, destinationRectangle, texture.Rect,
                        color, rotation, origin, effects, layerDepth);
         }
 
@@ -34,7 +34,7 @@ namespace Ship_Game
             this SpriteBatch batch, SubTexture texture, Vector2 position, Color color,
             float rotation, Vector2 origin, float scale, SpriteEffects effects, float layerDepth)
         {
-            batch.Draw(texture.Atlas, position, texture.Rect, color, 
+            batch.Draw(texture.Texture, position, texture.Rect, color, 
                        rotation, origin, scale, effects, layerDepth);
         }
 
@@ -53,7 +53,7 @@ namespace Ship_Game
                                 Rectangle sourceRectangle, Color color)
         {
             Rectangle adjustedSrcRect = AdjustedToSubTexture(texture, sourceRectangle);
-            batch.Draw(texture.Atlas, destinationRectangle, adjustedSrcRect, color);
+            batch.Draw(texture.Texture, destinationRectangle, adjustedSrcRect, color);
         }
 
         public static void Draw(
@@ -61,7 +61,7 @@ namespace Ship_Game
             Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
             Rectangle adjustedSrcRect = AdjustedToSubTexture(texture, sourceRectangle);
-            batch.Draw(texture.Atlas, destinationRectangle, adjustedSrcRect,
+            batch.Draw(texture.Texture, destinationRectangle, adjustedSrcRect,
                        color, rotation, origin, effects, layerDepth);
         }
     }
