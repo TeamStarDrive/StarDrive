@@ -83,7 +83,6 @@
     <Compile Include="TestArrayT.cs" />
     <Compile Include="TestSafeQueueT.cs" />
     <Compile Include="TestSpatialManager.cs" />
-    <Compile Include="TestTextureAtlas.cs" />
     <Compile Include="TestThreadExt.cs" />
     <Compile Include="TestSerialization.cs" />
   </ItemGroup>
