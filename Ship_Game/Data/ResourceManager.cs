@@ -14,6 +14,23 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
+    /**
+     * Oh boy, so this is a monster class.
+     * The whole content pipeline is divided into ~3 layers and ~2 steps. There are some oddballs though.
+     *
+     * Layer 1: ResourceManager -- Explores [Vanilla]+[Mod] files and prepares them.
+     *                             Most game XML data files are loaded here.
+     *                             Mesh & Texture access is cached here.
+     *
+     *     @todo ResourceManager should be split into: 1. MeshCache 2. TextureCache 3. DataCache
+     *
+     * Layer 2: GameContentManager -- This will [Vanilla]/[Mod] reroute any resource access and ensures there
+     *                                is no content duplication.
+     *                                Some special resource cases like TextureAtlas are also handled there.
+     *                                Caching is also done at this level. All Disposable objects are recorded.
+     * Layer 3: XNA ContentManager & RawContentLoader -- Loads XNB files and also provides .png / .fbx / .obj support.
+     *                                
+     */
     public sealed class ResourceManager // Refactored by RedFox
     {
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.

@@ -304,6 +304,9 @@
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\SpriteSystem\FadeInOutAnim.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteExtensions.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\SubTexture.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\TextureInfo.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\TexturePacker.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentMissionData.cs" />
     <Compile Include="Ship_Game\GameScreens\EspionageScreen.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\EventTypes.cs">
