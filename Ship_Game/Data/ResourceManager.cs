@@ -216,7 +216,7 @@ namespace Ship_Game
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage();
             //new ResourceTests().RunAll();
-            LoadTextureAtlases();
+            //LoadTextureAtlases();
             LoadToolTips();
             LoadTroops();
             LoadHullBonuses();
@@ -798,28 +798,43 @@ namespace Ship_Game
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
-
-        // Gets a loaded texture using the given abstract texture path, ex: "Buildings/
-        public static SubTexture TextureOrNull(string textureNamePath)
+        // Load texture with its abstract path such as
+        // "Explosions/smaller/shipExplosion"
+        public static SubTexture TextureOrNull(string textureName)
         {
-            return Textures.TryGetValue(textureNamePath, out SubTexture texture) ? texture : null;
+            if (Textures.TryGetValue(textureName, out SubTexture loaded))
+                return loaded;
+            loaded = RootContent.LoadSubTexture("Textures/" + textureName);
+            Textures[textureName] = loaded; // save even if null
+            return loaded;
+        }
+        public static SubTexture TextureOrDefault(string textureName, string defaultTex)
+        {
+            SubTexture loaded = TextureOrNull(textureName);
+            return loaded ?? Texture(defaultTex);
         }
 
-        public static SubTexture TextureOrDefault(string textureNamePath, string defaultTex)
+        public static SubTexture Texture(string textureName)
         {
-            return Textures.TryGetValue(textureNamePath, out SubTexture texture) ? texture : Texture(defaultTex);
-        }
+            SubTexture loaded = TextureOrNull(textureName);
+            if (loaded != null)
+                return loaded;
 
-        public static SubTexture Texture(string textureNamePath)
-        {
-            if (Textures.TryGetValue(textureNamePath, out SubTexture texture))
-                return texture;
+            Log.WarningWithCallStack($"Texture path not found: '{textureName}' replacing with 'NewUI/x_red'");
 
-            Log.WarningWithCallStack($"Texture path not found: '{textureNamePath}' replacing with 'NewUI/x_red'");
-
-            SubTexture errorTexture = Textures["NewUI/x_red"];
-            Textures[textureNamePath] = errorTexture; // so we don't get this error again
+            SubTexture errorTexture = TextureOrNull("NewUI/x_red");
+            Textures[textureName] = errorTexture; // so we don't get this error again
             return errorTexture;
+        }
+
+
+        // Load texture for a specific mod, such as modName="Overdrive"
+        public static Texture2D LoadModTexture(string modName, string textureName)
+        {
+            string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
+            if (File.Exists(modTexPath + ".xnb"))
+                return RootContent.LoadUncached<Texture2D>(modTexPath);
+            return null;
         }
 
         public static Texture2D Texture2D(string textureNamePath)
@@ -881,22 +896,6 @@ namespace Ship_Game
                     LoadTexture(name);
                 }
             });
-        }
-
-        // Load texture with its abstract path such as
-        // "Explosions/smaller/shipExplosion"
-        public static SubTexture LoadTexture(string textureName)
-        {
-            return RootContent.Load<SubTexture>("Textures/" + textureName);;
-        }
-
-        // Load texture for a specific mod, such as modName="Overdrive"
-        public static Texture2D LoadModTexture(string modName, string textureName)
-        {
-            string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
-            if (File.Exists(modTexPath + ".xnb"))
-                return RootContent.Load<Texture2D>(modTexPath);
-            return null;
         }
 
         public static float GetModuleCost(string uid)

@@ -280,7 +280,7 @@ namespace Ship_Game
         public void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            BlankTexture = ResourceManager.LoadTexture("blank");
+            BlankTexture = ResourceManager.Texture("blank");
             foreach (GameScreen screen in Screens)
             {
                 screen.LoadContent();
