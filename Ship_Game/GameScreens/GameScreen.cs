@@ -311,7 +311,7 @@ namespace Ship_Game
                     basicEffect.World           = Matrix.CreateScale(50f) * world;
                     basicEffect.View            = view;
                     basicEffect.DiffuseColor    = new Vector3(1f, 1f, 1f);
-                    basicEffect.Texture         = projTex.Atlas;
+                    basicEffect.Texture         = projTex.Texture;
                     basicEffect.Alpha           = alpha > 0 ? alpha : basicEffect.Alpha;                    
                     basicEffect.TextureEnabled  = true;
                     basicEffect.Projection      = projection;
