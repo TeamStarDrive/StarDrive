@@ -2,6 +2,8 @@
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.IO;
+using Microsoft.Xna.Framework.Graphics;
+
 // ReSharper disable IdentifierTypo
 // ReSharper disable UnusedMember.Local
 // ReSharper disable CommentTypo
@@ -11,6 +13,8 @@ namespace Ship_Game
 {
     public class DDSReader
     {
+        public Color[] DecodedImage { get; private set; } = new Color[0];
+
         private DDSReader(byte[] ddsImage)
         {
             if (ddsImage == null) return;
@@ -39,27 +43,25 @@ namespace Ship_Game
             }
         }
 
-        void Parse(BinaryReader reader)
+        Color[] Parse(BinaryReader reader)
         {
             var header = new DDSHeader();
 
             if (!ReadHeader(reader, ref header))
-                return;
+                return DecodedImage;
 
             if (header.depth == 0) header.depth = 1;
 
             PixelFormat format = GetFormat(header, out uint _);
             if (format == PixelFormat.UNKNOWN)
-            {
                 throw new InvalidFileHeaderException();
-            }
 
             byte[] data = ReadData(reader, header);
             if (data != null)
             {
-                byte[] rawData = DecompressData(header, data, format);
-                // TODO??
+                DecodedImage = DecompressData(header, data, format);
             }
+            return DecodedImage;
         }
 
         static byte[] ReadData(BinaryReader reader, DDSHeader header)
@@ -306,19 +308,23 @@ namespace Ship_Game
             return false;
         }
 
-        static void CorrectPremult(uint pixnum, ref byte[] buffer)
+        static unsafe void CorrectPremult(uint pixnum, Color[] buffer)
         {
-            for (uint i = 0; i < pixnum; i++)
+            fixed (Color* pBuffer = buffer)
             {
-                byte alpha = buffer[i + 3];
-                if (alpha == 0) continue;
-                int red = (buffer[i] << 8) / alpha;
-                int green = (buffer[i + 1] << 8) / alpha;
-                int blue = (buffer[i + 2] << 8) / alpha;
+                byte* data = (byte*)pBuffer;
+                for (uint i = 0; i < pixnum; i++)
+                {
+                    byte alpha = data[i + 3];
+                    if (alpha == 0) continue;
+                    int red   = (data[i] << 8) / alpha;
+                    int green = (data[i + 1] << 8) / alpha;
+                    int blue  = (data[i + 2] << 8) / alpha;
 
-                buffer[i] = (byte)red;
-                buffer[i + 1] = (byte)green;
-                buffer[i + 2] = (byte)blue;
+                    data[i] = (byte)red;
+                    data[i + 1] = (byte)green;
+                    data[i + 2] = (byte)blue;
+                }
             }
         }
 
@@ -518,7 +524,7 @@ namespace Ship_Game
         #endregion
 
         // @return RGBA byte[width*height*4]
-        public static byte[] DecompressData(int width, int height, byte[] data, PixelFormat pixelFormat)
+        public static Color[] DecompressData(int width, int height, byte[] data, PixelFormat pixelFormat)
         {
             var header = new DDSHeader
             {
@@ -529,50 +535,36 @@ namespace Ship_Game
             return DecompressData(header, data, pixelFormat);
         }
 
-        // @return RGBA byte[width*height*4]
-        public static byte[] DecompressData(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        // @return BGRA Color[width*height]
+        public static Color[] DecompressData(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
-            //System.Diagnostics.Debug.WriteLine(pixelFormat);
             switch (pixelFormat)
             {
-                case PixelFormat.RGBA:
-                    return DecompressRGBA(header, data, pixelFormat);
-                case PixelFormat.RGB:
-                    return DecompressRGB(header, data, pixelFormat);
+                case PixelFormat.RGBA: return DecompressRGBA(header, data, pixelFormat);
+                case PixelFormat.RGB:  return DecompressRGB(header, data, pixelFormat);
                 case PixelFormat.LUMINANCE:
-                case PixelFormat.LUMINANCE_ALPHA:
-                    return DecompressLum(header, data, pixelFormat);
-                case PixelFormat.DXT1:
-                    return DecompressDXT1(header, data, pixelFormat);
-                case PixelFormat.DXT2:
-                    return DecompressDXT2(header, data, pixelFormat);
-                case PixelFormat.DXT3:
-                    return DecompressDXT3(header, data, pixelFormat);
-                case PixelFormat.DXT4:
-                    return DecompressDXT4(header, data, pixelFormat);
-                case PixelFormat.DXT5:
-                    return DecompressDXT5(header, data, pixelFormat);
-                case PixelFormat.THREEDC:
-                    return Decompress3Dc(header, data, pixelFormat);
-                case PixelFormat.ATI1N:
-                    return DecompressAti1n(header, data, pixelFormat);
-                case PixelFormat.RXGB:
-                    return DecompressRXGB(header, data, pixelFormat);
+                case PixelFormat.LUMINANCE_ALPHA: return DecompressLum(header, data, pixelFormat);
+                case PixelFormat.DXT1: return DecompressDXT1(header, data, pixelFormat);
+                case PixelFormat.DXT2: return DecompressDXT2(header, data, pixelFormat);
+                case PixelFormat.DXT3: return DecompressDXT3(header, data, pixelFormat);
+                case PixelFormat.DXT4: return DecompressDXT4(header, data, pixelFormat);
+                case PixelFormat.DXT5: return DecompressDXT5(header, data, pixelFormat);
+                case PixelFormat.THREEDC: return Decompress3Dc(header, data, pixelFormat);
+                case PixelFormat.ATI1N:   return DecompressAti1n(header, data, pixelFormat);
+                case PixelFormat.RXGB:    return DecompressRXGB(header, data, pixelFormat);
                 case PixelFormat.R16F:
                 case PixelFormat.G16R16F:
                 case PixelFormat.A16B16G16R16F:
                 case PixelFormat.R32F:
                 case PixelFormat.G32R32F:
-                case PixelFormat.A32B32G32R32F:
-                    return DecompressFloat(header, data, pixelFormat);
-                default:
-                    throw new UnknownFileFormatException();
+                case PixelFormat.A32B32G32R32F: return DecompressFloat(header, data, pixelFormat);
+                default: throw new UnknownFileFormatException();
             }
         }
 
         #region Decompress Methods
 
-        static unsafe byte[] DecompressDXT1(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] DecompressDXT1(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -583,7 +575,7 @@ namespace Ship_Game
             int depth = (int)header.depth;
 
             // DXT1 decompressor
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            Color[] rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
 
             Colour8888[] colours = new Colour8888[4];
             colours[0].alpha = 0xFF;
@@ -591,7 +583,9 @@ namespace Ship_Game
             colours[2].alpha = 0xFF;
 
             fixed (byte* bytePtr = data)
+            fixed (Color* pRawData = rawData)
             {
+                byte* dest = (byte*)pRawData;
                 byte* temp = bytePtr;
                 for (int z = 0; z < depth; z++)
                 {
@@ -613,14 +607,14 @@ namespace Ship_Game
                                 // 00 = color_0, 01 = color_1, 10 = color_2, 11 = color_3
                                 // These 2-bit codes correspond to the 2-bit fields
                                 // stored in the 64-bit block.
-                                colours[2].blue = (byte)((2 * colours[0].blue + colours[1].blue + 1) / 3);
+                                colours[2].blue  = (byte)((2 * colours[0].blue  + colours[1].blue  + 1) / 3);
                                 colours[2].green = (byte)((2 * colours[0].green + colours[1].green + 1) / 3);
-                                colours[2].red = (byte)((2 * colours[0].red + colours[1].red + 1) / 3);
+                                colours[2].red   = (byte)((2 * colours[0].red   + colours[1].red   + 1) / 3);
                                 //colours[2].alpha = 0xFF;
 
-                                colours[3].blue = (byte)((colours[0].blue + 2 * colours[1].blue + 1) / 3);
+                                colours[3].blue  = (byte)((colours[0].blue  + 2 * colours[1].blue  + 1) / 3);
                                 colours[3].green = (byte)((colours[0].green + 2 * colours[1].green + 1) / 3);
-                                colours[3].red = (byte)((colours[0].red + 2 * colours[1].red + 1) / 3);
+                                colours[3].red   = (byte)((colours[0].red   + 2 * colours[1].red   + 1) / 3);
                                 colours[3].alpha = 0xFF;
                             }
                             else
@@ -630,14 +624,14 @@ namespace Ship_Game
                                 // 11 = transparent.
                                 // These 2-bit codes correspond to the 2-bit fields 
                                 // stored in the 64-bit block. 
-                                colours[2].blue = (byte)((colours[0].blue + colours[1].blue) / 2);
+                                colours[2].blue  = (byte)((colours[0].blue  + colours[1].blue)  / 2);
                                 colours[2].green = (byte)((colours[0].green + colours[1].green) / 2);
-                                colours[2].red = (byte)((colours[0].red + colours[1].red) / 2);
+                                colours[2].red   = (byte)((colours[0].red   + colours[1].red)   / 2);
                                 //colours[2].alpha = 0xFF;
 
-                                colours[3].blue = (byte)((colours[0].blue + 2 * colours[1].blue + 1) / 3);
+                                colours[3].blue  = (byte)((colours[0].blue  + 2 * colours[1].blue  + 1) / 3);
                                 colours[3].green = (byte)((colours[0].green + 2 * colours[1].green + 1) / 3);
-                                colours[3].red = (byte)((colours[0].red + 2 * colours[1].red + 1) / 3);
+                                colours[3].red   = (byte)((colours[0].red   + 2 * colours[1].red   + 1) / 3);
                                 colours[3].alpha = 0x00;
                             }
 
@@ -650,10 +644,10 @@ namespace Ship_Game
                                     if (((x + i) < width) && ((y + j) < height))
                                     {
                                         uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp);
-                                        rawData[offset + 0] = col.red;
-                                        rawData[offset + 1] = col.green;
-                                        rawData[offset + 2] = col.blue;
-                                        rawData[offset + 3] = col.alpha;
+                                        dest[offset + 2] = col.red;   // BGRA
+                                        dest[offset + 1] = col.green;
+                                        dest[offset + 0] = col.blue;
+                                        dest[offset + 3] = col.alpha;
                                     }
                                 }
                             }
@@ -665,7 +659,7 @@ namespace Ship_Game
             return rawData;
         }
 
-        static byte[] DecompressDXT2(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static Color[] DecompressDXT2(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int width = (int)header.width;
@@ -674,13 +668,13 @@ namespace Ship_Game
 
             // Can do color & alpha same as dxt3, but color is pre-multiplied
             // so the result will be wrong unless corrected.
-            byte[] rawData = DecompressDXT3(header, data, pixelFormat);
-            CorrectPremult((uint)(width * height * depth), ref rawData);
+            Color[] rawData = DecompressDXT3(header, data, pixelFormat);
+            CorrectPremult((uint)(width * height * depth), rawData);
 
             return rawData;
         }
 
-        static unsafe byte[] DecompressDXT3(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] DecompressDXT3(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -691,11 +685,13 @@ namespace Ship_Game
             int depth = (int)header.depth;
 
             // DXT3 decompressor
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            Color[] rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
             Colour8888[] colours = new Colour8888[4];
 
             fixed (byte* bytePtr = data)
+            fixed (Color* pRawData = rawData)
             {
+                byte* dest = (byte*)pRawData;
                 byte* temp = bytePtr;
                 for (int z = 0; z < depth; z++)
                 {
@@ -735,9 +731,9 @@ namespace Ship_Game
                                     if (((x + i) < width) && ((y + j) < height))
                                     {
                                         uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp);
-                                        rawData[offset + 0] = colours[select].red;
-                                        rawData[offset + 1] = colours[select].green;
-                                        rawData[offset + 2] = colours[select].blue;
+                                        dest[offset + 2] = colours[select].red;
+                                        dest[offset + 1] = colours[select].green;
+                                        dest[offset + 0] = colours[select].blue;
                                     }
                                 }
                             }
@@ -751,8 +747,8 @@ namespace Ship_Game
                                     if (((x + i) < width) && ((y + j) < height))
                                     {
                                         uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp + 3);
-                                        rawData[offset] = (byte)(word & 0x0F);
-                                        rawData[offset] = (byte)(rawData[offset] | (rawData[offset] << 4));
+                                        dest[offset] = (byte)(word & 0x0F);
+                                        dest[offset] = (byte)(dest[offset] | (dest[offset] << 4));
                                     }
                                     word >>= 4;
                                 }
@@ -764,7 +760,7 @@ namespace Ship_Game
             return rawData;
         }
 
-        static byte[] DecompressDXT4(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static Color[] DecompressDXT4(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int width = (int)header.width;
@@ -773,13 +769,13 @@ namespace Ship_Game
 
             // Can do color & alpha same as dxt5, but color is pre-multiplied
             // so the result will be wrong unless corrected.
-            byte[] rawData = DecompressDXT5(header, data, pixelFormat);
-            CorrectPremult((uint)(width * height * depth), ref rawData);
+            Color[] rawData = DecompressDXT5(header, data, pixelFormat);
+            CorrectPremult((uint)(width * height * depth), rawData);
 
             return rawData;
         }
 
-        static unsafe byte[] DecompressDXT5(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] DecompressDXT5(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -788,13 +784,15 @@ namespace Ship_Game
             int width = (int)header.width;
             int height = (int)header.height;
             int depth = (int)header.depth;
-
-            var rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            
+            var rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
             var colours = new Colour8888[4];
             var alphas  = new ushort[8];
 
             fixed (byte* bytePtr = data)
+            fixed (Color* pRawData = rawData)
             {
+                byte* dest = (byte*)pRawData;
                 byte* temp = bytePtr;
                 for (int z = 0; z < depth; z++)
                 {
@@ -839,9 +837,9 @@ namespace Ship_Game
                                     if (((x + i) < width) && ((y + j) < height))
                                     {
                                         uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp);
-                                        rawData[offset] = col.red;
-                                        rawData[offset + 1] = col.green;
-                                        rawData[offset + 2] = col.blue;
+                                        dest[offset + 2] = col.red; // BGRA
+                                        dest[offset + 1] = col.green;
+                                        dest[offset + 0] = col.blue;
                                     }
                                 }
                             }
@@ -884,7 +882,7 @@ namespace Ship_Game
                                     if (((x + i) < width) && ((y + j) < height))
                                     {
                                         uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp + 3);
-                                        rawData[offset] = (byte)alphas[bits & 0x07];
+                                        dest[offset] = (byte)alphas[bits & 0x07];
                                     }
                                     bits >>= 3;
                                 }
@@ -901,7 +899,7 @@ namespace Ship_Game
                                     if (((x + i) < width) && ((y + j) < height))
                                     {
                                         uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp + 3);
-                                        rawData[offset] = (byte)alphas[bits & 0x07];
+                                        dest[offset] = (byte)alphas[bits & 0x07];
                                     }
                                     bits >>= 3;
                                 }
@@ -914,7 +912,7 @@ namespace Ship_Game
             return rawData;
         }
 
-        static unsafe byte[] DecompressRGB(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] DecompressRGB(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -924,37 +922,38 @@ namespace Ship_Game
             int height = (int)header.height;
             int depth = (int)header.depth;
 
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            Color[] rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
 
             uint valMask = (uint)((header.pixelformat.rgbbitcount == 32) ? ~0 : (1 << (int)header.pixelformat.rgbbitcount) - 1);
             uint pixSize = (uint)(((int)header.pixelformat.rgbbitcount + 7) / 8);
             ComputeMaskParams(header.pixelformat.rbitmask, out int rShift1, out int rMul, out int rShift2);
             ComputeMaskParams(header.pixelformat.gbitmask, out int gShift1, out int gMul, out int gShift2);
             ComputeMaskParams(header.pixelformat.bbitmask, out int bShift1, out int bMul, out int bShift2);
-
-            int offset = 0;
+            
             int pixnum = width * height * depth;
             fixed (byte* bytePtr = data)
+            fixed (Color* pRawData = rawData)
             {
+                byte* dest = (byte*)pRawData;
                 byte* temp = bytePtr;
                 while (pixnum-- > 0)
                 {
                     uint px = *((uint*)temp) & valMask;
                     temp += pixSize;
                     uint pxc = px & header.pixelformat.rbitmask;
-                    rawData[offset + 0] = (byte)(((pxc >> rShift1) * rMul) >> rShift2);
+                    dest[2] = (byte)(((pxc >> rShift1) * rMul) >> rShift2);// BGRA
                     pxc = px & header.pixelformat.gbitmask;
-                    rawData[offset + 1] = (byte)(((pxc >> gShift1) * gMul) >> gShift2);
+                    dest[1] = (byte)(((pxc >> gShift1) * gMul) >> gShift2);
                     pxc = px & header.pixelformat.bbitmask;
-                    rawData[offset + 2] = (byte)(((pxc >> bShift1) * bMul) >> bShift2);
-                    rawData[offset + 3] = 0xff;
-                    offset += 4;
+                    dest[0] = (byte)(((pxc >> bShift1) * bMul) >> bShift2);
+                    dest[3] = 0xff;
+                    dest += 4;
                 }
             }
             return rawData;
         }
 
-        static unsafe byte[] DecompressRGBA(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] DecompressRGBA(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -964,7 +963,7 @@ namespace Ship_Game
             int height = (int)header.height;
             int depth = (int)header.depth;
 
-            var rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            var rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
 
             uint valMask = (uint)((header.pixelformat.rgbbitcount == 32) ? ~0 : (1 << (int)header.pixelformat.rgbbitcount) - 1);
             // Funny x86s, make 1 << 32 == 1
@@ -974,31 +973,31 @@ namespace Ship_Game
             ComputeMaskParams(header.pixelformat.bbitmask, out int bShift1, out int bMul, out int bShift2);
             ComputeMaskParams(header.pixelformat.alphabitmask, out int aShift1, out int aMul, out int aShift2);
 
-            int offset = 0;
             int pixnum = width * height * depth;
             fixed (byte* bytePtr = data)
+            fixed (Color* pRawData = rawData)
             {
+                byte* dest = (byte*)pRawData;
                 byte* temp = bytePtr;
-
                 while (pixnum-- > 0)
                 {
                     uint px = *((uint*)temp) & valMask;
                     temp += pixSize;
                     uint pxc = px & header.pixelformat.rbitmask;
-                    rawData[offset + 0] = (byte)(((pxc >> rShift1) * rMul) >> rShift2);
+                    dest[2] = (byte)(((pxc >> rShift1) * rMul) >> rShift2);// BGRA
                     pxc = px & header.pixelformat.gbitmask;
-                    rawData[offset + 1] = (byte)(((pxc >> gShift1) * gMul) >> gShift2);
+                    dest[1] = (byte)(((pxc >> gShift1) * gMul) >> gShift2);
                     pxc = px & header.pixelformat.bbitmask;
-                    rawData[offset + 2] = (byte)(((pxc >> bShift1) * bMul) >> bShift2);
+                    dest[0] = (byte)(((pxc >> bShift1) * bMul) >> bShift2);
                     pxc = px & header.pixelformat.alphabitmask;
-                    rawData[offset + 3] = (byte)(((pxc >> aShift1) * aMul) >> aShift2);
-                    offset += 4;
+                    dest[3] = (byte)(((pxc >> aShift1) * aMul) >> aShift2);
+                    dest += 4;
                 }
             }
             return rawData;
         }
 
-        static unsafe byte[] Decompress3Dc(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] Decompress3Dc(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -1008,13 +1007,15 @@ namespace Ship_Game
             int height = (int)header.height;
             int depth = (int)header.depth;
 
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            Color[] rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
             byte[] yColours = new byte[8];
             byte[] xColours = new byte[8];
 
             int offset = 0;
             fixed (byte* bytePtr = data)
+            fixed (Color* pRawData = rawData)
             {
+                byte* dest = (byte*)pRawData;
                 byte* temp = bytePtr;
                 for (int z = 0; z < depth; z++)
                 {
@@ -1074,15 +1075,15 @@ namespace Ship_Game
                                                 byte tx, ty;
 
                                                 t1 = currentOffset + (x + i) * 3;
-                                                rawData[t1 + 1] = ty = yColours[bitmask & 0x07];
-                                                rawData[t1 + 0] = tx = xColours[bitmask2 & 0x07];
+                                                dest[t1 + 1] = ty = yColours[bitmask & 0x07];
+                                                dest[t1 + 2] = tx = xColours[bitmask2 & 0x07];
 
                                                 //calculate b (z) component ((r/255)^2 + (g/255)^2 + (b/255)^2 = 1
                                                 int t = 127 * 128 - (tx - 127) * (tx - 128) - (ty - 127) * (ty - 128);
                                                 if (t > 0)
-                                                    rawData[t1 + 2] = (byte)(Math.Sqrt(t) + 128);
+                                                    dest[t1 + 0] = (byte)(Math.Sqrt(t) + 128);
                                                 else
-                                                    rawData[t1 + 2] = 0x7F;
+                                                    dest[t1 + 0] = 0x7F;
                                             }
                                             bitmask >>= 3;
                                             bitmask2 >>= 3;
@@ -1101,11 +1102,10 @@ namespace Ship_Game
                     }
                 }
             }
-
             return rawData;
         }
 
-        static unsafe byte[] DecompressAti1n(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] DecompressAti1n(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -1115,12 +1115,14 @@ namespace Ship_Game
             int height = (int)header.height;
             int depth = (int)header.depth;
 
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            Color[] rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
             byte[] colours = new byte[8];
 
             uint offset = 0;
             fixed (byte* bytePtr = data)
+            fixed (Color* pRawData = rawData)
             {
+                byte* dest = (byte*)pRawData;
                 byte* temp = bytePtr;
                 for (int z = 0; z < depth; z++)
                 {
@@ -1160,7 +1162,7 @@ namespace Ship_Game
                                             if (((x + i) < width))
                                             {
                                                 t1 = (int)(currOffset + (x + i));
-                                                rawData[t1] = colours[bitmask & 0x07];
+                                                dest[t1] = colours[bitmask & 0x07];
                                             }
                                             bitmask >>= 3;
                                         }
@@ -1177,7 +1179,7 @@ namespace Ship_Game
             return rawData;
         }
 
-        static unsafe byte[] DecompressLum(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] DecompressLum(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -1187,29 +1189,31 @@ namespace Ship_Game
             int height = (int)header.height;
             int depth = (int)header.depth;
 
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            Color[] rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
 
             ComputeMaskParams(header.pixelformat.rbitmask, out int lShift1, out int lMul, out int lShift2);
 
-            int offset = 0;
             int pixnum = width * height * depth;
             fixed (byte* bytePtr = data)
+            fixed (Color* pRawData = rawData)
             {
+                byte* dest = (byte*)pRawData;
                 byte* temp = bytePtr;
                 while (pixnum-- > 0)
                 {
                     byte px = *(temp++);
-                    rawData[offset + 0] = (byte)(((px >> lShift1) * lMul) >> lShift2);
-                    rawData[offset + 1] = (byte)(((px >> lShift1) * lMul) >> lShift2);
-                    rawData[offset + 2] = (byte)(((px >> lShift1) * lMul) >> lShift2);
-                    rawData[offset + 3] = (byte)(((px >> lShift1) * lMul) >> lShift2);
-                    offset += 4;
+                    byte lum = (byte)(((px >> lShift1) * lMul) >> lShift2);
+                    dest[0] = lum;
+                    dest[1] = lum;
+                    dest[2] = lum;
+                    dest[3] = lum;
+                    dest += 4;
                 }
             }
             return rawData;
         }
 
-        static unsafe byte[] DecompressRXGB(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] DecompressRXGB(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -1219,7 +1223,7 @@ namespace Ship_Game
             int height = (int)header.height;
             int depth = (int)header.depth;
 
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            Color[] rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
 
             Colour565 color_0 = new Colour565();
             Colour565 color_1 = new Colour565();
@@ -1227,7 +1231,9 @@ namespace Ship_Game
 	        byte[] alphas = new byte[8];
 
             fixed (byte* bytePtr = data)
+            fixed (Color* pRawData = rawData)
             {
+                byte* dest = (byte*)pRawData;
                 byte* temp = bytePtr;
                 for (int z = 0; z < depth; z++)
                 {
@@ -1248,28 +1254,28 @@ namespace Ship_Game
                             uint bitmask = ((uint*)temp)[1];
                             temp += 4;
 
-                            colours[0].red = (byte)(color_0.red << 3);
+                            colours[0].red   = (byte)(color_0.red << 3);
                             colours[0].green = (byte)(color_0.green << 2);
-                            colours[0].blue = (byte)(color_0.blue << 3);
+                            colours[0].blue  = (byte)(color_0.blue << 3);
                             colours[0].alpha = 0xFF;
 
-                            colours[1].red = (byte)(color_1.red << 3);
+                            colours[1].red   = (byte)(color_1.red << 3);
                             colours[1].green = (byte)(color_1.green << 2);
-                            colours[1].blue = (byte)(color_1.blue << 3);
+                            colours[1].blue  = (byte)(color_1.blue << 3);
                             colours[1].alpha = 0xFF;
 
                             // Four-color block: derive the other two colors.    
                             // 00 = color_0, 01 = color_1, 10 = color_2, 11 = color_3
                             // These 2-bit codes correspond to the 2-bit fields 
                             // stored in the 64-bit block.
-                            colours[2].blue = (byte)((2 * colours[0].blue + colours[1].blue + 1) / 3);
+                            colours[2].blue  = (byte)((2 * colours[0].blue + colours[1].blue + 1) / 3);
                             colours[2].green = (byte)((2 * colours[0].green + colours[1].green + 1) / 3);
-                            colours[2].red = (byte)((2 * colours[0].red + colours[1].red + 1) / 3);
+                            colours[2].red   = (byte)((2 * colours[0].red + colours[1].red + 1) / 3);
                             colours[2].alpha = 0xFF;
 
-                            colours[3].blue = (byte)((colours[0].blue + 2 * colours[1].blue + 1) / 3);
+                            colours[3].blue  = (byte)((colours[0].blue + 2 * colours[1].blue + 1) / 3);
                             colours[3].green = (byte)((colours[0].green + 2 * colours[1].green + 1) / 3);
-                            colours[3].red = (byte)((colours[0].red + 2 * colours[1].red + 1) / 3);
+                            colours[3].red   = (byte)((colours[0].red + 2 * colours[1].red + 1) / 3);
                             colours[3].alpha = 0xFF;
 
                             int k = 0;
@@ -1284,9 +1290,9 @@ namespace Ship_Game
                                     if (((x + i) < width) && ((y + j) < height))
                                     {
                                         uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp);
-                                        rawData[offset + 0] = col.red;
-                                        rawData[offset + 1] = col.green;
-                                        rawData[offset + 2] = col.blue;
+                                        dest[offset + 2] = col.red;
+                                        dest[offset + 1] = col.green;
+                                        dest[offset + 0] = col.blue;
                                     }
                                 }
                             }
@@ -1327,7 +1333,7 @@ namespace Ship_Game
                                     if (((x + i) < width) && ((y + j) < height))
                                     {
                                         uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp + 3);
-                                        rawData[offset] = alphas[bits & 0x07];
+                                        dest[offset] = alphas[bits & 0x07];
                                     }
                                     bits >>= 3;
                                 }
@@ -1343,7 +1349,7 @@ namespace Ship_Game
                                     if (((x + i) < width) && ((y + j) < height))
                                     {
                                         uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp + 3);
-                                        rawData[offset] = alphas[bits & 0x07];
+                                        dest[offset] = alphas[bits & 0x07];
                                     }
                                     bits >>= 3;
                                 }
@@ -1355,7 +1361,7 @@ namespace Ship_Game
             return rawData;
         }
 
-        static unsafe byte[] DecompressFloat(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
+        static unsafe Color[] DecompressFloat(in DDSHeader header, byte[] data, PixelFormat pixelFormat)
         {
             // allocate bitmap
             int bpp = (int)(PixelFormatToBpp(pixelFormat, header.pixelformat.rgbbitcount));
@@ -1365,55 +1371,53 @@ namespace Ship_Game
             int height = (int)header.height;
             int depth = (int)header.depth;
 
-            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            var rawData = new Color[(depth * sizeofplane + height * bps + width * bpp) / 4];
             fixed (byte* bytePtr = data)
+            fixed (Color* destPtr = rawData)
             {
+                byte* destData = (byte*)destPtr;
                 byte* temp = bytePtr;
-                fixed (byte* destPtr = rawData)
+                int size;
+                switch (pixelFormat)
                 {
-                    byte* destData = destPtr;
-                    int size;
-                    switch (pixelFormat)
-                    {
-                        case PixelFormat.R32F:  // Red float, green = blue = max
-                            size = width * height * depth * 3;
-                            for (int i = 0, j = 0; i < size; i += 3, j++)
-                            {
-                                ((float*)destData)[i] = ((float*)temp)[j];
-                                ((float*)destData)[i + 1] = 1.0f;
-                                ((float*)destData)[i + 2] = 1.0f;
-                            }
-                            break;
+                    case PixelFormat.R32F:  // Red float, green = blue = max
+                        size = width * height * depth * 3;
+                        for (int i = 0, j = 0; i < size; i += 3, j++)
+                        {
+                            ((float*)destData)[i + 2] = ((float*)temp)[j];
+                            ((float*)destData)[i + 1] = 1.0f;
+                            ((float*)destData)[i + 0] = 1.0f;
+                        }
+                        break;
 
-                        case PixelFormat.A32B32G32R32F:  // Direct copy of float RGBA data
-                            Array.Copy(data, rawData, data.Length);
-                            break;
+                    case PixelFormat.A32B32G32R32F:  // Direct copy of float RGBA data
+                        Array.Copy(data, rawData, data.Length);
+                        break;
 
-                        case PixelFormat.G32R32F:  // Red float, green float, blue = max
-                            size = width * height * depth * 3;
-                            for (int i = 0, j = 0; i < size; i += 3, j += 2)
-                            {
-                                ((float*)destData)[i] = ((float*)temp)[j];
-                                ((float*)destData)[i + 1] = ((float*)temp)[j + 1];
-                                ((float*)destData)[i + 2] = 1.0f;
-                            }
-                            break;
+                    case PixelFormat.G32R32F:  // Red float, green float, blue = max
+                        size = width * height * depth * 3;
+                        for (int i = 0, j = 0; i < size; i += 3, j += 2)
+                        {
+                            ((float*)destData)[i + 2] = ((float*)temp)[j];
+                            ((float*)destData)[i + 1] = ((float*)temp)[j + 1];
+                            ((float*)destData)[i + 0] = 1.0f;
+                        }
+                        break;
 
-                        case PixelFormat.R16F:  // Red float, green = blue = max
-                            size = width * height * depth * bpp;
-                            ConvR16ToFloat32((uint*)destData, (ushort*)temp, (uint)size);
-                            break;
+                    case PixelFormat.R16F:  // Red float, green = blue = max
+                        size = width * height * depth * bpp;
+                        ConvR16ToFloat32((uint*)destData, (ushort*)temp, (uint)size);
+                        break;
 
-                        case PixelFormat.A16B16G16R16F:  // Just convert from half to float.
-                            size = width * height * depth * bpp;
-                            ConvFloat16ToFloat32((uint*)destData, (ushort*)temp, (uint)size);
-                            break;
+                    case PixelFormat.A16B16G16R16F:  // Just convert from half to float.
+                        size = width * height * depth * bpp;
+                        ConvFloat16ToFloat32((uint*)destData, (ushort*)temp, (uint)size);
+                        break;
 
-                        case PixelFormat.G16R16F:  // Convert from half to float, set blue = max.
-                            size = width * height * depth * bpp;
-                            ConvG16R16ToFloat32((uint*)destData, (ushort*)temp, (uint)size);
-                            break;
-                    }
+                    case PixelFormat.G16R16F:  // Convert from half to float, set blue = max.
+                        size = width * height * depth * bpp;
+                        ConvG16R16ToFloat32((uint*)destData, (ushort*)temp, (uint)size);
+                        break;
                 }
             }
 
