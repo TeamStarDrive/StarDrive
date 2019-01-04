@@ -13,12 +13,11 @@ namespace Ship_Game
     public class TextureAtlas : IDisposable
     {
         const int Version = 2; // changing this will force all caches to regenerate
-
-        public   string Name { get; private set; }
-        readonly string CacheName;
+        
         int Hash;
         int NumPacked; // number of packed textures (not all textures are packed)
 
+        public string Name { get; private set; }
         public int Width  { get; private set; }
         public int Height { get; private set; }
         public Texture2D Atlas { get; private set; }
@@ -26,16 +25,6 @@ namespace Ship_Game
                  SubTexture[]            Sorted = Empty<SubTexture>.Array;
         readonly Map<string, SubTexture> Lookup = new Map<string, SubTexture>();
         readonly Array<Texture2D>        Owned  = new Array<Texture2D>();
-
-        protected TextureAtlas(string name)
-        {
-            Name = name;
-
-            CacheName = name;
-            if (CacheName.StartsWith("Textures/"))
-                CacheName = CacheName.Substring("Textures/".Length);
-            CacheName = CacheName.Replace('/', '_');
-        }
 
         ~TextureAtlas() { Destroy(); }
         public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
@@ -56,17 +45,7 @@ namespace Ship_Game
         public SubTexture this[string name] => Lookup[name];
 
         public bool TryGetTexture(string name, out SubTexture texture)
-        {
-            return Lookup.TryGetValue(name, out texture);
-        }
-
-        static string PrepareTextureCacheDir()
-        {
-            string dir = Dir.StarDriveAppData + "/TextureCache";
-            Directory.CreateDirectory(dir);
-            return dir;
-        }
-        static readonly string TextureCacheDir = PrepareTextureCacheDir();
+            => Lookup.TryGetValue(name, out texture);
 
         static FileInfo[] GatherUniqueTextures(string folder)
         {
@@ -80,10 +59,7 @@ namespace Ship_Game
                     if (existing.Extension == "xnb") // only replace if old was xnb
                         uniqueTextures[texName] = info;
                 }
-                else
-                {
-                    uniqueTextures.Add(texName, info);
-                }
+                else uniqueTextures.Add(texName, info);
             }
             return uniqueTextures.Values.ToArray();
         }
@@ -103,33 +79,29 @@ namespace Ship_Game
             return hash;
         }
 
-
-        string DescriptorPath => $"{TextureCacheDir}/{CacheName}.atlas";
-        string TexturePath    => $"{TextureCacheDir}/{CacheName}.dds";
-
-        void SaveAtlasTexture(GameContentManager content, Color[] color)
+        void SaveAtlasTexture(GameContentManager content, Color[] color, string texturePath)
         {
             bool compress = Width > 1024 && Height > 1024;
             if (compress)
             {
                 // We compress the DDS color into DXT5 and then reload it through XNA
                 ImageUtils.ConvertToRGBA(Width, Height, color);
-                ImageUtils.SaveAsDds(TexturePath, Width, Height, color);
+                ImageUtils.SaveAsDds(texturePath, Width, Height, color);
                 //ImageUtils.SaveAsPng(TexturePathPNG, Width, Height, atlasColorData); // DEBUG!
 
                 // DXT5 Compressed size in memory is good, but quality sucks!
-                Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
+                Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, texturePath);
             }
             else
             {
                 // Uncompressed DDS, lossless quality, fast loading, big size in memory :(
                 Atlas = new Texture2D(content.Manager.GraphicsDevice, Width, Height, 1, TextureUsage.Linear, SurfaceFormat.Color);
                 Atlas.SetData(color);
-                Atlas.Save(TexturePath, ImageFileFormat.Dds);
+                Atlas.Save(texturePath, ImageFileFormat.Dds);
             }
         }
 
-        void CreateAtlasTexture(GameContentManager content, TextureInfo[] textures)
+        void CreateAtlasTexture(GameContentManager content, TextureInfo[] textures, AtlasPath path)
         {
             Stopwatch s = Stopwatch.StartNew();
 
@@ -148,7 +120,7 @@ namespace Ship_Game
 
                 foreach (TextureInfo t in textures) // copy pixels
                     if (!t.NoPack) t.TransferTextureToAtlas(atlasPixels, Width);
-                SaveAtlasTexture(content, atlasPixels);
+                SaveAtlasTexture(content, atlasPixels, path.Texture);
             }
 
             foreach (TextureInfo t in textures)
@@ -158,13 +130,13 @@ namespace Ship_Game
             }
 
             Log.Info($"CreateTexture    {SizeString} {Name} elapsed:{s.Elapsed.TotalMilliseconds}ms");
-            SaveAtlasDescriptor(textures);
+            SaveAtlasDescriptor(textures, path.Descriptor);
             CreateSortedList();
         }
 
-        void SaveAtlasDescriptor(TextureInfo[] textures)
+        void SaveAtlasDescriptor(TextureInfo[] textures, string descriptorPath)
         {
-            using (var fs = new StreamWriter(DescriptorPath))
+            using (var fs = new StreamWriter(descriptorPath))
             {
                 fs.WriteLine(Hash);
                 fs.WriteLine(Name);
@@ -177,10 +149,10 @@ namespace Ship_Game
             }
         }
 
-        bool TryLoadCache(GameContentManager content)
+        bool TryLoadCache(GameContentManager content, AtlasPath path)
         {
-            if (!File.Exists(DescriptorPath)) return false; // regenerate!!
-            using (var fs = new StreamReader(DescriptorPath))
+            if (!File.Exists(path.Descriptor)) return false; // regenerate!!
+            using (var fs = new StreamReader(path.Descriptor))
             {
                 int.TryParse(fs.ReadLine(), out int hash);
                 if (hash != Hash)
@@ -193,8 +165,8 @@ namespace Ship_Game
                 int.TryParse(fs.ReadLine(), out NumPacked);
                 if (NumPacked > 0)
                 {
-                    if (!File.Exists(TexturePath)) return false; // regenerate!!
-                    Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
+                    if (!File.Exists(path.Texture)) return false; // regenerate!!
+                    Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, path.Texture);
                     Width = Atlas.Width;
                     Height = Atlas.Height;
                 }
@@ -250,6 +222,21 @@ namespace Ship_Game
             return textures;
         }
 
+        class AtlasPath
+        {
+            public readonly string Texture;
+            public readonly string Descriptor;
+            public AtlasPath(string name)
+            {
+                if (name.StartsWith("Textures/")) name = name.Substring("Textures/".Length);
+                name = name.Replace('/', '_');
+                string cacheDir = Dir.StarDriveAppData + "/TextureCache";
+                Directory.CreateDirectory(cacheDir);
+                Texture    = $"{cacheDir}/{name}.dds";
+                Descriptor = $"{cacheDir}/{name}.atlas";
+            }
+        }
+
         // @return null if no textures in atlas {folder}
         public static TextureAtlas FromFolder(GameContentManager content, string folder, bool useCache = true)
         {
@@ -257,12 +244,14 @@ namespace Ship_Game
             if (textureFiles.Length == 0)
                 return null; // no textures!!
 
-            var atlas = new TextureAtlas(folder) { Hash = CreateHash(textureFiles) };
-            if (useCache && atlas.TryLoadCache(content))
+            var atlas = new TextureAtlas { Name = folder, Hash = CreateHash(textureFiles) };
+            var path = new AtlasPath(folder);
+
+            if (useCache && atlas.TryLoadCache(content, path))
                 return atlas;
 
             TextureInfo[] textures = LoadTextureInfo(content, textureFiles);
-            atlas.CreateAtlasTexture(content, textures);
+            atlas.CreateAtlasTexture(content, textures, path);
             HelperFunctions.CollectMemorySilent();
             return atlas;
         }

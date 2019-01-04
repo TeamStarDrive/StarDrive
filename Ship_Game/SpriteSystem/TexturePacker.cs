@@ -9,7 +9,7 @@ namespace Ship_Game.SpriteSystem
     {
         const int Padding = 2; // Atlas texture padding
         const int MinFreeSpotSize = 16; // Minimum width/height for recycled free spots
-        const int MaxWidthHeightSum = 1024; // tex width+height > this is excluded from packing
+        const int MaxWidthHeightSum = 920; // tex width+height > this is excluded from packing
 
         public int Width  { get; private set; }
         public int Height { get; private set; }

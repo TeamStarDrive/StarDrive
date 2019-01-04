@@ -16,16 +16,14 @@ namespace Ship_Game
         {
             var dxtData = new byte[tex.Width * tex.Height];
             tex.GetData(dxtData);
-            byte[] pixels = DDSReader.DecompressData(tex.Width, tex.Height, dxtData, DDSReader.PixelFormat.DXT5);
-            return BytesToColor(pixels);
+            return DDSReader.DecompressData(tex.Width, tex.Height, dxtData, DDSReader.PixelFormat.DXT5);
         }
 
         public static Color[] DecompressDxt1(Texture2D tex)
         {
             var dxtData = new byte[(tex.Width * tex.Height) / 2];
             tex.GetData(dxtData);
-            byte[] pixels = DDSReader.DecompressData(tex.Width, tex.Height, dxtData, DDSReader.PixelFormat.DXT1);
-            return BytesToColor(pixels);
+            return DDSReader.DecompressData(tex.Width, tex.Height, dxtData, DDSReader.PixelFormat.DXT1);
         }
 
         static unsafe Color[] BytesToColor(byte[] pixels)
