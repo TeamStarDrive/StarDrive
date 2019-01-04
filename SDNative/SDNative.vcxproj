@@ -47,15 +47,15 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
-    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)fbxsdk;$(ProjectDir)3rdparty;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
-    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)fbxsdk;$(ProjectDir)3rdparty;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -79,7 +79,7 @@
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
+      <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -103,10 +103,11 @@
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
+      <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="3rdparty\fbxsdk\fbxsdk.h" />
     <ClInclude Include="3rdparty\libsquish\alpha.h" />
     <ClInclude Include="3rdparty\libsquish\clusterfit.h" />
     <ClInclude Include="3rdparty\libsquish\colourblock.h" />
@@ -122,13 +123,14 @@
     <ClInclude Include="3rdparty\libsquish\singlecolourfit.h" />
     <ClInclude Include="3rdparty\libsquish\squish.h" />
     <ClInclude Include="3rdparty\lodepng\lodepng.h" />
+    <ClInclude Include="3rdparty\rapidxml\rapidxml.hpp" />
+    <ClInclude Include="3rdparty\rapidxml\rapidxml_iterators.hpp" />
+    <ClInclude Include="3rdparty\rapidxml\rapidxml_print.hpp" />
+    <ClInclude Include="3rdparty\rapidxml\rapidxml_utils.hpp" />
     <ClInclude Include="3rdparty\soil2\image_DXT.h" />
     <ClInclude Include="3rdparty\soil2\image_helper.h" />
+    <ClInclude Include="3rdparty\stb\stb_dxt.h" />
     <ClInclude Include="NanoMesh\Nano\Mesh.h" />
-    <ClInclude Include="rapidxml\rapidxml.hpp" />
-    <ClInclude Include="rapidxml\rapidxml_iterators.hpp" />
-    <ClInclude Include="rapidxml\rapidxml_print.hpp" />
-    <ClInclude Include="rapidxml\rapidxml_utils.hpp" />
     <ClInclude Include="ReCpp\rpp\collections.h" />
     <ClInclude Include="ReCpp\rpp\debugging.h" />
     <ClInclude Include="ReCpp\rpp\file_io.h" />
@@ -168,7 +170,6 @@
     <ClCompile Include="util\save_image.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="NanoMesh\Nano\mesh.natvis" />
     <Natvis Include="ReCpp\rpp\strview.natvis" />
     <Natvis Include="ReCpp\rpp\vec.natvis" />
     <Natvis Include="SDNative.natvis" />
