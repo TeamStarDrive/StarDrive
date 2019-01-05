@@ -8,6 +8,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
@@ -232,8 +233,7 @@ namespace Ship_Game
             Reset();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage();
-            //new ResourceTests().RunAll();
-            //LoadTextureAtlases();
+            LoadTextureAtlases();
             LoadToolTips();
             LoadTroops();
             LoadHullBonuses();
@@ -880,38 +880,62 @@ namespace Ship_Game
             return allFiles.ToArray();
         }
 
+        // This is just to speed up initial atlas generation and avoid noticeable framerate hiccups
         public static void LoadTextureAtlases()
         {
-            void LoadTexture(string folder)
+            //new ResourceTests().RunAll();
+
+            void LoadAtlas(string folder)
             {
                 var atlas = RootContent.Load<TextureAtlas>(folder);
-
-                string relativePath = "";
-                if (folder != "Textures")
-                    relativePath = folder.Substring("Textures/".Length) + "/";
-
-                lock (Textures)
-                {
-                    foreach (SubTexture tex in atlas.Textures)
-                    {
-                        string name = relativePath + tex.Name;
-                        Textures[name] = tex;
-                    }
-                }
+                if (atlas == null) Log.Warning($"LoadAtlas {folder} failed");
             }
 
-            LoadTexture("Textures");
+            // these are essential for main menu, so we load them as blocking
+            LoadAtlas("Textures");
+            LoadAtlas("Textures/GameScreens");
+            LoadAtlas("Textures/MainMenu");
+            LoadAtlas("Textures/EmpireTopBar");
+            LoadAtlas("Textures/NewUI");
 
-            DirectoryInfo[] dirs = GatherDirsUnified("Textures");
-            Parallel.For(dirs.Length, (start, end) =>
+            // these are non-critical and can be loaded in background
+            Parallel.Run(() =>
             {
-                for (int i = start; i < end; ++i)
+                Stopwatch s = Stopwatch.StartNew();
+                var atlases = new []
                 {
-                    DirectoryInfo dir = dirs[i];
-                    string name = dir.FullName.Substring(dir.FullName.IndexOf("Textures"))
-                                                .Replace('\\', '/');
-                    LoadTexture(name);
-                }
+                    "Textures/Ship_explosion2", // TESTING
+
+                    // Main Menu
+                    "Textures/Races",     // NewGame screen
+                    "Textures/UI",        // NewGame screen
+                    "Textures/ShipIcons", // LoadGame screen
+                    "Textures/Popup",     // Options screen
+
+                    // UniverseScreen
+                    "Textures/Arcs",
+                    "Textures/SelectionBox",
+                    "Textures/Minimap",
+                    "Textures/Ships",
+                    "Textures/Suns",
+                    "Textures/hqspace",
+                    "Textures/PlanetGlows",
+                    "Textures/TacticalIcons",
+                    "Textures/Planets",
+                    "Textures/PlanetTiles",
+                    "Textures/Buildings",
+                    "Textures/ResearchMenu",
+                    "Textures/TechIcons",
+                    "Textures/Modules",
+                    "Textures/TroopIcons",
+                    "Textures/Portraits",
+                    "Textures/Textures/Ground_UI",
+                    "Textures/Textures/Troops",
+                };
+                foreach (string name in atlases)
+                    LoadAtlas(name);
+
+                Log.Info($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms");
             });
         }
 
