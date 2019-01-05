@@ -101,8 +101,7 @@ namespace Ship_Game
             if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
                 universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, c);
             else
-                universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, blackRect,
-                    c);
+                universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, blackRect, c);
             float percentX = camPos.X / 500000f;
             float percentY = camPos.Y / 500000f;
             float xDiff = blackRect.Width / 10f;
