@@ -323,7 +323,7 @@ namespace Ship_Game
 
             foreach (EmpireData data in removalCollection)
             {
-                Empire empireFromEmpireData = CreateEmpireFromEmpireData(data);
+                Empire empireFromEmpireData = EmpireManager.CreateEmpireFromEmpireData(data);
                 Data.EmpireList.Add(empireFromEmpireData);
                 var traits = empireFromEmpireData.data.Traits;
                 switch (Difficulty)
@@ -356,7 +356,7 @@ namespace Ship_Game
             {
                 if (data.Faction == 0 && !data.MinorRace)
                     continue;
-                Empire empireFromEmpireData = CreateEmpireFromEmpireData(data);
+                Empire empireFromEmpireData = EmpireManager.CreateEmpireFromEmpireData(data);
                 Data.EmpireList.Add(empireFromEmpireData);
                 EmpireManager.Add(empireFromEmpireData);
             }
@@ -742,61 +742,6 @@ namespace Ship_Game
             empireData.TurnsBelowZero = 0;
             return empireData;
         }
-
-        private Empire CreateEmpireFromEmpireData(EmpireData data)
-        {
-            var empire = new Empire();
-            Log.Info($"Creating Empire {data.PortraitName}");
-            if (data.Faction == 1)
-                empire.isFaction = true;
-            int index1 = (int)RandomMath.RandomBetween(0.0f, DTraits.DiplomaticTraitsList.Count);
-            data.DiplomaticPersonality = DTraits.DiplomaticTraitsList[index1];
-            while (!CheckPersonality(data))
-            {
-                int index2 = (int)RandomMath.RandomBetween(0.0f, DTraits.DiplomaticTraitsList.Count);
-                data.DiplomaticPersonality = DTraits.DiplomaticTraitsList[index2];
-            }
-            int index3 = (int)RandomMath.RandomBetween(0.0f, DTraits.EconomicTraitsList.Count);
-            data.EconomicPersonality = DTraits.EconomicTraitsList[index3];
-            while (!CheckEPersonality(data))
-            {
-                int index2 = (int)RandomMath.RandomBetween(0.0f, DTraits.EconomicTraitsList.Count);
-                data.EconomicPersonality = DTraits.EconomicTraitsList[index2];
-            }
-            empire.data = data;
-            //Added by McShooterz: set values for alternate race file structure
-            data.Traits.LoadTraitConstraints();
-            empire.dd                             = ResourceManager.DDDict[data.DiplomacyDialogPath];
-            empire.data.SpyModifier               = data.Traits.SpyMultiplier;
-            empire.data.Traits.Spiritual          = data.Traits.Spiritual;
-            empire.data.Traits.PassengerModifier += data.Traits.PassengerBonus;
-            empire.PortraitName                   = data.PortraitName;
-            empire.data.Traits                    = data.Traits;
-            empire.EmpireColor                    = new Color((byte)data.Traits.R, (byte)data.Traits.G, (byte)data.Traits.B);
-            empire.Initialize();
-            return empire;
-        }
-
-        private static bool CheckPersonality(EmpireData data)
-        {
-            foreach (string str in data.ExcludedDTraits)
-            {
-                if (str == data.DiplomaticPersonality.Name)
-                    return false;
-            }
-            return true;
-        }
-
-        private static bool CheckEPersonality(EmpireData data)
-        {
-            foreach (string str in data.ExcludedETraits)
-            {
-                if (str == data.EconomicPersonality.Name)
-                    return false;
-            }
-            return true;
-        }
-
         public override bool HandleInput(InputState input)
         {
             if (!AllSystemsGenerated || !input.InGameSelect)
