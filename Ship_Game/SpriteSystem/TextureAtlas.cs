@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.SpriteSystem;
@@ -13,9 +14,13 @@ namespace Ship_Game
     public class TextureAtlas : IDisposable
     {
         const int Version = 3; // changing this will force all caches to regenerate
-        static bool ExportPacked = false; // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
-        static bool ExportNoPack = false; // DEBUG: export non-packed textures into {cache}/NoPack/{atlas}/{sprite}.png
-        
+
+        // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
+        //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
+        static bool ExportTextures = false;
+        static bool ExportPng = true; // DEBUG: IF exporting, use PNG
+        static bool ExportDds = false; // also use DDS?
+
         int Hash;
         int NumPacked; // number of packed textures (not all textures are packed)
 
@@ -26,7 +31,7 @@ namespace Ship_Game
 
                  SubTexture[]            Sorted = Empty<SubTexture>.Array;
         readonly Map<string, SubTexture> Lookup = new Map<string, SubTexture>();
-        readonly Array<Texture2D>        Owned  = new Array<Texture2D>();
+        readonly Array<Texture2D>        NonPacked  = new Array<Texture2D>();
 
         ~TextureAtlas() { Destroy(); }
         public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
@@ -34,12 +39,12 @@ namespace Ship_Game
         void Destroy()
         {
             Atlas?.Dispose();
-            for (int i = 0; i < Owned.Count; ++i) Owned[i].Dispose();
-            Owned.Clear();
+            for (int i = 0; i < NonPacked.Count; ++i) NonPacked[i].Dispose();
+            NonPacked.Clear();
         }
 
-        public string SizeString => $"{$"{Width}x{Height}",9}";
-        public override string ToString() => $"atlas {Count} {SizeString} {Name}";
+        public string SizeString => $"{$"{Width}x{Height}",-9}";
+        public override string ToString() => $"{Name,-24} {SizeString} refs:{Lookup.Count,-3} packed:{NumPacked,-3} non-packed:{NonPacked.Count,-3}";
 
         public IReadOnlyList<SubTexture> Textures => Sorted;
         public int Count => Sorted.Length;
@@ -103,7 +108,14 @@ namespace Ship_Game
             }
         }
 
-        void CreateAtlasTexture(GameContentManager content, FileInfo[] textureFiles, AtlasPath path)
+        static void ExportTexture(TextureInfo t, AtlasPath path)
+        {
+            string prefix = t.NoPack ? "NoPack/" : "";
+            if (ExportPng) t.SaveAsPng($"{path.CacheDir}/{path.Name}/{prefix}{t.Name}.png");
+            if (ExportDds) t.SaveAsDds($"{path.CacheDir}/{path.Name}/{prefix}{t.Name}.dds");
+        }
+
+        void CreateAtlas(GameContentManager content, FileInfo[] textureFiles, AtlasPath path)
         {
             Stopwatch s = Stopwatch.StartNew();
             TextureInfo[] textures = LoadTextureInfo(content, textureFiles);
@@ -122,13 +134,10 @@ namespace Ship_Game
 
                 foreach (TextureInfo t in textures) // copy pixels
                 {
-                    if (t.NoPack)
-                    {
-                        if (ExportNoPack) t.Texture.Save($"{path.CacheDir}/NoPack/{path.Name}/{t.Name}.png", ImageFileFormat.Png);
-                        continue;
-                    }
-                    if (ExportPacked) t.Texture.Save($"{path.CacheDir}/{path.Name}/{t.Name}.png", ImageFileFormat.Png);
+                    if (ExportTextures) ExportTexture(t, path);
+                    if (t.NoPack) continue;
                     t.TransferTextureToAtlas(atlasPixels, Width, Height);
+                    t.DisposeTexture();
                 }
                 SaveAtlasTexture(content, atlasPixels, path.Texture);
             }
@@ -136,12 +145,12 @@ namespace Ship_Game
             foreach (TextureInfo t in textures)
             {
                 Lookup[t.Name] = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, (t.NoPack ? t.Texture : Atlas));
-                if (t.NoPack) Owned.Add(t.Texture);
+                if (t.NoPack) NonPacked.Add(t.Texture);
             }
 
-            Log.Info($"CreateTexture    {SizeString} {Name} elapsed:{s.Elapsed.TotalMilliseconds}ms");
             SaveAtlasDescriptor(textures, path.Descriptor);
             CreateSortedList();
+            Log.Info($"CreateAtlas {this} elapsed:{s.Elapsed.TotalMilliseconds}ms");
         }
 
         void SaveAtlasDescriptor(TextureInfo[] textures, string descriptorPath)
@@ -161,6 +170,7 @@ namespace Ship_Game
 
         bool TryLoadCache(GameContentManager content, AtlasPath path)
         {
+            Stopwatch s = Stopwatch.StartNew();
             if (!File.Exists(path.Descriptor)) return false; // regenerate!!
             using (var fs = new StreamReader(path.Descriptor))
             {
@@ -181,29 +191,39 @@ namespace Ship_Game
                     Height = Atlas.Height;
                 }
 
+                var textures = new Array<TextureInfo>();
+
                 var separator = new[] { ' ' };
                 string line;
                 while ((line = fs.ReadLine()) != null)
                 {
+                    var t = new TextureInfo();
                     string[] entry = line.Split(separator, 6);
-                    string what = entry[0];
-                    int.TryParse(entry[1], out int x);
-                    int.TryParse(entry[2], out int y);
-                    int.TryParse(entry[3], out int w);
-                    int.TryParse(entry[4], out int h);
-                    string sprite = entry[5];
-                    Texture2D tex = Atlas;
-                    if (what == "nopack")
-                    {
-                        tex = content.LoadUncached<Texture2D>($"{Name}/{sprite}");
-                        Owned.Add(tex);
-                    }
-                    Lookup.Add(sprite, new SubTexture(sprite, x, y, w, h, tex));
+                    t.NoPack = (entry[0] == "nopack");
+                    int.TryParse(entry[1], out t.X);
+                    int.TryParse(entry[2], out t.Y);
+                    int.TryParse(entry[3], out t.Width);
+                    int.TryParse(entry[4], out t.Height);
+                    t.Name = entry[5];
+                    textures.Add(t);
                 }
+                LoadTextures(content, textures);
                 CreateSortedList();
             }
-            Log.Info($"LoadAtlas    {Lookup.Count,3} {SizeString} {Name}");
+            Log.Info($"LoadAtlas {this} elapsed:{s.Elapsed.TotalMilliseconds}ms");
             return true; // we loaded everything
+        }
+
+        void LoadTextures(GameContentManager content, Array<TextureInfo> textures)
+        {
+            // @todo With this separation, we could parallelize LoadUncached<Texture2D> even more?
+            foreach (TextureInfo t in textures)
+            {
+                t.Texture = t.NoPack ? content.LoadUncached<Texture2D>($"{Name}/{t.Name}") : Atlas;
+                var sub = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, t.Texture);
+                if (t.NoPack) NonPacked.Add(t.Texture);
+                Lookup.Add(t.Name, sub);
+            }
         }
 
         void CreateSortedList()
@@ -211,20 +231,6 @@ namespace Ship_Game
             Sorted = Lookup.Values.ToArray();
             Array.Sort(Sorted, (a, b) => string.CompareOrdinal(a.Name, b.Name));
         }
-
-        //static Texture2D Resize1x1To4x4(GameContentManager content, Texture2D small)
-        //{
-        //    var old = new Color[small.Width*small.Height];
-        //    small.GetData(old);
-        //    small.Dispose();
-
-        //    var big = new Texture2D(content.Device, 4, 4);
-        //    var neu = new Color[4*4];
-        //    for (int i = 0; i < neu.Length; ++i)
-        //        neu[i] = old[0];
-        //    big.SetData(neu);
-        //    return big;
-        //}
 
         static TextureInfo[] LoadTextureInfo(GameContentManager content, FileInfo[] textureFiles)
         {
@@ -235,8 +241,6 @@ namespace Ship_Game
                 string assetName = info.CleanResPath(false);
                 string texName = info.NameNoExt();
                 var tex = content.LoadUncached<Texture2D>(assetName);
-                //if (tex.Width == 1 && tex.Height == 1)
-                //    tex = Resize1x1To4x4(content, tex);
                 textures[i] = new TextureInfo
                 {
                     Name = texName,
@@ -262,27 +266,64 @@ namespace Ship_Game
                 Directory.CreateDirectory(CacheDir);
                 Texture    = $"{CacheDir}/{Name}.dds";
                 Descriptor = $"{CacheDir}/{Name}.atlas";
-                if (ExportPacked) Directory.CreateDirectory($"{CacheDir}/{Name}");
-                if (ExportNoPack) Directory.CreateDirectory($"{CacheDir}/NoPack/{Name}");
+                if (ExportTextures)
+                {
+                    Directory.CreateDirectory($"{CacheDir}/{Name}");
+                    Directory.CreateDirectory($"{CacheDir}/{Name}/NoPack");
+                }
             }
+        }
+
+        // To enable multi-threaded background pre-loading
+        static readonly Map<string, TextureAtlas> Loading = new Map<string, TextureAtlas>();
+        readonly Mutex LoadSync = new Mutex();
+
+        // atomically gets or inserts atlas
+        // @return TRUE if an existing atlas was retrieved, FALSE if a new atlas was inserted
+        static bool GetLoadedAtlas(string name, out TextureAtlas existingOrNew)
+        {
+            lock (Loading)
+            {
+                if (!Loading.TryGetValue(name, out existingOrNew))
+                {
+                    existingOrNew = new TextureAtlas { Name = name };
+                    Loading.Add(name, existingOrNew);
+                    existingOrNew.LoadSync.WaitOne(); // lock it for upcoming load event
+                    return false;
+                }
+            }
+            existingOrNew.LoadSync.WaitOne(); // wait until loading completes
+            return true;
         }
 
         // @return null if no textures in atlas {folder}
         public static TextureAtlas FromFolder(GameContentManager content, string folder, bool useCache = true)
         {
-            FileInfo[] textureFiles = GatherUniqueTextures(folder);
-            if (textureFiles.Length == 0)
-                return null; // no textures!!
+            TextureAtlas atlas = null;
+            try
+            {
+                if (GetLoadedAtlas(folder, out atlas))
+                    return atlas;
 
-            var atlas = new TextureAtlas { Name = folder, Hash = CreateHash(textureFiles) };
-            var path = new AtlasPath(folder);
+                FileInfo[] files = GatherUniqueTextures(folder);
+                if (files.Length == 0)
+                    return null; // no textures!!
 
-            if (useCache && atlas.TryLoadCache(content, path))
+                atlas.Hash = CreateHash(files);
+                var path = new AtlasPath(folder);
+
+                if (useCache && atlas.TryLoadCache(content, path))
+                    return atlas;
+
+                atlas.CreateAtlas(content, files, path);
+                HelperFunctions.CollectMemorySilent();
                 return atlas;
-
-            atlas.CreateAtlasTexture(content, textureFiles, path);
-            HelperFunctions.CollectMemorySilent();
-            return atlas;
+            }
+            finally
+            {
+                atlas?.LoadSync.ReleaseMutex();
+                lock (Loading) Loading.Remove(folder);
+            }
         }
     }
 }

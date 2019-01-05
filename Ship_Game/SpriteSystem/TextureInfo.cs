@@ -18,31 +18,59 @@ namespace Ship_Game.SpriteSystem
 
         public override string ToString() => $"X:{X} Y:{Y} W:{Width} H:{Height} Name:{Name}";
 
-        // @note this will destroy Texture after transferring it to atlas
-        public void TransferTextureToAtlas(Color[] atlas, int atlasWidth, int atlasHeight)
+        public Color[] GetColorData()
         {
             if (Texture == null)
                 throw new ObjectDisposedException("TextureData Texture2D ref already disposed");
-
             Color[] colorData;
             if (Texture.Format == SurfaceFormat.Dxt5)
                 colorData = ImageUtils.DecompressDxt5(Texture);
             else if (Texture.Format == SurfaceFormat.Dxt1)
                 colorData = ImageUtils.DecompressDxt1(Texture);
-            else if (Texture.Format == SurfaceFormat.Color)
-            {
+            else if (Texture.Format == SurfaceFormat.Color) {
                 colorData = new Color[Texture.Width * Texture.Height];
                 Texture.GetData(colorData);
+            } else {
+                colorData = new Color[0];
+                Log.Error($"Unsupported texture format: {Texture.Format}");
+            }
+            return colorData;
+        }
+
+        // @note this will destroy Texture after transferring it to atlas
+        public void TransferTextureToAtlas(Color[] atlas, int atlasWidth, int atlasHeight)
+        {
+            Color[] colorData = GetColorData();
+            ImageUtils.CopyPixelsWithPadding(atlas, atlasWidth, atlasHeight, X, Y, colorData, Width, Height);
+        }
+
+        public void DisposeTexture()
+        {
+            Texture.Dispose(); // save some memory
+            Texture = null;
+        }
+
+        public void SaveAsPng(string filename)
+        {
+            Texture.Save(filename, ImageFileFormat.Png);
+        }
+
+        public void SaveAsDds(string filename)
+        {
+            if (Texture.Format == SurfaceFormat.Dxt5 || Texture.Format == SurfaceFormat.Dxt1)
+            {
+                Texture.Save(filename, ImageFileFormat.Dds); // already compressed
+            }
+            else if (Texture.Format == SurfaceFormat.Color)
+            {
+                var colorData = new Color[Texture.Width * Texture.Height];
+                Texture.GetData(colorData);
+                ImageUtils.SaveAsDds(filename, Width, Height, colorData);
             }
             else
             {
-                colorData = new Color[0];
-                Log.Error($"Unsupported atlas texture format: {Texture.Format}");
+                Log.Error($"Unsupported texture format: {Texture.Format}");
             }
-            Texture.Dispose(); // save some memory
-            Texture = null;
-
-            ImageUtils.CopyPixelsWithPadding(atlas, atlasWidth, atlasHeight, X, Y, colorData, Width, Height);
         }
     }
 }
