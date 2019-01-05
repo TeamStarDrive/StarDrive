@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -86,16 +87,16 @@ namespace Ship_Game
 
 
         [DllImport("SDNative.dll")]
-        static extern unsafe IntPtr CopyPixelsRGBA(
-            Color* dst, int dstWidth, int x, int y, Color* src, int w, int h);
+        static extern unsafe IntPtr CopyPixelsPadded(
+            Color* dst, int dstWidth, int dstHeight, int x, int y, Color* src, int w, int h);
 
-        public static unsafe void CopyPixelsTo(Color[] dst, int dstWidth, int x, int y, Color[] src, int w, int h)
+        public static unsafe void CopyPixelsWithPadding(Color[] dst, int dstWidth, int dstHeight, int x, int y, Color[] src, int w, int h)
         {
             fixed (Color* pDst = dst)
             {
                 fixed (Color* pSrc = src)
                 {
-                    CopyPixelsRGBA(pDst, dstWidth, x, y, pSrc, w, h);
+                    CopyPixelsPadded(pDst, dstWidth, dstHeight, x, y, pSrc, w, h);
                 }
             }
         }

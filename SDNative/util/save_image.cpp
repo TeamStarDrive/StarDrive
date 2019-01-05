@@ -3,9 +3,15 @@
 #include <libsquish/squish.h>
 #include <stb/stb_dxt.h>
 #include <cstdio>
+#include <rpp/debugging.h>
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 using byte = unsigned char;
+
+struct Point
+{
+	int x, y;
+};
 
 struct Color
 {
@@ -90,15 +96,90 @@ DLLEXPORT const char* __stdcall SaveImageAsDDS(
     return nullptr;
 }
 
-
-DLLEXPORT void __stdcall CopyPixelsRGBA(Color* dst, int dstWidth, int x, int y, const Color* src, int w, int h)
+struct Image
 {
-	Color* dstRow = dst + (dstWidth * y) + x;
-	const Color* srcRow = src;
-	for (int iy = 0; iy < h; ++iy)
+	Color* data;
+	int width;
+	int height;
+};
+
+struct ImageCopy final
+{
+	Color* dst;
+	Color* src;
+	Color* end;
+	int dst_stride;
+	int src_stride;
+	__forceinline void next_row()
 	{
-		memcpy(dstRow, srcRow, sizeof(Color) * w); // copy row
-		dstRow += dstWidth; // move to next row
-		srcRow += w;
+		dst += dst_stride;
+		src += src_stride;
 	}
+	__forceinline void rect()
+	{
+		for (; dst < end; next_row())
+			memcpy(dst, src, sizeof(Color) * src_stride);
+	}
+	__forceinline void row()
+	{
+		memcpy(dst, src, sizeof(Color) * src_stride);
+	}
+	__forceinline void column()
+	{
+		for (; dst < end; next_row()) *dst = *src;
+	}
+	__forceinline void pixel()
+	{
+		*dst = *src;
+	}
+};
+
+ImageCopy image_copy(const Image& d, const Image& s, int dx, int dy, int sx, int sy)
+{
+	ImageCopy ic {};
+	ic.dst = d.data + (d.width * dy) + dx;
+	ic.src = s.data + (s.width * sy) + sx;
+	ic.end = ic.dst + (d.width * s.height);
+	ic.dst_stride = d.width;
+	ic.src_stride = s.width;
+	return ic;
+}
+
+
+
+// Applies 1px padding while copying {src} to {dst:x,y}
+DLLEXPORT void __stdcall CopyPixelsPadded(Image dst, int x, int y, Image src)
+{
+    #define RangeCheck(error_condition) \
+	if (error_condition) { \
+		LogError("src {%dx%d} does not fit to dst {%dx%d: %d,%d}: " #error_condition, \
+				 src.width, src.height, dst.width, dst.height, x, y); \
+	}
+	RangeCheck(x < 0);
+	RangeCheck(y < 0);
+	RangeCheck((x + src.width)  > dst.width);
+	RangeCheck((y + src.height) > dst.height);
+
+	image_copy(dst, src, x, y, 0, 0).rect(); // main image rect
+
+	// o-------o 1px Padding
+	// |o-----o|
+	// || src ||
+	// |o-----S|
+	// o-------D
+	const Point D{ x + src.width, y + src.height };
+	const Point s{ src.width - 1, src.height - 1 };
+	const bool left = x > 0;
+	const bool top  = y > 0;
+	const bool right  = D.x < dst.width;  // in image bounds? 
+	const bool bottom = D.y < dst.height;
+	// padding:
+	if (top)    { image_copy(dst, src, x,   y-1, 0, 0  ).row(); }
+	if (bottom) { image_copy(dst, src, x,   D.y, 0, s.y).row(); }
+	if (left)   { image_copy(dst, src, x-1, y,   0, 0  ).column(); }
+	if (right)  { image_copy(dst, src, D.x, y, s.x, 0  ).column(); }
+	if (top && left)     { image_copy(dst, src, x-1, y-1, 0,   0  ).pixel(); }
+	if (top && right)    { image_copy(dst, src, D.x, y-1, s.x, 0  ).pixel(); }
+	if (bottom && left)  { image_copy(dst, src, x-1, D.y, 0,   s.y).pixel(); }
+	if (bottom && right) { image_copy(dst, src, D.x, D.y, s.x, s.y).pixel(); }
 }
