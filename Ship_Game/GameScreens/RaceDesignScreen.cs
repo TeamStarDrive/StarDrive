@@ -10,13 +10,10 @@ namespace Ship_Game
     public class RaceDesignScreen : GameScreen, IListScreen
     {
         protected RacialTrait RaceSummary = new RacialTrait();
-
         private int GameScale = 1;
 
         protected RacialTraits rt;
-
         public Texture2D Panel;
-
         protected MainMenuScreen mmscreen;
 
         public int NegativePicks;
@@ -24,14 +21,7 @@ namespace Ship_Game
         private GameMode mode = 0; //was unassigned
 
         protected Rectangle FlagLeft;
-
         protected Rectangle FlagRight;
-
-        //protected Array<TraitEntry> PhysicalTraits = new Array<TraitEntry>();
-
-        //protected Array<TraitEntry> IndustryTraits = new Array<TraitEntry>();
-
-        //protected Array<TraitEntry> SpecialTraits = new Array<TraitEntry>();
 
         protected Array<TraitEntry> AllTraits = new Array<TraitEntry>();
 
@@ -42,110 +32,73 @@ namespace Ship_Game
         public GalSize Galaxysize = GalSize.Medium;
 
         private Rectangle NumberStarsRect;
-
         private Rectangle NumOpponentsRect;
 
         protected Menu2 TitleBar;
-
         protected Vector2 TitlePos;
-
         protected Menu1 Left;
-
         protected Menu1 Name;
-
         protected Menu1 Description;
 
         protected bool LowRes;
 
         protected Submenu Traits;
-
         protected Submenu NameSub;
 
         protected ScrollList traitsSL;
-
         protected Selector selector;
-
         protected Menu1 ColorSelectMenu;
 
         protected UITextEntry RaceName = new UITextEntry();
-
         protected UITextEntry SingEntry = new UITextEntry();
-
         protected UITextEntry PlurEntry = new UITextEntry();
-
         protected UITextEntry HomeSystemEntry = new UITextEntry();
 
         protected Vector2 RaceNamePos;
-
         protected Vector2 FlagPos;
 
         protected Rectangle FlagRect;
-
         private Menu1 ChooseRaceMenu;
-
         private ScrollList RaceArchetypeSL;
-
         private Submenu arch;
-
         private Rectangle PacingRect;
 
         private int Pacing = 100;
 
         private Rectangle ScaleRect = new Rectangle();
-
         private Rectangle dslrect;
-
         private Rectangle GameModeRect;
-
         private Rectangle DifficultyRect;
 
-        private Map<EmpireData, Texture2D> TextureDict = new Map<EmpireData, Texture2D>();
+        private Map<EmpireData, SubTexture> TextureDict = new Map<EmpireData, SubTexture>();
 
         private ScrollList DescriptionSL;
-
         private UIButton RulesOptions;
-
         protected UIButton Engage;
-
         protected UIButton Abort;
-
         protected UIButton ClearTraits;
 
         private int numOpponents = 7;
-
         protected RacialTrait tipped;
-
         protected float tTimer = 0.35f;
-
         public string rd = "";
-
         private Keys[] keysToCheck = { Keys.A, Keys.B, Keys.C, Keys.D, Keys.E, Keys.F, Keys.G, Keys.H, Keys.I, Keys.J, Keys.K, Keys.L, Keys.M, Keys.N, Keys.O, Keys.P, Keys.Q, Keys.R, Keys.S, Keys.T, Keys.U, Keys.V, Keys.W, Keys.X, Keys.Y, Keys.Z, Keys.Back, Keys.Space, Keys.NumPad0, Keys.NumPad1, Keys.NumPad2, Keys.NumPad3, Keys.NumPad4, Keys.NumPad5, Keys.NumPad6, Keys.NumPad7, Keys.NumPad8, Keys.NumPad9, Keys.OemMinus, Keys.OemQuotes };
 
         private KeyboardState currentKeyboardState;
-
         private KeyboardState lastKeyboardState;
 
         protected int FlagIndex;
-
-
+        protected int TotalPointsUsed = 8;
         protected bool DrawingColorSelector;
 
         public UniverseData.GameDifficulty difficulty = UniverseData.GameDifficulty.Normal;
-
-        protected int TotalPointsUsed = 8;
-
         private EmpireData SelectedData;
-
         protected Color currentObjectColor = Color.White;
-
         protected Rectangle ColorSelector;
 
         protected string Singular = "Human";
-
         protected string Plural = "Humans";
-
         protected string HomeWorldName = "Earth";
-
         protected string HomeSystemName = "Sol";
 
         private Rectangle ExtraRemnantRect; //Added by Gretman
@@ -874,9 +827,8 @@ namespace Ship_Game
                     raceCursor.Y = e.Y;
                     if (LowRes)
                     {
-                        var source = new Rectangle(0, 0, 256, 128);
                         var portrait = new Rectangle(e.CenterX - 128, (int)raceCursor.Y, 256, 128);
-                        ScreenManager.SpriteBatch.Draw(TextureDict[data], portrait, source, Color.White);
+                        ScreenManager.SpriteBatch.Draw(TextureDict[data], portrait, Color.White);
                         if (SelectedData == data)
                         {
                             ScreenManager.SpriteBatch.DrawRectangle(portrait, Color.BurlyWood);
@@ -1628,7 +1580,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                TextureDict.Add(e, ResourceManager.Texture(string.Concat("Races/", e.Traits.VideoPath)));
+                TextureDict.Add(e, ResourceManager.Texture("Races/"+e.Traits.VideoPath));
             }
             foreach (EmpireData e in ResourceManager.Empires)
             {

@@ -70,7 +70,7 @@ namespace Ship_Game.Ships
 
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
         // when a ShipData is copied. @todo Fix ShipData copying
-        [XmlIgnore] [JsonIgnore] public Texture2D Icon => ResourceManager.Texture(ActualIconPath);
+        [XmlIgnore] [JsonIgnore] public SubTexture Icon => ResourceManager.Texture(ActualIconPath);
         [XmlIgnore] [JsonIgnore] public string ActualIconPath => IconPath.NotEmpty() ? IconPath : BaseHull.IconPath;
         [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }

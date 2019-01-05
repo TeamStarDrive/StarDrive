@@ -84,15 +84,15 @@ namespace Ship_Game
         private string WhichFrameString => WhichFrame.ToString("00");
 
         [XmlIgnore][JsonIgnore]
-        public Texture2D TextureDefault => ResourceManager.Texture("Troops/"+TexturePath);
+        public SubTexture TextureDefault => ResourceManager.Texture("Troops/"+TexturePath);
 
         //@HACK the animation index and firstframe value are coming up with bad values for some reason. i could not figure out why
         //so here i am forcing it to draw troop template first frame if it hits a problem. in the update method i am refreshing the firstframe value as well. 
-        private Texture2D TextureIdleAnim   => ResourceManager.TextureOrDefault(
+        private SubTexture TextureIdleAnim   => ResourceManager.TextureOrDefault(
             "Troops/" + idle_path+WhichFrameString, 
             "Troops/" + idle_path+ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
-        private Texture2D TextureAttackAnim => ResourceManager.TextureOrDefault(
+        private SubTexture TextureAttackAnim => ResourceManager.TextureOrDefault(
             "Troops/" + attack_path + WhichFrameString, 
             "Troops/" + idle_path + ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
@@ -123,7 +123,7 @@ namespace Ship_Game
             drawRect.Width  = (int)(attack_width * scale);
             var sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
 
-            Texture2D attackTexture = TextureAttackAnim;
+            SubTexture attackTexture = TextureAttackAnim;
             if (attackTexture.Height <= 128)
             {
                 spriteBatch.Draw(attackTexture, drawRect, sourceRect2, Color.White);
@@ -141,12 +141,12 @@ namespace Ship_Game
         {
             if (!animated)
             {
-                spriteBatch.Draw(TextureDefault, drawRect, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+                spriteBatch.Draw(TextureDefault, drawRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
                 return;
             }
             if (Idle)
             {
-                Rectangle sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
+                var sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
                 spriteBatch.Draw(TextureIdleAnim, drawRect, sourceRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
                 return;
             }

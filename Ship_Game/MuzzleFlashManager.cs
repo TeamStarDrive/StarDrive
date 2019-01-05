@@ -5,11 +5,8 @@ namespace Ship_Game
 	internal sealed class MuzzleFlashManager
 	{
 		public static UniverseScreen universeScreen;
-
-		public static Texture2D FlashTexture;
-
+		public static SubTexture FlashTexture;
 		public static Model flashModel;
-
 		public static BatchRemovalCollection<MuzzleFlash> FlashList;
 
 		static MuzzleFlashManager()

@@ -376,8 +376,8 @@ namespace Ship_Game
                 Troop troop = draggedTroop.TryGet(out Ship ship) && ship.TroopList.Count > 0
                             ? ship.TroopList.First : draggedTroop.Get<Troop>();
 
-                Texture2D icon = troop.TextureDefault;
-                batch.Draw(icon, Input.CursorPosition, null, Color.White, 0f, icon.Center(), 0.65f, SpriteEffects.None, 1f);
+                SubTexture icon = troop.TextureDefault;
+                batch.Draw(icon, Input.CursorPosition, Color.White, 0f, icon.Center(), 0.65f, SpriteEffects.None, 1f);
             }
             if (Empire.Universe.IsActive)
             {
@@ -1051,7 +1051,7 @@ namespace Ship_Game
             public Rectangle grid;
             public int frame;
 
-            public Texture2D AnimationTex => ResourceManager.Texture(AnimationTexture);
+            public SubTexture AnimationTex => ResourceManager.Texture(AnimationTexture);
 
             public SmallExplosion(int Size)
             {

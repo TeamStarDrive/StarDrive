@@ -24,7 +24,7 @@ namespace Ship_Game
                 CreateRandomSmallObject();
         }
 
-        private void CreateBGItem(Rectangle r, float zdepth, ref BackgroundItem neb)
+        private void CreateBGItem(Rectangle r, float zdepth, BackgroundItem neb)
         {
             neb.UpperLeft = new Vector3(r.X, r.Y, zdepth);
             neb.LowerLeft = neb.UpperLeft + new Vector3(0f, r.Height, 0f);
@@ -41,19 +41,18 @@ namespace Ship_Game
 
             int GetNebIndex()
             {
-                return RandomMath.IntBetween(0, ResourceManager.MedNebulas.Count - 1);
+                return RandomMath.IntBetween(0, ResourceManager.MedNebulae.Count - 1);
             }
 
-            float CreateNebulaPart(Rectangle nebrect, float nebZ, Texture2D nebTexure, float minZ, float maxZ, bool starParts = false)
+            float CreateNebulaPart(Rectangle nebrect, float nebZ, SubTexture nebTexure, float minZ, float maxZ, bool starParts = false)
             {
                 nebZ += RandomMath.AvgRandomBetween(minZ, maxZ); ;
-                BackgroundItem neb = new BackgroundItem(nebTexure);
-                CreateBGItem(nebrect, nebZ, ref neb);
+                var neb = new BackgroundItem(nebTexure);
+                CreateBGItem(nebrect, nebZ, neb);
                 neb.LoadContent(Screen.ScreenManager, Screen.view, Screen.projection);
                 BGItems.Add(neb);
                 if (starParts)
-                    Screen.star_particles.AddParticleThreadB(new Vector3(nebrect.X, nebrect.Y, nebZ),
-                        Vector3.Zero);
+                    Screen.star_particles.AddParticleThreadB(new Vector3(nebrect.X, nebrect.Y, nebZ), Vector3.Zero);
 
                 return nebZ;
             }
@@ -64,7 +63,7 @@ namespace Ship_Game
             zPos = CreateNebulaPart(r1, zPos, ResourceManager.MedNebula(GetNebIndex()), 250000, 800000);            
             zPos = CreateNebulaPart(r1, zPos, ResourceManager.MedNebula(GetNebIndex()), 250000, 800000);
 
-            Texture2D smoke = ResourceManager.Texture("smoke");
+            SubTexture smoke = ResourceManager.Texture("smoke");
             for (int i = 0; i < 50; i++)
             {
                 float rw = RandomMath.AvgRandomBetween(r1.Width * 0.1f, r1.Width * 0.4f);
@@ -80,12 +79,8 @@ namespace Ship_Game
 
         private void CreateRandomSmallObject()
         {
-            BackgroundItem BigNeb_1 = new BackgroundItem
-            {
-                Texture = ResourceManager.SmallNebulas[
-                    RandomMath.IntBetween(0, ResourceManager.SmallNebulas.Count -1)]
-            };
-            Vector2 nebUpperLeft = new Vector2(
+            var BigNeb_1 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
+            var nebUpperLeft = new Vector2(
                 RandomMath.RandomBetween(-Screen.UniverseSize * 1.5f, Screen.UniverseSize * 0.75f),
                 RandomMath.RandomBetween(-Screen.UniverseSize * 1.5f,
                     Screen.UniverseSize * 0.75f)); //More Random Here -Gretman
@@ -102,11 +97,7 @@ namespace Ship_Game
             BigNeb_1.LoadContent(Screen.ScreenManager, Screen.view, Screen.projection);
             BGItems.Add(BigNeb_1);
 
-            BackgroundItem BigNeb_2 = new BackgroundItem
-            {
-                Texture = ResourceManager.SmallNebulas[
-                    RandomMath.IntBetween(0, ResourceManager.SmallNebulas.Count -1)]
-            };
+            var BigNeb_2 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
             //zPos = zPos + 200000f;
             zPos = zPos + RandomMath.RandomBetween(300000f, 500000f);
             //xSize = RandomMath.RandomBetween(800000f, 1800000f);
@@ -120,11 +111,7 @@ namespace Ship_Game
             BigNeb_2.LoadContent(Screen.ScreenManager, Screen.view, Screen.projection);
             BGItems.Add(BigNeb_2);
 
-            BackgroundItem BigNeb_3 = new BackgroundItem
-            {
-                Texture = ResourceManager.SmallNebulas[
-                     RandomMath.IntBetween(0, ResourceManager.SmallNebulas.Count -1)]
-            };
+            var BigNeb_3 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
             //zPos = zPos + 200000f;
             zPos = zPos + RandomMath.RandomBetween(300000f, 500000f);
             //xSize = RandomMath.RandomBetween(800000f, 1800000f);

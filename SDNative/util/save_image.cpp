@@ -1,42 +1,41 @@
-#include "../lodepng/lodepng.h"
-#include "../soil2/image_DXT.h"
+#include <lodepng/lodepng.h>
+#include <soil2/image_DXT.h>
+#include <libsquish/squish.h>
+#include <stb/stb_dxt.h>
+#include <cstdio>
+#include <rpp/debugging.h>
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 using byte = unsigned char;
+
+struct Point
+{
+	int x, y;
+};
 
 struct Color
 {
     byte b, g, r, a;
 };
 
-static std::vector<Color> BGRAtoRGBA(int w, int h, const Color* bgraImage)
+DLLEXPORT void __stdcall ConvertBGRAtoRGBA(int w, int h, Color* image)
 {
-    const int count = w * h;
-    std::vector<Color> rgbaImage;
-    rgbaImage.resize(count);
-
-    Color* rgba = rgbaImage.data();
-    const Color* bgra = bgraImage;
-
-    for (int i = 0; i < count; ++i)
-    {
-        Color c = bgra[i];
-        byte b = c.b;
-        c.b = c.r;
-        c.r = b;
-        rgba[i] = c;
-    }
-    return rgbaImage;
+	const int count = w * h;
+	for (int i = 0; i < count; ++i)
+	{
+		const byte temp = image[i].r;
+		image[i].r = image[i].b;
+		image[i].b = temp;
+	}
 }
 
 /**
  * @return Error string or null if no error happened.
  */
-DLLEXPORT const char* __stdcall SaveBGRAImageAsPNG(
-    const char* filename, int w, int h, const Color* bgraImage)
+DLLEXPORT const char* __stdcall SaveImageAsPNG(
+    const char* filename, int w, int h, const Color* rgbaImage)
 {
-    std::vector<Color> rgbaImage = BGRAtoRGBA(w, h, bgraImage);
-    unsigned error = lodepng::encode(filename, (const byte*)rgbaImage.data(), w, h, LCT_RGBA);
+    unsigned error = lodepng::encode(filename, (const byte*)rgbaImage, w, h, LCT_RGBA);
     if (error)
     {
         fprintf(stderr, "SaveImage failed: %s %dx%d %s\n",
@@ -45,19 +44,142 @@ DLLEXPORT const char* __stdcall SaveBGRAImageAsPNG(
     return error ? lodepng_error_text(error) : nullptr;
 }
 
+enum DxtEncoders
+{
+	LibSquish,
+	LibSoil2,
+};
+
+constexpr DxtEncoders DxtEncoder = LibSoil2;
 
 /**
  * @return Error string or null if no error happened
  */
-DLLEXPORT const char* __stdcall SaveBGRAImageAsDDS(
-    const char* filename, int w, int h, const Color* bgraImage)
+DLLEXPORT const char* __stdcall SaveImageAsDDS(
+    const char* filename, int w, int h, const Color* rgbaImage)
 {
-    std::vector<Color> rgbaImage = BGRAtoRGBA(w, h, bgraImage);
+	if constexpr (DxtEncoder == LibSquish)
+	{
+		unsigned dxt_size = squish::GetStorageRequirements(w, h, squish::kDxt5);;
+		std::vector<uint8_t> dxt; dxt.resize(dxt_size);
 
-    int error = save_image_as_DDS(filename, w, h, 4, (const byte*)rgbaImage.data());
-    if (error == 1)
-        return "Invalid parameters for DDS";
-    if (error == 2)
-        return "Failed to create DDS file. Directory not created? File already opened?";
+		squish::CompressImage((const byte*)rgbaImage, w, h, dxt.data(),
+							  squish::kColourClusterFit | squish::kDxt5);
+
+		DDS_header header = { 0 };
+		header.dwMagic = ('D' << 0) | ('D' << 8) | ('S' << 16) | (' ' << 24);
+		header.dwSize = 124;
+		header.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT | DDSD_LINEARSIZE;
+		header.dwWidth = w;
+		header.dwHeight = h;
+		header.dwPitchOrLinearSize = dxt_size;
+		header.sPixelFormat.dwSize = 32;
+		header.sPixelFormat.dwFlags = DDPF_FOURCC;
+		header.sPixelFormat.dwFourCC = ('D' << 0) | ('X' << 8) | ('T' << 16) | ('5' << 24);
+		header.sCaps.dwCaps1 = DDSCAPS_TEXTURE;
+
+		if (FILE* f = fopen(filename, "wb")) {
+			fwrite(&header, sizeof(DDS_header), 1, f);
+			fwrite(dxt.data(), 1, dxt_size, f);
+			fclose(f);
+		}
+		else return "Failed to create DDS file. Directory not created? File already opened?";
+	}
+	else
+	{
+		int error = save_image_as_DDS(filename, w, h, 4, (const byte*)rgbaImage);
+		if (error == 1)
+			return "Invalid parameters for DDS";
+		if (error == 2)
+			return "Failed to create DDS file. Directory not created? File already opened?";
+	}
     return nullptr;
+}
+
+struct Image
+{
+	Color* data;
+	int width;
+	int height;
+};
+
+struct ImageCopy final
+{
+	Color* dst;
+	Color* src;
+	Color* end;
+	int dst_stride;
+	int src_stride;
+	__forceinline void next_row()
+	{
+		dst += dst_stride;
+		src += src_stride;
+	}
+	__forceinline void rect()
+	{
+		for (; dst < end; next_row())
+			memcpy(dst, src, sizeof(Color) * src_stride);
+	}
+	__forceinline void row()
+	{
+		memcpy(dst, src, sizeof(Color) * src_stride);
+	}
+	__forceinline void column()
+	{
+		for (; dst < end; next_row()) *dst = *src;
+	}
+	__forceinline void pixel()
+	{
+		*dst = *src;
+	}
+};
+
+ImageCopy image_copy(const Image& d, const Image& s, int dx, int dy, int sx, int sy)
+{
+	ImageCopy ic {};
+	ic.dst = d.data + (d.width * dy) + dx;
+	ic.src = s.data + (s.width * sy) + sx;
+	ic.end = ic.dst + (d.width * s.height);
+	ic.dst_stride = d.width;
+	ic.src_stride = s.width;
+	return ic;
+}
+
+
+
+// Applies 1px padding while copying {src} to {dst:x,y}
+DLLEXPORT void __stdcall CopyPixelsPadded(Image dst, int x, int y, Image src)
+{
+    #define RangeCheck(error_condition) \
+	if (error_condition) { \
+		LogError("src {%dx%d} does not fit to dst {%dx%d: %d,%d}: " #error_condition, \
+				 src.width, src.height, dst.width, dst.height, x, y); \
+	}
+	RangeCheck(x < 0);
+	RangeCheck(y < 0);
+	RangeCheck((x + src.width)  > dst.width);
+	RangeCheck((y + src.height) > dst.height);
+
+	image_copy(dst, src, x, y, 0, 0).rect(); // main image rect
+
+	// o-------o 1px Padding
+	// |o-----o|
+	// || src ||
+	// |o-----S|
+	// o-------D
+	const Point D { x + src.width, y + src.height }; // lower-right point of padding in dst image
+	const Point S { src.width - 1, src.height - 1 }; // lower-right point inside src image
+	const bool left = x > 0;
+	const bool top  = y > 0;
+	const bool right  = D.x < dst.width;  // in image bounds? 
+	const bool bottom = D.y < dst.height;
+	// padding:
+	if (top)    { image_copy(dst, src, x,   y-1, 0, 0  ).row(); }
+	if (bottom) { image_copy(dst, src, x,   D.y, 0, S.y).row(); }
+	if (left)   { image_copy(dst, src, x-1, y,   0, 0  ).column(); }
+	if (right)  { image_copy(dst, src, D.x, y, S.x, 0  ).column(); }
+	if (top && left)     { image_copy(dst, src, x-1, y-1, 0,   0  ).pixel(); }
+	if (top && right)    { image_copy(dst, src, D.x, y-1, S.x, 0  ).pixel(); }
+	if (bottom && left)  { image_copy(dst, src, x-1, D.y, 0,   S.y).pixel(); }
+	if (bottom && right) { image_copy(dst, src, D.x, D.y, S.x, S.y).pixel(); }
 }

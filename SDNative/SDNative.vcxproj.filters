@@ -8,20 +8,32 @@
     <Filter Include="util">
       <UniqueIdentifier>{82679bed-c6f5-4316-b39c-d32c59bbcbaa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="rapidxml">
-      <UniqueIdentifier>{b48f0e2e-8904-4bf8-a7b7-ccc73e00b232}</UniqueIdentifier>
-    </Filter>
     <Filter Include="rpp">
       <UniqueIdentifier>{79ce8fcd-1024-4741-8a00-f0af719d8ebd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="nano">
+    <Filter Include="3rdparty">
+      <UniqueIdentifier>{cc21df4a-6643-494a-817e-c36ded919759}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\libsquish">
+      <UniqueIdentifier>{7b7a5b71-d968-4f1c-9d52-eaa66d7e9450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\lodepng">
+      <UniqueIdentifier>{8c121ee7-8b1c-4abc-9c44-6c8b4c0a5c7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\soil2">
+      <UniqueIdentifier>{490dbb09-5d9d-4121-a61b-6ac3eb5e91a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\stb">
+      <UniqueIdentifier>{de77ba30-c99c-4424-8c0c-cd7d2fc2da15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\nano">
       <UniqueIdentifier>{77c57a9e-f591-480f-9993-6f25e24fda18}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lodepng">
-      <UniqueIdentifier>{91652404-c87c-40f0-87a5-2279dcbfa4eb}</UniqueIdentifier>
+    <Filter Include="3rdparty\rapidxml">
+      <UniqueIdentifier>{b48f0e2e-8904-4bf8-a7b7-ccc73e00b232}</UniqueIdentifier>
     </Filter>
-    <Filter Include="soil2">
-      <UniqueIdentifier>{2a7b6833-5975-48a4-afbd-71592d8f3d31}</UniqueIdentifier>
+    <Filter Include="3rdparty\fbxsdk">
+      <UniqueIdentifier>{2a76bd54-7e9d-4c60-afd1-48820e3ad4dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -52,43 +64,58 @@
     <ClCompile Include="ReCpp\rpp\sprint.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
-    <ClCompile Include="NanoMesh\Nano\Mesh.cpp">
-      <Filter>nano</Filter>
-    </ClCompile>
-    <ClCompile Include="NanoMesh\Nano\Mesh_Fbx.cpp">
-      <Filter>nano</Filter>
-    </ClCompile>
-    <ClCompile Include="NanoMesh\Nano\Mesh_Obj.cpp">
-      <Filter>nano</Filter>
-    </ClCompile>
-    <ClCompile Include="lodepng\lodepng.cpp">
-      <Filter>lodepng</Filter>
-    </ClCompile>
     <ClCompile Include="util\save_image.cpp">
       <Filter>util</Filter>
     </ClCompile>
-    <ClCompile Include="soil2\image_DXT.cpp">
-      <Filter>soil2</Filter>
+    <ClCompile Include="3rdparty\soil2\image_DXT.cpp">
+      <Filter>3rdparty\soil2</Filter>
     </ClCompile>
-    <ClCompile Include="soil2\image_helper.cpp">
-      <Filter>soil2</Filter>
+    <ClCompile Include="3rdparty\soil2\image_helper.cpp">
+      <Filter>3rdparty\soil2</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\lodepng\lodepng.cpp">
+      <Filter>3rdparty\lodepng</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libsquish\alpha.cpp">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libsquish\clusterfit.cpp">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libsquish\colourblock.cpp">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libsquish\colourfit.cpp">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libsquish\colourset.cpp">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libsquish\maths.cpp">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libsquish\rangefit.cpp">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libsquish\singlecolourfit.cpp">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libsquish\squish.cpp">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClCompile>
+    <ClCompile Include="NanoMesh\Nano\Mesh.cpp">
+      <Filter>3rdparty\nano</Filter>
+    </ClCompile>
+    <ClCompile Include="NanoMesh\Nano\Mesh_Fbx.cpp">
+      <Filter>3rdparty\nano</Filter>
+    </ClCompile>
+    <ClCompile Include="NanoMesh\Nano\Mesh_Obj.cpp">
+      <Filter>3rdparty\nano</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="rapidxml\rapidxml.hpp">
-      <Filter>rapidxml</Filter>
-    </ClInclude>
-    <ClInclude Include="rapidxml\rapidxml_iterators.hpp">
-      <Filter>rapidxml</Filter>
-    </ClInclude>
-    <ClInclude Include="rapidxml\rapidxml_print.hpp">
-      <Filter>rapidxml</Filter>
-    </ClInclude>
-    <ClInclude Include="rapidxml\rapidxml_utils.hpp">
-      <Filter>rapidxml</Filter>
     </ClInclude>
     <ClInclude Include="util\apex_memmove.h">
       <Filter>util</Filter>
@@ -117,17 +144,77 @@
     <ClInclude Include="ReCpp\rpp\collections.h">
       <Filter>rpp</Filter>
     </ClInclude>
+    <ClInclude Include="3rdparty\soil2\image_DXT.h">
+      <Filter>3rdparty\soil2</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\soil2\image_helper.h">
+      <Filter>3rdparty\soil2</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\lodepng\lodepng.h">
+      <Filter>3rdparty\lodepng</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\alpha.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\clusterfit.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\colourblock.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\colourfit.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\colourset.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\config.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\maths.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\rangefit.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\simd.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\simd_float.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\simd_sse.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\simd_ve.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\singlecolourfit.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libsquish\squish.h">
+      <Filter>3rdparty\libsquish</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\stb\stb_dxt.h">
+      <Filter>3rdparty\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\fbxsdk\fbxsdk.h">
+      <Filter>3rdparty\fbxsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\rapidxml\rapidxml_iterators.hpp">
+      <Filter>3rdparty\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\rapidxml\rapidxml_print.hpp">
+      <Filter>3rdparty\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\rapidxml\rapidxml_utils.hpp">
+      <Filter>3rdparty\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\rapidxml\rapidxml.hpp">
+      <Filter>3rdparty\rapidxml</Filter>
+    </ClInclude>
     <ClInclude Include="NanoMesh\Nano\Mesh.h">
-      <Filter>nano</Filter>
-    </ClInclude>
-    <ClInclude Include="lodepng\lodepng.h">
-      <Filter>lodepng</Filter>
-    </ClInclude>
-    <ClInclude Include="soil2\image_DXT.h">
-      <Filter>soil2</Filter>
-    </ClInclude>
-    <ClInclude Include="soil2\image_helper.h">
-      <Filter>soil2</Filter>
+      <Filter>3rdparty\nano</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -140,11 +227,25 @@
     <Natvis Include="ReCpp\rpp\vec.natvis">
       <Filter>rpp</Filter>
     </Natvis>
-    <Natvis Include="NanoMesh\Nano\mesh.natvis">
-      <Filter>nano</Filter>
-    </Natvis>
   </ItemGroup>
   <ItemGroup>
     <None Include="fbxsdk\libfbxsdk.dll" />
+    <None Include="3rdparty\libsquish\config">
+      <Filter>3rdparty\libsquish</Filter>
+    </None>
+    <None Include="3rdparty\libsquish\singlecolourlookup.inl">
+      <Filter>3rdparty\libsquish</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="3rdparty\libsquish\ChangeLog.txt">
+      <Filter>3rdparty\libsquish</Filter>
+    </Text>
+    <Text Include="3rdparty\libsquish\CMakeLists.txt">
+      <Filter>3rdparty\libsquish</Filter>
+    </Text>
+    <Text Include="3rdparty\libsquish\README.txt">
+      <Filter>3rdparty\libsquish</Filter>
+    </Text>
   </ItemGroup>
 </Project>

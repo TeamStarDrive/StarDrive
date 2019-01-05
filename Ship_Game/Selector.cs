@@ -51,9 +51,9 @@ namespace Ship_Game
 
         private class ElementTextures
         {
-            public Texture2D CornerTL, CornerTR, CornerBL, CornerBR;
-            public Texture2D RoundTL, RoundTR, RoundBL, RoundBR;
-            public Texture2D HoriVert;
+            public SubTexture CornerTL, CornerTR, CornerBL, CornerBR;
+            public SubTexture RoundTL, RoundTR, RoundBL, RoundBR;
+            public SubTexture HoriVert;
         }
         private static ElementTextures Tex;
 

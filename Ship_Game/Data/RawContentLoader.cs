@@ -69,7 +69,7 @@ namespace Ship_Game
                 return StaticMeshFromFile(fileNameWithExt);
             }
 
-            Log.Info(ConsoleColor.Magenta, $"Raw LoadTexture: {fileNameWithExt}");
+            //Log.Info(ConsoleColor.Magenta, $"Raw LoadTexture: {fileNameWithExt}");
             return LoadImageAsTexture(fileNameWithExt);
         }
 

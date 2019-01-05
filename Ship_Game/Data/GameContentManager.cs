@@ -64,13 +64,20 @@ namespace Ship_Game
             return false;
         }
 
-        // Tries to get an existing asset. Only returns true if the asset is already loaded and matches typeof(T)
+        // Tries to get an existing asset.
+        // Returns true if asset exists and type is correct
+        // Returns false if asset does not exist
+        // Throw ContentLoadException if asset type mismatches
         public bool TryGetAsset<T>(string assetNameNoExt, out T asset)
         {
-            if (TryGetAsset(assetNameNoExt, out object obj) && obj is T assetObj)
+            if (TryGetAsset(assetNameNoExt, out object existing))
             {
-                asset = assetObj;
-                return true;
+                if (existing is T assetObj)
+                {
+                    asset = assetObj;
+                    return true;
+                }
+                throw new ContentLoadException($"Asset '{assetNameNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
             }
             asset = default(T);
             return false;
@@ -115,6 +122,7 @@ namespace Ship_Game
         }
 
         public GraphicsDeviceManager Manager => (GraphicsDeviceManager)ServiceProvider.GetService(typeof(IGraphicsDeviceManager));
+        public GraphicsDevice Device => Manager.GraphicsDevice;
 
         static int TextureSize(Texture2D tex)
         {
@@ -202,6 +210,10 @@ namespace Ship_Game
                 DisposableAssets.Add(disposable);
         }
 
+        void DoNothingWithDisposable(IDisposable _)
+        {
+        }
+
         struct AssetName
         {
             public readonly string OriginalName;
@@ -257,17 +269,15 @@ namespace Ship_Game
         // "Textures/mytexture" or "Textures/mytexture.xnb"
         public override T Load<T>(string assetName)
         {
-            return LoadAsset<T>(assetName, useCache: true);
+            return LoadAsset<T>(assetName, useCache:true);
         }
 
-        // Circumvents texture cache
-        // The calling code must Dispose() the resource correctly.
         public T LoadUncached<T>(string assetName)
         {
             return LoadAsset<T>(assetName, useCache: false);
         }
 
-        T LoadAsset<T>(string assetName, bool useCache)
+        public T LoadAsset<T>(string assetName, bool useCache)
         {
             var asset = new AssetName(assetName);
             if (LoadedAssets == null)
@@ -276,63 +286,75 @@ namespace Ship_Game
             if (EnableLoadInfoLog)
                 Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {asset.NoExt}");
 
-            if (useCache && TryGetAsset(asset.NoExt, out object existing))
-            {
-                if (existing is T assetObj)
-                    return assetObj;
-                throw new ContentLoadException($"Asset '{asset.NoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
-            }
+            if (useCache && TryGetAsset(asset.NoExt, out T existing))
+                return existing;
 
             Type assetType = typeof(T);
-            if (assetType == typeof(SubTexture)) // TextureAtlas hack
-            {
-                // we completely skip the cache here, because SubTextures are stored within TextureAtlas
-                // SubTextures are disposed when TextureAtlas is disposed
-                return (T)LoadSubTexture(asset, useCache);
-            }
+            if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(asset.NoExt);
+            if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(asset.NoExt, useCache);
 
             T loaded;
-            if (assetType == typeof(TextureAtlas))
-                loaded = (T)LoadTextureAtlas(asset);
-            else if (asset.NonXnaAsset)
+            if (asset.NonXnaAsset)
                 loaded = (T)RawContent.LoadAsset(asset.OriginalName, asset.Extension);
             else
-                loaded = ReadAsset<T>(asset.NoExt, RecordDisposableObject);
+                loaded = ReadAsset<T>(asset.NoExt, DoNothingWithDisposable);
 
             // detect possible resource leaks -- this is very slow, so only enable on demand
             #if false
                 SlowCheckForResourceLeaks(asset.NoExt);
             #endif
-            if (useCache)
-            {
-                lock (LoadSync) LoadedAssets.Add(asset.NoExt, loaded);
-            }
+            if (useCache) RecordCacheObject(asset.NoExt, loaded);
             return loaded;
         }
 
-        object LoadSubTexture(in AssetName asset, bool useCache)
+        void RecordCacheObject<T>(string name, T obj)
         {
-            int i = asset.NoExt.LastIndexOf('/');
-            if (i == -1) i = asset.NoExt.LastIndexOf('\\');
-            if (i == -1)
+            lock (LoadSync)
             {
-                Log.Warning($"Could not deduce TextureAtlas name from '{asset.NoExt}'");
-                return null;
+                // If same object already exists, we skip Add. We also test for concurrency bugs and type mismatches.
+                if (LoadedAssets.TryGetValue(name, out object existing))
+                {
+                    if ((obj as object) != existing)
+                        throw new ContentLoadException($"Duplicate asset '{name}' of type '{typeof(T)}' already loaded! This is a concurrency bug!");
+                    if (!(existing is T))
+                        throw new ContentLoadException($"Asset '{name}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
+                }
+                else
+                {
+                    LoadedAssets.Add(name, obj);
+                    if (obj is IDisposable disposable)
+                        DisposableAssets.Add(disposable);
+                }
             }
-
-            string folder = asset.NoExt.Substring(0, i);
-            var atlas = LoadAsset<TextureAtlas>(folder, useCache);
-
-            string name = Path.GetFileName(asset.NoExt);
-            atlas.TryGetTexture(name, out SubTexture texture);
-            return texture;
         }
 
-        object LoadTextureAtlas(in AssetName asset)
+        public TextureAtlas LoadTextureAtlas(string folderWithTextures, bool useCache = true)
         {
-            TextureAtlas atlas = TextureAtlas.FromFolder(this, asset.NoExt);
-            RecordDisposableObject(atlas);
+            if (useCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
+                return existing;
+
+            TextureAtlas atlas = TextureAtlas.FromFolder(this, folderWithTextures);
+            if (atlas != null && useCache) RecordCacheObject(folderWithTextures, atlas);
             return atlas;
+        }
+
+        // @return null if texture not found
+        public SubTexture LoadSubTexture(string textureName)
+        {
+            int i = textureName.LastIndexOf('/');
+            if (i == -1) i = textureName.LastIndexOf('\\');
+            if (i == -1)
+                return null;
+
+            string folder = textureName.Substring(0, i);
+            // @note LoadTextureAtlas useCache MUST be true, otherwise TextureAtlas will be destroyed
+            TextureAtlas atlas = LoadTextureAtlas(folder, useCache: true);
+            if (atlas == null)
+                return null;
+
+            string name = Path.GetFileName(textureName);
+            atlas.TryGetTexture(name, out SubTexture texture);
+            return texture;
         }
 
         public StaticMesh LoadStaticMesh(string modelName)
