@@ -119,8 +119,9 @@ namespace Ship_Game
 			{
 				width = width + 1f;
 			}
-			Rectangle foodRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)width, 6);
-			ColonySliderFood = new ColonyScreen.ColonySlider();
+
+			var foodRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)width, 6);
+			ColonySliderFood = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Food);
 			
 				ColonySliderFood.sRect = foodRect;
                 ColonySliderFood.amount = p.FarmerPercentage;
@@ -135,7 +136,7 @@ namespace Ship_Game
 			}
 			FoodLock.Locked = p.FoodLocked;
 			Rectangle prodRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.5 * SliderRect.Height), (int)width, 6);
-			ColonySliderProd = new ColonyScreen.ColonySlider
+			ColonySliderProd = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Production)
 			{
 				sRect = prodRect,
 				amount = p.WorkerPercentage
@@ -146,7 +147,7 @@ namespace Ship_Game
 				Locked = p.ProdLocked
 			};
 			Rectangle resRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.75 * SliderRect.Height), (int)width, 6);
-			ColonySliderRes = new ColonyScreen.ColonySlider
+			ColonySliderRes = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Research)
 			{
 				sRect = resRect,
 				amount = p.ResearcherPercentage
