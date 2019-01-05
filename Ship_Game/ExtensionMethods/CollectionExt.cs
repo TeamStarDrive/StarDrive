@@ -11,7 +11,7 @@ namespace Ship_Game
     /// which helps to eliminate virtual dispatch, greatly speeding up iteration times
     /// 
     /// As much as possible, we try to avoid any kind of IEnumerable or foreach loops, because
-    /// they have apalling performance and .NET JIT fails to optimize most of our use cases.
+    /// they have appalling performance and .NET JIT fails to optimize most of our use cases.
     /// 
     /// We don't benefit from lazy evaluation either, because most of the algorithms are very data-heavy,
     /// with no way to exclude elements.
@@ -46,8 +46,7 @@ namespace Ship_Game
             for (int i = 0; i < items.Length; ++i)
             {
                 T item = items[i];
-                if (!filter(item)) continue;
-                found = item;
+                if (filter(item)) found = item;
             }
             return found;
         }
@@ -56,13 +55,13 @@ namespace Ship_Game
         public static T FindMax<T>(this T[] items, int count, Func<T, float> selector) where T : class
         {
             T found = null;
-            float max = float.MinValue;
+            float max = -999999999999.999f;
             for (int i = 0; i < count; ++i)
             {
                 T item = items[i];
                 float value = selector(item);
                 if (value <= max) continue;
-                max   = value;
+                max = value;
                 found = item;
             }
             return found;
@@ -72,7 +71,7 @@ namespace Ship_Game
         {
             int count = list.Count;
             T found = null;
-            float max = float.MinValue;
+            float max = -999999999999.999f;
             for (int i = 0; i < count; ++i)
             {
                 T item = list[i];
@@ -99,7 +98,7 @@ namespace Ship_Game
         public static T FindMaxFiltered<T>(this T[] items, int count, Predicate<T> filter, Func<T, float> selector) where T : class
         {
             T found = null;
-            float max = float.MinValue;
+            float max = -999999999999.999f;
             for (int i = 0; i < count; ++i)
             {
                 T item = items[i];
@@ -120,16 +119,11 @@ namespace Ship_Game
         public static T FindMaxFiltered<T>(this Array<T> list, Predicate<T> filter, Func<T, float> selector) where T : class
             => list.GetInternalArrayItems().FindMaxFiltered(list.Count, filter, selector);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool FindMaxFiltered<T>(this Array<T> list, out T elem, Predicate<T> filter, Func<T, float> selector) where T : class
-            => (elem = FindMaxFiltered(list, filter, selector)) != null;
-
-
         // Return the element with the smallest selector value, or null if empty
         public static T FindMin<T>(this T[] items, int count, Func<T, float> selector) where T : class
         {
             T found = null;
-            float min = float.MaxValue;
+            float min = +999999999999.999f;
             for (int i = 0; i < count; ++i)
             {
                 T item = items[i];
@@ -146,7 +140,7 @@ namespace Ship_Game
         {
             int count = list.Count;
             T found = null;
-            float min = float.MaxValue;
+            float min = +999999999999.999f;
             for (int i = 0; i < count; ++i)
             {
                 T item = list[i];
@@ -166,16 +160,11 @@ namespace Ship_Game
         public static T FindMin<T>(this Array<T> list, Func<T, float> selector) where T : class
             => list.GetInternalArrayItems().FindMin(list.Count, selector);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool FindMin<T>(this Array<T> list, out T elem, Func<T, float> selector) where T : class
-            => (elem = FindMin(list, selector)) != null;
-
-
         public static T FindMinFiltered<T>(this Array<T> list, Predicate<T> filter, Func<T, float> selector) where T : class
         {
             T found = null;
             int n = list.Count;
-            float min = float.MaxValue;
+            float min = +999999999999.999f;
             T[] items = list.GetInternalArrayItems();
             for (int i = 0; i < n; ++i)
             {
@@ -193,7 +182,7 @@ namespace Ship_Game
         {
             T found = null;
             int n = list.Count;
-            float min = float.MaxValue;
+            float min = +999999999999.999f;
             T[] items = list.ToArray();
             for (int i = 0; i < n; ++i)
             {
