@@ -17,41 +17,25 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         private bool ShowAllDesigns = true;        
 
         private readonly GameScreen Screen;
-
         private Rectangle Window;
-
         private Vector2 TitlePosition;
 
         private Vector2 EnternamePos;
-         
         private UITextEntry EnterNameArea = new UITextEntry();
 
         //private UIButton Save;
-
         private UIButton Load;
 
-        //private UIButton Options;
-
-        //private UIButton Exit;
-
         private Menu1 loadMenu;
-
         private Submenu SaveShips;
-
         private ScrollList ShipDesigns;
 
         public string ShipToDelete = "";
 
         private Selector selector;
-
         private ShipData selectedWIP;
 
-        //private bool FirstRun = true;
-
-        private Array<UIButton> ShipsToLoad      = new Array<UIButton>();
-        private readonly Texture2D Delete_Hover2 = ResourceManager.Texture("NewUI/icon_queue_delete_hover2");
-        private readonly Texture2D DeleteHover1  = ResourceManager.Texture("NewUI/icon_queue_delete_hover1");
-        private readonly Texture2D QueueDelete   = ResourceManager.Texture("NewUI/icon_queue_delete");
+        private Array<UIButton> ShipsToLoad = new Array<UIButton>();
 
         public LoadDesigns(Ship_Game.ShipDesignScreen screen) : base(screen)
         {
@@ -209,7 +193,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             SaveShips.AddTab(Localizer.Token(198));
             ShipDesigns         = new ScrollList(SaveShips);
             TitlePosition       = new Vector2(Window.X + 20, Window.Y + 20);
-            string path         = Dir.ApplicationData;
             PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(SaveShips.Menu.X + SaveShips.Menu.Width - 44, SaveShips.Menu.Y)));
             PlayerDesignsToggle.OnClick += p =>
             {
@@ -219,7 +202,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 ResetSL();
             };
 
-            PopulateEntries(path);
+            PopulateEntries();
             EnternamePos = TitlePosition;
             EnterNameArea.Text = Localizer.Token(199);
             Load = ButtonSmall(sub.X + sub.Width - 88, EnternamePos.Y - 2, titleId:8, click: b =>
@@ -230,10 +213,10 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             base.LoadContent();
         }
 
-        private void PopulateEntries(string path)
+        private void PopulateEntries()
         {
             Array<ShipData> WIPs = new Array<ShipData>();
-            foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
+            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP"))
             {
                 ShipData newShipData = ShipData.Parse(info);
                 var empire = EmpireManager.Player;
@@ -348,8 +331,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         private void ResetSL()
         {
             ShipDesigns.Reset();
-            string path = Dir.ApplicationData;
-            PopulateEntries(path);            
+            PopulateEntries();            
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)

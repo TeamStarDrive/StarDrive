@@ -312,7 +312,7 @@ namespace Ship_Game
                         float x = Mouse.GetState().X;
                         MouseState state = Mouse.GetState();
                         Vector2 MousePos = new Vector2(x, state.Y);
-                        foreach (Goal g in EmpireManager.Player.GetGSAI().Goals)
+                        foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
                         {
                             if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
                             {

@@ -5,24 +5,24 @@ namespace Ship_Game
 {
     public class SubmenuStyle
     {
-        public Texture2D HorizVert       { get; private set; }
-        public Texture2D CornerTL        { get; private set; }
-        public Texture2D CornerTR        { get; private set; }
-        public Texture2D CornerBR        { get; private set; }
-        public Texture2D CornerBL        { get; private set; }
+        public SubTexture HorizVert       { get; private set; }
+        public SubTexture CornerTL        { get; private set; }
+        public SubTexture CornerTR        { get; private set; }
+        public SubTexture CornerBR        { get; private set; }
+        public SubTexture CornerBL        { get; private set; }
 
-        public Texture2D Left          { get; private set; }
-        public Texture2D LeftUnsel     { get; private set; }
-        public Texture2D HoverLeftEdge { get; private set; }
-        public Texture2D HoverLeft     { get; private set; }
-        public Texture2D HoverMid      { get; private set; }
-        public Texture2D HoverRight    { get; private set; }
-        public Texture2D Middle        { get; private set; }
-        public Texture2D MiddleUnsel   { get; private set; }
-        public Texture2D Right         { get; private set; }
-        public Texture2D RightUnsel    { get; private set; }
-        public Texture2D RightExt      { get; private set; }
-        public Texture2D RightExtUnsel { get; private set; }
+        public SubTexture Left          { get; private set; }
+        public SubTexture LeftUnsel     { get; private set; }
+        public SubTexture HoverLeftEdge { get; private set; }
+        public SubTexture HoverLeft     { get; private set; }
+        public SubTexture HoverMid      { get; private set; }
+        public SubTexture HoverRight    { get; private set; }
+        public SubTexture Middle        { get; private set; }
+        public SubTexture MiddleUnsel   { get; private set; }
+        public SubTexture Right         { get; private set; }
+        public SubTexture RightUnsel    { get; private set; }
+        public SubTexture RightExt      { get; private set; }
+        public SubTexture RightExtUnsel { get; private set; }
 
         // create the style dynamically to allow hotloading
         public static SubmenuStyle CreateBrown() => new SubmenuStyle
@@ -150,9 +150,9 @@ namespace Ship_Game
             spriteBatch.Draw(Style.CornerTL, TL, Color.White);
             if (Tabs.Count > 0)
             {
-                Texture2D header = Tabs[0].Selected ? Style.Left :
-                                   Tabs[0].Hover    ? Style.HoverLeftEdge :
-                                                      Style.LeftUnsel;
+                SubTexture header = Tabs[0].Selected ? Style.Left :
+                                    Tabs[0].Hover    ? Style.HoverLeftEdge :
+                                                       Style.LeftUnsel;
                 spriteBatch.Draw(header, UpperLeft, Color.White);
             }
 
@@ -182,7 +182,7 @@ namespace Ship_Game
 
                         if (Tabs.Count - 1 > i && !Tabs[i + 1].Selected)
                         {
-                            Texture2D tab = Tabs[i + 1].Hover ? Style.HoverLeft : Style.RightExtUnsel;
+                            SubTexture tab = Tabs[i + 1].Hover ? Style.HoverLeft : Style.RightExtUnsel;
                             spriteBatch.Draw(tab, right, Color.White);
                         }
                     }
@@ -194,9 +194,9 @@ namespace Ship_Game
                         spriteBatch.Draw(Style.RightUnsel, right, Color.White);
                         if (Tabs.Count - 1 > i)
                         {
-                            Texture2D tex = Tabs[i + 1].Selected ? Style.RightExt :
-                                            Tabs[i + 1].Hover    ? Style.HoverLeft :
-                                                                   Style.RightExtUnsel;
+                            SubTexture tex = Tabs[i + 1].Selected ? Style.RightExt :
+                                             Tabs[i + 1].Hover    ? Style.HoverLeft :
+                                                                    Style.RightExtUnsel;
                             spriteBatch.Draw(tex, right, Color.White);
                         }
                     }
@@ -208,9 +208,9 @@ namespace Ship_Game
                         spriteBatch.Draw(Style.HoverRight, right, Color.White);
                         if (Tabs.Count - 1 > i)
                         {
-                            Texture2D tex = Tabs[i + 1].Selected ? Style.RightExt :
-                                            Tabs[i + 1].Hover    ? Style.HoverLeft :
-                                                                   Style.RightExtUnsel;
+                            SubTexture tex = Tabs[i + 1].Selected ? Style.RightExt :
+                                             Tabs[i + 1].Hover    ? Style.HoverLeft :
+                                                                    Style.RightExtUnsel;
                             spriteBatch.Draw(tex, right, Color.White);
                         }
                     }

@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Particle3DSample;
@@ -8,6 +7,7 @@ using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
+using System;
 
 namespace Ship_Game.Gameplay
 {
@@ -239,7 +239,7 @@ namespace Ship_Game.Gameplay
                     break;
             }
         }
-        public override Vector2 JitterPosition()
+        public override Vector2 TargetErrorPos()
         {
             Vector2 jitter = Vector2.Zero;
             if (!Weapon.Tag_Intercept) return jitter;
@@ -260,7 +260,7 @@ namespace Ship_Game.Gameplay
         {
             if (MissileAI?.GetTarget.GetLoyalty() == attacker) return true;            
             if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade
-                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(Owner)) return true;
+                && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(Owner)) return true;
            
             return false;
         }

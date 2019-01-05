@@ -29,7 +29,7 @@ namespace Ship_Game
         {
             string designPath = fleetUid + ".xml";
             FileInfo info = ResourceManager.GetModOrVanillaFile(designPath) ??
-                            new FileInfo(Dir.ApplicationData + "/StarDrive/Fleet Designs/" + designPath);
+                            new FileInfo(Dir.StarDriveAppData + "/Fleet Designs/" + designPath);
             if (info.Exists)
                 return info.Deserialize<FleetDesign>();
 

@@ -71,8 +71,8 @@ namespace Ship_Game
             float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
 
-            Texture2D projector = ResourceManager.Texture("ShipIcons/subspace_projector");
-            Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+            SubTexture projector = ResourceManager.Texture("ShipIcons/subspace_projector");
+            SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
 
             Vector2 mousePos = new Vector2(x, state.Y);
             foreach (ScrollList.Entry e in SL.VisibleEntries)
@@ -187,8 +187,7 @@ namespace Ship_Game
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name), new Vector2(mousePos.X, mousePos.Y + 34f), Color.White);
                     }
                 }
-                Rectangle? nullable = null;
-                ScreenManager.SpriteBatch.Draw(platform, mousePos, nullable, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+                ScreenManager.SpriteBatch.Draw(platform, mousePos, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
             }
         }
 
@@ -235,7 +234,7 @@ namespace Ship_Game
                 buildstuff.TetherOffset = TetherOffset;
                 buildstuff.TetherTarget = TargetPlanet;
             }
-            EmpireManager.Player.GetGSAI().Goals.Add(buildstuff);
+            EmpireManager.Player.GetEmpireAI().Goals.Add(buildstuff);
             GameAudio.PlaySfxAsync("echo_affirm");
             lock (GlobalStats.ClickableItemLocker)
             {

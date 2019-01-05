@@ -918,7 +918,7 @@ namespace Ship_Game.AI
             {
                 if (SystemToDefend != null)
                 {
-                    Planet p = Owner.loyalty.GetGSAI().DefensiveCoordinator.AssignIdleShips(Owner);
+                    Planet p = Owner.loyalty.GetEmpireAI().DefensiveCoordinator.AssignIdleShips(Owner);
                     DoOrbit(p, elapsedTime);
                     AwaitClosest = p;
                     return;
@@ -930,7 +930,7 @@ namespace Ship_Game.AI
                     return;
                 }
                 AwaitClosest =
-                    Owner.loyalty.GetGSAI()
+                    Owner.loyalty.GetEmpireAI()
                         .GetKnownPlanets()
                         .FindMin(
                             planet => planet.Center.SqDist(Owner.Center) + (Owner.loyalty != planet.Owner ? 300000 : 0));

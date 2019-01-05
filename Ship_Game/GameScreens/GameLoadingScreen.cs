@@ -1,4 +1,6 @@
+using System;
 using System.Diagnostics;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
@@ -8,147 +10,126 @@ namespace Ship_Game
 {
 	public sealed class GameLoadingScreen : GameScreen
 	{
-		//private Texture2D BGTexture;
-		private Video LoadingVideo;
-		private Video SplashVideo;
-		private VideoPlayer LoadingPlayer;
-		private VideoPlayer SplashPlayer;
-		private Rectangle ScreenRect;
-		private Rectangle SplashRect;
-		private Rectangle LoadingRect;
+        private VideoPlayer2 LoadingPlayer;
+        private VideoPlayer2 SplashPlayer;
 		private Rectangle BridgeRect;
-
-		private bool Ready;
-		private bool AddedScreen;
-		private bool PlayedOnce;
-		private bool PlayedOnceA;
-
-		private Texture2D LoadingTexture;
-		private Texture2D SplashTexture;
-		private Texture2D BridgeTexture;
+        private Texture2D BridgeTexture;
+        private bool Ready;
 
         public GameLoadingScreen() : base(null/*no parent*/)
         {
+        }
+
+        class VideoPlayer2 : IDisposable
+        {
+            Video Video;
+            readonly VideoPlayer Player;
+            readonly Rectangle Rect;
+            public VideoPlayer2(GameContentManager content, string video, bool looping, Rectangle rect)
+            {
+                Video = content.Load<Video>(video);
+                Player = new VideoPlayer
+                {
+                    IsLooped = looping,
+                    Volume = GlobalStats.MusicVolume
+                };
+                Rect = rect;
+            }
+            public void Play() => Player.Play(Video);
+            public bool IsPlaying => Player.State == MediaState.Playing;
+            public void Dispose()
+            {
+                Video = null;
+                Player.Stop();
+                Player.Dispose();
+            }
+            public void Draw(SpriteBatch batch)
+            {
+                if (Player.State == MediaState.Stopped)
+                    return;
+
+                Texture2D texture = Player.GetTexture();
+                if (texture != null) batch.Draw(texture, Rect, Color.White);;
+            }
         }
 
 		public override void Draw(SpriteBatch batch)
 		{
 			if (!IsActive)
 				return;
-
 			ScreenManager.GraphicsDevice.Clear(Color.Black);
-			if (LoadingPlayer.State != MediaState.Stopped) LoadingTexture = LoadingPlayer.GetTexture();
-			if (SplashPlayer.State  != MediaState.Stopped) SplashTexture  = SplashPlayer.GetTexture();
-
-            ScreenManager.SpriteBatch.Begin();
-
-            if      (SplashTexture  != null && SplashPlayer.State  != MediaState.Stopped) ScreenManager.SpriteBatch.Draw(SplashTexture,  SplashRect,  Color.White);
-            else if (LoadingTexture != null && LoadingPlayer.State != MediaState.Stopped) ScreenManager.SpriteBatch.Draw(LoadingTexture, LoadingRect, Color.White);
-
-            ScreenManager.SpriteBatch.Draw(BridgeTexture, BridgeRect, Color.White);
-			ScreenManager.SpriteBatch.End();
+            batch.Begin();
+            LoadingPlayer?.Draw(batch);
+            SplashPlayer?.Draw(batch);
+            if (BridgeTexture != null) 
+                batch.Draw(BridgeTexture, BridgeRect, Color.White);
+            batch.End();
 		}
 
-		public override void ExitScreen()
-		{
-			if (SplashVideo != null)
-			{
-				SplashPlayer.Stop();
-				SplashVideo = null;
-				SplashPlayer.Dispose();
-			}
-			if (LoadingVideo != null)
-			{
-				LoadingPlayer.Stop();
-				LoadingVideo = null;
-				LoadingPlayer.Dispose();
-			}
-			base.ExitScreen();
-		}
+        bool SkipSplashVideo => Debugger.IsAttached;
 
 		public override bool HandleInput(InputState input)
 		{
 		    if (IsExiting || !IsActive)
                 return false;
-		    if (PlayedOnce && SplashPlayer.State != MediaState.Playing)
+            if (input.InGameSelect || (Ready && SplashPlayer?.IsPlaying != true))
 		    {
-		        if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
-		        AddedScreen = true;
-		        ExitScreen();
-                return true;
-		    }
-		    if (input.InGameSelect)
-		    {
-		        if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
-		        ExitScreen();
+                GoToMainMenuScreen();
                 return true;
 		    }
             return base.HandleInput(input);
 		}
 
-		public override void LoadContent()
-		{
-            var size = new Point(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
-                                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-
-            BridgeRect = new Rectangle(size.X / 2 - 960, size.Y / 2 - 540, 1920, 1080);
-            //BGTexture = ScreenManager.Content.Load<Texture2D>("WinLose/launch");
-            BridgeTexture = TransientContent.Load<Texture2D>("Textures/GameScreens/Bridge");
-			LoadingVideo  = TransientContent.Load<Video>("Video/Loading 2");
-			SplashVideo   = TransientContent.Load<Video>("Video/zerosplash");
-			ScreenRect    = new Rectangle(0, 0, size.X, size.Y);
-			LoadingRect   = new Rectangle(size.X / 2 - 64, size.Y / 2 - 64, 128, 128);
-            SplashRect = new Rectangle(ScreenRect.Width / 2 - 640, ScreenRect.Height / 2 - 360, 1280, 720);
-            LoadingPlayer = new VideoPlayer
-			{
-				IsLooped = true,
-                Volume = GlobalStats.MusicVolume
-			};
-		    SplashPlayer = new VideoPlayer {Volume = GlobalStats.MusicVolume};
-
-            // Initialize all game resources
-		    ResourceManager.LoadItAll();
-
-            Log.Info($"Loaded 'Root' Assets {Game1.GameContent.GetLoadedAssetMegabytes():0.0}MB");
-
-            // If you want to export XNB assets:
-		    // ResourceManager.ExportAllXnbMeshes();
-
-            base.LoadContent();
-            Ready = true;
+        void GoToMainMenuScreen()
+        {
+            if (!ScreenManager.IsShowing<MainMenuScreen>())
+                ScreenManager.AddScreen(new MainMenuScreen());
+            ExitScreen();
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+		public override void LoadContent()
 		{
-			if (!IsActive || Debugger.IsAttached)
-			{
-				if (LoadingPlayer.State == MediaState.Playing) LoadingPlayer.Pause();
-				if (SplashPlayer.State == MediaState.Playing)  SplashPlayer.Pause();
-				if (Ready)
-				{
-					if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
-					AddedScreen = true;
-					ExitScreen();
-					return;
-				}
-			}
-			else if (SplashScreen.DisplayComplete)
-			{
-				if (!LoadingPlayer.IsDisposed && !PlayedOnceA)
-				{
-					PlayedOnceA = true;
-					LoadingPlayer.Play(LoadingVideo);
-				}
-				if (!SplashPlayer.IsDisposed && !PlayedOnce)
-				{
-                    PlayedOnce = true;
-                    SplashPlayer.Play(SplashVideo);
-				}
-				if (LoadingPlayer.State == MediaState.Paused) LoadingPlayer.Resume();
-				if (SplashPlayer.State == MediaState.Paused)  SplashPlayer.Resume();
-			}
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-		}
+            base.LoadContent();
+
+            var size = new Point(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
+                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
+
+            BridgeRect = new Rectangle(size.X / 2 - 960, size.Y / 2 - 540, 1920, 1080);
+            var screenRect = new Rectangle(0, 0, size.X, size.Y);
+
+            if (SkipSplashVideo)
+            {
+                // little loading icon
+                LoadingPlayer = new VideoPlayer2(TransientContent, "Video/Loading 2", true,
+                                new Rectangle(size.X / 2 - 64, size.Y / 2 - 64, 128, 128));
+                LoadingPlayer.Play();
+            }
+            else
+            {
+                // "Play it cool"
+                SplashPlayer = new VideoPlayer2(TransientContent, "Video/zerosplash", false,
+                            new Rectangle(screenRect.Width / 2 - 640, screenRect.Height / 2 - 360, 1280, 720));
+                SplashPlayer.Play();
+            }
+
+            // Initialize all game resources in background
+            // The splash videos will play while we're loading the assets
+            Parallel.Run(() =>
+            {
+                BridgeTexture = TransientContent.Load<Texture2D>("Textures/GameScreens/Bridge");
+
+                ResourceManager.LoadItAll(() => Ready = true);
+                Log.Info($"Loaded 'Root' Assets {Game1.GameContent.GetLoadedAssetMegabytes():0.0}MB");
+            });
+
+        }
+
+        public override void ExitScreen()
+        {
+            LoadingPlayer?.Dispose(ref LoadingPlayer);
+            SplashPlayer?.Dispose(ref SplashPlayer);
+            base.ExitScreen();
+        }
 
         protected override void Destroy()
         {

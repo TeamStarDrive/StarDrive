@@ -41,6 +41,7 @@ namespace Ship_Game.Ships
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
 
+        public HangarOptions HangarDesignation = HangarOptions.General;
         public ShieldsWarpBehavior ShieldsBehavior = ShieldsWarpBehavior.FullPower;
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
@@ -69,7 +70,7 @@ namespace Ship_Game.Ships
 
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
         // when a ShipData is copied. @todo Fix ShipData copying
-        [XmlIgnore] [JsonIgnore] public Texture2D Icon => ResourceManager.Texture(ActualIconPath);
+        [XmlIgnore] [JsonIgnore] public SubTexture Icon => ResourceManager.Texture(ActualIconPath);
         [XmlIgnore] [JsonIgnore] public string ActualIconPath => IconPath.NotEmpty() ? IconPath : BaseHull.IconPath;
         [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
@@ -116,6 +117,7 @@ namespace Ship_Game.Ships
             public readonly CStrView Role;
             public readonly CStrView CombatState;
             public readonly CStrView ShipCategory;
+            public readonly CStrView HangarDesignation;
             public readonly CStrView ShieldsBehavior;
 
             public readonly int TechScore;
@@ -194,11 +196,12 @@ namespace Ship_Game.Ships
                     AllModulesUnlocakable     = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense
                 };
-                Enum.TryParse(s->Role.AsString,            out ship.Role);
-                Enum.TryParse(s->CombatState.AsString,     out ship.CombatState);
-                Enum.TryParse(s->ShipCategory.AsString,    out ship.ShipCategory);
-                Enum.TryParse(s->ShieldsBehavior.AsString, out ship.ShieldsBehavior);
-                Enum.TryParse(s->DefaultAIState.AsString,  out ship.DefaultAIState);
+                Enum.TryParse(s->Role.AsString,              out ship.Role);
+                Enum.TryParse(s->CombatState.AsString,       out ship.CombatState);
+                Enum.TryParse(s->ShipCategory.AsString,      out ship.ShipCategory);
+                Enum.TryParse(s->HangarDesignation.AsString, out ship.HangarDesignation);
+                Enum.TryParse(s->ShieldsBehavior.AsString,   out ship.ShieldsBehavior);
+                Enum.TryParse(s->DefaultAIState.AsString,    out ship.DefaultAIState);
 
                 // @todo Remove SDNative.ModuleSlot conversion
                 ship.ModuleSlots = new ModuleSlotData[s->ModuleSlotsLen];
@@ -306,10 +309,17 @@ namespace Ship_Game.Ships
             Unclassified,
             Civilian,
             Recon,
-            Combat,
-            Bomber,
-            Fighter,
+            Conservative,
+            Netural,
+            Reckless,
             Kamikaze
+        }
+
+        public enum HangarOptions
+        {
+            General,
+            AntiShip,
+            Interceptor
         }
 
         public enum RoleName

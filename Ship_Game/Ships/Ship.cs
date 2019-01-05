@@ -9,7 +9,6 @@ using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -257,7 +256,7 @@ namespace Ship_Game.Ships
 
         public ShipData.RoleName DesignRole { get; private set; }
         public string DesignRoleName => ShipData.GetRole(DesignRole);
-        public Texture2D GetTacticalIcon()
+        public SubTexture GetTacticalIcon()
         {
             if (DesignRole == ShipData.RoleName.support)
                 return ResourceManager.Texture("TacticalIcons/symbol_supply");
@@ -304,7 +303,7 @@ namespace Ship_Game.Ships
 
         public void CauseRepulsionDamage(Beam beam)
         {
-            if (IsTethered() || EnginesKnockedOut)
+            if (IsTethered || EnginesKnockedOut)
                 return;
             if (beam.Owner == null || beam.Weapon == null)
                 return;
@@ -313,7 +312,7 @@ namespace Ship_Game.Ships
 
         public void CauseMassDamage(float massDamage)
         {
-            if (IsTethered() || EnginesKnockedOut)
+            if (IsTethered || EnginesKnockedOut)
                 return;
             Mass += massDamage;
             velocityMaximum = Thrust / Mass;
@@ -343,7 +342,7 @@ namespace Ship_Game.Ships
                 && System != null && attacker.GetOwnedSystems().Contains(System)) return true;
             //the below does a search for being inborders so its expensive.
             if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
-                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this))
+                && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(this))
             {
                 //if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");
                 return true;
@@ -352,7 +351,7 @@ namespace Ship_Game.Ships
             return false;
         }
 
-        public override Vector2 JitterPosition()
+        public override Vector2 TargetErrorPos()
         {
             Vector2 jitter = Vector2.Zero;
             if (CombatDisabled)
@@ -408,10 +407,10 @@ namespace Ship_Game.Ships
                     || AI.State         == AIState.Scrap
                     || AI.State         == AIState.Resupply
                     || AI.State         == AIState.Refit || Mothership != null
-                    || shipData.Role    == ShipData.RoleName.supply 
+                    || shipData.Role    == ShipData.RoleName.supply
                     || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
                     || OrdinanceMax < 1
-                    || (IsTethered() && shipData.HullRole == ShipData.RoleName.platform))
+                    || (IsTethered && shipData.HullRole == ShipData.RoleName.platform))
                     return ShipStatus.NotApplicable;
 
                 return ToShipStatus(Ordinance, OrdinanceMax);
@@ -421,6 +420,7 @@ namespace Ship_Game.Ships
 
         public int BombCount
         {
+
             get
             {
                 int Bombs = 0;
@@ -549,25 +549,25 @@ namespace Ship_Game.Ships
         public bool DoingResupply
         {
             get => AI.State == AIState.Resupply;
-            set => AI.GoOrbitNearestPlanetAndResupply(true);
+            set => Supply.ResupplyFromButton();
         }
 
         public bool DoingSystemDefense
         {
-            get => loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
+            get => loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
             set
             {
                 //added by gremlin Toggle Ship System Defense.
-                if (EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
+                if (EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
                 {
-                    EmpireManager.Player.GetGSAI().DefensiveCoordinator.Remove(this);
+                    EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Remove(this);
                     AI.OrderQueue.Clear();
                     AI.HasPriorityOrder = false;
                     AI.State = AIState.AwaitingOrders;
 
                     return;
                 }
-                EmpireManager.Player.GetGSAI().DefensiveCoordinator.AddShip(this);
+                EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.AddShip(this);
                 AI.State = AIState.SystemDefender;
             }
         }
@@ -964,7 +964,7 @@ namespace Ship_Game.Ships
             {
                 if (w.MassDamage > 0 || w.RepulsionDamage > 0)
                 {
-                    if (targetShip.EnginesKnockedOut || targetShip.IsTethered())
+                    if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
                         return false;
                 }
                 if ((loyalty == targetShip.loyalty || !loyalty.isFaction &&
@@ -1105,7 +1105,7 @@ namespace Ship_Game.Ships
 
             if (w.MassDamage > 0 || w.RepulsionDamage > 0)
             {
-                if (ship.EnginesKnockedOut || ship.IsTethered())
+                if (ship.EnginesKnockedOut || ship.IsTethered)
                     return false;
             }
 
@@ -1264,7 +1264,7 @@ namespace Ship_Game.Ships
 
         public float GetMaintCost(Empire empire)
         {
-            int numShipYards = IsTethered() ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
+            int numShipYards = IsTethered ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
             return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 
@@ -1467,7 +1467,7 @@ namespace Ship_Game.Ships
                     data.HangarshipGuid = module.GetHangarShip().guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
-                    data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static 
+                    data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
                                                                ? module.hangarShipUID
                                                                : module.DynamicHangar.ToString();
 
@@ -1872,7 +1872,7 @@ namespace Ship_Game.Ships
             {
                 Velocity = Rotation.RadiansToDirection() * velocityMaximum;
             }
-            if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered())
+            if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered)
             {
                 EnginesKnockedOut = true;
                 velocityMaximum = Velocity.Length();
@@ -2264,10 +2264,7 @@ namespace Ship_Game.Ships
 
         }
 
-        public bool IsTethered()
-        {
-            return TetheredTo != null;
-        }
+        public bool IsTethered => TetheredTo != null;
 
         private float CurrentStrength = -1.0f;
 
@@ -2393,7 +2390,7 @@ namespace Ship_Game.Ships
             }
             for (int index = 0; index < EmpireManager.Empires.Count; index++)
             {
-                EmpireManager.Empires[index].GetGSAI().ThreatMatrix.RemovePin(this);
+                EmpireManager.Empires[index].GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
             Carrier.ScuttleNonWarpHangarShips();
             ModuleSlotList     = Empty<ShipModule>.Array;
@@ -2493,7 +2490,7 @@ namespace Ship_Game.Ships
             }
             foreach (Empire empire in EmpireManager.Empires)
             {
-                empire.GetGSAI().ThreatMatrix.RemovePin(this);
+                empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
 
             foreach (Projectile projectile in projectiles)

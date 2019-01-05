@@ -8,10 +8,10 @@ namespace Ship_Game
         public int Width  { get; private set; }
         public int Height { get; private set; }
 
-        public Texture2D Active   { get; private set; }
-        public Texture2D Inactive { get; private set; }
-        public Texture2D Hover    { get; private set; }
-        public Texture2D Press    { get; private set; }
+        public SubTexture Active   { get; private set; }
+        public SubTexture Inactive { get; private set; }
+        public SubTexture Hover    { get; private set; }
+        public SubTexture Press    { get; private set; }
 
         public static readonly ToggleButtonStyle Formation = new ToggleButtonStyle
         {
@@ -116,14 +116,14 @@ namespace Ship_Game
         public bool HasToolTip;
         public Color BaseColor = Color.White;
 
-        private readonly Texture2D PressTexture;
-        private readonly Texture2D HoverTexture;
-        private readonly Texture2D ActiveTexture;
-        private readonly Texture2D InactiveTexture;
-        private readonly Texture2D IconTexture;
+        private readonly SubTexture PressTexture;
+        private readonly SubTexture HoverTexture;
+        private readonly SubTexture ActiveTexture;
+        private readonly SubTexture InactiveTexture;
+        private readonly SubTexture IconTexture;
         private readonly Vector2 WordPos;
         private readonly string IconPath;
-        private readonly Texture2D IconActive;
+        private readonly SubTexture IconActive;
         private readonly Rectangle IconRect;
 
         public delegate void ClickHandler(ToggleButton button);

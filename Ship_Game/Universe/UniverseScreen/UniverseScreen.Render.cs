@@ -75,12 +75,12 @@ namespace Ship_Game
                 ClickPlanetList.Clear();
                 ClickableSystems.Clear();
             }
-            Texture2D Glow_Terran = ResourceManager.Texture("PlanetGlows/Glow_Terran");
-            Texture2D Glow_Red    = ResourceManager.Texture("PlanetGlows/Glow_Red");
-            Texture2D Glow_White  = ResourceManager.Texture("PlanetGlows/Glow_White");
-            Texture2D Glow_Aqua   = ResourceManager.Texture("PlanetGlows/Glow_Aqua");
-            Texture2D Glow_Orange = ResourceManager.Texture("PlanetGlows/Glow_Orange");
-            Texture2D sunTexture  = null;
+            SubTexture Glow_Terran = ResourceManager.Texture("PlanetGlows/Glow_Terran");
+            SubTexture Glow_Red    = ResourceManager.Texture("PlanetGlows/Glow_Red");
+            SubTexture Glow_White  = ResourceManager.Texture("PlanetGlows/Glow_White");
+            SubTexture Glow_Aqua   = ResourceManager.Texture("PlanetGlows/Glow_Aqua");
+            SubTexture Glow_Orange = ResourceManager.Texture("PlanetGlows/Glow_Orange");
+            SubTexture sunTexture  = null;
             string sunPath = string.Empty;
             for (int index = 0; index < SolarSystemList.Count; index++)
             {
@@ -114,23 +114,23 @@ namespace Ship_Game
                                     (planet.PlanetType == 22 || planet.PlanetType == 25 ||
                                      (planet.PlanetType == 27 || planet.PlanetType == 29)))
                                     ScreenManager.SpriteBatch.Draw(Glow_Terran, planetScreenPos,
-                                        new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
+                                        Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 else if (planet.PlanetType == 5 || planet.PlanetType == 7 ||
                                          (planet.PlanetType == 8 || planet.PlanetType == 9) || planet.PlanetType == 23)
-                                    ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos, new Rectangle?(),
+                                    ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos,
                                         Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
                                 else if (planet.PlanetType == 17)
                                     ScreenManager.SpriteBatch.Draw(Glow_White, planetScreenPos,
-                                        new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
+                                        Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 else if (planet.PlanetType == 19)
                                     ScreenManager.SpriteBatch.Draw(Glow_Aqua, planetScreenPos,
-                                        new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
+                                        Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 else if (planet.PlanetType == 14 || planet.PlanetType == 18)
                                     ScreenManager.SpriteBatch.Draw(Glow_Orange, planetScreenPos,
-                                        new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
+                                        Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 lock (GlobalStats.ClickableSystemsLock)
                                     ClickPlanetList.Add(new ClickablePlanets
@@ -493,15 +493,12 @@ namespace Ship_Game
                         Viewport.Project(vector3_3, projection, view,
                             Matrix.Identity);
                     Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Suns/" + solarSystem.SunPath),
-                        position, new Rectangle?(), Color.White, Zrotate,
-                        new Vector2(ResourceManager.Texture("Suns/" + solarSystem.SunPath).Width / 2,
-                            ResourceManager.Texture("Suns/" + solarSystem.SunPath).Height / 2), scale,
+                    SubTexture sunPath = ResourceManager.Texture("Suns/" + solarSystem.SunPath);
+                    ScreenManager.SpriteBatch.Draw(sunPath,
+                        position, Color.White, Zrotate, sunPath.Center(), scale,
                         SpriteEffects.None, 0.9f);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Suns/" + solarSystem.SunPath),
-                        position, new Rectangle?(), Color.White, (float) (-(double) Zrotate / 2.0),
-                        new Vector2(ResourceManager.Texture("Suns/" + solarSystem.SunPath).Width / 2,
-                            ResourceManager.Texture("Suns/" + solarSystem.SunPath).Height / 2), scale,
+                        position, Color.White, (float) (Zrotate / -2.0), sunPath.Center(), scale,
                         SpriteEffects.None, 0.9f);
                 }
             }
@@ -638,8 +635,8 @@ namespace Ship_Game
                 for (int i = 0; i < MuzzleFlashManager.FlashList.Count; i++)
                 {
                     MuzzleFlash f = MuzzleFlashManager.FlashList[i];
-                    DrawTransparentModel(MuzzleFlashManager.flashModel, f.WorldMatrix, MuzzleFlashManager.FlashTexture,
-                        f.scale);
+                    DrawTransparentModel(MuzzleFlashManager.flashModel, f.WorldMatrix, 
+                        MuzzleFlashManager.FlashTexture, f.scale);
                 }
                 MuzzleFlashManager.FlashList.ApplyPendingRemovals();
             }

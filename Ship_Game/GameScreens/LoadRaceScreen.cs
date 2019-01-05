@@ -10,7 +10,7 @@ namespace Ship_Game
         public LoadRaceScreen(RaceDesignScreen screen) : base(screen, SLMode.Load, "", "Load Saved Race", "Saved Races")
         {
             this.screen = screen;
-            Path = Dir.ApplicationData + "/StarDrive/Saved Races/";
+            Path = Dir.StarDriveAppData + "/Saved Races/";
         }
 
         protected override void Load()

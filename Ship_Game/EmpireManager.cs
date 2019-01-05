@@ -24,6 +24,9 @@ namespace Ship_Game
         public static Empire Player     => PlayerEmpire     ?? (PlayerEmpire     = FindPlayerEmpire());
         public static Empire Cordrazine => CordrazineEmpire ?? (CordrazineEmpire = GetEmpireByName("Cordrazine Collective"));
 
+        // Is player race cybernetic?
+        public static bool CyberneticPlayer => Player.data.Traits.Cybernetic != 0;
+
         // Special factions
         public static Empire Remnants => RemnantsFaction ?? (RemnantsFaction = GetEmpireByName("The Remnant"));
         public static Empire Unknown  => UnknownFaction  ?? (UnknownFaction  = GetEmpireByName("Unknown"));

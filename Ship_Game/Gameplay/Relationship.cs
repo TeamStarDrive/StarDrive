@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
+using System;
 
 namespace Ship_Game.Gameplay
 {
@@ -139,7 +137,7 @@ namespace Ship_Game.Gameplay
         public void StoleOurColonyClaim(Empire onwer, Planet claimedPlanet)
         {
             NumberStolenClaims++;
-            Anger_TerritorialConflict += 5f + (float) Math.Pow(5, NumberStolenClaims);            
+            Anger_TerritorialConflict += 5f + (float) Math.Pow(5, NumberStolenClaims);
             StolenSystems.AddUnique(claimedPlanet.ParentSystem.guid);
         }
 
@@ -149,7 +147,7 @@ namespace Ship_Game.Gameplay
 
             if (newTheft && !HaveWarnedTwice)
             {
-                DiplomacyScreen.Stole1stColonyClaim(claimedPlanet, victim);                
+                DiplomacyScreen.Stole1stColonyClaim(claimedPlanet, victim);
                 return;
             }
 
@@ -163,64 +161,6 @@ namespace Ship_Game.Gameplay
             if (newTheft || !HaveWarnedThrice)
                 DiplomacyScreen.Stole3rdColonyClaim(claimedPlanet, victim);
             HaveWarnedThrice = true;
-            
-            
-        }
-
-        public float RiskAssesment (Empire us, Empire them, float riskLimit = 1)
-        {
-            if (!Known) return 0;
-            float risk = float.MaxValue;
-            float strength = Math.Max(100, us.currentMilitaryStrength);
-            if (!them.isFaction && !AtWar && !PreparingForWar &&
-                !(TotalAnger > us.data.DiplomaticPersonality.Territorialism)) return 0;
-            if (!them.isFaction)            
-                return (risk = us.GetGSAI().ThreatMatrix.StrengthOfEmpire(them) / strength) > riskLimit ? 0 :risk;
-            var s = new HashSet<SolarSystem>();
-            foreach (var task in us.GetGSAI().TaskList)
-            {
-                if (task.type != MilitaryTask.TaskType.DefendClaim) continue;
-                var p = task.TargetPlanet;
-                var ss = p.ParentSystem;
-                if (!s.Add(ss)) continue;
-                float test;
-                if ((test = us.GetGSAI().ThreatMatrix.StrengthOfEmpireInSystem(them, ss)) > 0 && test <  risk)
-                    risk = test;
-            }            
-            risk /= strength;
-            return risk > riskLimit ? 0 : risk;
-        }
-
-        public float BorderRiskAssesment(Empire us, Empire them, float riskLimit = .5f)
-        {
-            if (!Known) return 0;
-            float strength = 0;
-            foreach (var ss in us.GetBorderSystems(them))
-            {
-                strength += us.GetGSAI().ThreatMatrix.StrengthOfEmpireInSystem(them, ss);
-            }
-            strength /= Math.Max(us.currentMilitaryStrength, 100);
-            return strength > riskLimit ? 0 : strength;            
-        }
-
-        public float ExpansionRiskAssement(Empire us, Empire them, float riskLimit = .5f)
-        {
-            if (!Known || them.NumPlanets ==0) return 0;
-            float themStrength = 0;
-            float usStrength = 0;
-            
-            foreach (Planet p in them.GetPlanets())
-            {
-                if (!p.IsExploredBy(us)) continue;
-                themStrength += p.DevelopmentLevel;
-            }
-            
-            foreach (Planet p in us.GetPlanets())
-            {
-                usStrength += p.DevelopmentLevel;
-            }
-            float strength = (themStrength / usStrength) * 0.25f;
-            return strength > riskLimit ? 0 : strength;
         }
 
         public void DamageRelationship(Empire Us, Empire Them, string why, float Amount, Planet p)
@@ -230,7 +170,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            
+
             if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == Them)
                 return;
             float angerMod = 1 + ((int)CurrentGame.Difficulty + 1) * 0.2f;
@@ -382,7 +322,7 @@ namespace Ship_Game.Gameplay
                 {
                     Array<Planet> OurTargetPlanets = new Array<Planet>();
                     Array<Planet> TheirTargetPlanets = new Array<Planet>();
-                    foreach (Goal g in Us.GetGSAI().Goals)
+                    foreach (Goal g in Us.GetEmpireAI().Goals)
                     {
                         if (g.type != GoalType.Colonize)
                         {
@@ -419,7 +359,6 @@ namespace Ship_Game.Gameplay
                     angerTerritorialConflict.Anger_TerritorialConflict = angerTerritorialConflict.Anger_TerritorialConflict + Amount *1+expansion;
                     Relationship relationship4 = this;
                     relationship4.Trust = relationship4.Trust - Amount;
-                    
 
                     if (Anger_TerritorialConflict < Us.data.DiplomaticPersonality.Territorialism && !AtWar)
                     {
@@ -672,12 +611,12 @@ namespace Ship_Game.Gameplay
 
             if (!Treaty_Alliance && !Treaty_OpenBorders)
             {
-                float strengthofshipsinborders = us.GetGSAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
+                float strengthofshipsinborders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
                 if (strengthofshipsinborders > 0)
                 {
                     if (!Treaty_NAPact)
                         Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore);
-                    else 
+                    else
                         Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore * 2f);
                 }
             }
@@ -718,13 +657,13 @@ namespace Ship_Game.Gameplay
             if (Treaty_OpenBorders) return false;
              float borderAnger = Anger_FromShipsInOurBorders * (Anger_MilitaryConflict * .1f) + Anger_TerritorialConflict;
             if (Treaty_Trade) borderAnger *= .2f;
-                    
+
             return borderAnger + 10 > (personality?.Territorialism  ?? EmpireManager.Player.data.BorderTolerance);
         }
-        
+
         public bool AttackForTransgressions(DTrait personality)
-        {            
-            return !Treaty_NAPact && TotalAnger  > (personality?.Territorialism 
+        {
+            return !Treaty_NAPact && TotalAnger  > (personality?.Territorialism
                 ?? EmpireManager.Player.data.BorderTolerance);
         }
 
@@ -740,8 +679,16 @@ namespace Ship_Game.Gameplay
         {
             Risk = null;
             TrustEntries?.Dispose(ref TrustEntries);
-            FearEntries?.Dispose(ref FearEntries);            
+            FearEntries?.Dispose(ref FearEntries);
         }
-        
+
+        public void ResetRelation()
+        {
+            Treaty_Alliance    = false;
+            Treaty_NAPact      = false;
+            Treaty_OpenBorders = false;
+            Treaty_Peace       = false;
+            Treaty_Trade       = false;
+        }       
     }
 }

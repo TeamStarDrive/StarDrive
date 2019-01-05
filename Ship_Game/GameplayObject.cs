@@ -1,11 +1,11 @@
-using System;
-using System.Runtime.CompilerServices;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -136,7 +136,7 @@ namespace Ship_Game
                 oldLoyalty.GetShips().QueuePendingRemoval(ship);
                 oldLoyalty.RemoveShip(ship);
                                                          
-                oldLoyalty.GetGSAI().ThreatMatrix.RemovePin(ship);
+                oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
                 changeTo.AddShipNextFrame(ship);
                 ship.shipStatusChanged = true;
                 ((Ship)this).loyalty = changeTo;
@@ -177,7 +177,7 @@ namespace Ship_Game
         {
         }
 
-        public virtual Vector2 JitterPosition()
+        public virtual Vector2 TargetErrorPos()
         {
             return Vector2.Zero;            
         }

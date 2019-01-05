@@ -133,7 +133,7 @@ namespace Ship_Game.AI
                 case GoalStep.TryAgain: break;
                 case GoalStep.GoalComplete:
                 case GoalStep.GoalFailed:
-                    empire?.GetGSAI().Goals.QueuePendingRemoval(this);
+                    empire?.GetEmpireAI().Goals.QueuePendingRemoval(this);
                     break;
             }            
         }
@@ -220,7 +220,7 @@ namespace Ship_Game.AI
 
             private static bool PlanetToFarToColonize(Planet planetList, Empire empire)
             {
-                AO closestAO = empire.GetGSAI().AreasOfOperations
+                AO closestAO = empire.GetEmpireAI().AreasOfOperations
                     .FindMin(ao => ao.Center.SqDist(planetList.Center));
                 if (closestAO != null && planetList.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 1.5f))
                     return true;

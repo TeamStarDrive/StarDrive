@@ -8,17 +8,35 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 
 namespace Ship_Game
 {
+    /**
+     * Oh boy, so this is a monster class.
+     * The whole content pipeline is divided into ~3 layers and ~2 steps. There are some oddballs though.
+     *
+     * Layer 1: ResourceManager -- Explores [Vanilla]+[Mod] files and prepares them.
+     *                             Most game XML data files are loaded here.
+     *                             Mesh & Texture access is cached here.
+     *
+     *     @todo ResourceManager should be split into: 1. MeshCache 2. TextureCache 3. DataCache
+     *
+     * Layer 2: GameContentManager -- This will [Vanilla]/[Mod] reroute any resource access and ensures there
+     *                                is no content duplication.
+     *                                Some special resource cases like TextureAtlas are also handled there.
+     *                                Caching is also done at this level. All Disposable objects are recorded.
+     * Layer 3: XNA ContentManager & RawContentLoader -- Loads XNB files and also provides .png / .fbx / .obj support.
+     *                                
+     */
     public sealed class ResourceManager // Refactored by RedFox
     {
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
-        private static readonly Map<string, Texture2D> Textures   = new Map<string, Texture2D>();
+        private static readonly Map<string, SubTexture> Textures  = new Map<string, SubTexture>();
         public static Map<string, Ship> ShipsDict                 = new Map<string, Ship>();
         public static Map<string, Technology> TechTree            = new Map<string, Technology>(GlobalStats.CaseControl);
         private static readonly Array<Model> RoidsModels          = new Array<Model>();
@@ -41,9 +59,9 @@ namespace Ship_Game
 
         public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
-        public static Array<Texture2D> BigNebulas                 = new Array<Texture2D>();
-        public static Array<Texture2D> MedNebulas                 = new Array<Texture2D>();
-        public static Array<Texture2D> SmallNebulas               = new Array<Texture2D>();
+        public static Array<Texture2D> BigNebulae                 = new Array<Texture2D>();
+        public static Array<Texture2D> MedNebulae                 = new Array<Texture2D>();
+        public static Array<Texture2D> SmallNebulae               = new Array<Texture2D>();
         public static Array<Texture2D> SmallStars                 = new Array<Texture2D>();
         public static Array<Texture2D> MediumStars                = new Array<Texture2D>();
         public static Array<Texture2D> LargeStars                 = new Array<Texture2D>();
@@ -73,7 +91,6 @@ namespace Ship_Game
 
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager RootContent => Game1.Instance.Content;
-        private static string LastFailedTexture = "";
 
         public static Technology GetTreeTech(string techUid)
         {
@@ -211,16 +228,29 @@ namespace Ship_Game
             }
         }
 
-        public static void LoadItAll()
+        public static void LoadItAll(Action onEssentialsLoaded = null)
         {
             Reset();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
+
             LoadLanguage();
-            LoadTextures();
             LoadToolTips();
-            LoadTroops();
+            LoadHullData(); // we need Hull Data for main menu ship
+            LoadEmpires();  // empire for NewGame
+
+            LoadTextureAtlases();
+
+            // after this point, everything truly essential for Main Menu should already be loaded
+            onEssentialsLoaded?.Invoke();
+
+            LoadNebulae();
+            LoadSmallStars();
+            LoadMediumStars();
+            LoadLargeStars();
+            LoadFlagTextures();
             LoadHullBonuses();
-            LoadHullData();
+
+            LoadTroops();
             LoadWeapons();
             LoadShipModules();
             LoadGoods();
@@ -231,19 +261,11 @@ namespace Ship_Game
             LoadBuildings();
             LoadProjectileMeshes();
             LoadRandomItems();
-            LoadFlagTextures();
-            LoadNebulas();
-            LoadSmallStars();
-            LoadMediumStars();
-            LoadLargeStars();
-            LoadEmpires();
             LoadDialogs();
-
             LoadTechTree();
             LoadEncounters();
             LoadExpEvents();
             TechValidator();
-
 
             LoadArtifacts();
             LoadShipRoles();
@@ -260,7 +282,6 @@ namespace Ship_Game
 
             Log.ShowConsoleWindow();
             TestHullLoad();
-            //TestCompressedTextures();
             //TestTechTextures();
 
             Log.HideConsoleWindow();
@@ -289,23 +310,6 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
             Log.TestMessage("Hull Model Load Finished", waitForEnter: true);
             RootContent.EnableLoadInfoLog = false;
-        }
-
-        private static void TestCompressedTextures()
-        {
-            if (!Log.TestMessage("Test - Checking For Uncompressed Texture \n", waitForYes:true))
-                return;
-            foreach (KeyValuePair<string, Texture2D> textDic in Textures)
-            {
-                Texture2D tex  = textDic.Value;
-                SurfaceFormat texFormat = tex.Format;
-                if (texFormat != SurfaceFormat.Color)
-                    continue;
-                Log.TestMessage($"Uncompressed Texture {textDic.Key}", Log.Importance.Important);
-                Log.TestMessage($"{tex.ResourceType} Dimensions:{tex.Size()} \n");
-            }
-
-            Log.TestMessage("Test - Checking For Uncompressed Texture Finished", waitForEnter: true);
         }
 
         private static void TestTechTextures()
@@ -382,10 +386,12 @@ namespace Ship_Game
         }
 
         // This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
-        public static FileInfo[] GatherFilesUnified(string dir, string ext)
+        public static FileInfo[] GatherFilesUnified(string dir, string ext, bool recursive = true)
         {
+            string pattern = "*."+ext;
+            SearchOption search = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             if (!GlobalStats.HasMod)
-                return Dir.GetFiles("Content/" + dir, ext);
+                return Dir.GetFiles("Content/" + dir, pattern, search);
 
             var infos = new Map<string, FileInfo>();
 
@@ -395,7 +401,7 @@ namespace Ship_Game
             // such as: "Mods/MyMod/Textures/TechIcons/Aeroponics.xnb" --> "Textures/TechIcons/Aeroponics.xnb"
             bool fileNames = ext == "xml";
 
-            FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, ext);
+            FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, pattern, search);
             string vanillaPath = Path.GetFullPath("Content/");
             foreach (FileInfo file in vanilla)
             {
@@ -404,7 +410,7 @@ namespace Ship_Game
             }
 
             // now pull everything from the modfolder and replace all matches
-            FileInfo[] mod = Dir.GetFiles(GlobalStats.ModPath + dir, ext);
+            FileInfo[] mod = Dir.GetFiles(GlobalStats.ModPath + dir, pattern, search);
             string fullModPath = Path.GetFullPath(GlobalStats.ModPath);
             foreach (FileInfo file in mod)
             {
@@ -424,6 +430,30 @@ namespace Ship_Game
                 infos[name] = file;
             }
 
+            return infos.Values.ToArray();
+        }
+
+        public static DirectoryInfo[] GatherDirsUnified(string dir)
+        {
+            if (!GlobalStats.HasMod)
+                return Dir.GetDirs("Content/" + dir);
+
+            var infos = new Map<string, DirectoryInfo>();
+            DirectoryInfo[] vanilla = Dir.GetDirs("Content/" + dir);
+            string vanillaPath = Path.GetFullPath("Content/");
+            foreach (DirectoryInfo info in vanilla)
+            {
+                string name = info.FullName.Substring(vanillaPath.Length);
+                infos[name] = info;
+            }
+
+            DirectoryInfo[] mod = Dir.GetDirs(GlobalStats.ModPath + dir);
+            string fullModPath = Path.GetFullPath(GlobalStats.ModPath);
+            foreach (DirectoryInfo info in mod)
+            {
+                string name = info.FullName.Substring(fullModPath.Length);
+                infos[name] = info;
+            }
             return infos.Values.ToArray();
         }
 
@@ -573,9 +603,9 @@ namespace Ship_Game
             DeleteShipFromDir("Content/StarterShips", shipName);
             DeleteShipFromDir("Content/SavedDesigns", shipName);
 
-            string appData = Dir.ApplicationData;
-            DeleteShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
-            DeleteShipFromDir(appData + "/StarDrive/WIP", shipName);
+            string appData = Dir.StarDriveAppData;
+            DeleteShipFromDir(appData + "/Saved Designs", shipName);
+            DeleteShipFromDir(appData + "/WIP", shipName);
             GetShipTemplate(shipName).Deleted = true;
             foreach (Empire e in EmpireManager.Empires)
             {
@@ -790,28 +820,48 @@ namespace Ship_Game
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
-
-        // Gets a loaded texture using the given abstract texture path
-        public static Texture2D TextureOrNull(string texturePath)
+        // Load texture with its abstract path such as
+        // "Explosions/smaller/shipExplosion"
+        public static SubTexture TextureOrNull(string textureName)
         {
-            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : null;
+            if (Textures.TryGetValue(textureName, out SubTexture loaded))
+                return loaded;
+            loaded = RootContent.LoadSubTexture("Textures/" + textureName);
+            Textures[textureName] = loaded; // save even if null
+            return loaded;
+        }
+        public static SubTexture TextureOrDefault(string textureName, string defaultTex)
+        {
+            SubTexture loaded = TextureOrNull(textureName);
+            return loaded ?? Texture(defaultTex);
         }
 
-        public static Texture2D TextureOrDefault(string texturePath, string defaultTex)
+        public static SubTexture Texture(string textureName)
         {
-            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : Texture(defaultTex);
+            SubTexture loaded = TextureOrNull(textureName);
+            if (loaded != null)
+                return loaded;
+
+            Log.WarningWithCallStack($"Texture path not found: '{textureName}' replacing with 'NewUI/x_red'");
+
+            SubTexture errorTexture = TextureOrNull("NewUI/x_red");
+            Textures[textureName] = errorTexture; // so we don't get this error again
+            return errorTexture;
         }
 
-        public static Texture2D Texture(string texturePath)
+
+        // Load texture for a specific mod, such as modName="Overdrive"
+        public static Texture2D LoadModTexture(string modName, string textureName)
         {
-            if (Textures.TryGetValue(texturePath, out Texture2D texture))
-                return texture;
-            if (LastFailedTexture != texturePath)
-            {
-                LastFailedTexture = texturePath;
-                Log.WarningWithCallStack($"texture path not found: '{texturePath}' replacing with 'NewUI/x_red'");
-            }
-            return Textures["NewUI/x_red"];
+            string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
+            if (File.Exists(modTexPath + ".xnb"))
+                return RootContent.LoadUncached<Texture2D>(modTexPath);
+            return null;
+        }
+
+        public static Texture2D Texture2D(string textureNamePath)
+        {
+            return RootContent.Load<Texture2D>("Textures/" + textureNamePath);
         }
 
         public static bool TextureLoaded(string texturePath)
@@ -819,99 +869,79 @@ namespace Ship_Game
             return Textures.ContainsKey(texturePath);
         }
 
-        public static Texture2D ProjTexture(string texturePath)
+        public static SubTexture ProjTexture(string texturePath)
         {
-            return ProjTextDict[texturePath];
+            return new SubTexture(ProjTextDict[texturePath]);
         }
 
-        private static void LoadTexture(FileInfo info)
+        public static FileInfo[] GatherTextureFiles(string dir, bool recursive)
         {
-            string relPath = info.CleanResPath(false);
-            var tex = RootContent.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
-            relPath = info.CleanResPath();
-            string texName = relPath.Substring("Textures/".Length);
-            lock (Textures)
-            {
-                Textures[texName] = tex;
-            }
-        }
-
-        public static FileInfo[] GatherTextureFiles(string dir)
-        {
-            string[] exts = {"png", "gif", "jpg", "xnb"};
+            string[] extensions = {"png", "gif", "jpg", "xnb"};
             var allFiles = new Array<FileInfo>();
-            foreach (string ext in exts)
+            foreach (string ext in extensions)
             {
-                allFiles.AddRange(GatherFilesUnified(dir, ext));
+                allFiles.AddRange(GatherFilesUnified(dir, ext, recursive));
             }
             return allFiles.ToArray();
         }
 
-        // This method is a hot path during Loading and accounts for ~25% of time spent
-        private static void LoadTextures()
+        // This is just to speed up initial atlas generation and avoid noticeable framerate hiccups
+        public static void LoadTextureAtlases()
         {
-            FileInfo[] files = GatherTextureFiles("Textures");
+            //new ResourceTests().RunAll();
 
-        #if true // parallel texture load
-            Parallel.For(files.Length, (start, end) => {
-                for (int i = start; i < end; ++i)
-                    LoadTexture(files[i]);
-            });
-        #else
-            foreach (FileInfo info in files)
-                LoadTexture(info);
-        #endif
-
-        #if false
-            // check for any duplicate loads:
-            var field = typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance | BindingFlags.NonPublic);
-            var assets = field?.GetValue(ContentManager) as Map<string, object>;
-            if (assets != null && assets.Count != 0)
+            void LoadAtlas(string folder)
             {
-                string[] keys = assets.Keys.Where(key => key != null).ToArray();
-                string[] names = keys.Select(key => Path.GetDirectoryName(key) + "\\" + Path.GetFileName(key)).ToArray();
-                for (int i = 0; i < names.Length; ++i)
+                var atlas = RootContent.Load<TextureAtlas>(folder);
+                if (atlas == null) Log.Warning($"LoadAtlas {folder} failed");
+            }
+
+            // these are essential for main menu, so we load them as blocking
+            LoadAtlas("Textures");
+            LoadAtlas("Textures/GameScreens");
+            LoadAtlas("Textures/MainMenu");
+            LoadAtlas("Textures/EmpireTopBar");
+            LoadAtlas("Textures/NewUI");
+
+            // these are non-critical and can be loaded in background
+            Parallel.Run(() =>
+            {
+                Stopwatch s = Stopwatch.StartNew();
+                var atlases = new []
                 {
-                    for (int j = 0; j < names.Length; ++j)
-                    {
-                        if (i != j && names[i] == names[j])
-                        {
-                            Log.Warning("!! Duplicate texture load: \n    {0}\n    {1}", keys[i], keys[j]);
-                        }
-                    }
-                }
-            }
-        #endif
-        }
+                    "Textures/Ship_explosion2", // TESTING
 
-        // Load texture with its abstract path such as
-        // "Explosions/smaller/shipExplosion"
-        public static Texture2D LoadTexture(string textureName)
-        {
-            if (Textures.TryGetValue(textureName, out Texture2D tex))
-                return tex;
-            try
-            {
-                tex = RootContent.Load<Texture2D>("Textures/" + textureName);
-                Textures[textureName] = tex;
-            }
-            catch (Exception)
-            {
-            }
-            return tex;
-        }
+                    // Main Menu
+                    "Textures/Races",     // NewGame screen
+                    "Textures/UI",        // NewGame screen
+                    "Textures/ShipIcons", // LoadGame screen
+                    "Textures/Popup",     // Options screen
 
-        // Load texture for a specific mod, such as modName="Overdrive"
-        public static Texture2D LoadModTexture(string modName, string textureName)
-        {
-            if (Textures.TryGetValue(textureName, out Texture2D tex))
-                return tex;
+                    // UniverseScreen
+                    "Textures/Arcs",
+                    "Textures/SelectionBox",
+                    "Textures/Minimap",
+                    "Textures/Ships",
+                    "Textures/Suns",
+                    "Textures/hqspace",
+                    "Textures/PlanetGlows",
+                    "Textures/TacticalIcons",
+                    "Textures/Planets",
+                    "Textures/PlanetTiles",
+                    "Textures/Buildings",
+                    "Textures/ResearchMenu",
+                    "Textures/TechIcons",
+                    "Textures/Modules",
+                    "Textures/TroopIcons",
+                    "Textures/Portraits",
+                    "Textures/Ground_UI",
+                    "Textures/Troops",
+                };
+                foreach (string name in atlases)
+                    LoadAtlas(name);
 
-            string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
-            if (File.Exists(modTexPath + ".xnb"))
-                return Textures[textureName] = RootContent.Load<Texture2D>(modTexPath);
-
-            return null;
+                Log.Info($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms");
+            });
         }
 
         public static float GetModuleCost(string uid)
@@ -1038,7 +1068,7 @@ namespace Ship_Game
                                 continue;
                             tech.Unlockable = true;
                             if (GlobalStats.VerboseLogging)
-                                Log.WarningVerbose($"Technology was marked unlockable by encounter '{encounter.Name}' : '{tech.UID}'");
+                                Log.WarningVerbose($"Technology can be unlocked by encounter '{encounter.Name}' : '{tech.UID}'");
                         }
                     }
                 }
@@ -1056,8 +1086,13 @@ namespace Ship_Game
                     {
                         if (tech.Unlockable) continue;
                         tech.Unlockable = true;
-                        if (GlobalStats.VerboseLogging)
-                            Log.WarningVerbose($"Technology was marked unlockable by event '{pair.Entity.Name}' : '{tech.UID}'");
+                        Log.WarningVerbose($"Technology can be unlocked by event '{pair.Entity.Name}' : '{tech.UID}'");
+                    }
+                    if (TechTree.TryGetValue(outcome.SecretTechDiscovered ?? "", out tech))
+                    {
+                        if (tech.Unlockable) continue;
+                        tech.Unlockable = true;
+                        Log.WarningVerbose($"Secret Technology can be unlocked by event '{pair.Entity.Name}' : '{tech.UID}'");
                     }
                 }
 
@@ -1136,7 +1171,6 @@ namespace Ship_Game
                         {
                             HullsDict[shipData.Hull] = shipData;
                             retList.Add(shipData);
-
                         }
                     }
                     catch (Exception e)
@@ -1248,24 +1282,28 @@ namespace Ship_Game
         }
 
         // Refactored by RedFox
-        private static void LoadNebulas()
+        private static void LoadNebulae()
         {
             foreach (FileInfo info in Dir.GetFiles("Content/Nebulas", "xnb"))
             {
                 string nameNoExt = info.NameNoExt();
                 var tex = RootContent.Load<Texture2D>("Nebulas/" + nameNoExt);
-                if      (tex.Width == 2048) BigNebulas.Add(tex);
-                else if (tex.Width == 1024) MedNebulas.Add(tex);
-                else                        SmallNebulas.Add(tex);
+                if      (tex.Width == 2048) BigNebulae.Add(tex);
+                else if (tex.Width == 1024) MedNebulae.Add(tex);
+                else                        SmallNebulae.Add(tex);
             }
         }
-        public static Texture2D MedNebula(int index)
+        public static SubTexture SmallNebulaRandom()
         {
-            return MedNebulas[index];
+            return new SubTexture(SmallNebulae[RandomMath.InRange(SmallNebulae.Count)]);
         }
-        public static Texture2D BigNebula(int index)
+        public static SubTexture MedNebula(int index)
         {
-            return BigNebulas[index];
+            return new SubTexture(MedNebulae[index]);
+        }
+        public static SubTexture BigNebula(int index)
+        {
+            return new SubTexture(BigNebulae[index]);
         }
         // Refactored by RedFox
         private static void LoadProjectileMesh(string projectileDir, string nameNoExt)
@@ -1350,10 +1388,10 @@ namespace Ship_Game
                     continue;
                 ShipModule_Deserialize data = pair.Entity;
 
-                data.UID = String.Intern(pair.Info.NameNoExt());
-                data.IconTexturePath = String.Intern(data.IconTexturePath);
+                data.UID = string.Intern(pair.Info.NameNoExt());
+                data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
-                    data.WeaponType = String.Intern(data.WeaponType);
+                    data.WeaponType = string.Intern(data.WeaponType);
 
                 if (GlobalStats.VerboseLogging)
                 {
@@ -1523,7 +1561,7 @@ namespace Ship_Game
             CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("SavedDesigns", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
-            CombineOverwrite(designs, Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml"), readOnly: false, playerDesign: true);
+            CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
         }
 
@@ -1582,7 +1620,7 @@ namespace Ship_Game
             foreach (Technology tech in techs)
             {
                 if (!tech.Unlockable)
-                    Log.WarningVerbose($"Tech {tech.UID} cannot be researched! Source: '{tech.DebugSourceFile}'");
+                    Log.WarningVerbose($"Tech {tech.UID} has no way to unlock! Source: '{tech.DebugSourceFile}'");
             }
         }
 
@@ -1902,6 +1940,8 @@ namespace Ship_Game
 
         public static void Reset()
         {
+            //RootContent.Unload();
+
             HullsDict.Clear();
             WeaponsDict.Clear();
             TroopsDict.Clear();
