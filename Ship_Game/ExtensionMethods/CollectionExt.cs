@@ -403,6 +403,12 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Sorts by generating a secondary list of values.
+        /// Example:
+        /// // sort ascending, where sorted[0] will be ship closest to homeWorld
+        /// var sorted = ships.Sort(ship => ship.Center.DistanceTo(homeWorld.Center));
+        /// </summary>
         public static void Sort<T, TKey>(this T[] array, Func<T, TKey> keyPredicate)
         {
             if (array.Length <= 1)

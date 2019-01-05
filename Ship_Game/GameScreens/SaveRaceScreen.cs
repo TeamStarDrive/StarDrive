@@ -13,7 +13,7 @@ namespace Ship_Game
             : base(screen, SLMode.Save, data.Name, "Save Race", "Saved Races", "Saved Race already exists.  Overwrite?")
         {
             Screen = screen;
-            Path = Dir.ApplicationData +"/StarDrive/Saved Races/";
+            Path = Dir.StarDriveAppData + "/Saved Races/";
             RaceSave = new RaceSave(data);
         }
 

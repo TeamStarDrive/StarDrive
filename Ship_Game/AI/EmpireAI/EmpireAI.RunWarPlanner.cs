@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 // ReSharper disable once CheckNamespace
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class EmpireAI
     {
         public void CallAllyToWar(Empire ally, Empire enemy)
@@ -24,7 +25,7 @@ namespace Ship_Game.AI {
                 {
                     if (x)
                     {
-                        ally.GetGSAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar);
+                        ally.GetEmpireAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar);
                         return;
                     }
                     float amount = 30f;
@@ -69,7 +70,7 @@ namespace Ship_Game.AI {
             OwnerEmpire.GetRelations(them).Treaty_Trade       = false;
             OwnerEmpire.GetRelations(them).Treaty_Alliance    = false;
             OwnerEmpire.GetRelations(them).Treaty_Peace       = false;
-            them.GetGSAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
+            them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
         }
 
         public void DeclareWarOn(Empire them, WarType wt)
@@ -189,7 +190,7 @@ namespace Ship_Game.AI {
             ourRelations.Treaty_Trade       = false;
             ourRelations.Treaty_Alliance    = false;
             ourRelations.Treaty_Peace       = false;
-            them.GetGSAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
+            them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
         }
 
         public void DeclareWarOnViaCall(Empire them, WarType wt)
@@ -296,7 +297,7 @@ namespace Ship_Game.AI {
             OwnerEmpire.GetRelations(them).Treaty_Trade       = false;
             OwnerEmpire.GetRelations(them).Treaty_Alliance    = false;
             OwnerEmpire.GetRelations(them).Treaty_Peace       = false;
-            them.GetGSAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
+            them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
         }
 
         public void EndWarFromEvent(Empire them)
@@ -426,8 +427,8 @@ namespace Ship_Game.AI {
 
         private void FightDefaultWar(KeyValuePair<Empire, Relationship> r)
         {
-            float warWeight = 1 + OwnerEmpire.getResStrat().ExpansionPriority +
-                              OwnerEmpire.getResStrat().MilitaryPriority;
+            float warWeight = 1 + OwnerEmpire.GetResStrat().ExpansionPriority +
+                              OwnerEmpire.GetResStrat().MilitaryPriority;
             foreach (MilitaryTask militaryTask in TaskList)
             {
                 if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
@@ -498,7 +499,7 @@ namespace Ship_Game.AI {
             if (relationship.Key != Empire.Universe.PlayerEmpire)
             {
                 var ourOffer = new Offer {PeaceTreaty = true};
-                relationship.Key.GetGSAI().AnalyzeOffer(ourOffer, offerPeace, OwnerEmpire, Offer.Attitude.Respectful);
+                relationship.Key.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, OwnerEmpire, Offer.Attitude.Respectful);
                 return;
             }
             Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
@@ -541,7 +542,7 @@ namespace Ship_Game.AI {
                 return;
 
             float warWeight = 1 +
-                              OwnerEmpire.getResStrat().MilitaryPriority;
+                              OwnerEmpire.GetResStrat().MilitaryPriority;
             var weightedTargets = EmpireAttackWeights();
             foreach (var kv in weightedTargets)
             {
@@ -635,7 +636,7 @@ namespace Ship_Game.AI {
         {
             return empire.GetPlanets().OrderBy(insystem => !insystem.ParentSystem.OwnerList.Contains(OwnerEmpire))
                 .ThenBy(planet => GetDistanceFromOurAO(planet) / 150000f)
-                .ThenByDescending(planet => empire.GetGSAI()
+                .ThenByDescending(planet => empire.GetEmpireAI()
                                       .DefensiveCoordinator.DefenseDict
                                       .TryGetValue(planet.ParentSystem, out SystemCommander scom)
                                       ? scom.PlanetTracker[planet].Value

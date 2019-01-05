@@ -22,9 +22,9 @@ namespace Ship_Game
         private readonly ToggleButton Fleets;
         public UniverseScreen Screen => Empire.Universe;
 
-        private readonly Texture2D MiniMapHousing;
-        private readonly Texture2D Node;
-        private readonly Texture2D Node1;
+        private readonly SubTexture MiniMapHousing;
+        private readonly SubTexture Node;
+        private readonly SubTexture Node1;
         private readonly float Scale;
         private readonly Vector2 MiniMapZero;
 
@@ -142,9 +142,9 @@ namespace Ship_Game
                     Vector2 nodePos = WorldToMiniPos(node.Position);
                     Color ec = new Color(empire.EmpireColor, 200);
 
-                    screenManager.SpriteBatch.Draw(Node1, nodePos, null, ec, 0f, Node.Center(), radius,
+                    screenManager.SpriteBatch.Draw(Node1, nodePos, ec, 0f, Node.Center(), radius,
                         SpriteEffects.None, 1f);
-                    screenManager.SpriteBatch.Draw(Node1, nodePos, null, new Color(Color.Black, 40), 0f, Node.Center(), radius,
+                    screenManager.SpriteBatch.Draw(Node1, nodePos, new Color(Color.Black, 40), 0f, Node.Center(), radius,
                         SpriteEffects.None, 1f);
                 }
         }

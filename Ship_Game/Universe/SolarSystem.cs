@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -646,37 +646,32 @@ namespace Ship_Game
                             newOrbital.InitializeSliders(newOrbital.Owner);
                             newOrbital.Population      = newOrbital.MaxPopulation;
                             newOrbital.MineralRichness = 1f;
-                            newOrbital.Fertility       = 2f;
                             newOrbital.colonyType      = Planet.ColonyType.Core;
                             newOrbital.GovernorOn      = true;
+                            newOrbital.InitFertilityValues(2f);
                         }
                     }
                     else
                     {
                         newOrbital.Owner = owner;
-                        owner.Capital = newOrbital;
+                        owner.Capital    = newOrbital;
                         newOrbital.InitializeSliders(owner);
                         owner.AddPlanet(newOrbital);
                         newOrbital.SetPlanetAttributes(26f);
                         //newOrbital.Special         = "None";
                         newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
-                        newOrbital.Fertility       = 2f + owner.data.Traits.HomeworldFertMod;
-
+                        newOrbital.InitFertilityValues(2f + owner.data.Traits.HomeworldFertMod);
                         if (ringData.MaxPopDefined > 0)
-                        {
-                            newOrbital.MaxPopulation = ringData.MaxPopDefined*1000f + ringData.MaxPopDefined*1000f*owner.data.Traits.HomeworldSizeMod;
-                        }
+                            newOrbital.MaxPopulation = ringData.MaxPopDefined * 1000f + ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMod;
                         else
-                        {
                             newOrbital.MaxPopulation = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
-                        }
-                        newOrbital.Population = 14000f;
-                        newOrbital.FoodHere = 100f;
+
+                        newOrbital.Population     = 14000f;
+                        newOrbital.FoodHere       = 100f;
                         newOrbital.ProductionHere = 100f;
                         if (!newSys.OwnerList.Contains(newOrbital.Owner))
-                        {
                             newSys.OwnerList.Add(newOrbital.Owner);
-                        }
+
                         newOrbital.HasShipyard = true;
                         newOrbital.AddGood("ReactorFuel", 1000);
                         ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
@@ -753,7 +748,7 @@ namespace Ship_Game
         public int GetPredictedEnemyPresence(float time, Empire us)
         {
              
-            float prediction =us.GetGSAI().ThreatMatrix.PingRadarStr(Position, 150000 *2,us);
+            float prediction =us.GetEmpireAI().ThreatMatrix.PingRadarStr(Position, 150000 *2,us);
             return (int)prediction;
 
         }

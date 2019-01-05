@@ -5,102 +5,47 @@ namespace Ship_Game
 	public sealed class PieMenuNode
 	{
 		public PieMenuNode parent;
+        public Array<PieMenuNode> Children { get; set; }
+        public SubTexture Icon { get; set; }
 
-		private Array<PieMenuNode> children;
-
-		private Texture2D icon;
-
-		private string text;
-
-		private SimpleDelegate onSelect;
-
-		public Array<PieMenuNode> Children
+        public bool IsLeaf
 		{
 			get
 			{
-				return children;
-			}
-			set
-			{
-				children = value;
-			}
-		}
-
-		public Texture2D Icon
-		{
-			get
-			{
-				return icon;
-			}
-			set
-			{
-				icon = value;
-			}
-		}
-
-		public bool IsLeaf
-		{
-			get
-			{
-				if (children == null)
-				{
+				if (Children == null)
 					return true;
-				}
-				return children.Count == 0;
+				return Children.Count == 0;
 			}
 		}
 
-		public SimpleDelegate OnSelect
-		{
-			get
-			{
-				return onSelect;
-			}
-			set
-			{
-				onSelect = value;
-			}
-		}
+		public SimpleDelegate OnSelect { get; set; }
 
-		public string Text
-		{
-			get
-			{
-				return text;
-			}
-			set
-			{
-				text = value;
-			}
-		}
+        public string Text { get; set; }
 
-		public PieMenuNode()
+        public PieMenuNode()
 		{
 		}
 
-		public PieMenuNode(string text, Texture2D icon, SimpleDelegate onSelect)
+		public PieMenuNode(string text, SubTexture icon, SimpleDelegate onSelect)
 		{
-			this.text = text;
-			this.icon = icon;
-			this.onSelect = onSelect;
+			Text = text;
+			Icon = icon;
+			OnSelect = onSelect;
 		}
 
 		public void Add(PieMenuNode newChild)
 		{
-			if (children == null)
+			if (Children == null)
 			{
-				children = new Array<PieMenuNode>();
+				Children = new Array<PieMenuNode>();
 			}
 			newChild.parent = this;
-			children.Add(newChild);
+			Children.Add(newChild);
 		}
 
 		public void Select()
-		{
-			if (OnSelect != null)
-			{
-				OnSelect(this);
-			}
-		}
+        {
+            OnSelect?.Invoke(this);
+        }
 	}
 }

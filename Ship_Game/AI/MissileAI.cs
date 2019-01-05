@@ -1,7 +1,7 @@
-using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game.AI
 {
@@ -46,7 +46,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            TargetJitter = missile.Weapon.AdjustTargetting(Level) + target?.JitterPosition() ?? Vector2.Zero;
+            TargetJitter = missile.Weapon.AdjustTargetting(Level) + target?.TargetErrorPos() ?? Vector2.Zero;
             LaunchJitter = TargetJitter * 2;
             TargettingTimer = TargetTimerReset;
         }
@@ -184,7 +184,7 @@ namespace Ship_Game.AI
                 if (Target != null)
                 {                    
                     LaunchJitter /= 2;
-                    TargetJitter = Missile.Weapon.AdjustTargetting(Level) + Target.JitterPosition();
+                    TargetJitter = Missile.Weapon.AdjustTargetting(Level) + Target.TargetErrorPos();
                 }
                 TargettingTimer = TargetTimerReset;
             }

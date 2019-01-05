@@ -1,11 +1,11 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using SynapseGaming.LightingSystem.Core;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 using Point = System.Drawing.Point;
 
@@ -22,7 +22,7 @@ namespace Ship_Game
         public bool IsExiting { get; private set; }
 
         public new GameContentManager Content { get; }
-        public static GameContentManager GameContent => Instance.Content;
+        public static GameContentManager GameContent => Instance?.Content;
 
         // This is equivalent to PresentationParameters.BackBufferWidth
         public int ScreenWidth { get; private set; }
@@ -51,27 +51,27 @@ namespace Ship_Game
 
             Exiting += GameExiting;
 
+            string appData = Dir.StarDriveAppData;
+            Directory.CreateDirectory(appData + "/Saved Games");
+            Directory.CreateDirectory(appData + "/Saved Races");  // for saving custom races
+            Directory.CreateDirectory(appData + "/Saved Setups"); // for saving new game setups
+            Directory.CreateDirectory(appData + "/Fleet Designs");
+            Directory.CreateDirectory(appData + "/Saved Designs");
+            Directory.CreateDirectory(appData + "/WIP"); // huh????? @todo What's this for? CG:unfinished designs
+            Directory.CreateDirectory(appData + "/Saved Games/Headers");
+            Directory.CreateDirectory(appData + "/Saved Games/Fog Maps");
+
             Graphics = new GraphicsDeviceManager(this)
             {
-                MinimumPixelShaderProfile  = ShaderProfile.PS_2_0,
-                MinimumVertexShaderProfile = ShaderProfile.VS_2_0
+                MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
+                MinimumVertexShaderProfile = ShaderProfile.VS_2_0,
+                PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8,
+                PreferMultiSampling = false
             };
-            string appData = Dir.ApplicationData;
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Games");
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Races");  // for saving custom races
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Setups"); // for saving new game setups
-            Directory.CreateDirectory(appData + "/StarDrive/Fleet Designs");
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Designs");
-            Directory.CreateDirectory(appData + "/StarDrive/WIP"); // huh????? @todo What's this for? CG:unfinished designs
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Headers");
-            Directory.CreateDirectory(appData + "/StarDrive/Saved Games/Fog Maps");
-
-            Graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
-            Graphics.PreferMultiSampling = false;
             Graphics.PreparingDeviceSettings += PrepareDeviceSettings;
 
             GraphicsSettings settings = GraphicsSettings.FromGlobalStats();
-            var currentMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+            DisplayMode currentMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
 
             // check if resolution from graphics settings is ok:
             if (currentMode.Width < settings.Width || currentMode.Height < settings.Height)
@@ -87,7 +87,16 @@ namespace Ship_Game
             Control.FromHandle(Window.Handle).Cursor = new Cursor(cursor.GetHicon());
             IsMouseVisible = true;
         }
-
+        public void SetSteamAchievement(string name)
+        {
+            if (SteamManager.SteamInitialize())
+            {
+                if (SteamManager.SetAchievement(name))
+                    SteamManager.SaveAllStatAndAchievementChanges();
+            }
+            else
+            { Log.Warning("Steam not initialized"); }
+        }
         private void GameExiting(object sender, EventArgs e)
         {
             IsExiting = true;
@@ -146,10 +155,10 @@ namespace Ship_Game
         }
 
 
-        
+
         private void UpdateRendererPreferences(ref GraphicsSettings settings)
         {
-            var prefs = new LightingSystemPreferences
+            ScreenManager?.UpdatePreferences(new LightingSystemPreferences
             {
                 ShadowQuality   = settings.ShadowQuality,
                 MaxAnisotropy   = settings.MaxAnisotropy,
@@ -157,11 +166,10 @@ namespace Ship_Game
                 EffectDetail    = (DetailPreference) settings.EffectDetail,
                 TextureQuality  = (DetailPreference) settings.TextureQuality,
                 TextureSampling = (SamplingPreference) settings.TextureSampling
-            };
-            ScreenManager?.UpdatePreferences(prefs);
+            });
         }
 
-        
+
         private void ApplySettings(ref GraphicsSettings settings)
         {
             Graphics.ApplyChanges();
@@ -176,7 +184,7 @@ namespace Ship_Game
             UpdateRendererPreferences(ref settings);
             ScreenManager?.UpdateViewports();
         }
-        
+
 
         private static void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
@@ -184,7 +192,7 @@ namespace Ship_Game
             PresentationParameters p = e.GraphicsDeviceInformation.PresentationParameters;
 
             var samples = (MultiSampleType)GlobalStats.AntiAlias;
-            if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format, 
+            if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format,
                                              false, samples, out int quality))
             {
                 p.MultiSampleQuality = (quality == 1 ? 0 : 1);
@@ -206,11 +214,11 @@ namespace Ship_Game
                 settings.Width  = 800;
                 settings.Height = 600;
             }
-            var form = (Form)Control.FromHandle(Window.Handle);        
+            var form = (Form)Control.FromHandle(Window.Handle);
             if (Debugger.IsAttached && settings.Mode == WindowMode.Fullscreen)
                 settings.Mode = WindowMode.Borderless;
 
-            Graphics.PreferredBackBufferWidth  = settings.Width;
+            Graphics.PreferredBackBufferWidth = settings.Width;
             Graphics.PreferredBackBufferHeight = settings.Height;
             Graphics.SynchronizeWithVerticalRetrace = true;
 
@@ -219,7 +227,7 @@ namespace Ship_Game
                 case WindowMode.Windowed:   form.FormBorderStyle = FormBorderStyle.Fixed3D; break;
                 case WindowMode.Borderless: form.FormBorderStyle = FormBorderStyle.None;    break;
             }
-            if (settings.Mode != WindowMode.Fullscreen && Graphics.IsFullScreen || 
+            if (settings.Mode != WindowMode.Fullscreen && Graphics.IsFullScreen ||
                 settings.Mode == WindowMode.Fullscreen && !Graphics.IsFullScreen)
             {
                 Graphics.ToggleFullScreen();
@@ -235,7 +243,7 @@ namespace Ship_Game
                 // set form to the center of the primary screen
                 var size = Screen.PrimaryScreen.Bounds.Size;
                 form.Location = new Point(
-                    size.Width / 2 - settings.Width / 2, 
+                    size.Width / 2 - settings.Width / 2,
                     size.Height / 2 - settings.Height / 2);
             }
         }

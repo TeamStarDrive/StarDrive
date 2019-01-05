@@ -346,14 +346,14 @@ namespace Ship_Game.Ships
             var statusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             int numStatus = 0;
 
-            void DrawIconWithTooltip(Texture2D icon, Color color, Func<string> tooltip)
+            void DrawIconWithTooltip(SubTexture icon, Color color, Func<string> tooltip)
             {
                 var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
                 ScreenManager.SpriteBatch.Draw(icon, rect, color);
                 if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
                 ++numStatus;
             }
-            void DrawIconWithTooltipId(Texture2D icon, int tooltip)
+            void DrawIconWithTooltipId(SubTexture icon, int tooltip)
             {
                 var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
                 ScreenManager.SpriteBatch.Draw(icon, rect, Color.White);
@@ -361,13 +361,13 @@ namespace Ship_Game.Ships
                 ++numStatus;
             }
 
-            Texture2D iconBoosted   = ResourceManager.Texture("StatusIcons/icon_boosted");
-            Texture2D iconGravwell  = ResourceManager.Texture("StatusIcons/icon_gravwell");
-            Texture2D iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
-            Texture2D iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
-            Texture2D iconDisabled  = ResourceManager.Texture("StatusIcons/icon_disabled");
-            Texture2D iconPack      = ResourceManager.Texture("StatusIcons/icon_pack");
-            Texture2D iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
+            SubTexture iconBoosted   = ResourceManager.Texture("StatusIcons/icon_boosted");
+            SubTexture iconGravwell  = ResourceManager.Texture("StatusIcons/icon_gravwell");
+            SubTexture iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
+            SubTexture iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
+            SubTexture iconDisabled  = ResourceManager.Texture("StatusIcons/icon_disabled");
+            SubTexture iconPack      = ResourceManager.Texture("StatusIcons/icon_pack");
+            SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
 
 
             if (Ship.loyalty.data.Traits.Pack)
@@ -390,7 +390,7 @@ namespace Ship_Game.Ships
             {
                 foreach (Cargo cargo in Ship.EnumLoadedCargo())
                 {
-                    Texture2D texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
+                    SubTexture texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
                     var goodRect      = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 32, 32);
                     ScreenManager.SpriteBatch.Draw(texture, goodRect, Color.White);
 
@@ -448,29 +448,43 @@ namespace Ship_Game.Ships
         private void DrawResuplyReason(Ship ship)
         {
             string text = "";
-            switch (ship.Supply.Resupply(forceSupplyStateCheck: true))
-            {
-                case ResupplyReason.NotNeeded:
-                    return;
-                case ResupplyReason.FighterReactorsDamaged:
-                    text = "Reactors Damaged";
-                    break;
-                case ResupplyReason.LowHealth:
-                    text = "Structural Integrity Compromized";
-                    break;
-                case ResupplyReason.LowOrdnanceNonCombat:
-                case ResupplyReason.LowOrdnanceCombat:
-                    text = "Ammo Reserves Critical";
-                    break;
-                case ResupplyReason.LowTroops:
-                    text = "Need Troops";
-                    break;
-                case ResupplyReason.NoCommand:
-                    text = "No Command, Cannot Attack";
-                    break;
-            }
+            Color color = Color.Red;
+            if (ship.ScuttleTimer > 0)
+                text = $"Ship will be Scuttled in {(int)ship.ScuttleTimer} seconds";
+            else
+                switch (ship.Supply.Resupply(forceSupplyStateCheck: true))
+                {
+                    case ResupplyReason.NotNeeded:
+                        if (ship.HealthPercent < ShipResupply.RepairDoneThreshold && (ship.AI.State == AIState.Resupply || ship.AI.State == AIState.ResupplyEscort))
+                            text = $"Repairing Ship by Resupply ({(int)(ship.HealthPercent * 100)}%)";
+                        else if (!ship.InCombat && ship.HealthPercent.Less(1))
+                        {
+                            text = $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
+                            color = Color.Yellow;
+                        }
+                        else
+                            return;
+
+                        break;
+                    case ResupplyReason.FighterReactorsDamaged:
+                        text = "Reactors Damaged";
+                        break;
+                    case ResupplyReason.LowHealth:
+                        text = "Structural Integrity Compromized";
+                        break;
+                    case ResupplyReason.LowOrdnanceNonCombat:
+                    case ResupplyReason.LowOrdnanceCombat:
+                        text = "Ammo Reserves Critical";
+                        break;
+                    case ResupplyReason.LowTroops:
+                        text = "Need Troops";
+                        break;
+                    case ResupplyReason.NoCommand:
+                        text = "No Command, Cannot Attack";
+                        break;
+                }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, Color.Red);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, color);
         }
         
         private void DrawTroopStatus() // Expanded  by Fat Bastard

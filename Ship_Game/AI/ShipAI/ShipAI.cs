@@ -84,14 +84,14 @@ namespace Ship_Game.AI
             ColonizeTarget.CrippledTurns = 0;
             StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, UniverseScreen);
 
-            foreach (Goal g in Owner.loyalty.GetGSAI().Goals)
+            foreach (Goal g in Owner.loyalty.GetEmpireAI().Goals)
             {
                 if (g.type != GoalType.Colonize || g.GetMarkedPlanet() != ColonizeTarget)
                     continue;
-                Owner.loyalty.GetGSAI().Goals.QueuePendingRemoval(g);
+                Owner.loyalty.GetEmpireAI().Goals.QueuePendingRemoval(g);
                 break;
             }
-            Owner.loyalty.GetGSAI().Goals.ApplyPendingRemovals();
+            Owner.loyalty.GetEmpireAI().Goals.ApplyPendingRemovals();
             if (ColonizeTarget.ParentSystem.OwnerList.Count > 1)
                 foreach (Planet p in ColonizeTarget.ParentSystem.PlanetList)
                 {
@@ -233,7 +233,7 @@ namespace Ship_Game.AI
             Planet targetPlanet = goal.TargetPlanet;
             targetPlanet.ProductionHere = targetPlanet.ProductionHere + Owner.GetCost(Owner.loyalty) / 2f;
             Owner.QueueTotalRemoval();
-            Owner.loyalty.GetGSAI().Recyclepool++;
+            Owner.loyalty.GetEmpireAI().Recyclepool++;
         }
 
         public void Update(float elapsedTime)

@@ -119,8 +119,9 @@ namespace Ship_Game
 			{
 				width = width + 1f;
 			}
-			Rectangle foodRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)width, 6);
-			ColonySliderFood = new ColonyScreen.ColonySlider();
+
+			var foodRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)width, 6);
+			ColonySliderFood = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Food);
 			
 				ColonySliderFood.sRect = foodRect;
                 ColonySliderFood.amount = p.FarmerPercentage;
@@ -135,7 +136,7 @@ namespace Ship_Game
 			}
 			FoodLock.Locked = p.FoodLocked;
 			Rectangle prodRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.5 * SliderRect.Height), (int)width, 6);
-			ColonySliderProd = new ColonyScreen.ColonySlider
+			ColonySliderProd = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Production)
 			{
 				sRect = prodRect,
 				amount = p.WorkerPercentage
@@ -146,7 +147,7 @@ namespace Ship_Game
 				Locked = p.ProdLocked
 			};
 			Rectangle resRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.75 * SliderRect.Height), (int)width, 6);
-			ColonySliderRes = new ColonyScreen.ColonySlider
+			ColonySliderRes = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Research)
 			{
 				sRect = resRect,
 				amount = p.ResearcherPercentage
@@ -359,7 +360,8 @@ namespace Ship_Game
 		private void DrawSliders(ScreenManager ScreenManager)
 		{
 			string str1;
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * ColonySliderFood.sRect.Width), 6), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * ColonySliderFood.sRect.Width), 6), (p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), 
+                new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * ColonySliderFood.sRect.Width), 6), (p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
 			ScreenManager.SpriteBatch.DrawRectangle(ColonySliderFood.sRect, ColonySliderFood.Color);
 			if (ColonySliderFood.cState != "normal")
 			{
@@ -402,7 +404,8 @@ namespace Ship_Game
 			{
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, food, textPos, Color.LightPink);
 			}
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_brown"), new Rectangle(ColonySliderProd.sRect.X, ColonySliderProd.sRect.Y, (int)(ColonySliderProd.amount * ColonySliderProd.sRect.Width), 6), new Rectangle(ColonySliderProd.sRect.X, ColonySliderProd.sRect.Y, (int)(ColonySliderProd.amount * ColonySliderProd.sRect.Width), 6), Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_brown"), 
+                new Rectangle(ColonySliderProd.sRect.X, ColonySliderProd.sRect.Y, (int)(ColonySliderProd.amount * ColonySliderProd.sRect.Width), 6), Color.White);
 			ScreenManager.SpriteBatch.DrawRectangle(ColonySliderProd.sRect, ColonySliderProd.Color);
 			if (ColonySliderProd.cState != "normal")
 			{
@@ -444,7 +447,8 @@ namespace Ship_Game
 			{
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, prod, textPos, Color.LightPink);
 			}
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_blue"), new Rectangle(ColonySliderRes.sRect.X, ColonySliderRes.sRect.Y, (int)(ColonySliderRes.amount * ColonySliderRes.sRect.Width), 6), new Rectangle(ColonySliderRes.sRect.X, ColonySliderRes.sRect.Y, (int)(ColonySliderRes.amount * ColonySliderRes.sRect.Width), 6), Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_blue"),
+                new Rectangle(ColonySliderRes.sRect.X, ColonySliderRes.sRect.Y, (int)(ColonySliderRes.amount * ColonySliderRes.sRect.Width), 6), Color.White);
 			ScreenManager.SpriteBatch.DrawRectangle(ColonySliderRes.sRect, ColonySliderRes.Color);
 			if (ColonySliderRes.cState != "normal")
 			{

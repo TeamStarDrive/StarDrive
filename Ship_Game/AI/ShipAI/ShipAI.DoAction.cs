@@ -320,7 +320,7 @@ namespace Ship_Game.AI
                 platform.TetherToPlanet(UniverseScreen.PlanetsDict[shipgoal.goal.TetherTarget]);
                 platform.TetherOffset = shipgoal.goal.TetherOffset;
             }
-            Owner.loyalty.GetGSAI().Goals.Remove(shipgoal.goal);
+            Owner.loyalty.GetEmpireAI().Goals.Remove(shipgoal.goal);
             Owner.QueueTotalRemoval();
         }
 
@@ -352,7 +352,7 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
-                ExplorationTarget = Owner.loyalty.GetGSAI().AssignExplorationTarget(Owner);
+                ExplorationTarget = Owner.loyalty.GetEmpireAI().AssignExplorationTarget(Owner);
                 if (ExplorationTarget == null)
                 {
                     OrderQueue.Clear();
@@ -732,7 +732,7 @@ namespace Ship_Game.AI
             {
                 var refitgoal = new FleetRequisition(goal, this);
                 FleetNode.GoalGUID = refitgoal.guid;
-                Owner.loyalty.GetGSAI().Goals.Add(refitgoal);
+                Owner.loyalty.GetEmpireAI().Goals.Add(refitgoal);
                 qi.Goal = refitgoal;
             }
             OrbitTarget.ConstructionQueue.Add(qi);
@@ -835,6 +835,7 @@ namespace Ship_Game.AI
                 return;
             }
             ThrustTowardsPosition(Owner.Mothership.Center, elapsedTime, Owner.Speed);
+            //this looks to need refactor. some of these formulas are... weird
             if (Owner.Center.InRadius(Owner.Mothership.Center, Owner.Mothership.Radius + 300f))
             {
                 if (Owner.TroopList.Count == 1)
@@ -848,23 +849,28 @@ namespace Ship_Game.AI
                 {
                     if (hangar.GetHangarShip() != Owner)
                         continue;
-                    //added by gremlin: prevent fighters from relaunching immediatly after landing.
+                    //added by gremlin: prevent fighters from relaunching immediately after landing.
                     float ammoReloadTime = Owner.OrdinanceMax * .1f;
-                    float shieldrechargeTime = Owner.shield_max * .1f;
+                    float shieldRechargeTime = Owner.shield_max * .1f;
                     float powerRechargeTime = Owner.PowerStoreMax * .1f;
                     float rearmTime = Owner.Health;
                     rearmTime += Owner.Ordinance * .1f;
                     rearmTime += Owner.PowerCurrent * .1f;
                     rearmTime += Owner.shield_power * .1f;
-                    rearmTime /= Owner.HealthMax + ammoReloadTime + shieldrechargeTime + powerRechargeTime;
-                    rearmTime = (1.01f - rearmTime) * (hangar.hangarTimerConstant *
-                                                       (1.01f - (Owner.Level + hangar.GetParent().Level) /
-                                                        10)); // fbedard: rearm time from 50% to 150%
+                    rearmTime /= Owner.HealthMax + ammoReloadTime + shieldRechargeTime + powerRechargeTime;
+                    //this was broken now im not sure.
+                    float rearmModifier = hangar.hangarTimerConstant *
+                                           (1.01f - (Owner.Level + hangar.GetParent().Level) /10f);
+                    // fbedard: rearm time from 50% to 150%
+                    rearmTime = (1.01f - rearmTime) * rearmModifier;
                     if (rearmTime < 0)
                         rearmTime = 1;
-                    //CG: if the fighter is fully functional reduce rearm time to very little. The default 5 minute hangar timer is way too high. It cripples fighter usage.
-                    //at 50% that is still 2.5 minutes if the fighter simply launches and returns. with lag that can easily be 10 or 20 minutes.
-                    //at 1.01 that should be 3 seconds for the default hangar.
+                    /*CG: if the fighter is fully functional reduce rearm time to very little.
+                    The default 5 minute hangar timer is way too high. It cripples fighter usage.
+                    at 50% that is still 2.5 minutes if the fighter simply launches and returns.
+                    with lag that can easily be 10 or 20 minutes.
+                    at 1.01 that should be 3 seconds for the default hangar.
+                    */
                     hangar.SetHangarShip(null);
                     hangar.hangarTimer = rearmTime;
                     hangar.HangarShipGuid = Guid.Empty;

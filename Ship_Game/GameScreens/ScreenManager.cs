@@ -14,7 +14,7 @@ namespace Ship_Game
         private readonly Array<GameScreen> Screens = new Array<GameScreen>();
         public InputState input = new InputState();
         private readonly IGraphicsDeviceService GraphicsDeviceService;
-        private Texture2D BlankTexture;
+        private SubTexture BlankTexture;
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
         private readonly SceneState GameSceneState;
@@ -86,9 +86,12 @@ namespace Ship_Game
             foreach (GameScreen gs in Screens)
                 if (gs is DiplomacyScreen)
                     return;
+
+            Screens.Add(screen);
+
+            // @note LoadContent is allowed to remove current screen as well
             if (GraphicsDeviceService?.GraphicsDevice != null)
                 screen.LoadContent();
-            Screens.Add(screen);
         }
 
         public void AddScreenNoLoad(GameScreen screen)
@@ -99,7 +102,14 @@ namespace Ship_Game
             Screens.Add(screen);
         }
 
-        
+        public bool IsShowing<T>() where T : GameScreen
+        {
+            foreach (GameScreen gs in Screens)
+                if (gs is T) return true;
+            return false;
+        }
+
+
         public void HideSplashScreen()
         {
             if (SplashScreen == null)
@@ -280,7 +290,7 @@ namespace Ship_Game
         public void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            BlankTexture = ResourceManager.LoadTexture("blank");
+            BlankTexture = ResourceManager.Texture("blank");
             foreach (GameScreen screen in Screens)
             {
                 screen.LoadContent();

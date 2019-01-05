@@ -1,3 +1,10 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
+using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -6,13 +13,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
-using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -58,7 +58,7 @@ namespace Ship_Game
     public sealed class SavedGame
     {
         // Every time the savegame layout changes significantly, this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 1;
+        public const int SaveGameVersion = 2;
 
         public static bool NewFormat = true; // use new save format ?
         public const string NewExt = ".sav";
@@ -150,6 +150,7 @@ namespace Ship_Game
                             Population           = ring.planet.Population,
                             PopulationMax        = ring.planet.MaxPopulation,
                             Fertility            = ring.planet.Fertility,
+                            MaxFertility         = ring.planet.MaxFertility,
                             Richness             = ring.planet.MineralRichness,
                             Owner                = ring.planet.Owner?.data.Traits.Name ?? "",
                             WhichPlanet          = ring.planet.PlanetType,
@@ -271,11 +272,11 @@ namespace Ship_Game
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
                 
-                foreach (AO area in e.GetGSAI().AreasOfOperations)
+                foreach (AO area in e.GetEmpireAI().AreasOfOperations)
                 {
                     area.PrepareForSave();
                 }
-                empireToSave.AOs = e.GetGSAI().AreasOfOperations;
+                empireToSave.AOs = e.GetEmpireAI().AreasOfOperations;
                 empireToSave.FleetsList = new Array<FleetSave>();
                 foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
                 {
@@ -336,18 +337,18 @@ namespace Ship_Game
                 }
                 var gsaidata = new GSAISAVE
                 {
-                    UsedFleets = e.GetGSAI().UsedFleets,
+                    UsedFleets = e.GetEmpireAI().UsedFleets,
                     Goals      = new Array<GoalSave>(),
                     PinGuids   = new Array<Guid>(),
                     PinList    = new Array<ThreatMatrix.Pin>()
                 };
-                foreach (KeyValuePair<Guid, ThreatMatrix.Pin> guid in e.GetGSAI().ThreatMatrix.Pins)
+                foreach (KeyValuePair<Guid, ThreatMatrix.Pin> guid in e.GetEmpireAI().ThreatMatrix.Pins)
                 {
                     gsaidata.PinGuids.Add(guid.Key);
                     gsaidata.PinList.Add(guid.Value);
                 }
                 gsaidata.MilitaryTaskList = new Array<MilitaryTask>();
-                foreach (MilitaryTask task in e.GetGSAI().TaskList)
+                foreach (MilitaryTask task in e.GetEmpireAI().TaskList)
                 {
                     gsaidata.MilitaryTaskList.Add(task);
                     if (task.TargetPlanet == null)
@@ -356,7 +357,7 @@ namespace Ship_Game
                     }
                     task.TargetPlanetGuid = task.TargetPlanet.guid;
                 }
-                foreach (Goal g in e.GetGSAI().Goals)
+                foreach (Goal g in e.GetEmpireAI().Goals)
                 {
                     var gdata = new GoalSave
                     {
@@ -566,12 +567,12 @@ namespace Ship_Game
             {
                 SaveData.Snapshots.Add(e.Key, e.Value);
             }
-            string path = Dir.ApplicationData;
+            string path = Dir.StarDriveAppData;
             SaveData.path       = path;
             SaveData.SaveAs     = saveAs;
             SaveData.Size       = new Vector2(screenToSave.UniverseSize);
             SaveData.FogMapName = saveAs + "fog";
-            screenToSave.FogMap.Save(path + "/StarDrive/Saved Games/Fog Maps/" + saveAs + "fog.png", ImageFileFormat.Png);
+            screenToSave.FogMap.Save($"{path}/Saved Games/Fog Maps/{saveAs}fog.png", ImageFileFormat.Png);
             SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};
             SaveThread.Start(SaveData);
         }
@@ -582,7 +583,7 @@ namespace Ship_Game
             try
             {
                 string ext = NewFormat ? NewExt : OldExt;
-                var info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ext);
+                var info = new FileInfo($"{data.path}/Saved Games/{data.SaveAs}{ext}");
                 using (FileStream writeStream = info.OpenWrite())
                 {
                     PerfTimer t = PerfTimer.StartNew();
@@ -628,7 +629,7 @@ namespace Ship_Game
                 ModName    = GlobalStats.ActiveMod?.mi.ModName ?? "",
                 Version    = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"])
             };
-            using (var wf = new StreamWriter(data.path + "/StarDrive/Saved Games/Headers/" + data.SaveAs + ".xml"))
+            using (var wf = new StreamWriter(data.path + "/Saved Games/Headers/" + data.SaveAs + ".xml"))
                 new XmlSerializer(typeof(HeaderData)).Serialize(wf, header);
 
             HelperFunctions.CollectMemory();
@@ -803,6 +804,7 @@ namespace Ship_Game
             [Serialize(30)] public bool ResLock;
             [Serialize(31)] public bool ProdLock;
             [Serialize(32)] public float ShieldStrength;
+            [Serialize(33)] public float MaxFertility;
         }
 
         public struct ProjectileSaveData
