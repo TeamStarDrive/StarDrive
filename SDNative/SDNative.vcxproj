@@ -47,14 +47,14 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
-    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
-    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
