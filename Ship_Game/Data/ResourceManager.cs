@@ -228,16 +228,29 @@ namespace Ship_Game
             }
         }
 
-        public static void LoadItAll()
+        public static void LoadItAll(Action onEssentialsLoaded = null)
         {
             Reset();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
+
             LoadLanguage();
-            LoadTextureAtlases();
             LoadToolTips();
-            LoadTroops();
+            LoadHullData(); // we need Hull Data for main menu ship
+            LoadEmpires();  // empire for NewGame
+
+            LoadTextureAtlases();
+
+            // after this point, everything truly essential for Main Menu should already be loaded
+            onEssentialsLoaded?.Invoke();
+
+            LoadNebulae();
+            LoadSmallStars();
+            LoadMediumStars();
+            LoadLargeStars();
+            LoadFlagTextures();
             LoadHullBonuses();
-            LoadHullData();
+
+            LoadTroops();
             LoadWeapons();
             LoadShipModules();
             LoadGoods();
@@ -248,19 +261,11 @@ namespace Ship_Game
             LoadBuildings();
             LoadProjectileMeshes();
             LoadRandomItems();
-            LoadFlagTextures();
-            LoadNebulae();
-            LoadSmallStars();
-            LoadMediumStars();
-            LoadLargeStars();
-            LoadEmpires();
             LoadDialogs();
-
             LoadTechTree();
             LoadEncounters();
             LoadExpEvents();
             TechValidator();
-
 
             LoadArtifacts();
             LoadShipRoles();
@@ -929,8 +934,8 @@ namespace Ship_Game
                     "Textures/Modules",
                     "Textures/TroopIcons",
                     "Textures/Portraits",
-                    "Textures/Textures/Ground_UI",
-                    "Textures/Textures/Troops",
+                    "Textures/Ground_UI",
+                    "Textures/Troops",
                 };
                 foreach (string name in atlases)
                     LoadAtlas(name);
@@ -1166,7 +1171,6 @@ namespace Ship_Game
                         {
                             HullsDict[shipData.Hull] = shipData;
                             retList.Add(shipData);
-
                         }
                     }
                     catch (Exception e)
@@ -1936,6 +1940,8 @@ namespace Ship_Game
 
         public static void Reset()
         {
+            //RootContent.Unload();
+
             HullsDict.Clear();
             WeaponsDict.Clear();
             TroopsDict.Clear();

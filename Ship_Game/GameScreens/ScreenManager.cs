@@ -86,9 +86,12 @@ namespace Ship_Game
             foreach (GameScreen gs in Screens)
                 if (gs is DiplomacyScreen)
                     return;
+
+            Screens.Add(screen);
+
+            // @note LoadContent is allowed to remove current screen as well
             if (GraphicsDeviceService?.GraphicsDevice != null)
                 screen.LoadContent();
-            Screens.Add(screen);
         }
 
         public void AddScreenNoLoad(GameScreen screen)
@@ -99,7 +102,14 @@ namespace Ship_Game
             Screens.Add(screen);
         }
 
-        
+        public bool IsShowing<T>() where T : GameScreen
+        {
+            foreach (GameScreen gs in Screens)
+                if (gs is T) return true;
+            return false;
+        }
+
+
         public void HideSplashScreen()
         {
             if (SplashScreen == null)
