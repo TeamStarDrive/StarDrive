@@ -27,11 +27,11 @@ namespace Ship_Game.SpriteSystem
             CursorX = CursorY = BottomY = 0;
         }
 
-        void ResetPack()
+        void ResetPack(int width, int height)
         {
             FreeSpots.Clear();
-            Width *= 2;
-            Height = 128;
+            Width  = width;
+            Height = height;
             CursorX = CursorY = BottomY = 0;
         }
 
@@ -40,6 +40,7 @@ namespace Ship_Game.SpriteSystem
             int packed = 0;
             foreach (TextureInfo t in textures) if (!t.NoPack) ++packed;
             if (packed == 0) Width = Height = 0;
+            else CheckInRange(textures);
             return packed;
         }
 
@@ -47,6 +48,22 @@ namespace Ship_Game.SpriteSystem
         {
             t.NoPack = (t.Width + t.Height) > MaxWidthHeightSum;
             return t.NoPack;
+        }
+
+        void CheckInRange(TextureInfo[] textures)
+        {
+            foreach (TextureInfo t in textures)
+            {
+                if (t.NoPack) continue;
+                if ((t.X + t.Width) > Width)
+                {
+                    Log.Error($"{t} X-axis out of atlas width:{Width}");
+                }
+                if ((t.Y + t.Height) > Height)
+                {
+                    Log.Error($"{t} Y-axis out of atlas height:{Height}");
+                }
+            }
         }
 
         // @note PERF: This is fast enough
@@ -62,22 +79,32 @@ namespace Ship_Game.SpriteSystem
                 if (IsTextureTooBig(t) || FillFreeSpot(t))
                     continue;
 
+                if (t.Width > Width)
+                {
+                    while (t.Width > Width) Width *= 2;
+                    i = -1; ResetPack(Width, 128); continue;
+                }
+
                 int remainingX = Width - CursorX;
                 if (remainingX < t.Width)
                 {
                     int remainingY = BottomY - CursorY;
                     if (remainingX >= MinFreeSpotSize && remainingY >= MinFreeSpotSize)
+                    {
                         FreeSpots.Add(new Rectangle(CursorX, CursorY, remainingX, remainingY));
+                    }
                     CursorX = 0;
                     CursorY = BottomY + Padding;
                 }
                 int newBottomY = CursorY + (t.Height);
-                if (newBottomY > BottomY) BottomY = newBottomY;
-                while (BottomY > Height) { Height += 64; }
-
-                if (Height >= Width * 2) // reset everything if Height is double of Width
+                if (newBottomY > BottomY)
                 {
-                    i = -1; ResetPack(); continue;
+                    BottomY = newBottomY;
+                    while (BottomY > Height) { Height += 64; }
+                    if (Height >= Width * 2) // reset everything if Height is double of Width
+                    {
+                        i = -1; ResetPack(Width * 2, 128); continue;
+                    }
                 }
 
                 t.X = CursorX;

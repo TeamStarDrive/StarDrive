@@ -12,7 +12,8 @@ namespace Ship_Game
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 2; // changing this will force all caches to regenerate
+        const int Version = 3; // changing this will force all caches to regenerate
+        const bool ExportTextures = true; // export source textures into {cache}/{atlas}/{sprite}.png ?
         
         int Hash;
         int NumPacked; // number of packed textures (not all textures are packed)
@@ -95,15 +96,16 @@ namespace Ship_Game
             else
             {
                 // Uncompressed DDS, lossless quality, fast loading, big size in memory :(
-                Atlas = new Texture2D(content.Manager.GraphicsDevice, Width, Height, 1, TextureUsage.Linear, SurfaceFormat.Color);
+                Atlas = new Texture2D(content.Manager.GraphicsDevice, Width, Height, 1, TextureUsage.None, SurfaceFormat.Color);
                 Atlas.SetData(color);
                 Atlas.Save(texturePath, ImageFileFormat.Dds);
             }
         }
 
-        void CreateAtlasTexture(GameContentManager content, TextureInfo[] textures, AtlasPath path)
+        void CreateAtlasTexture(GameContentManager content, FileInfo[] textureFiles, AtlasPath path)
         {
             Stopwatch s = Stopwatch.StartNew();
+            TextureInfo[] textures = LoadTextureInfo(content, textureFiles);
 
             var packer = new TexturePacker();
             NumPacked = packer.PackTextures(textures);
@@ -114,12 +116,15 @@ namespace Ship_Game
             {
                 var atlasPixels = new Color[Width * Height];
 
-                // DEBUG only!
-                //foreach (Rectangle r in FreeSpots)
+                //foreach (Rectangle r in FreeSpots) // DEBUG only!
                 //    ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.AliceBlue);
 
                 foreach (TextureInfo t in textures) // copy pixels
-                    if (!t.NoPack) t.TransferTextureToAtlas(atlasPixels, Width);
+                {
+                    if (t.NoPack) continue;
+                    if (ExportTextures) t.Texture.Save($"{path.CacheDir}/{path.Name}/{t.Name}.png", ImageFileFormat.Png);
+                    t.TransferTextureToAtlas(atlasPixels, Width, Height);
+                }
                 SaveAtlasTexture(content, atlasPixels, path.Texture);
             }
 
@@ -167,7 +172,7 @@ namespace Ship_Game
                 {
                     if (!File.Exists(path.Texture)) return false; // regenerate!!
                     Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, path.Texture);
-                    Width = Atlas.Width;
+                    Width  = Atlas.Width;
                     Height = Atlas.Height;
                 }
 
@@ -202,6 +207,20 @@ namespace Ship_Game
             Array.Sort(Sorted, (a, b) => string.CompareOrdinal(a.Name, b.Name));
         }
 
+        //static Texture2D Resize1x1To4x4(GameContentManager content, Texture2D small)
+        //{
+        //    var old = new Color[small.Width*small.Height];
+        //    small.GetData(old);
+        //    small.Dispose();
+
+        //    var big = new Texture2D(content.Device, 4, 4);
+        //    var neu = new Color[4*4];
+        //    for (int i = 0; i < neu.Length; ++i)
+        //        neu[i] = old[0];
+        //    big.SetData(neu);
+        //    return big;
+        //}
+
         static TextureInfo[] LoadTextureInfo(GameContentManager content, FileInfo[] textureFiles)
         {
             var textures = new TextureInfo[textureFiles.Length];
@@ -211,6 +230,8 @@ namespace Ship_Game
                 string assetName = info.CleanResPath(false);
                 string texName = info.NameNoExt();
                 var tex = content.LoadUncached<Texture2D>(assetName);
+                //if (tex.Width == 1 && tex.Height == 1)
+                //    tex = Resize1x1To4x4(content, tex);
                 textures[i] = new TextureInfo
                 {
                     Name = texName,
@@ -226,14 +247,17 @@ namespace Ship_Game
         {
             public readonly string Texture;
             public readonly string Descriptor;
+            public readonly string CacheDir;
+            public readonly string Name;
             public AtlasPath(string name)
             {
                 if (name.StartsWith("Textures/")) name = name.Substring("Textures/".Length);
-                name = name.Replace('/', '_');
-                string cacheDir = Dir.StarDriveAppData + "/TextureCache";
-                Directory.CreateDirectory(cacheDir);
-                Texture    = $"{cacheDir}/{name}.dds";
-                Descriptor = $"{cacheDir}/{name}.atlas";
+                Name = name.Replace('/', '_');
+                CacheDir = Dir.StarDriveAppData + "/TextureCache";
+                Directory.CreateDirectory(CacheDir);
+                Texture    = $"{CacheDir}/{Name}.dds";
+                Descriptor = $"{CacheDir}/{Name}.atlas";
+                if (ExportTextures) Directory.CreateDirectory($"{CacheDir}/{Name}");
             }
         }
 
@@ -250,8 +274,7 @@ namespace Ship_Game
             if (useCache && atlas.TryLoadCache(content, path))
                 return atlas;
 
-            TextureInfo[] textures = LoadTextureInfo(content, textureFiles);
-            atlas.CreateAtlasTexture(content, textures, path);
+            atlas.CreateAtlasTexture(content, textureFiles, path);
             HelperFunctions.CollectMemorySilent();
             return atlas;
         }
