@@ -880,49 +880,9 @@ namespace Ship_Game
                 }
                 foreach (SolarSystem sys in data.SolarSystemsList)
                 {
-                    var dysSys = new Array<SysDisPair>();
-                    foreach (SolarSystem toCheck in data.SolarSystemsList)
-                    {
-                        if (sys == toCheck)
-                        {
-                            continue;
-                        }
-                        float distance = sys.Position.Distance(toCheck.Position);
-                        if (dysSys.Count >= 5)
-                        {
-                            int indexOfFarthestSystem = 0;
-                            float farthest = 0f;
-                            for (int i = 0; i < 5; i++)
-                            {
-                                if (dysSys[i].Distance > farthest)
-                                {
-                                    indexOfFarthestSystem = i;
-                                    farthest = dysSys[i].Distance;
-                                }
-                            }
-                            if (distance >= farthest)
-                            {
-                                continue;
-                            }
-                            dysSys[indexOfFarthestSystem] = new SysDisPair
-                            {
-                                System = toCheck,
-                                Distance = distance
-                            };
-                        }
-                        else
-                        {
-                            dysSys.Add(new SysDisPair
-                            {
-                                System = toCheck,
-                                Distance = distance
-                            });
-                        }
-                    }
-                    foreach (SysDisPair sp in dysSys)
-                    {
-                        sys.FiveClosestSystems.Add(sp.System);
-                    }
+                    sys.FiveClosestSystems = data.SolarSystemsList.FindMinItemsFiltered(5,
+                                                filter => filter != sys,
+                                                select => select.Position.SqDist(sys.Position));
                 }
 
                 // Finally fucking fixes the 'LOOK AT ME PA I'M ZOOMED RIGHT IN' vanilla bug when loading a saved game: the universe screen uses camheight separately to the campos z vector to actually do zoom.
@@ -934,12 +894,6 @@ namespace Ship_Game
 
                 ready = true;
             }
-        }
-
-        private struct SysDisPair
-        {
-            public SolarSystem System;
-            public float Distance;
         }
     }
 }

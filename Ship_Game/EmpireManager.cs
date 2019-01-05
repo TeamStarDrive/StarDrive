@@ -189,5 +189,57 @@ namespace Ship_Game
             }
             return null;
         }
+        public static Empire CreateEmpireFromEmpireData(EmpireData data)
+        {
+            DiplomaticTraits DTraits = ResourceManager.DiplomaticTraits;
+            var empire = new Empire();
+            Log.Info($"Creating Empire {data.PortraitName}");
+            if (data.Faction == 1)
+                empire.isFaction = true;
+            do
+            {
+                int diplomaticTraitIndex = (int)RandomMath.RandomBetween(0.0f, DTraits.DiplomaticTraitsList.Count);
+                data.DiplomaticPersonality = DTraits.DiplomaticTraitsList[diplomaticTraitIndex];
+            }
+            while (!CheckPersonality(data));
+
+            do
+            {
+                int economicTraitIndex = (int)RandomMath.RandomBetween(0.0f, DTraits.EconomicTraitsList.Count);
+                data.EconomicPersonality = DTraits.EconomicTraitsList[economicTraitIndex];
+            }
+            while (!CheckEPersonality(data));
+
+            empire.data = data;
+            //Added by McShooterz: set values for alternate race file structure
+            data.Traits.LoadTraitConstraints();
+            empire.dd = ResourceManager.DDDict[data.DiplomacyDialogPath];
+            empire.data.SpyModifier = data.Traits.SpyMultiplier;
+            empire.data.Traits.Spiritual = data.Traits.Spiritual;
+            empire.data.Traits.PassengerModifier += data.Traits.PassengerBonus;
+            empire.PortraitName = data.PortraitName;
+            empire.data.Traits = data.Traits;
+            empire.EmpireColor = new Color((byte)data.Traits.R, (byte)data.Traits.G, (byte)data.Traits.B);
+            empire.Initialize();
+            return empire;
+        }
+        private static bool CheckPersonality(EmpireData data)
+        {
+            foreach (string str in data.ExcludedDTraits)
+            {
+                if (str == data.DiplomaticPersonality.Name)
+                    return false;
+            }
+            return true;
+        }
+        private static bool CheckEPersonality(EmpireData data)
+        {
+            foreach (string str in data.ExcludedETraits)
+            {
+                if (str == data.EconomicPersonality.Name)
+                    return false;
+            }
+            return true;
+        }
     }
 }
