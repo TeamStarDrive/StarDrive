@@ -63,9 +63,9 @@ namespace Ship_Game
 
         private class StyleTextures
         {
-            public readonly Texture2D Normal;
-            public readonly Texture2D Hover;
-            public readonly Texture2D Pressed;
+            public readonly SubTexture Normal;
+            public readonly SubTexture Hover;
+            public readonly SubTexture Pressed;
             public StyleTextures(string normal)
             {
                 Normal  = ResourceManager.Texture(normal);
@@ -105,7 +105,7 @@ namespace Ship_Game
             return Styling[(int)style].Normal.Size();
         }
 
-        private Texture2D ButtonTexture()
+        private SubTexture ButtonTexture()
         {
             StyleTextures styling = Styling[(int)Style];
             switch (State)

@@ -392,7 +392,7 @@ namespace Ship_Game
                     Notification n = NotificationList[i];
                     if (n.IconPath != null)
                     {
-                        Texture2D iconTex = ResourceManager.Texture(n.IconPath);
+                        SubTexture iconTex = ResourceManager.Texture(n.IconPath);
                         if (!n.Tech)
                         {
                             ScreenManager.SpriteBatch.Draw(iconTex, n.ClickRect, Color.White);

@@ -273,7 +273,7 @@ namespace Ship_Game
             public string FileName;
             public string Info;
             public string ExtraInfo;
-            public Texture2D icon;
+            public SubTexture icon;
             public FileInfo FileLink;
             public object Data;
 
@@ -301,7 +301,7 @@ namespace Ship_Game
                 Data = data;
             }
 
-            public FileData(FileInfo fileLink, object data, string fileName, string info, string extraInfo, Texture2D icon)
+            public FileData(FileInfo fileLink, object data, string fileName, string info, string extraInfo, SubTexture icon)
             {
                 this.icon = icon;
                 FileName = fileName;

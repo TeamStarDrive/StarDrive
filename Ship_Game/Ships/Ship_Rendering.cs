@@ -129,9 +129,9 @@ namespace Ship_Game.Ships
 
         public void DrawModulesOverlay(UniverseScreen us)
         {
-            Texture2D symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
-            Texture2D concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
-            Texture2D lightningBolt = ResourceManager.Texture("UI/lightningBolt");
+            SubTexture symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
+            SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
+            SubTexture lightningBolt = ResourceManager.Texture("UI/lightningBolt");
                         
             if (false && us.DebugWin != null)
             {
@@ -203,7 +203,7 @@ namespace Ship_Game.Ships
                     {
                         if (slot.Powered)
                         {
-                            Texture2D poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
+                            SubTexture poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
                             us.DrawTextureSized(poweredTex, posOnScreen, slotRotation, w, h, Color.White);
                         }
                     }
@@ -317,7 +317,7 @@ namespace Ship_Game.Ships
 
         private void DrawSingleStatusIcon(UniverseScreen us, float screenRadius, Vector2 screenPos, ref Vector2 offSet, string texture, Color color)
         {
-            Texture2D statusIcon = ResourceManager.Texture(texture);
+            SubTexture statusIcon = ResourceManager.Texture(texture);
             float size = ScaleIconSize(screenRadius, 16f, 16f);
             us.DrawTextureSized(statusIcon, screenPos + offSet, 0f, size, size, color);
             offSet.X += size * 1.2f;

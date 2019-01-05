@@ -297,21 +297,21 @@ namespace Ship_Game
         private struct RecTexPair
         {
             private readonly Rectangle Rect;
-            private readonly Texture2D Tex;
+            private readonly SubTexture Tex;
             public int Y => Rect.Y;
             public int W => Rect.Width;
 
-            public RecTexPair(int x, int y, Texture2D t)
+            public RecTexPair(int x, int y, SubTexture t)
             {
                 Rect = new Rectangle(x, y, t.Width, t.Height);
                 Tex = t;
             }
-            public RecTexPair(int x, int y, int h, Texture2D t)
+            public RecTexPair(int x, int y, int h, SubTexture t)
             {
                 Rect = new Rectangle(x, y, t.Width, h);
                 Tex = t;
             }
-            public RecTexPair(int x, int y, Texture2D t, int w)
+            public RecTexPair(int x, int y, SubTexture t, int w)
             {
                 Rect = new Rectangle(x, y, w, t.Height);
                 Tex = t;

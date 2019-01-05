@@ -48,11 +48,11 @@ namespace Ship_Game
 
         private bool DebugMeshInspect = false;
 
-        private readonly Texture2D TexComet   = ResourceManager.Texture("GameScreens/comet2");
-        private readonly Texture2D MoonFlare  = ResourceManager.Texture("MainMenu/moon_flare");
-        private readonly Texture2D AlienText1 = ResourceManager.Texture("MainMenu/moon_1");
-        private readonly Texture2D AlienText2 = ResourceManager.Texture("MainMenu/moon_2");
-        private readonly Texture2D AlienText3 = ResourceManager.Texture("MainMenu/moon_3");
+        private readonly SubTexture TexComet   = ResourceManager.Texture("GameScreens/comet2");
+        private readonly SubTexture MoonFlare  = ResourceManager.Texture("MainMenu/moon_flare");
+        private readonly SubTexture AlienText1 = ResourceManager.Texture("MainMenu/moon_1");
+        private readonly SubTexture AlienText2 = ResourceManager.Texture("MainMenu/moon_2");
+        private readonly SubTexture AlienText3 = ResourceManager.Texture("MainMenu/moon_3");
         private Vector2 MoonFlarePos = Vector2.Zero;
 
 
@@ -99,7 +99,7 @@ namespace Ship_Game
             ScreenManager.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;
             ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
             ScreenManager.GraphicsDevice.RenderState.BlendFunction    = BlendFunction.Add;
-            ScreenManager.SpriteBatch.Draw(MoonFlare, MoonFlarePos, null, Color.White, 0f, new Vector2(184f), 0.95f, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.Draw(MoonFlare, MoonFlarePos, Color.White, 0f, new Vector2(184f), 0.95f, SpriteEffects.None, 1f);
             ScreenManager.SpriteBatch.End();
         }
 
@@ -116,7 +116,7 @@ namespace Ship_Game
                         alpha = 255f;
                 }
                 var color = new Color(255,255,255,(byte)alpha);
-                ScreenManager.SpriteBatch.Draw(TexComet, c.Position, null, color, c.Rotation, TexComet.Center(), 0.45f, SpriteEffects.None, 1f);
+                ScreenManager.SpriteBatch.Draw(TexComet, c.Position, color, c.Rotation, TexComet.Center(), 0.45f, SpriteEffects.None, 1f);
                 c.Position += c.Velocity * 2400f * elapsedTime;
                 if (c.Position.Y > 1050f)
                     CometList.QueuePendingRemoval(c);

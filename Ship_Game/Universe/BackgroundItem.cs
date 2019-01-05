@@ -7,14 +7,11 @@ namespace Ship_Game
 
 	public sealed class BackgroundItem : IDisposable
 	{
-		public Texture2D Texture;
+		public SubTexture Texture;
 
 		public Vector3 UpperLeft;
-
 		public Vector3 LowerLeft;
-
 		public Vector3 UpperRight;
-
 		public Vector3 LowerRight;
 
 		public VertexDeclaration quadVertexDecl;
@@ -28,16 +25,16 @@ namespace Ship_Game
 		public BackgroundItem()
 		{
 		}
-        public BackgroundItem(Texture2D texture)
+        public BackgroundItem(SubTexture texture)
         {
             Texture = texture;
         }
-		public void Draw(ScreenManager manager, Matrix view, Matrix projection, float Alpha, Array<BackgroundItem> bgiList)
+		public void Draw(ScreenManager manager, Matrix view, Matrix projection, float alpha, Array<BackgroundItem> bgiList)
 		{
 			QuadEffect.View = view;
 			QuadEffect.Projection = projection;
-			QuadEffect.Texture = Texture;
-			QuadEffect.Alpha = Alpha;
+			QuadEffect.Texture = Texture.Texture;
+			QuadEffect.Alpha = alpha;
 		    manager.GraphicsDevice.VertexDeclaration = quadVertexDecl;
 			QuadEffect.Begin();
 			foreach (EffectPass pass in QuadEffect.CurrentTechnique.Passes)
@@ -45,7 +42,8 @@ namespace Ship_Game
 				pass.Begin();
 				foreach (BackgroundItem bgi in bgiList)
 				{
-				    manager.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, bgi.Vertices, 0, 4, bgi.Indexes, 0, 2);
+				    manager.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, 
+                        bgi.Vertices, 0, 4, bgi.Indexes, 0, 2);
 				}
 				pass.End();
 			}
@@ -58,14 +56,15 @@ namespace Ship_Game
 			QuadEffect.World      = Matrix.Identity;
 			QuadEffect.View       = view;
 			QuadEffect.Projection = projection;
-			QuadEffect.Texture    = Texture;
+			QuadEffect.Texture    = Texture.Texture;
 			QuadEffect.Alpha      = Alpha;
 		    manager.GraphicsDevice.VertexDeclaration = quadVertexDecl;
 			QuadEffect.Begin();
 			foreach (EffectPass pass in QuadEffect.CurrentTechnique.Passes)
 			{
 				pass.Begin();
-			    manager.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
+			    manager.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, 
+                    Vertices, 0, 4, Indexes, 0, 2);
 				pass.End();
 			}
 			QuadEffect.End();
@@ -74,18 +73,14 @@ namespace Ship_Game
 
 		public void FillVertices()
 		{
-			var textureUpperLeft  = new Vector2(0f, 0f);
-		    var textureUpperRight = new Vector2(1f, 0f);
-		    var textureLowerLeft  = new Vector2(0f, 1f);
-		    var textureLowerRight = new Vector2(1f, 1f);
 			Vertices[0].Position = LowerLeft;
 		    Vertices[1].Position = UpperLeft;
 		    Vertices[2].Position = LowerRight;
 		    Vertices[3].Position = UpperRight;
-			Vertices[0].TextureCoordinate = textureLowerLeft;
-			Vertices[1].TextureCoordinate = textureUpperLeft;
-			Vertices[2].TextureCoordinate = textureLowerRight;
-			Vertices[3].TextureCoordinate = textureUpperRight;
+			Vertices[0].TextureCoordinate = Texture.CoordLowerLeft;
+			Vertices[1].TextureCoordinate = Texture.CoordUpperLeft;
+			Vertices[2].TextureCoordinate = Texture.CoordLowerRight;;
+			Vertices[3].TextureCoordinate = Texture.CoordUpperRight;
 			Indexes[0] = 0;
 			Indexes[1] = 1;
 			Indexes[2] = 2;

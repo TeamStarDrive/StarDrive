@@ -90,6 +90,8 @@ namespace Ship_Game
         private readonly SpriteFont Font12 = Fonts.Arial12Bold;
         private readonly SpriteFont Font20 = Fonts.Arial20Bold;
 
+        bool IsCybernetic => EmpireManager.Player.data.Traits.Cybernetic > 0;
+
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI) : base(parent)
         {
             empUI.empire.UpdateShipsWeCanBuild();
@@ -120,9 +122,9 @@ namespace Ship_Game
             float num1 = (int)(theMenu6.Width * 0.600000023841858);
             while (num1 % 10.0 != 0.0)
                 ++num1;
-            Rectangle rectangle1 = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.25 * (theMenu6.Height - 25)), (int)num1, 6);
-            ColonySliderFood = new ColonySlider();
-            ColonySliderFood.sRect = rectangle1;
+            
+            ColonySliderFood = new ColonySlider(ColonySlider.Food);
+            ColonySliderFood.sRect = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.25 * (theMenu6.Height - 25)), (int)num1, 6);
             ColonySliderFood.amount = p.FarmerPercentage;
             FoodLock = new Lock();
             var foodLockTex = ResourceManager.Texture(FoodLock.Path);
@@ -130,20 +132,21 @@ namespace Ship_Game
             if (p.Owner != null && p.Owner.data.Traits.Cybernetic > 0)
                 p.FoodLocked = true;
             FoodLock.Locked = p.FoodLocked;
-            Rectangle rectangle2 = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.5 * (theMenu6.Height - 25)), (int)num1, 6);
-            ColonySliderProd = new ColonySlider();
-            ColonySliderProd.sRect = rectangle2;
+
+            ColonySliderProd = new ColonySlider(ColonySlider.Production);
+            ColonySliderProd.sRect = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.5 * (theMenu6.Height - 25)), (int)num1, 6);
             ColonySliderProd.amount = p.WorkerPercentage;
             ProdLock = new Lock();
             ProdLock.LockRect = new Rectangle(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width + 50, ColonySliderProd.sRect.Y + 2 + ColonySliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
             ProdLock.Locked = p.ProdLocked;
-            Rectangle rectangle3 = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.75 * (theMenu6.Height - 25)), (int)num1, 6);
-            ColonySliderRes = new ColonySlider();
-            ColonySliderRes.sRect = rectangle3;
+
+            ColonySliderRes = new ColonySlider(ColonySlider.Research);
+            ColonySliderRes.sRect = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.75 * (theMenu6.Height - 25)), (int)num1, 6);
             ColonySliderRes.amount = p.ResearcherPercentage;
             ResLock = new Lock();
             ResLock.LockRect = new Rectangle(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width + 50, ColonySliderRes.sRect.Y + 2 + ColonySliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
             ResLock.Locked = p.ResLocked;
+
             Rectangle theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + theMenu6.Height + 40, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             pStorage = new Submenu(theMenu7);
             pStorage.AddTab(Localizer.Token(328));
@@ -383,71 +386,24 @@ namespace Ship_Game
 
             buildSL.Draw(batch);
             Selector?.Draw(batch);
-            string format = "0.0#";
-            batch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), P.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
-            batch.DrawRectangle(ColonySliderFood.sRect, ColonySliderFood.Color);
-            Rectangle rectangle1 = new Rectangle(ColonySliderFood.sRect.X - 40, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-            batch.Draw(ResourceManager.Texture("NewUI/icon_food"), rectangle1, P.Owner.data.Traits.Cybernetic > 0 ? new Color(110, 110, 110, byte.MaxValue) : Color.White);
-            if (rectangle1.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
-            {
-                ToolTip.CreateTooltip(P.Owner.data.Traits.Cybernetic == 0 ? 70 : 77);
-            }
 
-            batch.Draw(ColonySliderFood.cState == "normal"
-                    ? ResourceManager.Texture("NewUI/slider_crosshair")
-                    : ResourceManager.Texture("NewUI/slider_crosshair_hover"), ColonySliderFood.cursor,
-                    P.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
+            ColonySliderFood.Draw(batch, Input, isFood:true);
 
-            for (int index = 0; index < 11; ++index)
-            {
-                Vector2 position1 = new Vector2(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width / 10 * index, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height + 2);
-                if (ColonySliderFood.state == "normal")
-                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute"), position1, P.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
-                else
-                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), position1, P.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
-            }
-            Vector2 position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - Font12.LineSpacing / 2);
-            if (LowRes)
-                position2.X -= 15f;
-            string text1 = P.Owner.data.Traits.Cybernetic == 0 ? P.GetNetFoodPerTurn().ToString(format) : "Unnecessary";
+
+            var position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - Font12.LineSpacing / 2);
+            string text1 = P.Owner.data.Traits.Cybernetic == 0 ? P.GetNetFoodPerTurn().String() : "Unnecessary";
             position2.X -= Font12.MeasureString(text1).X;
             if (P.NetFoodPerTurn - (double)P.Consumption < 0.0 && P.Owner.data.Traits.Cybernetic != 1 && text1 != "0")
                 batch.DrawString(Font12, text1, position2, Color.LightPink);
             else
                 batch.DrawString(Font12, text1, position2, new Color(byte.MaxValue, 239, 208));
-            batch.Draw(ResourceManager.Texture("NewUI/slider_grd_brown"), new Rectangle(ColonySliderProd.sRect.X, ColonySliderProd.sRect.Y, (int)(ColonySliderProd.amount * (double)ColonySliderProd.sRect.Width), 6), new Rectangle(ColonySliderProd.sRect.X, ColonySliderProd.sRect.Y, (int)(ColonySliderProd.amount * (double)ColonySliderProd.sRect.Width), 6), Color.White);
-            batch.DrawRectangle(ColonySliderProd.sRect, ColonySliderProd.Color);
-            Rectangle rectangle2 = new Rectangle(ColonySliderProd.sRect.X - 40, ColonySliderProd.sRect.Y + ColonySliderProd.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
-            batch.Draw(ResourceManager.Texture("NewUI/icon_production"), rectangle2, Color.White);
-            if (rectangle2.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(71);
-            if (ColonySliderProd.cState == "normal")
-                batch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), ColonySliderProd.cursor, Color.White);
-            else
-                batch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), ColonySliderProd.cursor, Color.White);
-            for (int index = 0; index < 11; ++index)
-            {
-                Vector2 position1 = new Vector2(ColonySliderFood.sRect.X + ColonySliderProd.sRect.Width / 10 * index, ColonySliderProd.sRect.Y + ColonySliderProd.sRect.Height + 2);
-                if (ColonySliderProd.state == "normal")
-                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute"), position1, Color.White);
-                else
-                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), position1, Color.White);
-            }
+
+
+            ColonySliderProd.Draw(batch, Input, isFood:false);
+
+
             position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderProd.sRect.Y + ColonySliderProd.sRect.Height / 2 - Font12.LineSpacing / 2);
-            if (LowRes)
-                position2.X -= 15f;
-            float num4;
-            string str1;
-            if (P.Owner.data.Traits.Cybernetic == 0)
-            {
-                str1 = P.NetProductionPerTurn.ToString(format);
-            }
-            else
-            {
-                num4 = P.NetProductionPerTurn - P.Consumption;
-                str1 = num4.ToString(format);
-            }
-            string text2 = str1;
+            string text2;
             if (P.CrippledTurns > 0)
             {
                 text2 = Localizer.Token(2202);
@@ -459,33 +415,21 @@ namespace Ship_Game
                 position2.X -= Font12.MeasureString(text2).X;
             }
             else
+            {
+                text2 = P.Owner.data.Traits.Cybernetic == 0 ? P.NetProductionPerTurn.String() : (P.NetProductionPerTurn - P.Consumption).String();
                 position2.X -= Font12.MeasureString(text2).X;
+            }
+
             if (P.CrippledTurns > 0 || P.RecentCombat || P.Owner.data.Traits.Cybernetic != 0 && P.NetProductionPerTurn - (double)P.Consumption < 0.0 && text2 != "0")
                 batch.DrawString(Font12, text2, position2, Color.LightPink);
             else
                 batch.DrawString(Font12, text2, position2, new Color(byte.MaxValue, 239, 208));
-            batch.Draw(ResourceManager.Texture("NewUI/slider_grd_blue"), new Rectangle(ColonySliderRes.sRect.X, ColonySliderRes.sRect.Y, (int)(ColonySliderRes.amount * (double)ColonySliderRes.sRect.Width), 6), new Rectangle(ColonySliderRes.sRect.X, ColonySliderRes.sRect.Y, (int)(ColonySliderRes.amount * (double)ColonySliderRes.sRect.Width), 6), Color.White);
-            batch.DrawRectangle(ColonySliderRes.sRect, ColonySliderRes.Color);
-            Rectangle rectangle3 = new Rectangle(ColonySliderRes.sRect.X - 40, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_science").Height / 2, ResourceManager.Texture("NewUI/icon_science").Width, ResourceManager.Texture("NewUI/icon_science").Height);
-            batch.Draw(ResourceManager.Texture("NewUI/icon_science"), rectangle3, Color.White);
-            if (rectangle3.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
-                ToolTip.CreateTooltip(72);
-            if (ColonySliderRes.cState == "normal")
-                batch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), ColonySliderRes.cursor, Color.White);
-            else
-                batch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), ColonySliderRes.cursor, Color.White);
-            for (int index = 0; index < 11; ++index)
-            {
-                Vector2 position1 = new Vector2(ColonySliderFood.sRect.X + ColonySliderRes.sRect.Width / 10 * index, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height + 2);
-                if (ColonySliderRes.state == "normal")
-                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute"), position1, Color.White);
-                else
-                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), position1, Color.White);
-            }
+
+
+            ColonySliderRes.Draw(batch, Input, isFood:false);
+
             position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height / 2 - Font12.LineSpacing / 2);
-            if (LowRes)
-                position2.X -= 15f;
-            string text3 = P.NetResearchPerTurn.ToString(format);
+            string text3 = P.NetResearchPerTurn.String();
             position2.X -= Font12.MeasureString(text3).X;
             batch.DrawString(Font12, text3, position2, new Color(byte.MaxValue, 239, 208));
             if (P.Owner.data.Traits.Cybernetic == 0)
@@ -533,12 +477,9 @@ namespace Ship_Game
             batch.DrawString(Font12, Localizer.Token(385) + ":", vector2_2, Color.Orange);
             SpriteBatch spriteBatch1 = batch;
             SpriteFont arial12Bold = Font12;
-            num4 = P.Population / 1000f;
-            string str2 = num4.ToString(format);
-            string str3 = " / ";
-            num4 = (float)((P.MaxPopulation + (double)P.MaxPopBonus) / 1000.0);
-            string str4 = num4.ToString(format);
-            string text4 = str2 + str3 + str4;
+            string str2 = (P.Population / 1000f).String();
+            string str4 = ((float)((P.MaxPopulation + (double)P.MaxPopBonus) / 1000.0)).String();
+            string text4 = str2 + " / " + str4;
             Vector2 position4 = position3;
             Color color = new Color(byte.MaxValue, 239, 208);
             spriteBatch1.DrawString(arial12Bold, text4, position4, color);
@@ -549,11 +490,11 @@ namespace Ship_Game
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(386) + ":", vector2_2, Color.Orange);
             if (P.Fertility.AlmostEqual(P.MaxFertility))
-                batch.DrawString(Font12, P.Fertility.ToString(format), position3, color);
+                batch.DrawString(Font12, P.Fertility.String(), position3, color);
             else
             {
                 Color fertColor = P.Fertility < P.MaxFertility ? Color.LightGreen : Color.Pink;
-                batch.DrawString(Font12, P.Fertility.ToString(format) + " / " + P.MaxFertility.ToString(format), position3, fertColor);
+                batch.DrawString(Font12, P.Fertility.String() + " / " + P.MaxFertility.String(), position3, fertColor);
             }
 
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
@@ -562,7 +503,7 @@ namespace Ship_Game
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(387) + ":", vector2_2, Color.Orange);
-            batch.DrawString(Font12, P.MineralRichness.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
+            batch.DrawString(Font12, P.MineralRichness.String(), position3, new Color(byte.MaxValue, 239, 208));
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(387) + ":").X, Font12.LineSpacing);
 
 
@@ -725,7 +666,7 @@ namespace Ship_Game
                 Reset = false;
             }
 
-            Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+            SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
             vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
             foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
             {
@@ -913,7 +854,7 @@ namespace Ship_Game
                         $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
 
                     position.X = (entry.Right - 120);
-                    Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+                    SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
                     var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
                     batch.Draw(iconProd, destinationRectangle2, Color.White);
@@ -963,7 +904,7 @@ namespace Ship_Game
                 Reset = false;
             }
 
-            Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+            SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
             var topLeft = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
             foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
             {
@@ -1023,7 +964,7 @@ namespace Ship_Game
 
                 if (qi.isBuilding)
                 {
-                    Texture2D icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
+                    SubTexture icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
                     batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
                     new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
                 }
@@ -1061,8 +1002,8 @@ namespace Ship_Game
                 if (!entry.TryGet(out Building building))
                     continue;
 
-                Texture2D icon = ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48");
-                Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+                SubTexture icon = ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48");
+                SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
 
                 bool unprofitable = !P.WeCanAffordThis(building, P.colonyType) && building.Maintenance > 0f;
                 Color buildColor = unprofitable ? Color.IndianRed : Color.White;
@@ -1384,7 +1325,7 @@ namespace Ship_Game
                 ResourceManager.Texture("UI/icon_offense"), "Fire Delay", signs: false);
         }
 
-        private void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch spriteBatch, float value, Texture2D texture, 
+        private void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch spriteBatch, float value, SubTexture texture, 
                                       string toolTip, bool percent = false, bool signs = true)
         {
             if (value.AlmostEqual(0))
@@ -1472,8 +1413,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Rectangle? nullable = null;
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), new Vector2(rect.X, rect.Y), nullable, Color.White, 0f, Vector2.Zero, numFood - i, SpriteEffects.None, 1f);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), new Vector2(rect.X, rect.Y), Color.White, 0f, Vector2.Zero, numFood - i, SpriteEffects.None, 1f);
                 }
                 rect.X = rect.X + (int)spacing;
             }
@@ -1485,8 +1425,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Rectangle? nullable1 = null;
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), new Vector2(rect.X, rect.Y), nullable1, Color.White, 0f, Vector2.Zero, numProd - i, SpriteEffects.None, 1f);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), new Vector2(rect.X, rect.Y), Color.White, 0f, Vector2.Zero, numProd - i, SpriteEffects.None, 1f);
                 }
                 rect.X = rect.X + (int)spacing;
             }
@@ -1498,8 +1437,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Rectangle? nullable2 = null;
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), new Vector2(rect.X, rect.Y), nullable2, Color.White, 0f, Vector2.Zero, numRes - i, SpriteEffects.None, 1f);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), new Vector2(rect.X, rect.Y), Color.White, 0f, Vector2.Zero, numRes - i, SpriteEffects.None, 1f);
                 }
                 rect.X = rect.X + (int)spacing;
             }
@@ -2515,7 +2453,7 @@ namespace Ship_Game
 
         private static Rectangle CursorRectForSlider(ColonySlider colonySlider)
         {
-            Texture2D crosshairTex = ResourceManager.Texture("NewUI/slider_crosshair");
+            SubTexture crosshairTex = ResourceManager.Texture("NewUI/slider_crosshair");
             int posX = colonySlider.sRect.X + (int)(colonySlider.sRect.Width * colonySlider.amount) - crosshairTex.Width / 2;
             int posY = colonySlider.sRect.Y + colonySlider.sRect.Height / 2 - crosshairTex.Height / 2;
             return new Rectangle(posX, posY, crosshairTex.Width, crosshairTex.Height);
@@ -2642,12 +2580,73 @@ namespace Ship_Game
 
         public class ColonySlider
         {
+            public class Style
+            {
+                public SubTexture Slider, Icon, Minute, MinuteHover, Crosshair, CrosshairHover;
+                public int Tooltip;
+                public Style(string slider, string icon, int tooltip)
+                {
+                    Slider= ResourceManager.Texture(slider);
+                    Icon = ResourceManager.Texture(icon);
+                    Tooltip = tooltip;
+                    Minute = ResourceManager.Texture("NewUI/slider_minute");
+                    MinuteHover = ResourceManager.Texture("NewUI/slider_minute_hover");
+                    Crosshair = ResourceManager.Texture("NewUI/slider_crosshair");
+                    CrosshairHover = ResourceManager.Texture("NewUI/slider_crosshair_hover");
+                }
+            }
+
+            //ColonySliderProd = new ColonySlider("NewUI/slider_grd_brown", "NewUI/icon_production", 71);
+            //ColonySliderProd.sRect = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.5 * (theMenu6.Height - 25)), (int) num1, 6);
+            //ColonySliderProd.amount = p.WorkerPercentage;
+            //ProdLock = new Lock();
+            //ProdLock.LockRect = new Rectangle(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width + 50, ColonySliderProd.sRect.Y + 2 + ColonySliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
+            //ProdLock.Locked = p.ProdLocked;
+
+            //ColonySliderRes = new ColonySlider("NewUI/slider_grd_blue", "NewUI/icon_science", 72);
+
+            public static Style Food       => new Style("NewUI/slider_grd_green", "NewUI/icon_food", EmpireManager.CyberneticPlayer ? 70 : 77);
+            public static Style Production => new Style("NewUI/slider_grd_brown", "NewUI/icon_production", 71);            
+            public static Style Research   => new Style("NewUI/slider_grd_blue",  "NewUI/icon_science", 72);
+
             public Rectangle sRect;
             public float amount;
             public Rectangle cursor;
             public Color Color = new Color(72, 61, 38);
             public string state  = "normal";
             public string cState = "normal";
+
+            public Style S;
+
+            public ColonySlider(Style style)
+            {
+                S = style;
+            }
+            public void Draw(SpriteBatch batch, InputState input, bool isFood)
+            {
+                Color sliderTint = Color.White;
+                bool isCybernetic = EmpireManager.Player.data.Traits.Cybernetic > 0;
+                if (isFood && isCybernetic) sliderTint = Color.DarkGray;
+
+                batch.Draw(S.Slider, new Rectangle(sRect.X, sRect.Y, (int)(amount * sRect.Width), 6), sliderTint);
+                batch.DrawRectangle(sRect, Color);
+
+                var rectangle1 = new Rectangle(sRect.X - 40, sRect.Y + sRect.Height / 2 - S.Icon.Height / 2, S.Icon.Width, S.Icon.Height);
+                batch.Draw(S.Icon, rectangle1, sliderTint);
+                if (rectangle1.HitTest(input.CursorPosition) && Empire.Universe.IsActive)
+                {
+                    ToolTip.CreateTooltip(S.Tooltip);
+                }
+
+                batch.Draw(cState == "normal" ? S.Crosshair : S.CrosshairHover, cursor, sliderTint);
+
+                SubTexture minute = state == "normal" ? S.Minute : S.MinuteHover;
+                for (int index = 0; index < 11; ++index)
+                {
+                    var position1 = new Vector2(sRect.X + sRect.Width / 10 * index, sRect.Y + sRect.Height + 2);
+                    batch.Draw(minute, position1, sliderTint);
+                }
+            }
         }
     }
 }

@@ -1,133 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Xml;
+using System.Threading;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {
-    public class SubTexture
-    {
-        // name="sprite1" x="461" y="1317" width="28" height="41"
-        public string Name;        // name of the sprite for name-based lookup
-        public int X, Y;           // position in sprite sheet
-        public int Width, Height;  // actual size of sub-texture in sprite sheet
-        public Texture2D Atlas;  // MAIN atlas texture
-
-        public override string ToString()
-            => $"sub-tex  {Name} {X},{Y} {Width}x{Height}  atlas:{Atlas.Width}x{Atlas.Height}";
-    }
-
     /// Generic TextureAtlas which is used as a container
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 1; // changing this will force all caches to regenerate
+        const int Version = 3; // changing this will force all caches to regenerate
+
+        // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
+        //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
+        static bool ExportTextures = false;
+        static bool ExportPng = true; // DEBUG: IF exporting, use PNG
+        static bool ExportDds = false; // also use DDS?
+
+        int Hash;
+        int NumPacked; // number of packed textures (not all textures are packed)
 
         public string Name { get; private set; }
-        readonly string CacheName;
-        string DescriptorPath => $"{TextureCacheDir}/{CacheName}.atlas";
-        string TexturePath    => $"{TextureCacheDir}/{CacheName}.dds";
-        int Hash;
         public int Width  { get; private set; }
         public int Height { get; private set; }
         public Texture2D Atlas { get; private set; }
-        Array<Rectangle> FreeSpots; // non-local for debugging purposes
 
-        readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
-        SubTexture[] SortedTextures = Empty<SubTexture>.Array;
+                 SubTexture[]            Sorted = Empty<SubTexture>.Array;
+        readonly Map<string, SubTexture> Lookup = new Map<string, SubTexture>();
+        readonly Array<Texture2D>        NonPacked  = new Array<Texture2D>();
 
-        protected TextureAtlas(string name)
-        {
-            Name = name;
-            CacheName = name.Replace('/', '_');
-        }
+        ~TextureAtlas() { Destroy(); }
+        public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
 
-        ~TextureAtlas()
+        void Destroy()
         {
             Atlas?.Dispose();
+            for (int i = 0; i < NonPacked.Count; ++i) NonPacked[i].Dispose();
+            NonPacked.Clear();
         }
 
-        public void Dispose()
-        {
-            Atlas?.Dispose();
-            GC.SuppressFinalize(this);
-        }
+        public string SizeString => $"{$"{Width}x{Height}",-9}";
+        public override string ToString() => $"{Name,-24} {SizeString} refs:{Lookup.Count,-3} packed:{NumPacked,-3} non-packed:{NonPacked.Count,-3}";
 
-        public string SizeString => $"{$"{Width}x{Height}",9}";
-        public override string ToString() => $"atlas {SpriteCount} {SizeString} {Name}";
-
-        public int SpriteCount => SortedTextures.Length;
-        public SubTexture this[int index] => SortedTextures[index];
-        public SubTexture this[string name] => Textures[name];
+        public IReadOnlyList<SubTexture> Textures => Sorted;
+        public int Count => Sorted.Length;
+        public SubTexture this[int index] => Sorted[index];
+        public SubTexture this[string name] => Lookup[name];
 
         public bool TryGetTexture(string name, out SubTexture texture)
-        {
-            return Textures.TryGetValue(name, out texture);
-        }
-
-        static string PrepareTextureCacheDir()
-        {
-            string dir = Dir.StarDriveAppData + "/TextureCache";
-            Directory.CreateDirectory(dir);
-            return dir;
-        }
-        static readonly string TextureCacheDir = PrepareTextureCacheDir();
-
-        class TextureInfo
-        {
-            public string Name;
-            public int X, Y;
-            public int Width;
-            public int Height;
-            public Texture2D Texture;
-
-            public void CopyPixelsTo(Color[] atlas, int atlasWidth)
-            {
-                if (Texture == null)
-                    throw new ObjectDisposedException("TextureData Texture2D ref already disposed");
-
-                Color[] colorData;
-                if (Texture.Format == SurfaceFormat.Dxt5)
-                {
-                    colorData = ImageUtils.DecompressDXT5(Texture);
-                }
-                else if (Texture.Format == SurfaceFormat.Dxt1)
-                {
-                    colorData = ImageUtils.DecompressDXT1(Texture);
-                }
-                else if (Texture.Format == SurfaceFormat.Color)
-                {
-                    colorData = new Color[Texture.Width * Texture.Height];
-                    Texture.GetData(colorData);
-                }
-                else
-                {
-                    colorData = new Color[0];
-                    Log.Error($"Unsupported atlas texture format: {Texture.Format}");
-                }
-
-                Texture.Dispose(); // save some memory
-                Texture = null;
-
-                // This is purely for debugging:
-                //ImageUtils.SaveAsPng($"{TextureCacheDir}/{texName}.png", Width, Height, ColorData);
-
-                int sourceIndex = 0;
-                int destinationIndex = atlasWidth * Y + X; // initial offset
-                for (int iy = 0; iy < Height; ++iy)
-                {
-                    // copy row
-                    Array.Copy(colorData, sourceIndex, atlas, destinationIndex, Width);
-                    sourceIndex += Width; // advance to next row
-                    destinationIndex += atlasWidth;
-                }
-            }
-        }
+            => Lookup.TryGetValue(name, out texture);
 
         static FileInfo[] GatherUniqueTextures(string folder)
         {
@@ -141,10 +66,7 @@ namespace Ship_Game
                     if (existing.Extension == "xnb") // only replace if old was xnb
                         uniqueTextures[texName] = info;
                 }
-                else
-                {
-                    uniqueTextures.Add(texName, info);
-                }
+                else uniqueTextures.Add(texName, info);
             }
             return uniqueTextures.Values.ToArray();
         }
@@ -164,235 +86,150 @@ namespace Ship_Game
             return hash;
         }
 
-        const int Padding = 0; // Atlas texture padding
-        const int MinFreeSpotSize = 16; // Minimum width/height for recycled free spots
-
-        bool FillFreeSpot(TextureInfo td)
+        void SaveAtlasTexture(GameContentManager content, Color[] color, string texturePath)
         {
-            for (int j = 0; j < FreeSpots.Count; ++j)
+            bool compress = Width > 1024 && Height > 1024;
+            if (compress)
             {
-                Rectangle r = FreeSpots[j];
-                if (td.Width > r.Width || td.Height > r.Height)
-                    continue;
-                td.X = r.X;
-                td.Y = r.Y;
-                FreeSpots.RemoveAt(j);
-                int fillX = td.Width  + Padding;
-                int fillY = td.Height + Padding;
-                int remX = r.Width  - fillX;
-                int remY = r.Height - fillY;
-                // We have remaining sections A, B that could be recycled
-                // So split it up if >= MinFreeSpotSize and insert to freeSpots
-                // _____________
-                // |fill |  A  |
-                // |_____|  A  |
-                // |__B__|__A__|
-                if (remX >= MinFreeSpotSize) // A
-                {
-                    FreeSpots.Insert(j, new Rectangle(r.X+fillX, r.Y, remX, r.Height));
-                    if (remY >= MinFreeSpotSize) // B?
-                        FreeSpots.Insert(j, new Rectangle(r.X, r.Y+fillY, fillX, remY));
-                }
-                // _________
-                // |fill | |
-                // |_____|_|
-                // |B B B B|
-                // |B_B_B_B|
-                else if (remY >= MinFreeSpotSize && (fillX+remX) >= MinFreeSpotSize)
-                {
-                    FreeSpots.Insert(j, new Rectangle(r.X, r.Y+fillY, fillX+remX, remY));
-                }
-                return true; // success! we filled the free spot
+                // We compress the DDS color into DXT5 and then reload it through XNA
+                ImageUtils.ConvertToRGBA(Width, Height, color);
+                ImageUtils.SaveAsDds(texturePath, Width, Height, color);
+                //ImageUtils.SaveAsPng(TexturePathPNG, Width, Height, atlasColorData); // DEBUG!
+
+                // DXT5 Compressed size in memory is good, but quality sucks!
+                Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, texturePath);
             }
-            return false;
-        }
-
-
-        // @note This is fast enough
-        void PackTextures(TextureInfo[] textures)
-        {
-            // Sort textures by AREA, DESCENDING
-            Array.Sort(textures, (a, b) => (b.Width*b.Height) - (a.Width*a.Height));
-
-            FreeSpots = new Array<Rectangle>();
-            int initialWidth  = Math.Max(textures[0].Width,  128).RoundPowerOf2();
-            int initialHeight = Math.Max(textures[0].Height, 128).RoundPowerOf2();
-            Width  = initialWidth;
-            Height = initialHeight;
-            int cursorX = 0;
-            int cursorY = 0;
-            int bottomY = 0;
-
-            // an 48x96 free spot filled by a 48x48 tex, will leave
-            // a 48x47 slot, which can no longer be filled
-            // so we add additional padding to cursor movement
-            const int cursorPadding = Padding * 2;
-
-            for (int i = 0; i < textures.Length; ++i)
+            else
             {
-                TextureInfo td = textures[i];
-
-                // check if we can fit anything into existing free spots:
-                if (FillFreeSpot(td))
-                    continue;
-
-                int remainingX = Width - cursorX;
-                if (remainingX < td.Width)
-                {
-                    int remainingY = bottomY - cursorY;
-                    if (remainingX >= MinFreeSpotSize && remainingY >= MinFreeSpotSize)
-                        FreeSpots.Add(new Rectangle(cursorX, cursorY, remainingX, remainingY));
-                    cursorX = 0;
-                    cursorY = bottomY + Padding + cursorPadding;
-                }
-                int newBottomY = cursorY + td.Height;
-                if (newBottomY > bottomY) bottomY = newBottomY;
-                while (bottomY > Height) { Height *= 2; }
-                
-                if (Height >= Width*2) // reset everything if Height is double of Width
-                {
-                    i = -1;
-                    Width *= 2;
-                    Height = initialHeight;
-                    cursorX = cursorY = bottomY = 0;
-                    FreeSpots.Clear();
-                    continue;
-                }
-
-                td.X = cursorX;
-                td.Y = cursorY;
-                int fillX = (td.Width + Padding + cursorPadding);
-                cursorX += fillX;
-
-                // After filling our spot, there is a potential free spot.
-                // We know this because we fill our objects in descending order.
-                // ____________
-                // |  tdfill  |
-                // |__________|
-                // | freespot |
-                if (fillX >= MinFreeSpotSize)
-                {
-                    int freeSpotY = (td.Y + td.Height + Padding);
-                    int freeSpotH = (bottomY - freeSpotY) + cursorPadding;
-                    if (freeSpotH >= MinFreeSpotSize)
-                    {
-                        FreeSpots.Add(new Rectangle(td.X, freeSpotY, fillX, freeSpotH));
-                    }
-                }
+                // Uncompressed DDS, lossless quality, fast loading, big size in memory :(
+                Atlas = new Texture2D(content.Manager.GraphicsDevice, Width, Height, 1, TextureUsage.None, SurfaceFormat.Color);
+                Atlas.SetData(color);
+                Atlas.Save(texturePath, ImageFileFormat.Dds);
             }
         }
 
-        void DrawRectangle(Color[] image, Rectangle r, Color color)
+        static void ExportTexture(TextureInfo t, AtlasPath path)
         {
-            if (r.Height == 0) {Log.Error("DrawRectangle Height cannot be 0");return;}
-            if (r.Width == 0) {Log.Error("DrawRectangle Height cannot be 0");return;}
-
-            int x = r.X;
-            int y = r.Y;
-            int endX = x + (r.Width - 1);
-            if (endX >= Width) endX = Width - 1;
-            int endY = y + (r.Height - 1);
-            if (endY >= Height) endY = Height - 1;
-
-            for (int ix = x; ix <= endX; ++ix) // top and bottom ----
-            {
-                image[(y*Width) + ix] = color;
-                image[(endY*Width) + ix] = color;
-            }
-            for (int iy = y; iy <= endY; ++iy) // | left and right |
-            {
-                image[(iy*Width) + x] = color;
-                image[(iy*Width) + endX] = color;
-            }
+            string prefix = t.NoPack ? "NoPack/" : "";
+            if (ExportPng) t.SaveAsPng($"{path.CacheDir}/{path.Name}/{prefix}{t.Name}.png");
+            if (ExportDds) t.SaveAsDds($"{path.CacheDir}/{path.Name}/{prefix}{t.Name}.dds");
         }
 
-        void CreateAtlasTexture(GameContentManager content, TextureInfo[] textures)
+        void CreateAtlas(GameContentManager content, FileInfo[] textureFiles, AtlasPath path)
         {
             Stopwatch s = Stopwatch.StartNew();
-            var atlasColorData = new Color[Width * Height];
-            for (int i = 0; i < textures.Length; ++i)
+            TextureInfo[] textures = LoadTextureInfo(content, textureFiles);
+
+            var packer = new TexturePacker();
+            NumPacked = packer.PackTextures(textures);
+            Width = packer.Width;
+            Height = packer.Height;
+
+            if (NumPacked > 0)
             {
-                TextureInfo td = textures[i];
-                td.CopyPixelsTo(atlasColorData, Width);
-                Textures[td.Name] = new SubTexture
+                var atlasPixels = new Color[Width * Height];
+
+                //foreach (Rectangle r in FreeSpots) // DEBUG only!
+                //    ImageUtils.DrawRectangle(atlasPixels, Width, Height, r, Color.AliceBlue);
+
+                foreach (TextureInfo t in textures) // copy pixels
                 {
-                    Name = td.Name,
-                    X = td.X,
-                    Y = td.Y,
-                    Width = td.Width,
-                    Height = td.Height,
-                };
+                    if (ExportTextures) ExportTexture(t, path);
+                    if (t.NoPack) continue;
+                    t.TransferTextureToAtlas(atlasPixels, Width, Height);
+                    t.DisposeTexture();
+                }
+                SaveAtlasTexture(content, atlasPixels, path.Texture);
             }
 
-            foreach (Rectangle r in FreeSpots)
-                DrawRectangle(atlasColorData, r, Color.AliceBlue);
-            FreeSpots = null;
+            foreach (TextureInfo t in textures)
+            {
+                Lookup[t.Name] = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, (t.NoPack ? t.Texture : Atlas));
+                if (t.NoPack) NonPacked.Add(t.Texture);
+            }
 
-            //HelperFunctions.CollectMemorySilent();
-            // We compress the DDS color into DXT5 and then reload it through XNA
-            ImageUtils.SaveAsDDS(TexturePath, Width, Height, atlasColorData);
-            atlasColorData = null;
-            
-            //HelperFunctions.CollectMemorySilent();
-            Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
-            //Atlas.Save($"{TextureCacheDir}/{CacheName}.png", ImageFileFormat.Png); // DEBUG, Slooooooowwww
-
-            // Initialize atlas reference
-            foreach (SubTexture t in Textures.Values)
-                t.Atlas = Atlas;
-
-            Log.Info($"CreateTexture    {SizeString} {Name} elapsed:{s.Elapsed.TotalMilliseconds}ms");
+            SaveAtlasDescriptor(textures, path.Descriptor);
+            CreateSortedList();
+            Log.Info($"CreateAtlas {this} elapsed:{s.Elapsed.TotalMilliseconds}ms");
         }
 
-        void SaveAtlasDescriptor()
+        void SaveAtlasDescriptor(TextureInfo[] textures, string descriptorPath)
         {
-            using (var fs = new StreamWriter(DescriptorPath))
+            using (var fs = new StreamWriter(descriptorPath))
             {
                 fs.WriteLine(Hash);
                 fs.WriteLine(Name);
-                foreach (KeyValuePair<string, SubTexture> kv in Textures)
+                fs.WriteLine(NumPacked);
+                foreach (TextureInfo t in textures)
                 {
-                    SubTexture t = kv.Value;
-                    fs.WriteLine($"{t.X} {t.Y} {t.Width} {t.Height} {t.Name}");
+                    string pack = t.NoPack ? "nopack" : "atlas";
+                    fs.WriteLine($"{pack} {t.X} {t.Y} {t.Width} {t.Height} {t.Name}");
                 }
             }
         }
 
-        bool TryLoadCache(GameContentManager content)
+        bool TryLoadCache(GameContentManager content, AtlasPath path)
         {
-            if (!File.Exists(DescriptorPath) || !File.Exists(TexturePath))
-                return false; // neither atlas cache file exists, regenerate
-            using (var fs = new StreamReader(DescriptorPath))
+            Stopwatch s = Stopwatch.StartNew();
+            if (!File.Exists(path.Descriptor)) return false; // regenerate!!
+            using (var fs = new StreamReader(path.Descriptor))
             {
                 int.TryParse(fs.ReadLine(), out int hash);
                 if (hash != Hash)
                     return false; // hash mismatch, we need to regenerate cache
 
-                Textures.Clear();
-                Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, TexturePath);
-                Width = Atlas.Width;
-                Height = Atlas.Height;
-
+                Lookup.Clear();
+                Width  = 0;
+                Height = 0;
                 Name = fs.ReadLine();
-                var separator = new[] { ' ' };
+                int.TryParse(fs.ReadLine(), out NumPacked);
+                if (NumPacked > 0)
+                {
+                    if (!File.Exists(path.Texture)) return false; // regenerate!!
+                    Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, path.Texture);
+                    Width  = Atlas.Width;
+                    Height = Atlas.Height;
+                }
 
+                var textures = new Array<TextureInfo>();
+
+                var separator = new[] { ' ' };
                 string line;
                 while ((line = fs.ReadLine()) != null)
                 {
-                    string[] entry = line.Split(separator, 5);
-                    var t = new SubTexture();
-                    int.TryParse(entry[0], out t.X);
-                    int.TryParse(entry[1], out t.Y);
-                    int.TryParse(entry[2], out t.Width);
-                    int.TryParse(entry[3], out t.Height);
-                    t.Name = entry[4];
-                    t.Atlas = Atlas;
-                    Textures.Add(t.Name, t);
+                    var t = new TextureInfo();
+                    string[] entry = line.Split(separator, 6);
+                    t.NoPack = (entry[0] == "nopack");
+                    int.TryParse(entry[1], out t.X);
+                    int.TryParse(entry[2], out t.Y);
+                    int.TryParse(entry[3], out t.Width);
+                    int.TryParse(entry[4], out t.Height);
+                    t.Name = entry[5];
+                    textures.Add(t);
                 }
+                LoadTextures(content, textures);
                 CreateSortedList();
             }
-            Log.Info($"LoadAtlas    {Textures.Count,3} {SizeString} {Name}");
+            Log.Info($"LoadAtlas {this} elapsed:{s.Elapsed.TotalMilliseconds}ms");
             return true; // we loaded everything
+        }
+
+        void LoadTextures(GameContentManager content, Array<TextureInfo> textures)
+        {
+            // @todo With this separation, we could parallelize LoadUncached<Texture2D> even more?
+            foreach (TextureInfo t in textures)
+            {
+                t.Texture = t.NoPack ? content.LoadUncached<Texture2D>($"{Name}/{t.Name}") : Atlas;
+                var sub = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, t.Texture);
+                if (t.NoPack) NonPacked.Add(t.Texture);
+                Lookup.Add(t.Name, sub);
+            }
+        }
+
+        void CreateSortedList()
+        {
+            Sorted = Lookup.Values.ToArray();
+            Array.Sort(Sorted, (a, b) => string.CompareOrdinal(a.Name, b.Name));
         }
 
         static TextureInfo[] LoadTextureInfo(GameContentManager content, FileInfo[] textureFiles)
@@ -401,9 +238,9 @@ namespace Ship_Game
             for (int i = 0; i < textureFiles.Length; ++i)
             {
                 FileInfo info = textureFiles[i];
-                string assetPath = info.CleanResPath(false);
+                string assetName = info.CleanResPath(false);
                 string texName = info.NameNoExt();
-                var tex = content.LoadUncached<Texture2D>(assetPath);
+                var tex = content.LoadUncached<Texture2D>(assetName);
                 textures[i] = new TextureInfo
                 {
                     Name = texName,
@@ -415,30 +252,78 @@ namespace Ship_Game
             return textures;
         }
 
-        void CreateSortedList()
+        class AtlasPath
         {
-            SortedTextures = Textures.Values.ToArray();
-            Array.Sort(SortedTextures, (a, b) => string.CompareOrdinal(a.Name, b.Name));
+            public readonly string Texture;
+            public readonly string Descriptor;
+            public readonly string CacheDir;
+            public readonly string Name;
+            public AtlasPath(string name)
+            {
+                if (name.StartsWith("Textures/")) name = name.Substring("Textures/".Length);
+                Name = name.Replace('/', '_');
+                CacheDir = Dir.StarDriveAppData + "/TextureCache";
+                Directory.CreateDirectory(CacheDir);
+                Texture    = $"{CacheDir}/{Name}.dds";
+                Descriptor = $"{CacheDir}/{Name}.atlas";
+                if (ExportTextures)
+                {
+                    Directory.CreateDirectory($"{CacheDir}/{Name}");
+                    Directory.CreateDirectory($"{CacheDir}/{Name}/NoPack");
+                }
+            }
         }
 
+        // To enable multi-threaded background pre-loading
+        static readonly Map<string, TextureAtlas> Loading = new Map<string, TextureAtlas>();
+        readonly Mutex LoadSync = new Mutex();
+
+        // atomically gets or inserts atlas
+        // @return TRUE if an existing atlas was retrieved, FALSE if a new atlas was inserted
+        static bool GetLoadedAtlas(string name, out TextureAtlas existingOrNew)
+        {
+            lock (Loading)
+            {
+                if (!Loading.TryGetValue(name, out existingOrNew))
+                {
+                    existingOrNew = new TextureAtlas { Name = name };
+                    Loading.Add(name, existingOrNew);
+                    existingOrNew.LoadSync.WaitOne(); // lock it for upcoming load event
+                    return false;
+                }
+            }
+            existingOrNew.LoadSync.WaitOne(); // wait until loading completes
+            return true;
+        }
+
+        // @return null if no textures in atlas {folder}
         public static TextureAtlas FromFolder(GameContentManager content, string folder, bool useCache = true)
         {
-            var atlas = new TextureAtlas(folder);
+            TextureAtlas atlas = null;
+            try
+            {
+                if (GetLoadedAtlas(folder, out atlas))
+                    return atlas;
 
-            FileInfo[] textureFiles = GatherUniqueTextures(folder);
-            if (textureFiles.Length == 0)
+                FileInfo[] files = GatherUniqueTextures(folder);
+                if (files.Length == 0)
+                    return null; // no textures!!
+
+                atlas.Hash = CreateHash(files);
+                var path = new AtlasPath(folder);
+
+                if (useCache && atlas.TryLoadCache(content, path))
+                    return atlas;
+
+                atlas.CreateAtlas(content, files, path);
+                HelperFunctions.CollectMemorySilent();
                 return atlas;
-
-            atlas.Hash = CreateHash(textureFiles);
-            if (useCache && atlas.TryLoadCache(content))
-                return atlas;
-
-            TextureInfo[] textures = LoadTextureInfo(content, textureFiles);
-            atlas.PackTextures(textures);
-            atlas.CreateAtlasTexture(content, textures);
-            atlas.SaveAtlasDescriptor();
-            atlas.CreateSortedList();
-            return atlas;
+            }
+            finally
+            {
+                atlas?.LoadSync.ReleaseMutex();
+                lock (Loading) Loading.Remove(folder);
+            }
         }
     }
 }

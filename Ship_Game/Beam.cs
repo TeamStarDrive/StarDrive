@@ -141,7 +141,7 @@ namespace Ship_Game
                 BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
                 BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
                 string beamTexPath = "Beams/" + Weapon.BeamTexture;
-                BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath));
+                BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath).Texture);
                 Displacement -= 0.05f;
                 if (Displacement < 0f)
                 {

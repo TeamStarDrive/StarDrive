@@ -49,18 +49,18 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             batch.Begin();
+
+            // 4 corners
             batch.Draw(ResourceManager.Texture("Popup/popup_corner_TL"), TL, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_corner_TR"), TR, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_corner_BL"), BL, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_corner_BR"), BR, Color.White);
-            batch.Draw(ResourceManager.Texture("Popup/popup_corner_TL_stroke"), TLc, Color.White);
-            batch.Draw(ResourceManager.Texture("Popup/popup_corner_TR_stroke"), TRc, Color.White);
+
             batch.Draw(ResourceManager.Texture("Popup/popup_horiz_T"), TopHoriz, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_horiz_T_gradient"), TopSep, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_vert_L"), LeftVert, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_vert_R"), RightVert, Color.White);
-            batch.Draw(ResourceManager.Texture("Popup/popup_corner_BL_stroke"), BLc, Color.White);
-            batch.Draw(ResourceManager.Texture("Popup/popup_corner_BR_stroke"), BRc, Color.White);
+
             batch.Draw(ResourceManager.Texture("Popup/popup_horiz_B"), BotHoriz, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_horiz_B_gradient"), BotSep, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), BottomFill, Color.White);
@@ -68,9 +68,16 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("Popup/popup_filler_mid"), MidContainer, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepTop, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepBot, Color.White);
+
             batch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRect, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleLeft, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRight, Color.White);
+
+            // stroke the corners
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_TL_stroke"), TLc, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_TR_stroke"), TRc, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_BL_stroke"), BLc, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_BR_stroke"), BRc, Color.White);
 
             base.Draw(batch);
 

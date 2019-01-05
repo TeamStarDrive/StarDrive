@@ -49,7 +49,7 @@ namespace Ship_Game
 
         private void DrawEmptySlots(SpriteBatch spriteBatch)
         {
-            Texture2D concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
+            SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -97,7 +97,7 @@ namespace Ship_Game
         {
             SpriteEffects effects = SpriteEffects.None;
             float rotation        = 0f;
-            Texture2D texture     = template == null ? slot.Tex : ResourceManager.Texture(template.IconTexturePath);
+            SubTexture texture    = template == null ? slot.Tex : ResourceManager.Texture(template.IconTexturePath);
             int xSize             = template == null ? slot.Module.XSIZE * 16 : r.Width;
             int ySize             = template == null ? slot.Module.YSIZE * 16 : r.Height;
 
@@ -136,7 +136,7 @@ namespace Ship_Game
                     break;
                 }
             }
-            spriteBatch.Draw(texture, r, null, Color.White, rotation, Vector2.Zero, effects, 1f);
+            spriteBatch.Draw(texture, r, Color.White, rotation, Vector2.Zero, effects, 1f);
         }
 
         private void DrawTacticalData(SpriteBatch spriteBatch)
@@ -182,9 +182,8 @@ namespace Ship_Game
                     || slot.Module.Powered 
                     || slot.Module.ModuleType == ShipModuleType.PowerConduit)
                         continue;
-
                 spriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
-                    slot.Center(), null, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
+                    slot.Center(), Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
             }
         }
 
@@ -230,16 +229,16 @@ namespace Ship_Game
 
         private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
-            Texture2D arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
+            SubTexture arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
             var origin           = new Vector2(250f, 250f);
             Rectangle toDraw     = center.ToRect(500, 500);
 
-            spriteBatch.Draw(arcTexture, toDraw, null, drawcolor, slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
+            spriteBatch.Draw(arcTexture, toDraw, drawcolor, slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
             Rectangle mirrorRect = mirrored.Center.ToRect(500, 500);
-            spriteBatch.Draw(arcTexture, mirrorRect, null, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
+            spriteBatch.Draw(arcTexture, mirrorRect, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
         }
 
         private void DrawWeaponArcs(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)

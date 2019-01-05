@@ -256,7 +256,7 @@ namespace Ship_Game.Ships
 
         public ShipData.RoleName DesignRole { get; private set; }
         public string DesignRoleName => ShipData.GetRole(DesignRole);
-        public Texture2D GetTacticalIcon()
+        public SubTexture GetTacticalIcon()
         {
             if (DesignRole == ShipData.RoleName.support)
                 return ResourceManager.Texture("TacticalIcons/symbol_supply");
