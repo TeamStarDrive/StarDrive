@@ -13,7 +13,8 @@ namespace Ship_Game
     public class TextureAtlas : IDisposable
     {
         const int Version = 3; // changing this will force all caches to regenerate
-        const bool ExportTextures = true; // export source textures into {cache}/{atlas}/{sprite}.png ?
+        static bool ExportPacked = false; // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
+        static bool ExportNoPack = false; // DEBUG: export non-packed textures into {cache}/NoPack/{atlas}/{sprite}.png
         
         int Hash;
         int NumPacked; // number of packed textures (not all textures are packed)
@@ -121,8 +122,12 @@ namespace Ship_Game
 
                 foreach (TextureInfo t in textures) // copy pixels
                 {
-                    if (t.NoPack) continue;
-                    if (ExportTextures) t.Texture.Save($"{path.CacheDir}/{path.Name}/{t.Name}.png", ImageFileFormat.Png);
+                    if (t.NoPack)
+                    {
+                        if (ExportNoPack) t.Texture.Save($"{path.CacheDir}/NoPack/{path.Name}/{t.Name}.png", ImageFileFormat.Png);
+                        continue;
+                    }
+                    if (ExportPacked) t.Texture.Save($"{path.CacheDir}/{path.Name}/{t.Name}.png", ImageFileFormat.Png);
                     t.TransferTextureToAtlas(atlasPixels, Width, Height);
                 }
                 SaveAtlasTexture(content, atlasPixels, path.Texture);
@@ -257,7 +262,8 @@ namespace Ship_Game
                 Directory.CreateDirectory(CacheDir);
                 Texture    = $"{CacheDir}/{Name}.dds";
                 Descriptor = $"{CacheDir}/{Name}.atlas";
-                if (ExportTextures) Directory.CreateDirectory($"{CacheDir}/{Name}");
+                if (ExportPacked) Directory.CreateDirectory($"{CacheDir}/{Name}");
+                if (ExportNoPack) Directory.CreateDirectory($"{CacheDir}/NoPack/{Name}");
             }
         }
 
