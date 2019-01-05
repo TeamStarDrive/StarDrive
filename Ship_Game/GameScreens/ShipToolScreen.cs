@@ -20,13 +20,13 @@ namespace Ship_Game
 
         private InputState designInputState;
 
-        private Texture2D DottedLine;
+        private SubTexture DottedLine;
 
         private Restrictions DesignState;
 
         private Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
 
-        private Texture2D moduleSlot;
+        private SubTexture moduleSlot;
 
         private int slotsize = 16;
 
@@ -488,8 +488,8 @@ namespace Ship_Game
             view = Matrix.CreateRotationY(180f.ToRadians())
                  * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 10000f);
-            moduleSlot = TransientContent.Load<Texture2D>("Textures/Ships/singlebox");
-            DottedLine = TransientContent.Load<Texture2D>("Textures/UI/DottedLine");
+            moduleSlot = TransientContent.Load<SubTexture>("Textures/Ships/singlebox");
+            DottedLine = TransientContent.Load<SubTexture>("Textures/UI/DottedLine");
             Center = new Vector2(screenWidth / 2, screenHeight / 2);
             ConfigureSlots();
             thruster = new Thruster();

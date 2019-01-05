@@ -203,35 +203,35 @@ namespace Ship_Game
 
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawTexture(Texture2D texture, Vector2 posOnScreen, float scale, float rotation, Color color)
-            => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, null, color, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
+        public void DrawTexture(SubTexture texture, Vector2 posOnScreen, float scale, float rotation, Color color)
+            => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
 
-        public void DrawTexture(Texture2D texture, Vector2 posOnScreen, Color color)
+        public void DrawTexture(SubTexture texture, Vector2 posOnScreen, Color color)
             => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color);
 
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawTextureSized(Texture2D texture, Vector2 posOnScreen, float rotation, float width, float height, Color color)
+        public void DrawTextureSized(SubTexture texture, Vector2 posOnScreen, float rotation, float width, float height, Color color)
         {
             var rect = new Rectangle((int)posOnScreen.X, (int)posOnScreen.Y, (int)width, (int)height);
-            ScreenManager.SpriteBatch.Draw(texture, rect, null, color, rotation, texture.Center(), SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.Draw(texture, rect, color, rotation, texture.Center(), SpriteEffects.None, 1f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawTextureRect(Texture2D texture, Vector2 posOnScreen, Color color, float rotation = 0f)
+        public void DrawTextureRect(SubTexture texture, Vector2 posOnScreen, Color color, float rotation = 0f)
             => DrawTextureRect(texture, posOnScreen, color, rotation, Vector2.Zero);
 
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture top left.
-        public void DrawTextureRect(Texture2D texture, Vector2 posOnScreen, Color color, float rotation , Vector2 origin )
+        public void DrawTextureRect(SubTexture texture, Vector2 posOnScreen, Color color, float rotation , Vector2 origin )
         {
-            ScreenManager.SpriteBatch.Draw(texture, posOnScreen, null, color, rotation, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color, rotation, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
         }
 
-        // just draws a texture to screen, no fancy reprojections, where screenPos is the rectangle top left and texture exists in it
-        public void DrawTextureRect(Texture2D texture, Vector2 posOnScreen, Rectangle? sourceRectangle, Color color, Vector2 origin, float rotation = 0f, float scale = 0, SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)
-        {
-            ScreenManager.SpriteBatch.Draw(texture,  posOnScreen, sourceRectangle, color, rotation, origin, scale, effects, layerDepth);
-        }
+        //// just draws a texture to screen, no fancy reprojections, where screenPos is the rectangle top left and texture exists in it
+        //public void DrawTextureRect(SubTexture texture, Vector2 posOnScreen, Rectangle? sourceRectangle, Color color, Vector2 origin, float rotation = 0f, float scale = 0, SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)
+        //{
+        //    ScreenManager.SpriteBatch.Draw(texture,  posOnScreen, sourceRectangle, color, rotation, origin, scale, effects, layerDepth);
+        //}
 
         public void CheckToolTip(int toolTipId, Rectangle rectangle, Vector2 mousePos)
         {
@@ -299,8 +299,8 @@ namespace Ship_Game
             MakeMessageBox(screen, cancelled, accepted, localId, "Save", "Exit");
         }
 
-
-        public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor,Matrix projection, Texture2D projTex, float alpha =0f, bool textureEnabled = true, bool lightingEnabled = false)
+        // @todo Should this be refactored because of SubTexture?
+        public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor, Matrix projection, SubTexture projTex, float alpha =0f, bool textureEnabled = true, bool lightingEnabled = false)
         {
             foreach (ModelMesh modelMesh in model.Meshes)
             {
@@ -311,7 +311,7 @@ namespace Ship_Game
                     basicEffect.World           = Matrix.CreateScale(50f) * world;
                     basicEffect.View            = view;
                     basicEffect.DiffuseColor    = new Vector3(1f, 1f, 1f);
-                    basicEffect.Texture         = projTex;
+                    basicEffect.Texture         = projTex.Texture;
                     basicEffect.Alpha           = alpha > 0 ? alpha : basicEffect.Alpha;                    
                     basicEffect.TextureEnabled  = true;
                     basicEffect.Projection      = projection;

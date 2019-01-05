@@ -646,7 +646,7 @@ namespace Ship_Game
             StencilRT     = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
             if (loadFogPath == null)
             {
-                FogMap = ResourceManager.Texture("UniverseFeather");
+                FogMap = ResourceManager.Texture2D("UniverseFeather");
             }
             else
             {
@@ -660,7 +660,7 @@ namespace Ship_Game
             anomalyManager = new AnomalyManager();
             Listener       = new AudioListener();
             MuzzleFlashManager.flashModel   = content.Load<Model>("Model/Projectiles/muzzleEnergy");
-            MuzzleFlashManager.FlashTexture = content.Load<Texture2D>("Model/Projectiles/Textures/MuzzleFlash_01");
+            MuzzleFlashManager.FlashTexture = new SubTexture(content.Load<Texture2D>("Model/Projectiles/Textures/MuzzleFlash_01"));
             xnaPlanetModel                  = content.Load<Model>("Model/SpaceObjects/planet");
             atmoModel                       = content.Load<Model>("Model/sphere");
             AtmoEffect                      = content.Load<Effect>("Effects/PlanetHalo");
@@ -922,16 +922,16 @@ namespace Ship_Game
         // this draws the colored empire borders
         // the borders are drawn into a separate framebuffer texture and later blended with final visual
 
-        private Texture2D Arc15  = ResourceManager.Texture("Arcs/Arc15");
-        private Texture2D Arc20  = ResourceManager.Texture("Arcs/Arc20");
-        private Texture2D Arc45  = ResourceManager.Texture("Arcs/Arc45");
-        private Texture2D Arc60  = ResourceManager.Texture("Arcs/Arc60");
-        private Texture2D Arc90  = ResourceManager.Texture("Arcs/Arc90");
-        private Texture2D Arc120 = ResourceManager.Texture("Arcs/Arc120");
-        private Texture2D Arc180 = ResourceManager.Texture("Arcs/Arc180");
-        private Texture2D Arc360 = ResourceManager.Texture("Arcs/Arc360");
+        private SubTexture Arc15  = ResourceManager.Texture("Arcs/Arc15");
+        private SubTexture Arc20  = ResourceManager.Texture("Arcs/Arc20");
+        private SubTexture Arc45  = ResourceManager.Texture("Arcs/Arc45");
+        private SubTexture Arc60  = ResourceManager.Texture("Arcs/Arc60");
+        private SubTexture Arc90  = ResourceManager.Texture("Arcs/Arc90");
+        private SubTexture Arc120 = ResourceManager.Texture("Arcs/Arc120");
+        private SubTexture Arc180 = ResourceManager.Texture("Arcs/Arc180");
+        private SubTexture Arc360 = ResourceManager.Texture("Arcs/Arc360");
 
-        public Texture2D GetArcTexture(float weaponArc)
+        public SubTexture GetArcTexture(float weaponArc)
         {
             if (weaponArc >= 240f) return Arc360; // @note We're doing loose ARC matching to catch freak angles
             if (weaponArc >= 150f) return Arc180;
@@ -1008,7 +1008,7 @@ namespace Ship_Game
             bloomComponent          ?.Dispose(ref bloomComponent);
             ShipGateKeeper          ?.Dispose(ref ShipGateKeeper);
             SystemThreadGateKeeper  ?.Dispose(ref SystemThreadGateKeeper);
-            FogMap                  ?.Dispose(ref FogMap);
+            //FogMap                  ?.Dispose(ref FogMap);
             MasterShipList          ?.Dispose(ref MasterShipList);
             EmpireGateKeeper        ?.Dispose(ref EmpireGateKeeper);
             BombList                ?.Dispose(ref BombList);

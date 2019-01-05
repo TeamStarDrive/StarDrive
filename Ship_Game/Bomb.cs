@@ -23,13 +23,13 @@ namespace Ship_Game
         //public float Facing;
         private float PlanetRadius;
 
-        public Texture2D Texture { get; }
-        public Model     Model   { get; }
+        public SubTexture Texture { get; }
+        public Model      Model   { get; }
 
         public Bomb(Vector3 position, Empire empire)
         {
             Owner = empire;
-            Texture     = ResourceManager.ProjTextDict[TextureName];
+            Texture     = ResourceManager.ProjTexture(TextureName);
             Model       = ResourceManager.ProjectileModelDict[ModelName];
             WeaponName  = "NuclearBomb";
             Position    = position;

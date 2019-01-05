@@ -46,7 +46,8 @@ namespace Ship_Game
 			if (amount > 0.5f)
 			{
 				float greenamount = 2f * (amount - 0.5f);
-				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(greenRect.X, rect.Y, (int)(greenamount * greenRect.Width), 6), new Rectangle(rect.X, rect.Y, (int)(greenamount * greenRect.Width), 6), Color.White);
+				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), 
+                    new Rectangle(greenRect.X, rect.Y, (int)(greenamount * greenRect.Width), 6), Color.White);
 			}
 			else if (amount < 0.5f)
 			{

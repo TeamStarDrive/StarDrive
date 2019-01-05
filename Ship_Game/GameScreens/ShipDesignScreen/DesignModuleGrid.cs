@@ -373,7 +373,7 @@ namespace Ship_Game
             Log.Info($"RecalculatePower elapsed:{elapsed:G5}ms  modules:{Slots.Length}  totalchecks:{NumPowerChecks}");
         }
         
-        public Texture2D GetConduitGraphicAt(SlotStruct ss)
+        public SubTexture GetConduitGraphicAt(SlotStruct ss)
         {
             Point ssPos = ToGridPos(ss.Position);
             var conduit = new Ship.ConduitGraphic();

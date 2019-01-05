@@ -45,7 +45,8 @@ namespace Ship_Game
 			SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
 			Vector2 Cursor = new Vector2(ContainerRect.X, ContainerRect.Y);
 			SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
-			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), Color.White);
+			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), 
+                new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), Color.White);
 			SpriteBatch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
@@ -85,7 +86,8 @@ namespace Ship_Game
 			SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
 			Vector2 Cursor = new Vector2(ContainerRect.X, ContainerRect.Y);
 			SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
-			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), Color.White);
+			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), 
+                new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), Color.White);
 			SpriteBatch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)

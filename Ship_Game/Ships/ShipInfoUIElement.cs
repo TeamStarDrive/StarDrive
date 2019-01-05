@@ -346,14 +346,14 @@ namespace Ship_Game.Ships
             var statusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             int numStatus = 0;
 
-            void DrawIconWithTooltip(Texture2D icon, Color color, Func<string> tooltip)
+            void DrawIconWithTooltip(SubTexture icon, Color color, Func<string> tooltip)
             {
                 var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
                 ScreenManager.SpriteBatch.Draw(icon, rect, color);
                 if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
                 ++numStatus;
             }
-            void DrawIconWithTooltipId(Texture2D icon, int tooltip)
+            void DrawIconWithTooltipId(SubTexture icon, int tooltip)
             {
                 var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
                 ScreenManager.SpriteBatch.Draw(icon, rect, Color.White);
@@ -361,13 +361,13 @@ namespace Ship_Game.Ships
                 ++numStatus;
             }
 
-            Texture2D iconBoosted   = ResourceManager.Texture("StatusIcons/icon_boosted");
-            Texture2D iconGravwell  = ResourceManager.Texture("StatusIcons/icon_gravwell");
-            Texture2D iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
-            Texture2D iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
-            Texture2D iconDisabled  = ResourceManager.Texture("StatusIcons/icon_disabled");
-            Texture2D iconPack      = ResourceManager.Texture("StatusIcons/icon_pack");
-            Texture2D iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
+            SubTexture iconBoosted   = ResourceManager.Texture("StatusIcons/icon_boosted");
+            SubTexture iconGravwell  = ResourceManager.Texture("StatusIcons/icon_gravwell");
+            SubTexture iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
+            SubTexture iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
+            SubTexture iconDisabled  = ResourceManager.Texture("StatusIcons/icon_disabled");
+            SubTexture iconPack      = ResourceManager.Texture("StatusIcons/icon_pack");
+            SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
 
 
             if (Ship.loyalty.data.Traits.Pack)
@@ -390,7 +390,7 @@ namespace Ship_Game.Ships
             {
                 foreach (Cargo cargo in Ship.EnumLoadedCargo())
                 {
-                    Texture2D texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
+                    SubTexture texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
                     var goodRect      = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 32, 32);
                     ScreenManager.SpriteBatch.Draw(texture, goodRect, Color.White);
 

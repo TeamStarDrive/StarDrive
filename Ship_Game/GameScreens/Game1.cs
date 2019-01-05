@@ -22,7 +22,7 @@ namespace Ship_Game
         public bool IsExiting { get; private set; }
 
         public new GameContentManager Content { get; }
-        public static GameContentManager GameContent => Instance.Content;
+        public static GameContentManager GameContent => Instance?.Content;
 
         // This is equivalent to PresentationParameters.BackBufferWidth
         public int ScreenWidth { get; private set; }
