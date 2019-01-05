@@ -21,8 +21,7 @@ namespace Ship_Game
         }
         public LoadSaveScreen(GameScreen screen) : base(screen, SLMode.Load, "", Localizer.Token(6), "Saved Games")
         {
-            
-            Path = Dir.ApplicationData + "/StarDrive/Saved Games/";
+            Path = Dir.StarDriveAppData + "/Saved Games/";
         }
         protected override void DeleteFile(object sender, EventArgs e)
         {
