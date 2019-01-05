@@ -77,7 +77,7 @@ namespace Ship_Game
                     asset = assetObj;
                     return true;
                 }
-                throw new ContentLoadException($"Asset '{assetNameNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
+                throw new ContentLoadException($"Asset '{assetNameNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
             }
             asset = default(T);
             return false;
@@ -290,10 +290,8 @@ namespace Ship_Game
                 return existing;
 
             Type assetType = typeof(T);
-            if (assetType == typeof(SubTexture))
-                return (T)(object)LoadSubTexture(asset.NoExt);
-            if (assetType == typeof(TextureAtlas))
-                return (T)(object)LoadTextureAtlas(asset.NoExt, useCache);
+            if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(asset.NoExt);
+            if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(asset.NoExt, useCache);
 
             T loaded;
             if (asset.NonXnaAsset)
@@ -313,9 +311,20 @@ namespace Ship_Game
         {
             lock (LoadSync)
             {
-                LoadedAssets.Add(name, obj);
-                if (obj is IDisposable disposable)
-                    DisposableAssets.Add(disposable);
+                // If same object already exists, we skip Add. We also test for concurrency bugs and type mismatches.
+                if (LoadedAssets.TryGetValue(name, out object existing))
+                {
+                    if ((obj as object) != existing)
+                        throw new ContentLoadException($"Duplicate asset '{name}' of type '{typeof(T)}' already loaded! This is a concurrency bug!");
+                    if (!(existing is T))
+                        throw new ContentLoadException($"Asset '{name}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
+                }
+                else
+                {
+                    LoadedAssets.Add(name, obj);
+                    if (obj is IDisposable disposable)
+                        DisposableAssets.Add(disposable);
+                }
             }
         }
 
