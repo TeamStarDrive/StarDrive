@@ -7,19 +7,34 @@ namespace Ship_Game.SpriteSystem
 {
     class TexturePacker
     {
-        const int Padding = 2; // Atlas texture padding
+        // Atlas texture padding, must be at least 2px, otherwise pixel padding
+        // will cause overlap errors
+        const int Padding = 2; 
         const int MinFreeSpotSize = 16; // Minimum width/height for recycled free spots
         const int MaxWidthHeightSum = 920; // tex width+height > this is excluded from packing
 
         public int Width  { get; private set; }
         public int Height { get; private set; }
-        public Array<Rectangle> FreeSpots = new Array<Rectangle>();
+
+        public struct FreeSpot
+        {
+            public Rectangle r;
+            public string from;
+            public FreeSpot(int x, int y, int w, int h, string from)
+            {
+                r = new Rectangle(x,y,w,h);
+                this.from = from;
+            }
+        }
+        public Array<FreeSpot> FreeSpots = new Array<FreeSpot>();
 
         int CursorX, CursorY, BottomY;
+        TextureInfo[] Textures;
 
         void PrepareToPack(TextureInfo[] textures)
         {
             // Sort textures by AREA, DESCENDING
+            Textures = textures;
             Array.Sort(textures, (a, b) => (b.Width * b.Height) - (a.Width * a.Height));
             FreeSpots.Clear();
             Width = 128;
@@ -35,12 +50,13 @@ namespace Ship_Game.SpriteSystem
             CursorX = CursorY = BottomY = 0;
         }
 
-        int FinalizePack(TextureInfo[] textures)
+        int FinalizePack()
         {
             int packed = 0;
-            foreach (TextureInfo t in textures) if (!t.NoPack) ++packed;
+            foreach (TextureInfo t in Textures) if (!t.NoPack) ++packed;
             if (packed == 0) Width = Height = 0;
-            else CheckInRange(textures);
+            else CheckInRange();
+            Textures = null;
             return packed;
         }
 
@@ -50,9 +66,9 @@ namespace Ship_Game.SpriteSystem
             return t.NoPack;
         }
 
-        void CheckInRange(TextureInfo[] textures)
+        void CheckInRange()
         {
-            foreach (TextureInfo t in textures)
+            foreach (TextureInfo t in Textures)
             {
                 if (t.NoPack) continue;
                 if ((t.X + t.Width) > Width)
@@ -62,6 +78,22 @@ namespace Ship_Game.SpriteSystem
                 if ((t.Y + t.Height) > Height)
                 {
                     Log.Error($"{t} Y-axis out of atlas height:{Height}");
+                }
+            }
+        }
+
+        // checks for 1px padded overlap
+        void CheckForOverlap(int tIndex, TextureInfo t)
+        {
+            var ra = new Rectangle(t.X - 1, t.Y - 1, t.Width + 2, t.Height + 2);
+            for (int i = 0; i < tIndex; ++i)
+            {
+                TextureInfo u = Textures[i];
+                if (u.NoPack) continue;
+                var rb = new Rectangle(u.X - 1, u.Y - 1, u.Width + 2, u.Height + 2);
+                if (ra.Intersects(rb))
+                {
+                    Log.Error($"{t} overlaps with existing tex: {u}");
                 }
             }
         }
@@ -76,7 +108,7 @@ namespace Ship_Game.SpriteSystem
             for (int i = 0; i < textures.Length; ++i)
             {
                 TextureInfo t = textures[i];
-                if (IsTextureTooBig(t) || FillFreeSpot(t))
+                if (IsTextureTooBig(t) || FillFreeSpot(i, t))
                     continue;
 
                 if (t.Width > Width)
@@ -88,10 +120,10 @@ namespace Ship_Game.SpriteSystem
                 int remainingX = Width - CursorX;
                 if (remainingX < t.Width)
                 {
-                    int remainingY = BottomY - CursorY;
+                    int remainingY = (BottomY - CursorY);
                     if (remainingX >= MinFreeSpotSize && remainingY >= MinFreeSpotSize)
                     {
-                        FreeSpots.Add(new Rectangle(CursorX, CursorY, remainingX, remainingY));
+                        FreeSpots.Add(new FreeSpot(CursorX, CursorY, remainingX, remainingY, "endOfX"));
                     }
                     CursorX = 0;
                     CursorY = BottomY + Padding;
@@ -109,43 +141,45 @@ namespace Ship_Game.SpriteSystem
 
                 t.X = CursorX;
                 t.Y = CursorY;
-                int fillX = (t.Width + Padding);
-                CursorX += fillX;
+                //CheckForOverlap(i, t);
+                CursorX += (t.Width + Padding);
 
                 // After filling our spot, there is a potential free spot.
                 // We know this because we fill our objects in descending order.
                 // ____________
-                // |  tdfill  |
-                // |__________|
-                // | freespot |
-                if (fillX >= MinFreeSpotSize)
+                // |  t.Width || (padding)
+                // |==========||
+                // | freespot ||
+                if (t.Width >= MinFreeSpotSize)
                 {
                     int freeSpotY = (t.Y + t.Height + Padding);
-                    int freeSpotH = (BottomY - freeSpotY);
+                    int freeSpotH = (BottomY - freeSpotY - Padding);
                     if (freeSpotH >= MinFreeSpotSize)
                     {
-                        FreeSpots.Add(new Rectangle(t.X, freeSpotY, fillX, freeSpotH));
+                        FreeSpots.Add(new FreeSpot(t.X, freeSpotY, t.Width, freeSpotH, "belowFill"));
                     }
                 }
             }
-            return FinalizePack(textures);
+            return FinalizePack();
         }
 
 
-        bool FillFreeSpot(TextureInfo td)
+        bool FillFreeSpot(int tIndex, TextureInfo t)
         {
-            for (int j = 0; j < FreeSpots.Count; ++j)
+            for (int i = 0; i < FreeSpots.Count; ++i)
             {
-                Rectangle r = FreeSpots[j];
-                if (td.Width > r.Width || td.Height > r.Height)
+                FreeSpot fs = FreeSpots[i];
+                Rectangle r = fs.r;
+                if (t.Width > r.Width || t.Height > r.Height)
                     continue;
-                td.X = r.X;
-                td.Y = r.Y;
-                FreeSpots.RemoveAt(j);
-                int fillX = td.Width + Padding;
-                int fillY = td.Height + Padding;
-                int remX = r.Width - fillX;
-                int remY = r.Height - fillY;
+                t.X = r.X;
+                t.Y = r.Y;
+                //CheckForOverlap(tIndex, t);
+                FreeSpots.RemoveAt(i);
+                int fillX = t.Width  + Padding;
+                int fillY = t.Height + Padding;
+                int remX = r.Width  - fillX - Padding;
+                int remY = r.Height - fillY - Padding;
                 // We have remaining sections A, B that could be recycled
                 // So split it up if >= MinFreeSpotSize and insert to freeSpots
                 // _____________
@@ -154,9 +188,9 @@ namespace Ship_Game.SpriteSystem
                 // |__B__|__A__|
                 if (remX >= MinFreeSpotSize) // A
                 {
-                    FreeSpots.Insert(j, new Rectangle(r.X + fillX, r.Y, remX, r.Height));
+                    FreeSpots.Insert(i, new FreeSpot(r.X + fillX, r.Y, remX, r.Height, "A"));
                     if (remY >= MinFreeSpotSize) // B?
-                        FreeSpots.Insert(j, new Rectangle(r.X, r.Y + fillY, fillX, remY));
+                        FreeSpots.Insert(i, new FreeSpot(r.X, r.Y + fillY, fillX, remY, "B?"));
                 }
                 // _________
                 // |fill | |
@@ -165,7 +199,7 @@ namespace Ship_Game.SpriteSystem
                 // |B_B_B_B|
                 else if (remY >= MinFreeSpotSize && (fillX + remX) >= MinFreeSpotSize)
                 {
-                    FreeSpots.Insert(j, new Rectangle(r.X, r.Y + fillY, fillX + remX, remY));
+                    FreeSpots.Insert(i, new FreeSpot(r.X, r.Y + fillY, fillX + remX, remY, "BB"));
                 }
                 return true; // success! we filled the free spot
             }

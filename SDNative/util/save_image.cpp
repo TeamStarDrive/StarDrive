@@ -167,19 +167,19 @@ DLLEXPORT void __stdcall CopyPixelsPadded(Image dst, int x, int y, Image src)
 	// || src ||
 	// |o-----S|
 	// o-------D
-	const Point D{ x + src.width, y + src.height };
-	const Point s{ src.width - 1, src.height - 1 };
+	const Point D { x + src.width, y + src.height }; // lower-right point of padding in dst image
+	const Point S { src.width - 1, src.height - 1 }; // lower-right point inside src image
 	const bool left = x > 0;
 	const bool top  = y > 0;
 	const bool right  = D.x < dst.width;  // in image bounds? 
 	const bool bottom = D.y < dst.height;
 	// padding:
 	if (top)    { image_copy(dst, src, x,   y-1, 0, 0  ).row(); }
-	if (bottom) { image_copy(dst, src, x,   D.y, 0, s.y).row(); }
+	if (bottom) { image_copy(dst, src, x,   D.y, 0, S.y).row(); }
 	if (left)   { image_copy(dst, src, x-1, y,   0, 0  ).column(); }
-	if (right)  { image_copy(dst, src, D.x, y, s.x, 0  ).column(); }
+	if (right)  { image_copy(dst, src, D.x, y, S.x, 0  ).column(); }
 	if (top && left)     { image_copy(dst, src, x-1, y-1, 0,   0  ).pixel(); }
-	if (top && right)    { image_copy(dst, src, D.x, y-1, s.x, 0  ).pixel(); }
-	if (bottom && left)  { image_copy(dst, src, x-1, D.y, 0,   s.y).pixel(); }
-	if (bottom && right) { image_copy(dst, src, D.x, D.y, s.x, s.y).pixel(); }
+	if (top && right)    { image_copy(dst, src, D.x, y-1, S.x, 0  ).pixel(); }
+	if (bottom && left)  { image_copy(dst, src, x-1, D.y, 0,   S.y).pixel(); }
+	if (bottom && right) { image_copy(dst, src, D.x, D.y, S.x, S.y).pixel(); }
 }
