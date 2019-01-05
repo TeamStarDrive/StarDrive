@@ -891,7 +891,6 @@ namespace Ship_Game.AI {
             weight *= .1f;
             foreach (SystemCommander CheckBorders in DefensiveCoordinator.DefenseDict.Values)
             {
-
                 if (CheckBorders.RankImportance > 5)
                 {
                     foreach (SolarSystem closeenemies in CheckBorders.System.FiveClosestSystems)

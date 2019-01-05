@@ -214,6 +214,17 @@ namespace Ship_Game
             return (elem = FindMinFiltered(list, filter, selector)) != null;
         }
 
+        public static Array<T> FindMinItemsFiltered<T>(this Array<T> list, int maxCount, Predicate<T> filter, Func<T, float> selector) where T : class
+        {
+            T[] filtered = list.FilterBy(filter);
+            filtered.Sort(selector);
+
+            var found = new Array<T>();
+            for (int i = 0; i < filtered.Length && found.Count < maxCount; ++i)
+                found.Add(filtered[i]);
+            return found;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<T>(this Array<T> list, Predicate<T> match) => list.Find(match) != null;
 
@@ -227,6 +238,7 @@ namespace Ship_Game
             return n;
         }
 
+
         // warning, this is O(n*m), worst case O(n^2)
         // Special optimized version that only works with reference types
         public static bool ContainsAnyRef<T>(this T[] arr1, T[] arr2) where T : class
@@ -239,8 +251,7 @@ namespace Ship_Game
             }
             return false;
         }
-
-        // For Crunchy: Take a look at this and see if this works for you @todo remove this comment after review
+        
         /// <summary>
         /// Excludes items from this array. All elements in the arrays must be unique to speed this algorithm up.
         /// The resulting exclusion array will be UNSTABLE, meaning item ordering will be changed for performance reasons
@@ -529,10 +540,10 @@ namespace Ship_Game
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] FilterBy<T>(this T[] items, Func<T, bool> predicate) => items.FilterBy(items.Length, predicate);
+        public static T[] FilterBy<T>(this T[] items, Predicate<T> predicate) => items.FilterBy(items.Length, predicate);
 
         // A quite memory efficient filtering function to replace Where clauses
-        public static unsafe T[] FilterBy<T>(this T[] items, int count, Func<T, bool> predicate)
+        public static unsafe T[] FilterBy<T>(this T[] items, int count, Predicate<T> predicate)
         {
             byte* map = stackalloc byte[count];
 
@@ -553,7 +564,7 @@ namespace Ship_Game
         }
 
         // Copy paste from above. Purely because I don't want to ruin T[] access optimizations
-        public static unsafe T[] FilterBy<T>(this IReadOnlyList<T> items, Func<T, bool> predicate)
+        public static unsafe T[] FilterBy<T>(this IReadOnlyList<T> items, Predicate<T> predicate)
         {
             int count = items.Count;
             byte* map = stackalloc byte[count];

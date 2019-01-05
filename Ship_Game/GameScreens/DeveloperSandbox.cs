@@ -7,8 +7,9 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        GameScreen BaseScreen;
-        UniverseScreen UniverseScreen;
+        const int NumEmpires = 1;
+
+        UniverseScreen Universe;
         public DeveloperSandbox(GameScreen parent) : base(parent)
         {
             parent.ExitScreen();
@@ -25,7 +26,6 @@ namespace Ship_Game
         {
             base.Update(gameTime, false, false);
             HandleInput();
-
         }
 
         public override void Draw(SpriteBatch batch)
@@ -33,8 +33,6 @@ namespace Ship_Game
             batch.Begin();
             base.Draw(batch);
             batch.End();
-
-
         }
 
         //after Creating the universe
@@ -42,7 +40,6 @@ namespace Ship_Game
         {
             if (Input.Escaped)
             {
-
             }
             base.HandleInput(Input);
         }
@@ -59,7 +56,7 @@ namespace Ship_Game
             if (Input.LeftMouseClick)
             {
                 //ScreenManager.AddScreen(new LoadSaveScreen(this));
-                ScreenManager.AddScreen(UniverseScreen);
+                ScreenManager.AddScreen(Universe);
             }
             return base.HandleInput(input);
         }
@@ -69,77 +66,57 @@ namespace Ship_Game
             Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
             EmpireManager.Clear();
             ResourceManager.LoadItAll();
-            UniverseData universeSandBox = new UniverseData
-            {
-                Size = new Vector2(1000000f)
-            };
-            UniverseData.UniverseWidth = universeSandBox.Size.X * 2;
-            CurrentGame.StartNew(universeSandBox);
+            var sandbox = new UniverseData { Size = new Vector2(500000f) };
+            UniverseData.UniverseWidth = sandbox.Size.X * 2;
+            CurrentGame.StartNew(sandbox);
             var claimedSpots = new Array<Vector2>();
-            foreach (var empireData in ResourceManager.Empires)
+
+            for (int i = 0; i < NumEmpires && i < ResourceManager.Empires.Count; ++i)
             {
-                Empire empireFromEmpireData = EmpireManager.CreateEmpireFromEmpireData(empireData);
-                universeSandBox.EmpireList.Add(empireFromEmpireData);
-                EmpireManager.Add(empireFromEmpireData);
-                empireFromEmpireData.data.CurrentAutoScout = empireFromEmpireData.data.ScoutShip;
-                empireFromEmpireData.data.CurrentAutoColony = empireFromEmpireData.data.ColonyShip;
-                empireFromEmpireData.data.CurrentAutoFreighter = empireFromEmpireData.data.FreighterShip;
-                empireFromEmpireData.data.CurrentConstructor = empireFromEmpireData.data.ConstructorShip;
-                GenerateRandomSysPos(10000, claimedSpots, universeSandBox);
+                Empire e = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.Empires[i]);
+                sandbox.EmpireList.Add(e);
+                EmpireManager.Add(e);
+                e.data.CurrentAutoScout = e.data.ScoutShip;
+                e.data.CurrentAutoColony = e.data.ColonyShip;
+                e.data.CurrentAutoFreighter = e.data.FreighterShip;
+                e.data.CurrentConstructor = e.data.ConstructorShip;
+                GenerateRandomSysPos(10000, claimedSpots, sandbox);
             }
 
             foreach (Empire empire in EmpireManager.Empires)
             {
                 foreach (Empire e in EmpireManager.Empires)
-                {
-                    if (empire == e)
-                        continue;
-
-                    var r = new Relationship(e.data.Traits.Name);
-                    empire.AddRelationships(e, r);
-
-                }
+                    if (empire != e) empire.AddRelationships(e, new Relationship(e.data.Traits.Name));
             }
 
-            int empireIndex = 0;
-            foreach (var position in claimedSpots)
+            for (int empireIndex = 0; empireIndex < sandbox.EmpireList.Count; ++empireIndex)
             {
-
-
-                var solarSystem = new SolarSystem();
-                solarSystem.GenerateStartingSystem($"SandBox-{empireIndex}", universeSandBox, 1, universeSandBox.EmpireList[empireIndex]);
-                universeSandBox.SolarSystemsList.Add(solarSystem);
-                solarSystem.Position = position;
-                solarSystem.OwnerList.Add(universeSandBox.EmpireList[empireIndex]);
-                foreach (Planet planet2 in solarSystem.PlanetList)
-                    planet2.SetExploredBy(universeSandBox.EmpireList[empireIndex]);
-                empireIndex++;
+                Empire e = sandbox.EmpireList[empireIndex];
+                var system = new SolarSystem();
+                system.OwnerList.Add(e);
+                sandbox.SolarSystemsList.Add(system);
+                system.Position = claimedSpots[empireIndex];
+                system.GenerateStartingSystem($"SandBox-{empireIndex}", sandbox, 1, e);
+                foreach (Planet p in system.PlanetList)
+                    p.SetExploredBy(e);
             }
-            foreach(var system in universeSandBox.SolarSystemsList)
+            foreach(SolarSystem system in sandbox.SolarSystemsList)
             {
-                do
-                {
-                    var ss = universeSandBox.SolarSystemsList.FindMaxFiltered(
-                        check => !system.FiveClosestSystems.Contains(check)
-                        , range => -system.Position.SqDist(range.Position));
-                    system.FiveClosestSystems.Add(ss);
-                }
-                while (system.FiveClosestSystems.Count < 5);
+                system.FiveClosestSystems = sandbox.SolarSystemsList.FindMinItemsFiltered(5,
+                                                filter => filter != system,
+                                                select => select.Position.SqDist(system.Position));
             }
-            universeSandBox.EmpireList.First.isPlayer = true;
-            universeSandBox.playerShip = Ship.CreateShipAtPoint("Unarmed Scout", universeSandBox.EmpireList.First, claimedSpots[0]);
-            universeSandBox.MasterShipList.Add(universeSandBox.playerShip);
+            sandbox.EmpireList.First.isPlayer = true;
+            sandbox.playerShip = Ship.CreateShipAtPoint("Unarmed Scout", sandbox.EmpireList.First, claimedSpots[0]);
+            sandbox.MasterShipList.Add(sandbox.playerShip);
 
-            foreach (var system in universeSandBox.SolarSystemsList)
-                SubmitSceneObjectsForRendering(universeSandBox, system);
-            UniverseScreen = new UniverseScreen(universeSandBox)
-                { PlayerEmpire = universeSandBox.EmpireList.First };
-            UniverseScreen.player = UniverseScreen.PlayerEmpire;
-            UniverseScreen.ResetLighting();
-            //ScreenManager.AddScreen(UniverseScreen);
-
+            foreach (SolarSystem system in sandbox.SolarSystemsList)
+                SubmitSceneObjectsForRendering(sandbox, system);
+            Universe = new UniverseScreen(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
+            Universe.player = Universe.PlayerEmpire;
+            Universe.NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
+            Universe.ResetLighting();
         }
-
         public Vector2 GenerateRandomSysPos(float spacing, Array<Vector2> claimedSpots, UniverseData data)
         {
             float safteyBreak = 1;
@@ -154,7 +131,6 @@ namespace Ship_Game
             claimedSpots.Add(sysPos);
             return sysPos;
         }
-
         private bool SystemPosOK(Vector2 sysPos, float spacing, Array<Vector2> claimedSpots, UniverseData data)
         {
             foreach (Vector2 vector2 in claimedSpots)
@@ -166,10 +142,8 @@ namespace Ship_Game
             }
             return true;
         }
-        private void SubmitSceneObjectsForRendering(UniverseData data, SolarSystem solarSystem)
+        private void SubmitSceneObjectsForRendering(UniverseData data, SolarSystem wipSystem)
         {
-            SolarSystem wipSystem = solarSystem;
-
             foreach (Planet planet in wipSystem.PlanetList)
             {
                 planet.ParentSystem = wipSystem;
@@ -194,7 +168,5 @@ namespace Ship_Game
                 ship.InitializeShip();
             }
         }
-
-
     }
 }
