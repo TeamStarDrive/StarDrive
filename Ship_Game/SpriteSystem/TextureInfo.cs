@@ -16,8 +16,10 @@ namespace Ship_Game.SpriteSystem
         public Texture2D Texture;
         public bool NoPack; // This texture should not be packed
 
+        public override string ToString() => $"X:{X} Y:{Y} W:{Width} H:{Height} Name:{Name}";
+
         // @note this will destroy Texture after transferring it to atlas
-        public void TransferTextureToAtlas(Color[] atlas, int atlasWidth)
+        public void TransferTextureToAtlas(Color[] atlas, int atlasWidth, int atlasHeight)
         {
             if (Texture == null)
                 throw new ObjectDisposedException("TextureData Texture2D ref already disposed");
@@ -40,8 +42,7 @@ namespace Ship_Game.SpriteSystem
             Texture.Dispose(); // save some memory
             Texture = null;
 
-            //ImageUtils.SaveAsPng($"{TextureCacheDir}/{texName}.png", Width, Height, ColorData);
-            ImageUtils.CopyPixelsTo(atlas, atlasWidth, X, Y, colorData, Width, Height);
+            ImageUtils.CopyPixelsWithPadding(atlas, atlasWidth, atlasHeight, X, Y, colorData, Width, Height);
         }
     }
 }

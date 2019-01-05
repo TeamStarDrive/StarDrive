@@ -122,6 +122,7 @@ namespace Ship_Game
         }
 
         public GraphicsDeviceManager Manager => (GraphicsDeviceManager)ServiceProvider.GetService(typeof(IGraphicsDeviceManager));
+        public GraphicsDevice Device => Manager.GraphicsDevice;
 
         static int TextureSize(Texture2D tex)
         {
