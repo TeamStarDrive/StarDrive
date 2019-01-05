@@ -128,7 +128,7 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial12Bold, Text, Pos, TextColor);
 
             var gradient = new Rectangle(SliderRect.X, SliderRect.Y, (int)(RelativeValue * SliderRect.Width), 6);
-            batch.Draw(SliderGradient, gradient, gradient, Color.White);
+            batch.Draw(SliderGradient, gradient, Color.White);
             batch.DrawRectangle(SliderRect, Hover ? HoverColor : NormalColor);
 
             for (int i = 0; i < 11; i++)
@@ -147,17 +147,17 @@ namespace Ship_Game
             if (Hover && Tooltip.NotEmpty())
                 ToolTip.CreateTooltip(Tooltip);
         }
-        public bool HandleInput(InputState input, ref float currentvalue, float dynamicMaxValue)
+        public bool HandleInput(InputState input, ref float currentValue, float dynamicMaxValue)
         {
             Max = Math.Min(500000f, dynamicMaxValue);
            
             if (!Rect.HitTest(input.CursorPosition) || !input.LeftMouseHeld())
             {
-                AbsoluteValue = currentvalue;
+                AbsoluteValue = currentValue;
                 return false;
             }
             HandleInput(input);
-            currentvalue = AbsoluteValue;
+            currentValue = AbsoluteValue;
             return true;
 
         }
