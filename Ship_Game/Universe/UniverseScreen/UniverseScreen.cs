@@ -208,6 +208,7 @@ namespace Ship_Game
         private float Memory;
         public bool Paused;
         public bool SkipRightOnce;
+        public bool NoEliminationVictory;
         private bool UseRealLights = true;
         public bool showdebugwindow;
         private bool NeedARelease;

@@ -68,26 +68,38 @@ namespace Ship_Game
 		public override void Draw(SpriteBatch batch)
 		{
 			ScreenManager.GraphicsDevice.Clear(Color.Black);
-			ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
-            desaturateEffect.Begin();
-            desaturateEffect.CurrentTechnique.Passes[0].Begin();
-			Rectangle? nullable = null;
-			ScreenManager.SpriteBatch.Draw(LoseTexture, new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2), nullable, new Color(255, 255, 255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
-			Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 50);
-			ScreenManager.SpriteBatch.End();
-            desaturateEffect.CurrentTechnique.Passes[0].End();
-            desaturateEffect.End();
-			ScreenManager.SpriteBatch.Begin();
-			if (txt != null)
-			{
-				HelperFunctions.DrawDropShadowText(ScreenManager, txt, pos, Fonts.Arial20Bold);
-			}
-			ScreenManager.SpriteBatch.Draw(Reason, ReasonRect, Color.White);
-			if (!IsExiting && ShowingReplay)
-			{
-                replay.Draw(ScreenManager);
-			}
-			ScreenManager.SpriteBatch.End();
+
+            batch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
+            if (desaturateEffect != null)
+            {
+                desaturateEffect.Begin();
+                desaturateEffect.CurrentTechnique.Passes[0].Begin();
+
+                batch.Draw(LoseTexture, ScreenCenter, null,
+                    new Color(255, 255, 255, (byte)Saturation),
+                    0f, Origin, scale, SpriteEffects.None, 1f);
+
+                desaturateEffect.CurrentTechnique.Passes[0].End();
+                desaturateEffect.End();
+            }
+            batch.End();
+
+            batch.Begin();
+            {
+                if (txt != null)
+                {
+                    Vector2 pos = ScreenCenter;
+                    pos.X -= 250;
+                    pos.Y -= 50;
+                    HelperFunctions.DrawDropShadowText(ScreenManager, txt, pos, Fonts.Arial20Bold);
+                }
+                batch.Draw(Reason, ReasonRect, Color.White);
+                if (!IsExiting && ShowingReplay)
+                {
+                    replay.Draw(ScreenManager);
+                }
+            }
+            batch.End();
 		}
 
 		public override void ExitScreen()

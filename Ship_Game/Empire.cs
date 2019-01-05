@@ -1947,19 +1947,23 @@ namespace Ship_Game
                 RandomEventManager.UpdateEvents();
                 if (data.TurnsBelowZero == 5 && Money < 0.0)
                     Universe.NotificationManager.AddMoneyWarning();
-                bool allEmpiresDead = true;
-                foreach (Empire empire in EmpireManager.Empires)
+
+                if (!Universe.NoEliminationVictory)
                 {
-                    if (empire.GetPlanets().Count > 0 && !empire.isFaction && empire != this)
+                    bool allEmpiresDead = true;
+                    foreach (Empire empire in EmpireManager.Empires)
                     {
-                        allEmpiresDead = false;
-                        break;
+                        if (empire.GetPlanets().Count > 0 && !empire.isFaction && empire != this)
+                        {
+                            allEmpiresDead = false;
+                            break;
+                        }
                     }
-                }
-                if (allEmpiresDead)
-                {
-                    Universe.ScreenManager.AddScreen(new YouWinScreen(Universe));
-                    return;
+                    if (allEmpiresDead)
+                    {
+                        Universe.ScreenManager.AddScreen(new YouWinScreen(Universe));
+                        return;
+                    }
                 }
 
                 foreach (Planet planet in OwnedPlanets)
