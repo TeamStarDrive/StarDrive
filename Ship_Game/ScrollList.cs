@@ -48,12 +48,12 @@ namespace Ship_Game
 
         // Added by EVWeb to not waste space when a list won't use certain buttons
         private readonly ListControls Controls = ListControls.All;
-        private readonly Texture2D ArrowUpIcon  = ResourceManager.Texture("NewUI/icon_queue_arrow_up");
-        private readonly Texture2D BuildAddIcon = ResourceManager.Texture("NewUI/icon_build_add");
+        private readonly SubTexture ArrowUpIcon  = ResourceManager.Texture("NewUI/icon_queue_arrow_up");
+        private readonly SubTexture BuildAddIcon = ResourceManager.Texture("NewUI/icon_build_add");
 
-        private readonly Texture2D ScrollBarArrowUp   = ResourceManager.Texture("NewUI/scrollbar_arrow_up");
-        private readonly Texture2D ScrollBarArrorDown = ResourceManager.Texture("NewUI/scrollbar_arrow_down");
-        private readonly Texture2D ScrollBarMidMarker = ResourceManager.Texture("NewUI/scrollbar_bar_mid");
+        private readonly SubTexture ScrollBarArrowUp   = ResourceManager.Texture("NewUI/scrollbar_arrow_up");
+        private readonly SubTexture ScrollBarArrorDown = ResourceManager.Texture("NewUI/scrollbar_arrow_down");
+        private readonly SubTexture ScrollBarMidMarker = ResourceManager.Texture("NewUI/scrollbar_bar_mid");
 
 
         public ScrollList(Submenu p, ListOptions options = ListOptions.None)
@@ -885,8 +885,8 @@ namespace Ship_Game
                 int iconY = r.Y + 15;
                 Rect = r;
 
-                Texture2D addIcon = List.BuildAddIcon;
-                Texture2D upIcon  = List.ArrowUpIcon;
+                SubTexture addIcon = List.BuildAddIcon;
+                SubTexture upIcon  = List.ArrowUpIcon;
 
                 if (Plus) PlusRect  = new Rectangle(right - 30, iconY - addIcon.Height / 2, addIcon.Width, addIcon.Height);
                 if (Edit) EditRect = new Rectangle(right - 60, iconY - addIcon.Height / 2, addIcon.Width, addIcon.Height);

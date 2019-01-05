@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Threading;
 
 namespace Ship_Game
 {
@@ -80,12 +80,13 @@ namespace Ship_Game
             {
                 if (!ResourceManager.TryGetTech(tech.UID, out _))
                     Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
-                else e.TechnologyDict.Add(tech.UID, tech);
+                else
+                    e.TechnologyDict.Add(tech.UID, tech);
             }            
             e.InitializeFromSave();
             e.Money = sdata.Money;
             e.Research = sdata.Research;
-            e.GetGSAI().AreasOfOperations = sdata.AOs;            
+            e.GetEmpireAI().AreasOfOperations = sdata.AOs;            
   
             return e;
         }
@@ -98,30 +99,31 @@ namespace Ship_Game
                 guid = psdata.guid,
                 Name = psdata.Name
             };
+
             if (!string.IsNullOrEmpty(psdata.Owner))
             {
                 p.Owner = EmpireManager.GetEmpireByName(psdata.Owner);
                 p.Owner.AddPlanet(p);
             }
+
             if(!string.IsNullOrEmpty(psdata.SpecialDescription))
-            {
                 p.SpecialDescription = psdata.SpecialDescription;
-            }
+
             if (psdata.Scale > 0f)
-            {
                 p.Scale = psdata.Scale;
-            }
             else
             {
                 float scale = RandomMath.RandomBetween(1f, 2f);
                 p.Scale = scale;
             }
+
             p.colonyType = psdata.ColonyType;
             if (!psdata.GovernorOn)
             {
                 p.GovernorOn = false;
                 p.colonyType = Planet.ColonyType.Colony;
             }
+
             p.OrbitalAngle          = psdata.OrbitalAngle;
             p.FS                    = psdata.FoodState;
             p.PS                    = psdata.ProdState;
@@ -130,8 +132,10 @@ namespace Ship_Game
             p.ResLocked             = psdata.ResLock;
             p.OrbitalRadius         = psdata.OrbitalDistance;
             p.MaxPopulation         = psdata.PopulationMax;
-                   
-            p.Fertility             = psdata.Fertility;
+
+            p.InitFertility(psdata.Fertility);
+            p.InitMaxFertility(psdata.MaxFertility);
+
             p.MineralRichness       = psdata.Richness;
             p.TerraformPoints       = psdata.TerraformPoints;
             p.HasRings              = psdata.HasRings;
@@ -150,9 +154,8 @@ namespace Ship_Game
             
 
             if (p.HasRings)
-            {
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
-            }
+
             foreach (SavedGame.PGSData d in psdata.PGSList)
             {
                 var pgs = new PlanetGridSquare(d.x, d.y, d.building, d.Habitable)
@@ -160,9 +163,7 @@ namespace Ship_Game
                     Biosphere = d.Biosphere
                 };
                 if (pgs.Biosphere)
-                {
                     p.BuildingList.Add(ResourceManager.CreateBuilding("Biospheres"));
-                }
                 p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
                 {
@@ -339,7 +340,7 @@ namespace Ship_Game
         {
             foreach (Empire e in data.EmpireList)
             {
-                e.GetGSAI().InitialzeAOsFromSave(data);
+                e.GetEmpireAI().InitialzeAOsFromSave(data);
             }
             foreach (Ship ship in us.MasterShipList)
             {
@@ -354,7 +355,7 @@ namespace Ship_Game
                 }
                 else if (ship.AI.State == AIState.SystemDefender)
                 {
-                    ship.loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
+                    ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
                     ship.AddedOnLoad = true;
                 }
             }
@@ -577,19 +578,19 @@ namespace Ship_Game
                         if (gsave.colonyShipGuid == s.guid) g.SetColonyShip(s);
                         if (gsave.beingBuiltGUID == s.guid) g.SetBeingBuilt(s);
                     }
-                    e.GetGSAI().Goals.Add(g);
+                    e.GetEmpireAI().Goals.Add(g);
                 }
                 for (int i = 0; i < d.GSAIData.PinGuids.Count; i++)
                 {
-                    e.GetGSAI().ThreatMatrix.Pins.Add(d.GSAIData.PinGuids[i], d.GSAIData.PinList[i]);
+                    e.GetEmpireAI().ThreatMatrix.Pins.Add(d.GSAIData.PinGuids[i], d.GSAIData.PinList[i]);
                 }
-                e.GetGSAI().UsedFleets = d.GSAIData.UsedFleets;
+                e.GetEmpireAI().UsedFleets = d.GSAIData.UsedFleets;
                 lock (GlobalStats.TaskLocker)
                 {
                     foreach (MilitaryTask task in d.GSAIData.MilitaryTaskList)
                     {
                         task.SetEmpire(e);
-                        e.GetGSAI().TaskList.Add(task);
+                        e.GetEmpireAI().TaskList.Add(task);
                         if (task.TargetPlanetGuid != Guid.Empty)
                         {
                             foreach (SolarSystem s in data.SolarSystemsList)
@@ -608,7 +609,7 @@ namespace Ship_Game
                         }
                         foreach (Guid guid in task.HeldGoals)
                         {
-                            foreach (Goal g in e.GetGSAI().Goals)
+                            foreach (Goal g in e.GetEmpireAI().Goals)
                             {
                                 if (g.guid == guid)
                                     g.Held = true;
@@ -662,7 +663,7 @@ namespace Ship_Game
                             g.VariableString = sg.VariableString;
                             g.DesiredFacing  = sg.DesiredFacing;
                             g.SpeedLimit     = sg.SpeedLimit;
-                            foreach (Goal goal in ship.loyalty.GetGSAI().Goals)
+                            foreach (Goal goal in ship.loyalty.GetEmpireAI().Goals)
                             {
                                 if (sg.goalGuid == goal.guid)
                                     g.goal = goal;
@@ -737,7 +738,7 @@ namespace Ship_Game
                                 qi.Cost = qisave.RefitCost;
                             }
                         }
-                        foreach (Goal g in p.Owner.GetGSAI().Goals)
+                        foreach (Goal g in p.Owner.GetEmpireAI().Goals)
                         {
                             if (g.guid != qisave.GoalGUID)
                                 continue;
@@ -861,7 +862,7 @@ namespace Ship_Game
                             ship.AI.State = AIState.SystemDefender;
                         }
                     }
-                    if (ship.shipData.IsShipyard && !ship.IsTethered())
+                    if (ship.shipData.IsShipyard && !ship.IsTethered)
                         ship.Active = false;
                     Guid escortTargetGuid = ship.AI.EscortTargetGuid;
                     foreach (Ship s in data.MasterShipList)

@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
@@ -93,7 +93,7 @@ namespace Ship_Game.Gameplay
         public float ShieldPenChance;
         public float PowerDamage;
         public float SiphonDamage;
-        public int BeamThickness;        
+        public int BeamThickness;
         public float BeamDuration;
         public int BeamPowerCostPerSecond;
         public string BeamTexture;
@@ -111,7 +111,7 @@ namespace Ship_Game.Gameplay
         public float OrdinanceRequiredToFire;
         public Vector2 Center;
         public float Range;
-        public float DamageAmount;        
+        public float DamageAmount;
         public float ProjectileSpeed;
         public int ProjectileCount = 1;
         public int FireArc;
@@ -155,7 +155,7 @@ namespace Ship_Game.Gameplay
         public bool AltFireMode;
         public bool AltFireTriggerFighter;
         private Weapon AltFireWeapon;
-        public float OffPowerMod = 1f;        
+        public float OffPowerMod = 1f;
         public bool RangeVariance;
         public float ExplosionRadiusVisual = 4.5f;
         [XmlIgnore][JsonIgnore]
@@ -246,10 +246,10 @@ namespace Ship_Game.Gameplay
                 if (ResourceManager.HullBonuses.TryGetValue(owner.shipData.Hull, out HullBonus mod))
                     damageAmount += damageAmount * mod.DamageBonus;
 
-            return damageAmount;            
+            return damageAmount;
         }
 
- 
+
         public void PlayToggleAndFireSfx(AudioEmitter emitter = null)
         {
             if (ToggleCue.IsPlaying)
@@ -310,7 +310,7 @@ namespace Ship_Game.Gameplay
 
         private void SpawnSalvo(Vector2 direction, GameplayObject target)
         {
-            bool secondary = SecondaryFire != null && AltFireTriggerFighter && AltFireMode 
+            bool secondary = SecondaryFire != null && AltFireTriggerFighter && AltFireMode
                 && target is ShipModule shipModule && shipModule.GetParent().shipData.Role == ShipData.RoleName.fighter;
 
             if (secondary && AltFireWeapon == null)
@@ -338,7 +338,7 @@ namespace Ship_Game.Gameplay
         private bool PrepareToFire()
         {
             if (CooldownTimer > 0f || !CanFireWeapon())
-                return false; 
+                return false;
 
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
@@ -371,14 +371,14 @@ namespace Ship_Game.Gameplay
                 return;
             if (!PrepareToFireSalvo())
                 return;
-            
+
             if (SalvoTarget != null) // check for new direction
             {
                 // update direction only if we have a new valid pip
                 if (PrepareFirePos(SalvoTarget, SalvoTarget.Center, out Vector2 firePos))
                     SalvoDirection = (firePos - Module.Center).ToRadians() - Owner.Rotation;
             }
-            
+
             SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget);
         }
 
@@ -427,29 +427,29 @@ namespace Ship_Game.Gameplay
 
         public Vector2 AdjustTargetting(int level = -1)
         {
-            if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD) 
-                return Vector2.Zero; //|| Tag_PD 
+            if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
+                return Vector2.Zero; //|| Tag_PD
 
-            //calaculate level. 
-            int trackingPower = Owner?.TrackingPower ?? 1;                        
+            //calaculate level.
+            int trackingPower = Owner?.TrackingPower ?? 1;
             if(level == -1)
-                level = (Owner?.Level ?? level) 
+                level = (Owner?.Level ?? level)
                     + trackingPower //(Owner?.TrackingPower  ?? 0)
                     + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
-            
+
             //reduce jitter by level cubed. if jitter is less than a module radius stop.
-            float baseJitter = 178f + 8 * Module.XSIZE * Module.YSIZE; 
+            float baseJitter = 45f + 8 * Module.XSIZE * Module.YSIZE;
             float adjust     = Math.Max(0, baseJitter - level * level * level);
             if (adjust < 8) return Vector2.Zero;
 
 
-            //reduce or increase jitter based on weapon and trait characteristics. 
-            
-            if (Tag_Cannon) adjust   *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));    
+            //reduce or increase jitter based on weapon and trait characteristics.
+
+            if (Tag_Cannon) adjust   *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
             if (Tag_Kinetic) adjust  *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
 
             adjust *= CalculateBaseAccuracy();
-            
+
             return RandomMath2.Vector2D(adjust);
         }
 
@@ -469,26 +469,25 @@ namespace Ship_Game.Gameplay
             return adjust;
         }
         public Vector2 SetDestination(Vector2 target, Vector2 source, float range )
-        {            
-            Vector2 deltaVec = target - source;            
+        {
+            Vector2 deltaVec = target - source;
             return source + deltaVec.Normalized() * range;
         }
         public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
             Vector2 weaponOrigin = Module?.Center ?? Center;
             Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
-            Vector2 ownerCenter  = Owner?.Center ?? Vector2.Zero;
-            Vector2 jitter = target.JitterPosition() + AdjustTargetting();
+            Vector2 error = target.TargetErrorPos() + AdjustTargetting();
 
             pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, Range, target).Predict();
-            Vector2 jitteredtarget = SetDestination(pip, ownerCenter, 4000) + jitter;
-            pip = SetDestination(jitteredtarget, ownerCenter, ownerCenter.Distance(pip));
+            Vector2 targetError = SetDestination(pip, weaponOrigin, 1000) + error;
+            pip = SetDestination(targetError, weaponOrigin, weaponOrigin.Distance(pip));
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
             return pip != Vector2.Zero;
         }
 
-        public void UpdatePrimaryFireTarget(GameplayObject prevTarget, 
+        public void UpdatePrimaryFireTarget(GameplayObject prevTarget,
             Array<Projectile> enemyProjectiles, Array<Ship> enemyShips)
         {
             TargetChangeTimer -= 0.0167f;
@@ -499,8 +498,8 @@ namespace Ship_Game.Gameplay
 
         private bool CanTargetWeapon(GameplayObject prevTarget)
         {
-            // Reasons for this weapon not to fire 
-            if (TargetChangeTimer > 0f 
+            // Reasons for this weapon not to fire
+            if (TargetChangeTimer > 0f
                 || !Module.Active
                 || CooldownTimer > 0f
                 || !Module.Powered || IsRepairDrone || isRepairBeam
@@ -512,7 +511,7 @@ namespace Ship_Game.Gameplay
             var projTarget = FireTarget as Projectile;
 
             // check if weapon target as a gameplay object is still a valid target
-            // and if the weapon can still fire on main target.       
+            // and if the weapon can still fire on main target.
             if (FireTarget != null && !Owner.CheckIfInsideFireArc(this, FireTarget)
                 || prevTarget != null && SalvoTimer <= 0f && BeamDuration <= 0f
                 && projTarget == null && Owner.CheckIfInsideFireArc(this, prevTarget)
@@ -525,7 +524,7 @@ namespace Ship_Game.Gameplay
                 if (TruePD) TargetChangeTimer   *= .25f;
             }
 
-            // Reasons for this weapon not to fire                    
+            // Reasons for this weapon not to fire
             return FireTarget != null || TargetChangeTimer <= 0f;
         }
 
@@ -533,11 +532,11 @@ namespace Ship_Game.Gameplay
         {
             if (enemyProjectiles.NotEmpty && Tag_PD)
             {
-                int maxTrackable = (int)(Owner.TrackingPower + Owner.Level *.05f);
+                int maxTrackable = Owner.TrackingPower + Owner.Level;
                 for (int i = 0; i < maxTrackable && i < enemyProjectiles.Count; i++)
                 {
                     Projectile proj = enemyProjectiles[i];
-                    if (proj == null || !proj.Active || proj.Health <= 0f || 
+                    if (proj == null || !proj.Active || proj.Health <= 0f ||
                         !proj.Weapon.Tag_Intercept || !Owner.CheckIfInsideFireArc(this, proj))
                         continue;
                     FireTarget = proj;
@@ -560,7 +559,7 @@ namespace Ship_Game.Gameplay
             else if (Owner.TrackingPower > 0)
             {
                 // limit to one target per level.
-                int tracking = (int)(Owner.TrackingPower + Owner.Level * 0.05f);
+                int tracking = Owner.TrackingPower + Owner.Level;
                 for (int i = 0; i < potentialTargets.Count && i < tracking; i++) //
                 {
                     Ship potentialTarget = potentialTargets[i];
@@ -600,12 +599,11 @@ namespace Ship_Game.Gameplay
             }
             if (Tag_Tractor || isRepairBeam) return destination;
 
-            Vector2 ownerCenter = Owner?.Center ?? Vector2.Zero;
-            Vector2 jitter = target?.JitterPosition() ?? Vector2.Zero;            
-            jitter += AdjustTargetting();
-            jitter += SetDestination(destination, ownerCenter, 4000);
-            jitter = SetDestination(jitter, ownerCenter, ownerCenter.Distance(destination));
-            return jitter;
+            Vector2 targetError = target?.TargetErrorPos() ?? Vector2.Zero;
+            targetError += AdjustTargetting();
+            targetError += SetDestination(destination, Center, 1000);
+            targetError = SetDestination(targetError, Center, Center.Distance(destination));
+            return targetError;
         }
 
         private void FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
@@ -622,7 +620,7 @@ namespace Ship_Game.Gameplay
         {
             drowner = droneAI.Drone;
             var beam = new Beam(this, drowner.Center, target.Center, target);
-           
+
             droneAI.Beams.Add(beam);
         }
 
@@ -665,7 +663,7 @@ namespace Ship_Game.Gameplay
                 return;
             if (!TargetValid(FireTarget)) return;
             if (FireTarget is Ship targetShip)
-            {          
+            {
                 FireAtAssignedTargetNonVisible(targetShip);
                 return;
             }
@@ -825,7 +823,7 @@ namespace Ship_Game.Gameplay
             if (Tag_Tractor)   modifier *= loyaltyData.WeaponTags["Tractor"].Range;
 
             CachedModifiedRange = modifier * Range;
-            return CachedModifiedRange;            
+            return CachedModifiedRange;
         }
 
 
@@ -852,7 +850,7 @@ namespace Ship_Game.Gameplay
             return damageModifier;
         }
 
-        //How much total resource required to use weapon. 
+        //How much total resource required to use weapon.
         public float PowerUseMax    => isBeam ? BeamPowerCostPerSecond * BeamDuration : PowerRequiredToFire;
         public float OrdnanceUseMax => OrdinanceRequiredToFire * SalvoCount;
 
@@ -903,7 +901,7 @@ namespace Ship_Game.Gameplay
             //FB: Range margins are less steep for missiles
             off *= !Tag_Missile && !Tag_Torpedo ? (Range / 4000) * (Range / 4000) : (Range / 4000);
 
-            // FB: simpler calcs for these. 
+            // FB: simpler calcs for these.
             off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;
             off *= EffectVsArmor < 1 ? 1f - (1f - EffectVsArmor) / 2f : 1f;
             off *= EffectVSShields > 1 ? 1f + (EffectVSShields - 1f) / 2f : 1f;

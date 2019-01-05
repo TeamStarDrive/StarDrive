@@ -16,10 +16,10 @@ namespace Ship_Game
     {
         // If non-null, a parent resource manager is checked first for existing resources
         // to avoid double loading resources into memory
-        private readonly GameContentManager Parent;
-        private Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
-        private Map<string, Effect> LoadedEffects = new Map<string, Effect>();
-        private List<IDisposable> DisposableAssets;
+        readonly GameContentManager Parent;
+        Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
+        Map<string, Effect> LoadedEffects = new Map<string, Effect>();
+        List<IDisposable> DisposableAssets;
         public string Name { get; }
 
         // Enables verbose logging for all asset loads
@@ -35,7 +35,7 @@ namespace Ship_Game
             FixSunBurnTypeLoader();
         }
 
-        public GameContentManager(IServiceProvider services, string name) : base(services, "Content")
+        public GameContentManager(IServiceProvider services, string name, string rootDirectory = "Content") : base(services, rootDirectory)
         {
             Name = name;
             LoadedAssets     = (Dictionary<string, object>)GetField("loadedAssets");
@@ -49,9 +49,9 @@ namespace Ship_Game
             RawContent = new RawContentLoader(this);
         }
 
-        private object GetField(string field) => typeof(ContentManager).GetField(field, BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
+        object GetField(string field) => typeof(ContentManager).GetField(field, BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
 
-        private bool TryGetAsset(string assetNameNoExt, out object asset)
+        bool TryGetAsset(string assetNameNoExt, out object asset)
         {
             GameContentManager mgr = this;
             do
@@ -64,13 +64,20 @@ namespace Ship_Game
             return false;
         }
 
-        // Tries to get an existing asset. Only returns true if the asset is already loaded and matches typeof(T)
+        // Tries to get an existing asset.
+        // Returns true if asset exists and type is correct
+        // Returns false if asset does not exist
+        // Throw ContentLoadException if asset type mismatches
         public bool TryGetAsset<T>(string assetNameNoExt, out T asset)
         {
-            if (TryGetAsset(assetNameNoExt, out object obj) && obj is T assetObj)
+            if (TryGetAsset(assetNameNoExt, out object existing))
             {
-                asset = assetObj;
-                return true;
+                if (existing is T assetObj)
+                {
+                    asset = assetObj;
+                    return true;
+                }
+                throw new ContentLoadException($"Asset '{assetNameNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
             }
             asset = default(T);
             return false;
@@ -109,16 +116,17 @@ namespace Ship_Game
             LoadedEffects    = null;
         }
 
-        private static T GetField<T>(object obj, string name)
+        static T GetField<T>(object obj, string name)
         {
             return (T)obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(obj);
         }
 
         public GraphicsDeviceManager Manager => (GraphicsDeviceManager)ServiceProvider.GetService(typeof(IGraphicsDeviceManager));
+        public GraphicsDevice Device => Manager.GraphicsDevice;
 
-        private static int TextureSize(Texture2D tex)
+        static int TextureSize(Texture2D tex)
         {
-            if (tex.IsDisposed)
+            if (tex == null || tex.IsDisposed)
                 return 0;
             float mul = 1f;
             switch (tex.Format)
@@ -145,6 +153,10 @@ namespace Ship_Game
                 if (asset is Texture2D tex)
                 {
                     numBytes += TextureSize(tex);
+                }
+                else if (asset is TextureAtlas atlas)
+                {
+                    numBytes += TextureSize(atlas.Atlas);
                 }
                 else if (asset is Video vid)
                 {
@@ -192,13 +204,17 @@ namespace Ship_Game
             }
         }
 
-        private void RecordDisposableObject(IDisposable disposable)
+        void RecordDisposableObject(IDisposable disposable)
         {
             lock (LoadSync)
                 DisposableAssets.Add(disposable);
         }
 
-        private struct AssetName
+        void DoNothingWithDisposable(IDisposable _)
+        {
+        }
+
+        struct AssetName
         {
             public readonly string OriginalName;
             public readonly string NoExt;     // XNA friendly name without an extension
@@ -247,10 +263,21 @@ namespace Ship_Game
         }
 
 
+
         // Load the asset with the given name or path
         // Path must be relative to project root, such as:
         // "Textures/mytexture" or "Textures/mytexture.xnb"
         public override T Load<T>(string assetName)
+        {
+            return LoadAsset<T>(assetName, useCache:true);
+        }
+
+        public T LoadUncached<T>(string assetName)
+        {
+            return LoadAsset<T>(assetName, useCache: false);
+        }
+
+        public T LoadAsset<T>(string assetName, bool useCache)
         {
             var asset = new AssetName(assetName);
             if (LoadedAssets == null)
@@ -259,25 +286,75 @@ namespace Ship_Game
             if (EnableLoadInfoLog)
                 Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {asset.NoExt}");
 
-            if (TryGetAsset(asset.NoExt, out object existing))
-            {
-                if (existing is T assetObj)
-                    return assetObj;
-                throw new ContentLoadException($"Asset '{asset.NoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
-            }
+            if (useCache && TryGetAsset(asset.NoExt, out T existing))
+                return existing;
+
+            Type assetType = typeof(T);
+            if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(asset.NoExt);
+            if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(asset.NoExt, useCache);
 
             T loaded;
             if (asset.NonXnaAsset)
                 loaded = (T)RawContent.LoadAsset(asset.OriginalName, asset.Extension);
             else
-                loaded = ReadAsset<T>(asset.NoExt, RecordDisposableObject);
+                loaded = ReadAsset<T>(asset.NoExt, DoNothingWithDisposable);
 
             // detect possible resource leaks -- this is very slow, so only enable on demand
             #if false
                 SlowCheckForResourceLeaks(asset.NoExt);
             #endif
-            lock (LoadSync) LoadedAssets.Add(asset.NoExt, loaded);
+            if (useCache) RecordCacheObject(asset.NoExt, loaded);
             return loaded;
+        }
+
+        void RecordCacheObject<T>(string name, T obj)
+        {
+            lock (LoadSync)
+            {
+                // If same object already exists, we skip Add. We also test for concurrency bugs and type mismatches.
+                if (LoadedAssets.TryGetValue(name, out object existing))
+                {
+                    if ((obj as object) != existing)
+                        throw new ContentLoadException($"Duplicate asset '{name}' of type '{typeof(T)}' already loaded! This is a concurrency bug!");
+                    if (!(existing is T))
+                        throw new ContentLoadException($"Asset '{name}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
+                }
+                else
+                {
+                    LoadedAssets.Add(name, obj);
+                    if (obj is IDisposable disposable)
+                        DisposableAssets.Add(disposable);
+                }
+            }
+        }
+
+        public TextureAtlas LoadTextureAtlas(string folderWithTextures, bool useCache = true)
+        {
+            if (useCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
+                return existing;
+
+            TextureAtlas atlas = TextureAtlas.FromFolder(this, folderWithTextures);
+            if (atlas != null && useCache) RecordCacheObject(folderWithTextures, atlas);
+            return atlas;
+        }
+
+        // @return null if texture not found
+        public SubTexture LoadSubTexture(string textureName)
+        {
+            int i = textureName.LastIndexOf('/');
+            if (i == -1) i = textureName.LastIndexOf('\\');
+            if (i == -1)
+                return null;
+
+            string folder = textureName.Substring(0, i);
+            // @note LoadTextureAtlas useCache MUST be true, otherwise TextureAtlas will be destroyed
+            TextureAtlas atlas = LoadTextureAtlas(folder, useCache: true);
+            if (atlas == null)
+                return null;
+
+            string name = Path.GetFileName(textureName);
+            atlas.TryGetTexture(name, out SubTexture texture);
+            return texture;
         }
 
         public StaticMesh LoadStaticMesh(string modelName)
@@ -307,7 +384,7 @@ namespace Ship_Game
             return Load<SkinnedModel>(modelName);
         }
 
-        private void SlowCheckForResourceLeaks(string assetNoExt)
+        void SlowCheckForResourceLeaks(string assetNoExt)
         {
             string[] keys;
             lock (LoadSync) keys = LoadedAssets.Keys.ToArray();
@@ -348,7 +425,7 @@ namespace Ship_Game
             }
         }
 
-        private static void FixSunBurnTypeLoader()
+        static void FixSunBurnTypeLoader()
         {
             Type readerMgrType  = typeof(ContentTypeReaderManager);
             Type contentMgrType = typeof(GameContentManager);
@@ -366,12 +443,12 @@ namespace Ship_Game
             SunburnAssemblyName = typeof(SceneInterface).Assembly.FullName;
         }
 
-        private static Dictionary<Type, ContentTypeReader> ReaderTypeToReader;
-        private static Dictionary<string, ContentTypeReader> NameToReader;
-        private static Assembly XnaAssembly;
-        private static string SunburnAssemblyName;
+        static Dictionary<Type, ContentTypeReader> ReaderTypeToReader;
+        static Dictionary<string, ContentTypeReader> NameToReader;
+        static Assembly XnaAssembly;
+        static string SunburnAssemblyName;
 
-        private static bool InstantiateTypeReader(string readerTypeName, ContentReader contentReader, out ContentTypeReader reader)
+        static bool InstantiateTypeReader(string readerTypeName, ContentReader contentReader, out ContentTypeReader reader)
         {
             try
             {

@@ -210,7 +210,7 @@ namespace Ship_Game
                 {
                     DrawRacePortrait();
 
-                    Texture2D shield = ResourceManager.Texture("UI/icon_shield");
+                    SubTexture shield = ResourceManager.Texture("UI/icon_shield");
 
                     // Added by McShooterz: Display Spy Defense value
                     var defenseIcon = new Rectangle(Rect.Center.X - shield.Width, Rect.Y + Fonts.Arial12.LineSpacing + 164, shield.Width, shield.Height);

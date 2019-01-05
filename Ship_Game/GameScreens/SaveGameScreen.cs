@@ -12,7 +12,7 @@ namespace Ship_Game
             : base(screen, SLMode.Save, screen.PlayerLoyalty + ", Star Date " + screen.StarDateString, "Save Game", "Saved Games", "Saved Game already exists.  Overwrite?")
         {
             this.screen = screen;
-            Path = string.Concat(Dir.ApplicationData, "/StarDrive/Saved Games/");
+            Path = Dir.StarDriveAppData + "/Saved Games/";
             //this.selectedFile = new FileData();
         }
 

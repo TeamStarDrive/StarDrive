@@ -979,9 +979,9 @@ namespace Ship_Game
 		{
 			public Rectangle Rect;
 			public PressState State;
-			public Texture2D NormalTexture;
-			public Texture2D HoverTexture;
-			public Texture2D PressedTexture;
+			public SubTexture NormalTexture;
+			public SubTexture HoverTexture;
+			public SubTexture PressedTexture;
 			public string Text = "";
 			public string launches;
 		}

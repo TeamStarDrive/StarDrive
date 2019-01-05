@@ -101,7 +101,6 @@ namespace Ship_Game
             {
                 Vector2 imagePos = center + (scale * Radius * new Vector2((float)Math.Cos(currentAngle), -(float)Math.Sin(currentAngle)));
                 int imageSize = (int)(scale * 30f);
-                Rectangle rectangle = new Rectangle((int)imagePos.X - imageSize, (int)imagePos.Y - imageSize, 2 * imageSize, 2 * imageSize);
                 Color drawColor = Color.White;
                 if (currentAngle <= 0f)
                 {
@@ -111,8 +110,10 @@ namespace Ship_Game
                 {
                     drawColor = Color.Red;
                 }
-                Rectangle? nullable = null;
-                spriteBatch.Draw(RootNode.Children[i].Icon, new Vector2(imagePos.X, imagePos.Y), nullable, drawColor, 0f, new Vector2(RootNode.Children[i].Icon.Width / 2, RootNode.Children[i].Icon.Height / 2), scale, SpriteEffects.None, 1f);
+                spriteBatch.Draw(RootNode.Children[i].Icon,
+                    new Vector2(imagePos.X, imagePos.Y), drawColor, 0f, 
+                    new Vector2(RootNode.Children[i].Icon.Width / 2, RootNode.Children[i].Icon.Height / 2),
+                    scale, SpriteEffects.None, 1f);
                 if (i == selectionIndex)
                 {
                     spriteBatch.DrawString(font, RootNode.Children[i].Text, imagePos + new Vector2(-font.MeasureString(RootNode.Children[i].Text).X / 2f, imageSize), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);

@@ -15,12 +15,12 @@ namespace Ship_Game.AI
         }
 
         public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0, 
-                      ShipModuleType targetModule = ShipModuleType.Dummy, ShipData.Category shipCategory = ShipData.Category.Unclassified)
+                      ShipModuleType targetModule = ShipModuleType.Dummy, ShipData.HangarOptions designation = ShipData.HangarOptions.General)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level 
             // instead of techs needed. This allows it to choose the toughest ships to build. This is notmalized by ship total slots
             // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
-            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, shipCategory);
+            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, designation);
         }
 
         private struct MinMaxStrength
@@ -83,13 +83,16 @@ namespace Ship_Game.AI
 
         private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, 
                                                            ShipModuleType targetModule,
-                                                           ShipData.Category shipCategory)
+                                                           ShipData.HangarOptions designation)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).FilterBy(
                 ship => ship.DesignRole == role
                 && (maxSize <= 0 || ship.SurfaceArea <= maxSize)
-                && (shipCategory == ShipData.Category.Unclassified || shipCategory == ship.shipData.ShipCategory)
+                && (designation == ShipData.HangarOptions.General || designation == ship.shipData.HangarDesignation)
             );
+
+            if (targetModule != ShipModuleType.Dummy)
+                potentialShips = potentialShips.FilterBy(ship => ship.AnyModulesOf(targetModule));
 
             if (potentialShips.Length == 0)
                 return "";
@@ -98,8 +101,6 @@ namespace Ship_Game.AI
             var levelAdjust = new MinMaxStrength(maxStrength, empire);
 
             Ship[] bestShips = potentialShips.FilterBy(ship => levelAdjust.InRange(ship.NormalizedStrength));
-            if (targetModule != ShipModuleType.Dummy)
-                bestShips = bestShips.FilterBy(ship => ship.AnyModulesOf(targetModule));
 
             if (bestShips.Length == 0)
                 return "";
@@ -123,7 +124,7 @@ namespace Ship_Game.AI
         public static string PickShipToRefit(Ship oldShip, Empire empire)
         {
             Ship[] ships = ShipsWeCanBuild(empire).FilterBy(s => s.shipData.Hull == oldShip.shipData.Hull
-                                                              && s.BaseStrength >= oldShip.BaseStrength
+                                                              && s.BaseStrength.Greater(oldShip.BaseStrength)
                                                               && s.Name != oldShip.Name);
             if (ships.Length == 0)
                 return "";

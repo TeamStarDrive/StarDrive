@@ -142,6 +142,7 @@ namespace Ship_Game
 
         public bool MapPointInWorldRadius(Point mapPoint, Vector2 worldPosition, float worldRadius, int universeOffset)
         {
+            worldRadius -= PathMapReducer * .25f;
             Vector2 mapInWorld = PathMapPointToWorld(mapPoint.X, mapPoint.Y, universeOffset);
             return mapInWorld.InRadius(worldPosition, worldRadius);
         }
@@ -152,8 +153,8 @@ namespace Ship_Game
             Point bottomRight = WorldToPathMap(new Vector2(worldPosition.X + worldRadius, worldPosition.Y + worldRadius), universeOffset);
 
 
-            for (int x = topLeft.X; x < bottomRight.X ; x++)
-                for (int y = topLeft.Y; y < bottomRight.Y ; y++)
+            for (int x = topLeft.X; x <= bottomRight.X  ; x++)
+                for (int y = topLeft.Y  ; y <= bottomRight.Y ; y++)
                 {
                     if (grid[x, y] == 0) continue;
                     if (MapPointInWorldRadius(new Point(x,y), worldPosition, worldRadius, universeOffset))
@@ -530,10 +531,18 @@ namespace Ship_Game
 
         public void DoPathingMapRebuild()
         {
-            PathMapReducer = (int) (SubSpaceProjectors.Radius * .50f);
+            PathMapReducer = (int) (SubSpaceProjectors.Radius);
             int universeOffSet = (int) (UniverseSize  / PathMapReducer);
             int elegran = universeOffSet * 2;
-            int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
+            int elements =0;
+            var power2 = new int[] {0,32, 64, 128, 256, 512, 1024 };
+            for (int x = 0; x < power2.Length; x++)
+            {
+                int power = power2[x];
+                if (power < elegran) continue;
+                elements = power;
+                break;
+            }
             byte[,] grid = new byte[elements, elements];
             for (int x = 0; x < elements; x++)
             for (int y = 0; y < elements; y++)
@@ -547,7 +556,7 @@ namespace Ship_Game
             foreach (var ss in SolarSystemDict)
             {
                 var point = WorldToPathMap(ss.Value.Position, universeOffSet);
-
+                grid[point.X, point.Y] = 0;
                 byte weight = blockSystems ? (byte)0 : (byte)90;
                 ApplyWeightToMapArea(ss.Value.Position, 150000, weight, universeOffSet, grid);
 

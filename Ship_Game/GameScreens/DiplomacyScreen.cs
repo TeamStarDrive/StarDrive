@@ -893,16 +893,16 @@ namespace Ship_Game
                         if (playerEmpire.GetRelations(them).Treaty_NAPact)
                         {
                             TheirText = GetDialogueByName("WarDeclared_FeelsBetrayed");
-                            playerEmpire.GetGSAI().DeclareWarOn(them, WarType.ImperialistWar);
-                            them.GetGSAI().GetWarDeclaredOnUs(playerEmpire, WarType.ImperialistWar);
+                            playerEmpire.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
+                            them.GetEmpireAI().GetWarDeclaredOnUs(playerEmpire, WarType.ImperialistWar);
                         }
                         else
                         {
                             TheirText = GetDialogueByName("WarDeclared_Generic");
-                            playerEmpire.GetGSAI().DeclareWarOn(them, WarType.ImperialistWar);
-                            them.GetGSAI().GetWarDeclaredOnUs(playerEmpire, WarType.ImperialistWar);
+                            playerEmpire.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
+                            them.GetEmpireAI().GetWarDeclaredOnUs(playerEmpire, WarType.ImperialistWar);
                         }
-                        playerEmpire.GetGSAI().DeclareWarOn(them, WarType.ImperialistWar);
+                        playerEmpire.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
                     }
                 }
                 else if (DeclareWar != null && DeclareWar.R.HitTest(input.CursorPosition))
@@ -946,7 +946,7 @@ namespace Ship_Game
                 {
                     if ((!TheirOffer.IsBlank() || !OurOffer.IsBlank() || TheirOffer.Alliance) && SendOffer.HandleInput(input))
                     {
-                        DoNegotiationResponse(them.GetGSAI().AnalyzeOffer(OurOffer, TheirOffer, playerEmpire, Attitude));
+                        DoNegotiationResponse(them.GetEmpireAI().AnalyzeOffer(OurOffer, TheirOffer, playerEmpire, Attitude));
                         OurOffer   = new Offer();
                         TheirOffer = new Offer { Them = them };
                     }
@@ -997,7 +997,7 @@ namespace Ship_Game
                         OurOffer.ValueToModify.Value = true;
                     dState = DialogState.End;
                     TheirText = GetDialogueByName(TheirOffer.AcceptDL);
-                    playerEmpire.GetGSAI().AcceptOffer(TheirOffer, OurOffer, playerEmpire, them);
+                    playerEmpire.GetEmpireAI().AcceptOffer(TheirOffer, OurOffer, playerEmpire, them);
                 }
                 if (Reject.HandleInput(input))
                 {
@@ -1505,8 +1505,8 @@ namespace Ship_Game
                         DiplomacyScreen diplomacyScreen = this;
                         string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_Allied_OK");
                         diplomacyScreen.TheirText = str;
-                        them.GetGSAI().DeclareWarOn(empToDiscuss, WarType.ImperialistWar);
-                        empToDiscuss.GetGSAI().GetWarDeclaredOnUs(them, WarType.ImperialistWar);
+                        them.GetEmpireAI().DeclareWarOn(empToDiscuss, WarType.ImperialistWar);
+                        empToDiscuss.GetEmpireAI().GetWarDeclaredOnUs(them, WarType.ImperialistWar);
                         break;
                     }
                     else if (them.GetRelations(playerEmpire).GetStrength() < 30.0)
@@ -1535,8 +1535,8 @@ namespace Ship_Game
                         DiplomacyScreen diplomacyScreen = this;
                         string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_OK");
                         diplomacyScreen.TheirText = str;
-                        them.GetGSAI().DeclareWarOn(empToDiscuss, WarType.ImperialistWar);
-                        empToDiscuss.GetGSAI().GetWarDeclaredOnUs(them, WarType.ImperialistWar);
+                        them.GetEmpireAI().DeclareWarOn(empToDiscuss, WarType.ImperialistWar);
+                        empToDiscuss.GetEmpireAI().GetWarDeclaredOnUs(them, WarType.ImperialistWar);
                         break;
                     }
                     else

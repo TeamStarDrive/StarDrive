@@ -1,9 +1,10 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class ModEntry
+	public sealed class ModEntry : IDisposable
 	{
 		public string ModName;
 		public Rectangle Container;
@@ -22,7 +23,20 @@ namespace Ship_Game
             Version       = mi.Version;
 		}
 
-		public void Draw(ScreenManager screenManager, Rectangle clickRect)
+        ~ModEntry()
+        {
+            PortraitTex?.Dispose();
+            MainMenuTex?.Dispose();
+        }
+
+        public void Dispose()
+        {
+            PortraitTex?.Dispose();
+            MainMenuTex?.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        public void Draw(ScreenManager screenManager, Rectangle clickRect)
 		{
 			Container = clickRect;
 			Portrait = new Rectangle(Container.X + 6, Container.Y, 128, 128);
@@ -65,5 +79,6 @@ namespace Ship_Game
             if (MainMenuTex != null)
                 screenManager.SpriteBatch.Draw(MainMenuTex, portrait, Color.White);
         }
+
     }
 }
