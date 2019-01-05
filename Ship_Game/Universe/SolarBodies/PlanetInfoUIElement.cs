@@ -113,15 +113,15 @@ namespace Ship_Game
                 HoverColor = tColor,
                 IsToggle = false
             };
-            ColonySliderFood = new ColonyScreen.ColonySlider
+            ColonySliderFood = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Food)
             {
                 sRect = new Rectangle(RightRect.X, Housing.Y + 120, 145, 6)
             };
-            ColonySliderProd = new ColonyScreen.ColonySlider
+            ColonySliderProd = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Production)
             {
                 sRect = new Rectangle(RightRect.X, Housing.Y + 160, 145, 6)
             };
-            ColonySliderRes = new ColonyScreen.ColonySlider
+            ColonySliderRes = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Research)
             {
                 sRect = new Rectangle(RightRect.X, Housing.Y + 200, 145, 6)
             };
