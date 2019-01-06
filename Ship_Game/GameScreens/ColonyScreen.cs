@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Ship_Game
 {
@@ -32,10 +33,6 @@ namespace Ship_Game
         private UITextEntry PlanetName = new UITextEntry();
         private Rectangle PlanetIcon;
         private EmpireUIOverlay eui;
-        private bool LowRes;
-        private Lock FoodLock;
-        private Lock ProdLock;
-        private Lock ResLock;
         private float ClickTimer;
         private float TimerDelay = 0.25f;
         private ToggleButton LeftColony;
@@ -90,16 +87,12 @@ namespace Ship_Game
         private readonly SpriteFont Font12 = Fonts.Arial12Bold;
         private readonly SpriteFont Font20 = Fonts.Arial20Bold;
 
-        bool IsCybernetic => EmpireManager.Player.data.Traits.Cybernetic > 0;
-
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI) : base(parent)
         {
+            P = p;
             empUI.empire.UpdateShipsWeCanBuild();
             eui = empUI;
-            this.P = p;
-            if (ScreenWidth <= 1366)
-                LowRes = true;
-            Rectangle theMenu1 = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
+            var theMenu1 = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(theMenu1);
             LeftColony = new ToggleButton(new Vector2(theMenu1.X + 25, theMenu1.Y + 24), ToggleButtonStyle.ArrowLeft);
             RightColony = new ToggleButton(new Vector2(theMenu1.X + theMenu1.Width - 39, theMenu1.Y + 24), ToggleButtonStyle.ArrowRight);
@@ -116,38 +109,34 @@ namespace Ship_Game
             PlanetInfo.AddTab(Localizer.Token(326));
             Rectangle theMenu5 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             pDescription = new Submenu(theMenu5);
-            Rectangle theMenu6 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
-            pLabor = new Submenu(theMenu6);
+
+            var laborPanel = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
+            pLabor = new Submenu(laborPanel);
             pLabor.AddTab(Localizer.Token(327));
 
-            int sliderW = (int)(theMenu6.Width * 0.6);
+            int sliderW = (int)(laborPanel.Width * 0.6);
             sliderW = sliderW.RoundUpToMultipleOf(10);
             
-            ColonySliderFood = new ColonySlider(ColonySlider.Food);
-            ColonySliderFood.sRect = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.25 * (theMenu6.Height - 25)), sliderW, 6);
-            ColonySliderFood.amount = p.FarmerPercentage;
-            FoodLock = new Lock();
-            var foodLockTex = ResourceManager.Texture(FoodLock.Path);
-            FoodLock.LockRect = new Rectangle(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width + 50, ColonySliderFood.sRect.Y + 2 + ColonySliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
             if (p.Owner != null && p.Owner.data.Traits.Cybernetic > 0)
                 p.FoodLocked = true;
-            FoodLock.Locked = p.FoodLocked;
 
-            ColonySliderProd = new ColonySlider(ColonySlider.Production);
-            ColonySliderProd.sRect = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.5 * (theMenu6.Height - 25)), sliderW, 6);
-            ColonySliderProd.amount = p.WorkerPercentage;
-            ProdLock = new Lock();
-            ProdLock.LockRect = new Rectangle(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width + 50, ColonySliderProd.sRect.Y + 2 + ColonySliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
-            ProdLock.Locked = p.ProdLocked;
+            int sliderX = laborPanel.X + 60;
+            int sliderY = laborPanel.Y + 25;
+            int slidersAreaH = laborPanel.Height - 25;
+            ColonySliderFood = new ColonySlider(ColonySlider.Food, sliderX, sliderY + (int)(0.25 * slidersAreaH), sliderW);
+            ColonySliderProd = new ColonySlider(ColonySlider.Production, sliderX, sliderY + (int)(0.5 * slidersAreaH), sliderW);
+            ColonySliderRes = new ColonySlider(ColonySlider.Research, sliderX, sliderY + (int)(0.75 * slidersAreaH), sliderW);
+            ColonySliderFood.IsDisabled = p.IsCybernetic;
 
-            ColonySliderRes = new ColonySlider(ColonySlider.Research);
-            ColonySliderRes.sRect = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.75 * (theMenu6.Height - 25)), sliderW, 6);
-            ColonySliderRes.amount = p.ResearcherPercentage;
-            ResLock = new Lock();
-            ResLock.LockRect = new Rectangle(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width + 50, ColonySliderRes.sRect.Y + 2 + ColonySliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
-            ResLock.Locked = p.ResLocked;
+            ColonySliderFood.BindSliderAmount(() => p.FarmerPercentage);
+            ColonySliderProd.BindSliderAmount(() => p.WorkerPercentage);
+            ColonySliderRes.BindSliderAmount(() => p.ResearcherPercentage);
 
-            Rectangle theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + theMenu6.Height + 40, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
+            ColonySliderFood.BindLock(() => P.FoodLocked);
+            ColonySliderProd.BindLock(() => P.ProdLocked);
+            ColonySliderRes.BindLock(() => P.ResLocked);
+
+            var theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + laborPanel.Height + 40, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             pStorage = new Submenu(theMenu7);
             pStorage.AddTab(Localizer.Token(328));
             Empire.Universe.ShipsInCombat.Visible = false;
@@ -167,7 +156,7 @@ namespace Ship_Game
                 FoodStorage.Max = p.MaxStorage;
                 FoodStorage.Progress = p.SbCommodities.FoodHereActual;
                 FoodStorage.color = "green";
-                foodDropDown = LowRes ? new DropDownMenu(new Rectangle(theMenu7.X + 90 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18)) : new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
+                foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
                 foodDropDown.AddOption(Localizer.Token(329));
                 foodDropDown.AddOption(Localizer.Token(330));
                 foodDropDown.AddOption(Localizer.Token(331));
@@ -179,7 +168,7 @@ namespace Ship_Game
                 ProdStorage.Progress = p.ProductionHere;
                 var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
                 ProfStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
-                prodDropDown = LowRes ? new DropDownMenu(new Rectangle(theMenu7.X + 90 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18)) : new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
+                prodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
                 prodDropDown.AddOption(Localizer.Token(329));
                 prodDropDown.AddOption(Localizer.Token(330));
                 prodDropDown.AddOption(Localizer.Token(331));
@@ -563,16 +552,8 @@ namespace Ship_Game
                 else if (P.PS == Planet.GoodState.IMPORT) prodDropDown.ActiveIndex = 1;
                 else if (P.PS == Planet.GoodState.EXPORT) prodDropDown.ActiveIndex = 2;
                 prodDropDown.Draw(batch);
-                if (!LowRes)
-                {
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
-                }
-                else
-                {
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
-                }
+                batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
+                batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
             }
 
             base.Draw(batch);
@@ -641,30 +622,6 @@ namespace Ship_Game
             string text3 = P.NetResearchPerTurn.String();
             position2.X -= Font12.MeasureString(text3).X;
             batch.DrawString(Font12, text3, position2, new Color(255, 239, 208));
-
-
-            if (P.Owner.data.Traits.Cybernetic == 0)
-            {
-                if (!FoodLock.Hover && !FoodLock.Locked)
-                    batch.Draw(ResourceManager.Texture(FoodLock.Path), FoodLock.LockRect, new Color(255, 255, 255, 50));
-                else if (FoodLock.Hover && !FoodLock.Locked)
-                    batch.Draw(ResourceManager.Texture(FoodLock.Path), FoodLock.LockRect, new Color(255, 255, 255, 150));
-                else
-                    batch.Draw(ResourceManager.Texture(FoodLock.Path), FoodLock.LockRect, Color.White);
-            }
-
-            if (!ProdLock.Hover && !ProdLock.Locked)
-                batch.Draw(ResourceManager.Texture(ProdLock.Path), ProdLock.LockRect, new Color(255, 255, 255, 50));
-            else if (ProdLock.Hover && !ProdLock.Locked)
-                batch.Draw(ResourceManager.Texture(ProdLock.Path), ProdLock.LockRect, new Color(255, 255, 255, 150));
-            else
-                batch.Draw(ResourceManager.Texture(ProdLock.Path), ProdLock.LockRect, Color.White);
-            if (!ResLock.Hover && !ResLock.Locked)
-                batch.Draw(ResourceManager.Texture(ResLock.Path), ResLock.LockRect, new Color(255, 255, 255, 50));
-            else if (ResLock.Hover && !ResLock.Locked)
-                batch.Draw(ResourceManager.Texture(ResLock.Path), ResLock.LockRect, new Color(255, 255, 255, 150));
-            else
-                batch.Draw(ResourceManager.Texture(ResLock.Path), ResLock.LockRect, Color.White);
         }
 
         private void DrawBuildTroopsListDup(SpriteBatch batch)
@@ -976,7 +933,7 @@ namespace Ship_Game
                 var qi = entry.Get<QueueItem>();
                 var position = new Vector2(entry.X + 40f, entry.Y);
                 DrawText(ref position, qi.DisplayText);
-                var r = new Rectangle((int)position.X, (int)position.Y, LowRes ? 120 : 150, 18);
+                var r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
 
                 if (qi.isBuilding)
                 {
@@ -1026,7 +983,7 @@ namespace Ship_Game
                 if (entry.Hovered) buildColor = Color.White; // hover color
 
                 string descr = Localizer.Token(building.ShortDescriptionIndex) + (unprofitable ? " (unprofitable)" : "");
-                descr = Font8.ParseText(descr, LowRes ? 200f : 280f);
+                descr = Font8.ParseText(descr, 280f);
 
                 var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
 
@@ -1612,26 +1569,20 @@ namespace Ship_Game
                 GlobalStats.TakingInput = true;
                 PlanetName.HandleTextInput(ref PlanetName.Text, input);
             }
+
             GovernorDropdown.HandleInput(input);
-            if (GovernorDropdown.ActiveValue != (int)P.colonyType)
-            {
-                P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                if (P.colonyType != Planet.ColonyType.Colony)
-                {
-                    P.FoodLocked = true;
-                    P.ProdLocked = true;
-                    P.ResLocked = true;
-                    P.GovernorOn = true;
-                }
-                else
-                {
-                    P.GovernorOn = false;
-                    P.FoodLocked = false;
-                    P.ProdLocked = false;
-                    P.ResLocked = false;
-                }
-            }
-            HandleSlider(input);
+
+            P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
+            bool governorLocksControls = P.colonyType != Planet.ColonyType.Colony;
+            P.FoodLocked = governorLocksControls;
+            P.ProdLocked = governorLocksControls;
+            P.ResLocked  = governorLocksControls;
+            P.GovernorOn = governorLocksControls;
+
+            ColonySliderFood.HandleInput(input, P);
+            ColonySliderProd.HandleInput(input, P);
+            ColonySliderRes.HandleInput(input, P);
+
             if (P.HasShipyard && build.Tabs.Count > 1 && build.Tabs[1].Selected)
             {
                 if (PlayerDesignsToggle.Rect.HitTest(input.CursorPosition))
@@ -1642,110 +1593,11 @@ namespace Ship_Game
                 {
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     GlobalStats.ShowAllDesigns = !GlobalStats.ShowAllDesigns;
-                    if (GlobalStats.ShowAllDesigns)
-                    {
-                        PlayerDesignsToggle.Active = true;
-                    }
-                    else
-                    {
-                        PlayerDesignsToggle.Active = false;
-                    }
+                    PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
                     Reset = true;
                 }
             }
-            if (P.colonyType != Planet.ColonyType.Colony)
-            {
-                FoodLock.Locked = true;
-                ProdLock.Locked = true;
-                ResLock.Locked = true;
-            }
-            else
-            {
-                if (!FoodLock.LockRect.HitTest(MousePos) || P.Owner == null || P.Owner.data.Traits.Cybernetic != 0)
-                {
-                    FoodLock.Hover = false;
-                }
-                else
-                {
-                    if (FoodLock.Locked)
-                    {
-                        FoodLock.Hover = false;
-                        if (input.LeftMouseClick)
-                        {
-                            P.FoodLocked = false;
-                            FoodLock.Locked = false;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
-                    }
-                    else
-                    {
-                        FoodLock.Hover = true;
-                        if (input.LeftMouseClick)
-                        {
-                            P.FoodLocked = true;
-                            FoodLock.Locked = true;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
-                    }
-                    ToolTip.CreateTooltip(69);
-                }
-                if (!ProdLock.LockRect.HitTest(MousePos))
-                {
-                    ProdLock.Hover = false;
-                }
-                else
-                {
-                    if (ProdLock.Locked)
-                    {
-                        ProdLock.Hover = false;
-                        if (input.LeftMouseClick)
-                        {
-                            P.ProdLocked = false;
-                            ProdLock.Locked = false;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
-                    }
-                    else
-                    {
-                        ProdLock.Hover = true;
-                        if (input.LeftMouseClick)
-                        {
-                            P.ProdLocked = true;
-                            ProdLock.Locked = true;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
-                    }
-                    ToolTip.CreateTooltip(69);
-                }
-                if (!ResLock.LockRect.HitTest(MousePos))
-                {
-                    ResLock.Hover = false;
-                }
-                else
-                {
-                    if (ResLock.Locked)
-                    {
-                        ResLock.Hover = false;
-                        if (input.LeftMouseClick)
-                        {
-                            P.ResLocked = false;
-                            ResLock.Locked = false;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
-                    }
-                    else
-                    {
-                        ResLock.Hover = true;
-                        if (input.LeftMouseClick)
-                        {
-                            P.ResLocked = true;
-                            ResLock.Locked = true;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
-                    }
-                    ToolTip.CreateTooltip(69);
-                }
-            }
+
             Selector = null;
             ClickedTroop = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
@@ -2204,73 +2056,29 @@ namespace Ship_Game
 
         private void HandleSlider(InputState input)
         {
-            Vector2 mousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
-            if (P.Owner.data.Traits.Cybernetic == 0)
-            {
-                if (ColonySliderFood.sRect.HitTest(mousePos) || DraggingSlider1)
-                {
-                    ColonySliderFood.state = "hover";
-                    ColonySliderFood.Color = new Color(164, 154, 133);
-                }
-                else
-                {
-                    ColonySliderFood.state = "normal";
-                    ColonySliderFood.Color = new Color(72, 61, 38);
-                }
-                if (ColonySliderFood.cursor.HitTest(mousePos) || DraggingSlider1)
-                {
-                    ColonySliderFood.cState = "hover";
-                }
-                else
-                {
-                    ColonySliderFood.cState = "normal";
-                }
-            }
-            if (ColonySliderProd.sRect.HitTest(mousePos) || DraggingSlider2)
-            {
-                ColonySliderProd.state = "hover";
-                ColonySliderProd.Color = new Color(164, 154, 133);
-            }
-            else
-            {
-                ColonySliderProd.state = "normal";
-                ColonySliderProd.Color = new Color(72, 61, 38);
-            }
-            if (ColonySliderProd.cursor.HitTest(mousePos) || DraggingSlider2)
-            {
-                ColonySliderProd.cState = "hover";
-            }
-            else
-            {
-                ColonySliderProd.cState = "normal";
-            }
-            if (ColonySliderRes.sRect.HitTest(mousePos) || DraggingSlider3)
-            {
-                ColonySliderRes.state = "hover";
-                ColonySliderRes.Color = new Color(164, 154, 133);
-            }
-            else
-            {
-                ColonySliderRes.state = "normal";
-                ColonySliderRes.Color = new Color(72, 61, 38);
-            }
-            if (ColonySliderRes.cursor.HitTest(mousePos) || DraggingSlider3)
-            {
-                ColonySliderRes.cState = "hover";
-            }
-            else
-            {
-                ColonySliderRes.cState = "normal";
-            }
-            if (ColonySliderFood.cursor.HitTest(mousePos) && (!ProdLock.Locked || !ResLock.Locked) && CurrentMouse.LeftButton == ButtonState.Pressed && PreviousMouse.LeftButton == ButtonState.Pressed && !FoodLock.Locked)
+            var mousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
+
+            if (ColonySliderFood.cursor.HitTest(mousePos) 
+                && (!ProdLock.Locked || !ResLock.Locked) 
+                && CurrentMouse.LeftButton == ButtonState.Pressed
+                && PreviousMouse.LeftButton == ButtonState.Pressed 
+                && !FoodLock.Locked)
             {
                 DraggingSlider1 = true;
             }
-            if (ColonySliderProd.cursor.HitTest(mousePos) && (!FoodLock.Locked || !ResLock.Locked) && CurrentMouse.LeftButton == ButtonState.Pressed && PreviousMouse.LeftButton == ButtonState.Pressed && !ProdLock.Locked)
+            if (ColonySliderProd.cursor.HitTest(mousePos)
+                && (!FoodLock.Locked || !ResLock.Locked)
+                && CurrentMouse.LeftButton == ButtonState.Pressed
+                && PreviousMouse.LeftButton == ButtonState.Pressed
+                && !ProdLock.Locked)
             {
                 DraggingSlider2 = true;
             }
-            if (ColonySliderRes.cursor.HitTest(mousePos) && (!ProdLock.Locked || !FoodLock.Locked) && CurrentMouse.LeftButton == ButtonState.Pressed && PreviousMouse.LeftButton == ButtonState.Pressed && !ResLock.Locked)
+            if (ColonySliderRes.cursor.HitTest(mousePos)
+                && (!ProdLock.Locked || !FoodLock.Locked)
+                && CurrentMouse.LeftButton == ButtonState.Pressed
+                && PreviousMouse.LeftButton == ButtonState.Pressed
+                && !ResLock.Locked)
             {
                 DraggingSlider3 = true;
             }
@@ -2331,6 +2139,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             if (DraggingSlider2 && !ProdLock.Locked && (!FoodLock.Locked || !ResLock.Locked))
             {
                 ColonySliderProd.cursor.X = CurrentMouse.X;
@@ -2452,27 +2261,7 @@ namespace Ship_Game
                 }
             }
 
-            //MathHelper.Clamp(p.FarmerPercentage, 0f, 1f);
-            //MathHelper.Clamp(p.WorkerPercentage, 0f, 1f);
-            //MathHelper.Clamp(p.ResearcherPercentage, 0f, 1f);
-
-            ColonySliderFood.amount = P.FarmerPercentage;
-            ColonySliderProd.amount = P.WorkerPercentage;
-            ColonySliderRes.amount = P.ResearcherPercentage;
-
-            ColonySliderFood.cursor = CursorRectForSlider(ColonySliderFood);
-            ColonySliderProd.cursor = CursorRectForSlider(ColonySliderProd);
-            ColonySliderRes.cursor = CursorRectForSlider(ColonySliderRes);
-
             P.UpdateIncomes(false);
-        }
-
-        private static Rectangle CursorRectForSlider(ColonySlider colonySlider)
-        {
-            SubTexture crosshairTex = ResourceManager.Texture("NewUI/slider_crosshair");
-            int posX = colonySlider.sRect.X + (int)(colonySlider.sRect.Width * colonySlider.amount) - crosshairTex.Width / 2;
-            int posY = colonySlider.sRect.Y + colonySlider.sRect.Height / 2 - crosshairTex.Height / 2;
-            return new Rectangle(posX, posY, crosshairTex.Width, crosshairTex.Height);
         }
 
         public void ResetLists()
@@ -2581,24 +2370,11 @@ namespace Ship_Game
             }
         }
 
-        public class Lock
-        {
-            public Rectangle LockRect;
-            public bool Locked;
-            public bool Hover;
-            public string Path;
-
-            public Lock()
-            {
-                Path = "NewUI/icon_lock";
-            }
-        }
-
         public class ColonySlider
         {
             public class Style
             {
-                public SubTexture Slider, Icon, Minute, MinuteHover, Crosshair, CrosshairHover;
+                public SubTexture Slider, Icon, Lock, Minute, MinuteHover, Crosshair, CrosshairHover;
                 public int Tooltip;
                 public bool IsFood;
                 public Style(string slider, string icon, int tooltip, bool isFood = false)
@@ -2606,6 +2382,7 @@ namespace Ship_Game
                     Tooltip = tooltip;
                     Slider         = ResourceManager.Texture(slider);
                     Icon           = ResourceManager.Texture(icon);
+                    Lock           = ResourceManager.Texture("NewUI/icon_lock");
                     Minute         = ResourceManager.Texture("NewUI/slider_minute");
                     MinuteHover    = ResourceManager.Texture("NewUI/slider_minute_hover");
                     Crosshair      = ResourceManager.Texture("NewUI/slider_crosshair");
@@ -2617,29 +2394,103 @@ namespace Ship_Game
             public static Style Production => new Style("NewUI/slider_grd_brown", "NewUI/icon_production", 71);            
             public static Style Research   => new Style("NewUI/slider_grd_blue",  "NewUI/icon_science", 72);
 
-            public Rectangle sRect;
-            public float amount;
-            public Rectangle cursor;
-            public Color Color = new Color(72, 61, 38);
-            public string state  = "normal";
-            public string cState = "normal";
+            // @note All 3 of these need to be set for proper behaviour!
+            public delegate void SliderChangeEvent(float newValue, float delta);
+            public SliderChangeEvent OnSliderChange;
 
-            public Style S;
-            public bool DrawIcons;
-
-            public ColonySlider(Style style, bool drawIcons = true)
+            Ref<float> SliderAmount;
+            Ref<bool> Locked;
+            public void BindSliderAmount(Expression<Func<float>> floatBinding)
             {
+                SliderAmount = new Ref<float>(floatBinding);
+            }
+            public void BindLock(Expression<Func<bool>> boolBinding)
+            {
+                Locked = new Ref<bool>(boolBinding);
+            }
+
+
+            Rectangle sRect;
+            Rectangle LockRect;
+            Rectangle Cursor;
+            static readonly Color DefaultColor = new Color(72, 61, 38);
+            static readonly Color HoverColor = new Color(164, 154, 133);
+            readonly Style S;
+
+            bool SliderHover;
+            bool SliderDragging;
+            readonly bool DrawIcons;
+
+            public bool CanDrag;
+            public bool IsDisabled;
+            public bool LockHover;
+
+
+
+            public ColonySlider(Style style, int x, int y, int width, bool drawIcons = true)
+            {
+                sRect = new Rectangle(x, y, width, 6);
                 S = style;
                 DrawIcons = drawIcons;
+                LockRect = new Rectangle(sRect.X + sRect.Width + 50, 
+                    sRect.Y + 2 + sRect.Height / 2 - S.Lock.Height / 2, S.Lock.Width, S.Lock.Height);
+                Cursor = CursorRect();
             }
+
+            public bool HandleInput(InputState input, Planet p)
+            {
+                if (IsDisabled)
+                    return false;
+
+                Vector2 mousePos = input.CursorPosition;
+                SliderHover = sRect.HitTest(mousePos) || SliderDragging;
+                LockHover = LockRect.HitTest(mousePos);
+
+                SliderDragging = (CanDrag && input.LeftMouseHeldDown && Cursor.HitTest(mousePos));
+                if (SliderDragging)
+                    HandleDragging(mousePos.X);
+
+                if (LockHover)
+                {
+                    if (input.LeftMouseClick)
+                    {
+                        Locked.Value = !Locked.Value;
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    }
+                    ToolTip.CreateTooltip(69);
+                    return true;
+                }
+                return false;
+            }
+
+            void HandleDragging(float mouseX)
+            {
+                int newX = ((int)mouseX).Clamped(sRect.Left, sRect.Right);
+                int delta = (newX - Cursor.X);
+                if (delta != 0)
+                {
+                    float difference = delta / (float)sRect.Width;
+                    float oldValue = SliderAmount.Value;
+                    float newValue = (oldValue + difference).Clamped(0.0f, 1.0f);
+                    SliderAmount.Value = newValue;
+                    OnSliderChange?.Invoke(newValue, difference);
+                    Cursor = CursorRect(); // update cursor pos
+                }
+            }
+
+            Rectangle CursorRect()
+            {
+                int posX = sRect.X + (int)(sRect.Width * SliderAmount.Value) - S.Crosshair.Width / 2;
+                int posY = sRect.Y + sRect.Height / 2 - S.Crosshair.Height / 2;
+                return new Rectangle(posX, posY, S.Crosshair.Width, S.Crosshair.Height);
+            }
+
             public void Draw(SpriteBatch batch, InputState input = null)
             {
-                Color sliderTint = Color.White;
-                bool isCybernetic = EmpireManager.Player.data.Traits.Cybernetic > 0;
-                if (S.IsFood && isCybernetic) sliderTint = Color.DarkGray;
+                Color sliderTint = IsDisabled ? Color.DarkGray : Color.White;
 
-                batch.Draw(S.Slider, new Rectangle(sRect.X, sRect.Y, (int)(amount * sRect.Width), sRect.Height), sliderTint);
-                batch.DrawRectangle(sRect, Color);
+                batch.Draw(S.Slider, new Rectangle(sRect.X, sRect.Y, (int)(SliderAmount.Value * sRect.Width), sRect.Height), sliderTint);
+                batch.DrawRectangle(sRect, SliderHover ? HoverColor : DefaultColor);
 
                 if (DrawIcons)
                 {
@@ -2651,14 +2502,29 @@ namespace Ship_Game
                     }
                 }
 
-                batch.Draw(cState == "normal" ? S.Crosshair : S.CrosshairHover, cursor, sliderTint);
+                if (!IsDisabled)
+                    batch.Draw(SliderHover ? S.CrosshairHover : S.Crosshair, Cursor, sliderTint);
 
-                SubTexture minute = state == "normal" ? S.Minute : S.MinuteHover;
-                for (int index = 0; index < 11; ++index)
+                SubTexture minute = SliderHover ? S.MinuteHover : S.Minute;
+                for (int i = 0; i < 11; ++i)
                 {
-                    var position1 = new Vector2(sRect.X + sRect.Width / 10 * index, sRect.Y + sRect.Height + 2);
+                    var position1 = new Vector2(sRect.X + sRect.Width / 10 * i, sRect.Y + sRect.Height + 2);
                     batch.Draw(minute, position1, sliderTint);
                 }
+
+                DrawLock(batch);
+            }
+
+            void DrawLock(SpriteBatch batch)
+            {
+                if (IsDisabled) return;
+
+                if (!LockHover && !Locked.Value)
+                    batch.Draw(S.Lock, LockRect, new Color(255, 255, 255, 50));
+                else if (LockHover && !Locked.Value)
+                    batch.Draw(S.Lock, LockRect, new Color(255, 255, 255, 150));
+                else
+                    batch.Draw(S.Lock, LockRect, Color.White);
             }
         }
     }
