@@ -233,36 +233,34 @@ namespace Ship_Game
             Reset();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
 
-            LoadLanguage();
+            LoadLanguage(); // @todo Slower than expected [0.36]
             LoadToolTips();
             LoadHullData(); // we need Hull Data for main menu ship
-            LoadEmpires();  // empire for NewGame
+            LoadEmpires();  // empire for NewGame @todo Very slow [0.54%]
 
             LoadTextureAtlases();
 
-            // after this point, everything truly essential for Main Menu should already be loaded
-            onEssentialsLoaded?.Invoke();
 
             LoadNebulae();
             LoadSmallStars();
             LoadMediumStars();
             LoadLargeStars();
-            LoadFlagTextures();
+            LoadFlagTextures(); // @todo Very slow for some reason [1.04%]
             LoadHullBonuses();
 
             LoadTroops();
-            LoadWeapons();
-            LoadShipModules();
+            LoadWeapons();     // @todo Also slow [0.87%]
+            LoadShipModules(); // @todo Extremely slow [1.29%]
             LoadGoods();
-            LoadShipTemplates();
-            LoadJunk();
-            LoadAsteroids();
-            LoadProjTexts();
+            LoadShipTemplates(); // @note Extremely fast :))) Loads everything in [0.16%]
+            LoadJunk();      // @todo SLOW [0.47%]
+            LoadAsteroids(); // @todo SLOW [0.40%]
+            LoadProjTexts(); // @todo SLOW [0.47%]
             LoadBuildings();
             LoadProjectileMeshes();
             LoadRandomItems();
-            LoadDialogs();
-            LoadTechTree();
+            LoadDialogs();  // @todo SLOW [0.44%]
+            LoadTechTree(); // @todo This is VERY slow, about 4x slower than loading textures [0.97%]
             LoadEncounters();
             LoadExpEvents();
             TechValidator();
@@ -274,6 +272,11 @@ namespace Ship_Game
             LoadBlackboxSpecific();
             TestLoad();
             HelperFunctions.CollectMemory();
+
+            // after this point, everything truly essential for Main Menu should already be loaded
+            onEssentialsLoaded?.Invoke();
+
+            LoadNonEssentialAtlases();
         }
 
         private static void TestLoad()
@@ -483,7 +486,7 @@ namespace Ship_Game
         }
 
         // Added by RedFox - Generic entity loading, less typing == more fun
-        private static bool LoadEntity<T>(XmlSerializer s, FileInfo info, string id, out T entity) where T : class
+        static bool LoadEntity<T>(XmlSerializer s, FileInfo info, string id, out T entity) where T : class
         {
             try
             {
@@ -499,46 +502,59 @@ namespace Ship_Game
             }
         }
 
-        private static Array<T> LoadEntities<T>(FileInfo[] files, string id) where T : class
+        static Array<T> LoadEntities<T>(FileInfo[] files, string id) where T : class
         {
             var list = new Array<T>(files.Length);
             var s = new XmlSerializer(typeof(T));
-            foreach (FileInfo info in files)
-                if (LoadEntity(s, info, id, out T entity))
-                    list.Add(entity);
+            Parallel.For(files.Length, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    if (LoadEntity(s, files[i], id, out T entity))
+                    {
+                        lock(list) list.Add(entity);
+                    }
+                }
+            });
             return list;
         }
 
-        private static Array<T> LoadEntities<T>(string dir, string id) where T : class
+        static Array<T> LoadEntities<T>(string dir, string id) where T : class
         {
             return LoadEntities<T>(GatherFilesUnified(dir, "xml"), id);
         }
 
-        private static Array<T> LoadVanillaEntities<T>(string dir, string id) where T : class
+        static Array<T> LoadVanillaEntities<T>(string dir, string id) where T : class
         {
             return LoadEntities<T>(Dir.GetFiles("Content/" + dir, "xml"), id);
         }
 
-        private static Array<T> LoadModEntities<T>(string dir, string id) where T : class
+        static Array<T> LoadModEntities<T>(string dir, string id) where T : class
         {
             return LoadEntities<T>(Dir.GetFiles(GlobalStats.ModPath + dir, "xml"), id);
         }
 
-        private class InfoPair<T> where T : class
+        class InfoPair<T> where T : class
         {
             public readonly FileInfo Info;
             public readonly T Entity;
             public InfoPair(FileInfo info, T entity) { Info = info; Entity = entity; }
         }
 
-        private static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
+        static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
         {
             var files = modOnly ? Dir.GetFiles(GlobalStats.ModPath + dir, "xml") : GatherFilesUnified(dir, "xml");
             var list = new Array<InfoPair<T>>(files.Length);
             var s = new XmlSerializer(typeof(T));
-            foreach (FileInfo info in files)
-                if (LoadEntity(s, info, id, out T entity))
-                    list.Add(new InfoPair<T>(info, entity));
+            Parallel.For(files.Length, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    FileInfo info = files[i];
+                    if (LoadEntity(s, info, id, out T entity))
+                        lock(list) list.Add(new InfoPair<T>(info, entity));
+                }
+            });
             return list;
         }
 
@@ -885,16 +901,16 @@ namespace Ship_Game
             return allFiles.ToArray();
         }
 
+        static void LoadAtlas(string folder)
+        {
+            var atlas = RootContent.Load<TextureAtlas>(folder);
+            if (atlas == null) Log.Warning($"LoadAtlas {folder} failed");
+        }
+
         // This is just to speed up initial atlas generation and avoid noticeable framerate hiccups
-        public static void LoadTextureAtlases()
+        static void LoadTextureAtlases()
         {
             //new ResourceTests().RunAll();
-
-            void LoadAtlas(string folder)
-            {
-                var atlas = RootContent.Load<TextureAtlas>(folder);
-                if (atlas == null) Log.Warning($"LoadAtlas {folder} failed");
-            }
 
             // these are essential for main menu, so we load them as blocking
             LoadAtlas("Textures");
@@ -902,44 +918,45 @@ namespace Ship_Game
             LoadAtlas("Textures/MainMenu");
             LoadAtlas("Textures/EmpireTopBar");
             LoadAtlas("Textures/NewUI");
+        }
 
+        static void LoadNonEssentialAtlases()
+        {
+            Stopwatch s = Stopwatch.StartNew();
             // these are non-critical and can be loaded in background
+            var atlases = new []
+            {
+                // Main Menu
+                "Textures/Races",     // NewGame screen
+                "Textures/UI",        // NewGame screen
+                "Textures/ShipIcons", // LoadGame screen
+                "Textures/Popup",     // Options screen
+
+                // UniverseScreen
+                "Textures/Arcs",
+                "Textures/SelectionBox",
+                "Textures/Minimap",
+                "Textures/Ships",
+                "Textures/Suns",
+                "Textures/hqspace",
+                "Textures/PlanetGlows",
+                "Textures/TacticalIcons",
+                "Textures/Planets",
+                "Textures/PlanetTiles",
+                "Textures/Buildings",
+                "Textures/ResearchMenu",
+                "Textures/TechIcons",
+                "Textures/Modules",
+                "Textures/TroopIcons",
+                "Textures/Portraits",
+                "Textures/Ground_UI",
+                "Textures/Troops",
+            };
+
             Parallel.Run(() =>
             {
-                Stopwatch s = Stopwatch.StartNew();
-                var atlases = new []
-                {
-                    "Textures/Ship_explosion2", // TESTING
-
-                    // Main Menu
-                    "Textures/Races",     // NewGame screen
-                    "Textures/UI",        // NewGame screen
-                    "Textures/ShipIcons", // LoadGame screen
-                    "Textures/Popup",     // Options screen
-
-                    // UniverseScreen
-                    "Textures/Arcs",
-                    "Textures/SelectionBox",
-                    "Textures/Minimap",
-                    "Textures/Ships",
-                    "Textures/Suns",
-                    "Textures/hqspace",
-                    "Textures/PlanetGlows",
-                    "Textures/TacticalIcons",
-                    "Textures/Planets",
-                    "Textures/PlanetTiles",
-                    "Textures/Buildings",
-                    "Textures/ResearchMenu",
-                    "Textures/TechIcons",
-                    "Textures/Modules",
-                    "Textures/TroopIcons",
-                    "Textures/Portraits",
-                    "Textures/Ground_UI",
-                    "Textures/Troops",
-                };
-                foreach (string name in atlases)
-                    LoadAtlas(name);
-
+                foreach (string atlas in atlases)
+                    LoadAtlas(atlas);
                 Log.Info($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms");
             });
         }
@@ -1095,18 +1112,17 @@ namespace Ship_Game
                         Log.WarningVerbose($"Secret Technology can be unlocked by event '{pair.Entity.Name}' : '{tech.UID}'");
                     }
                 }
-
             }
-
         }
 
         private static void LoadFlagTextures() // Refactored by RedFox
         {
-            foreach (FileInfo info in GatherFilesUnified("Flags", "xnb"))
+            void LoadFlag(FileInfo info)
             {
                 var tex = RootContent.Load<Texture2D>(info.CleanResPath());
-                FlagTextures.Add(new KeyValuePair<string, Texture2D>(info.NameNoExt(), tex));
+                lock (FlagTextures) FlagTextures.Add(new KeyValuePair<string, Texture2D>(info.NameNoExt(), tex));
             }
+            Parallel.ForEach(GatherFilesUnified("Flags", "xnb"), LoadFlag);
         }
 
         private static void LoadGoods() // Refactored by RedFox
@@ -1284,14 +1300,15 @@ namespace Ship_Game
         // Refactored by RedFox
         private static void LoadNebulae()
         {
-            foreach (FileInfo info in Dir.GetFiles("Content/Nebulas", "xnb"))
+            void LoadNebula(FileInfo info)
             {
                 string nameNoExt = info.NameNoExt();
                 var tex = RootContent.Load<Texture2D>("Nebulas/" + nameNoExt);
-                if      (tex.Width == 2048) BigNebulae.Add(tex);
-                else if (tex.Width == 1024) MedNebulae.Add(tex);
-                else                        SmallNebulae.Add(tex);
+                if      (tex.Width == 2048) { lock(BigNebulae)   BigNebulae.Add(tex);   }
+                else if (tex.Width == 1024) { lock(MedNebulae)   MedNebulae.Add(tex);   }
+                else                        { lock(SmallNebulae) SmallNebulae.Add(tex); }
             }
+            Parallel.ForEach(Dir.GetFiles("Content/Nebulas", "xnb"), LoadNebula);
         }
         public static SubTexture SmallNebulaRandom()
         {
@@ -1484,7 +1501,7 @@ namespace Ship_Game
             }
 
             Parallel.For(shipDescriptors.Length, LoadShips);
-            //loadShips(0, shipDescriptors.Length); // test without parallel for
+            //LoadShips(0, shipDescriptors.Length); // test without parallel for
         }
 
         public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
@@ -1504,33 +1521,6 @@ namespace Ship_Game
         {
             return ShipsDict.TryGetValue(shipName, out template);
         }
-
-        public static string GetShipHull(string shipName)
-        {
-            return ShipsDict[shipName].shipData.Hull;
-        }
-
-        public static bool TryGetHull(string shipName, out ShipData hull)
-        {
-            if (GetShipTemplate(shipName, out Ship template))
-            {
-                hull = template.shipData;
-                return true;
-            }
-            hull = null;
-            return false;
-        }
-
-        public static bool IsPlayerDesign(string shipName)
-        {
-            return ShipsDict.TryGetValue(shipName, out Ship template) && template.IsPlayerDesign;
-        }
-
-        public static bool IsShipFromSave(string shipName)
-        {
-            return ShipsDict.TryGetValue(shipName, out Ship template) && template.FromSave;
-        }
-
 
         private static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
         {
@@ -1566,13 +1556,15 @@ namespace Ship_Game
         }
 
 
+
         private static void LoadSmallStars()
         {
-            foreach (FileInfo info in GatherFilesModOrVanilla("SmallStars", "xnb"))
+            void LoadStar(FileInfo info)
             {
                 var tex = RootContent.Load<Texture2D>(info.CleanResPath());
-                SmallStars.Add(tex);
+                lock (SmallStars) SmallStars.Add(tex);
             }
+            Parallel.ForEach(GatherFilesModOrVanilla("SmallStars", "xnb"), LoadStar);
         }
 
 
@@ -1880,7 +1872,7 @@ namespace Ship_Game
             foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly))
             {
                 Weapon wep = pair.Entity;
-                wep.UID = String.Intern(pair.Info.NameNoExt());
+                wep.UID = string.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
                 wep.InitializeTemplate();
             }

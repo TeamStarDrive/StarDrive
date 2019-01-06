@@ -13,7 +13,6 @@ namespace Ship_Game
         {
             Log.Info("=== Running Resource Tests ===");
             TestTextureAtlas();
-            TestLoadAllAtlases();
             TestContentManager();
             Log.Info("=== Finished running Resource Tests ===");
         }
@@ -23,11 +22,6 @@ namespace Ship_Game
             TextureAtlas.FromFolder(ResourceManager.RootContent, "Textures", false);
             TextureAtlas.FromFolder(ResourceManager.RootContent, "Textures/Modules", false);
             TextureAtlas.FromFolder(ResourceManager.RootContent, "Textures/Conduits", false);
-        }
-
-        void TestLoadAllAtlases()
-        {
-            ResourceManager.LoadTextureAtlases();
         }
 
         void TestContentManager()
