@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-    public sealed partial class UniverseScreen
+    public partial class UniverseScreen
     {
         private void ProcessTurns()
         {
