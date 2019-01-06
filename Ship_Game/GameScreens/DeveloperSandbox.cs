@@ -7,9 +7,9 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        const int NumEmpires = 1;
+        const int NumEmpires = 2;
+        MicroUniverse Universe;
 
-        UniverseScreen Universe;
         public DeveloperSandbox(GameScreen parent) : base(parent)
         {
             parent.ExitScreen();
@@ -22,12 +22,6 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            base.Update(gameTime, false, false);
-            HandleInput();
-        }
-
         public override void Draw(SpriteBatch batch)
         {
             batch.Begin();
@@ -35,30 +29,34 @@ namespace Ship_Game
             batch.End();
         }
 
-        //after Creating the universe
-        public void HandleInput()
-        {
-            if (Input.Escaped)
-            {
-            }
-            base.HandleInput(Input);
-        }
-
-        //as a normal game screen
+        // as a normal game screen
         public override bool HandleInput(InputState input)
         {
             if (input.Escaped)
             {
-                ExitScreen();
-                ScreenManager.AddScreen(new MainMenuScreen());
+                ScreenManager.GoToScreen(new MainMenuScreen());
                 return true;
             }
-            if (Input.LeftMouseClick)
-            {
-                //ScreenManager.AddScreen(new LoadSaveScreen(this));
-                ScreenManager.AddScreen(Universe);
-            }
             return base.HandleInput(input);
+        }
+
+        class MicroUniverse : UniverseScreen
+        {
+            public MicroUniverse(UniverseData sandbox) : base(sandbox)
+            {
+                player = PlayerEmpire;
+                NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
+                Paused = false;
+                ResetLighting();
+            }
+            public override void LoadContent()
+            {
+                base.LoadContent();
+
+                // nice zoom in effect, we set the cam height to super high
+                CamHeight *= 10000.0f;
+                CamDestination.Z = 100000.0f; // and set a lower destination
+            }
         }
 
         public override void LoadContent()
@@ -100,23 +98,25 @@ namespace Ship_Game
                 foreach (Planet p in system.PlanetList)
                     p.SetExploredBy(e);
             }
+
             foreach(SolarSystem system in sandbox.SolarSystemsList)
             {
                 system.FiveClosestSystems = sandbox.SolarSystemsList.FindMinItemsFiltered(5,
                                                 filter => filter != system,
                                                 select => select.Position.SqDist(system.Position));
             }
+
             sandbox.EmpireList.First.isPlayer = true;
             sandbox.playerShip = Ship.CreateShipAtPoint("Unarmed Scout", sandbox.EmpireList.First, claimedSpots[0]);
             sandbox.MasterShipList.Add(sandbox.playerShip);
 
             foreach (SolarSystem system in sandbox.SolarSystemsList)
                 SubmitSceneObjectsForRendering(sandbox, system);
-            Universe = new UniverseScreen(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
-            Universe.player = Universe.PlayerEmpire;
-            Universe.NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
-            Universe.ResetLighting();
+
+            Universe = new MicroUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
+            ScreenManager.AddScreen(Universe);
         }
+
         public Vector2 GenerateRandomSysPos(float spacing, Array<Vector2> claimedSpots, UniverseData data)
         {
             float safetyBreak = 1;
@@ -131,7 +131,7 @@ namespace Ship_Game
             claimedSpots.Add(sysPos);
             return sysPos;
         }
-        private bool SystemPosOK(Vector2 sysPos, float spacing, Array<Vector2> claimedSpots, UniverseData data)
+        static bool SystemPosOK(Vector2 sysPos, float spacing, Array<Vector2> claimedSpots, UniverseData data)
         {
             foreach (Vector2 vector2 in claimedSpots)
             {
@@ -142,7 +142,7 @@ namespace Ship_Game
             }
             return true;
         }
-        private void SubmitSceneObjectsForRendering(UniverseData data, SolarSystem wipSystem)
+        void SubmitSceneObjectsForRendering(UniverseData data, SolarSystem wipSystem)
         {
             foreach (Planet planet in wipSystem.PlanetList)
             {

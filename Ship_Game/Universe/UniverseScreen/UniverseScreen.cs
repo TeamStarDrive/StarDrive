@@ -17,7 +17,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-    public sealed partial class UniverseScreen : GameScreen
+    public partial class UniverseScreen : GameScreen
     {
         private readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
         private readonly PerfTimer Perfavg2          = new PerfTimer();
@@ -206,7 +206,7 @@ namespace Ship_Game
         public bool ShowShipNames;
         //public InputState Input;
         private float Memory;
-        public bool Paused;
+        public bool Paused = true; // always start paused
         public bool SkipRightOnce;
         public bool NoEliminationVictory;
         private bool UseRealLights = true;
@@ -289,7 +289,6 @@ namespace Ship_Game
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             DoPathingMapRebuild();
-
         }
 
         public void ResetLighting() => SetLighting(UseRealLights);
@@ -733,31 +732,6 @@ namespace Ship_Game
         }
 
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
-
-        private void ReportManual(string reportType, bool kudos) //@TODO this should be mostly moved to a exception tracker constructor i think.
-        {
-            bool switchedmode = false;
-            #if RELEASE //only switch screens in release
-                if (Game1.Instance.graphics.IsFullScreen)
-                {
-                    switchedmode = true;
-                    Game1.Instance.graphics.ToggleFullScreen();
-                }
-            #endif
-            var ex = new Exception(reportType);
-            ExceptionTracker.TrackException(ex);
-            ExceptionTracker.Kudos = kudos;
-            bool wasPaused = Paused;
-            Paused = true;
-            ExceptionTracker.DisplayException(ex);
-            Paused = wasPaused;
-
-            if (switchedmode)
-            {
-                switchedmode = false;
-                Game1.Instance.Graphics.ToggleFullScreen();
-            }
-        }
 
         //added by gremlin replace redundant code with method
         public override void ExitScreen()

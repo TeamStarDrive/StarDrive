@@ -93,6 +93,13 @@ namespace Ship_Game
             if (GraphicsDeviceService?.GraphicsDevice != null)
                 screen.LoadContent();
         }
+        
+        // exits all other screens and goes to specified screen
+        public void GoToScreen(GameScreen screen)
+        {
+            ExitAll();
+            AddScreen(screen);
+        }
 
         public void AddScreenNoLoad(GameScreen screen)
         {
