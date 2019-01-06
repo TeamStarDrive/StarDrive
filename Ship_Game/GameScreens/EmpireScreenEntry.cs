@@ -105,17 +105,17 @@ namespace Ship_Game
             ColonySliderFood = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Food, drawIcons:false)
             {
                 sRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int) (0.25 * SliderRect.Height), width, 6),
-                amount = p.FarmerPercentage
+                Value = p.FarmerPercentage
             };
             ColonySliderProd = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Production, drawIcons:false)
             {
                 sRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.5 * SliderRect.Height), width, 6),
-                amount = p.WorkerPercentage
+                Value = p.WorkerPercentage
             };
             ColonySliderRes = new ColonyScreen.ColonySlider(ColonyScreen.ColonySlider.Research, drawIcons:false)
             {
                 sRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.75 * SliderRect.Height), width, 6),
-                amount = p.ResearcherPercentage
+                Value = p.ResearcherPercentage
             };
 
 
@@ -814,12 +814,12 @@ namespace Ship_Game
 			MathHelper.Clamp(p.FarmerPercentage, 0f, 1f);
 			MathHelper.Clamp(p.WorkerPercentage, 0f, 1f);
 			MathHelper.Clamp(p.ResearcherPercentage, 0f, 1f);
-			ColonySliderFood.amount = p.FarmerPercentage;
-			ColonySliderFood.cursor = new Rectangle(ColonySliderFood.sRect.X + (int)(ColonySliderFood.sRect.Width * ColonySliderFood.amount) - ResourceManager.Texture("NewUI/slider_crosshair").Width / 2, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
-			ColonySliderProd.amount = p.WorkerPercentage;
-			ColonySliderProd.cursor = new Rectangle(ColonySliderProd.sRect.X + (int)(ColonySliderProd.sRect.Width * ColonySliderProd.amount) - ResourceManager.Texture("NewUI/slider_crosshair").Width / 2, ColonySliderProd.sRect.Y + ColonySliderProd.sRect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
-			ColonySliderRes.amount = p.ResearcherPercentage;
-			ColonySliderRes.cursor = new Rectangle(ColonySliderRes.sRect.X + (int)(ColonySliderRes.sRect.Width * ColonySliderRes.amount) - ResourceManager.Texture("NewUI/slider_crosshair").Width / 2, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+			ColonySliderFood.Value = p.FarmerPercentage;
+			ColonySliderFood.cursor = new Rectangle(ColonySliderFood.sRect.X + (int)(ColonySliderFood.sRect.Width * ColonySliderFood.Value) - ResourceManager.Texture("NewUI/slider_crosshair").Width / 2, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+			ColonySliderProd.Value = p.WorkerPercentage;
+			ColonySliderProd.cursor = new Rectangle(ColonySliderProd.sRect.X + (int)(ColonySliderProd.sRect.Width * ColonySliderProd.Value) - ResourceManager.Texture("NewUI/slider_crosshair").Width / 2, ColonySliderProd.sRect.Y + ColonySliderProd.sRect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+			ColonySliderRes.Value = p.ResearcherPercentage;
+			ColonySliderRes.cursor = new Rectangle(ColonySliderRes.sRect.X + (int)(ColonySliderRes.sRect.Width * ColonySliderRes.Value) - ResourceManager.Texture("NewUI/slider_crosshair").Width / 2, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
 			previousMouse = currentMouse;
             p.UpdateIncomes(false);
 		}
@@ -858,15 +858,15 @@ namespace Ship_Game
 			}
 			Rectangle foodRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)width, 6);
 			ColonySliderFood.sRect = foodRect;
-			ColonySliderFood.amount = p.FarmerPercentage;
+			ColonySliderFood.Value = p.FarmerPercentage;
 			FoodLock.LockRect = new Rectangle(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width + 10, ColonySliderFood.sRect.Y + 2 + ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture(FoodLock.Path).Height / 2, ResourceManager.Texture(FoodLock.Path).Width, ResourceManager.Texture(FoodLock.Path).Height);
 			Rectangle prodRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.5 * SliderRect.Height), (int)width, 6);
 			ColonySliderProd.sRect = prodRect;
-			ColonySliderProd.amount = p.WorkerPercentage;
+			ColonySliderProd.Value = p.WorkerPercentage;
 			ProdLock.LockRect = new Rectangle(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width + 10, ColonySliderProd.sRect.Y + 2 + ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture(FoodLock.Path).Height / 2, ResourceManager.Texture(FoodLock.Path).Width, ResourceManager.Texture(FoodLock.Path).Height);
 			Rectangle resRect = new Rectangle(SliderRect.X + 10, SliderRect.Y + (int)(0.75 * SliderRect.Height), (int)width, 6);
 			ColonySliderRes.sRect = resRect;
-			ColonySliderRes.amount = p.ResearcherPercentage;
+			ColonySliderRes.Value = p.ResearcherPercentage;
 			ResLock.LockRect = new Rectangle(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width + 10, ColonySliderRes.sRect.Y + 2 + ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture(FoodLock.Path).Height / 2, ResourceManager.Texture(FoodLock.Path).Width, ResourceManager.Texture(FoodLock.Path).Height);
 			FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)(0.4f * StorageRect.Width), 18))
 			{
