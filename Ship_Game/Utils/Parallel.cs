@@ -114,29 +114,37 @@ namespace Ship_Game
             lock (Pool) Pool.ClearAndDispose();
         }
 
-        private static readonly Array<ParallelTask> Pool = new Array<ParallelTask>();
-        private static readonly bool Initialized = InitThreadPool();
+        static readonly Array<ParallelTask> Pool = new Array<ParallelTask>(32);
+        static readonly bool Initialized = InitThreadPool();
+        static readonly Map<int, bool> PForRunning = new Map<int, bool>();
 
-        private static bool InitThreadPool()
+        static bool InitThreadPool()
         {
             AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
             return true;
         }
 
-        /// <summary>TRUE if another Parallel.For loop is already running </summary>
-        public static bool Running { get; private set; }
+        /// <summary>TRUE if another Parallel.For loop is already running on THIS thread </summary>
+        public static bool Running
+        { 
+            get => PForRunning.TryGetValue(Thread.CurrentThread.ManagedThreadId, out bool running) && running;
+            private set => PForRunning[Thread.CurrentThread.ManagedThreadId] = value;
+        }
         public static int PoolSize => Pool.Count;
 
         private static ParallelTask NextTask(ref int poolIndex)
         {
-            for (; poolIndex < Pool.Count; ++poolIndex)
+            lock (Pool)
             {
-                ParallelTask task = Pool[poolIndex];
-                if (!task.Running) return task;
+                for (; poolIndex < Pool.Count; ++poolIndex)
+                {
+                    ParallelTask task = Pool[poolIndex];
+                    if (!task.Running) return task;
+                }
+                var newTask = new ParallelTask(Pool.Count);
+                Pool.Add(newTask);
+                return newTask;
             }
-            var newTask = new ParallelTask(Pool.Count);
-            Pool.Add(newTask);
-            return newTask;
         }
 
         private static int PhysicalCoreCount;
@@ -207,7 +215,7 @@ namespace Ship_Game
             }
 
             var tasks = new ParallelTask[cores];
-            lock (Pool)
+            lock (PForRunning)
             {
                 // Rationale: if you nest parallel for loops, you will spawn a huge number of threads
                 // and thus killing off any performance gains. For example on a 6-core cpu it would spawn
@@ -215,16 +223,17 @@ namespace Ship_Game
                 if (Running)
                     throw new ThreadStateException("Another Parallel.For loop is already running. Nested Parallel.For loops are forbidden");
                 Running = true;
-                int poolIndex = 0;
-                int start = rangeStart;
-                for (int i = 0; i < cores; ++i, start += len)
-                {
-                    int end = (i == cores - 1) ? rangeEnd : start + len;
+            }
 
-                    ParallelTask task = NextTask(ref poolIndex);
-                    tasks[i] = task;
-                    task.Start(start, end, body);
-                }
+            int poolIndex = 0;
+            int start = rangeStart;
+            for (int i = 0; i < cores; ++i, start += len)
+            {
+                int end = (i == cores - 1) ? rangeEnd : start + len;
+
+                ParallelTask task = NextTask(ref poolIndex);
+                tasks[i] = task;
+                task.Start(start, end, body);
             }
 
             Exception ex = null; // only store a single exception
@@ -233,7 +242,7 @@ namespace Ship_Game
                 Exception e = tasks[i].Wait();
                 if (e != null && ex == null) ex = e;
             }
-            lock (Pool) Running = false;
+            lock (PForRunning) Running = false;
 
             // from the first ParallelTask that threw an exception:
             if (ex != null)
