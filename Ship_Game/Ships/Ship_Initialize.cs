@@ -50,6 +50,8 @@ namespace Ship_Game.Ships
                     continue;
 
                 ShipModule module = ShipModule.Create(uid, this, slotData, isTemplate, fromSave);
+
+                // @todo PERFORMANCE BOTTLENECK during game load
                 for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x += 16)
                 {
                     for (float y = module.XMLPosition.Y; y < module.XMLPosition.Y + module.YSIZE * 16; y += 16)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Management;
 using System.Threading;
 
@@ -181,9 +182,9 @@ namespace Ship_Game
         /// <param name="body">delegate void RangeAction(int start, int end)</param>
         /// <param name="parallelism">Number of threads to spawn. By default number of physical cores is used.</param>
         /// <example>
-        /// Parallel.For(0, arr.Length, (start, end) =>
+        /// Parallel.For(0, arr.Length, (start, end) =&gt;
         /// {
-        ///     for (int i = start; i < end; i++)
+        ///     for (int i = start; i &lt; end; i++)
         ///     {
         ///         var elem = arr[i];
         ///     }
@@ -244,12 +245,31 @@ namespace Ship_Game
             For(0, rangeLength, body, parallelism);
         }
 
+        public static void ForEach<T>(IReadOnlyList<T> list, Action<T> body)
+        {
+            For(0, list.Count, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                    body(list[i]);
+            });
+        }
+
         public static ParallelTask Run(Action action)
         {
             int poolIndex = 0;
             ParallelTask task = NextTask(ref poolIndex);
             task.Start(action);
             return task;
+        }
+
+        // runs a single background thread and loops over the items
+        public static ParallelTask Run<T>(IReadOnlyList<T> list, Action<T> body)
+        {
+            return Run(() =>
+            {
+                foreach (T item in list)
+                    body(item);
+            });
         }
     }
 }
