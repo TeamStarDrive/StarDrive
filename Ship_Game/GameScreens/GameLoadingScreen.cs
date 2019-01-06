@@ -97,14 +97,12 @@ namespace Ship_Game
             BridgeRect = new Rectangle(size.X / 2 - 960, size.Y / 2 - 540, 1920, 1080);
             var screenRect = new Rectangle(0, 0, size.X, size.Y);
 
-            if (SkipSplashVideo)
-            {
-                // little loading icon
-                LoadingPlayer = new VideoPlayer2(TransientContent, "Video/Loading 2", true,
-                                new Rectangle(size.X / 2 - 64, size.Y / 2 - 64, 128, 128));
-                LoadingPlayer.Play();
-            }
-            else
+            // little loading icon
+            LoadingPlayer = new VideoPlayer2(TransientContent, "Video/Loading 2", true,
+                new Rectangle(size.X / 2 - 64, size.Y / 2 - 64, 128, 128));
+            LoadingPlayer.Play();
+
+            if (!SkipSplashVideo)
             {
                 // "Play it cool"
                 SplashPlayer = new VideoPlayer2(TransientContent, "Video/zerosplash", false,

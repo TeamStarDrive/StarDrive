@@ -205,6 +205,7 @@ namespace Ship_Game
                     int.TryParse(entry[3], out t.Width);
                     int.TryParse(entry[4], out t.Height);
                     t.Name = entry[5];
+                    t.Texture = Atlas;
                     textures.Add(t);
                 }
                 LoadTextures(content, textures);
@@ -216,10 +217,15 @@ namespace Ship_Game
 
         void LoadTextures(GameContentManager content, Array<TextureInfo> textures)
         {
-            // @todo With this separation, we could parallelize LoadUncached<Texture2D> even more?
+            TextureInfo[] noPack = textures.FilterBy(t => t.NoPack);
+            Parallel.For(noPack.Length, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                    noPack[i].Texture = content.LoadUncached<Texture2D>($"{Name}/{noPack[i].Name}");
+            });
+
             foreach (TextureInfo t in textures)
             {
-                t.Texture = t.NoPack ? content.LoadUncached<Texture2D>($"{Name}/{t.Name}") : Atlas;
                 var sub = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, t.Texture);
                 if (t.NoPack) NonPacked.Add(t.Texture);
                 Lookup.Add(t.Name, sub);
