@@ -119,13 +119,13 @@ namespace Ship_Game
         }
         public Vector2 GenerateRandomSysPos(float spacing, Array<Vector2> claimedSpots, UniverseData data)
         {
-            float safteyBreak = 1;
+            float safetyBreak = 1;
             Vector2 sysPos;
             do
             {
-                spacing *= safteyBreak;
+                spacing *= safetyBreak;
                 sysPos = RandomMath.Vector2D(data.Size.X - 100000f);
-                safteyBreak *= .97f;
+                safetyBreak *= .97f;
             } while (!SystemPosOK(sysPos, spacing, claimedSpots, data));
 
             claimedSpots.Add(sysPos);

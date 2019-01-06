@@ -544,6 +544,9 @@ namespace Ship_Game
             return NetProductionPerTurn;
         }
 
+        public bool IsCybernetic => Owner?.data.Traits.Cybernetic == 1;
+        public bool NotCybernetic => Owner?.data.Traits.Cybernetic == 0;
+
         public bool TryBiosphereBuild(Building b, QueueItem qi) => SbProduction.TryBiosphereBuild(b, qi);
 
         public void Update(float elapsedTime)
