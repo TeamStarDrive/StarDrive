@@ -8,7 +8,7 @@ using System;
 
 namespace Ship_Game
 {
-    public sealed partial class UniverseScreen
+    public partial class UniverseScreen
     {
         private void DrawRings(Matrix world, Matrix view, Matrix projection, float scale)
         {

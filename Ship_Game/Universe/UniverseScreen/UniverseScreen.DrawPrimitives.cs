@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public sealed partial class UniverseScreen
+    public partial class UniverseScreen
     {
         // this does some magic to convert a game position/coordinate to a drawable screen position
         public Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)

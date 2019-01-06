@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Ship_Game
 {
-    public sealed partial class UniverseScreen
+    public partial class UniverseScreen
     {   
         private bool HandleGUIClicks(InputState input)
         {
@@ -324,7 +324,8 @@ namespace Ship_Game
         {
             Input = input;
 
-            if (input.PauseGame && !GlobalStats.TakingInput) Paused = !Paused;
+            if (input.PauseGame && !GlobalStats.TakingInput)
+                Paused = !Paused;
             if (ScreenManager.UpdateExitTimeer(!LookingAtPlanet))
                 return true; //if planet screen is still exiting prevent further input
             HandleEdgeDetection(input);
@@ -360,7 +361,6 @@ namespace Ship_Game
                 Paused = true;
                 Log.OpenURL("https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new");
             }
-
             if (input.SendKudos)
             {
                 Paused = true;

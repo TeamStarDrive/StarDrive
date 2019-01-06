@@ -1742,36 +1742,39 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            if (IsActive)
+            if (VideoPlaying != null)
             {
-                if (VideoPlaying.State == MediaState.Paused)
+                if (IsActive)
                 {
-                    VideoPlaying.Resume();
-                }
-                if (!them.data.ModRace)
-                {
-                    if (MusicPlaying.IsPaused)
+                    if (VideoPlaying.State == MediaState.Paused)
                     {
-                        MusicPlaying.Resume();
+                        VideoPlaying.Resume();
                     }
-                    else if (MusicPlaying.IsStopped)
+                    if (!them.data.ModRace)
                     {
-                        if (them.data.MusicCue.NotEmpty())
+                        if (MusicPlaying.IsPaused)
                         {
-                            MusicPlaying = GameAudio.PlayMusic(WarDeclared ? "Stardrive_Combat 1c_114BPM" : them.data.MusicCue);
+                            MusicPlaying.Resume();
+                        }
+                        else if (MusicPlaying.IsStopped)
+                        {
+                            if (them.data.MusicCue.NotEmpty())
+                            {
+                                MusicPlaying = GameAudio.PlayMusic(WarDeclared ? "Stardrive_Combat 1c_114BPM" : them.data.MusicCue);
+                            }
                         }
                     }
                 }
-            }
-            else
-            {
-                if (VideoPlaying.State == MediaState.Playing)
+                else
                 {
-                    VideoPlaying.Pause();
-                }
-                if (!them.data.ModRace && MusicPlaying.IsPlaying)
-                {
-                    MusicPlaying.Pause();
+                    if (VideoPlaying.State == MediaState.Playing)
+                    {
+                        VideoPlaying.Pause();
+                    }
+                    if (!them.data.ModRace && MusicPlaying.IsPlaying)
+                    {
+                        MusicPlaying.Pause();
+                    }
                 }
             }
 
