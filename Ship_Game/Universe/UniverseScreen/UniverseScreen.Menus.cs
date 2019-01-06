@@ -1,8 +1,9 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
 
-namespace Ship_Game {
-    public sealed partial class UniverseScreen
+namespace Ship_Game
+{
+    public partial class UniverseScreen
     {
         private void LoadMenu()
         {
