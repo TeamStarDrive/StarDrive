@@ -17,7 +17,7 @@ namespace Ship_Game
         private UIButton Exit;
         private UIButton ExitToMain;
 
-        private GameplayMMScreen(GameScreen parent) : base(parent)
+        private GameplayMMScreen(GameScreen parent) : base(parent, pause: true)
         {
             IsPopup = true;
             TransitionOnTime  = TimeSpan.FromSeconds(0.25);
@@ -26,13 +26,11 @@ namespace Ship_Game
         public GameplayMMScreen(UniverseScreen screen) : this((GameScreen)screen)
         {
             this.screen = screen;
-            screen.Paused = true;
         }
         public GameplayMMScreen(UniverseScreen screen, GameScreen caller) : this(screen)
         {
             this.caller = caller;
             this.screen = screen;
-            screen.Paused = true;
         }
 
         public override void ExitScreen()

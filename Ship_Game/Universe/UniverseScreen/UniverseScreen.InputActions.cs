@@ -4,7 +4,7 @@ using Ship_Game.Commands.Goals;
 
 namespace Ship_Game
 {
-    public sealed partial class UniverseScreen
+    public partial class UniverseScreen
     {
         public void OrderScrap(object sender)
         {
