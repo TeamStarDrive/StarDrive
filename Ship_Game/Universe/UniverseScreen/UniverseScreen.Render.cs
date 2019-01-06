@@ -7,7 +7,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public sealed partial class UniverseScreen
+    public partial class UniverseScreen
     {
         private void RenderParticles()
         {
