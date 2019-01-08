@@ -644,7 +644,6 @@ namespace Ship_Game
                             newOrbital.Population      = newOrbital.MaxPopulation;
                             newOrbital.MineralRichness = 1f;
                             newOrbital.colonyType      = Planet.ColonyType.Core;
-                            newOrbital.GovernorOn      = true;
                             newOrbital.InitFertilityValues(2f);
                         }
                     }

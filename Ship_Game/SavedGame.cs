@@ -164,7 +164,6 @@ namespace Ship_Game
                             foodHere             = ring.planet.FoodHere,
                             TerraformPoints      = ring.planet.TerraformPoints,
                             prodHere             = ring.planet.ProductionHere,
-                            GovernorOn           = ring.planet.GovernorOn,
                             ColonyType           = ring.planet.colonyType,
                             StationsList         = new Array<Guid>(),
                             SpecialDescription = ring.planet.SpecialDescription

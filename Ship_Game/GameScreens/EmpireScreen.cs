@@ -109,20 +109,6 @@ namespace Ship_Game
             if (GovernorDropdown.ActiveValue != (int) SelectedPlanet.colonyType)
             {
                 SelectedPlanet.colonyType = (Planet.ColonyType) GovernorDropdown.ActiveValue;
-                if (SelectedPlanet.colonyType != Planet.ColonyType.Colony)
-                {
-                    SelectedPlanet.FoodLocked = true;
-                    SelectedPlanet.ProdLocked = true;
-                    SelectedPlanet.ResLocked = true;
-                    SelectedPlanet.GovernorOn = true;
-                }
-                else
-                {
-                    SelectedPlanet.GovernorOn = false;
-                    SelectedPlanet.FoodLocked = false;
-                    SelectedPlanet.ProdLocked = false;
-                    SelectedPlanet.ResLocked = false;
-                }
             }
             AutoButton = new Rectangle(0, 0, 140, 33);
             //firstSort = true;
@@ -664,24 +650,7 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         SelectedPlanet = entry.p;
                         GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
-                        if (GovernorDropdown.ActiveValue != (int)SelectedPlanet.colonyType)
-                        {
-                            SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                            if (SelectedPlanet.colonyType != Planet.ColonyType.Colony)
-                            {
-                                SelectedPlanet.FoodLocked = true;
-                                SelectedPlanet.ProdLocked = true;
-                                SelectedPlanet.ResLocked = true;
-                                SelectedPlanet.GovernorOn = true;
-                            }
-                            else
-                            {
-                                SelectedPlanet.GovernorOn = false;
-                                SelectedPlanet.FoodLocked = false;
-                                SelectedPlanet.ProdLocked = false;
-                                SelectedPlanet.ResLocked = false;
-                            }
-                        }
+                        SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
                     }
                     if (ClickTimer >= ClickDelay || SelectedPlanet == null)
                     {
@@ -697,24 +666,9 @@ namespace Ship_Game
                 }
             }
             GovernorDropdown.HandleInput(input);
-            if (GovernorDropdown.ActiveValue != (int)SelectedPlanet.colonyType)
-            {
-                SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                if (SelectedPlanet.colonyType != Planet.ColonyType.Colony)
-                {
-                    SelectedPlanet.FoodLocked = true;
-                    SelectedPlanet.ProdLocked = true;
-                    SelectedPlanet.ResLocked = true;
-                    SelectedPlanet.GovernorOn = true;
-                }
-                else
-                {
-                    SelectedPlanet.GovernorOn = false;
-                    SelectedPlanet.FoodLocked = false;
-                    SelectedPlanet.ProdLocked = false;
-                    SelectedPlanet.ResLocked = false;
-                }
-            }
+
+            SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
+
             if (input.KeysCurr.IsKeyDown(Keys.U) && !input.KeysPrev.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
@@ -740,24 +694,9 @@ namespace Ship_Game
             }
             SelectedPlanet = ColoniesList.ItemAtTop<EmpireScreenEntry>().p;
             GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
-            if (GovernorDropdown.ActiveValue != (int)SelectedPlanet.colonyType)
-            {
-                SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                if (SelectedPlanet.colonyType != Planet.ColonyType.Colony)
-                {
-                    SelectedPlanet.FoodLocked = true;
-                    SelectedPlanet.ProdLocked = true;
-                    SelectedPlanet.ResLocked = true;
-                    SelectedPlanet.GovernorOn = true;
-                }
-                else
-                {
-                    SelectedPlanet.GovernorOn = false;
-                    SelectedPlanet.FoodLocked = false;
-                    SelectedPlanet.ProdLocked = false;
-                    SelectedPlanet.ResLocked = false;
-                }
-            }
+
+            SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
+
             foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
             {
                 e.Get<EmpireScreenEntry>().SetNewPos(eRect.X + 22, e.Y);

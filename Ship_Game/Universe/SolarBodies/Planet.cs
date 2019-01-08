@@ -121,6 +121,8 @@ namespace Ship_Game
         public float WorkerPercentage = 0.33f;
         public float ResearcherPercentage = 0.33f;
         public float MaxStorage = 10f;
+
+        // @note These are USER specified locks. Do NOT use for governor lock! 
         public bool FoodLocked;
         public bool ProdLocked;
         public bool ResLocked;
@@ -748,7 +750,7 @@ namespace Ship_Game
             {
                 if (ConstructionQueue.Count == 0 && !QueueEmptySent)
                 {
-                    if (colonyType == ColonyType.Colony || colonyType == ColonyType.Core || colonyType == ColonyType.Industrial || !GovernorOn)
+                    if (colonyType == ColonyType.Colony)
                     {
                         QueueEmptySent = true;
                         Empire.Universe.NotificationManager.AddEmptyQueueNotification(this);
@@ -845,6 +847,38 @@ namespace Ship_Game
                 DevelopmentStatus += Localizer.Token(1779); // military culture
             }
         }
+
+        int ColonyTypeLocId()
+        {
+            switch (colonyType)
+            {
+                default:
+                case ColonyType.Core:         return 378;
+                case ColonyType.Colony:       return 382;
+                case ColonyType.Industrial:   return 379;
+                case ColonyType.Research:     return 381;
+                case ColonyType.Agricultural: return 377;
+                case ColonyType.Military:     return 380;
+                case ColonyType.TradeHub:     return 394;
+            }
+        }
+        public string ColonyTypeInfoText => Localizer.Token(ColonyTypeLocId());
+
+        int WorldTypeLocId()
+        {
+            switch (colonyType)
+            {
+                default:
+                case ColonyType.Core:         return 372;
+                case ColonyType.Colony:       return 376;
+                case ColonyType.Industrial:   return 373;
+                case ColonyType.Research:     return 375;
+                case ColonyType.Agricultural: return 371;
+                case ColonyType.Military:     return 374;
+                case ColonyType.TradeHub:     return 393;
+            }
+        }
+        public string WorldType => Localizer.Token(WorldTypeLocId());
 
         public TradeAI TradeAI => SbCommodities.Trade;
 

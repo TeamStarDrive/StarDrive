@@ -173,21 +173,33 @@ namespace Ship_Game
         {
             var result = new StringBuilder();
             string[] words = text.Split(' ');
-            float length = 0.0f;
+            float spaceLength = font.MeasureString(" ").X;
+            float lineLength = 0.0f;
             foreach (string word in words)
             {
-                if (word != "\\n" && word != "\n")
+                if (word == "\\n" || word == "\n")
                 {
-                    length += font.MeasureString(word).Length();
-                    result.Append(word);
-                    if (length < maxLineWidth)
-                    {
-                        result.Append(' ');
-                        continue;
-                    }
+                    result.Append('\n');
+                    lineLength = 0f;
+                    continue;
                 }
-                result.Append('\n');
-                length = 0f;
+                float wordLength = font.MeasureString(word).X;
+                if ((lineLength + wordLength) > maxLineWidth)
+                {
+                    result.Append('\n');
+                    lineLength = wordLength;
+                    result.Append(word);
+                }
+                else
+                {
+                    if (result.Length != 0)
+                    {
+                        lineLength += spaceLength;
+                        result.Append(' ');
+                    }
+                    lineLength += wordLength;
+                    result.Append(word);
+                }
             }
             return result.ToString();
         }
@@ -197,7 +209,7 @@ namespace Ship_Game
             var size = new Vector2();
             foreach (string line in lines)
             {
-                size.X = Math.Max(size.X, font.MeasureString(line).Length());
+                size.X = Math.Max(size.X, font.MeasureString(line).X);
                 size.Y += font.LineSpacing + 2;
             }
             return size;

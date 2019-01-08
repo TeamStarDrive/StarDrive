@@ -70,7 +70,11 @@ namespace Ship_Game
 
             for (int i = 0; i < NumEmpires && i < ResourceManager.Empires.Count; ++i)
             {
-                Empire e = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.Empires[i]);
+                EmpireData data = ResourceManager.Empires[i];
+                if (sandbox.EmpireList.IsEmpty && data.Faction > 0)
+                    continue; // don't allow Faction for players
+
+                Empire e = EmpireManager.CreateEmpireFromEmpireData(data);
                 sandbox.EmpireList.Add(e);
                 EmpireManager.Add(e);
                 e.data.CurrentAutoScout = e.data.ScoutShip;
@@ -99,7 +103,6 @@ namespace Ship_Game
                 {
                     if (p.Owner == EmpireManager.Player)
                     {
-                        p.GovernorOn = false; // disable governor for player planets
                         p.colonyType = Planet.ColonyType.Colony; // this is required to disable governors... for some reason
                     }
                     p.SetExploredBy(e);
