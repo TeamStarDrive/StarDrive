@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Microsoft.Xna.Framework;
@@ -22,8 +23,8 @@ namespace Ship_Game
         List<IDisposable> DisposableAssets;
         public string Name { get; }
 
-        // Enables verbose logging for all asset loads
-        public bool EnableLoadInfoLog { get; set; }
+        // Enables verbose logging for all asset loads and disposes
+        public bool EnableLoadInfoLog { get; set; } = false && Debugger.IsAttached;
 
         private RawContentLoader RawContent;
 
@@ -189,6 +190,16 @@ namespace Ship_Game
             int count = LoadedAssets.Count;
             try
             {
+                if (EnableLoadInfoLog)
+                {
+                    foreach (KeyValuePair<string,object> obj in LoadedAssets)
+                    {
+                        if      (obj.Value is Texture2D)          Log.Info(ConsoleColor.Magenta, "Disposing texture  "+obj.Key);
+                        else if (obj.Value is TextureAtlas atlas) Log.Info(ConsoleColor.Magenta, "Disposing atlas    "+atlas);
+                        else if (obj.Value is Model)              Log.Info(ConsoleColor.Magenta, "Disposing model    "+obj.Key);
+                        else if (obj.Value is IDisposable)        Log.Info(ConsoleColor.Magenta, "Disposing asset    "+obj.Key);
+                    }
+                }
                 foreach (IDisposable asset in DisposableAssets)
                     asset?.Dispose();
             }
