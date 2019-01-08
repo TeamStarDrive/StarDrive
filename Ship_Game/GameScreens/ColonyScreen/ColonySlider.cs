@@ -72,7 +72,7 @@ namespace Ship_Game
             }
         }
 
-        public float Percent
+        public float Value
         {
             get
             {
@@ -85,7 +85,6 @@ namespace Ship_Game
             }
             set
             {
-                value = value.Clamped(0f, 1f);
                 switch (Type)
                 {
                     default:              P.FarmerPercentage     = value; break;
@@ -176,17 +175,16 @@ namespace Ship_Game
         void HandleDragging(int mouseX)
         {
             float newRelX = (mouseX - Rect.Left) / (float)Rect.Width;
-            float oldRelX = Percent;
-            if (!newRelX.AlmostEqual(oldRelX))
+            float difference = newRelX.Clamped(0f, 1f) - Value;
+            if (Math.Abs(difference) >= 0.01f)
             {
-                float difference = newRelX - oldRelX;
                 OnSliderChange?.Invoke(this, difference);
             }
         }
 
         Rectangle CursorRect()
         {
-            int posX = Rect.RelativeX(Percent) - Crosshair.CenterX;
+            int posX = Rect.RelativeX(Value) - Crosshair.CenterX;
             int posY = Rect.CenterY() - Crosshair.CenterY;
             return new Rectangle(posX, posY, Crosshair.Width, Crosshair.Height);
         }
@@ -200,7 +198,7 @@ namespace Ship_Game
         {
             Color sliderTint = IsDisabled ? Color.DarkGray : Color.White;
 
-            batch.Draw(Slider, new Rectangle(Rect.X, Rect.Y, (int)(Percent * Rect.Width), Rect.Height), sliderTint);
+            batch.Draw(Slider, new Rectangle(Rect.X, Rect.Y, (int)(Value * Rect.Width), Rect.Height), sliderTint);
             batch.DrawRectangle(Rect, SliderHover ? HoverColor : DefaultColor);
 
             if (DrawIcons)
