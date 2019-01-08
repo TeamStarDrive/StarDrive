@@ -9,7 +9,7 @@ namespace Ship_Game.Universe.SolarBodies
         readonly Planet Ground;
         readonly Map<string, float> Commodities = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
 
-        public SBCommodities (Planet planet)
+        public SBCommodities(Planet planet)
         {
             Trade = new TradeAI(planet);
             Ground = planet;
@@ -116,8 +116,8 @@ namespace Ship_Game.Universe.SolarBodies
             }
             else
             {
-                Ground.NetFoodPerTurn -= Ground.Consumption;            // Reduce food by how much is consumed
-                float foodHere = RaceSpecificFood + Ground.NetFoodPerTurn;      // Add any remaining to storage
+                Ground.FoodPerTurn -= Ground.Consumption;            // Reduce food by how much is consumed
+                float foodHere = RaceSpecificFood + Ground.FoodPerTurn;      // Add any remaining to storage
                  
                 if (foodHere >= Ground.MaxStorage)
                 {

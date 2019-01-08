@@ -30,7 +30,7 @@ namespace Ship_Game
                 OpenCombatMenu));
         }
 
-        public void OpenCombatMenu(object sender)
+        public void OpenCombatMenu()
         {
             workersPanel = new CombatScreen(this, SelectedPlanet);
             LookingAtPlanet = true;
@@ -46,7 +46,7 @@ namespace Ship_Game
             snappingToShip = false;
         }
 
-        public void RefitTo(object sender)
+        public void RefitTo()
         {
             if (SelectedShip != null)
                 ScreenManager.AddScreen(new RefitToWindow(this, SelectedShip));

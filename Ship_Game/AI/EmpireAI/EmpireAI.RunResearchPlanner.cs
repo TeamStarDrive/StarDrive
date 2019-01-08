@@ -30,14 +30,14 @@ namespace Ship_Game.AI
             if (OwnerEmpire.ResearchTopic.NotEmpty())
                 return;
             Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
-            bool cybernetic = OwnerEmpire.data.Traits.Cybernetic > 0;
+            bool cybernetic = OwnerEmpire.IsCybernetic;
             float researchDebt = 0;
             float wars = OwnerEmpire.AllRelations.Count(war => !war.Key.isFaction && (war.Value.AtWar 
-            || war.Value.PreparingForWar ));                //
+                                                             || war.Value.PreparingForWar ));
 
             wars += ThreatMatrix.StrengthOfAllThreats(OwnerEmpire) / (OwnerEmpire.currentMilitaryStrength + 1);
             wars += OwnerEmpire.AllRelations.Count(war => !war.Key.isFaction 
-            && ( war.Value.TotalAnger > 10 || war.Value.FearEntries.Count > 1)) *2;
+                                        && ( war.Value.TotalAnger > 10 || war.Value.FearEntries.Count > 1)) *2;
 
             if (postResearchTopic.NotEmpty())
             {
@@ -252,7 +252,7 @@ namespace Ship_Game.AI
                         }
                     case "IFCYBERNETIC":
                         {
-                            loopcount += ScriptBump(OwnerEmpire.data.Traits.Cybernetic > 0);
+                            loopcount += ScriptBump(OwnerEmpire.IsCybernetic);
                             goto Start;
                         }
                     case "IFLOWRESEARCH":

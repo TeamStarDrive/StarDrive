@@ -441,11 +441,11 @@ namespace Ship_Game
             {
                 if (Inspect.HandleInput(input))
                 {
-                    screen.ViewPlanet(null);
+                    screen.ViewPlanet();
                 }
                 if (Invade.HandleInput(input))
                 {
-                    screen.OpenCombatMenu(null);
+                    screen.OpenCombatMenu();
                 }
             }
             if (!ElementRect.HitTest(input.CursorPosition))

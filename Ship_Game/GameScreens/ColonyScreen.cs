@@ -448,7 +448,7 @@ namespace Ship_Game
                 if      (P.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
                 else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
                 else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
-                if (P.Owner.data.Traits.Cybernetic == 0)
+                if (P.NonCybernetic)
                 {
                     FoodStorage.Draw(batch);
                     foodDropDown.Draw(batch);
@@ -991,7 +991,7 @@ namespace Ship_Game
                 case string _:
                     DrawMultiLine(ref bCursor, P.Description);
                     string desc = "";
-                    if (P.Owner.data.Traits.Cybernetic != 0)  desc = Localizer.Token(2028);
+                    if (P.IsCybernetic)  desc = Localizer.Token(2028);
                     else switch (P.FS)
                     {
                         case Planet.GoodState.EXPORT:
@@ -1020,8 +1020,7 @@ namespace Ship_Game
                             break;
                     }
                     DrawMultiLine(ref bCursor, desc);
-                    bool cybernetic  = P.Owner.data.Traits.Cybernetic != 0;
-                    float production = cybernetic ? P.ProductionHere + P.NetProductionPerTurn : P.FoodHere + P.NetFoodPerTurn;
+                    float production = P.IsCybernetic ? P.ProductionHere + P.NetProductionPerTurn : P.FoodHere + P.FoodPerTurn;
                     if (production - P.Consumption < 0f)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
                     DrawPlanetStat(ref bCursor, spriteBatch);
