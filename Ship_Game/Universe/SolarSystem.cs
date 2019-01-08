@@ -479,7 +479,7 @@ namespace Ship_Game
                     float planetRadius = 1000f * scale;// (float)(1 + ((Math.Log(scale)) / 1.5));
                     float randomAngle = RandomMath.RandomBetween(0f, 360f);
                     Vector2 planetCenter = Vector2.Zero.PointFromAngle(randomAngle, ringRadius);
-                    Planet newOrbital = new Planet
+                    var newOrbital = new Planet
                     {
                         Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
                         OrbitalAngle = randomAngle,
@@ -497,13 +497,10 @@ namespace Ship_Game
                         newOrbital.HasRings = true;
                         newOrbital.RingTilt = RandomMath.RandomBetween(-80f, -45f);
                     }
-                    float fertility       = newOrbital.Fertility;
-                    float mineralRichness = newOrbital.MineralRichness;
-                    float maxPopulation   = newOrbital.MaxPopulation / 1000f;
                     newOrbital.CorsairPresence = true;
                     PlanetList.Add(newOrbital);
                     RandomMath.RandomBetween(0f, 3f);
-                    Ring ring = new Ring
+                    var ring = new Ring
                     {
                         Distance = ringRadius,
                         Asteroids = false,
