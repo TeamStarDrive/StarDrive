@@ -1012,9 +1012,7 @@ namespace Ship_Game
             }
         }
 
-        public void AddBuildingToCQ(Building b) => SbProduction.AddBuildingToCQ(b);
-
-        public void AddBuildingToCQ(Building b, bool PlayerAdded) => SbProduction.AddBuildingToCQ(b, PlayerAdded);
+        public void AddBuildingToCQ(Building b, bool playerAdded = false) => SbProduction.AddBuildingToCQ(b, playerAdded);
 
         public bool BuildingInQueue(string UID)
         {

@@ -297,16 +297,11 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void AddBuildingToCQ(Building b)
-        {
-            AddBuildingToCQ(b, false);
-        }
-
-        public void AddBuildingToCQ(Building b, bool PlayerAdded)
+        public void AddBuildingToCQ(Building b, bool playerAdded = false)
         {
             var qi = new QueueItem(Ground)
             {
-                IsPlayerAdded = PlayerAdded,
+                IsPlayerAdded = playerAdded,
                 isBuilding = true,
                 Building = b,
                 Cost = b.Cost * UniverseScreen.GamePaceStatic,
