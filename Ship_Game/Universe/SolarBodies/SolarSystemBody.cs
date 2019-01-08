@@ -115,11 +115,11 @@ namespace Ship_Game
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
-        public bool GovernorOn = true;  //This can be removed...It is set all over the place, but never checked. -Gretman
+        public bool GovernorOn = true;  // used by AssessColonyNeeds
         public float ObjectRadius
         {
-            get => SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius;
-            set => InvisibleRadius = SO != null ? SO.WorldBoundingSphere.Radius : value;
+            get => SO?.WorldBoundingSphere.Radius ?? InvisibleRadius;
+            set => InvisibleRadius = SO?.WorldBoundingSphere.Radius ?? value;
         }
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
@@ -1450,7 +1450,9 @@ namespace Ship_Game
             colonyType = Planet.ColonyType.Colony;                        
             GovernorOn = !newOwner.isPlayer || newOwner.AutoColonize;
             if (GovernorOn)
+            {
                 colonyType = Owner.AssessColonyNeeds((Planet)this);
+            }
         }
         protected void GenerateMoons(Planet newOrbital)
         {

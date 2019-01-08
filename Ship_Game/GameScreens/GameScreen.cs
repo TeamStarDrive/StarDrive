@@ -200,7 +200,7 @@ namespace Ship_Game
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTexture(SubTexture texture, Vector2 posOnScreen, float scale, float rotation, Color color)
-            => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
+            => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color, rotation, texture.CenterF, scale, SpriteEffects.None, 1f);
 
         public void DrawTexture(SubTexture texture, Vector2 posOnScreen, Color color)
             => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color);
@@ -210,7 +210,7 @@ namespace Ship_Game
         public void DrawTextureSized(SubTexture texture, Vector2 posOnScreen, float rotation, float width, float height, Color color)
         {
             var rect = new Rectangle((int)posOnScreen.X, (int)posOnScreen.Y, (int)width, (int)height);
-            ScreenManager.SpriteBatch.Draw(texture, rect, color, rotation, texture.Center(), SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.Draw(texture, rect, color, rotation, texture.CenterF, SpriteEffects.None, 1f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

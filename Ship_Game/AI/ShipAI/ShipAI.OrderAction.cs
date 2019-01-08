@@ -470,7 +470,7 @@ namespace Ship_Game.AI
                 State = AIState.Orbit;
                 return;
             }
-            var emergencyPlanet = Empire.Universe.PlanetsDict.Values.ToArray().FilterBy(p => p.Owner == null);
+            var emergencyPlanet = Empire.Universe.PlanetsDict.Values.ToArray().Filter(p => p.Owner == null);
             emergencyPlanet.Sort(p => p.Center.SqDist(Owner.Center));
             OrbitTarget = emergencyPlanet[0];
         }

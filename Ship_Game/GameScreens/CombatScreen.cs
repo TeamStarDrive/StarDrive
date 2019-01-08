@@ -377,7 +377,7 @@ namespace Ship_Game
                             ? ship.TroopList.First : draggedTroop.Get<Troop>();
 
                 SubTexture icon = troop.TextureDefault;
-                batch.Draw(icon, Input.CursorPosition, Color.White, 0f, icon.Center(), 0.65f, SpriteEffects.None, 1f);
+                batch.Draw(icon, Input.CursorPosition, Color.White, 0f, icon.CenterF, 0.65f, SpriteEffects.None, 1f);
             }
             if (Empire.Universe.IsActive)
             {

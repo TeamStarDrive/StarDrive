@@ -22,11 +22,11 @@ namespace Ship_Game.Ships
 
         private CarrierBays(Ship owner, ShipModule[] slots)
         {
-            AllHangars        = slots.FilterBy(module => module.Is(ShipModuleType.Hangar));
-            AllTroopBays      = AllHangars.FilterBy(module => module.IsTroopBay);
-            AllSupplyBays     = AllHangars.FilterBy(module => module.IsSupplyBay);
-            AllTransporters   = AllHangars.FilterBy(module => module.TransporterOrdnance > 0 || module.TransporterTroopAssault > 0);
-            AllFighterHangars = AllHangars.FilterBy(module => !module.IsTroopBay 
+            AllHangars        = slots.Filter(module => module.Is(ShipModuleType.Hangar));
+            AllTroopBays      = AllHangars.Filter(module => module.IsTroopBay);
+            AllSupplyBays     = AllHangars.Filter(module => module.IsSupplyBay);
+            AllTransporters   = AllHangars.Filter(module => module.TransporterOrdnance > 0 || module.TransporterTroopAssault > 0);
+            AllFighterHangars = AllHangars.Filter(module => !module.IsTroopBay 
                                                               && !module.IsSupplyBay 
                                                               && module.ModuleType != ShipModuleType.Transporter);
             HasHangars              = AllHangars.Length > 0;
@@ -50,7 +50,7 @@ namespace Ship_Game.Ships
             return None;
         }
 
-        public ShipModule[] AllActiveHangars   => AllHangars.FilterBy(module => module.Active);
+        public ShipModule[] AllActiveHangars   => AllHangars.Filter(module => module.Active);
 
         public bool HasActiveHangars           => AllHangars.Any(module => module.Active); // FB: this changes dynamically
 
@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
 
         public bool CanInvadeOrBoard => HasTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
 
-        public ShipModule[] AllActiveTroopBays => AllTroopBays.FilterBy(module => module.Active);
+        public ShipModule[] AllActiveTroopBays => AllTroopBays.Filter(module => module.Active);
 
         public int NumActiveHangars => AllHangars.Count(hangar => hangar.Active);
 
@@ -273,7 +273,7 @@ namespace Ship_Game.Ships
                 int assaultSpots = Owner.DesignRole == ShipData.RoleName.troop
                                    || Owner.DesignRole == ShipData.RoleName.troopShip ? Owner.TroopList.Count : 0;
 
-                assaultSpots += AllActiveHangars.FilterBy(sm => sm.IsTroopBay).Length;  // FB: inspect this
+                assaultSpots += AllActiveHangars.Filter(sm => sm.IsTroopBay).Length;  // FB: inspect this
                 assaultSpots += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
 
                 int troops = Math.Min(Owner.TroopList.Count, assaultSpots);
@@ -373,7 +373,7 @@ namespace Ship_Game.Ships
         {
             get
             {
-                return AllHangars.FilterBy(hangar => hangar.Active)
+                return AllHangars.Filter(hangar => hangar.Active)
                        .Select(hangar => hangar.GetHangarShip())
                        .All(hangarShip => hangarShip != null && !hangarShip.Active);
             }
@@ -458,7 +458,7 @@ namespace Ship_Game.Ships
                 return;
 
             string defaultShip = empire.data.StartingShip;
-            foreach (ShipModule hangar in AllFighterHangars.FilterBy(hangar => hangar.Active
+            foreach (ShipModule hangar in AllFighterHangars.Filter(hangar => hangar.Active
                                                                                && hangar.hangarTimer <= 0
                                                                                && hangar.GetHangarShip() == null))
             {
