@@ -55,7 +55,15 @@ namespace Ship_Game
 
 		public override void Draw(SpriteBatch batch)
 		{
-			if (!IsActive)
+            // NOTE: by throttling LoadingScreen rendering, we get ~4x faster loading
+            // this is because video player Decode+Draw is very expensive.
+
+            // no splash:               DEBUG load in ~1.6 seconds
+            // no throttling + splash:  DEBUG load in ~5.6 seconds
+            // throttling(50) + splash: DEBUG load in ~1.7 seconds
+            Thread.Sleep(50);
+
+            if (!IsActive)
 				return;
 			ScreenManager.GraphicsDevice.Clear(Color.Black);
             batch.Begin();
@@ -66,7 +74,7 @@ namespace Ship_Game
             batch.End();
 		}
 
-        bool SkipSplashVideo => Debugger.IsAttached;
+        bool SkipSplashVideo => false && Debugger.IsAttached;
 
 		public override bool HandleInput(InputState input)
 		{
@@ -110,6 +118,7 @@ namespace Ship_Game
                 SplashPlayer.Play();
             }
 
+
             // Initialize all game resources in background
             // The splash videos will play while we're loading the assets
             Parallel.Run(() =>
@@ -119,7 +128,6 @@ namespace Ship_Game
                 ResourceManager.LoadItAll(() => Ready = true);
                 Log.Info($"Loaded 'Root' Assets {Game1.GameContent.GetLoadedAssetMegabytes():0.0}MB");
             });
-
         }
 
         public override void ExitScreen()
