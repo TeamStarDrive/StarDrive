@@ -98,7 +98,21 @@ namespace Ship_Game
         public float Fertility { get; protected set; }
         public float MaxFertility { get; protected set; }
         public float MineralRichness;
-        public float MaxPopulation;
+
+        private float MaxPopValue;
+        public float MaxPopulation
+        {
+            get => MaxPopValue;
+            set
+            {
+                MaxPopValue = value;
+                MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000f;
+            }
+        }
+        public float MaxPopulationBillion { get; private set; }
+        public float MaxPopBonus;
+        public float MaxPopWithBonus => MaxPopulation + MaxPopBonus;
+
         public Array<Building> BuildingList = new Array<Building>();
         public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;        

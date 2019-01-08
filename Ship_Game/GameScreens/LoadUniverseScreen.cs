@@ -151,8 +151,6 @@ namespace Ship_Game
             p.WorkerPercentage      = psdata.workerPercentage;
             p.ResearcherPercentage  = psdata.researcherPercentage;
 
-            
-
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
 
@@ -185,7 +183,6 @@ namespace Ship_Game
                 p.BuildingList.Add(pgs.building);
                 pgs.building.CreateWeapon();
             }
-
             return p;
         }
 
