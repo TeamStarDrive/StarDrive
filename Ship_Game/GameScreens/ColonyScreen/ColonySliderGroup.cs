@@ -53,38 +53,35 @@ namespace Ship_Game
         }
 
         // solve 3-way slider change
-        void OnSliderChange(ColonySlider a, float delta)
+        void OnSliderChange(ColonySlider a, float difference)
         {
-            delta = (float)Math.Round(delta, 2); // round to ~0.01 precision
-            if (delta.AlmostZero()) return; // only allow 0.01 increments
-
             ColonySlider b = Sliders.Find(s => s != a && !s.Locked); // always unlocked
             ColonySlider c = Sliders.Find(s => s != a && s != b);    // maybe locked
 
-            if (c.Locked) // only one is locked, eaaasy and accurate
+            if (c.Locked) // only one is locked, eaaasy and perfect accuracy
             {
-                float max = (1f - c.Percent) / 2;
-                a.Percent += delta.Clamped(-max, +max);
+                a.Value += difference.Clamped(-a.Value, b.Value);
+                b.Value = 1f - (a.Value + c.Value); // auto-balance second slider
             }
             else // all 3 unlocked
             {
-                // this approach avoids math related precision errors
-                // + if we reach [0,1] boundary, we don't move other sliders
-                float oldValue = a.Percent; 
-                a.Percent = oldValue + delta;
-                float halfDelta = (a.Percent - oldValue) / 2;
-                b.Percent -= halfDelta;
+                float move = difference.Clamped(-a.Value, b.Value + c.Value);
+                a.Value += move;
 
-                // now re-balance b and c, while `a` remains constant
-                c.Percent = 1f - (a.Percent + b.Percent);
+                void ApplyDelta(ColonySlider s, float delta)
+                {
+                    float value = s.Value + delta;
+                    if      (value < 0f) { a.Value += value;    value = 0f; }
+                    else if (value > 1f) { a.Value += value-1f; value = 1f; }
+                    s.Value = value;
+                }
+                ApplyDelta(b, -move/2);
+                ApplyDelta(c, -move/2);
             }
 
-            b.Percent = 1f - (a.Percent + c.Percent); // final re-balance
-
-
-            float sum = Sliders.Sum(s => s.Percent);
+            float sum = Sliders.Sum(s => s.Value);
             if (!sum.AlmostEqual(1f))
-                Log.Warning($"ColonySlider bad sum {sum} ==> F:{Food.Percent} P:{Prod.Percent} R:{Res.Percent}");
+                Log.Warning($"ColonySlider bad sum {sum} ==> F:{Food.Value} P:{Prod.Value} R:{Res.Value}");
         }
 
         public override bool HandleInput(InputState input)
