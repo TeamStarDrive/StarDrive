@@ -728,7 +728,7 @@ namespace Ship_Game.Ships
             if (beam.Weapon.SiphonDamage <= 0f)
                 return;
             ShieldPower -= beam.Weapon.SiphonDamage;
-            ShieldPower.Clamped(0, shield_power_max);
+            ShieldPower = ShieldPower.Clamped(0, shield_power_max);
             beam.Owner?.AddPower(beam.Weapon.SiphonDamage);
         }
 

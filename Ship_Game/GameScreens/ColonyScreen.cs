@@ -364,7 +364,7 @@ namespace Ship_Game
             else
             {
                 Color fertColor = P.Fertility < P.MaxFertility ? Color.LightGreen : Color.Pink;
-                batch.DrawString(Font12, P.Fertility.String() + " / " + P.MaxFertility.String(), position3, fertColor);
+                batch.DrawString(Font12, $"{P.Fertility.String()} / {P.MaxFertility.String()}", position3, fertColor);
             }
 
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
