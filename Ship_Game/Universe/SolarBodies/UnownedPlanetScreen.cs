@@ -63,7 +63,6 @@ namespace Ship_Game
 			Vector2 PNameCursor = new Vector2(PlanetInfo.Menu.X + 20, PlanetInfo.Menu.Y + 45);
 			batch.DrawString(Fonts.Arial20Bold, p.Name, PNameCursor, new Color(255, 239, 208));
 			PNameCursor.Y = PNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;
-			string fmt = "#.#";
 			float amount = 80f;
 			if (GlobalStats.IsGerman)
 			{
@@ -86,7 +85,7 @@ namespace Ship_Game
 			PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(386), ":"), PNameCursor, Color.Orange);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.Fertility.ToString(fmt), InfoCursor, new Color(255, 239, 208));
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.Fertility.String(), InfoCursor, new Color(255, 239, 208));
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(MousePos))
 			{
@@ -95,7 +94,7 @@ namespace Ship_Game
 			PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(387), ":"), PNameCursor, Color.Orange);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.MineralRichness.ToString(fmt), InfoCursor, new Color(255, 239, 208));
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), InfoCursor, new Color(255, 239, 208));
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(MousePos))
 			{
