@@ -251,13 +251,9 @@ namespace Ship_Game
                         if (p.Habitable)
                         {
                             int Spacing = DataFont.LineSpacing;
-                            PlanetTypeCursor.Y = PlanetTypeCursor.Y + (Spacing + 4);
-                            float population = p.Population / 1000f;
-                            string popString = population.ToString(fmt);
-                            float maxPopulation = p.MaxPopulation / 1000f + p.MaxPopBonus / 1000f;
-                            popString = string.Concat(popString, " / ", maxPopulation.ToString(fmt));
+                            PlanetTypeCursor.Y += (Spacing + 4);
+                            string popString = p.PopulationString;
                             PlanetTypeCursor.X = PlanetRect.X + PlanetRect.Width / 2 - DataFont.MeasureString(popString).X / 2f;
-                            HelperFunctions.ClampVectorToInt(ref PlanetTypeCursor);
                             ScreenManager.SpriteBatch.DrawString(DataFont, popString, PlanetTypeCursor, tColor);
                             Rectangle flagRect = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 10, PlanetRect.Y - 20, 20, 20);
                             if (p.Owner != null)

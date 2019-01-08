@@ -195,7 +195,7 @@ namespace Ship_Game.AI
 
             public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, Vector2 empireCenter, float enemyStr)
             {
-                int commodities        = planet.CommoditiesPresent.Count;
+                int commodities        = planet.SbCommodities.CommoditiesCount;
                 Distance               = empireCenter.Distance(planet.Center);                
                 CantColonize           = IsBadWorld(planet, canColonizeBarren, commodities);
                 
