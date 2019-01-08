@@ -752,7 +752,7 @@ namespace Ship_Game
             if (TerraformPoints > 0.0f && Fertility < 1f)
             {
                 ChangeMaxFertility(TerraformToAdd);
-                MaxFertility.Clamped(0f, 1f);
+                MaxFertility = MaxFertility.Clamped(0f, 1f);
                 ImprovePlanetType();
                 if (MaxFertility.AlmostEqual(1f)) // remove Terraformers - their job is done
                     foreach (PlanetGridSquare planetGridSquare in TilesList)
@@ -2296,7 +2296,7 @@ namespace Ship_Game
             else
                 Fertility -= 0.01f;
 
-            Fertility.Clamped(0, MaxFertility);
+            Fertility = Fertility.Clamped(0, MaxFertility);
         }
 
         public void ChangeMaxFertility(float amount)

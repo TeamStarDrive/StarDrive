@@ -1556,13 +1556,13 @@ namespace Ship_Game
             float pop = p.MaxPopulationBillion;
             if (data.Traits.Cybernetic >0)
                  fertility = richness;
-            if (richness >= 1 && fertility >= 1 && pop > 7)
+            if (richness >= 1.0f && fertility >= 1 && pop > 7)
                 return Planet.ColonyType.Core;
-            if (fertility > .5 && fertility <= 1 && richness <= 1 && pop < 8 && pop > 3)
+            if (fertility > 0.5f && fertility <= 1 && richness <= 1 && pop < 8 && pop > 3)
                  return Planet.ColonyType.Research;
-            if (fertility > 1 && richness < 1 && pop >=2)
+            if (fertility > 1.0f && richness < 1 && pop >=2)
                  return Planet.ColonyType.Agricultural;
-            if (richness >= 1 )
+            if (richness >= 1.0f )
                  return Planet.ColonyType.Industrial;
 
             return Planet.ColonyType.Colony;
