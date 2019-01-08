@@ -189,7 +189,6 @@ namespace Ship_Game
                         // Doctor: I think commenting this should completely stop all the recognition of the starter ship being the 'controlled' ship for the pie menu.
                         Data.playerShip = playerShip;
 
-                        planet.GovernorOn = false;
                         planet.colonyType = Planet.ColonyType.Colony;
                     }
                     else

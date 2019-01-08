@@ -120,7 +120,6 @@ namespace Ship_Game
             p.colonyType = psdata.ColonyType;
             if (!psdata.GovernorOn)
             {
-                p.GovernorOn = false;
                 p.colonyType = Planet.ColonyType.Colony;
             }
 

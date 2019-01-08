@@ -68,7 +68,6 @@ namespace Ship_Game.AI
                 if (!Owner.loyalty.AutoColonize)
                 {
                     ColonizeTarget.colonyType = Planet.ColonyType.Colony;
-                    ColonizeTarget.GovernorOn = false;
                 }
                 else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
                 Empire.Universe.NotificationManager.AddColonizedNotification(ColonizeTarget, EmpireManager.Player);

@@ -205,11 +205,6 @@ namespace Ship_Game
                 GovernorDropdown.ActiveIndex = GetIndex(p);
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                bool governorDisablesSliders = (P.colonyType != Planet.ColonyType.Colony);
-                P.FoodLocked = governorDisablesSliders;
-                P.ProdLocked = governorDisablesSliders;
-                P.ResLocked = governorDisablesSliders;
-                P.GovernorOn = governorDisablesSliders;
 
                 // @todo add localization
                 GovBuildings = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing * 2 + 15, 
@@ -401,7 +396,7 @@ namespace Ship_Game
             Vector2 positionGUpkeep = positionGIncome;
             positionGUpkeep.Y = positionGIncome.Y + (Fonts.Arial12.LineSpacing);
             Vector2 positionGrossUpkeep = positionGrossIncome;
-            positionGrossUpkeep.Y = positionGrossIncome.Y + (Fonts.Arial12.LineSpacing);
+            positionGrossUpkeep.Y += (Fonts.Arial12.LineSpacing);
 
             batch.DrawString(Fonts.Arial10, gUpkeep + ":", positionGUpkeep, Color.LightGray);
             batch.DrawString(Fonts.Arial10, grossUpkeep.ToString("F2") + " BC/Y", positionGrossUpkeep, Color.LightGray);
@@ -419,56 +414,37 @@ namespace Ship_Game
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
 
-            if (ResourceManager.TextureLoaded("Portraits/" + P.Owner.data.PortraitName))
+            var portrait = new Rectangle(pDescription.Menu.X + 10, pDescription.Menu.Y + 30, 124, 148);
+            while (portrait.Bottom > pDescription.Menu.Bottom)
             {
-                Rectangle rectangle4 = new Rectangle(pDescription.Menu.X + 10, pDescription.Menu.Y + 30, 124, 148);
-                while (rectangle4.Y + rectangle4.Height > pDescription.Menu.Y + 30 + pDescription.Menu.Height - 30)
-                {
-                    rectangle4.Height -= (int)(0.100000001490116 * rectangle4.Height);
-                    rectangle4.Width -= (int)(0.100000001490116 * rectangle4.Width);
-                }
-                batch.Draw(ResourceManager.Texture("Portraits/" + P.Owner.data.PortraitName), rectangle4, Color.White);
-                batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), rectangle4, Color.White);
-                batch.DrawRectangle(rectangle4, Color.Orange);
-                if (P.colonyType == Planet.ColonyType.Colony)
-                    batch.Draw(ResourceManager.Texture("NewUI/x_red"), rectangle4, Color.White);
-                Vector2 position5 = new Vector2((rectangle4.X + rectangle4.Width + 15), rectangle4.Y);
-                Vector2 vector2_3 = position5;
-                switch (P.colonyType)
-                {
-                    case Planet.ColonyType.Core:         Localizer.Token(372); break;
-                    case Planet.ColonyType.Colony:       Localizer.Token(376); break;
-                    case Planet.ColonyType.Industrial:   Localizer.Token(373); break;
-                    case Planet.ColonyType.Research:     Localizer.Token(375); break;
-                    case Planet.ColonyType.Agricultural: Localizer.Token(371); break;
-                    case Planet.ColonyType.Military:     Localizer.Token(374); break;
-                    case Planet.ColonyType.TradeHub:     Localizer.Token(393); break;
-                }
-                batch.DrawString(Font12, "Governor", position5, Color.White);
-                position5.Y = GovernorDropdown.Rect.Y + 25;
-
-                int ColonyTypeLocalization()
-                {
-                    switch (P.colonyType)
-                    {
-                        default:
-                        case Planet.ColonyType.Core: return 378;
-                        case Planet.ColonyType.Colony: return 382;
-                        case Planet.ColonyType.Industrial: return 379;
-                        case Planet.ColonyType.Research: return 381;
-                        case Planet.ColonyType.Agricultural: return 377;
-                        case Planet.ColonyType.Military: return 380;
-                        case Planet.ColonyType.TradeHub: return 394;
-                    }
-                }
-
-                string text5 = Font12.ParseText(Localizer.Token(ColonyTypeLocalization()), (pDescription.Menu.Width - 50 - rectangle4.Width - 5));
-                batch.DrawString(Font12, text5, position5, Color.White);
-
-                GovernorDropdown.SetAbsPos(vector2_3.X, vector2_3.Y + Font12.LineSpacing + 5);
-                GovernorDropdown.Reset();
-                GovernorDropdown.Draw(batch);
+                portrait.Height -= (int)(0.1 * portrait.Height);
+                portrait.Width  -= (int)(0.1 * portrait.Width);
             }
+            batch.Draw(ResourceManager.Texture($"Portraits/{P.Owner.data.PortraitName}"), portrait, Color.White);
+            batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), portrait, Color.White);
+            batch.DrawRectangle(portrait, Color.Orange);
+            if (P.colonyType == Planet.ColonyType.Colony)
+                batch.Draw(ResourceManager.Texture("NewUI/x_red"), portrait, Color.White);
+
+            // WorldType
+            // [dropdown]
+            // ColonTypeInfoText
+            var description = new Rectangle(portrait.Right + 15, portrait.Y,
+                                            pDescription.Menu.Right - portrait.Right - 20,
+                                            pDescription.Menu.Height - 60);
+
+            var descCursor = new Vector2(description.X, description.Y);
+            batch.DrawString(Font12, P.WorldType, descCursor, Color.White);
+            descCursor.Y += Font12.LineSpacing + 5;
+
+            GovernorDropdown.Pos = descCursor;
+            GovernorDropdown.Reset();
+            descCursor.Y += GovernorDropdown.Height + 5;
+
+            string colonyTypeInfo = Font12.ParseText(P.ColonyTypeInfoText, description.Width);
+            batch.DrawString(Font12, colonyTypeInfo, descCursor, Color.White);
+            GovernorDropdown.Draw(batch); // draw dropdown on top of other text
+
             if (GlobalStats.HardcoreRuleset)
             {
                 foreach (ThreeStateButton threeStateButton in ResourceButtons)
@@ -1461,16 +1437,7 @@ namespace Ship_Game
 
             GovernorDropdown.HandleInput(input);
 
-            // @note Only change FoodLocked if the governor actually changed
-            if (P.colonyType != (Planet.ColonyType)GovernorDropdown.ActiveValue)
-            {
-                P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                bool governorLocksControls = P.colonyType != Planet.ColonyType.Colony;
-                P.FoodLocked = governorLocksControls;
-                P.ProdLocked = governorLocksControls;
-                P.ResLocked  = governorLocksControls;
-                P.GovernorOn = governorLocksControls;
-            }
+            P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
 
             HandleSliders(input);
 
