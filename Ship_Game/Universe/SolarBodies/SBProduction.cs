@@ -49,7 +49,6 @@ namespace Ship_Game.Universe.SolarBodies
             if (Owner != null && !Owner.isPlayer && Owner.data.Traits.Cybernetic > 0)
                 return false;
 
-            QueueItem item = ConstructionQueue[Index];
             float amountToRush = GetMaxProductionPotential(); //for debug help
             float amount = Math.Min(ProductionHere, amountToRush);
             if (Empire.Universe.Debug && Owner.isPlayer)

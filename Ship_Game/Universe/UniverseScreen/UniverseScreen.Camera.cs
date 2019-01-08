@@ -42,13 +42,13 @@ namespace Ship_Game
             return new Vector2(ray.Position.X + num2 * ray.Direction.X, ray.Position.Y + num2 * ray.Direction.Y);
         }
 
-        public void FollowPlayer(object sender)
+        public void FollowPlayer()
         {
             SelectedShip.AI.State = AIState.Escort;
             SelectedShip.AI.EscortTarget = playerShip;
         }
 
-        public void ViewShip(object sender)
+        public void ViewShip()
         {
             if (SelectedShip == null)
                 return;
@@ -91,7 +91,7 @@ namespace Ship_Game
             }
         }
 
-        public void ViewToShip(object sender)
+        public void ViewToShip()
         {
             if (SelectedShip == null)
                 return;
@@ -112,7 +112,7 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
-        public void ViewPlanet(object sender)
+        public void ViewPlanet()
         {
             ShowShipNames = false;
             if (SelectedPlanet == null)
@@ -400,7 +400,7 @@ namespace Ship_Game
         {
             if (!ViewingShip)
             {
-                ViewToShip(null);
+                ViewToShip();
             }
             ViewingShip = !ViewingShip;
         }

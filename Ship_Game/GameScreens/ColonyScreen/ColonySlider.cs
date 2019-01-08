@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public enum SliderType
+    public enum ColonyResType
     {
         Food,
         Prod,
@@ -20,7 +20,7 @@ namespace Ship_Game
         public delegate void SliderChangeEvent(ColonySlider slider, float difference);
         public SliderChangeEvent OnSliderChange;
 
-        readonly SliderType Type;
+        readonly ColonyResType Type;
         public Planet P;
         readonly SubTexture Slider, Icon;
         readonly SubTexture Lock           = ResourceManager.Texture("NewUI/icon_lock");
@@ -42,7 +42,7 @@ namespace Ship_Game
         public bool IsCrippled; // PRODUCTION resource: are we crippled?
         public bool IsInvasion; // PRODUCTION resource: invasion leaves us crippled as well?
 
-        public ColonySlider(UIElementV2 parent, SliderType type, Planet p, int x, int y, int width, bool drawIcons = true)
+        public ColonySlider(UIElementV2 parent, ColonyResType type, Planet p, int x, int y, int width, bool drawIcons = true)
             : base(parent, new Rectangle(x, y, width, 6))
         {
             Type = type;
@@ -67,8 +67,8 @@ namespace Ship_Game
             switch (Type)
             {
                 default: return P.IsCybernetic ? 77 : 70;
-                case SliderType.Prod: return 71;
-                case SliderType.Res:  return 72;
+                case ColonyResType.Prod: return 71;
+                case ColonyResType.Res:  return 72;
             }
         }
 
@@ -79,8 +79,8 @@ namespace Ship_Game
                 switch (Type)
                 {
                     default:              return P.FarmerPercentage;
-                    case SliderType.Prod: return P.WorkerPercentage;
-                    case SliderType.Res:  return P.ResearcherPercentage;
+                    case ColonyResType.Prod: return P.WorkerPercentage;
+                    case ColonyResType.Res:  return P.ResearcherPercentage;
                 }
             }
             set
@@ -88,8 +88,8 @@ namespace Ship_Game
                 switch (Type)
                 {
                     default:              P.FarmerPercentage     = value; break;
-                    case SliderType.Prod: P.WorkerPercentage     = value; break;
-                    case SliderType.Res:  P.ResearcherPercentage = value; break;
+                    case ColonyResType.Prod: P.WorkerPercentage     = value; break;
+                    case ColonyResType.Res:  P.ResearcherPercentage = value; break;
                 }
             }
         }
@@ -101,8 +101,8 @@ namespace Ship_Game
                 switch (Type)
                 {
                     default:              return P.GetNetFoodPerTurn();
-                    case SliderType.Prod: return P.GetNetProductionPerTurn();
-                    case SliderType.Res:  return P.GetNetResearchPerTurn();
+                    case ColonyResType.Prod: return P.GetNetProductionPerTurn();
+                    case ColonyResType.Res:  return P.GetNetResearchPerTurn();
                 }
             }
         }
@@ -114,8 +114,8 @@ namespace Ship_Game
                 switch (Type)
                 {
                     default:              return P.FoodLocked;
-                    case SliderType.Prod: return P.ProdLocked;
-                    case SliderType.Res:  return P.ResLocked;
+                    case ColonyResType.Prod: return P.ProdLocked;
+                    case ColonyResType.Res:  return P.ResLocked;
                 }
             }
             set
@@ -123,8 +123,8 @@ namespace Ship_Game
                 switch (Type)
                 {
                     default:              P.FoodLocked = value; break;
-                    case SliderType.Prod: P.ProdLocked = value; break;
-                    case SliderType.Res:  P.ResLocked  = value; break;
+                    case ColonyResType.Prod: P.ProdLocked = value; break;
+                    case ColonyResType.Res:  P.ResLocked  = value; break;
                 }
             }
         }

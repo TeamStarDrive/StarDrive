@@ -375,7 +375,7 @@ namespace Ship_Game
             AddLight(light);
         }
 
-        public void ContactLeader(object sender)
+        public void ContactLeader()
         {
             if (SelectedShip == null)
                 return;

@@ -502,143 +502,17 @@ namespace Ship_Game
             }
         }
 
+
         public override bool HandleInput(InputState input)
         {
-            Vector2 MousePos = new Vector2(input.MouseCurr.X, input.MouseCurr.Y);
             ColoniesList.HandleInput(input);
-            if (pop.rect.HitTest(MousePos))
-            {
-                ToolTip.CreateTooltip(Localizer.Token(2278));
-            }
-            if (pop.HandleInput(input) )
-            {
-                pop.saved = false;
-                if (!pop.Ascending)
-                {
-                    IOrderedEnumerable<Planet> sortedList = 
-                        from p in EmpireManager.Player.GetPlanets()
-                        orderby p.Population
-                        select p;
-                    pop.Ascending = true;
-                    ResetListSorted(sortedList);
-                }
-                else
-                {
-                    IOrderedEnumerable<Planet> sortedList = 
-                        from p in EmpireManager.Player.GetPlanets()
-                        orderby p.Population descending
-                        select p;
-                    ResetListSorted(sortedList);
-                    pop.Ascending = false;
-                }
-            }
-            if (food.rect.HitTest(MousePos))
-            {
-                ToolTip.CreateTooltip(139);
-            }
-            if (food.HandleInput(input) )
-            {
-                if (!food.Ascending)
-                {
-                    IOrderedEnumerable<Planet> sortedList = 
-                        from p in EmpireManager.Player.GetPlanets()
-                        orderby p.NetFoodPerTurn - p.Consumption
-                        select p;
-                    food.Ascending = true;
-                    ResetListSorted(sortedList);
-                }
-                else
-                {
-                    IOrderedEnumerable<Planet> sortedList = 
-                        from p in EmpireManager.Player.GetPlanets()
-                        orderby p.NetFoodPerTurn - p.Consumption descending
-                        select p;
-                    ResetListSorted(sortedList);
-                    food.Ascending = false;
-                }
-            }
-            if (prod.rect.HitTest(MousePos))
-            {
-                ToolTip.CreateTooltip(140);
-            }
-            if (prod.HandleInput(input) )
-            {
-                
-                if (!prod.Ascending)
-                {
-                    IOrderedEnumerable<Planet> sortedList = EmpireManager.Player.GetPlanets().OrderBy(p => {
-                        if (p.Owner.data.Traits.Cybernetic == 0)
-                        {
-                            return p.NetProductionPerTurn;
-                        }
-                        return p.NetProductionPerTurn - p.Consumption;
-                    });
-                    prod.Ascending = true;
-                    ResetListSorted(sortedList);
-                }
-                else
-                {
-                    IOrderedEnumerable<Planet> sortedList = EmpireManager.Player.GetPlanets().OrderByDescending(p => {
-                        if (p.Owner.data.Traits.Cybernetic == 0)
-                        {
-                            return p.NetProductionPerTurn;
-                        }
-                        return p.NetProductionPerTurn - p.Consumption;
-                    });
-                    ResetListSorted(sortedList);
-                    prod.Ascending = false;
-                }
-            }
-            if (res.rect.HitTest(MousePos))
-            {
-                ToolTip.CreateTooltip(141);
-            }
-            if (res.HandleInput(input))
-            {
-                if (!res.Ascending)
-                {
-                    IOrderedEnumerable<Planet> sortedList = 
-                        from p in EmpireManager.Player.GetPlanets()
-                        orderby p.NetResearchPerTurn
-                        select p;
-                    res.Ascending = true;
-                    ResetListSorted(sortedList);
-                }
-                else
-                {
-                    IOrderedEnumerable<Planet> sortedList = 
-                        from p in EmpireManager.Player.GetPlanets()
-                        orderby p.NetResearchPerTurn descending
-                        select p;
-                    ResetListSorted(sortedList);
-                    res.Ascending = false;
-                }
-            }
-            if (money.rect.HitTest(MousePos))
-            {
-                ToolTip.CreateTooltip(142);
-            }
-            if (money.HandleInput(input))
-            {
-                if (!money.Ascending)
-                {
-                    IOrderedEnumerable<Planet> sortedList = 
-                        from p in EmpireManager.Player.GetPlanets()
-                        orderby p.NetIncome
-                        select p;
-                    money.Ascending = true;
-                    ResetListSorted(sortedList);
-                }
-                else
-                {
-                    IOrderedEnumerable<Planet> sortedList = 
-                        from p in EmpireManager.Player.GetPlanets()
-                        orderby p.NetIncome descending
-                        select p;
-                    ResetListSorted(sortedList);
-                    money.Ascending = false;
-                }
-            }
+
+            HandleSortButton(input, pop, 2278, p => p.Population);
+            HandleSortButton(input, food, 139, p => p.GetNetFoodPerTurn());
+            HandleSortButton(input, prod, 140, p => p.GetNetProductionPerTurn());
+            HandleSortButton(input, res, 141, p => p.GetNetResearchPerTurn());
+            HandleSortButton(input, res, 142, p => p.NetIncome);
+
             foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
             {
                 var entry = (EmpireScreenEntry)e.item;
@@ -660,7 +534,7 @@ namespace Ship_Game
                     {
                         
                         Empire.Universe.SelectedPlanet = SelectedPlanet;
-                        Empire.Universe.ViewPlanet(null);
+                        Empire.Universe.ViewPlanet();
                         ExitScreen();
                     }
                 }
@@ -684,10 +558,26 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public void ResetListSorted(IOrderedEnumerable<Planet> SortedList)
+        void HandleSortButton(InputState input, SortButton button, int tooltip, Func<Planet, float> selector)
+        {
+            if (button.rect.HitTest(input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(Localizer.Token(tooltip));
+            }
+            if (button.HandleInput(input))
+            {
+                var planets = EmpireManager.Player.GetPlanets();
+                button.Ascending = !button.Ascending;
+                ResetListSorted(button.Ascending
+                    ? planets.OrderBy(selector)
+                    : planets.OrderByDescending(selector));
+            }
+        }
+
+        void ResetListSorted(IOrderedEnumerable<Planet> sortedList)
         {
             ColoniesList.Reset();
-            foreach (Planet p in SortedList)
+            foreach (Planet p in sortedList)
             {
                 var entry = new EmpireScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 80, this);
                 ColoniesList.AddItem(entry);
@@ -706,8 +596,7 @@ namespace Ship_Game
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            EmpireScreen clickTimer = this;
-            clickTimer.ClickTimer = clickTimer.ClickTimer + elapsedTime;
+            ClickTimer += elapsedTime;
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
     }

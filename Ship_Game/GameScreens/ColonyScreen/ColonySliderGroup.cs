@@ -22,14 +22,14 @@ namespace Ship_Game
         {
             for (int i = 0; i < 3; ++i)
             {
-                Sliders[i] = Add(new ColonySlider(this, (SliderType)i, null, x, y + (spacingY * (i+1)), width, drawIcons)
+                Sliders[i] = Add(new ColonySlider(this, (ColonyResType)i, null, x, y + (spacingY * (i+1)), width, drawIcons)
                 {
                     OnSliderChange = OnSliderChange
                 });
             }
-            Food = Sliders[(int)SliderType.Food];
-            Prod = Sliders[(int)SliderType.Prod];
-            Res  = Sliders[(int)SliderType.Res];
+            Food = Sliders[(int)ColonyResType.Food];
+            Prod = Sliders[(int)ColonyResType.Prod];
+            Res  = Sliders[(int)ColonyResType.Res];
         }
 
         public void UpdatePos(int x, int y)

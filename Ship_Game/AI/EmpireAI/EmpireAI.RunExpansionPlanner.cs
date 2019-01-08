@@ -81,7 +81,7 @@ namespace Ship_Game.AI
         private Array<Goal.PlanetRanker>  GatherAllPlanetRanks(Planet[] markedPlanets)
         {
             //need a better way to find biosphere
-            bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.data.Traits.Cybernetic > 0;
+            bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.IsCybernetic;
             
             var allPlanetsRanker = new Array<Goal.PlanetRanker>();
             Vector2 weightedCenter = OwnerEmpire.GetWeightedCenter();

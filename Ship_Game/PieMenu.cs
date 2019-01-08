@@ -4,8 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public delegate void SimpleDelegate(object sender);
-
     public sealed class PieMenu
     {
         private Transition t;
