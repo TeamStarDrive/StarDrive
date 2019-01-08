@@ -513,7 +513,7 @@ namespace Ship_Game
             {
                 Screen.HeightOnSnap = Screen.CamHeight;
             }
-            Screen.OpenCombatMenu(null);
+            Screen.OpenCombatMenu();
         }
 
         public void SnapToPlanet(Planet p)

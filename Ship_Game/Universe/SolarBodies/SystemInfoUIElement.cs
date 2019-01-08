@@ -350,7 +350,7 @@ namespace Ship_Game
                     {
                         screen.SelectedPlanet = clickMe.p;
                         screen.pInfoUI.SetPlanet(clickMe.p);
-                        screen.ViewPlanet(null);
+                        screen.ViewPlanet();
                         return true;
                     }
 

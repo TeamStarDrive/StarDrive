@@ -126,6 +126,9 @@ namespace Ship_Game
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
+        [XmlIgnore][JsonIgnore] public bool IsCybernetic  => data.Traits.Cybernetic != 0;
+        [XmlIgnore][JsonIgnore] public bool NonCybernetic => data.Traits.Cybernetic == 0;
+
         public void TriggerAllShipStatusUpdate()
         {
             foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag.
@@ -1538,7 +1541,7 @@ namespace Ship_Game
             float num = 0.0f;
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet p in OwnedPlanets)
-                    num += p.NetFoodPerTurn;
+                    num += p.FoodPerTurn;
             return num;
         }
 
@@ -1554,7 +1557,7 @@ namespace Ship_Game
             float fertility = p.Fertility;
             float richness = p.MineralRichness;
             float pop = p.MaxPopulationBillion;
-            if (data.Traits.Cybernetic >0)
+            if (IsCybernetic)
                  fertility = richness;
             if (richness >= 1.0f && fertility >= 1 && pop > 7)
                 return Planet.ColonyType.Core;
@@ -1590,7 +1593,7 @@ namespace Ship_Game
             if (p.MaxPopulation > 1000)
             {
                 researchPotential += p.MaxPopulationBillion;
-                if (data.Traits.Cybernetic > 0)
+                if (IsCybernetic)
                 {
                     if (p.MineralRichness > 1)
                         popSupport += p.MaxPopulationBillion + p.MineralRichness;
@@ -1615,7 +1618,7 @@ namespace Ship_Game
                                         * (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500);
             }
 
-            if (data.Traits.Cybernetic > 0)
+            if (IsCybernetic)
                 fertility = 0;
 
             int coreCount         = 0;
@@ -2130,7 +2133,7 @@ namespace Ship_Game
                 return;
             //reduce the impact of tech that doesnt affect cybernetics.
             float cyberneticMultiplier = 1.0f;
-            if (data.Traits.Cybernetic > 0 && tech.UnlocksFoodBuilding)
+            if (IsCybernetic && tech.UnlocksFoodBuilding)
                 cyberneticMultiplier = .5f;
 
             float techCost = tech.TechCost * cyberneticMultiplier;
@@ -2294,7 +2297,7 @@ namespace Ship_Game
                     s.AI.State = AIState.AwaitingOrders;
                 }
 
-                if (data.Traits.Cybernetic != 0)
+                if (IsCybernetic)
                 {
                     foreach (Planet planet in OwnedPlanets)
                     {

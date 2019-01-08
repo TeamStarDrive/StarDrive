@@ -116,7 +116,7 @@ namespace Ship_Game
         }
         public float FoodProduced(Planet planet)
         {
-            if (planet.Owner.data.Traits.Cybernetic < 1)
+            if (planet.NonCybernetic)
                 return Production(planet, PlusFlatFoodAmount, PlusFoodPerColonist, planet.Fertility);
             return ProductionProduced(planet);
         }
