@@ -310,7 +310,7 @@ namespace Ship_Game.AI
             var skipShip = 0;
             var inboundOrdinance = 0f;
             //oh crap this is really messed up.  FB: working on it.
-            foreach (ShipModule hangar in Owner.Carrier.AllActiveHangars.FilterBy(hangar => hangar.IsSupplyBay))
+            foreach (ShipModule hangar in Owner.Carrier.AllActiveHangars.Filter(hangar => hangar.IsSupplyBay))
             {
                 Ship supplyShipInSpace = hangar.GetHangarShip();
                 if (supplyShipInSpace != null && supplyShipInSpace.Active)

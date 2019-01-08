@@ -37,7 +37,9 @@ namespace Ship_Game
         // clamp a value between [min, max]: min <= value <= max
         public static float Clamped(this float value, float min, float max)
         {
-            return Max(min, Min(value, max));
+            if (value <= (min+0.000001f)) return min;
+            if (value >= (max-0.000001f)) return max;
+            return value;
         }
         public static int Clamped(this int value, int min, int max)
         {
@@ -195,15 +197,15 @@ namespace Ship_Game
             => position.SqDist(center) > radius*radius;
 
 
-        // Returns true if Frustrum either partially or fully contains this 2D circle
-        public static bool Contains(this BoundingFrustum frustrum, Vector2 center, float radius)
+        // Returns true if Frustum either partially or fully contains this 2D circle
+        public static bool Contains(this BoundingFrustum frustum, Vector2 center, float radius)
         {
-            return frustrum.Contains(new BoundingSphere(new Vector3(center, 0f), radius))
+            return frustum.Contains(new BoundingSphere(new Vector3(center, 0f), radius))
                 != ContainmentType.Disjoint; // Disjoint: no intersection at all
         }
-        public static bool Contains(this BoundingFrustum frustrum, Vector3 center, float radius)
+        public static bool Contains(this BoundingFrustum frustum, Vector3 center, float radius)
         {
-            return frustrum.Contains(new BoundingSphere(center, radius))
+            return frustum.Contains(new BoundingSphere(center, radius))
                 != ContainmentType.Disjoint; // Disjoint: no intersection at all
         }
 
@@ -251,7 +253,14 @@ namespace Ship_Game
         public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
         public static Vector2 PosVec(this Rectangle r) => new Vector2(r.X, r.Y);
         public static Vector2 Center(this Rectangle r) => new Vector2(r.X + r.Width*0.5f, r.Y + r.Height*0.5f);
+        public static int CenterX(this Rectangle r) => r.X + r.Width/2;
+        public static int CenterY(this Rectangle r) => r.Y + r.Height/2;
         public static int Area(this Rectangle r) => r.Width * r.Height;
+
+        // Example: r.RelativeX(0.5) == r.CenterX()
+        //          r.RelativeX(1.0) == r.Right
+        public static int RelativeX(this Rectangle r, float percent) => r.X + (int)(r.Width*percent);
+        public static int RelativeY(this Rectangle r, float percent) => r.Y + (int)(r.Height*percent);
 
         public static Rectangle Bevel(this Rectangle r, int bevel)
             => new Rectangle(r.X - bevel, r.Y - bevel, r.Width + bevel*2, r.Height + bevel*2);
@@ -786,6 +795,11 @@ namespace Ship_Game
         {
             float delta = a - b;
             return -tolerance <= delta && delta <= tolerance;
+        }
+
+        public static bool AlmostZero(this float a)
+        {
+            return -0.000001f <= a && a <= 0.000001f;
         }
 
         /// <summary>Returns true if a less than b or almost equal</summary>

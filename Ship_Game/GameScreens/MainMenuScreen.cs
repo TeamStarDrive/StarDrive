@@ -116,7 +116,7 @@ namespace Ship_Game
                         alpha = 255f;
                 }
                 var color = new Color(255,255,255,(byte)alpha);
-                ScreenManager.SpriteBatch.Draw(TexComet, c.Position, color, c.Rotation, TexComet.Center(), 0.45f, SpriteEffects.None, 1f);
+                ScreenManager.SpriteBatch.Draw(TexComet, c.Position, color, c.Rotation, TexComet.CenterF, 0.45f, SpriteEffects.None, 1f);
                 c.Position += c.Velocity * 2400f * elapsedTime;
                 if (c.Position.Y > 1050f)
                     CometList.QueuePendingRemoval(c);
