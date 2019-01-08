@@ -290,7 +290,6 @@ namespace Ship_Game
             //TestTechTextures();
 
             Log.HideConsoleWindow();
-            RootContent.EnableLoadInfoLog = false;
         }
 
         private static void TestHullLoad()
@@ -298,6 +297,7 @@ namespace Ship_Game
             if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes:true))
                 return;
 
+            bool oldValue = RootContent.EnableLoadInfoLog;
             RootContent.EnableLoadInfoLog = true;
             foreach (ShipData hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
             {
@@ -314,7 +314,7 @@ namespace Ship_Game
             }
             HelperFunctions.CollectMemory();
             Log.TestMessage("Hull Model Load Finished", waitForEnter: true);
-            RootContent.EnableLoadInfoLog = false;
+            RootContent.EnableLoadInfoLog = oldValue;
         }
 
         private static void TestTechTextures()

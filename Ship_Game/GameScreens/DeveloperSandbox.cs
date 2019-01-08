@@ -10,10 +10,9 @@ namespace Ship_Game
         const int NumEmpires = 2;
         MicroUniverse Universe;
 
-        public DeveloperSandbox(GameScreen parent) : base(parent)
+        public DeveloperSandbox() : base(null)
         {
-            parent.ExitScreen();
-            IsPopup = true;
+            IsPopup = false;
         }
 
         public override void Update(float deltaTime)

@@ -74,7 +74,7 @@ namespace Ship_Game
             batch.End();
 		}
 
-        bool SkipSplashVideo => false && Debugger.IsAttached;
+        bool SkipSplashVideo => Debugger.IsAttached;
 
 		public override bool HandleInput(InputState input)
 		{

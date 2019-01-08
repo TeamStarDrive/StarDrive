@@ -269,6 +269,8 @@ namespace Ship_Game
         {
             foreach (GameScreen screen in Screens.ToArray()/*grab an atomic copy*/)
                 screen.ExitScreen();
+            RemoveAllObjects();
+            RemoveAllLights();
         }
 
         public void ExitAllExcept(GameScreen except)
