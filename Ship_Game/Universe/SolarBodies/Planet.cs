@@ -34,23 +34,47 @@ namespace Ship_Game
         public bool GovSliders = true;
         public float ProductionHere
         {
-            get => SbCommodities.ProductionHere;
-            set => SbCommodities.ProductionHere = value;
+            get => SbCommodities.Production;
+            set => SbCommodities.Production = value;
         }
 
         public float FoodHere
         {
-            get => SbCommodities.FoodHere;
-            set => SbCommodities.FoodHere = value;
+            get => SbCommodities.RaceSpecificFood;
+            set => SbCommodities.RaceSpecificFood = value;
         }
         public float Population
         {
             get => SbCommodities.Population;
-            set => SbCommodities.Population = value;
+            set
+            {
+                SbCommodities.Population = value;
+                UpdatePopulation();
+            }
         }
 
-        private float PopulationBillion;
-        private float MaxPopulationBillion;
+        void UpdatePopulation()
+        {
+            PopulationBillion = Population / 1000f;
+            MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000f;
+        }
+
+        public float PopulationBillion    { get; private set; }
+        public float MaxPopulationBillion { get; private set; }
+        public string PopulationString => $"{PopulationBillion.String()} / {MaxPopulationBillion.String()}";
+
+        public float ColonyWorth(Empire toEmpire)
+        {
+                float worth = PopulationBillion + (FoodHere / 50f) + (ProductionHere / 50f) + Fertility +
+                              MineralRichness + MaxPopulationBillion;
+                foreach (Building b in BuildingList)
+                    worth += b.Cost / 50f;
+                if (worth < 15f)
+                    worth = 15f;
+                if (toEmpire.data.EconomicPersonality.Name == "Expansionists")
+                    worth *= 1.35f;
+                return worth;
+        }
 
         private string ImportsDescr()
         {
@@ -72,7 +96,7 @@ namespace Ship_Game
             get
             {
                 if (Population + TradeAI.AvgTradingColonists <= 0) return 0;
-                return  (Population + TradeAI.AvgTradingColonists ) / MaxPopulation ;
+                return  (Population + TradeAI.AvgTradingColonists ) / MaxPopulation;
             }
         }
 
@@ -80,7 +104,6 @@ namespace Ship_Game
         {
             get
             {
-
                 if (NeedsFood() || Population > 2000f)
                     return GoodState.EXPORT;
                 if (!NeedsFood() && MaxPopulation > 2000f)
@@ -147,13 +170,14 @@ namespace Ship_Game
         public float PlusFoodPerColonist { get; private set; }
         public float PlusProductionPerColonist { get; private set; }
         public float MaxPopBonus;
+        public float MaxPopWithBonus => MaxPopulation + MaxPopBonus;
         public bool AllowInfantry;
         public float PlusFlatPopulationPerTurn;
         public int TotalDefensiveStrength { get; private set; }
         public float GrossMoneyPT;
         public float GrossIncome =>
                     (GrossMoneyPT + GrossMoneyPT * (float)Owner?.data.Traits.TaxMod) * (float)Owner?.data.TaxRate
-                    + PlusFlatMoneyPerTurn + (Population / 1000 * PlusCreditsPerColonist);
+                    + PlusFlatMoneyPerTurn + (PopulationBillion * PlusCreditsPerColonist);
         public float GrossUpkeep =>
                     (float)(TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn
                     * (double)Owner?.data.Traits.MaintMod);
@@ -173,7 +197,6 @@ namespace Ship_Game
                 default:               return 0;
             }
         }
-        public Array<string> CommoditiesPresent => SbCommodities.CommoditiesPresent;
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
@@ -493,10 +516,10 @@ namespace Ship_Game
             (empire.data?.Traits.Cybernetic ?? 0) > 0 ? MineralRichness : Fertility;
 
         public float EmpireBaseValue(Empire empire) => (
-            CommoditiesPresent.Count +
+            SbCommodities.CommoditiesCount +
             (1 + EmpireFertility(empire))
             * (1 + MineralRichness)
-            * (float)Math.Ceiling(MaxPopulation / 1000)
+            * (float)Math.Ceiling(MaxPopulationBillion)
             );
 
         public bool NeedsFood()
@@ -518,7 +541,8 @@ namespace Ship_Game
         //added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb) => GeodeticManager.DropBomb(bomb);
 
-        public float GetNetFoodPerTurn()
+        
+        public float GetNetFoodPerTurn() // ACTUAL net food per turn...
         {
             if (Owner != null && Owner.data.Traits.Cybernetic == 1)
                 return NetFoodPerTurn;
@@ -537,11 +561,17 @@ namespace Ship_Game
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem) => SbProduction.ApplyProductiontoQueue(howMuch, whichItem);
 
-        public float GetNetProductionPerTurn()
+        
+        public float GetNetProductionPerTurn() // ACTUAL net production per turn...
         {
             if (Owner != null && Owner.data.Traits.Cybernetic == 1)
                 return NetProductionPerTurn - Consumption;
             return NetProductionPerTurn;
+        }
+
+        public float GetNetResearchPerTurn()
+        {
+            return NetResearchPerTurn;
         }
 
         public bool IsCybernetic  => Owner?.data.Traits.Cybernetic == 1;
@@ -735,8 +765,7 @@ namespace Ship_Game
 
         public void UpdateOwnedPlanet()
         {
-            PopulationBillion = Population / 1000;
-            MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000;
+            UpdatePopulation();
 
             ++TurnsSinceTurnover;
             if (CrippledTurns > 0) CrippledTurns--;
@@ -808,64 +837,23 @@ namespace Ship_Game
             {
                 DevelopmentLevel = 1;
                 DevelopmentStatus = Localizer.Token(1763);
-                if (MaxPopulationBillion >= 2 && Type != "Barren")
-                {
-                    var planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1764);
-                    planet.DevelopmentStatus = str;
-                }
-                else if (MaxPopulationBillion >= 2f && Type == "Barren")
-                {
-                    var planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1765);
-                    planet.DevelopmentStatus = str;
-                }
-                else if (MaxPopulationBillion < 0 && Type != "Barren")
-                {
-                    var planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1766);
-                    planet.DevelopmentStatus = str;
-                }
-                else if (MaxPopulationBillion < 0.5f && Type == "Barren")
-                {
-                    var planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1767);
-                    planet.DevelopmentStatus = str;
-                }
+                if      (MaxPopulationBillion >= 2f && Type != "Barren") DevelopmentStatus += Localizer.Token(1764);
+                else if (MaxPopulationBillion >= 2f && Type == "Barren") DevelopmentStatus += Localizer.Token(1765);
+                else if (MaxPopulationBillion < 0.0f && Type != "Barren") DevelopmentStatus += Localizer.Token(1766);
+                else if (MaxPopulationBillion < 0.5f && Type == "Barren") DevelopmentStatus += Localizer.Token(1767);
             }
             else if (PopulationBillion > 0.5f && PopulationBillion <= 2)
             {
                 DevelopmentLevel = 2;
                 DevelopmentStatus = Localizer.Token(1768);
-                if (MaxPopulationBillion >= 2)
-                {
-                    var planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1769);
-                    planet.DevelopmentStatus = str;
-                }
-                else if (MaxPopulationBillion < 2)
-                {
-                    var planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1770);
-                    planet.DevelopmentStatus = str;
-                }
+                DevelopmentStatus += MaxPopulationBillion >= 2 ? Localizer.Token(1769) : Localizer.Token(1770);
             }
             else if (PopulationBillion > 2.0 && PopulationBillion <= 5.0)
             {
                 DevelopmentLevel = 3;
                 DevelopmentStatus = Localizer.Token(1771);
-                if (MaxPopulationBillion >= 5.0)
-                {
-                    var planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1772);
-                    planet.DevelopmentStatus = str;
-                }
-                else if (MaxPopulationBillion < 5.0)
-                {
-                    var planet = this;
-                    string str = planet.DevelopmentStatus + Localizer.Token(1773);
-                    planet.DevelopmentStatus = str;
-                }
+                if      (MaxPopulationBillion >= 5.0) DevelopmentStatus += Localizer.Token(1772);
+                else if (MaxPopulationBillion < 5.0)  DevelopmentStatus += Localizer.Token(1773);
             }
             else if (PopulationBillion > 5.0 && PopulationBillion <= 10.0)
             {
@@ -875,31 +863,24 @@ namespace Ship_Game
             else if (PopulationBillion > 10.0)
             {
                 DevelopmentLevel = 5;
-                DevelopmentStatus = Localizer.Token(1775);
+                DevelopmentStatus = Localizer.Token(1775); // densely populated
             }
             if (NetProductionPerTurn >= 10.0 && HasShipyard)
             {
-                var planet = this;
-                string str = planet.DevelopmentStatus + Localizer.Token(1776);
-                planet.DevelopmentStatus = str;
+                DevelopmentStatus += Localizer.Token(1776); // fine shipwright
             }
-            else if (Fertility >= 2.0 && NetFoodPerTurn > (double)MaxPopulation)
+            else if (Fertility >= 2.0 && NetFoodPerTurn > MaxPopulation)
             {
-                var planet = this;
-                string str = planet.DevelopmentStatus + Localizer.Token(1777);
-                planet.DevelopmentStatus = str;
+                DevelopmentStatus += Localizer.Token(1777); // fine agriculture
             }
             else if (NetResearchPerTurn > 5.0)
             {
-                var planet = this;
-                string str = planet.DevelopmentStatus + Localizer.Token(1778);
-                planet.DevelopmentStatus = str;
+                DevelopmentStatus += Localizer.Token(1778); // universities are good
             }
-            if (!AllowInfantry || TroopsHere.Count <= 6)
-                return;
-            var planet1 = this;
-            string str1 = planet1.DevelopmentStatus + Localizer.Token(1779);
-            planet1.DevelopmentStatus = str1;
+            if (AllowInfantry && TroopsHere.Count > 6)
+            {
+                DevelopmentStatus += Localizer.Token(1779); // military culture
+            }
         }
 
         public TradeAI TradeAI => SbCommodities.Trade;
@@ -1152,7 +1133,7 @@ namespace Ship_Game
                     {
                         return true;
                     }
-                    if (building.PlusProdPerColonist > 0 && building.PlusProdPerColonist * (Population / 1000) > building.Maintenance * (2 - WorkerPercentage))
+                    if (building.PlusProdPerColonist > 0 && building.PlusProdPerColonist * PopulationBillion > building.Maintenance * (2 - WorkerPercentage))
                     {
                         if (income > ShipBuildingModifier * 2)
                             return true;
@@ -1243,7 +1224,7 @@ namespace Ship_Game
                                 || building.PlusProdPerRichness > 0
                                 || building.PlusProdPerColonist > 0
                                 || building.PlusFlatResearchAmount > 0
-                                || (building.PlusResearchPerColonist > 0 && (Population / 1000) > 1)
+                                || (building.PlusResearchPerColonist > 0 && (PopulationBillion) > 1)
                                 //|| building.Name == "Biospheres"
 
                                 || (needDefense && isdefensive && DevelopmentLevel > 3)
@@ -1286,7 +1267,7 @@ namespace Ship_Game
                         }
                         if (MedPri && DevelopmentLevel > 2 && makingMoney)
                         {
-                            if (building.PlusResearchPerColonist * (Population / 1000) > building.Maintenance
+                            if (building.PlusResearchPerColonist * (PopulationBillion) > building.Maintenance
                             || ((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && Population == MaxPopulation && income > building.Maintenance)
                             || (Owner.data.Traits.Cybernetic <= 0 && building.PlusTerraformPoints > 0 && Fertility < 1 && Population == MaxPopulation && MaxPopulation > 2000 && income > building.Maintenance)
                                || (building.PlusFlatFoodAmount > 0 && NetFoodPerTurn < 0)
@@ -1572,7 +1553,7 @@ namespace Ship_Game
             if (FlatFoodAdded > 0)
             {
                 //Stop producing food a little early, since the flat food will continue to pile up
-                float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+                float maxPop = MaxPopulationBillion;
                 if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
                 storedFoodRatio = storedFoodRatio.Clamped(0, 1);
             }
@@ -1598,7 +1579,7 @@ namespace Ship_Game
             {
                 if (Owner.data.Traits.Cybernetic > 0)
                 {
-                    float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+                    float maxPop = MaxPopulationBillion;
                     if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn - maxPop, 3);
                 }
                 else
@@ -1627,7 +1608,7 @@ namespace Ship_Game
                 WorkOrResearch(labor);  //Hand off to Prod instead;
                 return;
             }
-            float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+            float maxPop = MaxPopulationBillion;
             float storedFoodRatio = FoodHere / MaxStorage;      //How much of Storage is filled
             if (Fertility + PlusFoodPerColonist <= 0.5f) storedFoodRatio = 1; //No farming here, so skip it
 
@@ -1651,7 +1632,7 @@ namespace Ship_Game
 
             if (Owner.data.Traits.Cybernetic > 0)       //Stop production early, since the flat production will continue to pile up
             {
-                float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+                float maxPop = MaxPopulationBillion;
                 if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn - maxPop, 3);
             }
             else
@@ -2349,10 +2330,9 @@ namespace Ship_Game
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
-            MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000f;
             BuildOutpostifAble();   //If there is no Outpost or Capital, build it
 
-            if (colonyType == ColonyType.Colony) return; //No Governor? Nevermind!
+            if (colonyType == ColonyType.Colony) return; // No Governor? Nevermind!
 
             float budget = BuildingBudget();
 
@@ -2585,7 +2565,7 @@ namespace Ship_Game
         }
 
         public float GetMaxResearchPotential =>
-            (Population / 1000) * PlusResearchPerColonist + PlusFlatResearchPerTurn;
+            PopulationBillion * PlusResearchPerColonist + PlusFlatResearchPerTurn;
 
         public void ApplyProductionTowardsConstruction() => SbProduction.ApplyProductionTowardsConstruction();
 
@@ -2633,7 +2613,8 @@ namespace Ship_Game
             PlusFoodPerColonist = 0f;
             PlusFlatPopulationPerTurn = 0f;
             ShipBuildingModifier = 0f;
-            CommoditiesPresent.Clear();
+            SbCommodities.ClearGoods();
+
             float shipbuildingmodifier = 1f;
             Array<Guid> list = new Array<Guid>();
             float shipyards =1;
@@ -2681,8 +2662,9 @@ namespace Ship_Game
                 PlusCreditsPerColonist += building.CreditsPerColonist;
                 TerraformToAdd += building.PlusTerraformPoints;
                 PlusTaxPercentage += building.PlusTaxPercentage;
-                CommoditiesPresent.Add(building.Name);
-                if (building.AllowInfantry) AllowInfantry = true;
+                SbCommodities.AddCommodity(building.Name, 0f); // @todo wtf is with this feature?
+                if (building.AllowInfantry)
+                    AllowInfantry = true;
                 storageAdded += building.StorageAdded;
                 PlusFoodPerColonist += building.PlusFoodPerColonist;
                 PlusResearchPerColonist += building.PlusResearchPerColonist;
@@ -2707,7 +2689,7 @@ namespace Ship_Game
                 HasShipyard = false;
 
             //Research
-            NetResearchPerTurn = (ResearcherPercentage * (Population / 1000)) * PlusResearchPerColonist + PlusFlatResearchPerTurn;
+            NetResearchPerTurn = ResearcherPercentage * PopulationBillion * PlusResearchPerColonist + PlusFlatResearchPerTurn;
             NetResearchPerTurn = NetResearchPerTurn + Owner.data.Traits.ResearchMod * NetResearchPerTurn;
             NetResearchPerTurn = NetResearchPerTurn - Owner.data.TaxRate * NetResearchPerTurn;
             //Food
@@ -2715,13 +2697,13 @@ namespace Ship_Game
             //Production
             NetProductionPerTurn = ((WorkerPercentage * PopulationBillion) * (MineralRichness * (1 + PlusProductionPerColonist + Owner.data.Traits.ProductionMod))) + PlusFlatProductionPerTurn;
             MaxProductionPerTurn = GetMaxProductionPotentialCalc();
-            Consumption = ((Population / 1000) + Owner.data.Traits.ConsumptionModifier * (Population / 1000));
+            Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
             if (Owner.data.Traits.Cybernetic > 0)
                 NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * (NetProductionPerTurn - Consumption) ;
             else
                 NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * NetProductionPerTurn;
 
-            GrossProductionPerTurn =  ((Population / 1000) * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
+            GrossProductionPerTurn =  (PopulationBillion * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             GrossProductionPerTurn = GrossProductionPerTurn + Owner.data.Traits.ProductionMod * GrossProductionPerTurn;
 
 
@@ -2734,7 +2716,7 @@ namespace Ship_Game
             }
 
             //Money
-            GrossMoneyPT = (Population / 1000);
+            GrossMoneyPT = PopulationBillion;
             GrossMoneyPT += PlusTaxPercentage * GrossMoneyPT;
             //this.GrossMoneyPT += this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
             //this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.PopulationBillion * this.PlusCreditsPerColonist;
@@ -2768,7 +2750,7 @@ namespace Ship_Game
             AvgPopulationGrowth = (AvgPopulationGrowth + adjustedRepRate) / 2;
         }
 
-        public void AddGood(string goodId, int amount) => SbCommodities.AddGood(goodId, amount);
+        public void AddGood(string goodId, int amount) => SbCommodities.AddCommodity(goodId, amount);
 
         public bool EventsOnBuildings()
         {

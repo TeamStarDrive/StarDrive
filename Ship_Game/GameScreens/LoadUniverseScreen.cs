@@ -191,9 +191,9 @@ namespace Ship_Game
 
         private static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
         {
-            p.SbCommodities.AddGood("Food", psdata.foodHere, false);
-            p.SbCommodities.AddGood("Production", psdata.prodHere, false);
-            p.SbCommodities.AddGood("Colonists_1000", psdata.Population, false);
+            p.SbCommodities.Food = psdata.foodHere;
+            p.SbCommodities.Production = psdata.prodHere;
+            p.SbCommodities.Population = psdata.Population;
         }
 
         private SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssdata)

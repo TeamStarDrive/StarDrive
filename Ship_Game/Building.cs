@@ -107,7 +107,7 @@ namespace Ship_Game
 
         private static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
         {
-            return flatBonus + perColonistBonus * (planet.Population / 1000f) * adjust;
+            return flatBonus + perColonistBonus * planet.PopulationBillion * adjust;
         }
 
         public float CreditsProduced(Planet planet)

@@ -127,7 +127,7 @@ namespace Ship_Game
             {
                 FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
                 FoodStorage.Max = p.MaxStorage;
-                FoodStorage.Progress = p.SbCommodities.FoodHere;
+                FoodStorage.Progress = p.SbCommodities.Food;
                 FoodStorage.color = "green";
                 foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
                 foodDropDown.AddOption(Localizer.Token(329));
@@ -239,7 +239,7 @@ namespace Ship_Game
             if (!GlobalStats.HardcoreRuleset)
             {
                 FoodStorage.Max = P.MaxStorage;
-                FoodStorage.Progress = P.SbCommodities.FoodHere;
+                FoodStorage.Progress = P.SbCommodities.Food;
                 ProdStorage.Max = P.MaxStorage;
                 ProdStorage.Progress = P.ProductionHere;
             }
@@ -476,7 +476,7 @@ namespace Ship_Game
             }
             else
             {
-                FoodStorage.Progress = P.SbCommodities.FoodHere;
+                FoodStorage.Progress = P.SbCommodities.Food;
                 ProdStorage.Progress = P.ProductionHere;
                 if      (P.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
                 else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
