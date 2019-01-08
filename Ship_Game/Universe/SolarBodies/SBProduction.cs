@@ -29,7 +29,6 @@ namespace Ship_Game.Universe.SolarBodies
         //private bool PSexport                                      => Ground.PSexport;
         private Planet.ColonyType colonyType                       => Ground.colonyType;
         private float NetProductionPerTurn                         => Ground.NetProductionPerTurn;
-        private bool GovernorOn                                    => Ground.GovernorOn;
 
         private float ProductionHere
         {
@@ -276,10 +275,11 @@ namespace Ship_Game.Universe.SolarBodies
             if (PS != Planet.GoodState.EXPORT)
                 take10Turns *= (storageRatio < 0.75f ? PS == Planet.GoodState.EXPORT ? 0.5f : PS == Planet.GoodState.STORE ? 0.25f : 1 : 1);
 
-            if (!GovernorOn || colonyType == Planet.ColonyType.Colony)
+            if (colonyType == Planet.ColonyType.Colony)
             {
-                take10Turns = NetProductionPerTurn; ;
+                take10Turns = NetProductionPerTurn;
             }
+
             float normalAmount = take10Turns;
 
             normalAmount = ProductionHere.Clamped(0, normalAmount);
@@ -297,16 +297,11 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void AddBuildingToCQ(Building b)
-        {
-            AddBuildingToCQ(b, false);
-        }
-
-        public void AddBuildingToCQ(Building b, bool PlayerAdded)
+        public void AddBuildingToCQ(Building b, bool playerAdded = false)
         {
             var qi = new QueueItem(Ground)
             {
-                IsPlayerAdded = PlayerAdded,
+                IsPlayerAdded = playerAdded,
                 isBuilding = true,
                 Building = b,
                 Cost = b.Cost * UniverseScreen.GamePaceStatic,

@@ -120,7 +120,6 @@ namespace Ship_Game
             p.colonyType = psdata.ColonyType;
             if (!psdata.GovernorOn)
             {
-                p.GovernorOn = false;
                 p.colonyType = Planet.ColonyType.Colony;
             }
 
@@ -150,8 +149,6 @@ namespace Ship_Game
             p.FarmerPercentage      = psdata.farmerPercentage;
             p.WorkerPercentage      = psdata.workerPercentage;
             p.ResearcherPercentage  = psdata.researcherPercentage;
-
-            
 
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
@@ -185,15 +182,14 @@ namespace Ship_Game
                 p.BuildingList.Add(pgs.building);
                 pgs.building.CreateWeapon();
             }
-
             return p;
         }
 
         private static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
         {
-            p.SbCommodities.AddGood("Food", psdata.foodHere, false);
-            p.SbCommodities.AddGood("Production", psdata.prodHere, false);
-            p.SbCommodities.AddGood("Colonists_1000", psdata.Population, false);
+            p.SbCommodities.Food = psdata.foodHere;
+            p.SbCommodities.Production = psdata.prodHere;
+            p.SbCommodities.Population = psdata.Population;
         }
 
         private SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssdata)

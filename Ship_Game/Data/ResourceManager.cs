@@ -230,6 +230,7 @@ namespace Ship_Game
 
         public static void LoadItAll(Action onEssentialsLoaded = null)
         {
+            Stopwatch s = Stopwatch.StartNew();
             Reset();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
 
@@ -277,6 +278,7 @@ namespace Ship_Game
             onEssentialsLoaded?.Invoke();
 
             LoadNonEssentialAtlases();
+            Log.Info($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
         }
 
         private static void TestLoad()
@@ -288,7 +290,6 @@ namespace Ship_Game
             //TestTechTextures();
 
             Log.HideConsoleWindow();
-            RootContent.EnableLoadInfoLog = false;
         }
 
         private static void TestHullLoad()
@@ -296,6 +297,7 @@ namespace Ship_Game
             if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes:true))
                 return;
 
+            bool oldValue = RootContent.EnableLoadInfoLog;
             RootContent.EnableLoadInfoLog = true;
             foreach (ShipData hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
             {
@@ -312,7 +314,7 @@ namespace Ship_Game
             }
             HelperFunctions.CollectMemory();
             Log.TestMessage("Hull Model Load Finished", waitForEnter: true);
-            RootContent.EnableLoadInfoLog = false;
+            RootContent.EnableLoadInfoLog = oldValue;
         }
 
         private static void TestTechTextures()
@@ -370,7 +372,7 @@ namespace Ship_Game
         }
 
         // This first tries to deserialize from Mod folder and then from Content folder
-        private static T TryDeserialize<T>(string file) where T : class
+        static T TryDeserialize<T>(string file) where T : class
         {
             FileInfo info = null;
             if (GlobalStats.HasMod) info = new FileInfo(GlobalStats.ModPath + file);
@@ -382,7 +384,7 @@ namespace Ship_Game
         }
 
         // The entity value is assigned only IF file exists and Deserialize succeeds
-        private static void TryDeserialize<T>(string file, ref T entity) where T : class
+        static void TryDeserialize<T>(string file, ref T entity) where T : class
         {
             var result = TryDeserialize<T>(file);
             if (result != null) entity = result;
@@ -504,17 +506,14 @@ namespace Ship_Game
 
         static Array<T> LoadEntities<T>(FileInfo[] files, string id) where T : class
         {
-            var list = new Array<T>(files.Length);
+            var list = new Array<T>();
+            list.Resize(files.Length);
             var s = new XmlSerializer(typeof(T));
             Parallel.For(files.Length, (start, end) =>
             {
                 for (int i = start; i < end; ++i)
-                {
                     if (LoadEntity(s, files[i], id, out T entity))
-                    {
-                        lock(list) list.Add(entity);
-                    }
-                }
+                        list[i] = entity; // no need to lock; `list` internal array is not modified
             });
             return list;
         }
@@ -544,7 +543,8 @@ namespace Ship_Game
         static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
         {
             var files = modOnly ? Dir.GetFiles(GlobalStats.ModPath + dir, "xml") : GatherFilesUnified(dir, "xml");
-            var list = new Array<InfoPair<T>>(files.Length);
+            var list = new Array<InfoPair<T>>();
+            list.Resize(files.Length);
             var s = new XmlSerializer(typeof(T));
             Parallel.For(files.Length, (start, end) =>
             {
@@ -552,7 +552,7 @@ namespace Ship_Game
                 {
                     FileInfo info = files[i];
                     if (LoadEntity(s, info, id, out T entity))
-                        lock(list) list.Add(new InfoPair<T>(info, entity));
+                        list[i] = new InfoPair<T>(info, entity); // no need to lock; `list` internal array is not modified
                 }
             });
             return list;
@@ -1117,12 +1117,18 @@ namespace Ship_Game
 
         private static void LoadFlagTextures() // Refactored by RedFox
         {
-            void LoadFlag(FileInfo info)
+            FileInfo[] files = GatherFilesUnified("Flags", "xnb");
+            FlagTextures.Resize(files.Length);
+
+            Parallel.For(files.Length, (start, end) =>
             {
-                var tex = RootContent.Load<Texture2D>(info.CleanResPath());
-                lock (FlagTextures) FlagTextures.Add(new KeyValuePair<string, Texture2D>(info.NameNoExt(), tex));
-            }
-            Parallel.ForEach(GatherFilesUnified("Flags", "xnb"), LoadFlag);
+                for (int i = start; i < end; ++i)
+                {
+                    FileInfo info = files[i];
+                    var tex = RootContent.Load<Texture2D>(info.CleanResPath());
+                    FlagTextures[i] = new KeyValuePair<string, Texture2D>(info.NameNoExt(), tex);
+                }
+            });
         }
 
         private static void LoadGoods() // Refactored by RedFox
@@ -1166,9 +1172,8 @@ namespace Ship_Game
 
         private static void LoadHullData() // Refactored by RedFox
         {
-            var retList = new Array<ShipData>();
-
             FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
+            var hulls = new ShipData[hullFiles.Length];
 
             void LoadHulls(int start, int end)
             {
@@ -1183,11 +1188,7 @@ namespace Ship_Game
                         shipData.ShipStyle = dirName;
                         shipData.Role = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
                         shipData.UpdateBaseHull();
-                        lock (retList)
-                        {
-                            HullsDict[shipData.Hull] = shipData;
-                            retList.Add(shipData);
-                        }
+                        hulls[i] = shipData;
                     }
                     catch (Exception e)
                     {
@@ -1197,6 +1198,9 @@ namespace Ship_Game
             }
             Parallel.For(hullFiles.Length, LoadHulls);
             //LoadHulls(0, hullFiles.Length);
+            // Finalize HullsDict:
+            foreach (ShipData sd in hulls)
+                if (sd != null) HullsDict[sd.Hull] = sd;
         }
 
         public static Model GetJunkModel(int idx)
@@ -1298,17 +1302,21 @@ namespace Ship_Game
         }
 
         // Refactored by RedFox
-        private static void LoadNebulae()
+        static void LoadNebulae()
         {
-            void LoadNebula(FileInfo info)
+            FileInfo[] files = Dir.GetFiles("Content/Nebulas", "xnb");
+            var nebulae = new Texture2D[files.Length];
+            Parallel.For(files.Length, (start, end) =>
             {
-                string nameNoExt = info.NameNoExt();
-                var tex = RootContent.Load<Texture2D>("Nebulas/" + nameNoExt);
-                if      (tex.Width == 2048) { lock(BigNebulae)   BigNebulae.Add(tex);   }
-                else if (tex.Width == 1024) { lock(MedNebulae)   MedNebulae.Add(tex);   }
-                else                        { lock(SmallNebulae) SmallNebulae.Add(tex); }
+                for (int i = start; i < end; ++i)
+                    nebulae[i] = RootContent.Load<Texture2D>("Nebulas/" + files[i].NameNoExt());
+            });
+            foreach (Texture2D tex in nebulae)
+            {
+                if      (tex.Width == 2048) { BigNebulae.Add(tex);   }
+                else if (tex.Width == 1024) { MedNebulae.Add(tex);   }
+                else                        { SmallNebulae.Add(tex); }
             }
-            Parallel.ForEach(Dir.GetFiles("Content/Nebulas", "xnb"), LoadNebula);
         }
         public static SubTexture SmallNebulaRandom()
         {
@@ -1559,12 +1567,13 @@ namespace Ship_Game
 
         private static void LoadSmallStars()
         {
-            void LoadStar(FileInfo info)
+            FileInfo[] files = GatherFilesModOrVanilla("SmallStars", "xnb");
+            SmallStars.Resize(files.Length);
+            Parallel.For(files.Length, (start, end) =>
             {
-                var tex = RootContent.Load<Texture2D>(info.CleanResPath());
-                lock (SmallStars) SmallStars.Add(tex);
-            }
-            Parallel.ForEach(GatherFilesModOrVanilla("SmallStars", "xnb"), LoadStar);
+                for (int i = start; i < end; ++i)
+                    SmallStars[i] = RootContent.Load<Texture2D>(files[i].CleanResPath());
+            });
         }
 
 

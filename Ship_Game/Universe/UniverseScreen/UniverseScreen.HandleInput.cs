@@ -441,6 +441,10 @@ namespace Ship_Game
 
       
             pickedSomethingThisFrame = false;
+
+            ShipsInCombat.Visible   = !LookingAtPlanet;
+            PlanetsInCombat.Visible = !LookingAtPlanet;
+
             if (LookingAtPlanet)
                 workersPanel.HandleInput(input);
             if (IsActive)

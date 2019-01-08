@@ -10,10 +10,9 @@ namespace Ship_Game
         const int NumEmpires = 2;
         MicroUniverse Universe;
 
-        public DeveloperSandbox(GameScreen parent) : base(parent)
+        public DeveloperSandbox() : base(null)
         {
-            parent.ExitScreen();
-            IsPopup = true;
+            IsPopup = false;
         }
 
         public override void Update(float deltaTime)
@@ -71,7 +70,11 @@ namespace Ship_Game
 
             for (int i = 0; i < NumEmpires && i < ResourceManager.Empires.Count; ++i)
             {
-                Empire e = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.Empires[i]);
+                EmpireData data = ResourceManager.Empires[i];
+                if (sandbox.EmpireList.IsEmpty && data.Faction > 0)
+                    continue; // don't allow Faction for players
+
+                Empire e = EmpireManager.CreateEmpireFromEmpireData(data);
                 sandbox.EmpireList.Add(e);
                 EmpireManager.Add(e);
                 e.data.CurrentAutoScout = e.data.ScoutShip;
@@ -80,6 +83,7 @@ namespace Ship_Game
                 e.data.CurrentConstructor = e.data.ConstructorShip;
                 GenerateRandomSysPos(10000, claimedSpots, sandbox);
             }
+            sandbox.EmpireList.First.isPlayer = true;
 
             foreach (Empire empire in EmpireManager.Empires)
             {
@@ -87,16 +91,22 @@ namespace Ship_Game
                     if (empire != e) empire.AddRelationships(e, new Relationship(e.data.Traits.Name));
             }
 
-            for (int empireIndex = 0; empireIndex < sandbox.EmpireList.Count; ++empireIndex)
+            for (int i = 0; i < sandbox.EmpireList.Count; ++i)
             {
-                Empire e = sandbox.EmpireList[empireIndex];
+                Empire e = sandbox.EmpireList[i];
                 var system = new SolarSystem();
                 system.OwnerList.Add(e);
                 sandbox.SolarSystemsList.Add(system);
-                system.Position = claimedSpots[empireIndex];
-                system.GenerateStartingSystem($"SandBox-{empireIndex}", sandbox, 1, e);
+                system.Position = claimedSpots[i];
+                system.GenerateStartingSystem($"SandBox-{i}", sandbox, 1, e);
                 foreach (Planet p in system.PlanetList)
+                {
+                    if (p.Owner == EmpireManager.Player)
+                    {
+                        p.colonyType = Planet.ColonyType.Colony; // this is required to disable governors... for some reason
+                    }
                     p.SetExploredBy(e);
+                }
             }
 
             foreach(SolarSystem system in sandbox.SolarSystemsList)
@@ -106,12 +116,11 @@ namespace Ship_Game
                                                 select => select.Position.SqDist(system.Position));
             }
 
-            sandbox.EmpireList.First.isPlayer = true;
             sandbox.playerShip = Ship.CreateShipAtPoint("Unarmed Scout", sandbox.EmpireList.First, claimedSpots[0]);
             sandbox.MasterShipList.Add(sandbox.playerShip);
 
             foreach (SolarSystem system in sandbox.SolarSystemsList)
-                SubmitSceneObjectsForRendering(sandbox, system);
+                SubmitSceneObjectsForRendering(system);
 
             Universe = new MicroUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
             ScreenManager.AddScreen(Universe);
@@ -142,7 +151,7 @@ namespace Ship_Game
             }
             return true;
         }
-        void SubmitSceneObjectsForRendering(UniverseData data, SolarSystem wipSystem)
+        void SubmitSceneObjectsForRendering(SolarSystem wipSystem)
         {
             foreach (Planet planet in wipSystem.PlanetList)
             {

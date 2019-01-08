@@ -92,7 +92,7 @@ namespace Ship_Game.AI
             );
 
             if (targetModule != ShipModuleType.Dummy)
-                potentialShips = potentialShips.FilterBy(ship => ship.AnyModulesOf(targetModule));
+                potentialShips = potentialShips.Filter(ship => ship.AnyModulesOf(targetModule));
 
             if (potentialShips.Length == 0)
                 return "";
@@ -100,7 +100,7 @@ namespace Ship_Game.AI
             float maxStrength = potentialShips.Max(ship => ship.NormalizedStrength);
             var levelAdjust = new MinMaxStrength(maxStrength, empire);
 
-            Ship[] bestShips = potentialShips.FilterBy(ship => levelAdjust.InRange(ship.NormalizedStrength));
+            Ship[] bestShips = potentialShips.Filter(ship => levelAdjust.InRange(ship.NormalizedStrength));
 
             if (bestShips.Length == 0)
                 return "";

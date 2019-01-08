@@ -495,10 +495,10 @@ namespace Ship_Game
                     Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
                     SubTexture sunPath = ResourceManager.Texture("Suns/" + solarSystem.SunPath);
                     ScreenManager.SpriteBatch.Draw(sunPath,
-                        position, Color.White, Zrotate, sunPath.Center(), scale,
+                        position, Color.White, Zrotate, sunPath.CenterF, scale,
                         SpriteEffects.None, 0.9f);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Suns/" + solarSystem.SunPath),
-                        position, Color.White, (float) (Zrotate / -2.0), sunPath.Center(), scale,
+                        position, Color.White, (float) (Zrotate / -2.0), sunPath.CenterF, scale,
                         SpriteEffects.None, 0.9f);
                 }
             }
@@ -529,7 +529,7 @@ namespace Ship_Game
             ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
 
             RenderBackdrop();
-            ScreenManager.SpriteBatch.Begin();            
+            ScreenManager.SpriteBatch.Begin();
             if (DefiningAO && Input.LeftMouseDown)
             {
                 DrawRectangleProjected(AORect, Color.Orange);

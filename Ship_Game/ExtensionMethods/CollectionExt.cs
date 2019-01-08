@@ -529,10 +529,10 @@ namespace Ship_Game
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] FilterBy<T>(this T[] items, Predicate<T> predicate) => items.FilterBy(items.Length, predicate);
+        public static T[] Filter<T>(this T[] items, Predicate<T> predicate) => items.Filter(items.Length, predicate);
 
         // A quite memory efficient filtering function to replace Where clauses
-        public static unsafe T[] FilterBy<T>(this T[] items, int count, Predicate<T> predicate)
+        public static unsafe T[] Filter<T>(this T[] items, int count, Predicate<T> predicate)
         {
             byte* map = stackalloc byte[count];
 
@@ -553,7 +553,7 @@ namespace Ship_Game
         }
 
         // Copy paste from above. Purely because I don't want to ruin T[] access optimizations
-        public static unsafe T[] FilterBy<T>(this IReadOnlyList<T> items, Predicate<T> predicate)
+        public static unsafe T[] Filter<T>(this IReadOnlyList<T> items, Predicate<T> predicate)
         {
             int count = items.Count;
             byte* map = stackalloc byte[count];
