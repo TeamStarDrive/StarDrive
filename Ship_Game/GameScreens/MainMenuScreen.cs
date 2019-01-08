@@ -116,7 +116,7 @@ namespace Ship_Game
                         alpha = 255f;
                 }
                 var color = new Color(255,255,255,(byte)alpha);
-                ScreenManager.SpriteBatch.Draw(TexComet, c.Position, color, c.Rotation, TexComet.Center(), 0.45f, SpriteEffects.None, 1f);
+                ScreenManager.SpriteBatch.Draw(TexComet, c.Position, color, c.Rotation, TexComet.CenterF, 0.45f, SpriteEffects.None, 1f);
                 c.Position += c.Velocity * 2400f * elapsedTime;
                 if (c.Position.Y > 1050f)
                     CometList.QueuePendingRemoval(c);
@@ -141,34 +141,35 @@ namespace Ship_Game
                 c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
                 CometList.Add(c);
             }
-            if (SplashScreen.DisplayComplete)
-            {
-                ScreenManager.HideSplashScreen();
-                ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
-                DrawNew(gameTime);
-                ScreenManager.RenderSceneObjects();
 
-                Vector3 mp = Viewport.Project(MoonObj.WorldBoundingSphere.Center, Projection, View, Matrix.Identity);
-                MoonFlarePos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
+            if (!SplashScreen.DisplayComplete)
+                return;
 
-                DrawMoonFlare();
-                DrawAlienTextOverlays();
-                DrawComets(elapsedTime);
+            ScreenManager.HideSplashScreen();
+            ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
+            DrawNew(gameTime);
+            ScreenManager.RenderSceneObjects();
+
+            Vector3 mp = Viewport.Project(MoonObj.WorldBoundingSphere.Center, Projection, View, Matrix.Identity);
+            MoonFlarePos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
+
+            DrawMoonFlare();
+            DrawAlienTextOverlays();
+            DrawComets(elapsedTime);
 
 
-                batch.Begin();
+            batch.Begin();
 
-                GlobalStats.ActiveMod?.DrawMainMenuOverlay(ScreenManager, Portrait);
+            GlobalStats.ActiveMod?.DrawMainMenuOverlay(ScreenManager, Portrait);
 
-                batch.Draw(LogoAnimation[0], LogoRect, Color.White);
-                if (LogoAnimation.Count > 1)
-                    LogoAnimation.RemoveAt(0);
+            batch.Draw(LogoAnimation[0], LogoRect, Color.White);
+            if (LogoAnimation.Count > 1)
+                LogoAnimation.RemoveAt(0);
 
-                base.Draw(batch);
-                batch.End();
+            base.Draw(batch);
+            batch.End();
 
-                ScreenManager.EndFrameRendering();
-            }
+            ScreenManager.EndFrameRendering();
         }
 
         public void DrawNew(GameTime gameTime)
@@ -291,7 +292,6 @@ namespace Ship_Game
             }
             ScreenManager.SpriteBatch.End();
 
-
             ScreenManager.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;
             ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
             ScreenManager.GraphicsDevice.RenderState.BlendFunction    = BlendFunction.Add;
@@ -403,7 +403,7 @@ namespace Ship_Game
         private void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
         private void VerCheck_Clicked(UIButton button)  => ScreenManager.AddScreen(new VersionChecking(this));
         private void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
-        private void DevSandbox_Clicked(UIButton button)  => ScreenManager.AddScreen(new DeveloperSandbox(this));
+        private void DevSandbox_Clicked(UIButton button)  => ScreenManager.GoToScreen(new DeveloperSandbox());
         private void Exit_Clicked(UIButton button)
         {
             ExitScreen();

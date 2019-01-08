@@ -49,8 +49,6 @@ namespace Ship_Game
 
         new private Color tColor = new Color(255, 239, 208);
 
-        private string fmt = "0.#";
-
         public SystemInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
             this.screen = screen;
@@ -251,13 +249,9 @@ namespace Ship_Game
                         if (p.Habitable)
                         {
                             int Spacing = DataFont.LineSpacing;
-                            PlanetTypeCursor.Y = PlanetTypeCursor.Y + (Spacing + 4);
-                            float population = p.Population / 1000f;
-                            string popString = population.ToString(fmt);
-                            float maxPopulation = p.MaxPopulation / 1000f + p.MaxPopBonus / 1000f;
-                            popString = string.Concat(popString, " / ", maxPopulation.ToString(fmt));
+                            PlanetTypeCursor.Y += (Spacing + 4);
+                            string popString = p.PopulationString;
                             PlanetTypeCursor.X = PlanetRect.X + PlanetRect.Width / 2 - DataFont.MeasureString(popString).X / 2f;
-                            HelperFunctions.ClampVectorToInt(ref PlanetTypeCursor);
                             ScreenManager.SpriteBatch.DrawString(DataFont, popString, PlanetTypeCursor, tColor);
                             Rectangle flagRect = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 10, PlanetRect.Y - 20, 20, 20);
                             if (p.Owner != null)
@@ -287,8 +281,8 @@ namespace Ship_Game
                             HelperFunctions.ClampVectorToInt(ref pt);
                             if (p.Owner == null || p.Owner != EmpireManager.Player)
                             {
-                                ScreenManager.SpriteBatch.DrawString(DataFont, p.Fertility.ToString(fmt), ft, tColor);
-                                ScreenManager.SpriteBatch.DrawString(DataFont, p.MineralRichness.ToString(fmt), pt, tColor);
+                                ScreenManager.SpriteBatch.DrawString(DataFont, p.Fertility.String(), ft, tColor);
+                                ScreenManager.SpriteBatch.DrawString(DataFont, p.MineralRichness.String(), pt, tColor);
                             }
                             else
                             {
@@ -296,17 +290,17 @@ namespace Ship_Game
                                 SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
                                 SpriteFont dataFont = DataFont;
                                 float netFoodPerTurn = p.GetNetFoodPerTurn();
-                                spriteBatch.DrawString(dataFont, netFoodPerTurn.ToString(fmt), ft, tColor);
+                                spriteBatch.DrawString(dataFont, netFoodPerTurn.String(), ft, tColor);
                                 SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
                                 SpriteFont spriteFont = DataFont;
                                 float netProductionPerTurn = p.GetNetProductionPerTurn();
-                                spriteBatch1.DrawString(spriteFont, netProductionPerTurn.ToString(fmt), pt, tColor);
+                                spriteBatch1.DrawString(spriteFont, netProductionPerTurn.String(), pt, tColor);
                                 Vector2 rt = new Vector2(rIcon.X + 12, rIcon.Y);
                                 HelperFunctions.ClampVectorToInt(ref rt);
-                                ScreenManager.SpriteBatch.DrawString(DataFont, p.NetResearchPerTurn.ToString(fmt), rt, tColor);
+                                ScreenManager.SpriteBatch.DrawString(DataFont, p.NetResearchPerTurn.String(), rt, tColor);
                                 Vector2 tt = new Vector2(rIcon.X + 12, tIcon.Y);
                                 HelperFunctions.ClampVectorToInt(ref tt);
-                                ScreenManager.SpriteBatch.DrawString(DataFont, playerTroops.ToString(fmt), tt, tColor);
+                                ScreenManager.SpriteBatch.DrawString(DataFont, playerTroops.ToString(), tt, tColor);
                             }
                         }
                         float x = Mouse.GetState().X;

@@ -172,6 +172,7 @@ namespace Ship_Game
         {
             Stopwatch s = Stopwatch.StartNew();
             if (!File.Exists(path.Descriptor)) return false; // regenerate!!
+
             using (var fs = new StreamReader(path.Descriptor))
             {
                 int.TryParse(fs.ReadLine(), out int hash);
@@ -221,7 +222,10 @@ namespace Ship_Game
             Parallel.For(noPack.Length, (start, end) =>
             {
                 for (int i = start; i < end; ++i)
-                    noPack[i].Texture = content.LoadUncached<Texture2D>($"{Name}/{noPack[i].Name}");
+                {
+                    TextureInfo t = noPack[i];
+                    t.Texture = content.LoadUncached<Texture2D>($"{Name}/{t.Name}");
+                }
             });
 
             foreach (TextureInfo t in textures)

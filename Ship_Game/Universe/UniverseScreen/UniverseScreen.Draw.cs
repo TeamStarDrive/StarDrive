@@ -185,7 +185,7 @@ namespace Ship_Game
                 Rectangle destinationRectangle =
                     new Rectangle((int) vector2.X, (int) vector2.Y, (int) num * 2, (int) num * 2);
                 ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, new Color(70, 255, 255, 255), 0.0f,
-                    uiNode.Center(), SpriteEffects.None, 1f);
+                    uiNode.CenterF, SpriteEffects.None, 1f);
             }
         }
 
@@ -207,7 +207,7 @@ namespace Ship_Game
                     float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - screenPos.X) * 2.59999990463257f;
                     Rectangle local_7 = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)local_6, (int)local_6);
 
-                    ScreenManager.SpriteBatch.Draw(uiNode, local_7, Color.White, 0.0f, uiNode.Center(),
+                    ScreenManager.SpriteBatch.Draw(uiNode, local_7, Color.White, 0.0f, uiNode.CenterF,
                         SpriteEffects.None, 1f);
                 }
         }
@@ -247,7 +247,7 @@ namespace Ship_Game
                             ProjectToScreenPosition(influ.Position.PointOnCircle(90f, influ.Radius)).X - nodePos.X);
 
                         Rectangle rect = new Rectangle((int)nodePos.X, (int)nodePos.Y, size * 5, size * 5);
-                        spriteBatch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.Center(),
+                        spriteBatch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF,
                             SpriteEffects.None, 1f);
 
                         foreach (Empire.InfluenceNode influ2 in empire.BorderNodes)
@@ -317,7 +317,7 @@ namespace Ship_Game
                         (int) (ship.SensorRange * num * 2.0),
                         (int) (ship.SensorRange * num * 2.0));
                     ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, new Color(255, 0, 0, 255), 0.0f,
-                        uiNode.Center(), SpriteEffects.None, 1f);
+                        uiNode.CenterF, SpriteEffects.None, 1f);
                 }
             }
             ScreenManager.SpriteBatch.End();
@@ -715,7 +715,7 @@ namespace Ship_Game
                         ClickRadius = 15f
                     });
                     ScreenManager.SpriteBatch.Draw(icon, vector2, empire.EmpireColor, 0.0f,
-                        icon.Center(), 0.35f, SpriteEffects.None, 1f);
+                        icon.CenterF, 0.35f, SpriteEffects.None, 1f);
                     HelperFunctions.DrawDropShadowText(ScreenManager, fleet.Name,
                         new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
                 }

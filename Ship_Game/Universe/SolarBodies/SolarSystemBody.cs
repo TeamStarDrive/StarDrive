@@ -98,7 +98,21 @@ namespace Ship_Game
         public float Fertility { get; protected set; }
         public float MaxFertility { get; protected set; }
         public float MineralRichness;
-        public float MaxPopulation;
+
+        private float MaxPopValue;
+        public float MaxPopulation
+        {
+            get => MaxPopValue;
+            set
+            {
+                MaxPopValue = value;
+                MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000f;
+            }
+        }
+        public float MaxPopulationBillion { get; private set; }
+        public float MaxPopBonus;
+        public float MaxPopWithBonus => MaxPopulation + MaxPopBonus;
+
         public Array<Building> BuildingList = new Array<Building>();
         public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;        
@@ -115,11 +129,10 @@ namespace Ship_Game
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
-        public bool GovernorOn = true;  //This can be removed...It is set all over the place, but never checked. -Gretman
         public float ObjectRadius
         {
-            get => SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius;
-            set => InvisibleRadius = SO != null ? SO.WorldBoundingSphere.Radius : value;
+            get => SO?.WorldBoundingSphere.Radius ?? InvisibleRadius;
+            set => InvisibleRadius = SO?.WorldBoundingSphere.Radius ?? value;
         }
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
@@ -1447,10 +1460,11 @@ namespace Ship_Game
                     ParentSystem.OwnerList.Add(planet.Owner);                
             }
             ((Planet)this).TradeAI.ClearHistory();
-            colonyType = Planet.ColonyType.Colony;                        
-            GovernorOn = !newOwner.isPlayer || newOwner.AutoColonize;
-            if (GovernorOn)
-                colonyType = Owner.AssessColonyNeeds((Planet)this);
+
+            if (newOwner.isPlayer && !newOwner.AutoColonize)
+                colonyType = Planet.ColonyType.Colony;
+            else
+                colonyType = Owner.AssessColonyNeeds((Planet) this);
         }
         protected void GenerateMoons(Planet newOrbital)
         {

@@ -245,6 +245,8 @@
     <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
     <Compile Include="Ship_Game\Gameplay\CurrentGame.cs" />
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySlider.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
     <Compile Include="Ship_Game\GameScreens\InputMessageBox.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />

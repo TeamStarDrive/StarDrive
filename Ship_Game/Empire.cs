@@ -137,7 +137,7 @@ namespace Ship_Game
             return RallyPoints?.FindMin(p => p.Center.SqDist(location)) ?? OwnedPlanets?.FindMin(p => p.Center.SqDist(location));
         }
 
-        public Planet[] RallyShipYards => RallyPoints.FilterBy(sy => sy.HasShipyard);
+        public Planet[] RallyShipYards => RallyPoints.Filter(sy => sy.HasShipyard);
 
         public Planet RallyShipYardNearestTo(Vector2 position)
         {
@@ -156,11 +156,11 @@ namespace Ship_Game
             return p;
         }
 
-        public Planet[] BestBuildPlanets => RallyPoints.FilterBy(planet =>
-        planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
-        && planet.DevelopmentLevel > 2
-        && planet.colonyType != Planet.ColonyType.Research
-        && (planet.colonyType != Planet.ColonyType.Industrial || planet.DevelopmentLevel > 3)
+        public Planet[] BestBuildPlanets => RallyPoints.Filter(planet =>
+            planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
+            && planet.DevelopmentLevel > 2
+            && planet.colonyType != Planet.ColonyType.Research
+            && (planet.colonyType != Planet.ColonyType.Industrial || planet.DevelopmentLevel > 3)
         );
 
         public Planet PlanetToBuildAt (float productionNeeded)
@@ -1313,7 +1313,7 @@ namespace Ship_Game
             {
                 planet.UpdateIncomes(false);
                 GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * data.Traits.TaxMod;
-                OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
+                OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.PopulationBillion * planet.PlusCreditsPerColonist);
             }
 
             TradeMoneyAddedThisTurn = 0.0f;
@@ -1528,8 +1528,8 @@ namespace Ship_Game
         {
             float num = 0.0f;
             using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet item_0 in OwnedPlanets)
-                    num += item_0.Population / 1000f;
+                foreach (Planet p in OwnedPlanets)
+                    num += p.PopulationBillion;
             return num;
         }
 
@@ -1553,20 +1553,21 @@ namespace Ship_Game
         {
             float fertility = p.Fertility;
             float richness = p.MineralRichness;
-            float pop = p.MaxPopulation /1000;
-             if(data.Traits.Cybernetic >0)
+            float pop = p.MaxPopulationBillion;
+            if (data.Traits.Cybernetic >0)
                  fertility = richness;
-            if (richness >= 1 && fertility >= 1 && pop > 7)
+            if (richness >= 1.0f && fertility >= 1 && pop > 7)
                 return Planet.ColonyType.Core;
-            if (fertility > .5 && fertility <= 1 && richness <= 1 && pop < 8 && pop > 3)
+            if (fertility > 0.5f && fertility <= 1 && richness <= 1 && pop < 8 && pop > 3)
                  return Planet.ColonyType.Research;
-             if (fertility > 1 && richness < 1 && pop >=2)
+            if (fertility > 1.0f && richness < 1 && pop >=2)
                  return Planet.ColonyType.Agricultural;
-             if (richness >= 1 )
+            if (richness >= 1.0f )
                  return Planet.ColonyType.Industrial;
 
-             return Planet.ColonyType.Colony;
+            return Planet.ColonyType.Colony;
         }
+
         public Planet.ColonyType AssessColonyNeeds(Planet p)
         {
             Planet.ColonyType type  = AssessColonyNeeds2(p);
@@ -1581,32 +1582,32 @@ namespace Ship_Game
 
             if (p.MineralRichness > .50f)
             {
-                mineralWealth += p.MineralRichness +p.MaxPopulation / 1000;                ;
+                mineralWealth += p.MineralRichness + p.MaxPopulationBillion;
             }
             else
                 mineralWealth += p.MineralRichness;
 
             if (p.MaxPopulation > 1000)
             {
-                researchPotential += p.MaxPopulation / 1000;
+                researchPotential += p.MaxPopulationBillion;
                 if (data.Traits.Cybernetic > 0)
                 {
                     if (p.MineralRichness > 1)
-                        popSupport += p.MaxPopulation / 1000 + p.MineralRichness;
+                        popSupport += p.MaxPopulationBillion + p.MineralRichness;
                 }
                 else
                 {
                     if (p.Fertility > 1f)
                     {
                         if (p.MineralRichness > 1)
-                            popSupport += p.MaxPopulation / 1000 + p.Fertility + p.MineralRichness;
-                        fertility += p.Fertility + p.MaxPopulation / 1000;
+                            popSupport += p.MaxPopulationBillion + p.Fertility + p.MineralRichness;
+                        fertility += p.Fertility + p.MaxPopulationBillion;
                     }
                 }
             }
             else
             {
-                militaryPotential += fertility + p.MineralRichness + p.MaxPopulation / 1000;
+                militaryPotential += fertility + p.MineralRichness + p.MaxPopulationBillion;
                 Technology tech = null;
                if(p.MaxPopulation >=500)
                 if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out tech))
@@ -1765,7 +1766,7 @@ namespace Ship_Game
                     }
                 }
                 else
-                    influenceNode1.Radius = isFaction ? 20000f : ProjectorRadius + 10000f * planet.Population / 1000f;
+                    influenceNode1.Radius = isFaction ? 20000f : ProjectorRadius + 10000f * planet.PopulationBillion;
 
                 influenceNode1.Known = known;
                 BorderNodes.Add(influenceNode1);
@@ -2057,7 +2058,7 @@ namespace Ship_Game
                         if (isPlayer)
                             Universe.NotificationManager.AddRebellionNotification(planet,
                                 rebelsFromEmpireData);
-                        for (int index = 0; index < planet.Population / 1000; ++index)
+                        for (int index = 0; index < planet.PopulationBillion; ++index)
                         {
                             Troop troop = EmpireManager.CreateRebelTroop(rebelsFromEmpireData);
                             troop.AssignTroopToTile(
@@ -2183,7 +2184,7 @@ namespace Ship_Game
             }
             foreach (Planet planet in OwnedPlanets)
             {
-                ExpansionScore += (float)(planet.Fertility + (double)planet.MineralRichness + planet.Population / 1000.0);
+                ExpansionScore += (float)(planet.Fertility + (double)planet.MineralRichness + planet.PopulationBillion);
                 foreach (Building building in planet.BuildingList)
                     IndustrialScore += building.Cost / 20f;
             }
@@ -2526,7 +2527,7 @@ namespace Ship_Game
             using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
             {
-                for (int x = 0; x < planet.Population / 1000.0; ++x)
+                for (int x = 0; x < planet.PopulationBillion; ++x)
                 {
                     ++planets;
                     avgPlanetCenter += planet.Center;

@@ -16,10 +16,10 @@ namespace Ship_Game
         public readonly int Y;
         public readonly int Width;
         public readonly int Height;
-        public readonly Texture2D Texture;  // texture
+        public readonly Texture2D Texture;
 
         public Rectangle Rect => new Rectangle(X, Y, Width, Height);
-        public int Right => X + Width;
+        public int Right  => X + Width;
         public int Bottom => Y + Height;
 
         public SubTexture(string name, int x, int y, int w, int h, Texture2D texture)
@@ -52,10 +52,13 @@ namespace Ship_Game
         public Vector2 CoordLowerRight => new Vector2(CoordRight, CoordBottom);
         public Vector2 CoordUpperRight => new Vector2(CoordRight, CoordTop);
 
-        public Vector2 Center() => new Vector2(Width / 2f, Height / 2f);
-        public Vector2 Size() => new Vector2(Width, Height);
+        public Vector2 CenterF => new Vector2(Width/2f, Height/2f);
+        public Vector2 SizeF => new Vector2(Width, Height);
+        public Point Center => new Point(Width/2, Height/2);
+        public int CenterX => Width/2;
+        public int CenterY => Height/2;
 
         public override string ToString()
-            => $"sub-tex  {Name} {Rect.X},{Rect.Y} {Rect.Width}x{Rect.Height}  atlas:{Texture.Width}x{Texture.Height}";
+            => $"sub-tex  {Name} {X},{Y} {Width}x{Height}  texture:{Texture.Width}x{Texture.Height}";
     }
 }

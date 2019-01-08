@@ -224,7 +224,7 @@ namespace Ship_Game.AI
             Empire.Universe?.DebugWin?.DrawCircle(DebugModes.AO, Center, Radius, Owner.EmpireColor, 1);
             if (OurPlanetsInAo.Length == 0 && Owner != null && PlanetsInAo.Length > 0)
             {
-                OurPlanetsInAo = PlanetsInAo.FilterBy(p => p.Owner == Owner);
+                OurPlanetsInAo = PlanetsInAo.Filter(p => p.Owner == Owner);
             }
 
             for (int i = ShipsWaitingForCoreFleet.Count - 1; i >= 0; i--)
