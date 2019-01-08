@@ -264,7 +264,7 @@ namespace Ship_Game
                     exp.ExplosionRect = new Rectangle((int)expOnScreen.X, (int)expOnScreen.Y, radiusOnScreen, radiusOnScreen);
 
                     var tex = ResourceManager.Texture(exp.AnimationTexture);
-                    screen.SpriteBatch.Draw(tex, exp.ExplosionRect, exp.color, exp.Rotation, tex.Center(), SpriteEffects.None, 1f);
+                    screen.SpriteBatch.Draw(tex, exp.ExplosionRect, exp.color, exp.Rotation, tex.CenterF, SpriteEffects.None, 1f);
                 }
             }
         }

@@ -52,7 +52,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
                 ImportTargets = Empty<Planet>.Array;
                 return;
             }
-            ImportTargets = planet.Owner.GetPlanets().FilterBy(p => p.IsExporting());
+            ImportTargets = planet.Owner.GetPlanets().Filter(p => p.IsExporting());
             ImportTargets.Sort(p => p.Center.SqDist(planet.Center));
         }
 
@@ -195,7 +195,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
             TradeRoute route = new TradeRoute { Eta = int.MaxValue };
             if (incoming >= GetMaxAmount(good)) return route;
             if (ship.loyalty != TradePlanet.Owner) return route;
-            Planet[] potentialSources = ImportTargets.FilterBy(exporter =>
+            Planet[] potentialSources = ImportTargets.Filter(exporter =>
             {
                 if (exporter.GetGoodState(good) != Planet.GoodState.EXPORT) return false;
                 if (exporter == TradePlanet) return false;

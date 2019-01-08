@@ -142,9 +142,9 @@ namespace Ship_Game
                     Vector2 nodePos = WorldToMiniPos(node.Position);
                     Color ec = new Color(empire.EmpireColor, 200);
 
-                    screenManager.SpriteBatch.Draw(Node1, nodePos, ec, 0f, Node.Center(), radius,
+                    screenManager.SpriteBatch.Draw(Node1, nodePos, ec, 0f, Node.CenterF, radius,
                         SpriteEffects.None, 1f);
-                    screenManager.SpriteBatch.Draw(Node1, nodePos, new Color(Color.Black, 40), 0f, Node.Center(), radius,
+                    screenManager.SpriteBatch.Draw(Node1, nodePos, new Color(Color.Black, 40), 0f, Node.CenterF, radius,
                         SpriteEffects.None, 1f);
                 }
         }

@@ -336,17 +336,9 @@ namespace Ship_Game.AI
                         }
                         p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
-                    float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
-                                  p.MineralRichness + p.MaxPopulation / 10000f;
-                    foreach (Building b in p.BuildingList)
+                    var te = new TrustEntry
                     {
-                        value = value + b.Cost / 50f;
-                    }
-                    TrustEntry te = new TrustEntry
-                    {
-                        TrustCost = (us.data.EconomicPersonality.Name == "Expansionists"
-                            ? value + value
-                            : value + 0.5f * value),
+                        TrustCost = p.ColonyWorth(us),
                         TurnTimer = 40,
                         Type = TrustEntryType.Technology
                     };
@@ -383,28 +375,18 @@ namespace Ship_Game.AI
                         }
                         p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
-                    float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
-                                  p.MineralRichness + p.MaxPopulation / 10000f;
-                    foreach (Building b in p.BuildingList)
-                    {
-                        value = value + b.Cost / 50f;
-                    }
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
                         if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != Them)
-                        {
                             continue;
-                        }
                         pgs.TroopsHere[0].SetPlanet(p);
                         TroopShips.Add(pgs.TroopsHere[0].Launch());
                     }
                     if (Empire.Universe.PlayerEmpire != Them)
                     {
-                        TrustEntry te = new TrustEntry
+                        var te = new TrustEntry
                         {
-                            TrustCost = (Them.data.EconomicPersonality.Name == "Expansionists"
-                                ? value + value
-                                : value + 0.5f * value),
+                            TrustCost = p.ColonyWorth(us),
                             TurnTimer = 40,
                             Type = TrustEntryType.Technology
                         };
@@ -722,21 +704,11 @@ namespace Ship_Game.AI
                         }
                         p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
-                    float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
-                                  p.MineralRichness + p.MaxPopulation / 10000f;
-                    foreach (Building b in p.BuildingList)
+                    var te = new FearEntry
                     {
-                        value = value + b.Cost / 50f;
-                    }
-                    FearEntry te = new FearEntry();
-                    if (value < 15f)
-                    {
-                        value = 15f;
-                    }
-                    te.FearCost = (us.data.EconomicPersonality.Name == "Expansionists"
-                        ? value + value
-                        : value + 0.5f * value);
-                    te.TurnTimer = 40;
+                        FearCost = p.ColonyWorth(us),
+                        TurnTimer = 40
+                    };
                     us.GetRelations(Them).FearEntries.Add(te);
                 }
                 foreach (Planet p in toRemove)
@@ -770,29 +742,19 @@ namespace Ship_Game.AI
                         }
                         p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
-                    float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
-                                  p.MineralRichness + p.MaxPopulation / 10000f;
-                    foreach (Building b in p.BuildingList)
-                    {
-                        value = value + b.Cost / 50f;
-                    }
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
                         if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != Them)
-                        {
                             continue;
-                        }
                         TroopShips.Add(pgs.TroopsHere[0].Launch());
                     }
                     if (Empire.Universe.PlayerEmpire == Them)
                     {
                         continue;
                     }
-                    FearEntry te = new FearEntry
+                    var te = new FearEntry
                     {
-                        FearCost = (Them.data.EconomicPersonality.Name == "Expansionists"
-                            ? value + value
-                            : value + 0.5f * value),
+                        FearCost = p.ColonyWorth(Them),
                         TurnTimer = 40
                     };
                     Them.GetRelations(us).FearEntries.Add(te);
@@ -937,37 +899,15 @@ namespace Ship_Game.AI
                 foreach (Planet p in us.GetPlanets())
                 {
                     if (p.Name != planetName)
-                    {
                         continue;
-                    }
-                    float value = p.Population / 1000f + p.FoodHere / 25f + p.ProductionHere / 25f + p.Fertility +
-                                  p.MineralRichness + p.MaxPopulation / 1000f;
+
+                    float worth = p.ColonyWorth(us);
                     foreach (Building b in p.BuildingList)
-                    {
-                        value = value + b.Cost / 25f;
-                        if (b.Name != "Capital City")
-                        {
-                            continue;
-                        }
-                        value = value + 100f;
-                    }
-                    float multiplier = 0f;
-                    foreach (Planet other in p.ParentSystem.PlanetList)
-                    {
-                        if (other.Owner != p.Owner)
-                        {
-                            continue;
-                        }
-                        multiplier = multiplier + 1.25f;
-                    }
-                    value = value * multiplier;
-                    if (value < 15f)
-                    {
-                        value = 15f;
-                    }
-                    ValueFromUs = ValueFromUs + (us.data.EconomicPersonality.Name == "Expansionists"
-                                      ? value + value
-                                      : value + 0.5f * value);
+                        if (b.Name == "Capital City")
+                            worth += 200f;
+                    float multiplier = 1.25f * p.ParentSystem.PlanetList.Count(other => other.Owner == p.Owner);
+                    worth *= multiplier;
+                    ValueFromUs += worth;
                 }
             }
             foreach (string planetName in ToUs.ColoniesOffered)
@@ -978,25 +918,10 @@ namespace Ship_Game.AI
                     {
                         continue;
                     }
-                    float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
-                                  p.MineralRichness + p.MaxPopulation / 2000f;
-                    foreach (Building b in p.BuildingList)
-                    {
-                        value = value + b.Cost / 50f;
-                    }
-                    int multiplier = 1;
-                    foreach (Planet other in p.ParentSystem.PlanetList)
-                    {
-                        if (other.Owner != p.Owner)
-                        {
-                            continue;
-                        }
-                        multiplier++;
-                    }
-                    value = value * multiplier;
-                    ValueToUs = ValueToUs + (us.data.EconomicPersonality.Name == "Expansionists"
-                                    ? value * 0.5f + value
-                                    : value);
+                    float worth = p.ColonyWorth(us);
+                    int multiplier = 1 + p.ParentSystem.PlanetList.Count(other => other.Owner == p.Owner);
+                    worth *= multiplier;
+                    ValueToUs += worth;
                 }
             }
             ValueToUs = ValueToUs + them.data.Traits.DiplomacyMod * ValueToUs;
@@ -1226,19 +1151,8 @@ namespace Ship_Game.AI
             {
                 foreach (Planet p in us.GetPlanets())
                 {
-                    if (p.Name != planetName)
-                    {
-                        continue;
-                    }
-                    float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
-                                  p.MineralRichness + p.MaxPopulation / 10000f;
-                    foreach (Building b in p.BuildingList)
-                    {
-                        value = value + b.Cost / 50f;
-                    }
-                    ValueFromUs = ValueFromUs + (us.data.EconomicPersonality.Name == "Expansionists"
-                                      ? value + value
-                                      : value + 0.5f * value);
+                    if (p.Name == planetName)
+                        ValueFromUs += p.ColonyWorth(us);
                 }
             }
             Array<Planet> PlanetsToUs = new Array<Planet>();
@@ -1247,24 +1161,15 @@ namespace Ship_Game.AI
                 foreach (Planet p in them.GetPlanets())
                 {
                     if (p.Name != planetName)
-                    {
                         continue;
-                    }
                     PlanetsToUs.Add(p);
-                    float value = p.Population / 1000f + p.FoodHere / 50f + p.ProductionHere / 50f + p.Fertility +
-                                  p.MineralRichness + p.MaxPopulation / 10000f;
+                    float worth = p.ColonyWorth(us);
                     foreach (Building b in p.BuildingList)
                     {
-                        value = value + b.Cost / 50f;
-                        if (b.NameTranslationIndex != 409)
-                        {
-                            continue;
-                        }
-                        value = value + 1000000f;
+                        if (b.NameTranslationIndex == 409) // Capital City
+                            worth += 100000f; // basically, don't let AI give away their capital too easily
                     }
-                    ValueToUs = ValueToUs + (us.data.EconomicPersonality.Name == "Expansionists"
-                                    ? value * 0.5f + value
-                                    : value);
+                    ValueToUs += worth;
                 }
             }
             string name = dt.Name;

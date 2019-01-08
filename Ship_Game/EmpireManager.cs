@@ -191,22 +191,22 @@ namespace Ship_Game
         }
         public static Empire CreateEmpireFromEmpireData(EmpireData data)
         {
-            DiplomaticTraits DTraits = ResourceManager.DiplomaticTraits;
+            DiplomaticTraits traits = ResourceManager.DiplomaticTraits;
             var empire = new Empire();
             Log.Info($"Creating Empire {data.PortraitName}");
             if (data.Faction == 1)
                 empire.isFaction = true;
             do
             {
-                int diplomaticTraitIndex = (int)RandomMath.RandomBetween(0.0f, DTraits.DiplomaticTraitsList.Count);
-                data.DiplomaticPersonality = DTraits.DiplomaticTraitsList[diplomaticTraitIndex];
+                int diplomaticTraitIndex = (int)RandomMath.RandomBetween(0.0f, traits.DiplomaticTraitsList.Count);
+                data.DiplomaticPersonality = traits.DiplomaticTraitsList[diplomaticTraitIndex];
             }
             while (!CheckPersonality(data));
 
             do
             {
-                int economicTraitIndex = (int)RandomMath.RandomBetween(0.0f, DTraits.EconomicTraitsList.Count);
-                data.EconomicPersonality = DTraits.EconomicTraitsList[economicTraitIndex];
+                int economicTraitIndex = (int)RandomMath.RandomBetween(0.0f, traits.EconomicTraitsList.Count);
+                data.EconomicPersonality = traits.EconomicTraitsList[economicTraitIndex];
             }
             while (!CheckEPersonality(data));
 

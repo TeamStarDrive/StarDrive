@@ -1,127 +1,123 @@
 ﻿using System;
-using System.Collections.Generic;
 using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game.Universe.SolarBodies
 {
     public class SBCommodities
     {
-        private readonly Planet Ground;
         public TradeAI Trade { get;}
-        private Empire Owner => Ground.Owner;        
-        private Array<Building> BuildingList => Ground.BuildingList;
-        private Map<string, float> Commoditites = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
-        public IReadOnlyDictionary<string, float> ResourcesDictionary => Commoditites;
-        private float Waste;
-        public Array<string> CommoditiesPresent = new Array<string>();
+        readonly Planet Ground;
+        readonly Map<string, float> Commodities = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
+
         public SBCommodities (Planet planet)
         {
-            Ground = planet;
             Trade = new TradeAI(planet);
+            Ground = planet;
         }
 
-        public float FoodHere
+        public int CommoditiesCount => Commodities.Count;
+        public bool ContainsGood(string goodId) => Commodities.ContainsKey(goodId);
+        public void ClearGoods()
         {
-            get => GetGoodAmount(RacialTrait.GetFoodType(Owner?.data.Traits));
-            set => AddGood(RacialTrait.GetFoodType(Owner?.data.Traits), value);
+            Commodities.Clear();
         }
-        //actual food becuase food will return production for cybernetics. 
-        public float FoodHereActual
+
+        // different from Food -- this is based on race
+        public float RaceSpecificFood
         {
-            get => GetGoodAmount("Food");
-            set => AddGood("Food", value);
+            get => GetGoodAmount(RacialTrait.GetFoodType(Ground.Owner?.data.Traits));
+            set => AddCommodity(RacialTrait.GetFoodType(Ground.Owner?.data.Traits), value);
         }
-        public float ProductionHere
+        
+        float FoodValue; // @note These are special fields for perf reasons.
+        float ProdValue;
+        float PopValue;
+
+        public float Food
         {
-            get => GetGoodAmount("Production");
-            set => AddGood("Production", value);
+            get => FoodValue;
+            set => FoodValue = value.Clamped(0f, Ground.MaxStorage);
+        }
+
+        public float Production
+        {
+            get => ProdValue;
+            set => ProdValue = value.Clamped(0f, Ground.MaxStorage);
         }
 
         public float Population
         {
-            get => GetGoodAmount("Colonists_1000");
-            set => AddGood("Colonists_1000", value);
+            get => PopValue;
+            set => PopValue = value.Clamped(0f, Ground.MaxPopWithBonus);
         }
 
-        public float AddGood(string goodId, float amount, bool clamp = true)
+        public void AddCommodity(string goodId, float amount)
         {
-            float max = float.MaxValue;
-            if (clamp)
-                switch (goodId)
-                {
-                    case "Food":
-                    case "Production":
-                        {
-                            max = Ground.MaxStorage;
-                            break;
-                        }
-                    case "Colonists_1000":
-                        {
-                            max = Ground.MaxPopulation + Ground.MaxPopBonus;
-                            break;
-                        }
-                    default:
-                        break;
+            switch (goodId)
+            {
+                default:               Commodities[goodId] = GetGoodAmount(goodId) + amount; break;
+                case "Food":           Food       += amount; break;
+                case "Production":     Production += amount; break;
+                case "Colonists_1000": Population += amount; break;
+            }
+        }
 
-                }
-            //clamp by storage capability and return amount not stored. 
-            float stored = Math.Max(0, amount);
-            stored = Math.Min(stored, max);
-            Commoditites[goodId] = stored;
-            return amount - stored;
+        void SetGoodAmount(string goodId, float amount)
+        {
+            switch (goodId)
+            {
+                default:               Commodities[goodId] = amount; break;
+                case "Food":           Food       = amount; break;
+                case "Production":     Production = amount; break;
+                case "Colonists_1000": Population = amount; break;
+            }
         }
         public float GetGoodAmount(Goods good)
         {
-            switch(good)
+            switch (good)
             {
-                case Goods.None:
-                    return 0;
-                case Goods.Production:
-                    return ProductionHere;
-                case Goods.Food:
-                    return FoodHere;
-                case Goods.Colonists:
-                    return Population;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(good), good, null);
+                default:               return 0;
+                case Goods.Production: return Production;
+                case Goods.Food:       return RaceSpecificFood;
+                case Goods.Colonists:  return Population;
             }
-       
         }        
 
         public float GetGoodAmount(string goodId)
         {
-            if (Commoditites.TryGetValue(goodId, out float commodity)) return commodity;
-            return 0;
+            switch (goodId)
+            {
+                case "Food":           return Food;
+                case "Production":     return Production;
+                case "Colonists_1000": return Population;
+            }
+            return Commodities.TryGetValue(goodId, out float commodity) ? commodity : 0;
         }
         
         public float HarvestFood()
          {
             float unfed = 0.0f;     //Pop that did not get any food
-            if (Owner.data.Traits.Cybernetic > 0)
+            if (Ground.IsCybernetic)
             {
-                FoodHereActual = 0.0f;      //Seems unused
+                Food = 0.0f;      //Seems unused
                 Ground.NetProductionPerTurn -= Ground.Consumption;  //Reduce production by how much is consumed
 
-                float productionHere = Math.Min(0, ProductionHere + Ground.NetProductionPerTurn);
-                
+                float productionHere = Math.Min(0, Production + Ground.NetProductionPerTurn);
 
-                if (ProductionHere >= Ground.MaxStorage)
+                if (Production >= Ground.MaxStorage)
                 {
                     unfed = 0.0f;
-                    
                 }
                 else if (productionHere < 0)
                 {
-
                     unfed = productionHere;
-                    ProductionHere = 0;
-                    
+                    Production = 0;
                 }
             }
             else
             {
-                Ground.NetFoodPerTurn -= Ground.Consumption;            //Reduce food by how much is consumed
-                float foodHere = FoodHere + Ground.NetFoodPerTurn;      //Add any remaining to storage
+                Ground.NetFoodPerTurn -= Ground.Consumption;            // Reduce food by how much is consumed
+                float foodHere = RaceSpecificFood + Ground.NetFoodPerTurn;      // Add any remaining to storage
                  
                 if (foodHere >= Ground.MaxStorage)
                 {
@@ -131,45 +127,42 @@ namespace Ship_Game.Universe.SolarBodies
                 {
                     unfed = foodHere;                    
                 }
-                FoodHere = foodHere;
+                RaceSpecificFood = foodHere;
             }            
             return unfed;
         }
 
         public void BuildingResources()
         {
-            foreach (Building building1 in BuildingList)
+            foreach (Building b in Ground.BuildingList)
             {
-                if (building1.ResourceCreated != null)
+                if (b.ResourceCreated == null) continue;
+                if (b.ResourceConsumed != null)
                 {
-                    if (building1.ResourceConsumed != null)
+                    float resource = GetGoodAmount(b.ResourceConsumed);
+                    if (resource >= b.ConsumptionPerTurn)
                     {
-                        float resource = Commoditites[building1.ResourceConsumed];
-                        
-                        if (resource >= building1.ConsumptionPerTurn)
-                        {
-                            resource -= building1.ConsumptionPerTurn;
-                            resource += building1.OutputPerTurn;
-                            Commoditites[building1.ResourceConsumed] = resource;                            
-                        }
+                        resource -= b.ConsumptionPerTurn;
+                        resource += b.OutputPerTurn;
+                        SetGoodAmount(b.ResourceConsumed, resource);
                     }
-                    else if (building1.CommodityRequired != null)
+                }
+                else if (b.CommodityRequired != null)
+                {
+                    if (Ground.SbCommodities.ContainsGood(b.CommodityRequired))
                     {
-                        if (Ground.CommoditiesPresent.Contains(building1.CommodityRequired))
+                        foreach (Building other in Ground.BuildingList)
                         {
-                            foreach (Building building2 in BuildingList)
+                            if (other.IsCommodity && other.Name == b.CommodityRequired)
                             {
-                                if (building2.IsCommodity && building2.Name == building1.CommodityRequired)
-                                {
-                                    Commoditites[building1.ResourceCreated] += building1.OutputPerTurn;                                    
-                                }
+                                AddCommodity(b.ResourceCreated, b.OutputPerTurn);
                             }
                         }
                     }
-                    else
-                    {
-                        Commoditites[building1.ResourceCreated] += building1.OutputPerTurn;                       
-                    }
+                }
+                else
+                {
+                    AddCommodity(b.ResourceCreated, b.OutputPerTurn);
                 }
             }
         }
