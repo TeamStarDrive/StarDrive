@@ -230,6 +230,7 @@ namespace Ship_Game
 
         public static void LoadItAll(Action onEssentialsLoaded = null)
         {
+            Stopwatch s = Stopwatch.StartNew();
             Reset();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
 
@@ -277,6 +278,7 @@ namespace Ship_Game
             onEssentialsLoaded?.Invoke();
 
             LoadNonEssentialAtlases();
+            Log.Info($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
         }
 
         private static void TestLoad()
