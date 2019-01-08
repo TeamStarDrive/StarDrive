@@ -40,7 +40,7 @@ namespace Ship_Game
         {
             InitializeStyles();
             Text     = text;
-            Size     = ButtonTexture().Size();
+            Size     = ButtonTexture().SizeF;
         }
 
         public UIButton(UIElementV2 parent, ButtonStyle style, Vector2 pos, string text) : base(parent, pos)
@@ -48,7 +48,7 @@ namespace Ship_Game
             InitializeStyles();
             Style    = style;
             Text     = text;
-            Size     = ButtonTexture().Size();
+            Size     = ButtonTexture().SizeF;
         }
 
         public UIButton(UIElementV2 parent, float x, float y, string text)
@@ -102,7 +102,7 @@ namespace Ship_Game
         public static Vector2 StyleSize(ButtonStyle style = ButtonStyle.Default)
         {
             InitializeStyles();
-            return Styling[(int)style].Normal.Size();
+            return Styling[(int)style].Normal.SizeF;
         }
 
         private SubTexture ButtonTexture()

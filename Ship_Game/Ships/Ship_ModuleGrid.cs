@@ -624,7 +624,7 @@ namespace Ship_Game.Ships
         // -- Higher crew level means the missile will pick the most optimal target module ;) --
         private ShipModule TargetRandomInternalModule(Vector2 projPos, int level, float sqSearchRange)
         {
-            ShipModule[] modules = ModuleSlotList.FilterBy(m => m.Health > 0f && projPos.SqDist(m.Center) < sqSearchRange);
+            ShipModule[] modules = ModuleSlotList.Filter(m => m.Health > 0f && projPos.SqDist(m.Center) < sqSearchRange);
             if (modules.Length == 0)
                 return null;
 
