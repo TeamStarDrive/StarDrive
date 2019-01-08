@@ -161,11 +161,7 @@ namespace Ship_Game
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), PNameCursor, Color.Orange);
-            SpriteFont arial12Bold = Fonts.Arial12Bold;
-            float population = SelectedPlanet.Population / 1000f;
-            string str = population.ToString(fmt);
-            float maxPopulation = (SelectedPlanet.MaxPopulation + SelectedPlanet.MaxPopBonus) / 1000f;
-            batch.DrawString(arial12Bold, string.Concat(str, "/", maxPopulation.ToString(fmt)), InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.PopulationString, InfoCursor, new Color(255, 239, 208));
             Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
@@ -465,17 +461,17 @@ namespace Ship_Game
             {
                 if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
                 {
-                    numFood = numFood + pgs.building.PlusFoodPerColonist * SelectedPlanet.Population / 1000f * SelectedPlanet.FarmerPercentage;
+                    numFood = numFood + pgs.building.PlusFoodPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.FarmerPercentage;
                     numFood = numFood + pgs.building.PlusFlatFoodAmount;
                 }
                 if (pgs.building.PlusFlatProductionAmount > 0f || pgs.building.PlusProdPerColonist > 0f)
                 {
                     numProd = numProd + pgs.building.PlusFlatProductionAmount;
-                    numProd = numProd + pgs.building.PlusProdPerColonist * SelectedPlanet.Population / 1000f * SelectedPlanet.WorkerPercentage;
+                    numProd = numProd + pgs.building.PlusProdPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.WorkerPercentage;
                 }
                 if (pgs.building.PlusResearchPerColonist > 0f || pgs.building.PlusFlatResearchAmount > 0f)
                 {
-                    numRes = numRes + pgs.building.PlusResearchPerColonist * SelectedPlanet.Population / 1000f * SelectedPlanet.ResearcherPercentage;
+                    numRes = numRes + pgs.building.PlusResearchPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.ResearcherPercentage;
                     numRes = numRes + pgs.building.PlusFlatResearchAmount;
                 }
             }

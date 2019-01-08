@@ -296,7 +296,7 @@ namespace Ship_Game.AI
             bool enemy = Owner.IsEmpireAttackable(Planet.Owner, null);
             if (Planet.Owner == Owner || !enemy)
             {
-                Value += Planet.Population / 10000f;
+                Value += Planet.PopulationBillion / 10f;
                 Value += Planet.GovBuildings ? 1 : 0;
                 Value += Planet.HasShipyard ? 5 : 0;
                 Value += Planet.DevelopmentLevel;

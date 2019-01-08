@@ -65,7 +65,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            float maxPopulation = end.MaxPopulation + end.MaxPopBonus;
+            float maxPopulation = (end.MaxPopulation + end.MaxPopBonus);
             end.Population += Owner.UnloadColonists(maxPopulation - end.Population);
 
             OrderQueue.RemoveFirst();
