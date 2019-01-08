@@ -94,9 +94,6 @@ namespace Ship_Game
 
             orbitalResourcesSub.AddTab("In Orbit");
 
-            Empire.Universe.ShipsInCombat.Visible   = false;
-            Empire.Universe.PlanetsInCombat.Visible = false;
-
             LandAll   = Button(orbitalResourcesSub.Menu.X + 20, orbitalResourcesSub.Menu.Y - 2, "Land All", OnLandAllClicked);
             LaunchAll = Button(orbitalResourcesSub.Menu.X + 20, LandAll.Rect.Y - 2 - LandAll.Rect.Height, "Launch All", OnLaunchAllClicked);
 

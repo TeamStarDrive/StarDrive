@@ -63,8 +63,6 @@ namespace Ship_Game
 
         public bool ClickedTroop;
         public bool Reset;
-        private int BuildingsHereLast;
-        private int BuildingsCanBuildLast;
         private int ShipsCanBuildLast;
         private int EditHoverState;
 
@@ -72,9 +70,6 @@ namespace Ship_Game
         private Rectangle EditNameButton;
         private Array<Building> BuildingsCanBuild = new Array<Building>();
         private GenericButton ChangeGovernor = new GenericButton(new Rectangle(), Localizer.Token(370), Fonts.Pirulen16);
-        private MouseState CurrentMouse;
-        private MouseState PreviousMouse;
-        private bool Rmouse;
         private static bool Popup;  //fbedard
         private readonly SpriteFont Font8 = Fonts.Arial8Bold;
         private readonly SpriteFont Font12 = Fonts.Arial12Bold;
@@ -112,8 +107,6 @@ namespace Ship_Game
             var theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + laborPanel.Height + 40, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             pStorage = new Submenu(theMenu7);
             pStorage.AddTab(Localizer.Token(328));
-            Empire.Universe.ShipsInCombat.Visible = false;
-            Empire.Universe.PlanetsInCombat.Visible = false;
 
             if (GlobalStats.HardcoreRuleset)
             {
@@ -189,8 +182,6 @@ namespace Ship_Game
             if (p.Owner != null)
             {
                 ShipsCanBuildLast = p.Owner.ShipsWeCanBuild.Count;
-                BuildingsHereLast = p.BuildingList.Count;
-                BuildingsCanBuildLast = BuildingsCanBuild.Count;
                 DetailInfo = p.Description;
                 var rectangle4 = new Rectangle(pDescription.Menu.X + 10, pDescription.Menu.Y + 30, 124, 148);
                 var rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
@@ -827,10 +818,9 @@ namespace Ship_Game
 
         private void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
-            Array<Building> buildingsWeCanBuildHere = P.GetBuildingsCanBuild();
-            if (P.BuildingList.Count != BuildingsHereLast || BuildingsCanBuildLast != buildingsWeCanBuildHere.Count || Reset)
+            BuildingsCanBuild = P.GetBuildingsCanBuild();
+            if (Reset || buildSL.NumEntries != BuildingsCanBuild.Count)
             {
-                BuildingsCanBuild = buildingsWeCanBuildHere;
                 buildSL.SetItems(BuildingsCanBuild);
                 Reset = false;
             }
@@ -907,7 +897,7 @@ namespace Ship_Game
                     entry.DrawPlus(batch);
                 }
 
-                entry.CheckHover(CurrentMouse);
+                entry.CheckHover(Input.CursorPosition);
             }
         }
 
@@ -1314,129 +1304,25 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             pFacilities.HandleInputNoReset();
-            if (RightColony.Rect.HitTest(input.CursorPosition))
-            {
-                ToolTip.CreateTooltip(Localizer.Token(2279));
-            }
-            if (LeftColony.Rect.HitTest(input.CursorPosition))
-            {
-                ToolTip.CreateTooltip(Localizer.Token(2280));
-            }
-            // Changed by MadMudMonster: only respond to mouse press, not release
-            if ((input.Right || RightColony.HandleInput(input) && input.LeftMouseClick)
-                && (Empire.Universe.Debug || P.Owner == EmpireManager.Player))
-            {
-                try
-                {
-                    int thisindex = P.Owner.GetPlanets().IndexOf(P);
-                    thisindex = (thisindex >= P.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
-                    if (P.Owner.GetPlanets()[thisindex] != P)
-                    {
-                        P = P.Owner.GetPlanets()[thisindex];
-                        Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, P, eui);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Colony Screen HandleInput(). Likely null reference.");
-                }
-                if (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released)
-                {
-                    Empire.Universe.ShipsInCombat.Visible = true;
-                    Empire.Universe.PlanetsInCombat.Visible = true;
-                }
-                return true;
-            }
-            // Changed by MadMudMonster: only respond to mouse press, not release
-            if ((input.Left || LeftColony.HandleInput(input) && input.LeftMouseClick)
-                && (Empire.Universe.Debug || P.Owner == EmpireManager.Player))
-            {
-                int thisindex = P.Owner.GetPlanets().IndexOf(P);
-                thisindex = (thisindex <= 0 ? P.Owner.GetPlanets().Count - 1 : thisindex - 1);
-                if (P.Owner.GetPlanets()[thisindex] != P)
-                {
-                    //Console.Write("Switch Colony Screen");
-                    //Console.WriteLine(thisindex);
-                    //System.Threading.Thread.Sleep(1000);
 
-                    P = P.Owner.GetPlanets()[thisindex];
-                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, P, eui);
-                }
-                if (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released)
-                {
-                    Empire.Universe.ShipsInCombat.Visible = true;
-                    Empire.Universe.PlanetsInCombat.Visible = true;
-                }
+            if (HandleCycleColoniesLeftRight(input))
                 return true;
-            }
+
             P.UpdateIncomes(false);
             HandleDetailInfo(input);
-            CurrentMouse = Mouse.GetState();
-            Vector2 MousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
             buildSL.HandleInput(input);
             build.HandleInput(this);
+
+            // AI specific
             if (P.Owner != EmpireManager.Player)
             {
                 HandleDetailInfo(input);
-                if (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released)
-                {
-                    Empire.Universe.ShipsInCombat.Visible = true;
-                    Empire.Universe.PlanetsInCombat.Visible = true;
-                }
                 return true;
             }
 
-            if (!EditNameButton.HitTest(MousePos))
-            {
-                EditHoverState = 0;
-            }
-            else
-            {
-                EditHoverState = 1;
-                if (input.LeftMouseClick)
-                {
-                    PlanetName.HandlingInput = true;
-                }
-            }
-            if (!PlanetName.HandlingInput)
-            {
-                GlobalStats.TakingInput = false;
-                bool empty = true;
-                string text = PlanetName.Text;
-                int num = 0;
-                while (num < text.Length)
-                {
-                    if (text[num] == ' ')
-                    {
-                        num++;
-                    }
-                    else
-                    {
-                        empty = false;
-                        break;
-                    }
-                }
-                if (empty)
-                {
-                    int ringnum = 1;
-                    foreach (SolarSystem.Ring ring in P.ParentSystem.RingList)
-                    {
-                        if (ring.planet == P)
-                        {
-                            PlanetName.Text = string.Concat(P.ParentSystem.Name, " ", NumberToRomanConvertor.NumberToRoman(ringnum));
-                        }
-                        ringnum++;
-                    }
-                }
-            }
-            else
-            {
-                GlobalStats.TakingInput = true;
-                PlanetName.HandleTextInput(ref PlanetName.Text, input);
-            }
+            HandlePlanetNameChangeTextBox(input);
 
             GovernorDropdown.HandleInput(input);
-
             P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
 
             HandleSliders(input);
@@ -1457,6 +1343,28 @@ namespace Ship_Game
             }
 
             Selector = null;
+            if (HandleTroopSelect(input))
+                return true;
+
+            HandleExportImportButtons(input);
+            HandleConstructionQueueInput(input);
+            HandleDragBuildingOntoTile(input);
+            HandleBuildListClicks(input);
+
+            ShipsCanBuildLast = P.Owner.ShipsWeCanBuild.Count;
+
+            if (Popup)
+            {
+                if (!input.RightMouseHeldUp)
+                    return true;
+                else
+                    Popup = false;
+            }
+            return base.HandleInput(input);
+        }
+
+        bool HandleTroopSelect(InputState input)
+        {
             ClickedTroop = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
@@ -1470,12 +1378,13 @@ namespace Ship_Game
                     {
                         GameAudio.PlaySfxAsync("sd_ui_mouseover");
                     }
+
                     pgs.highlighted = true;
                 }
+
                 if (pgs.TroopsHere.Count <= 0 || !pgs.TroopClickRect.HitTest(MousePos))
-                {
                     continue;
-                }
+
                 DetailInfo = pgs.TroopsHere[0];
                 if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.Player)
                 {
@@ -1486,10 +1395,11 @@ namespace Ship_Game
                     pgs.TroopsHere.Clear();
                     ClickedTroop = true;
                     DetailInfo = null;
-                    Rmouse = true;
                 }
-                return true;                
+
+                return true;
             }
+
             if (!ClickedTroop)
             {
                 foreach (PlanetGridSquare pgs in P.TilesList)
@@ -1497,45 +1407,142 @@ namespace Ship_Game
                     if (pgs.ClickRect.HitTest(input.CursorPosition))
                     {
                         DetailInfo = pgs;
-                        var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                        if (pgs.building != null  && bRect.HitTest(input.CursorPosition) &&  Input.RightMouseClick)
+                        var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
+                            pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                        if (pgs.building != null && bRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
                         {
                             if (pgs.building.Scrappable)
                             {
                                 ToScrap = pgs.building;
-                                string message = string.Concat("Do you wish to scrap ", Localizer.Token(pgs.building.NameTranslationIndex), "? Half of the building's construction cost will be recovered to your storage.");
+                                string message = string.Concat("Do you wish to scrap ",
+                                    Localizer.Token(pgs.building.NameTranslationIndex),
+                                    "? Half of the building's construction cost will be recovered to your storage.");
                                 var messageBox = new MessageBoxScreen(Empire.Universe, message);
                                 messageBox.Accepted += ScrapAccepted;
-                                ScreenManager.AddScreen(messageBox);                                
-                                
+                                ScreenManager.AddScreen(messageBox);
                             }
-                            Rmouse = true;
+
                             ClickedTroop = true;
                             return true;
                         }
                     }
+
                     if (pgs.TroopsHere.Count <= 0 || !pgs.TroopClickRect.HitTest(input.CursorPosition))
-                    {
                         continue;
-                    }
+
                     DetailInfo = pgs.TroopsHere;
                 }
             }
+
+            return false;
+        }
+
+        bool HandleCycleColoniesLeftRight(InputState input)
+        {
+            if      (RightColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(Localizer.Token(2279));
+            else if (LeftColony.Rect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(Localizer.Token(2280));
+
+            bool canView = (Empire.Universe.Debug || P.Owner == EmpireManager.Player);
+            if (!canView)
+                return false;
+           
+            int change = 0;
+            if (input.Right || RightColony.HandleInput(input) && input.LeftMouseClick)
+                change = +1;
+            else if (input.Left || LeftColony.HandleInput(input) && input.LeftMouseClick)
+                change = -1;
+
+            if (change != 0)
+            {
+                var planets = P.Owner.GetPlanets();
+                int newIndex = planets.IndexOf(P) + change;
+                if (newIndex >= planets.Count) newIndex = 0;
+                else if (newIndex < 0)         newIndex = planets.Count-1;
+
+                Planet nextOrPrevPlanet = planets[newIndex];
+                if (nextOrPrevPlanet != P)
+                {
+                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, eui);
+                }
+                return true; // planet changed, ColonyScreen will be replaced
+            }
+            return false;
+        }
+
+        void HandlePlanetNameChangeTextBox(InputState input)
+        {
+            if (!EditNameButton.HitTest(input.CursorPosition))
+            {
+                EditHoverState = 0;
+            }
+            else
+            {
+                EditHoverState = 1;
+                if (input.LeftMouseClick)
+                {
+                    PlanetName.HandlingInput = true;
+                }
+            }
+
+            if (!PlanetName.HandlingInput)
+            {
+                GlobalStats.TakingInput = false;
+                bool empty = true;
+                string text = PlanetName.Text;
+                int num = 0;
+                while (num < text.Length)
+                {
+                    if (text[num] == ' ')
+                    {
+                        num++;
+                    }
+                    else
+                    {
+                        empty = false;
+                        break;
+                    }
+                }
+
+                if (empty)
+                {
+                    int ringnum = 1;
+                    foreach (SolarSystem.Ring ring in P.ParentSystem.RingList)
+                    {
+                        if (ring.planet == P)
+                        {
+                            PlanetName.Text = string.Concat(P.ParentSystem.Name, " ",
+                                NumberToRomanConvertor.NumberToRoman(ringnum));
+                        }
+
+                        ringnum++;
+                    }
+                }
+            }
+            else
+            {
+                GlobalStats.TakingInput = true;
+                PlanetName.HandleTextInput(ref PlanetName.Text, input);
+            }
+        }
+
+        void HandleExportImportButtons(InputState input)
+        {
             if (!GlobalStats.HardcoreRuleset)
             {
-                if (foodDropDown.r.HitTest(MousePos) && input.LeftMouseClick)
+                if (foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     foodDropDown.Toggle();
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    P.FS = (Planet.GoodState)((int)P.FS + (int)Planet.GoodState.IMPORT);
+                    P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
                     if (P.FS > Planet.GoodState.EXPORT)
                         P.FS = Planet.GoodState.STORE;
                 }
-                if (prodDropDown.r.HitTest(MousePos) && input.LeftMouseClick)
+
+                if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     prodDropDown.Toggle();
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    P.PS = (Planet.GoodState)((int)P.PS + (int)Planet.GoodState.IMPORT);
+                    P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
                     if (P.PS > Planet.GoodState.EXPORT)
                         P.PS = Planet.GoodState.STORE;
                 }
@@ -1545,86 +1552,16 @@ namespace Ship_Game
                 foreach (ThreeStateButton b in ResourceButtons)
                     b.HandleInput(input, ScreenManager);
             }
+        }
 
-            HandleConstructionQueueInput(input);
-
-            if (ActiveBuildingEntry != null)
-            {
-                foreach (PlanetGridSquare pgs in P.TilesList)
-                {
-                    if (!pgs.ClickRect.HitTest(MousePos) || CurrentMouse.LeftButton != ButtonState.Released || PreviousMouse.LeftButton != ButtonState.Pressed)
-                    {
-                        continue;
-                    }
-                    if (pgs.Habitable && pgs.building == null && pgs.QItem == null && (ActiveBuildingEntry.item as Building).Name != "Biospheres")
-                    {
-                        QueueItem qi = new QueueItem(P);
-                        //p.SbProduction.AddBuildingToCQ(this.ActiveBuildingEntry.item as Building, PlayerAdded: true);
-                        qi.isBuilding = true;
-                        qi.Building = ActiveBuildingEntry.item as Building;       //ResourceManager.GetBuilding((this.ActiveBuildingEntry.item as Building).Name);
-                        qi.IsPlayerAdded = true;
-                        qi.Cost = ResourceManager.BuildingsDict[qi.Building.Name].Cost * UniverseScreen.GamePaceStatic;
-                        qi.productionTowards = 0f;
-                        qi.pgs = pgs;
-                        //};
-                        pgs.QItem = qi;
-                        P.ConstructionQueue.Add(qi);
-                        ActiveBuildingEntry = null;
-                        break;
-                    }
-
-                    if (pgs.Habitable || pgs.Biosphere || pgs.QItem != null || !(ActiveBuildingEntry.item as Building).CanBuildAnywhere)
-                    {
-                        GameAudio.PlaySfxAsync("UI_Misc20");
-                        ActiveBuildingEntry = null;
-                        break;
-                    }
-
-                    {
-                        QueueItem qi = new QueueItem(P);
-                        //{
-                        qi.isBuilding = true;
-                        qi.Building = ActiveBuildingEntry.item as Building;
-                        qi.Cost = qi.Building.Cost *UniverseScreen.GamePaceStatic; //ResourceManager.BuildingsDict[qi.Building.Name].Cost 
-                        qi.productionTowards = 0f;
-                        qi.pgs = pgs;
-                        qi.IsPlayerAdded = true;
-                        //};
-                        pgs.QItem = qi;
-                        P.ConstructionQueue.Add(qi);
-                        ActiveBuildingEntry = null;
-                        break;
-                    }
-                }
-                if (ActiveBuildingEntry != null)
-                {
-                    foreach (QueueItem qi in P.ConstructionQueue)
-                    {
-                        if (!qi.isBuilding || qi.Building.Name != (ActiveBuildingEntry.item as Building).Name || !(ActiveBuildingEntry.item as Building).Unique)
-                        {
-                            continue;
-                        }
-                        ActiveBuildingEntry = null;
-                        break;
-                    }
-                }
-                if (CurrentMouse.RightButton == ButtonState.Pressed && PreviousMouse.RightButton == ButtonState.Released)
-                {
-                    ClickedTroop = true;
-                    ActiveBuildingEntry = null;
-                }
-                if (input.LeftMouseClick)
-                {
-                    ClickedTroop = true;
-                    ActiveBuildingEntry = null;
-                }
-            }
+        void HandleBuildListClicks(InputState input)
+        {
             foreach (ScrollList.Entry e in buildSL.VisibleExpandedEntries)
             {
                 if (e.item is ModuleHeader header)
                 {
-                    if(header.HandleInput(input, e))
-                    break;
+                    if (header.HandleInput(input, e))
+                        break;
                 }
                 else if (e.CheckHover(input))
                 {
@@ -1634,6 +1571,7 @@ namespace Ship_Game
                     {
                         ActiveBuildingEntry = e;
                     }
+
                     if (input.LeftMouseReleased)
                     {
                         if (ClickTimer >= TimerDelay)
@@ -1652,6 +1590,7 @@ namespace Ship_Game
                                     qi.Cost = ship.GetCost(P.Owner);
                                     qi.productionTowards = 0f;
                                     P.ConstructionQueue.Add(qi);
+                                    Reset = true;
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                                 else if (e.TryGet(out Troop troop))
@@ -1661,17 +1600,20 @@ namespace Ship_Game
                                     qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                                     qi.productionTowards = 0f;
                                     P.ConstructionQueue.Add(qi);
+                                    Reset = true;
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                                 else if (e.TryGet(out Building building))
                                 {
                                     P.AddBuildingToCQ(building, true);
+                                    Reset = true;
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                             }
                         }
                     }
                 }
+
                 if (e.CheckPlus(input))
                 {
                     ToolTip.CreateTooltip(51);
@@ -1680,8 +1622,6 @@ namespace Ship_Game
                         var qi = new QueueItem(P);
                         if (e.item is Building building)
                         {
-                            //Building b = ResourceManager.GetBuilding((e.item as Building).Name);
-                            //b.IsPlayerAdded =true;
                             P.AddBuildingToCQ(building, true);
                         }
                         else if (e.item is Ship ship)
@@ -1702,6 +1642,7 @@ namespace Ship_Game
                         }
                     }
                 }
+
                 if (e.CheckEdit(input))
                 {
                     ToolTip.CreateTooltip(52);
@@ -1713,36 +1654,60 @@ namespace Ship_Game
                     }
                 }
             }
-            ShipsCanBuildLast = P.Owner.ShipsWeCanBuild.Count;
-            BuildingsHereLast = P.BuildingList.Count;
-            BuildingsCanBuildLast = BuildingsCanBuild.Count;
+        }
 
-            if (Popup)
+        void HandleDragBuildingOntoTile(InputState input)
+        {
+            if (!(ActiveBuildingEntry?.item is Building building))
+                return;
+
+            foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
-                    return true;
-                Popup = false;
+                if (!pgs.ClickRect.HitTest(MousePos) || !input.LeftMouseReleased)
+                    continue;
+
+                if (pgs.Habitable && pgs.building == null && pgs.QItem == null && building.Name != "Biospheres")
+                {
+                    AddBuildingToConstructionQueue(building, pgs, playerAdded: true);
+                    ActiveBuildingEntry = null;
+                    break;
+                }
+
+                if (pgs.Habitable || pgs.Biosphere || pgs.QItem != null || !building.CanBuildAnywhere)
+                {
+                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    ActiveBuildingEntry = null;
+                    break;
+                }
+
+                AddBuildingToConstructionQueue(building, pgs, playerAdded: true);
+                ActiveBuildingEntry = null;
+                break;
             }
-            else 
-                {
-                if (input.RightMouseClick && !ClickedTroop) Rmouse = false;
-                if (!Rmouse && (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released))
-                {
-                    Empire.Universe.ShipsInCombat.Visible = true;
-                    Empire.Universe.PlanetsInCombat.Visible = true;
-                }
-                PreviousMouse = CurrentMouse;
-                }
-            /*
-            if (input.RightMouseClick && !this.ClickedTroop) rmouse = false;
-            if (!rmouse && (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released))
+
+            if (ActiveBuildingEntry != null)
             {
-                Empire.Universe.ShipsInCombat.Active = true;
-                Empire.Universe.PlanetsInCombat.Active = true;
+                foreach (QueueItem qi in P.ConstructionQueue)
+                {
+                    if (qi.isBuilding && qi.Building.Name == building.Name && building.Unique)
+                    {
+                        ActiveBuildingEntry = null;
+                        break;
+                    }
+                }
             }
-            this.previousMouse = this.currentMouse; 
-            */
-            return base.HandleInput(input);
+
+            if (input.RightMouseClick)
+            {
+                ClickedTroop = true;
+                ActiveBuildingEntry = null;
+            }
+
+            if (input.LeftMouseClick)
+            {
+                ClickedTroop = true;
+                ActiveBuildingEntry = null;
+            }
         }
 
         private void OnSendTroopsClicked(UIButton b)
@@ -1804,6 +1769,22 @@ namespace Ship_Game
             {
                 GameAudio.PlaySfxAsync("sd_troop_takeoff");
             }
+        }
+
+        void AddBuildingToConstructionQueue(Building building, PlanetGridSquare where, bool playerAdded = true)
+        {
+            var qi = new QueueItem(P)
+            {
+                isBuilding = true,
+                Building = building,
+                IsPlayerAdded = playerAdded,
+                Cost = building.Cost * UniverseScreen.GamePaceStatic,
+                productionTowards = 0f,
+                pgs = @where
+            };
+            where.QItem = qi;
+            P.ConstructionQueue.Add(qi);
+            Reset = true;
         }
 
         private void HandleConstructionQueueInput(InputState input)
