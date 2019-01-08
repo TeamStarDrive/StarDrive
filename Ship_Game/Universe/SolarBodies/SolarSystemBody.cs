@@ -129,7 +129,6 @@ namespace Ship_Game
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
-        public bool GovernorOn = true;  // used by AssessColonyNeeds
         public float ObjectRadius
         {
             get => SO?.WorldBoundingSphere.Radius ?? InvisibleRadius;
@@ -1461,12 +1460,11 @@ namespace Ship_Game
                     ParentSystem.OwnerList.Add(planet.Owner);                
             }
             ((Planet)this).TradeAI.ClearHistory();
-            colonyType = Planet.ColonyType.Colony;                        
-            GovernorOn = !newOwner.isPlayer || newOwner.AutoColonize;
-            if (GovernorOn)
-            {
-                colonyType = Owner.AssessColonyNeeds((Planet)this);
-            }
+
+            if (newOwner.isPlayer && !newOwner.AutoColonize)
+                colonyType = Planet.ColonyType.Colony;
+            else
+                colonyType = Owner.AssessColonyNeeds((Planet) this);
         }
         protected void GenerateMoons(Planet newOrbital)
         {

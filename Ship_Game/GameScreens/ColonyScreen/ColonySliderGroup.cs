@@ -55,10 +55,10 @@ namespace Ship_Game
         // solve 3-way slider change
         void OnSliderChange(ColonySlider a, float difference)
         {
-            ColonySlider b = Sliders.Find(s => s != a && !s.Locked); // always unlocked
+            ColonySlider b = Sliders.Find(s => s != a && !s.LockedByUser); // always unlocked
             ColonySlider c = Sliders.Find(s => s != a && s != b);    // maybe locked
 
-            if (c.Locked) // only one is locked, eaaasy and perfect accuracy
+            if (c.LockedByUser) // only one is locked, eaaasy and perfect accuracy
             {
                 a.Value += difference.Clamped(-a.Value, b.Value);
                 b.Value = 1f - (a.Value + c.Value); // auto-balance second slider
@@ -92,10 +92,10 @@ namespace Ship_Game
                 return false;
             }
 
-            int numLocked = Sliders.Count(s => s.Locked);
+            int numLocked = Sliders.Count(s => s.LockedByUser);
             foreach (ColonySlider s in Sliders)
             {
-                s.CanDrag = !s.Locked && numLocked <= 1;
+                s.CanDrag = !s.LockedByUser && numLocked <= 1 && P.colonyType == Planet.ColonyType.Colony;
             }
 
             Prod.IsCrippled = P.CrippledTurns > 0;

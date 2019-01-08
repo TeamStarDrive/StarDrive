@@ -107,7 +107,7 @@ namespace Ship_Game
             }
         }
 
-        public bool Locked
+        public bool LockedByUser
         {
             get
             {
@@ -135,7 +135,7 @@ namespace Ship_Game
                 return false;
 
             Vector2 mousePos = input.CursorPosition;
-            bool mouseOverSlider = !Locked && Rect.Bevel(5).HitTest(mousePos);
+            bool mouseOverSlider = !LockedByUser && Rect.Bevel(5).HitTest(mousePos);
             SliderHover = mouseOverSlider || SliderDragging;
             LockHover = LockRect.HitTest(mousePos);
 
@@ -164,7 +164,7 @@ namespace Ship_Game
             {
                 if (input.LeftMouseClick)
                 {
-                    Locked = !Locked;
+                    LockedByUser = !LockedByUser;
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 }
                 ToolTip.CreateTooltip(69);
@@ -224,9 +224,9 @@ namespace Ship_Game
         {
             if (IsDisabled) return;
 
-            if (!LockHover && !Locked)
+            if (!LockHover && !LockedByUser)
                 batch.Draw(Lock, LockRect, new Color(255, 255, 255, 50));
-            else if (LockHover && !Locked)
+            else if (LockHover && !LockedByUser)
                 batch.Draw(Lock, LockRect, new Color(255, 255, 255, 150));
             else
                 batch.Draw(Lock, LockRect, Color.White);
