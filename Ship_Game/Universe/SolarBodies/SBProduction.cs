@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Universe.SolarBodies
 {
+    // Production facilities
     public class SBProduction
     {
         private readonly Planet Ground;
@@ -14,26 +15,20 @@ namespace Ship_Game.Universe.SolarBodies
         private Empire Owner                                       => Ground.Owner;        
         private Array<Building> BuildingList                       => Ground.BuildingList;        
         private SolarSystem ParentSystem                           => Ground.ParentSystem;        
-        //public IReadOnlyList<QueueItem> ConstructionQ            => ConstructionQueue;
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         private int CrippledTurns                                  => Ground.CrippledTurns;
         private bool RecentCombat                                  => Ground.RecentCombat;
-        private float MineralRichness                              => Ground.MineralRichness;
-        private float Population                                   => Ground.Population;
-        private float Consumption                                  => Ground.Consumption;
         private float ShipBuildingModifier                         => Ground.ShipBuildingModifier;
         private float Fertility                                    => Ground.Fertility;
         private SpaceStation Station                               => Ground.Station;        
         private Planet.GoodState PS                                => Ground.PS;
-        private Planet.GoodState FS                              => Ground.FS;
-        //private bool PSexport                                      => Ground.PSexport;
         private Planet.ColonyType colonyType                       => Ground.colonyType;
-        private float NetProductionPerTurn                         => Ground.NetProductionPerTurn;
+        private float NetProductionPerTurn                         => Ground.Prod.NetIncome;
 
         private float ProductionHere
         {
-            get => Ground.ProductionHere;
-            set => Ground.ProductionHere = value;
+            get => Ground.ProdHere;
+            set => Ground.ProdHere = value;
         }
 
         public SBProduction(Planet planet)
@@ -41,7 +36,7 @@ namespace Ship_Game.Universe.SolarBodies
             Ground = planet;
         }
 
-        public bool ApplyStoredProduction(int Index)
+        public bool ApplyStoredProduction(int index)
         {
 
             if (CrippledTurns > 0 || RecentCombat || (ConstructionQueue.Count <= 0 || Owner == null))//|| this.Owner.Money <=0))
@@ -49,7 +44,6 @@ namespace Ship_Game.Universe.SolarBodies
             if (Owner != null && !Owner.isPlayer && Owner.data.Traits.Cybernetic > 0)
                 return false;
 
-            QueueItem item = ConstructionQueue[Index];
             float amountToRush = GetMaxProductionPotential(); //for debug help
             float amount = Math.Min(ProductionHere, amountToRush);
             if (Empire.Universe.Debug && Owner.isPlayer)
@@ -59,29 +53,14 @@ namespace Ship_Game.Universe.SolarBodies
                 return false;
             }
             ProductionHere -= amount;
-            ApplyProductiontoQueue(amount, Index);
+            ApplyProductiontoQueue(amount, index);
 
             return true;
         }
 
         public float GetMaxProductionPotential()
         {
-            float num1 = 0.0f;
-            float num2 = MineralRichness * Population / 1000;
-            for (int index = 0; index < BuildingList.Count; ++index)
-            {
-                Building building = BuildingList[index];
-                if (building.PlusProdPerRichness > 0.0)
-                    num1 += building.PlusProdPerRichness * MineralRichness;
-                num1 += building.PlusFlatProductionAmount;
-                if (building.PlusProdPerColonist > 0.0)
-                    num2 += building.PlusProdPerColonist;
-            }
-            float num3 = num2 + num1 * Population / 1000;
-            float num4 = num3;
-            if (Owner.data.Traits.Cybernetic > 0)
-                return num4 + Owner.data.Traits.ProductionMod * num4 - Consumption;
-            return num4 + Owner.data.Traits.ProductionMod * num4;
+            return Ground.Prod.MaxPotential;
         }
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
@@ -265,11 +244,11 @@ namespace Ship_Game.Universe.SolarBodies
             if (CrippledTurns > 0 || RecentCombat)
                 return;
          
-            float maxp = GetMaxProductionPotential() * (1 - Ground.FarmerPercentage); 
+            float maxp = GetMaxProductionPotential() * (1 - Ground.Food.Percent); 
             if (maxp < 5)
                 maxp = 5;
 
-            float storageRatio = ProductionHere / Ground.MaxStorage;
+            float storageRatio = ProductionHere / Ground.Storage.Max;
             float take10Turns = maxp * storageRatio;
 
             if (PS != Planet.GoodState.EXPORT)

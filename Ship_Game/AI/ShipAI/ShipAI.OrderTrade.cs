@@ -47,8 +47,8 @@ namespace Ship_Game.AI
                 if (Owner.loyalty.data.Traits.Mercantile > 0f)
                     Owner.loyalty.AddTradeMoney(Owner.CargoSpaceUsed * Owner.loyalty.data.Traits.Mercantile);
 
-                end.FoodHere += Owner.UnloadFood(end.MaxStorage - end.FoodHere);
-                end.ProductionHere += Owner.UnloadProduction(end.MaxStorage - end.ProductionHere);
+                end.FoodHere += Owner.UnloadFood(end.Storage.Max - end.FoodHere);
+                end.ProdHere += Owner.UnloadProduction(end.Storage.Max - end.ProdHere);
                 end = null;
             }
             start = null;
@@ -354,10 +354,10 @@ namespace Ship_Game.AI
 
             if (IsFood)
             {
-                start.ProductionHere += Owner.UnloadProduction();
-                start.Population     += Owner.UnloadColonists();
+                start.ProdHere   += Owner.UnloadProduction();
+                start.Population += Owner.UnloadColonists();
 
-                float maxFoodLoad = start.FoodHere.Clamped(0f, start.MaxStorage * 0.10f);
+                float maxFoodLoad = start.FoodHere.Clamped(0f, start.Storage.Max * 0.10f);
                 start.FoodHere   -= Owner.LoadFood(maxFoodLoad);
 
                 OrderQueue.RemoveFirst();
@@ -370,8 +370,8 @@ namespace Ship_Game.AI
                 start.FoodHere   += Owner.UnloadFood();
                 start.Population += Owner.UnloadColonists();
 
-                float maxProdLoad = start.ProductionHere.Clamped(0f, start.MaxStorage * 10f);
-                start.ProductionHere -= Owner.LoadProduction(maxProdLoad);
+                float maxProdLoad = start.ProdHere.Clamped(0f, start.Storage.Max * 10f);
+                start.ProdHere -= Owner.LoadProduction(maxProdLoad);
 
                 OrderQueue.RemoveFirst();
                 OrderMoveTowardsPosition(end.Center + UniverseRandom.RandomDirection() * 500f, 0f,
@@ -387,8 +387,8 @@ namespace Ship_Game.AI
 
         private void PickupPassengers()
         {
-            start.ProductionHere += Owner.UnloadProduction();
-            start.FoodHere       += Owner.UnloadFood();
+            start.ProdHere += Owner.UnloadProduction();
+            start.FoodHere += Owner.UnloadFood();
 
             // load everyone we can :P
             start.Population -= Owner.LoadColonists(start.Population * 0.2f);

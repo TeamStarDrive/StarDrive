@@ -74,7 +74,7 @@ namespace Ship_Game.AI
             }
             else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
             Owner.loyalty.AddPlanet(ColonizeTarget);
-            ColonizeTarget.InitializeSliders(Owner.loyalty);
+            ColonizeTarget.InitializeWorkerDistribution(Owner.loyalty);
             ColonizeTarget.SetExploredBy(Owner.loyalty);
 
             Owner.CreateColonizationBuildingFor(ColonizeTarget);
@@ -230,7 +230,7 @@ namespace Ship_Game.AI
             }
             OrderQueue.Clear();
             Planet targetPlanet = goal.TargetPlanet;
-            targetPlanet.ProductionHere = targetPlanet.ProductionHere + Owner.GetCost(Owner.loyalty) / 2f;
+            targetPlanet.ProdHere = targetPlanet.ProdHere + Owner.GetCost(Owner.loyalty) / 2f;
             Owner.QueueTotalRemoval();
             Owner.loyalty.GetEmpireAI().Recyclepool++;
         }

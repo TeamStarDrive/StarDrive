@@ -640,7 +640,7 @@ namespace Ship_Game
                         {
                             newOrbital.Owner = EmpireManager.GetEmpireByName(ringData.Owner);
                             newOrbital.Owner.AddPlanet(newOrbital);
-                            newOrbital.InitializeSliders(newOrbital.Owner);
+                            newOrbital.InitializeWorkerDistribution(newOrbital.Owner);
                             newOrbital.Population      = newOrbital.MaxPopulation;
                             newOrbital.MineralRichness = 1f;
                             newOrbital.colonyType      = Planet.ColonyType.Core;
@@ -651,7 +651,7 @@ namespace Ship_Game
                     {
                         newOrbital.Owner = owner;
                         owner.Capital    = newOrbital;
-                        newOrbital.InitializeSliders(owner);
+                        newOrbital.InitializeWorkerDistribution(owner);
                         owner.AddPlanet(newOrbital);
                         newOrbital.SetPlanetAttributes(26f);
                         //newOrbital.Special         = "None";
@@ -662,9 +662,9 @@ namespace Ship_Game
                         else
                             newOrbital.MaxPopulation = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
 
-                        newOrbital.Population     = 14000f;
-                        newOrbital.FoodHere       = 100f;
-                        newOrbital.ProductionHere = 100f;
+                        newOrbital.Population = 14000f;
+                        newOrbital.FoodHere   = 100f;
+                        newOrbital.ProdHere   = 100f;
                         if (!newSys.OwnerList.Contains(newOrbital.Owner))
                             newSys.OwnerList.Add(newOrbital.Owner);
 

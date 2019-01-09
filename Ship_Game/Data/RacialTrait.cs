@@ -110,11 +110,6 @@ namespace Ship_Game
             return (RacialTrait)MemberwiseClone();
         }
 
-        public static string GetFoodType(RacialTrait trait)
-        {
-            return trait?.Cybernetic > 0 ? "Production" : "Food";
-        }
-
         public bool TechTypeRestrictions(TechnologyType techType)
         {
             return Cybernetic > 0 && techType ==

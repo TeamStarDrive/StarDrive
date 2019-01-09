@@ -2618,9 +2618,9 @@ namespace Ship_Game.Ships
             {
                 if (slot?.HasColonyBuilding != true)
                     continue;
-                colonizeTarget.FoodHere       += slot.numberOfFood;
-                colonizeTarget.ProductionHere += slot.numberOfEquipment;
-                colonizeTarget.Population     += slot.numberOfColonists;
+                colonizeTarget.FoodHere   += slot.numberOfFood;
+                colonizeTarget.ProdHere   += slot.numberOfEquipment;
+                colonizeTarget.Population += slot.numberOfColonists;
             }
         }
 
