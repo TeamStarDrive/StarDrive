@@ -38,7 +38,7 @@ namespace Ship_Game.Commands.Goals
                     foreach (QueueItem queueItem in planet2.ConstructionQueue)
                         num2 += (int)((queueItem.Cost - (double)queueItem.productionTowards) / planet2.Prod.NetIncome);
                     if (planet2.ConstructionQueue.Count == 0)
-                        num2 = (int)((beingBuilt.GetCost(empire) - (double)planet2.ProductionHere) / planet2.Prod.NetIncome);
+                        num2 = (int)((beingBuilt.GetCost(empire) - (double)planet2.ProdHere) / planet2.Prod.NetIncome);
                     if (num2 < num1)
                     {
                         num1 = num2;
@@ -53,7 +53,7 @@ namespace Ship_Game.Commands.Goals
                     foreach (QueueItem qi in p2.ConstructionQueue)
                         num2 += (int)((qi.Cost - qi.productionTowards) / p2.Prod.MaxPotential);
                     if (p2.ConstructionQueue.Count == 0)
-                        num2 = (int)((beingBuilt.GetCost(empire) - p2.ProductionHere) / p2.Prod.MaxPotential);
+                        num2 = (int)((beingBuilt.GetCost(empire) - p2.ProdHere) / p2.Prod.MaxPotential);
                     if (num2 < num1)
                     {
                         num1 = num2;

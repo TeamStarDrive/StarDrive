@@ -245,7 +245,7 @@ namespace Ship_Game
                     building1 = building2;
             }
             planet.BuildingList.Remove(building1);
-            planet.ProductionHere += ResourceManager.BuildingsDict[Name].Cost / 2f;
+            planet.ProdHere += ResourceManager.BuildingsDict[Name].Cost / 2f;
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
                 if (planetGridSquare.building != null && planetGridSquare.building == building1)

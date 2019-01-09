@@ -27,8 +27,8 @@ namespace Ship_Game.Universe.SolarBodies
 
         private float ProductionHere
         {
-            get => Ground.ProductionHere;
-            set => Ground.ProductionHere = value;
+            get => Ground.ProdHere;
+            set => Ground.ProdHere = value;
         }
 
         public SBProduction(Planet planet)

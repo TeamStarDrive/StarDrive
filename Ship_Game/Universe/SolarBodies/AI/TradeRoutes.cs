@@ -274,13 +274,10 @@ namespace Ship_Game.Universe.SolarBodies.AI
 
         public DebugTextBlock DebugFormatTradeBlock(string header)
         {
-            float foodHere = TradePlanet.FoodHere;
-            float prodHere = TradePlanet.ProductionHere;
-            float foodStorPerc = 100 * foodHere / TradePlanet.Storage.Max;
-            float prodStorPerc = 100 * prodHere / TradePlanet.Storage.Max;
-            string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {TradePlanet.FS}";
-            string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {TradePlanet.PS}";
-            DebugTextBlock block = new DebugTextBlock { Header = header };
+            Planet p = TradePlanet;
+            string food = $"{(int)p.FoodHere}(%{100*p.Storage.FoodRatio:00.0}) {p.FS}";
+            string prod = $"{(int)p.ProdHere}(%{100*p.Storage.ProdRatio:00.0}) {p.PS}";
+            var block = new DebugTextBlock { Header = header };
             block.AddLine($"FoodHere: {food} ", Color.White);
             block.AddLine($"ProdHere: {prod}");
             return block;
@@ -306,7 +303,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
 
             block = new DebugTextBlock { Header = "Suppliers" };
             foreach (var p in ImportTargets)
-                block.AddLine($"{p.Name}: F:{(int)p.FoodHere} P:{(int)p.ProductionHere}");
+                block.AddLine($"{p.Name}: F:{(int)p.FoodHere} P:{(int)p.ProdHere}");
 
             blocks.Add(block);
             return blocks;
