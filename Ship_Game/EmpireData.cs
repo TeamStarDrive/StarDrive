@@ -203,6 +203,11 @@ namespace Ship_Game
                                        : DefaultSmallTransport.NotEmpty() ? DefaultSmallTransport
                                        : "Small Transport";
 
+        [XmlIgnore][JsonIgnore]
+        public bool IsCybernetic => Traits.Cybernetic > 0;
+        [XmlIgnore][JsonIgnore]
+        public bool IsFaction => Faction > 0;
+
         public EmpireData()
         {
             // @todo Mapping these by string is a bad idea. Consider using an Enum

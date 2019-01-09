@@ -43,7 +43,7 @@ namespace Ship_Game
         
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
-        float Consumption; // Food (NonCybernetic) or Production (IsCybernetic)
+        public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         float Unfed;
         public bool IsStarving => Unfed < 0f;
 
@@ -666,6 +666,22 @@ namespace Ship_Game
 
             FoodHere += Food.NetIncome;
             ProdHere += Prod.NetIncome;
+
+            // now if food income was < 0, we will have to get some from Storage:
+            if (Unfed < 0)
+            {
+                float needed = -Unfed;
+                if (Storage.RaceFood >= needed)
+                {
+                    Storage.RaceFood -= needed;
+                    Unfed = 0;
+                }
+                else // consume everything (greedy bastards!)
+                {
+                    Unfed += Storage.RaceFood;
+                    Storage.RaceFood = 0;
+                }
+            }
             Storage.BuildingResources();
         }
 
@@ -704,8 +720,8 @@ namespace Ship_Game
             return events;
         }
 
-        public int TotalInvadeInjure   => BuildingList.FilterBy(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
-        public float TotalSpaceOffense => BuildingList.FilterBy(b => b.isWeapon).Sum(b => b.Offense);
+        public int TotalInvadeInjure   => BuildingList.Filter(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
+        public float TotalSpaceOffense => BuildingList.Filter(b => b.isWeapon).Sum(b => b.Offense);
 
         private void RepairBuildings(int repairAmount)
         {
