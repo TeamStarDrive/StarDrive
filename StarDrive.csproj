@@ -353,7 +353,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Utils\ReadRestAPI.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetEdict.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Ship_Game\Utils\Array.cs" />
@@ -767,7 +767,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
