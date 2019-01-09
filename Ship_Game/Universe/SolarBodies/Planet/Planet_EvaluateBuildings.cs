@@ -9,16 +9,29 @@ namespace Ship_Game
     {
         bool IsPlanetExtraDebugTarget()
         {
-            // @todo Debug eval planet we are viewing?
-            return Name == ExtraInfoOnPlanet;
+            if (Name == ExtraInfoOnPlanet)
+                return true;
+
+            // Debug eval planet if we have colony screen open
+            if (Debugger.IsAttached
+                && Empire.Universe.LookingAtPlanet
+                && Empire.Universe.workersPanel is ColonyScreen colony
+                && colony.P == this)
+                return true;
+
+            return false;
         }
         void DebugEvalBuild(Building b, string what, float score)
         {
-            if (IsPlanetExtraDebugTarget()) Log.Info($"Eval BUILD {b.Name} {what} : {+score}");
+            if (IsPlanetExtraDebugTarget())
+                Log.Info(ConsoleColor.DarkGray,
+                    $"Eval BUILD  {b.Name,-20}  {what,-16} {(+score).SignString()}");
         }
         void DebugEvalScrap(Building b, string what, float score)
         {
-            if (IsPlanetExtraDebugTarget()) Log.Info($"Eval SCRAP {b.Name} {what} : {-score}");
+            if (IsPlanetExtraDebugTarget())
+                Log.Info(ConsoleColor.DarkGray, 
+                    $"Eval SCRAP  {b.Name,-20}  {what,-16} {(-score).SignString()}");
         }
 
         float EvalScrapWeight(Building b, float income)
@@ -58,7 +71,7 @@ namespace Ship_Game
             }
             else
             {
-                float farmers = CalculateFoodWorkers();
+                float farmers = Food.WorkersNeededForEquilibrium();
                 score += ((b.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
                 score += 1.5f - (Food.YieldPerColonist/2);//Bonus for low Effective Fertility
                 if (farmers.AlmostZero()) score += b.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
@@ -81,7 +94,7 @@ namespace Ship_Game
             }
             else
             {
-                float farmers = CalculateFoodWorkers(flat: -b.PlusFlatFoodAmount);
+                float farmers = Food.WorkersNeededForEquilibrium(flat: -b.PlusFlatFoodAmount);
                 score += ((b.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this is feeding, weighted
                 score += 1.5f - (Food.YieldPerColonist/2);         //Bonus for low Effective Fertility
                 if (farmers.AlmostZero()) score += b.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
@@ -115,7 +128,8 @@ namespace Ship_Game
             }
             else
             {
-                score += MaxFoodGainPerColonist(b, CalculateFoodWorkers(perCol: b.PlusFoodPerColonist));
+                float farmers = Food.WorkersNeededForEquilibrium(perCol: b.PlusFoodPerColonist);
+                score += MaxFoodGainPerColonist(b, farmers);
                 if ((b.PlusFoodPerColonist + Food.YieldPerColonist) <= 1.0f)
                     score = 0; // Don't try to add farming to a planet without enough to sustain itself
             }
@@ -133,7 +147,7 @@ namespace Ship_Game
             }
             else
             {
-                score += MaxFoodGainPerColonist(b, CalculateFoodWorkers());
+                score += MaxFoodGainPerColonist(b, Food.WorkersNeededForEquilibrium());
                 if ((Food.YieldPerColonist - b.PlusFoodPerColonist) <= 1.0f)
                     score = b.PlusFoodPerColonist; // Don't scrap this if it would drop effective yield below 1.0
             }
@@ -153,9 +167,11 @@ namespace Ship_Game
             {
                 if (IsCybernetic)
                     score += b.PlusFlatProductionAmount / MaxPopulationBillion;     //Percentage of the filthy Opteris population this will feed
+                
                 score += (0.5f - PopulationRatio).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
                 score += 1.5f - Prod.YieldPerColonist;      //Bonus for low richness planets
                 score += (0.66f - MineralRichness).Clamped(0.0f, 0.66f);      //More Bonus for really low richness planets
+                
                 float currentOutput = Prod.YieldPerColonist * LeftoverWorkerBillions() + Prod.FlatBonus;  //Current Prod Output
                 score += (b.PlusFlatProductionAmount / currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
                 if (score < b.PlusFlatProductionAmount * 0.1f) score = b.PlusFlatProductionAmount * 0.1f; //A little production is always useful
@@ -352,7 +368,7 @@ namespace Ship_Game
         float EvalAllowShipBuilding(Building b)
         {
             bool spacePort = b.AllowShipBuilding || b.Name == "Space Port";
-            if (!spacePort || PopulationBillion < 5.0f)
+            if (!spacePort || PopulationRatio < 0.66f)
                 return 0;
 
             float prodFromLabor = LeftoverWorkerBillions() * (Prod.YieldPerColonist + b.PlusProdPerColonist);
@@ -363,7 +379,7 @@ namespace Ship_Game
             if (prodFromLabor + prodFromFlat > 10.0f)
                 score = ((prodFromLabor + prodFromFlat) / 10).Clamped(0.0f, 2.0f);
 
-            DebugEvalBuild(b, "AllowShipBuilding", score);
+            DebugEvalBuild(b, "ShipBuilding", score);
             return score;
         }
 
@@ -441,12 +457,10 @@ namespace Ship_Game
 
         int DesiredMilitaryBuildings()
         {
-            //This is a temporary quality rating. This will be replaced by an "importance to the Empire" calculation from the military planner at some point (hopefully soon). -Gretman
-            float quality = Fertility + MineralRichness + MaxPopulationBillion / 2;
-            if (Fertility > 1.6) quality += 1.5f;
-            if (MineralRichness > 1.6) quality += 1.5f;
-
-            return (int)(quality / 5); //Return just the whole number by truncating the decimal
+            // Importance to our empire:
+            float worth = ColonyWorth(toEmpire: Owner);
+            int desired = (int)Math.Floor((worth / 15) + 0.1f);
+            return desired;
         }
 
         static float FactorForConstructionCost(float score, float cost, float highestCost)
@@ -482,7 +496,12 @@ namespace Ship_Game
                 score = FactorForConstructionCost(score, b.Cost, highestCost);
 
             if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Cyan, $"Eval {b.Name} Final Score was : {score}");
+            {
+                if (score > 0.0f)
+                    Log.Info(ConsoleColor.Cyan,    $"Eval BUILD  {b.Name,-20}  {"SUITABLE",-16} {score.SignString()}");
+                else
+                    Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-20}  {"NOT GOOD",-16} {score.SignString()}");
+            }
             return score;
         }
 
@@ -497,7 +516,10 @@ namespace Ship_Game
                 dps = (w.DamageAmount / w.fireDelay) / 500;
             }
 
-            float shieldScore = b.PlanetaryShieldStrengthAdded / 1000;
+            // Shields are very efficient because they protect from early bombardments
+            // Smallest Planetary Shield has strength 500
+            // Make sure we give it a fair score.
+            float shieldScore = b.PlanetaryShieldStrengthAdded / 500;
 
             float allowTroops = 0;
             if (b.AllowInfantry)
@@ -518,6 +540,9 @@ namespace Ship_Game
         void ChooseAndBuild(float budget)
         {
             if (BuildingsCanBuild.Count == 0) return;
+
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"==== Planet  {Name}  CHOOSE AND BUILD ==== ");
 
             Building best = null;
             float bestValue = 0.0f; // So a building with a value of 0 will not be built.
@@ -543,13 +568,28 @@ namespace Ship_Game
         void ChooseAndBuildMilitary(float budget)
         {
             if (BuildingsCanBuild.Count == 0) return; // Discourage building military buildings too early
-            if (ExistingMilitaryBuildings() >= DesiredMilitaryBuildings())
+
+            int existingMilitary = ExistingMilitaryBuildings();
+            int desiredMilitary  = DesiredMilitaryBuildings();
+
+            if (IsPlanetExtraDebugTarget())
+            {
+                Log.Info($"==== Planet  {Name}  CHOOSE AND BUILD MILITARY ==== ");
+                if (existingMilitary >= desiredMilitary)
+                    Log.Info(ConsoleColor.DarkGreen,
+                        $"Eval BUILD  MILITARY NOT NEEDED  existing:{existingMilitary} >= desired:{desiredMilitary}");
+                else
+                    Log.Info(ConsoleColor.DarkRed,
+                        $"Eval BUILD  MILITARY IS NEEDED   existing:{existingMilitary} <  desired:{desiredMilitary}");
+            }
+
+            if (existingMilitary >= desiredMilitary)
                 return;
 
             Building best = null;
             float bestValue = 0.0f;
             float highestCost = BuildingsCanBuild.FindMax(building => building.Cost).Cost;
-                
+         
             for (int i = 0; i < BuildingsCanBuild.Count; i++)
             {
                 Building b = BuildingsCanBuild[i];
@@ -575,8 +615,8 @@ namespace Ship_Game
             int totalbuildings = TilesList.Count(tile => tile.building != null && tile.building.Name != "Biospheres");
 
             //Construction queue recon
-            bool buildingInTheWorks  = SbProduction.ConstructionQueue.Any(building => building.isBuilding);
-            bool militaryBInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding && building.Building.CombatStrength > 0);
+            bool buildingInTheWorks  = SbProduction.ConstructionQueue.Any(b => b.isBuilding);
+            bool militaryBInTheWorks = SbProduction.ConstructionQueue.Any(b => b.isBuilding && b.Building.CombatStrength > 0);
             bool lotsInQueueToBuild  = ConstructionQueue.Count >= 4;
 
 
@@ -589,11 +629,11 @@ namespace Ship_Game
             }
             else
             {
-                bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(building => building.isBuilding && building.Building.Name == "Biospheres") != null;
-                Building bioSphere = BuildingsCanBuild.Find(building => building.Name == "Biospheres");
+                bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(b => b.isBuilding && b.Building.Name == "Biospheres") != null;
+                Building bio = BuildingsCanBuild.Find(b => b.Name == "Biospheres");
 
-                if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < budget + 0.3f) //No habitable tiles, and not too much in debt
-                    AddBuildingToCQ(bioSphere);
+                if (bio != null && !biosphereInTheWorks && totalbuildings < 35 && bio.Maintenance < budget + 0.3f) //No habitable tiles, and not too much in debt
+                    AddBuildingToCQ(bio);
             }
 
             ScrapBuildings(budget);
@@ -623,6 +663,9 @@ namespace Ship_Game
 
         void ScrapBuildings(float income)
         {
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"==== Planet  {Name}  EVALUATE BUILDINGS TO SCRAP ==== ");
+
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b = BuildingList[i];
@@ -658,7 +701,7 @@ namespace Ship_Game
                 }
 
                 if (IsPlanetExtraDebugTarget())
-                    Log.Info(ConsoleColor.Green, $"Eval SCRAP of {b.Name}  value: {value}  >  cost: {cost}");
+                    Log.Info(ConsoleColor.Green, $"Eval SCRAP  {b.Name,-20}  {"KEEP THIS",-16} {value} >= {cost}");
             }
         }
 

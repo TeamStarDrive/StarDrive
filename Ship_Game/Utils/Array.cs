@@ -464,7 +464,7 @@ namespace Ship_Game
         }
 
         // A quite memory efficient filtering function to replace Where clauses
-        public T[] FilterBy(Predicate<T> predicate) => Items.Filter(Count, predicate);
+        public T[] Filter(Predicate<T> predicate) => Items.Filter(Count, predicate);
 
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
         public IEnumerator<T> GetEnumerator()   => new Enumerator(this);

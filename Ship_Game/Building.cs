@@ -157,8 +157,8 @@ namespace Ship_Game
         public PlanetGridSquare AssignBuildingToRandomTile(SolarSystemBody solarSystemBody, bool habitable = false)
         {
             PlanetGridSquare[] list;
-            list = !habitable ? solarSystemBody.TilesList.FilterBy(planetGridSquare => planetGridSquare.building == null) 
-                : solarSystemBody.TilesList.FilterBy(planetGridSquare => planetGridSquare.building == null && planetGridSquare.Habitable);
+            list = !habitable ? solarSystemBody.TilesList.Filter(planetGridSquare => planetGridSquare.building == null) 
+                : solarSystemBody.TilesList.Filter(planetGridSquare => planetGridSquare.building == null && planetGridSquare.Habitable);
             if (list.Length == 0)
                 return null;
 
