@@ -151,7 +151,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
         public bool NeedsMore(Goods good)
         {
             float incoming = PredictedTradeFor(good, ShipAI.Plan.DropOffGoods);
-            return incoming < TradePlanet.MaxStorage;
+            return incoming < TradePlanet.Storage.Max;
         }
 
         public float PredictedTradeFor(Goods good, ShipAI.Plan route)
@@ -180,7 +180,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
             {
                 case Goods.Food:
                 case Goods.Production:
-                    return TradePlanet.MaxStorage - TradePlanet.GetGoodHere(good);
+                    return TradePlanet.Storage.Max - TradePlanet.GetGoodHere(good);
                 case Goods.Colonists:
                     return TradePlanet.MaxPopulation - TradePlanet.Population;
 
@@ -276,8 +276,8 @@ namespace Ship_Game.Universe.SolarBodies.AI
         {
             float foodHere = TradePlanet.FoodHere;
             float prodHere = TradePlanet.ProductionHere;
-            float foodStorPerc = 100 * foodHere / TradePlanet.MaxStorage;
-            float prodStorPerc = 100 * prodHere / TradePlanet.MaxStorage;
+            float foodStorPerc = 100 * foodHere / TradePlanet.Storage.Max;
+            float prodStorPerc = 100 * prodHere / TradePlanet.Storage.Max;
             string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {TradePlanet.FS}";
             string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {TradePlanet.PS}";
             DebugTextBlock block = new DebugTextBlock { Header = header };

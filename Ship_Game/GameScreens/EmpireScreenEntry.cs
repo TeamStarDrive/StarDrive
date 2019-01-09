@@ -83,7 +83,7 @@ namespace Ship_Game
 
 			FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)(0.4f * StorageRect.Width), 18))
 			{
-				Max = p.MaxStorage,
+				Max = p.Storage.Max,
 				Progress = p.FoodHere,
 				color = "green"
 			};
@@ -100,7 +100,7 @@ namespace Ship_Game
 			foodStorageIcon = new Rectangle(StorageRect.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
 			ProdStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, FoodStorage.pBar.Y + FoodStorage.pBar.Height + 10, (int)(0.4f * StorageRect.Width), 18))
 			{
-				Max = p.MaxStorage,
+				Max = p.Storage.Max,
 				Progress = p.ProductionHere
 			};
 			prodStorageIcon = new Rectangle(StorageRect.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
@@ -366,7 +366,7 @@ namespace Ship_Game
 
 			FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)(0.4f * StorageRect.Width), 18))
 			{
-				Max = p.MaxStorage,
+				Max = p.Storage.Max,
 				Progress = p.FoodHere,
 				color = "green"
 			};
@@ -383,7 +383,7 @@ namespace Ship_Game
 			foodStorageIcon = new Rectangle(StorageRect.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
 			ProdStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, FoodStorage.pBar.Y + FoodStorage.pBar.Height + 10, (int)(0.4f * StorageRect.Width), 18))
 			{
-				Max = p.MaxStorage,
+				Max = p.Storage.Max,
 				Progress = p.ProductionHere
 			};
 			prodStorageIcon = new Rectangle(StorageRect.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);

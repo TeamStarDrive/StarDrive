@@ -61,7 +61,7 @@ namespace Ship_Game
             if (c.LockedByUser) // only one is locked, eaaasy and perfect accuracy
             {
                 a.Value += difference.Clamped(-a.Value, b.Value);
-                b.Value = 1f - (a.Value + c.Value); // auto-balance second slider
+                b.Resource.AutoBalanceWorkers();
             }
             else // all 3 unlocked
             {
@@ -77,6 +77,9 @@ namespace Ship_Game
                 }
                 ApplyDelta(b, -move/2);
                 ApplyDelta(c, -move/2);
+
+                // @note There is always a tiny chance for a float error
+                c.Resource.AutoBalanceWorkers();
             }
 
             float sum = Sliders.Sum(s => s.Value);
@@ -101,6 +104,12 @@ namespace Ship_Game
             Prod.IsCrippled = P.CrippledTurns > 0;
             Prod.IsInvasion = P.RecentCombat;
 
+            // prioritize currently dragging slider for input events
+            ColonySlider dragged = Sliders.Find(s => s.IsDragging);
+            if (dragged != null)
+            {
+                return dragged.HandleInput(input);
+            }
             return base.HandleInput(input);
         }
 

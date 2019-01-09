@@ -27,7 +27,8 @@ namespace Ship_Game
             TradeHub
         }
         public GeodeticManager GeodeticManager;
-        public SBCommodities Storage;
+
+        public ColonyStorage Storage;
 
         public ColonyResource Food;
         public ColonyResource Prod;
@@ -121,16 +122,6 @@ namespace Ship_Game
 
         public SpaceStation Station = new SpaceStation();
 
-        public float FarmerPercentage = 0.34f;
-        public float WorkerPercentage = 0.33f;
-        public float ResearcherPercentage = 0.33f;
-        public float MaxStorage = 10f;
-
-        // @note These are USER specified locks. Do NOT use for governor lock! 
-        public bool FoodLocked;
-        public bool ProdLocked;
-        public bool ResLocked;
-
         public int CrippledTurns;
 
 
@@ -195,12 +186,12 @@ namespace Ship_Game
         {
             TroopManager = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
-            Storage = new SBCommodities(this);
+            Storage = new ColonyStorage(this);
             SbProduction = new SBProduction(this);
 
-            Food = new ColonyFood(this);
-            Prod = new ColonyProd(this);
-            Res  = new ColonyRes(this);
+            Food = new ColonyFood(this) { Percent = 0.34f };
+            Prod = new ColonyProd(this) { Percent = 0.33f };
+            Res  = new ColonyRes(this)  { Percent = 0.33f };
         }
 
         public Planet()
@@ -421,7 +412,7 @@ namespace Ship_Game
             float food = GetGoodHere(foodType);
             //bool badProduction = cyber ? NetProductionPerTurn <= 0 && WorkerPercentage > .75f :
             //    (NetFoodPerTurn <= 0 && FarmerPercentage > .75f);
-            return (food + TradeAI.GetAverageTradeFor(foodType)) / MaxStorage < .10f;//|| badProduction;
+            return (food + TradeAI.GetAverageTradeFor(foodType)) / Storage.Max < .10f;//|| badProduction;
         }
 
         public void AddProjectile(Projectile projectile)
@@ -1012,7 +1003,7 @@ namespace Ship_Game
             if (NonCybernetic && building.PlusFlatFoodAmount > 0)// && this.Fertility == 0)
             {
 
-                if (Food.NetIncome > 0 && FarmerPercentage < .3 || BuildingExists(building.Name))
+                if (Food.NetIncome > 0 && Food.Percent < 0.3f || BuildingExists(building.Name))
                     return false;
                 return true;
 
@@ -1020,7 +1011,7 @@ namespace Ship_Game
             if (NonCybernetic && income > building.Maintenance)
             {
                 float food = building.FoodProduced(this);
-                if (food * FarmerPercentage > 1)
+                if (food * Food.Percent > 1)
                 {
                     return true;
                 }
@@ -1029,11 +1020,11 @@ namespace Ship_Game
             {
                 if (Prod.NetIncome < 0)
                 {
-                    if (building.PlusFlatProductionAmount > 0 && (WorkerPercentage > .5 || income > building.Maintenance * 2))
+                    if (building.PlusFlatProductionAmount > 0 && (Prod.Percent > 0.5f || income > building.Maintenance * 2))
                     {
                         return true;
                     }
-                    if (building.PlusProdPerColonist > 0 && building.PlusProdPerColonist * PopulationBillion > building.Maintenance * (2 - WorkerPercentage))
+                    if (building.PlusProdPerColonist > 0 && building.PlusProdPerColonist * PopulationBillion > building.Maintenance * (2 - Prod.Percent))
                     {
                         if (income > ShipBuildingModifier * 2)
                             return true;
@@ -1291,7 +1282,7 @@ namespace Ship_Game
                 exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
             }
 
-            float ratio = FoodHere / MaxStorage;
+            float ratio = FoodHere / Storage.Max;
 
             //This will allow a buffer for import / export, so they dont constantly switch between them
             if (ratio < importThreshold) FS = GoodState.IMPORT;                                     //if below importThreshold, its time to import.
@@ -1329,7 +1320,7 @@ namespace Ship_Game
                 }
             }
 
-            float ratio = ProductionHere / MaxStorage;
+            float ratio = ProductionHere / Storage.Max;
 
             if (ratio < importThreshold) PS = GoodState.IMPORT;
             else if (PS == GoodState.IMPORT && ratio >= importThreshold * 2) PS = GoodState.STORE;
@@ -1445,10 +1436,10 @@ namespace Ship_Game
         //[percent]% of storage, or over-farm if under it. Returns labor needed
         private float FarmToPercentage(float percent)   //Production and Research
         {
-            if (MaxStorage == 0 || percent == 0) return 0;
+            if (percent == 0) return 0;
             if (Food.YieldPerColonist <= 0.5f || IsCybernetic) return 0; //No farming here, so never mind
             float minFarmers = CalculateFoodWorkers();          //Nominal Farmers needed to neither gain nor lose storage
-            float storedFoodRatio = FoodHere / MaxStorage;      //Percentage of Food Storage currently filled
+            float storedFoodRatio = FoodHere / Storage.Max;      //Percentage of Food Storage currently filled
 
             if (Food.FlatBonus > 0)
             {
@@ -1465,7 +1456,7 @@ namespace Ship_Game
 
         private float WorkToPercentage(float percent)   //Production and Research
         {
-            if (MaxStorage == 0 || percent == 0) return 0;
+            if (percent == 0) return 0;
             float minWorkers = 0;
             if (IsCybernetic)
             {											//Nominal workers needed to feed all of the the filthy Opteris
@@ -1473,7 +1464,7 @@ namespace Ship_Game
                 minWorkers = minWorkers.Clamped(0, 1);
             }
 
-            float storedProdRatio = ProductionHere / MaxStorage;      //Percentage of Prod Storage currently filled
+            float storedProdRatio = ProductionHere / Storage.Max;      //Percentage of Prod Storage currently filled
 
             if (Prod.FlatBonus > 0)      //Stop production early, since the flat production will continue to pile up
             {
@@ -1502,14 +1493,14 @@ namespace Ship_Game
 
         private void FarmOrResearch(float labor)   //Agreculture
         {
-            if (MaxStorage == 0 || labor == 0) return;
+            if (labor == 0) return;
             if (IsCybernetic)
             {
                 WorkOrResearch(labor);  //Hand off to Prod instead;
                 return;
             }
             float maxPop = MaxPopulationBillion;
-            float storedFoodRatio = FoodHere / MaxStorage;      //How much of Storage is filled
+            float storedFoodRatio = FoodHere / Storage.Max;      //How much of Storage is filled
             if (Food.YieldPerColonist <= 0.5f) storedFoodRatio = 1; //No farming here, so skip it
 
             //Stop producing food a little early, since the flat food will continue to pile up
@@ -1521,14 +1512,14 @@ namespace Ship_Game
             else farmers = farmers * 2;
             if (farmers > 0 && farmers < 0.1f) farmers = 0.1f;    //Avoid crazy small percentage of labor
 
-            FarmerPercentage += farmers * labor;	//Assign Farmers
-            ResearcherPercentage += labor - (farmers * labor);//Leftovers go to Research
+            Food.Percent += farmers * labor;	//Assign Farmers
+            Res.Percent  += labor - (farmers * labor);//Leftovers go to Research
         }
 
         private void WorkOrResearch(float labor)    //Industrial
         {
-            if (MaxStorage == 0 || labor == 0) return;
-            float storedProdRatio = ProductionHere / MaxStorage;      //How much of Storage is filled
+            if (labor == 0) return;
+            float storedProdRatio = ProductionHere / Storage.Max;      //How much of Storage is filled
 
             if (IsCybernetic)       //Stop production early, since the flat production will continue to pile up
             {
@@ -1548,8 +1539,8 @@ namespace Ship_Game
 
             if (ConstructionQueue.Count > 1 && workers < 0.75f) workers = 0.75f;  //Minimum value if construction is going on
 
-            WorkerPercentage += workers * labor;	//Assign workers
-            ResearcherPercentage += labor - (workers * labor);//Leftovers go to Research
+            Prod.Percent += workers * labor;	//Assign workers
+            Res.Percent += labor - (workers * labor);//Leftovers go to Research
         }
 
         private float LeftoverWorkers()
@@ -1745,7 +1736,7 @@ namespace Ship_Game
                 float desiredStorage = 70.0f;
                 if (Food.YieldPerColonist >= 2.5f || Prod.YieldPerColonist >= 2.5f || Prod.FlatBonus > 5) desiredStorage += 100.0f;  //Potential high output
                 if (HasShipyard) desiredStorage += 100.0f;      //For buildin' ships 'n shit
-                if (MaxStorage < desiredStorage) score += (building.StorageAdded * 0.002f);  //If we need more storage, rate this building
+                if (Storage.Max < desiredStorage) score += (building.StorageAdded * 0.002f);  //If we need more storage, rate this building
                 if (building.Maintenance > 0) score *= 0.25f;       //Prefer free storage
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} StorageAdd : Score was {score}");
@@ -1802,7 +1793,7 @@ namespace Ship_Game
                 score = 0.001f;
                 if (building.PlusFlatResearchAmount < 0)            //Surly no one would make a negative research building
                 {
-                    if (ResearcherPercentage > 0 || Res.FlatBonus > 0) score += building.PlusFlatResearchAmount * 2;
+                    if (Res.Percent > 0 || Res.FlatBonus > 0) score += building.PlusFlatResearchAmount * 2;
                     else score += building.PlusFlatResearchAmount;
                 }
                 else
@@ -2227,6 +2218,11 @@ namespace Ship_Game
             InitMaxFertility(amount);
         }
 
+        public void BalanceResearchPercent() // assumes Food.Percent and Prod.Percent have been modified
+        {
+            Res.Percent = Math.Max(1f - (Food.Percent + Prod.Percent), 0);
+        }
+
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
@@ -2243,17 +2239,17 @@ namespace Ship_Game
             if (colonyType == ColonyType.Research && notResearching)
                 colonyType = ColonyType.Industrial;
 
-            FarmerPercentage = 0;
-            WorkerPercentage = 0;
-            ResearcherPercentage = 0;
+            Food.Percent = 0;
+            Prod.Percent = 0;
+            Res.Percent = 0;
 
             switch (colonyType)
             {
                 case ColonyType.TradeHub:
                 case ColonyType.Core:
                     //New resource management by Gretman
-                    FarmerPercentage = CalculateFoodWorkers();
-                    FillOrResearch(1 - FarmerPercentage);
+                    Food.Percent = CalculateFoodWorkers();
+                    FillOrResearch(1 - Food.Percent);
 
                     if (colonyType == ColonyType.TradeHub)
                     {
@@ -2263,20 +2259,18 @@ namespace Ship_Game
                     }
 
                     BuildBuildings(budget);
-
                     DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
                     DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
 
                     break;
                 case ColonyType.Industrial:
                     //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
-                    FarmerPercentage = FarmToPercentage(0.333f);
-                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(1));
-                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
+                    Food.Percent = FarmToPercentage(0.333f);
+                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(1));
+                    if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
+                    BalanceResearchPercent();
 
                     BuildBuildings(budget);
-
                     DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
 
@@ -2284,37 +2278,34 @@ namespace Ship_Game
 
                 case ColonyType.Research:
                     //This governor will rely on imports, focusing on research as long as no one is starving
-                    FarmerPercentage = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
-                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));        //Save a litle production too
-                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
+                    Food.Percent = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
+                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.333f));        //Save a litle production too
+                    if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
+                    BalanceResearchPercent();
 
                     BuildBuildings(budget);
-
                     DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
                     DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
 
                     break;
 
                 case ColonyType.Agricultural:
-                    FarmerPercentage = FarmToPercentage(1);     //Farm all you can
-                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));    //Then work to a small savings
-                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
+                    Food.Percent = FarmToPercentage(1);     //Farm all you can
+                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.333f));    //Then work to a small savings
+                    if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
+                    BalanceResearchPercent();
 
                     BuildBuildings(budget);
-
                     DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
 
                     break;
 
                 case ColonyType.Military:    //This on is incomplete
-                    FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
-                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.5f));    //Keep some prod handy
-                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
-
+                    Food.Percent = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
+                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.5f));    //Keep some prod handy
+                    if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
+                    BalanceResearchPercent();
                     BuildBuildings(budget);
 
                     DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
@@ -2449,15 +2440,15 @@ namespace Ship_Game
         {
             if (o.IsCybernetic || Type == "Barren")
             {
-                FarmerPercentage = 0.0f;
-                WorkerPercentage = 0.5f;
-                ResearcherPercentage = 0.5f;
+                Food.Percent = 0.0f;
+                Prod.Percent = 0.5f;
+                Res.Percent = 0.5f;
             }
             else
             {
-                FarmerPercentage = 0.55f;
-                ResearcherPercentage = 0.2f;
-                WorkerPercentage = 0.25f;
+                Food.Percent = 0.55f;
+                Prod.Percent = 0.25f;
+                Res.Percent = 0.2f;
             }
         }
 
@@ -2567,8 +2558,7 @@ namespace Ship_Game
             GrossMoneyPT += PlusTaxPercentage * GrossMoneyPT;
             //this.GrossMoneyPT += this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
             //this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.PopulationBillion * this.PlusCreditsPerColonist;
-            MaxStorage = storageAdded;
-            if (MaxStorage < 10) MaxStorage = 10f;
+            Storage.Max = storageAdded.Clamped(10f, 10000000f);
         }
 
         void HarvestResources()
@@ -2675,8 +2665,8 @@ namespace Ship_Game
             var totals = tradePlanet.DebugSummarizePlanetStats(lines);
             float foodHere = tradePlanet.FoodHere;
             float prodHere = tradePlanet.ProductionHere;
-            float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
-            float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;
+            float foodStorPerc = 100 * foodHere / tradePlanet.Storage.Max;
+            float prodStorPerc = 100 * prodHere / tradePlanet.Storage.Max;
             string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
             string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
 
@@ -2692,8 +2682,8 @@ namespace Ship_Game
         {
             lines.Add($"Money: {NetIncome}");
             lines.Add($"Eats: {Consumption}");
-            lines.Add($"FoodWkrs: {FarmerPercentage}");
-            lines.Add($"ProdWkrs: {WorkerPercentage}  ");
+            lines.Add($"FoodWkrs: {Food.Percent}");
+            lines.Add($"ProdWkrs: {Prod.Percent}  ");
             return new TradeAI.DebugSummaryTotal();
         }
     }
