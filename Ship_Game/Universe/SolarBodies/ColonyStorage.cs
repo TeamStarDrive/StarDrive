@@ -22,7 +22,15 @@ namespace Ship_Game.Universe.SolarBodies
 
         // different from Food -- this is based on race
         // cybernetics consume production, organics consume food
-        public float RaceFood => Ground.IsCybernetic ? ProdValue : FoodValue;
+        public float RaceFood
+        {
+            get => Ground.IsCybernetic ? ProdValue : FoodValue;
+            set
+            {
+                if (Ground.IsCybernetic) ProdValue = value;
+                else FoodValue = value;
+            }
+        }
 
         float FoodValue; // @note These are special fields for perf reasons.
         float ProdValue;

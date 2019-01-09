@@ -8,6 +8,7 @@ namespace Ship_Game
     internal class DeveloperSandbox : GameScreen
     {
         const int NumEmpires = 2;
+        const bool PlayerIsCybernetic = true;
         MicroUniverse Universe;
 
         public DeveloperSandbox() : base(null)
@@ -68,23 +69,23 @@ namespace Ship_Game
             CurrentGame.StartNew(sandbox);
             var claimedSpots = new Array<Vector2>();
 
-            bool AlreadyCreated(EmpireData data)
+            EmpireData FindRandomEmpire(bool notFaction, bool cybernetic)
             {
-                return sandbox.EmpireList.Any(e => e.data == data);
-            }
-            EmpireData FindRandomEmpire(bool canBeFaction)
-            {
-                for (int i = 0; i < 20; ++i)
+                EmpireData[] candidates = ResourceManager.Empires.Filter(data =>
                 {
-                    EmpireData data = RandomMath.RandItem(ResourceManager.Empires);
-                    if ((canBeFaction || data.Faction <= 0) && !AlreadyCreated(data)) return data;
-                }
-                return ResourceManager.Empires.Find(d => !AlreadyCreated(d)); // fallback
+                    if (cybernetic && !data.IsCybernetic) return false;
+                    if (notFaction && data.IsFaction)     return false;
+                    return !sandbox.EmpireList.Any(e => e.data == data);
+                });
+                return RandomMath.RandItem(candidates);
             }
 
             for (int i = 0; i < NumEmpires; ++i)
             {
-                EmpireData data = FindRandomEmpire(canBeFaction: sandbox.EmpireList.NotEmpty);
+                bool player = (i == 0);
+                EmpireData data = FindRandomEmpire(notFaction: player,
+                                                   cybernetic: player && PlayerIsCybernetic);
+
                 Empire e = EmpireManager.CreateEmpireFromEmpireData(data);
                 sandbox.EmpireList.Add(e);
                 EmpireManager.Add(e);

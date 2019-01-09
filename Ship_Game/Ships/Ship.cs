@@ -1949,8 +1949,8 @@ namespace Ship_Game.Ships
 
         private void UpdateTroops() //FB: this is the weirdest implemetations i've ever seen. Anyway i refactored it a bit
         {
-            Array<Troop> ownTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() == loyalty));
-            Array<Troop> enemyTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() != loyalty));
+            Array<Troop> ownTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() == loyalty));
+            Array<Troop> enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() != loyalty));
 
             HealTroops();
             int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1); // leave a garrion of 1 if ship without barracks was boarded
@@ -1966,17 +1966,17 @@ namespace Ship_Game.Ships
             float defendingTroopsRoll = mechanicalDefenseRoll; // since mechanicalDefenseRoll might beaten by enemy troops to be negative.
 
             enemyTroops.Clear();
-            enemyTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() != loyalty));
+            enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() != loyalty));
 
             ResolveOwnVersusEnemy();
 
             enemyTroops.Clear();
-            enemyTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() != loyalty));
+            enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() != loyalty));
 
             ResolveEnemyVersusOwn();
 
             ownTroops.Clear();
-            ownTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() == loyalty));
+            ownTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() == loyalty));
 
             if (ownTroops.Count > 0 || MechanicalBoardingDefense > 0.0)
                 return;

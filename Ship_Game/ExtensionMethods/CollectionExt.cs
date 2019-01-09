@@ -205,7 +205,7 @@ namespace Ship_Game
 
         public static Array<T> FindMinItemsFiltered<T>(this Array<T> list, int maxCount, Predicate<T> filter, Func<T, float> selector) where T : class
         {
-            T[] filtered = list.FilterBy(filter);
+            T[] filtered = list.Filter(filter);
             filtered.Sort(selector);
 
             var found = new Array<T>();

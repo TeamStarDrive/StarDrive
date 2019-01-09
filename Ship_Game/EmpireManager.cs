@@ -34,7 +34,7 @@ namespace Ship_Game
         public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateDummyEmpire());
 
         public static Empire[] AIEmpires =>
-            EmpireList.FilterBy(empire => !empire.isFaction && !empire.data.Defeated && !empire.isPlayer);
+            EmpireList.Filter(empire => !empire.isFaction && !empire.data.Defeated && !empire.isPlayer);
 
 
         public static Empire FindDuplicateEmpire(Empire empire)

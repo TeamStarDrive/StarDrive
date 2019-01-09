@@ -502,10 +502,10 @@ namespace Ship_Game.AI
             TechEntry[] filteredTechs;
             TechEntry researchTech = null;
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseManualScriptedResearch)
-                filteredTechs = availableTechs.FilterBy(tech => tech.TechnologyType == techtype);
+                filteredTechs = availableTechs.Filter(tech => tech.TechnologyType == techtype);
             else
             {
-                filteredTechs = availableTechs.FilterBy(econ =>
+                filteredTechs = availableTechs.Filter(econ =>
                 {
                     if (econ.GetLookAheadType(techtype) > 0 &&
                      techtype != TechnologyType.Economic) return true;

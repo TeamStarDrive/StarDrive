@@ -1255,7 +1255,7 @@ namespace Ship_Game
             bool isFleet = fleet != null;
             SelectedPlanet = null;
             if (input.IsShiftKeyDown)
-                SelectedShipList.AddRange(ships.FilterBy(s => !SelectedShipList.Contains(s)));
+                SelectedShipList.AddRange(ships.Filter(s => !SelectedShipList.Contains(s)));
             else
                 SelectedShipList = new BatchRemovalCollection<Ship>(ships);
 
