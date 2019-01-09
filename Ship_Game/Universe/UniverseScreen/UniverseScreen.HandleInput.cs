@@ -1767,7 +1767,7 @@ namespace Ship_Game
                     {
                         if (queueItem.Goal != SelectedItem.AssociatedGoal) continue;
 
-                        planet.ProductionHere += queueItem.productionTowards;
+                        planet.ProdHere += queueItem.productionTowards;
                         planet.ConstructionQueue.QueuePendingRemoval(queueItem);
                     }
                     planet.ConstructionQueue.ApplyPendingRemovals();

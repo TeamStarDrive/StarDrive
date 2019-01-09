@@ -38,16 +38,16 @@ namespace Ship_Game
         public bool GovBuildings = true;
         public bool GovSliders = true;
 
-        public float ProductionHere
-        {
-            get => Storage.Production;
-            set => Storage.Production = value;
-        }
-
         public float FoodHere
         {
-            get => Storage.RaceSpecificFood;
-            set => Storage.RaceSpecificFood = value;
+            get => Storage.Food;
+            set => Storage.Food = value;
+        }
+
+        public float ProdHere
+        {
+            get => Storage.Prod;
+            set => Storage.Prod = value;
         }
 
         public float Population
@@ -64,15 +64,25 @@ namespace Ship_Game
 
         public float ColonyWorth(Empire toEmpire)
         {
-                float worth = PopulationBillion + (FoodHere / 50f) + (ProductionHere / 50f) + Fertility +
-                              MineralRichness + MaxPopulationBillion;
-                foreach (Building b in BuildingList)
-                    worth += b.Cost / 50f;
-                if (worth < 15f)
-                    worth = 15f;
-                if (toEmpire.data.EconomicPersonality.Name == "Expansionists")
-                    worth *= 1.35f;
-                return worth;
+            float worth = PopulationBillion + MaxPopulationBillion;
+            if (toEmpire.NonCybernetic)
+            {
+                worth += (FoodHere / 50f) + (ProdHere / 50f);
+                worth += Fertility*1.5f;
+                worth += MineralRichness;
+            }
+            else // filthy Opteris
+            {
+                worth += (ProdHere / 25f);
+                worth += MineralRichness*2.0f;
+            }
+            foreach (Building b in BuildingList)
+                worth += b.Cost / 50f;
+            if (worth < 15f)
+                worth = 15f;
+            if (toEmpire.data.EconomicPersonality.Name == "Expansionists")
+                worth *= 1.35f;
+            return worth;
         }
 
         private string ImportsDescr()
@@ -147,16 +157,19 @@ namespace Ship_Game
         public float ShipBuildingModifier;
         public float Consumption; // Food (NonCybernetic) or Production (IsCybernetic)
         private float Unfed;
+        public bool IsStarving => Unfed < 0f;
+
         public float GetGoodHere(Goods good)
         {
             switch (good)
             {
                 case Goods.Food:       return FoodHere;
-                case Goods.Production: return ProductionHere;
+                case Goods.Production: return ProdHere;
                 case Goods.Colonists:  return Population;
                 default:               return 0;
             }
         }
+
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
@@ -363,7 +376,7 @@ namespace Ship_Game
             float incomingAvg = IncomingProduction;
             float netProd = Prod.NetIncome;
             netProd = ConstructionQueue.Count > 0 ? Math.Min(0,netProd) : netProd;
-            return ProductionHere + incomingAvg + netProd * turns;
+            return ProdHere + incomingAvg + netProd * turns;
         }
 
         bool FindConstructionBuilding(Goods goods, out QueueItem item)
@@ -1282,7 +1295,7 @@ namespace Ship_Game
                 exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
             }
 
-            float ratio = FoodHere / Storage.Max;
+            float ratio = Storage.FoodRatio;
 
             //This will allow a buffer for import / export, so they dont constantly switch between them
             if (ratio < importThreshold) FS = GoodState.IMPORT;                                     //if below importThreshold, its time to import.
@@ -1320,8 +1333,7 @@ namespace Ship_Game
                 }
             }
 
-            float ratio = ProductionHere / Storage.Max;
-
+            float ratio = Storage.ProdRatio;
             if (ratio < importThreshold) PS = GoodState.IMPORT;
             else if (PS == GoodState.IMPORT && ratio >= importThreshold * 2) PS = GoodState.STORE;
             else if (PS == GoodState.EXPORT && ratio <= exportThreshold / 2) PS = GoodState.STORE;
@@ -1439,7 +1451,7 @@ namespace Ship_Game
             if (percent == 0) return 0;
             if (Food.YieldPerColonist <= 0.5f || IsCybernetic) return 0; //No farming here, so never mind
             float minFarmers = CalculateFoodWorkers();          //Nominal Farmers needed to neither gain nor lose storage
-            float storedFoodRatio = FoodHere / Storage.Max;      //Percentage of Food Storage currently filled
+            float storedFoodRatio = Storage.FoodRatio;      //Percentage of Food Storage currently filled
 
             if (Food.FlatBonus > 0)
             {
@@ -1464,7 +1476,7 @@ namespace Ship_Game
                 minWorkers = minWorkers.Clamped(0, 1);
             }
 
-            float storedProdRatio = ProductionHere / Storage.Max;      //Percentage of Prod Storage currently filled
+            float storedProdRatio = Storage.ProdRatio;      //Percentage of Prod Storage currently filled
 
             if (Prod.FlatBonus > 0)      //Stop production early, since the flat production will continue to pile up
             {
@@ -1500,7 +1512,7 @@ namespace Ship_Game
                 return;
             }
             float maxPop = MaxPopulationBillion;
-            float storedFoodRatio = FoodHere / Storage.Max;      //How much of Storage is filled
+            float storedFoodRatio = Storage.FoodRatio;      //How much of Storage is filled
             if (Food.YieldPerColonist <= 0.5f) storedFoodRatio = 1; //No farming here, so skip it
 
             //Stop producing food a little early, since the flat food will continue to pile up
@@ -1519,7 +1531,7 @@ namespace Ship_Game
         private void WorkOrResearch(float labor)    //Industrial
         {
             if (labor == 0) return;
-            float storedProdRatio = ProductionHere / Storage.Max;      //How much of Storage is filled
+            float storedProdRatio = Storage.ProdRatio;      //How much of Storage is filled
 
             if (IsCybernetic)       //Stop production early, since the flat production will continue to pile up
             {
@@ -2525,7 +2537,6 @@ namespace Ship_Game
                 PlusCreditsPerColonist += b.CreditsPerColonist;
                 TerraformToAdd += b.PlusTerraformPoints;
                 PlusTaxPercentage += b.PlusTaxPercentage;
-                Storage.AddCommodity(b.Name, 0f); // @todo wtf is with this feature?
                 if (b.AllowInfantry)
                     AllowInfantry = true;
                 storageAdded += b.StorageAdded;
@@ -2568,8 +2579,8 @@ namespace Ship_Game
             Unfed = IsCybernetic ? Prod.NetIncome : Food.NetIncome;
             if (Unfed > 0f) Unfed = 0f;
 
-            Storage.Food       += Food.NetIncome;
-            Storage.Production += Prod.NetIncome;
+            FoodHere += Food.NetIncome;
+            ProdHere += Prod.NetIncome;
             Storage.BuildingResources();
         }
 
@@ -2586,7 +2597,7 @@ namespace Ship_Game
                 normalRepRate = Owner.data.Traits.PopGrowthMin * 1000f;
             normalRepRate += PlusFlatPopulationPerTurn;
             float adjustedRepRate = normalRepRate + Owner.data.Traits.ReproductionMod * normalRepRate;
-            if (Unfed == 0)
+            if (!IsStarving)
                 Population += adjustedRepRate;  //Unfed is calculated so it is 0 if everyone got food (even if just from storage)
             else        //  ^-- This one increases population if there is enough food to feed everyone
                 Population += Unfed * 10f;      //So this else would only happen if there was not enough food. <-- This reduces population due to starvation.
@@ -2658,19 +2669,14 @@ namespace Ship_Game
         //Debug Text
         public Array<DebugTextBlock> DebugPlanetInfo()
         {
-            var tradePlanet = this;
             var incomingData = new DebugTextBlock();
             var blocks = new Array<DebugTextBlock>();
-            Array<string> lines = new Array<string>();
-            var totals = tradePlanet.DebugSummarizePlanetStats(lines);
-            float foodHere = tradePlanet.FoodHere;
-            float prodHere = tradePlanet.ProductionHere;
-            float foodStorPerc = 100 * foodHere / tradePlanet.Storage.Max;
-            float prodStorPerc = 100 * prodHere / tradePlanet.Storage.Max;
-            string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
-            string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
+            var lines = new Array<string>();
+            var totals = DebugSummarizePlanetStats(lines);
+            string food = $"{(int)FoodHere}(%{100*Storage.FoodRatio:00.0}) {FS}";
+            string prod = $"{(int)ProdHere}(%{100*Storage.ProdRatio:00.0}) {PS}";
 
-            incomingData.AddLine($"{tradePlanet.ParentSystem.Name} : {tradePlanet.Name} : IN Cargo: {totals.Total}", Color.Yellow);
+            incomingData.AddLine($"{ParentSystem.Name} : {Name} : IN Cargo: {totals.Total}", Color.Yellow);
             incomingData.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
             incomingData.AddLine($"ProdHere: {prod} IN: {totals.Prod}");
             incomingData.AddLine($"IN Colonists: {totals.Colonists}");

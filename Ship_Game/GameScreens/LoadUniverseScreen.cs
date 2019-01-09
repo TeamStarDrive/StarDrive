@@ -187,9 +187,9 @@ namespace Ship_Game
 
         private static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
         {
-            p.Storage.Food = psdata.foodHere;
-            p.Storage.Production = psdata.prodHere;
-            p.Storage.Population = psdata.Population;
+            p.FoodHere = psdata.foodHere;
+            p.ProdHere = psdata.prodHere;
+            p.Population = psdata.Population;
         }
 
         private SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssdata)
