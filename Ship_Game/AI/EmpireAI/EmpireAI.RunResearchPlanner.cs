@@ -30,14 +30,13 @@ namespace Ship_Game.AI
             if (OwnerEmpire.ResearchTopic.NotEmpty())
                 return;
             Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
-            bool cybernetic = OwnerEmpire.data.Traits.Cybernetic > 0;
             float researchDebt = 0;
             float wars = OwnerEmpire.AllRelations.Count(war => !war.Key.isFaction && (war.Value.AtWar 
-            || war.Value.PreparingForWar ));                //
+                                                             || war.Value.PreparingForWar ));
 
             wars += ThreatMatrix.StrengthOfAllThreats(OwnerEmpire) / (OwnerEmpire.currentMilitaryStrength + 1);
             wars += OwnerEmpire.AllRelations.Count(war => !war.Key.isFaction 
-            && ( war.Value.TotalAnger > 10 || war.Value.FearEntries.Count > 1)) *2;
+                                        && ( war.Value.TotalAnger > 10 || war.Value.FearEntries.Count > 1)) *2;
 
             if (postResearchTopic.NotEmpty())
             {
@@ -50,12 +49,12 @@ namespace Ship_Game.AI
 
             foreach (Planet hunger in OwnerEmpire.GetPlanets())
             {
-                if ((cybernetic ? hunger.ProductionHere : hunger.FoodHere) / hunger.MaxStorage < .20f)                
-                    needsFood++;
+                if (hunger.Storage.RaceFoodRatio < 0.2f)                
+                    ++needsFood;
                 
                 if (!OwnerEmpire.GetTDict()["Biospheres"].Unlocked)
                 {
-                    if (hunger.Fertility < .1f)
+                    if (hunger.Fertility < 0.1f)
                         needsFood += 2;
                 }
 
@@ -80,7 +79,7 @@ namespace Ship_Game.AI
             needsFood = needsFood / total;
             economics = economics / total;
 
-          
+            bool cybernetic = OwnerEmpire.IsCybernetic;
             DebugLog($"wars : {wars}");
             DebugLog($"researchDebt : {researchDebt}");
             DebugLog($"cybernetic : {cybernetic}");
@@ -252,7 +251,7 @@ namespace Ship_Game.AI
                         }
                     case "IFCYBERNETIC":
                         {
-                            loopcount += ScriptBump(OwnerEmpire.data.Traits.Cybernetic > 0);
+                            loopcount += ScriptBump(OwnerEmpire.IsCybernetic);
                             goto Start;
                         }
                     case "IFLOWRESEARCH":

@@ -305,7 +305,7 @@ namespace Ship_Game
                             Empire.Universe.previousSelection = Empire.Universe.SelectedShip;
                         Empire.Universe.SelectedShipList.Clear();
                         Empire.Universe.SelectedShip = entry.ship;                        
-                        Empire.Universe.ViewToShip(null);
+                        Empire.Universe.ViewToShip();
                         Empire.Universe.returnToShip = true;
                     }
                     if (SelectedShip != entry.ship)

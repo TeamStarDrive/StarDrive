@@ -1201,7 +1201,7 @@ namespace Ship_Game
                 pInfoUI.SetPlanet(SelectedPlanet);
                 if (input.LeftMouseDoubleClick)
                 {
-                    ViewPlanet(null);
+                    ViewPlanet();
                     SelectionBox = new Rectangle();
                 }
                 else
@@ -1554,7 +1554,7 @@ namespace Ship_Game
                         SelectedPlanet = clickablePlanets.planetToClick;
                         if (!SnapBackToSystem)
                             HeightOnSnap = CamHeight;
-                        ViewPlanet(SelectedPlanet);
+                        ViewPlanet();
                     }
                 }
             }
@@ -1638,7 +1638,7 @@ namespace Ship_Game
                             if (SelectedShip != null && SelectedShip != previousSelection && SelectedShip != ship)
                                 previousSelection = SelectedShip;
                             SelectedShip = ship;
-                            ViewToShip(null);
+                            ViewToShip();
                             SelectedShipList.Add(SelectedShip);
                             lastshipcombat++;
                             break;
@@ -1767,7 +1767,7 @@ namespace Ship_Game
                     {
                         if (queueItem.Goal != SelectedItem.AssociatedGoal) continue;
 
-                        planet.ProductionHere += queueItem.productionTowards;
+                        planet.ProdHere += queueItem.productionTowards;
                         planet.ConstructionQueue.QueuePendingRemoval(queueItem);
                     }
                     planet.ConstructionQueue.ApplyPendingRemovals();

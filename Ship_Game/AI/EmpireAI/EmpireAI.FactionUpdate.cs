@@ -26,7 +26,7 @@ namespace Ship_Game.AI {
                                 item.Cost = 0;
                             }
                         }
-                        planet.ApplyProductiontoQueue(1, 0);
+                        planet.ApplyProductionToQueue(1, 0);
                     }
                     foreach (Ship assimilate in OwnerEmpire.GetShips())
                     {

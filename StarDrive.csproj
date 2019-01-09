@@ -321,7 +321,15 @@
     <Compile Include="Ship_Game\UI\Effects\UITransitionEffect.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\SBCommodities.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_ConstructionQueue.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_EvaluateBuildings.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Govern.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Resources.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WeCanAffordThis.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WorkDistribution.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBProduction.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\TroopManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Moon.cs" />
@@ -345,7 +353,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Utils\ReadRestAPI.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetEdict.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Ship_Game\Utils\Array.cs" />
@@ -759,7 +767,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet.cs">
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

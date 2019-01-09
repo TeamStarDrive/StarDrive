@@ -441,11 +441,11 @@ namespace Ship_Game
             {
                 if (Inspect.HandleInput(input))
                 {
-                    screen.ViewPlanet(null);
+                    screen.ViewPlanet();
                 }
                 if (Invade.HandleInput(input))
                 {
-                    screen.OpenCombatMenu(null);
+                    screen.OpenCombatMenu();
                 }
             }
             if (!ElementRect.HitTest(input.CursorPosition))
@@ -462,10 +462,6 @@ namespace Ship_Game
 
         public void SetPlanet(Planet p)
         {
-            if (p.Owner != null && p.IsCybernetic)
-            {
-                p.FoodLocked = true;
-            }
             this.p = p;
             Sliders.SetPlanet(p);
         }

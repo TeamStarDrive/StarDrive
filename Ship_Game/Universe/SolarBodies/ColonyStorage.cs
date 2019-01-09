@@ -3,13 +3,14 @@ using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game.Universe.SolarBodies
 {
-    public class SBCommodities
+    public class ColonyStorage
     {
         public TradeAI Trade { get;}
+        public float Max { get; set; } = 10f;
         readonly Planet Ground;
         readonly Map<string, float> Commodities = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
 
-        public SBCommodities (Planet planet)
+        public ColonyStorage(Planet planet)
         {
             Trade = new TradeAI(planet);
             Ground = planet;
@@ -23,12 +24,9 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         // different from Food -- this is based on race
-        public float RaceSpecificFood
-        {
-            get => GetGoodAmount(RacialTrait.GetFoodType(Ground.Owner?.data.Traits));
-            set => AddCommodity(RacialTrait.GetFoodType(Ground.Owner?.data.Traits), value);
-        }
-        
+        // cybernetics consume production, organics consume food
+        public float RaceFood => Ground.IsCybernetic ? ProdValue : FoodValue;
+
         float FoodValue; // @note These are special fields for perf reasons.
         float ProdValue;
         float PopValue;
@@ -36,13 +34,13 @@ namespace Ship_Game.Universe.SolarBodies
         public float Food
         {
             get => FoodValue;
-            set => FoodValue = value.Clamped(0f, Ground.MaxStorage);
+            set => FoodValue = value.Clamped(0f, Max);
         }
 
-        public float Production
+        public float Prod
         {
             get => ProdValue;
-            set => ProdValue = value.Clamped(0f, Ground.MaxStorage);
+            set => ProdValue = value.Clamped(0f, Max);
         }
 
         public float Population
@@ -51,13 +49,18 @@ namespace Ship_Game.Universe.SolarBodies
             set => PopValue = value.Clamped(0f, Ground.MaxPopWithBonus);
         }
 
+        public float RaceFoodRatio => RaceFood / Max;
+        public float FoodRatio => FoodValue / Max;
+        public float ProdRatio => ProdValue / Max;
+        public float PopRatio  => PopValue  / Ground.MaxPopWithBonus;
+
         public void AddCommodity(string goodId, float amount)
         {
             switch (goodId)
             {
                 default:               Commodities[goodId] = GetGoodAmount(goodId) + amount; break;
-                case "Food":           Food       += amount; break;
-                case "Production":     Production += amount; break;
+                case "Food":           Food += amount; break;
+                case "Production":     Prod += amount; break;
                 case "Colonists_1000": Population += amount; break;
             }
         }
@@ -67,18 +70,20 @@ namespace Ship_Game.Universe.SolarBodies
             switch (goodId)
             {
                 default:               Commodities[goodId] = amount; break;
-                case "Food":           Food       = amount; break;
-                case "Production":     Production = amount; break;
+                case "Food":           Food = amount; break;
+                case "Production":     Prod = amount; break;
                 case "Colonists_1000": Population = amount; break;
             }
         }
+
+        // @note Uses RaceFood for Food
         public float GetGoodAmount(Goods good)
         {
             switch (good)
             {
                 default:               return 0;
-                case Goods.Production: return Production;
-                case Goods.Food:       return RaceSpecificFood;
+                case Goods.Production: return Prod;
+                case Goods.Food:       return RaceFood;
                 case Goods.Colonists:  return Population;
             }
         }        
@@ -88,48 +93,10 @@ namespace Ship_Game.Universe.SolarBodies
             switch (goodId)
             {
                 case "Food":           return Food;
-                case "Production":     return Production;
+                case "Production":     return Prod;
                 case "Colonists_1000": return Population;
             }
             return Commodities.TryGetValue(goodId, out float commodity) ? commodity : 0;
-        }
-        
-        public float HarvestFood()
-         {
-            float unfed = 0.0f;     //Pop that did not get any food
-            if (Ground.IsCybernetic)
-            {
-                Food = 0.0f;      //Seems unused
-                Ground.NetProductionPerTurn -= Ground.Consumption;  //Reduce production by how much is consumed
-
-                float productionHere = Math.Min(0, Production + Ground.NetProductionPerTurn);
-
-                if (Production >= Ground.MaxStorage)
-                {
-                    unfed = 0.0f;
-                }
-                else if (productionHere < 0)
-                {
-                    unfed = productionHere;
-                    Production = 0;
-                }
-            }
-            else
-            {
-                Ground.NetFoodPerTurn -= Ground.Consumption;            // Reduce food by how much is consumed
-                float foodHere = RaceSpecificFood + Ground.NetFoodPerTurn;      // Add any remaining to storage
-                 
-                if (foodHere >= Ground.MaxStorage)
-                {
-                    unfed = 0.0f;
-                }
-                else if (foodHere <= 0)
-                {
-                    unfed = foodHere;                    
-                }
-                RaceSpecificFood = foodHere;
-            }            
-            return unfed;
         }
 
         public void BuildingResources()
@@ -149,7 +116,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
                 else if (b.CommodityRequired != null)
                 {
-                    if (Ground.SbCommodities.ContainsGood(b.CommodityRequired))
+                    if (Ground.Storage.ContainsGood(b.CommodityRequired))
                     {
                         foreach (Building other in Ground.BuildingList)
                         {

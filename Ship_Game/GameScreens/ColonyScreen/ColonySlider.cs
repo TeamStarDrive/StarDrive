@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
-    public enum SliderType
+    public enum ColonyResType
     {
         Food,
         Prod,
@@ -20,7 +21,7 @@ namespace Ship_Game
         public delegate void SliderChangeEvent(ColonySlider slider, float difference);
         public SliderChangeEvent OnSliderChange;
 
-        readonly SliderType Type;
+        readonly ColonyResType Type;
         public Planet P;
         readonly SubTexture Slider, Icon;
         readonly SubTexture Lock           = ResourceManager.Texture("NewUI/icon_lock");
@@ -33,25 +34,25 @@ namespace Ship_Game
         static readonly Color HoverColor = new Color(164, 154, 133);
 
         bool SliderHover;
-        bool SliderDragging;
         bool LockHover;
         readonly bool DrawIcons;
 
+        public bool IsDragging { get; private set; }
         public bool CanDrag;
         public bool IsDisabled;
         public bool IsCrippled; // PRODUCTION resource: are we crippled?
         public bool IsInvasion; // PRODUCTION resource: invasion leaves us crippled as well?
 
-        public ColonySlider(UIElementV2 parent, SliderType type, Planet p, int x, int y, int width, bool drawIcons = true)
+        public ColonySlider(UIElementV2 parent, ColonyResType type, Planet p, int x, int y, int width, bool drawIcons = true)
             : base(parent, new Rectangle(x, y, width, 6))
         {
             Type = type;
             P = p;
             var sliders = new[]{ "green", "brown", "blue" };
             var icons   = new[]{ "food", "production", "science" };
-            Slider  = ResourceManager.Texture($"NewUI/slider_grd_{sliders[(int)type]}");
-            Icon    = ResourceManager.Texture($"NewUI/icon_{icons[(int)type]}");
-            DrawIcons  = drawIcons;
+            Slider    = ResourceManager.Texture($"NewUI/slider_grd_{sliders[(int)type]}");
+            Icon      = ResourceManager.Texture($"NewUI/icon_{icons[(int)type]}");
+            DrawIcons = drawIcons;
             UpdatePos(x, y);
         }
 
@@ -67,66 +68,36 @@ namespace Ship_Game
             switch (Type)
             {
                 default: return P.IsCybernetic ? 77 : 70;
-                case SliderType.Prod: return 71;
-                case SliderType.Res:  return 72;
+                case ColonyResType.Prod: return 71;
+                case ColonyResType.Res:  return 72;
+            }
+        }
+
+        public ColonyResource Resource
+        {
+            get
+            {
+                switch (Type)
+                {
+                    default:                 return P.Food;
+                    case ColonyResType.Prod: return P.Prod;
+                    case ColonyResType.Res:  return P.Res;
+                }
             }
         }
 
         public float Value
         {
-            get
-            {
-                switch (Type)
-                {
-                    default:              return P.FarmerPercentage;
-                    case SliderType.Prod: return P.WorkerPercentage;
-                    case SliderType.Res:  return P.ResearcherPercentage;
-                }
-            }
-            set
-            {
-                switch (Type)
-                {
-                    default:              P.FarmerPercentage     = value; break;
-                    case SliderType.Prod: P.WorkerPercentage     = value; break;
-                    case SliderType.Res:  P.ResearcherPercentage = value; break;
-                }
-            }
+            get => Resource.Percent;
+            set => Resource.Percent = value;
         }
 
-        public float NetValue
-        {
-            get
-            {
-                switch (Type)
-                {
-                    default:              return P.GetNetFoodPerTurn();
-                    case SliderType.Prod: return P.GetNetProductionPerTurn();
-                    case SliderType.Res:  return P.GetNetResearchPerTurn();
-                }
-            }
-        }
+        public float NetValue => Resource.NetIncome;
 
         public bool LockedByUser
         {
-            get
-            {
-                switch (Type)
-                {
-                    default:              return P.FoodLocked;
-                    case SliderType.Prod: return P.ProdLocked;
-                    case SliderType.Res:  return P.ResLocked;
-                }
-            }
-            set
-            {
-                switch (Type)
-                {
-                    default:              P.FoodLocked = value; break;
-                    case SliderType.Prod: P.ProdLocked = value; break;
-                    case SliderType.Res:  P.ResLocked  = value; break;
-                }
-            }
+            get => Resource.PercentLock;
+            set => Resource.PercentLock = value;
         }
 
         public override bool HandleInput(InputState input)
@@ -136,31 +107,30 @@ namespace Ship_Game
 
             Vector2 mousePos = input.CursorPosition;
             bool mouseOverSlider = !LockedByUser && Rect.Bevel(5).HitTest(mousePos);
-            SliderHover = mouseOverSlider || SliderDragging;
-            LockHover = LockRect.HitTest(mousePos);
 
             // slider drag is stateful to give user more convenient slide experience
-            if (SliderDragging)
+            if (IsDragging)
             {
                 if (!input.LeftMouseHeldDown) // LMB not down anymore?
-                    SliderDragging = false; // stop sliding
+                    IsDragging = false; // stop sliding
             }
             else if (CanDrag)
             {
                 if (mouseOverSlider && input.LeftMouseClick)
-                    SliderDragging = true;
+                    IsDragging = true;
             }
 
-            if (SliderDragging)
-                HandleDragging((int)mousePos.X);
-            
-            if (DrawIcons)
+            // @note No tooltips or other stuff during sliding
+            if (IsDragging)
             {
-                if (IconRect().HitTest(input.CursorPosition) && Empire.Universe.IsActive)
-                    ToolTip.CreateTooltip(Tooltip());
+                SliderHover = true;
+                HandleDragging((int)mousePos.X);
+                return true;
             }
 
-            if (LockHover)
+            SliderHover = mouseOverSlider;
+            LockHover = LockRect.HitTest(mousePos);
+            if (LockHover) // hovering over lock?
             {
                 if (input.LeftMouseClick)
                 {
@@ -168,6 +138,11 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 }
                 ToolTip.CreateTooltip(69);
+            }
+            else if (DrawIcons) // maybe hovering over icon?
+            {
+                if (IconRect().HitTest(input.CursorPosition) && Empire.Universe.IsActive)
+                    ToolTip.CreateTooltip(Tooltip());
             }
             return false;
         }

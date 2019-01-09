@@ -22,14 +22,14 @@ namespace Ship_Game
         {
             for (int i = 0; i < 3; ++i)
             {
-                Sliders[i] = Add(new ColonySlider(this, (SliderType)i, null, x, y + (spacingY * (i+1)), width, drawIcons)
+                Sliders[i] = Add(new ColonySlider(this, (ColonyResType)i, null, x, y + (spacingY * (i+1)), width, drawIcons)
                 {
                     OnSliderChange = OnSliderChange
                 });
             }
-            Food = Sliders[(int)SliderType.Food];
-            Prod = Sliders[(int)SliderType.Prod];
-            Res  = Sliders[(int)SliderType.Res];
+            Food = Sliders[(int)ColonyResType.Food];
+            Prod = Sliders[(int)ColonyResType.Prod];
+            Res  = Sliders[(int)ColonyResType.Res];
         }
 
         public void UpdatePos(int x, int y)
@@ -61,7 +61,7 @@ namespace Ship_Game
             if (c.LockedByUser) // only one is locked, eaaasy and perfect accuracy
             {
                 a.Value += difference.Clamped(-a.Value, b.Value);
-                b.Value = 1f - (a.Value + c.Value); // auto-balance second slider
+                b.Resource.AutoBalanceWorkers();
             }
             else // all 3 unlocked
             {
@@ -77,6 +77,9 @@ namespace Ship_Game
                 }
                 ApplyDelta(b, -move/2);
                 ApplyDelta(c, -move/2);
+
+                // @note There is always a tiny chance for a float error
+                c.Resource.AutoBalanceWorkers();
             }
 
             float sum = Sliders.Sum(s => s.Value);
@@ -101,6 +104,12 @@ namespace Ship_Game
             Prod.IsCrippled = P.CrippledTurns > 0;
             Prod.IsInvasion = P.RecentCombat;
 
+            // prioritize currently dragging slider for input events
+            ColonySlider dragged = Sliders.Find(s => s.IsDragging);
+            if (dragged != null)
+            {
+                return dragged.HandleInput(input);
+            }
             return base.HandleInput(input);
         }
 

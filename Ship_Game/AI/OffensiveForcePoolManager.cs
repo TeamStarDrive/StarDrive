@@ -47,12 +47,12 @@ namespace Ship_Game.AI
 
             IOrderedEnumerable<Planet> maxProductionPotential =
                 from planet in planets
-                orderby planet.GetMaxProductionPotential() descending
+                orderby planet.Prod.MaxPotential descending
                 select planet;
 
             foreach (Planet coreWorld in maxProductionPotential)
             {
-                if (coreWorld == null || coreWorld.GetMaxProductionPotential() <= 5f || !coreWorld.HasShipyard) continue;
+                if (coreWorld == null || coreWorld.Prod.MaxPotential <= 5f || !coreWorld.HasShipyard) continue;
                 float aoSize = 0;
                 foreach (SolarSystem system in coreWorld.ParentSystem.FiveClosestSystems)
                 {

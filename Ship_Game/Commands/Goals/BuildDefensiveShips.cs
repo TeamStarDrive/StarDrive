@@ -36,9 +36,9 @@ namespace Ship_Game.Commands.Goals
                 {
                     int num2 = 0;
                     foreach (QueueItem queueItem in planet2.ConstructionQueue)
-                        num2 += (int)((queueItem.Cost - (double)queueItem.productionTowards) / planet2.NetProductionPerTurn);
+                        num2 += (int)((queueItem.Cost - (double)queueItem.productionTowards) / planet2.Prod.NetIncome);
                     if (planet2.ConstructionQueue.Count == 0)
-                        num2 = (int)((beingBuilt.GetCost(empire) - (double)planet2.ProductionHere) / planet2.NetProductionPerTurn);
+                        num2 = (int)((beingBuilt.GetCost(empire) - (double)planet2.ProdHere) / planet2.Prod.NetIncome);
                     if (num2 < num1)
                     {
                         num1 = num2;
@@ -47,17 +47,17 @@ namespace Ship_Game.Commands.Goals
                 }
             }
             if (planet1 == null)
-                foreach (Planet planet2 in list)
+                foreach (Planet p2 in list)
                 {
                     int num2 = 0;
-                    foreach (QueueItem queueItem in planet2.ConstructionQueue)
-                        num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());
-                    if (planet2.ConstructionQueue.Count == 0)
-                        num2 = (int)((beingBuilt.GetCost(empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());
+                    foreach (QueueItem qi in p2.ConstructionQueue)
+                        num2 += (int)((qi.Cost - qi.productionTowards) / p2.Prod.MaxPotential);
+                    if (p2.ConstructionQueue.Count == 0)
+                        num2 = (int)((beingBuilt.GetCost(empire) - p2.ProdHere) / p2.Prod.MaxPotential);
                     if (num2 < num1)
                     {
                         num1 = num2;
-                        planet1 = planet2;
+                        planet1 = p2;
                     }
                 }
             if (planet1 == null)

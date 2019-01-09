@@ -126,6 +126,9 @@ namespace Ship_Game
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
+        [XmlIgnore][JsonIgnore] public bool IsCybernetic  => data.Traits.Cybernetic != 0;
+        [XmlIgnore][JsonIgnore] public bool NonCybernetic => data.Traits.Cybernetic == 0;
+
         public void TriggerAllShipStatusUpdate()
         {
             foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag.
@@ -215,7 +218,7 @@ namespace Ship_Game
         {
             newOrbital.Owner           = this;
             Capital                    = newOrbital;
-            newOrbital.InitializeSliders(this);
+            newOrbital.InitializeWorkerDistribution(this);
             AddPlanet(newOrbital);
             newOrbital.SetPlanetAttributes(26f);
             newOrbital.ChangeFertility(2f + data.Traits.HomeworldFertMod);
@@ -223,7 +226,7 @@ namespace Ship_Game
             newOrbital.MaxPopulation   = 14000f + 14000f * data.Traits.HomeworldSizeMod;
             newOrbital.Population      = 14000f;
             newOrbital.FoodHere        = 100f;
-            newOrbital.ProductionHere  = 100f;
+            newOrbital.ProdHere        = 100f;
             newOrbital.HasShipyard     = true;
             newOrbital.AddGood("ReactorFuel", 1000);
             ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
@@ -279,7 +282,7 @@ namespace Ship_Game
                 RallyPoints = rallyPlanets.ToArray();
                 return;
             }
-            rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.GrossProductionPerTurn));
+            rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.Prod.GrossIncome));
             RallyPoints = rallyPlanets.ToArray();
             if (RallyPoints.Length == 0)
                 Log.Error("SetRallyPoint: No Planets found");
@@ -490,7 +493,8 @@ namespace Ship_Game
             return TechEntry.None;
         }
 
-        public float GetProjectedResearchNextTurn() => OwnedPlanets.Sum(p=> p.NetResearchPerTurn);
+        public float GetProjectedResearchNextTurn()
+            => OwnedPlanets.Sum(p=> p.Res.NetIncome);
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
 
@@ -1222,28 +1226,22 @@ namespace Ship_Game
             UpdateFleets(elapsedTime);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
-
         }
 
         public DebugTextBlock DebugEmpireTradeInfo()
         {
             var incomingData = new DebugTextBlock();
-            foreach (Planet tradePlanet in OwnedPlanets)
+            foreach (Planet p in OwnedPlanets)
             {
-                if (tradePlanet.TradeAI == null) continue;
-                var lines = new Array<string>();
-                TradeAI.DebugSummaryTotal totals = tradePlanet.TradeAI.DebugSummarizeIncomingFreight(lines);
-                float foodHere = tradePlanet.FoodHere;
-                float prodHere = tradePlanet.ProductionHere;
-                float popHere = tradePlanet.GetGoodHere(Goods.Colonists);
-                float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
-                float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;
-                float popPerc = 100 * popHere / tradePlanet.MaxPopulation;
-                string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
-                string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
-                string colonists = $"{(int)popHere / 1000f}B(%{popPerc:00.0}) {tradePlanet.GetGoodState(Goods.Colonists)}";
+                if (p.TradeAI == null) continue;
 
-                incomingData.AddLine($"{tradePlanet.ParentSystem.Name} : {tradePlanet.Name} : IN Cargo: {totals.Total}", Color.Yellow);
+                var lines = new Array<string>();
+                TradeAI.DebugSummaryTotal totals = p.TradeAI.DebugSummarizeIncomingFreight(lines);
+                string food = $"{(int)p.FoodHere}(%{100 * p.Storage.FoodRatio:00.0}) {p.FS}";
+                string prod = $"{(int)p.ProdHere}(%{100 * p.Storage.ProdRatio:00.0}) {p.PS}";
+                string colonists = $"{(int)p.PopulationBillion}B(%{100 * p.Storage.PopRatio:00.0}) {p.GetGoodState(Goods.Colonists)}";
+
+                incomingData.AddLine($"{p.ParentSystem.Name} : {p.Name} : IN Cargo: {totals.Total}", Color.Yellow);
                 incomingData.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
                 incomingData.AddLine($"ProdHere: {prod} IN: {totals.Prod}" );
                 incomingData.AddLine($"Colonists: {colonists } IN {totals.Colonists}");
@@ -1256,17 +1254,12 @@ namespace Ship_Game
         {
 
             var incomingData = new DebugTextBlock();
-            foreach (Planet tradePlanet in OwnedPlanets)
+            foreach (Planet p in OwnedPlanets)
             {
                 var lines = new Array<string>();
-                float foodHere = tradePlanet.FoodHere;
-                float prodHere = tradePlanet.ProductionHere;
-                float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
-                float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;
-                string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
-                string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
-
-                incomingData.AddLine($"{tradePlanet.ParentSystem.Name} : {tradePlanet.Name} ", Color.Yellow);
+                string food = $"{(int)p.FoodHere}(%{100*p.Storage.FoodRatio:00.0}) {p.FS}";
+                string prod = $"{(int)p.ProdHere}(%{100*p.Storage.ProdRatio:00.0}) {p.PS}";
+                incomingData.AddLine($"{p.ParentSystem.Name} : {p.Name} ", Color.Yellow);
                 incomingData.AddLine($"FoodHere: {food} ", Color.White);
                 incomingData.AddLine($"ProdHere: {prod} ");
                 incomingData.AddRange(lines);
@@ -1538,7 +1531,7 @@ namespace Ship_Game
             float num = 0.0f;
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet p in OwnedPlanets)
-                    num += p.NetFoodPerTurn;
+                    num += p.Food.GrossIncome;
             return num;
         }
 
@@ -1554,7 +1547,7 @@ namespace Ship_Game
             float fertility = p.Fertility;
             float richness = p.MineralRichness;
             float pop = p.MaxPopulationBillion;
-            if (data.Traits.Cybernetic >0)
+            if (IsCybernetic)
                  fertility = richness;
             if (richness >= 1.0f && fertility >= 1 && pop > 7)
                 return Planet.ColonyType.Core;
@@ -1590,7 +1583,7 @@ namespace Ship_Game
             if (p.MaxPopulation > 1000)
             {
                 researchPotential += p.MaxPopulationBillion;
-                if (data.Traits.Cybernetic > 0)
+                if (IsCybernetic)
                 {
                     if (p.MineralRichness > 1)
                         popSupport += p.MaxPopulationBillion + p.MineralRichness;
@@ -1615,7 +1608,7 @@ namespace Ship_Game
                                         * (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500);
             }
 
-            if (data.Traits.Cybernetic > 0)
+            if (IsCybernetic)
                 fertility = 0;
 
             int coreCount         = 0;
@@ -1978,6 +1971,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             Research = 0;
             MaxResearchPotential = 0;
             foreach (Planet planet in OwnedPlanets)
@@ -1985,8 +1979,8 @@ namespace Ship_Game
                 if (!data.IsRebelFaction)
                     StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
 
-                Research             += planet.NetResearchPerTurn;
-                MaxResearchPotential += planet.GetMaxResearchPotential;
+                Research             += planet.Res.NetIncome;
+                MaxResearchPotential += planet.Res.MaxPotential;
             }
 
             if (data.TurnsBelowZero > 0 && Money < 0.0 && !Universe.Debug)
@@ -2130,7 +2124,7 @@ namespace Ship_Game
                 return;
             //reduce the impact of tech that doesnt affect cybernetics.
             float cyberneticMultiplier = 1.0f;
-            if (data.Traits.Cybernetic > 0 && tech.UnlocksFoodBuilding)
+            if (IsCybernetic && tech.UnlocksFoodBuilding)
                 cyberneticMultiplier = .5f;
 
             float techCost = tech.TechCost * cyberneticMultiplier;
@@ -2294,7 +2288,7 @@ namespace Ship_Game
                     s.AI.State = AIState.AwaitingOrders;
                 }
 
-                if (data.Traits.Cybernetic != 0)
+                if (IsCybernetic)
                 {
                     foreach (Planet planet in OwnedPlanets)
                     {

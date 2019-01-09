@@ -119,8 +119,8 @@ namespace Ship_Game
             else
             {
                 FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
-                FoodStorage.Max = p.MaxStorage;
-                FoodStorage.Progress = p.SbCommodities.Food;
+                FoodStorage.Max = p.Storage.Max;
+                FoodStorage.Progress = p.FoodHere;
                 FoodStorage.color = "green";
                 foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
                 foodDropDown.AddOption(Localizer.Token(329));
@@ -130,8 +130,8 @@ namespace Ship_Game
                 var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
                 FoodStorageIcon = new Rectangle(theMenu7.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
                 ProdStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.660000026226044 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
-                ProdStorage.Max = p.MaxStorage;
-                ProdStorage.Progress = p.ProductionHere;
+                ProdStorage.Max = p.Storage.Max;
+                ProdStorage.Progress = p.ProdHere;
                 var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
                 ProfStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
                 prodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
@@ -224,10 +224,10 @@ namespace Ship_Game
             batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, new Color(255, 239, 208));
             if (!GlobalStats.HardcoreRuleset)
             {
-                FoodStorage.Max = P.MaxStorage;
-                FoodStorage.Progress = P.SbCommodities.Food;
-                ProdStorage.Max = P.MaxStorage;
-                ProdStorage.Progress = P.ProductionHere;
+                FoodStorage.Max = P.Storage.Max;
+                FoodStorage.Progress = P.FoodHere;
+                ProdStorage.Max = P.Storage.Max;
+                ProdStorage.Progress = P.ProdHere;
             }
             PlanetInfo.Draw();
             pDescription.Draw();
@@ -443,12 +443,12 @@ namespace Ship_Game
             }
             else
             {
-                FoodStorage.Progress = P.SbCommodities.Food;
-                ProdStorage.Progress = P.ProductionHere;
+                FoodStorage.Progress = P.FoodHere;
+                ProdStorage.Progress = P.ProdHere;
                 if      (P.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
                 else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
                 else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
-                if (P.Owner.data.Traits.Cybernetic == 0)
+                if (P.NonCybernetic)
                 {
                     FoodStorage.Draw(batch);
                     foodDropDown.Draw(batch);
@@ -991,7 +991,7 @@ namespace Ship_Game
                 case string _:
                     DrawMultiLine(ref bCursor, P.Description);
                     string desc = "";
-                    if (P.Owner.data.Traits.Cybernetic != 0)  desc = Localizer.Token(2028);
+                    if (P.IsCybernetic)  desc = Localizer.Token(2028);
                     else switch (P.FS)
                     {
                         case Planet.GoodState.EXPORT:
@@ -1020,9 +1020,7 @@ namespace Ship_Game
                             break;
                     }
                     DrawMultiLine(ref bCursor, desc);
-                    bool cybernetic  = P.Owner.data.Traits.Cybernetic != 0;
-                    float production = cybernetic ? P.ProductionHere + P.NetProductionPerTurn : P.FoodHere + P.NetFoodPerTurn;
-                    if (production - P.Consumption < 0f)
+                    if (P.IsStarving)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
                     DrawPlanetStat(ref bCursor, spriteBatch);
                     break;
@@ -1089,18 +1087,18 @@ namespace Ship_Game
 
         private void DrawPlanetStat(ref Vector2 cursor, SpriteBatch spriteBatch)
         {
-            DrawBuildingInfo(ref cursor, spriteBatch, P.Fertility + P.PlusFoodPerColonist,
-                ResourceManager.Texture("NewUI/icon_food"), "food per colonist allocated to Food Production");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.FlatFoodAdded,
-                ResourceManager.Texture("NewUI/icon_food"), "flat food added generated per turn");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.ProductionPerWorker,
-                ResourceManager.Texture("NewUI/icon_production"), "production per colonist allocated to Industry after tax");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.FlatProductionPerTurn,
-                ResourceManager.Texture("NewUI/icon_production"), "flat production added generated per turn after tax");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.ResearchPerResearcher,
-                ResourceManager.Texture("NewUI/icon_science"), "research per colonist allocated to Science after tax");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.FlatResearchPerTurn,
-                ResourceManager.Texture("NewUI/icon_science"), "flat research added generated per turn after tax");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Food.NetYieldPerColonist,
+                ResourceManager.Texture("NewUI/icon_food"), "food per colonist allocated to Food Production after taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Food.NetFlatBonus,
+                ResourceManager.Texture("NewUI/icon_food"), "flat food added generated per turn after taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Prod.NetYieldPerColonist,
+                ResourceManager.Texture("NewUI/icon_production"), "production per colonist allocated to Industry after taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Prod.NetFlatBonus,
+                ResourceManager.Texture("NewUI/icon_production"), "flat production added generated per turn after taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Res.NetYieldPerColonist,
+                ResourceManager.Texture("NewUI/icon_science"), "research per colonist allocated to Science before taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Res.NetFlatBonus,
+                ResourceManager.Texture("NewUI/icon_science"), "flat research added generated per turn after taxes");
         }
 
         private void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch spriteBatch, Building building)
@@ -1211,13 +1209,13 @@ namespace Ship_Game
             {
                 if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
                 {
-                    numFood = numFood + pgs.building.PlusFoodPerColonist * P.PopulationBillion * P.FarmerPercentage;
+                    numFood = numFood + pgs.building.PlusFoodPerColonist * P.PopulationBillion * P.Food.Percent;
                     numFood = numFood + pgs.building.PlusFlatFoodAmount;
                 }
                 if (pgs.building.PlusFlatProductionAmount > 0f || pgs.building.PlusProdPerColonist > 0f)
                 {
                     numProd = numProd + pgs.building.PlusFlatProductionAmount;
-                    numProd = numProd + pgs.building.PlusProdPerColonist * P.PopulationBillion * P.WorkerPercentage;
+                    numProd = numProd + pgs.building.PlusProdPerColonist * P.PopulationBillion * P.Prod.Percent;
                 }
                 if (pgs.building.PlusProdPerRichness > 0f)
                 {
@@ -1225,7 +1223,7 @@ namespace Ship_Game
                 }
                 if (pgs.building.PlusResearchPerColonist > 0f || pgs.building.PlusFlatResearchAmount > 0f)
                 {
-                    numRes = numRes + pgs.building.PlusResearchPerColonist * P.PopulationBillion * P.ResearcherPercentage;
+                    numRes = numRes + pgs.building.PlusResearchPerColonist * P.PopulationBillion * P.Res.Percent;
                     numRes = numRes + pgs.building.PlusFlatResearchAmount;
                 }
             }
@@ -1852,7 +1850,7 @@ namespace Ship_Game
                             GameAudio.PlaySfxAsync(P.ApplyStoredProduction(i) ? "sd_ui_accept_alt3" : "UI_Misc20");
                         }
                     }
-                    else if (P.ProductionHere == 0f)
+                    else if (P.ProdHere == 0f)
                     {
                         GameAudio.PlaySfxAsync("UI_Misc20");
                     }
@@ -1866,7 +1864,7 @@ namespace Ship_Game
                 if (e.WasCancelHovered(input) && input.LeftMouseClick)
                 {
                     var item = e.Get<QueueItem>();
-                    P.ProductionHere += item.productionTowards;
+                    P.ProdHere += item.productionTowards;
 
                     if (item.pgs != null)
                     {

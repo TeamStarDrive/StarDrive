@@ -83,7 +83,7 @@ namespace Ship_Game
 
 			FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)(0.4f * StorageRect.Width), 18))
 			{
-				Max = p.MaxStorage,
+				Max = p.Storage.Max,
 				Progress = p.FoodHere,
 				color = "green"
 			};
@@ -100,8 +100,8 @@ namespace Ship_Game
 			foodStorageIcon = new Rectangle(StorageRect.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
 			ProdStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, FoodStorage.pBar.Y + FoodStorage.pBar.Height + 10, (int)(0.4f * StorageRect.Width), 18))
 			{
-				Max = p.MaxStorage,
-				Progress = p.ProductionHere
+				Max = p.Storage.Max,
+				Progress = p.ProdHere
 			};
 			prodStorageIcon = new Rectangle(StorageRect.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
 			prodDropDown = new DropDownMenu(new Rectangle(StorageRect.X + 50 + (int)(0.4f * StorageRect.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, ddwidth, 18));
@@ -138,20 +138,20 @@ namespace Ship_Game
 			batch.DrawString(Fonts.Arial12, popstring, cursor, Color.White);
 			cursor = new Vector2(FoodRect.X + FoodRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
 
-			string fstring = p.GetNetFoodPerTurn().String();
+			string fstring = p.Food.NetIncome.String();
 			cursor.X -= Fonts.Arial12.MeasureString(fstring).X;
 			HelperFunctions.ClampVectorToInt(ref cursor);
-			batch.DrawString(Fonts.Arial12, fstring, cursor, (p.GetNetFoodPerTurn() >= 0f ? Color.White : Color.LightPink));
+			batch.DrawString(Fonts.Arial12, fstring, cursor, (p.Food.NetIncome >= 0f ? Color.White : Color.LightPink));
 			
             cursor = new Vector2(ProdRect.X + FoodRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-			string pstring = p.GetNetProductionPerTurn().String();
+			string pstring = p.Prod.NetIncome.String();
 			cursor.X -= Fonts.Arial12.MeasureString(pstring).X;
 			HelperFunctions.ClampVectorToInt(ref cursor);
-			bool pink = p.GetNetProductionPerTurn() < 0f;
+			bool pink = p.Prod.NetIncome < 0f;
             batch.DrawString(Fonts.Arial12, pstring, cursor, (pink ? Color.LightPink : Color.White));
 			
             cursor = new Vector2(ResRect.X + FoodRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-			string rstring = p.NetResearchPerTurn.String();
+			string rstring = p.Res.NetIncome.String();
 			cursor.X = cursor.X - Fonts.Arial12.MeasureString(rstring).X;
 			HelperFunctions.ClampVectorToInt(ref cursor);
 			batch.DrawString(Fonts.Arial12, rstring, cursor, Color.White);
@@ -366,7 +366,7 @@ namespace Ship_Game
 
 			FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)(0.4f * StorageRect.Width), 18))
 			{
-				Max = p.MaxStorage,
+				Max = p.Storage.Max,
 				Progress = p.FoodHere,
 				color = "green"
 			};
@@ -383,8 +383,8 @@ namespace Ship_Game
 			foodStorageIcon = new Rectangle(StorageRect.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
 			ProdStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, FoodStorage.pBar.Y + FoodStorage.pBar.Height + 10, (int)(0.4f * StorageRect.Width), 18))
 			{
-				Max = p.MaxStorage,
-				Progress = p.ProductionHere
+				Max = p.Storage.Max,
+				Progress = p.ProdHere
 			};
 			prodStorageIcon = new Rectangle(StorageRect.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
 			prodDropDown = new DropDownMenu(new Rectangle(StorageRect.X + 50 + (int)(0.4f * StorageRect.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, ddwidth, 18));
