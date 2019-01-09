@@ -201,7 +201,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
                 if (exporter == TradePlanet) return false;
                 if (exporter.Owner != TradePlanet.Owner) return false;
                 return exporter.TradeAI.PredictedTradeFor(good, ShipAI.Plan.PickupGoods)
-                       < exporter.SbCommodities.GetGoodAmount(good);
+                       < exporter.Storage.GetGoodAmount(good);
             });
             if (potentialSources.Length == 0) return route;
             Planet startPlanet = potentialSources.FindMin(start =>

@@ -120,7 +120,7 @@ namespace Ship_Game
             {
                 FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
                 FoodStorage.Max = p.MaxStorage;
-                FoodStorage.Progress = p.SbCommodities.Food;
+                FoodStorage.Progress = p.Storage.Food;
                 FoodStorage.color = "green";
                 foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
                 foodDropDown.AddOption(Localizer.Token(329));
@@ -225,7 +225,7 @@ namespace Ship_Game
             if (!GlobalStats.HardcoreRuleset)
             {
                 FoodStorage.Max = P.MaxStorage;
-                FoodStorage.Progress = P.SbCommodities.Food;
+                FoodStorage.Progress = P.Storage.Food;
                 ProdStorage.Max = P.MaxStorage;
                 ProdStorage.Progress = P.ProductionHere;
             }
@@ -443,7 +443,7 @@ namespace Ship_Game
             }
             else
             {
-                FoodStorage.Progress = P.SbCommodities.Food;
+                FoodStorage.Progress = P.Storage.Food;
                 ProdStorage.Progress = P.ProductionHere;
                 if      (P.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
                 else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
@@ -1020,7 +1020,7 @@ namespace Ship_Game
                             break;
                     }
                     DrawMultiLine(ref bCursor, desc);
-                    float production = P.IsCybernetic ? P.ProductionHere + P.NetProductionPerTurn : P.FoodHere + P.FoodPerTurn;
+                    float production = P.IsCybernetic ? P.ProductionHere + P.Prod.NetIncome : P.FoodHere + P.Food.NetIncome;
                     if (production - P.Consumption < 0f)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
                     DrawPlanetStat(ref bCursor, spriteBatch);
@@ -1088,18 +1088,18 @@ namespace Ship_Game
 
         private void DrawPlanetStat(ref Vector2 cursor, SpriteBatch spriteBatch)
         {
-            DrawBuildingInfo(ref cursor, spriteBatch, P.Fertility + P.PlusFoodPerColonist,
-                ResourceManager.Texture("NewUI/icon_food"), "food per colonist allocated to Food Production");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.FlatFoodAdded,
-                ResourceManager.Texture("NewUI/icon_food"), "flat food added generated per turn");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.ProductionPerWorker,
-                ResourceManager.Texture("NewUI/icon_production"), "production per colonist allocated to Industry after tax");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.FlatProductionPerTurn,
-                ResourceManager.Texture("NewUI/icon_production"), "flat production added generated per turn after tax");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.ResearchPerResearcher,
-                ResourceManager.Texture("NewUI/icon_science"), "research per colonist allocated to Science after tax");
-            DrawBuildingInfo(ref cursor, spriteBatch, P.FlatResearchPerTurn,
-                ResourceManager.Texture("NewUI/icon_science"), "flat research added generated per turn after tax");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Food.NetYieldPerColonist,
+                ResourceManager.Texture("NewUI/icon_food"), "food per colonist allocated to Food Production after taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Food.NetFlatBonus,
+                ResourceManager.Texture("NewUI/icon_food"), "flat food added generated per turn after taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Prod.NetYieldPerColonist,
+                ResourceManager.Texture("NewUI/icon_production"), "production per colonist allocated to Industry after taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Prod.NetFlatBonus,
+                ResourceManager.Texture("NewUI/icon_production"), "flat production added generated per turn after taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Res.NetYieldPerColonist,
+                ResourceManager.Texture("NewUI/icon_science"), "research per colonist allocated to Science before taxes");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Res.NetFlatBonus,
+                ResourceManager.Texture("NewUI/icon_science"), "flat research added generated per turn after taxes");
         }
 
         private void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch spriteBatch, Building building)

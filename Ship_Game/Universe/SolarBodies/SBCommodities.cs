@@ -93,44 +93,6 @@ namespace Ship_Game.Universe.SolarBodies
             }
             return Commodities.TryGetValue(goodId, out float commodity) ? commodity : 0;
         }
-        
-        public float HarvestFood()
-         {
-            float unfed = 0.0f;     //Pop that did not get any food
-            if (Ground.IsCybernetic)
-            {
-                Food = 0.0f;      //Seems unused
-                Ground.NetProductionPerTurn -= Ground.Consumption;  //Reduce production by how much is consumed
-
-                float productionHere = Math.Min(0, Production + Ground.NetProductionPerTurn);
-
-                if (Production >= Ground.MaxStorage)
-                {
-                    unfed = 0.0f;
-                }
-                else if (productionHere < 0)
-                {
-                    unfed = productionHere;
-                    Production = 0;
-                }
-            }
-            else
-            {
-                Ground.FoodPerTurn -= Ground.Consumption;            // Reduce food by how much is consumed
-                float foodHere = RaceSpecificFood + Ground.FoodPerTurn;      // Add any remaining to storage
-                 
-                if (foodHere >= Ground.MaxStorage)
-                {
-                    unfed = 0.0f;
-                }
-                else if (foodHere <= 0)
-                {
-                    unfed = foodHere;                    
-                }
-                RaceSpecificFood = foodHere;
-            }            
-            return unfed;
-        }
 
         public void BuildingResources()
         {
@@ -149,7 +111,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
                 else if (b.CommodityRequired != null)
                 {
-                    if (Ground.SbCommodities.ContainsGood(b.CommodityRequired))
+                    if (Ground.Storage.ContainsGood(b.CommodityRequired))
                     {
                         foreach (Building other in Ground.BuildingList)
                         {

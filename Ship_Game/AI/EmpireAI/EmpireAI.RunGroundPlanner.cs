@@ -37,14 +37,14 @@ namespace Ship_Game.AI
                 return;
             Planet targetBuild = OwnerEmpire.GetPlanets()
                 .Where(planet => planet.AllowInfantry && planet.colonyType != Planet.ColonyType.Research
-                                 && planet.GetMaxProductionPotential() > 5
+                                 && planet.Prod.MaxPotential > 5
                                  && (planet.ProductionHere) - 2 * (planet.ConstructionQueue.Where(
                                          goal => goal.Goal != null
                                                  && goal.Goal.type == GoalType.BuildTroop)
                                      .Sum(cost => cost.Cost)) > 0 
                 )
-                .OrderBy(noshipyard => !noshipyard.HasShipyard)
-                .ThenByDescending(build => build.GrossProductionPerTurn)
+                .OrderBy(p => !p.HasShipyard)
+                .ThenByDescending(p => p.Prod.GrossIncome)
                 .FirstOrDefault();
             if (targetBuild == null)
                 return;

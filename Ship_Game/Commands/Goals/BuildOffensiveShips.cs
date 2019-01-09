@@ -61,9 +61,9 @@ namespace Ship_Game.Commands.Goals
                     break;
                 int num2 = 0;
                 foreach (QueueItem queueItem in planet2.ConstructionQueue)
-                    num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());
+                    num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.Prod.MaxPotential);
                 if (planet2.ConstructionQueue.Count == 0)
-                    num2 = (int)((beingBuilt.GetCost(empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());
+                    num2 = (int)((beingBuilt.GetCost(empire) - planet2.ProductionHere) / planet2.Prod.MaxPotential);
                 if (num2 < num1)
                 {
                     num1 = num2;
