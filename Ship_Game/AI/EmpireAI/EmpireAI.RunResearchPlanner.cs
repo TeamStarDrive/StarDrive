@@ -50,7 +50,7 @@ namespace Ship_Game.AI
 
             foreach (Planet hunger in OwnerEmpire.GetPlanets())
             {
-                if ((cybernetic ? hunger.ProductionHere : hunger.FoodHere) / hunger.MaxStorage < .20f)                
+                if ((cybernetic ? hunger.ProductionHere : hunger.FoodHere) / hunger.Storage.Max < .20f)                
                     needsFood++;
                 
                 if (!OwnerEmpire.GetTDict()["Biospheres"].Unlocked)

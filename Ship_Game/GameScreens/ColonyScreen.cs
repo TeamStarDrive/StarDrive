@@ -119,7 +119,7 @@ namespace Ship_Game
             else
             {
                 FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
-                FoodStorage.Max = p.MaxStorage;
+                FoodStorage.Max = p.Storage.Max;
                 FoodStorage.Progress = p.Storage.Food;
                 FoodStorage.color = "green";
                 foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
@@ -130,7 +130,7 @@ namespace Ship_Game
                 var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
                 FoodStorageIcon = new Rectangle(theMenu7.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
                 ProdStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.660000026226044 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
-                ProdStorage.Max = p.MaxStorage;
+                ProdStorage.Max = p.Storage.Max;
                 ProdStorage.Progress = p.ProductionHere;
                 var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
                 ProfStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
@@ -224,9 +224,9 @@ namespace Ship_Game
             batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, new Color(255, 239, 208));
             if (!GlobalStats.HardcoreRuleset)
             {
-                FoodStorage.Max = P.MaxStorage;
+                FoodStorage.Max = P.Storage.Max;
                 FoodStorage.Progress = P.Storage.Food;
-                ProdStorage.Max = P.MaxStorage;
+                ProdStorage.Max = P.Storage.Max;
                 ProdStorage.Progress = P.ProductionHere;
             }
             PlanetInfo.Draw();
@@ -1210,13 +1210,13 @@ namespace Ship_Game
             {
                 if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
                 {
-                    numFood = numFood + pgs.building.PlusFoodPerColonist * P.PopulationBillion * P.FarmerPercentage;
+                    numFood = numFood + pgs.building.PlusFoodPerColonist * P.PopulationBillion * P.Food.Percent;
                     numFood = numFood + pgs.building.PlusFlatFoodAmount;
                 }
                 if (pgs.building.PlusFlatProductionAmount > 0f || pgs.building.PlusProdPerColonist > 0f)
                 {
                     numProd = numProd + pgs.building.PlusFlatProductionAmount;
-                    numProd = numProd + pgs.building.PlusProdPerColonist * P.PopulationBillion * P.WorkerPercentage;
+                    numProd = numProd + pgs.building.PlusProdPerColonist * P.PopulationBillion * P.Prod.Percent;
                 }
                 if (pgs.building.PlusProdPerRichness > 0f)
                 {
@@ -1224,7 +1224,7 @@ namespace Ship_Game
                 }
                 if (pgs.building.PlusResearchPerColonist > 0f || pgs.building.PlusFlatResearchAmount > 0f)
                 {
-                    numRes = numRes + pgs.building.PlusResearchPerColonist * P.PopulationBillion * P.ResearcherPercentage;
+                    numRes = numRes + pgs.building.PlusResearchPerColonist * P.PopulationBillion * P.Res.Percent;
                     numRes = numRes + pgs.building.PlusFlatResearchAmount;
                 }
             }

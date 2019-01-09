@@ -3,13 +3,14 @@ using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game.Universe.SolarBodies
 {
-    public class SBCommodities
+    public class ColonyStorage
     {
         public TradeAI Trade { get;}
+        public float Max { get; set; } = 10f;
         readonly Planet Ground;
         readonly Map<string, float> Commodities = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
 
-        public SBCommodities(Planet planet)
+        public ColonyStorage(Planet planet)
         {
             Trade = new TradeAI(planet);
             Ground = planet;
@@ -36,13 +37,13 @@ namespace Ship_Game.Universe.SolarBodies
         public float Food
         {
             get => FoodValue;
-            set => FoodValue = value.Clamped(0f, Ground.MaxStorage);
+            set => FoodValue = value.Clamped(0f, Max);
         }
 
         public float Production
         {
             get => ProdValue;
-            set => ProdValue = value.Clamped(0f, Ground.MaxStorage);
+            set => ProdValue = value.Clamped(0f, Max);
         }
 
         public float Population

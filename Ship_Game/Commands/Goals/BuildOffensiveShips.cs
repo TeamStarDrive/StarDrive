@@ -94,7 +94,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
             if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
             {
-                if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MaxStorage * .5f)
+                if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.Storage.Max * .5f)
                     PlanetBuildingAt.ApplyStoredProduction(0);
             }
             return GoalStep.TryAgain;

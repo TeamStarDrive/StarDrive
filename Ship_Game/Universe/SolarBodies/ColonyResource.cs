@@ -59,6 +59,21 @@ namespace Ship_Game.Universe.SolarBodies
             NetFlatBonus = NetFlatBonus - (NetFlatBonus*tax);
             NetYieldPerColonist = YieldPerColonist - (YieldPerColonist*tax);
         }
+
+        public void AutoBalanceWorkers(float otherWorkers)
+        {
+            Percent = Math.Max(1f - otherWorkers, 0f);
+        }
+
+        public void AutoBalanceWorkers()
+        {
+            ColonyResource a, b;
+            if      (this == Planet.Food) { a = Planet.Prod; b = Planet.Res;  }
+            else if (this == Planet.Prod) { a = Planet.Food; b = Planet.Res;  }
+            else if (this == Planet.Res)  { a = Planet.Food; b = Planet.Prod; }
+            else return; // we're not Food,Prod,Res, so bail out
+            AutoBalanceWorkers(a.Percent + b.Percent);
+        }
     }
 
 
@@ -126,7 +141,7 @@ namespace Ship_Game.Universe.SolarBodies
                 FlatBonus   += b.PlusFlatResearchAmount;
             }
             float factionMod = Planet.Owner.data.Traits.ResearchMod;
-            YieldPerColonist = plusPerColonist * factionMod;
+            YieldPerColonist = (1 + plusPerColonist + factionMod);
         }
 
         public override void Update(float consumption)
