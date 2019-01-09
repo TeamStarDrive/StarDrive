@@ -68,12 +68,23 @@ namespace Ship_Game
             CurrentGame.StartNew(sandbox);
             var claimedSpots = new Array<Vector2>();
 
-            for (int i = 0; i < NumEmpires && i < ResourceManager.Empires.Count; ++i)
+            bool AlreadyCreated(EmpireData data)
             {
-                EmpireData data = ResourceManager.Empires[i];
-                if (sandbox.EmpireList.IsEmpty && data.Faction > 0)
-                    continue; // don't allow Faction for players
+                return sandbox.EmpireList.Any(e => e.data == data);
+            }
+            EmpireData FindRandomEmpire(bool canBeFaction)
+            {
+                for (int i = 0; i < 20; ++i)
+                {
+                    EmpireData data = RandomMath.RandItem(ResourceManager.Empires);
+                    if ((canBeFaction || data.Faction <= 0) && !AlreadyCreated(data)) return data;
+                }
+                return ResourceManager.Empires.Find(d => !AlreadyCreated(d)); // fallback
+            }
 
+            for (int i = 0; i < NumEmpires; ++i)
+            {
+                EmpireData data = FindRandomEmpire(canBeFaction: sandbox.EmpireList.NotEmpty);
                 Empire e = EmpireManager.CreateEmpireFromEmpireData(data);
                 sandbox.EmpireList.Add(e);
                 EmpireManager.Add(e);
@@ -134,7 +145,7 @@ namespace Ship_Game
             {
                 spacing *= safetyBreak;
                 sysPos = RandomMath.Vector2D(data.Size.X - 100000f);
-                safetyBreak *= .97f;
+                safetyBreak *= 0.97f;
             } while (!SystemPosOK(sysPos, spacing, claimedSpots, data));
 
             claimedSpots.Add(sysPos);

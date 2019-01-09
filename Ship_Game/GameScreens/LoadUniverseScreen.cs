@@ -126,9 +126,9 @@ namespace Ship_Game
             p.OrbitalAngle          = psdata.OrbitalAngle;
             p.FS                    = psdata.FoodState;
             p.PS                    = psdata.ProdState;
-            p.FoodLocked            = psdata.FoodLock;
-            p.ProdLocked            = psdata.ProdLock;
-            p.ResLocked             = psdata.ResLock;
+            p.Food.PercentLock      = psdata.FoodLock;
+            p.Prod.PercentLock      = psdata.ProdLock;
+            p.Res.PercentLock       = psdata.ResLock;
             p.OrbitalRadius         = psdata.OrbitalDistance;
             p.MaxPopulation         = psdata.PopulationMax;
 
@@ -146,9 +146,9 @@ namespace Ship_Game
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
             foreach (Guid guid in psdata.StationsList)
                 p.Shipyards[guid]   = null; // reserve shipyards
-            p.FarmerPercentage      = psdata.farmerPercentage;
-            p.WorkerPercentage      = psdata.workerPercentage;
-            p.ResearcherPercentage  = psdata.researcherPercentage;
+            p.Food.Percent = psdata.farmerPercentage;
+            p.Prod.Percent = psdata.workerPercentage;
+            p.Res.Percent  = psdata.researcherPercentage;
 
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
@@ -187,9 +187,9 @@ namespace Ship_Game
 
         private static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
         {
-            p.SbCommodities.Food = psdata.foodHere;
-            p.SbCommodities.Production = psdata.prodHere;
-            p.SbCommodities.Population = psdata.Population;
+            p.FoodHere = psdata.foodHere;
+            p.ProdHere = psdata.prodHere;
+            p.Population = psdata.Population;
         }
 
         private SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssdata)

@@ -6,33 +6,33 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        public void OrderScrap(object sender)
+        public void OrderScrap()
         {
             SelectedShip.AI.OrderScrapShip();
         }
 
-        public void OrderScuttle(object sender)
+        public void OrderScuttle()
         {
             if (SelectedShip != null)
                 SelectedShip.ScuttleTimer = 10f;
         }
 
-        public void DoHoldPosition(object sender)
+        public void DoHoldPosition()
         {
             SelectedShip?.AI.HoldPosition();
         }
 
-        public void DoExplore(object sender)
+        public void DoExplore()
         {
             SelectedShip?.AI.OrderExplore();
         }
 
-        public void DoTransport(object sender)
+        public void DoTransport()
         {
             SelectedShip?.AI.OrderTransportPassengers(5f);
         }
 
-        public void DoDefense(object sender)
+        public void DoDefense()
         {
             if (SelectedShip == null || player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(SelectedShip))
                 return;
@@ -44,7 +44,7 @@ namespace Ship_Game
             SelectedShip.AI.State = AIState.SystemDefender;
         }
 
-        public void DoTransportGoods(object sender)
+        public void DoTransportGoods()
         {
             if (SelectedShip == null)
                 return;
@@ -54,7 +54,7 @@ namespace Ship_Game
             SelectedShip.AI.OrderTrade(5f);
         }
 
-        private void MarkForColonization(object sender)
+        private void MarkForColonization()
         {
             player.GetEmpireAI().Goals.Add(new MarkForColonization(SelectedPlanet, player));
         }

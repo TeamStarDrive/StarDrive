@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
@@ -18,7 +19,7 @@ namespace Ship_Game
 			}
 		}
 
-		public SimpleDelegate OnSelect { get; set; }
+		public Action OnSelect { get; set; }
 
         public string Text { get; set; }
 
@@ -26,7 +27,7 @@ namespace Ship_Game
 		{
 		}
 
-		public PieMenuNode(string text, SubTexture icon, SimpleDelegate onSelect)
+		public PieMenuNode(string text, SubTexture icon, Action onSelect)
 		{
 			Text = text;
 			Icon = icon;
@@ -45,7 +46,7 @@ namespace Ship_Game
 
 		public void Select()
         {
-            OnSelect?.Invoke(this);
+            OnSelect?.Invoke();
         }
 	}
 }

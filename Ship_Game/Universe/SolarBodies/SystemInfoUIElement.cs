@@ -289,15 +289,15 @@ namespace Ship_Game
                                 p.UpdateIncomes(false);
                                 SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
                                 SpriteFont dataFont = DataFont;
-                                float netFoodPerTurn = p.GetNetFoodPerTurn();
+                                float netFoodPerTurn = p.Food.NetIncome;
                                 spriteBatch.DrawString(dataFont, netFoodPerTurn.String(), ft, tColor);
                                 SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
                                 SpriteFont spriteFont = DataFont;
-                                float netProductionPerTurn = p.GetNetProductionPerTurn();
+                                float netProductionPerTurn = p.Prod.NetIncome;
                                 spriteBatch1.DrawString(spriteFont, netProductionPerTurn.String(), pt, tColor);
                                 Vector2 rt = new Vector2(rIcon.X + 12, rIcon.Y);
                                 HelperFunctions.ClampVectorToInt(ref rt);
-                                ScreenManager.SpriteBatch.DrawString(DataFont, p.NetResearchPerTurn.String(), rt, tColor);
+                                ScreenManager.SpriteBatch.DrawString(DataFont, p.Res.NetIncome.String(), rt, tColor);
                                 Vector2 tt = new Vector2(rIcon.X + 12, tIcon.Y);
                                 HelperFunctions.ClampVectorToInt(ref tt);
                                 ScreenManager.SpriteBatch.DrawString(DataFont, playerTroops.ToString(), tt, tColor);
@@ -350,7 +350,7 @@ namespace Ship_Game
                     {
                         screen.SelectedPlanet = clickMe.p;
                         screen.pInfoUI.SetPlanet(clickMe.p);
-                        screen.ViewPlanet(null);
+                        screen.ViewPlanet();
                         return true;
                     }
 
