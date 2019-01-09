@@ -508,9 +508,9 @@ namespace Ship_Game
             ColoniesList.HandleInput(input);
 
             HandleSortButton(input, pop, 2278, p => p.Population);
-            HandleSortButton(input, food, 139, p => p.GetNetFoodPerTurn());
-            HandleSortButton(input, prod, 140, p => p.GetNetProductionPerTurn());
-            HandleSortButton(input, res, 141, p => p.GetNetResearchPerTurn());
+            HandleSortButton(input, food, 139, p => p.Food.NetIncome);
+            HandleSortButton(input, prod, 140, p => p.Prod.NetIncome);
+            HandleSortButton(input, res, 141, p => p.Res.NetIncome);
             HandleSortButton(input, res, 142, p => p.NetIncome);
 
             foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)

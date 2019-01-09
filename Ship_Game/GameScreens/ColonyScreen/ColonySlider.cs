@@ -78,7 +78,7 @@ namespace Ship_Game
             {
                 switch (Type)
                 {
-                    default:              return P.FarmerPercentage;
+                    default:                 return P.FarmerPercentage;
                     case ColonyResType.Prod: return P.WorkerPercentage;
                     case ColonyResType.Res:  return P.ResearcherPercentage;
                 }
@@ -87,7 +87,7 @@ namespace Ship_Game
             {
                 switch (Type)
                 {
-                    default:              P.FarmerPercentage     = value; break;
+                    default:                 P.FarmerPercentage     = value; break;
                     case ColonyResType.Prod: P.WorkerPercentage     = value; break;
                     case ColonyResType.Res:  P.ResearcherPercentage = value; break;
                 }
@@ -100,9 +100,9 @@ namespace Ship_Game
             {
                 switch (Type)
                 {
-                    default:              return P.GetNetFoodPerTurn();
-                    case ColonyResType.Prod: return P.GetNetProductionPerTurn();
-                    case ColonyResType.Res:  return P.GetNetResearchPerTurn();
+                    default:                 return P.Food.NetIncome;
+                    case ColonyResType.Prod: return P.Prod.NetIncome;
+                    case ColonyResType.Res:  return P.Res.NetIncome;
                 }
             }
         }

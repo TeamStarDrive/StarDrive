@@ -27,7 +27,7 @@ namespace Ship_Game
             TradeHub
         }
         public GeodeticManager GeodeticManager;
-        public SBCommodities SbCommodities;
+        public SBCommodities Storage;
 
         public ColonyResource Food;
         public ColonyResource Prod;
@@ -39,22 +39,22 @@ namespace Ship_Game
 
         public float ProductionHere
         {
-            get => SbCommodities.Production;
-            set => SbCommodities.Production = value;
+            get => Storage.Production;
+            set => Storage.Production = value;
         }
 
         public float FoodHere
         {
-            get => SbCommodities.RaceSpecificFood;
-            set => SbCommodities.RaceSpecificFood = value;
+            get => Storage.RaceSpecificFood;
+            set => Storage.RaceSpecificFood = value;
         }
 
         public float Population
         {
-            get => SbCommodities.Population;
+            get => Storage.Population;
             set
             {
-                SbCommodities.Population = value;
+                Storage.Population = value;
                 PopulationBillion = value / 1000f;
             }
         }
@@ -81,7 +81,7 @@ namespace Ship_Game
             if (ImportProd && !ImportFood) return "(IMPORT PROD)";
             return "(IMPORT ALL)";
         }
-        public override string ToString() => $"{Name} ({Owner?.Name ?? "No Owner"}) T:{colonyType} NET(FD:{GetNetFoodPerTurn().String(1)} PR:{GetNetProductionPerTurn().String(1)}) {ImportsDescr()}";
+        public override string ToString() => $"{Name} ({Owner?.Name ?? "No Owner"}) T:{colonyType} NET(FD:{Food.NetIncome.String()} PR:{Prod.NetIncome.String()}) {ImportsDescr()}";
 
         public GoodState FS = GoodState.STORE;      //I dont like these names, but changing them will affect a lot of files
         public GoodState PS = GoodState.STORE;
@@ -133,19 +133,6 @@ namespace Ship_Game
 
         public int CrippledTurns;
 
-        public float FoodPerTurn;
-        public float FlatFoodAdded;
-        public float PlusFoodPerColonist { get; private set; }
-
-        public float NetProductionPerTurn;
-        private float MaxProductionPerTurn;
-        public float GrossProductionPerTurn;
-        public float PlusFlatProductionPerTurn;
-        public float PlusProductionPerColonist { get; private set; }
-
-        public float NetResearchPerTurn { get; private set; }
-        public float PlusFlatResearchPerTurn;
-        public float PlusResearchPerColonist { get; private set; }
 
         public float PlusTaxPercentage;
         public float TotalMaintenanceCostsPerTurn;
@@ -201,49 +188,14 @@ namespace Ship_Game
         
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
         
-        float OutputAfterTax(float value) => value - Owner.data.TaxRate * value;
-
-        public float ProductionPerWorker
-        {
-            get
-            {
-                float productionPerWorker = MineralRichness * (1 + PlusProductionPerColonist + Owner.data.Traits.ProductionMod);
-                return OutputAfterTax(productionPerWorker);
-            }
-        }
-
-        public float FlatProductionPerTurn
-        {
-            get
-            {
-                float flatProductionPerTurn = PlusFlatProductionPerTurn + Owner.data.Traits.ProductionMod * PlusFlatProductionPerTurn;
-                return OutputAfterTax(flatProductionPerTurn);
-            }
-        }
-
-        public float ResearchPerResearcher
-        {
-            get
-            {
-                float researchPerResearcher = PlusResearchPerColonist + Owner.data.Traits.ResearchMod * PlusResearchPerColonist;
-                return OutputAfterTax(researchPerResearcher);
-            }
-        }
-
-        public float FlatResearchPerTurn
-        {
-            get
-            {
-                float flatResearchPerTurn = PlusFlatResearchPerTurn + Owner.data.Traits.ResearchMod * PlusFlatResearchPerTurn;
-                return OutputAfterTax(flatResearchPerTurn);
-            }
-        }
+        public bool IsCybernetic  => Owner.IsCybernetic;
+        public bool NonCybernetic => Owner.NonCybernetic;
 
         void CreateManagers()
         {
             TroopManager = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
-            SbCommodities = new SBCommodities(this);
+            Storage = new SBCommodities(this);
             SbProduction = new SBProduction(this);
 
             Food = new ColonyFood(this);
@@ -351,7 +303,7 @@ namespace Ship_Game
                 }
 
                 float foodProduced = item.Building.FoodProduced(this);
-                if (FoodPerTurn + foodProduced >= 0f) // this building will solve starving
+                if (Food.NetIncome + foodProduced >= 0f) // this building will solve starving
                 {
                     DebugImportProd(predictedFood, $"(build {buildTurns})");
                     return Goods.Production; // send production to finish it faster!
@@ -395,8 +347,8 @@ namespace Ship_Game
         float AvgIncomingFood => IncomingFood; // @todo Estimate this better
         float AvgIncomingProd => IncomingProduction;
 
-        float AvgFoodPerTurn => GetNetFoodPerTurn() + AvgIncomingFood;
-        float AvgProdPerTurn => GetNetProductionPerTurn() + AvgIncomingProd;
+        float AvgFoodPerTurn => Food.NetIncome + AvgIncomingFood;
+        float AvgProdPerTurn => Prod.NetIncome + AvgIncomingProd;
 
         int TurnsUntilOutOfFood()
         {
@@ -411,14 +363,14 @@ namespace Ship_Game
         float ProjectedFood(int turns)
         {
             float incomingAvg = IncomingFood;
-            float netFood = FoodPerTurn;
+            float netFood = Food.NetIncome;
             return FoodHere + incomingAvg + netFood * turns;
         }
 
         float ProjectedProduction(int turns)
         {
             float incomingAvg = IncomingProduction;
-            float netProd = GetNetProductionPerTurn();
+            float netProd = Prod.NetIncome;
             netProd = ConstructionQueue.Count > 0 ? Math.Min(0,netProd) : netProd;
             return ProductionHere + incomingAvg + netProd * turns;
         }
@@ -456,7 +408,7 @@ namespace Ship_Game
             (empire.data?.Traits.Cybernetic ?? 0) > 0 ? MineralRichness : Fertility;
 
         public float EmpireBaseValue(Empire empire) => (
-            SbCommodities.CommoditiesCount +
+            Storage.CommoditiesCount +
             (1 + EmpireFertility(empire))
             * (1 + MineralRichness)
             * (float)Math.Ceiling(MaxPopulationBillion)
@@ -480,41 +432,9 @@ namespace Ship_Game
         //added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb) => GeodeticManager.DropBomb(bomb);
 
-        
-        public float GetNetFoodPerTurn() // ACTUAL net food per turn...
-        {
-            if (IsCybernetic)
-                return FoodPerTurn;
-
-            float minimumFoodAdded = -Consumption + FlatFoodAdded; // FB: added this one so if buildings have negative food per colonist
-            // it can never be lower than the max consumption of the planet minus flat food and then i am clamping it the line below
-            return (FoodPerTurn - Consumption).Clamped(minimumFoodAdded, FoodPerTurn); //This is already the correct value. whats incorrect is
-            //how the variable is named at initial assignment.
-            //it should be gross food. That will take a lot of invasive work to fix.
-            //but its not correct in the UI... needs more checking and fixing. bleh.
-        }
-
         public void ApplyAllStoredProduction(int index) => SbProduction.ApplyAllStoredProduction(index);
-
         public bool ApplyStoredProduction(int index) => SbProduction.ApplyStoredProduction(index);
-
         public void ApplyProductiontoQueue(float howMuch, int whichItem) => SbProduction.ApplyProductiontoQueue(howMuch, whichItem);
-
-        public float GetNetProductionPerTurn() // ACTUAL net production per turn...
-        {
-            if (IsCybernetic)
-                return NetProductionPerTurn - Consumption;
-            return NetProductionPerTurn;
-        }
-
-        public float GetNetResearchPerTurn()
-        {
-            return NetResearchPerTurn;
-        }
-
-        public bool IsCybernetic  => Owner.IsCybernetic;
-        public bool NonCybernetic => Owner.NonCybernetic;
-
         public bool TryBiosphereBuild(Building b, QueueItem qi) => SbProduction.TryBiosphereBuild(b, qi);
 
         public void Update(float elapsedTime)
@@ -816,15 +736,15 @@ namespace Ship_Game
                 DevelopmentLevel = 5;
                 DevelopmentStatus = Localizer.Token(1775); // densely populated
             }
-            if (NetProductionPerTurn >= 10.0 && HasShipyard)
+            if (Prod.NetIncome >= 10.0 && HasShipyard)
             {
                 DevelopmentStatus += Localizer.Token(1776); // fine shipwright
             }
-            else if (Fertility >= 2.0 && FoodPerTurn > MaxPopulation)
+            else if (Fertility >= 2.0 && Food.NetIncome > MaxPopulation)
             {
                 DevelopmentStatus += Localizer.Token(1777); // fine agriculture
             }
-            else if (NetResearchPerTurn > 5.0)
+            else if (Res.NetIncome > 5.0)
             {
                 DevelopmentStatus += Localizer.Token(1778); // universities are good
             }
@@ -866,7 +786,7 @@ namespace Ship_Game
         }
         public string WorldType => Localizer.Token(WorldTypeLocId());
 
-        public TradeAI TradeAI => SbCommodities.Trade;
+        public TradeAI TradeAI => Storage.Trade;
 
         private void CalculateIncomingTrade()
         {
@@ -1092,8 +1012,7 @@ namespace Ship_Game
             if (NonCybernetic && building.PlusFlatFoodAmount > 0)// && this.Fertility == 0)
             {
 
-                if (FoodPerTurn > 0 && FarmerPercentage < .3 || BuildingExists(building.Name))
-
+                if (Food.NetIncome > 0 && FarmerPercentage < .3 || BuildingExists(building.Name))
                     return false;
                 return true;
 
@@ -1108,7 +1027,7 @@ namespace Ship_Game
             }
             if (IsCybernetic)
             {
-                if (NetProductionPerTurn - Consumption < 0)
+                if (Prod.NetIncome < 0)
                 {
                     if (building.PlusFlatProductionAmount > 0 && (WorkerPercentage > .5 || income > building.Maintenance * 2))
                     {
@@ -1142,7 +1061,7 @@ namespace Ship_Game
                 case ColonyType.Agricultural:
                     #region MyRegion
                     {
-                        if (building.AllowShipBuilding && GetMaxProductionPotential() > 20)
+                        if (building.AllowShipBuilding && Prod.MaxPotential > 20)
                         {
                             return true;
                         }
@@ -1230,7 +1149,7 @@ namespace Ship_Game
                 case ColonyType.Industrial:
                     #region MyRegion
                     {
-                        if (building.AllowShipBuilding && GetMaxProductionPotential() > 20)
+                        if (building.AllowShipBuilding && Prod.MaxPotential > 20)
                         {
                             return true;
                         }
@@ -1251,7 +1170,7 @@ namespace Ship_Game
                             if (building.PlusResearchPerColonist * (PopulationBillion) > building.Maintenance
                             || ((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && Population == MaxPopulation && income > building.Maintenance)
                             || (NonCybernetic && building.PlusTerraformPoints > 0 && Fertility < 1 && Population == MaxPopulation && MaxPopulation > 2000 && income > building.Maintenance)
-                               || (building.PlusFlatFoodAmount > 0 && FoodPerTurn < 0)
+                               || (building.PlusFlatFoodAmount > 0 && Food.NetIncome < 0)
                                 || building.PlusFlatResearchAmount > 0
                                 || (building.PlusResearchPerColonist > 0 && MaxPopulation > 999)
                                 )
@@ -1283,10 +1202,10 @@ namespace Ship_Game
                                 || (Fertility < 1f && building.PlusFlatFoodAmount > 0)
                                 || (MineralRichness < 1f && building.PlusFlatFoodAmount > 0)
                                 || building.PlanetaryShieldStrengthAdded > 0
-                                || (building.AllowShipBuilding && GrossProductionPerTurn > 1)
-                                || (building.ShipRepair > 0 && GrossProductionPerTurn > 1)
+                                || (building.AllowShipBuilding && Prod.GrossIncome > 1)
+                                || (building.ShipRepair > 0 && Prod.GrossIncome > 1)
                                 || building.Strength > 0
-                                || (building.AllowInfantry && GrossProductionPerTurn > 1)
+                                || (building.AllowInfantry && Prod.GrossIncome > 1)
                                 || needDefense && (building.TheWeapon != null || building.Strength > 0)
                                 || (IsCybernetic && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0))
                                 )
@@ -1312,7 +1231,7 @@ namespace Ship_Game
                 case ColonyType.Research:
                     #region MyRegion
                     {
-                        if (building.AllowShipBuilding && GetMaxProductionPotential() > 20)
+                        if (building.AllowShipBuilding && Prod.MaxPotential > 20)
                         {
                             return true;
                         }
@@ -1336,7 +1255,7 @@ namespace Ship_Game
                         {
                             if (((building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0) && Population > MaxPopulation * .5f)
                             || NonCybernetic && ((building.PlusTerraformPoints > 0 && Fertility < 1 && Population > MaxPopulation * .5f && MaxPopulation > 2000)
-                                || (building.PlusFlatFoodAmount > 0 && FoodPerTurn < 0))
+                                || (building.PlusFlatFoodAmount > 0 && Food.NetIncome < 0))
                                 )
                                 return true;
                         }
@@ -1364,9 +1283,9 @@ namespace Ship_Game
                 return;
             }
 
-            if (FlatFoodAdded > PopulationBillion)     //Account for possible overproduction from FlatFood
+            if (Food.FlatBonus > PopulationBillion)     //Account for possible overproduction from FlatFood
             {
-                float offsetAmount = (FlatFoodAdded - PopulationBillion) * 0.05f;
+                float offsetAmount = (Food.FlatBonus - PopulationBillion) * 0.05f;
                 offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
                 importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                 exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
@@ -1389,13 +1308,13 @@ namespace Ship_Game
                 return;
             }
 
-            if (PlusFlatProductionPerTurn > 0)
+            if (Prod.FlatBonus > 0)
             {
                 if (IsCybernetic)  //Account for excess food for the filthy Opteris
                 {
-                    if (PlusFlatProductionPerTurn > PopulationBillion)
+                    if (Prod.FlatBonus > PopulationBillion)
                     {
-                        float offsetAmount = (PlusFlatProductionPerTurn - PopulationBillion) * 0.05f;
+                        float offsetAmount = (Prod.FlatBonus - PopulationBillion) * 0.05f;
                         offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
                         importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                         exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
@@ -1403,7 +1322,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    float offsetAmount = PlusFlatProductionPerTurn * 0.05f;
+                    float offsetAmount = Prod.FlatBonus * 0.05f;
                     offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
                     importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                     exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
@@ -1499,17 +1418,17 @@ namespace Ship_Game
 
         private float CalculateFoodWorkers()    //Simply calculates what percentage of workers are needed for farming (between 0.0 and 0.9)
         {
-            if (IsCybernetic || Fertility + PlusFoodPerColonist <= 0.5 || Population == 0) return 0.0f;
+            if (IsCybernetic || Food.YieldPerColonist <= 0.5 || Population == 0) return 0.0f;
 
-            float workers = (Consumption - FlatFoodAdded) / PopulationBillion / (Fertility + PlusFoodPerColonist);
+            float workers = (Consumption - Food.FlatBonus) / PopulationBillion / (Food.YieldPerColonist);
             return workers.Clamped(0.0f, 0.9f);     //Dont allow farmers to consume all labor
         }
 
         private float CalculateFoodWorkersProjected(float pFlatFood = 0.0f, float pFoodPerCol = 0.0f) //Calculate farmers with these adjustments
         {
-            if (IsCybernetic || Fertility + PlusFoodPerColonist + pFoodPerCol <= 0.5 || Population == 0) return 0.0f;
+            if (IsCybernetic || Food.YieldPerColonist + pFoodPerCol <= 0.5 || Population == 0) return 0.0f;
 
-            float workers = (Consumption - FlatFoodAdded - pFlatFood) / PopulationBillion / (Fertility + PlusFoodPerColonist + pFoodPerCol);
+            float workers = (Consumption - Food.FlatBonus - pFlatFood) / PopulationBillion / (Food.YieldPerColonist + pFoodPerCol);
             return workers.Clamped(0.0f, 0.9f);     //Dont allow farmers to consume all labor
         }
 
@@ -1527,15 +1446,15 @@ namespace Ship_Game
         private float FarmToPercentage(float percent)   //Production and Research
         {
             if (MaxStorage == 0 || percent == 0) return 0;
-            if (Fertility + PlusFoodPerColonist <= 0.5f || IsCybernetic) return 0; //No farming here, so never mind
+            if (Food.YieldPerColonist <= 0.5f || IsCybernetic) return 0; //No farming here, so never mind
             float minFarmers = CalculateFoodWorkers();          //Nominal Farmers needed to neither gain nor lose storage
             float storedFoodRatio = FoodHere / MaxStorage;      //Percentage of Food Storage currently filled
 
-            if (FlatFoodAdded > 0)
+            if (Food.FlatBonus > 0)
             {
                 //Stop producing food a little early, since the flat food will continue to pile up
                 float maxPop = MaxPopulationBillion;
-                if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
+                if (Food.FlatBonus > maxPop) storedFoodRatio += 0.15f * Math.Min(Food.FlatBonus - maxPop, 3);
                 storedFoodRatio = storedFoodRatio.Clamped(0, 1);
             }
 
@@ -1550,22 +1469,22 @@ namespace Ship_Game
             float minWorkers = 0;
             if (IsCybernetic)
             {											//Nominal workers needed to feed all of the the filthy Opteris
-                minWorkers = (Consumption - PlusFlatProductionPerTurn) / PopulationBillion / (MineralRichness + PlusProductionPerColonist);
+                minWorkers = (Consumption - Prod.FlatBonus) / PopulationBillion / Prod.YieldPerColonist;
                 minWorkers = minWorkers.Clamped(0, 1);
             }
 
             float storedProdRatio = ProductionHere / MaxStorage;      //Percentage of Prod Storage currently filled
 
-            if (PlusFlatProductionPerTurn > 0)      //Stop production early, since the flat production will continue to pile up
+            if (Prod.FlatBonus > 0)      //Stop production early, since the flat production will continue to pile up
             {
                 if (IsCybernetic)
                 {
                     float maxPop = MaxPopulationBillion;
-                    if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn - maxPop, 3);
+                    if (Prod.FlatBonus > maxPop) storedProdRatio += 0.15f * Math.Min(Prod.FlatBonus - maxPop, 3);
                 }
                 else
                 {
-                    storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn, 3);
+                    storedProdRatio += 0.15f * Math.Min(Prod.FlatBonus, 3);
                 }
                 storedProdRatio = storedProdRatio.Clamped(0, 1);
             }
@@ -1591,10 +1510,10 @@ namespace Ship_Game
             }
             float maxPop = MaxPopulationBillion;
             float storedFoodRatio = FoodHere / MaxStorage;      //How much of Storage is filled
-            if (Fertility + PlusFoodPerColonist <= 0.5f) storedFoodRatio = 1; //No farming here, so skip it
+            if (Food.YieldPerColonist <= 0.5f) storedFoodRatio = 1; //No farming here, so skip it
 
             //Stop producing food a little early, since the flat food will continue to pile up
-            if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
+            if (Food.FlatBonus > maxPop) storedFoodRatio += 0.15f * Math.Min(Food.FlatBonus - maxPop, 3);
             if (storedFoodRatio > 1) storedFoodRatio = 1;
 
             float farmers = 1 - storedFoodRatio;    //How much storage is left to fill
@@ -1614,11 +1533,11 @@ namespace Ship_Game
             if (IsCybernetic)       //Stop production early, since the flat production will continue to pile up
             {
                 float maxPop = MaxPopulationBillion;
-                if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn - maxPop, 3);
+                if (Prod.FlatBonus > maxPop) storedProdRatio += 0.15f * Math.Min(Prod.FlatBonus - maxPop, 3);
             }
             else
             {
-                if (PlusFlatProductionPerTurn > 0) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn, 3);
+                if (Prod.FlatBonus > 0) storedProdRatio += 0.15f * Math.Min(Prod.FlatBonus, 3);
             }
             if (storedProdRatio > 1) storedProdRatio = 1;
 
@@ -1682,11 +1601,11 @@ namespace Ship_Game
                 {
                     float farmers = CalculateFoodWorkers();
                     score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
-                    score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));//Bonus for low Effective Fertility
+                    score += 1.5f - (Food.YieldPerColonist/2);//Bonus for low Effective Fertility
                     if (farmers == 0) score += building.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
                     if (farmers > 0.5f) score += farmers - 0.5f;            //Bonus if planet is spending a lot of labor feeding itself
                     if (score < building.PlusFlatFoodAmount * 0.1f) score = building.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
-                    if (building.PlusFlatFoodAmount + FlatFoodAdded - 0.5f > MaxPopulationBillion) score = 0;   //Dont want this if a lot would go to waste
+                    if (building.PlusFlatFoodAmount + Food.FlatBonus - 0.5f > MaxPopulationBillion) score = 0;   //Dont want this if a lot would go to waste
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FlatFood : Score was {score}");
@@ -1705,7 +1624,7 @@ namespace Ship_Game
                 {
                     float projectedFarmers = CalculateFoodWorkersProjected(pFlatFood: -building.PlusFlatFoodAmount);
                     score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this is feeding, weighted
-                    score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));         //Bonus for low Effective Fertility
+                    score += 1.5f - (Food.YieldPerColonist/2);         //Bonus for low Effective Fertility
                     if (projectedFarmers == 0) score += building.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
                     if (projectedFarmers > 0.5f) score += projectedFarmers - 0.5f;   //Bonus if planet would be spending a lot of labor feeding itself
                     if (score < 0) score = 0;                                        //No penalty for extra food
@@ -1729,7 +1648,7 @@ namespace Ship_Game
                     float projectedFarmers = CalculateFoodWorkersProjected(pFoodPerCol: building.PlusFoodPerColonist);
                     score += building.PlusFoodPerColonist * projectedFarmers * MaxPopulationBillion;  //Food this would create if constructed
                     if (score < building.PlusFoodPerColonist * 0.1f) score = building.PlusFoodPerColonist * 0.1f; //A little food production is always useful
-                    if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist <= 1.0f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
+                    if (building.PlusFoodPerColonist + Food.YieldPerColonist <= 1.0f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FoodPerCol : Score was {score}");
@@ -1749,7 +1668,7 @@ namespace Ship_Game
                 {
                     score += building.PlusFoodPerColonist * CalculateFoodWorkers() * MaxPopulationBillion;  //Food this is producing
                     if (score < building.PlusFoodPerColonist * 0.1f) score = building.PlusFoodPerColonist * 0.1f; //A little food production is always useful
-                    if (Fertility + PlusFoodPerColonist - building.PlusFoodPerColonist <= 1.0f) score = building.PlusFoodPerColonist;     //Dont scrap this if it would drop effective fertility below 1.0
+                    if (Food.YieldPerColonist - building.PlusFoodPerColonist <= 1.0f) score = building.PlusFoodPerColonist;     //Dont scrap this if it would drop effective fertility below 1.0
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FoodPerCol : Score was {score}");
@@ -1769,9 +1688,9 @@ namespace Ship_Game
                     if (IsCybernetic)
                         score += building.PlusFlatProductionAmount / MaxPopulationBillion;     //Percentage of the filthy Opteris population this will feed
                     score += (0.5f - (PopulationBillion / MaxPopulationBillion)).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
-                    score += 1.5f - (MineralRichness + (PlusProductionPerColonist / 2));      //Bonus for low richness planets
+                    score += 1.5f - (Prod.YieldPerColonist);      //Bonus for low richness planets
                     score += (0.66f - MineralRichness).Clamped(0.0f, 0.66f);      //More Bonus for really low richness planets
-                    float currentOutput = (MineralRichness + PlusProductionPerColonist) * LeftoverWorkers() + PlusFlatProductionPerTurn;  //Current Prod Output
+                    float currentOutput = Prod.YieldPerColonist * LeftoverWorkers() + Prod.FlatBonus;  //Current Prod Output
                     score += (building.PlusFlatProductionAmount / currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
                 }
@@ -1824,7 +1743,7 @@ namespace Ship_Game
             if (building.StorageAdded != 0)
             {
                 float desiredStorage = 70.0f;
-                if (Fertility + PlusFoodPerColonist >= 2.5f || MineralRichness + PlusProductionPerColonist >= 2.5f || PlusFlatProductionPerTurn > 5) desiredStorage += 100.0f;  //Potential high output
+                if (Food.YieldPerColonist >= 2.5f || Prod.YieldPerColonist >= 2.5f || Prod.FlatBonus > 5) desiredStorage += 100.0f;  //Potential high output
                 if (HasShipyard) desiredStorage += 100.0f;      //For buildin' ships 'n shit
                 if (MaxStorage < desiredStorage) score += (building.StorageAdded * 0.002f);  //If we need more storage, rate this building
                 if (building.Maintenance > 0) score *= 0.25f;       //Prefer free storage
@@ -1864,8 +1783,8 @@ namespace Ship_Game
                 else
                 {
                     //Basically, only add to the score if we would be able to feed the extra people
-                    if ((Fertility + PlusFoodPerColonist + building.PlusFoodPerColonist) * (MaxPopulationBillion + (building.MaxPopIncrease / 1000))
-                        >= (MaxPopulationBillion + (building.MaxPopIncrease / 1000) - FlatFoodAdded - building.PlusFlatFoodAmount))
+                    if ((Food.YieldPerColonist + building.PlusFoodPerColonist) * (MaxPopulationBillion + (building.MaxPopIncrease / 1000))
+                        >= (MaxPopulationBillion + (building.MaxPopIncrease / 1000) - Food.FlatBonus - building.PlusFlatFoodAmount))
                         score += building.MaxPopIncrease * 0.001f;
                 }
 
@@ -1883,7 +1802,7 @@ namespace Ship_Game
                 score = 0.001f;
                 if (building.PlusFlatResearchAmount < 0)            //Surly no one would make a negative research building
                 {
-                    if (ResearcherPercentage > 0 || PlusFlatResearchPerTurn > 0) score += building.PlusFlatResearchAmount * 2;
+                    if (ResearcherPercentage > 0 || Res.FlatBonus > 0) score += building.PlusFlatResearchAmount * 2;
                     else score += building.PlusFlatResearchAmount;
                 }
                 else
@@ -1975,8 +1894,8 @@ namespace Ship_Game
             float score = 0;
             if (building.AllowShipBuilding || building.Name == "Space Port" && PopulationBillion / MaxPopulationBillion >= 0.75f)
             {
-                float prodFromLabor = LeftoverWorkers() * (MineralRichness + PlusProductionPerColonist + building.PlusProdPerColonist);
-                float prodFromFlat = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
+                float prodFromLabor = LeftoverWorkers() * (Prod.YieldPerColonist + building.PlusProdPerColonist);
+                float prodFromFlat = Prod.FlatBonus + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
                 //Do we have enough production capability to really justify trying to build ships
                 if (prodFromLabor + prodFromFlat > 10.0f) score += ((prodFromLabor + prodFromFlat) / 10).Clamped(0.0f, 2.0f);
 
@@ -2021,8 +1940,8 @@ namespace Ship_Game
                 else
                 {                                   //How much fertility will actually be lost
                     float fertLost = Math.Min(Fertility, building.MinusFertilityOnBuild);
-                    float foodFromLabor = MaxPopulationBillion * ((Fertility - fertLost) + PlusFoodPerColonist + building.PlusFoodPerColonist);
-                    float foodFromFlat = FlatFoodAdded + building.PlusFlatFoodAmount;
+                    float foodFromLabor = MaxPopulationBillion * ((Fertility - fertLost) + Food.YieldPerColonist + building.PlusFoodPerColonist);
+                    float foodFromFlat = Food.FlatBonus + building.PlusFlatFoodAmount;
                     //Will we still be able to feed ourselves?
                     if (foodFromFlat + foodFromLabor < Consumption) score += fertLost * 10;
                     else score += fertLost * 4;
@@ -2491,7 +2410,7 @@ namespace Ship_Game
                         if (!string.IsNullOrEmpty(station))
                         {
                             Ship ship = ResourceManager.ShipsDict[station];
-                            if (ship.GetCost(Owner) / GrossProductionPerTurn < 10)
+                            if (ship.GetCost(Owner) / Prod.GrossIncome < 10)
                                 ConstructionQueue.Add(new QueueItem(this)
                                 {
                                     isShip = true,
@@ -2523,30 +2442,6 @@ namespace Ship_Game
 
             #endregion
         }
-
-        public float GetMaxProductionPotential() { return MaxProductionPerTurn; }
-
-        private float GetMaxProductionPotentialCalc()
-        {
-            float bonus = 0.0f;
-            float baseValue = MineralRichness * PopulationBillion;
-            for (int i = 0; i < BuildingList.Count; ++i)
-            {
-                Building b = BuildingList[i];
-                if (b.PlusProdPerRichness > 0.0)
-                    bonus += b.PlusProdPerRichness * MineralRichness;
-                bonus += b.PlusFlatProductionAmount;
-                if (b.PlusProdPerColonist > 0.0)
-                    baseValue += b.PlusProdPerColonist;
-            }
-            float result = baseValue + bonus * PopulationBillion;
-            if (IsCybernetic)
-                return (result + Owner.data.Traits.ProductionMod * result) - Consumption;
-            return result + Owner.data.Traits.ProductionMod * result;
-        }
-
-        public float GetMaxResearchPotential =>
-            PopulationBillion * PlusResearchPerColonist + PlusFlatResearchPerTurn;
 
         public void ApplyProductionTowardsConstruction() => SbProduction.ApplyProductionTowardsConstruction();
 
@@ -2586,15 +2481,10 @@ namespace Ship_Game
             float storageAdded = 0;
             AllowInfantry = false;
             TotalDefensiveStrength = 0;
-            PlusResearchPerColonist = 0f;
-            PlusFlatResearchPerTurn = 0f;
-            PlusFlatProductionPerTurn = 0f;
-            PlusProductionPerColonist = 0f;
-            FlatFoodAdded = 0f;
-            PlusFoodPerColonist = 0f;
+
             PlusFlatPopulationPerTurn = 0f;
             ShipBuildingModifier = 0f;
-            SbCommodities.ClearGoods();
+            Storage.ClearGoods();
 
             float shipbuildingmodifier = 1f;
             Array<Guid> list = new Array<Guid>();
@@ -2629,6 +2519,7 @@ namespace Ship_Game
             TerraformToAdd = 0f;
             bool shipyard = false;
             RepairPerTurn = 0;
+
             for (int i = 0; i < BuildingList.Count; ++i)
             {
                 Building b = BuildingList[i];
@@ -2643,20 +2534,10 @@ namespace Ship_Game
                 PlusCreditsPerColonist += b.CreditsPerColonist;
                 TerraformToAdd += b.PlusTerraformPoints;
                 PlusTaxPercentage += b.PlusTaxPercentage;
-                SbCommodities.AddCommodity(b.Name, 0f); // @todo wtf is with this feature?
+                Storage.AddCommodity(b.Name, 0f); // @todo wtf is with this feature?
                 if (b.AllowInfantry)
                     AllowInfantry = true;
                 storageAdded += b.StorageAdded;
-
-                PlusFoodPerColonist += b.PlusFoodPerColonist;
-                FlatFoodAdded += b.PlusFlatFoodAmount;
-
-                PlusResearchPerColonist += b.PlusResearchPerColonist;
-                PlusFlatResearchPerTurn += b.PlusFlatResearchAmount;
-
-                PlusProductionPerColonist += b.PlusProdPerColonist;
-                PlusFlatProductionPerTurn += b.PlusProdPerRichness * MineralRichness;
-                PlusFlatProductionPerTurn += b.PlusFlatProductionAmount;
 
                 MaxPopBonus += b.MaxPopIncrease;
                 TotalMaintenanceCostsPerTurn += b.Maintenance;
@@ -2670,23 +2551,11 @@ namespace Ship_Game
 
             HasShipyard = shipyard && (colonyType != ColonyType.Research || Owner.isPlayer);
 
-            //Research
-            NetResearchPerTurn = ResearcherPercentage * PopulationBillion * PlusResearchPerColonist + PlusFlatResearchPerTurn;
-            NetResearchPerTurn += Owner.data.Traits.ResearchMod * NetResearchPerTurn;
-            NetResearchPerTurn -= Owner.data.TaxRate * NetResearchPerTurn;
-            //Food
-            FoodPerTurn =  ((FarmerPercentage * PopulationBillion) * (Fertility * (1 + PlusFoodPerColonist))) + FlatFoodAdded;//NetFoodPerTurn is finished being calculated in another file...
-            //Production
-            NetProductionPerTurn = ((WorkerPercentage * PopulationBillion) * (MineralRichness * (1 + PlusProductionPerColonist + Owner.data.Traits.ProductionMod))) + PlusFlatProductionPerTurn;
+            // greedy bastards
             Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
-            MaxProductionPerTurn = GetMaxProductionPotentialCalc();
-            if (IsCybernetic)
-                NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * (NetProductionPerTurn - Consumption) ;
-            else
-                NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * NetProductionPerTurn;
-
-            GrossProductionPerTurn =  (PopulationBillion * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
-            GrossProductionPerTurn += Owner.data.Traits.ProductionMod * GrossProductionPerTurn;
+            Food.Update(Consumption);
+            Prod.Update(Consumption);
+            Res.Update(Consumption);
 
             if (Station != null && !loadUniverse)
             {
@@ -2702,13 +2571,19 @@ namespace Ship_Game
             if (MaxStorage < 10) MaxStorage = 10f;
         }
 
-        private void HarvestResources()
+        void HarvestResources()
         {
-            Unfed = SbCommodities.HarvestFood();
-            SbCommodities.BuildingResources();              //Building resources is unused?
+            // produced food is already consumed by denizens during resource update
+            // if we have shortage, then NetIncome will be negative
+            Unfed = IsCybernetic ? Prod.NetIncome : Food.NetIncome;
+            if (Unfed > 0f) Unfed = 0f;
+
+            Storage.Food       += Food.NetIncome;
+            Storage.Production += Prod.NetIncome;
+            Storage.BuildingResources();
         }
 
-        public float GetGoodAmount(string good) => SbCommodities.GetGoodAmount(good);
+        public float GetGoodAmount(string good) => Storage.GetGoodAmount(good);
 
         private void GrowPopulation()
         {
@@ -2729,7 +2604,7 @@ namespace Ship_Game
             AvgPopulationGrowth = (AvgPopulationGrowth + adjustedRepRate) / 2;
         }
 
-        public void AddGood(string goodId, int amount) => SbCommodities.AddCommodity(goodId, amount);
+        public void AddGood(string goodId, int amount) => Storage.AddCommodity(goodId, amount);
 
         public bool EventsOnBuildings()
         {
@@ -2782,7 +2657,7 @@ namespace Ship_Game
             ActiveCombats?.Dispose(ref ActiveCombats);
             OrbitalDropList?.Dispose(ref OrbitalDropList);
             SbProduction    = null;
-            SbCommodities   = null;
+            Storage   = null;
             TroopManager    = null;
             GeodeticManager = null;
             BasedShips?.Dispose(ref BasedShips);

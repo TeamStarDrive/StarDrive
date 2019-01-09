@@ -282,7 +282,7 @@ namespace Ship_Game
                 RallyPoints = rallyPlanets.ToArray();
                 return;
             }
-            rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.GrossProductionPerTurn));
+            rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.Prod.GrossIncome));
             RallyPoints = rallyPlanets.ToArray();
             if (RallyPoints.Length == 0)
                 Log.Error("SetRallyPoint: No Planets found");
@@ -493,7 +493,8 @@ namespace Ship_Game
             return TechEntry.None;
         }
 
-        public float GetProjectedResearchNextTurn() => OwnedPlanets.Sum(p=> p.NetResearchPerTurn);
+        public float GetProjectedResearchNextTurn()
+            => OwnedPlanets.Sum(p=> p.Res.NetIncome);
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
 
@@ -1541,7 +1542,7 @@ namespace Ship_Game
             float num = 0.0f;
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet p in OwnedPlanets)
-                    num += p.FoodPerTurn;
+                    num += p.Food.GrossIncome;
             return num;
         }
 
@@ -1981,6 +1982,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             Research = 0;
             MaxResearchPotential = 0;
             foreach (Planet planet in OwnedPlanets)
@@ -1988,8 +1990,8 @@ namespace Ship_Game
                 if (!data.IsRebelFaction)
                     StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
 
-                Research             += planet.NetResearchPerTurn;
-                MaxResearchPotential += planet.GetMaxResearchPotential;
+                Research             += planet.Res.NetIncome;
+                MaxResearchPotential += planet.Res.MaxPotential;
             }
 
             if (data.TurnsBelowZero > 0 && Money < 0.0 && !Universe.Debug)
