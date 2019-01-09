@@ -218,7 +218,7 @@ namespace Ship_Game
         {
             newOrbital.Owner           = this;
             Capital                    = newOrbital;
-            newOrbital.InitializeSliders(this);
+            newOrbital.InitializeWorkerDistribution(this);
             AddPlanet(newOrbital);
             newOrbital.SetPlanetAttributes(26f);
             newOrbital.ChangeFertility(2f + data.Traits.HomeworldFertMod);
