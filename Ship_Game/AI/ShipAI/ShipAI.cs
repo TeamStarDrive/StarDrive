@@ -74,7 +74,7 @@ namespace Ship_Game.AI
             }
             else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
             Owner.loyalty.AddPlanet(ColonizeTarget);
-            ColonizeTarget.InitializeSliders(Owner.loyalty);
+            ColonizeTarget.InitializeWorkerDistribution(Owner.loyalty);
             ColonizeTarget.SetExploredBy(Owner.loyalty);
 
             Owner.CreateColonizationBuildingFor(ColonizeTarget);
