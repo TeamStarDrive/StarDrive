@@ -602,7 +602,6 @@ namespace Ship_Game
             }
 
             PlusCreditsPerColonist = 0f;
-            MaxPopBonus = 0f;
             PlusTaxPercentage = 0f;
             TerraformToAdd = 0f;
             bool shipyard = false;
@@ -626,11 +625,11 @@ namespace Ship_Game
                 if (b.AllowInfantry)
                     AllowInfantry = true;
                 totalStorage += b.StorageAdded;
-
-                MaxPopBonus += b.MaxPopIncrease;
                 TotalMaintenanceCostsPerTurn += b.Maintenance;
                 RepairPerTurn += b.ShipRepair;
             }
+
+            UpdateMaxPopulation();
 
             TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner);
 

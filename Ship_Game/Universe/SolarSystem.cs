@@ -635,7 +635,7 @@ namespace Ship_Game
                         }
                         newOrbital.SetPlanetAttributes();
                         if (ringData.MaxPopDefined > 0)
-                            newOrbital.MaxPopulation = ringData.MaxPopDefined * 1000f;
+                            newOrbital.MaxPopBase = ringData.MaxPopDefined * 1000f;
                         if (!string.IsNullOrEmpty(ringData.Owner) && !string.IsNullOrEmpty(ringData.Owner))
                         {
                             newOrbital.Owner = EmpireManager.GetEmpireByName(ringData.Owner);
@@ -658,9 +658,9 @@ namespace Ship_Game
                         newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
                         newOrbital.InitFertilityValues(2f + owner.data.Traits.HomeworldFertMod);
                         if (ringData.MaxPopDefined > 0)
-                            newOrbital.MaxPopulation = ringData.MaxPopDefined * 1000f + ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMod;
+                            newOrbital.MaxPopBase = ringData.MaxPopDefined * 1000f + ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMod;
                         else
-                            newOrbital.MaxPopulation = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
+                            newOrbital.MaxPopBase = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
 
                         newOrbital.Population = 14000f;
                         newOrbital.FoodHere   = 100f;

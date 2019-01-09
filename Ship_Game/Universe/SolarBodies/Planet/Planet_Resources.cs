@@ -43,9 +43,10 @@ namespace Ship_Game
             }
         }
 
-        
         public float PopulationBillion { get; private set; }
         public string PopulationString => $"{PopulationBillion.String()} / {MaxPopulationBillion.String()}";
+
+        public float PopulationRatio => Storage.Population / MaxPopulation;
 
         public float PlusTaxPercentage;
         public float PlusFlatPopulationPerTurn;

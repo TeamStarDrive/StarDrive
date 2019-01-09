@@ -148,7 +148,7 @@ namespace Ship_Game
                             Scale                = ring.planet.Scale,
                             ShieldStrength       = ring.planet.ShieldStrengthCurrent,
                             Population           = ring.planet.Population,
-                            PopulationMax        = ring.planet.MaxPopulation,
+                            PopulationMax        = ring.planet.MaxPopBase,
                             Fertility            = ring.planet.Fertility,
                             MaxFertility         = ring.planet.MaxFertility,
                             Richness             = ring.planet.MineralRichness,

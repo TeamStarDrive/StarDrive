@@ -25,12 +25,12 @@ namespace Ship_Game
         }
 
         // Calculate farmers with these adjustments
-        float CalculateFoodWorkers(float pFlatFood = 0.0f, float pFoodPerCol = 0.0f)
+        float CalculateFoodWorkers(float flat = 0.0f, float perCol = 0.0f)
         {
             if (IsCybernetic || Population <= 0) return 0;
-            float foodYield = Food.YieldPerColonist + pFoodPerCol;
+            float foodYield = Food.YieldPerColonist + perCol;
             if (foodYield <= 0.5f) return 0;
-            float flatBonus = Food.FlatBonus + pFlatFood;
+            float flatBonus = Food.FlatBonus + flat;
             float workers = (Consumption - flatBonus) / (PopulationBillion * foodYield);
             return workers.Clamped(0.0f, 0.9f); // Don't allow farmers to consume all labor
         }
@@ -155,11 +155,15 @@ namespace Ship_Game
             Res.Percent += labor - (workers * labor);//Leftovers go to Research
         }
 
-        float LeftoverWorkers()
+        float LeftoverWorkerBillions()
         {
             //Returns the number of workers (in Billions) that are not assigned to farming.
             return ((1 - CalculateFoodWorkers()) * MaxPopulationBillion);
         }
 
+        float LeftoverWorkers()
+        {
+            return 1f - CalculateFoodWorkers();
+        }
     }
 }
