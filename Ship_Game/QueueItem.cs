@@ -38,7 +38,7 @@ namespace Ship_Game
         {
             get
             {
-                float production = Planet.GetNetProductionPerTurn();
+                float production = Planet.Prod.NetIncome;
                 if (production <= 0f)
                     return 10000;
                 float turns = (Cost - productionTowards) / production;
