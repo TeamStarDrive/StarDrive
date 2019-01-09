@@ -38,7 +38,7 @@ namespace Ship_Game.AI
             Planet targetBuild = OwnerEmpire.GetPlanets()
                 .Where(planet => planet.AllowInfantry && planet.colonyType != Planet.ColonyType.Research
                                  && planet.Prod.MaxPotential > 5
-                                 && (planet.ProductionHere) - 2 * (planet.ConstructionQueue.Where(
+                                 && (planet.ProdHere) - 2 * (planet.ConstructionQueue.Where(
                                          goal => goal.Goal != null
                                                  && goal.Goal.type == GoalType.BuildTroop)
                                      .Sum(cost => cost.Cost)) > 0 

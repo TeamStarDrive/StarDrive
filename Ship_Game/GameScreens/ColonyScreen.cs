@@ -120,7 +120,7 @@ namespace Ship_Game
             {
                 FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
                 FoodStorage.Max = p.Storage.Max;
-                FoodStorage.Progress = p.Storage.Food;
+                FoodStorage.Progress = p.FoodHere;
                 FoodStorage.color = "green";
                 foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
                 foodDropDown.AddOption(Localizer.Token(329));
@@ -131,7 +131,7 @@ namespace Ship_Game
                 FoodStorageIcon = new Rectangle(theMenu7.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
                 ProdStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.660000026226044 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
                 ProdStorage.Max = p.Storage.Max;
-                ProdStorage.Progress = p.ProductionHere;
+                ProdStorage.Progress = p.ProdHere;
                 var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
                 ProfStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
                 prodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
@@ -225,9 +225,9 @@ namespace Ship_Game
             if (!GlobalStats.HardcoreRuleset)
             {
                 FoodStorage.Max = P.Storage.Max;
-                FoodStorage.Progress = P.Storage.Food;
+                FoodStorage.Progress = P.FoodHere;
                 ProdStorage.Max = P.Storage.Max;
-                ProdStorage.Progress = P.ProductionHere;
+                ProdStorage.Progress = P.ProdHere;
             }
             PlanetInfo.Draw();
             pDescription.Draw();
@@ -443,8 +443,8 @@ namespace Ship_Game
             }
             else
             {
-                FoodStorage.Progress = P.Storage.Food;
-                ProdStorage.Progress = P.ProductionHere;
+                FoodStorage.Progress = P.FoodHere;
+                ProdStorage.Progress = P.ProdHere;
                 if      (P.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
                 else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
                 else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
@@ -1020,8 +1020,7 @@ namespace Ship_Game
                             break;
                     }
                     DrawMultiLine(ref bCursor, desc);
-                    float production = P.IsCybernetic ? P.ProductionHere + P.Prod.NetIncome : P.FoodHere + P.Food.NetIncome;
-                    if (production - P.Consumption < 0f)
+                    if (P.IsStarving)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
                     DrawPlanetStat(ref bCursor, spriteBatch);
                     break;
@@ -1851,7 +1850,7 @@ namespace Ship_Game
                             GameAudio.PlaySfxAsync(P.ApplyStoredProduction(i) ? "sd_ui_accept_alt3" : "UI_Misc20");
                         }
                     }
-                    else if (P.ProductionHere == 0f)
+                    else if (P.ProdHere == 0f)
                     {
                         GameAudio.PlaySfxAsync("UI_Misc20");
                     }
@@ -1865,7 +1864,7 @@ namespace Ship_Game
                 if (e.WasCancelHovered(input) && input.LeftMouseClick)
                 {
                     var item = e.Get<QueueItem>();
-                    P.ProductionHere += item.productionTowards;
+                    P.ProdHere += item.productionTowards;
 
                     if (item.pgs != null)
                     {

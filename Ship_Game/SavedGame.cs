@@ -163,7 +163,7 @@ namespace Ship_Game
                             researcherPercentage = ring.planet.Res.Percent,
                             foodHere             = ring.planet.FoodHere,
                             TerraformPoints      = ring.planet.TerraformPoints,
-                            prodHere             = ring.planet.ProductionHere,
+                            prodHere             = ring.planet.ProdHere,
                             ColonyType           = ring.planet.colonyType,
                             StationsList         = new Array<Guid>(),
                             SpecialDescription = ring.planet.SpecialDescription

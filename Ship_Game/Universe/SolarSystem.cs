@@ -662,9 +662,9 @@ namespace Ship_Game
                         else
                             newOrbital.MaxPopulation = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
 
-                        newOrbital.Population     = 14000f;
-                        newOrbital.FoodHere       = 100f;
-                        newOrbital.ProductionHere = 100f;
+                        newOrbital.Population = 14000f;
+                        newOrbital.FoodHere   = 100f;
+                        newOrbital.ProdHere   = 100f;
                         if (!newSys.OwnerList.Contains(newOrbital.Owner))
                             newSys.OwnerList.Add(newOrbital.Owner);
 
