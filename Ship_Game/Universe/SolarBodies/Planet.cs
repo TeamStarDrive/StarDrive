@@ -2481,7 +2481,6 @@ namespace Ship_Game
             PlusFlatPopulationPerTurn = 0f;
             ShieldStrengthMax = 0f;
             TotalMaintenanceCostsPerTurn = 0f;
-            float storageAdded = 0;
             AllowInfantry = false;
             TotalDefensiveStrength = 0;
 
@@ -2522,6 +2521,7 @@ namespace Ship_Game
             TerraformToAdd = 0f;
             bool shipyard = false;
             RepairPerTurn = 0;
+            float totalStorage = 0;
 
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -2539,7 +2539,7 @@ namespace Ship_Game
                 PlusTaxPercentage += b.PlusTaxPercentage;
                 if (b.AllowInfantry)
                     AllowInfantry = true;
-                storageAdded += b.StorageAdded;
+                totalStorage += b.StorageAdded;
 
                 MaxPopBonus += b.MaxPopIncrease;
                 TotalMaintenanceCostsPerTurn += b.Maintenance;
@@ -2569,7 +2569,7 @@ namespace Ship_Game
             GrossMoneyPT += PlusTaxPercentage * GrossMoneyPT;
             //this.GrossMoneyPT += this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
             //this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.PopulationBillion * this.PlusCreditsPerColonist;
-            Storage.Max = storageAdded.Clamped(10f, 10000000f);
+            Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
 
         void HarvestResources()
