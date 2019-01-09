@@ -100,6 +100,8 @@ namespace Ship_Game
                 return template.Strength;
             }
         }
+
+        public float ActualMaintenance(Planet p) => Maintenance + Maintenance * p.Owner.data.Traits.MaintMod;
         
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         public bool ProducesFood => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;

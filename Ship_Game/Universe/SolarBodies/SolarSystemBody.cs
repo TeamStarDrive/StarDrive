@@ -99,19 +99,19 @@ namespace Ship_Game
         public float MaxFertility { get; protected set; }
         public float MineralRichness;
 
-        private float MaxPopValue;
-        public float MaxPopulation
-        {
-            get => MaxPopValue;
-            set
-            {
-                MaxPopValue = value;
-                MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000f;
-            }
-        }
+        public float MaxPopBase { get; set; } // planetary base max population value
+        public float MaxPopulation { get; private set; } // max pop with building bonuses
         public float MaxPopulationBillion { get; private set; }
-        public float MaxPopBonus;
-        public float MaxPopWithBonus => MaxPopulation + MaxPopBonus;
+
+        protected void UpdateMaxPopulation()
+        {
+            float popBonus = 0f;
+            for (int i = 0; i < BuildingList.Count; ++i) // for speed
+                popBonus += BuildingList[i].MaxPopIncrease;
+
+            MaxPopulation = MaxPopBase + popBonus;
+            MaxPopulationBillion = MaxPopulation / 1000f;
+        }
 
         public Array<Building> BuildingList = new Array<Building>();
         public float ShieldStrengthCurrent;
