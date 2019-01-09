@@ -13,7 +13,7 @@ namespace Ship_Game
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
-            BuildOutpostifAble();   //If there is no Outpost or Capital, build it
+            BuildOutpostIfAble();   //If there is no Outpost or Capital, build it
 
             if (colonyType == ColonyType.Colony) return; // No Governor? Nevermind!
 

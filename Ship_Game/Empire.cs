@@ -223,7 +223,7 @@ namespace Ship_Game
             newOrbital.SetPlanetAttributes(26f);
             newOrbital.ChangeFertility(2f + data.Traits.HomeworldFertMod);
             newOrbital.MineralRichness = 1f + data.Traits.HomeworldRichMod;
-            newOrbital.MaxPopulation   = 14000f + 14000f * data.Traits.HomeworldSizeMod;
+            newOrbital.MaxPopBase      = 14000f + 14000f * data.Traits.HomeworldSizeMod;
             newOrbital.Population      = 14000f;
             newOrbital.FoodHere        = 100f;
             newOrbital.ProdHere        = 100f;
@@ -1601,11 +1601,13 @@ namespace Ship_Game
             else
             {
                 militaryPotential += fertility + p.MineralRichness + p.MaxPopulationBillion;
-                Technology tech = null;
-               if(p.MaxPopulation >=500)
-                if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out tech))
-                    researchPotential = (tech.Cost - Research) / tech.Cost
-                                        * (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500);
+                if(p.MaxPopulation >=500)
+                {
+                    
+                    if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
+                        researchPotential = (tech.Cost - Research) / tech.Cost
+                                            * (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500);
+                }
             }
 
             if (IsCybernetic)
