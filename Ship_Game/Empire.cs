@@ -1240,8 +1240,8 @@ namespace Ship_Game
                 float foodHere = tradePlanet.FoodHere;
                 float prodHere = tradePlanet.ProductionHere;
                 float popHere = tradePlanet.GetGoodHere(Goods.Colonists);
-                float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
-                float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;
+                float foodStorPerc = 100 * foodHere / tradePlanet.Storage.Max;
+                float prodStorPerc = 100 * prodHere / tradePlanet.Storage.Max;
                 float popPerc = 100 * popHere / tradePlanet.MaxPopulation;
                 string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
                 string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
@@ -1265,8 +1265,8 @@ namespace Ship_Game
                 var lines = new Array<string>();
                 float foodHere = tradePlanet.FoodHere;
                 float prodHere = tradePlanet.ProductionHere;
-                float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
-                float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;
+                float foodStorPerc = 100 * foodHere / tradePlanet.Storage.Max;
+                float prodStorPerc = 100 * prodHere / tradePlanet.Storage.Max;
                 string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
                 string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
 

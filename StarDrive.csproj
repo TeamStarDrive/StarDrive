@@ -322,7 +322,7 @@
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\SBCommodities.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBProduction.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\TroopManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Moon.cs" />

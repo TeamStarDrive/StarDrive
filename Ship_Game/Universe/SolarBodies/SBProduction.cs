@@ -244,11 +244,11 @@ namespace Ship_Game.Universe.SolarBodies
             if (CrippledTurns > 0 || RecentCombat)
                 return;
          
-            float maxp = GetMaxProductionPotential() * (1 - Ground.FarmerPercentage); 
+            float maxp = GetMaxProductionPotential() * (1 - Ground.Food.Percent); 
             if (maxp < 5)
                 maxp = 5;
 
-            float storageRatio = ProductionHere / Ground.MaxStorage;
+            float storageRatio = ProductionHere / Ground.Storage.Max;
             float take10Turns = maxp * storageRatio;
 
             if (PS != Planet.GoodState.EXPORT)

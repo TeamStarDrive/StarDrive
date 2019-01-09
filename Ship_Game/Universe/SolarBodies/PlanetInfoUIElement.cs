@@ -462,10 +462,6 @@ namespace Ship_Game
 
         public void SetPlanet(Planet p)
         {
-            if (p.Owner != null && p.IsCybernetic)
-            {
-                p.FoodLocked = true;
-            }
             this.p = p;
             Sliders.SetPlanet(p);
         }

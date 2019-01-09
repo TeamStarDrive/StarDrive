@@ -446,18 +446,18 @@ namespace Ship_Game
             {
                 if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
                 {
-                    numFood = numFood + pgs.building.PlusFoodPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.FarmerPercentage;
-                    numFood = numFood + pgs.building.PlusFlatFoodAmount;
+                    numFood += pgs.building.PlusFoodPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.Food.Percent;
+                    numFood += pgs.building.PlusFlatFoodAmount;
                 }
                 if (pgs.building.PlusFlatProductionAmount > 0f || pgs.building.PlusProdPerColonist > 0f)
                 {
-                    numProd = numProd + pgs.building.PlusFlatProductionAmount;
-                    numProd = numProd + pgs.building.PlusProdPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.WorkerPercentage;
+                    numProd += pgs.building.PlusFlatProductionAmount;
+                    numProd += pgs.building.PlusProdPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.Prod.Percent;
                 }
                 if (pgs.building.PlusResearchPerColonist > 0f || pgs.building.PlusFlatResearchAmount > 0f)
                 {
-                    numRes = numRes + pgs.building.PlusResearchPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.ResearcherPercentage;
-                    numRes = numRes + pgs.building.PlusFlatResearchAmount;
+                    numRes += pgs.building.PlusResearchPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.Res.Percent;
+                    numRes += pgs.building.PlusFlatResearchAmount;
                 }
             }
             float total = numFood + numProd + numRes;
