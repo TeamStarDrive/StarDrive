@@ -613,8 +613,7 @@ namespace Ship_Game
                 Building b = BuildingList[i];
                 if (b.WinsGame)
                     HasWinBuilding = true;
-                //if (building.NameTranslationIndex == 458)
-                if (b.AllowShipBuilding || b.Name == "Space Port" )
+                if (b.AllowShipBuilding || b.IsSpacePort)
                     shipyard = true;
 
                 PlusFlatPopulationPerTurn += b.PlusFlatPopulation;

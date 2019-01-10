@@ -160,7 +160,7 @@ namespace Ship_Game
                     Biosphere = d.Biosphere
                 };
                 if (pgs.Biosphere)
-                    p.BuildingList.Add(ResourceManager.CreateBuilding("Biospheres"));
+                    p.BuildingList.Add(ResourceManager.CreateBuilding(Building.BiospheresId));
                 p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
                 {
@@ -227,7 +227,7 @@ namespace Ship_Game
                     
                     foreach (Building b in p.BuildingList)
                     {
-                        if (b.Name != "Space Port")
+                        if (!b.IsSpacePort)
                             continue;
                         p.Station = new SpaceStation
                         {
@@ -693,7 +693,7 @@ namespace Ship_Game
                         if (qisave.isBuilding)
                         {
                             qi.isBuilding = true;
-                            qi.Building = ResourceManager.BuildingsDict[qisave.UID];
+                            qi.Building = ResourceManager.GetBuildingTemplate(qisave.UID);
                             qi.Cost = qi.Building.Cost * savedData.GamePacing;
                             qi.NotifyOnEmpty = false;
                             qi.IsPlayerAdded = qisave.isPlayerAdded;

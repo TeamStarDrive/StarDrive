@@ -51,6 +51,40 @@ namespace Ship_Game.Universe.SolarBodies
             NetYieldPerColonist = YieldPerColonist - (YieldPerColonist*tax);
         }
 
+        // Nominal workers needed to neither gain nor lose storage
+        // @param flat Extra flat bonus to use in calculation
+        // @param perCol Extra per colonist bonus to use in calculation
+        public float WorkersNeededForEquilibrium(float flat = 0.0f, float perCol = 0.0f)
+        {
+            if (Planet.Population <= 0 || 
+                this == Planet.Food && Planet.IsCybernetic ||
+                this == Planet.Prod && Planet.NonCybernetic)
+                return 0;
+
+            float yield = YieldPerColonist + perCol;
+            if (this == Planet.Food && yield <= 0.5f)
+                return 0; // we won't be making any food here
+
+            float grossColo = yield * Planet.PopulationBillion; // assume workers: 1f
+            float grossFlat = (FlatBonus + flat);
+            
+            float tax = Planet.Owner.data.TaxRate;
+            float netColo = grossColo - grossColo*tax;
+            float netFlat = grossFlat - grossFlat*tax;
+
+            float needed = Planet.Consumption - netFlat;
+            float minWorkers = needed / netColo;
+            return minWorkers.Clamped(0.0f, 0.9f);
+        }
+
+        public float EstPercentForNetIncome(float targetNetIncome)
+        {
+            // give negative flat bonus to shift the equilibrium point
+            // towards targetNetIncome
+            float flat = (-targetNetIncome) / (1f - Planet.Owner.data.TaxRate);
+            return WorkersNeededForEquilibrium(flat);
+        }
+
         public void AutoBalanceWorkers(float otherWorkers)
         {
             Percent = Math.Max(1f - otherWorkers, 0f);
@@ -64,27 +98,6 @@ namespace Ship_Game.Universe.SolarBodies
             else if (this == Planet.Res)  { a = Planet.Food; b = Planet.Prod; }
             else return; // we're not Food,Prod,Res, so bail out
             AutoBalanceWorkers(a.Percent + b.Percent);
-        }
-
-        // Nominal workers needed to neither gain nor lose storage
-        // @param desiredPerTurn Extra buffer of production per turn
-        // @param flat Extra flat bonus to use in calculation
-        // @param perCol Extra per colonist bonus to use in calculation
-        public virtual float WorkersNeededForEquilibrium(float desiredPerTurn = 0.0f, float flat = 0.0f, float perCol = 0.0f)
-        {
-            if (Planet.Population <= 0 || 
-                this == Planet.Food && Planet.IsCybernetic ||
-                this == Planet.Prod && Planet.NonCybernetic)
-                return 0;
-
-            float yield = YieldPerColonist + perCol;
-            if (this == Planet.Food && yield <= 0.5f)
-                return 0; // we won't be making any food here
-
-            float needed = Planet.Consumption - (FlatBonus + flat) + desiredPerTurn;
-            float fromAllColonists = yield * Planet.PopulationBillion;
-            float minWorkers = needed / fromAllColonists;
-            return minWorkers.Clamped(0.0f, 0.9f);
         }
     }
 

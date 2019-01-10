@@ -670,14 +670,14 @@ namespace Ship_Game
 
                         newOrbital.HasShipyard = true;
                         newOrbital.AddGood("ReactorFuel", 1000);
-                        ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
-                        ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
+                        ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(newOrbital);
+                        ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(newOrbital);
                         if (GlobalStats.HardcoreRuleset)
                         {
-                            ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
-                            ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
-                            ResourceManager.CreateBuilding("Mine Fissionables").SetPlanet(newOrbital);
-                            ResourceManager.CreateBuilding("Fuel Refinery").SetPlanet(newOrbital);
+                            ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
+                            ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
+                            ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(newOrbital);
+                            ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(newOrbital);
                         }
                     }
                     if (ringData.HasRings != null)

@@ -67,8 +67,26 @@ namespace Ship_Game
         [Serialize(59)] public bool IsPlayerAdded = false;
         [Serialize(60)] public int InvadeInjurePoints;
 
+        // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
         [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
+
+        public override string ToString() => $"BID:{BID}  Name:{Name}  Cost:{Cost}";
+        [XmlIgnore][JsonIgnore] public string TranslatedName => Localizer.Token(NameTranslationIndex);
+
+        // Each Building templates has a unique ID: 
+        [XmlIgnore][JsonIgnore] public int BID { get; private set; }
+        public void AssignBuildingId(int bid) => BID = bid;
+
+        public static int CapitalId, OutpostId, BiospheresId, SpacePortId;
+        [XmlIgnore][JsonIgnore] public bool IsCapital => BID == CapitalId;
+        [XmlIgnore][JsonIgnore] public bool IsOutpost => BID == OutpostId;
+        [XmlIgnore][JsonIgnore] public bool IsCapitalOrOutpost => BID == CapitalId || BID == OutpostId;
+        [XmlIgnore][JsonIgnore] public bool IsBiospheres => BID == BiospheresId;
+        [XmlIgnore][JsonIgnore] public bool IsSpacePort => BID == SpacePortId;
+
+        // these appear in Hardcore Ruleset
+        public static int FissionablesId, MineFissionablesId, FuelRefineryId;
 
         public void SetPlanet(Planet p)
         {
@@ -143,13 +161,13 @@ namespace Ship_Game
                     return targetPGS.Habitable = true;                    
                 
             }
-            if (Name == "Outpost" || !string.IsNullOrEmpty(EventTriggerUID))
+            if (IsOutpost || !string.IsNullOrEmpty(EventTriggerUID))
             {
                 targetPGS = AssignBuildingToRandomTile(solarSystemBody);
                 if (targetPGS != null)
                     return targetPGS.Habitable = true;
             }
-            if (Name == "Biospheres")
+            if (IsBiospheres)
                 return AssignBuildingToRandomTile(solarSystemBody) != null;                    
             return false;            
         }
@@ -186,7 +204,7 @@ namespace Ship_Game
         public bool AssignBuildingToTile(QueueItem qi, Planet planet)
         {
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
-            if (Name == "Biospheres") //biospheres are handled specifically, later in the calling function
+            if (IsBiospheres) //biospheres are handled specifically, later in the calling function
                 return false;
 
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList) //Check all planet tiles
@@ -247,7 +265,7 @@ namespace Ship_Game
                     building1 = building2;
             }
             planet.BuildingList.Remove(building1);
-            planet.ProdHere += ResourceManager.BuildingsDict[Name].Cost / 2f;
+            planet.ProdHere += Cost / 2f;
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
                 if (planetGridSquare.building != null && planetGridSquare.building == building1)
