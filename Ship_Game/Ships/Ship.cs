@@ -194,6 +194,7 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost { get; private set; }
+        public Planet HomePlanet { get; private set; }
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -239,6 +240,11 @@ namespace Ship_Game.Ships
                         return true;
                 return false;
             }
+        }
+
+        public void UpdateHomePlanet(Planet planet)
+        {
+            HomePlanet = planet;
         }
 
         public float EmpTolerance => SurfaceArea + BonusEMP_Protection;
