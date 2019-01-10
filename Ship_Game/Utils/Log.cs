@@ -241,7 +241,7 @@ namespace Ship_Game
         }
         public static void Fatal(Exception ex, string error = null) => Error(ex, error, ErrorLevel.Fatal);
 
-        public static void ErrorDialog(Exception ex, string error = null)
+        public static void ErrorDialog(Exception ex, string error = null, bool isFatal = true)
         {
             if (IsTerminating)
                 return;
@@ -250,7 +250,7 @@ namespace Ship_Game
             string text = CurryExceptionMessage(ex, error);
             string withStack = text + "\n" + CleanStackTrace(ex);
             WriteToLog(withStack);
-            if (!HasDebugger) // only log errors to sentry if debugger not attached
+            if (!HasDebugger && isFatal) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Fatal, ex);
                 return;
@@ -258,8 +258,8 @@ namespace Ship_Game
 
             WriteToConsole(ConsoleColor.DarkRed, withStack);
 
-            ExceptionViewer.ShowExceptionDialog(withStack);
-            Environment.Exit(-1);
+            ExceptionViewer.ShowExceptionDialog(withStack, isFatal && GlobalStats.AutoErrorReport);
+            if (isFatal) Environment.Exit(-1);
         }
 
         [Conditional("DEBUG")] public static void Assert(bool trueCondition, string message)

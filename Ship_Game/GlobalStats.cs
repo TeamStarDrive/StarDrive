@@ -222,6 +222,8 @@ namespace Ship_Game
             Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
         }
 
+        public static void ClearActiveMod() => LoadModInfo("");
+
         public static void LoadModInfo(string modName)
         {
             ModName = modName;

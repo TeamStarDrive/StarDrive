@@ -353,34 +353,26 @@ namespace Ship_Game.Universe.SolarBodies
 
         public bool TryBiosphereBuild(Building b, QueueItem qi)
         {
-            if (qi.isBuilding == false && Ground.NeedsFood()) //(FarmerPercentage > .5f || NetFoodPerTurn < 0))
+            if (!b.IsBiospheres)
                 return false;
-            var list = new Array<PlanetGridSquare>();
-            foreach (PlanetGridSquare planetGridSquare in TilesList)
-            {
-                if (!planetGridSquare.Habitable && planetGridSquare.building == null && (!planetGridSquare.Biosphere && planetGridSquare.QItem == null))
-                    list.Add(planetGridSquare);
-            }
-            if (!b.IsBiospheres || list.Count <= 0) return false;
+            if (qi.isBuilding == false && Ground.NeedsFood())
+                return false;
 
-            int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
-            PlanetGridSquare planetGridSquare1 = list[index];
-            foreach (PlanetGridSquare planetGridSquare2 in TilesList)
-            {
-                if (planetGridSquare2 == planetGridSquare1)
-                {
-                    qi.Building = b;
-                    qi.isBuilding = true;
-                    qi.Cost = b.Cost;
-                    qi.productionTowards = 0.0f;
-                    planetGridSquare2.QItem = qi;
-                    qi.pgs = planetGridSquare2;
-                    qi.NotifyOnEmpty = false;
-                    ConstructionQueue.Add(qi);
-                    return true;
-                }
-            }
-            return false;
+            PlanetGridSquare[] list = TilesList.Filter(
+                g => !g.Habitable && g.building == null && !g.Biosphere && g.QItem == null);
+
+            if (list.Length == 0)
+                return false;
+
+            qi.pgs = RandomMath.RandItem(list);
+            qi.pgs.QItem = qi;
+            qi.Building = b;
+            qi.isBuilding = true;
+            qi.Cost = b.Cost;
+            qi.productionTowards = 0.0f;
+            qi.NotifyOnEmpty = false;
+            ConstructionQueue.Add(qi);
+            return true;
         }
 
         public float GetTotalConstructionQueueMaintenance()

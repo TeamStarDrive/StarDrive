@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 using System.Xml.Serialization;
 
 namespace Ship_Game
@@ -231,16 +232,34 @@ namespace Ship_Game
         public static void LoadItAll(Action onEssentialsLoaded = null)
         {
             Stopwatch s = Stopwatch.StartNew();
+            try
+            {
+                LoadAllResources(onEssentialsLoaded);
+                if (GlobalStats.HasMod)
+                    throw new Exception("Testing mod failure");
+            }
+            catch (Exception ex)
+            {
+                if (!GlobalStats.HasMod)
+                    throw;
+                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.",
+                                isFatal:false);
+                GlobalStats.ClearActiveMod();
+                LoadAllResources(onEssentialsLoaded);
+            }
+            Log.Info($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
+        }
+
+        static void LoadAllResources(Action onEssentialsLoaded)
+        {
             Reset();
             Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
-
             LoadLanguage(); // @todo Slower than expected [0.36]
             LoadToolTips();
             LoadHullData(); // we need Hull Data for main menu ship
             LoadEmpires();  // empire for NewGame @todo Very slow [0.54%]
 
             LoadTextureAtlases();
-
 
             LoadNebulae();
             LoadSmallStars();
@@ -278,7 +297,6 @@ namespace Ship_Game
             onEssentialsLoaded?.Invoke();
 
             LoadNonEssentialAtlases();
-            Log.Info($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
         }
 
         private static void TestLoad()
