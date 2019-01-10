@@ -122,10 +122,10 @@ namespace Ship_Game
         public float ActualMaintenance(Planet p) => Maintenance + Maintenance * p.Owner.data.Traits.MaintMod;
         
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
-        public bool ProducesFood => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
+        public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;
 
-        private static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
+        static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
         {
             return flatBonus + perColonistBonus * planet.PopulationBillion * adjust;
         }

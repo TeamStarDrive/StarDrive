@@ -486,7 +486,7 @@ namespace Ship_Game.AI {
             //this.DesiredAgentsPerHostile = 5;
             //this.DesiredAgentsPerNeutral = 1;
             DesiredAgentCount = 0;
-            BaseAgents = OwnerEmpire.GetPlanets().Count / 2 + (int) (spyBudget / (OwnerEmpire.GrossTaxes * 2));
+            BaseAgents = OwnerEmpire.GetPlanets().Count / 2 + (int) (spyBudget / (OwnerEmpire.GrossPlanetIncomes * 2));
             foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
             {
                 if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)

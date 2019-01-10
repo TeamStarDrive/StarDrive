@@ -135,10 +135,7 @@ namespace Ship_Game
             moneyRect = new Rectangle(popRect.X - 70, popRect.Y, 22, 22);
             Vector2 TextCursorMoney = new Vector2((float)moneyRect.X + 24, TextCursor3.Y);
 
-            float taxRate = p.Owner.data.TaxRate;
-            float grossIncome = p.GrossIncome;
-            float grossUpkeepPI = (float)(p.TotalMaintenanceCostsPerTurn + p.TotalMaintenanceCostsPerTurn * (double)p.Owner.data.Traits.MaintMod);
-            float netIncomePI = grossIncome - grossUpkeepPI;
+            float netIncomePI = p.Money.GrossIncome - p.GrossUpkeep;
 
             if (p.Owner == EmpireManager.Player)
             {

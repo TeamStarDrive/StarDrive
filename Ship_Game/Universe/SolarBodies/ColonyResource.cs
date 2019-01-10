@@ -17,6 +17,9 @@ namespace Ship_Game.Universe.SolarBodies
         // Per Turn: GrossIncome assuming we have MaxPopulation
         public float MaxPotential { get; protected set; }
 
+        // Per Turn: NetMaxPotential = MaxPotential - (taxes + consumption)
+        public float NetMaxPotential { get; protected set; }
+
         // Per Turn: Flat income added; no taxes applied
         public float FlatBonus { get; protected set; }
 
@@ -29,26 +32,30 @@ namespace Ship_Game.Universe.SolarBodies
         // Per Turn: NetYieldPerColonist = YieldPerColonist - taxes
         public float NetYieldPerColonist { get; protected set; }
 
+        protected float Tax; // ex: 0.25 for 25% tax rate
+        public float AfterTax(float grossValue) => grossValue - grossValue*Tax;
+
         protected ColonyResource(Planet planet) { Planet = planet; }
 
         protected abstract void RecalculateModifiers();
+        
+        // Purely used for estimation
+        protected virtual float AvgResourceConsumption() => 0.0f;
 
         public virtual void Update(float consumption)
         {
             FlatBonus = 0f;
             RecalculateModifiers();
             
-            float products = YieldPerColonist * Percent * Planet.PopulationBillion;
             MaxPotential = YieldPerColonist * Planet.MaxPopulationBillion;
-            GrossIncome = FlatBonus + products;
+            GrossIncome = FlatBonus + Percent * YieldPerColonist * Planet.PopulationBillion;
 
             // taxes get applied before consumption
             // because government gets to eat their pie first :)))
-            // @note Taxes affect all aspects of life: Food, Prod and Research.
-            float tax = Planet.Owner.data.TaxRate;
-            NetIncome    = GrossIncome  - (GrossIncome*tax + consumption);
-            NetFlatBonus = NetFlatBonus - (NetFlatBonus*tax);
-            NetYieldPerColonist = YieldPerColonist - (YieldPerColonist*tax);
+            NetIncome           = AfterTax(GrossIncome)  - consumption;
+            NetMaxPotential     = AfterTax(MaxPotential) - consumption;
+            NetFlatBonus        = AfterTax(NetFlatBonus);
+            NetYieldPerColonist = AfterTax(YieldPerColonist);
         }
 
         // Nominal workers needed to neither gain nor lose storage
@@ -56,23 +63,16 @@ namespace Ship_Game.Universe.SolarBodies
         // @param perCol Extra per colonist bonus to use in calculation
         public float WorkersNeededForEquilibrium(float flat = 0.0f, float perCol = 0.0f)
         {
-            if (Planet.Population <= 0 || 
-                this == Planet.Food && Planet.IsCybernetic ||
-                this == Planet.Prod && Planet.NonCybernetic)
+            if (Planet.Population <= 0)
                 return 0;
 
-            float yield = YieldPerColonist + perCol;
-            if (this == Planet.Food && yield <= 0.5f)
-                return 0; // we won't be making any food here
-
-            float grossColo = yield * Planet.PopulationBillion; // assume workers: 1f
+            float grossColo = (YieldPerColonist + perCol) * Planet.PopulationBillion;
             float grossFlat = (FlatBonus + flat);
             
-            float tax = Planet.Owner.data.TaxRate;
-            float netColo = grossColo - grossColo*tax;
-            float netFlat = grossFlat - grossFlat*tax;
+            float netColo = AfterTax(grossColo);
+            float netFlat = AfterTax(grossFlat);
 
-            float needed = Planet.Consumption - netFlat;
+            float needed = AvgResourceConsumption() - netFlat;
             float minWorkers = needed / netColo;
             return minWorkers.Clamped(0.0f, 0.9f);
         }
@@ -81,9 +81,10 @@ namespace Ship_Game.Universe.SolarBodies
         {
             // give negative flat bonus to shift the equilibrium point
             // towards targetNetIncome
-            float flat = (-targetNetIncome) / (1f - Planet.Owner.data.TaxRate);
+            float flat = (-targetNetIncome) / (1f - Tax);
             return WorkersNeededForEquilibrium(flat);
         }
+
 
         public void AutoBalanceWorkers(float otherWorkers)
         {
@@ -116,12 +117,23 @@ namespace Ship_Game.Universe.SolarBodies
                 plusPerColonist += b.PlusFoodPerColonist;
                 FlatBonus       += b.PlusFlatFoodAmount;
             }
+
+
             YieldPerColonist = Planet.Fertility + plusPerColonist;
+            Tax = 0f;
+            // If we use tax effects with Food resource,
+            // we need a base yield offset for balance
+            //YieldPerColonist += 0.25f;
+        }
+
+        protected override float AvgResourceConsumption()
+        {
+            return Planet.NonCybernetic ? Planet.Consumption : 0f;
         }
 
         public override void Update(float consumption)
         {
-            base.Update(Planet.IsCybernetic ? 0f : consumption);
+            base.Update(Planet.NonCybernetic ? consumption : 0f);
         }
     }
 
@@ -143,6 +155,12 @@ namespace Ship_Game.Universe.SolarBodies
             }
             float productMod = Planet.Owner.data.Traits.ProductionMod;
             YieldPerColonist = (richness + plusPerColonist) * (1 + productMod);
+            Tax = Planet.Owner.data.TaxRate;
+        }
+        
+        protected override float AvgResourceConsumption()
+        {
+            return Planet.IsCybernetic ? Planet.Consumption : 0f;
         }
 
         public override void Update(float consumption)
@@ -169,11 +187,31 @@ namespace Ship_Game.Universe.SolarBodies
             // @note Research only comes from buildings
             // Outposts and Capital Cities always grant a small bonus
             YieldPerColonist = plusPerColonist * (1 + researchMod);
+            Tax = Planet.Owner.data.TaxRate;
         }
 
-        public override void Update(float consumption)
+        // @todo Estimate how much research we need
+        protected override float AvgResourceConsumption() => 4.0f; // This is a good MINIMUM research value for estimation
+    }
+
+    public class ColonyMoney : ColonyResource
+    {
+        public ColonyMoney(Planet planet) : base(planet)
         {
-            base.Update(0f/*research not consumed*/);
+        }
+
+        protected override void RecalculateModifiers()
+        {
+            float plusPerColonist = 0f;
+            float plusTaxPercent = Planet.Owner.data.Traits.TaxMod;
+            foreach (Building b in Planet.BuildingList)
+            {
+                plusPerColonist += b.CreditsPerColonist;
+                plusTaxPercent  += b.PlusTaxPercentage;
+            }
+            YieldPerColonist = (1f + plusPerColonist);
+            YieldPerColonist += YieldPerColonist * plusTaxPercent;
+            Percent = 1f;
         }
     }
 }
