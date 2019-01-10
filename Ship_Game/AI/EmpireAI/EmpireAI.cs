@@ -295,7 +295,7 @@ namespace Ship_Game.AI
             Array<Planet> planets = new Array<Planet>();
             foreach (Planet planet1 in OwnerEmpire.GetPlanets())
             {
-                if (planet1.Prod.MaxPotential <= 5f || !planet1.HasShipyard)                
+                if (planet1.Prod.NetMaxPotential <= 5f || !planet1.HasShipyard)                
                     continue;
                 
                 bool flag = false;
@@ -318,7 +318,7 @@ namespace Ship_Game.AI
             }
             IOrderedEnumerable<Planet> maxProductionPotential =
                 from planet in planets
-                orderby planet.Prod.MaxPotential descending
+                orderby planet.Prod.NetMaxPotential descending
                 select planet;
             
             foreach (Planet planet2 in maxProductionPotential)

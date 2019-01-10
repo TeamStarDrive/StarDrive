@@ -256,8 +256,6 @@ namespace Ship_Game.AI {
             }
             EmpireAI desiredAgentCount1 = this;
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + BaseAgents;
-            //int empirePlanetSpys = this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
-            //if (this.empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
             int empireSpyLimit =
                 OwnerEmpire.GetPlanets().Count() / 3 + 3; // (int)(this.spyBudget / this.empire.GrossTaxes);
             int currentSpies = OwnerEmpire.data.AgentList.Count;
@@ -488,7 +486,7 @@ namespace Ship_Game.AI {
             //this.DesiredAgentsPerHostile = 5;
             //this.DesiredAgentsPerNeutral = 1;
             DesiredAgentCount = 0;
-            BaseAgents = OwnerEmpire.GetPlanets().Count / 2 + (int) (spyBudget / (OwnerEmpire.GrossTaxes * 2));
+            BaseAgents = OwnerEmpire.GetPlanets().Count / 2 + (int) (spyBudget / (OwnerEmpire.GrossPlanetIncomes * 2));
             foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
             {
                 if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
@@ -512,7 +510,6 @@ namespace Ship_Game.AI {
             desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + BaseAgents;
             //int empirePlanetSpys = empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             int empirePlanetSpys = OwnerEmpire.GetPlanets().Count() / 3 + 3;
-            //if (empire.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
 
             if (spyBudget >= 250f && OwnerEmpire.data.AgentList.Count < empirePlanetSpys)
             {

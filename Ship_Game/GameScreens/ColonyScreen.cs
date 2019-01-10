@@ -370,9 +370,9 @@ namespace Ship_Game
             string nIncome = Localizer.Token(6127);
             string nLosses = Localizer.Token(6129);
 
-            float grossIncome = P.GrossIncome;
+            float grossIncome = P.Money.GrossIncome;
             float grossUpkeep = P.GrossUpkeep;
-            float netIncome = P.NetIncome;
+            float netIncome   = P.Money.NetIncome;
 
             Vector2 positionGIncome = vector2_2;
             positionGIncome.X = vector2_2.X + 1;
@@ -1664,7 +1664,7 @@ namespace Ship_Game
                 if (!pgs.ClickRect.HitTest(MousePos) || !input.LeftMouseReleased)
                     continue;
 
-                if (pgs.Habitable && pgs.building == null && pgs.QItem == null && building.Name != "Biospheres")
+                if (pgs.Habitable && pgs.building == null && pgs.QItem == null && !building.IsBiospheres)
                 {
                     AddBuildingToConstructionQueue(building, pgs, playerAdded: true);
                     ActiveBuildingEntry = null;

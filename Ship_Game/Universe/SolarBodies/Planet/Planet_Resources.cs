@@ -20,6 +20,7 @@ namespace Ship_Game
         public ColonyResource Food;
         public ColonyResource Prod;
         public ColonyResource Res;
+        public ColonyResource Money;
 
         public float FoodHere
         {
@@ -43,32 +44,16 @@ namespace Ship_Game
             }
         }
 
-        
         public float PopulationBillion { get; private set; }
         public string PopulationString => $"{PopulationBillion.String()} / {MaxPopulationBillion.String()}";
 
-        public float PlusTaxPercentage;
+        public float PopulationRatio => Storage.Population / MaxPopulation;
         public float PlusFlatPopulationPerTurn;
-
-        public float PlusFlatMoneyPerTurn;
-        public float PlusCreditsPerColonist;
-        public float GrossMoneyPT;
-
-        public float GrossIncome =>
-            (GrossMoneyPT + GrossMoneyPT * Owner.data.Traits.TaxMod) * Owner.data.TaxRate
-            + PlusFlatMoneyPerTurn + (PopulationBillion * PlusCreditsPerColonist);
         
-        
-        public float TotalMaintenanceCostsPerTurn;
+        private float TotalMaintenanceCostsPerTurn;
         public float GrossUpkeep => TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn * Owner.data.Traits.MaintMod;
-        public float NetIncome => GrossIncome - GrossUpkeep;
-
-
-
 
         public bool HasProduction => Prod.GrossIncome  >  1.0f;
-
-
 
         public float GetGoodHere(Goods good)
         {
@@ -192,10 +177,5 @@ namespace Ship_Game
             else if (PS == GoodState.EXPORT && ratio <= exportThreshold / 2) PS = GoodState.STORE;
             else if (ratio > exportThreshold) PS = GoodState.EXPORT;
         }
-
-
-
-
-
     }
 }

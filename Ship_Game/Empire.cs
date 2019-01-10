@@ -75,8 +75,7 @@ namespace Ship_Game
         private bool InitialziedHostilesDict;
         public float AllTimeMaintTotal;
         public float totalMaint;
-        public float GrossTaxes;
-        public float OtherIncome;
+        public float GrossPlanetIncomes;
         public float TradeMoneyAddedThisTurn;
         public float MoneyLastTurn;
         public int totalTradeIncome;
@@ -223,20 +222,20 @@ namespace Ship_Game
             newOrbital.SetPlanetAttributes(26f);
             newOrbital.ChangeFertility(2f + data.Traits.HomeworldFertMod);
             newOrbital.MineralRichness = 1f + data.Traits.HomeworldRichMod;
-            newOrbital.MaxPopulation   = 14000f + 14000f * data.Traits.HomeworldSizeMod;
+            newOrbital.MaxPopBase      = 14000f + 14000f * data.Traits.HomeworldSizeMod;
             newOrbital.Population      = 14000f;
             newOrbital.FoodHere        = 100f;
             newOrbital.ProdHere        = 100f;
             newOrbital.HasShipyard     = true;
             newOrbital.AddGood("ReactorFuel", 1000);
-            ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
-            ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
+            ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(newOrbital);
+            ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(newOrbital);
             if (GlobalStats.HardcoreRuleset)
             {
-                ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
-                ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
-                ResourceManager.CreateBuilding("Mine Fissionables").SetPlanet(newOrbital);
-                ResourceManager.CreateBuilding("Fuel Refinery").SetPlanet(newOrbital);
+                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
+                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
+                ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(newOrbital);
+                ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(newOrbital);
             }
         }
 
@@ -1289,7 +1288,7 @@ namespace Ship_Game
             foreach (Planet planet in OwnedPlanets)
             {
                 planet.UpdateIncomes(false);
-                income += planet.NetIncome;
+                income += planet.Money.NetIncome;
             }
             return income;
         }
@@ -1298,15 +1297,13 @@ namespace Ship_Game
         {
             MoneyLastTurn = Money;
             ++numberForAverage;
-            GrossTaxes = 0f;
-            OtherIncome = 0f;
+            GrossPlanetIncomes = 0f;
 
             using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
             {
                 planet.UpdateIncomes(false);
-                GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * data.Traits.TaxMod;
-                OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.PopulationBillion * planet.PlusCreditsPerColonist);
+                GrossPlanetIncomes += planet.Money.NetIncome;
             }
 
             TradeMoneyAddedThisTurn = 0.0f;
@@ -1324,7 +1321,7 @@ namespace Ship_Game
                 foreach (Planet planet in OwnedPlanets)
                 {
                     planet.UpdateOwnedPlanet();
-                    newBuildM += planet.TotalMaintenanceCostsPerTurn;
+                    newBuildM += planet.GrossUpkeep;
                 }
                 totalBuildingMaintenance = newBuildM;
             }
@@ -1332,10 +1329,7 @@ namespace Ship_Game
             totalMaint = GetTotalBuildingMaintenance() + GetTotalShipMaintenance();
             AllTimeMaintTotal += totalMaint;
 
-            Money += GrossTaxes * data.TaxRate + OtherIncome;
-            Money += data.FlatMoneyBonus;
-            Money += TradeMoneyAddedThisTurn;
-            Money -= totalMaint;
+            Money += NetIncome() - totalMaint;
         }
 
         private void DoShipMaintenanceCost()
@@ -1369,15 +1363,13 @@ namespace Ship_Game
                 }
         }
 
-        public float EstimateIncomeAtTaxRate(float rate) => GrossTaxes * rate + OtherIncome
-                                                                              + TradeMoneyAddedThisTurn
+        public float EstimateIncomeAtTaxRate(float rate) => GrossPlanetIncomes * rate + TradeMoneyAddedThisTurn
                                                                               + data.FlatMoneyBonus
                                                             - (GetTotalBuildingMaintenance() + GetTotalShipMaintenance());
 
-        public float GrossIncome(float tax = -1)
+        public float NetIncome()
         {
-            if (tax  < 0) tax = data.TaxRate;
-            return GrossTaxes * tax + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
+            return GrossPlanetIncomes * data.TaxRate + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
         }
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;
@@ -1601,11 +1593,13 @@ namespace Ship_Game
             else
             {
                 militaryPotential += fertility + p.MineralRichness + p.MaxPopulationBillion;
-                Technology tech = null;
-               if(p.MaxPopulation >=500)
-                if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out tech))
-                    researchPotential = (tech.Cost - Research) / tech.Cost
-                                        * (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500);
+                if(p.MaxPopulation >=500)
+                {
+                    
+                    if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
+                        researchPotential = (tech.Cost - Research) / tech.Cost
+                                            * (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500);
+                }
             }
 
             if (IsCybernetic)
@@ -1980,7 +1974,7 @@ namespace Ship_Game
                     StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
 
                 Research             += planet.Res.NetIncome;
-                MaxResearchPotential += planet.Res.MaxPotential;
+                MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
 
             if (data.TurnsBelowZero > 0 && Money < 0.0 && !Universe.Debug)

@@ -18,14 +18,19 @@ namespace Ship_Game.Universe.SolarBodies
 
         public int CommoditiesCount => Commodities.Count;
         public bool ContainsGood(string goodId) => Commodities.ContainsKey(goodId);
-        public void ClearGoods()
-        {
-            Commodities.Clear();
-        }
+        public void ClearGoods() => Commodities.Clear();
 
         // different from Food -- this is based on race
         // cybernetics consume production, organics consume food
-        public float RaceFood => Ground.IsCybernetic ? ProdValue : FoodValue;
+        public float RaceFood
+        {
+            get => Ground.IsCybernetic ? ProdValue : FoodValue;
+            set
+            {
+                if (Ground.IsCybernetic) ProdValue = value;
+                else FoodValue = value;
+            }
+        }
 
         float FoodValue; // @note These are special fields for perf reasons.
         float ProdValue;
@@ -46,13 +51,13 @@ namespace Ship_Game.Universe.SolarBodies
         public float Population
         {
             get => PopValue;
-            set => PopValue = value.Clamped(0f, Ground.MaxPopWithBonus);
+            set => PopValue = value.Clamped(0f, Ground.MaxPopulation);
         }
 
         public float RaceFoodRatio => RaceFood / Max;
         public float FoodRatio => FoodValue / Max;
         public float ProdRatio => ProdValue / Max;
-        public float PopRatio  => PopValue  / Ground.MaxPopWithBonus;
+        public float PopRatio  => PopValue  / Ground.MaxPopulation;
 
         public void AddCommodity(string goodId, float amount)
         {

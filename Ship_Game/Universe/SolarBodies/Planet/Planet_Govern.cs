@@ -13,14 +13,12 @@ namespace Ship_Game
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
-            BuildOutpostifAble();   //If there is no Outpost or Capital, build it
+            BuildOutpostIfAble();   //If there is no Outpost or Capital, build it
 
             if (colonyType == ColonyType.Colony) return; // No Governor? Nevermind!
 
             float budget = BuildingBudget();
-
             bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
-            float foodMinimum = CalculateFoodWorkers();
 
             //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
             if (colonyType == ColonyType.Research && notResearching)
@@ -35,8 +33,7 @@ namespace Ship_Game
                 case ColonyType.TradeHub:
                 case ColonyType.Core:
                     //New resource management by Gretman
-                    Food.Percent = CalculateFoodWorkers();
-                    FillOrResearch(1 - Food.Percent);
+                    AssignCoreWorldWorkers();
 
                     if (colonyType == ColonyType.TradeHub)
                     {

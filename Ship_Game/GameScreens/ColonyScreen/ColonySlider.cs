@@ -100,13 +100,15 @@ namespace Ship_Game
             set => Resource.PercentLock = value;
         }
 
+        bool IsAIGovernor => P.colonyType != Planet.ColonyType.Colony;
+
         public override bool HandleInput(InputState input)
         {
             if (IsDisabled)
                 return false;
 
             Vector2 mousePos = input.CursorPosition;
-            bool mouseOverSlider = !LockedByUser && Rect.Bevel(5).HitTest(mousePos);
+            bool mouseOverSlider = !LockedByUser && !IsAIGovernor && Rect.Bevel(5).HitTest(mousePos);
 
             // slider drag is stateful to give user more convenient slide experience
             if (IsDragging)
@@ -129,17 +131,22 @@ namespace Ship_Game
             }
 
             SliderHover = mouseOverSlider;
-            LockHover = LockRect.HitTest(mousePos);
-            if (LockHover) // hovering over lock?
+
+            LockHover = false;
+            if (!IsAIGovernor)
             {
-                if (input.LeftMouseClick)
+                LockHover = LockRect.HitTest(mousePos);
+                if (LockHover) // hovering over lock?
                 {
-                    LockedByUser = !LockedByUser;
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    if (input.LeftMouseClick)
+                    {
+                        LockedByUser = !LockedByUser;
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    }
+                    ToolTip.CreateTooltip(69);
                 }
-                ToolTip.CreateTooltip(69);
             }
-            else if (DrawIcons) // maybe hovering over icon?
+            if (DrawIcons && !LockHover) // maybe hovering over icon?
             {
                 if (IconRect().HitTest(input.CursorPosition) && Empire.Universe.IsActive)
                     ToolTip.CreateTooltip(Tooltip());
@@ -151,7 +158,7 @@ namespace Ship_Game
         {
             float newRelX = (mouseX - Rect.Left) / (float)Rect.Width;
             float difference = newRelX.Clamped(0f, 1f) - Value;
-            if (Math.Abs(difference) >= 0.01f)
+            if (Math.Abs(difference) >= 0.001f)
             {
                 OnSliderChange?.Invoke(this, difference);
             }
@@ -199,12 +206,15 @@ namespace Ship_Game
         {
             if (IsDisabled) return;
 
-            if (!LockHover && !LockedByUser)
-                batch.Draw(Lock, LockRect, new Color(255, 255, 255, 50));
-            else if (LockHover && !LockedByUser)
-                batch.Draw(Lock, LockRect, new Color(255, 255, 255, 150));
+            if (!LockedByUser && !IsAIGovernor)
+            {
+                Color color = LockHover ? new Color(255, 255, 255, 150) : new Color(255, 255, 255, 50);
+                batch.Draw(Lock, LockRect, color);
+            }
             else
+            {
                 batch.Draw(Lock, LockRect, Color.White);
+            }
         }
 
         void DrawValueText(SpriteBatch batch)
