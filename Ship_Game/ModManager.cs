@@ -135,7 +135,7 @@ namespace Ship_Game
                 return;
 
             Log.Info("ModManager.ClearMods");
-            GlobalStats.LoadModInfo("");
+            GlobalStats.ClearActiveMod();
             ResourceManager.LoadItAll();
             mmscreen.LoadContent();
             ExitScreen();

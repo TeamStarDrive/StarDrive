@@ -63,7 +63,7 @@ namespace Ship_Game
             // throttling(50) + splash: DEBUG load in ~1.7 seconds
             Thread.Sleep(50);
 
-            if (!IsActive)
+            if (!IsActive || LoadingFinished())
 				return;
 			ScreenManager.GraphicsDevice.Clear(Color.Black);
             batch.Begin();
@@ -80,19 +80,19 @@ namespace Ship_Game
 		{
 		    if (IsExiting || !IsActive)
                 return false;
-            if (input.InGameSelect || (Ready && SplashPlayer?.IsPlaying != true))
-		    {
-                GoToMainMenuScreen();
-                return true;
-		    }
-            return base.HandleInput(input);
+            return LoadingFinished() || base.HandleInput(input);
 		}
 
-        void GoToMainMenuScreen()
+        bool LoadingFinished()
         {
-            if (!ScreenManager.IsShowing<MainMenuScreen>())
-                ScreenManager.AddScreen(new MainMenuScreen());
-            ExitScreen();
+            if (Input.InGameSelect || (Ready && SplashPlayer?.IsPlaying != true))
+            {
+                if (!ScreenManager.IsShowing<MainMenuScreen>())
+                    ScreenManager.AddScreen(new MainMenuScreen());
+                ExitScreen();
+                return true;
+            }
+            return false;
         }
 
 		public override void LoadContent()

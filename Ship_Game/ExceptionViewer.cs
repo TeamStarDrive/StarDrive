@@ -48,21 +48,21 @@ namespace Ship_Game
             }
         }
 
-        public static void ShowExceptionDialog(string dialogText)
+        public static void ShowExceptionDialog(string dialogText, bool autoReport)
         {
             var view = new ExceptionViewer();
 
-            if (GlobalStats.AutoErrorReport)
+            if (autoReport)
             {
                 view.Description =
                     "This error was submitted automatically to our exception tracking system. \r\n" +
-                    "If this error keeps reocurring, you can add comments and create a new issue on BitBucket.";
+                    "If this error keeps reoccurring, you can add comments and create a new issue on BitBucket.";
             }
             else
             {
                 view.Description = 
                     "Automatic error reporting is disabled. \r\n" +
-                    "If this error keep reocurring, you can add comments and create a new issue on BitBucket.";
+                    "If this error keep reoccurring, you can add comments and create a new issue on BitBucket.";
             }
 
             view.Error = dialogText;
