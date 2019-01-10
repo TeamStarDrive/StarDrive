@@ -235,8 +235,8 @@ namespace Ship_Game
             try
             {
                 LoadAllResources(onEssentialsLoaded);
-                if (GlobalStats.HasMod)
-                    throw new Exception("Testing mod failure");
+                //if (GlobalStats.HasMod)
+                //    throw new Exception("Testing mod failure");
             }
             catch (Exception ex)
             {

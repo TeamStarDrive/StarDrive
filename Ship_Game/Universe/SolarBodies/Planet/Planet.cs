@@ -232,7 +232,7 @@ namespace Ship_Game
                     previousD = building.TheWeapon.Range + 1000f;
                     previousT = previousD;
                 }
-                if (building.CurrentNumDefenseShips > 0)
+                else if (building.CurrentNumDefenseShips > 0)
                 {
                     previousD = 20000f;
                     previousT = previousD;
@@ -291,6 +291,8 @@ namespace Ship_Game
             Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire,Center,this);
             if (defenseShip == null)
                 Log.Warning($"Could not create defense ship, shipname = {selectedShip}");
+            else
+                empire.UpdateMoney(-defenseShip.BaseCost);
         }
 
         private static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire)
