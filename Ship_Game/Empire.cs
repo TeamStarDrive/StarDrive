@@ -75,8 +75,7 @@ namespace Ship_Game
         private bool InitialziedHostilesDict;
         public float AllTimeMaintTotal;
         public float totalMaint;
-        public float GrossTaxes;
-        public float OtherIncome;
+        public float GrossPlanetIncomes;
         public float TradeMoneyAddedThisTurn;
         public float MoneyLastTurn;
         public int totalTradeIncome;
@@ -1289,7 +1288,7 @@ namespace Ship_Game
             foreach (Planet planet in OwnedPlanets)
             {
                 planet.UpdateIncomes(false);
-                income += planet.NetIncome;
+                income += planet.Money.NetIncome;
             }
             return income;
         }
@@ -1298,15 +1297,13 @@ namespace Ship_Game
         {
             MoneyLastTurn = Money;
             ++numberForAverage;
-            GrossTaxes = 0f;
-            OtherIncome = 0f;
+            GrossPlanetIncomes = 0f;
 
             using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
             {
                 planet.UpdateIncomes(false);
-                GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * data.Traits.TaxMod;
-                OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.PopulationBillion * planet.PlusCreditsPerColonist);
+                GrossPlanetIncomes += planet.Money.NetIncome;
             }
 
             TradeMoneyAddedThisTurn = 0.0f;
@@ -1324,7 +1321,7 @@ namespace Ship_Game
                 foreach (Planet planet in OwnedPlanets)
                 {
                     planet.UpdateOwnedPlanet();
-                    newBuildM += planet.TotalMaintenanceCostsPerTurn;
+                    newBuildM += planet.GrossUpkeep;
                 }
                 totalBuildingMaintenance = newBuildM;
             }
@@ -1332,10 +1329,7 @@ namespace Ship_Game
             totalMaint = GetTotalBuildingMaintenance() + GetTotalShipMaintenance();
             AllTimeMaintTotal += totalMaint;
 
-            Money += GrossTaxes * data.TaxRate + OtherIncome;
-            Money += data.FlatMoneyBonus;
-            Money += TradeMoneyAddedThisTurn;
-            Money -= totalMaint;
+            Money += NetIncome() - totalMaint;
         }
 
         private void DoShipMaintenanceCost()
@@ -1369,15 +1363,13 @@ namespace Ship_Game
                 }
         }
 
-        public float EstimateIncomeAtTaxRate(float rate) => GrossTaxes * rate + OtherIncome
-                                                                              + TradeMoneyAddedThisTurn
+        public float EstimateIncomeAtTaxRate(float rate) => GrossPlanetIncomes * rate + TradeMoneyAddedThisTurn
                                                                               + data.FlatMoneyBonus
                                                             - (GetTotalBuildingMaintenance() + GetTotalShipMaintenance());
 
-        public float GrossIncome(float tax = -1)
+        public float NetIncome()
         {
-            if (tax  < 0) tax = data.TaxRate;
-            return GrossTaxes * tax + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
+            return GrossPlanetIncomes * data.TaxRate + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
         }
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;

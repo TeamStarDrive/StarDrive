@@ -86,7 +86,7 @@ namespace Ship_Game
         [Serialize(9)] public string DiplomacyDialogPath;
         [Serialize(10)] public DTrait DiplomaticPersonality;
         [Serialize(11)] public ETrait EconomicPersonality;
-        [Serialize(12)] public float TaxRate = 0.25f;
+        [Serialize(12)] public float TaxRate = 0.25f; // player modified tax rate
         [Serialize(13)] public Array<string> ExcludedDTraits = new Array<string>();
         [Serialize(14)] public Array<string> ExcludedETraits = new Array<string>();
         [Serialize(15)] public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
