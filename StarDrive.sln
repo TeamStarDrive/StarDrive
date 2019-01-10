@@ -10,11 +10,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarDrive", "StarDrive.cspr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDNative", "SDNative\SDNative.vcxproj", "{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDUnitTests", "SDUnitTests\SDUnitTests.csproj", "{8785944C-C586-403C-A948-F5180F413B5D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Xna.Framework.Game", "Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj", "{DD32A813-1393-421A-BAF8-455F02167BE3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDSunBurn", "SynapseGaming-SunBurn-Pro\SDSunBurn.csproj", "{BB003976-4764-4F4E-9A98-DDFB8449ECCD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{4112FFA8-1BF3-4966-818F-0935695D48F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,24 +64,6 @@ Global
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release|Any CPU.ActiveCfg = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release|LAAx86.ActiveCfg = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release|LAAx86.Build.0 = Release|Win32
-		{8785944C-C586-403C-A948-F5180F413B5D}.Debug - Auto Fast|Any CPU.ActiveCfg = Release|x64
-		{8785944C-C586-403C-A948-F5180F413B5D}.Debug - Auto Fast|Any CPU.Build.0 = Release|x64
-		{8785944C-C586-403C-A948-F5180F413B5D}.Debug - Auto Fast|LAAx86.ActiveCfg = Release|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Debug - Auto Fast|LAAx86.Build.0 = Release|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Debug|LAAx86.ActiveCfg = Debug|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Debug|LAAx86.Build.0 = Debug|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Deploy|Any CPU.ActiveCfg = Release|x64
-		{8785944C-C586-403C-A948-F5180F413B5D}.Deploy|Any CPU.Build.0 = Release|x64
-		{8785944C-C586-403C-A948-F5180F413B5D}.Deploy|LAAx86.ActiveCfg = Release|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Deploy|LAAx86.Build.0 = Release|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Release - Auto Fast|Any CPU.ActiveCfg = Release|x64
-		{8785944C-C586-403C-A948-F5180F413B5D}.Release - Auto Fast|Any CPU.Build.0 = Release|x64
-		{8785944C-C586-403C-A948-F5180F413B5D}.Release - Auto Fast|LAAx86.ActiveCfg = Release|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Release - Auto Fast|LAAx86.Build.0 = Release|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Release|Any CPU.ActiveCfg = Release|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Release|LAAx86.ActiveCfg = Release|x86
-		{8785944C-C586-403C-A948-F5180F413B5D}.Release|LAAx86.Build.0 = Release|x86
 		{DD32A813-1393-421A-BAF8-455F02167BE3}.Debug - Auto Fast|Any CPU.ActiveCfg = Debug|x86
 		{DD32A813-1393-421A-BAF8-455F02167BE3}.Debug - Auto Fast|Any CPU.Build.0 = Debug|x86
 		{DD32A813-1393-421A-BAF8-455F02167BE3}.Debug - Auto Fast|LAAx86.ActiveCfg = Release|x86
@@ -118,6 +100,26 @@ Global
 		{BB003976-4764-4F4E-9A98-DDFB8449ECCD}.Release|Any CPU.ActiveCfg = Release|x86
 		{BB003976-4764-4F4E-9A98-DDFB8449ECCD}.Release|LAAx86.ActiveCfg = Release|x86
 		{BB003976-4764-4F4E-9A98-DDFB8449ECCD}.Release|LAAx86.Build.0 = Release|x86
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Debug - Auto Fast|Any CPU.ActiveCfg = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Debug - Auto Fast|Any CPU.Build.0 = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Debug - Auto Fast|LAAx86.ActiveCfg = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Debug - Auto Fast|LAAx86.Build.0 = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Debug|LAAx86.ActiveCfg = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Debug|LAAx86.Build.0 = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Deploy|Any CPU.ActiveCfg = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Deploy|Any CPU.Build.0 = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Deploy|LAAx86.ActiveCfg = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Deploy|LAAx86.Build.0 = Debug|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Release - Auto Fast|Any CPU.ActiveCfg = Release|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Release - Auto Fast|Any CPU.Build.0 = Release|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Release - Auto Fast|LAAx86.ActiveCfg = Release|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Release - Auto Fast|LAAx86.Build.0 = Release|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Release|LAAx86.ActiveCfg = Release|Any CPU
+		{4112FFA8-1BF3-4966-818F-0935695D48F7}.Release|LAAx86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
