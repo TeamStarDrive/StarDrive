@@ -170,7 +170,7 @@ namespace Ship_Game.Universe.SolarBodies
                         {
                             foreach (Building bios in BuildingList)
                             {
-                                if (bios.Name == "Biospheres")
+                                if (bios.IsBiospheres)
                                 {
                                     od.Target.building = bios;
                                     break;

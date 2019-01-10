@@ -8,6 +8,68 @@ namespace Ship_Game
 {
     public partial class Planet
     {
+        public void RefreshBuildingsWeCanBuildHere()
+        {
+            if (Owner == null) return;
+            BuildingsCanBuild.Clear();
+
+            // See if it already has a command building or not.
+            bool needCommandBuilding = BuildingList.All(b => !b.IsCapitalOrOutpost);
+
+            foreach (KeyValuePair<string, bool> keyValuePair in Owner.GetBDict())
+            {
+                if (!keyValuePair.Value)
+                    continue;
+                Building b = ResourceManager.GetBuildingTemplate(keyValuePair.Key);
+                // Skip adding +food buildings for cybernetic races
+                if (IsCybernetic && (b.PlusFlatFoodAmount > 0 || b.PlusFoodPerColonist > 0))
+                    continue;
+                // Skip adding command buildings if planet already has one
+                if (!needCommandBuilding && b.IsCapitalOrOutpost)
+                    continue;
+                // Make sure the building isn't already built on this planet
+                if (b.Unique && IsBuildingPresent(b))
+                    continue;
+                // Make sure the building isn't already being built on this planet
+                if (b.Unique && IsAlreadyInCQueue(b))
+                    continue;
+                // Hide Biospheres if the entire planet is already habitable
+                if (b.IsBiospheres && AllTilesHabitable())
+                    continue;
+                // If this is a one-per-empire building, make sure it hasn't been built already elsewhere
+                // Reusing fountIt bool from above
+                if (b.BuildOnlyOnce && IsBuiltWithinEmpire(b))
+                    continue;
+                // If the building is still a candidate after all that, then add it to the list!
+                BuildingsCanBuild.Add(b);
+            }
+        }
+
+        bool IsBuiltWithinEmpire(Building b)
+        {
+            // Check for this unique building across the empire
+            foreach (Planet planet in Owner.GetPlanets())
+                if (planet.IsBuildingPresent(b) || planet.IsAlreadyInCQueue(b))
+                    return true;
+            return false;
+        }
+
+        bool IsAlreadyInCQueue(Building b)
+        {
+            return ConstructionQueue.Any(q => q.isBuilding && q.Building.BID == b.BID);
+        }
+
+        bool AllTilesHabitable()
+        {
+            return TilesList.All(tile => tile.Habitable);
+        }
+
+        bool IsBuildingPresent(Building b)
+        {
+            return BuildingList.Any(existing => existing.BID == b.BID);
+        }
+
+        
         public void ApplyAllStoredProduction(int index) => SbProduction.ApplyAllStoredProduction(index);
         public bool ApplyStoredProduction(int index) => SbProduction.ApplyStoredProduction(index);
         public void ApplyProductionToQueue(float howMuch, int whichItem) => SbProduction.ApplyProductiontoQueue(howMuch, whichItem);
@@ -15,111 +77,6 @@ namespace Ship_Game
         public void ApplyProductionTowardsConstruction() => SbProduction.ApplyProductionTowardsConstruction();
         public void AddBuildingToCQ(Building b, bool playerAdded = false) => SbProduction.AddBuildingToCQ(b, playerAdded);
 
-        public void RefreshBuildingsWeCanBuildHere()
-        {
-            if (Owner == null) return;
-            BuildingsCanBuild.Clear();
-
-            //See if it already has a command building or not.
-            bool needCommandBuilding = true;
-            foreach (Building building in BuildingList)
-            {
-                if (building.Name == "Capital City" || building.Name == "Outpost")
-                {
-                    needCommandBuilding = false;
-                    break;
-                }
-            }
-
-            foreach (KeyValuePair<string, bool> keyValuePair in Owner.GetBDict())
-            {
-                if (!keyValuePair.Value) continue;
-                Building building1 = ResourceManager.BuildingsDict[keyValuePair.Key];
-
-                //Skip adding +food buildings for cybernetic races
-                if (IsCybernetic && (building1.PlusFlatFoodAmount > 0 || building1.PlusFoodPerColonist > 0)) continue;
-
-                //Skip adding command buildings if planet already has one
-                if (!needCommandBuilding && (building1.Name == "Outpost" || building1.Name == "Capital City")) continue;
-
-                bool foundIt = false;
-
-                //Make sure the building isn't already built on this planet
-                foreach (Building building2 in BuildingList)
-                {
-                    if (!building2.Unique) continue;
-
-                    if (building2.Name == building1.Name)
-                    {
-                        foundIt = true;
-                        break;
-                    }
-                }
-                if (foundIt) continue;
-
-                //Make sure the building isn't already being built on this planet
-                for (int index = 0; index < ConstructionQueue.Count; ++index)
-                {
-                    QueueItem queueItem = ConstructionQueue[index];
-                    if (queueItem.isBuilding && queueItem.Building.Name == building1.Name && queueItem.Building.Unique)
-                    {
-                        foundIt = true;
-                        break;
-                    }
-                }
-                if (foundIt) continue;
-
-                //Hide Biospheres if the entire planet is already habitable
-                if (building1.Name == "Biosphers")
-                {
-                    bool allHabitable = true;
-                    foreach (PlanetGridSquare tile in TilesList)
-                    {
-                        if (!tile.Habitable)
-                        {
-                            allHabitable = false;
-                            break;
-                        }
-                    }
-                    if (allHabitable) continue;
-                }
-
-                //If this is a one-per-empire building, make sure it hasn't been built already elsewhere
-                //Reusing fountIt bool from above
-                if (building1.BuildOnlyOnce)
-                {
-                    //Check for this unique building across the empire
-                    foreach (Planet planet in Owner.GetPlanets())
-                    {
-                        //First check built buildings
-                        foreach (Building building2 in planet.BuildingList)
-                        {
-                            if (building2.Name == building1.Name)
-                            {
-                                foundIt = false;
-                                break;
-                            }
-                        }
-                        if (foundIt) break;
-
-                        //Then check production queue
-                        foreach (QueueItem queueItem in planet.ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == building1.Name)
-                            {
-                                foundIt = true;
-                                break;
-                            }
-                        }
-                        if (foundIt) break;
-                    }
-                    if (foundIt) continue;
-                }
-
-                //If the building is still a candidate after all that, then add it to the list!
-                BuildingsCanBuild.Add(building1);
-            }
-        }
 
         bool FindConstructionBuilding(Goods goods, out QueueItem item)
         {

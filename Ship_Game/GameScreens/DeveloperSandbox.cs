@@ -8,7 +8,7 @@ namespace Ship_Game
     internal class DeveloperSandbox : GameScreen
     {
         const int NumEmpires = 2;
-        const bool PlayerIsCybernetic = true;
+        const bool PlayerIsCybernetic = false;
         MicroUniverse Universe;
 
         public DeveloperSandbox() : base(null)

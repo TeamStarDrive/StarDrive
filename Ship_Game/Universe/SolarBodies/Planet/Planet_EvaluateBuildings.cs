@@ -63,8 +63,8 @@ namespace Ship_Game
 
         float EvalFlatFood(Building b)
         {
-            if (b.PlusFlatFoodAmount.AlmostZero() || IsCybernetic) return 0;
             float score = 0;
+            if (b.PlusFlatFoodAmount.AlmostZero() || IsCybernetic) return 0;
             if (b.PlusFlatFoodAmount < 0)
             {
                 score = b.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
@@ -79,15 +79,14 @@ namespace Ship_Game
                 if (score < b.PlusFlatFoodAmount * 0.1f) score = b.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
                 if (b.PlusFlatFoodAmount + Food.FlatBonus - 0.5f > MaxPopulationBillion) score = 0;   //Dont want this if a lot would go to waste
             }
-
             DebugEvalBuild(b, "FlatFood", score);
             return score;
         }
 
         float EvalFlatFoodScrap(Building b)
         {
-            if (b.PlusFlatFoodAmount.AlmostZero() || IsCybernetic) return 0;
             float score = 0;
+            if (b.PlusFlatFoodAmount.AlmostZero() || IsCybernetic) return 0;
             if (b.PlusFlatFoodAmount < 0)
             {
                 score = b.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
@@ -101,7 +100,6 @@ namespace Ship_Game
                 if (farmers > 0.5f) score += farmers - 0.5f;   //Bonus if planet would be spending a lot of labor feeding itself
                 if (score < 0) score = 0;                                        //No penalty for extra food
             }
-
             DebugEvalScrap(b, "FlatFood", score);
             return score;
         }
@@ -367,17 +365,20 @@ namespace Ship_Game
 
         float EvalAllowShipBuilding(Building b)
         {
-            bool spacePort = b.AllowShipBuilding || b.Name == "Space Port";
-            if (!spacePort || PopulationRatio < 0.66f)
+            bool spacePort = b.AllowShipBuilding || b.IsSpacePort;
+            if (!spacePort || PopulationRatio < 0.5f)
                 return 0;
+
+            float score = 0;
+            if (b.IsCapital)
+                score += 2.0f; // we can't be a space-faring species if our capital doesn't have a space-port...
 
             float prodFromLabor = LeftoverWorkerBillions() * (Prod.YieldPerColonist + b.PlusProdPerColonist);
             float prodFromFlat = Prod.FlatBonus + b.PlusFlatProductionAmount + (b.PlusProdPerRichness * MineralRichness);
             
-            float score = 0;
             // Do we have enough production capability to really justify trying to build ships
-            if (prodFromLabor + prodFromFlat > 10.0f)
-                score = ((prodFromLabor + prodFromFlat) / 10).Clamped(0.0f, 2.0f);
+            if (prodFromLabor + prodFromFlat > 8.0f)
+                score += ((prodFromLabor + prodFromFlat) / 8.0f).Clamped(0.0f, 2.0f);
 
             DebugEvalBuild(b, "ShipBuilding", score);
             return score;
@@ -450,8 +451,7 @@ namespace Ship_Game
         {
             return BuildingList.Count(building =>
                         building.CombatStrength > 0 &&
-                        building.Name != "Outpost" &&
-                        building.Name != "Capital City" &&
+                        !building.IsCapitalOrOutpost &&
                         building.MaxPopIncrease.AlmostZero());
         }
 
@@ -594,7 +594,7 @@ namespace Ship_Game
             {
                 Building b = BuildingsCanBuild[i];
                 if (b.CombatStrength == 0 || b.MaxPopIncrease > 0) continue;
-                if (b.Name == "Outpost" || b.Name == "Capital City") continue;
+                if (b.IsCapitalOrOutpost) continue;
 
                 float score = -EvalMaintenance(b, budget);
                 score += EvalMilitaryBuilding(b, budget);
@@ -612,7 +612,7 @@ namespace Ship_Game
         {
             //Do some existing bulding recon
             int openTiles      = TilesList.Count(tile => tile.Habitable && tile.building == null);
-            int totalbuildings = TilesList.Count(tile => tile.building != null && tile.building.Name != "Biospheres");
+            int totalbuildings = TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
 
             //Construction queue recon
             bool buildingInTheWorks  = SbProduction.ConstructionQueue.Any(b => b.isBuilding);
@@ -629,8 +629,8 @@ namespace Ship_Game
             }
             else
             {
-                bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(b => b.isBuilding && b.Building.Name == "Biospheres") != null;
-                Building bio = BuildingsCanBuild.Find(b => b.Name == "Biospheres");
+                bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(b => b.isBuilding && b.Building.IsBiospheres) != null;
+                Building bio = BuildingsCanBuild.Find(b => b.IsBiospheres);
 
                 if (bio != null && !biosphereInTheWorks && totalbuildings < 35 && bio.Maintenance < budget + 0.3f) //No habitable tiles, and not too much in debt
                     AddBuildingToCQ(bio);
@@ -669,7 +669,7 @@ namespace Ship_Game
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b = BuildingList[i];
-                if (b.Name == "Biospheres" || !b.Scrappable || b.IsPlayerAdded)
+                if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded)
                     continue;
 
                 
@@ -718,11 +718,11 @@ namespace Ship_Game
         bool OutpostBuiltOrInQueue()
         {
             // First check the existing buildings
-            if (BuildingList.Any(b => b.Name == "Outpost" || b.Name == "Capital City"))
+            if (BuildingList.Any(b => b.IsCapitalOrOutpost))
                 return true;
 
             // Then check the queue
-            if (ConstructionQueue.Any(q => q.isBuilding && q.Building.Name == "Outpost"))
+            if (ConstructionQueue.Any(q => q.isBuilding && q.Building.IsOutpost))
                 return true;
 
             return false;
@@ -735,7 +735,7 @@ namespace Ship_Game
                 return;
 
             //Build it!
-            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"), playerAdded: false);
+            AddBuildingToCQ(ResourceManager.CreateBuilding(Building.OutpostId), playerAdded: false);
 
             // Move Outpost to the top of the list, and rush production
             for (int i = 0; i < ConstructionQueue.Count; ++i)
@@ -743,12 +743,12 @@ namespace Ship_Game
                 QueueItem q = ConstructionQueue[i];
                 if (i == 0 && q.isBuilding)
                 {
-                    if (q.Building.Name == "Outpost")
+                    if (q.Building.IsOutpost)
                         SbProduction.ApplyAllStoredProduction(0);
                     break;
                 }
 
-                if (q.isBuilding && q.Building.Name == "Outpost")
+                if (q.isBuilding && q.Building.IsOutpost)
                 {
                     ConstructionQueue.Remove(q);
                     ConstructionQueue.Insert(0, q);

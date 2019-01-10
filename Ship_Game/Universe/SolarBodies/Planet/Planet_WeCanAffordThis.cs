@@ -72,7 +72,7 @@ namespace Ship_Game
             if (building.PlusTaxPercentage * GrossMoneyPT >= building.Maintenance
                 || building.CreditsProduced(this) >= building.Maintenance)
                 return true;
-            if (building.Name == "Outpost" || building.WinsGame)
+            if (building.IsOutpost || building.WinsGame)
                 return true;
             //dont build +food if you dont need to
 
@@ -118,7 +118,7 @@ namespace Ship_Game
             }
             if (!incomeBuilding || DevelopmentLevel < 3)
             {
-                if (building.Name == "Biospheres")
+                if (building.IsBiospheres)
                     return false;
             }
 
@@ -155,7 +155,7 @@ namespace Ship_Game
                         if (!iftrue && medPri && DevelopmentLevel > 2 && incomeBuilding)
                         {
                             if (
-                                building.Name == "Biospheres" ||
+                                building.IsBiospheres ||
                                 (building.PlusTerraformPoints > 0 && Fertility < 3)
                                 || building.MaxPopIncrease > 0
                                 || building.PlusFlatPopulation > 0
@@ -193,7 +193,7 @@ namespace Ship_Game
                                 || building.PlusProdPerColonist > 0
                                 || building.PlusFlatResearchAmount > 0
                                 || (building.PlusResearchPerColonist > 0 && (PopulationBillion) > 1)
-                                //|| building.Name == "Biospheres"
+                                //|| building.IsBiospheres
 
                                 || (needDefense && isDefensive && DevelopmentLevel > 3)
                                 || (IsCybernetic && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0))
@@ -289,7 +289,6 @@ namespace Ship_Game
                         }
                         if (!iftrue && lowPri && DevelopmentLevel > 4)
                         {
-                            //if(building.Name!= "Biospheres")
                             iftrue = true;
 
                         }
