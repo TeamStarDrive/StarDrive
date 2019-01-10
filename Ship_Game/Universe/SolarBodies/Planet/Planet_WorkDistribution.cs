@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -24,142 +25,106 @@ namespace Ship_Game
             }
         }
 
-        // Calculate farmers with these adjustments
-        float CalculateFoodWorkers(float pFlatFood = 0.0f, float pFoodPerCol = 0.0f)
+        static float CalculateMod(float desiredPercent, float storageRatio)
         {
-            if (IsCybernetic || Population <= 0) return 0;
-            float foodYield = Food.YieldPerColonist + pFoodPerCol;
-            if (foodYield <= 0.5f) return 0;
-            float flatBonus = Food.FlatBonus + pFlatFood;
-            float workers = (Consumption - flatBonus) / (PopulationBillion * foodYield);
-            return workers.Clamped(0.0f, 0.9f); // Don't allow farmers to consume all labor
-        }
-
-        float CalculateMod(float desiredPercent, float storageRatio)
-        {
-            float mod = (desiredPercent - storageRatio) * 2;             //Percentage currently over or under desired storage
-            if (mod > 0 && mod < 0.05) mod = 0.05f;	//Avoid crazy small percentage
-            if (mod < 0 && mod > -0.05) mod = 0.00f;	//Avoid bounce (stop if slightly over)
-
+            float mod = (desiredPercent - storageRatio) * 2; // Percentage currently over or under desired storage
+            if (mod > 0f && mod < +0.05f) mod = 0.05f;	// Avoid crazy small percentage
+            if (mod < 0f && mod > -0.05f) mod = 0.00f;	// Avoid bounce (stop if slightly over)
             return mod;
         }
 
-        //This will calculate a smooth transition to maintain [percent]% of stored food. It will under-farm if over
-        //[percent]% of storage, or over-farm if under it. Returns labor needed
-        float FarmToPercentage(float percent)   //Production and Research
+        // calculate farmers up to percent
+        float FarmToPercentage(float percent) // Production
         {
-            if (percent == 0) return 0;
-            if (Food.YieldPerColonist <= 0.5f || IsCybernetic) return 0; //No farming here, so never mind
-            float minFarmers = CalculateFoodWorkers();          //Nominal Farmers needed to neither gain nor lose storage
-            float storedFoodRatio = Storage.FoodRatio;      //Percentage of Food Storage currently filled
+            if (percent <= 0f || Food.YieldPerColonist <= 0.5f || IsCybernetic)
+                return 0; // No farming here, so never mind
 
-            if (Food.FlatBonus > 0)
-            {
-                //Stop producing food a little early, since the flat food will continue to pile up
-                float maxPop = MaxPopulationBillion;
-                if (Food.FlatBonus > maxPop) storedFoodRatio += 0.15f * Math.Min(Food.FlatBonus - maxPop, 3);
-                storedFoodRatio = storedFoodRatio.Clamped(0, 1);
-            }
+            float farmers = Food.EstPercentForNetIncome(+1f);          
 
-            minFarmers += CalculateMod(percent, storedFoodRatio).Clamped(-0.35f, 0.50f);             //modify nominal farmers by overage or underage
-            minFarmers = minFarmers.Clamped(0, 0.9f);                  //Tame resulting value, dont let farming completely consume all labor
-            return minFarmers;                          //Return labor % of farmers to progress toward goal
+            // modify nominal farmers by overage or underage
+            farmers += CalculateMod(percent, Storage.FoodRatio).Clamped(-0.35f, 0.50f);
+            return farmers.Clamped(0f, 0.9f);
         }
 
-        float WorkToPercentage(float percent)   //Production and Research
+        float WorkToPercentage(float percent) // Production
         {
-            if (percent == 0) return 0;
-            float minWorkers = 0;
-            if (IsCybernetic)
-            {											//Nominal workers needed to feed all of the the filthy Opteris
-                minWorkers = (Consumption - Prod.FlatBonus) / PopulationBillion / Prod.YieldPerColonist;
-                minWorkers = minWorkers.Clamped(0, 1);
-            }
+            if (percent <= 0f) return 0;
 
-            float storedProdRatio = Storage.ProdRatio;      //Percentage of Prod Storage currently filled
+            float workers = Prod.EstPercentForNetIncome(+1f);
 
-            if (Prod.FlatBonus > 0)      //Stop production early, since the flat production will continue to pile up
-            {
-                if (IsCybernetic)
-                {
-                    float maxPop = MaxPopulationBillion;
-                    if (Prod.FlatBonus > maxPop) storedProdRatio += 0.15f * Math.Min(Prod.FlatBonus - maxPop, 3);
-                }
-                else
-                {
-                    storedProdRatio += 0.15f * Math.Min(Prod.FlatBonus, 3);
-                }
-                storedProdRatio = storedProdRatio.Clamped(0, 1);
-            }
-
-            minWorkers += CalculateMod(percent, storedProdRatio).Clamped(-0.35f, 1.00f);
-            minWorkers = minWorkers.Clamped(0, 1);
-            return minWorkers;                          //Return labor % to progress toward goal
+            workers += CalculateMod(percent, Storage.ProdRatio).Clamped(-0.35f, 1.00f);
+            return workers.Clamped(0f, 1f);
         }
 
-        void FillOrResearch(float labor)    //Core and TradeHub
+
+        // Core world aims to balance everything, without maximizing food/prod/res
+        void AssignCoreWorldWorkers()
         {
-            FarmOrResearch(labor / 2);
-            WorkOrResearch(labor / 2);
+            if (IsCybernetic) // Filthy Opteris
+            {
+                AssignCoreWorldProduction(1f);
+                Res.AutoBalanceWorkers(); // rest goes to research
+            }
+            else // Strategy for Flesh-bags:
+            {
+                AssignCoreWorldFarmers(0.8f); 
+                AssignCoreWorldProduction(0.8f - Food.Percent); // then we optimize production
+                Res.AutoBalanceWorkers(); // and rest goes to research
+            }
         }
 
-        void FarmOrResearch(float labor)   //Agreculture
+        float MinIncomePerTurn(float storage, ColonyResource res)
         {
-            if (labor.AlmostZero()) return;
-            if (IsCybernetic)
-            {
-                WorkOrResearch(labor);  //Hand off to Prod instead;
-                return;
-            }
-            float maxPop = MaxPopulationBillion;
-            float storedFoodRatio = Storage.FoodRatio;      //How much of Storage is filled
-            if (Food.YieldPerColonist <= 0.5f) storedFoodRatio = 1; //No farming here, so skip it
+            float ratio = storage / Storage.Max;
+            if (ratio > 0.8f)
+                return +1.5f; // when idling, keep production low to leave room for others
 
-            //Stop producing food a little early, since the flat food will continue to pile up
-            if (Food.FlatBonus > maxPop) storedFoodRatio += 0.15f * Math.Min(Food.FlatBonus - maxPop, 3);
-            if (storedFoodRatio > 1) storedFoodRatio = 1;
+            float minPerTurn = res.NetMaxPotential * 0.1f;
+            float maxPerTurn = res.NetMaxPotential * 0.9f; // MAX % for this product
 
-            float farmers = 1 - storedFoodRatio;    //How much storage is left to fill
-            if (farmers >= 0.5f) farmers = 1;		//Work out percentage of [labor] to allocate
-            else farmers = farmers * 2;
-            if (farmers > 0 && farmers < 0.1f) farmers = 0.1f;    //Avoid crazy small percentage of labor
-
-            Food.Percent += farmers * labor;	//Assign Farmers
-            Res.Percent  += labor - (farmers * labor);//Leftovers go to Research
+            float shortage = (Storage.Max*0.8f) - storage;
+            float resolveInTurns = 20.0f;
+            float perTurn = (shortage / resolveInTurns).Clamped(minPerTurn, maxPerTurn);
+            return perTurn;
         }
 
-        void WorkOrResearch(float labor)    //Industrial
+        // Core World aims for +1 NetIncome
+        void AssignCoreWorldFarmers(float labor)
         {
-            if (labor.AlmostZero()) return;
-            float storedProdRatio = Storage.ProdRatio;      //How much of Storage is filled
+            float minPerTurn = MinIncomePerTurn(Storage.Food, Food);
+            float farmers = Food.EstPercentForNetIncome(minPerTurn);
 
-            if (IsCybernetic)       //Stop production early, since the flat production will continue to pile up
-            {
-                float maxPop = MaxPopulationBillion;
-                if (Prod.FlatBonus > maxPop) storedProdRatio += 0.15f * Math.Min(Prod.FlatBonus - maxPop, 3);
-            }
-            else
-            {
-                if (Prod.FlatBonus > 0) storedProdRatio += 0.15f * Math.Min(Prod.FlatBonus, 3);
-            }
-            if (storedProdRatio > 1) storedProdRatio = 1;
+            if (farmers > 0 && farmers < 0.1f)
+                farmers = 0.1f; // avoid crazy small percentage of labor
 
-            float workers = 1 - storedProdRatio;    //How much storage is left to fill
-            if (workers >= 0.5f) workers = 1;		//Work out percentage of [labor] to allocate
-            else workers = workers * 2;
-            if (workers > 0 && workers < 0.1f) workers = 0.1f;    //Avoid crazy small percentage of labor
-
-            if (ConstructionQueue.Count > 1 && workers < 0.75f) workers = 0.75f;  //Minimum value if construction is going on
-
-            Prod.Percent += workers * labor;	//Assign workers
-            Res.Percent += labor - (workers * labor);//Leftovers go to Research
+            Food.Percent = farmers * labor;
         }
 
+        void AssignCoreWorldProduction(float labor)
+        {
+            if (labor <= 0f) return;
+
+            float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod);
+            float workers = Prod.EstPercentForNetIncome(minPerTurn);
+
+            if (workers > 0 && workers < 0.1f)
+                workers = 0.1f; // avoid crazy small percentage of labor
+
+            if (ConstructionQueue.Count > 1 && workers < 0.75f)
+                workers = 0.75f; // minimum value if construction is going on
+
+            Prod.Percent = workers * labor;
+        }
+
+        // @return the ratio of workers that are not assigned to farming.
         float LeftoverWorkers()
         {
-            //Returns the number of workers (in Billions) that are not assigned to farming.
-            return ((1 - CalculateFoodWorkers()) * MaxPopulationBillion);
+            return 1f - Food.WorkersNeededForEquilibrium();
         }
 
+        float LeftoverWorkerBillions()
+        {
+            return LeftoverWorkers() * MaxPopulationBillion;
+        }
     }
 }

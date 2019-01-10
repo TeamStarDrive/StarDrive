@@ -99,7 +99,7 @@ namespace Ship_Game.AI
             {                
                 EmpireAI = eAI;
 
-                var availableShips = OwnerEmpire.GetShips().FilterBy(item => 
+                var availableShips = OwnerEmpire.GetShips().Filter(item => 
                     !( item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
                     || item.shipData.Role == ShipData.RoleName.prototype
                     || item.shipData.Role < ShipData.RoleName.troopShip
@@ -242,7 +242,7 @@ namespace Ship_Game.AI
                     return false;
                 }
                 foreach (var ship in OwnerEmpire.GetShips()
-                        .FilterBy(ship => !ship.InCombat &&
+                        .Filter(ship => !ship.InCombat &&
                                           (!ship.fleet?.IsCoreFleet ?? true)
                                           && ship.AI.State != AIState.Scrap && ship.AI.State != AIState.Scuttle && ship.AI.State != AIState.Resupply
                                           && ship.Mothership == null && ship.Active

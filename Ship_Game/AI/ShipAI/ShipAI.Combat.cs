@@ -225,7 +225,7 @@ namespace Ship_Game.AI
             SupplyShuttleLaunch(radius);
             SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
-            ShipWeight[] sortedList2 = NearByShips.FilterBy(weight => weight.Weight > -100)
+            ShipWeight[] sortedList2 = NearByShips.Filter(weight => weight.Weight > -100)
                 .OrderByDescending(weight => weight.Weight).ToArray();
 
             PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
@@ -295,7 +295,7 @@ namespace Ship_Game.AI
             //but im not willing to test that change here. I think i did some of this a long while back.  
             if (Owner.engineState == Ship.MoveState.Warp ||!Owner.Carrier.HasSupplyBays ) return;
 
-            Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship.shipData.Role != ShipData.RoleName.supply 
+            Ship[] sortedList = FriendliesNearby.Filter(ship => ship.shipData.Role != ShipData.RoleName.supply 
                                                                   && ship.AI.State == AIState.ResupplyEscort
                                                                   && ship != Owner)       
                 .OrderBy(ship =>

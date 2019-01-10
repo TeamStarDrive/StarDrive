@@ -1026,7 +1026,7 @@ namespace Ship_Game.AI
             return IsFleetAssembled(5000f, task.AO) != MoveStatus.Dispersed;
         }
 
-        private Ship[] AvailableShips => AllButRearShips.FilterBy(ship => !ship.AI.HasPriorityOrder);
+        private Ship[] AvailableShips => AllButRearShips.Filter(ship => !ship.AI.HasPriorityOrder);
 
         private bool AttackEnemyStrengthClumpsInAO(MilitaryTask task)
         {
@@ -1226,7 +1226,7 @@ namespace Ship_Game.AI
         private bool StopBombPlanet(MilitaryTask task) => StartStopBombing(false, task);
         private bool StartStopBombing(bool doBombing, MilitaryTask task)
         {
-            var bombers = Ships.FilterBy(ship => ship.BombBays.Count > 0);
+            var bombers = Ships.Filter(ship => ship.BombBays.Count > 0);
             foreach (var ship in bombers)
             {
                 if (doBombing)

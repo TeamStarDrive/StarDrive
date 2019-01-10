@@ -216,7 +216,7 @@ namespace Ship_Game.AI
             TroopCount = 0;
             {
                 // find max number of troops for system.
-                var planets = System.PlanetList.FilterBy(planet => planet.Owner == Us);
+                var planets = System.PlanetList.Filter(planet => planet.Owner == Us);
                 int planetCount = planets.Length;
                 int developmentlevel = planets.Sum(development => development.DevelopmentLevel);
                 SystemDevelopmentlevel = developmentlevel;

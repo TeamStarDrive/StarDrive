@@ -218,7 +218,7 @@ namespace Ship_Game
 
         void LoadTextures(GameContentManager content, Array<TextureInfo> textures)
         {
-            TextureInfo[] noPack = textures.FilterBy(t => t.NoPack);
+            TextureInfo[] noPack = textures.Filter(t => t.NoPack);
             Parallel.For(noPack.Length, (start, end) =>
             {
                 for (int i = start; i < end; ++i)
