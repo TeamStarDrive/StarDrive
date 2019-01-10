@@ -28,14 +28,15 @@ namespace Ship_Game
     [DebuggerDisplay("Count = {Count}  Capacity = {Capacity}")]
     [Serializable]
     [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
-    public class Array<T> : IList<T>, IReadOnlyList<T>
+    public class Array<T> : IList<T>, IReadOnlyList<T>, ICollection
     {
         protected T[] Items;
         public int Count { get; protected set; }
-
         public bool IsReadOnly => false;
         public bool IsEmpty    => Count == 0;
         public bool NotEmpty   => Count != 0;
+        public object SyncRoot       => this;  // ICollection
+        public bool   IsSynchronized => false; // ICollection
 
         public Array()
         {
@@ -317,6 +318,12 @@ namespace Ship_Game
         {
             int count = Count;
             if (count != 0) Memory.HybridCopy(array, arrayIndex, Items, count);
+        }
+
+        public void CopyTo(Array array, int arrayIndex)
+        {
+            int count = Count;
+            if (count != 0) Memory.HybridCopy((T[])array, arrayIndex, Items, count);
         }
 
         // Removes a single occurance of item
