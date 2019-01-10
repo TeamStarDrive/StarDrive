@@ -286,6 +286,13 @@ namespace Ship_Game.Ships
             return ship;
         }
 
+        public static Ship CreateDefenseShip(string shipName, Empire owner, Vector2 p, Planet planet)
+        {
+            Ship ship = CreateShipAtPoint(shipName, owner, p);
+            ship.UpdateHomePlanet(planet);
+            return ship;
+        }
+
         private bool SetSupplyShuttleRole(bool isSupplyBay) => SetSpecialRole(ShipData.RoleName.supply, isSupplyBay, "Supply Shuttle");
         private bool SetTroopShuttleRole(bool isTroopBay)   => SetSpecialRole(ShipData.RoleName.troop, isTroopBay, "");
 
