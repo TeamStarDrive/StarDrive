@@ -128,7 +128,7 @@ namespace Ship_Game
                 case ColonyType.Agricultural:
                     #region MyRegion
                     {
-                        if (building.AllowShipBuilding && Prod.MaxPotential > 20)
+                        if (building.AllowShipBuilding && Prod.NetMaxPotential > 20)
                         {
                             return true;
                         }
@@ -217,7 +217,7 @@ namespace Ship_Game
                 case ColonyType.Industrial:
                     #region MyRegion
                     {
-                        if (building.AllowShipBuilding && Prod.MaxPotential > 20)
+                        if (building.AllowShipBuilding && Prod.NetMaxPotential > 20)
                         {
                             return true;
                         }
@@ -298,7 +298,7 @@ namespace Ship_Game
                 case ColonyType.Research:
                     #region MyRegion
                     {
-                        if (building.AllowShipBuilding && Prod.MaxPotential > 20)
+                        if (building.AllowShipBuilding && Prod.NetMaxPotential > 20)
                         {
                             return true;
                         }

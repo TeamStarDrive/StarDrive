@@ -44,7 +44,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (Owner != null && !Owner.isPlayer && Owner.data.Traits.Cybernetic > 0)
                 return false;
 
-            float amountToRush = GetMaxProductionPotential(); //for debug help
+            float amountToRush = Ground.Prod.NetMaxPotential; //for debug help
             float amount = Math.Min(ProductionHere, amountToRush);
             if (Empire.Universe.Debug && Owner.isPlayer)
                 amount = float.MaxValue;
@@ -56,11 +56,6 @@ namespace Ship_Game.Universe.SolarBodies
             ApplyProductiontoQueue(amount, index);
 
             return true;
-        }
-
-        public float GetMaxProductionPotential()
-        {
-            return Ground.Prod.MaxPotential;
         }
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
@@ -244,7 +239,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (CrippledTurns > 0 || RecentCombat)
                 return;
          
-            float maxp = GetMaxProductionPotential() * (1 - Ground.Food.Percent); 
+            float maxp = Ground.Prod.NetMaxPotential * (1 - Ground.Food.Percent); 
             if (maxp < 5)
                 maxp = 5;
 
@@ -348,7 +343,7 @@ namespace Ship_Game.Universe.SolarBodies
         public int EstimateMinTurnsToBuildShip(float shipCost)
         {
             shipCost *= ShipBuildingModifier;
-            var prodPow = GetMaxProductionPotential();
+            var prodPow = Ground.Prod.NetMaxPotential;
             int turns = TotalTurnsInProductionQueue(prodPow); //Ground.GetMaxGoodProd("Production")
             turns += (int)Math.Ceiling(shipCost / prodPow);
             return Math.Min(999, turns);

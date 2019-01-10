@@ -56,54 +56,56 @@ namespace Ship_Game
             return workers.Clamped(0f, 1f);
         }
 
+
+        // Core world aims to balance everything, without maximizing food/prod/res
         void AssignCoreWorldWorkers()
         {
-            if (IsCybernetic)
+            if (IsCybernetic) // Filthy Opteris
             {
                 AssignCoreWorldProduction(1f);
                 Res.AutoBalanceWorkers(); // rest goes to research
             }
-            else
+            else // Strategy for Flesh-bags:
             {
-                AssignCoreWorldFarmers();
-                AssignCoreWorldProduction(1f - Food.Percent);
-                Res.AutoBalanceWorkers(); // rest goes to research
+                AssignCoreWorldFarmers(0.8f); 
+                AssignCoreWorldProduction(0.8f - Food.Percent); // then we optimize production
+                Res.AutoBalanceWorkers(); // and rest goes to research
             }
         }
 
-        float DesiredNetIncomeFromStorage(float storage)
+        float MinIncomePerTurn(float storage, ColonyResource res)
         {
             float ratio = storage / Storage.Max;
             if (ratio > 0.8f)
-                return +1.0f; // by default we want +1.0 income
+                return +1.5f; // when idling, keep production low to leave room for others
 
+            float minPerTurn = res.NetMaxPotential * 0.1f;
+            float maxPerTurn = res.NetMaxPotential * 0.9f; // MAX % for this product
 
-
-            return +5.0f;
+            float shortage = (Storage.Max*0.8f) - storage;
+            float resolveInTurns = 20.0f;
+            float perTurn = (shortage / resolveInTurns).Clamped(minPerTurn, maxPerTurn);
+            return perTurn;
         }
 
         // Core World aims for +1 NetIncome
-        void AssignCoreWorldFarmers()
+        void AssignCoreWorldFarmers(float labor)
         {
-
-            float minFarmers = Food.EstPercentForNetIncome(+1.0f);
-
-
-            float storageFill = (1f - Storage.FoodRatio).Clamped(0f, 0.5f);
-            float farmers = (1f - Storage.FoodRatio).Clamped(minFarmers, 0.9f);
+            float minPerTurn = MinIncomePerTurn(Storage.Food, Food);
+            float farmers = Food.EstPercentForNetIncome(minPerTurn);
 
             if (farmers > 0 && farmers < 0.1f)
                 farmers = 0.1f; // avoid crazy small percentage of labor
 
-            Food.Percent = farmers;
+            Food.Percent = farmers * labor;
         }
 
         void AssignCoreWorldProduction(float labor)
         {
             if (labor <= 0f) return;
 
-            float minWorkers = Prod.EstPercentForNetIncome(+1.0f);
-            float workers = (1f - Storage.ProdRatio).Clamped(minWorkers, 0.9f);
+            float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod);
+            float workers = Prod.EstPercentForNetIncome(minPerTurn);
 
             if (workers > 0 && workers < 0.1f)
                 workers = 0.1f; // avoid crazy small percentage of labor
