@@ -33,7 +33,7 @@ namespace Ship_Game
                 case ColonyType.TradeHub:
                 case ColonyType.Core:
                     //New resource management by Gretman
-                    FillOrResearch();
+                    AssignCoreWorldWorkers();
 
                     if (colonyType == ColonyType.TradeHub)
                     {

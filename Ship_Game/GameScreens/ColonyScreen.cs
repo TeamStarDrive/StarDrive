@@ -1664,7 +1664,7 @@ namespace Ship_Game
                 if (!pgs.ClickRect.HitTest(MousePos) || !input.LeftMouseReleased)
                     continue;
 
-                if (pgs.Habitable && pgs.building == null && pgs.QItem == null && building.Name != "Biospheres")
+                if (pgs.Habitable && pgs.building == null && pgs.QItem == null && !building.IsBiospheres)
                 {
                     AddBuildingToConstructionQueue(building, pgs, playerAdded: true);
                     ActiveBuildingEntry = null;

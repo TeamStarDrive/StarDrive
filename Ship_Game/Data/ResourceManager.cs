@@ -630,38 +630,6 @@ namespace Ship_Game
             }
         }
 
-        public static Building GetBuildingTemplate(string whichBuilding) => BuildingsDict[whichBuilding];
-
-        public static Building CreateBuilding(string whichBuilding)
-        {
-            return CreateBuilding(GetBuildingTemplate(whichBuilding));
-        }
-
-        public static Building CreateBuilding(Building template)
-        {
-            Building newB = template.Clone();
-            newB.Cost *= UniverseScreen.GamePaceStatic;
-
-            // comp fix to ensure functionality of vanilla buildings
-            if (newB.Name == "Outpost" || newB.Name == "Capital City")
-            {
-                // @todo What is going on here? Is this correct?
-                if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
-                {
-                    // @todo NullReference bug here!
-                    newB.ProjectorRange = UniverseScreen?.SubSpaceProjectors.Radius ?? 0f;
-                    newB.IsProjector = true;
-                }
-                if (!newB.IsSensor && !(newB.SensorRange > 0.0f))
-                {
-                    newB.SensorRange = 20000.0f;
-                    newB.IsSensor = true;
-                }
-            }
-            newB.CreateWeapon();
-            return newB;
-        }
-
         public static EmpireData GetEmpireByName(string name)
         {
             foreach (EmpireData empireData in Empires)
@@ -1027,13 +995,61 @@ namespace Ship_Game
             }
         }
 
-        private static void LoadBuildings() // Refactored by RedFox
+        static readonly Array<Building> BuildingsById = new Array<Building>();
+        public static Building GetBuildingTemplate(string whichBuilding) => BuildingsDict[whichBuilding];
+        public static Building GetBuildingTemplate(int buildingId) => BuildingsById[buildingId];
+        public static Building CreateBuilding(string whichBuilding) => CreateBuilding(GetBuildingTemplate(whichBuilding));
+        public static Building CreateBuilding(int buildingId) => CreateBuilding(GetBuildingTemplate(buildingId));
+
+        static void LoadBuildings() // Refactored by RedFox
         {
-            foreach (Building newB in LoadEntities<Building>("Buildings", "LoadBuildings"))
+            Array<Building> buildings = LoadEntities<Building>("Buildings", "LoadBuildings");
+            BuildingsById.Resize(buildings.Count + 1);
+
+            int buildingId = 0;
+            foreach (Building b in buildings)
             {
-                BuildingsDict[string.Intern(newB.Name)] = newB;
+                b.AssignBuildingId(++buildingId);
+                BuildingsById[b.BID] = b;
+                BuildingsDict[string.Intern(b.Name)] = b;
+                switch (b.Name)
+                {
+                    case "Capital City": Building.CapitalId    = b.BID; break;
+                    case "Outpost":      Building.OutpostId    = b.BID; break;
+                    case "Biospheres":   Building.BiospheresId = b.BID; break;
+                    case "Space Port":   Building.SpacePortId  = b.BID; break;
+                    case "Fissionables": Building.FissionablesId = b.BID; break;
+                    case "Mine Fissionables": Building.MineFissionablesId = b.BID; break;
+                    case "Fuel Refinery":     Building.FuelRefineryId = b.BID; break;
+                }
             }
         }
+
+        public static Building CreateBuilding(Building template)
+        {
+            Building newB = template.Clone();
+            newB.Cost *= UniverseScreen.GamePaceStatic;
+
+            // comp fix to ensure functionality of vanilla buildings
+            if (newB.IsCapitalOrOutpost)
+            {
+                // @todo What is going on here? Is this correct?
+                if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
+                {
+                    // @todo NullReference bug here!
+                    newB.ProjectorRange = UniverseScreen?.SubSpaceProjectors.Radius ?? 0f;
+                    newB.IsProjector = true;
+                }
+                if (!newB.IsSensor && !(newB.SensorRange > 0.0f))
+                {
+                    newB.SensorRange = 20000.0f;
+                    newB.IsSensor = true;
+                }
+            }
+            newB.CreateWeapon();
+            return newB;
+        }
+
 
         private static void LoadDialogs() // Refactored by RedFox
         {
@@ -1948,6 +1964,7 @@ namespace Ship_Game
             TroopsDict.Clear();
             TroopsDictKeys.Clear();
             BuildingsDict.Clear();
+            BuildingsById.Clear();
             ModuleTemplates.Clear();
             FlagTextures.Clear();
             TechTree.Clear();
