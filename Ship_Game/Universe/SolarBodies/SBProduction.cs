@@ -44,7 +44,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (Owner != null && !Owner.isPlayer && Owner.data.Traits.Cybernetic > 0)
                 return false;
 
-            float amountToRush = GetMaxProductionPotential(); //for debug help
+            float amountToRush = Ground.Prod.NetMaxPotential; //for debug help
             float amount = Math.Min(ProductionHere, amountToRush);
             if (Empire.Universe.Debug && Owner.isPlayer)
                 amount = float.MaxValue;
@@ -56,11 +56,6 @@ namespace Ship_Game.Universe.SolarBodies
             ApplyProductiontoQueue(amount, index);
 
             return true;
-        }
-
-        public float GetMaxProductionPotential()
-        {
-            return Ground.Prod.MaxPotential;
         }
 
         public void ApplyProductiontoQueue(float howMuch, int whichItem)
@@ -123,7 +118,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (queueItem.isBuilding && queueItem.productionTowards >= queueItem.Cost)
                 {
                     bool dupBuildingWorkaround = false;
-                    if (queueItem.Building.Name != "Biospheres")
+                    if (!queueItem.Building.IsBiospheres)
                         foreach (Building dup in BuildingList)
                         {
                             if (dup.Name == queueItem.Building.Name)
@@ -142,7 +137,7 @@ namespace Ship_Game.Universe.SolarBodies
                         Ground.ChangeMaxFertility(-building.MinusFertilityOnBuild);
                         if (queueItem.pgs != null)
                         {
-                            if (queueItem.Building != null && queueItem.Building.Name == "Biospheres")
+                            if (queueItem.Building != null && queueItem.Building.IsBiospheres)
                             {
                                 queueItem.pgs.Habitable = true;
                                 queueItem.pgs.Biosphere = true;
@@ -155,7 +150,7 @@ namespace Ship_Game.Universe.SolarBodies
                                 queueItem.pgs.QItem = null;
                             }
                         }
-                        if (queueItem.Building.Name == "Space Port")
+                        if (queueItem.Building.IsSpacePort)
                         {
                             Station.planet = Ground;
                             Station.ParentSystem = ParentSystem;
@@ -244,7 +239,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (CrippledTurns > 0 || RecentCombat)
                 return;
          
-            float maxp = GetMaxProductionPotential() * (1 - Ground.Food.Percent); 
+            float maxp = Ground.Prod.NetMaxPotential * (1 - Ground.Food.Percent); 
             if (maxp < 5)
                 maxp = 5;
 
@@ -328,7 +323,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 if (!Owner.GetBDict()["Biospheres"])
                     return;
-                Ground.TryBiosphereBuild(ResourceManager.CreateBuilding("Biospheres"), qi);
+                Ground.TryBiosphereBuild(ResourceManager.CreateBuilding(Building.BiospheresId), qi);
             }
         }
         public int EstimatedTurnsTillComplete(QueueItem qItem, float industry = float.MinValue)
@@ -348,7 +343,7 @@ namespace Ship_Game.Universe.SolarBodies
         public int EstimateMinTurnsToBuildShip(float shipCost)
         {
             shipCost *= ShipBuildingModifier;
-            var prodPow = GetMaxProductionPotential();
+            var prodPow = Ground.Prod.NetMaxPotential;
             int turns = TotalTurnsInProductionQueue(prodPow); //Ground.GetMaxGoodProd("Production")
             turns += (int)Math.Ceiling(shipCost / prodPow);
             return Math.Min(999, turns);
@@ -360,13 +355,13 @@ namespace Ship_Game.Universe.SolarBodies
         {
             if (qi.isBuilding == false && Ground.NeedsFood()) //(FarmerPercentage > .5f || NetFoodPerTurn < 0))
                 return false;
-            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
+            var list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in TilesList)
             {
                 if (!planetGridSquare.Habitable && planetGridSquare.building == null && (!planetGridSquare.Biosphere && planetGridSquare.QItem == null))
                     list.Add(planetGridSquare);
             }
-            if (b.Name != "Biospheres" || list.Count <= 0) return false;
+            if (!b.IsBiospheres || list.Count <= 0) return false;
 
             int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
             PlanetGridSquare planetGridSquare1 = list[index];

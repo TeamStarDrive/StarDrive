@@ -48,7 +48,7 @@ namespace Ship_Game
         [Serialize(40)] public float ProductionMod;
         [Serialize(41)] public float MaintMod;
         [Serialize(42)] public float InBordersSpeedBonus = 0.5f;
-        [Serialize(43)] public float TaxMod;
+        [Serialize(43)] public float TaxMod; // bonus tax modifier
         [Serialize(44)] public float ShipCostMod;
         [Serialize(45)] public float ModHpModifier;
         [Serialize(46)] public int SmallSize;

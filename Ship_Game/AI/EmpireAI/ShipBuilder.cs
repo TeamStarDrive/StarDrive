@@ -85,7 +85,7 @@ namespace Ship_Game.AI
                                                            ShipModuleType targetModule,
                                                            ShipData.HangarOptions designation)
         {
-            Ship[] potentialShips = ShipsWeCanBuild(empire).FilterBy(
+            Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role
                 && (maxSize <= 0 || ship.SurfaceArea <= maxSize)
                 && (designation == ShipData.HangarOptions.General || designation == ship.shipData.HangarDesignation)
@@ -123,7 +123,7 @@ namespace Ship_Game.AI
 
         public static string PickShipToRefit(Ship oldShip, Empire empire)
         {
-            Ship[] ships = ShipsWeCanBuild(empire).FilterBy(s => s.shipData.Hull == oldShip.shipData.Hull
+            Ship[] ships = ShipsWeCanBuild(empire).Filter(s => s.shipData.Hull == oldShip.shipData.Hull
                                                               && s.BaseStrength.Greater(oldShip.BaseStrength)
                                                               && s.Name != oldShip.Name);
             if (ships.Length == 0)

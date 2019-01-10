@@ -19,7 +19,7 @@ namespace Ship_Game
             if (building.IsPlayerAdded)
                 return true;
             float buildingMaintenance = Owner.GetTotalBuildingMaintenance();
-            float grossTaxes = Owner.GrossTaxes;
+            float grossTaxes = Owner.GrossPlanetIncomes;
 
             bool itsHere = BuildingList.Contains(building);
 
@@ -37,8 +37,8 @@ namespace Ship_Game
             bool lowPri = buildingMaintenance / grossTaxes < .25f;
             bool medPri = buildingMaintenance / grossTaxes < .60f;
             bool highPri = buildingMaintenance / grossTaxes < .80f;
-            float income = GrossMoneyPT + Owner.data.Traits.TaxMod * GrossMoneyPT - (TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn * Owner.data.Traits.MaintMod);
-            float maintenance = GrossMoneyPT + Owner.data.Traits.TaxMod * GrossMoneyPT - building.Maintenance - (TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn * Owner.data.Traits.MaintMod);
+            float income = Money.NetIncome;
+            float maintenance = income - building.Maintenance;
             bool incomeBuilding = maintenance > 0;
 
             int defensiveBuildings = BuildingList.Count(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded > 0 || combat.TheWeapon != null);
@@ -69,10 +69,10 @@ namespace Ship_Game
             if (itsHere && building.Unique && (incomeBuilding || building.Maintenance < Owner.Money * .001))
                 return true;
 
-            if (building.PlusTaxPercentage * GrossMoneyPT >= building.Maintenance
+            if (income*building.PlusTaxPercentage >= building.Maintenance
                 || building.CreditsProduced(this) >= building.Maintenance)
                 return true;
-            if (building.Name == "Outpost" || building.WinsGame)
+            if (building.IsOutpost || building.WinsGame)
                 return true;
             //dont build +food if you dont need to
 
@@ -118,7 +118,7 @@ namespace Ship_Game
             }
             if (!incomeBuilding || DevelopmentLevel < 3)
             {
-                if (building.Name == "Biospheres")
+                if (building.IsBiospheres)
                     return false;
             }
 
@@ -128,7 +128,7 @@ namespace Ship_Game
                 case ColonyType.Agricultural:
                     #region MyRegion
                     {
-                        if (building.AllowShipBuilding && Prod.MaxPotential > 20)
+                        if (building.AllowShipBuilding && Prod.NetMaxPotential > 20)
                         {
                             return true;
                         }
@@ -155,7 +155,7 @@ namespace Ship_Game
                         if (!iftrue && medPri && DevelopmentLevel > 2 && incomeBuilding)
                         {
                             if (
-                                building.Name == "Biospheres" ||
+                                building.IsBiospheres ||
                                 (building.PlusTerraformPoints > 0 && Fertility < 3)
                                 || building.MaxPopIncrease > 0
                                 || building.PlusFlatPopulation > 0
@@ -193,7 +193,7 @@ namespace Ship_Game
                                 || building.PlusProdPerColonist > 0
                                 || building.PlusFlatResearchAmount > 0
                                 || (building.PlusResearchPerColonist > 0 && (PopulationBillion) > 1)
-                                //|| building.Name == "Biospheres"
+                                //|| building.IsBiospheres
 
                                 || (needDefense && isDefensive && DevelopmentLevel > 3)
                                 || (IsCybernetic && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0))
@@ -217,7 +217,7 @@ namespace Ship_Game
                 case ColonyType.Industrial:
                     #region MyRegion
                     {
-                        if (building.AllowShipBuilding && Prod.MaxPotential > 20)
+                        if (building.AllowShipBuilding && Prod.NetMaxPotential > 20)
                         {
                             return true;
                         }
@@ -289,7 +289,6 @@ namespace Ship_Game
                         }
                         if (!iftrue && lowPri && DevelopmentLevel > 4)
                         {
-                            //if(building.Name!= "Biospheres")
                             iftrue = true;
 
                         }
@@ -299,7 +298,7 @@ namespace Ship_Game
                 case ColonyType.Research:
                     #region MyRegion
                     {
-                        if (building.AllowShipBuilding && Prod.MaxPotential > 20)
+                        if (building.AllowShipBuilding && Prod.NetMaxPotential > 20)
                         {
                             return true;
                         }

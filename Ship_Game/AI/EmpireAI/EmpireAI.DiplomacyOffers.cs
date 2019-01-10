@@ -903,7 +903,7 @@ namespace Ship_Game.AI
 
                     float worth = p.ColonyWorth(us);
                     foreach (Building b in p.BuildingList)
-                        if (b.Name == "Capital City")
+                        if (b.IsCapital)
                             worth += 200f;
                     float multiplier = 1.25f * p.ParentSystem.PlanetList.Count(other => other.Owner == p.Owner);
                     worth *= multiplier;
@@ -1165,10 +1165,8 @@ namespace Ship_Game.AI
                     PlanetsToUs.Add(p);
                     float worth = p.ColonyWorth(us);
                     foreach (Building b in p.BuildingList)
-                    {
-                        if (b.NameTranslationIndex == 409) // Capital City
+                        if (b.IsCapital)
                             worth += 100000f; // basically, don't let AI give away their capital too easily
-                    }
                     ValueToUs += worth;
                 }
             }

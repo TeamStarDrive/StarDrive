@@ -635,7 +635,7 @@ namespace Ship_Game
                         }
                         newOrbital.SetPlanetAttributes();
                         if (ringData.MaxPopDefined > 0)
-                            newOrbital.MaxPopulation = ringData.MaxPopDefined * 1000f;
+                            newOrbital.MaxPopBase = ringData.MaxPopDefined * 1000f;
                         if (!string.IsNullOrEmpty(ringData.Owner) && !string.IsNullOrEmpty(ringData.Owner))
                         {
                             newOrbital.Owner = EmpireManager.GetEmpireByName(ringData.Owner);
@@ -658,9 +658,9 @@ namespace Ship_Game
                         newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
                         newOrbital.InitFertilityValues(2f + owner.data.Traits.HomeworldFertMod);
                         if (ringData.MaxPopDefined > 0)
-                            newOrbital.MaxPopulation = ringData.MaxPopDefined * 1000f + ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMod;
+                            newOrbital.MaxPopBase = ringData.MaxPopDefined * 1000f + ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMod;
                         else
-                            newOrbital.MaxPopulation = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
+                            newOrbital.MaxPopBase = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
 
                         newOrbital.Population = 14000f;
                         newOrbital.FoodHere   = 100f;
@@ -670,14 +670,14 @@ namespace Ship_Game
 
                         newOrbital.HasShipyard = true;
                         newOrbital.AddGood("ReactorFuel", 1000);
-                        ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
-                        ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
+                        ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(newOrbital);
+                        ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(newOrbital);
                         if (GlobalStats.HardcoreRuleset)
                         {
-                            ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
-                            ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
-                            ResourceManager.CreateBuilding("Mine Fissionables").SetPlanet(newOrbital);
-                            ResourceManager.CreateBuilding("Fuel Refinery").SetPlanet(newOrbital);
+                            ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
+                            ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
+                            ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(newOrbital);
+                            ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(newOrbital);
                         }
                     }
                     if (ringData.HasRings != null)
