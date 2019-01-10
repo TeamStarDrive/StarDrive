@@ -96,7 +96,7 @@ namespace Ship_Game.AI
                     }
                 case ResearchStrategy.Scripted:
                     {
-                        if (ProcessScript(wars > 0, economics > 4, researchDebt > 2, OwnerEmpire.Money < OwnerEmpire.GrossTaxes)) return;
+                        if (ProcessScript(wars > 0, economics > 4, researchDebt > 2, OwnerEmpire.Money < OwnerEmpire.GrossPlanetIncomes)) return;
                         break;
                     }
                 default:

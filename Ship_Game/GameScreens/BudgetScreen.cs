@@ -48,7 +48,7 @@ namespace Ship_Game.GameScreens
             //treasury Slider
             cursor.Y            = cursor.Y + arial12Bold.LineSpacing * 2;
             cursor.X            = Window.Menu.X + 30;
-            TreasuryGoal.UpdatePosition(cursor, 313, 12, $"Auto Tax Treasury Goal : {(int)(100 * EmpireManager.Player.GrossTaxes * TreasuryGoal.amount)}");
+            TreasuryGoal.UpdatePosition(cursor, 313, 12, $"Auto Tax Treasury Goal : {(int)(100 * EmpireManager.Player.GrossPlanetIncomes * TreasuryGoal.amount)}");
             TreasuryGoal.amount = EmpireManager.Player.data.treasuryGoal;
             TreasuryGoal.DrawPct(ScreenManager);
 

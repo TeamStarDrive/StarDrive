@@ -200,7 +200,6 @@ namespace Ship_Game.Debug
         private int Freighters;
         private int UtilityShip;
         public Ship ItemToBuild;
-        private string Fmt = "0.#";
         public static sbyte Loadmodels = 0;
         public static DebugModes Mode { get; private set; }
         private readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
@@ -481,7 +480,7 @@ namespace Ship_Game.Debug
                 {
                     var techEntry = e.GetTechEntry(e.ResearchTopic);
                     float gamePaceStatic = techEntry.TechCost;
-                    DrawString($"Research: {techEntry.Progress:0}/{gamePaceStatic:0} ({e.GetProjectedResearchNextTurn().ToString(Fmt)} / {e.MaxResearchPotential.ToString(Fmt)})");
+                    DrawString($"Research: {techEntry.Progress:0}/{gamePaceStatic:0} ({e.GetProjectedResearchNextTurn().String()} / {e.MaxResearchPotential.String()})");
                     DrawString("   --" + e.ResearchTopic);
                     Ship bestShip = e.GetEmpireAI().GetBestCombatShip;
                     if (bestShip != null)
@@ -649,7 +648,7 @@ namespace Ship_Game.Debug
                     DrawString(e.data.DiplomaticPersonality.Name);
                     DrawString(e.data.EconomicPersonality.Name);
                 }
-                DrawString($"Money: {e.Money.ToString(Fmt)} A:({e.GetActualNetLastTurn().ToString(Fmt)}) T:({e.GrossIncome().ToString(Fmt)})");
+                DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.NetIncome().String()})");
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
                 DrawString("Ship Maint:    "+e.GetTotalShipMaintenance());
@@ -669,13 +668,13 @@ namespace Ship_Game.Debug
                 if (!string.IsNullOrEmpty(e.ResearchTopic))
                 {
                     float gamePaceStatic = UniverseScreen.GamePaceStatic * ResourceManager.TechTree[e.ResearchTopic].Cost;
-                    DrawString($"Research: {e.GetTDict()[e.ResearchTopic].Progress:0}/{gamePaceStatic:0}({e.GetProjectedResearchNextTurn().ToString(Fmt)})");
+                    DrawString($"Research: {e.GetTDict()[e.ResearchTopic].Progress:0}/{gamePaceStatic:0}({e.GetProjectedResearchNextTurn().String()})");
                     DrawString("   --"+e.ResearchTopic);
                 }
 
                 NewLine(3);
-                DrawString("Total Pop: "+ e.GetTotalPop().ToString(Fmt));
-                DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().ToString(Fmt));
+                DrawString("Total Pop: "+ e.GetTotalPop().String());
+                DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
                 DrawString("Military Str: "+ e.MilitaryScore);
                 for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
                 {

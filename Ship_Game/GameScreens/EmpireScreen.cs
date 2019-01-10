@@ -511,7 +511,7 @@ namespace Ship_Game
             HandleSortButton(input, food, 139, p => p.Food.NetIncome);
             HandleSortButton(input, prod, 140, p => p.Prod.NetIncome);
             HandleSortButton(input, res, 141, p => p.Res.NetIncome);
-            HandleSortButton(input, res, 142, p => p.NetIncome);
+            HandleSortButton(input, res, 142, p => p.Money.NetIncome);
 
             foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
             {

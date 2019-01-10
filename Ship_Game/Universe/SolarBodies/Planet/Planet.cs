@@ -78,6 +78,7 @@ namespace Ship_Game
             Food = new ColonyFood(this) { Percent = 0.34f };
             Prod = new ColonyProd(this) { Percent = 0.33f };
             Res  = new ColonyRes(this)  { Percent = 0.33f };
+            Money = new ColonyMoney(this) { Percent = 1f };
         }
 
         public Planet()
@@ -563,15 +564,13 @@ namespace Ship_Game
         {
             if (Owner == null)
                 return;
-            PlusFlatPopulationPerTurn = 0f;
-            ShieldStrengthMax = 0f;
-            TotalMaintenanceCostsPerTurn = 0f;
-            AllowInfantry = false;
-            TotalDefensiveStrength = 0;
 
+            AllowInfantry = false;
+            ShieldStrengthMax = 0f;
+            TotalDefensiveStrength = 0;
+            TotalMaintenanceCostsPerTurn = 0f;
             PlusFlatPopulationPerTurn = 0f;
             ShipBuildingModifier = 0f;
-            Storage.ClearGoods();
 
             float shipBuildingModifier = 1f;
 
@@ -601,12 +600,10 @@ namespace Ship_Game
                 ShipBuildingModifier = shipBuildingModifier;
             }
 
-            PlusCreditsPerColonist = 0f;
-            PlusTaxPercentage = 0f;
             TerraformToAdd = 0f;
-            bool shipyard = false;
             RepairPerTurn = 0;
             float totalStorage = 0;
+            bool shipyard = false;
 
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -618,9 +615,8 @@ namespace Ship_Game
 
                 PlusFlatPopulationPerTurn += b.PlusFlatPopulation;
                 ShieldStrengthMax += b.PlanetaryShieldStrengthAdded;
-                PlusCreditsPerColonist += b.CreditsPerColonist;
                 TerraformToAdd += b.PlusTerraformPoints;
-                PlusTaxPercentage += b.PlusTaxPercentage;
+
                 if (b.AllowInfantry)
                     AllowInfantry = true;
                 totalStorage += b.StorageAdded;
@@ -632,27 +628,23 @@ namespace Ship_Game
 
             TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner);
 
-            //Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
+            // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
 
             HasShipyard = shipyard && (colonyType != ColonyType.Research || Owner.isPlayer);
 
             // greedy bastards
             Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
-            Food.Update(Consumption);
-            Prod.Update(Consumption);
-            Res.Update(Consumption);
+            Food.Update(NonCybernetic ? Consumption : 0f);
+            Prod.Update(IsCybernetic ? Consumption : 0f);
+            Res.Update(0f);
+            Money.Update(GrossUpkeep);
 
             if (Station != null && !loadUniverse)
             {
                 Station.SetVisibility(HasShipyard, Empire.Universe.ScreenManager, this);
             }
 
-            //Money
-            GrossMoneyPT = PopulationBillion;
-            GrossMoneyPT += PlusTaxPercentage * GrossMoneyPT;
-            //this.GrossMoneyPT += this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
-            //this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.PopulationBillion * this.PlusCreditsPerColonist;
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
 
@@ -778,7 +770,7 @@ namespace Ship_Game
         }
         public TradeAI.DebugSummaryTotal DebugSummarizePlanetStats(Array<string> lines)
         {
-            lines.Add($"Money: {NetIncome}");
+            lines.Add($"Money: {Money.NetIncome}");
             lines.Add($"Eats: {Consumption}");
             lines.Add($"FoodWkrs: {Food.Percent}");
             lines.Add($"ProdWkrs: {Prod.Percent}  ");

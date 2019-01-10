@@ -33,12 +33,13 @@ namespace Ship_Game
             return mod;
         }
 
+        // calculate farmers up to percent
         float FarmToPercentage(float percent) // Production
         {
             if (percent <= 0f || Food.YieldPerColonist <= 0.5f || IsCybernetic)
-                return 0; //No farming here, so never mind
+                return 0; // No farming here, so never mind
 
-            float farmers = Food.EstPercentForNetIncome(+0.5f);          
+            float farmers = Food.EstPercentForNetIncome(+1f);          
 
             // modify nominal farmers by overage or underage
             farmers += CalculateMod(percent, Storage.FoodRatio).Clamped(-0.35f, 0.50f);
@@ -47,9 +48,9 @@ namespace Ship_Game
 
         float WorkToPercentage(float percent) // Production
         {
-            if (percent <= 0) return 0;
+            if (percent <= 0f) return 0;
 
-            float workers = Prod.EstPercentForNetIncome(+0.5f);
+            float workers = Prod.EstPercentForNetIncome(+1f);
 
             workers += CalculateMod(percent, Storage.ProdRatio).Clamped(-0.35f, 1.00f);
             return workers.Clamped(0f, 1f);
@@ -60,19 +61,35 @@ namespace Ship_Game
             if (IsCybernetic)
             {
                 AssignCoreWorldProduction(1f);
+                Res.AutoBalanceWorkers(); // rest goes to research
             }
             else
             {
                 AssignCoreWorldFarmers();
                 AssignCoreWorldProduction(1f - Food.Percent);
+                Res.AutoBalanceWorkers(); // rest goes to research
             }
-            Res.AutoBalanceWorkers(); // rest goes to research
+        }
+
+        float DesiredNetIncomeFromStorage(float storage)
+        {
+            float ratio = storage / Storage.Max;
+            if (ratio > 0.8f)
+                return +1.0f; // by default we want +1.0 income
+
+
+
+            return +5.0f;
         }
 
         // Core World aims for +1 NetIncome
         void AssignCoreWorldFarmers()
         {
+
             float minFarmers = Food.EstPercentForNetIncome(+1.0f);
+
+
+            float storageFill = (1f - Storage.FoodRatio).Clamped(0f, 0.5f);
             float farmers = (1f - Storage.FoodRatio).Clamped(minFarmers, 0.9f);
 
             if (farmers > 0 && farmers < 0.1f)
@@ -83,7 +100,7 @@ namespace Ship_Game
 
         void AssignCoreWorldProduction(float labor)
         {
-            if (labor.AlmostZero()) return;
+            if (labor <= 0f) return;
 
             float minWorkers = Prod.EstPercentForNetIncome(+1.0f);
             float workers = (1f - Storage.ProdRatio).Clamped(minWorkers, 0.9f);

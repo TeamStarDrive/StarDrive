@@ -671,7 +671,6 @@ namespace Ship_Game
                 Building b = BuildingList[i];
                 if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded)
                     continue;
-
                 
                 float cost = EvalScrapWeight(b, income);
                 float value = 0;
@@ -708,9 +707,9 @@ namespace Ship_Game
         float BuildingBudget()
         {
             // Empire budget will go here instead of planet budget
-            float income = MaxPopulationBillion * (Owner.data.TaxRate).Clamped(0.1f, 0.4f);    //If taxes go way up, dont want the governors to go too crazy
-            income += income * PlusTaxPercentage;
-            income += income * Owner.data.Traits.TaxMod;
+            // if taxes go way up, don't want the governors to go too crazy
+            float income = MaxPopulationBillion * (Owner.data.TaxRate).Clamped(0.1f, 0.4f);
+            income = Money.AfterTax(income);
             income -= SbProduction.GetTotalConstructionQueueMaintenance();
             return income;
         }

@@ -19,7 +19,7 @@ namespace Ship_Game
             if (building.IsPlayerAdded)
                 return true;
             float buildingMaintenance = Owner.GetTotalBuildingMaintenance();
-            float grossTaxes = Owner.GrossTaxes;
+            float grossTaxes = Owner.GrossPlanetIncomes;
 
             bool itsHere = BuildingList.Contains(building);
 
@@ -37,8 +37,8 @@ namespace Ship_Game
             bool lowPri = buildingMaintenance / grossTaxes < .25f;
             bool medPri = buildingMaintenance / grossTaxes < .60f;
             bool highPri = buildingMaintenance / grossTaxes < .80f;
-            float income = GrossMoneyPT + Owner.data.Traits.TaxMod * GrossMoneyPT - (TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn * Owner.data.Traits.MaintMod);
-            float maintenance = GrossMoneyPT + Owner.data.Traits.TaxMod * GrossMoneyPT - building.Maintenance - (TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn * Owner.data.Traits.MaintMod);
+            float income = Money.NetIncome;
+            float maintenance = income - building.Maintenance;
             bool incomeBuilding = maintenance > 0;
 
             int defensiveBuildings = BuildingList.Count(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded > 0 || combat.TheWeapon != null);
@@ -69,7 +69,7 @@ namespace Ship_Game
             if (itsHere && building.Unique && (incomeBuilding || building.Maintenance < Owner.Money * .001))
                 return true;
 
-            if (building.PlusTaxPercentage * GrossMoneyPT >= building.Maintenance
+            if (income*building.PlusTaxPercentage >= building.Maintenance
                 || building.CreditsProduced(this) >= building.Maintenance)
                 return true;
             if (building.IsOutpost || building.WinsGame)
