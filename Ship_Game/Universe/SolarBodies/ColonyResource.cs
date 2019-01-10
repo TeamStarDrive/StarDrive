@@ -14,10 +14,10 @@ namespace Ship_Game.Universe.SolarBodies
         // Per Turn: NetIncome = GrossIncome - (taxes + consumption)
         public float NetIncome { get; protected set; }
 
-        // Per Turn: GrossIncome assuming we have MaxPopulation
-        public float MaxPotential { get; protected set; }
+        // Per Turn: GrossIncome assuming we have Percent=1
+        public float GrossMaxPotential { get; protected set; }
 
-        // Per Turn: NetMaxPotential = MaxPotential - (taxes + consumption)
+        // Per Turn: NetMaxPotential = GrossMaxPotential - (taxes + consumption)
         public float NetMaxPotential { get; protected set; }
 
         // Per Turn: Flat income added; no taxes applied
@@ -47,13 +47,13 @@ namespace Ship_Game.Universe.SolarBodies
             FlatBonus = 0f;
             RecalculateModifiers();
             
-            MaxPotential = YieldPerColonist * Planet.MaxPopulationBillion;
-            GrossIncome = FlatBonus + Percent * YieldPerColonist * Planet.PopulationBillion;
+            GrossMaxPotential = YieldPerColonist * Planet.PopulationBillion;
+            GrossIncome = FlatBonus + Percent * GrossMaxPotential;
 
             // taxes get applied before consumption
             // because government gets to eat their pie first :)))
-            NetIncome           = AfterTax(GrossIncome)  - consumption;
-            NetMaxPotential     = AfterTax(MaxPotential) - consumption;
+            NetIncome           = AfterTax(GrossIncome) - consumption;
+            NetMaxPotential     = AfterTax(GrossMaxPotential) - consumption;
             NetFlatBonus        = AfterTax(NetFlatBonus);
             NetYieldPerColonist = AfterTax(YieldPerColonist);
         }

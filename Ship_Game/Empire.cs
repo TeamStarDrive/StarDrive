@@ -1974,7 +1974,7 @@ namespace Ship_Game
                     StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
 
                 Research             += planet.Res.NetIncome;
-                MaxResearchPotential += planet.Res.MaxPotential;
+                MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
 
             if (data.TurnsBelowZero > 0 && Money < 0.0 && !Universe.Debug)

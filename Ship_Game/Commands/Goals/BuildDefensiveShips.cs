@@ -51,9 +51,9 @@ namespace Ship_Game.Commands.Goals
                 {
                     int num2 = 0;
                     foreach (QueueItem qi in p2.ConstructionQueue)
-                        num2 += (int)((qi.Cost - qi.productionTowards) / p2.Prod.MaxPotential);
+                        num2 += (int)((qi.Cost - qi.productionTowards) / p2.Prod.NetMaxPotential);
                     if (p2.ConstructionQueue.Count == 0)
-                        num2 = (int)((beingBuilt.GetCost(empire) - p2.ProdHere) / p2.Prod.MaxPotential);
+                        num2 = (int)((beingBuilt.GetCost(empire) - p2.ProdHere) / p2.Prod.NetMaxPotential);
                     if (num2 < num1)
                     {
                         num1 = num2;
