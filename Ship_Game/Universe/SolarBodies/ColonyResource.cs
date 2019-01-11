@@ -142,9 +142,9 @@ namespace Ship_Game.Universe.SolarBodies
         }
     }
 
-    public class ColonyProd : ColonyResource
+    public class ColonyProduction : ColonyResource
     {
-        public ColonyProd(Planet planet) : base(planet)
+        public ColonyProduction(Planet planet) : base(planet)
         {
         }
 
@@ -174,9 +174,9 @@ namespace Ship_Game.Universe.SolarBodies
         }
     }
 
-    public class ColonyRes : ColonyResource
+    public class ColonyResearch : ColonyResource
     {
-        public ColonyRes(Planet planet) : base(planet)
+        public ColonyResearch(Planet planet) : base(planet)
         {
         }
 

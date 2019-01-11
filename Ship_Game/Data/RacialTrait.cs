@@ -105,6 +105,8 @@ namespace Ship_Game
         [Serialize(92)] public int Burrowers;
         [Serialize(93)] public float SpyModifier;
 
+        public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
+
         public RacialTrait GetClone()
         {
             return (RacialTrait)MemberwiseClone();

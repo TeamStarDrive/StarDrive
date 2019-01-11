@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game
 {
@@ -36,6 +37,8 @@ namespace Ship_Game
 
         public Empire CreateEmpire(EmpireData data)
         {
+            if (EmpireManager.GetEmpireByName(data.Traits.Name) != null)
+                throw new InvalidOperationException($"BUG: Empire already created! {data.Traits.Name}");
             Empire e = EmpireManager.CreateEmpireFromEmpireData(data);
             EmpireList.Add(e);
             EmpireManager.Add(e);

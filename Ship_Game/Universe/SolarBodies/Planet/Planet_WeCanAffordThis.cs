@@ -141,7 +141,7 @@ namespace Ship_Game
 
                                 //|| this.developmentLevel > 4
                                 || ((building.MaxPopIncrease > 0
-                                || building.PlusFlatPopulation > 0 || building.PlusTerraformPoints > 0) && Population > MaxPopulation * .5f)
+                                || building.PlusFlatPopulation > 0 || building.PlusTerraformPoints > 0) && Population > MaxPopulation * 0.5f)
                                 || building.PlusFlatFoodAmount > 0
                                 || building.PlusFlatProductionAmount > 0
                                 || building.StorageAdded > 0
