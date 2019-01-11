@@ -80,7 +80,6 @@ namespace Ship_Game
             {
                 if (empire.data.Traits.Name != name) continue;
                 EmpireDict.Add(name, empire);
-                Log.Info("Added Empire: " + empire.PortraitName);
                 return empire;
             }
             return null;
@@ -190,8 +189,15 @@ namespace Ship_Game
         {
             DiplomaticTraits traits = ResourceManager.DiplomaticTraits;
             var empire = new Empire();
-            Log.Info($"Creating Empire {data.PortraitName}");
-            if (data.Faction == 1)
+
+            if (data.IsFaction)
+                Log.Info($"Creating Faction {data.Traits.Name}");
+            else if (data.MinorRace)
+                Log.Info($"Creating MinorRace {data.Traits.Name}");
+            else 
+                Log.Info($"Creating MajorEmpire {data.Traits.Name}");
+
+            if (data.IsFaction)
                 empire.isFaction = true;
             do
             {

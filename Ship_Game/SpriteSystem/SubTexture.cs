@@ -42,13 +42,13 @@ namespace Ship_Game
         }
 
         // UV-coordinates
-        public float CoordLeft => X / (float)Texture.Width;
-        public float CoordTop => Y / (float)Texture.Height;
-        public float CoordRight => (X + (Width - 1)) / (float)Texture.Width;
+        public float CoordLeft   => X / (float)Texture.Width;
+        public float CoordTop    => Y / (float)Texture.Height;
+        public float CoordRight  => (X + (Width  - 1)) / (float)Texture.Width;
         public float CoordBottom => (Y + (Height - 1)) / (float)Texture.Height;
 
-        public Vector2 CoordUpperLeft => new Vector2(CoordLeft, CoordTop);
-        public Vector2 CoordLowerLeft => new Vector2(CoordLeft, CoordBottom);
+        public Vector2 CoordUpperLeft  => new Vector2(CoordLeft,  CoordTop);
+        public Vector2 CoordLowerLeft  => new Vector2(CoordLeft,  CoordBottom);
         public Vector2 CoordLowerRight => new Vector2(CoordRight, CoordBottom);
         public Vector2 CoordUpperRight => new Vector2(CoordRight, CoordTop);
 

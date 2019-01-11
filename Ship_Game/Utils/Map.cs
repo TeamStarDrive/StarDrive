@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
@@ -32,7 +33,7 @@ namespace Ship_Game
         }
 
         // Separated throw from this[] to enable MSIL inlining
-        private void ThrowMapKeyNotFound(TKey key)
+        void ThrowMapKeyNotFound(TKey key)
         {
             throw new MapKeyNotFoundException($"Key [{key}] was not found in {ToString()} (len={Count})");
         }
@@ -56,6 +57,12 @@ namespace Ship_Game
             return GetType().GenericName();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Get(TKey key, out TValue value)
+        {
+            return base.TryGetValue(key, out value);
+        }
+
         // map[key] = map[key] + valueToAdd;
         // Starting value is default(TValue): 0 for numeric types
         // TValue must have operator + defined
@@ -65,6 +72,7 @@ namespace Ship_Game
             base[key] = (dynamic)old + valueToAdd;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public KeyValuePair<TKey, TValue>[] ToArray()
         {
             return (this as ICollection<KeyValuePair<TKey, TValue>>).ToArray();
@@ -77,7 +85,7 @@ namespace Ship_Game
 
         public TKey MaxKeyByValues(Func<TValue, float> selector)
         {            
-            TKey found = default(TKey);
+            TKey found = default;
             float max = float.MinValue;
             foreach(var kv in this)
             {
@@ -88,9 +96,10 @@ namespace Ship_Game
             }
             return found;
         }
+
         public TKey MaxKeyByValuesFiltered(Func<TValue, float> selector, Predicate<TValue> filter)
         {
-            TKey found = default(TKey);
+            TKey found = default;
             float max = float.MinValue;
             foreach (var kv in this)
             {
