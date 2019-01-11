@@ -144,9 +144,9 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_money_22"), moneyRect, Color.White);
             }
 
-            PlanetTypeRichness = string.Concat(p.GetTypeTranslation(), " ", p.GetRichness());
+            PlanetTypeRichness = p.LocalizedRichness;
             PlanetTypeCursor = new Vector2(PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f, PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Planets/", p.PlanetType)), PlanetIconRect, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture($"Planets/{p.PlanetType}"), PlanetIconRect, Color.White);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
             p.UpdateIncomes(false);
 
@@ -175,19 +175,19 @@ namespace Ship_Game
             if (!p.IsExploredBy(EmpireManager.Player))
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                    string.Concat(Localizer.Token(1429), p.GetTypeTranslation()), namePos, tColor);
-                Vector2 TextCursor2 = new Vector2(sel.Rect.X + sel.Rect.Width - 65,
-                    namePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
+                    Localizer.Token(1429) + p.LocalizedCategory, namePos, tColor);
+                var textCursor = new Vector2(sel.Rect.X + sel.Rect.Width - 65,
+                    namePos.Y + Fonts.Arial20Bold.LineSpacing / 2f - Fonts.Arial12Bold.LineSpacing / 2f + 2f);
                 string pop = p.PopulationString;
-                TextCursor2.X = TextCursor2.X - (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, pop, TextCursor2, tColor);
+                textCursor.X = textCursor.X - (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, pop, textCursor, tColor);
 
-                popRect = new Rectangle((int) TextCursor2.X - 23, (int) TextCursor2.Y - 3, 22, 22);
+                popRect = new Rectangle((int) textCursor.X - 23, (int) textCursor.Y - 3, 22, 22);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), popRect, Color.White);
 
                 string text = Localizer.Token(1430);
-                Vector2 Cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, tColor);
+                var cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
                 return true;
             }
 
@@ -211,12 +211,12 @@ namespace Ship_Game
             popRect = new Rectangle((int) TextCursor.X - 23, (int) TextCursor.Y - 3, 22, 22);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), popRect, Color.White);
 
-            PlanetTypeRichness = string.Concat(p.GetTypeTranslation(), " ", p.GetRichness());
+            PlanetTypeRichness = p.LocalizedRichness;
             PlanetTypeCursor =
                 new Vector2(
                     PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f,
                     PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Planets/", p.PlanetType)), PlanetIconRect,
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Planets/"+p.PlanetType), PlanetIconRect,
                 Color.White);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
             Rectangle fIcon = new Rectangle(240,

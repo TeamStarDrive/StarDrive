@@ -74,7 +74,7 @@ namespace Ship_Game
             }
             batch.DrawString(Fonts.Arial12Bold, "Class:", PNameCursor, Color.Orange);
             Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, p.GetTypeTranslation(), InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, InfoCursor, new Color(255, 239, 208));
             if (!p.Habitable)
             {
                 PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);

@@ -60,7 +60,7 @@ namespace Ship_Game
             if (b.AllowInfantry && !BuildingList.Contains(b) && (AllowInfantry || governor == ColonyType.Military))
                 return false;
 
-            if (b.ExcludesPlanetType.NotEmpty() && b.ExcludesPlanetType == Type)
+            if (b.ExcludesPlanetType.NotEmpty() && b.ExcludesPlanetType == CategoryName)
                 return false;
             
             if (Money.NetIncome*b.PlusTaxPercentage >= b.Maintenance 

@@ -231,8 +231,7 @@ namespace Ship_Game
                 singular = (planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
             }
             spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, planet.Owner?.EmpireColor ?? Color.Gray);
-            string PlanetText = string.Concat(planet.GetTypeTranslation(), " ", planet.GetRichness());
-            batch.DrawString(Fonts.Arial12Bold, PlanetText, rpos, TextColor);
+            batch.DrawString(Fonts.Arial12Bold, planet.LocalizedRichness, rpos, TextColor);
             if (planet.Habitable && planet.Owner == null)
             {
                 Colonize.Draw(batch);
