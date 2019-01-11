@@ -96,12 +96,6 @@ namespace Ship_Game
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager RootContent => Game1.Instance.Content;
 
-        public static Technology GetTreeTech(string techUid)
-        {
-            TechTree.TryGetValue(techUid, out Technology technology);
-            return technology;
-        }
-
         public static Technology Tech(string techUid)
         {
             return TechTree[techUid];
@@ -929,6 +923,14 @@ namespace Ship_Game
                 "Textures/Portraits",
                 "Textures/Ground_UI",
                 "Textures/Troops",
+                "Textures/OrderButtons",
+
+                
+                "Textures/sd_explosion_14a_cc",
+                "Textures/sd_explosion_12a_cc",
+                "Textures/sd_explosion_07a_cc",
+                "Textures/sd_explosion_03_photon_256",
+                "Textures/sd_shockwave_01",
             };
 
             Parallel.Run(() =>
