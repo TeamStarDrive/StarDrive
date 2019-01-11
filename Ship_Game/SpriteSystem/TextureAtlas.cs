@@ -12,7 +12,7 @@ namespace Ship_Game
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 4; // changing this will force all caches to regenerate
+        const int Version = 6; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -120,7 +120,7 @@ namespace Ship_Game
             Stopwatch total = Stopwatch.StartNew();
             Stopwatch perf = Stopwatch.StartNew();
 
-            TextureInfo[] textures = LoadTextureInfo(content, textureFiles);
+            TextureInfo[] textures = LoadTextureInfo(content, path, textureFiles);
             load = perf.NextMillis();
 
             var packer = new TexturePacker();
@@ -159,7 +159,7 @@ namespace Ship_Game
             CreateSortedList();
 
             int elapsed = total.NextMillis();
-            Log.Info($"CreateAtlas {this} t:{elapsed:4}ms l:{load} p:{pack} t:{transfer} s:{save}");
+            Log.Info($"CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
         }
 
         void SaveAtlasDescriptor(TextureInfo[] textures, string descriptorPath)
@@ -223,7 +223,7 @@ namespace Ship_Game
             }
 
             int elapsed = s.NextMillis();
-            Log.Info($"LoadAtlas {this} t:{elapsed:4}ms");
+            Log.Info($"LoadAtlas {this} t:{elapsed,4}ms");
             return true; // we loaded everything
         }
 
@@ -253,21 +253,27 @@ namespace Ship_Game
             Array.Sort(Sorted, (a, b) => string.CompareOrdinal(a.Name, b.Name));
         }
 
-        static TextureInfo[] LoadTextureInfo(GameContentManager content, FileInfo[] textureFiles)
+        static TextureInfo[] LoadTextureInfo(GameContentManager content, AtlasPath path, FileInfo[] textureFiles)
         {
             var textures = new TextureInfo[textureFiles.Length];
+
+            bool noPackAll = ResourceManager.AtlasExcludeFolder.Contains(path.Name);
+            HashSet<string> ignore = ResourceManager.AtlasExcludeTextures; // HACK
+
             for (int i = 0; i < textureFiles.Length; ++i)
             {
                 FileInfo info = textureFiles[i];
                 string assetName = info.CleanResPath(false);
                 string texName = info.NameNoExt();
                 var tex = content.LoadUncached<Texture2D>(assetName);
+                bool noPack = noPackAll || ignore.Contains(texName);
                 textures[i] = new TextureInfo
                 {
                     Name = texName,
                     Width = tex.Width,
                     Height = tex.Height,
                     Texture = tex,
+                    NoPack = noPack,
                 };
             }
             return textures;
