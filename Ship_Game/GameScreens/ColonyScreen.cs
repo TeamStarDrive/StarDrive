@@ -235,7 +235,7 @@ namespace Ship_Game
             pStorage.Draw();
             subColonyGrid.Draw();
             var destinationRectangle1 = new Rectangle(GridPos.X, GridPos.Y + 1, GridPos.Width - 4, GridPos.Height - 3);
-            batch.Draw(ResourceManager.Texture("PlanetTiles/" + P.GetTile()), destinationRectangle1, Color.White);
+            batch.Draw(ResourceManager.Texture("PlanetTiles/" + P.PlanetTileId), destinationRectangle1, Color.White);
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
                 if (!pgs.Habitable)
@@ -333,7 +333,7 @@ namespace Ship_Game
                 vector2_2.Y += Font20.LineSpacing;
             batch.DrawString(Font12, Localizer.Token(384) + ":", vector2_2, Color.Orange);
             Vector2 position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, P.Type, position3, new Color(255, 239, 208));
+            batch.DrawString(Font12, P.CategoryName, position3, new Color(255, 239, 208));
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(385) + ":", vector2_2, Color.Orange);
@@ -827,23 +827,23 @@ namespace Ship_Game
 
             foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
             {
-                if (!entry.TryGet(out Building building))
+                if (!entry.TryGet(out Building b))
                     continue;
 
-                SubTexture icon = ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48");
+                SubTexture icon = ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48");
                 SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
 
-                bool unprofitable = !P.WeCanAffordThis(building, P.colonyType) && building.Maintenance > 0f;
+                bool unprofitable = !P.WeCanAffordThis(b, P.colonyType) && b.Maintenance > 0f;
                 Color buildColor = unprofitable ? Color.IndianRed : Color.White;
                 if (entry.Hovered) buildColor = Color.White; // hover color
 
-                string descr = Localizer.Token(building.ShortDescriptionIndex) + (unprofitable ? " (unprofitable)" : "");
+                string descr = Localizer.Token(b.ShortDescriptionIndex) + (unprofitable ? " (unprofitable)" : "");
                 descr = Font8.ParseText(descr, 280f);
 
                 var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
 
                 batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), buildColor);
-                DrawText(ref position, building.NameTranslationIndex, buildColor);
+                DrawText(ref position, b.NameTranslationIndex, buildColor);
 
                 if (!entry.Hovered)
                 {
@@ -858,7 +858,7 @@ namespace Ship_Game
                     position = new Vector2( (r.X - 60),
                          (1 + r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
-                    string maintenance = building.Maintenance.ToString("F2");
+                    string maintenance = b.Maintenance.ToString("F2");
                     batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
                     // ~~~~
@@ -867,7 +867,7 @@ namespace Ship_Game
                         (r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
                     batch.DrawString(Font12,
-                        ((int) building.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
+                        ((int) b.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
 
                     entry.DrawPlus(batch);
                 }
@@ -883,7 +883,7 @@ namespace Ship_Game
 
                     position = new Vector2((r.X - 60),
                                            (1 + r.Y + r.Height / 2 - Font12.LineSpacing / 2));
-                    float actualMaint = building.Maintenance + building.Maintenance * P.Owner.data.Traits.MaintMod;
+                    float actualMaint = b.Maintenance + b.Maintenance * P.Owner.data.Traits.MaintMod;
                     string maintenance = actualMaint.ToString("F2");
                     batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
@@ -893,7 +893,7 @@ namespace Ship_Game
                         (r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
                     batch.DrawString(Font12,
-                        ((int) building.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
+                        ((int) b.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
                     entry.DrawPlus(batch);
                 }
 
@@ -1042,7 +1042,7 @@ namespace Ship_Game
 
                     if (!pgs.Habitable && pgs.building == null)
                     {
-                        if (P.Type == "Barren")
+                        if (P.Category == PlanetCategory.Barren)
                         {
                             spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
@@ -1131,7 +1131,7 @@ namespace Ship_Game
                 ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(362));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusProdPerRichness,
                 ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(363));
-            DrawBuildingInfo(ref bCursor, spriteBatch, building.ShipRepair * 10 * P.DevelopmentLevel,
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.ShipRepair * 10 * P.Level,
                 ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Localizer.Token(6137));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.CombatStrength,
                 ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(364));

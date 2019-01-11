@@ -355,33 +355,33 @@ namespace Ship_Game
         {
             // Barren  --> Desert --> Steppe --> Tundra --> Terran
             // Vocanic --> Ice    --> Swamp  --> Oceanic
-            switch (Type)
+            switch (Category)
             {
-                case "Barren" when MaxFertility > 0.14:
+                case PlanetCategory.Barren when MaxFertility > 0.14:
                     PlanetType = 14; // desert
                     Terraform();
                     break;
-                case "Volcanic" when MaxFertility > 0.14:
+                case PlanetCategory.Volcanic when MaxFertility > 0.14:
                     PlanetType = 17; // desert
                     Terraform();
                     break;
-                case "Desert" when MaxFertility > 0.35:
+                case PlanetCategory.Desert when MaxFertility > 0.35:
                     PlanetType = 18; // steppe
                     Terraform();
                     break;
-                case "Ice" when MaxFertility > 0.35:
+                case PlanetCategory.Ice when MaxFertility > 0.35:
                     PlanetType = 19; // swamp
                     Terraform();
                     break;
-                case "Swamp" when MaxFertility > 0.75:
+                case PlanetCategory.Swamp when MaxFertility > 0.75:
                     PlanetType = 21; // oceanic
                     Terraform();
                     break;
-                case "Steppe" when MaxFertility > 0.6:
+                case PlanetCategory.Steppe when MaxFertility > 0.6:
                     PlanetType = 11; // tundra
                     Terraform();
                     break;
-                case "Tundra" when MaxFertility > 0.95:
+                case PlanetCategory.Tundra when MaxFertility > 0.95:
                     PlanetType = 22; // terran
                     Terraform();
                     break;
@@ -396,30 +396,30 @@ namespace Ship_Game
             // Swamp   --> Ice    --> Barren or Volcanic
             // Steppe  --> Desert --> Barren or Volcanic
             // Tundra  --> Desert --> Barren or Volcanic
-            switch (Type)
+            switch (Category)
             {
-                case "Terran" when MaxFertility < 0.5:
+                case PlanetCategory.Terran when MaxFertility < 0.5:
                     PlanetType = 14; // desert
                     Terraform(recalculateTileHabitation: true);
                     break;
-                case "Oceanic" when MaxFertility < 0.5:
+                case PlanetCategory.Oceanic when MaxFertility < 0.5:
                     PlanetType = 17; // ice
                     Terraform(recalculateTileHabitation: true);
                     break;
-                case "Swamp" when MaxFertility < 0.2:
+                case PlanetCategory.Swamp when MaxFertility < 0.2:
                     PlanetType = 17; // ice
                     Terraform(recalculateTileHabitation: true);
                     break;
-                case "Steppe" when MaxFertility < 0.5:
+                case PlanetCategory.Steppe when MaxFertility < 0.5:
                     PlanetType = 14; // desert
                     Terraform(recalculateTileHabitation: true);
                     break;
-                case "Tundra" when MaxFertility < 0.5:
+                case PlanetCategory.Tundra when MaxFertility < 0.5:
                     PlanetType = 14; // desert
                     Terraform(recalculateTileHabitation: true);
                     break;
-                case "Desert" when MaxFertility < 0.1:
-                case "Ice" when MaxFertility < 0.1:
+                case PlanetCategory.Desert when MaxFertility < 0.1:
+                case PlanetCategory.Ice when MaxFertility < 0.1:
                     PlanetType = RandomMath.IntBetween(1, 10) > 5 ? 9 : 7; // volcanic or desert
                     Terraform(recalculateTileHabitation: true);
                     break;
@@ -427,7 +427,7 @@ namespace Ship_Game
             MaxFertility = Math.Max(0, MaxFertility);
         }
 
-        private void DoTerraforming() // Added by Fat Bastard
+        void DoTerraforming() // Added by Fat Bastard
         {
             TerraformPoints += TerraformToAdd;
             if (TerraformPoints > 0.0f && Fertility < 1f)
@@ -451,7 +451,7 @@ namespace Ship_Game
             else CrippledTurns = 0;
 
             ConstructionQueue.ApplyPendingRemovals();
-            UpdateDevelopmentStatus();
+            UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
             DoTerraforming();
@@ -499,56 +499,67 @@ namespace Ship_Game
             CalculateIncomingTrade();
         }
 
-        public void UpdateDevelopmentStatus()
+        public float MaxPopBase { get; set; } // planetary base max population value
+        public float MaxPopulation { get; private set; } // max pop with building bonuses
+        public float MaxPopulationBillion { get; private set; }
+
+        protected void UpdateMaxPopulation()
+        {
+            float popBonus = 0f;
+            for (int i = 0; i < BuildingList.Count; ++i) // for speed
+                popBonus += BuildingList[i].MaxPopIncrease;
+
+            MaxPopulation = MaxPopBase + popBonus;
+            MaxPopulationBillion = MaxPopulation / 1000f;
+        }
+
+        public int Level { get; private set; }
+        public string DevelopmentStatus { get; private set; } = "Undeveloped";
+
+        public void UpdateDevelopmentLevel()
         {
             if (PopulationBillion <= 0.5f)
             {
-                DevelopmentLevel = 1;
+                Level = (int)DevelopmentLevel.Solitary;
                 DevelopmentStatus = Localizer.Token(1763);
-                if      (MaxPopulationBillion >= 2f && Type != "Barren") DevelopmentStatus += Localizer.Token(1764);
-                else if (MaxPopulationBillion >= 2f && Type == "Barren") DevelopmentStatus += Localizer.Token(1765);
-                else if (MaxPopulationBillion < 0.0f && Type != "Barren") DevelopmentStatus += Localizer.Token(1766);
-                else if (MaxPopulationBillion < 0.5f && Type == "Barren") DevelopmentStatus += Localizer.Token(1767);
+                if      (MaxPopulationBillion >= 2f  && Category != PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1764);
+                else if (MaxPopulationBillion >= 2f  && Category == PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1765);
+                else if (MaxPopulationBillion < 0.0f && Category != PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1766);
+                else if (MaxPopulationBillion < 0.5f && Category == PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1767);
             }
             else if (PopulationBillion > 0.5f && PopulationBillion <= 2)
             {
-                DevelopmentLevel = 2;
+                Level = (int)DevelopmentLevel.Meager;
                 DevelopmentStatus = Localizer.Token(1768);
                 DevelopmentStatus += MaxPopulationBillion >= 2 ? Localizer.Token(1769) : Localizer.Token(1770);
             }
             else if (PopulationBillion > 2.0 && PopulationBillion <= 5.0)
             {
-                DevelopmentLevel = 3;
+                Level = (int)DevelopmentLevel.Vibrant;
                 DevelopmentStatus = Localizer.Token(1771);
                 if      (MaxPopulationBillion >= 5.0) DevelopmentStatus += Localizer.Token(1772);
-                else if (MaxPopulationBillion < 5.0)  DevelopmentStatus += Localizer.Token(1773);
+                else if (MaxPopulationBillion <  5.0) DevelopmentStatus += Localizer.Token(1773);
             }
             else if (PopulationBillion > 5.0 && PopulationBillion <= 10.0)
             {
-                DevelopmentLevel = 4;
+                Level = (int)DevelopmentLevel.CoreWorld;
                 DevelopmentStatus = Localizer.Token(1774);
             }
             else if (PopulationBillion > 10.0)
             {
-                DevelopmentLevel = 5;
+                Level = (int)DevelopmentLevel.MegaWorld;
                 DevelopmentStatus = Localizer.Token(1775); // densely populated
             }
+
             if (Prod.NetIncome >= 10.0 && HasShipyard)
-            {
                 DevelopmentStatus += Localizer.Token(1776); // fine shipwright
-            }
             else if (Fertility >= 2.0 && Food.NetIncome > MaxPopulation)
-            {
                 DevelopmentStatus += Localizer.Token(1777); // fine agriculture
-            }
             else if (Res.NetIncome > 5.0)
-            {
                 DevelopmentStatus += Localizer.Token(1778); // universities are good
-            }
+
             if (AllowInfantry && TroopsHere.Count > 6)
-            {
                 DevelopmentStatus += Localizer.Token(1779); // military culture
-            }
         }
 
         int ColonyTypeLocId()

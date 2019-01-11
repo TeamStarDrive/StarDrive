@@ -165,9 +165,9 @@ namespace Ship_Game
 
         public Planet[] BestBuildPlanets => RallyPoints.Filter(planet =>
             planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
-            && planet.DevelopmentLevel > 2
+            && planet.IsVibrant
             && planet.colonyType != Planet.ColonyType.Research
-            && (planet.colonyType != Planet.ColonyType.Industrial || planet.DevelopmentLevel > 3)
+            && (planet.colonyType != Planet.ColonyType.Industrial || planet.IsCoreWorld)
         );
 
         public Planet PlanetToBuildAt (float productionNeeded)
@@ -1178,7 +1178,7 @@ namespace Ship_Game
                         if (planet == Capital)
                             EmpireShipCountReserve = +5;
                         else
-                            EmpireShipCountReserve += planet.DevelopmentLevel;
+                            EmpireShipCountReserve += planet.Level;
                         if (EmpireShipCountReserve > 50)
                         {
                             EmpireShipCountReserve = 50;

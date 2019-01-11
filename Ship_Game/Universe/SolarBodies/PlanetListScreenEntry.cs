@@ -109,9 +109,7 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture(string.Concat("Planets/", planet.PlanetType)), planetIconRect, Color.White);
             if (planet.Owner != null)
             {
-                SpriteBatch spriteBatch = batch;
-                KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex];
-                spriteBatch.Draw(item.Value, planetIconRect, planet.Owner.EmpireColor);
+                batch.Draw(ResourceManager.Flag(planet.Owner), planetIconRect, planet.Owner.EmpireColor);
             }
             int i = 0;
             Vector2 StatusIcons = new Vector2(PlanetNameRect.X + PlanetNameRect.Width, planetIconRect.Y + 10);
@@ -231,8 +229,7 @@ namespace Ship_Game
                 singular = (planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
             }
             spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, planet.Owner?.EmpireColor ?? Color.Gray);
-            string PlanetText = string.Concat(planet.GetTypeTranslation(), " ", planet.GetRichness());
-            batch.DrawString(Fonts.Arial12Bold, PlanetText, rpos, TextColor);
+            batch.DrawString(Fonts.Arial12Bold, planet.LocalizedRichness, rpos, TextColor);
             if (planet.Habitable && planet.Owner == null)
             {
                 Colonize.Draw(batch);

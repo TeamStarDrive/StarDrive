@@ -43,12 +43,12 @@ namespace Ship_Game.AI
             foreach (Planet p in Them.GetPlanets())
             {
                 if (!p.IsExploredBy(us)) continue;
-                themStrength += p.DevelopmentLevel;
+                themStrength += p.Level;
             }
 
             foreach (Planet p in us.GetPlanets())
             {
-                usStrength += p.DevelopmentLevel;
+                usStrength += p.Level;
             }
             float strength = (themStrength / usStrength) * .25f;
             return strength > riskLimit ? 0 : strength;

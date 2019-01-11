@@ -17,7 +17,7 @@ namespace Ship_Game
 		public float StrengthLost;
 		public float TroopsKilled;
 		public float TroopsLost;
-		public int ColoniestWon;
+		public int ColoniesWon;
 		public int ColoniesLost;
 		public Array<string> AlliesCalled = new Array<string>();
 		public Array<Guid> ContestedSystemsGUIDs = new Array<Guid>();

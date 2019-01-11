@@ -105,7 +105,7 @@ namespace Ship_Game
 
         void GovernTroopsAndPlatforms()
         {
-            if (ConstructionQueue.Count >= 5 || ParentSystem.CombatInSystem || DevelopmentLevel <= 2 ||
+            if (ConstructionQueue.Count >= 5 || ParentSystem.CombatInSystem || IsMeagerOrBarren ||
                 colonyType == ColonyType.Research) return;
 
             //Added by McShooterz: build defense platforms
