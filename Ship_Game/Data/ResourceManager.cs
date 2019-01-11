@@ -240,8 +240,6 @@ namespace Ship_Game
             try
             {
                 LoadAllResources(onEssentialsLoaded);
-                if (GlobalStats.HasMod)
-                    throw new Exception("Testing mod failure");
             }
             catch (Exception ex)
             {
@@ -891,8 +889,7 @@ namespace Ship_Game
         // This is just to speed up initial atlas generation and avoid noticeable framerate hiccups
         static void LoadTextureAtlases()
         {
-            //new ResourceTests().RunAll();
-
+            Textures.Clear();
             // these are essential for main menu, so we load them as blocking
             LoadAtlas("Textures");
             LoadAtlas("Textures/GameScreens");
@@ -1983,7 +1980,6 @@ namespace Ship_Game
             ArtifactsDict.Clear();
             ShipsDict.Clear();
             SoundEffectDict = null;
-            Textures.Clear();
             ToolTips.Clear();
             GoodsDict.Clear();
             Encounters.Clear();
