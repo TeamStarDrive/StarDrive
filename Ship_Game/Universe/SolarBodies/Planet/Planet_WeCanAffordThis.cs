@@ -79,7 +79,7 @@ namespace Ship_Game
             if (NonCybernetic && building.PlusFlatFoodAmount > 0)// && this.Fertility == 0)
             {
 
-                if (Food.NetIncome > 0 && Food.Percent < 0.3f || BuildingExists(building.Name))
+                if (Food.NetIncome > 0 && Food.Percent < 0.3f || BuildingExists(building))
                     return false;
                 return true;
 
@@ -112,7 +112,7 @@ namespace Ship_Game
             }
             if (building.PlusTerraformPoints > 0)
             {
-                if (!incomeBuilding || IsCybernetic || BuildingList.Contains(building) || BuildingInQueue(building.Name))
+                if (!incomeBuilding || IsCybernetic || BuildingExists(building))
                     return false;
 
             }

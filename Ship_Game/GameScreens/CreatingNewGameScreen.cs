@@ -3,15 +3,14 @@
 // MVID: C34284EE-F947-460F-BF1D-3C6685B19387
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.IO;
+using System.Threading;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -27,8 +26,7 @@ namespace Ship_Game
         private RaceDesignScreen.GameMode Mode;
         private Vector2 GalacticCenter;
         private UniverseData Data;
-        private string EmpireToRemoveName;
-        private Empire PlayerEmpire;
+        private Empire Player;
         private UniverseData.GameDifficulty Difficulty;
         private int NumOpponents;
         private MainMenuScreen mmscreen;
@@ -46,9 +44,8 @@ namespace Ship_Game
         private int systemToMake;
         
 
-        public CreatingNewGameScreen(Empire empire, string universeSize, 
-                float starNumModifier, string empireToRemoveName, 
-                int numOpponents, RaceDesignScreen.GameMode gamemode, 
+        public CreatingNewGameScreen(Empire player, string universeSize, 
+                float starNumModifier, int numOpponents, RaceDesignScreen.GameMode gamemode, 
                 int gameScale, UniverseData.GameDifficulty difficulty, MainMenuScreen mmscreen) : base(mmscreen)
         {
             GlobalStats.RemnantArmageddon = false;
@@ -65,17 +62,16 @@ namespace Ship_Game
 
             Mode = gamemode;
             NumOpponents = numOpponents;
-            EmpireToRemoveName = empireToRemoveName;
             EmpireManager.Clear();
 
             DTraits = ResourceManager.DiplomaticTraits;
             ResourceManager.LoadEncounters();
-            PlayerEmpire = empire;
-            empire.Initialize();
-            empire.data.CurrentAutoScout     = empire.data.ScoutShip;
-            empire.data.CurrentAutoColony    = empire.data.ColonyShip;
-            empire.data.CurrentAutoFreighter = empire.data.FreighterShip;
-            empire.data.CurrentConstructor   = empire.data.ConstructorShip;
+            Player = player;
+            player.Initialize();
+            player.data.CurrentAutoScout     = player.data.ScoutShip;
+            player.data.CurrentAutoColony    = player.data.ColonyShip;
+            player.data.CurrentAutoFreighter = player.data.FreighterShip;
+            player.data.CurrentConstructor   = player.data.ConstructorShip;
             Data = new UniverseData
             {
                 FTLSpeedModifier      = GlobalStats.FTLInSystemModifier,
@@ -101,10 +97,9 @@ namespace Ship_Game
             NumSystems = (int)(size * starNumModifier);           
             //Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
             
-            UniverseData.UniverseWidth = Data.Size.X * 2;
             Data.Size *= Scale;
-            Data.EmpireList.Add(empire);
-            EmpireManager.Add(empire);
+            Data.EmpireList.Add(player);
+            EmpireManager.Add(player);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.SnapshotsDict.Clear();
 
@@ -174,7 +169,7 @@ namespace Ship_Game
                     Ship ship2 = Ship.CreateShipAt(startingScout, empire, planet, new Vector2(-2500, -2000), true);
                     Data.MasterShipList.Add(ship2);
 
-                    if (empire == PlayerEmpire)
+                    if (empire == Player)
                     {
                         string starterShip = empire.data.Traits.Prototype == 0 ? empire.data.StartingShip : empire.data.PrototypeShip;
 
@@ -299,65 +294,48 @@ namespace Ship_Game
             }
         }
 
-        private void GenerateInitialSystemData()
+        void GenerateInitialSystemData()
         {
-            var removalCollection = new BatchRemovalCollection<EmpireData>();
-            foreach (EmpireData empireData in ResourceManager.Empires)
-            {
-                if (empireData.Traits.Name != EmpireToRemoveName && empireData.Faction == 0 && !empireData.MinorRace)
-                    removalCollection.Add(empireData);
-            }
-            int num = removalCollection.Count - NumOpponents;
-            float spaceSaved = GC.GetTotalMemory(true);
-            for (int opponents = 0; opponents < num; ++opponents)
-            {
-                //Intentionally using too high of a value here, because of the truncated decimal. -Gretman
-                int index = RandomMath.InRange(removalCollection.Count);
+            EmpireData[] opponents = ResourceManager.MajorRaces.Filter(data => data != Player.data);
+            
+            // create a randomly shuffled list of opponents
+            var races = new Array<EmpireData>(opponents);
+            races.Shuffle();
+            races.Resize(Math.Min(races.Count, NumOpponents)); // truncate
+            races.Insert(0, Player.data);
 
-                Log.Info($"Race excluded from game: {removalCollection[index].PortraitName}  (Index {index} of {removalCollection.Count-1})");
-                removalCollection.RemoveAt(index);
-            }
-
-            Log.Info($"Memory purged: {spaceSaved - GC.GetTotalMemory(true)}");
-
-            foreach (EmpireData data in removalCollection)
+            foreach (EmpireData data in races)
             {
-                Empire empireFromEmpireData = EmpireManager.CreateEmpireFromEmpireData(data);
-                Data.EmpireList.Add(empireFromEmpireData);
-                var traits = empireFromEmpireData.data.Traits;
+                Empire e = Data.CreateEmpire(data);
+                RacialTrait t = e.data.Traits;
                 switch (Difficulty)
                 {
                     case UniverseData.GameDifficulty.Easy:
-                        traits.ProductionMod -= 0.25f;
-                        traits.ResearchMod   -= 0.25f;
-                        traits.TaxMod        -= 0.25f;
-                        traits.ModHpModifier -= 0.25f;
+                        t.ProductionMod -= 0.25f;
+                        t.ResearchMod   -= 0.25f;
+                        t.TaxMod        -= 0.25f;
+                        t.ModHpModifier -= 0.25f;
                         break;
                     case UniverseData.GameDifficulty.Hard:
-                        empireFromEmpireData.data.FlatMoneyBonus += 10;
-                        traits.ProductionMod += 0.5f;
-                        traits.ResearchMod   += 0.75f;
-                        traits.TaxMod        += 0.5f;
-                        traits.ShipCostMod   -= 0.2f;
+                        e.data.FlatMoneyBonus += 10;
+                        t.ProductionMod += 0.5f;
+                        t.ResearchMod   += 0.75f;
+                        t.TaxMod        += 0.5f;
+                        t.ShipCostMod   -= 0.2f;
                         break;
                     case UniverseData.GameDifficulty.Brutal:
-                        empireFromEmpireData.data.FlatMoneyBonus += 20; // cheaty cheat
-                        traits.ProductionMod += 1.0f;
-                        traits.ResearchMod    = 1.33f;
-                        traits.TaxMod        += 1.0f;
-                        traits.ShipCostMod   -= 0.5f;
+                        e.data.FlatMoneyBonus += 20; // cheaty cheat
+                        t.ProductionMod += 1.0f;
+                        t.ResearchMod    = 1.33f;
+                        t.TaxMod        += 1.0f;
+                        t.ShipCostMod   -= 0.5f;
                         break;
                 }
-                EmpireManager.Add(empireFromEmpireData);
             }
 
-            foreach (EmpireData data in ResourceManager.Empires)
+            foreach (EmpireData data in ResourceManager.MinorRaces) // init minor races
             {
-                if (data.Faction == 0 && !data.MinorRace)
-                    continue;
-                Empire empireFromEmpireData = EmpireManager.CreateEmpireFromEmpireData(data);
-                Data.EmpireList.Add(empireFromEmpireData);
-                EmpireManager.Add(empireFromEmpireData);
+                Data.CreateEmpire(data);
             }
             
             foreach (Empire empire in Data.EmpireList)
@@ -369,7 +347,7 @@ namespace Ship_Game
 
                     var r = new Relationship(e.data.Traits.Name);
                     empire.AddRelationships(e, r);
-                    if (e == PlayerEmpire && Difficulty > UniverseData.GameDifficulty.Normal)
+                    if (e == Player && Difficulty > UniverseData.GameDifficulty.Normal)
                     {
                         float angerMod = (int)Difficulty * (90 - empire.data.DiplomaticPersonality.Trustworthiness);
                         r.Anger_DiplomaticConflict = angerMod;
@@ -377,29 +355,28 @@ namespace Ship_Game
                     }
                 }
             }
+
             ResourceManager.MarkShipDesignsUnlockable();
 
-            Log.Info($"Memory purged: {spaceSaved - GC.GetTotalMemory(true)}");
-
-            foreach (Empire empire in Data.EmpireList)
+            foreach (Empire e in Data.EmpireList)
             {
-                if (empire.isFaction)
+                if (e.isFaction)
                     continue;
-                SolarSystem solarSystem;
-                SolarSystemData systemData = ResourceManager.LoadSolarSystemData(empire.data.Traits.HomeSystemName);
+                SolarSystem sys;
+                SolarSystemData systemData = ResourceManager.LoadSolarSystemData(e.data.Traits.HomeSystemName);
                 if (systemData == null)
                 {
-                    solarSystem = new SolarSystem();
-                    solarSystem.GenerateStartingSystem(empire.data.Traits.HomeSystemName, Data, Scale, empire);
+                    sys = new SolarSystem();
+                    sys.GenerateStartingSystem(e.data.Traits.HomeSystemName, Data, Scale, e);
                 }
-                else solarSystem = SolarSystem.GenerateSystemFromData(systemData, empire);
-                solarSystem.isStartingSystem = true;
-                Data.SolarSystemsList.Add(solarSystem);
-                if (empire == PlayerEmpire)
-                    PlayerSystem = solarSystem;
+                else sys = SolarSystem.GenerateSystemFromData(systemData, e);
+                sys.isStartingSystem = true;
+                Data.SolarSystemsList.Add(sys);
+                if (e == Player)
+                    PlayerSystem = sys;
             }
             int systemCount = 0;
-            foreach (var systemData in ResourceManager.LoadRandomSolarSystems())
+            foreach (SolarSystemData systemData in ResourceManager.LoadRandomSolarSystems())
             {
                 if (systemCount > NumSystems)
                     break;
@@ -441,6 +418,8 @@ namespace Ship_Game
             }// Done breaking stuff -- Gretman
 
             ThrusterEffect = TransientContent.Load<Effect>("Effects/Thrust");
+
+            HelperFunctions.CollectMemory();
         }
 
         private void SoloarSystemSpacing(Array<SolarSystem> solarSystems)
@@ -750,7 +729,7 @@ namespace Ship_Game
             
             us = new UniverseScreen(Data)
             {
-                player         = PlayerEmpire,
+                player         = Player,
                 CamPos = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
                 ScreenManager  = ScreenManager,
                 GameScale      = Scale
