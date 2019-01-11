@@ -878,6 +878,28 @@ namespace Ship_Game.AI
             }
         }
 
+        private void DoReturnHome(float elapsedTime)
+        {
+            if (Owner.HomePlanet.Owner != Owner.loyalty)
+            {
+                // find another friendly planet to land at
+                Owner.UpdateHomePlanet(Owner.loyalty.RallyShipYardNearestTo(Owner.Center));
+                if (Owner.HomePlanet == null)
+                {
+                    // Nowhere to land, bye bye.
+                    Owner.ScuttleTimer = 1;
+                    return;
+                }
+            }
+            ThrustTowardsPosition(Owner.HomePlanet.Center, elapsedTime, Owner.Speed);
+            if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.Mothership.Radius + 300f))
+            {
+                Owner.loyalty.UpdateMoney(Owner.BaseCost * Owner.HealthPercent);
+                Owner.HomePlanet.LandDefenseShip(Owner.DesignRole, Owner.BaseCost * Owner.HealthPercent);
+                Owner.QueueTotalRemoval();
+            }
+        }
+
         private void DoSupplyShip(float elapsedTime, ShipGoal goal)
         {
             if (EscortTarget == null || !EscortTarget.Active

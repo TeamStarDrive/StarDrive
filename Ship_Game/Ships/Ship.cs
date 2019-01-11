@@ -1189,6 +1189,12 @@ namespace Ship_Game.Ships
             AI.OrderReturnToHangar();
         }
 
+        public void ReturnHome()
+        {
+            AI.State = AIState.ReturnToHangar;
+            AI.OrderReturnHome();
+        }
+
         // ModInfo activation option for Maintenance Costs:
 
         private bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire)
