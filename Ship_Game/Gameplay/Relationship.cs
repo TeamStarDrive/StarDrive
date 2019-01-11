@@ -463,7 +463,7 @@ namespace Ship_Game.Gameplay
             if (!(us.Money > IntelligenceBudget) || !(IntelligencePenetration < 100f))
                 return;
 
-            us.UpdateMoney(-IntelligenceBudget);
+            us.AddMoney(-IntelligenceBudget);
             int molecount = 0;
             var theirPlanets = them.GetPlanets();
             foreach (Mole mole in us.data.MoleList)

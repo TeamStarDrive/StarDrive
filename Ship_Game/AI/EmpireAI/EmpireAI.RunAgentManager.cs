@@ -700,7 +700,7 @@ namespace Ship_Game.AI {
                         break;
                 }
             }
-            OwnerEmpire.UpdateMoney(-(OwnerEmpire.data.SpyBudget - spyBudget));
+            OwnerEmpire.AddMoney(-(OwnerEmpire.data.SpyBudget - spyBudget));
             spyBudget = 0;
         }
     }

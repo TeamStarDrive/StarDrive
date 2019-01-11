@@ -289,6 +289,7 @@ namespace Ship_Game.Ships
         public static Ship CreateDefenseShip(string shipName, Empire owner, Vector2 p, Planet planet)
         {
             Ship ship = CreateShipAtPoint(shipName, owner, p);
+            ship.VanityName = "Home Defense";
             ship.UpdateHomePlanet(planet);
             return ship;
         }

@@ -79,7 +79,7 @@ namespace Ship_Game
 
         private void FlatGrants(Empire triggerEmpire)
         {
-            triggerEmpire.UpdateMoney(MoneyGranted);
+            triggerEmpire.AddMoney(MoneyGranted);
             triggerEmpire.data.Traits.ResearchMod += ScienceBonus;
             triggerEmpire.data.Traits.ProductionMod += IndustryBonus;
         }

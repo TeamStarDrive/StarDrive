@@ -128,7 +128,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsCybernetic  => data.Traits.Cybernetic != 0;
         [XmlIgnore][JsonIgnore] public bool NonCybernetic => data.Traits.Cybernetic == 0;
 
-        public void UpdateMoney(float moneyDiff)
+        public void AddMoney(float moneyDiff)
         {
             Money += moneyDiff;
         }
