@@ -222,7 +222,6 @@
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
     <Compile Include="Ship_Game\Data\ImageUtils.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
-    <Compile Include="Ship_Game\Data\ResourceTests.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
     <Compile Include="Ship_Game\Debug\DebugScreens.cs" />
     <Compile Include="Ship_Game\Empires\SubSpaceProjectors.cs" />
@@ -248,6 +247,7 @@
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySlider.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
+    <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
     <Compile Include="Ship_Game\GameScreens\InputMessageBox.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
