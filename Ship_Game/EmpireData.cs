@@ -59,7 +59,7 @@ namespace Ship_Game
         [Serialize(4)] public int ShipGoalsPlus;
     }
 
-    public sealed class EmpireData : IDisposable
+    public sealed class EmpireData
     {
         public WeaponTagModifier GetWeaponTag(string weaponTag)
         {
@@ -207,6 +207,8 @@ namespace Ship_Game
         public bool IsCybernetic => Traits.Cybernetic > 0;
         [XmlIgnore][JsonIgnore]
         public bool IsFaction => Faction > 0;
+        [XmlIgnore][JsonIgnore]
+        public bool IsFactionOrMinorRace => Faction > 0 || MinorRace;
 
         public EmpireData()
         {
@@ -239,19 +241,6 @@ namespace Ship_Game
         public EmpireData GetClone()
         {
             return (EmpireData)MemberwiseClone();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~EmpireData() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-
         }
     }
 } 
