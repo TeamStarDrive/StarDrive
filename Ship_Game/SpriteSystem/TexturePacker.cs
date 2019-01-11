@@ -60,8 +60,9 @@ namespace Ship_Game.SpriteSystem
             return packed;
         }
 
-        static bool IsTextureTooBig(TextureInfo t)
+        static bool IsExcludedFromPack(TextureInfo t)
         {
+            if (t.NoPack) return true; // NoPack already set by someone
             t.NoPack = (t.Width + t.Height) > MaxWidthHeightSum;
             return t.NoPack;
         }
@@ -108,7 +109,7 @@ namespace Ship_Game.SpriteSystem
             for (int i = 0; i < textures.Length; ++i)
             {
                 TextureInfo t = textures[i];
-                if (IsTextureTooBig(t) || FillFreeSpot(i, t))
+                if (IsExcludedFromPack(t) || FillFreeSpot(i, t))
                     continue;
 
                 if (t.Width > Width)
