@@ -472,7 +472,7 @@ namespace Ship_Game
 
         public Map<string, bool> GetHDict() => UnlockedHullsDict;
 
-        public bool IsHullUnlocked(string hullName) => UnlockedHullsDict.TryGetValue(hullName, out bool unlocked) && unlocked;
+        public bool IsHullUnlocked(string hullName) => UnlockedHullsDict.Get(hullName, out bool unlocked) && unlocked;
 
         public Map<string, bool> GetTrDict() => UnlockedTroopDict;
 
@@ -597,7 +597,7 @@ namespace Ship_Game
 
             InitTechs();
 
-            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull] = false;
+            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull] = false;
             foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
             foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
@@ -764,10 +764,10 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull] = false;
-            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
-            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
-            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
+            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull]  = false;
+            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]         = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]   = false;
             UnlockedTroops.Clear();
 
             // unlock from empire data file

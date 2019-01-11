@@ -14,6 +14,11 @@ using System.Xml.Serialization;
 
 namespace Ship_Game.Ships
 {
+    // @note
+    // ShipData templates from root content and save designs is loaded using SDNative
+    // Game Save/Load uses a separate serializer which used to be XML, but now is Json
+    // @note Saving ShipData designs is still done in XML -- should change that!
+    //       However, we will have to support XML for a long time to have backwards compat.
     public sealed class ShipData
     {
         public bool Animated;
@@ -22,7 +27,7 @@ namespace Ship_Game.Ships
         public byte experience;
         public byte Level;
         public string SelectionGraphic = "";
-        public string Name;
+        public string Name; // ex: "Dodaving", just an arbitrary name
         public bool HasFixedCost;
         public short FixedCost;
         public bool HasFixedUpkeep;
@@ -33,7 +38,7 @@ namespace Ship_Game.Ships
         public CombatState CombatState = CombatState.AttackRuns;
         public float MechanicalBoardingDefense;
 
-        public string Hull;
+        public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
         public RoleName Role = RoleName.fighter;
         public Array<ShipToolScreen.ThrusterZone> ThrusterList;
         public string ModelPath;
@@ -79,7 +84,7 @@ namespace Ship_Game.Ships
         public void UpdateBaseHull()
         {
             if (BaseHull == null)
-                BaseHull = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
+                BaseHull = ResourceManager.Hull(Hull, out ShipData hull) ? hull : this;
 
             if (Bonuses == null)
                 Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;

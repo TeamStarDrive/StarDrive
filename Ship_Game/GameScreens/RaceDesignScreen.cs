@@ -1692,10 +1692,8 @@ namespace Ship_Game
                 case StarNum.SuperPacked: modifier = 2.00f; break;
             }
 
-            ExitScreen();
-            ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, Galaxysize.ToString(), modifier, 
-                                                              SelectedData.Traits.Name, numOpponents, mode, 
-                                                              GameScale, difficulty, mmscreen));
+            ScreenManager.GoToScreen(new CreatingNewGameScreen(playerEmpire, Galaxysize.ToString(), modifier, 
+                                                              numOpponents, mode, GameScale, difficulty, mmscreen));
             UniverseScreen.GamePaceStatic = (int)(Pacing / 100f);
         }
 
