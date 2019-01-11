@@ -362,7 +362,7 @@ namespace Ship_Game.AI
                 foreach (Planet p in kv.Key.PlanetList)
                 {
                     if (Us.isPlayer && p.colonyType != Planet.ColonyType.Military) continue;
-                    float devratio = (p.DevelopmentLevel + 1) / (kv.Value.SystemDevelopmentlevel + 1);
+                    float devratio = (p.Level + 1) / (kv.Value.SystemDevelopmentlevel + 1);
                     if (!kv.Key.CombatInSystem
                         && p.GetDefendingTroopCount() > kv.Value.IdealTroopCount * devratio)
                     {

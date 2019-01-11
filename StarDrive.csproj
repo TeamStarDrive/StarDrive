@@ -327,6 +327,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_ConstructionQueue.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_EvaluateBuildings.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Generate.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Govern.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Resources.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />

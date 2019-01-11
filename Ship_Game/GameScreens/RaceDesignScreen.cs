@@ -904,8 +904,7 @@ namespace Ship_Game
             HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
             FlagRect = new Rectangle((int)FlagPos.X + 16, (int)FlagPos.Y + 15, 80, 80);
-            KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[FlagIndex];
-            batch.Draw(item.Value, FlagRect, currentObjectColor);
+            batch.Draw(ResourceManager.Flag(FlagIndex), FlagRect, currentObjectColor);
             FlagLeft = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
@@ -1459,7 +1458,7 @@ namespace Ship_Game
                 }
                 if (FlagRight.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
-                    if (ResourceManager.FlagTextures.Count - 1 <= FlagIndex)
+                    if (ResourceManager.NumFlags - 1 <= FlagIndex)
                         FlagIndex = 0;
                     else
                         FlagIndex = FlagIndex + 1;
@@ -1468,7 +1467,7 @@ namespace Ship_Game
                 if (FlagLeft.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     if (FlagIndex <= 0)
-                        FlagIndex = ResourceManager.FlagTextures.Count - 1;
+                        FlagIndex = ResourceManager.NumFlags - 1;
                     else
                         FlagIndex = FlagIndex - 1;
                     GameAudio.PlaySfxAsync("blip_click");

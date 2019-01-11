@@ -142,7 +142,7 @@ namespace Ship_Game
             }
             batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(384), ":"), PNameCursor, Color.Orange);
             Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.Type, InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.CategoryName, InfoCursor, new Color(255, 239, 208));
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), PNameCursor, Color.Orange);
@@ -224,7 +224,7 @@ namespace Ship_Game
                 }
                 DrawPGSIcons(pgs);
             }
-            batch.Draw(ResourceManager.Texture(string.Concat("PlanetTiles/", SelectedPlanet.GetTile())), buildingsRect, Color.White);
+            batch.Draw(ResourceManager.Texture(string.Concat("PlanetTiles/", SelectedPlanet.PlanetTileId)), buildingsRect, Color.White);
     
             int xpos = (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - MapRect.Width) / 2;
             int ypos = (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - MapRect.Height) / 2;

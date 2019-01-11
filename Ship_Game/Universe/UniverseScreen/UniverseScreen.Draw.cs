@@ -451,7 +451,7 @@ namespace Ship_Game
                 }
             }
 
-            DrawTacticalPlanetIcons();
+            DrawTacticalPlanetIcons(batch);
             if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
             {
                 var inhibit = ResourceManager.Texture("UI/node_inhibit");
@@ -593,7 +593,7 @@ namespace Ship_Game
                 ShipInfoUIElement.ShipNameArea.HandlingInput = false;
             DrawToolTip();
             if (!LookingAtPlanet)
-                NotificationManager.Draw();
+                NotificationManager.Draw(batch);
 
             if (Debug && showdebugwindow)
                 DebugWin.Draw(gameTime);
@@ -739,7 +739,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawTacticalPlanetIcons()
+        private void DrawTacticalPlanetIcons(SpriteBatch batch)
         {
             if (LookingAtPlanet || viewState <= UnivScreenState.SystemView 
                 ||viewState >= UnivScreenState.GalaxyView)
@@ -771,48 +771,22 @@ namespace Ship_Game
                     }
                    
                     float fIconScale = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
-                    if (planet.Owner != null && wellKnown )
-                    {
 
-                        Vector3 vector3 =
-                            Viewport.Project(new Vector3(planet.Center, 2500f),
-                                projection, view, Matrix.Identity);
-                        Vector2 position = new Vector2(vector3.X, vector3.Y);
-                        Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
-                        Vector2 origin = new Vector2(
-                            ResourceManager.Texture("Planets/" + planet.PlanetType).Width /
-                            2f,
-                            ResourceManager.Texture("Planets/" + planet.PlanetType).Height /
-                            2f);
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Planets/" + planet.PlanetType), position, Color.White,
-                            0.0f, origin, fIconScale, SpriteEffects.None, 1f);
-                        origin =
-                            new Vector2(
-                                ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
-                                    .Value.Width / 2,
-                                ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
-                                    .Value.Height / 2);
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value, position,
-                            new Rectangle?(), planet.Owner.EmpireColor, 0.0f, origin, 0.045f, SpriteEffects.None,
-                            1f);
+                    Vector3 vector3 = Viewport.Project(new Vector3(planet.Center, 2500f), projection, view, Matrix.Identity);
+                    var position = new Vector2(vector3.X, vector3.Y);
+                    SubTexture planetTex = ResourceManager.Texture("Planets/" + planet.PlanetType);
+
+                    if (planet.Owner != null && wellKnown)
+                    {
+                        batch.Draw(planetTex, position, Color.White,
+                                   0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
+                        SubTexture flag = ResourceManager.Flag(planet.Owner);
+                        batch.Draw(flag, position, planet.Owner.EmpireColor, 0.0f, flag.CenterF, 0.045f, SpriteEffects.None, 1f);
                     }
                     else
                     {
-                        Vector3 vector3 =
-                            Viewport.Project(new Vector3(planet.Center, 2500f),
-                                projection, view, Matrix.Identity);
-                        Vector2 position = new Vector2(vector3.X, vector3.Y);
-                        Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
-                        Vector2 origin = new Vector2(
-                            ResourceManager.Texture("Planets/" + planet.PlanetType).Width /
-                            2,
-                            ResourceManager.Texture("Planets/" + planet.PlanetType).Height /
-                            2f);
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Planets/" + planet.PlanetType), position, Color.White,
-                            0.0f, origin, fIconScale, SpriteEffects.None, 1f);
+                        batch.Draw(planetTex, position, Color.White,
+                                   0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
                     }
                 }
             }

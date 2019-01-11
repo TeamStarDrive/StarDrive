@@ -263,7 +263,9 @@ namespace Ship_Game.Ships
             int columns = Orders.Count / 2 + Orders.Count % 2;
             SlidingElement.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
             DrawOrderButtons(transitionOffset);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
+
+            SpriteBatch batch = ScreenManager.SpriteBatch;
+            batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             Gridbutton.Draw(ScreenManager);
             var namePos           = new Vector2(Housing.X + 30, Housing.Y + 63);
             string name           = (!string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name);
@@ -275,40 +277,38 @@ namespace Ship_Game.Ships
                 namePos.X = namePos.X - 8;
                 namePos.Y = namePos.Y + 1;
             }
-            ShipNameArea.Draw(TitleFont, ScreenManager.SpriteBatch, namePos, gameTime, tColor);
+            ShipNameArea.Draw(TitleFont, batch, namePos, gameTime, tColor);
             //Added by McShooterz:
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
             string longName = string.Concat(Ship.Name, " - ", Ship.DesignRole);
             if (Ship.shipData.ShipCategory != ShipData.Category.Unclassified)
                 longName += string.Concat(" - ", Ship.shipData.GetCategory());
-            ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
+            batch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 
             string text;
             Vector2 shipStatus              = new Vector2(Sel.Rect.X + Sel.Rect.Width - 170, Housing.Y + 68);
             text                            = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(Ship), 155f);
             HelperFunctions.ClampVectorToInt(ref shipStatus);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, shipStatus, tColor);
+            batch.DrawString(Fonts.Arial10, text, shipStatus, tColor);
             shipStatus.Y                    = shipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
-            Ship.RenderOverlay(ScreenManager.SpriteBatch, ShipInfoRect, ShowModules);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/NuclearReactorMedium"), Power, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/Shield_1KW"), Shields, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
+            Ship.RenderOverlay(batch, ShipInfoRect, ShowModules);
+            batch.Draw(ResourceManager.Texture("Modules/NuclearReactorMedium"), Power, Color.White);
+            batch.Draw(ResourceManager.Texture("Modules/Shield_1KW"), Shields, Color.White);
+            batch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
             PBar.Max                        = Ship.PowerStoreMax;
             PBar.Progress                   = Ship.PowerCurrent;
-            PBar.Draw(ScreenManager.SpriteBatch);
+            PBar.Draw(batch);
             SBar.Max                        = Ship.shield_max;
             SBar.Progress                   = Ship.shield_power;
-            SBar.Draw(ScreenManager.SpriteBatch);
+            SBar.Draw(batch);
             OBar.Max                        = Ship.OrdinanceMax;
             OBar.Progress                   = Ship.Ordinance;
-            OBar.Draw(ScreenManager.SpriteBatch);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
-            Vector2 defPos                  = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            SpriteBatch spriteBatch         = ScreenManager.SpriteBatch;
-            SpriteFont arial12Bold          = Fonts.Arial12Bold;
+            OBar.Draw(batch);
+            batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
+            var defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             float mechanicalBoardingDefense = Ship.MechanicalBoardingDefense + Ship.TroopBoardingDefense;
-            spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.String(0), defPos, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
+            batch.DrawString(Fonts.Arial12Bold, mechanicalBoardingDefense.String(0), defPos, Color.White);
+            batch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
             DrawTroopStatus();
 
             if (Ship.loyalty == EmpireManager.Player)
@@ -322,9 +322,7 @@ namespace Ship_Game.Ships
             else  //fbedard: Display race icon of enemy ship in Ship UI
             {
                 var flagShip = new Rectangle(FlagRect.X + 190, FlagRect.Y + 130, 40, 40);
-                SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
-                KeyValuePair<string, Texture2D> keyValuePair = ResourceManager.FlagTextures[Ship.loyalty.data.Traits.FlagIndex];
-                spriteBatch1.Draw(keyValuePair.Value, flagShip, Ship.loyalty.EmpireColor);
+                batch.Draw(ResourceManager.Flag(Ship.loyalty), flagShip, Ship.loyalty.EmpireColor);
             }
 
             Vector2 mousePos = Mouse.GetState().Pos();
@@ -332,8 +330,8 @@ namespace Ship_Game.Ships
             //Added by McShooterz: new experience level display
             var star = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
             var levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Ship.Level.ToString(), levelPos, Color.White);
+            batch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
+            batch.DrawString(Fonts.Arial12Bold, Ship.Level.ToString(), levelPos, Color.White);
             if (star.HitTest(mousePos))
             {
                 ToolTip.CreateTooltip(161);
@@ -341,22 +339,22 @@ namespace Ship_Game.Ships
             //Added by McShooterz: kills display
             star = new Rectangle(star.X, star.Y + 19, 22, 22);
             levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_kills_shipUI"), star, Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Ship.kills.ToString(), levelPos, Color.White);
+            batch.Draw(ResourceManager.Texture("UI/icon_kills_shipUI"), star, Color.White);
+            batch.DrawString(Fonts.Arial12Bold, Ship.kills.ToString(), levelPos, Color.White);
             var statusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             int numStatus = 0;
 
             void DrawIconWithTooltip(SubTexture icon, Color color, Func<string> tooltip)
             {
                 var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                ScreenManager.SpriteBatch.Draw(icon, rect, color);
+                batch.Draw(icon, rect, color);
                 if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
                 ++numStatus;
             }
             void DrawIconWithTooltipId(SubTexture icon, int tooltip)
             {
                 var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                ScreenManager.SpriteBatch.Draw(icon, rect, Color.White);
+                batch.Draw(icon, rect, Color.White);
                 if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip);
                 ++numStatus;
             }
@@ -373,10 +371,10 @@ namespace Ship_Game.Ships
             if (Ship.loyalty.data.Traits.Pack)
             {
                 var packRect         = new Rectangle((int)statusArea.X, (int)statusArea.Y, 48, 32);
-                ScreenManager.SpriteBatch.Draw(iconPack, packRect, Color.White);
+                batch.Draw(iconPack, packRect, Color.White);
                 var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
                 float damageModifier = Ship.PackDamageModifier * 100f;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
+                batch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
                 if (packRect.HitTest(mousePos))
                 {
                     ToolTip.CreateTooltip(Localizer.Token(2245));
@@ -385,17 +383,17 @@ namespace Ship_Game.Ships
             }
 
             DrawCarrierStatus(mousePos);
-            DrawResuplyReason(Ship);
+            DrawResupplyReason(Ship);
             if (Ship.CargoSpaceUsed > 0f)
             {
                 foreach (Cargo cargo in Ship.EnumLoadedCargo())
                 {
                     SubTexture texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
                     var goodRect      = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 32, 32);
-                    ScreenManager.SpriteBatch.Draw(texture, goodRect, Color.White);
+                    batch.Draw(texture, goodRect, Color.White);
 
                     var textPos = new Vector2(goodRect.X + 32, goodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, cargo.Amount.ToString("0"), textPos, Color.White);
+                    batch.DrawString(Fonts.Arial12, cargo.Amount.ToString("0"), textPos, Color.White);
 
                     if (goodRect.HitTest(mousePos))
                     {
@@ -433,7 +431,7 @@ namespace Ship_Game.Ships
                 DrawIconWithTooltip(iconDisabled, Color.White, () => Localizer.Token(1975));
                 var textPos = new Vector2((int)statusArea.X - 20 + numStatus * 53, (int)statusArea.Y);
                 float empState = Ship.EMPDamage / Ship.EmpTolerance;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, empState.String(1), textPos, Color.White);
+                batch.DrawString(Fonts.Arial12, empState.String(1), textPos, Color.White);
             }
             if (Ship.InternalSlotsHealthPercent < 1f)
             {
@@ -441,11 +439,11 @@ namespace Ship_Game.Ships
                 var textPos = new Vector2((int)statusArea.X -20 + numStatus * 53 , (int)statusArea.Y + 15);
                 float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / ShipResupply.ShipDestroyThreshold) * 100 ;
                 structureIntegrity = Math.Max(1, structureIntegrity);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, structureIntegrity.String(0)+ "%", textPos, Color.White);
+                batch.DrawString(Fonts.Arial12, structureIntegrity.String(0)+ "%", textPos, Color.White);
             }
         }
 
-        private void DrawResuplyReason(Ship ship)
+        private void DrawResupplyReason(Ship ship)
         {
             string text = "";
             Color color = Color.Red;
