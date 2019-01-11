@@ -46,7 +46,7 @@ namespace Ship_Game.AI {
                     {
                         if (p.Owner != OwnerEmpire)
                             continue;
-                        devLevelos += p.DevelopmentLevel;
+                        devLevelos += p.Level;
                     }
                     if (devLevelos == 0)
                         continue;
@@ -66,7 +66,7 @@ namespace Ship_Game.AI {
                         {
                             if (p.Owner != OwnerEmpire)
                                 continue;
-                            devLevel += p.DevelopmentLevel;
+                            devLevel += p.Level;
                         }
                         if (!createRoad)                        
                             continue;

@@ -21,7 +21,7 @@ namespace Ship_Game.Universe.SolarBodies
         private Vector2 Center => SolarSystemBody.Center;
         private SceneObject SO => SolarSystemBody.SO;
         private bool HasSpacePort => SolarSystemBody.HasShipyard;
-        private int DevelopmentLevel => SolarSystemBody.DevelopmentLevel;
+        private int Level => SolarSystemBody.Level;
         private Map<Guid,Ship> Stations => SolarSystemBody.Shipyards;
         private float RepairPerTurn => SolarSystemBody.RepairPerTurn;        
         
@@ -300,7 +300,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
             else
             {
-                float supply = DevelopmentLevel;
+                float supply = Level;
                 supply      *= HasSpacePort ? 5f : 2f;
                 supply      *= ship.InCombat ? 0.1f : 10f;
                 supply       = Math.Max(.1f, supply);
@@ -311,7 +311,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         private float CalcRepairPool()
         {
-            float repairPool = DevelopmentLevel * RepairPerTurn * 10 * (2 - SolarSystemBody.ShipBuildingModifier);
+            float repairPool = Level * RepairPerTurn * 10 * (2 - SolarSystemBody.ShipBuildingModifier);
             foreach (Ship station in Stations.Values)
             {
                 repairPool += station.RepairRate;
@@ -329,7 +329,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (ship.InCombat)
                 repairPool /= 10; // allow minimal repair for ships near space port even in combat, per turn (good for ships which lost command modules)
 
-            int repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
+            int repairLevel = Level + CountShipYards();
             ship.ApplyAllRepair(repairPool, repairLevel, repairShields: true);
         }
 
