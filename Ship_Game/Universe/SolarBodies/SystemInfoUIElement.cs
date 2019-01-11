@@ -70,6 +70,8 @@ namespace Ship_Game
 
         public void DrawInPosition(GameTime gameTime)
         {
+            SpriteBatch batch = ScreenManager.SpriteBatch;
+
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             SystemInfoUIElement clickTimer = this;
             clickTimer.ClickTimer = clickTimer.ClickTimer + elapsedTime;
@@ -85,9 +87,7 @@ namespace Ship_Game
             {
                 pRadius = 5f;
             }
-            Rectangle rectangle = new Rectangle((int)pPos.X - (int)pRadius, (int)pPos.Y - (int)pRadius, (int)pRadius * 2, (int)pRadius * 2);
             ScreenManager.SpriteBatch.BracketRectangle(pPos, pRadius, Color.White);
-            float count = 0.4f / s.PlanetList.Count;
             if (SelectionTimer > 0.4f)
             {
                 SelectionTimer = 0.4f;
@@ -256,9 +256,7 @@ namespace Ship_Game
                             Rectangle flagRect = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 10, PlanetRect.Y - 20, 20, 20);
                             if (p.Owner != null)
                             {
-                                ScreenManager screenManager = ScreenManager;
-                                KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[p.Owner.data.Traits.FlagIndex];
-                                HelperFunctions.DrawDropShadowImage(screenManager, flagRect, item.Value, p.Owner.EmpireColor);
+                                HelperFunctions.DrawDropShadowImage(batch, flagRect, ResourceManager.Flag(p.Owner), p.Owner.EmpireColor);
                             }
                             Rectangle fIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)PlanetTypeCursor.Y + Spacing, 10, 10);
                             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);

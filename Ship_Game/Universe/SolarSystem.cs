@@ -195,7 +195,7 @@ namespace Ship_Game
             return null;
         }
 
-        private static void AddMajorRemnantPresence(Planet newOrbital)
+        static void AddMajorRemnantPresence(Planet newOrbital)
         {
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
             {
@@ -212,7 +212,7 @@ namespace Ship_Game
             }
         }
 
-        private static void AddMinorRemnantPresence(Planet newOrbital)
+        static void AddMinorRemnantPresence(Planet newOrbital)
         {
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
             {
@@ -228,41 +228,41 @@ namespace Ship_Game
             }
         }
 
-        private static void AddMiniRemnantPresence(Planet newOrbital)  //Added by Gretman
+        static void AddMiniRemnantPresence(Planet newOrbital)  //Added by Gretman
         {
             newOrbital.Guardians.Add("Xeno Fighter");
             newOrbital.Guardians.Add("Xeno Fighter");
             newOrbital.Guardians.Add("Heavy Drone");
         }
 
-        private static void AddSupportRemnantPresence(Planet newOrbital)  //Added by Gretman
+        static void AddSupportRemnantPresence(Planet newOrbital)  //Added by Gretman
         {
             newOrbital.Guardians.Add("Support Drone");
             newOrbital.Guardians.Add("Support Drone");
         }
 
-        private static void AddCarrierRemnantPresence(Planet newOrbital)  //Added by Gretman
+        static void AddCarrierRemnantPresence(Planet newOrbital)  //Added by Gretman
         {
             newOrbital.Guardians.Add("Ancient Carrier");
         }
 
-        private static void AddTorpedoRemnantPresence(Planet newOrbital)  //Added by Gretman
+        static void AddTorpedoRemnantPresence(Planet newOrbital)  //Added by Gretman
         {
             newOrbital.Guardians.Add("Ancient Torpedo Cruiser");
         }
 
-        private static void AddRemnantPatrol(Planet newOrbital, UniverseData data)
+        static void AddRemnantPatrol(Planet newOrbital)
         {
             newOrbital.PlanetFleets.Add("Remnant Patrol");
         }
 
-        private static void AddRemnantGarrison(Planet newOrbital, UniverseData data)
+        static void AddRemnantGarrison(Planet newOrbital)
         {
             newOrbital.PlanetFleets.Add("Remnant Garrison");
         }
 
         // @todo This method is huge, find a way to generalize the logic, perhaps by changing the logic into something more generic
-        private static void GenerateRemnantPresence(Planet newOrbital, UniverseData data)
+        static void GenerateRemnantPresence(Planet newOrbital, UniverseData data)
         {
             float quality = newOrbital.Fertility + newOrbital.MineralRichness + newOrbital.MaxPopulation / 1000f;
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
@@ -270,8 +270,8 @@ namespace Ship_Game
                 if (quality > 6f && quality < 10f)
                 {
                     int n = RandomMath.IntBetween(0, 100);
-                    if (n > 20 && n < 50) AddRemnantPatrol(newOrbital, data);
-                    else if (n >= 50)   AddRemnantGarrison(newOrbital, data);
+                    if (n > 20 && n < 50) AddRemnantPatrol(newOrbital);
+                    else if (n >= 50)   AddRemnantGarrison(newOrbital);
                 }
                 else if (quality > 10f)
                 {
