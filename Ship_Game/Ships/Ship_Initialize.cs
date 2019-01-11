@@ -138,6 +138,8 @@ namespace Ship_Game.Ships
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.Name;
 
+            HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid); // FB: need to add here if guid not empty to increase pperformance
+
             if (!ResourceManager.ShipTemplateExists(save.Name))
             {
                 save.data.Hull = save.Hull;

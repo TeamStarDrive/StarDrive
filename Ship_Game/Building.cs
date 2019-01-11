@@ -127,7 +127,7 @@ namespace Ship_Game
         public void UpdateCurrentDefenseShips(int num)
         {
             if (DefenseShipsCapacity > 0)
-                CurrentNumDefenseShips += num;
+                CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0,DefenseShipsCapacity);
         }
 
         public float ActualMaintenance(Planet p) => Maintenance + Maintenance * p.Owner.data.Traits.MaintMod;
