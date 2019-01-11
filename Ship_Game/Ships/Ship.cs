@@ -2619,7 +2619,7 @@ namespace Ship_Game.Ships
                     continue;
 
                 Building template = ResourceManager.GetBuildingTemplate(slot.DeployBuildingOnColonize);
-                if (template.Unique && colonizeTarget.BuildingExists(slot.DeployBuildingOnColonize))
+                if (template.Unique && colonizeTarget.BuildingExists(template))
                     continue;
 
                 Building building = ResourceManager.CreateBuilding(template);

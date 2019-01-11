@@ -227,7 +227,7 @@ namespace Ship_Game
             newOrbital.SetPlanetAttributes(26f);
             newOrbital.ChangeFertility(2f + data.Traits.HomeworldFertMod);
             newOrbital.MineralRichness = 1f + data.Traits.HomeworldRichMod;
-            newOrbital.MaxPopBase      = 14000f + 14000f * data.Traits.HomeworldSizeMod;
+            newOrbital.MaxPopBase      = 14000f * data.Traits.HomeworldSizeMultiplier;
             newOrbital.Population      = 14000f;
             newOrbital.FoodHere        = 100f;
             newOrbital.ProdHere        = 100f;
@@ -477,7 +477,7 @@ namespace Ship_Game
 
         public Map<string, bool> GetHDict() => UnlockedHullsDict;
 
-        public bool IsHullUnlocked(string hullName) => UnlockedHullsDict.TryGetValue(hullName, out bool unlocked) && unlocked;
+        public bool IsHullUnlocked(string hullName) => UnlockedHullsDict.Get(hullName, out bool unlocked) && unlocked;
 
         public Map<string, bool> GetTrDict() => UnlockedTroopDict;
 
@@ -602,7 +602,7 @@ namespace Ship_Game
 
             InitTechs();
 
-            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull] = false;
+            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull] = false;
             foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
             foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
@@ -769,10 +769,10 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull] = false;
-            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
-            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
-            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
+            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull]  = false;
+            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]         = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]   = false;
             UnlockedTroops.Clear();
 
             // unlock from empire data file
@@ -1598,12 +1598,12 @@ namespace Ship_Game
             else
             {
                 militaryPotential += fertility + p.MineralRichness + p.MaxPopulationBillion;
-                if(p.MaxPopulation >=500)
+                if (p.MaxPopulation >=500)
                 {
                     
                     if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
                         researchPotential = (tech.Cost - Research) / tech.Cost
-                                            * (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500);
+                                            * (p.Fertility*2 + p.MineralRichness + (p.MaxPopulation / 500));
                 }
             }
 

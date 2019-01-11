@@ -287,7 +287,6 @@ namespace Ship_Game
             RandomEventManager.ActiveEvent = null;
             StatTracker.SnapshotsDict.Clear();
             StatTracker.SnapshotsDict = usData.Snapshots;
-            UniverseData.UniverseWidth = usData.Size.X;
             GateKeeper.Set();
         }
 
@@ -752,7 +751,6 @@ namespace Ship_Game
             }
 
             Loaded = true;
-            UniverseData.UniverseWidth = data.Size.X ;
         }
 
         private void AddShipFromSaveData(SavedGame.ShipSaveData shipSave, Empire e)

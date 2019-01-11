@@ -517,7 +517,7 @@ namespace Ship_Game.AI
 
                     foreach (var hull in econ.Tech.HullsUnlocked)
                     {
-                        if (!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
+                        if (!ResourceManager.Hull(hull.Name, out ShipData hullData) || hullData == null) continue;
                         switch (hullData.HullRole)
                         {
                             case ShipData.RoleName.station:

@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -339,7 +340,7 @@ namespace Ship_Game
 					}
 					else
 					{
-                        var unlocked = ResourceManager.HullsDict[gridItem.item.HullUnlocked];
+                        ShipData unlocked = ResourceManager.Hull(gridItem.item.HullUnlocked);
                         ToolTip.CreateTooltip($"{unlocked.Name} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
 					}
 				}

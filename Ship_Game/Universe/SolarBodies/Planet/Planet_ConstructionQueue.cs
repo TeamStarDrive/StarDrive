@@ -28,10 +28,7 @@ namespace Ship_Game
                 if (!needCommandBuilding && b.IsCapitalOrOutpost)
                     continue;
                 // Make sure the building isn't already built on this planet
-                if (b.Unique && IsBuildingPresent(b))
-                    continue;
-                // Make sure the building isn't already being built on this planet
-                if (b.Unique && IsAlreadyInCQueue(b))
+                if (b.Unique && BuildingExists(b))
                     continue;
                 // Hide Biospheres if the entire planet is already habitable
                 if (b.IsBiospheres && AllTilesHabitable())
@@ -49,24 +46,14 @@ namespace Ship_Game
         {
             // Check for this unique building across the empire
             foreach (Planet planet in Owner.GetPlanets())
-                if (planet.IsBuildingPresent(b) || planet.IsAlreadyInCQueue(b))
+                if (planet.BuildingExists(b))
                     return true;
             return false;
-        }
-
-        bool IsAlreadyInCQueue(Building b)
-        {
-            return ConstructionQueue.Any(q => q.isBuilding && q.Building.BID == b.BID);
         }
 
         bool AllTilesHabitable()
         {
             return TilesList.All(tile => tile.Habitable);
-        }
-
-        bool IsBuildingPresent(Building b)
-        {
-            return BuildingList.Any(existing => existing.BID == b.BID);
         }
 
         
@@ -107,31 +94,22 @@ namespace Ship_Game
             return totalTurns;
         }
 
-        public bool BuildingInQueue(string UID)
+        public bool BuildingInQueue(int buildingId)
         {
-            for (int index = 0; index < ConstructionQueue.Count; ++index)
-            {
-                if (ConstructionQueue[index].isBuilding && ConstructionQueue[index].Building.Name == UID)
-                    return true;
-            }
-            return false;
-        }
-
-        public bool BuildingExists(string buildingName)
-        {
-            for (int i = 0; i < BuildingList.Count; ++i)
-                if (BuildingList[i].Name == buildingName)
-                    return true;
-            return BuildingInQueue(buildingName);
-
+            return ConstructionQueue.Any(q => q.isBuilding && q.Building.BID == buildingId);
         }
         
+        public bool BuildingExists(int buildingId)
+        {
+            return BuildingList.Any(existing => existing.BID == buildingId)
+                || BuildingInQueue(buildingId);
+        }
+
+        public bool BuildingExists(Building b) => BuildingExists(b.BID);
+
         public bool CanBuildInfantry()
         {
-            for (int i = 0; i < BuildingList.Count; i++)
-                if (BuildingList[i].AllowInfantry)
-                    return true;
-            return false;
+            return BuildingList.Any(b => b.AllowInfantry);
         }
     }
 }
