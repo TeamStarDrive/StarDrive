@@ -65,8 +65,8 @@ namespace Ship_Game
         
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
         
-        public bool IsCybernetic  => Owner.IsCybernetic;
-        public bool NonCybernetic => Owner.NonCybernetic;
+        public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
+        public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
 
         void CreateManagers()
         {
