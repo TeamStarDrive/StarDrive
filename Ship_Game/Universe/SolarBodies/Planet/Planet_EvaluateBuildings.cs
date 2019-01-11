@@ -649,7 +649,7 @@ namespace Ship_Game
 
             bool hasShipyard = ConstructionQueue.Any(q => q.isShip && q.sData.IsShipyard);
 
-            if (!hasShipyard && DevelopmentLevel > 2)
+            if (!hasShipyard && IsVibrant)
             {
                 ConstructionQueue.Add(new QueueItem(this)
                 {

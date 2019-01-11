@@ -18,7 +18,7 @@ namespace Ship_Game.AI
             NumberOfShipGoals = 0;
             foreach (Planet p in OwnerEmpire.GetPlanets())
             {
-                if (p.DevelopmentLevel < 3 || p.TotalTurnsInConstruction > 10)
+                if (p.IsMeagerOrBarren || p.TotalTurnsInConstruction > 10)
                     continue;
 
                 NumberOfShipGoals++;
