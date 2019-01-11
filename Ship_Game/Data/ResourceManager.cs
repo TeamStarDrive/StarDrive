@@ -874,35 +874,17 @@ namespace Ship_Game
             return allFiles.ToArray();
         }
 
-        static readonly HashSet<string> AtlasExNames = new HashSet<string>();
-        static readonly HashSet<string> AtlasExFolders = new HashSet<string>();
-
         // Any non-trivial 3D-models can't handle texture atlases
         // It's a significant limitation :(
         // This is a HACK to circumvent the issue
-        public static HashSet<string> AtlasExcludeTextures
+        public static readonly HashSet<string> AtlasExcludeTextures = new HashSet<string>(new []
         {
-            get
-            {
-                if (AtlasExNames.Count == 0)
-                {
-                    AtlasExNames.Add("Atmos");
-                }
-                return AtlasExNames;
-            }
-        }
-        public static HashSet<string> AtlasExcludeFolder
+            "Atmos"
+        });
+        public static readonly HashSet<string> AtlasExcludeFolder = new HashSet<string>(new []
         {
-            get
-            {
-                if (AtlasExFolders.Count == 0)
-                {
-                    AtlasExFolders.Add("Suns");
-                    AtlasExFolders.Add("Beams");
-                }
-                return AtlasExFolders;
-            }
-        }
+            "Suns", "Beams"
+        });
 
         static void LoadAtlas(string folder)
         {
