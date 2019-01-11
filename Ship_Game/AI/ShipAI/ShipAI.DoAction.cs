@@ -842,7 +842,7 @@ namespace Ship_Game.AI
                     Owner.Mothership.TroopList.Add(Owner.TroopList[0]);
                 if (Owner.shipData.Role == ShipData.RoleName.supply) //fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
-                Owner.ApplyFighterLaunchCost(false); //fbedard: New spawning cost
+                Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd);
 
                 Owner.QueueTotalRemoval();
                 foreach (ShipModule hangar in Owner.Mothership.Carrier.AllActiveHangars)
@@ -892,11 +892,16 @@ namespace Ship_Game.AI
                 }
             }
             ThrustTowardsPosition(Owner.HomePlanet.Center, elapsedTime, Owner.Speed);
-            if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.Mothership.Radius + 300f))
+            if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.HomePlanet.ObjectRadius))
             {
-                Owner.loyalty.UpdateMoney(Owner.BaseCost * Owner.HealthPercent);
-                Owner.HomePlanet.LandDefenseShip(Owner.DesignRole, Owner.BaseCost * Owner.HealthPercent);
+                Owner.HomePlanet.LandDefenseShip(Owner.DesignRole, Owner.BaseCost, Owner.HealthPercent);
                 Owner.QueueTotalRemoval();
+            }
+            if (Owner.InCombat)
+            {
+                OrderQueue.Clear();
+                HasPriorityOrder = false;
+                State = AIState.AwaitingOrders;
             }
         }
 

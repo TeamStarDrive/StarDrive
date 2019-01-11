@@ -251,8 +251,10 @@ namespace Ship_Game
                 {
                     Ship ship = ParentSystem.ShipList[j];
                     if (ship.loyalty == Owner)
-                            defenseShipNameStillOut = ship.HomePlanet == this;
-
+                    {
+                        defenseShipNameStillOut = ship.HomePlanet == this;
+                        continue;
+                    }
                     if (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
                         continue;
                     float currentD = Vector2.Distance(Center, ship.Center);
@@ -303,7 +305,10 @@ namespace Ship_Game
             if (defenseShip == null)
                 Log.Warning($"Could not create defense ship, shipname = {selectedShip}");
             else
-                empire.UpdateMoney(-defenseShip.BaseCost);
+            {
+                empire.AddMoney(-defenseShip.BaseCost);
+                defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.Speed;
+            }
         }
 
         private static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire)
@@ -311,7 +316,7 @@ namespace Ship_Game
             return ShipBuilder.PickFromCandidates(roleName, empire);
         }
 
-        public void LandDefenseShip(ShipData.RoleName roleName, float shipCost)
+        public void LandDefenseShip(ShipData.RoleName roleName, float shipCost, float shipHealthPercent)
         {
             string shipRole = roleName.ToString();
             for (int i = 0; i < BuildingList.Count; ++i)
@@ -323,7 +328,7 @@ namespace Ship_Game
                     building.UpdateCurrentDefenseShips(1);
                 }
             }
-            Owner.UpdateMoney(shipCost);
+            Owner.AddMoney(shipCost * shipHealthPercent);
         }
 
         void UpdatePlanetaryProjectiles(float elapsedTime)

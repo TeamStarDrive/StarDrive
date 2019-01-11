@@ -1798,6 +1798,10 @@ namespace Ship_Game.Ships
                     HealthMax = RecalculateMaxHealth();
                 }
 
+                // return home if it is a defense ship
+                if (!InCombat && HomePlanet != null)
+                    ReturnHome();
+
                 // Repair
                 if (Health < HealthMax)
                 {
