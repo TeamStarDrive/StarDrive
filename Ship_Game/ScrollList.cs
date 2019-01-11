@@ -345,7 +345,7 @@ namespace Ship_Game
                 }
                 else if (queueItem.isShip)
                 {
-                    spriteBatch.Draw(ResourceManager.HullsDict[queueItem.sData.Hull].Icon, r, Color.White);
+                    spriteBatch.Draw(queueItem.sData.Icon, r, Color.White);
                     spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.sData.Name, tCursor, Color.White);
                     pb.Draw(spriteBatch);
                 }

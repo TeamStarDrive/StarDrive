@@ -118,8 +118,11 @@ namespace Ship_Game
 
             if (input.SpawnRemnantShip)
             {
-                Ship.CreateShipAtPoint(input.EmpireToggle ? "Remnant Mothership" : "Target Dummy",
-                    EmpireManager.Remnants, mouseWorldPos);
+                if (EmpireManager.Remnants == null)
+                    Log.Warning("Remnant faction missing!");
+                else
+                    Ship.CreateShipAtPoint(input.EmpireToggle ? "Remnant Mothership" : "Target Dummy",
+                        EmpireManager.Remnants, mouseWorldPos);
             }
 
             if (input.IsShiftKeyDown && input.WasKeyPressed(Keys.B))
