@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.SpriteSystem;
 
@@ -13,12 +12,12 @@ namespace Ship_Game
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 3; // changing this will force all caches to regenerate
+        const int Version = 4; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
         static bool ExportTextures = false;
-        static bool ExportPng = true; // DEBUG: IF exporting, use PNG
+        static bool ExportPng = true;  // DEBUG: IF exporting, use PNG
         static bool ExportDds = false; // also use DDS?
 
         int Hash;
@@ -29,9 +28,9 @@ namespace Ship_Game
         public int Height { get; private set; }
         public Texture2D Atlas { get; private set; }
 
-                 SubTexture[]            Sorted = Empty<SubTexture>.Array;
-        readonly Map<string, SubTexture> Lookup = new Map<string, SubTexture>();
-        readonly Array<Texture2D>        NonPacked  = new Array<Texture2D>();
+                 SubTexture[]            Sorted    = Empty<SubTexture>.Array;
+        readonly Map<string, SubTexture> Lookup    = new Map<string, SubTexture>();
+        readonly Array<Texture2D>        NonPacked = new Array<Texture2D>();
 
         ~TextureAtlas() { Destroy(); }
         public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
@@ -93,10 +92,10 @@ namespace Ship_Game
             {
                 // We compress the DDS color into DXT5 and then reload it through XNA
                 ImageUtils.ConvertToRGBA(Width, Height, color);
-                ImageUtils.SaveAsDds(texturePath, Width, Height, color);
+                ImageUtils.SaveAsDds(texturePath, Width, Height, color); // save compressed!
                 //ImageUtils.SaveAsPng(TexturePathPNG, Width, Height, atlasColorData); // DEBUG!
 
-                // DXT5 Compressed size in memory is good, but quality sucks!
+                // DXT5 size in mem after loading is 4x smaller than RGBA, but quality sucks!
                 Atlas = Texture2D.FromFile(content.Manager.GraphicsDevice, texturePath);
             }
             else
@@ -110,20 +109,25 @@ namespace Ship_Game
 
         static void ExportTexture(TextureInfo t, AtlasPath path)
         {
-            string prefix = t.NoPack ? "NoPack/" : "";
-            if (ExportPng) t.SaveAsPng($"{path.CacheDir}/{path.Name}/{prefix}{t.Name}.png");
-            if (ExportDds) t.SaveAsDds($"{path.CacheDir}/{path.Name}/{prefix}{t.Name}.dds");
+            string filePathNoExt = path.GetExportPath(t);
+            if (ExportPng) t.SaveAsPng($"{filePathNoExt}.png");
+            if (ExportDds) t.SaveAsDds($"{filePathNoExt}.dds");
         }
 
         void CreateAtlas(GameContentManager content, FileInfo[] textureFiles, AtlasPath path)
         {
-            Stopwatch s = Stopwatch.StartNew();
+            int load = 0, pack = 0, transfer = 0, save = 0;
+            Stopwatch total = Stopwatch.StartNew();
+            Stopwatch perf = Stopwatch.StartNew();
+
             TextureInfo[] textures = LoadTextureInfo(content, textureFiles);
+            load = perf.NextMillis();
 
             var packer = new TexturePacker();
             NumPacked = packer.PackTextures(textures);
             Width = packer.Width;
             Height = packer.Height;
+            pack = perf.NextMillis();
 
             if (NumPacked > 0)
             {
@@ -139,7 +143,10 @@ namespace Ship_Game
                     t.TransferTextureToAtlas(atlasPixels, Width, Height);
                     t.DisposeTexture();
                 }
+                transfer = perf.NextMillis();
+
                 SaveAtlasTexture(content, atlasPixels, path.Texture);
+                save = perf.NextMillis();
             }
 
             foreach (TextureInfo t in textures)
@@ -150,7 +157,9 @@ namespace Ship_Game
 
             SaveAtlasDescriptor(textures, path.Descriptor);
             CreateSortedList();
-            Log.Info($"CreateAtlas {this} elapsed:{s.Elapsed.TotalMilliseconds}ms");
+
+            int elapsed = total.NextMillis();
+            Log.Info($"CreateAtlas {this} t:{elapsed:4}ms l:{load} p:{pack} t:{transfer} s:{save}");
         }
 
         void SaveAtlasDescriptor(TextureInfo[] textures, string descriptorPath)
@@ -212,7 +221,9 @@ namespace Ship_Game
                 LoadTextures(content, textures);
                 CreateSortedList();
             }
-            Log.Info($"LoadAtlas {this} elapsed:{s.Elapsed.TotalMilliseconds}ms");
+
+            int elapsed = s.NextMillis();
+            Log.Info($"LoadAtlas {this} t:{elapsed:4}ms");
             return true; // we loaded everything
         }
 
@@ -276,11 +287,13 @@ namespace Ship_Game
                 Directory.CreateDirectory(CacheDir);
                 Texture    = $"{CacheDir}/{Name}.dds";
                 Descriptor = $"{CacheDir}/{Name}.atlas";
-                if (ExportTextures)
-                {
-                    Directory.CreateDirectory($"{CacheDir}/{Name}");
-                    Directory.CreateDirectory($"{CacheDir}/{Name}/NoPack");
-                }
+            }
+            public string GetExportPath(TextureInfo t)
+            {
+                string prefix = t.NoPack ? "NoPack/" : "";
+                string dir = $"{CacheDir}/{Name}/{prefix}{t.Name}";
+                Directory.CreateDirectory(dir);
+                return dir;
             }
         }
 
