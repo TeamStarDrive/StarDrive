@@ -109,9 +109,7 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture(string.Concat("Planets/", planet.PlanetType)), planetIconRect, Color.White);
             if (planet.Owner != null)
             {
-                SpriteBatch spriteBatch = batch;
-                KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex];
-                spriteBatch.Draw(item.Value, planetIconRect, planet.Owner.EmpireColor);
+                batch.Draw(ResourceManager.Flag(planet.Owner), planetIconRect, planet.Owner.EmpireColor);
             }
             int i = 0;
             Vector2 StatusIcons = new Vector2(PlanetNameRect.X + PlanetNameRect.Width, planetIconRect.Y + 10);
