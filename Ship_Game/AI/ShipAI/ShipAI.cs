@@ -733,6 +733,9 @@ namespace Ship_Game.AI
                     case Plan.ResupplyEscort:
                         DoResupplyEscort(elapsedTime, toEvaluate);
                         break;
+                    case Plan.ReturnHome:
+                        DoReturnHome(elapsedTime);
+                        break;
                     default:
                         break;
                 }
