@@ -67,13 +67,13 @@ namespace Ship_Game
         [Serialize(58)] public BuildingCategory Category = BuildingCategory.General;
         [Serialize(59)] public bool IsPlayerAdded = false;
         [Serialize(60)] public int InvadeInjurePoints;
-        [Serialize(61)] public int NumDefenseShips;
+        [Serialize(61)] public int DefenseShipsCapacity;
         [Serialize(62)] public string DefenseShipsRole;
 
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
         [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
-        [XmlIgnore] [JsonIgnore] public int CurrentNumDefenseShips { get; private set; }
+        [XmlIgnore] [JsonIgnore] public int CurrentNumDefenseShips { get; private set; } 
 
         public override string ToString() => $"BID:{BID}  Name:{Name}  Cost:{Cost}";
         [XmlIgnore][JsonIgnore] public string TranslatedName => Localizer.Token(NameTranslationIndex);
@@ -102,6 +102,7 @@ namespace Ship_Game
         {
             var b = (Building)MemberwiseClone();
             b.TheWeapon = null;
+            b.CurrentNumDefenseShips = b.DefenseShipsCapacity;
             return b;
         }
 
@@ -125,7 +126,7 @@ namespace Ship_Game
 
         public void UpdateCurrentDefenseShips(int num)
         {
-            if (NumDefenseShips > 0)
+            if (DefenseShipsCapacity > 0)
                 CurrentNumDefenseShips += num;
         }
 
