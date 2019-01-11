@@ -5,8 +5,6 @@ please read the steam EULA and understand that game modding is a common concept.
 http://steamcommunity.com/app/252450/discussions/0/385428458177062745/#c365163686048069513
 http://store.steampowered.com/eula/eula_39190
 
-Discord chat discussion available here:
-https://discord.gg/gnQQv5C
 Feel free to drop in for questions, bug reports, requests and what not. 
 
 
@@ -38,7 +36,7 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 * Launch a full build (Build -> Build Solution) to produce the BlackBox StarDrive executable.
 
 * Please install [JetBrains resharper](https://www.jetbrains.com/resharper/download/)
-* Please join the [discord discussion](https://discord.gg/gnQQv5C).
+* Please join the [discord discussion](https://discord.gg/dfvnfH4).
 * Please join the [BlackBox Google Group](https://groups.google.com/forum/#!forum/blackboxmod) for automated bug reports. 
 * Please NOTE: if the **default** Release and Debug configurations *do not work* for you then your setup is incorrect. Contact us. 
 * A list of new guy tasks can be found here [new guy tasks](https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues?component=New+Guy+Tasks%3A+CleanUp&status=open&status=new) These are low priority low impact tasks. Where changes can be made without breaking the game and causing merge issues in most cases. 
