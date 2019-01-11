@@ -187,6 +187,13 @@ namespace Ship_Game
             //Log.Info($"The {empire.Name} have fully explored {Name}");
         }
 
+        public Planet FindPlanet(Guid planetGuid)
+        {
+            foreach (Planet p in PlanetList)
+                if (p.guid == planetGuid)
+                    return p;
+            return null;
+        }
 
         private static void AddMajorRemnantPresence(Planet newOrbital)
         {

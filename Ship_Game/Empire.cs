@@ -2673,6 +2673,14 @@ namespace Ship_Game
 
         }
 
+        public Planet FindPlanet(Guid planetGuid)
+        {
+            foreach (Planet p in this.OwnedPlanets)
+                if (p.guid == planetGuid)
+                    return p;
+            return null;
+        }
+
         public class InfluenceNode
         {
             public Vector2 Position;
