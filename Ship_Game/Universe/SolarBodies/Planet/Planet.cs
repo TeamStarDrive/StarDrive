@@ -223,6 +223,10 @@ namespace Ship_Game
                 float previousD;
                 float previousT;
                 Building building = BuildingList[i];
+                if (building.StorageAdded == 100 && Owner.isPlayer)
+                {
+                    //Log.Info($"warehouse");
+                }
                 if (building.isWeapon)
                 {
                     building.WeaponTimer -= elapsedTime;
