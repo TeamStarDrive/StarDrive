@@ -235,7 +235,7 @@ namespace Ship_Game
             pStorage.Draw();
             subColonyGrid.Draw();
             var destinationRectangle1 = new Rectangle(GridPos.X, GridPos.Y + 1, GridPos.Width - 4, GridPos.Height - 3);
-            batch.Draw(ResourceManager.Texture("PlanetTiles/" + P.GetTile()), destinationRectangle1, Color.White);
+            batch.Draw(ResourceManager.Texture("PlanetTiles/" + P.PlanetTileId), destinationRectangle1, Color.White);
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
                 if (!pgs.Habitable)
@@ -333,7 +333,7 @@ namespace Ship_Game
                 vector2_2.Y += Font20.LineSpacing;
             batch.DrawString(Font12, Localizer.Token(384) + ":", vector2_2, Color.Orange);
             Vector2 position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, P.Type, position3, new Color(255, 239, 208));
+            batch.DrawString(Font12, P.CategoryName, position3, new Color(255, 239, 208));
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(385) + ":", vector2_2, Color.Orange);
@@ -1042,7 +1042,7 @@ namespace Ship_Game
 
                     if (!pgs.Habitable && pgs.building == null)
                     {
-                        if (P.Type == "Barren")
+                        if (P.Category == PlanetCategory.Barren)
                         {
                             spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;

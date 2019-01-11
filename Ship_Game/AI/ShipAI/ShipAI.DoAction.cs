@@ -373,9 +373,7 @@ namespace Ship_Game.AI
                     {
                         foreach (Planet planet in system.PlanetList)
                         {
-                            //some planets don't have Type set and it is null
-                            planet.Type = planet.Type ?? "Other";
-                            planetsTypesNumber.AddToValue(planet.Type, 1);
+                            planetsTypesNumber.AddToValue(planet.CategoryName, 1);
                         }
 
                         foreach (var pair in planetsTypesNumber)
