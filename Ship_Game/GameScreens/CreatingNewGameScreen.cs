@@ -302,7 +302,6 @@ namespace Ship_Game
             var races = new Array<EmpireData>(opponents);
             races.Shuffle();
             races.Resize(Math.Min(races.Count, NumOpponents)); // truncate
-            races.Insert(0, Player.data);
 
             foreach (EmpireData data in races)
             {
