@@ -11,7 +11,7 @@ namespace Ship_Game.SpriteSystem
         // will cause overlap errors
         const int Padding = 2; 
         const int MinFreeSpotSize = 16; // Minimum width/height for recycled free spots
-        const int MaxWidthHeightSum = 920; // tex width+height > this is excluded from packing
+        const int MaxWidthHeightSum = 1024; // tex width+height > this is excluded from packing
 
         public int Width  { get; private set; }
         public int Height { get; private set; }
@@ -60,8 +60,9 @@ namespace Ship_Game.SpriteSystem
             return packed;
         }
 
-        static bool IsTextureTooBig(TextureInfo t)
+        static bool IsExcludedFromPack(TextureInfo t)
         {
+            if (t.NoPack) return true; // NoPack already set by someone
             t.NoPack = (t.Width + t.Height) > MaxWidthHeightSum;
             return t.NoPack;
         }
@@ -108,7 +109,7 @@ namespace Ship_Game.SpriteSystem
             for (int i = 0; i < textures.Length; ++i)
             {
                 TextureInfo t = textures[i];
-                if (IsTextureTooBig(t) || FillFreeSpot(i, t))
+                if (IsExcludedFromPack(t) || FillFreeSpot(i, t))
                     continue;
 
                 if (t.Width > Width)

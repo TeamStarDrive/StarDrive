@@ -799,15 +799,13 @@ namespace Ship_Game
         private float GetPop(Empire e)
         {
             float pop = 0f;
-            HashSet<Planet> planets = new HashSet<Planet>();
+            var planets = new HashSet<Planet>();
 
             if (Traders.Contains(e))
             {
                 foreach (Planet p in e.GetPlanets())
-                {
-                    pop = pop + p.Population;
-                }
-                return pop/1000;
+                    pop += p.Population;
+                return pop / 1000f;
             }
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
@@ -833,12 +831,9 @@ namespace Ship_Game
                 }
             }
 
-
             foreach (Planet p in planets)
-            {
-                pop = pop + p.Population;
-            }
-            return pop/1000;
+                pop += p.Population;
+            return pop / 1000f;
         }
 
         private int ShipCount(Empire e)

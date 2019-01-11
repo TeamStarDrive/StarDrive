@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -7,7 +8,7 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        const int NumEmpires = 2;
+        const int NumOpponents = 1;
         const bool PlayerIsCybernetic = false;
         MicroUniverse Universe;
 
@@ -61,41 +62,52 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
+            //Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
             EmpireManager.Clear();
             ResourceManager.LoadItAll();
             var sandbox = new UniverseData { Size = new Vector2(500000f) };
-            UniverseData.UniverseWidth = sandbox.Size.X * 2;
             CurrentGame.StartNew(sandbox);
             var claimedSpots = new Array<Vector2>();
 
-            EmpireData FindRandomEmpire(bool notFaction, bool cybernetic)
-            {
-                EmpireData[] candidates = ResourceManager.Empires.Filter(data =>
-                {
-                    if (cybernetic && !data.IsCybernetic) return false;
-                    if (notFaction && data.IsFaction)     return false;
-                    return !sandbox.EmpireList.Any(e => e.data == data);
-                });
-                return RandomMath.RandItem(candidates);
-            }
+            EmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(
+                                            d => d.IsCybernetic == PlayerIsCybernetic));
 
-            for (int i = 0; i < NumEmpires; ++i)
-            {
-                bool player = (i == 0);
-                EmpireData data = FindRandomEmpire(notFaction: player,
-                                                   cybernetic: player && PlayerIsCybernetic);
+            EmpireData[] opponents = ResourceManager.MajorRaces.Filter(data => data != player);
 
-                Empire e = EmpireManager.CreateEmpireFromEmpireData(data);
-                sandbox.EmpireList.Add(e);
-                EmpireManager.Add(e);
-                e.data.CurrentAutoScout = e.data.ScoutShip;
-                e.data.CurrentAutoColony = e.data.ColonyShip;
+            var races = new Array<EmpireData>(opponents);
+            races.Shuffle();
+            races.Resize(Math.Min(races.Count, NumOpponents)); // truncate
+            races.Insert(0, player);
+
+            foreach (EmpireData data in races)
+            {
+                Empire e = sandbox.CreateEmpire(data);
+                if (data == player) e.isPlayer = true;
+
+                e.data.CurrentAutoScout     = e.data.ScoutShip;
+                e.data.CurrentAutoColony    = e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = e.data.FreighterShip;
-                e.data.CurrentConstructor = e.data.ConstructorShip;
-                GenerateRandomSysPos(10000, claimedSpots, sandbox);
+                e.data.CurrentConstructor   = e.data.ConstructorShip;
+
+                // Now, generate system for our empire:
+                var system = new SolarSystem();
+                system.Position = GenerateRandomSysPos(10000, claimedSpots, sandbox);
+                system.GenerateStartingSystem(data.Traits.HomeSystemName, sandbox, 1f, e);
+                system.OwnerList.Add(e);
+                sandbox.SolarSystemsList.Add(system);
+
+                foreach (Planet p in system.PlanetList)
+                {
+                    if (e.isPlayer)
+                        p.colonyType = Planet.ColonyType.Colony; // this is required to disable governors... for some reason
+                    p.SetExploredBy(e);
+                }
             }
-            sandbox.EmpireList.First.isPlayer = true;
+
+            foreach (EmpireData data in ResourceManager.MinorRaces) // init minor races
+            {
+                sandbox.CreateEmpire(data);
+            }
 
             foreach (Empire empire in EmpireManager.Empires)
             {
@@ -103,29 +115,11 @@ namespace Ship_Game
                     if (empire != e) empire.AddRelationships(e, new Relationship(e.data.Traits.Name));
             }
 
-            for (int i = 0; i < sandbox.EmpireList.Count; ++i)
-            {
-                Empire e = sandbox.EmpireList[i];
-                var system = new SolarSystem();
-                system.OwnerList.Add(e);
-                sandbox.SolarSystemsList.Add(system);
-                system.Position = claimedSpots[i];
-                system.GenerateStartingSystem($"SandBox-{i}", sandbox, 1, e);
-                foreach (Planet p in system.PlanetList)
-                {
-                    if (p.Owner == EmpireManager.Player)
-                    {
-                        p.colonyType = Planet.ColonyType.Colony; // this is required to disable governors... for some reason
-                    }
-                    p.SetExploredBy(e);
-                }
-            }
-
             foreach(SolarSystem system in sandbox.SolarSystemsList)
             {
                 system.FiveClosestSystems = sandbox.SolarSystemsList.FindMinItemsFiltered(5,
-                                                filter => filter != system,
-                                                select => select.Position.SqDist(system.Position));
+                                            filter => filter != system,
+                                            select => select.Position.SqDist(system.Position));
             }
 
             sandbox.playerShip = Ship.CreateShipAtPoint("Unarmed Scout", sandbox.EmpireList.First, claimedSpots[0]);
@@ -152,6 +146,7 @@ namespace Ship_Game
             claimedSpots.Add(sysPos);
             return sysPos;
         }
+
         static bool SystemPosOK(Vector2 sysPos, float spacing, Array<Vector2> claimedSpots, UniverseData data)
         {
             foreach (Vector2 vector2 in claimedSpots)
@@ -163,6 +158,7 @@ namespace Ship_Game
             }
             return true;
         }
+
         void SubmitSceneObjectsForRendering(SolarSystem wipSystem)
         {
             foreach (Planet planet in wipSystem.PlanetList)

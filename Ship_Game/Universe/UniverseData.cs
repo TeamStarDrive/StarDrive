@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game
 {
@@ -25,12 +26,6 @@ namespace Ship_Game
         public Ship playerShip;
 
         public Array<Empire> EmpireList = new Array<Empire>();
-        public static float UniverseWidth;
-
-        public UniverseData()
-        {
-            UniverseWidth = Size.X;
-        }
 
         public enum GameDifficulty
         {
@@ -38,6 +33,16 @@ namespace Ship_Game
             Normal,
             Hard,
             Brutal
+        }
+
+        public Empire CreateEmpire(EmpireData data)
+        {
+            if (EmpireManager.GetEmpireByName(data.Traits.Name) != null)
+                throw new InvalidOperationException($"BUG: Empire already created! {data.Traits.Name}");
+            Empire e = EmpireManager.CreateEmpireFromEmpireData(data);
+            EmpireList.Add(e);
+            EmpireManager.Add(e);
+            return e;
         }
     }
 }

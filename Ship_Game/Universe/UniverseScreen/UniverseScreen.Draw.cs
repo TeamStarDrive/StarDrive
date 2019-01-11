@@ -44,13 +44,16 @@ namespace Ship_Game
             renderState.DestinationBlend = Blend.InverseSourceAlpha;
             renderState.DepthBufferWriteEnable = false;
             renderState.CullMode = CullMode.CullClockwiseFace;
+
             ModelMesh modelMesh = model.Meshes[0];
+            SubTexture atmos = ResourceManager.Texture("Atmos");
+
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
                 basicEffect.World = Matrix.CreateScale(4.1f) * world;
                 basicEffect.View = view;
                 // @todo 3D Texture Atlas support?
-                basicEffect.Texture = ResourceManager.Texture("Atmos").Texture;
+                basicEffect.Texture = atmos.Texture;
                 basicEffect.TextureEnabled = true;
                 basicEffect.Projection = projection;
                 basicEffect.LightingEnabled = true;

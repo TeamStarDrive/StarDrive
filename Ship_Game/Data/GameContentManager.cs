@@ -297,12 +297,12 @@ namespace Ship_Game
             if (EnableLoadInfoLog)
                 Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {asset.NoExt}");
 
-            if (useCache && TryGetAsset(asset.NoExt, out T existing))
-                return existing;
-
             Type assetType = typeof(T);
             if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(asset.NoExt);
             if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(asset.NoExt, useCache);
+
+            if (useCache && TryGetAsset(asset.NoExt, out T existing))
+                return existing;
 
             T loaded;
             if (asset.NonXnaAsset)
