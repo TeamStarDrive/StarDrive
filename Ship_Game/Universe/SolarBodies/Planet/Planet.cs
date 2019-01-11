@@ -76,8 +76,8 @@ namespace Ship_Game
             SbProduction = new SBProduction(this);
 
             Food = new ColonyFood(this) { Percent = 0.34f };
-            Prod = new ColonyProd(this) { Percent = 0.33f };
-            Res  = new ColonyRes(this)  { Percent = 0.33f };
+            Prod = new ColonyProduction(this) { Percent = 0.33f };
+            Res  = new ColonyResearch(this)  { Percent = 0.33f };
             Money = new ColonyMoney(this) { Percent = 1f };
         }
 
@@ -681,18 +681,20 @@ namespace Ship_Game
         {
             if (Owner == null) return;
 
-            float normalRepRate = Owner.data.BaseReproductiveRate * Population;
-            if (normalRepRate > Owner.data.Traits.PopGrowthMax * 1000  && Owner.data.Traits.PopGrowthMax != 0 )
-                normalRepRate = Owner.data.Traits.PopGrowthMax * 1000f;
-            if (normalRepRate < Owner.data.Traits.PopGrowthMin * 1000 )
-                normalRepRate = Owner.data.Traits.PopGrowthMin * 1000f;
-            normalRepRate += PlusFlatPopulationPerTurn;
-            float adjustedRepRate = normalRepRate + Owner.data.Traits.ReproductionMod * normalRepRate;
-            if (!IsStarving)
-                Population += adjustedRepRate;  //Unfed is calculated so it is 0 if everyone got food (even if just from storage)
-            else        //  ^-- This one increases population if there is enough food to feed everyone
-                Population += Unfed * 10f;      //So this else would only happen if there was not enough food. <-- This reduces population due to starvation.
-            if (Population < 100.0) Population = 100f;      //Minimum population. I guess they wont all die from starvation
+            float repRate = Owner.data.BaseReproductiveRate * Population;
+            if (repRate > Owner.data.Traits.PopGrowthMax * 1000 && !Owner.data.Traits.PopGrowthMax.AlmostZero())
+                repRate = Owner.data.Traits.PopGrowthMax * 1000f;
+            if (repRate < Owner.data.Traits.PopGrowthMin * 1000 )
+                repRate = Owner.data.Traits.PopGrowthMin * 1000f;
+            repRate += PlusFlatPopulationPerTurn;
+
+            float adjustedRepRate = repRate + Owner.data.Traits.ReproductionMod * repRate;
+            if (IsStarving)
+                Population += Unfed * 10f; // <-- This reduces population due to starvation.
+            else
+                Population += adjustedRepRate;
+
+            Population = Population.Clamped(100f, MaxPopulation);
             AvgPopulationGrowth = (AvgPopulationGrowth + adjustedRepRate) / 2;
         }
 
