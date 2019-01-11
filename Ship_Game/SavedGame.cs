@@ -433,7 +433,10 @@ namespace Ship_Game
 
                     sdata.AreaOfOperation = ship.AreaOfOperation
                         .Select(r => new RectangleData(r)).ToArrayList();
-               
+
+                    if (ship.HomePlanet != null)
+                        sdata.HomePlanetGuid = ship.HomePlanet.guid;
+
                     sdata.AISave = new ShipAISave
                     {
                         FoodOrProd = ship.AI.GetTradeTypeString(),
@@ -905,6 +908,7 @@ namespace Ship_Game
             [Serialize(24)] public Array<ProjectileSaveData> Projectiles;
             [Serialize(25)] public bool FightersLaunched;
             [Serialize(26)] public bool TroopsLaunched;
+            [Serialize(27)] public Guid HomePlanetGuid;
         }
 
         public class SolarSystemSaveData

@@ -44,5 +44,16 @@ namespace Ship_Game
             EmpireManager.Add(e);
             return e;
         }
+
+        public Planet FindPlanet(Guid planetGuid)
+        {
+            foreach (SolarSystem s in SolarSystemsList)
+            {
+                Planet p = s.FindPlanet(planetGuid);
+                if (p != null)
+                    return p;
+            }
+            return null;
+        }
     }
 }

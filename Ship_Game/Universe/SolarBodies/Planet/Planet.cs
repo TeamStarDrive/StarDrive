@@ -208,13 +208,13 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
-            UpdateBuildings(elapsedTime);
+            UpdateSpaceCombatBuildings(elapsedTime);
             UpdatePlanetaryProjectiles(elapsedTime);
 
             UpdatePosition(elapsedTime);
         }
 
-        private void UpdateBuildings(float elapsedTime)
+        private void UpdateSpaceCombatBuildings(float elapsedTime)
         {
             if (Owner == null) return;
             if (ParentSystem.ShipList.Count <= 0) return; 
@@ -223,10 +223,6 @@ namespace Ship_Game
                 float previousD;
                 float previousT;
                 Building building = BuildingList[i];
-                if (building.StorageAdded == 100 && Owner.isPlayer)
-                {
-                    //Log.Info($"warehouse");
-                }
                 if (building.isWeapon)
                 {
                     building.WeaponTimer -= elapsedTime;
@@ -236,9 +232,9 @@ namespace Ship_Game
                     previousD = building.TheWeapon.Range + 1000f;
                     previousT = previousD;
                 }
-                else if (building.CurrentNumDefenseShips > 0 && Owner.Money > 0)
+                else if (building.DefenseShipsCapacity > 0 && Owner.Money > 0)
                 {
-                    previousD = 20000f;
+                    previousD = 10000f;
                     previousT = previousD;
                 }
                 else continue;
@@ -277,8 +273,8 @@ namespace Ship_Game
                 {
                     if (!defenseShipNameStillOut &&
                         building.CurrentNumDefenseShips < building.DefenseShipsCapacity)
-                        building.UpdateCurrentDefenseShips(1);
-
+                        building.UpdateCurrentDefenseShips(building.DefenseShipsCapacity);
+                    
                     continue;
                 }
                 if (building.isWeapon)
@@ -287,7 +283,7 @@ namespace Ship_Game
                     building.TheWeapon.FireFromPlanet(this, target);
                     building.WeaponTimer = building.TheWeapon.fireDelay;
                 }
-                else
+                else if (building.CurrentNumDefenseShips > 0)
                 {
                     LaunchDefenseShips(building.DefenseShipsRole, Owner);
                     building.UpdateCurrentDefenseShips(-1);
