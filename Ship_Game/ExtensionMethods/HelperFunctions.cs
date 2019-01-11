@@ -116,11 +116,11 @@ namespace Ship_Game
             }
         }
 
-        public static void DrawDropShadowImage(ScreenManager screenManager, Rectangle rect, Texture2D texture, Color topColor)
+        public static void DrawDropShadowImage(SpriteBatch batch, Rectangle rect, SubTexture texture, Color topColor)
         {
             var offsetRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width, rect.Height);
-            screenManager.SpriteBatch.Draw(texture, offsetRect, Color.Black);
-            screenManager.SpriteBatch.Draw(texture, rect, topColor);
+            batch.Draw(texture, offsetRect, Color.Black);
+            batch.Draw(texture, rect, topColor);
         }
         public static void DrawDropShadowText(ScreenManager screenManager, string text, Vector2 pos, SpriteFont font)
         {

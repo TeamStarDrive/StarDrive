@@ -200,10 +200,8 @@ namespace Ship_Game
                     else
                     {
                         var r = new Rectangle(Rect.X, Rect.Y, 124, 124);
-                        KeyValuePair<string, Texture2D> item =
-                            ResourceManager.FlagTextures[
-                                EmpireManager.GetEmpireByName(Empire.data.AbsorbedBy).data.Traits.FlagIndex];
-                        batch.Draw(item.Value, r, EmpireManager.GetEmpireByName(Empire.data.AbsorbedBy).EmpireColor);
+                        var e = EmpireManager.GetEmpireByName(Empire.data.AbsorbedBy);
+                        batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                     }
                 }
                 else if (EmpireManager.Player == Empire || EmpireManager.Player.GetRelations(Empire).Known)
