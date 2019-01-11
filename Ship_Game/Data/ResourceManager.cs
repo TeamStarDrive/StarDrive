@@ -73,7 +73,6 @@ namespace Ship_Game
         public static Array<Texture2D> LargeStars                 = new Array<Texture2D>();
         public static XmlSerializer HeaderSerializer              = new XmlSerializer(typeof(HeaderData));
 
-        public static Array<KeyValuePair<string, Texture2D>> FlagTextures = new Array<KeyValuePair<string, Texture2D>>();
         private static Map<string, SoundEffect> SoundEffectDict;
 
         // Added by McShooterz
@@ -1163,20 +1162,13 @@ namespace Ship_Game
             }
         }
 
-        private static void LoadFlagTextures() // Refactored by RedFox
+        static TextureAtlas FlagTextures;
+        public static SubTexture Flag(int index) => FlagTextures[index];
+        public static SubTexture Flag(Empire e) => FlagTextures[e.data.Traits.FlagIndex];
+        public static int NumFlags => FlagTextures.Count;
+        static void LoadFlagTextures() // Refactored by RedFox
         {
-            FileInfo[] files = GatherFilesUnified("Flags", "xnb");
-            FlagTextures.Resize(files.Length);
-
-            Parallel.For(files.Length, (start, end) =>
-            {
-                for (int i = start; i < end; ++i)
-                {
-                    FileInfo info = files[i];
-                    var tex = RootContent.Load<Texture2D>(info.CleanResPath());
-                    FlagTextures[i] = new KeyValuePair<string, Texture2D>(info.NameNoExt(), tex);
-                }
-            });
+            FlagTextures = RootContent.LoadTextureAtlas("Flags");
         }
 
         private static void LoadGoods() // Refactored by RedFox
@@ -1990,7 +1982,6 @@ namespace Ship_Game
             BuildingsDict.Clear();
             BuildingsById.Clear();
             ModuleTemplates.Clear();
-            FlagTextures.Clear();
             TechTree.Clear();
             ArtifactsDict.Clear();
             ShipsDict.Clear();

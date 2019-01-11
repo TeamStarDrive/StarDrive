@@ -370,7 +370,7 @@ namespace Ship_Game
             }
         }
 
-        public void Draw()
+        public void Draw(SpriteBatch batch)
         {
             lock (NotificationLocker)
             {
@@ -395,7 +395,7 @@ namespace Ship_Game
                         SubTexture iconTex = ResourceManager.Texture(n.IconPath);
                         if (!n.Tech)
                         {
-                            ScreenManager.SpriteBatch.Draw(iconTex, n.ClickRect, Color.White);
+                            batch.Draw(iconTex, n.ClickRect, Color.White);
                         }
                         else
                         {
@@ -408,23 +408,21 @@ namespace Ship_Game
 
                             rect.Width = iconTex.Width;
                             rect.Height = iconTex.Height;
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("TechIcons/techbg"), rect, Color.White);
-                            ScreenManager.SpriteBatch.Draw(iconTex, rect, Color.White);
-                            ScreenManager.SpriteBatch.DrawRectangle(rect, new Color(32, 30, 18));
+                            batch.Draw(ResourceManager.Texture("TechIcons/techbg"), rect, Color.White);
+                            batch.Draw(iconTex, rect, Color.White);
+                            batch.DrawRectangle(rect, new Color(32, 30, 18));
                         }
                     }
                     if (n.RelevantEmpire != null)
                     {
-                        SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-                        KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[n.RelevantEmpire.data.Traits.FlagIndex];
-                        spriteBatch.Draw(item.Value, n.ClickRect, n.RelevantEmpire.EmpireColor);
+                        batch.Draw(ResourceManager.Flag(n.RelevantEmpire.data.Traits.FlagIndex), n.ClickRect, n.RelevantEmpire.EmpireColor);
                     }
                     if (n.ShowMessage)
                     {
                         Vector2 msgSize = Fonts.Arial12Bold.MeasureString(n.Message);
                         Vector2 cursor = new Vector2(n.ClickRect.X - msgSize.X - 3f, n.ClickRect.Y + 32 - msgSize.Y / 2f);
                         HelperFunctions.ClampVectorToInt(ref cursor);
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, cursor, n.Pause ? Color.Red : Color.White);
+                        batch.DrawString(Fonts.Arial12Bold, n.Message, cursor, n.Pause ? Color.Red : Color.White);
                     }
                 }
 

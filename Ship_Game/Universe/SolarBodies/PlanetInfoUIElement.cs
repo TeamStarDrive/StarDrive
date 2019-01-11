@@ -89,6 +89,8 @@ namespace Ship_Game
             if (p == null)
                 return;
 
+            SpriteBatch batch = ScreenManager.SpriteBatch;
+
             MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             ToolTipItems.Clear();
             var def = new TippedItem
@@ -112,42 +114,40 @@ namespace Ship_Game
             float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             var MousePos = new Vector2(x, state.Y);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
+            batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             var NamePos = new Vector2(Housing.X + 41, Housing.Y + 65);
             if (p.Owner == null || !p.IsExploredBy(EmpireManager.Player))
             {
                 if (DrawUnexploredUninhabited(NamePos, MousePos)) return;
                 return;
             }
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, p.Name, NamePos, tColor);
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-            KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[p.Owner.data.Traits.FlagIndex];
-            spriteBatch.Draw(item.Value, flagRect, p.Owner.EmpireColor);
-            Vector2 TextCursor3 = new Vector2(sel.Rect.X + sel.Rect.Width - 65, NamePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
+            batch.DrawString(Fonts.Arial20Bold, p.Name, NamePos, tColor);
+            batch.Draw(ResourceManager.Flag(p.Owner), flagRect, p.Owner.EmpireColor);
+            var cursor = new Vector2(sel.Rect.X + sel.Rect.Width - 65, NamePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
             
             string pop = p.PopulationString;
-            TextCursor3.X = TextCursor3.X - (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, pop, TextCursor3, tColor);
+            cursor.X -= (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
+            batch.DrawString(Fonts.Arial12Bold, pop, cursor, tColor);
 
-            popRect = new Rectangle((int)TextCursor3.X - 23, (int)TextCursor3.Y - 3, 22, 22);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), popRect, Color.White);
+            popRect = new Rectangle((int)cursor.X - 23, (int)cursor.Y - 3, 22, 22);
+            batch.Draw(ResourceManager.Texture("UI/icon_pop_22"), popRect, Color.White);
 
             moneyRect = new Rectangle(popRect.X - 70, popRect.Y, 22, 22);
-            Vector2 TextCursorMoney = new Vector2((float)moneyRect.X + 24, TextCursor3.Y);
+            var moneyCursor = new Vector2((float)moneyRect.X + 24, cursor.Y);
 
             float netIncomePI = p.Money.GrossIncome - p.GrossUpkeep;
 
             if (p.Owner == EmpireManager.Player)
             {
                 string sNetIncome = netIncomePI.ToString("F2");
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, sNetIncome, TextCursorMoney, netIncomePI > 0.0 ? Color.LightGreen : Color.Salmon);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_money_22"), moneyRect, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, sNetIncome, moneyCursor, netIncomePI > 0.0 ? Color.LightGreen : Color.Salmon);
+                batch.Draw(ResourceManager.Texture("UI/icon_money_22"), moneyRect, Color.White);
             }
 
             PlanetTypeRichness = p.LocalizedRichness;
             PlanetTypeCursor = new Vector2(PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f, PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture($"Planets/{p.PlanetType}"), PlanetIconRect, Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
+            batch.Draw(ResourceManager.Texture($"Planets/{p.PlanetType}"), PlanetIconRect, Color.White);
+            batch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
             p.UpdateIncomes(false);
 
             DrawPlanetStats(DefenseRect, ((float)p.TotalDefensiveStrength).String(1), "UI/icon_shield", Color.White, Color.White);
