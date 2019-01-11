@@ -16,6 +16,11 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
+    public class ResourceManagerFailure : Exception
+    {
+        public ResourceManagerFailure(string what) : base(what) {}
+    }
+
     /**
      * Oh boy, so this is a monster class.
      * The whole content pipeline is divided into ~3 layers and ~2 steps. There are some oddballs though.
@@ -66,9 +71,7 @@ namespace Ship_Game
         public static Array<Texture2D> SmallStars                 = new Array<Texture2D>();
         public static Array<Texture2D> MediumStars                = new Array<Texture2D>();
         public static Array<Texture2D> LargeStars                 = new Array<Texture2D>();
-        public static Array<EmpireData> Empires                   = new Array<EmpireData>();
         public static XmlSerializer HeaderSerializer              = new XmlSerializer(typeof(HeaderData));
-        public static Map<string, ShipData> HullsDict             = new Map<string, ShipData>();
 
         public static Array<KeyValuePair<string, Texture2D>> FlagTextures = new Array<KeyValuePair<string, Texture2D>>();
         private static Map<string, SoundEffect> SoundEffectDict;
@@ -92,12 +95,6 @@ namespace Ship_Game
 
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager RootContent => Game1.Instance.Content;
-
-        public static Technology GetTreeTech(string techUid)
-        {
-            TechTree.TryGetValue(techUid, out Technology technology);
-            return technology;
-        }
 
         public static Technology Tech(string techUid)
         {
@@ -125,7 +122,9 @@ namespace Ship_Game
                 shipTechs.Add(tech, FindPreviousTechs(tech, new Array<string>()));
             }
 
-            foreach (ShipData hull in HullsDict.Values)
+            if (HullsList.IsEmpty) throw new ResourceManagerFailure("Hulls not loaded yet!");
+
+            foreach (ShipData hull in HullsList)
             {
                 if (hull.Role == ShipData.RoleName.disabled)
                     continue;
@@ -235,8 +234,6 @@ namespace Ship_Game
             try
             {
                 LoadAllResources(onEssentialsLoaded);
-                //if (GlobalStats.HasMod)
-                //    throw new Exception("Testing mod failure");
             }
             catch (Exception ex)
             {
@@ -317,7 +314,7 @@ namespace Ship_Game
 
             bool oldValue = RootContent.EnableLoadInfoLog;
             RootContent.EnableLoadInfoLog = true;
-            foreach (ShipData hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
+            foreach (ShipData hull in HullsList.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
             {
                 try
                 {
@@ -648,18 +645,8 @@ namespace Ship_Game
             }
         }
 
-        public static EmpireData GetEmpireByName(string name)
-        {
-            foreach (EmpireData empireData in Empires)
-                if (empireData.Traits.Name == name)
-                    return empireData;
-            return null;
-        }
-
 
         //////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 
         private static int SubmeshCount(int maxSubmeshes, int meshSubmeshCount)
@@ -887,16 +874,28 @@ namespace Ship_Game
             return allFiles.ToArray();
         }
 
+        // Any non-trivial 3D-models can't handle texture atlases
+        // It's a significant limitation :(
+        // This is a HACK to circumvent the issue
+        public static readonly HashSet<string> AtlasExcludeTextures = new HashSet<string>(new []
+        {
+            "Atmos"
+        });
+        public static readonly HashSet<string> AtlasExcludeFolder = new HashSet<string>(new []
+        {
+            "Suns", "Beams"
+        });
+
         static void LoadAtlas(string folder)
         {
-            var atlas = RootContent.Load<TextureAtlas>(folder);
+            var atlas = RootContent.LoadTextureAtlas(folder, useCache:true);
             if (atlas == null) Log.Warning($"LoadAtlas {folder} failed");
         }
 
         // This is just to speed up initial atlas generation and avoid noticeable framerate hiccups
         static void LoadTextureAtlases()
         {
-            //new ResourceTests().RunAll();
+            Textures.Clear();
 
             // these are essential for main menu, so we load them as blocking
             LoadAtlas("Textures");
@@ -937,6 +936,14 @@ namespace Ship_Game
                 "Textures/Portraits",
                 "Textures/Ground_UI",
                 "Textures/Troops",
+                "Textures/OrderButtons",
+
+                
+                "Textures/sd_explosion_14a_cc",
+                "Textures/sd_explosion_12a_cc",
+                "Textures/sd_explosion_07a_cc",
+                "Textures/sd_explosion_03_photon_256",
+                "Textures/sd_shockwave_01",
             };
 
             Parallel.Run(() =>
@@ -1079,26 +1086,33 @@ namespace Ship_Game
             }
         }
 
-        private static void LoadEmpires() // Refactored by RedFox
+        public static Array<EmpireData> Empires = new Array<EmpireData>();
+        static readonly Array<EmpireData> MajorEmpires = new Array<EmpireData>();
+        static readonly Array<EmpireData> MinorEmpires = new Array<EmpireData>(); // IsFactionOrMinorRace
+
+        public static IReadOnlyList<EmpireData> MajorRaces => MajorEmpires;
+        public static IReadOnlyList<EmpireData> MinorRaces => MinorEmpires;
+
+        static void LoadEmpires() // Refactored by RedFox
         {
             Empires.Clear();
+            MajorEmpires.Clear();
+            MinorEmpires.Clear();
 
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisableDefaultRaces)
-            {
                 Empires.AddRange(LoadModEntities<EmpireData>("Races", "LoadEmpires"));
-            }
             else
-            {
                 Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires"));
-            }
 
-            // Fix empires with invalid ShipType
             foreach (EmpireData e in Empires)
             {
-                if (e.Traits.ShipType.IsEmpty())
+                if (e.IsFactionOrMinorRace) MinorEmpires.Add(e);
+                else                        MajorEmpires.Add(e);
+                RacialTrait t = e.Traits;
+                if (t.ShipType.IsEmpty()) // Fix empires with invalid ShipType
                 {
-                    Log.Warning($"Empire {e.Traits.Name} invalid ShipType '{e.Traits.ShipType}'. Using {e.Traits.Name} instead.");
-                    e.Traits.ShipType = e.Traits.Name;
+                    t.ShipType = t.Name;
+                    Log.Warning($"Empire {t.Name} invalid ShipType ''. Using '{t.Name}' instead.");
                 }
             }
         }
@@ -1170,31 +1184,19 @@ namespace Ship_Game
             foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
             {
                 Good good = pair.Entity;
-                good.UID = String.Intern(pair.Info.NameNoExt());
+                good.UID = string.Intern(pair.Info.NameNoExt());
                 GoodsDict[good.UID] = good;
             }
         }
 
-        public static void LoadHardcoreTechTree() // Refactored by RedFox
-        {
-            TechTree.Clear();
-            foreach (var pair in LoadEntitiesWithInfo<Technology>("Technology_HardCore", "LoadTechnologyHardcore"))
-            {
-                TechTree[pair.Info.NameNoExt()] = pair.Entity;
-            }
-        }
+        static readonly Map<string, ShipData> HullsDict = new Map<string, ShipData>();
+        static readonly Array<ShipData>       HullsList = new Array<ShipData>();
+        
+        public static bool Hull(string shipHull, out ShipData hullData) => HullsDict.Get(shipHull, out hullData);
+        public static ShipData Hull(string shipHull) => HullsDict[shipHull];
+        public static IReadOnlyList<ShipData> Hulls => HullsList;
 
-        public static bool GetHull(string shipHull, out ShipData hullData)
-        {
-            return HullsDict.TryGetValue(shipHull, out hullData);
-        }
-
-        public static ShipData Hull(string shipHull)
-        {
-            return HullsDict[shipHull];
-        }
-
-        private static void LoadHullBonuses()
+        static void LoadHullBonuses()
         {
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
             {
@@ -1204,8 +1206,10 @@ namespace Ship_Game
             }
         }
 
-        private static void LoadHullData() // Refactored by RedFox
+        static void LoadHullData() // Refactored by RedFox
         {
+            HullsDict.Clear();
+            HullsList.Clear();
             FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
             var hulls = new ShipData[hullFiles.Length];
 
@@ -1232,9 +1236,12 @@ namespace Ship_Game
             }
             Parallel.For(hullFiles.Length, LoadHulls);
             //LoadHulls(0, hullFiles.Length);
-            // Finalize HullsDict:
-            foreach (ShipData sd in hulls)
-                if (sd != null) HullsDict[sd.Hull] = sd;
+            foreach (ShipData sd in hulls) // Finalize HullsDict:
+            {
+                if (sd == null) continue; // will be null if ShipData.Parse failed
+                HullsDict[sd.Hull] = sd;
+                HullsList.Add(sd);
+            }
         }
 
         public static Model GetJunkModel(int idx)
@@ -1716,7 +1723,7 @@ namespace Ship_Game
                     tech.TechnologyType = TechnologyType.ShipHull;
                     foreach (Technology.UnlockedHull hull in tech.HullsUnlocked)
                     {
-                        ShipData.RoleName role = HullsDict[hull.Name].Role;
+                        ShipData.RoleName role = Hull(hull.Name).Role;
                         if (role == ShipData.RoleName.freighter
                             || role == ShipData.RoleName.platform
                             || role == ShipData.RoleName.construction
@@ -1977,7 +1984,6 @@ namespace Ship_Game
         {
             //RootContent.Unload();
 
-            HullsDict.Clear();
             WeaponsDict.Clear();
             TroopsDict.Clear();
             TroopsDictKeys.Clear();
@@ -1989,10 +1995,8 @@ namespace Ship_Game
             ArtifactsDict.Clear();
             ShipsDict.Clear();
             SoundEffectDict = null;
-            Textures.Clear();
             ToolTips.Clear();
             GoodsDict.Clear();
-            Empires.Clear();
             Encounters.Clear();
             EventsDict.Clear();
             RandomItemsList.Clear();

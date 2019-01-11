@@ -679,7 +679,7 @@ namespace Ship_Game
             ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490)));
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
                 if (hull.Value)
-                    AvailableHulls.Add(ResourceManager.HullsDict[hull.Key]);
+                    AvailableHulls.Add(ResourceManager.Hull(hull.Key));
 
             PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
@@ -813,11 +813,11 @@ namespace Ship_Game
             HullSelectionSub.AddTab(Localizer.Token(107));
             HullSL = new ScrollList(HullSelectionSub);
             var categories = new Array<string>();
-            foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
+            foreach (ShipData hull in ResourceManager.Hulls)
             {
-                if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key])
+                if ((hull.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.IsHullUnlocked(hull.Name))
                     continue;
-                string cat = Localizer.GetRole(hull.Value.Role, EmpireManager.Player);
+                string cat = Localizer.GetRole(hull.Role, EmpireManager.Player);
                 if (!categories.Contains(cat))
                     categories.Add(cat);
             }
@@ -830,15 +830,15 @@ namespace Ship_Game
 
             foreach (ScrollList.Entry e in HullSL.AllEntries)
             {
-                foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
+                foreach (ShipData hull in ResourceManager.Hulls)
                 {
-                    if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key] ||
-                        ((ModuleHeader)e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
+                    if ((hull.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.IsHullUnlocked(hull.Hull) ||
+                        ((ModuleHeader)e.item).Text != Localizer.GetRole(hull.Role, EmpireManager.Player))
                     {
                         continue;
                     }
 
-                    e.AddSubItem(hull.Value);
+                    e.AddSubItem(hull);
                 }
             }
 

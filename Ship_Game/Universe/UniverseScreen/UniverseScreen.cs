@@ -255,18 +255,18 @@ namespace Ship_Game
 
         public UniverseScreen(UniverseData data) : base(null) // new game
         {
-            UniverseSize                = data.Size.X;
-            FTLModifier                 = data.FTLSpeedModifier;
-            EnemyFTLModifier            = data.EnemyFTLSpeedModifier;
-            GravityWells                = data.GravityWells;
-            SolarSystemList             = data.SolarSystemsList;
-            MasterShipList              = data.MasterShipList;
-            playerShip                  = data.playerShip;
-            PlayerEmpire                = playerShip.loyalty;
-            PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
-            ShipToView                  = playerShip;
-            PlayerEmpire.isPlayer       = true;
-            SubSpaceProjectors          = new SubSpaceProjectors(UniverseSize);
+            UniverseSize          = data.Size.X;
+            FTLModifier           = data.FTLSpeedModifier;
+            EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
+            GravityWells          = data.GravityWells;
+            SolarSystemList       = data.SolarSystemsList;
+            MasterShipList        = data.MasterShipList;
+            playerShip            = data.playerShip;
+            PlayerEmpire          = playerShip.loyalty;
+            PlayerLoyalty         = playerShip.loyalty.data.Traits.Name;
+            ShipToView            = playerShip;
+            PlayerEmpire.isPlayer = true;
+            SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             DoPathingMapRebuild();
         }
@@ -314,32 +314,22 @@ namespace Ship_Game
                 switch (system.SunPath)
                 {
                     case "star_red":
-                        intensity -= .1f;
+                        intensity -= 0.1f;
                         radius -= 50000f;
                         color = Color.LightSalmon;
                         break;
-                    case "star_yellow":
-                        color = Color.LightYellow;
-                        break;
-                    case "star_yellow2":
-                        color = Color.White;
-                        break;
-                    case "star_green":
-                        color = Color.LightGreen;
-                        break;
-                    case "star_blue":
-                        color = Color.LightBlue;
-                        break;
                     case "star_binary":
-                        intensity += .2f;
+                        intensity += 0.2f;
                         radius += 50000f;
                         break;
+                    case "star_yellow":  color = Color.LightYellow; break;
+                    case "star_yellow2": color = Color.White;       break;
+                    case "star_green":   color = Color.LightGreen;  break;
+                    case "star_blue":    color = Color.LightBlue;   break;
                 }
-
                 AddLight("Key",               system, intensity,         radius,         color, -5500);
                 AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
                 AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);
-
                 //AddLight("Back", system, intensity * 0.5f , radius, color, 2500, fallOff: 0, fillLight: true);
             }
         }
@@ -435,19 +425,7 @@ namespace Ship_Game
             SetLighting(UseRealLights);
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                foreach (string fleetUid in solarSystem.DefensiveFleets)
-                    CreateDefensiveRemnantFleet(fleetUid, solarSystem.PlanetList[0].Center, 120000f);
-
-                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.customRemnantElements)
-                    foreach (Planet p in solarSystem.PlanetList)
-                        foreach (string fleetUid in p.PlanetFleets)
-                            CreateDefensiveRemnantFleet(fleetUid, p.Center, 120000f);
-
-                foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
-                    CreateDefensiveRemnantFleet(fleetAndPos.fleetname, solarSystem.Position + fleetAndPos.Pos, 75000f);
-
-                foreach (string key in solarSystem.ShipsToSpawn)
-                    Ship.CreateShipAt(key, EmpireManager.Remnants, solarSystem.PlanetList[0], true);
+                SpawnRemnantsInSolarSystem(solarSystem);
 
                 foreach (Planet p in solarSystem.PlanetList)
                 {
@@ -551,10 +529,30 @@ namespace Ship_Game
             ProcessTurnsThread.Start();
         }
 
-
-
-        private void CreateDefensiveRemnantFleet(string fleetUid, Vector2 where, float defenseRadius)
+        public static void SpawnRemnantsInSolarSystem(SolarSystem solarSystem)
         {
+            if (EmpireManager.Remnants == null)
+                return;
+
+            foreach (string fleetUid in solarSystem.DefensiveFleets)
+                CreateDefensiveRemnantFleet(fleetUid, solarSystem.PlanetList[0].Center, 120000f);
+
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.customRemnantElements)
+                foreach (Planet p in solarSystem.PlanetList)
+                foreach (string fleetUid in p.PlanetFleets)
+                    CreateDefensiveRemnantFleet(fleetUid, p.Center, 120000f);
+
+            foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
+                CreateDefensiveRemnantFleet(fleetAndPos.fleetname, solarSystem.Position + fleetAndPos.Pos, 75000f);
+
+            foreach (string key in solarSystem.ShipsToSpawn)
+                Ship.CreateShipAt(key, EmpireManager.Remnants, solarSystem.PlanetList[0], true);
+        }
+
+        public static void CreateDefensiveRemnantFleet(string fleetUid, Vector2 where, float defenseRadius)
+        {
+            if (EmpireManager.Remnants == null)
+                return;
             Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetUid, EmpireManager.Remnants, where);
             var militaryTask = new MilitaryTask
             {

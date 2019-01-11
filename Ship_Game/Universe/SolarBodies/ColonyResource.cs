@@ -58,6 +58,11 @@ namespace Ship_Game.Universe.SolarBodies
             NetYieldPerColonist = AfterTax(YieldPerColonist);
         }
 
+        public float ColonistIncome(float yieldPerColonist)
+        {
+            return Percent * yieldPerColonist * Planet.PopulationBillion;
+        }
+
         // Nominal workers needed to neither gain nor lose storage
         // @param flat Extra flat bonus to use in calculation
         // @param perCol Extra per colonist bonus to use in calculation
@@ -137,9 +142,9 @@ namespace Ship_Game.Universe.SolarBodies
         }
     }
 
-    public class ColonyProd : ColonyResource
+    public class ColonyProduction : ColonyResource
     {
-        public ColonyProd(Planet planet) : base(planet)
+        public ColonyProduction(Planet planet) : base(planet)
         {
         }
 
@@ -169,9 +174,9 @@ namespace Ship_Game.Universe.SolarBodies
         }
     }
 
-    public class ColonyRes : ColonyResource
+    public class ColonyResearch : ColonyResource
     {
-        public ColonyRes(Planet planet) : base(planet)
+        public ColonyResearch(Planet planet) : base(planet)
         {
         }
 

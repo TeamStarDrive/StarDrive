@@ -509,31 +509,29 @@ namespace Ship_Game.AI
         private IEnumerable<KeyValuePair<Empire, Relationship>> EmpireAttackWeights()
         {
             return OwnerEmpire.AllRelations.OrderByDescending(anger =>
+            {
+                if (!anger.Value.Known) return 0;
+                float angerMod = anger.Key.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter());
+                angerMod = (Empire.Universe.UniverseSize - angerMod) / Empire.Universe.UniverseSize;
+                if (anger.Value.AtWar)
+                    angerMod *= 100;                    
+                angerMod += anger.Key.GetPlanets().Any(p => IsInOurAOs(p.Center)) ? 1 : 0;
+                if (anger.Value.Treaty_Trade)
+                    angerMod *= .5f;
+                if (anger.Value.Treaty_Alliance)
+                    angerMod *= .5f;
+                foreach (var s in OwnerEmpire.GetOwnedSystems())
                 {
-                    if (!anger.Value.Known) return 0;
-                    float angerMod = anger.Key.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter());
-                    angerMod = (Empire.Universe.UniverseSize - angerMod) / UniverseData.UniverseWidth;
-                    if (anger.Value.AtWar)
-                        angerMod *= 100;                    
-                    angerMod += anger.Key.GetPlanets().Any(p => IsInOurAOs(p.Center)) ? 1 : 0;
-                    if (anger.Value.Treaty_Trade)
-                        angerMod *= .5f;
-                    if (anger.Value.Treaty_Alliance)
-                        angerMod *= .5f;
-                    foreach (var s in OwnerEmpire.GetOwnedSystems())
+                    if (s.OwnerList.Contains(anger.Key))
                     {
-                        if (s.OwnerList.Contains(anger.Key))
-                        {
-                            angerMod *= 2;
-                            break;
-                        }
+                        angerMod *= 2;
+                        break;
                     }
-                    //switching to godSight. 
-                    float killableMod = 1 + (int)OwnerEmpire.currentMilitaryStrength / (anger.Key.currentMilitaryStrength + 1);//    (ThreatMatrix.StrengthOfEmpire(anger.Key) +1);
-                    return (anger.Value.TotalAnger + 1) * angerMod * killableMod;
                 }
-            ).ToArray(); 
-            
+                //switching to godSight. 
+                float killableMod = 1 + (int)OwnerEmpire.currentMilitaryStrength / (anger.Key.currentMilitaryStrength + 1);//    (ThreatMatrix.StrengthOfEmpire(anger.Key) +1);
+                return (anger.Value.TotalAnger + 1) * angerMod * killableMod;
+            }).ToArray(); 
         }
 
         private void RunWarPlanner()

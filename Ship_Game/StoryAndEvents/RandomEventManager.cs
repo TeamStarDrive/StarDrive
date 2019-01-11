@@ -68,7 +68,7 @@ namespace Ship_Game
                     if (toImprove.IsExploredBy(EmpireManager.Player))
                     {
                         toImprove.TerraformExternal(-0.5f);
-                        toImprove.MaxPopBase = toImprove.MaxPopulation * 0.65f;
+                        toImprove.MaxPopBase *= 0.65f;
                         if (toImprove.Population > toImprove.MaxPopulation)
                         {
                             toImprove.Population = toImprove.MaxPopulation;
