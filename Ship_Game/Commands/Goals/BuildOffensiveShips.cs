@@ -45,7 +45,7 @@ namespace Ship_Game.Commands.Goals
                     case Planet.ColonyType.Military: weight += 2; break;
                     case Planet.ColonyType.TradeHub: weight += 2; break;
                 }
-                weight += planet.DevelopmentLevel;
+                weight += planet.Level;
                 weight += planet.MineralRichness;
                 return weight;
             }))

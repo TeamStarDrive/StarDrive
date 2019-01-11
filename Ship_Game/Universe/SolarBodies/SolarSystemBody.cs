@@ -42,6 +42,10 @@ namespace Ship_Game
         public PlanetGridSquare Target;
     }
 
+    public enum DevelopmentLevel
+    {
+        Solitary=1, Meager=2, Vibrant=3, CoreWorld=4, MegaWorld=5
+    }
 
     public class SolarSystemBody : Explorable
     {
@@ -85,7 +89,6 @@ namespace Ship_Game
         public string PlanetComposition;
         public string Type;
         protected float Zrotate;
-        public int DevelopmentLevel;
         public bool UniqueHab = false;
         public int UniqueHabPercent;
         public SunZone Zone { get; private set; }
@@ -118,7 +121,6 @@ namespace Ship_Game
         public float ShieldStrengthMax;        
         private float PosUpdateTimer = 1f;
         private float ZrotateAmount = 0.03f;
-        public string DevelopmentStatus = "Undeveloped";
         public float TerraformPoints;
         public float TerraformToAdd;
         public Planet.ColonyType colonyType;        

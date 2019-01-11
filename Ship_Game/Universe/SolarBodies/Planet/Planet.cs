@@ -387,7 +387,7 @@ namespace Ship_Game
             else CrippledTurns = 0;
 
             ConstructionQueue.ApplyPendingRemovals();
-            UpdateDevelopmentStatus();
+            UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
             DoTerraforming();
@@ -435,56 +435,53 @@ namespace Ship_Game
             CalculateIncomingTrade();
         }
 
-        public void UpdateDevelopmentStatus()
+        public int Level { get; private set; }
+        public string DevelopmentStatus { get; private set; } = "Undeveloped";
+
+        public void UpdateDevelopmentLevel()
         {
             if (PopulationBillion <= 0.5f)
             {
-                DevelopmentLevel = 1;
+                Level = (int)DevelopmentLevel.Solitary;
                 DevelopmentStatus = Localizer.Token(1763);
-                if      (MaxPopulationBillion >= 2f && Type != "Barren") DevelopmentStatus += Localizer.Token(1764);
-                else if (MaxPopulationBillion >= 2f && Type == "Barren") DevelopmentStatus += Localizer.Token(1765);
+                if      (MaxPopulationBillion >= 2f  && Type != "Barren") DevelopmentStatus += Localizer.Token(1764);
+                else if (MaxPopulationBillion >= 2f  && Type == "Barren") DevelopmentStatus += Localizer.Token(1765);
                 else if (MaxPopulationBillion < 0.0f && Type != "Barren") DevelopmentStatus += Localizer.Token(1766);
                 else if (MaxPopulationBillion < 0.5f && Type == "Barren") DevelopmentStatus += Localizer.Token(1767);
             }
             else if (PopulationBillion > 0.5f && PopulationBillion <= 2)
             {
-                DevelopmentLevel = 2;
+                Level = (int)DevelopmentLevel.Meager;
                 DevelopmentStatus = Localizer.Token(1768);
                 DevelopmentStatus += MaxPopulationBillion >= 2 ? Localizer.Token(1769) : Localizer.Token(1770);
             }
             else if (PopulationBillion > 2.0 && PopulationBillion <= 5.0)
             {
-                DevelopmentLevel = 3;
+                Level = (int)DevelopmentLevel.Vibrant;
                 DevelopmentStatus = Localizer.Token(1771);
                 if      (MaxPopulationBillion >= 5.0) DevelopmentStatus += Localizer.Token(1772);
-                else if (MaxPopulationBillion < 5.0)  DevelopmentStatus += Localizer.Token(1773);
+                else if (MaxPopulationBillion <  5.0) DevelopmentStatus += Localizer.Token(1773);
             }
             else if (PopulationBillion > 5.0 && PopulationBillion <= 10.0)
             {
-                DevelopmentLevel = 4;
+                Level = (int)DevelopmentLevel.CoreWorld;
                 DevelopmentStatus = Localizer.Token(1774);
             }
             else if (PopulationBillion > 10.0)
             {
-                DevelopmentLevel = 5;
+                Level = (int)DevelopmentLevel.MegaWorld;
                 DevelopmentStatus = Localizer.Token(1775); // densely populated
             }
+
             if (Prod.NetIncome >= 10.0 && HasShipyard)
-            {
                 DevelopmentStatus += Localizer.Token(1776); // fine shipwright
-            }
             else if (Fertility >= 2.0 && Food.NetIncome > MaxPopulation)
-            {
                 DevelopmentStatus += Localizer.Token(1777); // fine agriculture
-            }
             else if (Res.NetIncome > 5.0)
-            {
                 DevelopmentStatus += Localizer.Token(1778); // universities are good
-            }
+
             if (AllowInfantry && TroopsHere.Count > 6)
-            {
                 DevelopmentStatus += Localizer.Token(1779); // military culture
-            }
         }
 
         int ColonyTypeLocId()
