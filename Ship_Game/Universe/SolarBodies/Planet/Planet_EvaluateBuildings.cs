@@ -346,32 +346,32 @@ namespace Ship_Game
             return score;
         }
 
-        float EvalPlusTaxPercent(Building b, float income)
+        float EvalPlusTaxPercent(Building b)
         {
             if (b.PlusTaxPercentage.AlmostZero()) return 0;
 
             // This is an assumed tax value, used only for determining how useful a PlusTaxPercentage building is
-            float assumedIncome = MaxPopulationBillion * 0.20f; 
+            float maxPotentialIncome = b.PlusTaxPercentage*MaxPopulationBillion * 0.20f;
             
             float score;
-            if (b.PlusTaxPercentage < 0)
-                score = b.PlusTaxPercentage * assumedIncome * 2.0f;
-            else 
-                score = b.PlusTaxPercentage * assumedIncome * 0.5f;
+            if (maxPotentialIncome < 0)
+                score = maxPotentialIncome * 2.0f; // humans perceive negatives more severely
+            else
+                score = maxPotentialIncome * 0.7f;
 
             DebugEvalBuild(b, "PlusTaxPercent", score);
             return score;
         }
 
-        float EvalAllowShipBuilding(Building b)
+        float EvalSpacePort(Building b)
         {
             bool spacePort = b.AllowShipBuilding || b.IsSpacePort;
             if (!spacePort || PopulationRatio < 0.5f)
                 return 0;
 
             float score = 0;
-            if (b.IsCapital)
-                score += 2.0f; // we can't be a space-faring species if our capital doesn't have a space-port...
+            if (BuildingExists(Building.CapitalId))
+                score += 1.0f; // we can't be a space-faring species if our capital doesn't have a space-port...
 
             float prodFromLabor = LeftoverWorkerBillions() * (Prod.YieldPerColonist + b.PlusProdPerColonist);
             float prodFromFlat = Prod.FlatBonus + b.PlusFlatProductionAmount + (b.PlusProdPerRichness * MineralRichness);
@@ -487,8 +487,8 @@ namespace Ship_Game
             score += EvalFlatResearch(b, income);
             score += EvalResearchPerCol(b);
             score += EvalCreditsPerCol(b);
-            score += EvalPlusTaxPercent(b, income);
-            score += EvalAllowShipBuilding(b);
+            score += EvalPlusTaxPercent(b);
+            score += EvalSpacePort(b);
             score += EvalTerraformer(b);
             score -= EvalFertilityLoss(b);
 
@@ -686,8 +686,8 @@ namespace Ship_Game
                 value += EvalScrapFlatResearch(b, income);
                 value += EvalResearchPerCol(b);
                 value += EvalScrapCreditsPerCol(b);
-                value += EvalPlusTaxPercent(b, income);
-                value += EvalAllowShipBuilding(b);
+                value += EvalPlusTaxPercent(b);
+                value += EvalSpacePort(b);
                 value += EvalTerraformerScrap(b);
                 value -= EvalFertilityLossScrap(b);  // Yes, -= because it is calculated as negative in the function
                 if (b.CombatStrength > 0) value += EvalMilitaryBuilding(b, income);

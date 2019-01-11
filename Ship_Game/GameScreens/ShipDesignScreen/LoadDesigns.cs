@@ -107,7 +107,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 else if (e.item is ShipData shipData)
                 {
                     bCursor.X = bCursor.X + 15f;                    
-                    batch.Draw(ResourceManager.HullsDict[shipData.Hull].Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    batch.Draw(shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     batch.DrawString(Fonts.Arial12Bold, shipData.Name, tCursor, Color.White);
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;

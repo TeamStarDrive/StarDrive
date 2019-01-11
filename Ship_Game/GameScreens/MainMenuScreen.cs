@@ -571,12 +571,12 @@ namespace Ship_Game
             }
             else
             {
-                ShipData[] hulls = ResourceManager.HullsDict.Values.Where(s
+                ShipData[] hulls = ResourceManager.Hulls.Filter(s
                     => s.Role == ShipData.RoleName.frigate
                         //|| s.Role == ShipData.RoleName.cruiser
                         //|| s.Role == ShipData.RoleName.capital
                         //&& s.ShipStyle != "Remnant"
-                        && s.ShipStyle != "Ralyeh").ToArray(); // Ralyeh ships look disgusting in the menu
+                        && s.ShipStyle != "Ralyeh"); // Ralyeh ships look disgusting in the menu
                 ShipData hull = hulls[RandomMath.InRange(hulls.Length)];
 
                 ShipObj = ResourceManager.GetSceneMesh(TransientContent, hull.ModelPath, hull.Animated);
