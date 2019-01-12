@@ -35,23 +35,10 @@ namespace Ship_Game.Ships
             return ordnanceLeft;
         }
 
-        public float FighterLaunchCost => Mass / 5f;
+        public float ShipOrdLaunchCost => Mass / 5f;
 
-        public bool ApplyFighterLaunchCost(bool pay = true)
-        {
-            float cost = FighterLaunchCost;
-            if (!pay)
-            {
-                Mothership.ChangeOrdnance(cost);
-                return true;
-            }
+        public float ShipRetrievalOrd => Mass / 5f * HealthPercent;
 
-            if (!(Mothership.Ordinance - cost > 0))
-                return false;
-
-            Mothership.ChangeOrdnance(-cost);
-            return true;
-        }
         private sealed class CargoContainer
         {
             public float TotalCargo; // Food + Production + Colonists + OtherCargo
