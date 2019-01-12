@@ -65,9 +65,6 @@ namespace Ship_Game
 
         public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
-        public static Array<Texture2D> BigNebulae                 = new Array<Texture2D>();
-        public static Array<Texture2D> MedNebulae                 = new Array<Texture2D>();
-        public static Array<Texture2D> SmallNebulae               = new Array<Texture2D>();
         public static Array<Texture2D> SmallStars                 = new Array<Texture2D>();
         public static Array<Texture2D> MediumStars                = new Array<Texture2D>();
         public static Array<Texture2D> LargeStars                 = new Array<Texture2D>();
@@ -878,11 +875,11 @@ namespace Ship_Game
         // This is a HACK to circumvent the issue
         public static readonly HashSet<string> AtlasExcludeTextures = new HashSet<string>(new []
         {
-            "Atmos"
+            "Atmos", "clouds"
         });
         public static readonly HashSet<string> AtlasExcludeFolder = new HashSet<string>(new []
         {
-            "Suns", "Beams"
+            "Suns", "Beams", "Ships"
         });
 
         static void LoadAtlas(string folder)
@@ -1313,6 +1310,10 @@ namespace Ship_Game
             }
         }
 
+        static readonly Array<Texture2D> BigNebulae   = new Array<Texture2D>();
+        static readonly Array<Texture2D> MedNebulae   = new Array<Texture2D>();
+        static readonly Array<Texture2D> SmallNebulae = new Array<Texture2D>();
+
         // Refactored by RedFox
         static void LoadNebulae()
         {
@@ -1325,14 +1326,22 @@ namespace Ship_Game
             });
             foreach (Texture2D tex in nebulae)
             {
-                if      (tex.Width == 2048) { BigNebulae.Add(tex);   }
-                else if (tex.Width == 1024) { MedNebulae.Add(tex);   }
+                if      (tex.Width >= 2048) { BigNebulae.Add(tex);   }
+                else if (tex.Width >= 1024) { MedNebulae.Add(tex);   }
                 else                        { SmallNebulae.Add(tex); }
             }
         }
         public static SubTexture SmallNebulaRandom()
         {
-            return new SubTexture(SmallNebulae[RandomMath.InRange(SmallNebulae.Count)]);
+            return new SubTexture(RandomMath.RandItem(SmallNebulae));
+        }
+        public static SubTexture NebulaMedRandom()
+        {
+            return new SubTexture(RandomMath.RandItem(MedNebulae));
+        }
+        public static SubTexture NebulaBigRandom()
+        {
+            return new SubTexture(RandomMath.RandItem(BigNebulae));
         }
         public static SubTexture MedNebula(int index)
         {
@@ -1342,6 +1351,8 @@ namespace Ship_Game
         {
             return new SubTexture(BigNebulae[index]);
         }
+
+
         // Refactored by RedFox
         private static void LoadProjectileMesh(string projectileDir, string nameNoExt)
         {

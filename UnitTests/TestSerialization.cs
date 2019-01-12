@@ -36,8 +36,8 @@ namespace SDUnitTests
 
             Assert.AreEqual(data2.RoleName, data.RoleName);
 
-            var reader3 = new JsonTextReader(new StringReader(serialized));
             string custom = "{\"RoleName\":\"carrier\"}";
+            var reader3 = new JsonTextReader(new StringReader(custom));
             var data3 = ser.Deserialize<DataToSerialize>(reader3);
 
             Assert.AreEqual(data3.RoleName, data.RoleName);

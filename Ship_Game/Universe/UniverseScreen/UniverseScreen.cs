@@ -122,7 +122,7 @@ namespace Ship_Game
         public ParticleSystem flash;
         public ParticleSystem star_particles;
         public ParticleSystem neb_particles;
-        public Starfield starfield;
+        public StarField StarField;
         public Background3D bg3d;
         public bool GravityWells;
         public Empire PlayerEmpire;
@@ -414,8 +414,7 @@ namespace Ship_Game
             LoadGraphics();
             DoParticleLoad();
             bg3d = new Background3D(this);
-            starfield = new Starfield(Vector2.Zero, ScreenManager.GraphicsDevice, TransientContent);
-            starfield.LoadContent();
+            StarField = new StarField(this);
 
             CreateProjectionMatrix();
             SetLighting(UseRealLights);
@@ -662,8 +661,7 @@ namespace Ship_Game
             FTLManager.LoadContent(content);
             MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);
-            starfield = new Starfield(Vector2.Zero, device, content);
-            starfield.LoadContent();
+            StarField = new StarField(this);
 
             ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "Ships: 0");
             PlanetsInCombat = ButtonMediumMenu(width - 135, height - 280, "Planets: 0");
@@ -671,7 +669,7 @@ namespace Ship_Game
 
         public override void UnloadContent()
         {
-            starfield?.UnloadContent();
+            StarField?.UnloadContent();
             ScreenManager.UnloadSceneObjects();
             base.UnloadContent();
         }
@@ -739,8 +737,7 @@ namespace Ship_Game
             ScreenManager.Music.Stop();
             NebulousShit.Clear();
             bloomComponent = null;
-            bg3d.BGItems.Clear();
-            bg3d = null;
+            bg3d.Dispose(ref bg3d);
             playerShip = null;
             ShipToView = null;
             foreach (Ship ship in MasterShipList)
@@ -799,8 +796,8 @@ namespace Ship_Game
             ClickableSystems.Clear();
             SpaceManager.Destroy();
             SolarSystemList.Clear();
-            starfield.UnloadContent();
-            starfield.Dispose();
+            StarField.UnloadContent();
+            StarField.Dispose();
             SolarSystemList.Clear();
             beamflashes.UnloadContent();
             explosionParticles.UnloadContent();
@@ -965,7 +962,7 @@ namespace Ship_Game
 
         protected override void Destroy()
         {
-            starfield               ?.Dispose(ref starfield);
+            StarField               ?.Dispose(ref StarField);
             DeepSpaceDone           ?.Dispose(ref DeepSpaceDone);
             EmpireDone              ?.Dispose(ref EmpireDone);
             DeepSpaceGateKeeper     ?.Dispose(ref DeepSpaceGateKeeper);
