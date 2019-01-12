@@ -890,7 +890,7 @@ namespace Ship_Game.AI
                 }
             }
             ThrustTowardsPosition(Owner.HomePlanet.Center, elapsedTime, Owner.Speed);
-            if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.HomePlanet.ObjectRadius))
+            if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.HomePlanet.ObjectRadius + 50f))
             {
                 Owner.HomePlanet.LandDefenseShip(Owner.DesignRole, Owner.BaseCost, Owner.HealthPercent);
                 Owner.QueueTotalRemoval();
