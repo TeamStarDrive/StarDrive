@@ -1262,7 +1262,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
         }
 
-        public void DrawSunModel(Matrix world, SubTexture texture, float scale)
+        public void DrawSunModel(in Matrix world, SubTexture texture, float scale)
             => DrawTransparentModel(SunModel, world, texture, scale);
 
         public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)

@@ -1,3 +1,4 @@
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -5,63 +6,73 @@ namespace Ship_Game
 {
 	internal static class FTLManager
 	{
-		private static readonly BatchRemovalCollection<FTL> FTLList = new BatchRemovalCollection<FTL>();
-        private static SubTexture FTLTexture;
+        sealed class FTL
+        {
+            public Matrix WorldMatrix;
+            public Vector2 Center;
+            public float Life  = 0.9f;
+            public float Scale = 0.1f;
+            public float Rotation;
+        }
+		static readonly Array<FTL> Effects = new Array<FTL>();
+        static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        static SubTexture FTLTexture;
 
         public static void LoadContent(GameContentManager content)
         {
-            if (FTLTexture == null)
-                FTLTexture = content.Load<SubTexture>("Textures/Ships/FTL");
+            FTLTexture = content.Load<SubTexture>("Textures/Ships/FTL");
         }
 
         public static void AddFTL(Vector2 center)
         {
-            FTL ftl = new FTL();
-            ftl.Center = new Vector2(center.X, center.Y);
-            using (FTLList.AcquireWriteLock())
-                FTLList.Add(ftl);
+            var f = new FTL { Center = center };
+            using (Lock.AcquireWriteLock())
+                Effects.Add(f);
         }
 
         public static void DrawFTLModels(UniverseScreen us)
         {
-            using (FTLList.AcquireReadLock())
+            using (Lock.AcquireReadLock())
             {
-                foreach (FTL item in FTLList)
+                foreach (FTL item in Effects)
                 {
-                    us.DrawSunModel(item.WorldMatrix, FTLTexture, item.scale * 1.0f / 50.0f);
+                    us.DrawSunModel(item.WorldMatrix, FTLTexture, item.Scale * (1.0f / 50.0f));
                 }
             }
         }
 
 		public static void Update(float elapsedTime)
 		{
-            using (FTLList.AcquireReadLock())
+            using (Lock.AcquireWriteLock())
             {
-                foreach (FTL item in FTLList)
+                for (int i = 0; i < Effects.Count; ++i)
 			    {
-			        item.timer -= elapsedTime;
-			        if (item.timer < 0.6f)
+                    FTL f = Effects[i];
+			        f.Life -= elapsedTime;
+                    if (f.Life <= 0f)
+                    {
+                        Effects.RemoveAtSwapLast(i--);
+                        continue;
+                    }
+
+			        if (f.Life < 0.6f)
 			        {
-			            item.scale /= 2.5f;
+			            f.Scale /= 2.5f;
 			        }
 			        else
 			        {
-			            item.scale *= 1.5625f;
-			            if (item.scale > 60f)
-			                item.scale = 60f;
+			            f.Scale *= 1.5625f;
+			            if (f.Scale > 60f)
+			                f.Scale = 60f;
 			        }
+
 			        if (elapsedTime > 0f)
-			        {
-			            item.rotation += 0.09817477f;
-			        }
-			        item.WorldMatrix = Matrix.CreateRotationZ(item.rotation) * Matrix.CreateTranslation(new Vector3(item.Center, 0f));
-			        if (item.timer <= 0f)
-			        {
-			            FTLList.QueuePendingRemoval(item);
-			        }
+			            f.Rotation += 0.09817477f;
+
+			        f.WorldMatrix = Matrix.CreateRotationZ(f.Rotation)
+			                      * Matrix.CreateTranslation(new Vector3(f.Center, 0f));
 			    }
             }
-            FTLList.ApplyPendingRemovals();
 		}
 	}
 }
