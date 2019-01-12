@@ -12,21 +12,21 @@ namespace Ship_Game
     {
         public PointLight light;
         public Vector2 pos;
-        public float duration;
+        public float Time;
+        public float Duration;
         public Color color;
         public Rectangle ExplosionRect;
         public float Radius;
         public ShipModule module;
         public float Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
-        public float shockWaveTimer;
-        public int AnimationFrame = -1;
+        public int AnimationFrame;
         public TextureAtlas Animation;
     }
 
     public sealed class ExplosionManager
     {
         public static UniverseScreen Universe;
-        public static BatchRemovalCollection<Explosion> ActiveExplosions = new BatchRemovalCollection<Explosion>();
+        static readonly BatchRemovalCollection<Explosion> ActiveExplosions = new BatchRemovalCollection<Explosion>();
 
         static readonly Array<TextureAtlas> Generic   = new Array<TextureAtlas>();
         static readonly Array<TextureAtlas> Photon    = new Array<TextureAtlas>();
@@ -120,11 +120,11 @@ namespace Ship_Game
             return RandomMath2.RandItem(Generic); 
         }
 
-        public static void AddExplosion(Vector3 position, float radius, float intensity, float duration, string explosionPath = null)
+        public static void AddExplosion(Vector3 position, float radius, float intensity, string explosionPath = null)
         {
             var newExp = new Explosion
             {
-                duration = 2.25f,
+                Duration = 2.25f,
                 pos = position.ToVec2(),
                 Animation = ChooseExplosion(explosionPath)
             };
@@ -132,22 +132,22 @@ namespace Ship_Game
             ActiveExplosions.Add(newExp);
         }
 
-        public static void AddExplosionNoFlames(Vector3 position, float radius, float intensity, float duration)
+        public static void AddExplosionNoFlames(Vector3 position, float radius, float intensity)
         {
             var newExp = new Explosion
             {
-                duration = 2.25f,
+                Duration = 2.25f,
                 pos = position.ToVec2(),
             };
             AddLight(newExp, position, radius, intensity);
             ActiveExplosions.Add(newExp);
         }
 
-        public static void AddProjectileExplosion(Vector3 position, float radius, float intensity, float duration, string expColor)
+        public static void AddProjectileExplosion(Vector3 position, float radius, float intensity, string expColor)
         {
             var newExp = new Explosion
             {
-                duration = 2.25f,
+                Duration = 2.25f,
                 pos = position.ToVec2(),
                 Animation = RandomMath2.RandItem(expColor == "Blue_1" ? Photon : Generic)
             };
@@ -155,11 +155,11 @@ namespace Ship_Game
             ActiveExplosions.Add(newExp);
         }
 
-        public static void AddWarpExplosion(Vector3 position, float radius, float intensity, float duration)
+        public static void AddWarpExplosion(Vector3 position, float radius, float intensity)
         {
             var newExp = new Explosion
             {
-                duration = 2.25f,
+                Duration = 2.25f,
                 pos = position.ToVec2(),
                 Animation = RandomMath2.RandItem(ShockWave)
             };
@@ -172,25 +172,29 @@ namespace Ship_Game
             using (ActiveExplosions.AcquireReadLock())
             foreach (Explosion e in ActiveExplosions)
             {
-                e.duration       -= elapsedTime;
-                e.shockWaveTimer += elapsedTime;
-                if (e.light != null)
-                {
-                    e.light.Intensity -= 0.2f;
-                }
-                e.color = new Color(255f, 255f, 255f, 255f * e.duration / 0.2f);
-                if (e.Animation != null)
-                {
-                    if (e.AnimationFrame < e.Animation.Count-1)
-                        e.AnimationFrame += 1;
-                    //else
-                    //    e.AnimationFrame = 0; // restart
-                }
-                if (e.duration <= 0f)
+                if (e.Time > e.Duration)
                 {
                     ActiveExplosions.QueuePendingRemoval(e);
                     Universe.RemoveLight(e.light);
+                    continue;
                 }
+
+                if (e.light != null)
+                {
+                    e.light.Intensity -= 10f * elapsedTime;
+                }
+
+                float relTime = e.Time / e.Duration;
+                e.color = new Color(255f, 255f, 255f, 255f * (1f - relTime));
+
+                if (e.Animation != null)
+                {
+                    e.AnimationFrame =  (int)(e.Animation.Count * relTime);
+                    e.AnimationFrame = e.AnimationFrame.Clamped(0, e.Animation.Count-1);
+                }
+
+                // time is update last, because we don't want to skip frame 0 due to bad interpolation
+                e.Time += elapsedTime;
             }
             ActiveExplosions.ApplyPendingRemovals();
         }
@@ -203,6 +207,9 @@ namespace Ship_Game
                 foreach (Explosion e in ActiveExplosions)
                 {
                     if (float.IsNaN(e.Radius) || e.Animation == null)
+                        continue;
+                    // animation either not started or already finished
+                    if (e.AnimationFrame < 0 || e.Animation.Count <= e.AnimationFrame)
                         continue;
 
                     Vector2 expCenter = e.module?.Position ?? e.pos;
