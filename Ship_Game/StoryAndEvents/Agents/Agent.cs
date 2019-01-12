@@ -477,7 +477,7 @@ namespace Ship_Game
                         AddExperience(ResourceManager.AgentMissionData.StealTechExp, Owner);
                         if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6063), " ", (ResourceManager.AgentMissionData.StealTechCost / 2).ToString(), " ", Localizer.Token(6064)), Owner);
                         Empire owner = Owner;
-                        owner.Money += ResourceManager.AgentMissionData.StealTechCost / 2;
+                        owner.AddMoney((float)ResourceManager.AgentMissionData.StealTechCost / 2);
                         break;
                     }
                 #endregion
@@ -503,9 +503,9 @@ namespace Ship_Game
                             //Added by McShooterz
                             AddExperience(ResourceManager.AgentMissionData.RobberyExpPerfect, Owner);
                             Empire money = Target;
-                            money.Money = money.Money - amount;
+                            money.AddMoney(-amount);
                             Empire empire = Owner;
-                            empire.Money = empire.Money + amount;
+                            empire.AddMoney(amount);
                             NotificationManager notificationManager2 = Empire.Universe.NotificationManager;
                             object[] objArray = { Name, " ", Localizer.Token(6068), " ", amount, " ", Localizer.Token(6069), " ", TargetEmpire, Localizer.Token(6031) };
                             if (!spyMute) notificationManager2.AddAgentResultNotification(true, string.Concat(objArray), Owner);
@@ -523,9 +523,9 @@ namespace Ship_Game
                             //Added by McShooterz
                             AddExperience(ResourceManager.AgentMissionData.RobberyExpGood, Owner);
                             Empire money1 = Target;
-                            money1.Money = money1.Money - amount;
+                            money1.AddMoney(-amount);
                             Empire owner1 = Owner;
-                            owner1.Money = owner1.Money + amount;
+                            owner1.AddMoney(amount);
                             if (Target == EmpireManager.Player)
                             {
                                 if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(amount, " ", Localizer.Token(6070), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
@@ -800,9 +800,10 @@ namespace Ship_Game
                  
             }
 
-            
+
             if (Owner.isPlayer)
-                Owner.Money = spyBudget;
+                //Owner.Money = spyBudget;
+                Owner.AddMoney(-Owner.Money + spyBudget); // Fatbastard - refactor all this crappy copy paste function 
             else
             {
                 Owner.GetEmpireAI().spyBudget = spyBudget;

@@ -688,6 +688,17 @@ namespace Ship_Game.AI
             State = AIState.ReturnToHangar;
         }
 
+        public void OrderReturnHome()
+        {
+            var g = new ShipGoal(Plan.ReturnHome, Vector2.Zero, 0f);
+
+            OrderQueue.Clear();
+            OrderQueue.Enqueue(g);
+
+            HasPriorityOrder = true;
+            State = AIState.ReturnHome;
+        }
+
         public void OrderScrapShip()
         {
 #if SHOWSCRUB

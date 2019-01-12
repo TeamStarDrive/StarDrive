@@ -104,7 +104,8 @@ namespace Ship_Game.AI {
             LandTroop,
             MoveToWithin7500,
             BombTroops,
-            ResupplyEscort
+            ResupplyEscort,
+            ReturnHome
         }
     }
 }
