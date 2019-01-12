@@ -520,6 +520,11 @@ namespace Ship_Game
                     text = "Self Destruct: " + ship.ScuttleTimer.ToString("#");
                     break;
                 }
+                case AIState.ReturnHome:
+                {
+                        text = "Defense Ship Returning Home";
+                        break;
+                }
                 default:
                 {
                     goto case AIState.Exterminate;
