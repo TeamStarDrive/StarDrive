@@ -19,7 +19,7 @@ namespace Ship_Game
             GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
 
-            Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.starfield);
+            Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.StarField);
             ScreenManager.RenderSceneObjects();
 
             if (ToggleOverlay)

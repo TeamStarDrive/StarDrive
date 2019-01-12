@@ -26,7 +26,7 @@ namespace Ship_Game
 
         //private Background bg = new Background();
 
-        private Starfield Starfield;
+        private StarField StarField;
 
         public EmpireUIOverlay EmpireUI;
 
@@ -212,7 +212,7 @@ namespace Ship_Game
         {
             lock (this)
             {
-                Starfield?.Dispose(ref Starfield);
+                StarField?.Dispose(ref StarField);
                 SelectedFleet = null;
                 AvailableShips?.Dispose(ref AvailableShips);
             }
@@ -226,7 +226,7 @@ namespace Ship_Game
             ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
-            Screen.bg.Draw(Screen, Screen.starfield);
+            Screen.bg.Draw(Screen, Screen.StarField);
             batch.Begin();
             DrawGrid();
             if (SelectedNodeList.Count == 1)
@@ -777,7 +777,7 @@ namespace Ship_Game
                 Empire.Universe.AssignLightRig("example/NewGamelight_rig");
                 Empire.Universe.RecomputeFleetButtons(true);
             }
-            Starfield.UnloadContent();
+            StarField.UnloadContent();
             base.ExitScreen();
         }
 
@@ -1600,8 +1600,7 @@ namespace Ship_Game
         {
             Close = new CloseButton(this, new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
             AssignLightRig("example/ShipyardLightrig");
-            Starfield = new Starfield(Vector2.Zero, ScreenManager.GraphicsDevice, TransientContent);
-            Starfield.LoadContent();
+            StarField = new StarField(this);
             Rectangle titleRect = new Rectangle(2, 44, 250, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2f - Fonts.Laserian14.MeasureString("Fleet Hotkeys").X / 2f
@@ -1710,8 +1709,7 @@ namespace Ship_Game
             SliderSize = new SizeSlider(sizerect, "Target UniverseRadius Preference");
             SliderSize.SetAmount(0.5f);
             SliderSize.Tip_ID = 14;
-            Starfield = new Starfield(Vector2.Zero, ScreenManager.GraphicsDevice, TransientContent);
-            Starfield.LoadContent();
+            StarField = new StarField(this);
             //bg = new Background();
             float width = Viewport.Width;
             Viewport viewport = Viewport;
