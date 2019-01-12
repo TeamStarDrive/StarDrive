@@ -170,8 +170,7 @@ namespace Ship_Game.Gameplay
         private float SalvoDirection;
         private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
         private GameplayObject SalvoTarget;
-        public string ExplosionPath = "";
-        public string ExplosionAnimation = "";
+        public string ExplosionPath;
         public float ECM = 0;
 
         // When ships are off-screen, we do cheap and dirty invisible damage calculation

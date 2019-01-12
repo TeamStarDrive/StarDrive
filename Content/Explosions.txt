@@ -1,0 +1,9 @@
+﻿# Describes available explosion types.
+# <type> <anim_folder>
+generic Textures/sd_explosion_07a_cc
+generic Textures/sd_explosion_12a_cc
+generic Textures/sd_explosion_14a_cc
+# there can be multiple photon or shockwave anims
+# photon anims are selected when ExpColor == "Blue_1" (legacy stuff)
+photon Textures/sd_explosion_03_photon_256
+shockwave Textures/sd_shockwave_01

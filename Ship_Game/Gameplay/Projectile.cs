@@ -340,8 +340,7 @@ namespace Ship_Game.Gameplay
                             Weapon.ExpColor);
                     else
                         ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod,
-                            2.5f,
-                            0.2f, Weapon.ExplosionPath, Weapon.ExplosionAnimation);
+                            2.5f, 0.2f, Weapon.ExplosionPath);
 
                     if (FlashExplode)
                         Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
