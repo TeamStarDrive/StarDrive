@@ -335,13 +335,9 @@ namespace Ship_Game.Gameplay
                     GameAudio.PlaySfxAsync(DieCueName, Emitter);
 
                     if (Weapon.ExpColor != null)
-                        ExplosionManager.AddProjectileExplosion(new Vector3(Position, -50f), DamageRadius * 4.5f, 2.5f,
-                            0.2f,
-                            Weapon.ExpColor);
+                        ExplosionManager.AddProjectileExplosion(new Vector3(Position, -50f), DamageRadius * 4.5f, 2.5f, Weapon.ExpColor);
                     else
-                        ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod,
-                            2.5f,
-                            0.2f, Weapon.ExplosionPath, Weapon.ExplosionAnimation);
+                        ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionPath);
 
                     if (FlashExplode)
                         Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
@@ -351,7 +347,7 @@ namespace Ship_Game.Gameplay
             }
             else if (Weapon.FakeExplode && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, 0.2f);
+                ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f);
                 if (FlashExplode)
                 {
                     Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
@@ -656,11 +652,11 @@ namespace Ship_Game.Gameplay
                     FlashTimer -= elapsedTime;
                     Flash = new MuzzleFlash
                     {
-                        WorldMatrix = Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(pos),
+                        WorldMatrix = Matrix.CreateRotationZ(Rotation)
+                                    * Matrix.CreateTranslation(pos),
                         Owner = this
                     };
-                    lock (GlobalStats.ExplosionLocker)
-                        MuzzleFlashManager.FlashList.Add(Flash);
+                    MuzzleFlashManager.AddFlash(Flash);
                 }
                 else if (FlashTimer > 0f && Module.InstalledWeapon.MuzzleFlash != null && MuzzleFlashAdded)
                 {

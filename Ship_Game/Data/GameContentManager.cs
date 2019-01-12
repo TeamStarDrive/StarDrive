@@ -339,6 +339,7 @@ namespace Ship_Game
             }
         }
 
+        // @note Guaranteed to load an atlas with at least 1 texture
         public TextureAtlas LoadTextureAtlas(string folderWithTextures, bool useCache = true)
         {
             if (useCache && TryGetAsset(folderWithTextures, out TextureAtlas existing))
