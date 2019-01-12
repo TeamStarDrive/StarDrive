@@ -1,6 +1,6 @@
 ﻿$newfile = @()
 $updatefile = $false
-$ver = .\Deploy\TortoiseHg\hg.exe log -r tip --template `{branch`}_`{latesttagdistance`}
+$ver = .\Deploy\TortoiseHg\hg.exe log -r . --template `{branch`}_`{latesttagdistance`}
 $ver = $ver.Replace("release/", "")
 
 $newline = "`[assembly`: AssemblyInformationalVersion(`"" + $ver + "`")`]"
