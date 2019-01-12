@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -21,12 +22,14 @@ namespace Ship_Game
 
             return false;
         }
+
         void DebugEvalBuild(Building b, string what, float score)
         {
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.DarkGray,
                     $"Eval BUILD  {b.Name,-20}  {what,-16} {(+score).SignString()}");
         }
+
         void DebugEvalScrap(Building b, string what, float score)
         {
             if (IsPlanetExtraDebugTarget())
@@ -513,7 +516,9 @@ namespace Ship_Game
             if (b.isWeapon && b.Weapon.NotEmpty())
             {
                 Weapon w = ResourceManager.WeaponsDict[b.Weapon];
-                dps = (w.DamageAmount / w.fireDelay) / 500;
+                dps      = (w.DamageAmount * w.ProjectileCount  / w.fireDelay) / 500;
+                // FB: Fortunately, salvos and beams dont work for building weapons,
+                // otherwise it would be more complicated to calc this
             }
 
             // Shields are very efficient because they protect from early bombardments
@@ -523,15 +528,41 @@ namespace Ship_Game
 
             float allowTroops = 0;
             if (b.AllowInfantry)
-            {
                 allowTroops = colonyType == ColonyType.Military ? 1.0f : 0.5f;
+
+
+            float invadeScore = b.InvadeInjurePoints;
+
+            float defenseShipScore = 0;
+            if (b.DefenseShipsCapacity > 0 && !b.DefenseShipsRole.IsEmpty())
+            {
+                ShipData.RoleName shipRole = (ShipData.RoleName)Enum.Parse(typeof(ShipData.RoleName), b.DefenseShipsRole);
+                switch (shipRole)
+                {
+                    case ShipData.RoleName.drone:
+                        defenseShipScore = 0.05f;
+                        break;
+                    case ShipData.RoleName.fighter:
+                        defenseShipScore = 0.1f;
+                        break;
+                    case ShipData.RoleName.corvette:
+                        defenseShipScore = 0.2f;
+                        break;
+                    case ShipData.RoleName.frigate:
+                        defenseShipScore = 0.4f;
+                        break;
+                    default:
+                        defenseShipScore = 1f;
+                        break;
+                }
+                defenseShipScore *= b.DefenseShipsCapacity;
             }
 
             // Shield, weapon, and/or allow troop weighting go here (which is why they are all seperate values)
 
             // Factor by current population, so military buildings will be delayed
             float ratingFactor = ((PopulationRatio - 0.5f) * 2.0f).Clamped(0.0f, 1.0f);
-            float finalRating = (combatScore + dps + shieldScore + allowTroops) * ratingFactor;
+            float finalRating  = (combatScore + dps + shieldScore + allowTroops + invadeScore + defenseShipScore) * ratingFactor;
 
             DebugEvalBuild(b, "Military", finalRating);
             return finalRating;
