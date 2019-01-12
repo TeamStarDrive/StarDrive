@@ -12,7 +12,7 @@ namespace Ship_Game
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 9; // changing this will force all caches to regenerate
+        const int Version = 11; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -49,6 +49,9 @@ namespace Ship_Game
         public int Count => Sorted.Length;
         public SubTexture this[int index] => Sorted[index];
         public SubTexture this[string name] => Lookup[name];
+
+        // Grabs a random texture from this texture atlas
+        public SubTexture RandomTexture() => RandomMath.RandItem(Sorted);
 
         public bool TryGetTexture(string name, out SubTexture texture)
             => Lookup.TryGetValue(name, out texture);

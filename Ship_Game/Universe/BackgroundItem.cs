@@ -13,58 +13,34 @@ namespace Ship_Game
 		public Vector3 LowerLeft;
 		public Vector3 UpperRight;
 		public Vector3 LowerRight;
-
-		public VertexDeclaration quadVertexDecl;
-
+		public VertexDeclaration LayoutDescriptor;
 		public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
-
-		public int[] Indexes = new int[6];
-
+		public int[] Indices = new int[6];
 		public static BasicEffect QuadEffect;
 
 		public BackgroundItem()
 		{
 		}
+
         public BackgroundItem(SubTexture texture)
         {
             Texture = texture;
         }
-		public void Draw(ScreenManager manager, Matrix view, Matrix projection, float alpha, Array<BackgroundItem> bgiList)
-		{
-			QuadEffect.View = view;
-			QuadEffect.Projection = projection;
-			QuadEffect.Texture = Texture.Texture;
-			QuadEffect.Alpha = alpha;
-		    manager.GraphicsDevice.VertexDeclaration = quadVertexDecl;
-			QuadEffect.Begin();
-			foreach (EffectPass pass in QuadEffect.CurrentTechnique.Passes)
-			{
-				pass.Begin();
-				foreach (BackgroundItem bgi in bgiList)
-				{
-				    manager.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, 
-                        bgi.Vertices, 0, 4, bgi.Indexes, 0, 2);
-				}
-				pass.End();
-			}
-			QuadEffect.End();
-		    manager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
-		}
 
-		public void Draw(ScreenManager manager, Matrix view, Matrix projection, float Alpha)
+		public void Draw(ScreenManager manager, in Matrix view, in Matrix projection, float alpha)
 		{
 			QuadEffect.World      = Matrix.Identity;
 			QuadEffect.View       = view;
 			QuadEffect.Projection = projection;
 			QuadEffect.Texture    = Texture.Texture;
-			QuadEffect.Alpha      = Alpha;
-		    manager.GraphicsDevice.VertexDeclaration = quadVertexDecl;
+			QuadEffect.Alpha      = alpha;
+		    manager.GraphicsDevice.VertexDeclaration = LayoutDescriptor;
 			QuadEffect.Begin();
 			foreach (EffectPass pass in QuadEffect.CurrentTechnique.Passes)
 			{
 				pass.Begin();
 			    manager.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, 
-                    Vertices, 0, 4, Indexes, 0, 2);
+                    Vertices, 0, 4, Indices, 0, 2);
 				pass.End();
 			}
 			QuadEffect.End();
@@ -81,18 +57,17 @@ namespace Ship_Game
 			Vertices[1].TextureCoordinate = Texture.CoordUpperLeft;
 			Vertices[2].TextureCoordinate = Texture.CoordLowerRight;;
 			Vertices[3].TextureCoordinate = Texture.CoordUpperRight;
-			Indexes[0] = 0;
-			Indexes[1] = 1;
-			Indexes[2] = 2;
-			Indexes[3] = 2;
-			Indexes[4] = 1;
-			Indexes[5] = 3;
+			Indices[0] = 0;
+			Indices[1] = 1;
+			Indices[2] = 2;
+			Indices[3] = 2;
+			Indices[4] = 1;
+			Indices[5] = 3;
 		}
 
 		public void LoadContent(ScreenManager manager, Matrix view, Matrix projection)
 		{
-			quadVertexDecl = new VertexDeclaration(manager.GraphicsDevice, 
-                VertexPositionNormalTexture.VertexElements);
+			LayoutDescriptor = new VertexDeclaration(manager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
 		}
 
         public void Dispose()
@@ -103,9 +78,9 @@ namespace Ship_Game
 
         ~BackgroundItem() { Destroy(); }
 
-        private void Destroy()
+        void Destroy()
         {
-            quadVertexDecl?.Dispose(ref quadVertexDecl);
+            LayoutDescriptor?.Dispose(ref LayoutDescriptor);
         }
     }
 }

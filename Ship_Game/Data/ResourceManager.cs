@@ -65,12 +65,6 @@ namespace Ship_Game
 
         public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
-        public static Array<Texture2D> BigNebulae                 = new Array<Texture2D>();
-        public static Array<Texture2D> MedNebulae                 = new Array<Texture2D>();
-        public static Array<Texture2D> SmallNebulae               = new Array<Texture2D>();
-        public static Array<Texture2D> SmallStars                 = new Array<Texture2D>();
-        public static Array<Texture2D> MediumStars                = new Array<Texture2D>();
-        public static Array<Texture2D> LargeStars                 = new Array<Texture2D>();
         public static XmlSerializer HeaderSerializer              = new XmlSerializer(typeof(HeaderData));
 
         private static Map<string, SoundEffect> SoundEffectDict;
@@ -257,9 +251,7 @@ namespace Ship_Game
             LoadTextureAtlases();
 
             LoadNebulae();
-            LoadSmallStars();
-            LoadMediumStars();
-            LoadLargeStars();
+            LoadStars();
             LoadFlagTextures(); // @todo Very slow for some reason [1.04%]
             LoadHullBonuses();
 
@@ -878,11 +870,11 @@ namespace Ship_Game
         // This is a HACK to circumvent the issue
         public static readonly HashSet<string> AtlasExcludeTextures = new HashSet<string>(new []
         {
-            "Atmos"
+            "Atmos", "clouds"
         });
         public static readonly HashSet<string> AtlasExcludeFolder = new HashSet<string>(new []
         {
-            "Suns", "Beams"
+            "Suns", "Beams", "Ships"
         });
 
         static void LoadAtlas(string folder)
@@ -1283,35 +1275,19 @@ namespace Ship_Game
 
         }
 
-        private static void LoadLargeStars() // Refactored by RedFox
+
+        public static TextureAtlas SmallStars, MediumStars, LargeStars;
+        
+        static void LoadStars()
         {
-            foreach (FileInfo info in GatherFilesUnified("LargeStars", "xnb"))
-            {
-                try
-                {
-                    LargeStars.Add(RootContent.Load<Texture2D>(info.CleanResPath()));
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "LoadLargerStars failed");
-                }
-            }
+            SmallStars  = RootContent.LoadTextureAtlas("SmallStars");
+            MediumStars = RootContent.LoadTextureAtlas("MediumStars");
+            LargeStars  = RootContent.LoadTextureAtlas("LargeStars");
         }
 
-        private static void LoadMediumStars() // Refactored by RedFox
-        {
-            foreach (FileInfo info in GatherFilesUnified("MediumStars", "xnb"))
-            {
-                try
-                {
-                    MediumStars.Add(RootContent.Load<Texture2D>(info.CleanResPath()));
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "LoadMediumStars failed");
-                }
-            }
-        }
+        static readonly Array<Texture2D> BigNebulae   = new Array<Texture2D>();
+        static readonly Array<Texture2D> MedNebulae   = new Array<Texture2D>();
+        static readonly Array<Texture2D> SmallNebulae = new Array<Texture2D>();
 
         // Refactored by RedFox
         static void LoadNebulae()
@@ -1325,14 +1301,22 @@ namespace Ship_Game
             });
             foreach (Texture2D tex in nebulae)
             {
-                if      (tex.Width == 2048) { BigNebulae.Add(tex);   }
-                else if (tex.Width == 1024) { MedNebulae.Add(tex);   }
+                if      (tex.Width >= 2048) { BigNebulae.Add(tex);   }
+                else if (tex.Width >= 1024) { MedNebulae.Add(tex);   }
                 else                        { SmallNebulae.Add(tex); }
             }
         }
         public static SubTexture SmallNebulaRandom()
         {
-            return new SubTexture(SmallNebulae[RandomMath.InRange(SmallNebulae.Count)]);
+            return new SubTexture(RandomMath.RandItem(SmallNebulae));
+        }
+        public static SubTexture NebulaMedRandom()
+        {
+            return new SubTexture(RandomMath.RandItem(MedNebulae));
+        }
+        public static SubTexture NebulaBigRandom()
+        {
+            return new SubTexture(RandomMath.RandItem(BigNebulae));
         }
         public static SubTexture MedNebula(int index)
         {
@@ -1342,6 +1326,8 @@ namespace Ship_Game
         {
             return new SubTexture(BigNebulae[index]);
         }
+
+
         // Refactored by RedFox
         private static void LoadProjectileMesh(string projectileDir, string nameNoExt)
         {
@@ -1573,19 +1559,6 @@ namespace Ship_Game
             CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
-        }
-
-
-
-        private static void LoadSmallStars()
-        {
-            FileInfo[] files = GatherFilesModOrVanilla("SmallStars", "xnb");
-            SmallStars.Resize(files.Length);
-            Parallel.For(files.Length, (start, end) =>
-            {
-                for (int i = start; i < end; ++i)
-                    SmallStars[i] = RootContent.Load<Texture2D>(files[i].CleanResPath());
-            });
         }
 
 

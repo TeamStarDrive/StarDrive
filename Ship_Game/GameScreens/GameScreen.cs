@@ -25,6 +25,7 @@ namespace Ship_Game
 
         public Viewport Viewport { get; private set; }
         public ScreenManager ScreenManager { get; internal set; }
+        public GraphicsDevice Device => ScreenManager.GraphicsDevice;
         public ScreenState   ScreenState   { get; protected set; }
         public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
         public TimeSpan TransitionOnTime  { get; protected set; } = TimeSpan.Zero;
