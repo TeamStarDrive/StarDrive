@@ -36,6 +36,7 @@ namespace Ship_Game.AI
         BombardTroops,
         Scuttle,
         Scrap,
-        ResupplyEscort
+        ResupplyEscort,
+        ReturnHome
     }
 }

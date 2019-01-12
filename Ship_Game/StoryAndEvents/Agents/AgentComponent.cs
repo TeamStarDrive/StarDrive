@@ -230,7 +230,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    EmpireManager.Player.Money -= ResourceManager.AgentMissionData.AgentCost;
+                    EmpireManager.Player.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
                     var a = new Agent
                     {
                         Name = GetName(LoadNames()),

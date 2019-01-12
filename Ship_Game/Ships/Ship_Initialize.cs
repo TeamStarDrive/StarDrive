@@ -138,6 +138,9 @@ namespace Ship_Game.Ships
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.Name;
 
+            if (save.HomePlanetGuid != Guid.Empty)
+                HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
+
             if (!ResourceManager.ShipTemplateExists(save.Name))
             {
                 save.data.Hull = save.Hull;
@@ -283,6 +286,15 @@ namespace Ship_Game.Ships
             if (ship.SetTroopShuttleRole(hangar.IsTroopBay))
                 return ship;
 
+            return ship;
+        }
+
+        public static Ship CreateDefenseShip(string shipName, Empire owner, Vector2 p, Planet planet)
+        {
+            Ship ship = CreateShipAtPoint(shipName, owner, p);
+            ship.VanityName = "Home Defense";
+            ship.UpdateHomePlanet(planet);
+            ship.HomePlanet = planet;
             return ship;
         }
 
