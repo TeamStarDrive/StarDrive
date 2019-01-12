@@ -69,6 +69,9 @@ namespace Ship_Game
             return UnprojectToWorldPosition3D(screenSpace).ToVec2();
         }
 
+        // Unprojects cursor screen pos to world 3D position
+        public Vector3 CursorWorldPosition => UnprojectToWorldPosition3D(Input.CursorPosition);
+
 
         // projects the line from World positions into Screen positions, then draws the line
         public Vector2 DrawLineProjected(Vector2 startInWorld, Vector2 endInWorld, Color color, 

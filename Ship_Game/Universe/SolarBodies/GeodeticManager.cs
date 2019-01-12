@@ -80,7 +80,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && ParentSystem.isVisible)
                 {
                     PlayPlanetSfx("sd_bomb_impact_01", bomb.Position);
-                    ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
+                    ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f);
                     Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     for (int i = 0; i < 50; i++)
                     {
@@ -188,12 +188,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == SolarSystemBody)
                 {
                     GameAudio.PlaySfxAsync("Explo1");
-                    CombatScreen.SmallExplosion exp1 = new CombatScreen.SmallExplosion(4);
-                    exp1.grid = od.Target.ClickRect;
-                    lock (GlobalStats.ExplosionLocker)
-                    {
-                        (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(exp1);
-                    }
+                    ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(od.Target.ClickRect, 4);
                 }
                 if (Population <= 0f)
                 {
