@@ -2310,37 +2310,23 @@ namespace Ship_Game.Ships
         }
 
         public void AddToShipLevel(int amountToAdd) => Level = Math.Min(255, Level + amountToAdd);
-        private void ExplodeShip(SplodeData splode)
-        {
-            ExplodeShip(splode.Size, splode.Warp);
-        }
-        private void ExplodeShip(float explodeRadius, bool useWarpExplodeEffect)
+        
+        void ExplodeShip(float size, bool addWarpExplode)
         {
             if (!InFrustum) return;
-            Vector3 position = new Vector3(Center.X, Center.Y, -100f);
+            var position = new Vector3(Center.X, Center.Y, -100f);
 
-            float explosionboost = 1f;
+            float boost = 1f;
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi != null)
-                explosionboost = GlobalStats.ActiveMod.mi.GlobalShipExplosionVisualIncreaser;
+                boost = GlobalStats.ActiveMod.mi.GlobalShipExplosionVisualIncreaser;
 
-            ExplosionManager.AddExplosion(position, explodeRadius * explosionboost, 12f);
-            if (useWarpExplodeEffect)
+            ExplosionManager.AddExplosion(position, size * boost, 12f);
+            if (addWarpExplode)
             {
-                ExplosionManager.AddWarpExplosion(position, explodeRadius*1.75f, 12f);
+                ExplosionManager.AddWarpExplosion(position, size*1.75f, 12f);
             }
+            UniverseScreen.SpaceManager.ShipExplode(this, size * 50, Center, Radius);
         }
-        private struct SplodeData
-        {
-            public SplodeData(float size, bool warp)
-            {
-                Size = size;
-                Warp = warp;
-            }
-
-            public float Size { get; private set; }
-            public bool Warp { get; private set; }
-        }
-        private static SplodeData SetSplodeData(float size, bool warp) => new SplodeData(size, warp);
 
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -2385,7 +2371,7 @@ namespace Ship_Game.Ships
                 string dieSoundEffect;
                 if (SurfaceArea < 80)       dieSoundEffect = "sd_explosion_ship_det_small";
                 else if (SurfaceArea < 250) dieSoundEffect = "sd_explosion_ship_det_medium";
-                else                 dieSoundEffect = "sd_explosion_ship_det_large";
+                else                        dieSoundEffect = "sd_explosion_ship_det_large";
                 GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
             }
             for (int index = 0; index < EmpireManager.Empires.Count; index++)
@@ -2407,23 +2393,20 @@ namespace Ship_Game.Ships
             if (Active)
             {
                 Active = false;
-                SplodeData splodeType;
                 switch (shipData.HullRole)
                 {
-                    case ShipData.RoleName.freighter: splodeType = SetSplodeData(size * 8, cleanupOnly);  break;
-                    case ShipData.RoleName.platform:  splodeType = SetSplodeData(size * 8, cleanupOnly);  break;
                     case ShipData.RoleName.corvette:
                     case ShipData.RoleName.scout:
-                    case ShipData.RoleName.fighter:   splodeType = SetSplodeData(size * 10, cleanupOnly); break;
-                    case ShipData.RoleName.frigate:   splodeType = SetSplodeData(size * 10, cleanupOnly); break;
+                    case ShipData.RoleName.fighter:
+                    case ShipData.RoleName.frigate:   ExplodeShip(size * 10, cleanupOnly); break;
                     case ShipData.RoleName.carrier:
-                    case ShipData.RoleName.capital:   splodeType = SetSplodeData(size * 8, true);         break;
-                    case ShipData.RoleName.cruiser:   splodeType = SetSplodeData(size * 8, true);         break;
-                    case ShipData.RoleName.station:   splodeType = SetSplodeData(size * 8, true);         break;
-                    default:                          splodeType = SetSplodeData(size * 8, cleanupOnly);  break;
+                    case ShipData.RoleName.capital:   
+                    case ShipData.RoleName.cruiser:   
+                    case ShipData.RoleName.station:   ExplodeShip(size * 8, true);         break;
+                    case ShipData.RoleName.freighter:
+                    case ShipData.RoleName.platform:  
+                    default:                          ExplodeShip(size * 8, cleanupOnly);  break;
                 }
-                ExplodeShip(splodeType);
-                UniverseScreen.SpaceManager.ShipExplode(this, splodeType.Size * 50, Center, Radius);
 
                 if (!HasExploded)
                 {

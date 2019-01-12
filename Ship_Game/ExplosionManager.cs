@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
@@ -8,29 +9,28 @@ using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {
-    public sealed class Explosion
-    {
-        public PointLight light;
-        public Vector2 pos;
-        public float Time;
-        public float Duration;
-        public Color color;
-        public Rectangle ExplosionRect;
-        public float Radius;
-        public ShipModule module;
-        public float Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
-        public int AnimationFrame;
-        public TextureAtlas Animation;
-    }
-
     public sealed class ExplosionManager
     {
+        sealed class Explosion
+        {
+            public PointLight Light;
+            public Vector2 Pos;
+            public float Time;
+            public float Duration;
+            public float Radius;
+            public float Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
+            public TextureAtlas Animation;
+        }
+
         public static UniverseScreen Universe;
-        static readonly BatchRemovalCollection<Explosion> ActiveExplosions = new BatchRemovalCollection<Explosion>();
+        static readonly Array<Explosion> Explosions = new Array<Explosion>();
+        static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         static readonly Array<TextureAtlas> Generic   = new Array<TextureAtlas>();
         static readonly Array<TextureAtlas> Photon    = new Array<TextureAtlas>();
         static readonly Array<TextureAtlas> ShockWave = new Array<TextureAtlas>();
+
+        static SubTexture LowResExplode;
 
         static void LoadAtlas(GameContentManager content, Array<TextureAtlas> target, string anim)
         {
@@ -51,6 +51,8 @@ namespace Ship_Game
                 LoadAtlas(content, Photon, "Textures/sd_explosion_03_photon_256");
             if (ShockWave.IsEmpty)
                 LoadAtlas(content, ShockWave, "Textures/sd_shockwave_01");
+
+            LowResExplode = ResourceManager.Texture("UI/icon_injury");
         }
 
         static void LoadFromExplosionsList(GameContentManager content)
@@ -88,12 +90,13 @@ namespace Ship_Game
 
         static void AddLight(Explosion newExp, Vector3 position, float radius, float intensity)
         {
-            if (Universe.viewState > UniverseScreen.UnivScreenState.ShipView)
-                return;
-
             if (radius <= 0f) radius = 1f;
             newExp.Radius = radius;
-            newExp.light = new PointLight
+
+            if (Universe.viewState > UniverseScreen.UnivScreenState.SectorView)
+                return;
+
+            newExp.Light = new PointLight
             {
                 World        = Matrix.CreateTranslation(position),
                 Position     = position,
@@ -103,7 +106,7 @@ namespace Ship_Game
                 Intensity    = intensity,
                 Enabled      = true
             };
-            Universe.AddLight(newExp.light);
+            Universe.AddLight(newExp.Light);
         }
 
         static TextureAtlas ChooseExplosion(string animationPath)
@@ -125,11 +128,11 @@ namespace Ship_Game
             var newExp = new Explosion
             {
                 Duration = 2.25f,
-                pos = position.ToVec2(),
+                Pos = position.ToVec2(),
                 Animation = ChooseExplosion(explosionPath)
             };
             AddLight(newExp, position, radius, intensity);
-            ActiveExplosions.Add(newExp);
+            AddExplosion(newExp);
         }
 
         public static void AddExplosionNoFlames(Vector3 position, float radius, float intensity)
@@ -137,10 +140,10 @@ namespace Ship_Game
             var newExp = new Explosion
             {
                 Duration = 2.25f,
-                pos = position.ToVec2(),
+                Pos = position.ToVec2(),
             };
             AddLight(newExp, position, radius, intensity);
-            ActiveExplosions.Add(newExp);
+            AddExplosion(newExp);
         }
 
         public static void AddProjectileExplosion(Vector3 position, float radius, float intensity, string expColor)
@@ -148,11 +151,11 @@ namespace Ship_Game
             var newExp = new Explosion
             {
                 Duration = 2.25f,
-                pos = position.ToVec2(),
+                Pos = position.ToVec2(),
                 Animation = RandomMath2.RandItem(expColor == "Blue_1" ? Photon : Generic)
             };
             AddLight(newExp, position, radius, intensity);
-            ActiveExplosions.Add(newExp);
+            AddExplosion(newExp);
         }
 
         public static void AddWarpExplosion(Vector3 position, float radius, float intensity)
@@ -160,76 +163,105 @@ namespace Ship_Game
             var newExp = new Explosion
             {
                 Duration = 2.25f,
-                pos = position.ToVec2(),
+                Pos = position.ToVec2(),
                 Animation = RandomMath2.RandItem(ShockWave)
             };
             AddLight(newExp, position, radius, intensity);
-            ActiveExplosions.Add(newExp);
+            AddExplosion(newExp);
         }
+        
+        static void AddExplosion(Explosion exp)
+        {
+            using (Lock.AcquireWriteLock())
+                Explosions.Add(exp);
+        }
+
+        static bool DebugExplosions = false;
 
         public static void Update(float elapsedTime)
         {
-            using (ActiveExplosions.AcquireReadLock())
-            foreach (Explosion e in ActiveExplosions)
+            if (DebugExplosions && Universe.Input.IsCtrlKeyDown && Universe.Input.LeftMouseClick)
             {
-                if (e.Time > e.Duration)
-                {
-                    ActiveExplosions.QueuePendingRemoval(e);
-                    Universe.RemoveLight(e.light);
-                    continue;
-                }
-
-                if (e.light != null)
-                {
-                    e.light.Intensity -= 10f * elapsedTime;
-                }
-
-                float relTime = e.Time / e.Duration;
-                e.color = new Color(255f, 255f, 255f, 255f * (1f - relTime));
-
-                if (e.Animation != null)
-                {
-                    e.AnimationFrame =  (int)(e.Animation.Count * relTime);
-                    e.AnimationFrame = e.AnimationFrame.Clamped(0, e.Animation.Count-1);
-                }
-
-                // time is update last, because we don't want to skip frame 0 due to bad interpolation
-                e.Time += elapsedTime;
+                GameAudio.PlaySfxAsync("sd_explosion_ship_det_large");
+                AddExplosion(Universe.CursorWorldPosition, 500.0f, 5.0f);
             }
-            ActiveExplosions.ApplyPendingRemovals();
+
+            using (Lock.AcquireReadLock())
+            {
+                for (int i = 0; i < Explosions.Count; ++i)
+                {
+                    Explosion e = Explosions[i];
+                    if (e.Time > e.Duration)
+                    {
+                        Explosions.RemoveAtSwapLast(i--);
+                        Universe.RemoveLight(e.Light);
+                        continue;
+                    }
+
+                    if (e.Light != null)
+                    {
+                        e.Light.Intensity -= 10f * elapsedTime;
+                    }
+
+                    // time is update last, because we don't want to skip frame 0 due to bad interpolation
+                    e.Time += elapsedTime;
+                }
+            }
+
         }
 
-        public static void DrawExplosions(ScreenManager screen, Matrix view, Matrix projection)
+        public static void DrawExplosions(SpriteBatch batch, in Matrix view, in Matrix projection)
         {
-            var vp = Game1.Instance.Viewport;
-            using (ActiveExplosions.AcquireReadLock())
+            Viewport vp = Game1.Instance.Viewport;
+            using (Lock.AcquireReadLock())
             {
-                foreach (Explosion e in ActiveExplosions)
+                foreach (Explosion e in Explosions)
                 {
-                    if (float.IsNaN(e.Radius) || e.Animation == null)
+                    if (float.IsNaN(e.Radius) || e.Radius.AlmostZero() || e.Animation == null)
                         continue;
-                    // animation either not started or already finished
-                    if (e.AnimationFrame < 0 || e.Animation.Count <= e.AnimationFrame)
-                        continue;
-
-                    Vector2 expCenter = e.module?.Position ?? e.pos;
-
-                    // explosion center in screen coords
-                    Vector3 expOnScreen = vp.Project(expCenter.ToVec3(), projection, view, Matrix.Identity);
-
-                    // edge of the explosion in screen coords
-                    Vector3 edgeOnScreen = vp.Project(expCenter.PointOnCircle(90f, e.Radius).ToVec3(), projection, view, Matrix.Identity);
-
-                    int radiusOnScreen = (int)Math.Abs(edgeOnScreen.X - expOnScreen.X);
-                    e.ExplosionRect = new Rectangle((int)expOnScreen.X, (int)expOnScreen.Y, radiusOnScreen, radiusOnScreen);
-
-                    // animations could be added between Update and Draw,
-                    // which could lead to out of range errors, so lets just clamp it to a safe range
-                    int frame = e.AnimationFrame.Clamped(0, e.Animation.Count-1);
-                    SubTexture tex = e.Animation[frame];
-                    screen.SpriteBatch.Draw(tex, e.ExplosionRect, e.color, e.Rotation, tex.CenterF, SpriteEffects.None, 1f);
+                    DrawExplosion(batch, vp, view, projection, e);
                 }
             }
+        }
+
+        static void DrawExplosion(SpriteBatch batch, in Viewport vp, in Matrix view, in Matrix projection, Explosion e)
+        {
+            // explosion center in screen coords
+            Vector3 expOnScreen = vp.Project(e.Pos.ToVec3(), projection, view, Matrix.Identity);
+
+            // edge of the explosion in screen coords
+            Vector3 edgeOnScreen = vp.Project(e.Pos.PointOnCircle(90f, e.Radius).ToVec3(), projection, view, Matrix.Identity);
+
+            int screen = (int)Math.Abs(edgeOnScreen.X - expOnScreen.X);
+            var r = new Rectangle((int)expOnScreen.X, (int)expOnScreen.Y, screen, screen);
+
+            float relTime = e.Time / e.Duration;
+            var color = new Color(255f, 255f, 255f, 255f * (1f - relTime));
+
+            if (screen <= 16) // Low-res explosion marker
+            {
+                r.Width = r.Height = 12;
+                batch.Draw(LowResExplode, r, color, 0f, LowResExplode.CenterF, SpriteEffects.None, 1f);
+                return;
+            }
+
+            int frame = (int)(e.Animation.Count * (e.Time / e.Duration));
+            frame = frame.Clamped(0, e.Animation.Count-1);
+            SubTexture tex = e.Animation[frame];
+
+            // support non-rectangular explosion anims:
+            // smaller tex size component is equal to radius
+            // bigger tex size component is multiplied
+            if (tex.Height > tex.Width)
+            {
+                r.Height = (int) (screen * (tex.Height / (float) tex.Width));
+            }
+            else if (tex.Width > tex.Height)
+            {
+                r.Width = (int) (screen * (tex.Width / (float) tex.Height));
+            }
+
+            batch.Draw(tex, r, color, e.Rotation, tex.CenterF, SpriteEffects.None, 1f);
         }
     }
 }
