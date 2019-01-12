@@ -295,47 +295,51 @@ namespace Ship_Game
             MakeMessageBox(screen, cancelled, accepted, localId, "Save", "Exit");
         }
 
-        // @todo Should this be refactored because of SubTexture?
-        public void DrawModelMesh(Model model, Matrix world, Matrix view, Vector3 diffuseColor, Matrix projection, SubTexture projTex, float alpha =0f, bool textureEnabled = true, bool lightingEnabled = false)
+        public void DrawModelMesh(
+            Model model, in Matrix world, in Matrix view, 
+            Vector3 diffuseColor, in Matrix projection, 
+            SubTexture projTex, 
+            float alpha = 0f, 
+            bool textureEnabled = true, 
+            bool lightingEnabled = false)
         {
             foreach (ModelMesh modelMesh in model.Meshes)
             {
                 foreach (Effect effect in modelMesh.Effects)
                 {
-                    var basicEffect = effect as BasicEffect;
-                    if (basicEffect == null) continue;
-                    basicEffect.World           = Matrix.CreateScale(50f) * world;
-                    basicEffect.View            = view;
-                    basicEffect.DiffuseColor    = new Vector3(1f, 1f, 1f);
-                    basicEffect.Texture         = projTex.Texture;
-                    basicEffect.Alpha           = alpha > 0 ? alpha : basicEffect.Alpha;                    
-                    basicEffect.TextureEnabled  = true;
-                    basicEffect.Projection      = projection;
-                    basicEffect.LightingEnabled = lightingEnabled;
+                    var be = effect as BasicEffect;
+                    if (be == null) continue;
+                    be.World           = Matrix.CreateScale(50f) * world;
+                    be.View            = view;
+                    be.DiffuseColor    = new Vector3(1f, 1f, 1f);
+                    be.Texture         = projTex.Texture;
+                    be.Alpha           = alpha > 0 ? alpha : be.Alpha;                    
+                    be.TextureEnabled  = true;
+                    be.Projection      = projection;
+                    be.LightingEnabled = lightingEnabled;
                 }
                 modelMesh.Draw();
             }
         }
 
-        public void PlayVideo(string videoPath, GameContentManager contentManagment = null)
+        public void PlayVideo(string videoPath, GameContentManager content = null)
         {
-            contentManagment = contentManagment ?? TransientContent;
-            if (!string.IsNullOrEmpty(videoPath))
+            content = content ?? TransientContent;
+            if (videoPath.IsEmpty()) return;
+
+            VideoFile = ResourceManager.LoadVideo(content, videoPath);
+            VideoPlaying = new VideoPlayer
             {
-                VideoFile = ResourceManager.LoadVideo(contentManagment, videoPath);
-                VideoPlaying = new VideoPlayer
-                {
-                    Volume = GlobalStats.MusicVolume,
-                    IsLooped = true
-                };
-                try
-                {
-                    VideoPlaying.Play(VideoFile);
-                }
-                catch
-                {
-                    Log.Error($"Video '{videoPath}' failed.");
-                }
+                Volume = GlobalStats.MusicVolume,
+                IsLooped = true
+            };
+            try
+            {
+                VideoPlaying.Play(VideoFile);
+            }
+            catch
+            {
+                Log.Error($"Video '{videoPath}' failed.");
             }
         }
 

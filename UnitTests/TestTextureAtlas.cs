@@ -25,6 +25,7 @@ namespace UnitTests
         [TestMethod]
         public void TextureAtlasFromFolder()
         {
+            TextureAtlas.FromFolder(Game.Content, "Textures/sd_shockwave_01", false);
             TextureAtlas.FromFolder(Game.Content, "Textures", false);
             TextureAtlas.FromFolder(Game.Content, "Textures/Modules", false);
             TextureAtlas.FromFolder(Game.Content, "Textures/Conduits", false);

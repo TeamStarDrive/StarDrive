@@ -56,11 +56,11 @@ namespace Ship_Game
 
         private Selector selector;
 
-        private ScrollList.Entry draggedTroop;
+        ScrollList.Entry draggedTroop;
 
-        private Array<PlanetGridSquare> ReversedList = new Array<PlanetGridSquare>();
+        Array<PlanetGridSquare> ReversedList = new Array<PlanetGridSquare>();
 
-        public BatchRemovalCollection<SmallExplosion> Explosions = new BatchRemovalCollection<SmallExplosion>();
+        BatchRemovalCollection<SmallExplosion> Explosions = new BatchRemovalCollection<SmallExplosion>();
 
         private float[] anglesByColumn = { (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0) };
         private float[] distancesByRow = { 437f, 379f, 311f, 229f, 128f, 0f };
@@ -381,15 +381,13 @@ namespace Ship_Game
                 ToolTip.Draw(batch);
             }
             batch.End();
+
             batch.Begin(SpriteBlendMode.Additive);
-            lock (GlobalStats.ExplosionLocker)
-            {
-                foreach (SmallExplosion exp in Explosions)
-                {
-                    batch.Draw(exp.AnimationTex, exp.grid, Color.White);
-                }
-            }
+            using (Explosions.AcquireReadLock())
+            foreach (SmallExplosion exp in Explosions)
+                exp.Draw(batch);
             batch.End();
+
             batch.Begin();
 
             if (ScreenManager.NumScreens == 2)
@@ -1013,22 +1011,24 @@ namespace Ship_Game
                 }
                 pgs.TroopsHere[0].Update(elapsedTime);
             }
-            lock (GlobalStats.ExplosionLocker)
+            using (Explosions.AcquireWriteLock())
             {
                 foreach (SmallExplosion exp in Explosions)
                 {
-                    exp.Update(elapsedTime);
-                    if (exp.frame < 100)
-                    {
-                        continue;
-                    }
-                    Explosions.QueuePendingRemoval(exp);
+                    if (exp.Update(elapsedTime))
+                        Explosions.QueuePendingRemoval(exp);
                 }
                 Explosions.ApplyPendingRemovals();
             }
             p.ActiveCombats.ApplyPendingRemovals();
             base.Update(elapsedTime);
+        }
 
+        public void AddExplosion(Rectangle grid, int size)
+        {
+            var exp = new SmallExplosion(grid, size);
+            using (Explosions.AcquireWriteLock())
+                Explosions.Add(exp);
         }
 
         private struct PointSet
@@ -1040,60 +1040,34 @@ namespace Ship_Game
             public int column;
         }
 
+        // small explosion in planetary combat screen
         public class SmallExplosion
         {
-            private string fmt = "00000.##";
-            public string AnimationTexture = "sd_explosion_12a_cc/sd_explosion_12a_cc_00000";
-            public string AnimationBasePath = "sd_explosion_12a_cc/sd_explosion_12a_cc_";
-            public Rectangle grid;
-            public int frame;
+            float Time;
+            int Frame;
+            const float Duration = 2.25f;
+            readonly TextureAtlas Animation;
+            readonly Rectangle Grid;
 
-            public SubTexture AnimationTex => ResourceManager.Texture(AnimationTexture);
-
-            public SmallExplosion(int Size)
+            public SmallExplosion(Rectangle grid, int size)
             {
-                switch (Size)
-                {
-                    case 1:
-                    {
-                        AnimationTexture = "sd_explosion_12a_cc/sd_explosion_12a_cc_00000";
-                        AnimationBasePath = "sd_explosion_12a_cc/sd_explosion_12a_cc_";
-                        return;
-                    }
-                    case 2:
-                    {
-                        AnimationTexture = "sd_explosion_12a_cc/sd_explosion_12a_cc_00000";
-                        AnimationBasePath = "sd_explosion_12a_cc/sd_explosion_12a_cc_";
-                        return;
-                    }
-                    case 3:
-                    {
-                        AnimationTexture = "sd_explosion_12a_cc/sd_explosion_12a_cc_00000";
-                        AnimationBasePath = "sd_explosion_12a_cc/sd_explosion_12a_cc_";
-                        return;
-                    }
-                    case 4:
-                    {
-                        AnimationTexture = "sd_explosion_07a_cc/sd_explosion_07a_cc_00000";
-                        AnimationBasePath = "sd_explosion_07a_cc/sd_explosion_07a_cc_";
-                        return;
-                    }
-                    default:
-                    {
-                        return;
-                    }
-                }
+                Grid = grid;
+                string anim = size <= 3 ? "Textures/sd_explosion_12a_cc" : "Textures/sd_explosion_07a_cc";
+                Animation = ResourceManager.RootContent.LoadTextureAtlas(anim);
             }
 
-            public void Update(float elapsedTime)
+            public bool Update(float elapsedTime)
             {
-                if (frame < 100)
-                {
-                    SmallExplosion smallExplosion = this;
-                    smallExplosion.frame = smallExplosion.frame + 1;
-                }
-                string remainder = frame.ToString(fmt);
-                AnimationTexture = string.Concat(AnimationBasePath, remainder);
+                Time += elapsedTime;
+                if (Time > Duration)
+                    return true;
+                Frame = ((int)(Time / Duration)).Clamped(0, Animation.Count-1);
+                return false;
+            }
+
+            public void Draw(SpriteBatch batch)
+            {
+                batch.Draw(Animation[Frame], Grid, Color.White);
             }
         }
 
