@@ -12,7 +12,7 @@ namespace Ship_Game
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 8; // changing this will force all caches to regenerate
+        const int Version = 9; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -159,7 +159,7 @@ namespace Ship_Game
             SortLoadedTextures();
 
             int elapsed = total.NextMillis();
-            Log.Info($"CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
+            Log.Write(ConsoleColor.Blue, $"CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
         }
 
         void SaveAtlasDescriptor(TextureInfo[] textures, string descriptorPath)
@@ -223,7 +223,7 @@ namespace Ship_Game
             }
 
             int elapsed = s.NextMillis();
-            Log.Info($"LoadAtlas {this} t:{elapsed,4}ms");
+            Log.Write(ConsoleColor.Blue, $"LoadAtlas {this} t:{elapsed,4}ms");
             return true; // we loaded everything
         }
 
@@ -325,6 +325,7 @@ namespace Ship_Game
             return true;
         }
 
+        // @note Guaranteed to load an atlas with at least 1 texture
         // @return null if no textures in atlas {folder}
         public static TextureAtlas FromFolder(GameContentManager content, string folder, bool useCache = true)
         {
@@ -336,7 +337,10 @@ namespace Ship_Game
 
                 FileInfo[] files = GatherUniqueTextures(folder);
                 if (files.Length == 0)
-                    return null; // no textures!!
+                {
+                    Log.Warning($"TextureAtlas create failed: {folder}  No textures.");
+                    return null;
+                }
 
                 atlas.Hash = CreateHash(files);
                 var path = new AtlasPath(folder);

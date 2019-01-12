@@ -32,22 +32,25 @@ namespace Ship_Game
         static readonly Array<TextureAtlas> Photon    = new Array<TextureAtlas>();
         static readonly Array<TextureAtlas> ShockWave = new Array<TextureAtlas>();
 
+        static void LoadAtlas(GameContentManager content, Array<TextureAtlas> target, string anim)
+        {
+            TextureAtlas atlas = content.LoadTextureAtlas(anim); // guaranteed to load an atlas with at least 1 tex
+            if (atlas != null)
+                target.Add(atlas);
+        }
+
         static void LoadDefaults(GameContentManager content)
         {
-            if (Generic.IsEmpty) Generic.AddRange(new []
+            if (Generic.IsEmpty)
             {
-                content.LoadTextureAtlas("Textures/sd_explosion_07a_cc"),
-                content.LoadTextureAtlas("Textures/sd_explosion_12a_cc"),
-                content.LoadTextureAtlas("Textures/sd_explosion_14a_cc")
-            });
-            if (Photon.IsEmpty) Photon.AddRange(new []
-            {
-                content.LoadTextureAtlas("Textures/sd_explosion_03_photon_256")
-            });
-            if (ShockWave.IsEmpty) ShockWave.AddRange(new []
-            {
-                content.LoadTextureAtlas("Textures/sd_shockwave_01"),
-            });
+                LoadAtlas(content, Generic, "Textures/sd_explosion_07a_cc");
+                LoadAtlas(content, Generic, "Textures/sd_explosion_12a_cc");
+                LoadAtlas(content, Generic, "Textures/sd_explosion_14a_cc");
+            }
+            if (Photon.IsEmpty)
+                LoadAtlas(content, Photon, "Textures/sd_explosion_03_photon_256");
+            if (ShockWave.IsEmpty)
+                LoadAtlas(content, ShockWave, "Textures/sd_shockwave_01");
         }
 
         static void LoadFromExplosionsList(GameContentManager content)
@@ -64,12 +67,11 @@ namespace Ship_Game
                     if (line.Length == 0 || line[0] == '#')
                         continue;
                     string[] values = line.Split(split, 2, StringSplitOptions.RemoveEmptyEntries);
-                    TextureAtlas anim = content.LoadTextureAtlas(values[1]);
                     switch (values[0])
                     {
-                        default:case "generic": Generic.Add(anim);   break;
-                        case "photon":          Photon.Add(anim);    break;
-                        case "shockwave":       ShockWave.Add(anim); break;
+                        default:case "generic": LoadAtlas(content, Generic, values[1]); break;
+                        case "photon":          LoadAtlas(content, Photon, values[1]); break;
+                        case "shockwave":       LoadAtlas(content, ShockWave, values[1]); break;
                     }
                 }
             }
@@ -214,10 +216,10 @@ namespace Ship_Game
                     int radiusOnScreen = (int)Math.Abs(edgeOnScreen.X - expOnScreen.X);
                     e.ExplosionRect = new Rectangle((int)expOnScreen.X, (int)expOnScreen.Y, radiusOnScreen, radiusOnScreen);
 
-                    // animations could be added between Update and Draw
-                    int frame = e.AnimationFrame;
-                    if (frame == -1) frame = 0;
-                    SubTexture tex = e.Animation[e.AnimationFrame];
+                    // animations could be added between Update and Draw,
+                    // which could lead to out of range errors, so lets just clamp it to a safe range
+                    int frame = e.AnimationFrame.Clamped(0, e.Animation.Count-1);
+                    SubTexture tex = e.Animation[frame];
                     screen.SpriteBatch.Draw(tex, e.ExplosionRect, e.color, e.Rotation, tex.CenterF, SpriteEffects.None, 1f);
                 }
             }

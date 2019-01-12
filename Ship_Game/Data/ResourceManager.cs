@@ -170,7 +170,7 @@ namespace Ship_Game
                 {
                     shipData.AllModulesUnlocakable = false;
                     shipData.HullUnlockable = false;
-                    Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
+                    //Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
                     purge.Add(kv.Key);
                 }
 
@@ -199,7 +199,7 @@ namespace Ship_Game
                         if (modUnlockable) continue;
 
                         shipData.AllModulesUnlocakable = false;
-                        Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
+                        //Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
                         break;
                     }
                 }
@@ -238,8 +238,7 @@ namespace Ship_Game
             {
                 if (!GlobalStats.HasMod)
                     throw;
-                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.",
-                                isFatal:false);
+                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", isFatal:false);
                 GlobalStats.ClearActiveMod();
                 LoadAllResources(onEssentialsLoaded);
             }
