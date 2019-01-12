@@ -7,7 +7,7 @@ set month=%date:~4,2%
 set day=%date:~7,2%
 
 REM(Get current branch and tagdistance `release/Texas_A2_RC1_222`; then replace release/ and / with _)
-for /f %%r in ('%1deploy\TortoiseHg\hg log -r tip --template {branch}_{latesttagdistance}') do set hgrev=%%r
+for /f %%r in ('%1deploy\TortoiseHg\hg log -r . --template {branch}_{latesttagdistance}') do set hgrev=%%r
 set hgrev=%hgrev:release/=%
 set hgrev=%hgrev:/=_%
 echo %hgrev% > version.txt
