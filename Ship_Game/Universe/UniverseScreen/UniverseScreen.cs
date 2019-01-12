@@ -249,10 +249,6 @@ namespace Ship_Game
         // for really specific debuggingD
         public static int FrameId;
 
-        private UniverseScreen() : base(null)
-        {
-        }
-
         public UniverseScreen(UniverseData data) : base(null) // new game
         {
             UniverseSize          = data.Size.X;
