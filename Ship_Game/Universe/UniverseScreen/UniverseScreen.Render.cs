@@ -630,16 +630,7 @@ namespace Ship_Game
         private void DrawWarpFlash()
         {
             FTLManager.DrawFTLModels(this);
-            lock (GlobalStats.ExplosionLocker)
-            {
-                for (int i = 0; i < MuzzleFlashManager.FlashList.Count; i++)
-                {
-                    MuzzleFlash f = MuzzleFlashManager.FlashList[i];
-                    DrawTransparentModel(MuzzleFlashManager.flashModel, f.WorldMatrix, 
-                        MuzzleFlashManager.FlashTexture, f.scale);
-                }
-                MuzzleFlashManager.FlashList.ApplyPendingRemovals();
-            }
+            MuzzleFlashManager.Draw(this);
         }
 
         private void DrawSolarSystemsClose()

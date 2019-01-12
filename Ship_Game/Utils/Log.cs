@@ -12,21 +12,22 @@ namespace Ship_Game
 {
     public static class Log
     {
-        private static readonly StreamWriter LogFile;
+        static readonly StreamWriter LogFile;
         public static readonly bool HasDebugger = Debugger.IsAttached;
 
         // sentry.io automatic crash reporting
-        private static readonly RavenClient Raven = new RavenClient("https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180");
-        private static readonly ConsoleColor DefaultColor = Console.ForegroundColor;
-        private static ConsoleColor CurrentColor = DefaultColor;
-        private static object ConsoleSync = new object();
+        static readonly RavenClient Raven = new RavenClient("https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180");
+        static readonly ConsoleColor DefaultColor = Console.ForegroundColor;
+        static ConsoleColor CurrentColor = DefaultColor;
+        static readonly object ConsoleSync = new object();
 
         // prevent flooding Raven with 2000 error messages if we fall into an exception loop
         // instead, we count identical exceptions and resend them only over a certain threshold
-        private static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
-        private const int ErrorThreshold = 100;
-        private static bool IsTerminating;
+        static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
+        const int ErrorThreshold = 100;
+        static bool IsTerminating;
         //public static bool FatalError = true;
+
         static Log()
         {
             string init = "\r\n\r\n";
@@ -59,14 +60,14 @@ namespace Ship_Game
             {
             #if DEBUG
                 Raven.Environment = "Staging";
-#else
+            #else
                 Raven.Environment = GlobalStats.Version.Contains("_TEST_") ? "Test" : "Release";
-#endif
+            #endif
                 HideConsoleWindow();
             }
         }
 
-        private static void WriteToLog(string text)
+        static void WriteToLog(string text)
         {
             if (LogFile.BaseStream.CanWrite)
             {
@@ -75,7 +76,7 @@ namespace Ship_Game
             }
         }
 
-        private static void WriteToConsole(ConsoleColor color, string text)
+        static void WriteToConsole(ConsoleColor color, string text)
         {
             lock (ConsoleSync)
             {
@@ -122,6 +123,14 @@ namespace Ship_Game
         {
             if (GlobalStats.VerboseLogging)
                 Warning(warning);
+        }
+
+        // Always write a neutral message to both log file and console
+        public static void Write(ConsoleColor color, string message)
+        {
+            WriteToLog(message);
+            if (!HasDebugger) return;
+            WriteToConsole(DefaultColor, message);
         }
 
         public static void Warning(string warning)
