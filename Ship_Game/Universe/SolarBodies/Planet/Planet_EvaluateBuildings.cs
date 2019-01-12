@@ -368,13 +368,16 @@ namespace Ship_Game
 
         float EvalSpacePort(Building b)
         {
+            //if (b.IsSpacePort)
+            //    DebugEvalBuild(b, "ShipBuilding", 1f);
+
             bool spacePort = b.AllowShipBuilding || b.IsSpacePort;
             if (!spacePort || PopulationRatio < 0.5f)
                 return 0;
 
             float score = 0;
             if (BuildingExists(Building.CapitalId))
-                score += 1.0f; // we can't be a space-faring species if our capital doesn't have a space-port...
+                score += 4.0f; // we can't be a space-faring species if our capital doesn't have a space-port...
 
             float prodFromLabor = LeftoverWorkerBillions() * (Prod.YieldPerColonist + b.PlusProdPerColonist);
             float prodFromFlat = Prod.FlatBonus + b.PlusFlatProductionAmount + (b.PlusProdPerRichness * MineralRichness);
@@ -493,6 +496,7 @@ namespace Ship_Game
             score += EvalPlusTaxPercent(b);
             score += EvalSpacePort(b);
             score += EvalTerraformer(b);
+            score += EvalMilitaryBuilding(b, income);
             score -= EvalFertilityLoss(b);
 
             if (score > 0)
@@ -510,6 +514,14 @@ namespace Ship_Game
 
         float EvalMilitaryBuilding(Building b, float income)
         {
+            if (b.CombatStrength == 0 || b.MaxPopIncrease > 0) return 0;
+            if (b.IsCapitalOrOutpost) return 0;
+            int existingMilitary = ExistingMilitaryBuildings();
+            int desiredMilitary  = DesiredMilitaryBuildings();
+
+            if (existingMilitary >= desiredMilitary)
+                return 0;
+
             float combatScore = (b.Strength + b.Defense + b.CombatStrength + b.SoftAttack + b.HardAttack) / 100f;
 
             float dps = 0;
@@ -576,8 +588,8 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"==== Planet  {Name}  CHOOSE AND BUILD ==== ");
 
-            Building best = null;
-            float bestValue = 0.0f; // So a building with a value of 0 will not be built.
+            Building best     = null;
+            float bestValue   = 0.0f; // So a building with a value of 0 will not be built.
             float highestCost = BuildingsCanBuild.FindMax(building => building.Cost).Cost;
             
             for (int i = 0; i < BuildingsCanBuild.Count; i++)
@@ -586,15 +598,15 @@ namespace Ship_Game
                 float buildingScore = EvaluateBuilding(BuildingsCanBuild[i], budget, highestCost);
                 if (buildingScore > bestValue)
                 {
-                    best = BuildingsCanBuild[i];
+                    best      = BuildingsCanBuild[i];
                     bestValue = buildingScore;
                 }
             }
 
             if (best != null)
                 AddBuildingToCQ(best);
-            else
-                ChooseAndBuildMilitary(budget);
+            //else
+              //  ChooseAndBuildMilitary(budget);
         }
 
         void ChooseAndBuildMilitary(float budget)
@@ -707,6 +719,7 @@ namespace Ship_Game
                 float cost = EvalScrapWeight(b, income);
                 float value = 0;
 
+                value += EvalSpacePort(b);
                 value += EvalFlatFoodScrap(b);
                 value += EvalFoodPerColScrap(b);
                 value += EvalFlatProd(b);
@@ -719,10 +732,10 @@ namespace Ship_Game
                 value += EvalResearchPerCol(b);
                 value += EvalScrapCreditsPerCol(b);
                 value += EvalPlusTaxPercent(b);
-                value += EvalSpacePort(b);
+                value += EvalMilitaryBuilding(b, income);
                 value += EvalTerraformerScrap(b);
                 value -= EvalFertilityLossScrap(b);  // Yes, -= because it is calculated as negative in the function
-                if (b.CombatStrength > 0) value += EvalMilitaryBuilding(b, income);
+                //if (b.CombatStrength > 0) value += EvalMilitaryBuilding(b, income);
 
                 if (value < cost)
                 {
