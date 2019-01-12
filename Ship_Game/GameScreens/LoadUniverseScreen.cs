@@ -185,36 +185,37 @@ namespace Ship_Game
             return p;
         }
 
-        private static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
+        static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
         {
             p.FoodHere = psdata.foodHere;
             p.ProdHere = psdata.prodHere;
             p.Population = psdata.Population;
         }
 
-        private SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssdata)
+        SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssd)
         {
             var system = new SolarSystem
             {
-                Name          = ssdata.Name,
-                Position      = ssdata.Position,
-                SunPath       = ssdata.SunPath,
+                guid          = ssd.guid,
+                Name          = ssd.Name,
+                Position      = ssd.Position,
+                SunPath       = ssd.SunPath,
                 AsteroidsList = new BatchRemovalCollection<Asteroid>(),
                 MoonList      = new Array<Moon>()
             };
-            foreach (Asteroid roid in ssdata.AsteroidsList)
+            foreach (Asteroid roid in ssd.AsteroidsList)
             {
                 roid.Initialize();
                 system.AsteroidsList.Add(roid);
             }
-            foreach (Moon moon in ssdata.Moons)
+            foreach (Moon moon in ssd.Moons)
             {
                 moon.Initialize();
                 system.MoonList.Add(moon);
             }
-            system.SetExploredBy(ssdata.EmpiresThatKnowThisSystem);
+            system.SetExploredBy(ssd.EmpiresThatKnowThisSystem);
             system.RingList = new Array<SolarSystem.Ring>();
-            foreach (SavedGame.RingSave ring in ssdata.RingList)
+            foreach (SavedGame.RingSave ring in ssd.RingList)
             {
                 if (ring.Asteroids)
                 {
@@ -244,7 +245,7 @@ namespace Ship_Game
                         system.OwnerList.Add(p.Owner);
                     }
                     system.PlanetList.Add(p);
-                    p.SetExploredBy(ssdata.EmpiresThatKnowThisSystem);
+                    p.SetExploredBy(ssd.EmpiresThatKnowThisSystem);
 
                     system.RingList.Add(new SolarSystem.Ring
                     {
@@ -390,7 +391,7 @@ namespace Ship_Game
             data.GravityWells          = savedData.GravityWells;
 
             CurrentGame.StartNew(data);
-                        
+            
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
                 Empire.Universe.MasterShipList.Clear();
@@ -436,12 +437,10 @@ namespace Ship_Game
 
                 }
             }
-            data.SolarSystemsList = new Array<SolarSystem>();
-            foreach (SavedGame.SolarSystemSaveData sdata in savedData.SolarSystemDataList)
+
+            foreach (SavedGame.SolarSystemSaveData ssd in savedData.SolarSystemDataList)
             {
-                SolarSystem system = CreateSystemFromData(sdata);
-                system.guid = sdata.guid;
-                data.SolarSystemsList.Add(system);
+                data.SolarSystemsList.Add(CreateSystemFromData(ssd));
             }
             foreach (SavedGame.EmpireSaveData d in savedData.EmpireDataList)
             {
