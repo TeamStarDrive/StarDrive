@@ -547,9 +547,9 @@ namespace Ship_Game
             unchecked
             {
                 int n = collection.Count;
-                Capacity = Count + n;
-                collection.CopyTo(Items, Count);
-                Count += n;
+                int i = Count;
+                Resize(i + n);
+                collection.CopyTo(Items, i);
             }
         }
 

@@ -7,7 +7,7 @@
 "..\..\StarDrive\SDSunBurn.*"
 "..\..\StarDrive\Microsoft.Xna.Framework.Game.dll"
 "..\..\StarDrive\Microsoft.Xna.Framework.Game.pdb"
-"..\..\StarDrive\SDNative.*"
+"..\..\StarDrive\SDNative.dll"
 "..\..\StarDrive\SharpRaven.pdb"
 "..\..\StarDrive\SharpRaven.xml"
 "..\..\StarDrive\SharpRaven.dll"

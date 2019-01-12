@@ -177,10 +177,11 @@ namespace Ship_Game
                 if (pgs.building == null)
                     continue;
 
-                var building = ResourceManager.GetBuildingTemplate(pgs.building.Name);
-                pgs.building.Scrappable = building.Scrappable;
-                p.BuildingList.Add(pgs.building);
+                var template = ResourceManager.GetBuildingTemplate(pgs.building.Name);
+                pgs.building.AssignBuildingId(template.BID);
+                pgs.building.Scrappable = template.Scrappable;
                 pgs.building.CreateWeapon();
+                p.BuildingList.Add(pgs.building);
             }
             return p;
         }
