@@ -278,7 +278,7 @@ namespace Ship_Game
                 lock (GlobalStats.ExplosionLocker)
                 {
                     ExplosionManager.Update(elapsedTime);
-                    ExplosionManager.ExplosionList.ApplyPendingRemovals();
+                    ExplosionManager.ActiveExplosions.ApplyPendingRemovals();
                 }
                 MuzzleFlashManager.Update(elapsedTime);
             }
