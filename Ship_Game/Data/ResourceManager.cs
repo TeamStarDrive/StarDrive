@@ -170,7 +170,7 @@ namespace Ship_Game
                 {
                     shipData.AllModulesUnlocakable = false;
                     shipData.HullUnlockable = false;
-                    Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
+                    //Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
                     purge.Add(kv.Key);
                 }
 
@@ -199,7 +199,7 @@ namespace Ship_Game
                         if (modUnlockable) continue;
 
                         shipData.AllModulesUnlocakable = false;
-                        Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
+                        //Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
                         break;
                     }
                 }
@@ -238,8 +238,7 @@ namespace Ship_Game
             {
                 if (!GlobalStats.HasMod)
                     throw;
-                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.",
-                                isFatal:false);
+                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", isFatal:false);
                 GlobalStats.ClearActiveMod();
                 LoadAllResources(onEssentialsLoaded);
             }
@@ -292,6 +291,7 @@ namespace Ship_Game
             // after this point, everything truly essential for Main Menu should already be loaded
             onEssentialsLoaded?.Invoke();
 
+            ExplosionManager.Initialize(RootContent);
             LoadNonEssentialAtlases();
         }
 
@@ -936,13 +936,6 @@ namespace Ship_Game
                 "Textures/Ground_UI",
                 "Textures/Troops",
                 "Textures/OrderButtons",
-
-                
-                "Textures/sd_explosion_14a_cc",
-                "Textures/sd_explosion_12a_cc",
-                "Textures/sd_explosion_07a_cc",
-                "Textures/sd_explosion_03_photon_256",
-                "Textures/sd_shockwave_01",
             };
 
             Parallel.Run(() =>
@@ -976,19 +969,6 @@ namespace Ship_Game
 
         public static Array<SolarSystemData> LoadRandomSolarSystems()
             => LoadEntitiesModOrVanilla<SolarSystemData>("SolarSystems/Random", "LoadSolarSystems");
-
-        // Refactored by RedFox, gets a new weapon instance based on weapon UID
-        public static Weapon CreateWeapon(string uid)
-        {
-            Weapon template = WeaponsDict[uid];
-            return template.Clone();
-        }
-
-        // WARNING: DO NOT MODIFY this Weapon instace! (wish C# has const refs like C++)
-        public static Weapon GetWeaponTemplate(string uid)
-        {
-            return WeaponsDict[uid];
-        }
 
         public static Texture2D LoadRandomLoadingScreen(GameContentManager content)
         {
@@ -1073,7 +1053,6 @@ namespace Ship_Game
             newB.CreateWeapon();
             return newB;
         }
-
 
         private static void LoadDialogs() // Refactored by RedFox
         {
@@ -1907,6 +1886,19 @@ namespace Ship_Game
             TroopsDictKeys = new Array<string>(TroopsDict.Keys);
         }
 
+        
+        // Refactored by RedFox, gets a new weapon instance based on weapon UID
+        public static Weapon CreateWeapon(string uid)
+        {
+            Weapon template = WeaponsDict[uid];
+            return template.Clone();
+        }
+
+        // WARNING: DO NOT MODIFY this Weapon instace! (wish C# has const refs like C++)
+        public static Weapon GetWeaponTemplate(string uid)
+        {
+            return WeaponsDict[uid];
+        }
 
         private static void LoadWeapons() // Refactored by RedFox
         {

@@ -35,7 +35,13 @@ namespace Ship_Game.SpriteSystem
         {
             // Sort textures by AREA, DESCENDING
             Textures = textures;
-            Array.Sort(textures, (a, b) => (b.Width * b.Height) - (a.Width * a.Height));
+            Array.Sort(textures, (a, b) =>
+            {
+                int diff = (b.Width * b.Height) - (a.Width * a.Height);
+                if (diff == 0) // if w+h is equal, use name, so identical atlas anims are sequential
+                    return string.CompareOrdinal(a.Name, b.Name);
+                return diff;
+            });
             FreeSpots.Clear();
             Width = 128;
             Height = 128;
