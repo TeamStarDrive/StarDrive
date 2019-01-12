@@ -44,7 +44,7 @@ namespace Ship_Game
                     flash.Life -= elapsedTime;
                     if (flash.Life <= 0f)
                     {
-                        FlashList.RemoveAtSwapLast(i);
+                        FlashList.RemoveAtSwapLast(i--);
                         continue;
                     }
 
