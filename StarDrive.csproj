@@ -4199,10 +4199,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  $(ProjectDir)deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
+    <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>cd  $(ProjectDir) &amp;&amp; if "$(ConfigurationName)" == "Deploy"   powershell -ExecutionPolicy ByPass  -file Deploy\Config\Pre-run.ps1</PreBuildEvent>
+    <PreBuildEvent>cd $(ProjectDir) &amp;&amp; if "$(ConfigurationName)" == "Deploy"   powershell -ExecutionPolicy ByPass  -file Deploy\Config\UpdateAssemblyInfo.ps1</PreBuildEvent>
   </PropertyGroup>
   <!-- <Target Name="AfterBuild"> -->
   <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->
