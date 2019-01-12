@@ -194,6 +194,7 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost { get; private set; }
+        public Planet HomePlanet { get; private set; }
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -239,6 +240,11 @@ namespace Ship_Game.Ships
                         return true;
                 return false;
             }
+        }
+
+        public void UpdateHomePlanet(Planet planet)
+        {
+            HomePlanet = planet;
         }
 
         public float EmpTolerance => SurfaceArea + BonusEMP_Protection;
@@ -1179,8 +1185,12 @@ namespace Ship_Game.Ships
         {
             if (Mothership == null || !Mothership.Active)
                 return;
-            AI.State = AIState.ReturnToHangar;
             AI.OrderReturnToHangar();
+        }
+
+        public void ReturnHome()
+        {
+            AI.OrderReturnHome();
         }
 
         // ModInfo activation option for Maintenance Costs:
@@ -1785,6 +1795,10 @@ namespace Ship_Game.Ships
                     MaxHealthRevision = latestRevision;
                     HealthMax = RecalculateMaxHealth();
                 }
+
+                // return home if it is a defense ship
+                if (!InCombat && HomePlanet != null)
+                    ReturnHome();
 
                 // Repair
                 if (Health < HealthMax)

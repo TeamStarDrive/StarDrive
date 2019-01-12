@@ -1,6 +1,7 @@
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -66,10 +67,13 @@ namespace Ship_Game
         [Serialize(58)] public BuildingCategory Category = BuildingCategory.General;
         [Serialize(59)] public bool IsPlayerAdded = false;
         [Serialize(60)] public int InvadeInjurePoints;
+        [Serialize(61)] public int DefenseShipsCapacity;
+        [Serialize(62)] public ShipData.RoleName DefenseShipsRole;
 
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
         [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
+        [XmlIgnore] [JsonIgnore] public int CurrentNumDefenseShips { get; private set; } 
 
         public override string ToString() => $"BID:{BID}  Name:{Name}  Cost:{Cost}";
         [XmlIgnore][JsonIgnore] public string TranslatedName => Localizer.Token(NameTranslationIndex);
@@ -98,6 +102,7 @@ namespace Ship_Game
         {
             var b = (Building)MemberwiseClone();
             b.TheWeapon = null;
+            b.CurrentNumDefenseShips = b.DefenseShipsCapacity;
             return b;
         }
 
@@ -117,6 +122,12 @@ namespace Ship_Game
                 Building template = ResourceManager.GetBuildingTemplate(Name);
                 return template.Strength;
             }
+        }
+
+        public void UpdateCurrentDefenseShips(int num)
+        {
+            if (DefenseShipsCapacity > 0)
+                CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0,DefenseShipsCapacity);
         }
 
         public float ActualMaintenance(Planet p) => Maintenance + Maintenance * p.Owner.data.Traits.MaintMod;

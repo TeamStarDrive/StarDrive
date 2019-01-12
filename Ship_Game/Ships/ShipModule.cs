@@ -790,7 +790,7 @@ namespace Ship_Game.Ships
                     hangarShip.DoEscort(Parent);
                     return;
                 }
-                if (Parent.loyalty.BoardingShuttle.Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
+                if (Parent.loyalty.BoardingShuttle.ShipOrdLaunchCost > Parent.Ordinance)  //fbedard: New spawning cost
                     return;
                 if (hangarTimer <= 0f && hangarShip == null)
                 {
@@ -803,7 +803,7 @@ namespace Ship_Game.Ships
 
                     HangarShipGuid = hangarShip.guid;
                     hangarTimer = hangarTimerConstant;
-                    Parent.ChangeOrdnance(-hangarShip.Mass / 5f);
+                    Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
                 }
             }
         }
@@ -842,7 +842,7 @@ namespace Ship_Game.Ships
             HangarShipGuid = GetHangarShip().guid;
 
             hangarTimer = hangarTimerConstant;
-            Parent.ChangeOrdnance(-hangarShip.Mass / 5f);
+            Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
         }
 
         public void SetAttributes()

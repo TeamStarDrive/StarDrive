@@ -103,7 +103,7 @@ namespace Ship_Game
                             CurrentMessage = r.SuccessIndex;
                             if (r.MoneyToThem > 0 && playerEmpire.Money >= r.MoneyToThem)
                             {
-                                playerEmpire.Money -= r.MoneyToThem;
+                                playerEmpire.AddMoney(-r.MoneyToThem);
                             }
                         }
                     }
