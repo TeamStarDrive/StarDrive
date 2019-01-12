@@ -2323,10 +2323,10 @@ namespace Ship_Game.Ships
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi != null)
                 explosionboost = GlobalStats.ActiveMod.mi.GlobalShipExplosionVisualIncreaser;
 
-            ExplosionManager.AddExplosion(position, explodeRadius * explosionboost, 12f, 0.2f);
+            ExplosionManager.AddExplosion(position, explodeRadius * explosionboost, 12f);
             if (useWarpExplodeEffect)
             {
-                ExplosionManager.AddWarpExplosion(position, explodeRadius*1.75f, 12f, 0.2f);
+                ExplosionManager.AddWarpExplosion(position, explodeRadius*1.75f, 12f);
             }
         }
         private struct SplodeData
