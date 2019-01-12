@@ -44,7 +44,6 @@ namespace Ship_Game
 
         // @todo Get rid of all global locks
         public static object ClickableSystemsLock = new object();
-        public static object ExplosionLocker      = new object();
         public static object OwnedPlanetsLock     = new object();
         public static object ClickableItemLocker  = new object();
         public static object TaskLocker           = new object();

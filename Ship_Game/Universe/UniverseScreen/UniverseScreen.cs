@@ -595,7 +595,6 @@ namespace Ship_Game
             int width   = device.PresentationParameters.BackBufferWidth;
             int height  = device.PresentationParameters.BackBufferHeight;
 
-            MuzzleFlashManager.universeScreen     = this;
             DroneAI.UniverseScreen                = this;
             ExplosionManager.Universe             = this;
             Fleet.Screen                          = this;
@@ -653,8 +652,6 @@ namespace Ship_Game
 
             anomalyManager = new AnomalyManager();
             Listener       = new AudioListener();
-            MuzzleFlashManager.flashModel   = content.Load<Model>("Model/Projectiles/muzzleEnergy");
-            MuzzleFlashManager.FlashTexture = new SubTexture(content.Load<Texture2D>("Model/Projectiles/Textures/MuzzleFlash_01"));
             xnaPlanetModel                  = content.Load<Model>("Model/SpaceObjects/planet");
             atmoModel                       = content.Load<Model>("Model/sphere");
             AtmoEffect                      = content.Load<Effect>("Effects/PlanetHalo");
@@ -663,6 +660,7 @@ namespace Ship_Game
             SunModel                        = content.Load<Model>("Model/SpaceObjects/star_plane");
             NebModel                        = content.Load<Model>("Model/SpaceObjects/star_plane");
             FTLManager.LoadContent(content);
+            MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);
             starfield = new Starfield(Vector2.Zero, device, content);
             starfield.LoadContent();
@@ -827,7 +825,6 @@ namespace Ship_Game
             ResourceManager.UniverseScreen        = null;
             Empire.Universe                       = null;
             ShipAI.UniverseScreen                 = null;
-            MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.Screen              = null;
             ExplosionManager.Universe             = null;
             DroneAI.UniverseScreen                = null;

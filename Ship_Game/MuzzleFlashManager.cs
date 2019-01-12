@@ -1,42 +1,68 @@
+using System.Threading;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
+    public sealed class MuzzleFlash
+    {
+        public Matrix WorldMatrix;
+        public float Life  = 0.02f;
+        public float Scale = 0.25f;
+        public GameplayObject Owner;
+    }
+
 	internal sealed class MuzzleFlashManager
 	{
-		public static UniverseScreen universeScreen;
-		public static SubTexture FlashTexture;
-		public static Model flashModel;
-		public static BatchRemovalCollection<MuzzleFlash> FlashList;
+		static SubTexture FlashTexture;
+		static Model flashModel;
 
-		static MuzzleFlashManager()
-		{
-			FlashList = new BatchRemovalCollection<MuzzleFlash>();
-		}
+		static readonly Array<MuzzleFlash> FlashList = new Array<MuzzleFlash>();
+        static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+        public static void LoadContent(GameContentManager content)
+        {
+            flashModel   = content.Load<Model>("Model/Projectiles/muzzleEnergy");
+            FlashTexture = new SubTexture(content.Load<Texture2D>("Model/Projectiles/Textures/MuzzleFlash_01"));
+        }
+
+        public static void AddFlash(MuzzleFlash flash)
+        {
+            using (Lock.AcquireWriteLock())
+            {
+                FlashList.Add(flash);
+            }
+        }
 
 	    public static void Update(float elapsedTime)
 		{
-			lock (GlobalStats.ExplosionLocker)
-			{
-				for (int i = 0; i < FlashList.Count; i++)
-				{
-					if (FlashList[i] != null)
-					{
-						MuzzleFlash item = FlashList[i];
-						item.timer = item.timer - elapsedTime;
-						MuzzleFlash muzzleFlash = FlashList[i];
-						muzzleFlash.scale = muzzleFlash.scale * 2f;
-						if (FlashList[i].scale > 6f)
-						{
-							FlashList[i].scale = 6f;
-						}
-						if (FlashList[i].timer <= 0f)
-						{
-							FlashList.QueuePendingRemoval(FlashList[i]);
-						}
-					}
-				}
-			}
+            using (Lock.AcquireWriteLock())
+            {
+                for (int i = 0; i < FlashList.Count; i++)
+                {
+                    MuzzleFlash flash = FlashList[i];
+                    flash.Life -= elapsedTime;
+                    if (flash.Life <= 0f)
+                    {
+                        FlashList.RemoveAtSwapLast(i);
+                        continue;
+                    }
+
+                    flash.Scale *= 2f;
+                    if (flash.Scale > 6f)
+                        flash.Scale = 6f;
+                }
+            }
 		}
+
+        public static void Draw(UniverseScreen screen)
+        {
+            using (Lock.AcquireReadLock())
+            for (int i = 0; i < FlashList.Count; i++)
+            {
+                MuzzleFlash f = FlashList[i];
+                screen.DrawTransparentModel(flashModel, f.WorldMatrix, FlashTexture, f.Scale);
+            }
+        }
 	}
 }

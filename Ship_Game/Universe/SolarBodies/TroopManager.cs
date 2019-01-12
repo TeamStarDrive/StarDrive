@@ -455,10 +455,7 @@ namespace Ship_Game
                         if (num4 > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
                         {
                             GameAudio.PlaySfxAsync("sd_troop_attack_hit");
-                            CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(1);
-                            smallExplosion.grid = combat.Defender.TroopClickRect;
-                            lock (GlobalStats.ExplosionLocker)
-                                (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
+                            ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(combat.Defender.TroopClickRect, 1);
                             if (combat.Defender.TroopsHere.Count > 0)
                             {
                                 combat.Defender.TroopsHere[0].Strength -= num4;
@@ -468,11 +465,7 @@ namespace Ship_Game
                                     combat.Defender.TroopsHere.Clear();
                                     ActiveCombats.QueuePendingRemoval(combat);
                                     GameAudio.PlaySfxAsync("Explo1");
-                                    lock (GlobalStats.ExplosionLocker)
-                                        (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(new CombatScreen.SmallExplosion(4)
-                                        {
-                                            grid = combat.Defender.TroopClickRect
-                                        });
+                                    ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(combat.Defender.TroopClickRect, 4);
                                     if (combat.Attacker.TroopsHere.Count > 0)
                                     {
                                         combat.Attacker.TroopsHere[0].AddKill();

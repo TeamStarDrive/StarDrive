@@ -275,15 +275,10 @@ namespace Ship_Game
 
             if (elapsedTime > 0)
             {
-                lock (GlobalStats.ExplosionLocker)
-                {
-                    ExplosionManager.Update(elapsedTime);
-                    ExplosionManager.ActiveExplosions.ApplyPendingRemovals();
-                }
+                ExplosionManager.Update(elapsedTime);
                 MuzzleFlashManager.Update(elapsedTime);
             }
-            lock (GlobalStats.ExplosionLocker)
-                MuzzleFlashManager.FlashList.ApplyPendingRemovals();
+
             foreach (Anomaly anomaly in anomalyManager.AnomaliesList)
                 anomaly.Update(elapsedTime);
             if (elapsedTime > 0)
