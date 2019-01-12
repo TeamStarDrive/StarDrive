@@ -32,7 +32,8 @@ namespace Ship_Game
         private void RenderBackdrop()
         {
             if (GlobalStats.DrawStarfield)
-                bg.Draw(this, starfield);
+                bg.Draw(this, StarField);
+
             if (GlobalStats.DrawNebulas)
                bg3d.Draw();
 
@@ -194,9 +195,10 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
+        // @todo This is unused??? Maybe some legacy code?
         private void RenderGalaxyBackdrop()
         {
-            bg.DrawGalaxyBackdrop(this, starfield);
+            bg.DrawGalaxyBackdrop(this, StarField);
             ScreenManager.SpriteBatch.Begin();
             for (int index = 0; index < 41; ++index)
             {
