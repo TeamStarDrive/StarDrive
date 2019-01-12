@@ -12,7 +12,7 @@ namespace Ship_Game
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 6; // changing this will force all caches to regenerate
+        const int Version = 8; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -156,7 +156,7 @@ namespace Ship_Game
             }
 
             SaveAtlasDescriptor(textures, path.Descriptor);
-            CreateSortedList();
+            SortLoadedTextures();
 
             int elapsed = total.NextMillis();
             Log.Info($"CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
@@ -219,7 +219,7 @@ namespace Ship_Game
                     textures.Add(t);
                 }
                 LoadTextures(content, textures);
-                CreateSortedList();
+                SortLoadedTextures();
             }
 
             int elapsed = s.NextMillis();
@@ -247,7 +247,7 @@ namespace Ship_Game
             }
         }
 
-        void CreateSortedList()
+        void SortLoadedTextures()
         {
             Sorted = Lookup.Values.ToArray();
             Array.Sort(Sorted, (a, b) => string.CompareOrdinal(a.Name, b.Name));
@@ -269,11 +269,11 @@ namespace Ship_Game
                 bool noPack = noPackAll || ignore.Contains(texName);
                 textures[i] = new TextureInfo
                 {
-                    Name = texName,
-                    Width = tex.Width,
-                    Height = tex.Height,
+                    Name    = texName,
+                    Width   = tex.Width,
+                    Height  = tex.Height,
                     Texture = tex,
-                    NoPack = noPack,
+                    NoPack  = noPack,
                 };
             }
             return textures;

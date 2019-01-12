@@ -55,6 +55,23 @@ namespace SDUnitTests
             Assert.AreEqual(4, arr.Count, "RemoveAll odd should remove half the elements");
         }
 
+        
+        [TestMethod]
+        public void TestAddRange()
+        {
+            var src = new[] { "a", "b", "c" };
+            var dst = new Array<string>();
+            dst.AddRange(src);
+            Assert.AreEqual(dst.Count, 3);
+            Assert.AreEqual(dst.Capacity, 4);
+            CollectionAssert.AreEqual(dst, new[] { "a", "b", "c" });
+
+            dst.AddRange(src);
+            Assert.AreEqual(dst.Count, 6);
+            Assert.AreEqual(dst.Capacity, 8);
+            CollectionAssert.AreEqual(dst, new[] { "a", "b", "c", "a", "b", "c" });
+        }
+
         [TestMethod]
         public void TestToArrayList()
         {
