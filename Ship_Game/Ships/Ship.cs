@@ -1185,13 +1185,11 @@ namespace Ship_Game.Ships
         {
             if (Mothership == null || !Mothership.Active)
                 return;
-            AI.State = AIState.ReturnToHangar;
             AI.OrderReturnToHangar();
         }
 
         public void ReturnHome()
         {
-            AI.State = AIState.ReturnToHangar;
             AI.OrderReturnHome();
         }
 
