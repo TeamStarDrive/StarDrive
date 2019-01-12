@@ -294,6 +294,7 @@ namespace Ship_Game.Ships
             Ship ship = CreateShipAtPoint(shipName, owner, p);
             ship.VanityName = "Home Defense";
             ship.UpdateHomePlanet(planet);
+            ship.HomePlanet = planet;
             return ship;
         }
 
