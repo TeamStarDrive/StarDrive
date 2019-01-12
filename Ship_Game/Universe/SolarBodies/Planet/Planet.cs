@@ -292,11 +292,10 @@ namespace Ship_Game
             }
         }
 
-        private void LaunchDefenseShips(string roleName, Empire empire)
+        private void LaunchDefenseShips(ShipData.RoleName roleName, Empire empire)
         {
             string defaultShip         = empire.data.StartingShip;
-            ShipData.RoleName shipRole = (ShipData.RoleName)Enum.Parse(typeof(ShipData.RoleName), roleName);
-            string selectedShip        = GetDefenseShipName(shipRole, empire) ?? defaultShip;
+            string selectedShip        = GetDefenseShipName(roleName, empire) ?? defaultShip;
             Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire, Center, this);
             if (defenseShip == null)
                 Log.Warning($"Could not create defense ship, shipname = {selectedShip}");
@@ -314,11 +313,10 @@ namespace Ship_Game
 
         public void LandDefenseShip(ShipData.RoleName roleName, float shipCost, float shipHealthPercent)
         {
-            string shipRole = roleName.ToString();
             for (int i = 0; i < BuildingList.Count; ++i)
             {
                 Building building = BuildingList[i];
-                if (building.DefenseShipsRole == shipRole 
+                if (building.DefenseShipsRole == roleName
                     && building.CurrentNumDefenseShips < building.DefenseShipsCapacity)
                 {
                     building.UpdateCurrentDefenseShips(1);

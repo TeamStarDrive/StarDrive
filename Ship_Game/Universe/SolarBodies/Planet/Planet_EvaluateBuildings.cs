@@ -525,38 +525,12 @@ namespace Ship_Game
             // Smallest Planetary Shield has strength 500
             // Make sure we give it a fair score.
             float shieldScore = b.PlanetaryShieldStrengthAdded / 500;
-
             float allowTroops = 0;
             if (b.AllowInfantry)
                 allowTroops = colonyType == ColonyType.Military ? 1.0f : 0.5f;
 
-
-            float invadeScore = b.InvadeInjurePoints;
-
-            float defenseShipScore = 0;
-            if (b.DefenseShipsCapacity > 0 && !b.DefenseShipsRole.IsEmpty())
-            {
-                ShipData.RoleName shipRole = (ShipData.RoleName)Enum.Parse(typeof(ShipData.RoleName), b.DefenseShipsRole);
-                switch (shipRole)
-                {
-                    case ShipData.RoleName.drone:
-                        defenseShipScore = 0.05f;
-                        break;
-                    case ShipData.RoleName.fighter:
-                        defenseShipScore = 0.1f;
-                        break;
-                    case ShipData.RoleName.corvette:
-                        defenseShipScore = 0.2f;
-                        break;
-                    case ShipData.RoleName.frigate:
-                        defenseShipScore = 0.4f;
-                        break;
-                    default:
-                        defenseShipScore = 1f;
-                        break;
-                }
-                defenseShipScore *= b.DefenseShipsCapacity;
-            }
+            float invadeScore      = b.InvadeInjurePoints;
+            float defenseShipScore = CalcDefenseShipScore(b);
 
             // Shield, weapon, and/or allow troop weighting go here (which is why they are all seperate values)
 
@@ -566,6 +540,33 @@ namespace Ship_Game
 
             DebugEvalBuild(b, "Military", finalRating);
             return finalRating;
+        }
+
+        static float CalcDefenseShipScore(Building b)
+        {
+            if (b.DefenseShipsCapacity <= 0 || b.DefenseShipsRole == (ShipData.RoleName) 0)
+                return 0;
+
+            float defenseShipScore;
+            switch (b.DefenseShipsRole)
+            {
+                case ShipData.RoleName.drone:
+                    defenseShipScore = 0.05f;
+                    break;
+                case ShipData.RoleName.fighter:
+                    defenseShipScore = 0.1f;
+                    break;
+                case ShipData.RoleName.corvette:
+                    defenseShipScore = 0.2f;
+                    break;
+                case ShipData.RoleName.frigate:
+                    defenseShipScore = 0.4f;
+                    break;
+                default:
+                    defenseShipScore = 1f;
+                    break;
+            }
+            return defenseShipScore * b.DefenseShipsCapacity;
         }
 
         void ChooseAndBuild(float budget)
