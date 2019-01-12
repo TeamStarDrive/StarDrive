@@ -1054,7 +1054,6 @@ namespace Ship_Game
             return newB;
         }
 
-
         private static void LoadDialogs() // Refactored by RedFox
         {
             string dir = "DiplomacyDialogs/" + GlobalStats.Language + "/";
