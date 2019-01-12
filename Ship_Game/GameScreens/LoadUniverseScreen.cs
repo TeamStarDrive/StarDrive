@@ -84,7 +84,7 @@ namespace Ship_Game
                     e.TechnologyDict.Add(tech.UID, tech);
             }            
             e.InitializeFromSave();
-            e.Money = sdata.Money;
+            e.AddMoney(sdata.Money - e.Money);
             e.Research = sdata.Research;
             e.GetEmpireAI().AreasOfOperations = sdata.AOs;            
   

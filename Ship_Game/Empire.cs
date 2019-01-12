@@ -34,7 +34,7 @@ namespace Ship_Game
         public Array<Ship>      Inhibitors     = new Array<Ship>();
         public Array<Ship>      ShipsToAdd     = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
-        public float Money = 1000f;
+        public float Money {get; private set; } = 1000f;
         private BatchRemovalCollection<Planet>      OwnedPlanets      = new BatchRemovalCollection<Planet>();
         private BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
         private BatchRemovalCollection<Ship>        OwnedProjectors   = new BatchRemovalCollection<Ship>();
@@ -127,6 +127,11 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public bool IsCybernetic  => data.Traits.Cybernetic != 0;
         [XmlIgnore][JsonIgnore] public bool NonCybernetic => data.Traits.Cybernetic == 0;
+
+        public void AddMoney(float moneyDiff)
+        {
+            Money += moneyDiff;
+        }
 
         public void TriggerAllShipStatusUpdate()
         {
@@ -2666,6 +2671,14 @@ namespace Ship_Game
             if (rel.TotalAnger > 50) return true;
             return target.IsAttackable(this, rel);
 
+        }
+
+        public Planet FindPlanet(Guid planetGuid)
+        {
+            foreach (Planet p in this.OwnedPlanets)
+                if (p.guid == planetGuid)
+                    return p;
+            return null;
         }
 
         public class InfluenceNode

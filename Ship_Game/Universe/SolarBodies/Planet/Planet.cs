@@ -208,33 +208,50 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
-            UpdateBuildings(elapsedTime);
+            UpdateSpaceCombatBuildings(elapsedTime);
             UpdatePlanetaryProjectiles(elapsedTime);
 
             UpdatePosition(elapsedTime);
         }
 
-        void UpdateBuildings(float elapsedTime)
+        private void UpdateSpaceCombatBuildings(float elapsedTime)
         {
+            if (Owner == null) return;
+            if (ParentSystem.ShipList.Count <= 0) return; 
             for (int i = 0; i < BuildingList.Count; ++i)
             {
+                float previousD;
+                float previousT;
                 Building building = BuildingList[i];
-                if (!building.isWeapon) continue;
-                building.WeaponTimer -= elapsedTime;
-                if (Owner == null) continue;
-                if (!(building.WeaponTimer < 0) || ParentSystem.ShipList.Count <= 0) continue;
+                if (building.isWeapon)
+                {
+                    building.WeaponTimer -= elapsedTime;
+                    if (building.WeaponTimer.Greater(0))
+                        continue;
+
+                    previousD = building.TheWeapon.Range + 1000f;
+                    previousT = previousD;
+                }
+                else if (building.DefenseShipsCapacity > 0 && Owner.Money > 0)
+                {
+                    previousD = 10000f;
+                    previousT = previousD;
+                }
+                else continue;
+
 
                 Ship target = null;
                 Ship troop = null;
-                float previousD = building.TheWeapon.Range + 1000f;
-                //float currentT = 0;
-                float previousT = building.TheWeapon.Range + 1000f;
-                //this.system.ShipList.thisLock.EnterReadLock();
+                bool defenseShipNameStillOut =  false;
                 for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
                 {
                     Ship ship = ParentSystem.ShipList[j];
-                    if (ship.loyalty == Owner ||
-                        (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact))
+                    if (ship.loyalty == Owner)
+                    {
+                        defenseShipNameStillOut = ship.HomePlanet == this;
+                        continue;
+                    }
+                    if (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
                         continue;
                     float currentD = Vector2.Distance(Center, ship.Center);
                     if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
@@ -243,7 +260,6 @@ namespace Ship_Game
                         troop = ship;
                         continue;
                     }
-
                     if (currentD < previousD && troop == null)
                     {
                         previousD = currentD;
@@ -253,14 +269,60 @@ namespace Ship_Game
 
                 if (troop != null)
                     target = troop;
-                if (target != null)
+                if (target == null)
+                {
+                    if (!defenseShipNameStillOut &&
+                        building.CurrentNumDefenseShips < building.DefenseShipsCapacity)
+                        building.UpdateCurrentDefenseShips(building.DefenseShipsCapacity);
+                    
+                    continue;
+                }
+                if (building.isWeapon)
                 {
                     building.TheWeapon.Center = Center;
                     building.TheWeapon.FireFromPlanet(this, target);
                     building.WeaponTimer = building.TheWeapon.fireDelay;
-                    break;
+                }
+                else if (building.CurrentNumDefenseShips > 0)
+                {
+                    LaunchDefenseShips(building.DefenseShipsRole, Owner);
+                    building.UpdateCurrentDefenseShips(-1);
+                }
+                break;
+            }
+        }
+
+        private void LaunchDefenseShips(ShipData.RoleName roleName, Empire empire)
+        {
+            string defaultShip         = empire.data.StartingShip;
+            string selectedShip        = GetDefenseShipName(roleName, empire) ?? defaultShip;
+            Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire, Center, this);
+            if (defenseShip == null)
+                Log.Warning($"Could not create defense ship, shipname = {selectedShip}");
+            else
+            {
+                empire.AddMoney(-defenseShip.BaseCost);
+                defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.Speed;
+            }
+        }
+
+        private static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire)
+        {
+            return ShipBuilder.PickFromCandidates(roleName, empire);
+        }
+
+        public void LandDefenseShip(ShipData.RoleName roleName, float shipCost, float shipHealthPercent)
+        {
+            for (int i = 0; i < BuildingList.Count; ++i)
+            {
+                Building building = BuildingList[i];
+                if (building.DefenseShipsRole == roleName
+                    && building.CurrentNumDefenseShips < building.DefenseShipsCapacity)
+                {
+                    building.UpdateCurrentDefenseShips(1);
                 }
             }
+            Owner.AddMoney(shipCost * shipHealthPercent);
         }
 
         void UpdatePlanetaryProjectiles(float elapsedTime)

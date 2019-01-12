@@ -351,7 +351,7 @@ namespace Ship_Game.AI
                 if (!hangar.Active || hangar.hangarTimer > 0f || sortedList[skipShip] == null)
                     continue;
 
-                if (supplyShuttle.Mass / 5f > Owner.Ordinance) //fbedard: New spawning cost
+                if (supplyShuttle.ShipOrdLaunchCost > Owner.Ordinance) //fbedard: New spawning cost
                     continue;
 
                 Ship shuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
@@ -359,7 +359,7 @@ namespace Ship_Game.AI
                 if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
                     shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.Speed;
 
-                Owner.ChangeOrdnance(-shuttle.Mass / 5f);
+                Owner.ChangeOrdnance(-shuttle.ShipOrdLaunchCost);
                 Owner.ChangeOrdnance(-shuttle.OrdinanceMax);
                 hangar.SetHangarShip(shuttle);
                 SetSupplyTarget(shuttle);
