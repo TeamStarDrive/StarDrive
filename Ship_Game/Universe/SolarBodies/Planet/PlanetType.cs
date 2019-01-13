@@ -7,7 +7,7 @@ using Ship_Game.Data;
 
 namespace Ship_Game
 {
-    public class PlanetTypeInfo
+    public class PlanetType
     {
         [StarData(true)] public int Id;
         [StarData] public PlanetCategory Category;

@@ -1912,17 +1912,17 @@ namespace Ship_Game
             }
         }
 
-        static Array<PlanetTypeInfo> PlanetTypes;
-        static Map<int, PlanetTypeInfo> PlanetTypeMap;
+        static Array<PlanetType> PlanetTypes;
+        static Map<int, PlanetType> PlanetTypeMap;
 
-        public static PlanetTypeInfo RandomPlanet() => RandomMath.RandItem(PlanetTypes);
-        public static PlanetTypeInfo RandomPlanet(PlanetCategory category)
+        public static PlanetType RandomPlanet() => RandomMath.RandItem(PlanetTypes);
+        public static PlanetType RandomPlanet(PlanetCategory category)
         {
             return RandomMath.RandItem(PlanetTypes.Filter(p => p.Category == category));
         }
-        public static PlanetTypeInfo PlanetOrRandom(int planetId)
+        public static PlanetType PlanetOrRandom(int planetId)
         {
-            return PlanetTypeMap.TryGetValue(planetId, out PlanetTypeInfo type)
+            return PlanetTypeMap.TryGetValue(planetId, out PlanetType type)
                  ? type : RandomPlanet();
         }
 
@@ -1932,12 +1932,12 @@ namespace Ship_Game
             if (file == null) throw new Exception("Required PlanetTypes.yaml not found!");
             using (var parser = new Data.StarDataParser(file))
             {
-                PlanetTypes = parser.DeserializeArray<PlanetTypeInfo>();
+                PlanetTypes = parser.DeserializeArray<PlanetType>();
             }
 
             PlanetTypes.Sort(p => p.Id);
-            PlanetTypeMap = new Map<int, PlanetTypeInfo>(PlanetTypes.Count);
-            foreach (PlanetTypeInfo type in PlanetTypes)
+            PlanetTypeMap = new Map<int, PlanetType>(PlanetTypes.Count);
+            foreach (PlanetType type in PlanetTypes)
                 PlanetTypeMap[type.Id] = type;
         }
 

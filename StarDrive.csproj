@@ -330,7 +330,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetTypeInfo.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_ConstructionQueue.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_EvaluateBuildings.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Generate.cs" />
