@@ -275,6 +275,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadShipRoles();
             LoadPlanetEdicts();
+            LoadPlanetTypes();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
             TestLoad();
@@ -1909,6 +1910,19 @@ namespace Ship_Game
                 pair.Entity.Name = pair.Info.NameNoExt();
                 EconStrats[pair.Entity.Name] = pair.Entity;
             }
+        }
+
+        public static Array<PlanetTypeInfo> PlanetTypes;
+
+        static void LoadPlanetTypes()
+        {
+            FileInfo file = GetModOrVanillaFile("PlanetTypes.txt");
+            if (file == null) throw new Exception("Required PlanetTypes.txt not found!");
+            using (var parser = new Data.StarDataParser(file))
+            {
+                PlanetTypes = parser.DeserializeArray<PlanetTypeInfo>();
+            }
+            Log.Info($"Loaded {PlanetTypes.Count} planet types");
         }
 
         // Added by RedFox

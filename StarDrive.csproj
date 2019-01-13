@@ -223,6 +223,7 @@
     <Compile Include="Ship_Game\Data\ImageUtils.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
+    <Compile Include="Ship_Game\Data\StarDataParser.cs" />
     <Compile Include="Ship_Game\Debug\DebugScreens.cs" />
     <Compile Include="Ship_Game\Empires\SubSpaceProjectors.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\EmpireExt.cs" />
@@ -325,6 +326,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetTypeInfo.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_ConstructionQueue.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_EvaluateBuildings.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Generate.cs" />
@@ -2117,6 +2119,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Hulls\Vulfen\Type XIII.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\PlanetTypes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Races\Remnant.xml">
