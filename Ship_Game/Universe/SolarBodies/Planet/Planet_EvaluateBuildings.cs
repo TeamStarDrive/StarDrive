@@ -60,7 +60,7 @@ namespace Ship_Game
                 score += score + maint;   //Really don't want this if we cant afford it
             score -= Owner.data.FlatMoneyBonus * 0.015f; // Acceptable loss (Note what this will do at high Difficulty)
             
-            DebugEvalBuild(b, "Maintenance", score);
+            DebugEvalBuild(b, "Maintenance", -score);
             return -score;
         }
 
@@ -531,9 +531,9 @@ namespace Ship_Game
             switch (colonyType)
             {
                 case ColonyType.Agricultural:
-                    score += b.PlusFlatFoodAmount 
-                             + b.PlusFoodPerColonist * Fertility 
-                             - b.MinusFertilityOnBuild;
+                    score += b.PlusFlatFoodAmount
+                             + b.PlusFoodPerColonist * Fertility * 2 
+                             - b.MinusFertilityOnBuild * 3;
                     break;
                 case ColonyType.Core:
                     score += b.CreditsPerColonist * 2 
@@ -555,6 +555,8 @@ namespace Ship_Game
                     score += b.AllowInfantry || b.AllowShipBuilding ? 1f : 0f;
                     break;
             }
+            score *= 5;
+            DebugEvalBuild(b, "Governor", score);
             return score;
         }
 
@@ -562,7 +564,8 @@ namespace Ship_Game
         {
             if (b.Cost.LessOrEqual(0)) return 0;
 
-            float score = (Prod.NetIncome / b.Cost).Clamped(0,2); // so really cheap buildings won't get crazy scores
+            float score = (Prod.NetMaxPotential / b.Cost).Clamped(0,2); // so really cheap buildings won't get crazy scores
+            DebugEvalBuild(b, "Cost VS Time", score);
             return score;
         }
 
@@ -656,9 +659,11 @@ namespace Ship_Game
                     bestValue = buildingScore;
                 }
             }
-
             if (best != null)
+            {
+                Log.Info($"-- Best Buidling is  {best.Name} with score of {bestValue}== ");
                 AddBuildingToCQ(best);
+            }
             //else
               //  ChooseAndBuildMilitary(budget);
         }
@@ -708,10 +713,6 @@ namespace Ship_Game
 
         void BuildBuildings(float budget)
         {
-            //Do some existing bulding recon
-            int openTiles      = TilesList.Count(tile => tile.Habitable && tile.building == null);
-            int totalbuildings = TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
-
             //Construction queue recon
             bool buildingInTheWorks  = SbProduction.ConstructionQueue.Any(b => b.isBuilding);
             bool militaryBInTheWorks = SbProduction.ConstructionQueue.Any(b => b.isBuilding && b.Building.CombatStrength > 0);
@@ -721,16 +722,14 @@ namespace Ship_Game
             //New Build Logic by Gretman
             if (!lotsInQueueToBuild) BuildShipyardIfAble(); //If we can build a shipyard but dont have one, build it
 
-            if (openTiles > 0)
-            {
+            if (OpenTiles > 0)
                 if (!buildingInTheWorks) ChooseAndBuild(budget);
-            }
             else
             {
                 bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(b => b.isBuilding && b.Building.IsBiospheres) != null;
-                Building bio = BuildingsCanBuild.Find(b => b.IsBiospheres);
+                Building bio             = BuildingsCanBuild.Find(b => b.IsBiospheres);
 
-                if (bio != null && !biosphereInTheWorks && totalbuildings < 35 && bio.Maintenance < budget + 0.3f) //No habitable tiles, and not too much in debt
+                if (bio != null && !biosphereInTheWorks && TotalBuildings < MaxBuilding && bio.Maintenance < budget + 0.3f) //No habitable tiles, and not too much in debt
                     AddBuildingToCQ(bio);
             }
 

@@ -67,6 +67,7 @@ namespace Ship_Game
         
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
+        public const int MaxBuilding = 35; // FB currently this limited by number of tiles, all planets are 7 x 5
 
         void CreateManagers()
         {
@@ -608,11 +609,9 @@ namespace Ship_Game
                 return;
 
             if (Fertility < MaxFertility)
-                Fertility += 0.01f;
-            else
-                Fertility -= 0.01f;
-
-            Fertility = Fertility.Clamped(0, MaxFertility);
+                Fertility = (Fertility + 0.01f).Clamped(0, MaxFertility);
+            else if (Fertility > MaxFertility)
+                Fertility = Fertility.Clamped(0, Fertility - 0.01f);
         }
 
         public void ChangeMaxFertility(float amount)
@@ -798,6 +797,9 @@ namespace Ship_Game
 
         public int TotalInvadeInjure   => BuildingList.Filter(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
         public float TotalSpaceOffense => BuildingList.Filter(b => b.isWeapon).Sum(b => b.Offense);
+
+        public int OpenTiles           => TilesList.Count(tile => tile.Habitable && tile.building == null);
+        public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
 
         private void RepairBuildings(int repairAmount)
         {
