@@ -56,17 +56,17 @@ namespace Ship_Game
 
         // this applies to any randomly generated planet
         // which is newly created and is not a HomeWorld
-        public void InitNewMinorPlanet(PlanetTypeInfo type)
+        public void InitNewMinorPlanet(PlanetType type)
         {
             GenerateNewFromPlanetType(type);
             AddEventsAndCommodities();
         }
 
-        static PlanetTypeInfo ChooseType(SunZone sunZone)
+        static PlanetType ChooseType(SunZone sunZone)
         {
             for (int x = 0; x < 5; x++)
             {
-                PlanetTypeInfo type = ResourceManager.RandomPlanet();
+                PlanetType type = ResourceManager.RandomPlanet();
                 if (type.Zone == sunZone 
                 || (type.Zone == SunZone.Any && sunZone == SunZone.Near)
                 || (x > 2 && type.Zone == SunZone.Any))
@@ -80,7 +80,7 @@ namespace Ship_Game
             Type = ResourceManager.PlanetOrRandom(planetId);
         }
 
-        void GenerateNewFromPlanetType(PlanetTypeInfo type)
+        void GenerateNewFromPlanetType(PlanetType type)
         {
             Type = type;
             MaxPopBase = type.MaxPop.Generate();
@@ -101,7 +101,7 @@ namespace Ship_Game
             else MineralRichness = 0.0f;
         }
 
-        public void GenerateNewHomeWorld(PlanetTypeInfo type)
+        public void GenerateNewHomeWorld(PlanetType type)
         {
             Type = type;
             Fertility = type.Fertility.Generate().Clamped(type.MinFertility, 100.0f);
