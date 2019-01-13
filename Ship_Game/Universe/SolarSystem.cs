@@ -488,12 +488,13 @@ namespace Ship_Game
                     Vector2 planetCenter = Vector2.Zero.PointFromAngle(randomAngle, ringRadius);
                     var newOrbital = new Planet
                     {
-                        Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
+                        Name = Name + " " + RomanNumerals.ToRoman(i),
                         OrbitalAngle = randomAngle,
                         ParentSystem = this,
                         PlanetType   = 22
                     };
-                    newOrbital.SetPlanetAttributes();
+                    PlanetTypeInfo type = ResourceManager.PlanetOrRandom(22);
+                    newOrbital.InitNewMinorPlanet(type);
                     newOrbital.Center      = planetCenter;
                     newOrbital.Scale         = scale;
                     newOrbital.ObjectRadius  = planetRadius;
@@ -554,7 +555,7 @@ namespace Ship_Game
                 else
                 {
                     float randomAngle = RandomMath.RandomBetween(0f, 360f);
-                    string planetName = markovNameGenerator?.NextName ?? Name + " " + NumberToRomanConvertor.NumberToRoman(i);
+                    string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(i);
                    
                     Planet newOrbital = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
 
@@ -632,6 +633,8 @@ namespace Ship_Game
                         OrbitalRadius      = ringRadius,
                         PlanetTilt         = RandomMath.RandomBetween(45f, 135f)
                     };
+
+                    PlanetTypeInfo type = ResourceManager.PlanetOrRandom(whichPlanet);
                     newOrbital.InitializePlanetMesh(null);
                     if (!ringData.HomePlanet || owner == null)
                     {
@@ -640,7 +643,7 @@ namespace Ship_Game
                             newOrbital.UniqueHab = true;
                             newOrbital.UniqueHabPercent = ringData.UniqueHabPC;
                         }
-                        newOrbital.SetPlanetAttributes();
+                        newOrbital.InitNewMinorPlanet(type);
                         if (ringData.MaxPopDefined > 0)
                             newOrbital.MaxPopBase = ringData.MaxPopDefined * 1000f;
                         if (!string.IsNullOrEmpty(ringData.Owner) && !string.IsNullOrEmpty(ringData.Owner))
@@ -658,10 +661,9 @@ namespace Ship_Game
                     {
                         newOrbital.Owner = owner;
                         owner.Capital    = newOrbital;
-                        newOrbital.InitializeWorkerDistribution(owner);
                         owner.AddPlanet(newOrbital);
-                        newOrbital.SetPlanetAttributes(26f);
-                        //newOrbital.Special         = "None";
+                        newOrbital.InitializeWorkerDistribution(owner);
+                        newOrbital.GenerateNewHomeWorld(type);
                         newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
                         newOrbital.InitFertilityValues(2f + owner.data.Traits.HomeworldFertMod);
                         if (ringData.MaxPopDefined > 0)

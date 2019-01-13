@@ -11,8 +11,16 @@ namespace Ship_Game
     {
         [StarData(true)] public int Id;
         [StarData] public PlanetCategory Category;
-        [StarData] public int CompositionId;
+        [StarData] public LocText Composition;
+        [StarData] public bool EarthLike;
+        [StarData] public bool Habitable;
+        [StarData] public Range HabitableTileChance = new Range(minMax:20);
+        [StarData] public Range MaxPop;
+        [StarData] public Range Fertility;
+        [StarData] public float MinFertility; // Clamp(MinFertility, float.Max)
+        [StarData] public SunZone Zone = SunZone.Any;
+        [StarData] public float Scale = 0f;
 
-        public string Composition => Localizer.Token(CompositionId);
+        public string IconPath => "Planets/" + Id;
     }
 }

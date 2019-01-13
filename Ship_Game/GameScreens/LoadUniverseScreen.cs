@@ -138,9 +138,8 @@ namespace Ship_Game
             p.MineralRichness       = psdata.Richness;
             p.TerraformPoints       = psdata.TerraformPoints;
             p.HasRings              = psdata.HasRings;
-            p.PlanetType            = psdata.WhichPlanet;
+            p.RestorePlanetTypeFromSave(psdata.WhichPlanet);
             p.ShieldStrengthCurrent = psdata.ShieldStrength;
-            p.LoadAttributes();
             p.CrippledTurns         = psdata.Crippled_Turns;
             p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));

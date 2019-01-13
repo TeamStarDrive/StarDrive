@@ -1509,7 +1509,7 @@ namespace Ship_Game
                         if (ring.planet == P)
                         {
                             PlanetName.Text = string.Concat(P.ParentSystem.Name, " ",
-                                NumberToRomanConvertor.NumberToRoman(ringnum));
+                                RomanNumerals.ToRoman(ringnum));
                         }
 
                         ringnum++;
