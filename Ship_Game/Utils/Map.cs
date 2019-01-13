@@ -32,6 +32,12 @@ namespace Ship_Game
         {
         }
 
+        public Map(IEnumerable<ValueTuple<TKey, TValue>> elements) : base(0, null)
+        {
+            foreach ((TKey key, TValue value) in elements)
+                Add(key, value);
+        }
+
         // Separated throw from this[] to enable MSIL inlining
         void ThrowMapKeyNotFound(TKey key)
         {

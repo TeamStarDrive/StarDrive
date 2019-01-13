@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -8,9 +9,9 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        const int NumOpponents = 1;
-        const bool PlayerIsCybernetic = false;
-        MicroUniverse Universe;
+        public const int NumOpponents = 1;
+        public const bool PlayerIsCybernetic = false;
+        public TaskResult<UniverseData> DataLoader;
 
         public DeveloperSandbox() : base(null)
         {
@@ -19,6 +20,13 @@ namespace Ship_Game
 
         public override void Update(float deltaTime)
         {
+            if (DataLoader?.IsComplete == true)
+            {
+                UniverseData data = DataLoader.Result;
+                DataLoader = null;
+                var universe = new SandboxUniverse(data) { PlayerEmpire = data.EmpireList.First };
+                ScreenManager.GoToScreen(universe);
+            }
             ScreenState = ScreenState.Active;
             base.Update(deltaTime);
         }
@@ -41,28 +49,17 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        class MicroUniverse : UniverseScreen
-        {
-            public MicroUniverse(UniverseData sandbox) : base(sandbox)
-            {
-                player = PlayerEmpire;
-                NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
-                Paused = false;
-                ResetLighting();
-            }
-            public override void LoadContent()
-            {
-                base.LoadContent();
-
-                // nice zoom in effect, we set the cam height to super high
-                CamHeight *= 10000.0f;
-                CamDestination.Z = 100000.0f; // and set a lower destination
-            }
-        }
-
         public override void LoadContent()
         {
-            //Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
+            Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
+
+            if (DataLoader == null)
+                DataLoader = Parallel.Run(CreateSandboxUniverse);
+        }
+        
+        UniverseData CreateSandboxUniverse()
+        {
+            Stopwatch s = Stopwatch.StartNew();
             EmpireManager.Clear();
             ResourceManager.LoadItAll();
             var sandbox = new UniverseData { Size = new Vector2(500000f) };
@@ -128,8 +125,7 @@ namespace Ship_Game
             foreach (SolarSystem system in sandbox.SolarSystemsList)
                 SubmitSceneObjectsForRendering(system);
 
-            Universe = new MicroUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
-            ScreenManager.AddScreen(Universe);
+            return sandbox;
         }
 
         public Vector2 GenerateRandomSysPos(float spacing, Array<Vector2> claimedSpots, UniverseData data)
@@ -184,6 +180,26 @@ namespace Ship_Game
                 ship.Position = ship.loyalty.GetPlanets()[0].Center + new Vector2(6000f, 2000f);
                 ship.InitializeShip();
             }
+        }
+    }
+
+    
+    class SandboxUniverse : UniverseScreen
+    {
+        public SandboxUniverse(UniverseData sandbox) : base(sandbox)
+        {
+            player = PlayerEmpire;
+            NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
+            Paused = false;
+            ResetLighting();
+        }
+        public override void LoadContent()
+        {
+            base.LoadContent();
+
+            // nice zoom in effect, we set the cam height to super high
+            CamHeight *= 10000.0f;
+            CamDestination.Z = 100000.0f; // and set a lower destination
         }
     }
 }
