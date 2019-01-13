@@ -218,7 +218,7 @@ namespace Ship_Game
             }
         }
 
-        public void SpawnHomeWorld(Planet home, PlanetTypeInfo type)
+        public void SpawnHomeWorld(Planet home, PlanetType type)
         {
             home.Owner = this;
             Capital    = home;

@@ -57,7 +57,7 @@ namespace Ship_Game
 
     public class SolarSystemBody : Explorable
     {
-        public PlanetTypeInfo Type;
+        public PlanetType Type;
         public SubTexture PlanetTexture => ResourceManager.Texture(Type.IconPath);
         public PlanetCategory Category => Type.Category;
         public bool IsBarrenType => Type.Category == PlanetCategory.Barren;

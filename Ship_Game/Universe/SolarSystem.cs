@@ -492,7 +492,7 @@ namespace Ship_Game
                         OrbitalAngle = randomAngle,
                         ParentSystem = this
                     };
-                    PlanetTypeInfo type = ResourceManager.RandomPlanet(PlanetCategory.Terran);
+                    PlanetType type = ResourceManager.RandomPlanet(PlanetCategory.Terran);
                     newOrbital.InitNewMinorPlanet(type);
                     newOrbital.Center      = planetCenter;
                     newOrbital.Scale         = scale;
@@ -605,7 +605,7 @@ namespace Ship_Game
                     continue;
                 }
 
-                PlanetTypeInfo type = ringData.WhichPlanet > 0
+                PlanetType type = ringData.WhichPlanet > 0
                     ? ResourceManager.PlanetOrRandom(ringData.WhichPlanet)
                     : ResourceManager.RandomPlanet();
 
