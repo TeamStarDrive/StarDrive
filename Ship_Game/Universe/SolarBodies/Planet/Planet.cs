@@ -114,7 +114,7 @@ namespace Ship_Game
             else
             {
                 GenerateType(sunZone);
-                SetPlanetAttributes(true);
+                SetPlanetAttributes();
             }
 
             float zoneBonus = ((int)sunZone + 1) * .2f * ((int)sunZone + 1);
@@ -497,9 +497,19 @@ namespace Ship_Game
             CalculateIncomingTrade();
         }
 
-        public float MaxPopBase { get; set; } // planetary base max population value
-        public float MaxPopulation { get; private set; } // max pop with building bonuses
-        public float MaxPopulationBillion { get; private set; }
+        // these are intentionally duplicated so we don't easily modify them...
+        float MaxPopBaseVal, MaxPopVal, MaxPopBillionVal;
+        public float MaxPopBase // planetary base max population value
+        {
+            get => MaxPopBaseVal;
+            set
+            {
+                MaxPopBaseVal = value;
+                UpdateMaxPopulation();
+            }
+        }
+        public float MaxPopulation => MaxPopVal; // max pop with building bonuses
+        public float MaxPopulationBillion => MaxPopBillionVal;
 
         protected void UpdateMaxPopulation()
         {
@@ -507,8 +517,8 @@ namespace Ship_Game
             for (int i = 0; i < BuildingList.Count; ++i) // for speed
                 popBonus += BuildingList[i].MaxPopIncrease;
 
-            MaxPopulation = MaxPopBase + popBonus;
-            MaxPopulationBillion = MaxPopulation / 1000f;
+            MaxPopVal = MaxPopBase + popBonus;
+            MaxPopBillionVal = MaxPopulation / 1000f;
         }
 
         public int Level { get; private set; }
