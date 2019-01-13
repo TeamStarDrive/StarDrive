@@ -1,0 +1,206 @@
+PlanetType: 1
+  Category: Terran
+  Composition: 1700
+  EarthLike: true
+  Habitable: true
+  Zone: Habital
+  MaxPop: [4000, 8000]
+  Fertility: [0.8, 1.5]
+PlanetType: 2
+  Category: GasGiant
+  Composition: 1701
+  Zone: Far
+  Scale: 2.5
+PlanetType: 3
+  Category: Barren
+  Composition: 1702
+  Habitable: true
+  MaxPop: [100, 500]
+  Zone: Any
+PlanetType: 4
+  Category: Barren
+  Composition: 1702
+  Habitable: true
+  MaxPop: [100, 500]
+  Zone: Any
+PlanetType: 5
+  Category: Barren
+  Composition: 1703
+  Habitable: true
+  MaxPop: [100, 500]
+  Zone: Any
+PlanetType: 6
+  Category: GasGiant
+  Composition: 1701
+  Zone: Far
+  Scale: 2.5
+PlanetType: 7
+  Category: Barren
+  Composition: 1704
+  Habitable: true
+  MaxPop: [100, 500]
+  Zone: Any
+PlanetType: 8
+  Category: Barren
+  Composition: 1703
+  Habitable: true
+  MaxPop: [100, 500]
+  Zone: Any
+PlanetType: 9
+  Category: Volcanic
+  Composition: 1705
+  Zone: Any
+PlanetType: 10
+  Category: GasGiant
+  Composition: 1706
+  Zone: Far
+  Scale: 2.5
+PlanetType: 11
+  Category: Tundra
+  Composition: 1707
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [15, 20]
+  MaxPop: [3000, 8000]
+  Fertility: [0.5, 1.0]
+  Zone: Far
+PlanetType: 12
+  Category: GasGiant
+  Composition: 1708
+  Zone: Far
+  Scale: 2.5
+PlanetType: 13
+  Category: Terran
+  Composition: 1709
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: 75
+  MaxPop: [12000, 20000]
+  Fertility: [1.0, 3.0]
+  Zone: Habital
+PlanetType: 14
+  Category: Desert
+  Composition: 1710
+  Habitable: true
+  HabitableTileChance: [10, 45]
+  MaxPop: [1000, 4500]
+  Fertility: [-2.0, 1.9]
+  MinFertility: 0.8
+  Zone: Near
+PlanetType: 15
+  Category: GasGiant
+  Composition: 1711
+  Zone: Far
+  Scale: 2.5
+PlanetType: 16
+  Category: Barren
+  Composition: 1712
+  Habitable: true
+  MaxPop: [100, 500]
+  Zone: Any
+PlanetType: 17
+  Category: Ice
+  Composition: 1713
+  Habitable: true
+  HabitableTileChance: [15, 35]
+  MaxPop: [100, 500]
+  Zone: VeryFar
+PlanetType: 18
+  Category: Steppe
+  Composition: 1714
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [15, 45]
+  MaxPop: [3000, 9000]
+  Fertility: [0.0, 2.1]
+  MinFertility: 0.8
+  Zone: Habital
+PlanetType: 19
+  Category: Swamp
+  Composition: 1715
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [15, 45]
+  MaxPop: [3000, 9000]
+  Fertility: [-2.0, 3.0]
+  MinFertility: 1.0
+  Zone: Near
+PlanetType: 20
+  Category: GasGiant
+  Composition: 1711
+  Scale: 2.5
+PlanetType: 21
+  Category: Oceanic
+  Composition: 1716
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [15, 45]
+  MaxPop: [3000, 7000]
+  Fertility: [-3.0, 5.0]
+  MinFertility: 1.0
+  Zone: Habital
+PlanetType: 22
+  Category: Terran
+  Composition: 1717
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [60, 90]
+  MaxPop: [12000, 18000]
+  Fertility: [0.0, 3.0]
+  MinFertility: 1.0
+  Zone: Habital
+PlanetType: 23
+  Category: Volcanic
+  Composition: 1718
+  Zone: Near
+PlanetType: 24
+  Category: Barren
+  Composition: 1719
+  Habitable: true
+  MaxPop: [100, 500]
+  Zone: Any
+PlanetType: 25
+  Category: Terran
+  Composition: 1720
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [60, 90]
+  MaxPop: [12000, 18000]
+  Fertility: [-0.5, 3.0]
+  MinFertility: 1.0
+  Zone: Habital
+PlanetType: 26
+  Category: GasGiant
+  Composition: 1711
+  Zone: Far
+  Scale: 2.5
+PlanetType: 27
+  Category: Terran
+  Composition: 1721
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [60, 90]
+  MaxPop: [12000, 18000]
+  Fertility: [-10.0, 3.0]
+  MinFertility: 1.0
+  Zone: Habital
+PlanetType: 28
+  Category: Desert
+  Composition: 1710
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [12, 50]
+  MaxPop: [1200, 5500]
+  Fertility: [-2.3, 1.9]
+  MinFertility: 0.9
+  Zone: Near
+PlanetType: 29
+  Category: Terran
+  Composition: 1722
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [50, 80]
+  MaxPop: [7500, 12000]
+  Fertility: [-10.0, 3.0]
+  MinFertility: 1.0
+  Zone: Habital
