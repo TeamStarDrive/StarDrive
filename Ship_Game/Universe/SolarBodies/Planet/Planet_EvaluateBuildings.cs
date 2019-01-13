@@ -508,7 +508,9 @@ namespace Ship_Game
             score += EvalSpacePort(b);
             score += EvalTerraformer(b);
             score += EvalMilitaryBuilding(b, income);
+            score += EvalbyGovernor(b);
             score -= EvalFertilityLoss(b);
+
 
             if (score > 0)
                 score = FactorForConstructionCost(score, b.Cost, highestCost);
@@ -529,26 +531,28 @@ namespace Ship_Game
             switch (colonyType)
             {
                 case ColonyType.Agricultural:
-                    if (b.PlusFlatFoodAmount > 0 || b.PlusFoodPerColonist > 0 || b.MinusFertilityOnBuild < 0)
-                        score += 0.1f;
+                    score += b.PlusFlatFoodAmount 
+                             + b.PlusFoodPerColonist * Fertility 
+                             - b.MinusFertilityOnBuild;
                     break;
                 case ColonyType.Core:
-                    if (b.CreditsPerColonist > 0 | b.PlusTaxPercentage > 0)
-                        score += 0.1f;
+                    score += b.CreditsPerColonist * 2 
+                             + b.PlusTaxPercentage * 10;
                     break;
                 case ColonyType.Industrial:
                      if (b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0)
-                         score += 0.1f;
+                         score += 1f;
+                    score += b.PlusProdPerColonist * MineralRichness 
+                             + b.PlusFlatProductionAmount 
+                             + b.PlusProdPerRichness * MineralRichness;
                     break;
                 case ColonyType.Research:
-                    if (b.PlusResearchPerColonist > 0 || b.PlusFlatResearchAmount > 0)
-                        score += 0.1f;
+                    score += b.PlusResearchPerColonist * 3
+                             + b.PlusFlatResearchAmount * 2;
                     break;
                 case ColonyType.Military:
-                    if (b.CombatStrength > 0 && b.MaxPopIncrease.AlmostZero())
-                        score += 0.1f;
-                    if (b.AllowInfantry || b.AllowShipBuilding)
-                        score += 0.5f;
+                    score += b.CombatStrength > 0 && b.MaxPopIncrease.AlmostZero() ? 2f : 0f;
+                    score += b.AllowInfantry || b.AllowShipBuilding ? 1f : 0f;
                     break;
             }
             return score;
@@ -558,7 +562,7 @@ namespace Ship_Game
         {
             if (b.Cost.LessOrEqual(0)) return 0;
 
-            float score = (Prod.NetIncome / b.Cost).Clamped(0,1); // so really cheap buildings won't get crazy scores
+            float score = (Prod.NetIncome / b.Cost).Clamped(0,2); // so really cheap buildings won't get crazy scores
             return score;
         }
 
@@ -784,6 +788,7 @@ namespace Ship_Game
                 value += EvalPlusTaxPercent(b);
                 value += EvalMilitaryBuilding(b, income);
                 value += EvalTerraformerScrap(b);
+                value += EvalbyGovernor(b);
                 value -= EvalFertilityLossScrap(b);  // Yes, -= because it is calculated as negative in the function
                 //if (b.CombatStrength > 0) value += EvalMilitaryBuilding(b, income);
 
