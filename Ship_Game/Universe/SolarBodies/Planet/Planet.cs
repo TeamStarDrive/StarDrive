@@ -84,10 +84,7 @@ namespace Ship_Game
         public Planet()
         {
             CreateManagers();
-
             HasShipyard = false;
-            foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
-                AddGood(keyValuePair.Key, 0);
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
@@ -501,10 +498,10 @@ namespace Ship_Game
             {
                 Level = (int)DevelopmentLevel.Solitary;
                 DevelopmentStatus = Localizer.Token(1763);
-                if      (MaxPopulationBillion >= 2f  && Category != PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1764);
-                else if (MaxPopulationBillion >= 2f  && Category == PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1765);
-                else if (MaxPopulationBillion < 0.0f && Category != PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1766);
-                else if (MaxPopulationBillion < 0.5f && Category == PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1767);
+                if      (MaxPopulationBillion >= 2f  && !IsBarrenType) DevelopmentStatus += Localizer.Token(1764);
+                else if (MaxPopulationBillion >= 2f  &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1765);
+                else if (MaxPopulationBillion < 0.0f && !IsBarrenType) DevelopmentStatus += Localizer.Token(1766);
+                else if (MaxPopulationBillion < 0.5f &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1767);
             }
             else if (PopulationBillion > 0.5f && PopulationBillion <= 2)
             {
@@ -586,13 +583,20 @@ namespace Ship_Game
             Fertility = Fertility.Clamped(0, MaxFertility);
         }
 
+        public void SetFertility(float fertility, float maxFertility)
+        {
+            MaxFertility = maxFertility;
+            Fertility = fertility;
+        }
+
         public void ChangeMaxFertility(float amount)
         {
             MaxFertility += amount;
             MaxFertility  = Math.Max(0, MaxFertility);
         }
 
-        public void ChangeFertility(float amount) // FB: to enable bombs to temp change ferility immediately by specified amount
+        // FB: to enable bombs to temp change fertility immediately by specified amount
+        public void ChangeFertility(float amount)
         {
             Fertility += amount;
             Fertility  = Math.Max(0, Fertility);
@@ -608,7 +612,7 @@ namespace Ship_Game
             MaxFertility = amount;
         }
 
-        public void InitFertilityValues(float amount)
+        public void InitFertilityMinMax(float amount)
         {
             InitFertility(amount);
             InitMaxFertility(amount);
@@ -777,23 +781,16 @@ namespace Ship_Game
 
             for (int i = 0; i < BuildingList.Count; ++i)
             {
-                Building building        = BuildingList[i];
-                Building template        = ResourceManager.GetBuildingTemplate(BuildingList[i].Name);
-                building.CombatStrength  = (building.CombatStrength + repairAmount).Clamped(0, template.CombatStrength);
-                building.Strength        = (building.Strength + repairAmount).Clamped(0, template.Strength);
+                Building b        = BuildingList[i];
+                Building t        = ResourceManager.GetBuildingTemplate(b.BID);
+                b.CombatStrength  = (b.CombatStrength + repairAmount).Clamped(0, t.CombatStrength);
+                b.Strength        = (b.Strength + repairAmount).Clamped(0, t.Strength);
             }
         }
 
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~Planet() { Dispose(false); }
-
-        private void Dispose(bool disposing)
+        ~Planet() { Destroy(); }
+        public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
+        void Destroy()
         {
             ActiveCombats?.Dispose(ref ActiveCombats);
             OrbitalDropList?.Dispose(ref OrbitalDropList);
@@ -801,12 +798,10 @@ namespace Ship_Game
             Storage   = null;
             TroopManager    = null;
             GeodeticManager = null;
-            BasedShips?.Dispose(ref BasedShips);
             Projectiles?.Dispose(ref Projectiles);
             TroopsHere?.Dispose(ref TroopsHere);
         }
 
-        //Debug Text
         public Array<DebugTextBlock> DebugPlanetInfo()
         {
             var incomingData = new DebugTextBlock();

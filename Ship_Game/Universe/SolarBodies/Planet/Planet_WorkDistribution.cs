@@ -11,7 +11,7 @@ namespace Ship_Game
     {
         public void InitializeWorkerDistribution(Empire o)
         {
-            if (o.IsCybernetic || Category == PlanetCategory.Barren)
+            if (o.IsCybernetic || IsBarrenType)
             {
                 Food.Percent = 0.0f;
                 Prod.Percent = 0.5f;

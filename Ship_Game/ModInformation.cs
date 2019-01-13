@@ -1,3 +1,5 @@
+using System;
+
 namespace Ship_Game
 {
     public sealed class ModInformation
@@ -71,5 +73,23 @@ namespace Ship_Game
         public int SwampHab  = 67;
         public int TerranHab = 75;
 
+        public int ChanceForCategory(PlanetCategory category)
+        {
+            switch (category)
+            {
+                default:
+                case PlanetCategory.Other: return BarrenHab;
+                case PlanetCategory.Volcanic: return BarrenHab;
+                case PlanetCategory.GasGiant: return BarrenHab;
+                case PlanetCategory.Barren: return BarrenHab;
+                case PlanetCategory.Desert: return OceanHab;
+                case PlanetCategory.Tundra: return OceanHab;
+                case PlanetCategory.Oceanic: return OceanHab;
+                case PlanetCategory.Steppe: return SteppeHab;
+                case PlanetCategory.Terran: return TerranHab;
+                case PlanetCategory.Ice:    return IceHab;
+                case PlanetCategory.Swamp:  return SwampHab;
+            }
+        }
     }
 }
