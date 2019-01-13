@@ -426,7 +426,7 @@ namespace Ship_Game
                         graphics.PresentationParameters.BackBufferHeight), color);
             }
 
-            RenderOverFog(gameTime);
+            RenderOverFog(batch, gameTime);
             batch.End();
             batch.Begin();
             DrawPlanetInfo();

@@ -7,24 +7,24 @@ using Ship_Game.Data;
 
 namespace Ship_Game
 {
+    // @note This is parsed from PlanetTypes.yaml; All fields are immutable.
     public class PlanetType
     {
-        [StarData(true)] public int Id;
-        [StarData] public PlanetCategory Category;
-        [StarData] public LocText Composition;
-        [StarData] public string MeshPath;
-        [StarData] public string PlanetTile;
-        [StarData] public PlanetGlow Glow;
-        [StarData] public bool EarthLike;
-        [StarData] public bool Habitable;
-        [StarData] public Range HabitableTileChance = new Range(minMax:20);
-        [StarData] public Range MaxPop;
-        [StarData] public Range Fertility;
-        [StarData] public float MinFertility; // Clamp(MinFertility, float.Max)
-        [StarData] public SunZone Zone = SunZone.Any;
-        [StarData] public float Scale = 0f;
-
-        public string IconPath => "Planets/" + Id;
+        [StarData(true)] public readonly int Id;
+        [StarData] public readonly PlanetCategory Category;
+        [StarData] public readonly LocText Composition;
+        [StarData] public readonly string IconPath;
+        [StarData] public readonly string MeshPath;
+        [StarData] public readonly string PlanetTile;
+        [StarData] public readonly PlanetGlow Glow;
+        [StarData] public readonly bool EarthLike;
+        [StarData] public readonly bool Habitable;
+        [StarData] public readonly Range HabitableTileChance = new Range(minMax:20);
+        [StarData] public readonly Range MaxPop;
+        [StarData] public readonly Range Fertility;
+        [StarData] public readonly float MinFertility; // Clamp(MinFertility, float.Max)
+        [StarData] public readonly SunZone Zone = SunZone.Any;
+        [StarData] public readonly float Scale = 0f;
     }
 
     public enum PlanetGlow
