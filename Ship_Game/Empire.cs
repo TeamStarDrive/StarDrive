@@ -218,29 +218,29 @@ namespace Ship_Game
             }
         }
 
-        public void SpawnHomePlanet(Planet newOrbital)
+        public void SpawnHomeWorld(Planet home, PlanetTypeInfo type)
         {
-            newOrbital.Owner           = this;
-            Capital                    = newOrbital;
-            newOrbital.InitializeWorkerDistribution(this);
-            AddPlanet(newOrbital);
-            newOrbital.SetPlanetAttributes(26f);
-            newOrbital.ChangeFertility(2f + data.Traits.HomeworldFertMod);
-            newOrbital.MineralRichness = 1f + data.Traits.HomeworldRichMod;
-            newOrbital.MaxPopBase      = 14000f * data.Traits.HomeworldSizeMultiplier;
-            newOrbital.Population      = 14000f;
-            newOrbital.FoodHere        = 100f;
-            newOrbital.ProdHere        = 100f;
-            newOrbital.HasShipyard     = true;
-            newOrbital.AddGood("ReactorFuel", 1000);
-            ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(newOrbital);
-            ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(newOrbital);
+            home.Owner = this;
+            Capital    = home;
+            AddPlanet(home);
+            home.InitializeWorkerDistribution(this);
+            home.GenerateNewHomeWorld(type);
+            home.ChangeFertility(2f + data.Traits.HomeworldFertMod);
+            home.MineralRichness = 1f + data.Traits.HomeworldRichMod;
+            home.MaxPopBase      = 14000f * data.Traits.HomeworldSizeMultiplier;
+            home.Population      = 14000f;
+            home.FoodHere        = 100f;
+            home.ProdHere        = 100f;
+            home.HasShipyard     = true;
+            home.AddGood("ReactorFuel", 1000); // WTF?
+            ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(home);
+            ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(home);
             if (GlobalStats.HardcoreRuleset)
             {
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
-                ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(newOrbital);
-                ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(newOrbital);
+                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(home);
+                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(home);
+                ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(home);
+                ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(home);
             }
         }
 

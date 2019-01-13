@@ -29,8 +29,8 @@ namespace Ship_Game
 
             Technology = ResourceManager.Tech(uid);
 
-            string level = NumberToRomanConvertor.NumberToRoman(techEntry.Level);
-            string maxlvl = NumberToRomanConvertor.NumberToRoman(techEntry.MaxLevel);
+            string level = RomanNumerals.ToRoman(techEntry.Level);
+            string maxlvl = RomanNumerals.ToRoman(techEntry.MaxLevel);
             TitleText  = Localizer.Token(Technology.NameIndex) + (Technology.MaxLevel > 1 ? $" {level}/{maxlvl}" : "");
             MiddleText = Localizer.Token(techEntry.Tech.DescriptionIndex);
         }

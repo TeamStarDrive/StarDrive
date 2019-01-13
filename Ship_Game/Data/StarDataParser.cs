@@ -72,6 +72,8 @@ namespace Ship_Game.Data
         StreamReader Reader;
         public SDNode Root { get; }
         static readonly char[] Colon = { ':' };
+        static readonly char[] Array = { '[', ']' };
+        static readonly char[] Commas = { ',' };
 
         public StarDataParser(string file)
         {
@@ -158,10 +160,23 @@ namespace Ship_Game.Data
 
         static object BoxValue(string value)
         {
+            value = value.Trim();
             if (value.Length == 0) return null;
-            if (value == "true") return true;
-            if (value == "false") return false;
+            if (value == "true")   return true;
+            if (value == "false")  return false;
+
             char c = value[0];
+            if (c == '[')
+            {
+                value = value.Trim(Array);
+                string[] elements = value.Split(Commas, StringSplitOptions.None);
+
+                // now individually box each element into an object array
+                var array = new object[elements.Length];
+                for (int i = 0; i < elements.Length; ++i)
+                    array[i] = BoxValue(elements[i]);
+                return array;
+            }
             if (('0' <= c && c <= '9') || c == '-' || c == '+')
             {
                 if (value.IndexOf('.') != -1 && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float f))
@@ -185,26 +200,6 @@ namespace Ship_Game.Data
             return depth;
         }
 
-        public void Print()
-        {
-            var sb = new StringBuilder();
-            StringBuilder Prefix(int depth)
-            {
-                for (int i = 0; i < depth; ++i)
-                    sb.Append(' ');
-                return sb;
-            }
-            void PrintNode(SDNode node, int depth)
-            {
-                Prefix(depth).Append(node).AppendLine();
-                foreach (SDNode child in node)
-                    PrintNode(child, depth+2);
-            }
-            PrintNode(Root, 0);
-            Log.Info(sb.ToString());
-        }
-
-
         class SimpleSerializer
         {
             struct Info
@@ -219,25 +214,12 @@ namespace Ship_Game.Data
                     else Property.SetValue(instance, value);
                 }
 
-                string Name => Field != null ? Field.Name : Property.Name;
-                
                 object ConvertType(object value)
                 {
                     if (value == null)
                         return null;
-                    Type sourceT = value.GetType();
                     Type targetT = Property != null ? Property.PropertyType : Field.FieldType;
-                    if (sourceT == targetT)
-                        return value;
-                    if (targetT.IsEnum)
-                    {
-                        if (value is string s)
-                            return Enum.Parse(targetT, s, ignoreCase:true);
-                        if (value is int i)
-                            return Enum.ToObject(targetT, i);
-                        throw new Exception($"Reflect {Name}: could not convert '{value}' to Enum '{targetT.Name}'");
-                    }
-                    return Convert.ChangeType(value, targetT);
+                    return StarDataConverter.Convert(value, targetT);
                 }
             }
 
@@ -310,7 +292,5 @@ namespace Ship_Game.Data
             }
             return items;
         }
-
-
     }
 }

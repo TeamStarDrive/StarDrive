@@ -1912,17 +1912,33 @@ namespace Ship_Game
             }
         }
 
-        public static Array<PlanetTypeInfo> PlanetTypes;
+        static Array<PlanetTypeInfo> PlanetTypes;
+        static Map<int, PlanetTypeInfo> PlanetTypeMap;
+
+        public static PlanetTypeInfo RandomPlanet() => RandomMath.RandItem(PlanetTypes);
+        public static PlanetTypeInfo RandomPlanet(PlanetCategory category)
+        {
+            return RandomMath.RandItem(PlanetTypes.Filter(p => p.Category == category));
+        }
+        public static PlanetTypeInfo PlanetOrRandom(int planetId)
+        {
+            return PlanetTypeMap.TryGetValue(planetId, out PlanetTypeInfo type)
+                 ? type : RandomPlanet();
+        }
 
         static void LoadPlanetTypes()
         {
-            FileInfo file = GetModOrVanillaFile("PlanetTypes.txt");
-            if (file == null) throw new Exception("Required PlanetTypes.txt not found!");
+            FileInfo file = GetModOrVanillaFile("PlanetTypes.yaml");
+            if (file == null) throw new Exception("Required PlanetTypes.yaml not found!");
             using (var parser = new Data.StarDataParser(file))
             {
                 PlanetTypes = parser.DeserializeArray<PlanetTypeInfo>();
             }
-            Log.Info($"Loaded {PlanetTypes.Count} planet types");
+
+            PlanetTypes.Sort(p => p.Id);
+            PlanetTypeMap = new Map<int, PlanetTypeInfo>(PlanetTypes.Count);
+            foreach (PlanetTypeInfo type in PlanetTypes)
+                PlanetTypeMap[type.Id] = type;
         }
 
         // Added by RedFox

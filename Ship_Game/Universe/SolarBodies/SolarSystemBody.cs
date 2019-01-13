@@ -84,6 +84,7 @@ namespace Ship_Game
         public float OrbitalAngle;
         public float OrbitalRadius;
         public int PlanetType;
+        public PlanetTypeInfo Type;
         public bool HasRings;
         public float PlanetTilt;
         public float RingTilt;
@@ -172,15 +173,18 @@ namespace Ship_Game
                 Log.Info($"Event building : {b.building.Name} : created on {Name}");
             }
         }
+
         public void SpawnRandomItem(RandomItem randItem, float chance, float instanceMax)
         {
-            if ((GlobalStats.HardcoreRuleset || !randItem.HardCoreOnly) && RandomMath.RandomBetween(0.0f, 100f) < chance)
+            if ((GlobalStats.HardcoreRuleset || !randItem.HardCoreOnly)
+                && RandomMath.RandomBetween(0.0f, 100f) < chance)
             {
                 int itemCount = (int)RandomMath.RandomBetween(1f, instanceMax + 0.95f);
                 for (int i = 0; i < itemCount; ++i)
                 {
-                    if (!ResourceManager.BuildingsDict.ContainsKey(randItem.BuildingID)) continue;
-                    var pgs = ResourceManager.CreateBuilding(randItem.BuildingID).AssignBuildingToRandomTile(this);
+                    Building template = ResourceManager.GetBuildingTemplate(randItem.BuildingID);
+                    if (template == null) continue;
+                    var pgs = ResourceManager.CreateBuilding(template).AssignBuildingToRandomTile(this);
                     pgs.Habitable = true;
                     Log.Info($"Resource Created : '{pgs.building.Name}' : on '{Name}' ");
                     BuildingList.Add(pgs.building);
@@ -269,253 +273,85 @@ namespace Ship_Game
             }
             else
             {
-                Description = "";
-                var planet1 = this;
-                string str1 = planet1.Description + Name + " " + PlanetComposition + ". ";
-                planet1.Description = str1;
+                Description = Name + " " + PlanetComposition + ". ";
                 if (MaxFertility > 2)
                 {
-                    if (PlanetType == 21)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1729);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 13 || PlanetType == 22)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1730);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1731);
-                        planet2.Description = str2;
-                    }
+                    if      (PlanetType == 21) Description += Localizer.Token(1729);
+                    else if (PlanetType == 13
+                          || PlanetType == 22) Description += Localizer.Token(1730);
+                    else                       Description += Localizer.Token(1731);
                 }
                 else if (MaxFertility > 1)
                 {
-                    if (PlanetType == 19)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1732);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 21)
-                        Description += Localizer.Token(1733);
-                    else if (PlanetType == 13 || PlanetType == 22)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1734);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1735);
-                        planet2.Description = str2;
-                    }
+                    if      (PlanetType == 19) Description += Localizer.Token(1732);
+                    else if (PlanetType == 21) Description += Localizer.Token(1733);
+                    else if (PlanetType == 13
+                          || PlanetType == 22) Description += Localizer.Token(1734);
+                    else                       Description += Localizer.Token(1735);
                 }
                 else if (MaxFertility > 0.6f)
                 {
-                    if (PlanetType == 14)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1736);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 21)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1737);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 17)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1738);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 19)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1739);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 18)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1740);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 11)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1741);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 13 || PlanetType == 22)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1742);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1743);
-                        planet2.Description = str2;
-                    }
+                    if      (PlanetType == 14) Description += Localizer.Token(1736);
+                    else if (PlanetType == 21) Description += Localizer.Token(1737);
+                    else if (PlanetType == 17) Description += Localizer.Token(1738);
+                    else if (PlanetType == 19) Description += Localizer.Token(1739);
+                    else if (PlanetType == 18) Description += Localizer.Token(1740);
+                    else if (PlanetType == 11) Description += Localizer.Token(1741);
+                    else if (PlanetType == 13 
+                          || PlanetType == 22) Description += Localizer.Token(1742);
+                    else                       Description += Localizer.Token(1743);
                 }
                 else
                 {
                     switch (PlanetType) {
                         case 9:
-                        case 23:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1744);
-                            planet2.Description = str2;
-                            break;
-                        }
+                        case 23: Description += Localizer.Token(1744); break;
                         case 20:
-                        case 15:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1745);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 17:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1746);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 18:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1747);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 11:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1748);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 14:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1749);
-                            planet2.Description = str2;
-                            break;
-                        }
+                        case 15: Description += Localizer.Token(1745); break;
+                        case 17: Description += Localizer.Token(1746); break;
+                        case 18: Description += Localizer.Token(1747); break;
+                        case 11: Description += Localizer.Token(1748); break;
+                        case 14: Description += Localizer.Token(1749); break;
                         case 2:
                         case 6:
-                        case 10:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1750);
-                            planet2.Description = str2;
-                            break;
-                        }
+                        case 10: Description += Localizer.Token(1750); break;
                         case 3:
                         case 4:
-                        case 16:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1751);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 1:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1752);
-                            planet2.Description = str2;
-                            break;
-                        }
+                        case 16: Description += Localizer.Token(1751); break;
+                        case 1:  Description += Localizer.Token(1752); break;
                         default:
                             if (Habitable)
-                            {
-                                var planet2 = this;
-                                string str2 = planet2.Description ?? "";
-                                planet2.Description = str2;
-                            }
+                                Description = Description ?? "";
                             else
-                            {
-                                var planet2 = this;
-                                string str2 = planet2.Description + Localizer.Token(1753);
-                                planet2.Description = str2;
-                            }
+                                Description += Localizer.Token(1753);
                             break;
                     }
                 }
                 if (MaxFertility < 0.6f && MineralRichness >= 2 && Habitable)
                 {
-                    var planet2 = this;
-                    string str2 = planet2.Description + Localizer.Token(1754);
-                    planet2.Description = str2;
-                    if (MineralRichness > 3)
-                    {
-                        var planet3 = this;
-                        string str3 = planet3.Description + Localizer.Token(1755);
-                        planet3.Description = str3;
-                    }
-                    else if (MineralRichness >= 2)
-                    {
-                        var planet3 = this;
-                        string str3 = planet3.Description + Localizer.Token(1756);
-                        planet3.Description = str3;
-                    }
-                    else
-                    {
-                        if (MineralRichness < 1)
-                            return;
-                        var planet3 = this;
-                        string str3 = planet3.Description + Localizer.Token(1757);
-                        planet3.Description = str3;
-                    }
+                    Description += Localizer.Token(1754);
+                    if      (MineralRichness > 3)  Description += Localizer.Token(1755);
+                    else if (MineralRichness >= 2) Description += Localizer.Token(1756);
+                    else if (MineralRichness >= 1) Description += Localizer.Token(1757);
                 }
                 else if (MineralRichness > 3 && Habitable)
                 {
-                    var planet2 = this;
-                    string str2 = planet2.Description + Localizer.Token(1758);
-                    planet2.Description = str2;
+                    Description += Localizer.Token(1758);
                 }
                 else if (MineralRichness >= 2 && Habitable)
                 {
-                    var planet2 = this;
-                    string str2 = planet2.Description + Name + Localizer.Token(1759);
-                    planet2.Description = str2;
+                    Description += Name + Localizer.Token(1759);
                 }
                 else if (MineralRichness >= 1 && Habitable)
                 {
-                    var planet2 = this;
-                    string str2 = planet2.Description + Name + Localizer.Token(1760);
-                    planet2.Description = str2;
+                    Description += Name + Localizer.Token(1760);
                 }
-                else
+                else if (MineralRichness < 1 && Habitable)
                 {
-                    if (MineralRichness >= 1 || !Habitable)
-                        return;
                     if (PlanetType == 14)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Name + Localizer.Token(1761);
-                        planet2.Description = str2;
-                    }
+                        Description += Name + Localizer.Token(1761);
                     else
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Name + Localizer.Token(1762);
-                        planet2.Description = str2;
-                    }
+                        Description += Name + Localizer.Token(1762);
                 }
             }
         }
