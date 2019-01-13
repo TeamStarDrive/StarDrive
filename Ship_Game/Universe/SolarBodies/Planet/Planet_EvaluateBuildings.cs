@@ -61,7 +61,7 @@ namespace Ship_Game
             score -= Owner.data.FlatMoneyBonus * 0.015f; // Acceptable loss (Note what this will do at high Difficulty)
             
             DebugEvalBuild(b, "Maintenance", score);
-            return score;
+            return -score;
         }
 
         float EvalFlatFood(Building b)
@@ -466,6 +466,16 @@ namespace Ship_Game
             // Importance to our empire:
             float worth = ColonyWorth(toEmpire: Owner);
             int desired = (int)Math.Floor((worth / 15) + 0.1f);
+            switch (colonyType)
+            {
+                case ColonyType.Core:
+                    desired += 1;
+                    break;
+                case ColonyType.Military:
+                    desired += 3;
+                    break;
+            }
+
             return desired;
         }
 
@@ -481,7 +491,8 @@ namespace Ship_Game
         {
             float score = 0.0f;    //End result value for entire building
 
-            score -= EvalMaintenance(b, income);
+            score += EvalMaintenance(b, income);
+            score += EvalCostVsBuildTime(b);
             score += EvalFlatFood(b);
             score += EvalFoodPerCol(b);
             score += EvalFlatProd(b);
@@ -512,6 +523,45 @@ namespace Ship_Game
             return score;
         }
 
+        float EvalbyGovernor(Building b)
+        {
+            float score = 0;
+            switch (colonyType)
+            {
+                case ColonyType.Agricultural:
+                    if (b.PlusFlatFoodAmount > 0 || b.PlusFoodPerColonist > 0 || b.MinusFertilityOnBuild < 0)
+                        score += 0.1f;
+                    break;
+                case ColonyType.Core:
+                    if (b.CreditsPerColonist > 0 | b.PlusTaxPercentage > 0)
+                        score += 0.1f;
+                    break;
+                case ColonyType.Industrial:
+                     if (b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0)
+                         score += 0.1f;
+                    break;
+                case ColonyType.Research:
+                    if (b.PlusResearchPerColonist > 0 || b.PlusFlatResearchAmount > 0)
+                        score += 0.1f;
+                    break;
+                case ColonyType.Military:
+                    if (b.CombatStrength > 0 && b.MaxPopIncrease.AlmostZero())
+                        score += 0.1f;
+                    if (b.AllowInfantry || b.AllowShipBuilding)
+                        score += 0.5f;
+                    break;
+            }
+            return score;
+        }
+
+        float EvalCostVsBuildTime(Building b)
+        {
+            if (b.Cost.LessOrEqual(0)) return 0;
+
+            float score = (Prod.NetIncome / b.Cost).Clamped(0,1); // so really cheap buildings won't get crazy scores
+            return score;
+        }
+
         float EvalMilitaryBuilding(Building b, float income)
         {
             if (b.CombatStrength == 0 || b.MaxPopIncrease > 0) return 0;
@@ -536,7 +586,7 @@ namespace Ship_Game
             // Shields are very efficient because they protect from early bombardments
             // Smallest Planetary Shield has strength 500
             // Make sure we give it a fair score.
-            float shieldScore = b.PlanetaryShieldStrengthAdded / 500;
+            float shieldScore = b.PlanetaryShieldStrengthAdded / 250;
             float allowTroops = 0;
             if (b.AllowInfantry)
                 allowTroops = colonyType == ColonyType.Military ? 1.0f : 0.5f;
