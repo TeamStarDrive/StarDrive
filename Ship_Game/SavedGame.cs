@@ -16,6 +16,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
+    [AttributeUsage(AttributeTargets.Property|AttributeTargets.Field)]
     public sealed class SerializeAttribute : Attribute
     {
         public int Id { get; set; } = -1;

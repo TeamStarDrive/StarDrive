@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game.Data;
 
 namespace Ship_Game
 {
@@ -72,7 +73,7 @@ namespace Ship_Game
 
             AddEventsAndCommodities();
         }
-        
+
         public void LoadAttributes()
         {
             switch (PlanetType)
@@ -231,7 +232,7 @@ namespace Ship_Game
                 PlanetComposition = "";
                 HasEarthLikeClouds = false;
                 Habitable = false;
-                MaxPopulation = 0;
+                MaxPopBase = 0;
                 Fertility = 0;
                 PlanetType = RandomMath.IntBetween(1, 24);
                 TilesList.Clear();
@@ -253,7 +254,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1700);
                     HasEarthLikeClouds = true;
                     Habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(4000f, 8000f);
                     Fertility = RandomMath.RandomBetween(0.8f, 1.5f);
                     Zone = SunZone.Habital;
                     HabitalTileChance = 20;
@@ -267,7 +268,7 @@ namespace Ship_Game
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1702);
                     Habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Zone = SunZone.Any;
                     break;
@@ -275,14 +276,14 @@ namespace Ship_Game
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1703);
                     Habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Zone = SunZone.Any;
                     break;
                 case 5:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1704);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     Zone = SunZone.Any;
@@ -295,7 +296,7 @@ namespace Ship_Game
                 case 7:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1704);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     Zone = SunZone.Any;
@@ -303,7 +304,7 @@ namespace Ship_Game
                 case 8:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1703);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     Zone = SunZone.Any;
@@ -321,7 +322,7 @@ namespace Ship_Game
                 case 11:
                     Category = PlanetCategory.Tundra;
                     PlanetComposition = Localizer.Token(1707);
-                    MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(4000f, 8000f);
                     Fertility = RandomMath.AvgRandomBetween(0.5f, 1f);
                     HasEarthLikeClouds = true;
                     Habitable = true;
@@ -339,7 +340,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1709);
                     Habitable = true;
                     HasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.AvgRandomBetween(1f, 3f);
                     Zone = SunZone.Habital;
                     HabitalTileChance = 75;
@@ -348,7 +349,7 @@ namespace Ship_Game
                     Category = PlanetCategory.Desert;
                     PlanetComposition = Localizer.Token(1710);
                     HabitalTileChance = RandomMath.AvgRandomBetween(10f, 45f);
-                    MaxPopulation = (int)HabitalTileChance * 100;
+                    MaxPopBase = (int)HabitalTileChance * 100;
                     Fertility = RandomMath.AvgRandomBetween(-2f, 2f);
                     Fertility = Fertility < .8f ? .8f : Fertility;
                     Habitable = true;
@@ -363,7 +364,7 @@ namespace Ship_Game
                 case 16:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1712);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     Zone = SunZone.Any;
@@ -371,7 +372,7 @@ namespace Ship_Game
                 case 17:
                     Category = PlanetCategory.Ice;
                     PlanetComposition = Localizer.Token(1713);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     Zone = SunZone.VeryFar;
@@ -381,7 +382,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1714);
                     HasEarthLikeClouds = true;
                     HabitalTileChance = RandomMath.AvgRandomBetween(15f, 45f);
-                    MaxPopulation = (int)HabitalTileChance * 200;
+                    MaxPopBase = (int)HabitalTileChance * 200;
                     Fertility = RandomMath.AvgRandomBetween(0f, 2f);
                     Fertility = Fertility < .8f ? .8f : Fertility;
                     Habitable = true;
@@ -392,7 +393,7 @@ namespace Ship_Game
                     Habitable = true;
                     PlanetComposition = Localizer.Token(1715);
                     HabitalTileChance = RandomMath.AvgRandomBetween(15f, 45f);
-                    MaxPopulation = HabitalTileChance * 200;
+                    MaxPopBase = HabitalTileChance * 200;
                     Fertility = RandomMath.AvgRandomBetween(-2f, 3f);
                     Fertility = Fertility < 1 ? 1 : Fertility;
                     HasEarthLikeClouds = true;
@@ -409,7 +410,7 @@ namespace Ship_Game
                     Habitable = true;
                     HasEarthLikeClouds = true;
                     HabitalTileChance = RandomMath.AvgRandomBetween(15f, 45f);
-                    MaxPopulation = HabitalTileChance * 100 + 1500;
+                    MaxPopBase = HabitalTileChance * 100 + 1500;
                     Fertility = RandomMath.AvgRandomBetween(-3f, 5f);
                     Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
@@ -420,7 +421,7 @@ namespace Ship_Game
                     Habitable = true;
                     HasEarthLikeClouds = true;
                     HabitalTileChance = RandomMath.AvgRandomBetween(60f, 90f);
-                    MaxPopulation = HabitalTileChance * 200f;
+                    MaxPopBase = HabitalTileChance * 200f;
                     Fertility = RandomMath.AvgRandomBetween(0f, 3f);
                     Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
@@ -434,7 +435,7 @@ namespace Ship_Game
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1719);
                     Habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Zone = SunZone.Any;
                     break;
@@ -444,7 +445,7 @@ namespace Ship_Game
                     Habitable = true;
                     HasEarthLikeClouds = true;
                     HabitalTileChance = RandomMath.AvgRandomBetween(60f, 90f);
-                    MaxPopulation = HabitalTileChance * 200f;
+                    MaxPopBase = HabitalTileChance * 200f;
                     Fertility = RandomMath.AvgRandomBetween(-.50f, 3f);
                     Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
@@ -460,7 +461,7 @@ namespace Ship_Game
                     Habitable = true;
                     HasEarthLikeClouds = true;
                     HabitalTileChance = RandomMath.AvgRandomBetween(60f, 90f);
-                    MaxPopulation = HabitalTileChance * 200f;
+                    MaxPopBase = HabitalTileChance * 200f;
                     Fertility = RandomMath.AvgRandomBetween(-50f, 3f);
                     Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
@@ -471,7 +472,7 @@ namespace Ship_Game
                     Habitable = true;
                     HasEarthLikeClouds = true;
                     HabitalTileChance = RandomMath.AvgRandomBetween(50f, 80f);
-                    MaxPopulation = HabitalTileChance * 150f;
+                    MaxPopBase = HabitalTileChance * 150f;
                     Fertility = RandomMath.AvgRandomBetween(-50f, 3f);
                     Fertility = Fertility < 1 ? 1 : Fertility;
                     Zone = SunZone.Habital;
@@ -484,31 +485,11 @@ namespace Ship_Game
 
         public void SetPlanetAttributes(float mrich)
         {
-            if (mrich >= 87.5f)
-            {
-                //this.richness = Planet.Richness.UltraRich;
-                MineralRichness = 2.5f;
-            }
-            else if (mrich >= 75f)
-            {
-                //this.richness = Planet.Richness.Rich;
-                MineralRichness = 1.5f;
-            }
-            else if (mrich >= 25.0)
-            {
-                //this.richness = Planet.Richness.Average;
-                MineralRichness = 1f;
-            }
-            else if (mrich >= 12.5)
-            {
-                MineralRichness = 0.5f;
-                //this.richness = Planet.Richness.Poor;
-            }
-            else if (mrich < 12.5)
-            {
-                MineralRichness = 0.1f;
-                //this.richness = Planet.Richness.UltraPoor;
-            }
+            if (mrich >= 87.5f)     MineralRichness = 2.5f;
+            else if (mrich >= 75f)  MineralRichness = 1.5f;
+            else if (mrich >= 25.0) MineralRichness = 1f;
+            else if (mrich >= 12.5) MineralRichness = 0.5f;
+            else if (mrich < 12.5)  MineralRichness = 0.1f;
 
             TilesList.Clear();
             switch (PlanetType)
@@ -518,7 +499,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1700);
                     HasEarthLikeClouds = true;
                     Habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(4000f, 8000f);
                     Fertility = RandomMath.RandomBetween(0.5f, 2f);
                     HabitalTileChance = 20;
                     break;
@@ -530,20 +511,20 @@ namespace Ship_Game
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1702);
                     Habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     break;
                 case 4:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1702);
                     Habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     break;
                 case 5:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1703);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     break;
@@ -554,14 +535,14 @@ namespace Ship_Game
                 case 7:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1704);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     break;
                 case 8:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1703);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     break;
@@ -576,7 +557,7 @@ namespace Ship_Game
                 case 11:
                     Category = PlanetCategory.Tundra;
                     PlanetComposition = Localizer.Token(1707);
-                    MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(4000f, 8000f);
                     Fertility = RandomMath.RandomBetween(0.5f, 0.9f);
                     HasEarthLikeClouds = true;
                     Habitable = true;
@@ -592,14 +573,14 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1709);
                     Habitable = true;
                     HasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.RandomBetween(0.8f, 3f);
                     HabitalTileChance = 75;
                     break;
                 case 14:
                     Category = PlanetCategory.Desert;
                     PlanetComposition = Localizer.Token(1710);
-                    MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(1000f, 3000f);
                     Fertility = RandomMath.RandomBetween(0.2f, 1.8f);
                     Habitable = true;
                     HabitalTileChance = 20;
@@ -612,14 +593,14 @@ namespace Ship_Game
                 case 16:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1712);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     break;
                 case 17:
                     Category = PlanetCategory.Ice;
                     PlanetComposition = Localizer.Token(1713);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     Habitable = true;
                     HabitalTileChance = 10;
@@ -629,7 +610,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1714);
                     Fertility = RandomMath.RandomBetween(0.4f, 1.4f);
                     HasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(2000f, 4000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(2000f, 4000f);
                     Habitable = true;
                     HabitalTileChance = 50;
                     break;
@@ -637,7 +618,7 @@ namespace Ship_Game
                     Category = PlanetCategory.Swamp;
                     Habitable = true;
                     PlanetComposition = Localizer.Token(1712);
-                    MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(1000f, 3000f);
                     Fertility = RandomMath.RandomBetween(1f, 5f);
                     HasEarthLikeClouds = true;
                     HabitalTileChance = 20;
@@ -651,7 +632,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1716);
                     Habitable = true;
                     HasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(3000f, 6000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(3000f, 6000f);
                     Fertility = RandomMath.RandomBetween(2f, 5f);
                     HabitalTileChance = 20;
                     break;
@@ -660,7 +641,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1717);
                     Habitable = true;
                     HasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.RandomBetween(1f, 3f);
                     HabitalTileChance = 75;
                     break;
@@ -672,7 +653,7 @@ namespace Ship_Game
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1719);
                     Habitable = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     Fertility = 0.0f;
                     break;
                 case 25:
@@ -680,7 +661,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1720);
                     Habitable = true;
                     HasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.RandomBetween(1f, 2f);
                     HabitalTileChance = 90;
                     break;
@@ -693,7 +674,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1721);
                     Habitable = true;
                     HasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.RandomBetween(1f, 3f);
                     HabitalTileChance = 60;
                     break;
@@ -702,7 +683,7 @@ namespace Ship_Game
                     PlanetComposition = Localizer.Token(1722);
                     Habitable = true;
                     HasEarthLikeClouds = true;
-                    MaxPopulation = (int)RandomMath.RandomBetween(12000f, 20000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(12000f, 20000f);
                     Fertility = RandomMath.RandomBetween(1f, 3f);
                     HabitalTileChance = 50;
                     break;
@@ -733,54 +714,54 @@ namespace Ship_Game
                 case 7:
                     Category = PlanetCategory.Barren;
                     PlanetComposition = Localizer.Token(1704);
-                    MaxPopulation = (int)RandomMath.RandomBetween(0.0f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(0.0f, 500f);
                     HabitalTileChance = 10;
                     break;
                 case 9:
                     Category = PlanetCategory.Volcanic;
                     PlanetComposition = Localizer.Token(1705);
-                    MaxPopulation = (int)RandomMath.RandomBetween(0.0f, 200f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(0.0f, 200f);
                     HabitalTileChance = 10;
                     break;
                 case 11:
                     Category = PlanetCategory.Tundra;
                     PlanetComposition = Localizer.Token(1724);
-                    MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(4000f, 8000f);
                     break;
                 case 14:
                     Category = PlanetCategory.Desert;
                     PlanetComposition = Localizer.Token(1725);
-                    MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(1000f, 3000f);
                     HabitalTileChance = RandomMath.AvgRandomBetween(10f, 40f);
                     break;
                 case 17:
                     Category = PlanetCategory.Ice;
                     PlanetComposition = Localizer.Token(1713);
-                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(100f, 500f);
                     HabitalTileChance = RandomMath.AvgRandomBetween(15f, 30f);
                     break;
                 case 18:
                     Category = PlanetCategory.Steppe;
                     PlanetComposition = Localizer.Token(1726);
-                    MaxPopulation = (int)RandomMath.RandomBetween(2000f, 4000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(2000f, 4000f);
                     HabitalTileChance = RandomMath.AvgRandomBetween(20f, 45f);
                     break;
                 case 19:
                     Category = PlanetCategory.Swamp;
                     PlanetComposition = Localizer.Token(1727);
-                    MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(1000f, 3000f);
                     HabitalTileChance = RandomMath.AvgRandomBetween(15f, 50f);
                     break;
                 case 21:
                     Category = PlanetCategory.Oceanic;
                     PlanetComposition = Localizer.Token(1728);
-                    MaxPopulation = (int)RandomMath.RandomBetween(3000f, 6000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(3000f, 6000f);
                     HabitalTileChance = RandomMath.AvgRandomBetween(25f, 55f);
                     break;
                 case 22:
                     Category = PlanetCategory.Terran;
                     PlanetComposition = Localizer.Token(1717);
-                    MaxPopulation = (int)RandomMath.RandomBetween(6000f, 10000f);
+                    MaxPopBase = (int)RandomMath.RandomBetween(6000f, 10000f);
                     HabitalTileChance = RandomMath.AvgRandomBetween(50f, 70f);
                     break;
             }
