@@ -232,15 +232,19 @@ namespace Ship_Game
             if (ParentSystem.isVisible)
             {
                 Zrotate += ZrotateAmount * elapsedTime;
-                SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(Scale) *
-                           Matrix.CreateRotationZ(-Zrotate) * Matrix.CreateRotationX(-45f.ToRadians()) *
-                           Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                CloudMatrix = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(Scale) *
-                              Matrix.CreateRotationZ((float) (-Zrotate / 1.5)) *
-                              Matrix.CreateRotationX(-45f.ToRadians()) *
-                              Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                RingWorld = Matrix.Identity * Matrix.CreateRotationX(RingTilt.ToRadians()) *
-                            Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                SO.World = Matrix.CreateScale(3f)
+                         * Matrix.CreateScale(Scale)
+                         * Matrix.CreateRotationZ(-Zrotate)
+                         * Matrix.CreateRotationX(-45f.ToRadians())
+                         * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                CloudMatrix = Matrix.CreateScale(3f)
+                            * Matrix.CreateScale(Scale)
+                            * Matrix.CreateRotationZ(-Zrotate / 1.5f)
+                            * Matrix.CreateRotationX(-45f.ToRadians())
+                            * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                RingWorld = Matrix.CreateRotationX(RingTilt.ToRadians())
+                          * Matrix.CreateScale(5f)
+                          * Matrix.CreateTranslation(new Vector3(Center, 2500f));
                 SO.Visibility = ObjectVisibility.Rendered;
             }
             else
