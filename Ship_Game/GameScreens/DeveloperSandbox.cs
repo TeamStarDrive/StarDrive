@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -15,17 +16,22 @@ namespace Ship_Game
 
         public DeveloperSandbox() : base(null)
         {
-            IsPopup = false;
+            IsPopup = true;
         }
 
         public override void Update(float deltaTime)
         {
-            if (DataLoader?.IsComplete == true)
+            if (DataLoader != null)
             {
-                UniverseData data = DataLoader.Result;
-                DataLoader = null;
-                var universe = new SandboxUniverse(data) { PlayerEmpire = data.EmpireList.First };
-                ScreenManager.GoToScreen(universe);
+                // This speeds up loading ~7x; perhaps without Sleep, rendering is too intensive?
+                Thread.Sleep(10);
+                if (DataLoader?.IsComplete == true)
+                {
+                    UniverseData data = DataLoader.Result;
+                    DataLoader = null;
+                    var universe = new SandboxUniverse(data) { PlayerEmpire = data.EmpireList.First };
+                    ScreenManager.GoToScreen(universe);
+                }
             }
             ScreenState = ScreenState.Active;
             base.Update(deltaTime);
@@ -200,6 +206,7 @@ namespace Ship_Game
             // nice zoom in effect, we set the cam height to super high
             CamHeight *= 10000.0f;
             CamDestination.Z = 100000.0f; // and set a lower destination
+            MaxCamHeight = 2000000.0f;
         }
     }
 }
