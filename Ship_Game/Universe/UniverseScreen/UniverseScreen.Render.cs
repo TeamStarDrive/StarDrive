@@ -110,29 +110,22 @@ namespace Ship_Game
                                     out Vector2 planetScreenPos, out float planetScreenRadius);
                                 float scale = planetScreenRadius / 115f;
 
-                                if (planet.PlanetType == 1 || planet.PlanetType == 11 ||
-                                    (planet.PlanetType == 13 || planet.PlanetType == 21) ||
-                                    (planet.PlanetType == 22 || planet.PlanetType == 25 ||
-                                     (planet.PlanetType == 27 || planet.PlanetType == 29)))
-                                    ScreenManager.SpriteBatch.Draw(Glow_Terran, planetScreenPos,
+                                SubTexture glow = null;
+                                switch (planet.Type.Glow)
+                                {
+                                    case PlanetGlow.Terran: glow = Glow_Terran; break;
+                                    case PlanetGlow.Red:    glow = Glow_Red;    break;
+                                    case PlanetGlow.White:  glow = Glow_White;  break;
+                                    case PlanetGlow.Aqua:   glow = Glow_Aqua;   break;
+                                    case PlanetGlow.Orange: glow = Glow_Orange; break;
+                                }
+                                if (glow != null)
+                                {
+                                    ScreenManager.SpriteBatch.Draw(glow, planetScreenPos,
                                         Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
-                                else if (planet.PlanetType == 5 || planet.PlanetType == 7 ||
-                                         (planet.PlanetType == 8 || planet.PlanetType == 9) || planet.PlanetType == 23)
-                                    ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos,
-                                        Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
-                                else if (planet.PlanetType == 17)
-                                    ScreenManager.SpriteBatch.Draw(Glow_White, planetScreenPos,
-                                        Color.White, 0.0f, new Vector2(128f, 128f), scale,
-                                        SpriteEffects.None, 1f);
-                                else if (planet.PlanetType == 19)
-                                    ScreenManager.SpriteBatch.Draw(Glow_Aqua, planetScreenPos,
-                                        Color.White, 0.0f, new Vector2(128f, 128f), scale,
-                                        SpriteEffects.None, 1f);
-                                else if (planet.PlanetType == 14 || planet.PlanetType == 18)
-                                    ScreenManager.SpriteBatch.Draw(Glow_Orange, planetScreenPos,
-                                        Color.White, 0.0f, new Vector2(128f, 128f), scale,
-                                        SpriteEffects.None, 1f);
+                                }
+
                                 lock (GlobalStats.ClickableSystemsLock)
                                     ClickPlanetList.Add(new ClickablePlanets
                                     {
@@ -648,7 +641,7 @@ namespace Ship_Game
                     Planet p = solarSystem.PlanetList[j];
                     if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
                     {
-                        if (p.HasEarthLikeClouds)
+                        if (p.Type.EarthLike)
                         {
                             DrawClouds(xnaPlanetModel, p.CloudMatrix, view, projection, p);
                             DrawAtmo(xnaPlanetModel, p.CloudMatrix, view, projection, p);

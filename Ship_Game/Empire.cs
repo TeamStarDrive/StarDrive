@@ -223,8 +223,8 @@ namespace Ship_Game
             home.Owner = this;
             Capital    = home;
             AddPlanet(home);
-            home.InitializeWorkerDistribution(this);
             home.GenerateNewHomeWorld(type);
+            home.InitializeWorkerDistribution(this);
             home.ChangeFertility(2f + data.Traits.HomeworldFertMod);
             home.MineralRichness = 1f + data.Traits.HomeworldRichMod;
             home.MaxPopBase      = 14000f * data.Traits.HomeworldSizeMultiplier;

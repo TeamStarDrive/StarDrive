@@ -1,6 +1,8 @@
 PlanetType: 1
   Category: Terran
   Composition: 1700
+  MeshPath: Model/SpaceObjects/planet_1
+  Glow: Terran
   EarthLike: true
   Habitable: true
   Zone: Habital
@@ -9,55 +11,75 @@ PlanetType: 1
 PlanetType: 2
   Category: GasGiant
   Composition: 1701
+  MeshPath: Model/SpaceObjects/planet_2
   Zone: Far
   Scale: 2.5
 PlanetType: 3
   Category: Barren
   Composition: 1702
+  MeshPath: Model/SpaceObjects/planet_3
   Habitable: true
+  HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
 PlanetType: 4
   Category: Barren
   Composition: 1702
+  MeshPath: Model/SpaceObjects/planet_4
   Habitable: true
+  HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
 PlanetType: 5
   Category: Barren
   Composition: 1703
+  MeshPath: Model/SpaceObjects/planet_5
+  Glow: Red
   Habitable: true
+  HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
 PlanetType: 6
   Category: GasGiant
   Composition: 1701
+  MeshPath: Model/SpaceObjects/planet_6
   Zone: Far
   Scale: 2.5
 PlanetType: 7
   Category: Barren
   Composition: 1704
+  MeshPath: Model/SpaceObjects/planet_7
+  Glow: Red
   Habitable: true
+  HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
 PlanetType: 8
   Category: Barren
   Composition: 1703
+  MeshPath: Model/SpaceObjects/planet_8
+  Glow: Red
   Habitable: true
+  HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
 PlanetType: 9
   Category: Volcanic
   Composition: 1705
+  MeshPath: Model/SpaceObjects/planet_9
+  Glow: Red
   Zone: Any
 PlanetType: 10
   Category: GasGiant
   Composition: 1706
+  MeshPath: Model/SpaceObjects/planet_10
   Zone: Far
   Scale: 2.5
 PlanetType: 11
   Category: Tundra
   Composition: 1707
+  MeshPath: Model/SpaceObjects/planet_11
+  Glow: Terran
   EarthLike: true
   Habitable: true
   HabitableTileChance: [15, 20]
@@ -67,11 +89,15 @@ PlanetType: 11
 PlanetType: 12
   Category: GasGiant
   Composition: 1708
+  MeshPath: Model/SpaceObjects/planet_12
   Zone: Far
   Scale: 2.5
 PlanetType: 13
   Category: Terran
   Composition: 1709
+  MeshPath: Model/SpaceObjects/planet_13
+  Glow: Terran
+  PlanetTile: Terran_2
   EarthLike: true
   Habitable: true
   HabitableTileChance: 75
@@ -81,6 +107,8 @@ PlanetType: 13
 PlanetType: 14
   Category: Desert
   Composition: 1710
+  MeshPath: Model/SpaceObjects/planet_14
+  Glow: Orange
   Habitable: true
   HabitableTileChance: [10, 45]
   MaxPop: [1000, 4500]
@@ -90,17 +118,22 @@ PlanetType: 14
 PlanetType: 15
   Category: GasGiant
   Composition: 1711
+  MeshPath: Model/SpaceObjects/planet_15
   Zone: Far
   Scale: 2.5
 PlanetType: 16
   Category: Barren
   Composition: 1712
+  MeshPath: Model/SpaceObjects/planet_16
   Habitable: true
+  HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
 PlanetType: 17
   Category: Ice
   Composition: 1713
+  MeshPath: Model/SpaceObjects/planet_17
+  Glow: White
   Habitable: true
   HabitableTileChance: [15, 35]
   MaxPop: [100, 500]
@@ -108,6 +141,8 @@ PlanetType: 17
 PlanetType: 18
   Category: Steppe
   Composition: 1714
+  MeshPath: Model/SpaceObjects/planet_18
+  Glow: Orange
   EarthLike: true
   Habitable: true
   HabitableTileChance: [15, 45]
@@ -118,6 +153,8 @@ PlanetType: 18
 PlanetType: 19
   Category: Swamp
   Composition: 1715
+  MeshPath: Model/SpaceObjects/planet_19
+  Glow: Aqua
   EarthLike: true
   Habitable: true
   HabitableTileChance: [15, 45]
@@ -128,10 +165,13 @@ PlanetType: 19
 PlanetType: 20
   Category: GasGiant
   Composition: 1711
+  MeshPath: Model/SpaceObjects/planet_20
   Scale: 2.5
 PlanetType: 21
   Category: Oceanic
   Composition: 1716
+  MeshPath: Model/SpaceObjects/planet_21
+  Glow: Terran
   EarthLike: true
   Habitable: true
   HabitableTileChance: [15, 45]
@@ -142,6 +182,9 @@ PlanetType: 21
 PlanetType: 22
   Category: Terran
   Composition: 1717
+  MeshPath: Model/SpaceObjects/planet_22
+  Glow: Terran
+  PlanetTile: Terran_3
   EarthLike: true
   Habitable: true
   HabitableTileChance: [60, 90]
@@ -152,16 +195,22 @@ PlanetType: 22
 PlanetType: 23
   Category: Volcanic
   Composition: 1718
+  MeshPath: Model/SpaceObjects/planet_23
+  Glow: Red
   Zone: Near
 PlanetType: 24
   Category: Barren
   Composition: 1719
+  MeshPath: Model/SpaceObjects/planet_24
   Habitable: true
+  HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
 PlanetType: 25
   Category: Terran
   Composition: 1720
+  MeshPath: Model/SpaceObjects/planet_25
+  Glow: Terran
   EarthLike: true
   Habitable: true
   HabitableTileChance: [60, 90]
@@ -172,11 +221,14 @@ PlanetType: 25
 PlanetType: 26
   Category: GasGiant
   Composition: 1711
+  MeshPath: Model/SpaceObjects/planet_26
   Zone: Far
   Scale: 2.5
 PlanetType: 27
   Category: Terran
   Composition: 1721
+  MeshPath: Model/SpaceObjects/planet_27
+  Glow: Terran
   EarthLike: true
   Habitable: true
   HabitableTileChance: [60, 90]
@@ -187,6 +239,7 @@ PlanetType: 27
 PlanetType: 28
   Category: Desert
   Composition: 1710
+  MeshPath: Model/SpaceObjects/planet_28
   EarthLike: true
   Habitable: true
   HabitableTileChance: [12, 50]
@@ -197,6 +250,8 @@ PlanetType: 28
 PlanetType: 29
   Category: Terran
   Composition: 1722
+  MeshPath: Model/SpaceObjects/planet_29
+  Glow: Terran
   EarthLike: true
   Habitable: true
   HabitableTileChance: [50, 80]

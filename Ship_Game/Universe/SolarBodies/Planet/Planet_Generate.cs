@@ -9,7 +9,6 @@ namespace Ship_Game
 {
     public partial class Planet
     {
-        public PlanetCategory Category { get; protected set; }
 
         public string LocalizedCategory
         {
@@ -32,7 +31,7 @@ namespace Ship_Game
             }
         }
 
-        public string LocalizedRichness => $"{LocalizedCategory} {GetRichness()}";
+        public string LocalizedRichness => $"{LocalizedCategory} {RichnessText}";
 
         public string CategoryName
         {
@@ -48,13 +47,10 @@ namespace Ship_Game
         {
             get
             {
-                if (Category == PlanetCategory.Terran) switch (PlanetType)
-                {
-                    default:case 1: return "Terran";
-                    case 13:        return "Terran_2";
-                    case 22:        return "Terran_3";
-                }
-                return CategoryName;
+                if (Type.PlanetTile.NotEmpty())
+                    return Type.PlanetTile;
+                return Category.ToString();
+
             }
         }
 
@@ -81,26 +77,14 @@ namespace Ship_Game
 
         public void RestorePlanetTypeFromSave(int planetId)
         {
-            PlanetTypeInfo type = ResourceManager.PlanetOrRandom(planetId);
-            Type       = type;
-            PlanetType = type.Id;
-            Category   = type.Category;
-            PlanetComposition  = type.Composition.Text;
-            HasEarthLikeClouds = type.EarthLike;
-            Habitable          = type.Habitable;
+            Type = ResourceManager.PlanetOrRandom(planetId);
         }
 
         void GenerateNewFromPlanetType(PlanetTypeInfo type)
         {
-            Type       = type;
-            PlanetType = type.Id;
-            Category   = type.Category;
-            PlanetComposition  = type.Composition.Text;
-            HasEarthLikeClouds = type.EarthLike;
-            Habitable          = type.Habitable;
-            HabitalTileChance  = (int)type.HabitableTileChance.Generate();
+            Type = type;
             MaxPopBase = type.MaxPop.Generate();
-            Fertility = type.Fertility.Generate().Clamped(type.MinFertility, 100.0f);
+            Fertility  = type.Fertility.Generate().Clamped(type.MinFertility, 100.0f);
             MaxFertility = Fertility;
             Zone         = type.Zone;
             TilesList.Clear();
@@ -119,24 +103,18 @@ namespace Ship_Game
 
         public void GenerateNewHomeWorld(PlanetTypeInfo type)
         {
-            Type       = type;
-            PlanetType = type.Id;
-            Category   = type.Category;
-            PlanetComposition  = type.Composition.Text;
-            HasEarthLikeClouds = type.EarthLike;
-            Habitable          = type.Habitable;
+            Type = type;
             Fertility = type.Fertility.Generate().Clamped(type.MinFertility, 100.0f);
             MaxFertility = Fertility;
-            Zone = SunZone.Any;
+            Zone         = SunZone.Any;
 
-            // HomeWorld always gets 75% habitable chance per tile
-            HabitalTileChance = 75f;
             TilesList.Clear();
             for (int x = 0; x < 7; ++x)
             {
                 for (int y = 0; y < 5; ++y)
                 {
-                    bool habitableTile = RandomMath.RandomBetween(0f, 100f) < HabitalTileChance;
+                    // HomeWorld always gets 75% habitable chance per tile
+                    bool habitableTile = RandomMath.RandomBetween(0f, 100f) < 75f;
                     TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
                 }
             }
@@ -145,22 +123,16 @@ namespace Ship_Game
         // Refactored by Fat Bastard && RedFox
         void Terraform(PlanetCategory newCategory, bool recalculateTileHabitation = false)
         {
-            PlanetTypeInfo type = ResourceManager.RandomPlanet(newCategory);
-            Type       = type;
-            PlanetType = type.Id;
-            Category   = type.Category;
-            PlanetComposition  = type.Composition.Text;
-            HasEarthLikeClouds = type.EarthLike;
-            Habitable          = type.Habitable;
+            Type = ResourceManager.RandomPlanet(newCategory);
 
             // reduce the habitable tile chance slightly from base values:
-            Range chance = type.HabitableTileChance;
+            Range chance = Type.HabitableTileChance;
             chance.Min = Math.Max(chance.Min - 10, 10);
             chance.Max = Math.Max(chance.Max - 10, chance.Min);
-            HabitalTileChance = chance.Generate();
+            float habitableChance = chance.Generate();
 
             // also reduce base value of maxPop, we don't want super-planets
-            Range maxPop = type.MaxPop;
+            Range maxPop = Type.MaxPop;
             const float maxAllowed = 10000f;
             // rescale max value to 10000
             if (maxPop.Max > maxAllowed)
@@ -186,7 +158,7 @@ namespace Ship_Game
                     case PlanetCategory.Steppe:
                     case PlanetCategory.Tundra:
                     case PlanetCategory.Terran:
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
+                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < habitableChance)
                         {
                             pgs.Habitable = true;
                             pgs.Biosphere = false;
@@ -202,51 +174,18 @@ namespace Ship_Game
             CreatePlanetSceneObject(Empire.Universe);
         }
 
-        
         protected void AddEventsAndCommodities()
         {
-            switch (Category)
+            if (Habitable)
             {
-                case PlanetCategory.Terran:
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.TerranHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.TerranChance, item.TerranInstanceMax);
-                    break;
-                case PlanetCategory.Steppe:
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.SteppeChance, item.SteppeInstanceMax);
-                    break;
-                case PlanetCategory.Ice:
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.IceHab ?? 15);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.IceChance, item.IceInstanceMax);
-                    break;
-                case PlanetCategory.Barren:
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.BarrenHab ?? 0);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.BarrenChance, item.BarrenInstanceMax);
-                    break;
-                case PlanetCategory.Tundra:
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.TundraChance, item.TundraInstanceMax);
-                    break;
-                case PlanetCategory.Desert:
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.DesertChance, item.DesertInstanceMax);
-                    break;
-                case PlanetCategory.Oceanic:
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.OceanHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.OceanicChance, item.OceanicInstanceMax);
-                    break;
-                case PlanetCategory.Swamp:
-                    SetTileHabitability(GlobalStats.ActiveModInfo?.SteppeHab ?? HabitalTileChance);
-                    foreach (RandomItem item in ResourceManager.RandomItemsList)
-                        SpawnRandomItem(item, item.SwampChance, item.SwampInstanceMax);
-                    break;
+                float habitableChance = GlobalStats.ActiveModInfo?.ChanceForCategory(Category)
+                                     ?? Type.HabitableTileChance.Generate();
+                SetTileHabitability(habitableChance);
+            }
+            foreach (RandomItem item in ResourceManager.RandomItemsList)
+            {
+                (float chance, float maxInstance) = item.ChanceAndMaxInstance(Category);
+                SpawnRandomItem(item, chance, maxInstance);
             }
             AddTileEvents();
         }

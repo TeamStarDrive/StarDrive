@@ -774,7 +774,7 @@ namespace Ship_Game
 
                     Vector3 vector3 = Viewport.Project(new Vector3(planet.Center, 2500f), projection, view, Matrix.Identity);
                     var position = new Vector2(vector3.X, vector3.Y);
-                    SubTexture planetTex = ResourceManager.Texture("Planets/" + planet.PlanetType);
+                    SubTexture planetTex = planet.PlanetTexture;
 
                     if (planet.Owner != null && wellKnown)
                     {

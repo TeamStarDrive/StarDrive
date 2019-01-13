@@ -12,6 +12,9 @@ namespace Ship_Game
         [StarData(true)] public int Id;
         [StarData] public PlanetCategory Category;
         [StarData] public LocText Composition;
+        [StarData] public string MeshPath;
+        [StarData] public string PlanetTile;
+        [StarData] public PlanetGlow Glow;
         [StarData] public bool EarthLike;
         [StarData] public bool Habitable;
         [StarData] public Range HabitableTileChance = new Range(minMax:20);
@@ -22,5 +25,10 @@ namespace Ship_Game
         [StarData] public float Scale = 0f;
 
         public string IconPath => "Planets/" + Id;
+    }
+
+    public enum PlanetGlow
+    {
+        None, Terran, Red, White, Aqua, Orange
     }
 }
