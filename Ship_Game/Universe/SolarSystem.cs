@@ -467,10 +467,10 @@ namespace Ship_Game
             }
         }
 
-        public void GenerateCorsairSystem(string name)
+        public void GenerateCorsairSystem(string systemName)
         {
             SetSunPath(RandomMath.IntBetween(1, 3));
-            Name = name;
+            Name = systemName;
             NumberOfRings = 2;
             StarRadius = RandomMath.IntBetween(250, 500);
             for (int i = 1; i < NumberOfRings + 1; i++)
@@ -488,12 +488,11 @@ namespace Ship_Game
                     Vector2 planetCenter = Vector2.Zero.PointFromAngle(randomAngle, ringRadius);
                     var newOrbital = new Planet
                     {
-                        Name = Name + " " + RomanNumerals.ToRoman(i),
+                        Name = systemName + " " + RomanNumerals.ToRoman(i),
                         OrbitalAngle = randomAngle,
-                        ParentSystem = this,
-                        PlanetType   = 22
+                        ParentSystem = this
                     };
-                    PlanetTypeInfo type = ResourceManager.PlanetOrRandom(22);
+                    PlanetTypeInfo type = ResourceManager.RandomPlanet(PlanetCategory.Terran);
                     newOrbital.InitNewMinorPlanet(type);
                     newOrbital.Center      = planetCenter;
                     newOrbital.Scale         = scale;
@@ -594,145 +593,143 @@ namespace Ship_Game
             newSys.RingList.Capacity = data.RingList.Count;
             int numberOfRings = data.RingList.Count;
             int randomBetween = RandomMath.IntBetween(50, 500);
+
             for (int i = 0; i < numberOfRings; i++)
             {
-                int ringtype = RandomMath.IntBetween(1, 29);
-                float ringRadius = 10000f + (randomBetween + RandomMath.RandomBetween(10500f, 12000f)) * (i+1);
                 SolarSystemData.Ring ringData = data.RingList[i];
+                float ringRadius = 10000f + (randomBetween + RandomMath.RandomBetween(10500f, 12000f)) * (i+1);
 
-                if (ringData.Asteroids == null)
+                if (ringData.Asteroids != null)
                 {
-                    int whichPlanet = ringData.WhichPlanet > 0 ? ringData.WhichPlanet : ringtype;
-                    float scale;
-                    if (ringData.planetScale > 0)
+                    newSys.GenerateAsteroidRing(ringRadius, spread: 3000f, scaleMin: 1.2f, scaleMax: 4.6f);
+                    continue;
+                }
+
+                PlanetTypeInfo type = ringData.WhichPlanet > 0
+                    ? ResourceManager.PlanetOrRandom(ringData.WhichPlanet)
+                    : ResourceManager.RandomPlanet();
+
+                float scale;
+                if (ringData.planetScale > 0) scale = ringData.planetScale;
+                else scale = RandomMath.RandomBetween(0.9f, 1.8f) + type.Scale;
+
+                float planetRadius = 1000f * (float) (1 + ((Math.Log(scale)) / 1.5));
+                float randomAngle = RandomMath.RandomBetween(0f, 360f);
+
+                var newOrbital = new Planet
+                {
+                    Name = ringData.Planet,
+                    OrbitalAngle = randomAngle,
+                    ParentSystem = newSys,
+                    SpecialDescription = ringData.SpecialDescription,
+                    Center = MathExt.PointOnCircle(randomAngle, ringRadius),
+                    Scale = scale,
+                    ObjectRadius = planetRadius,
+                    OrbitalRadius = ringRadius,
+                    PlanetTilt = RandomMath.RandomBetween(45f, 135f)
+                };
+
+                if (!ringData.HomePlanet || owner == null)
+                {
+                    if (ringData.UniqueHabitat)
                     {
-                        scale = ringData.planetScale;
-                    }
-                    else
-                    {
-                        scale = RandomMath.RandomBetween(0.9f, 1.8f);
-                        if (whichPlanet == 2  || whichPlanet == 6  || whichPlanet == 10 || 
-                            whichPlanet == 12 || whichPlanet == 15 || whichPlanet == 20 || whichPlanet == 26)
-                            scale += 2.5f;
+                        newOrbital.UniqueHab = true;
+                        newOrbital.UniqueHabPercent = ringData.UniqueHabPC;
                     }
 
-                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
-                    float randomAngle = RandomMath.RandomBetween(0f, 360f);
-                    Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
-                    
-                    var newOrbital = new Planet
-                    {
-                        Name               = ringData.Planet,
-                        OrbitalAngle       = randomAngle,
-                        ParentSystem       = newSys,
-                        SpecialDescription = ringData.SpecialDescription,
-                        PlanetType         = whichPlanet,
-                        Center             = planetCenter,
-                        Scale              = scale,
-                        ObjectRadius       = planetRadius,
-                        OrbitalRadius      = ringRadius,
-                        PlanetTilt         = RandomMath.RandomBetween(45f, 135f)
-                    };
+                    newOrbital.InitNewMinorPlanet(type);
+                    if (ringData.MaxPopDefined > 0)
+                        newOrbital.MaxPopBase = ringData.MaxPopDefined * 1000f;
 
-                    PlanetTypeInfo type = ResourceManager.PlanetOrRandom(whichPlanet);
-                    newOrbital.InitializePlanetMesh(null);
-                    if (!ringData.HomePlanet || owner == null)
+                    if (ringData.Owner.NotEmpty())
                     {
-                        if (ringData.UniqueHabitat)
-                        {
-                            newOrbital.UniqueHab = true;
-                            newOrbital.UniqueHabPercent = ringData.UniqueHabPC;
-                        }
-                        newOrbital.InitNewMinorPlanet(type);
-                        if (ringData.MaxPopDefined > 0)
-                            newOrbital.MaxPopBase = ringData.MaxPopDefined * 1000f;
-                        if (!string.IsNullOrEmpty(ringData.Owner) && !string.IsNullOrEmpty(ringData.Owner))
-                        {
-                            newOrbital.Owner = EmpireManager.GetEmpireByName(ringData.Owner);
-                            newOrbital.Owner.AddPlanet(newOrbital);
-                            newOrbital.InitializeWorkerDistribution(newOrbital.Owner);
-                            newOrbital.Population      = newOrbital.MaxPopulation;
-                            newOrbital.MineralRichness = 1f;
-                            newOrbital.colonyType      = Planet.ColonyType.Core;
-                            newOrbital.InitFertilityValues(2f);
-                        }
+                        newOrbital.Owner = EmpireManager.GetEmpireByName(ringData.Owner);
+                        newOrbital.Owner.AddPlanet(newOrbital);
+                        newOrbital.InitializeWorkerDistribution(newOrbital.Owner);
+                        newOrbital.Population = newOrbital.MaxPopulation;
+                        newOrbital.MineralRichness = 1f;
+                        newOrbital.colonyType = Planet.ColonyType.Core;
+                        newOrbital.SetFertility(2f, 2f);
                     }
-                    else
-                    {
-                        newOrbital.Owner = owner;
-                        owner.Capital    = newOrbital;
-                        owner.AddPlanet(newOrbital);
-                        newOrbital.InitializeWorkerDistribution(owner);
-                        newOrbital.GenerateNewHomeWorld(type);
-                        newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
-                        newOrbital.InitFertilityValues(2f + owner.data.Traits.HomeworldFertMod);
-                        if (ringData.MaxPopDefined > 0)
-                            newOrbital.MaxPopBase = ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMultiplier;
-                        else
-                            newOrbital.MaxPopBase = 14000f * owner.data.Traits.HomeworldSizeMultiplier;
-
-                        newOrbital.Population = 14000f;
-                        newOrbital.FoodHere   = 100f;
-                        newOrbital.ProdHere   = 100f;
-                        if (!newSys.OwnerList.Contains(newOrbital.Owner))
-                            newSys.OwnerList.Add(newOrbital.Owner);
-
-                        newOrbital.HasShipyard = true;
-                        newOrbital.AddGood("ReactorFuel", 1000);
-                        ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(newOrbital);
-                        ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(newOrbital);
-                        if (GlobalStats.HardcoreRuleset)
-                        {
-                            ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
-                            ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
-                            ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(newOrbital);
-                            ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(newOrbital);
-                        }
-                    }
-                    if (ringData.HasRings != null)
-                    {
-                        newOrbital.HasRings = true;
-                        newOrbital.RingTilt = RandomMath.RandomBetween(-80f, -45f);
-                    }
-                    //Add buildings to planet
-                    if (ringData.BuildingList.Count > 0)
-                        foreach (string building in ringData.BuildingList)
-                            ResourceManager.CreateBuilding(building).SetPlanet(newOrbital);
-                    //Add ships to orbit
-                    if (ringData.Guardians.Count > 0)
-                        foreach (string ship in ringData.Guardians)
-                            newOrbital.Guardians.Add(ship);
-                    //Add moons to planets
-                    if (ringData.Moons.Count > 0)
-                    {
-                        for (int j = 0; j < ringData.Moons.Count; j++)
-                        {
-                            float radius = newOrbital.ObjectRadius * 5 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
-                            Moon moon = new Moon
-                            {
-                                orbitTarget  = newOrbital.guid,
-                                moonType     = ringData.Moons[j].WhichMoon,
-                                scale        = ringData.Moons[j].MoonScale,
-                                OrbitRadius  = radius,
-                                OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
-                                Position     = newOrbital.Center.GenerateRandomPointOnCircle(radius)
-                            };
-                            newSys.MoonList.Add(moon);
-                        }
-                    }
-                    newSys.PlanetList.Add(newOrbital);
-                    Ring ring = new Ring
-                    {
-                        Distance  = ringRadius,
-                        Asteroids = false,
-                        planet    = newOrbital
-                    };
-                    newSys.RingList.Add(ring);
                 }
                 else
                 {
-                    newSys.GenerateAsteroidRing(ringRadius, spread:3000f, scaleMin:1.2f, scaleMax:4.6f);
+                    newOrbital.Owner = owner;
+                    owner.Capital = newOrbital;
+                    owner.AddPlanet(newOrbital);
+                    newOrbital.GenerateNewHomeWorld(type);
+                    newOrbital.InitializeWorkerDistribution(owner);
+                    newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
+                    newOrbital.InitFertilityMinMax(2f + owner.data.Traits.HomeworldFertMod);
+                    if (ringData.MaxPopDefined > 0)
+                        newOrbital.MaxPopBase =
+                            ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMultiplier;
+                    else
+                        newOrbital.MaxPopBase = 14000f * owner.data.Traits.HomeworldSizeMultiplier;
+
+                    newOrbital.Population = 14000f;
+                    newOrbital.FoodHere = 100f;
+                    newOrbital.ProdHere = 100f;
+                    if (!newSys.OwnerList.Contains(newOrbital.Owner))
+                        newSys.OwnerList.Add(newOrbital.Owner);
+
+                    newOrbital.HasShipyard = true;
+                    newOrbital.AddGood("ReactorFuel", 1000);
+                    ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(newOrbital);
+                    ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(newOrbital);
+                    if (GlobalStats.HardcoreRuleset)
+                    {
+                        ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
+                        ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
+                        ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(newOrbital);
+                        ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(newOrbital);
+                    }
                 }
+
+                newOrbital.InitializePlanetMesh(null);
+
+                if (ringData.HasRings != null)
+                {
+                    newOrbital.HasRings = true;
+                    newOrbital.RingTilt = RandomMath.RandomBetween(-80f, -45f);
+                }
+
+                //Add buildings to planet
+                if (ringData.BuildingList.Count > 0)
+                    foreach (string building in ringData.BuildingList)
+                        ResourceManager.CreateBuilding(building).SetPlanet(newOrbital);
+                //Add ships to orbit
+                if (ringData.Guardians.Count > 0)
+                    foreach (string ship in ringData.Guardians)
+                        newOrbital.Guardians.Add(ship);
+                //Add moons to planets
+                if (ringData.Moons.Count > 0)
+                {
+                    for (int j = 0; j < ringData.Moons.Count; j++)
+                    {
+                        float radius = newOrbital.ObjectRadius * 5 +
+                                       RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
+                        Moon moon = new Moon
+                        {
+                            orbitTarget = newOrbital.guid,
+                            moonType = ringData.Moons[j].WhichMoon,
+                            scale = ringData.Moons[j].MoonScale,
+                            OrbitRadius = radius,
+                            OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
+                            Position = newOrbital.Center.GenerateRandomPointOnCircle(radius)
+                        };
+                        newSys.MoonList.Add(moon);
+                    }
+                }
+
+                newSys.PlanetList.Add(newOrbital);
+                Ring ring = new Ring
+                {
+                    Distance = ringRadius,
+                    Asteroids = false,
+                    planet = newOrbital
+                };
+                newSys.RingList.Add(ring);
             }
             return newSys;
         }
