@@ -50,6 +50,9 @@ namespace Ship_Game
         public SubTexture this[int index] => Sorted[index];
         public SubTexture this[string name] => Lookup[name];
 
+        // Grabs a random texture from this texture atlas
+        public SubTexture RandomTexture() => RandomMath.RandItem(Sorted);
+
         public bool TryGetTexture(string name, out SubTexture texture)
             => Lookup.TryGetValue(name, out texture);
 

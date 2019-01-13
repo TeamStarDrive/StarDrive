@@ -27,8 +27,7 @@ namespace Ship_Game
         struct Star
         {
             public Vector2 Position;
-            public int Size;
-            public int whichStar;
+            public SubTexture Tex;
             public int whichLayer;
         }
 
@@ -48,9 +47,6 @@ namespace Ship_Game
 
 		public StarField(GameScreen screen)
 		{
-			Stars = new Star[100];
-			Reset(Vector2.Zero);
-
             StarFieldR = new Rectangle(0, 0, screen.ScreenWidth, screen.ScreenHeight);
             CloudTex = ResourceManager.Texture("clouds");
             CloudEffect = screen.TransientContent.Load<Effect>("Effects/Clouds");
@@ -61,6 +57,9 @@ namespace Ship_Game
             StarTex[3] = ResourceManager.Texture("Suns/star_neutron");
             StarTexture = new Texture2D(screen.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
             StarTexture.SetData(new[] { Color.White });
+
+            Stars = new Star[100];
+            Reset(Vector2.Zero);
 		}
         
         ~StarField() { Destroy(); }
@@ -103,7 +102,7 @@ namespace Ship_Game
 					star.Position.X = StarFieldR.Right;
 					star.Position.Y = StarFieldR.Y + RandomMath.Random.Next(StarFieldR.Height);
 				}
-				if (star.Position.X > StarFieldR.Right)
+                else if (star.Position.X > StarFieldR.Right)
 				{
 					star.Position.X = StarFieldR.X;
 					star.Position.Y = StarFieldR.Y + RandomMath.Random.Next(StarFieldR.Height);
@@ -113,36 +112,18 @@ namespace Ship_Game
 					star.Position.X = StarFieldR.X + RandomMath.Random.Next(StarFieldR.Width);
 					star.Position.Y = StarFieldR.Bottom;
 				}
-				if (star.Position.Y > StarFieldR.Y + Empire.Universe.Viewport.Height)
+				else if (star.Position.Y > StarFieldR.Bottom)
 				{
 					star.Position.X = StarFieldR.X + RandomMath.Random.Next(StarFieldR.Width);
 					star.Position.Y = StarFieldR.Y;
 				}
-				float alpha = 255f;
+                Color c = LayerColors[star.whichLayer];
 				switch (star.whichLayer)
 				{
-					case 2:
-					{
-						batch.Draw(ResourceManager.SmallStars[star.whichStar], star.Position, LayerColors[star.whichLayer]);
-						break;
-					}
-					case 3:
-					{
-						batch.Draw(ResourceManager.MediumStars[star.whichStar], star.Position, new Color(LayerColors[star.whichLayer].R, LayerColors[star.whichLayer].G, LayerColors[star.whichLayer].B, (byte)alpha));
-						break;
-					}
-					case 4:
-					{
-						batch.Draw(ResourceManager.LargeStars[star.whichStar], star.Position, new Color(LayerColors[star.whichLayer].R, LayerColors[star.whichLayer].G, LayerColors[star.whichLayer].B, (byte)alpha));
-						break;
-					}
-					default:
-					{
-						batch.Draw(StarTex[star.whichStar], 
-                            new Rectangle((int)star.Position.X, (int)star.Position.Y, star.Size, star.Size),
-                            LayerColors[star.whichLayer]);
-						break;
-					}
+					case 2: batch.Draw(star.Tex, star.Position, c); break;
+					case 3: batch.Draw(star.Tex, star.Position, new Color(c.R, c.G, c.B, 255)); break;
+					case 4: batch.Draw(star.Tex, star.Position, new Color(c.R, c.G, c.B, 255)); break;
+					default: batch.Draw(star.Tex, new Rectangle((int)star.Position.X, (int)star.Position.Y, 1, 1), c); break;
 				}
 			}
 		}
@@ -152,51 +133,46 @@ namespace Ship_Game
 			int numSmallStars = 0;
 			int numMedStars = 0;
 			int numLargeStars = 0;
-			int viewportWidth = Empire.Universe.Viewport.Width;
+			int viewportWidth  = Empire.Universe.Viewport.Width;
 			int viewportHeight = Empire.Universe.Viewport.Height;
 			for (int i = 0; i < Stars.Length; i++)
 			{
                 ref Star star = ref Stars[i];
+                star.Position = new Vector2(RandomMath.Random.Next(0, viewportWidth), 
+                                            RandomMath.Random.Next(0, viewportHeight));
 				int depth = i % MoveFactors.Length;
-				if (depth != 2 && depth != 3 && depth != 4)
-				{
-					star.Position = new Vector2(RandomMath.Random.Next(0, viewportWidth), RandomMath.Random.Next(0, viewportHeight));
-					star.Size = 1;
-					star.whichStar = (int)RandomMath.RandomBetween(0f, 3f);
-					star.whichLayer = depth;
-				}
-				else if (depth == 2 && numSmallStars < DesiredSmallStars)
-				{
-					numSmallStars++;
-					star.Position = new Vector2(RandomMath.Random.Next(0, viewportWidth), RandomMath.Random.Next(0, viewportHeight));
-					star.Size = 1;
-					star.whichStar = (int)RandomMath.RandomBetween(0f, ResourceManager.SmallStars.Count);
-					star.whichLayer = 2;
-				}
-				else if (depth == 3 && numMedStars < DesiredMedStars)
-				{
-					numMedStars++;
-					star.Position = new Vector2(RandomMath.Random.Next(0, viewportWidth), RandomMath.Random.Next(0, viewportHeight));
-					star.Size = 1;
-					star.whichStar = (int)RandomMath.RandomBetween(0f, ResourceManager.MediumStars.Count);
-					star.whichLayer = 3;
-				}
-				else if (depth != 4 || numLargeStars >= DesiredLargeStars)
-				{
-					star.Position = new Vector2(RandomMath.Random.Next(0, viewportWidth), RandomMath.Random.Next(0, viewportHeight));
-					star.Size = 1;
-					star.whichStar = (int)RandomMath.RandomBetween(0f, 3f);
-					star.whichLayer = 7;
-				}
-				else
-				{
-					numLargeStars++;
-					star.Position = new Vector2(RandomMath.Random.Next(0, viewportWidth), RandomMath.Random.Next(0, viewportHeight));
-					star.Size = 1;
-					star.whichStar = (int)RandomMath.RandomBetween(0f, ResourceManager.LargeStars.Count);
-					star.whichLayer = 4;
-				}
-			}
+                if (2 <= depth && depth <= 4)
+                {
+                    if (depth == 2 && numSmallStars < DesiredSmallStars)
+                    {
+                        ++numSmallStars;
+                        star.Tex = ResourceManager.SmallStars.RandomTexture();
+                        star.whichLayer = 2;
+                    }
+                    else if (depth == 3 && numMedStars < DesiredMedStars)
+                    {
+                        ++numMedStars;
+                        star.Tex = ResourceManager.MediumStars.RandomTexture();
+                        star.whichLayer = 3;
+                    }
+                    else if (depth == 4 && numLargeStars < DesiredLargeStars)
+                    {
+                        ++numLargeStars;
+                        star.Tex = ResourceManager.LargeStars.RandomTexture();
+                        star.whichLayer = 4;
+                    }
+                    else // layers 2,3,4 are full, spill over to layer 7
+                    {
+                        star.Tex = RandomMath.RandItem(StarTex);
+                        star.whichLayer = 7;
+                    }
+                }
+                else // fill layers 0,1,5,6
+                {
+                    star.Tex = RandomMath.RandItem(StarTex);
+                    star.whichLayer = depth;
+                }
+            }
 		}
 
 		public void UnloadContent()

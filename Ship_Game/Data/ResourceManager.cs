@@ -65,9 +65,6 @@ namespace Ship_Game
 
         public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
-        public static Array<Texture2D> SmallStars                 = new Array<Texture2D>();
-        public static Array<Texture2D> MediumStars                = new Array<Texture2D>();
-        public static Array<Texture2D> LargeStars                 = new Array<Texture2D>();
         public static XmlSerializer HeaderSerializer              = new XmlSerializer(typeof(HeaderData));
 
         private static Map<string, SoundEffect> SoundEffectDict;
@@ -254,9 +251,7 @@ namespace Ship_Game
             LoadTextureAtlases();
 
             LoadNebulae();
-            LoadSmallStars();
-            LoadMediumStars();
-            LoadLargeStars();
+            LoadStars();
             LoadFlagTextures(); // @todo Very slow for some reason [1.04%]
             LoadHullBonuses();
 
@@ -1280,34 +1275,14 @@ namespace Ship_Game
 
         }
 
-        private static void LoadLargeStars() // Refactored by RedFox
-        {
-            foreach (FileInfo info in GatherFilesUnified("LargeStars", "xnb"))
-            {
-                try
-                {
-                    LargeStars.Add(RootContent.Load<Texture2D>(info.CleanResPath()));
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "LoadLargerStars failed");
-                }
-            }
-        }
 
-        private static void LoadMediumStars() // Refactored by RedFox
+        public static TextureAtlas SmallStars, MediumStars, LargeStars;
+        
+        static void LoadStars()
         {
-            foreach (FileInfo info in GatherFilesUnified("MediumStars", "xnb"))
-            {
-                try
-                {
-                    MediumStars.Add(RootContent.Load<Texture2D>(info.CleanResPath()));
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "LoadMediumStars failed");
-                }
-            }
+            SmallStars  = RootContent.LoadTextureAtlas("SmallStars");
+            MediumStars = RootContent.LoadTextureAtlas("MediumStars");
+            LargeStars  = RootContent.LoadTextureAtlas("LargeStars");
         }
 
         static readonly Array<Texture2D> BigNebulae   = new Array<Texture2D>();
@@ -1584,19 +1559,6 @@ namespace Ship_Game
             CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);
             CombineOverwrite(designs, Dir.GetFiles(Dir.StarDriveAppData + "/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
-        }
-
-
-
-        private static void LoadSmallStars()
-        {
-            FileInfo[] files = GatherFilesModOrVanilla("SmallStars", "xnb");
-            SmallStars.Resize(files.Length);
-            Parallel.For(files.Length, (start, end) =>
-            {
-                for (int i = start; i < end; ++i)
-                    SmallStars[i] = RootContent.Load<Texture2D>(files[i].CleanResPath());
-            });
         }
 
 
