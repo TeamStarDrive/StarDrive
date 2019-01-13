@@ -30,7 +30,20 @@ namespace Ship_Game
         public Array<Moon> MoonList = new Array<Moon>();
 
         private Empire[] FullyExplored = Empty<Empire>.Array;
-        public string SunPath;
+
+        public string SunIconPath { get; private set; }
+        public SubTexture SunTexture { get; private set; }
+        string Path;
+        public string SunPath
+        {
+            get => Path;
+            set
+            {
+                Path = value;
+                SunIconPath = "Suns/" + value;
+                SunTexture = ResourceManager.Texture(SunIconPath);
+            }
+        }
 
         public Array<Ring> RingList = new Array<Ring>();
         private int NumberOfRings;
