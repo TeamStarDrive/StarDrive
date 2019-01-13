@@ -403,7 +403,7 @@ namespace Ship_Game
         private void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
         private void VerCheck_Clicked(UIButton button)  => ScreenManager.AddScreen(new VersionChecking(this));
         private void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
-        private void DevSandbox_Clicked(UIButton button)  => ScreenManager.GoToScreen(new DeveloperSandbox());
+        private void DevSandbox_Clicked(UIButton button)  => ScreenManager.AddScreen(new DeveloperSandbox());
         private void Exit_Clicked(UIButton button)
         {
             ExitScreen();

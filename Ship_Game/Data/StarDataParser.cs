@@ -151,10 +151,17 @@ namespace Ship_Game.Data
         static SDNode ParseLineAsNode(string line)
         {
             string[] parts = line.Split(Colon, 2, StringSplitOptions.RemoveEmptyEntries);
+            string value = parts[1];
+            int comment = value.IndexOf('#');
+            if (comment != -1)
+            {
+                value = value.Substring(0, comment);
+            }
+
             return new SDNode
             {
                 Name  = parts[0].Trim(),
-                Value = BoxValue(parts[1].Trim())
+                Value = BoxValue(value)
             };
         }
 

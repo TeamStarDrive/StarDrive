@@ -263,7 +263,7 @@ PlanetType: 27
   Fertility: [-10.0, 3.0]
   MinFertility: 1.0
   Zone: Habital
-PlanetType: 28
+PlanetType: 28 # Jupiter
   Category: Desert
   Composition: 1710
   IconPath: Planets/28

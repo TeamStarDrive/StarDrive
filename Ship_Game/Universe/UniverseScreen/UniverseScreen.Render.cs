@@ -46,39 +46,9 @@ namespace Ship_Game
             if (GlobalStats.DrawNebulas)
                bg3d.Draw();
 
-            ClickableShipsList.Clear();
             ScreenManager.SpriteBatch.Begin();
-            var rect = new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
 
-            using (player.KnownShips.AcquireReadLock())
-            {
-                for (int i = 0; i < player.KnownShips.Count; i++)
-                {
-                    Ship ship = player.KnownShips[i];
-                    if (ship != null && ship.Active &&
-                        (viewState != UnivScreenState.GalaxyView || !ship.IsPlatform))
-                    {
-                        ProjectToScreenCoords(ship.Position, ship.Radius,
-                            out Vector2 screenPos, out float screenRadius);
-
-                        if (rect.HitTest(screenPos))
-                        {
-                            if (screenRadius < 7.0f) screenRadius = 7f;
-                            ship.ScreenRadius = screenRadius;
-                            ship.ScreenPosition = screenPos;
-                            ClickableShipsList.Add(new ClickableShip
-                            {
-                                Radius      = screenRadius,
-                                ScreenPos   = screenPos,
-                                shipToClick = ship
-                            });
-                        }
-                        else
-                            ship.ScreenPosition = new Vector2(-1f, -1f);
-                    }
-                }
-            }
+            UpdateKnownShipsScreenState();
 
             lock (GlobalStats.ClickableSystemsLock)
             {
@@ -106,71 +76,107 @@ namespace Ship_Game
                 }
                 if (viewState <= UnivScreenState.SectorView)
                 {
-                    for (int i = 0; i < solarSystem.PlanetList.Count; i++)
+                    if (solarSystem.IsExploredBy(EmpireManager.Player))
                     {
-                        Planet planet = solarSystem.PlanetList[i];
-                        if (solarSystem.IsExploredBy(EmpireManager.Player))
-                            DrawPlanetInSectorView(planet);
+                        for (int i = 0; i < solarSystem.PlanetList.Count; i++)
+                        {
+                            DrawPlanetInSectorView(solarSystem.PlanetList[i]);
+                        }
                     }
                 }
                 if (viewState < UnivScreenState.GalaxyView)
                 {
-                    DrawSolarSystemSectorView(solarSystem, sysScreenPos);
+                    DrawSolarSysWithOrbits(solarSystem, sysScreenPos);
                 }
             }
+
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.One;
-            renderState.DepthBufferWriteEnable = false;
-            renderState.CullMode = CullMode.None;
-            renderState.DepthBufferWriteEnable = true;
-            renderState.MultiSampleAntiAlias = true;            
+            var rs = ScreenManager.GraphicsDevice.RenderState;
+            rs.AlphaBlendEnable = true;
+            rs.AlphaBlendOperation = BlendFunction.Add;
+            rs.SourceBlend = Blend.SourceAlpha;
+            rs.DestinationBlend = Blend.One;
+            rs.DepthBufferWriteEnable = false;
+            rs.CullMode = CullMode.None;
+            rs.DepthBufferWriteEnable = true;
+            rs.MultiSampleAntiAlias = true;            
             ScreenManager.SpriteBatch.End();
         }
 
-        void DrawSolarSystemSectorView(SolarSystem solarSystem, Vector2 sysScreenPos)
+        void UpdateKnownShipsScreenState()
+        {
+            var viewport = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
+
+            ClickableShipsList.Clear();
+
+            using (player.KnownShips.AcquireReadLock())
+            {
+                for (int i = 0; i < player.KnownShips.Count; i++)
+                {
+                    Ship ship = player.KnownShips[i];
+                    if (ship == null || !ship.Active ||
+                        (viewState == UnivScreenState.GalaxyView && ship.IsPlatform))
+                        continue;
+
+                    ProjectToScreenCoords(ship.Position, ship.Radius,
+                        out Vector2 shipScreenPos, out float screenRadius);
+
+                    if (viewport.HitTest(shipScreenPos))
+                    {
+                        if (screenRadius < 7.0f) screenRadius = 7f;
+                        ship.ScreenRadius = screenRadius;
+                        ship.ScreenPosition = shipScreenPos;
+                        ClickableShipsList.Add(new ClickableShip
+                        {
+                            Radius = screenRadius,
+                            ScreenPos = shipScreenPos,
+                            shipToClick = ship
+                        });
+                    }
+                    else
+                    {
+                        ship.ScreenPosition = new Vector2(-1f, -1f);
+                    }
+                }
+            }
+        }
+
+        // This draws the hi-res 3D sun and orbital circles
+        void DrawSolarSysWithOrbits(SolarSystem solarSystem, Vector2 sysScreenPos)
         {
             SubTexture sunTexture = solarSystem.SunTexture;
-            if (true)
-            {
-                DrawTransparentModel(SunModel,
-                    Matrix.CreateRotationZ(Zrotate) *
-                    Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
-                DrawTransparentModel(SunModel,
-                    Matrix.CreateRotationZ((float) (-Zrotate / 2.0)) *
-                    Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
-            }
-            else
-            {
 
-            }
+            DrawTransparentModel(SunModel,
+                Matrix.CreateRotationZ(Zrotate) *
+                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
 
-            if (solarSystem.IsExploredBy(EmpireManager.Player))
+            DrawTransparentModel(SunModel,
+                Matrix.CreateRotationZ((float)(-Zrotate / 2.0)) *
+                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
+
+            if (!solarSystem.IsExploredBy(EmpireManager.Player))
+                return;
+
+            for (int i = 0; i < solarSystem.PlanetList.Count; i++)
             {
-                for (int i = 0; i < solarSystem.PlanetList.Count; i++)
+                Planet planet = solarSystem.PlanetList[i];
+                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
+                float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
+
+                if (viewState > UnivScreenState.ShipView)
                 {
-                    Planet planet = solarSystem.PlanetList[i];
-                    Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
-                    float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
+                    var transparentDarkGray = new Color(50, 50, 50, 90);
+                    DrawCircle(sysScreenPos, planetOrbitRadius, transparentDarkGray, 3f);
 
-                    if (viewState > UnivScreenState.ShipView)
+                    if (planet.Owner == null)
                     {
-                        var transparentDarkGray = new Color(50, 50, 50, 90);
                         DrawCircle(sysScreenPos, planetOrbitRadius, transparentDarkGray, 3f);
-
-                        if (planet.Owner == null)
-                        {
-                            DrawCircle(sysScreenPos, planetOrbitRadius, transparentDarkGray, 3f);
-                        }
-                        else
-                        {
-                            var empireColor = new Color(planet.Owner.EmpireColor, 100);
-                            DrawCircle(sysScreenPos, planetOrbitRadius, empireColor, 3f);
-                        }
+                    }
+                    else
+                    {
+                        var empireColor = new Color(planet.Owner.EmpireColor, 100);
+                        DrawCircle(sysScreenPos, planetOrbitRadius, empireColor, 3f);
                     }
                 }
             }
@@ -182,6 +188,7 @@ namespace Ship_Game
                 out Vector2 planetScreenPos, out float planetScreenRadius);
             float scale = planetScreenRadius / 115f;
 
+            // atmospheric glow
             if (planet.Type.Glow != PlanetGlow.None)
             {
                 SubTexture glow = Glows[planet.Type.Glow];
@@ -191,16 +198,18 @@ namespace Ship_Game
             }
 
             lock (GlobalStats.ClickableSystemsLock)
+            {
                 ClickPlanetList.Add(new ClickablePlanets
                 {
                     ScreenPos = planetScreenPos,
                     Radius = planetScreenRadius < 8f ? 8f : planetScreenRadius,
                     planetToClick = planet
                 });
+            }
         }
 
         // @todo This is unused??? Maybe some legacy code?
-        private void RenderGalaxyBackdrop()
+        void RenderGalaxyBackdrop()
         {
             bg.DrawGalaxyBackdrop(this, StarField);
             ScreenManager.SpriteBatch.Begin();
@@ -229,30 +238,22 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
-        private void RenderOverFog(SpriteBatch batch, GameTime gameTime)
+        void RenderOverFog(SpriteBatch batch, GameTime gameTime)
         {
-            //if (viewState >= UnivScreenState.SectorView)
-            //{
-            //    batch.End();
-            //    batch.Begin(SpriteBlendMode.Additive);
-            //    batch.End();
-            //    batch.Begin();
-            //}
-
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 if (viewState >= UnivScreenState.SectorView)
                 {
                     DrawSolarSystemSectorView(gameTime, solarSystem);
                 }
-                else if (viewState >= UnivScreenState.GalaxyView)
+                if (viewState >= UnivScreenState.GalaxyView) // super zoomed out
                 {
-                    DrawSolarSysGalaxyView(batch, solarSystem);
+                    DrawLowResSun(batch, solarSystem);
                 }
             }
         }
 
-        void DrawSolarSysGalaxyView(SpriteBatch batch, SolarSystem solarSystem)
+        void DrawLowResSun(SpriteBatch batch, SolarSystem solarSystem)
         {
             float scale = 0.05f;
             Vector2 position = Viewport.Project(solarSystem.Position.ToVec3(), projection, view, Matrix.Identity).ToVec2();
