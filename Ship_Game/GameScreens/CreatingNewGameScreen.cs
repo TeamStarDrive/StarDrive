@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
@@ -18,10 +19,8 @@ namespace Ship_Game
     {
         private float Scale = 1f;
         private int NumSystems = 50;
-        private bool firstRun = true;
         private AutoResetEvent WorkerBeginEvent = new AutoResetEvent(false);
         private ManualResetEvent WorkerCompletedEvent = new ManualResetEvent(true);
-        private Array<Vector2> stars = new Array<Vector2>();
         private Array<Vector2> ClaimedSpots = new Array<Vector2>();
         private RaceDesignScreen.GameMode Mode;
         private Vector2 GalacticCenter;
@@ -30,18 +29,13 @@ namespace Ship_Game
         private UniverseData.GameDifficulty Difficulty;
         private int NumOpponents;
         private MainMenuScreen mmscreen;
-        private DiplomaticTraits DTraits;
         private Texture2D LoadingScreenTexture;
-        private SolarSystem PlayerSystem;
-        private string text;
-        private Effect ThrusterEffect;
+        private string AdviceText;
         private int counter;
         private Ship playerShip;
-        private Thread WorkerThread;
+        private TaskResult BackgroundTask;
         private UniverseScreen us;
-        private bool AllSystemsGenerated;
         private float PercentLoaded;
-        private int systemToMake;
         
 
         public CreatingNewGameScreen(Empire player, string universeSize, 
@@ -64,7 +58,6 @@ namespace Ship_Game
             NumOpponents = numOpponents;
             EmpireManager.Clear();
 
-            DTraits = ResourceManager.DiplomaticTraits;
             ResourceManager.LoadEncounters();
             Player = player;
             player.Initialize();
@@ -106,24 +99,13 @@ namespace Ship_Game
             CurrentGame.StartNew(Data);
         }
 
-        private void SaveRace(Empire empire)
-        {
-            using (TextWriter textWriter = new StreamWriter("Content/Races/test.xml"))
-            {
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(EmpireData));
-                xmlSerializer.Serialize(textWriter, new EmpireData { Traits = empire.data.Traits });
-            }
-        }
-
         public override void LoadContent()
         {
             ScreenManager.ClearScene();
             LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(TransientContent);
-            string adviceString  = ResourceManager.LoadRandomAdvice();
-            text = Fonts.Arial12Bold.ParseText(adviceString, 500f);
+            AdviceText = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(), 500f);
 
-            WorkerThread = new Thread(Worker) { IsBackground = true };
-            WorkerThread.Start();
+            BackgroundTask = Parallel.Run(GenerateSystems);
             base.LoadContent();
         }
 
@@ -263,12 +245,8 @@ namespace Ship_Game
 
         }
 
-        private void SubmitSceneObjectsForRendering()
+        private void SubmitSceneObjectsForRendering(SolarSystem wipSystem)
         {
-            SolarSystem wipSystem = Data.SolarSystemsList[systemToMake];
-
-            PercentLoaded = (counter + systemToMake) / (float)(Data.SolarSystemsList.Count * 2);
-
             foreach (Planet planet in wipSystem.PlanetList)
             {
                 planet.ParentSystem = wipSystem;
@@ -296,14 +274,52 @@ namespace Ship_Game
 
         void GenerateInitialSystemData()
         {
-            EmpireData[] opponents = ResourceManager.MajorRaces.Filter(data => data != Player.data);
+            Stopwatch s = Stopwatch.StartNew();
+            CreateOpponents(); // 156ms
+            Log.Info(ConsoleColor.Blue, $"    ## CreateOpponents elapsed: {s.NextMillis()}ms");
             
-            // create a randomly shuffled list of opponents
-            var races = new Array<EmpireData>(opponents);
-            races.Shuffle();
-            races.Resize(Math.Min(races.Count, NumOpponents)); // truncate
+            PopulateRelations(); // 1ms
 
-            foreach (EmpireData data in races)
+            ResourceManager.MarkShipDesignsUnlockable();
+            Log.Info(ConsoleColor.Blue, $"    ## MarkShipDesignsUnlockable elapsed: {s.NextMillis()}ms");
+
+            LoadEmpireStartingSystems(); // 420
+            Log.Info(ConsoleColor.Blue, $"    ## LoadEmpireStartingSystems elapsed: {s.NextMillis()}ms");
+
+            GenerateRandomSystems(); // 425ms
+            Log.Info(ConsoleColor.Blue, $"    ## GenerateRandomSystems elapsed: {s.NextMillis()}ms");
+
+            // This section added by Gretman
+            if (Mode != RaceDesignScreen.GameMode.Corners)            
+                SoloarSystemSpacing(Data.SolarSystemsList); // 2ms    
+            else
+            {
+                short whichCorner = StartingPositionCorners();
+
+                foreach (SolarSystem system in Data.SolarSystemsList)
+                {
+                    //This will distribute all the rest of the planets evenly
+                    if (system.isStartingSystem || system.DontStartNearPlayer)
+                        continue;
+                    system.Position = GenerateRandomCorners(whichCorner);
+                    whichCorner += 1;   //Only change which corner if a system is actually created
+                    if (whichCorner > 3) whichCorner = 0;
+                }
+            }
+
+            HelperFunctions.CollectMemory();
+        }
+
+        void CreateOpponents()
+        {
+            EmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(data => data != Player.data);
+
+            // create a randomly shuffled list of opponents
+            var opponents = new Array<EmpireData>(majorRaces);
+            opponents.Shuffle();
+            opponents.Resize(Math.Min(opponents.Count, NumOpponents)); // truncate
+
+            foreach (EmpireData data in opponents)
             {
                 Empire e = Data.CreateEmpire(data);
                 RacialTrait t = e.data.Traits;
@@ -311,32 +327,33 @@ namespace Ship_Game
                 {
                     case UniverseData.GameDifficulty.Easy:
                         t.ProductionMod -= 0.25f;
-                        t.ResearchMod   -= 0.25f;
-                        t.TaxMod        -= 0.25f;
+                        t.ResearchMod -= 0.25f;
+                        t.TaxMod -= 0.25f;
                         t.ModHpModifier -= 0.25f;
                         break;
                     case UniverseData.GameDifficulty.Hard:
                         e.data.FlatMoneyBonus += 10;
                         t.ProductionMod += 0.5f;
-                        t.ResearchMod   += 0.75f;
-                        t.TaxMod        += 0.5f;
-                        t.ShipCostMod   -= 0.2f;
+                        t.ResearchMod += 0.75f;
+                        t.TaxMod += 0.5f;
+                        t.ShipCostMod -= 0.2f;
                         break;
                     case UniverseData.GameDifficulty.Brutal:
                         e.data.FlatMoneyBonus += 20; // cheaty cheat
                         t.ProductionMod += 1.0f;
-                        t.ResearchMod    = 1.33f;
-                        t.TaxMod        += 1.0f;
-                        t.ShipCostMod   -= 0.5f;
+                        t.ResearchMod = 1.33f;
+                        t.TaxMod += 1.0f;
+                        t.ShipCostMod -= 0.5f;
                         break;
                 }
             }
-
-            foreach (EmpireData data in ResourceManager.MinorRaces) // init minor races
-            {
-                Data.CreateEmpire(data);
-            }
             
+            foreach (EmpireData data in ResourceManager.MinorRaces)
+                Data.CreateEmpire(data);
+        }
+
+        void PopulateRelations()
+        {
             foreach (Empire empire in Data.EmpireList)
             {
                 foreach (Empire e in Data.EmpireList)
@@ -348,15 +365,16 @@ namespace Ship_Game
                     empire.AddRelationships(e, r);
                     if (e == Player && Difficulty > UniverseData.GameDifficulty.Normal)
                     {
-                        float angerMod = (int)Difficulty * (90 - empire.data.DiplomaticPersonality.Trustworthiness);
+                        float angerMod = (int) Difficulty * (90 - empire.data.DiplomaticPersonality.Trustworthiness);
                         r.Anger_DiplomaticConflict = angerMod;
                         r.Anger_MilitaryConflict = 1;
                     }
                 }
             }
+        }
 
-            ResourceManager.MarkShipDesignsUnlockable();
-
+        void LoadEmpireStartingSystems()
+        {
             foreach (Empire e in Data.EmpireList)
             {
                 if (e.isFaction)
@@ -369,11 +387,14 @@ namespace Ship_Game
                     sys.GenerateStartingSystem(e.data.Traits.HomeSystemName, Data, Scale, e);
                 }
                 else sys = SolarSystem.GenerateSystemFromData(systemData, e);
+
                 sys.isStartingSystem = true;
                 Data.SolarSystemsList.Add(sys);
-                if (e == Player)
-                    PlayerSystem = sys;
             }
+        }
+
+        void GenerateRandomSystems()
+        {
             int systemCount = 0;
             foreach (SolarSystemData systemData in ResourceManager.LoadRandomSolarSystems())
             {
@@ -384,7 +405,8 @@ namespace Ship_Game
                 Data.SolarSystemsList.Add(solarSystem);
                 systemCount++;
             }
-            var markovNameGenerator = new MarkovNameGenerator( File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
+
+            var markovNameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
             var solarSystem1 = new SolarSystem();
             solarSystem1.GenerateCorsairSystem(markovNameGenerator.NextName);
             solarSystem1.DontStartNearPlayer = true;
@@ -395,30 +417,8 @@ namespace Ship_Game
                 solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, Data, Scale);
                 Data.SolarSystemsList.Add(solarSystem2);
                 ++counter;
-                PercentLoaded = counter / (float)(NumSystems * 2);
+                PercentLoaded = counter / (float) (NumSystems * 2);
             }
-
-            // This section added by Gretman
-            if (Mode != RaceDesignScreen.GameMode.Corners)            
-                SoloarSystemSpacing(Data.SolarSystemsList);            
-            else
-            {
-                short whichcorner = StartingPositionCorners();
-
-                foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
-                {
-                    //This will distribute all the rest of the planets evenly
-                    if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
-                        continue;
-                    solarSystem2.Position = GenerateRandomCorners(whichcorner);
-                    whichcorner += 1;   //Only change which corner if a system is actually created
-                    if (whichcorner > 3) whichcorner = 0;
-                }
-            }// Done breaking stuff -- Gretman
-
-            ThrusterEffect = TransientContent.Load<Effect>("Effects/Thrust");
-
-            HelperFunctions.CollectMemory();
         }
 
         private void SoloarSystemSpacing(Array<SolarSystem> solarSystems)
@@ -497,27 +497,30 @@ namespace Ship_Game
             return whichcorner;
         }
 
-        private void Worker()
+        private void GenerateSystems()
         {
-            while (!AllSystemsGenerated)
+            Stopwatch total = Stopwatch.StartNew();
+            Stopwatch s = Stopwatch.StartNew();
+
+            GenerateInitialSystemData();
+            Log.Info(ConsoleColor.Blue, $"  GenerateInitialSystemData elapsed: {s.NextMillis()}ms");
+
+
+            for (int systemId = 0; systemId < Data.SolarSystemsList.Count; ++systemId)
             {
-                if (firstRun)
-                {
-                    GenerateInitialSystemData();
-                    firstRun = false;
-                }
+                SolarSystem wip = Data.SolarSystemsList[systemId];
+                SubmitSceneObjectsForRendering(wip);
 
-                SubmitSceneObjectsForRendering();
-
-                ++systemToMake;
-
-                if (systemToMake == Data.SolarSystemsList.Count)
-                {
-                    FinalizeSolarSystems();
-                    FinalizeEmpires();
-                    AllSystemsGenerated = true;
-                }
+                PercentLoaded = (counter + systemId) / (float)(Data.SolarSystemsList.Count * 2);
             }
+            Log.Info(ConsoleColor.Blue, $"  SubmitSceneObjectsForRendering elapsed: {s.NextMillis()}ms");
+
+
+            FinalizeSolarSystems();
+            FinalizeEmpires();
+            Log.Info(ConsoleColor.Blue, $"  FinalizeEmpires elapsed: {s.NextMillis()}ms");
+
+            Log.Info(ConsoleColor.DarkRed, $"TOTAL CreatingNewGameScreen Worker elapsed: {total.Elapsed.TotalMilliseconds}ms");
         }
 
         public Vector2 GenerateRandomSysPos(float spacing)
@@ -584,7 +587,6 @@ namespace Ship_Game
                 sysPos = new Vector2(x, y) + sysPos;
                 if (SystemPosOK(sysPos))
                 {
-                    stars.Add(sysPos);
                     ClaimedSpots.Add(sysPos);
                 }
                 else
@@ -594,7 +596,6 @@ namespace Ship_Game
                         sysPos.X = GalacticCenter.X + RandomMath.RandomBetween((float)(-(double)Data.Size.X / 2.0 + 0.0850000008940697 * Data.Size.X), (float)(Data.Size.X / 2.0 - 0.0850000008940697 * Data.Size.X));
                         sysPos.Y = GalacticCenter.Y + RandomMath.RandomBetween((float)(-(double)Data.Size.X / 2.0 + 0.0850000008940697 * Data.Size.X), (float)(Data.Size.X / 2.0 - 0.0850000008940697 * Data.Size.X));
                     }
-                    stars.Add(sysPos);
                     ClaimedSpots.Add(sysPos);
                 }
             }
@@ -719,9 +720,10 @@ namespace Ship_Game
             empireData.TurnsBelowZero = 0;
             return empireData;
         }
+
         public override bool HandleInput(InputState input)
         {
-            if (!AllSystemsGenerated || !input.InGameSelect)
+            if (BackgroundTask?.IsComplete != true || !input.InGameSelect)
                 return false;
 
             GameAudio.StopGenericMusic(immediate: false);
@@ -737,8 +739,6 @@ namespace Ship_Game
             EmpireShipBonuses.RefreshBonuses();
 
             UniverseScreen.GameScaleStatic = Scale;
-            WorkerThread.Abort();
-            WorkerThread = null;
             ScreenManager.AddScreen(us);
 
             Log.Info("CreatingNewGameScreen.UpdateAllSystems(0.01)");
@@ -753,19 +753,25 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
-            ScreenManager.SpriteBatch.Begin();
-            int width  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            int height = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-            ScreenManager.SpriteBatch.Draw(LoadingScreenTexture, new Rectangle(width / 2 - 960, height / 2 - 540, 1920, 1080), Color.White);
-            var r = new Rectangle(width / 2 - 150, height - 25, 300, 25);
-            new ProgressBar(r)
+            batch.Begin();
+
+            if (!BackgroundTask.IsComplete)
             {
-                Max = 100f,
-                Progress = PercentLoaded * 100f
-            }.Draw(ScreenManager.SpriteBatch);
-            var position = new Vector2(ScreenCenter.X - 250f, (float)(r.Y - Fonts.Arial12Bold.MeasureString(text).Y - 5.0));
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, position, Color.White);
-            if (AllSystemsGenerated)
+                // heavily throttle main draw thread, so the worker thread can turbo
+                Thread.Sleep(33);
+            }
+
+            int width  = ScreenWidth;
+            int height = ScreenHeight;
+            batch.Draw(LoadingScreenTexture, new Rectangle(width / 2 - 960, height / 2 - 540, 1920, 1080), Color.White);
+            
+            var r = new Rectangle(width / 2 - 150, height - 25, 300, 25);
+            new ProgressBar(r) { Max = 100f, Progress = PercentLoaded * 100f }.Draw(batch);
+
+            var position = new Vector2(ScreenCenter.X - 250f, (float)(r.Y - Fonts.Arial12Bold.MeasureString(AdviceText).Y - 5.0));
+            batch.DrawString(Fonts.Arial12Bold, AdviceText, position, Color.White);
+            
+            if (BackgroundTask.IsComplete)
             {
                 PercentLoaded = 1f;
                 position.Y = (float)(position.Y - Fonts.Pirulen16.LineSpacing - 10.0);
@@ -775,9 +781,10 @@ namespace Ship_Game
                 GameTime gameTime = Game1.Instance.GameTime;
                 var color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 
                     (byte)(Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * byte.MaxValue));
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, token, position, color);
+                batch.DrawString(Fonts.Pirulen16, token, position, color);
             }
-            ScreenManager.SpriteBatch.End();
+
+            batch.End();
         }
 
         protected override void Destroy()
