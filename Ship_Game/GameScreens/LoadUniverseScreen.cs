@@ -9,38 +9,43 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
+using Ship_Game.GameScreens.NewGame;
 
 namespace Ship_Game
 {
     public sealed class LoadUniverseScreen : GameScreen
     {
-        private UniverseData data;
-        private SavedGame.UniverseSaveData savedData;
-        private float GamePace;
-        private float GameScale;
-        private string PlayerLoyalty;
-        //private bool ReadyToRoll;
-        private string text;
-        private Texture2D LoadingImage;
-        private int systemToMake;
-        private ManualResetEvent GateKeeper = new ManualResetEvent(false);
-        private bool Loaded;
-        private UniverseScreen us;
-        private float percentloaded;
-        private bool ready;
+        UniverseData data;
+        SavedGame.UniverseSaveData saveData;
+        float GamePace;
+        float GameScale;
+
+        string PlayerLoyalty;
+        string AdviceText;
+        Texture2D LoadingImage;
+        int systemToMake;
+        UniverseScreen us;
+        bool Loaded;
+        bool Ready;
+
+        TaskResult BackgroundTask;
+        ProgressCounter Progress = new ProgressCounter();
 
         public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/)
         {
             GlobalStats.RemnantKills = 0;
             GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
-            var bgw = new BackgroundWorker();
-            bgw.DoWork += DecompressFile;
-            bgw.RunWorkerCompleted += LoadEverything;
-            bgw.RunWorkerAsync(activeFile);
+
+            BackgroundTask = Parallel.Run(() =>
+            {
+                saveData = DecompressSaveGame(activeFile);
+                LoadEverything(saveData);
+            });
         }
 
-        private static Empire CreateEmpireFromEmpireSaveData(SavedGame.EmpireSaveData sdata, bool isPlayer)
+
+        static Empire CreateEmpireFromEmpireSaveData(SavedGame.EmpireSaveData sdata, bool isPlayer)
         {
             var e = new Empire();
             e.isPlayer = isPlayer;
@@ -91,7 +96,7 @@ namespace Ship_Game
             return e;
         }
 
-        private static Planet CreatePlanetFromPlanetSaveData(SolarSystem forSystem, SavedGame.PlanetSaveData psdata)
+        static Planet CreatePlanetFromPlanetSaveData(SolarSystem forSystem, SavedGame.PlanetSaveData psdata)
         {
             var p = new Planet
             {
@@ -259,9 +264,9 @@ namespace Ship_Game
             return system;
         }
         
-        private void DecompressFile(object info, DoWorkEventArgs e)
+        SavedGame.UniverseSaveData DecompressSaveGame(FileInfo file)
         {
-            SavedGame.UniverseSaveData usData = SavedGame.DeserializeFromCompressedSave((FileInfo)e.Argument);
+            SavedGame.UniverseSaveData usData = SavedGame.DeserializeFromCompressedSave(file);
 
             if (usData.SaveGameVersion != SavedGame.SaveGameVersion)
                 Log.Error("Incompatible savegame version! Got v{0} but expected v{1}", usData.SaveGameVersion, SavedGame.SaveGameVersion);
@@ -279,7 +284,6 @@ namespace Ship_Game
                 usData.TurnTimer = 5;
             GlobalStats.TurnTimer = usData.TurnTimer;
 
-            savedData     = usData;
             GamePace      = usData.GamePacing;
             GameScale     = usData.GameScale;
             PlayerLoyalty = usData.PlayerLoyalty;
@@ -288,47 +292,42 @@ namespace Ship_Game
             RandomEventManager.ActiveEvent = null;
             StatTracker.SnapshotsDict.Clear();
             StatTracker.SnapshotsDict = usData.Snapshots;
-            GateKeeper.Set();
-        }
 
-        protected override void Destroy()
-        {
-            lock (this)
-            {
-                GateKeeper?.Dispose(ref GateKeeper);
-                data = null;
-            }
-            base.Destroy();
+            return usData;
         }
 
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
-            ScreenManager.SpriteBatch.Begin();
+            batch.Begin();
             var artRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
-            ScreenManager.SpriteBatch.Draw(LoadingImage, artRect, Color.White);
+            batch.Draw(LoadingImage, artRect, Color.White);
             var meterBar = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 150, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 25, 300, 25);
+           
+            
+            float percentLoaded = Progress.Percent;
             var pb = new ProgressBar(meterBar)
             {
                 Max = 100f,
-                Progress = percentloaded * 100f
+                Progress = percentLoaded * 100f
             };
             pb.Draw(ScreenManager.SpriteBatch);
-            var cursor = new Vector2(ScreenCenter.X - 250f, meterBar.Y - Fonts.Arial12Bold.MeasureString(text).Y - 5f);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
-            if (ready)
+
+            var cursor = new Vector2(ScreenCenter.X - 250f, meterBar.Y - Fonts.Arial12Bold.MeasureString(AdviceText).Y - 5f);
+            batch.DrawString(Fonts.Arial12Bold, AdviceText, cursor, Color.White);
+
+            if (Ready)
             {
-                percentloaded = 1f;
                 cursor.Y = cursor.Y - Fonts.Pirulen16.LineSpacing - 10f;
                 const string begin = "Click to Continue!";
                 cursor.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(begin).X / 2f;
-                TimeSpan totalGameTime = Game1.Instance.GameTime.TotalGameTime;
-                float f = (float)Math.Sin(totalGameTime.TotalSeconds);
+
+                float f = (float)Math.Sin(Game1.Instance.GameTime.TotalGameTime.TotalSeconds);
                 f = Math.Abs(f) * 255f;
                 var flashColor = new Color(255, 255, 255, (byte)f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, begin, cursor, flashColor);
+                batch.DrawString(Fonts.Pirulen16, begin, cursor, flashColor);
             }
-            ScreenManager.SpriteBatch.End();
+            batch.End();
         }
 
 
@@ -364,7 +363,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (ready && input.InGameSelect)
+            if (Ready && input.InGameSelect)
             {
                 Go();
             }
@@ -374,21 +373,21 @@ namespace Ship_Game
         public override void LoadContent()
         {
             LoadingImage = ResourceManager.LoadRandomLoadingScreen(TransientContent);
-            text = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(), 500f);
+            AdviceText = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(), 500f);
             base.LoadContent();
         }
 
-        private void LoadEverything(object sender, RunWorkerCompletedEventArgs ev)
+        void LoadEverything(SavedGame.UniverseSaveData saveData)
         {
             ScreenManager.RemoveAllObjects();
             data = new UniverseData();
-            RandomEventManager.ActiveEvent = savedData.RandomEvent;
-            data.loadFogPath           = savedData.FogMapName;
-            data.difficulty            = savedData.gameDifficulty;
-            data.Size                  = savedData.Size;
-            data.FTLSpeedModifier      = savedData.FTLModifier;
-            data.EnemyFTLSpeedModifier = savedData.EnemyFTLModifier;
-            data.GravityWells          = savedData.GravityWells;
+            RandomEventManager.ActiveEvent = saveData.RandomEvent;
+            data.loadFogPath           = saveData.FogMapName;
+            data.difficulty            = saveData.gameDifficulty;
+            data.Size                  = saveData.Size;
+            data.FTLSpeedModifier      = saveData.FTLModifier;
+            data.EnemyFTLSpeedModifier = saveData.EnemyFTLModifier;
+            data.GravityWells          = saveData.GravityWells;
 
             CurrentGame.StartNew(data);
             
@@ -396,17 +395,17 @@ namespace Ship_Game
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
                 Empire.Universe.MasterShipList.Clear();
          
-            foreach (SavedGame.EmpireSaveData d in savedData.EmpireDataList)
+            foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 bool isPlayer = d.Traits.Name == PlayerLoyalty;
                 Empire e = CreateEmpireFromEmpireSaveData(d, isPlayer);
                 data.EmpireList.Add(e);
                 if (isPlayer)
                 {
-                    e.AutoColonize   = savedData.AutoColonize;
-                    e.AutoExplore    = savedData.AutoExplore;
-                    e.AutoFreighters = savedData.AutoFreighters;
-                    e.AutoBuild      = savedData.AutoProjectors;
+                    e.AutoColonize   = saveData.AutoColonize;
+                    e.AutoExplore    = saveData.AutoExplore;
+                    e.AutoFreighters = saveData.AutoFreighters;
+                    e.AutoBuild      = saveData.AutoProjectors;
                 }
                 EmpireManager.Add(e);
             }
@@ -425,7 +424,7 @@ namespace Ship_Game
                         masterEmpire.UnlockHullsSave(masterEmpireTech.Value, servantEmpire.data.Traits.ShipType);
                 }
             }
-            foreach (SavedGame.EmpireSaveData d in savedData.EmpireDataList)
+            foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(d.Name);
                 foreach (Relationship r in d.Relations)
@@ -438,11 +437,11 @@ namespace Ship_Game
                 }
             }
 
-            foreach (SavedGame.SolarSystemSaveData ssd in savedData.SolarSystemDataList)
+            foreach (SavedGame.SolarSystemSaveData ssd in saveData.SolarSystemDataList)
             {
                 data.SolarSystemsList.Add(CreateSystemFromData(ssd));
             }
-            foreach (SavedGame.EmpireSaveData d in savedData.EmpireDataList)
+            foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(d.empireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
@@ -450,7 +449,7 @@ namespace Ship_Game
                     AddShipFromSaveData(shipData, e);
                 }
             }
-            foreach (SavedGame.EmpireSaveData d in savedData.EmpireDataList)
+            foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(d.Name);
                 foreach (SavedGame.FleetSave fleetsave in d.FleetsList)
@@ -515,7 +514,7 @@ namespace Ship_Game
                     
                 }
             }
-            foreach (SavedGame.EmpireSaveData d in savedData.EmpireDataList)
+            foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(d.Name);
                 e.SpaceRoadsList = new Array<SpaceRoad>();
@@ -669,7 +668,7 @@ namespace Ship_Game
                     }
                 }
             }
-            foreach (SavedGame.SolarSystemSaveData sdata in savedData.SolarSystemDataList)
+            foreach (SavedGame.SolarSystemSaveData sdata in saveData.SolarSystemDataList)
             {
                 foreach (SavedGame.RingSave rsave in sdata.RingList)
                 {
@@ -692,7 +691,7 @@ namespace Ship_Game
                         {
                             qi.isBuilding = true;
                             qi.Building = ResourceManager.GetBuildingTemplate(qisave.UID);
-                            qi.Cost = qi.Building.Cost * savedData.GamePacing;
+                            qi.Cost = qi.Building.Cost * saveData.GamePacing;
                             qi.NotifyOnEmpty = false;
                             qi.IsPlayerAdded = qisave.isPlayerAdded;
                             foreach (PlanetGridSquare pgs in p.TilesList)
@@ -752,7 +751,7 @@ namespace Ship_Game
             Loaded = true;
         }
 
-        private void AddShipFromSaveData(SavedGame.ShipSaveData shipSave, Empire e)
+        void AddShipFromSaveData(SavedGame.ShipSaveData shipSave, Empire e)
         {
             Ship ship = Ship.CreateShipFromSave(e, shipSave);
             if (ship == null) // happens if module creation failed
@@ -766,7 +765,7 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            if (!GateKeeper.WaitOne(0) || ready || !Loaded)
+            if (!BackgroundTask.IsComplete || Ready || !Loaded)
                 return;
 
             if (us == null)
@@ -775,10 +774,10 @@ namespace Ship_Game
                 {
                     GamePace       = GamePace,
                     GameScale      = GameScale,
-                    StarDate       = savedData.StarDate,
+                    StarDate       = saveData.StarDate,
                     ScreenManager  = ScreenManager,
-                    CamPos         = new Vector3(savedData.campos.X, savedData.campos.Y, savedData.camheight),
-                    CamHeight      = savedData.camheight,
+                    CamPos         = new Vector3(saveData.campos.X, saveData.campos.Y, saveData.camheight),
+                    CamHeight      = saveData.camheight,
                     player         = EmpireManager.Player
                 };
 
@@ -786,7 +785,6 @@ namespace Ship_Game
             }
 
             SolarSystem system = data.SolarSystemsList[systemToMake];
-            percentloaded = systemToMake / (float)data.SolarSystemsList.Count;
             foreach (Planet p in system.PlanetList)
             {
                 p.ParentSystem = system;
@@ -803,7 +801,7 @@ namespace Ship_Game
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
-        private void AllSystemsLoaded()
+        void AllSystemsLoaded()
         {
             if (systemToMake == data.SolarSystemsList.Count)
             {
@@ -883,9 +881,9 @@ namespace Ship_Game
 
                 Log.Info("LoadUniverseScreen.UpdateAllSystems(0.01)");
                 us.UpdateAllSystems(0.01f);
-                ResourceManager.MarkShipDesignsUnlockable();
+                ShipDesignUtils.MarkDesignsUnlockable(Progress);
 
-                ready = true;
+                Ready = true;
             }
         }
     }

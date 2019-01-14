@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using Ship_Game.GameScreens.NewGame;
 
 namespace Ship_Game
 {
@@ -101,124 +102,6 @@ namespace Ship_Game
             if (EventsDict.TryGetValue(eventName, out ExplorationEvent events)) return events;
             Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
             return EventsDict["default"];
-        }
-
-        public static void MarkShipDesignsUnlockable()
-        {
-            var shipTechs = new Map<Technology, Array<string>>();
-            foreach (var techTreeItem in TechTree)
-            {
-                Technology tech = techTreeItem.Value;
-                if (tech.ModulesUnlocked.Count <= 0 && tech.HullsUnlocked.Count <= 0)
-                    continue;
-                if (!tech.Unlockable) continue;
-                shipTechs.Add(tech, FindPreviousTechs(tech, new Array<string>()));
-            }
-
-            if (HullsList.IsEmpty) throw new ResourceManagerFailure("Hulls not loaded yet!");
-
-            foreach (ShipData hull in HullsList)
-            {
-                if (hull.Role == ShipData.RoleName.disabled)
-                    continue;
-                hull.UnLockable = false;
-                foreach (Technology hulltech2 in shipTechs.Keys)
-                {
-                    if (hulltech2.HullsUnlocked.Count == 0) continue;
-                    foreach (Technology.UnlockedHull hulls in hulltech2.HullsUnlocked)
-                    {
-                        if (hulls.Name == hull.Hull)
-                        {
-                            foreach (string tree in shipTechs[hulltech2])
-                            {
-                                hull.TechsNeeded.Add(tree);
-                                hull.UnLockable = true;
-                            }
-                            break;
-                        }
-                    }
-                    if (hull.UnLockable)
-                        break;
-                }
-                if (hull.Role < ShipData.RoleName.fighter || hull.TechsNeeded.Count == 0)
-                    hull.UnLockable = true;
-            }
-
-            var purge = new HashSet<string>();
-            foreach (var kv in ShipsDict)
-            {
-                ShipData shipData = kv.Value.shipData;
-                if (shipData == null)
-                    continue;
-                shipData.UnLockable = false;
-                if (shipData.HullRole == ShipData.RoleName.disabled)
-                    continue;
-
-                if (shipData.BaseHull.UnLockable)
-                {
-                    foreach (string str in shipData.BaseHull.TechsNeeded)
-                        shipData.TechsNeeded.Add(str);
-                    shipData.HullUnlockable = true;
-                }
-                else
-                {
-                    shipData.AllModulesUnlocakable = false;
-                    shipData.HullUnlockable = false;
-                    //Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
-                    purge.Add(kv.Key);
-                }
-
-                if (shipData.HullUnlockable)
-                {
-                    shipData.AllModulesUnlocakable = true;
-                    foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlots)
-                    {
-                        if (module.InstalledModuleUID == "Dummy" || module.InstalledModuleUID == null)
-                            continue;
-                        bool modUnlockable = false;
-                        foreach (Technology technology in shipTechs.Keys)
-                        {
-                            foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
-                            {
-                                if (mods.ModuleUID != module.InstalledModuleUID) continue;
-                                modUnlockable = true;
-                                shipData.TechsNeeded.Add(technology.UID);
-                                foreach (string tree in shipTechs[technology])
-                                    shipData.TechsNeeded.Add(tree);
-                                break;
-                            }
-                            if (modUnlockable)
-                                break;
-                        }
-                        if (modUnlockable) continue;
-
-                        shipData.AllModulesUnlocakable = false;
-                        //Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
-                        break;
-                    }
-                }
-
-                if (shipData.AllModulesUnlocakable)
-                {
-                    shipData.UnLockable = true;
-                    if (shipData.BaseStrength <= 0f)
-                        shipData.BaseStrength = kv.Value.CalculateShipStrength();
-
-                    shipData.TechScore = 0;
-                    foreach (string techname in shipData.TechsNeeded)
-                    {
-                        var tech = TechTree[techname];
-                        shipData.TechScore += tech.RootNode ==0 ? (int)tech.Cost : 0;
-                    }
-                }
-                else
-                {
-                    shipData.UnLockable = false;
-                    shipData.TechsNeeded.Clear();
-                    purge.Add(shipData.Name);
-                    shipData.BaseStrength = 0;
-                }
-            }
         }
 
         public static void LoadItAll(Action onEssentialsLoaded = null)
@@ -1999,24 +1882,6 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
         }
 
-        public static Array<string> FindPreviousTechs(Technology target, Array<string> alreadyFound)
-        {
-            //this is supposed to reverse walk through the tech tree.
-            foreach (var techTreeItem in TechTree)
-            {
-                Technology tech = techTreeItem.Value;
-                foreach (Technology.LeadsToTech leadsto in tech.LeadsTo)
-                {
-                    //if if it finds a tech that leads to the target tech then find the tech that leads to it.
-                    if (leadsto.UID == target.UID )
-                    {
-                        alreadyFound.Add(target.UID);
-                        return FindPreviousTechs(tech, alreadyFound);
-                    }
-                }
-            }
-            return alreadyFound;
-        }
 
         public static Video LoadVideo(GameContentManager content, string videoPath)
         {
