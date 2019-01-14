@@ -146,7 +146,7 @@ namespace Ship_Game
 
             PlanetTypeRichness = p.LocalizedRichness;
             PlanetTypeCursor = new Vector2(PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f, PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            batch.Draw(ResourceManager.Texture($"Planets/{p.PlanetType}"), PlanetIconRect, Color.White);
+            batch.Draw(p.PlanetTexture, PlanetIconRect, Color.White);
             batch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
             p.UpdateIncomes(false);
 
@@ -216,7 +216,7 @@ namespace Ship_Game
                 new Vector2(
                     PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f,
                     PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Planets/"+p.PlanetType), PlanetIconRect,
+            ScreenManager.SpriteBatch.Draw(p.PlanetTexture, PlanetIconRect,
                 Color.White);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
             Rectangle fIcon = new Rectangle(240,

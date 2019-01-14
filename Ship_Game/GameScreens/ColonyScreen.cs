@@ -315,7 +315,7 @@ namespace Ship_Game
             DrawSliders(batch);
 
 
-            batch.Draw(ResourceManager.Texture("Planets/" + P.PlanetType), PlanetIcon, Color.White);
+            batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
             float num5 = 80f;
             if (GlobalStats.IsGermanOrPolish)
                 num5 += 20f;
@@ -1042,7 +1042,7 @@ namespace Ship_Game
 
                     if (!pgs.Habitable && pgs.building == null)
                     {
-                        if (P.Category == PlanetCategory.Barren)
+                        if (P.IsBarrenType)
                         {
                             spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
@@ -1509,7 +1509,7 @@ namespace Ship_Game
                         if (ring.planet == P)
                         {
                             PlanetName.Text = string.Concat(P.ParentSystem.Name, " ",
-                                NumberToRomanConvertor.NumberToRoman(ringnum));
+                                RomanNumerals.ToRoman(ringnum));
                         }
 
                         ringnum++;

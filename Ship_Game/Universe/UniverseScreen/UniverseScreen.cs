@@ -164,7 +164,7 @@ namespace Ship_Game
         //public MinimapButtons mmButtons;
         public Rectangle mmGalaxyView;
         public Rectangle mmHousing;
-        private float MaxCamHeight;
+        protected float MaxCamHeight;
         public AnomalyManager anomalyManager;
         public ShipInfoUIElement ShipInfoUIElement;
         public PlanetInfoUIElement pInfoUI;

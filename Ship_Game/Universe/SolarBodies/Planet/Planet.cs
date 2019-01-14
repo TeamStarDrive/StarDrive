@@ -70,24 +70,21 @@ namespace Ship_Game
 
         void CreateManagers()
         {
-            TroopManager = new TroopManager(this);
+            TroopManager    = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
-            Storage = new ColonyStorage(this);
-            SbProduction = new SBProduction(this);
+            Storage         = new ColonyStorage(this);
+            SbProduction    = new SBProduction(this);
 
-            Food = new ColonyFood(this) { Percent = 0.34f };
-            Prod = new ColonyProduction(this) { Percent = 0.33f };
-            Res  = new ColonyResearch(this)  { Percent = 0.33f };
-            Money = new ColonyMoney(this) { Percent = 1f };
+            Food  = new ColonyFood(this)       { Percent = 0.34f };
+            Prod  = new ColonyProduction(this) { Percent = 0.33f };
+            Res   = new ColonyResearch(this)   { Percent = 0.33f };
+            Money = new ColonyMoney(this)      { Percent = 1f };
         }
 
         public Planet()
         {
             CreateManagers();
-
             HasShipyard = false;
-            foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
-                AddGood(keyValuePair.Key, 0);
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
@@ -107,22 +104,17 @@ namespace Ship_Game
 
             if (owner != null && owner.Capital == null && sunZone >= SunZone.Habital)
             {
-                PlanetType = RandomMath.IntBetween(0, 1) == 0 ? 27 : 29;
-                owner.SpawnHomePlanet(this);
-                Name = ParentSystem.Name + " " + NumberToRomanConvertor.NumberToRoman(1);
+                owner.SpawnHomeWorld(this, ResourceManager.RandomPlanet(PlanetCategory.Terran));
+                Name = system.Name + " " + RomanNumerals.ToRoman(1);
             }
             else
             {
-                GenerateType(sunZone);
-                SetPlanetAttributes();
+                InitNewMinorPlanet(ChooseType(sunZone));
             }
 
             float zoneBonus = ((int)sunZone + 1) * .2f * ((int)sunZone + 1);
-            float scale = RandomMath.RandomBetween(0f, zoneBonus) + .9f;
-            if (PlanetType == 2 || PlanetType == 6 || PlanetType == 10 ||
-                PlanetType == 12 || PlanetType == 15 || PlanetType == 20 ||
-                PlanetType == 26)
-                scale += 2.5f;
+            float scale = RandomMath.RandomBetween(0f, zoneBonus) + 0.9f;
+            scale += Type.Scale;
 
             float planetRadius = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
             ObjectRadius = planetRadius;
@@ -351,76 +343,52 @@ namespace Ship_Game
 
         public void ImprovePlanetType() // Refactored by Fat Bastard
         {
-            // Barren  --> Desert --> Steppe --> Tundra --> Terran
-            // Vocanic --> Ice    --> Swamp  --> Oceanic
-            switch (Category)
+            var improve = new []
             {
-                case PlanetCategory.Barren when MaxFertility > 0.14:
-                    PlanetType = 14; // desert
-                    Terraform();
+                // Barren --> Desert --> Tundra --> Steppe --> Terran
+                (AboveFertility:0.14f, ChangeFrom:PlanetCategory.Barren, Into:PlanetCategory.Desert),
+                (AboveFertility:0.35f, ChangeFrom:PlanetCategory.Desert, Into:PlanetCategory.Tundra),
+                (AboveFertility:0.60f, ChangeFrom:PlanetCategory.Tundra, Into:PlanetCategory.Steppe),
+                (AboveFertility:0.95f, ChangeFrom:PlanetCategory.Steppe, Into:PlanetCategory.Terran),
+
+                // Volcanic --> Ice --> Swamp --> Oceanic
+                (AboveFertility:0.14f, ChangeFrom:PlanetCategory.Volcanic, Into:PlanetCategory.Ice),
+                (AboveFertility:0.35f, ChangeFrom:PlanetCategory.Ice,      Into:PlanetCategory.Swamp),
+                (AboveFertility:0.75f, ChangeFrom:PlanetCategory.Swamp,    Into:PlanetCategory.Oceanic),
+            };
+            foreach ((float aboveFertility, PlanetCategory from, PlanetCategory to) in improve)
+            {
+                if (MaxFertility > aboveFertility && Category == from)
+                {
+                    Terraform(to);
                     break;
-                case PlanetCategory.Volcanic when MaxFertility > 0.14:
-                    PlanetType = 17; // desert
-                    Terraform();
-                    break;
-                case PlanetCategory.Desert when MaxFertility > 0.35:
-                    PlanetType = 18; // steppe
-                    Terraform();
-                    break;
-                case PlanetCategory.Ice when MaxFertility > 0.35:
-                    PlanetType = 19; // swamp
-                    Terraform();
-                    break;
-                case PlanetCategory.Swamp when MaxFertility > 0.75:
-                    PlanetType = 21; // oceanic
-                    Terraform();
-                    break;
-                case PlanetCategory.Steppe when MaxFertility > 0.6:
-                    PlanetType = 11; // tundra
-                    Terraform();
-                    break;
-                case PlanetCategory.Tundra when MaxFertility > 0.95:
-                    PlanetType = 22; // terran
-                    Terraform();
-                    break;
+                }
             }
             MaxFertility = Math.Max(0, MaxFertility);
         }
 
         public void DegradePlanetType() // Added by Fat Bastard
         {
-            // Terran  --> Desert --> Barren or Volcanic
-            // Oceanic --> Ice    --> Barren or Volcanic
-            // Swamp   --> Ice    --> Barren or Volcanic
-            // Steppe  --> Desert --> Barren or Volcanic
-            // Tundra  --> Desert --> Barren or Volcanic
-            switch (Category)
+            var degrade = new []
             {
-                case PlanetCategory.Terran when MaxFertility < 0.5:
-                    PlanetType = 14; // desert
-                    Terraform(recalculateTileHabitation: true);
+                // Terran --> Steppe --> Tundra --> Desert -> Barren
+                (BelowFertility:0.90f, ChangeFrom:PlanetCategory.Terran, Into:PlanetCategory.Steppe),
+                (BelowFertility:0.60f, ChangeFrom:PlanetCategory.Steppe, Into:PlanetCategory.Tundra),
+                (BelowFertility:0.35f, ChangeFrom:PlanetCategory.Tundra, Into:PlanetCategory.Desert),
+                (BelowFertility:0.14f, ChangeFrom:PlanetCategory.Desert, Into:PlanetCategory.Barren),
+
+                // Oceanic --> Swamp --> Ice --> Volcanic
+                (BelowFertility:0.75f, ChangeFrom:PlanetCategory.Oceanic, Into:PlanetCategory.Swamp),
+                (BelowFertility:0.35f, ChangeFrom:PlanetCategory.Swamp,   Into:PlanetCategory.Ice),
+                (BelowFertility:0.14f, ChangeFrom:PlanetCategory.Ice,     Into:PlanetCategory.Volcanic),
+            };
+            foreach ((float belowFertility, PlanetCategory from, PlanetCategory to) in degrade)
+            {
+                if (MaxFertility < belowFertility && Category == from)
+                {
+                    Terraform(to);
                     break;
-                case PlanetCategory.Oceanic when MaxFertility < 0.5:
-                    PlanetType = 17; // ice
-                    Terraform(recalculateTileHabitation: true);
-                    break;
-                case PlanetCategory.Swamp when MaxFertility < 0.2:
-                    PlanetType = 17; // ice
-                    Terraform(recalculateTileHabitation: true);
-                    break;
-                case PlanetCategory.Steppe when MaxFertility < 0.5:
-                    PlanetType = 14; // desert
-                    Terraform(recalculateTileHabitation: true);
-                    break;
-                case PlanetCategory.Tundra when MaxFertility < 0.5:
-                    PlanetType = 14; // desert
-                    Terraform(recalculateTileHabitation: true);
-                    break;
-                case PlanetCategory.Desert when MaxFertility < 0.1:
-                case PlanetCategory.Ice when MaxFertility < 0.1:
-                    PlanetType = RandomMath.IntBetween(1, 10) > 5 ? 9 : 7; // volcanic or desert
-                    Terraform(recalculateTileHabitation: true);
-                    break;
+                }
             }
             MaxFertility = Math.Max(0, MaxFertility);
         }
@@ -530,10 +498,10 @@ namespace Ship_Game
             {
                 Level = (int)DevelopmentLevel.Solitary;
                 DevelopmentStatus = Localizer.Token(1763);
-                if      (MaxPopulationBillion >= 2f  && Category != PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1764);
-                else if (MaxPopulationBillion >= 2f  && Category == PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1765);
-                else if (MaxPopulationBillion < 0.0f && Category != PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1766);
-                else if (MaxPopulationBillion < 0.5f && Category == PlanetCategory.Barren) DevelopmentStatus += Localizer.Token(1767);
+                if      (MaxPopulationBillion >= 2f  && !IsBarrenType) DevelopmentStatus += Localizer.Token(1764);
+                else if (MaxPopulationBillion >= 2f  &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1765);
+                else if (MaxPopulationBillion < 0.0f && !IsBarrenType) DevelopmentStatus += Localizer.Token(1766);
+                else if (MaxPopulationBillion < 0.5f &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1767);
             }
             else if (PopulationBillion > 0.5f && PopulationBillion <= 2)
             {
@@ -615,13 +583,20 @@ namespace Ship_Game
             Fertility = Fertility.Clamped(0, MaxFertility);
         }
 
+        public void SetFertility(float fertility, float maxFertility)
+        {
+            MaxFertility = maxFertility;
+            Fertility = fertility;
+        }
+
         public void ChangeMaxFertility(float amount)
         {
             MaxFertility += amount;
             MaxFertility  = Math.Max(0, MaxFertility);
         }
 
-        public void ChangeFertility(float amount) // FB: to enable bombs to temp change ferility immediately by specified amount
+        // FB: to enable bombs to temp change fertility immediately by specified amount
+        public void ChangeFertility(float amount)
         {
             Fertility += amount;
             Fertility  = Math.Max(0, Fertility);
@@ -637,7 +612,7 @@ namespace Ship_Game
             MaxFertility = amount;
         }
 
-        public void InitFertilityValues(float amount)
+        public void InitFertilityMinMax(float amount)
         {
             InitFertility(amount);
             InitMaxFertility(amount);
@@ -806,23 +781,16 @@ namespace Ship_Game
 
             for (int i = 0; i < BuildingList.Count; ++i)
             {
-                Building building        = BuildingList[i];
-                Building template        = ResourceManager.GetBuildingTemplate(BuildingList[i].Name);
-                building.CombatStrength  = (building.CombatStrength + repairAmount).Clamped(0, template.CombatStrength);
-                building.Strength        = (building.Strength + repairAmount).Clamped(0, template.Strength);
+                Building b        = BuildingList[i];
+                Building t        = ResourceManager.GetBuildingTemplate(b.BID);
+                b.CombatStrength  = (b.CombatStrength + repairAmount).Clamped(0, t.CombatStrength);
+                b.Strength        = (b.Strength + repairAmount).Clamped(0, t.Strength);
             }
         }
 
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~Planet() { Dispose(false); }
-
-        private void Dispose(bool disposing)
+        ~Planet() { Destroy(); }
+        public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
+        void Destroy()
         {
             ActiveCombats?.Dispose(ref ActiveCombats);
             OrbitalDropList?.Dispose(ref OrbitalDropList);
@@ -830,12 +798,10 @@ namespace Ship_Game
             Storage   = null;
             TroopManager    = null;
             GeodeticManager = null;
-            BasedShips?.Dispose(ref BasedShips);
             Projectiles?.Dispose(ref Projectiles);
             TroopsHere?.Dispose(ref TroopsHere);
         }
 
-        //Debug Text
         public Array<DebugTextBlock> DebugPlanetInfo()
         {
             var incomingData = new DebugTextBlock();

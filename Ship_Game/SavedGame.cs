@@ -154,7 +154,7 @@ namespace Ship_Game
                             MaxFertility         = ring.planet.MaxFertility,
                             Richness             = ring.planet.MineralRichness,
                             Owner                = ring.planet.Owner?.data.Traits.Name ?? "",
-                            WhichPlanet          = ring.planet.PlanetType,
+                            WhichPlanet          = ring.planet.Type.Id,
                             OrbitalAngle         = ring.planet.OrbitalAngle,
                             OrbitalDistance      = ring.planet.OrbitalRadius,
                             HasRings             = ring.planet.HasRings,
