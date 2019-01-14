@@ -487,30 +487,37 @@ namespace Ship_Game
             return score * (1f - cost / highestCost).Clamped(0.001f, 1.0f);
         }
 
-        float EvaluateBuilding(Building b, float income, float highestCost)     //Gretman function, to support DoGoverning()
+        float EvalCommon (Building b, float income)
         {
-            float score = 0.0f;    //End result value for entire building
+            float score = 0.0f;
 
             score += EvalMaintenance(b, income);
-            score += EvalCostVsBuildTime(b);
-            score += EvalFlatFood(b);
-            score += EvalFoodPerCol(b);
             score += EvalFlatProd(b);
             score += EvalProdPerCol(b);
             score += EvalProdPerRichness(b);
             score += EvalStorage(b);
             score += EvalPopulationGrowth(b);
             score += EvalPlusMaxPopulation(b);
-            score += EvalFlatResearch(b, income);
             score += EvalResearchPerCol(b);
-            score += EvalCreditsPerCol(b);
             score += EvalPlusTaxPercent(b);
             score += EvalSpacePort(b);
-            score += EvalTerraformer(b);
             score += EvalMilitaryBuilding(b, income);
             score += EvalbyGovernor(b);
-            score -= EvalFertilityLoss(b);
+            return score;
+        }
 
+        float EvaluateBuilding(Building b, float income, float highestCost)     //Gretman function, to support DoGoverning()
+        {
+            float score = 0.0f;    //End result value for entire building
+
+            score += EvalCommon(b, income);
+            score += EvalCostVsBuildTime(b);
+            score += EvalFlatFood(b);
+            score += EvalFoodPerCol(b);
+            score += EvalFlatResearch(b, income);
+            score += EvalCreditsPerCol(b);
+            score += EvalTerraformer(b);
+            score -= EvalFertilityLoss(b);
 
             if (score > 0)
                 score = FactorForConstructionCost(score, b.Cost, highestCost);
@@ -522,6 +529,31 @@ namespace Ship_Game
                 else
                     Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-20}  {"NOT GOOD",-16} {score.SignString()}");
             }
+            return score;
+        }
+
+        float EvaluateBuildingScrap(Building b, float income, float highestCost)     
+        {
+            float score = 0.0f;    //End result value for entire building
+
+            score += EvalCommon(b, income);
+            score += EvalFlatFoodScrap(b);
+            score += EvalFoodPerColScrap(b);
+            score += EvalScrapFlatResearch(b, income);
+            score += EvalScrapCreditsPerCol(b);
+            score += EvalTerraformerScrap(b);
+            score -= EvalFertilityLossScrap(b);  // Yes, -= because it is calculated as negative in the function
+
+            if (score > 0)
+                score = FactorForConstructionCost(score, b.Cost, highestCost);
+
+            if (!IsPlanetExtraDebugTarget())
+                return score;
+
+            if (score > 0.0f)
+                Log.Info(ConsoleColor.Cyan, $"Eval SCRAP  {b.Name,-20}  {"MAY KEEP",-16} {score.SignString()}");
+            else
+                Log.Info(ConsoleColor.DarkRed, $"Eval SCRAP  {b.Name,-20}  {"MAY SCRAP",-16} {score.SignString()}");
             return score;
         }
 
@@ -638,9 +670,13 @@ namespace Ship_Game
             return defenseShipScore * b.DefenseShipsCapacity;
         }
 
-        void ChooseAndBuild(float budget)
+        Building ChooseBuildingToBuild(float budget, out float value)
         {
-            if (BuildingsCanBuild.Count == 0) return;
+            if (BuildingsCanBuild.Count == 0 || budget < -2)
+            {
+                value = 0;
+                return null;
+            }
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"==== Planet  {Name}  CHOOSE AND BUILD ==== ");
@@ -662,57 +698,47 @@ namespace Ship_Game
             if (best != null)
             {
                 Log.Info($"-- Best Buidling is  {best.Name} with score of {bestValue}== ");
-                AddBuildingToCQ(best);
+                //AddBuildingToCQ(best);
             }
             //else
-              //  ChooseAndBuildMilitary(budget);
+            //  ChooseAndBuildMilitary(budget);
+            value = bestValue;
+            return best;
         }
 
-        void ChooseAndBuildMilitary(float budget)
+        Building ChooseBuildingToScrap(float budget, out float value)
         {
-            if (BuildingsCanBuild.Count == 0) return; // Discourage building military buildings too early
-
-            int existingMilitary = ExistingMilitaryBuildings();
-            int desiredMilitary  = DesiredMilitaryBuildings();
 
             if (IsPlanetExtraDebugTarget())
+                Log.Info($"==== Planet  {Name}  EVALUATE BUILDINGS TO SCRAP ==== ");
+
+            Building worst = null;
+            float worstValue = 0.0f;
+            for (int i = 0; i < BuildingList.Count; i++)
             {
-                Log.Info($"==== Planet  {Name}  CHOOSE AND BUILD MILITARY ==== ");
-                if (existingMilitary >= desiredMilitary)
-                    Log.Info(ConsoleColor.DarkGreen,
-                        $"Eval BUILD  MILITARY NOT NEEDED  existing:{existingMilitary} >= desired:{desiredMilitary}");
-                else
-                    Log.Info(ConsoleColor.DarkRed,
-                        $"Eval BUILD  MILITARY IS NEEDED   existing:{existingMilitary} <  desired:{desiredMilitary}");
-            }
+                Building b = BuildingList[i];
+                if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded)
+                    continue;
 
-            if (existingMilitary >= desiredMilitary)
-                return;
-
-            Building best = null;
-            float bestValue = 0.0f;
-            float highestCost = BuildingsCanBuild.FindMax(building => building.Cost).Cost;
-         
-            for (int i = 0; i < BuildingsCanBuild.Count; i++)
-            {
-                Building b = BuildingsCanBuild[i];
-                if (b.CombatStrength == 0 || b.MaxPopIncrease > 0) continue;
-                if (b.IsCapitalOrOutpost) continue;
-
-                float score = -EvalMaintenance(b, budget);
-                score += EvalMilitaryBuilding(b, budget);
-                score = FactorForConstructionCost(score, b.Cost, highestCost);
-                if (score > bestValue)
+                float highestCost   = BuildingList.FindMax(building => building.Cost).Cost;
+                float buildingScore = EvaluateBuildingScrap(BuildingsCanBuild[i], budget, highestCost);
+                if (buildingScore > worstValue)
                 {
-                    best = b;
-                    bestValue = score;
+                    worst      = BuildingList[i];
+                    worstValue = buildingScore;
                 }
             }
-            if (best != null) AddBuildingToCQ(best);
+
+            if (worst != null)
+                Log.Info($"-- Borst Buidling is  {worst.Name} with score of {worstValue}== ");
+
+            value = worstValue;
+            return worst;
         }
 
-        void BuildBuildings(float budget)
+        void BuildandScrapBuildings(float budget)
         {
+            int totalBuildings = TotalBuildings;
             //Construction queue recon
             bool buildingInTheWorks  = SbProduction.ConstructionQueue.Any(b => b.isBuilding);
             bool militaryBInTheWorks = SbProduction.ConstructionQueue.Any(b => b.isBuilding && b.Building.CombatStrength > 0);
@@ -721,19 +747,35 @@ namespace Ship_Game
 
             //New Build Logic by Gretman
             if (!lotsInQueueToBuild) BuildShipyardIfAble(); //If we can build a shipyard but dont have one, build it
-
             if (OpenTiles > 0)
-                if (!buildingInTheWorks) ChooseAndBuild(budget);
+            {
+                if (buildingInTheWorks)
+                    return;
+
+                Building bestBuilding = ChooseBuildingToBuild(budget, out float bestValue);
+                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+            }
             else
             {
                 bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(b => b.isBuilding && b.Building.IsBiospheres) != null;
                 Building bio             = BuildingsCanBuild.Find(b => b.IsBiospheres);
 
-                if (bio != null && !biosphereInTheWorks && TotalBuildings < MaxBuilding && bio.Maintenance < budget + 0.3f) //No habitable tiles, and not too much in debt
+                if (bio != null && !biosphereInTheWorks && totalBuildings < MaxBuilding && bio.Maintenance < budget + 0.3f) //No habitable tiles, and not too much in debt
                     AddBuildingToCQ(bio);
-            }
+                // added by FB to better deal with scraping
+                else if (!biosphereInTheWorks && totalBuildings == MaxBuilding)
+                {
+                    Building bestBuilding  = ChooseBuildingToBuild(budget, out float bestValue);
+                    Building worstBuilding = ChooseBuildingToScrap(budget, out float worstValue);
+                    if (bestBuilding == null || worstBuilding == null || bestValue.LessOrEqual(worstValue))
+                        return;
 
-            ScrapBuildings(budget);
+                    Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} SCRAPPED {worstBuilding.Name} on planet {Name}   value: {worstValue}");
+                    worstBuilding.ScrapBuilding(this); AddBuildingToCQ(bestBuilding); // scrap the worst building as long as we have better building to build instead
+                    Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} Building {bestBuilding.Name} on planet {Name}   value: {bestValue}");
+                    AddBuildingToCQ(bestBuilding); // and build the better building :)
+                }
+            }
         }
 
         void BuildShipyardIfAble()
