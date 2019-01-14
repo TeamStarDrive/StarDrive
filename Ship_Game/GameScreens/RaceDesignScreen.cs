@@ -125,7 +125,7 @@ namespace Ship_Game
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
             foreach (RacialTrait t in rt.TraitList)
             {
-                TraitEntry te = new TraitEntry
+                var te = new TraitEntry
                 {
                     trait = t
                 };
@@ -1691,10 +1691,10 @@ namespace Ship_Game
                 case StarNum.SuperPacked: modifier = 2.00f; break;
             }
 
-            ScreenManager.GoToScreen(new CreatingNewGameScreen(playerEmpire, Galaxysize.ToString(), modifier, 
-                                                              numOpponents, mode, GameScale, difficulty, mmscreen),
-                                     clear3DObjects:true);
-            UniverseScreen.GamePaceStatic = (int)(Pacing / 100f);
+            float pace = Pacing / 100f;
+            var ng = new CreatingNewGameScreen(playerEmpire, Galaxysize.ToString(), modifier, 
+                                               numOpponents, mode, pace, GameScale, difficulty, mmscreen);
+            ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
 
 

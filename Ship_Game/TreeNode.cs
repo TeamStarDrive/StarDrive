@@ -173,7 +173,7 @@ namespace Ship_Game
 			CostPos = new Vector2(65f, 70f) + new Vector2(BaseRect.X, BaseRect.Y);
 			float x = CostPos.X;
 			SpriteFont titleFont = TitleFont;                
-			float cost = tech.TechCost * UniverseScreen.GamePaceStatic;
+			float cost = tech.TechCost * CurrentGame.Pace;
 			CostPos.X = x - titleFont.MeasureString(cost.String(1)).X;
 			CostPos.X = (int)CostPos.X;
 			CostPos.Y = (int)CostPos.Y - 3;

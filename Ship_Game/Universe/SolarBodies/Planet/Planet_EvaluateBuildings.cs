@@ -688,7 +688,7 @@ namespace Ship_Game
                     isShip = true,
                     sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
                     Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) *
-                           UniverseScreen.GamePaceStatic
+                           CurrentGame.Pace
                 });
             }
         }
