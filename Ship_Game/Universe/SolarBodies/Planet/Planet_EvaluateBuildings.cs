@@ -354,7 +354,7 @@ namespace Ship_Game
             if (b.PlusTaxPercentage.AlmostZero()) return 0;
 
             // This is an assumed tax value, used only for determining how useful a PlusTaxPercentage building is
-            float maxPotentialIncome = b.PlusTaxPercentage*MaxPopulationBillion * 0.20f;
+            float maxPotentialIncome = b.PlusTaxPercentage * MaxPopulationBillion * 0.20f;
             
             float score;
             if (maxPotentialIncome < 0)
@@ -479,18 +479,21 @@ namespace Ship_Game
             return desired;
         }
 
-        static float FactorForConstructionCost(float score, float cost, float highestCost)
+        static float FactorForConstructionCost(Building b, float score, float cost, float highestCost)
         {
             //1 minus cost divided by highestCost gives a decimal value that is higher for smaller construction cost. This will make buildings with lower cost more desirable,
             //but never disqualify a building that had a positive score to begin with. -Gretman
             highestCost = highestCost.Clamped(50, 250);
-            return score * (1f - cost / highestCost).Clamped(0.001f, 1.0f);
+            float factor = score * (1f - cost / highestCost).Clamped(0.001f, 1.0f);
+            Log.Info("Construction Factor", factor);
+            return factor;
         }
 
         float EvalCommon (Building b, float income)
         {
             float score = 0.0f;
 
+            score += EvalbyGovernor(b);
             score += EvalMaintenance(b, income);
             score += EvalFlatProd(b);
             score += EvalProdPerCol(b);
@@ -502,7 +505,6 @@ namespace Ship_Game
             score += EvalPlusTaxPercent(b);
             score += EvalSpacePort(b);
             score += EvalMilitaryBuilding(b, income);
-            score += EvalbyGovernor(b);
             return score;
         }
 
@@ -520,7 +522,7 @@ namespace Ship_Game
             score -= EvalFertilityLoss(b);
 
             if (score > 0)
-                score = FactorForConstructionCost(score, b.Cost, highestCost);
+                score = FactorForConstructionCost(b, score, b.Cost, highestCost);
 
             if (IsPlanetExtraDebugTarget())
             {
@@ -545,7 +547,7 @@ namespace Ship_Game
             score -= EvalFertilityLossScrap(b);  // Yes, -= because it is calculated as negative in the function
 
             if (score > 0)
-                score = FactorForConstructionCost(score, b.Cost, highestCost);
+                score = FactorForConstructionCost(b, score, b.Cost, highestCost);
 
             if (!IsPlanetExtraDebugTarget())
                 return score;
@@ -565,7 +567,8 @@ namespace Ship_Game
                 case ColonyType.Agricultural:
                     score += b.PlusFlatFoodAmount
                              + b.PlusFoodPerColonist * Fertility * 2 
-                             - b.MinusFertilityOnBuild * 3;
+                             - b.MinusFertilityOnBuild * 10 // we dont want reducing fertility and we really want improving it
+                             + b.PlusFlatProductionAmount * 2; // some flat production as most people will be farming
                     break;
                 case ColonyType.Core:
                     score += b.CreditsPerColonist * 2 
@@ -576,10 +579,11 @@ namespace Ship_Game
                          score += 1f;
                     score += b.PlusProdPerColonist * MineralRichness 
                              + b.PlusFlatProductionAmount 
-                             + b.PlusProdPerRichness * MineralRichness;
+                             + b.PlusProdPerRichness * MineralRichness
+                             + b.PlusFlatFoodAmount * 2; // some flat food as most people will be in production
                     break;
                 case ColonyType.Research:
-                    score += b.PlusResearchPerColonist * 3
+                    score += b.PlusResearchPerColonist * 4
                              + b.PlusFlatResearchAmount * 2;
                     break;
                 case ColonyType.Military:
@@ -679,7 +683,7 @@ namespace Ship_Game
             }
 
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"==== Planet  {Name}  CHOOSE AND BUILD ==== ");
+                Log.Info($"==== Planet  {Name}  CHOOSE AND BUILD, Bugets: {budget} ==== ");
 
             Building best     = null;
             float bestValue   = 0.0f; // So a building with a value of 0 will not be built.
@@ -722,7 +726,7 @@ namespace Ship_Game
 
                 float highestCost   = BuildingList.FindMax(building => building.Cost).Cost;
                 float buildingScore = EvaluateBuildingScrap(BuildingsCanBuild[i], budget, highestCost);
-                if (buildingScore > worstValue)
+                if (buildingScore < worstValue)
                 {
                     worst      = BuildingList[i];
                     worstValue = buildingScore;
