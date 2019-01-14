@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -12,14 +13,44 @@ namespace Ship_Game
         const int NumOpponents = 1;
         const bool PlayerIsCybernetic = false;
         MicroUniverse Universe;
+        TaskResult<UniverseData> CreateTask;
 
         public DeveloperSandbox() : base(null)
         {
-            IsPopup = false;
+            IsPopup = true;
+        }
+
+        public override void LoadContent()
+        {
+            Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
+
+            CreateTask = Parallel.Run(CreateSandboxUniverse);
+        }
+        
+        // as a normal game screen
+        public override bool HandleInput(InputState input)
+        {
+            if (input.Escaped)
+            {
+                ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true); // no return
+                return true;
+            }
+            return base.HandleInput(input);
         }
 
         public override void Update(float deltaTime)
         {
+            if (CreateTask != null)
+            {
+                Thread.Sleep(10);
+                if (CreateTask?.IsComplete == true)
+                {
+                    UniverseData sandbox = CreateTask.Result;
+                    CreateTask = null;
+                    Universe = new MicroUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
+                    ScreenManager.GoToScreen(Universe, clear3DObjects:false);
+                }
+            }
             ScreenState = ScreenState.Active;
             base.Update(deltaTime);
         }
@@ -29,17 +60,6 @@ namespace Ship_Game
             batch.Begin();
             base.Draw(batch);
             batch.End();
-        }
-
-        // as a normal game screen
-        public override bool HandleInput(InputState input)
-        {
-            if (input.Escaped)
-            {
-                ScreenManager.GoToScreen(new MainMenuScreen());
-                return true;
-            }
-            return base.HandleInput(input);
         }
 
         class MicroUniverse : UniverseScreen
@@ -59,15 +79,6 @@ namespace Ship_Game
                 CamHeight *= 10000.0f;
                 CamDestination.Z = 100000.0f; // and set a lower destination
             }
-        }
-
-        public override void LoadContent()
-        {
-            Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
-
-            UniverseData sandbox = CreateSandboxUniverse();
-            Universe = new MicroUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
-            ScreenManager.AddScreen(Universe);
         }
 
         UniverseData CreateSandboxUniverse()

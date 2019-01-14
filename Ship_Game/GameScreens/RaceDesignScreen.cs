@@ -1692,7 +1692,8 @@ namespace Ship_Game
             }
 
             ScreenManager.GoToScreen(new CreatingNewGameScreen(playerEmpire, Galaxysize.ToString(), modifier, 
-                                                              numOpponents, mode, GameScale, difficulty, mmscreen));
+                                                              numOpponents, mode, GameScale, difficulty, mmscreen),
+                                     clear3DObjects:true);
             UniverseScreen.GamePaceStatic = (int)(Pacing / 100f);
         }
 
