@@ -42,7 +42,7 @@ namespace Ship_Game
         {
             if (CreateTask != null)
             {
-                Thread.Sleep(10);
+                Thread.Sleep(10); // @note This hugely speeds up loading
                 if (CreateTask?.IsComplete == true)
                 {
                     UniverseData sandbox = CreateTask.Result;
