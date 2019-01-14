@@ -14,42 +14,39 @@ namespace Ship_Game
 {
     public sealed class CreatingNewGameScreen : GameScreen
     {
-        private float Scale = 1f;
-        private int NumSystems = 50;
-        private AutoResetEvent WorkerBeginEvent = new AutoResetEvent(false);
-        private ManualResetEvent WorkerCompletedEvent = new ManualResetEvent(true);
-        private Array<Vector2> ClaimedSpots = new Array<Vector2>();
-        private RaceDesignScreen.GameMode Mode;
-        private Vector2 GalacticCenter;
-        private UniverseData Data;
-        private Empire Player;
-        private UniverseData.GameDifficulty Difficulty;
-        private int NumOpponents;
-        private MainMenuScreen mmscreen;
-        private Texture2D LoadingScreenTexture;
-        private string AdviceText;
-        private Ship playerShip;
-        private TaskResult BackgroundTask;
-        private UniverseScreen us;
-        
+        readonly float Scale;
+        readonly int NumSystems;
+        readonly Array<Vector2> ClaimedSpots = new Array<Vector2>();
+        readonly RaceDesignScreen.GameMode Mode;
+        readonly Vector2 GalacticCenter;
+        readonly UniverseData Data;
+        readonly Empire Player;
+        readonly UniverseData.GameDifficulty Difficulty;
+        readonly int NumOpponents;
+        readonly MainMenuScreen MainMenu;
+        Texture2D LoadingScreenTexture;
+        string AdviceText;
+        Ship playerShip;
+        TaskResult BackgroundTask;
+        UniverseScreen us;
 
         public CreatingNewGameScreen(Empire player, string universeSize, 
-                float starNumModifier, int numOpponents, RaceDesignScreen.GameMode gamemode, 
-                int gameScale, UniverseData.GameDifficulty difficulty, MainMenuScreen mmscreen) : base(mmscreen)
+                float starNumModifier, int numOpponents, RaceDesignScreen.GameMode mode, 
+                float pace, int scale, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(mainMenu)
         {
             GlobalStats.RemnantArmageddon = false;
             GlobalStats.RemnantKills = 0;
-            this.mmscreen = mmscreen;
-            foreach (var art in ResourceManager.ArtifactsDict)
-                art.Value.Discovered = false;
+            MainMenu = mainMenu;
+            foreach (Artifact art in ResourceManager.ArtifactsDict.Values)
+                art.Discovered = false;
 
             RandomEventManager.ActiveEvent = null;
             Difficulty = difficulty;
-            if      (gameScale == 5) Scale = 8;
-            else if (gameScale == 6) Scale = 16;
-            else                     Scale = gameScale;
+            if      (scale == 5) Scale = 8;
+            else if (scale == 6) Scale = 16;
+            else                     Scale = scale;
 
-            Mode = gamemode;
+            Mode = mode;
             NumOpponents = numOpponents;
             EmpireManager.Clear();
 
@@ -91,7 +88,7 @@ namespace Ship_Game
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.SnapshotsDict.Clear();
 
-            CurrentGame.StartNew(Data);
+            CurrentGame.StartNew(Data, pace);
         }
 
         public override void LoadContent()
@@ -611,7 +608,7 @@ namespace Ship_Game
             }
         }
 
-        private bool SystemPosOK(Vector2 sysPos)
+        bool SystemPosOK(Vector2 sysPos)
         {
             foreach (Vector2 vector2 in ClaimedSpots)
             {   //Updated to make use of the negative map values -Gretman
@@ -623,7 +620,7 @@ namespace Ship_Game
             return true;
         }
 
-        private bool SystemPosOK(Vector2 sysPos, float spacing)
+        bool SystemPosOK(Vector2 sysPos, float spacing)
         {
             foreach (Vector2 vector2 in ClaimedSpots)
             {
@@ -740,21 +737,20 @@ namespace Ship_Game
             
             us = new UniverseScreen(Data)
             {
-                player         = Player,
+                player    = Player,
+                GameScale = Scale,
+                ScreenManager = ScreenManager,
                 CamPos = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
-                ScreenManager  = ScreenManager,
-                GameScale      = Scale
             };
 
             EmpireShipBonuses.RefreshBonuses();
 
-            UniverseScreen.GameScaleStatic = Scale;
             ScreenManager.AddScreen(us);
 
             Log.Info("CreatingNewGameScreen.UpdateAllSystems(0.01)");
             us.UpdateAllSystems(0.01f);
-            mmscreen.OnPlaybackStopped(null, null);
-            ScreenManager.RemoveScreen(mmscreen);
+            MainMenu.OnPlaybackStopped(null, null);
+            ScreenManager.RemoveScreen(MainMenu);
  
             ExitScreen();
             return true;
@@ -800,15 +796,11 @@ namespace Ship_Game
 
         protected override void Destroy()
         {
-            lock (this) {
-                WorkerBeginEvent?.Dispose(ref WorkerBeginEvent);
-                WorkerCompletedEvent?.Dispose(ref WorkerCompletedEvent);
-                LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);                
-            }
+            LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);                
             base.Destroy();
         }
 
-        private struct SysDisPair
+        struct SysDisPair
         {
             public SolarSystem System;
             public float Distance;

@@ -25,8 +25,6 @@ namespace Ship_Game
         private readonly PerfTimer perfavg4          = new PerfTimer();
         private readonly PerfTimer perfavg5          = new PerfTimer();
 
-        public static float GamePaceStatic      = 1f;
-        public static float GameScaleStatic     = 1f;
         public static bool ShipWindowOpen       = false;
         public static bool ColonizeWindowOpen   = false;
         public static bool PlanetViewWindowOpen = false;

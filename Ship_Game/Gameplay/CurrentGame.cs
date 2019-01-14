@@ -14,11 +14,15 @@ namespace Ship_Game
     /// </summary>
     public static class CurrentGame
     {
+        // @note GamePace is used all over the place while UniverseData is still being constructed
+        //       So we need to pull it out of UniverseScreen
+        public static float Pace { get; private set; } = 1f;
         public static UniverseData.GameDifficulty Difficulty { get; private set; }
 
-        public static void StartNew(UniverseData data)
+        public static void StartNew(UniverseData data, float pace)
         {
             Difficulty = data.difficulty;
+            Pace = pace;
         }
     }
 }

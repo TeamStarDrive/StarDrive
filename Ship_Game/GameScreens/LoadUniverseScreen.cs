@@ -15,21 +15,13 @@ namespace Ship_Game
 {
     public sealed class LoadUniverseScreen : GameScreen
     {
-        UniverseData data;
-        SavedGame.UniverseSaveData saveData;
-        float GamePace;
-        float GameScale;
-
+        UniverseScreen Universe;
         string PlayerLoyalty;
         string AdviceText;
         Texture2D LoadingImage;
-        int systemToMake;
-        UniverseScreen us;
-        bool Loaded;
-        bool Ready;
 
-        TaskResult BackgroundTask;
-        ProgressCounter Progress = new ProgressCounter();
+        readonly TaskResult BackgroundTask;
+        readonly ProgressCounter Progress = new ProgressCounter();
 
         public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/)
         {
@@ -39,8 +31,9 @@ namespace Ship_Game
 
             BackgroundTask = Parallel.Run(() =>
             {
-                saveData = DecompressSaveGame(activeFile);
-                LoadEverything(saveData);
+                SavedGame.UniverseSaveData save = DecompressSaveGame(activeFile);
+                UniverseData data = LoadEverything(save);
+                Universe = CreateUniverseScreen(data, save);
             });
         }
 
@@ -280,15 +273,8 @@ namespace Ship_Game
             GlobalStats.ShipMaintenanceMulti = usData.OptionIncreaseShipMaintenance;
             GlobalStats.PreventFederations   = usData.preventFederations;
             GlobalStats.EliminationMode      = usData.EliminationMode;
-            if (usData.TurnTimer == 0)
-                usData.TurnTimer = 5;
-            GlobalStats.TurnTimer = usData.TurnTimer;
-
-            GamePace      = usData.GamePacing;
-            GameScale     = usData.GameScale;
+            GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
             PlayerLoyalty = usData.PlayerLoyalty;
-            UniverseScreen.GamePaceStatic  = GamePace;
-            UniverseScreen.GameScaleStatic = GameScale;
             RandomEventManager.ActiveEvent = null;
             StatTracker.SnapshotsDict.Clear();
             StatTracker.SnapshotsDict = usData.Snapshots;
@@ -316,7 +302,7 @@ namespace Ship_Game
             var cursor = new Vector2(ScreenCenter.X - 250f, meterBar.Y - Fonts.Arial12Bold.MeasureString(AdviceText).Y - 5f);
             batch.DrawString(Fonts.Arial12Bold, AdviceText, cursor, Color.White);
 
-            if (Ready)
+            if (Universe != null)
             {
                 cursor.Y = cursor.Y - Fonts.Pirulen16.LineSpacing - 10f;
                 const string begin = "Click to Continue!";
@@ -330,42 +316,12 @@ namespace Ship_Game
             batch.End();
         }
 
-
-        public void Go()
-        {
-            foreach (Empire e in data.EmpireList)
-            {
-                e.GetEmpireAI().InitialzeAOsFromSave(data);
-            }
-            foreach (Ship ship in us.MasterShipList)
-            {
-                if (!ship.Active)
-                {
-                    us.MasterShipList.QueuePendingRemoval(ship);
-                    continue;
-                }
-                if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
-                {
-                    if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
-                }
-                else if (ship.AI.State == AIState.SystemDefender)
-                {
-                    ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
-                    ship.AddedOnLoad = true;
-                }
-            }
-            us.MasterShipList.ApplyPendingRemovals();
-            GameAudio.StopGenericMusic(immediate: false);
-            us.EmpireUI.empire = us.player;
-            ScreenManager.AddScreenNoLoad(us);
-            ExitScreen();
-        }
-
         public override bool HandleInput(InputState input)
         {
-            if (Ready && input.InGameSelect)
+            if (Universe != null && input.InGameSelect)
             {
-                Go();
+                ExitScreen();
+                ScreenManager.AddScreenNoLoad(Universe);
             }
             return false;
         }
@@ -377,19 +333,21 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        void LoadEverything(SavedGame.UniverseSaveData saveData)
+        UniverseData LoadEverything(SavedGame.UniverseSaveData saveData)
         {
             ScreenManager.RemoveAllObjects();
-            data = new UniverseData();
-            RandomEventManager.ActiveEvent = saveData.RandomEvent;
-            data.loadFogPath           = saveData.FogMapName;
-            data.difficulty            = saveData.gameDifficulty;
-            data.Size                  = saveData.Size;
-            data.FTLSpeedModifier      = saveData.FTLModifier;
-            data.EnemyFTLSpeedModifier = saveData.EnemyFTLModifier;
-            data.GravityWells          = saveData.GravityWells;
+            var data = new UniverseData
+            {
+                loadFogPath = saveData.FogMapName,
+                difficulty  = saveData.gameDifficulty,
+                Size                  = saveData.Size,
+                FTLSpeedModifier      = saveData.FTLModifier,
+                EnemyFTLSpeedModifier = saveData.EnemyFTLModifier,
+                GravityWells          = saveData.GravityWells
+            };
 
-            CurrentGame.StartNew(data);
+            RandomEventManager.ActiveEvent = saveData.RandomEvent;
+            CurrentGame.StartNew(data, saveData.GamePacing);
             
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
@@ -446,7 +404,7 @@ namespace Ship_Game
                 Empire e = EmpireManager.GetEmpireByName(d.empireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                 {
-                    AddShipFromSaveData(shipData, e);
+                    AddShipFromSaveData(data, shipData, e);
                 }
             }
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
@@ -747,11 +705,10 @@ namespace Ship_Game
                     }
                 }
             }
-
-            Loaded = true;
+            return data;
         }
 
-        void AddShipFromSaveData(SavedGame.ShipSaveData shipSave, Empire e)
+        void AddShipFromSaveData(UniverseData data, SavedGame.ShipSaveData shipSave, Empire e)
         {
             Ship ship = Ship.CreateShipFromSave(e, shipSave);
             if (ship == null) // happens if module creation failed
@@ -765,125 +722,153 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            if (!BackgroundTask.IsComplete || Ready || !Loaded)
-                return;
-
-            if (us == null)
+            if (!BackgroundTask.IsComplete)
             {
-                us = new UniverseScreen(data, PlayerLoyalty)
-                {
-                    GamePace       = GamePace,
-                    GameScale      = GameScale,
-                    StarDate       = saveData.StarDate,
-                    ScreenManager  = ScreenManager,
-                    CamPos         = new Vector3(saveData.campos.X, saveData.campos.Y, saveData.camheight),
-                    CamHeight      = saveData.camheight,
-                    player         = EmpireManager.Player
-                };
-
-                EmpireShipBonuses.RefreshBonuses();
+                // heavily throttle main thread, so the worker thread can turbo
+                Thread.Sleep(33);
             }
-
-            SolarSystem system = data.SolarSystemsList[systemToMake];
-            foreach (Planet p in system.PlanetList)
-            {
-                p.ParentSystem = system;
-                p.InitializePlanetMesh(this);
-            }
-            foreach (Asteroid roid in system.AsteroidsList) AddObject(roid.So);
-            foreach (Moon moon in system.MoonList)          AddObject(moon.So);
-
-            ++systemToMake;
-            if (systemToMake == data.SolarSystemsList.Count)
-                AllSystemsLoaded();
-
-            Game1.Instance.ResetElapsedTime();
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
-        void AllSystemsLoaded()
+        UniverseScreen CreateUniverseScreen(UniverseData data, SavedGame.UniverseSaveData save)
         {
-            if (systemToMake == data.SolarSystemsList.Count)
+            Game1.Instance.ResetElapsedTime();
+
+            var us = new UniverseScreen(data, PlayerLoyalty)
             {
-                foreach (Ship ship in data.MasterShipList)
-                {                    
-                    ship.InitializeShip(loadingFromSavegame: true);
-                    if (ship.Carrier.HasHangars)
+                GamePace       = save.GamePacing,
+                GameScale      = save.GameScale,
+                StarDate       = save.StarDate,
+                ScreenManager  = ScreenManager,
+                CamPos         = new Vector3(save.campos.X, save.campos.Y, save.camheight),
+                CamHeight      = save.camheight,
+                player         = EmpireManager.Player
+            };
+
+            EmpireShipBonuses.RefreshBonuses();
+            CreateSceneObjects(data);
+            AllSystemsLoaded(data);
+
+            // Finally fucking fixes the 'LOOK AT ME PA I'M ZOOMED RIGHT IN' vanilla bug when loading a saved game: the universe screen uses camheight separately to the campos z vector to actually do zoom.
+            us.LoadContent();
+
+            Log.Info("LoadUniverseScreen.UpdateAllSystems(0.01)");
+            us.UpdateAllSystems(0.01f);
+            ShipDesignUtils.MarkDesignsUnlockable(Progress);
+
+            foreach (Empire e in data.EmpireList)
+            {
+                e.GetEmpireAI().InitialzeAOsFromSave(data);
+            }
+            foreach (Ship ship in us.MasterShipList)
+            {
+                if (!ship.Active)
+                {
+                    us.MasterShipList.QueuePendingRemoval(ship);
+                    continue;
+                }
+                if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
+                {
+                    if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
+                }
+                else if (ship.AI.State == AIState.SystemDefender)
+                {
+                    ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
+                    ship.AddedOnLoad = true;
+                }
+            }
+            us.MasterShipList.ApplyPendingRemovals();
+            GameAudio.StopGenericMusic(immediate: false);
+
+            return us;
+        }
+
+        void CreateSceneObjects(UniverseData data)
+        {
+            for (int i = 0; i < data.SolarSystemsList.Count; ++i)
+            {
+                SolarSystem system = data.SolarSystemsList[i];
+                foreach (Planet p in system.PlanetList)
+                {
+                    p.ParentSystem = system;
+                    p.InitializePlanetMesh(this);
+                }
+                foreach (Asteroid roid in system.AsteroidsList) AddObject(roid.So);
+                foreach (Moon moon in system.MoonList)          AddObject(moon.So);
+            }
+        }
+
+        void AllSystemsLoaded(UniverseData data)
+        {
+            foreach (Ship ship in data.MasterShipList)
+            {                    
+                ship.InitializeShip(loadingFromSavegame: true);
+                if (ship.Carrier.HasHangars)
+                {
+                    foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
                     {
-                        foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
+                        foreach (Ship othership in ship.loyalty.GetShips())
                         {
-                            foreach (Ship othership in ship.loyalty.GetShips())
-                            {
-                                if (hangar.HangarShipGuid != othership.guid)
-                                    continue;
-                                hangar.SetHangarShip(othership);
-                                othership.Mothership = ship;
-                            }
+                            if (hangar.HangarShipGuid != othership.guid)
+                                continue;
+                            hangar.SetHangarShip(othership);
+                            othership.Mothership = ship;
                         }
                     }
+                }
+                foreach (SolarSystem s in data.SolarSystemsList)
+                {
+                    Guid orbitTargetGuid = ship.AI.OrbitTargetGuid;
+                    foreach (Planet p in s.PlanetList)
+                    {
+                        foreach (Guid station in p.Shipyards.Keys.ToArray())
+                        {
+                            if (station == ship.guid)
+                            {
+                                p.Shipyards[station] = ship;
+                                ship.TetherToPlanet(p);
+                            }
+                        }
+                        if (p.guid != orbitTargetGuid)
+                            continue;
+                        ship.AI.OrbitTarget = p;
+                        if (ship.AI.State != AIState.Orbit)
+                            continue;
+                        ship.AI.OrderToOrbit(p, true);
+                    }
+                }
+                if (ship.AI.State == AIState.SystemDefender)
+                {
+                    Guid systemToDefendGuid = ship.AI.SystemToDefendGuid;
                     foreach (SolarSystem s in data.SolarSystemsList)
                     {
-                        Guid orbitTargetGuid = ship.AI.OrbitTargetGuid;
-                        foreach (Planet p in s.PlanetList)
-                        {
-                            foreach (Guid station in p.Shipyards.Keys.ToArray())
-                            {
-                                if (station == ship.guid)
-                                {
-                                    p.Shipyards[station] = ship;
-                                    ship.TetherToPlanet(p);
-                                }
-                            }
-                            if (p.guid != orbitTargetGuid)
-                                continue;
-                            ship.AI.OrbitTarget = p;
-                            if (ship.AI.State != AIState.Orbit)
-                                continue;
-                            ship.AI.OrderToOrbit(p, true);
-                        }
-                    }
-                    if (ship.AI.State == AIState.SystemDefender)
-                    {
-                        Guid systemToDefendGuid = ship.AI.SystemToDefendGuid;
-                        foreach (SolarSystem s in data.SolarSystemsList)
-                        {
-                            if (s.guid != systemToDefendGuid)
-                                continue;
-                            ship.AI.SystemToDefend = s;
-                            ship.AI.State = AIState.SystemDefender;
-                        }
-                    }
-                    if (ship.shipData.IsShipyard && !ship.IsTethered)
-                        ship.Active = false;
-                    Guid escortTargetGuid = ship.AI.EscortTargetGuid;
-                    foreach (Ship s in data.MasterShipList)
-                    {
-                        if (s.guid == escortTargetGuid)
-                            ship.AI.EscortTarget = s;
-                        if (s.guid != ship.AI.TargetGuid)
+                        if (s.guid != systemToDefendGuid)
                             continue;
-                        ship.AI.Target = s;
-                    }
-                    foreach (Projectile p in ship.Projectiles)
-                    {
-                        p.FirstRun = false;
+                        ship.AI.SystemToDefend = s;
+                        ship.AI.State = AIState.SystemDefender;
                     }
                 }
-                foreach (SolarSystem sys in data.SolarSystemsList)
+                if (ship.shipData.IsShipyard && !ship.IsTethered)
+                    ship.Active = false;
+                Guid escortTargetGuid = ship.AI.EscortTargetGuid;
+                foreach (Ship s in data.MasterShipList)
                 {
-                    sys.FiveClosestSystems = data.SolarSystemsList.FindMinItemsFiltered(5,
-                                                filter => filter != sys,
-                                                select => select.Position.SqDist(sys.Position));
+                    if (s.guid == escortTargetGuid)
+                        ship.AI.EscortTarget = s;
+                    if (s.guid != ship.AI.TargetGuid)
+                        continue;
+                    ship.AI.Target = s;
                 }
-
-                // Finally fucking fixes the 'LOOK AT ME PA I'M ZOOMED RIGHT IN' vanilla bug when loading a saved game: the universe screen uses camheight separately to the campos z vector to actually do zoom.
-                us.LoadContent();
-
-                Log.Info("LoadUniverseScreen.UpdateAllSystems(0.01)");
-                us.UpdateAllSystems(0.01f);
-                ShipDesignUtils.MarkDesignsUnlockable(Progress);
-
-                Ready = true;
+                foreach (Projectile p in ship.Projectiles)
+                {
+                    p.FirstRun = false;
+                }
+            }
+            foreach (SolarSystem sys in data.SolarSystemsList)
+            {
+                sys.FiveClosestSystems = data.SolarSystemsList.FindMinItemsFiltered(5,
+                                            filter => filter != sys,
+                                            select => select.Position.SqDist(sys.Position));
             }
         }
     }

@@ -84,8 +84,8 @@ namespace Ship_Game
             SaveData.AutoExplore         = EmpireManager.Player.AutoExplore;
             SaveData.AutoFreighters      = EmpireManager.Player.AutoFreighters;
             SaveData.AutoProjectors      = EmpireManager.Player.AutoBuild;
-            SaveData.GamePacing          = UniverseScreen.GamePaceStatic;
-            SaveData.GameScale           = UniverseScreen.GameScaleStatic;
+            SaveData.GamePacing          = CurrentGame.Pace;
+            SaveData.GameScale           = screenToSave.GameScale;
             SaveData.StarDate            = screenToSave.StarDate;
             SaveData.FTLModifier         = screenToSave.FTLModifier;
             SaveData.EnemyFTLModifier    = screenToSave.EnemyFTLModifier;
