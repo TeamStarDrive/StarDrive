@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -31,7 +32,6 @@ namespace Ship_Game
         private MainMenuScreen mmscreen;
         private Texture2D LoadingScreenTexture;
         private string AdviceText;
-        private int counter;
         private Ship playerShip;
         private TaskResult BackgroundTask;
         private UniverseScreen us;
@@ -111,13 +111,18 @@ namespace Ship_Game
 
         private void FinalizeEmpires()
         {
-            foreach (Empire empire in Data.EmpireList)
+            for (int empireId = 0; empireId < Data.EmpireList.Count; empireId++)
             {
+                float majorProgress = (empireId+1) / (float)Data.EmpireList.Count;
+
+                Empire empire = Data.EmpireList[empireId];
                 if (empire.isFaction)
                     continue;
 
-                foreach (Planet planet in empire.GetPlanets())
+                IReadOnlyList<Planet> planets = empire.GetPlanets();
+                for (int planetId = 0; planetId < planets.Count; planetId++)
                 {
+                    Planet planet = planets[planetId];
                     planet.MineralRichness += GlobalStats.StartingPlanetRichness;
                     planet.ParentSystem.SetExploredBy(empire);
                     planet.SetExploredBy(empire);
@@ -131,9 +136,10 @@ namespace Ship_Game
                         foreach (Planet planet2 in planet.ParentSystem.PlanetList)
                             planet2.SetExploredBy(empire);
                     }
+
                     if (planet.HasShipyard)
                     {
-                        SpaceStation spaceStation = new SpaceStation { planet = planet };
+                        SpaceStation spaceStation = new SpaceStation {planet = planet};
                         planet.Station = spaceStation;
                         spaceStation.ParentSystem = planet.ParentSystem;
                         spaceStation.LoadContent(ScreenManager);
@@ -153,7 +159,9 @@ namespace Ship_Game
 
                     if (empire == Player)
                     {
-                        string starterShip = empire.data.Traits.Prototype == 0 ? empire.data.StartingShip : empire.data.PrototypeShip;
+                        string starterShip = empire.data.Traits.Prototype == 0
+                            ? empire.data.StartingShip
+                            : empire.data.PrototypeShip;
 
                         playerShip = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
                         playerShip.SensorRange = 100000f; // @todo What is this range hack?
@@ -180,8 +188,12 @@ namespace Ship_Game
                         //empire.AddShip(ship3);
                         //empire.GetForcePool().Add(ship3);
                     }
+
+                    float minorProgress = (planetId+1) / (float)planets.Count;
+                    UpdateCurrentStepProgress(majorProgress * minorProgress);
                 }
             }
+
             foreach (Empire empire in Data.EmpireList)
             {
                 if (empire.isFaction || empire.data.Traits.BonusExplored <= 0)
@@ -276,22 +288,26 @@ namespace Ship_Game
         {
             Stopwatch s = Stopwatch.StartNew();
             CreateOpponents(); // 156ms
+            UpdateCurrentStepProgress(0.15f);
             Log.Info(ConsoleColor.Blue, $"    ## CreateOpponents elapsed: {s.NextMillis()}ms");
             
             PopulateRelations(); // 1ms
 
-            ResourceManager.MarkShipDesignsUnlockable();
+            ResourceManager.MarkShipDesignsUnlockable(); // 240ms
+            UpdateCurrentStepProgress(0.35f);
             Log.Info(ConsoleColor.Blue, $"    ## MarkShipDesignsUnlockable elapsed: {s.NextMillis()}ms");
 
             LoadEmpireStartingSystems(); // 420
+            UpdateCurrentStepProgress(0.65f);
             Log.Info(ConsoleColor.Blue, $"    ## LoadEmpireStartingSystems elapsed: {s.NextMillis()}ms");
 
             GenerateRandomSystems(); // 425ms
+            UpdateCurrentStepProgress(0.95f);
             Log.Info(ConsoleColor.Blue, $"    ## GenerateRandomSystems elapsed: {s.NextMillis()}ms");
 
             // This section added by Gretman
             if (Mode != RaceDesignScreen.GameMode.Corners)            
-                SoloarSystemSpacing(Data.SolarSystemsList); // 2ms    
+                SolarSystemSpacing(Data.SolarSystemsList); // 2ms    
             else
             {
                 short whichCorner = StartingPositionCorners();
@@ -306,8 +322,7 @@ namespace Ship_Game
                     if (whichCorner > 3) whichCorner = 0;
                 }
             }
-
-            HelperFunctions.CollectMemory();
+            UpdateCurrentStepProgress(1.00f);
         }
 
         void CreateOpponents()
@@ -416,12 +431,10 @@ namespace Ship_Game
                 var solarSystem2 = new SolarSystem();
                 solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, Data, Scale);
                 Data.SolarSystemsList.Add(solarSystem2);
-                ++counter;
-                PercentLoaded = counter / (float) (NumSystems * 2);
             }
         }
 
-        private void SoloarSystemSpacing(Array<SolarSystem> solarSystems)
+        private void SolarSystemSpacing(Array<SolarSystem> solarSystems)
         {
             foreach (SolarSystem solarSystem2 in solarSystems)
             {
@@ -497,29 +510,39 @@ namespace Ship_Game
             return whichcorner;
         }
 
+        int CurrentStep;
+        readonly float[] StepProportions = { 0.48f, 0.20f, 0.32f, };
+
+        void UpdateCurrentStepProgress(float stepProgress)
+        {
+            float total = 0f;
+            for (int i = 0; i < CurrentStep; ++i)
+                total += StepProportions[i];
+            total += StepProportions[CurrentStep] * stepProgress;
+            PercentLoaded = total;
+        }
+
         private void GenerateSystems()
         {
             Stopwatch total = Stopwatch.StartNew();
             Stopwatch s = Stopwatch.StartNew();
 
+            CurrentStep = 0;
             GenerateInitialSystemData();
             Log.Info(ConsoleColor.Blue, $"  GenerateInitialSystemData elapsed: {s.NextMillis()}ms");
 
-
-            for (int systemId = 0; systemId < Data.SolarSystemsList.Count; ++systemId)
+            CurrentStep = 1;
+            for (int i = 0; i < Data.SolarSystemsList.Count; ++i)
             {
-                SolarSystem wip = Data.SolarSystemsList[systemId];
-                SubmitSceneObjectsForRendering(wip);
-
-                PercentLoaded = (counter + systemId) / (float)(Data.SolarSystemsList.Count * 2);
+                SubmitSceneObjectsForRendering(Data.SolarSystemsList[i]);
+                UpdateCurrentStepProgress(i / (float)Data.SolarSystemsList.Count);
             }
             Log.Info(ConsoleColor.Blue, $"  SubmitSceneObjectsForRendering elapsed: {s.NextMillis()}ms");
-
-
+            
+            CurrentStep = 2;
             FinalizeSolarSystems();
             FinalizeEmpires();
             Log.Info(ConsoleColor.Blue, $"  FinalizeEmpires elapsed: {s.NextMillis()}ms");
-
             Log.Info(ConsoleColor.DarkRed, $"TOTAL CreatingNewGameScreen Worker elapsed: {total.Elapsed.TotalMilliseconds}ms");
         }
 
