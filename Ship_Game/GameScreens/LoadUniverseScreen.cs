@@ -97,7 +97,8 @@ namespace Ship_Game
             {
                 ParentSystem = forSystem,
                 guid = psdata.guid,
-                Name = psdata.Name
+                Name = psdata.Name,
+                OrbitalAngle = psdata.OrbitalAngle
             };
 
             if (!string.IsNullOrEmpty(psdata.Owner))
@@ -123,7 +124,6 @@ namespace Ship_Game
                 p.colonyType = Planet.ColonyType.Colony;
             }
 
-            p.OrbitalAngle          = psdata.OrbitalAngle;
             p.FS                    = psdata.FoodState;
             p.PS                    = psdata.ProdState;
             p.Food.PercentLock      = psdata.FoodLock;
@@ -132,15 +132,14 @@ namespace Ship_Game
             p.OrbitalRadius         = psdata.OrbitalDistance;
             p.MaxPopBase            = psdata.PopulationMax;
 
-            p.InitFertility(psdata.Fertility);
             p.InitMaxFertility(psdata.MaxFertility);
+            p.InitFertility(psdata.Fertility);
 
             p.MineralRichness       = psdata.Richness;
             p.TerraformPoints       = psdata.TerraformPoints;
             p.HasRings              = psdata.HasRings;
-            p.PlanetType            = psdata.WhichPlanet;
+            p.RestorePlanetTypeFromSave(psdata.WhichPlanet);
             p.ShieldStrengthCurrent = psdata.ShieldStrength;
-            p.LoadAttributes();
             p.CrippledTurns         = psdata.Crippled_Turns;
             p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));

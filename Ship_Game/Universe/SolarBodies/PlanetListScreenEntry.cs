@@ -106,7 +106,7 @@ namespace Ship_Game
                 }
             }
             Rectangle planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
-            batch.Draw(ResourceManager.Texture(string.Concat("Planets/", planet.PlanetType)), planetIconRect, Color.White);
+            batch.Draw(planet.PlanetTexture, planetIconRect, Color.White);
             if (planet.Owner != null)
             {
                 batch.Draw(ResourceManager.Flag(planet.Owner), planetIconRect, planet.Owner.EmpireColor);

@@ -398,7 +398,7 @@ namespace Ship_Game.AI
                         Pause = false,
                         Message = message.ToString(),
                         ReferencedItem1 = system,
-                        IconPath = "Suns/" + system.SunPath,
+                        IconPath = system.SunIconPath,
                         Action = "SnapToExpandSystem"
                     }, "sd_ui_notification_warning");
                 }
