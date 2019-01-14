@@ -908,7 +908,7 @@ namespace Ship_Game
         public static Building CreateBuilding(Building template)
         {
             Building newB = template.Clone();
-            newB.Cost *= UniverseScreen.GamePaceStatic;
+            newB.Cost *= CurrentGame.Pace;
 
             // comp fix to ensure functionality of vanilla buildings
             if (newB.IsCapitalOrOutpost)

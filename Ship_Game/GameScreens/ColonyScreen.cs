@@ -867,7 +867,7 @@ namespace Ship_Game
                         (r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
                     batch.DrawString(Font12,
-                        ((int) b.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
+                        ((int)b.Cost * CurrentGame.Pace).String(), position, Color.White);
 
                     entry.DrawPlus(batch);
                 }
@@ -893,7 +893,7 @@ namespace Ship_Game
                         (r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
                     batch.DrawString(Font12,
-                        ((int) b.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
+                        ((int) b.Cost * CurrentGame.Pace).String(), position, Color.White);
                     entry.DrawPlus(batch);
                 }
 
@@ -1776,7 +1776,7 @@ namespace Ship_Game
                 isBuilding = true,
                 Building = building,
                 IsPlayerAdded = playerAdded,
-                Cost = building.Cost * UniverseScreen.GamePaceStatic,
+                Cost = building.Cost * CurrentGame.Pace,
                 productionTowards = 0f,
                 pgs = @where
             };

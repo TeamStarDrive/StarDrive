@@ -18,7 +18,7 @@ namespace Ship_Game
         [Serialize(7)] public float maxOffensiveValueFromthis = 0;
 
         [XmlIgnore][JsonIgnore]
-        public float TechCost => Tech.Cost * (float)Math.Max(1, Math.Pow(2.0, Level)) * UniverseScreen.GamePaceStatic;
+        public float TechCost => Tech.Cost * (float)Math.Max(1, Math.Pow(2.0, Level)) * CurrentGame.Pace;
 
         //add initializer for tech
         [XmlIgnore][JsonIgnore]

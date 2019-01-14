@@ -278,7 +278,7 @@ namespace Ship_Game.Universe.SolarBodies
                 IsPlayerAdded = playerAdded,
                 isBuilding = true,
                 Building = b,
-                Cost = b.Cost * UniverseScreen.GamePaceStatic,
+                Cost = b.Cost * CurrentGame.Pace,
                 productionTowards = 0.0f,
                 NotifyOnEmpty = false
             };

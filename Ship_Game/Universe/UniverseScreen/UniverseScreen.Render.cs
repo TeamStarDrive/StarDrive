@@ -290,7 +290,7 @@ namespace Ship_Game
                 Vector3 vector3_6 =
                     Viewport.Project(
                         new Vector3(
-                            new Vector2(100000f * GameScaleStatic, 0.0f) +
+                            new Vector2(100000f * GameScale, 0.0f) +
                             solarSystem.Position, 0.0f), projection, view, Matrix.Identity);
                 float radius = Vector2.Distance(new Vector2(vector3_6.X, vector3_6.Y), position);
                 if (viewState == UnivScreenState.SectorView)

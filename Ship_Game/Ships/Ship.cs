@@ -744,7 +744,7 @@ namespace Ship_Game.Ships
 
             float cost = 0.0f;
             for (int i = 0; i < ModuleSlotList.Length; ++i)
-                cost += ModuleSlotList[i].Cost * UniverseScreen.GamePaceStatic;
+                cost += ModuleSlotList[i].Cost * CurrentGame.Pace;
 
             if (empire != null)
             {
