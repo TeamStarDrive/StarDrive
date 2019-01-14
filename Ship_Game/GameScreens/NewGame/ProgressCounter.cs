@@ -7,70 +7,44 @@ using System.Threading.Tasks;
 
 namespace Ship_Game.GameScreens.NewGame
 {
+    /// <summary>
+    /// This is a recursive progress counter which can report
+    /// elapsed time for sub-steps and yields completion percent.
+    ///
+    /// 
+    /// </summary>
     public class ProgressCounter
     {
         readonly Stopwatch Time = new Stopwatch();
         public int ElapsedMillis => (int)Time.Elapsed.TotalMilliseconds;
 
-        // Sets the Maximum value for current step
+        int Index; // general progress index, also used for noting active Steps
         int Max = 1;
-        int Value;
 
-        // Advances progress Value by 1
-        public void Advance() => Value += 1;
+        ProgressCounter[] Steps;
+        float[] Proportions;
 
         public void Start(int max)
         {
             Max = max;
             Time.Start();
         }
-
-        // Forces step to report 100% [1.0]
+        
+        // Forces step to report 100% [1.0] and stops the timer
         public void Finish()
         {
-            Value = Max;
-            Steps = null;
-            StepProportions = null;
+            Index = Max;
             Time.Stop();
         }
 
-        public float Percent
+        public void Start(params float[] proportions)
         {
-            get
-            {
-                if (Steps == null)
-                    return (float)Value.Clamped(0, Max) / Max;
-
-                if (StepIndex >= Steps.Length)
-                    return 1f;
-
-                float total = 0f;
-                for (int i = 0; i < Steps.Length; ++i)
-                    total += Steps[i].Percent * StepProportions[i];
-
-                return total;
-            }
-        }
-
-        // SubStep related
-        int StepIndex;
-        ProgressCounter[] Steps;
-        float[] StepProportions;
-
-        public ProgressCounter this[int step] => Steps[step];
-        public ProgressCounter NextStep() => Steps[StepIndex++];
-        public int NumSteps => Steps?.Length ?? 0;
-
-        public void DeclareSubSteps(params float[] proportions)
-        {
-            StepProportions = proportions;
-            Steps = new ProgressCounter[proportions.Length];
-
+            var steps = new ProgressCounter[proportions.Length];
             float total = 0f;
             for (int i = 0; i < proportions.Length; ++i)
             {
                 total += proportions[i];
-                Steps[i] = new ProgressCounter();
+                steps[i] = new ProgressCounter();
             }
 
             float rem = 1f - total;
@@ -78,6 +52,46 @@ namespace Ship_Game.GameScreens.NewGame
             {
                 Log.Warning($"Declared steps don't add up to 1.0: {total}");
             }
+
+            Start(proportions.Length);
+            Proportions = proportions;
+            Steps = steps; // @note Setting this at the; sort of thread unsafe... 
         }
+        
+        // Advances progress Value by 1
+        public void Advance() => Index += 1;
+
+        // Finish current step (if any) and returns next step
+        // You must then start the next step at your own discretion
+        public ProgressCounter AdvanceStep()
+        {
+            if (Index > 0)
+                Steps[Index-1].Finish();
+            return Steps[Index++];
+        }
+
+        // For later inspecting Step timings
+        public ProgressCounter this[int index] => Steps[index];
+
+        // Recursively calculates completion percent
+        // @note Loose thread safety
+        public float Percent
+        {
+            get
+            {
+                if (Index >= Max)
+                    return 1f;
+
+                if (Steps == null)
+                    return (float)Index.Clamped(0, Max) / Max;
+
+                float total = 0f;
+                for (int i = 0; i < Steps.Length; ++i)
+                    total += Steps[i].Percent * Proportions[i];
+
+                return total;
+            }
+        }
+
     }
 }
