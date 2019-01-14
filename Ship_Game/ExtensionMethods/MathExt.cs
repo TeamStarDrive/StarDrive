@@ -27,6 +27,26 @@ namespace Ship_Game
         }
     }
 
+    public struct Range
+    {
+        public float Min;
+        public float Max;
+        public Range(float minMax)
+        {
+            Min = Max = minMax;
+        }
+        public Range(float min, float max)
+        {
+            Min = min; Max = max;
+        }
+        public float Generate()
+        {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            return Min == Max ? Min : RandomMath.RandomBetween(Min, Max);
+        }
+        public override string ToString() => $"Range [{Min}, {Max}]";
+    }
+
     // Added by RedFox
     // Note about StarDrive coordinate system:
     //   +X is right on screen
