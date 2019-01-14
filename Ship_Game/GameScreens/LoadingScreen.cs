@@ -39,7 +39,7 @@ namespace Ship_Game
 
 		public static void Load(ScreenManager screenManager, bool loadingIsSlow, params GameScreen[] screensToLoad)
 		{
-            screenManager.ExitAll();
+            screenManager.ExitAll(clear3DObjects:true);
 			screenManager.AddScreen(new LoadingScreen(loadingIsSlow, screensToLoad));
 		}
 
