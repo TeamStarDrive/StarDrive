@@ -17,29 +17,26 @@ namespace UnitTests
         public void TestLinearProgress()
         {
             var counter = new ProgressCounter();
-            Assert.AreEqual(counter.NumSteps, 0);
+            counter.Start(0.3f, 0.3f, 0.4f);
 
-            counter.DeclareSubSteps(0.3f, 0.3f, 0.4f);
-            Assert.AreEqual(counter.NumSteps, 3);
-
-            LinearSubStep(counter.NextStep(), 11);
+            LinearSubStep(counter.AdvanceStep(), 11);
             Assert.AreEqual(counter.Percent, 0.3f);
 
-            LinearSubStep(counter.NextStep(), 17);
+            LinearSubStep(counter.AdvanceStep(), 17);
             Assert.AreEqual(counter.Percent, 0.6f);
 
-            LinearSubStep(counter.NextStep(), 33);
+            LinearSubStep(counter.AdvanceStep(), 33);
             Assert.AreEqual(counter.Percent, 1.0f);
         }
 
         static void MultiTierSubStep(ProgressCounter subStep)
         {
-            subStep.DeclareSubSteps(0.5f, 0.4f, 0.1f);
-            LinearSubStep(subStep.NextStep(), 17);
+            subStep.Start(0.5f, 0.4f, 0.1f);
+            LinearSubStep(subStep.AdvanceStep(), 17);
             Assert.AreEqual(subStep.Percent, 0.5f);
-            LinearSubStep(subStep.NextStep(), 10);
+            LinearSubStep(subStep.AdvanceStep(), 10);
             Assert.AreEqual(subStep.Percent, 0.9f);
-            LinearSubStep(subStep.NextStep(), 5);
+            LinearSubStep(subStep.AdvanceStep(), 5);
             Assert.AreEqual(subStep.Percent, 1.0f);
         }
 
@@ -47,15 +44,15 @@ namespace UnitTests
         public void TestMultiTierProgress()
         {
             var counter = new ProgressCounter();
-            counter.DeclareSubSteps(0.25f, 0.25f, 0.5f);
+            counter.Start(0.25f, 0.25f, 0.5f);
 
-            MultiTierSubStep(counter.NextStep());
+            MultiTierSubStep(counter.AdvanceStep());
             Assert.AreEqual(counter.Percent, 0.25f);
             
-            MultiTierSubStep(counter.NextStep());
+            MultiTierSubStep(counter.AdvanceStep());
             Assert.AreEqual(counter.Percent, 0.5f);
 
-            MultiTierSubStep(counter.NextStep());
+            MultiTierSubStep(counter.AdvanceStep());
             Assert.AreEqual(counter.Percent, 1.0f);
         }
     }

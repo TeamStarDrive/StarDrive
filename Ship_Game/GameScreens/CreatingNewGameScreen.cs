@@ -104,7 +104,7 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        private void FinalizeEmpires(ProgressCounter step)
+        void FinalizeEmpires(ProgressCounter step)
         {
             step.Start(Data.EmpireList.Count);
             for (int empireId = 0; empireId < Data.EmpireList.Count; empireId++)
@@ -204,7 +204,7 @@ namespace Ship_Game
             }
         }
 
-        private void FinalizeSolarSystems()
+        void FinalizeSolarSystems()
         {
             foreach (SolarSystem solarSystem1 in Data.SolarSystemsList)
             {
@@ -249,7 +249,7 @@ namespace Ship_Game
 
         }
 
-        private void SubmitSceneObjectsForRendering(ProgressCounter step)
+        void SubmitSceneObjects(ProgressCounter step)
         {
             step.Start(Data.SolarSystemsList.Count);
             for (int i = 0; i < Data.SolarSystemsList.Count; ++i)
@@ -286,22 +286,13 @@ namespace Ship_Game
 
         void GenerateInitialSystemData(ProgressCounter step)
         {
-            Stopwatch s = Stopwatch.StartNew();
+            step.Start(0.15f, 0.20f, 0.30f, 0.35f); // proportions for each step
 
-            step.DeclareSubSteps(0.15f, 0.20f, 0.30f, 0.35f);
-            CreateOpponents(step[0]);
-            Log.Info(ConsoleColor.Blue, $"    ## CreateOpponents elapsed: {s.NextMillis()}ms");
-            
+            CreateOpponents(step.AdvanceStep());
             PopulateRelations();
-            ResourceManager.MarkShipDesignsUnlockable(); // 240ms
-            step[1].Finish(); // @todo MarkShipDesignUnlockable
-            Log.Info(ConsoleColor.Blue, $"    ## MarkShipDesignsUnlockable elapsed: {s.NextMillis()}ms");
-
-            LoadEmpireStartingSystems(step[2]); // 420ms
-            Log.Info(ConsoleColor.Blue, $"    ## LoadEmpireStartingSystems elapsed: {s.NextMillis()}ms");
-
-            GenerateRandomSystems(step[3]); // 425ms
-            Log.Info(ConsoleColor.Blue, $"    ## GenerateRandomSystems elapsed: {s.NextMillis()}ms");
+            ShipDesignUtils.MarkDesignsUnlockable(step.AdvanceStep()); // 240ms
+            LoadEmpireStartingSystems(step.AdvanceStep()); // 420ms
+            GenerateRandomSystems(step.AdvanceStep());    // 425ms
 
             // This section added by Gretman
             if (Mode != RaceDesignScreen.GameMode.Corners)            
@@ -320,8 +311,13 @@ namespace Ship_Game
                     if (whichCorner > 3) whichCorner = 0;
                 }
             }
-
             step.Finish();
+
+            Log.Info(ConsoleColor.Blue, $"    ## CreateOpponents           elapsed: {step[0].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue, $"    ## MarkShipDesignsUnlockable elapsed: {step[1].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue, $"    ## LoadEmpireStartingSystems elapsed: {step[2].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue, $"    ## GenerateRandomSystems     elapsed: {step[3].ElapsedMillis}ms");
+
         }
 
         void CreateOpponents(ProgressCounter step)
@@ -332,6 +328,8 @@ namespace Ship_Game
             var opponents = new Array<EmpireData>(majorRaces);
             opponents.Shuffle();
             opponents.Resize(Math.Min(opponents.Count, NumOpponents)); // truncate
+
+            step.Start(opponents.Count + ResourceManager.MinorRaces.Count);
 
             foreach (EmpireData data in opponents)
             {
@@ -360,10 +358,14 @@ namespace Ship_Game
                         t.ShipCostMod -= 0.5f;
                         break;
                 }
+                step.Advance();
             }
             
             foreach (EmpireData data in ResourceManager.MinorRaces)
+            {
                 Data.CreateEmpire(data);
+                step.Advance();
+            }
         }
 
         void PopulateRelations()
@@ -438,7 +440,7 @@ namespace Ship_Game
             }
         }
 
-        private void SolarSystemSpacing(Array<SolarSystem> solarSystems)
+        void SolarSystemSpacing(Array<SolarSystem> solarSystems)
         {
             foreach (SolarSystem solarSystem2 in solarSystems)
             {
@@ -449,7 +451,7 @@ namespace Ship_Game
             }
         }
 
-        private short StartingPositionCorners()
+        short StartingPositionCorners()
         {
             short whichcorner = (short) RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
             foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
@@ -514,25 +516,21 @@ namespace Ship_Game
             return whichcorner;
         }
 
-        ProgressCounter Progress = new ProgressCounter();
+        readonly ProgressCounter Progress = new ProgressCounter();
 
-        private void GenerateSystems()
+        void GenerateSystems()
         {
-            Stopwatch total = Stopwatch.StartNew();
-            Stopwatch s = Stopwatch.StartNew();
-
-            Progress.DeclareSubSteps(0.5f, 0.3f, 0.2f);
-            GenerateInitialSystemData(Progress[0]);
-            Log.Info(ConsoleColor.Blue, $"  GenerateInitialSystemData elapsed: {s.NextMillis()}ms");
-
-            SubmitSceneObjectsForRendering(Progress[1]);
-            Log.Info(ConsoleColor.Blue, $"  SubmitSceneObjectsForRendering elapsed: {s.NextMillis()}ms");
-            
+            Progress.Start(0.5f, 0.3f, 0.2f);
+            GenerateInitialSystemData(Progress.AdvanceStep());
+            SubmitSceneObjects(Progress.AdvanceStep());
             FinalizeSolarSystems();
-            FinalizeEmpires(Progress[2]);
+            FinalizeEmpires(Progress.AdvanceStep());
             Progress.Finish();
-            Log.Info(ConsoleColor.Blue, $"  FinalizeEmpires elapsed: {s.NextMillis()}ms");
-            Log.Info(ConsoleColor.DarkRed, $"TOTAL CreatingNewGameScreen Worker elapsed: {total.Elapsed.TotalMilliseconds}ms");
+
+            Log.Info(ConsoleColor.Blue,    $"  GenerateInitialSystemData elapsed: {Progress[0].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue,    $"  SubmitSceneObjects        elapsed: {Progress[1].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue,    $"  FinalizeEmpires           elapsed: {Progress[2].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.DarkRed, $"TOTAL GenerateSystems       elapsed: {Progress.ElapsedMillis}ms");
         }
 
         public Vector2 GenerateRandomSysPos(float spacing)

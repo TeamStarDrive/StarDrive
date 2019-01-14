@@ -258,6 +258,7 @@
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\ShipDesignUtils.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\HangarDesignationDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShieldsBehaviorDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\DesignModuleGrid.cs" />
