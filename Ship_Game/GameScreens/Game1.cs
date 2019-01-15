@@ -100,7 +100,7 @@ namespace Ship_Game
         private void GameExiting(object sender, EventArgs e)
         {
             IsExiting = true;
-            ScreenManager.ExitAll();
+            ScreenManager.ExitAll(clear3DObjects:true);
         }
 
         protected override void Initialize()

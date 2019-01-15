@@ -7,16 +7,46 @@ namespace Ship_Game
 {
     public delegate void RangeAction(int start, int end);
 
+    public interface ITaskResult
+    {
+        bool IsComplete { get; }
+        void SetResult(object value);
+    }
+
+    public class TaskResult : ITaskResult
+    {
+        public bool IsComplete { get; private set; }
+        
+        void ITaskResult.SetResult(object value)
+        {
+            IsComplete = true;
+        }
+    }
+
+    public class TaskResult<T> : ITaskResult
+    {
+        public T Result { get; private set; }
+        public bool IsComplete { get; private set; }
+
+        void ITaskResult.SetResult(object value)
+        {
+            Result = (T)value;
+            IsComplete = true;
+        }
+    }
+
     public class ParallelTask : IDisposable
     {
         private AutoResetEvent EvtNewTask = new AutoResetEvent(false);
         private AutoResetEvent EvtEndTask = new AutoResetEvent(false);
         private Thread Thread;
-        private Action SimpleTask;
+        private Action VoidTask;
+        private Func<object> ResultTask;
+        private ITaskResult Result;
         private RangeAction RangeTask;
         private int LoopStart;
         private int LoopEnd;
-        public bool Running => RangeTask != null || SimpleTask != null;
+        public bool Running => RangeTask != null || VoidTask != null || ResultTask != null;
         public int ThreadId => Thread.ManagedThreadId;
         private Exception Error;
         private volatile bool Killed;
@@ -36,11 +66,22 @@ namespace Ship_Game
             if (!Thread.IsAlive)
                 Thread.Start();
         }
-        public void Start(Action taskBody)
+        public void Start(Action taskBody, ITaskResult result)
         {
             if (Running)
                 throw new InvalidOperationException("ParallelTask is still running");
-            SimpleTask = taskBody;
+            VoidTask = taskBody;
+            Result = result;
+            EvtNewTask.Set();
+            if (!Thread.IsAlive)
+                Thread.Start();
+        }
+        public void Start(Func<object> taskBody, ITaskResult result)
+        {
+            if (Running)
+                throw new InvalidOperationException("ParallelTask is still running");
+            ResultTask = taskBody;
+            Result = result;
             EvtNewTask.Set();
             if (!Thread.IsAlive)
                 Thread.Start();
@@ -57,6 +98,15 @@ namespace Ship_Game
             Error = null;
             return ex;
         }
+
+        void SetResultValue(object value)
+        {
+            ITaskResult result = Result;
+            if (result == null) return;
+            Result = null; // so if SetResult fails, we don't crash twice
+            result.SetResult(value);
+        }
+
         private void Run()
         {
             while (!Killed)
@@ -68,16 +118,27 @@ namespace Ship_Game
                 {
                     Error = null;
                     if (RangeTask != null)
+                    {
                         RangeTask(LoopStart, LoopEnd);
-                    else
-                        SimpleTask?.Invoke();
+                    }
+                    else if (VoidTask != null)
+                    {
+                        VoidTask.Invoke();
+                        SetResultValue(null);
+                    }
+                    else if (ResultTask != null)
+                    {
+                        object value = ResultTask.Invoke();
+                        SetResultValue(value);
+                    }
                 }
                 catch (Exception ex)
                 {
                     Error = ex;
+                    SetResultValue(null);
                 }
-                RangeTask  = null;
-                SimpleTask = null;
+                RangeTask = null;
+                VoidTask  = null;
                 if (Killed)
                     break;
                 EvtEndTask.Set();
@@ -88,13 +149,15 @@ namespace Ship_Game
             Destructor();
             GC.SuppressFinalize(this);
         }
-        private void Destructor()
+        void Destructor() // Manually controlling result lifetimes
         {
             if (EvtNewTask == null)
                 return;
-            Killed = true;
+            Killed     = true;
             RangeTask  = null;
-            SimpleTask = null;
+            VoidTask   = null;
+            ResultTask = null;
+            Result     = null;
             EvtNewTask.Set();
             Thread.Join(100);
 
@@ -267,22 +330,37 @@ namespace Ship_Game
             });
         }
 
-        public static ParallelTask Run(Action action)
+        public static TaskResult Run(Action action)
         {
             int poolIndex = 0;
             ParallelTask task = NextTask(ref poolIndex);
-            task.Start(action);
-            return task;
+            var result = new TaskResult();
+            task.Start(action, result);
+            return result;
         }
 
         // runs a single background thread and loops over the items
-        public static ParallelTask Run<T>(IReadOnlyList<T> list, Action<T> body)
+        public static TaskResult Run<T>(IReadOnlyList<T> list, Action<T> body)
         {
             return Run(() =>
             {
                 foreach (T item in list)
                     body(item);
             });
+        }
+
+        public static TaskResult<T> Run<T>(Func<T> asyncFunc)
+        {
+            int poolIndex = 0;
+            ParallelTask task = NextTask(ref poolIndex);
+            var result = new TaskResult<T>();
+
+            object AsyncFunc()
+            {
+                return asyncFunc();
+            }
+            task.Start(AsyncFunc, result);
+            return result;
         }
     }
 }

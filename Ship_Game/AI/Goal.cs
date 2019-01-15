@@ -215,7 +215,7 @@ namespace Ship_Game.AI
             }
 
             private static bool IsBadWorld(Planet planetList, bool canColonizeBarren, int commodities) =>
-                planetList.Category == PlanetCategory.Barren
+                planetList.IsBarrenType
                 && !canColonizeBarren && commodities == 0;
 
             private static bool PlanetToFarToColonize(Planet planetList, Empire empire)

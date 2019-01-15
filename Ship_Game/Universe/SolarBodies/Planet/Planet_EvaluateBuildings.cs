@@ -839,7 +839,7 @@ namespace Ship_Game
                     isShip = true,
                     sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
                     Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) *
-                           UniverseScreen.GamePaceStatic
+                           CurrentGame.Pace
                 });
             }
         }
@@ -892,7 +892,7 @@ namespace Ship_Game
         float BuildingBudget()
         {
             // this will give the budget the colony will have for building selection
-            float colonyIncome = Money.NetIncome; // netrevenue
+            float colonyIncome = Money.NetRevenue; // netrevenue
             colonyIncome      -= SbProduction.GetTotalConstructionQueueMaintenance(); // take into account buildings maint in queue
 
             float debtTolerance;

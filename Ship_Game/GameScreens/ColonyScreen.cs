@@ -315,7 +315,7 @@ namespace Ship_Game
             DrawSliders(batch);
 
 
-            batch.Draw(ResourceManager.Texture("Planets/" + P.PlanetType), PlanetIcon, Color.White);
+            batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
             float num5 = 80f;
             if (GlobalStats.IsGermanOrPolish)
                 num5 += 20f;
@@ -370,9 +370,9 @@ namespace Ship_Game
             string nIncome = Localizer.Token(6127);
             string nLosses = Localizer.Token(6129);
 
-            float grossIncome = P.Money.GrossIncome;
-            float grossUpkeep = P.GrossUpkeep;
-            float netIncome   = P.Money.NetIncome;
+            float grossIncome = P.Money.GrossRevenue;
+            float grossUpkeep = P.Money.Maintenance;
+            float netIncome   = P.Money.NetRevenue;
 
             Vector2 positionGIncome = vector2_2;
             positionGIncome.X = vector2_2.X + 1;
@@ -382,7 +382,7 @@ namespace Ship_Game
             positionGrossIncome.X = position3.X + 1;
 
             batch.DrawString(Fonts.Arial10, gIncome + ":", positionGIncome, Color.LightGray);
-            batch.DrawString(Fonts.Arial10, grossIncome.ToString("F2") + " BC/Y", positionGrossIncome, Color.LightGray);
+            batch.DrawString(Fonts.Arial10, grossIncome.String(2) + " BC/Y", positionGrossIncome, Color.LightGray);
 
             Vector2 positionGUpkeep = positionGIncome;
             positionGUpkeep.Y = positionGIncome.Y + (Fonts.Arial12.LineSpacing);
@@ -390,7 +390,7 @@ namespace Ship_Game
             positionGrossUpkeep.Y += (Fonts.Arial12.LineSpacing);
 
             batch.DrawString(Fonts.Arial10, gUpkeep + ":", positionGUpkeep, Color.LightGray);
-            batch.DrawString(Fonts.Arial10, grossUpkeep.ToString("F2") + " BC/Y", positionGrossUpkeep, Color.LightGray);
+            batch.DrawString(Fonts.Arial10, grossUpkeep.String(2) + " BC/Y", positionGrossUpkeep, Color.LightGray);
 
             Vector2 positionNIncome = positionGUpkeep;
             positionNIncome.X = positionGUpkeep.X - 1;
@@ -400,7 +400,7 @@ namespace Ship_Game
             positionNetIncome.Y = positionGrossUpkeep.Y + (Fonts.Arial12.LineSpacing + 2);
 
             batch.DrawString(Fonts.Arial12, (netIncome > 0.0 ? nIncome : nLosses) + ":", positionNIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
-            batch.DrawString(Font12, netIncome.ToString("F2") + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
+            batch.DrawString(Font12, netIncome.String(2) + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
 
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
@@ -867,7 +867,7 @@ namespace Ship_Game
                         (r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
                     batch.DrawString(Font12,
-                        ((int) b.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
+                        ((int)b.Cost * CurrentGame.Pace).String(), position, Color.White);
 
                     entry.DrawPlus(batch);
                 }
@@ -893,7 +893,7 @@ namespace Ship_Game
                         (r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
                     batch.DrawString(Font12,
-                        ((int) b.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
+                        ((int) b.Cost * CurrentGame.Pace).String(), position, Color.White);
                     entry.DrawPlus(batch);
                 }
 
@@ -1042,7 +1042,7 @@ namespace Ship_Game
 
                     if (!pgs.Habitable && pgs.building == null)
                     {
-                        if (P.Category == PlanetCategory.Barren)
+                        if (P.IsBarrenType)
                         {
                             spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
@@ -1509,7 +1509,7 @@ namespace Ship_Game
                         if (ring.planet == P)
                         {
                             PlanetName.Text = string.Concat(P.ParentSystem.Name, " ",
-                                NumberToRomanConvertor.NumberToRoman(ringnum));
+                                RomanNumerals.ToRoman(ringnum));
                         }
 
                         ringnum++;
@@ -1776,7 +1776,7 @@ namespace Ship_Game
                 isBuilding = true,
                 Building = building,
                 IsPlayerAdded = playerAdded,
-                Cost = building.Cost * UniverseScreen.GamePaceStatic,
+                Cost = building.Cost * CurrentGame.Pace,
                 productionTowards = 0f,
                 pgs = @where
             };

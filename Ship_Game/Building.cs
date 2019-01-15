@@ -75,8 +75,10 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
         [XmlIgnore] [JsonIgnore] public int CurrentNumDefenseShips { get; private set; } 
 
-        public override string ToString() => $"BID:{BID}  Name:{Name}  Cost:{Cost}";
+        public override string ToString() => $"BID:{BID}  Name:{Name}  Cost:{Cost}  +Tax:{PlusTaxPercentage}  Short:{ShortDescrText}";
         [XmlIgnore][JsonIgnore] public string TranslatedName => Localizer.Token(NameTranslationIndex);
+        [XmlIgnore][JsonIgnore] public string DescriptionText => Localizer.Token(DescriptionIndex);
+        [XmlIgnore][JsonIgnore] public string ShortDescrText => Localizer.Token(ShortDescriptionIndex);
 
         // Each Building templates has a unique ID: 
         [XmlIgnore][JsonIgnore] public int BID { get; private set; }
@@ -115,14 +117,7 @@ namespace Ship_Game
             Offense = TheWeapon.CalculateWeaponOffense() * 3; //360 degree angle
         }
         
-        public float StrengthMax
-        {
-            get
-            {
-                Building template = ResourceManager.GetBuildingTemplate(Name);
-                return template.Strength;
-            }
-        }
+        public float StrengthMax => ResourceManager.GetBuildingTemplate(BID).Strength;
 
         public void UpdateCurrentDefenseShips(int num)
         {
@@ -183,32 +178,22 @@ namespace Ship_Game
             return false;            
         }
 
-        public PlanetGridSquare AssignBuildingToRandomTile(SolarSystemBody solarSystemBody, bool habitable = false)
+        public PlanetGridSquare AssignBuildingToRandomTile(SolarSystemBody solarSystemBody, bool mustBeHabitableTile = false)
         {
-            PlanetGridSquare[] list;
-            list = !habitable ? solarSystemBody.TilesList.Filter(planetGridSquare => planetGridSquare.building == null) 
-                : solarSystemBody.TilesList.Filter(planetGridSquare => planetGridSquare.building == null && planetGridSquare.Habitable);
+            PlanetGridSquare[] list = mustBeHabitableTile 
+                ? solarSystemBody.TilesList.Filter(pgs => pgs.building == null && pgs.Habitable) 
+                : solarSystemBody.TilesList.Filter(pgs => pgs.building == null);
             if (list.Length == 0)
                 return null;
 
-            int index = RandomMath.InRange(list.Length - 1);
-            var targetPGS = solarSystemBody.TilesList.Find(pgs => pgs == list[index]);
-            targetPGS.building = this;
-            return targetPGS;
-
-        }
-
-        public void AssignBuildingToSpecificTile(PlanetGridSquare pgs, Array<Building> BuildingList)
-        {
-            if (pgs.building != null)
-                BuildingList.Remove(pgs.building);
-            pgs.building = this;
-            BuildingList.Add(this);
+            PlanetGridSquare target = RandomMath.RandItem(list);
+            target.building = this;
+            return target;
         }
 
         public bool AssignBuildingToTileOnColonize(Planet planet)
         {
-            if (AssignBuildingToRandomTile(planet, habitable: true) != null) return true;
+            if (AssignBuildingToRandomTile(planet, mustBeHabitableTile: true) != null) return true;
             return AssignBuildingToRandomTile(planet) != null;
         }
 

@@ -27,6 +27,26 @@ namespace Ship_Game
         }
     }
 
+    public struct Range
+    {
+        public float Min;
+        public float Max;
+        public Range(float minMax)
+        {
+            Min = Max = minMax;
+        }
+        public Range(float min, float max)
+        {
+            Min = min; Max = max;
+        }
+        public float Generate()
+        {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            return Min == Max ? Min : RandomMath.RandomBetween(Min, Max);
+        }
+        public override string ToString() => $"Range [{Min}, {Max}]";
+    }
+
     // Added by RedFox
     // Note about StarDrive coordinate system:
     //   +X is right on screen
@@ -256,6 +276,9 @@ namespace Ship_Game
         public static int CenterX(this Rectangle r) => r.X + r.Width/2;
         public static int CenterY(this Rectangle r) => r.Y + r.Height/2;
         public static int Area(this Rectangle r) => r.Width * r.Height;
+
+        public static float CenterTextX(this Rectangle r, string text)
+            => r.X + r.Width/2f - Fonts.Arial12Bold.MeasureString(text).X/2f;
 
         // Example: r.RelativeX(0.5) == r.CenterX()
         //          r.RelativeX(1.0) == r.Right

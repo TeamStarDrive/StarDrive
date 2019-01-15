@@ -95,9 +95,9 @@ namespace Ship_Game
         }
         
         // exits all other screens and goes to specified screen
-        public void GoToScreen(GameScreen screen)
+        public void GoToScreen(GameScreen screen, bool clear3DObjects)
         {
-            ExitAll();
+            ExitAll(clear3DObjects);
             AddScreen(screen);
         }
 
@@ -265,12 +265,16 @@ namespace Ship_Game
             }
         }
 
-        public void ExitAll()
+        public void ExitAll(bool clear3DObjects)
         {
             foreach (GameScreen screen in Screens.ToArray()/*grab an atomic copy*/)
                 screen.ExitScreen();
-            RemoveAllObjects();
-            RemoveAllLights();
+
+            if (clear3DObjects)
+            {
+                RemoveAllObjects();
+                RemoveAllLights();
+            }
         }
 
         public void ExitAllExcept(GameScreen except)

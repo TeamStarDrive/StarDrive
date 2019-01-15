@@ -49,7 +49,7 @@ namespace Ship_Game
                         toImprove.TerraformExternal(0.5f);
                         string txt = toImprove.Name + Localizer.Token(4011);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            txt, "Planets/"+toImprove.PlanetType, "SnapToPlanet", toImprove);
+                            txt, toImprove.Type.IconPath, "SnapToPlanet", toImprove);
                     }
                 }
             }
@@ -75,7 +75,7 @@ namespace Ship_Game
                         }
                         string txt = toImprove.Name + Localizer.Token(4012);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            txt, "Planets/"+toImprove.PlanetType, "SnapToPlanet", toImprove);
+                            txt, toImprove.Type.IconPath, "SnapToPlanet", toImprove);
                     }
                 }
             }
@@ -99,7 +99,7 @@ namespace Ship_Game
 
                         string eventtext = targetplanet.Name + Localizer.Token(4105);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            eventtext, "Planets/"+targetplanet.PlanetType, "SnapToPlanet", targetplanet);
+                            eventtext, targetplanet.Type.IconPath, "SnapToPlanet", targetplanet);
                     }
                     else Log.Info($"Something horrible would have happened to '{targetplanet.Name}' but it was on a planet the player hasn't discovered yet.");
                 }

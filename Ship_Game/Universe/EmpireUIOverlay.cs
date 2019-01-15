@@ -419,47 +419,21 @@ namespace Ship_Game
 					spriteBatch.DrawString(Fonts.Arial12Bold, b.Text, textCursor, new Color(255, 240, 189));
 				}
 			}
+
 			int money = (int)empire.Money;
-			float plusMoney = 0f;
-			foreach (Planet p in empire.GetPlanets())
-			{
-                plusMoney += p.Money.NetIncome;
-			}
-			float TotalTradeIncome = 0f;
-			foreach (KeyValuePair<Empire, Relationship> Relationship in EmpireManager.Player.AllRelations)
-			{
-				if (!Relationship.Value.Treaty_Trade)
-				{
-					continue;
-				}
-				float TradeValue = -3f + 0.25f * Relationship.Value.Treaty_Trade_TurnsExisted;
-				if (TradeValue > 3f)
-				{
-					TradeValue = 3f;
-				}
-				TotalTradeIncome = TotalTradeIncome + TradeValue;
-			}
-			plusMoney = plusMoney + TotalTradeIncome;
-			plusMoney = plusMoney + empire.data.FlatMoneyBonus;
-			float EspionageBudget = 0f;
-			foreach (KeyValuePair<Empire, Relationship> r in empire.AllRelations)
-			{
-				EspionageBudget = EspionageBudget + r.Value.IntelligenceBudget;
-			}
-			EspionageBudget = EspionageBudget + EmpireManager.Player.data.CounterIntelligenceBudget;
-			plusMoney = plusMoney - (empire.GetTotalBuildingMaintenance() + empire.GetTotalShipMaintenance() + EspionageBudget);
+
 			float damoney = Empire.Universe.player.EstimateIncomeAtTaxRate(Empire.Universe.player.data.TaxRate);
 			if (damoney <= 0f)
 			{
 				textCursor.X = res4.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(money.ToString(), " (", damoney.ToString("#.0"), ")")).X;
 				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(money.ToString(), " (", damoney.ToString("#.0"), ")"), textCursor, new Color(255, 240, 189));
+				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(money.ToString(), " (", damoney.String(), ")"), textCursor, new Color(255, 240, 189));
 			}
 			else
 			{
 				textCursor.X = res4.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(money.ToString(), " (+", damoney.ToString("#.0"), ")")).X;
 				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(money.ToString(), " (+", damoney.ToString("#.0"), ")"), textCursor, new Color(255, 240, 189));
+				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(money.ToString(), " (+", damoney.String(), ")"), textCursor, new Color(255, 240, 189));
 			}
 
 			var starDatePos = new Vector2(res5.X + 75, textCursor.Y);

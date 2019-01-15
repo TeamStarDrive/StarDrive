@@ -25,8 +25,6 @@ namespace Ship_Game
         private readonly PerfTimer perfavg4          = new PerfTimer();
         private readonly PerfTimer perfavg5          = new PerfTimer();
 
-        public static float GamePaceStatic      = 1f;
-        public static float GameScaleStatic     = 1f;
         public static bool ShipWindowOpen       = false;
         public static bool ColonizeWindowOpen   = false;
         public static bool PlanetViewWindowOpen = false;
@@ -164,7 +162,7 @@ namespace Ship_Game
         //public MinimapButtons mmButtons;
         public Rectangle mmGalaxyView;
         public Rectangle mmHousing;
-        private float MaxCamHeight;
+        protected float MaxCamHeight;
         public AnomalyManager anomalyManager;
         public ShipInfoUIElement ShipInfoUIElement;
         public PlanetInfoUIElement pInfoUI;
@@ -516,7 +514,7 @@ namespace Ship_Game
                 }
             }
 
-            HelperFunctions.CollectMemory();
+            //HelperFunctions.CollectMemory();
 
             ProcessTurnsThread = new Thread(ProcessTurns);
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";

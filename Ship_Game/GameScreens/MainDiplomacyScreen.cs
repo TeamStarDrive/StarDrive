@@ -500,21 +500,21 @@ namespace Ship_Game
                 textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
             }
             //Added by McShooterz:  intel report
-            if (IntelligenceLevel(SelectedEmpire)>0)
+            if (IntelligenceLevel(SelectedEmpire) > 0)
             {
                 if (SelectedEmpire.Capital != null)
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6106), (SelectedEmpire.Capital.Owner == SelectedEmpire) ? Localizer.Token(6107) : Localizer.Token(1508)), textCursor, Color.White);
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
+                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
                 }
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6095), SelectedEmpire.GetPlanets().Count), textCursor, Color.White);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
+                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6096), SelectedEmpire.GetShips().Count), textCursor, Color.White);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6097), SelectedEmpire.Money.ToString("0.0")), textCursor, Color.White);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6098), SelectedEmpire.totalMaint.ToString("0.0")), textCursor, Color.White);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
+                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6097), SelectedEmpire.Money.String(2)), textCursor, Color.White);
+                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6098), SelectedEmpire.BuildingAndShipMaint.String(2)), textCursor, Color.White);
+                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
 
                 if (!string.IsNullOrEmpty(SelectedEmpire.ResearchTopic))
                 {

@@ -15,6 +15,22 @@ namespace Ship_Game
         public Token[] TokenList;
     }
 
+    // Localized text integer reference
+    public struct LocText
+    {
+        public int Id;
+        public LocText(int id)
+        {
+            Id = id;
+        }
+        public string Text => Localizer.Token(Id);
+
+        public static implicit operator LocText(int id)
+        {
+            return new LocText(id);
+        }
+    }
+
     public static class Localizer
     {
         //Hull Bonus Text
