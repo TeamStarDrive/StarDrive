@@ -129,7 +129,7 @@ namespace Ship_Game
 				batch.DrawString(Fonts.Pirulen12, p.ParentSystem.Name, SysNameCursor, TextColor);
 			}
 			Rectangle planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 25, PlanetNameRect.Height - 50, PlanetNameRect.Height - 50);
-			batch.Draw(ResourceManager.Texture("Planets/"+p.PlanetType), planetIconRect, Color.White);
+			batch.Draw(p.PlanetTexture, planetIconRect, Color.White);
 			var cursor = new Vector2(PopRect.X + PopRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
 			float population = p.PopulationBillion;
 			string popstring = population.String();
@@ -157,7 +157,7 @@ namespace Ship_Game
 			batch.DrawString(Fonts.Arial12, rstring, cursor, Color.White);
 			
             cursor = new Vector2(MoneyRect.X + FoodRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-			float money = p.Money.NetIncome;
+			float money = p.Money.NetRevenue;
 			string mstring = money.String();
 			cursor.X = cursor.X - Fonts.Arial12.MeasureString(mstring).X;
 			HelperFunctions.ClampVectorToInt(ref cursor);

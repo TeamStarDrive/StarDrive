@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -11,14 +13,44 @@ namespace Ship_Game
         const int NumOpponents = 1;
         const bool PlayerIsCybernetic = false;
         MicroUniverse Universe;
+        TaskResult<UniverseData> CreateTask;
 
         public DeveloperSandbox() : base(null)
         {
-            IsPopup = false;
+            IsPopup = true;
+        }
+
+        public override void LoadContent()
+        {
+            Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
+
+            CreateTask = Parallel.Run(CreateSandboxUniverse);
+        }
+        
+        // as a normal game screen
+        public override bool HandleInput(InputState input)
+        {
+            if (input.Escaped)
+            {
+                ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true); // no return
+                return true;
+            }
+            return base.HandleInput(input);
         }
 
         public override void Update(float deltaTime)
         {
+            if (CreateTask != null)
+            {
+                Thread.Sleep(10); // @note This hugely speeds up loading
+                if (CreateTask?.IsComplete == true)
+                {
+                    UniverseData sandbox = CreateTask.Result;
+                    CreateTask = null;
+                    Universe = new MicroUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
+                    ScreenManager.GoToScreen(Universe, clear3DObjects:false);
+                }
+            }
             ScreenState = ScreenState.Active;
             base.Update(deltaTime);
         }
@@ -28,17 +60,6 @@ namespace Ship_Game
             batch.Begin();
             base.Draw(batch);
             batch.End();
-        }
-
-        // as a normal game screen
-        public override bool HandleInput(InputState input)
-        {
-            if (input.Escaped)
-            {
-                ScreenManager.GoToScreen(new MainMenuScreen());
-                return true;
-            }
-            return base.HandleInput(input);
         }
 
         class MicroUniverse : UniverseScreen
@@ -60,13 +81,13 @@ namespace Ship_Game
             }
         }
 
-        public override void LoadContent()
+        UniverseData CreateSandboxUniverse()
         {
-            //Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
+            Stopwatch s = Stopwatch.StartNew();
             EmpireManager.Clear();
             ResourceManager.LoadItAll();
             var sandbox = new UniverseData { Size = new Vector2(500000f) };
-            CurrentGame.StartNew(sandbox);
+            CurrentGame.StartNew(sandbox, pace:1f);
             var claimedSpots = new Array<Vector2>();
 
             EmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(
@@ -128,8 +149,8 @@ namespace Ship_Game
             foreach (SolarSystem system in sandbox.SolarSystemsList)
                 SubmitSceneObjectsForRendering(system);
 
-            Universe = new MicroUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
-            ScreenManager.AddScreen(Universe);
+            Log.Info($"CreateSandboxUniverse elapsed:{s.Elapsed.TotalMilliseconds}");
+            return sandbox;
         }
 
         public Vector2 GenerateRandomSysPos(float spacing, Array<Vector2> claimedSpots, UniverseData data)

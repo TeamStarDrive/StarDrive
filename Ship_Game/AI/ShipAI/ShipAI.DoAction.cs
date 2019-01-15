@@ -398,7 +398,7 @@ namespace Ship_Game.AI
                         Pause = false,
                         Message = message.ToString(),
                         ReferencedItem1 = system,
-                        IconPath = "Suns/" + system.SunPath,
+                        IconPath = system.SunIconPath,
                         Action = "SnapToExpandSystem"
                     }, "sd_ui_notification_warning");
                 }
@@ -718,7 +718,7 @@ namespace Ship_Game.AI
                               Owner.GetCost(Owner.loyalty));
             if (cost < 0)
                 cost = 0;
-            cost = cost + 10 * (int) UniverseScreen.GamePaceStatic;
+            cost = cost + 10 * (int) CurrentGame.Pace;
             qi.Cost = Owner.loyalty.isFaction ? 0 : cost;
             qi.isRefit = true;
             //Added by McShooterz: refit keeps name and level

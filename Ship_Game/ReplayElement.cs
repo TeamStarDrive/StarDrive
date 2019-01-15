@@ -116,7 +116,7 @@ namespace Ship_Game
                 starPos.X = starPos.X + (MapRect.Width / 2);        //Correction for negative map values -Gretman
                 starPos.Y = starPos.Y + (MapRect.Height / 2);
                 Rectangle StarRect = new Rectangle((int)starPos.X - 3, (int)starPos.Y - 3, 6, 6);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Suns/", star.SunPath)), StarRect, Color.White);
+				ScreenManager.SpriteBatch.Draw(star.SunTexture, StarRect, Color.White);
 			}
 			string date = StarDate.StarDateString();
 			foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> shotdict in StatTracker.SnapshotsDict)

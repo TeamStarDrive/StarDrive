@@ -135,18 +135,16 @@ namespace Ship_Game
             moneyRect = new Rectangle(popRect.X - 70, popRect.Y, 22, 22);
             var moneyCursor = new Vector2((float)moneyRect.X + 24, cursor.Y);
 
-            float netIncomePI = p.Money.GrossIncome - p.GrossUpkeep;
-
             if (p.Owner == EmpireManager.Player)
             {
-                string sNetIncome = netIncomePI.ToString("F2");
-                batch.DrawString(Fonts.Arial12Bold, sNetIncome, moneyCursor, netIncomePI > 0.0 ? Color.LightGreen : Color.Salmon);
+                string sNetIncome = p.Money.NetRevenue.String(2);
+                batch.DrawString(Fonts.Arial12Bold, sNetIncome, moneyCursor, p.Money.NetRevenue > 0.0 ? Color.LightGreen : Color.Salmon);
                 batch.Draw(ResourceManager.Texture("UI/icon_money_22"), moneyRect, Color.White);
             }
 
             PlanetTypeRichness = p.LocalizedRichness;
             PlanetTypeCursor = new Vector2(PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f, PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            batch.Draw(ResourceManager.Texture($"Planets/{p.PlanetType}"), PlanetIconRect, Color.White);
+            batch.Draw(p.PlanetTexture, PlanetIconRect, Color.White);
             batch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
             p.UpdateIncomes(false);
 
@@ -216,7 +214,7 @@ namespace Ship_Game
                 new Vector2(
                     PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f,
                     PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Planets/"+p.PlanetType), PlanetIconRect,
+            ScreenManager.SpriteBatch.Draw(p.PlanetTexture, PlanetIconRect,
                 Color.White);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
             Rectangle fIcon = new Rectangle(240,

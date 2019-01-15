@@ -371,7 +371,7 @@ namespace Ship_Game
             transitionElapsedTime = 0.0f;
             CamDestination.X = CamPos.X;
             CamDestination.Y = CamPos.Y;
-            CamDestination.Z = 4200000f * GameScaleStatic;
+            CamDestination.Z = 4200000f * GameScale;
         }
 
         private void DefaultZoomPoints()

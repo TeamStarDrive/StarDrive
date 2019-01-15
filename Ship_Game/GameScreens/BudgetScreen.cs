@@ -32,124 +32,144 @@ namespace Ship_Game.GameScreens
             batch.Begin();
             Window.Draw(batch);
             string title     = Localizer.Token(310);
-            SpriteFont arial12Bold     = Fonts.Arial12Bold;
-            Vector2 cursor   = new Vector2(Window.Menu.X + Window.Menu.Width / 2 - arial12Bold.MeasureString(title).X / 2f, Window.Menu.Y + 20);
-            batch.DrawString(arial12Bold, title, cursor, Color.White);
+            SpriteFont font = Fonts.Arial12Bold;
+            float lineSpacing = font.LineSpacing;
+
+            var cursor = new Vector2(Window.Menu.CenterTextX(title), Window.Menu.Y + 20);
+            batch.DrawString(font, title, cursor, Color.White);
+            cursor.Y += lineSpacing + 2;
+
             batch.FillRectangle(TaxRateRect, new Color(17, 21, 28));
             batch.FillRectangle(IncomesRect, new Color(18, 29, 29));
             batch.FillRectangle(TradeRect, new Color(30, 26, 19));
             batch.FillRectangle(CostRect, new Color(27, 22, 25));
-            cursor.Y         = cursor.Y + arial12Bold.LineSpacing * 2;
-            cursor.X         = Window.Menu.X + 30;
-            TaxSlider.UpdatePosition(cursor, 313, 12, string.Concat(Localizer.Token(311), " : "));
+
+            float aX = Window.Menu.X + 30; // Left column
+            float bX = aX + 150f;          // Right column
+            float y  = cursor.Y;
+            Vector2 ColumnA() => new Vector2(aX, y);
+            Vector2 ColumnB() => new Vector2(bX, y);
+
             TaxSlider.amount = EmpireManager.Player.data.TaxRate;
-            TaxSlider.DrawPct(ScreenManager);
+            TaxSlider.Draw(batch, aX, y, 313, 12, Localizer.Token(311)+" : ");
+            y += lineSpacing * 2;
 
-            //treasury Slider
-            cursor.Y            = cursor.Y + arial12Bold.LineSpacing * 2;
-            cursor.X            = Window.Menu.X + 30;
-            TreasuryGoal.UpdatePosition(cursor, 313, 12, $"Auto Tax Treasury Goal : {(int)(100 * EmpireManager.Player.GrossPlanetIncomes * TreasuryGoal.amount)}");
+            // treasury Slider
             TreasuryGoal.amount = EmpireManager.Player.data.treasuryGoal;
-            TreasuryGoal.DrawPct(ScreenManager);
+            string tGoal = $"Auto Tax Treasury Goal : {(int)(100 * EmpireManager.Player.NetPlanetIncomes * TreasuryGoal.amount)}";
+            TreasuryGoal.Draw(batch, aX, y, 313, 12, tGoal);
 
-            cursor                          = new Vector2(IncomesRect.X + 10, IncomesRect.Y + 8);
-            string token312 = Localizer.Token(312);
-            string token313 = Localizer.Token(313);
-            string token314 = Localizer.Token(314);
-            string token315 = Localizer.Token(315);
-            string token316 = Localizer.Token(316);
-            string token317 = Localizer.Token(317);
-            string token320 = Localizer.Token(320);
-            string token321 = Localizer.Token(321);
-            string token322 = Localizer.Token(322);
-            string token323 = Localizer.Token(323);
-            string token324 = Localizer.Token(324);
-            string token325 = Localizer.Token(325);            
 
-            HelperFunctions.DrawDropShadowText(ScreenManager, token312, cursor, arial12Bold);
-            cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
-            Vector2 columnB                 = cursor;
-            columnB.X                       = cursor.X + 150f;             
-            float incomes = Screen.player.GetPlanetIncomes();            
-            batch.DrawString(arial12Bold, $"{ token313}: ", cursor, Color.White);
-            columnB.X                       = columnB.X + 150f - arial12Bold.MeasureString(incomes.ToString("#.0")).X;
-            batch.DrawString(arial12Bold, incomes.ToString("#.0"), columnB, Color.White);
+            string titleIncomes        = Localizer.Token(312);
+            string titlePlanetaryTaxes = Localizer.Token(313);
+            string titleTotal          = Localizer.Token(314);
+            string titleCosts          = Localizer.Token(315);
+            string titleBuildingMaint  = Localizer.Token(316);
+            string titleShipMaint      = Localizer.Token(317);
+            string titleTotal2         = Localizer.Token(320);
+            string titleTrade          = Localizer.Token(321);
+            string titleMercantilism   = Localizer.Token(322);
+            string titleTradeTreaties  = Localizer.Token(323);
+            string titleNetGain        = Localizer.Token(324);
+            string titleNetLoss        = Localizer.Token(325);            
 
-            cursor.Y                        = cursor.Y + arial12Bold.LineSpacing;
+            cursor = new Vector2(IncomesRect.X + 10, IncomesRect.Y + 8);
+            HelperFunctions.DrawDropShadowText(ScreenManager, titleIncomes, cursor, font);
+            cursor.Y += (lineSpacing + 2);
+
+
+            Vector2 columnB = cursor;
+            columnB.X += 150f;
+            
+            float incomes = Screen.player.NetPlanetIncomes;      
+            float flatMoney = EmpireManager.Player.data.FlatMoneyBonus;
+
+            string strIncomes   = incomes.String(2);
+            string strFlatMoney = flatMoney.String(2);
+
+            batch.DrawString(font, $"{titlePlanetaryTaxes}: ", cursor, Color.White);
+
+
+            columnB.X -= font.MeasureString(incomes.String()).X;
+            batch.DrawString(font, incomes.String(), columnB, Color.White);
+            cursor.Y += lineSpacing;
+
+            columnB = cursor;
+            columnB.X = cursor.X + 150f;
+            batch.DrawString(font, "Bonus: ", cursor, Color.White);
+            columnB.X -= font.MeasureString(flatMoney.String()).X;
+            batch.DrawString(font, flatMoney.String(), columnB, Color.White);
+
+            float totalIncome = Screen.player.NetIncome();
+            cursor.Y += lineSpacing * 2;
+
+            cursor = new Vector2(IncomesRect.X + IncomesRect.Width - 75, IncomesRect.Y + IncomesRect.Height - lineSpacing - 5);            
+            batch.DrawString(font, $"{titleTotal}: {totalIncome:0.00}", cursor, Color.White);
+
+            cursor = new Vector2(CostRect.X + 10, CostRect.Y + 8);
+            HelperFunctions.DrawDropShadowText(ScreenManager, titleCosts, cursor, font);
+
+
+            cursor.Y += (lineSpacing + 2);
             columnB                         = cursor;
             columnB.X                       = cursor.X + 150f;
-            float flatMoney                 = EmpireManager.Player.data.FlatMoneyBonus;
-            batch.DrawString(arial12Bold, "Bonus: ", cursor, Color.White);
-            columnB.X                       = columnB.X - arial12Bold.MeasureString(flatMoney.ToString("#.0")).X;
-            batch.DrawString(arial12Bold, flatMoney.ToString("#.0"), columnB, Color.White);
-            incomes                         = incomes + flatMoney;
-            cursor.Y                        = cursor.Y + arial12Bold.LineSpacing;
-            cursor.Y                        = cursor.Y + arial12Bold.LineSpacing;
-            cursor                          = new Vector2(IncomesRect.X + IncomesRect.Width - 75, IncomesRect.Y + IncomesRect.Height - arial12Bold.LineSpacing - 5);            
-            batch.DrawString(arial12Bold, $"{token314}: {incomes:#.0}", cursor, Color.White);
-            cursor                          = new Vector2(CostRect.X + 10, CostRect.Y + 8);
             
-            HelperFunctions.DrawDropShadowText(ScreenManager, token315, cursor, arial12Bold);
-            cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
-            columnB                         = cursor;
-            columnB.X                       = cursor.X + 150f;
+            batch.DrawString(font, $"{titleBuildingMaint}: ", cursor, Color.White);            
             
-            batch.DrawString(arial12Bold, $"{token316}: ", cursor, Color.White);            
-            
-            float totalBuildingMaintenance  = EmpireManager.Player.GetTotalBuildingMaintenance();
-            columnB.X                       = columnB.X - arial12Bold.MeasureString(totalBuildingMaintenance.ToString("#.0")).X;
+            float totalBuildingMaintenance  = EmpireManager.Player.TotalBuildingMaintenance;
+            columnB.X                       = columnB.X - font.MeasureString(totalBuildingMaintenance.ToString("#.0")).X;
                         
-            batch.DrawString(arial12Bold, totalBuildingMaintenance.ToString("#.0"), columnB, Color.White);
-            cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
+            batch.DrawString(font, totalBuildingMaintenance.String(), columnB, Color.White);
+            cursor.Y                        = cursor.Y + (font.LineSpacing + 2);
             columnB                         = cursor;
             columnB.X                       = cursor.X + 150f;
             
-            batch.DrawString(arial12Bold, $"{token317}: ", cursor, Color.White);
+            batch.DrawString(font, $"{titleShipMaint}: ", cursor, Color.White);
             
-            float totalShipMaintenance      = EmpireManager.Player.GetTotalShipMaintenance();
-            columnB.X                       = columnB.X - arial12Bold.MeasureString(totalShipMaintenance.ToString("#.0")).X;            
+            float totalShipMaintenance      = EmpireManager.Player.TotalShipMaintenance;
+            columnB.X                       = columnB.X - font.MeasureString(totalShipMaintenance.ToString("#.0")).X;            
             
-            batch.DrawString(arial12Bold, totalShipMaintenance.ToString("#.0"), columnB, Color.White);
-            cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
-            cursor                          = new Vector2(CostRect.X + CostRect.Width - 75, CostRect.Y + CostRect.Height - arial12Bold.LineSpacing - 5);                        
+            batch.DrawString(font, totalShipMaintenance.String(), columnB, Color.White);
+            cursor.Y                        = cursor.Y + (font.LineSpacing + 2);
+            cursor                          = new Vector2(CostRect.X + CostRect.Width - 75, CostRect.Y + CostRect.Height - font.LineSpacing - 5);                        
             
             float totalBuildingMaintenance1 = totalBuildingMaintenance + totalShipMaintenance;
-            batch.DrawString(arial12Bold, $"{token320}: {totalBuildingMaintenance1:#.0}", cursor, Color.White);            
+            batch.DrawString(font, $"{titleTotal2}: {totalBuildingMaintenance1:#.0}", cursor, Color.White);            
             cursor                          = new Vector2(TradeRect.X + 10, TradeRect.Y + 8);
             
-            HelperFunctions.DrawDropShadowText(ScreenManager, token321, cursor, arial12Bold);
-            cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
+            HelperFunctions.DrawDropShadowText(ScreenManager, titleTrade, cursor, font);
+            cursor.Y                        = cursor.Y + (font.LineSpacing + 2);
             columnB                         = cursor;
             columnB.X                       = cursor.X + 150f;
             
-            batch.DrawString(arial12Bold, $"{token322}: ", cursor, Color.White);                      
+            batch.DrawString(font, $"{titleMercantilism}: ", cursor, Color.White);                      
             int averageTradeIncome          = EmpireManager.Player.GetAverageTradeIncome();
-            columnB.X                       = columnB.X - arial12Bold.MeasureString(averageTradeIncome.ToString("#.0")).X;
+            columnB.X                       = columnB.X - font.MeasureString(averageTradeIncome.ToString("#.0")).X;
             SpriteBatch spriteBatch3        = batch;            
             
-            spriteBatch3.DrawString(arial12Bold, averageTradeIncome.ToString("#.0"), columnB, Color.White);
-            cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
+            spriteBatch3.DrawString(font, averageTradeIncome.ToString("#.0"), columnB, Color.White);
+            cursor.Y                        = cursor.Y + (font.LineSpacing + 2);
             
-            batch.DrawString(arial12Bold, $"{token323}: ", cursor, Color.White);
-            cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
+            batch.DrawString(font, $"{titleTradeTreaties}: ", cursor, Color.White);
+            cursor.Y                        = cursor.Y + (font.LineSpacing + 2);
             cursor.X                        = cursor.X + 5f;
-            float totalTradeIncome          = DrawTotalTradeIncome(arial12Bold, ref cursor, ref columnB);
+            float totalTradeIncome          = DrawTotalTradeIncome(font, ref cursor, ref columnB);
 
             totalTradeIncome                = totalTradeIncome + EmpireManager.Player.GetAverageTradeIncome();
-            cursor                          = new Vector2(TradeRect.X + TradeRect.Width - 75, TradeRect.Y + TradeRect.Height - arial12Bold.LineSpacing - 5);
-            batch.DrawString(arial12Bold, $"{Localizer.Token(320)}: {totalTradeIncome:#.0}", cursor, Color.White);
+            cursor                          = new Vector2(TradeRect.X + TradeRect.Width - 75, TradeRect.Y + TradeRect.Height - font.LineSpacing - 5);
+            batch.DrawString(font, $"{Localizer.Token(320)}: {totalTradeIncome:#.0}", cursor, Color.White);
             cursor                          = new Vector2(Window.Menu.X + Window.Menu.Width - 170, Window.Menu.Y + Window.Menu.Height - 47);
             float net                       = Screen.player.EstimateIncomeAtTaxRate(Screen.player.data.TaxRate);
             string words;
 
             if (net <= 0f)
             {
-                words = $"{token325}: {net:#.0}";
+                words = $"{titleNetLoss}: {net:#.0}";
                 HelperFunctions.DrawDropShadowText(ScreenManager, words, cursor, Fonts.Arial20Bold);
             }
             else
             {
-                words = $"{token324} : {net:#.0}";
+                words = $"{titleNetGain} : {net:#.0}";
                 HelperFunctions.DrawDropShadowText(ScreenManager, words, cursor, Fonts.Arial20Bold);
             }
             base.Draw(batch);

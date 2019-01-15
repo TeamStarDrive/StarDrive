@@ -57,11 +57,17 @@ namespace Ship_Game
 
     public class SolarSystemBody : Explorable
     {
+        public PlanetType Type;
+        public SubTexture PlanetTexture => ResourceManager.Texture(Type.IconPath);
+        public PlanetCategory Category => Type.Category;
+        public bool IsBarrenType => Type.Category == PlanetCategory.Barren;
+        public string IconPath => Type.IconPath;
+        public bool Habitable => Type.Habitable;
+
         public SBProduction SbProduction;
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
-        public BatchRemovalCollection<Ship> BasedShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
         protected readonly Array<Building> BuildingsCanBuild = new Array<Building>();
         public BatchRemovalCollection<QueueItem> ConstructionQueue => SbProduction.ConstructionQueue;
@@ -75,7 +81,6 @@ namespace Ship_Game
         public Vector2 Center;
         public SolarSystem ParentSystem;
         public Matrix CloudMatrix;
-        public bool HasEarthLikeClouds;
         public string SpecialDescription;
         public bool HasShipyard; // This is terribly named. This should be 'HasStarPort'
         public string Name;
@@ -83,14 +88,11 @@ namespace Ship_Game
         public Empire Owner;
         public float OrbitalAngle;
         public float OrbitalRadius;
-        public int PlanetType;
         public bool HasRings;
         public float PlanetTilt;
         public float RingTilt;
         public float Scale;
         public Matrix World;
-        public bool Habitable;
-        public string PlanetComposition;
         protected float Zrotate;
         public bool UniqueHab = false;
         public int UniqueHabPercent;
@@ -99,7 +101,6 @@ namespace Ship_Game
         protected float InvisibleRadius;
         public float GravityWellRadius { get; protected set; }
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
-        protected float HabitalTileChance = 10;        
         public float Density;
         public float Fertility { get; protected set; }
         public float MaxFertility { get; protected set; }
@@ -131,70 +132,71 @@ namespace Ship_Game
         public Array<Building> GetBuildingsCanBuild () { return BuildingsCanBuild; }
 
 
-
-
         protected void SetTileHabitability(float habChance)
         {
+            if (UniqueHab)
             {
-                if (UniqueHab)
+                habChance = UniqueHabPercent;
+            }
+            for (int x = 0; x < 7; ++x)
+            {
+                for (int y = 0; y < 5; ++y)
                 {
-                    habChance = UniqueHabPercent;
-                }
-                bool habitable = false;
-                for (int x = 0; x < 7; ++x)
-                {
-                    for (int y = 0; y < 5; ++y)
-                    {
-                        if (habChance > 0)
-                            habitable = RandomMath.RandomBetween(0, 100) < habChance;
-
-                        TilesList.Add(new PlanetGridSquare(x, y, null, habitable));
-                    }
+                    bool habitable = habChance > 0 && RandomMath.RandomBetween(0, 100) < habChance;
+                    TilesList.Add(new PlanetGridSquare(x, y, null, habitable));
                 }
             }
         }
 
         protected void AddTileEvents()
         {
-            if (RandomMath.RandomBetween(0.0f, 100f) <= 15 && Habitable)
+            if (Habitable && RandomMath.RandomBetween(0.0f, 100f) <= 15)
             {
-                Array<string> list = new Array<string>();
+                var buildingIds = new Array<int>();
                 foreach (var kv in ResourceManager.BuildingsDict)
                 {
-                    if (!string.IsNullOrEmpty(kv.Value.EventTriggerUID) && !kv.Value.NoRandomSpawn)
-                        list.Add(kv.Key);
+                    if (!kv.Value.NoRandomSpawn && kv.Value.EventTriggerUID.NotEmpty())
+                        buildingIds.Add(kv.Value.BID);
                 }
-                int index = (int)RandomMath.RandomBetween(0f, list.Count + 0.85f);
-                if (index >= list.Count)
-                    index = list.Count - 1;
-                PlanetGridSquare b = ResourceManager.CreateBuilding(list[index]).AssignBuildingToRandomTile(this);
-                BuildingList.Add(b.building);
-                Log.Info($"Event building : {b.building.Name} : created on {Name}");
+
+                int building = RandomMath.RandItem(buildingIds);
+                PlanetGridSquare pgs = ResourceManager.CreateBuilding(building).AssignBuildingToRandomTile(this);
+                BuildingList.Add(pgs.building);
+                Log.Info($"Event building : {pgs.building.Name} : created on {Name}");
             }
         }
+
         public void SpawnRandomItem(RandomItem randItem, float chance, float instanceMax)
         {
-            if ((GlobalStats.HardcoreRuleset || !randItem.HardCoreOnly) && RandomMath.RandomBetween(0.0f, 100f) < chance)
+            if (randItem.HardCoreOnly && !GlobalStats.HardcoreRuleset)
+                return; // hardcore is disabled, bail
+
+            if (RandomMath.RandomBetween(0.0f, 100f) < chance)
             {
+                Building template = ResourceManager.GetBuildingTemplate(randItem.BuildingID);
+                if (template == null)
+                    return;
                 int itemCount = (int)RandomMath.RandomBetween(1f, instanceMax + 0.95f);
                 for (int i = 0; i < itemCount; ++i)
                 {
-                    if (!ResourceManager.BuildingsDict.ContainsKey(randItem.BuildingID)) continue;
-                    var pgs = ResourceManager.CreateBuilding(randItem.BuildingID).AssignBuildingToRandomTile(this);
+                    PlanetGridSquare pgs = ResourceManager.CreateBuilding(template).AssignBuildingToRandomTile(this);
                     pgs.Habitable = true;
-                    Log.Info($"Resource Created : '{pgs.building.Name}' : on '{Name}' ");
                     BuildingList.Add(pgs.building);
+                    Log.Info($"Resource Created : '{pgs.building.Name}' : on '{Name}' ");
                 }
             }
         }
-        
-        public string GetRichness()
+
+        public string RichnessText
         {
-            if (MineralRichness > 2.5)  return Localizer.Token(1442);
-            if (MineralRichness > 1.5)  return Localizer.Token(1443);
-            if (MineralRichness > 0.75) return Localizer.Token(1444);
-            if (MineralRichness > 0.25) return Localizer.Token(1445);
-            return Localizer.Token(1446);
+            get
+            {
+                if (MineralRichness > 2.5) return Localizer.Token(1442);
+                if (MineralRichness > 1.5) return Localizer.Token(1443);
+                if (MineralRichness > 0.75) return Localizer.Token(1444);
+                if (MineralRichness > 0.25) return Localizer.Token(1445);
+                return Localizer.Token(1446);
+            }
         }
 
         public string GetOwnerName()
@@ -230,15 +232,19 @@ namespace Ship_Game
             if (ParentSystem.isVisible)
             {
                 Zrotate += ZrotateAmount * elapsedTime;
-                SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(Scale) *
-                           Matrix.CreateRotationZ(-Zrotate) * Matrix.CreateRotationX(-45f.ToRadians()) *
-                           Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                CloudMatrix = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(Scale) *
-                              Matrix.CreateRotationZ((float) (-Zrotate / 1.5)) *
-                              Matrix.CreateRotationX(-45f.ToRadians()) *
-                              Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                RingWorld = Matrix.Identity * Matrix.CreateRotationX(RingTilt.ToRadians()) *
-                            Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                SO.World = Matrix.CreateScale(3f)
+                         * Matrix.CreateScale(Scale)
+                         * Matrix.CreateRotationZ(-Zrotate)
+                         * Matrix.CreateRotationX(-45f.ToRadians())
+                         * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                CloudMatrix = Matrix.CreateScale(3f)
+                            * Matrix.CreateScale(Scale)
+                            * Matrix.CreateRotationZ(-Zrotate / 1.5f)
+                            * Matrix.CreateRotationX(-45f.ToRadians())
+                            * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                RingWorld = Matrix.CreateRotationX(RingTilt.ToRadians())
+                          * Matrix.CreateScale(5f)
+                          * Matrix.CreateTranslation(new Vector3(Center, 2500f));
                 SO.Visibility = ObjectVisibility.Rendered;
             }
             else
@@ -249,14 +255,13 @@ namespace Ship_Game
         {
             if (SO != null)
                 screen?.RemoveObject(SO);
-            var contentManager =  ResourceManager.RootContent;
-            SO = ResourceManager.GetPlanetarySceneMesh(contentManager, "Model/SpaceObjects/planet_" + PlanetType);
+            SO = ResourceManager.GetPlanetarySceneMesh(ResourceManager.RootContent, Type.MeshPath);
             SO.World = Matrix.CreateScale(Scale * 3)
-                       * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                     * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 
             RingWorld = Matrix.CreateRotationX(RingTilt.ToRadians())
-                        * Matrix.CreateScale(5f)
-                        * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                      * Matrix.CreateScale(5f)
+                      * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 
             screen?.AddObject(SO);
         }
@@ -269,253 +274,85 @@ namespace Ship_Game
             }
             else
             {
-                Description = "";
-                var planet1 = this;
-                string str1 = planet1.Description + Name + " " + PlanetComposition + ". ";
-                planet1.Description = str1;
+                Description = Name + " " + Type.Composition.Text + ". ";
                 if (MaxFertility > 2)
                 {
-                    if (PlanetType == 21)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1729);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 13 || PlanetType == 22)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1730);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1731);
-                        planet2.Description = str2;
-                    }
+                    if      (Type.Id == 21) Description += Localizer.Token(1729);
+                    else if (Type.Id == 13
+                          || Type.Id == 22) Description += Localizer.Token(1730);
+                    else                    Description += Localizer.Token(1731);
                 }
                 else if (MaxFertility > 1)
                 {
-                    if (PlanetType == 19)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1732);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 21)
-                        Description += Localizer.Token(1733);
-                    else if (PlanetType == 13 || PlanetType == 22)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1734);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1735);
-                        planet2.Description = str2;
-                    }
+                    if      (Type.Id == 19) Description += Localizer.Token(1732);
+                    else if (Type.Id == 21) Description += Localizer.Token(1733);
+                    else if (Type.Id == 13
+                          || Type.Id == 22) Description += Localizer.Token(1734);
+                    else                       Description += Localizer.Token(1735);
                 }
                 else if (MaxFertility > 0.6f)
                 {
-                    if (PlanetType == 14)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1736);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 21)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1737);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 17)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1738);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 19)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1739);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 18)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1740);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 11)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1741);
-                        planet2.Description = str2;
-                    }
-                    else if (PlanetType == 13 || PlanetType == 22)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1742);
-                        planet2.Description = str2;
-                    }
-                    else
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Localizer.Token(1743);
-                        planet2.Description = str2;
-                    }
+                    if      (Type.Id == 14) Description += Localizer.Token(1736);
+                    else if (Type.Id == 21) Description += Localizer.Token(1737);
+                    else if (Type.Id == 17) Description += Localizer.Token(1738);
+                    else if (Type.Id == 19) Description += Localizer.Token(1739);
+                    else if (Type.Id == 18) Description += Localizer.Token(1740);
+                    else if (Type.Id == 11) Description += Localizer.Token(1741);
+                    else if (Type.Id == 13 
+                          || Type.Id == 22) Description += Localizer.Token(1742);
+                    else                       Description += Localizer.Token(1743);
                 }
                 else
                 {
-                    switch (PlanetType) {
+                    switch (Type.Id) {
                         case 9:
-                        case 23:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1744);
-                            planet2.Description = str2;
-                            break;
-                        }
+                        case 23: Description += Localizer.Token(1744); break;
                         case 20:
-                        case 15:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1745);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 17:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1746);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 18:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1747);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 11:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1748);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 14:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1749);
-                            planet2.Description = str2;
-                            break;
-                        }
+                        case 15: Description += Localizer.Token(1745); break;
+                        case 17: Description += Localizer.Token(1746); break;
+                        case 18: Description += Localizer.Token(1747); break;
+                        case 11: Description += Localizer.Token(1748); break;
+                        case 14: Description += Localizer.Token(1749); break;
                         case 2:
                         case 6:
-                        case 10:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1750);
-                            planet2.Description = str2;
-                            break;
-                        }
+                        case 10: Description += Localizer.Token(1750); break;
                         case 3:
                         case 4:
-                        case 16:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1751);
-                            planet2.Description = str2;
-                            break;
-                        }
-                        case 1:
-                        {
-                            var planet2 = this;
-                            string str2 = planet2.Description + Localizer.Token(1752);
-                            planet2.Description = str2;
-                            break;
-                        }
+                        case 16: Description += Localizer.Token(1751); break;
+                        case 1:  Description += Localizer.Token(1752); break;
                         default:
                             if (Habitable)
-                            {
-                                var planet2 = this;
-                                string str2 = planet2.Description ?? "";
-                                planet2.Description = str2;
-                            }
+                                Description = Description ?? "";
                             else
-                            {
-                                var planet2 = this;
-                                string str2 = planet2.Description + Localizer.Token(1753);
-                                planet2.Description = str2;
-                            }
+                                Description += Localizer.Token(1753);
                             break;
                     }
                 }
                 if (MaxFertility < 0.6f && MineralRichness >= 2 && Habitable)
                 {
-                    var planet2 = this;
-                    string str2 = planet2.Description + Localizer.Token(1754);
-                    planet2.Description = str2;
-                    if (MineralRichness > 3)
-                    {
-                        var planet3 = this;
-                        string str3 = planet3.Description + Localizer.Token(1755);
-                        planet3.Description = str3;
-                    }
-                    else if (MineralRichness >= 2)
-                    {
-                        var planet3 = this;
-                        string str3 = planet3.Description + Localizer.Token(1756);
-                        planet3.Description = str3;
-                    }
-                    else
-                    {
-                        if (MineralRichness < 1)
-                            return;
-                        var planet3 = this;
-                        string str3 = planet3.Description + Localizer.Token(1757);
-                        planet3.Description = str3;
-                    }
+                    Description += Localizer.Token(1754);
+                    if      (MineralRichness > 3)  Description += Localizer.Token(1755);
+                    else if (MineralRichness >= 2) Description += Localizer.Token(1756);
+                    else if (MineralRichness >= 1) Description += Localizer.Token(1757);
                 }
                 else if (MineralRichness > 3 && Habitable)
                 {
-                    var planet2 = this;
-                    string str2 = planet2.Description + Localizer.Token(1758);
-                    planet2.Description = str2;
+                    Description += Localizer.Token(1758);
                 }
                 else if (MineralRichness >= 2 && Habitable)
                 {
-                    var planet2 = this;
-                    string str2 = planet2.Description + Name + Localizer.Token(1759);
-                    planet2.Description = str2;
+                    Description += Name + Localizer.Token(1759);
                 }
                 else if (MineralRichness >= 1 && Habitable)
                 {
-                    var planet2 = this;
-                    string str2 = planet2.Description + Name + Localizer.Token(1760);
-                    planet2.Description = str2;
+                    Description += Name + Localizer.Token(1760);
                 }
-                else
+                else if (MineralRichness < 1 && Habitable)
                 {
-                    if (MineralRichness >= 1 || !Habitable)
-                        return;
-                    if (PlanetType == 14)
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Name + Localizer.Token(1761);
-                        planet2.Description = str2;
-                    }
+                    if (Type.Id == 14)
+                        Description += Name + Localizer.Token(1761);
                     else
-                    {
-                        var planet2 = this;
-                        string str2 = planet2.Description + Name + Localizer.Token(1762);
-                        planet2.Description = str2;
-                    }
+                        Description += Name + Localizer.Token(1762);
                 }
             }
         }
@@ -634,11 +471,6 @@ namespace Ship_Game
                 };
                 ParentSystem.MoonList.Add(moon);
             }
-        }
-
-        public void AddBasedShip(Ship ship)
-        {
-            BasedShips.Add(ship);
         }
     }
 }
