@@ -130,6 +130,14 @@ namespace Ship_Game
         {
             WriteToLog(message);
             if (!HasDebugger) return;
+            WriteToConsole(color, message);
+        }
+        
+        // Always write a neutral message to both log file and console
+        public static void Write(string message)
+        {
+            WriteToLog(message);
+            if (!HasDebugger) return;
             WriteToConsole(DefaultColor, message);
         }
 
