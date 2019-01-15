@@ -199,28 +199,45 @@ namespace Ship_Game.Universe.SolarBodies
         protected override float AvgResourceConsumption() => 4.0f; // This is a good MINIMUM research value for estimation
     }
 
-    public class ColonyMoney : ColonyResource
+    public class ColonyMoney
     {
-        public ColonyMoney(Planet planet) : base(planet)
-        {
-        }
+        readonly Planet Planet;
+        
+        // The current tax rate applied by empire tax rate and planet tax rate modifiers
+        public float TaxRate { get; private set; }
 
-        protected override void RecalculateModifiers()
+        // revenue before maintenance is deducted
+        public float GrossRevenue { get; private set; }
+
+        // maintenance costs from all buildings, with maintenance multiplier applied
+        public float Maintenance { get; private set; }
+
+        // revenue after maintenance was deducted
+        public float NetRevenue { get; private set; }
+
+        public ColonyMoney(Planet planet) { Planet = planet; }
+
+        public void Update()
         {
+            // Base tax rate comes from current empire tax %
+            TaxRate = Planet.Owner.data.TaxRate;
+
+            Maintenance = 0f;
             float incomePerColonist = 1f;
-            float taxPerColonist = Planet.Owner.data.Traits.TaxMod;
+            float taxRateMultiplier = 1f + Planet.Owner.data.Traits.TaxMod;
             foreach (Building b in Planet.BuildingList)
             {
                 incomePerColonist += b.CreditsPerColonist;
-                taxPerColonist    += b.PlusTaxPercentage;
+                taxRateMultiplier += b.PlusTaxPercentage;
+                Maintenance += b.Maintenance;
             }
 
-            // the yield we get from this colony is the tax rate
-            YieldPerColonist = incomePerColonist * taxPerColonist;
-            Percent = 1f; // everyone pays taxes! no exemptions! no corruption! :D
-
-            // And finally the actual tax rate comes from current empire tax %
-            Tax = Planet.Owner.data.TaxRate;
+            // And finally we adjust local TaxRate by the bonus multiplier
+            TaxRate *= taxRateMultiplier;
+            Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
+            
+            GrossRevenue = Planet.PopulationBillion * incomePerColonist * TaxRate;
+            NetRevenue   = GrossRevenue - Maintenance;
         }
     }
 }

@@ -370,9 +370,9 @@ namespace Ship_Game
             string nIncome = Localizer.Token(6127);
             string nLosses = Localizer.Token(6129);
 
-            float grossIncome = P.Money.GrossIncome;
-            float grossUpkeep = P.GrossUpkeep;
-            float netIncome   = P.Money.NetIncome;
+            float grossIncome = P.Money.GrossRevenue;
+            float grossUpkeep = P.Money.Maintenance;
+            float netIncome   = P.Money.NetRevenue;
 
             Vector2 positionGIncome = vector2_2;
             positionGIncome.X = vector2_2.X + 1;
@@ -382,7 +382,7 @@ namespace Ship_Game
             positionGrossIncome.X = position3.X + 1;
 
             batch.DrawString(Fonts.Arial10, gIncome + ":", positionGIncome, Color.LightGray);
-            batch.DrawString(Fonts.Arial10, grossIncome.ToString("F2") + " BC/Y", positionGrossIncome, Color.LightGray);
+            batch.DrawString(Fonts.Arial10, grossIncome.String(2) + " BC/Y", positionGrossIncome, Color.LightGray);
 
             Vector2 positionGUpkeep = positionGIncome;
             positionGUpkeep.Y = positionGIncome.Y + (Fonts.Arial12.LineSpacing);
@@ -390,7 +390,7 @@ namespace Ship_Game
             positionGrossUpkeep.Y += (Fonts.Arial12.LineSpacing);
 
             batch.DrawString(Fonts.Arial10, gUpkeep + ":", positionGUpkeep, Color.LightGray);
-            batch.DrawString(Fonts.Arial10, grossUpkeep.ToString("F2") + " BC/Y", positionGrossUpkeep, Color.LightGray);
+            batch.DrawString(Fonts.Arial10, grossUpkeep.String(2) + " BC/Y", positionGrossUpkeep, Color.LightGray);
 
             Vector2 positionNIncome = positionGUpkeep;
             positionNIncome.X = positionGUpkeep.X - 1;
@@ -400,7 +400,7 @@ namespace Ship_Game
             positionNetIncome.Y = positionGrossUpkeep.Y + (Fonts.Arial12.LineSpacing + 2);
 
             batch.DrawString(Fonts.Arial12, (netIncome > 0.0 ? nIncome : nLosses) + ":", positionNIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
-            batch.DrawString(Font12, netIncome.ToString("F2") + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
+            batch.DrawString(Font12, netIncome.String(2) + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
 
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);

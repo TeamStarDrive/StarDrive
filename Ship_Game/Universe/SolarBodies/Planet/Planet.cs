@@ -13,7 +13,6 @@ using System.Linq;
 
 namespace Ship_Game
 {
-
     public partial class Planet : SolarSystemBody, IDisposable
     {
         public enum ColonyType
@@ -78,7 +77,7 @@ namespace Ship_Game
             Food  = new ColonyFood(this)       { Percent = 0.34f };
             Prod  = new ColonyProduction(this) { Percent = 0.33f };
             Res   = new ColonyResearch(this)   { Percent = 0.33f };
-            Money = new ColonyMoney(this)      { Percent = 1f };
+            Money = new ColonyMoney(this);
         }
 
         public Planet()
@@ -626,7 +625,6 @@ namespace Ship_Game
             AllowInfantry = false;
             ShieldStrengthMax = 0f;
             TotalDefensiveStrength = 0;
-            TotalMaintenanceCostsPerTurn = 0f;
             PlusFlatPopulationPerTurn = 0f;
             ShipBuildingModifier = 0f;
 
@@ -678,7 +676,6 @@ namespace Ship_Game
                 if (b.AllowInfantry)
                     AllowInfantry = true;
                 totalStorage += b.StorageAdded;
-                TotalMaintenanceCostsPerTurn += b.Maintenance;
                 RepairPerTurn += b.ShipRepair;
             }
 
@@ -696,7 +693,7 @@ namespace Ship_Game
             Food.Update(NonCybernetic ? Consumption : 0f);
             Prod.Update(IsCybernetic ? Consumption : 0f);
             Res.Update(0f);
-            Money.Update(GrossUpkeep);
+            Money.Update();
 
             if (Station != null && !loadUniverse)
             {
@@ -821,7 +818,7 @@ namespace Ship_Game
         }
         public TradeAI.DebugSummaryTotal DebugSummarizePlanetStats(Array<string> lines)
         {
-            lines.Add($"Money: {Money.NetIncome}");
+            lines.Add($"Money: {Money.NetRevenue}");
             lines.Add($"Eats: {Consumption}");
             lines.Add($"FoodWkrs: {Food.Percent}");
             lines.Add($"ProdWkrs: {Prod.Percent}  ");

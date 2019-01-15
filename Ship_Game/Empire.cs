@@ -74,7 +74,7 @@ namespace Ship_Game
         public float updateContactsTimer;
         private bool InitialziedHostilesDict;
         public float BuildingAndShipMaint; // This is for info display
-        public float NetPlanetIncomes; // = foreach Planet: p.GrossIncome - p.Maintenance
+        public float NetPlanetIncomes { get; private set; } // = foreach Planet: p.GrossIncome - p.Maintenance
         public float TradeMoneyAddedThisTurn;
         public float MoneyLastTurn;
         public int totalTradeIncome;
@@ -1286,17 +1286,6 @@ namespace Ship_Game
                 FleetUpdateTimer = 5f;
         }
 
-        public float GetPlanetIncomes()
-        {
-            float income = 0.0f;
-            foreach (Planet planet in OwnedPlanets)
-            {
-                planet.UpdateIncomes(false);
-                income += planet.Money.NetIncome;
-            }
-            return income;
-        }
-
         private void DoMoney()
         {
             MoneyLastTurn = Money;
@@ -1321,7 +1310,7 @@ namespace Ship_Game
                 foreach (Planet planet in OwnedPlanets)
                 {
                     planet.UpdateIncomes(false);
-                    NetPlanetIncomes += planet.Money.NetIncome;
+                    NetPlanetIncomes += planet.Money.NetRevenue;
                 }
         }
 
@@ -1343,7 +1332,7 @@ namespace Ship_Game
                 foreach (Planet planet in OwnedPlanets)
                 {
                     planet.UpdateOwnedPlanet();
-                    newBuildM += planet.GrossUpkeep;
+                    newBuildM += planet.Money.Maintenance;
                 }
                 TotalBuildingMaintenance = newBuildM;
             }
