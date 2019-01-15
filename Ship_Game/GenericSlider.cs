@@ -81,41 +81,40 @@ namespace Ship_Game
 			}
 		}
 
-		public void DrawPct(ScreenManager ScreenManager)
+		public void DrawPct(SpriteBatch batch)
 		{
-			SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
 			Vector2 Cursor = new Vector2(ContainerRect.X, ContainerRect.Y);
-			SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
-			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), 
+            batch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
+            batch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), 
                 new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), Color.White);
-			SpriteBatch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
+            batch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
 				tickCursor = new Vector2(rect.X + rect.Width / 10 * i, rect.Y + rect.Height + 2);
 				if (Hover)
 				{
-					SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
 				}
 				else
 				{
-					SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, Color.White);
 				}
 			}
 			Rectangle drawRect = cursor;
 			drawRect.X = drawRect.X - drawRect.Width / 2;
 			if (Hover)
 			{
-				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), drawRect, Color.White);
+                batch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), drawRect, Color.White);
 			}
 			else
 			{
-				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), drawRect, Color.White);
+                batch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), drawRect, Color.White);
 			}
 			Vector2 textPos = new Vector2(rect.X + rect.Width + 8, rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			int num = (int)(amount * 100f);
-			SpriteBatch.DrawString(arial12Bold, string.Concat(num.ToString(), "%"), textPos, new Color(255, 239, 208));
+            batch.DrawString(arial12Bold, string.Concat(num.ToString(), "%"), textPos, new Color(255, 239, 208));
 			if (Hover && Tip_ID != 0)
 			{
 				ToolTip.CreateTooltip(Tip_ID);
@@ -171,5 +170,11 @@ namespace Ship_Game
 			rect = new Rectangle(ContainerRect.X, ContainerRect.Y + 20, ContainerRect.Width - 30, 6);
 			cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
 		}
+
+        public void Draw(SpriteBatch batch, float x, float y, int width, int height, string text)
+        {
+            UpdatePosition(new Vector2(x,y), width, height, text);
+            DrawPct(batch);
+        }
 	}
 }

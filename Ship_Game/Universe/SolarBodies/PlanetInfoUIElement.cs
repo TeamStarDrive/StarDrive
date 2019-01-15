@@ -135,12 +135,10 @@ namespace Ship_Game
             moneyRect = new Rectangle(popRect.X - 70, popRect.Y, 22, 22);
             var moneyCursor = new Vector2((float)moneyRect.X + 24, cursor.Y);
 
-            float netIncomePI = p.Money.GrossIncome - p.GrossUpkeep;
-
             if (p.Owner == EmpireManager.Player)
             {
-                string sNetIncome = netIncomePI.ToString("F2");
-                batch.DrawString(Fonts.Arial12Bold, sNetIncome, moneyCursor, netIncomePI > 0.0 ? Color.LightGreen : Color.Salmon);
+                string sNetIncome = p.Money.NetRevenue.String(2);
+                batch.DrawString(Fonts.Arial12Bold, sNetIncome, moneyCursor, p.Money.NetRevenue > 0.0 ? Color.LightGreen : Color.Salmon);
                 batch.Draw(ResourceManager.Texture("UI/icon_money_22"), moneyRect, Color.White);
             }
 
