@@ -21,7 +21,9 @@ namespace Ship_Game
             bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
 
             //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
-            if (colonyType == ColonyType.Research && notResearching)
+            // FB - ignoring this if the owner is the player, or all of his research colonies will build stuff like
+            // deep core mines if he forget to add research
+            if (colonyType == ColonyType.Research && notResearching && !Owner.isPlayer)
                 colonyType = ColonyType.Industrial;
 
             Food.Percent = 0;

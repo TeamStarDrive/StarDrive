@@ -706,10 +706,11 @@ namespace Ship_Game
             for (int i = 0; i < BuildingsCanBuild.Count; i++)
             {
                 //Find the building with the highest score
-                float buildingScore = EvaluateBuilding(BuildingsCanBuild[i], budget, highestCost, popRatio);
+                Building b = BuildingsCanBuild[i];
+                float buildingScore = EvaluateBuilding(b, budget, highestCost, popRatio);
                 if (buildingScore > bestValue)
                 {
-                    best      = BuildingsCanBuild[i];
+                    best      = b;
                     bestValue = buildingScore;
                 }
             }
@@ -735,10 +736,10 @@ namespace Ship_Game
                     continue;
 
                 float highestCost   = BuildingList.FindMax(building => building.Cost).Cost;
-                float buildingScore = EvaluateBuildingScrap(BuildingsCanBuild[i], budget, highestCost, popRatio);
+                float buildingScore = EvaluateBuildingScrap(b, budget, highestCost, popRatio);
                 if (buildingScore < worstValue)
                 {
-                    worst      = BuildingList[i];
+                    worst      = b;
                     worstValue = buildingScore;
                 }
             }
