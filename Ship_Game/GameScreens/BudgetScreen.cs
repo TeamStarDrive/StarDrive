@@ -48,7 +48,7 @@ namespace Ship_Game.GameScreens
             //treasury Slider
             cursor.Y            = cursor.Y + arial12Bold.LineSpacing * 2;
             cursor.X            = Window.Menu.X + 30;
-            TreasuryGoal.UpdatePosition(cursor, 313, 12, $"Auto Tax Treasury Goal : {(int)(100 * EmpireManager.Player.GrossPlanetIncomes * TreasuryGoal.amount)}");
+            TreasuryGoal.UpdatePosition(cursor, 313, 12, $"Auto Tax Treasury Goal : {(int)(100 * EmpireManager.Player.NetPlanetIncomes * TreasuryGoal.amount)}");
             TreasuryGoal.amount = EmpireManager.Player.data.treasuryGoal;
             TreasuryGoal.DrawPct(ScreenManager);
 
@@ -96,20 +96,20 @@ namespace Ship_Game.GameScreens
             
             batch.DrawString(arial12Bold, $"{token316}: ", cursor, Color.White);            
             
-            float totalBuildingMaintenance  = EmpireManager.Player.GetTotalBuildingMaintenance();
+            float totalBuildingMaintenance  = EmpireManager.Player.TotalBuildingMaintenance;
             columnB.X                       = columnB.X - arial12Bold.MeasureString(totalBuildingMaintenance.ToString("#.0")).X;
                         
-            batch.DrawString(arial12Bold, totalBuildingMaintenance.ToString("#.0"), columnB, Color.White);
+            batch.DrawString(arial12Bold, totalBuildingMaintenance.String(), columnB, Color.White);
             cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
             columnB                         = cursor;
             columnB.X                       = cursor.X + 150f;
             
             batch.DrawString(arial12Bold, $"{token317}: ", cursor, Color.White);
             
-            float totalShipMaintenance      = EmpireManager.Player.GetTotalShipMaintenance();
+            float totalShipMaintenance      = EmpireManager.Player.TotalShipMaintenance;
             columnB.X                       = columnB.X - arial12Bold.MeasureString(totalShipMaintenance.ToString("#.0")).X;            
             
-            batch.DrawString(arial12Bold, totalShipMaintenance.ToString("#.0"), columnB, Color.White);
+            batch.DrawString(arial12Bold, totalShipMaintenance.String(), columnB, Color.White);
             cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
             cursor                          = new Vector2(CostRect.X + CostRect.Width - 75, CostRect.Y + CostRect.Height - arial12Bold.LineSpacing - 5);                        
             

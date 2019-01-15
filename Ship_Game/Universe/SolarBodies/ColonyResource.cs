@@ -207,16 +207,20 @@ namespace Ship_Game.Universe.SolarBodies
 
         protected override void RecalculateModifiers()
         {
-            float plusPerColonist = 0f;
-            float plusTaxPercent = Planet.Owner.data.Traits.TaxMod;
+            float incomePerColonist = 1f;
+            float taxPerColonist = Planet.Owner.data.Traits.TaxMod;
             foreach (Building b in Planet.BuildingList)
             {
-                plusPerColonist += b.CreditsPerColonist;
-                plusTaxPercent  += b.PlusTaxPercentage;
+                incomePerColonist += b.CreditsPerColonist;
+                taxPerColonist    += b.PlusTaxPercentage;
             }
-            YieldPerColonist = (1f + plusPerColonist);
-            YieldPerColonist += YieldPerColonist * plusTaxPercent;
-            Percent = 1f;
+
+            // the yield we get from this colony is the tax rate
+            YieldPerColonist = incomePerColonist * taxPerColonist;
+            Percent = 1f; // everyone pays taxes! no exemptions! no corruption! :D
+
+            // And finally the actual tax rate comes from current empire tax %
+            Tax = Planet.Owner.data.TaxRate;
         }
     }
 }

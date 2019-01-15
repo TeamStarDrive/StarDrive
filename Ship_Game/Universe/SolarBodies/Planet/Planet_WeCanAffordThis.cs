@@ -20,18 +20,16 @@ namespace Ship_Game
 
             public Afford(Empire owner, Planet p, Building b)
             {
-                float totalMaint = owner.GetTotalBuildingMaintenance();
-                float grossTaxes = owner.GrossPlanetIncomes;
-
+                float netPlanetMoney = p.Money.NetIncome;
+                float extraMaint = b.Maintenance * owner.data.Traits.MaintMultiplier;
                 foreach (QueueItem q in p.ConstructionQueue)
                 {
-                    if (q.isBuilding) totalMaint += owner.data.Traits.MaintMod * q.Building.Maintenance;
+                    if (q.isBuilding) extraMaint += owner.data.Traits.MaintMultiplier * q.Building.Maintenance;
                 }
-                totalMaint += b.Maintenance + b.Maintenance * owner.data.Traits.MaintMod;
 
-                LowPri = totalMaint / grossTaxes < 0.25f;
-                MedPri = totalMaint / grossTaxes < 0.60f;
-                HighPri = totalMaint / grossTaxes < 0.80f;
+                LowPri = extraMaint / netPlanetMoney < 0.25f;
+                MedPri = extraMaint / netPlanetMoney < 0.60f;
+                HighPri = extraMaint / netPlanetMoney < 0.80f;
                 MakingMoney = (p.Money.NetIncome - b.Maintenance) > 0;
 
                 int defensiveBuildings = p.BuildingList.Count(def => def.SoftAttack > 0 || def.PlanetaryShieldStrengthAdded > 0 || def.TheWeapon != null);

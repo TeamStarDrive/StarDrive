@@ -447,7 +447,7 @@ namespace Ship_Game
 				EspionageBudget = EspionageBudget + r.Value.IntelligenceBudget;
 			}
 			EspionageBudget = EspionageBudget + EmpireManager.Player.data.CounterIntelligenceBudget;
-			plusMoney = plusMoney - (empire.GetTotalBuildingMaintenance() + empire.GetTotalShipMaintenance() + EspionageBudget);
+			plusMoney = plusMoney - (empire.TotalBuildingMaintenance + empire.TotalShipMaintenance + EspionageBudget);
 			float damoney = Empire.Universe.player.EstimateIncomeAtTaxRate(Empire.Universe.player.data.TaxRate);
 			if (damoney <= 0f)
 			{
