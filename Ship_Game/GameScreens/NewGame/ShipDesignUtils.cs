@@ -16,22 +16,13 @@ namespace Ship_Game.GameScreens.NewGame
             if (ResourceManager.Hulls.Count == 0)
                 throw new ResourceManagerFailure("Hulls not loaded yet!");
 
-            progress.Start(0.05f, 0.05f, 0.9f);
-
-            Map<Technology, Array<string>> shipTechs = GetShipTechs(progress.AdvanceStep()); // 2ms
-
-            MarkDefaultUnlockable(shipTechs, progress.AdvanceStep()); // 0ms
-            MarkShipsUnlockable(shipTechs, progress.AdvanceStep()); // 220ms
-
-            Log.Info(ConsoleColor.Blue, $"  --- GetShipTechs          elapsed: {progress[0].ElapsedMillis}ms");
-            Log.Info(ConsoleColor.Blue, $"  --- MarkDefaultUnlockable elapsed: {progress[1].ElapsedMillis}ms");
-            Log.Info(ConsoleColor.Blue, $"  --- MarkShipsUnlockable   elapsed: {progress[2].ElapsedMillis}ms");
+            Map<Technology, Array<string>> shipTechs = GetShipTechs(); // 2ms
+            MarkDefaultUnlockable(shipTechs); // 0ms
+            MarkShipsUnlockable(shipTechs, progress); // 220ms
         }
 
-        static Map<Technology, Array<string>> GetShipTechs(ProgressCounter step)
+        static Map<Technology, Array<string>> GetShipTechs()
         {
-            step.Start(ResourceManager.TechTree.Count);
-
             var shipTechs = new Map<Technology, Array<string>>();
             foreach (Technology tech in ResourceManager.TechTree.Values)
             {
@@ -39,7 +30,6 @@ namespace Ship_Game.GameScreens.NewGame
                 {
                     shipTechs.Add(tech, FindPreviousTechs(tech, new Array<string>()));
                 }
-                step.Advance();
             }
             return shipTechs;
         }
@@ -63,13 +53,10 @@ namespace Ship_Game.GameScreens.NewGame
             return alreadyFound;
         }
 
-        static void MarkDefaultUnlockable(Map<Technology, Array<string>> shipTechs, ProgressCounter step)
+        static void MarkDefaultUnlockable(Map<Technology, Array<string>> shipTechs)
         {
-            step.Start(ResourceManager.Hulls.Count);
-
             foreach (ShipData hull in ResourceManager.Hulls)
             {
-                step.Advance();
                 if (hull.Role == ShipData.RoleName.disabled)
                     continue;
 

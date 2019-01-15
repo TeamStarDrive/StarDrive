@@ -514,7 +514,7 @@ namespace Ship_Game
                 }
             }
 
-            HelperFunctions.CollectMemory();
+            //HelperFunctions.CollectMemory();
 
             ProcessTurnsThread = new Thread(ProcessTurns);
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";

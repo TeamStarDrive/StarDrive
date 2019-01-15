@@ -267,7 +267,6 @@ namespace Ship_Game.AI
         {
             foreach (AO area in AreasOfOperations)            
                 area.InitFromSave(data, OwnerEmpire);                
-            
         }
         
         public void ManageAOs()

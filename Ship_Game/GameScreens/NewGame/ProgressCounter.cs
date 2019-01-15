@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.GameScreens.NewGame
 {
@@ -20,13 +16,21 @@ namespace Ship_Game.GameScreens.NewGame
 
         int Index; // general progress index, also used for noting active Steps
         int Max = 1;
+        float MaxSeconds;
 
         ProgressCounter[] Steps;
         float[] Proportions;
 
         public void Start(int max)
         {
-            Max = max;
+            Max = Math.Max(1, max);
+            Time.Start();
+        }
+
+        // Special case: progress is reported according to time instead
+        public void StartTimeBased(float maxSeconds)
+        {
+            MaxSeconds = maxSeconds;
             Time.Start();
         }
         
@@ -35,27 +39,37 @@ namespace Ship_Game.GameScreens.NewGame
         {
             Index = Max;
             Time.Stop();
+            if (Steps != null) // make sure all sub-steps also stop their Stopwatch
+            {
+                for (int i = 0; i < Steps.Length; ++i)
+                    Steps[i].Finish();
+            }
         }
 
         public void Start(params float[] proportions)
         {
-            var steps = new ProgressCounter[proportions.Length];
-            float total = 0f;
-            for (int i = 0; i < proportions.Length; ++i)
-            {
-                total += proportions[i];
-                steps[i] = new ProgressCounter();
-            }
+            ProgressCounter[] steps = null;
 
-            float rem = 1f - total;
-            if (!rem.AlmostZero())
+            // If proportions.Length == 0, then equivalent to Start(max:1) 
+            if (proportions.Length != 0)
             {
-                Log.Warning($"Declared steps don't add up to 1.0: {total}");
-            }
+                steps = new ProgressCounter[proportions.Length];
+                float total = 0f;
+                for (int i = 0; i < proportions.Length; ++i)
+                {
+                    total += proportions[i];
+                    steps[i] = new ProgressCounter();
+                }
 
+                float rem = 1f - total;
+                if (!rem.AlmostZero())
+                {
+                    Log.Warning($"Declared steps don't add up to 1.0: {total}");
+                }
+                Proportions = proportions;
+            }
             Start(proportions.Length);
-            Proportions = proportions;
-            Steps = steps; // @note Setting this at the; sort of thread unsafe... 
+            Steps = steps; // @note Setting this at the end... to get loose thread safety... 
         }
         
         // Advances progress Value by 1
@@ -63,7 +77,7 @@ namespace Ship_Game.GameScreens.NewGame
 
         // Finish current step (if any) and returns next step
         // You must then start the next step at your own discretion
-        public ProgressCounter AdvanceStep()
+        public ProgressCounter NextStep()
         {
             if (Index > 0)
                 Steps[Index-1].Finish();
@@ -81,6 +95,9 @@ namespace Ship_Game.GameScreens.NewGame
             {
                 if (Index >= Max)
                     return 1f;
+
+                if (MaxSeconds > 0f)
+                    return ((float)Time.Elapsed.TotalSeconds / MaxSeconds).Clamped(0f, 1f);
 
                 if (Steps == null)
                     return (float)Index.Clamped(0, Max) / Max;
