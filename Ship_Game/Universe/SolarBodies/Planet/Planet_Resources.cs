@@ -51,7 +51,7 @@ namespace Ship_Game
         public float PlusFlatPopulationPerTurn;
         
         private float TotalMaintenanceCostsPerTurn;
-        public float GrossUpkeep => TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn * Owner.data.Traits.MaintMod;
+        public float GrossUpkeep => TotalMaintenanceCostsPerTurn + Owner.data.Traits.MaintMultiplier;
 
         public bool HasProduction => Prod.GrossIncome  >  1.0f;
 

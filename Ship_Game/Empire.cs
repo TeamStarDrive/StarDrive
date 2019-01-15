@@ -47,7 +47,7 @@ namespace Ship_Game
         public HashSet<string> ShipsWeCanBuild      = new HashSet<string>();
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
-        private int numberForAverage = 1;
+        private int TurnCount = 1;
         //public int ColonizationGoalCount = 2;          //Not referenced in code, removing to save memory
         public string ResearchTopic = "";
         //private Array<War> Wars = new Array<War>();          //Not referenced in code, removing to save memory
@@ -69,13 +69,12 @@ namespace Ship_Game
         private EconomicResearchStrategy economicResearchStrategy;
         private float UpdateTimer;
         public bool isPlayer;
-        private float totalShipMaintenance;
-        private float totalBuildingMaintenance;
+        public float TotalShipMaintenance { get; private set; }
+        public float TotalBuildingMaintenance { get; private set; }
         public float updateContactsTimer;
         private bool InitialziedHostilesDict;
-        public float AllTimeMaintTotal;
-        public float totalMaint;
-        public float GrossPlanetIncomes;
+        public float BuildingAndShipMaint; // This is for info display
+        public float NetPlanetIncomes; // = foreach Planet: p.GrossIncome - p.Maintenance
         public float TradeMoneyAddedThisTurn;
         public float MoneyLastTurn;
         public int totalTradeIncome;
@@ -1301,45 +1300,58 @@ namespace Ship_Game
         private void DoMoney()
         {
             MoneyLastTurn = Money;
-            ++numberForAverage;
-            GrossPlanetIncomes = 0f;
+            ++TurnCount;
 
+            UpdateNetPlanetIncomes();
+            UpdateTradeIncome();
+            UpdateShipMaintenance();
+            UpdateBuildingMaintenance();
+
+            BuildingAndShipMaint = TotalBuildingMaintenance + TotalShipMaintenance;
+
+            // building maintenance is already deducted from each planet
+            // so all we need to do is pay for the ships:
+            Money += NetIncome() - TotalShipMaintenance;
+        }
+
+        void UpdateNetPlanetIncomes()
+        {
+            NetPlanetIncomes = 0f;
             using (OwnedPlanets.AcquireReadLock())
-            foreach (Planet planet in OwnedPlanets)
-            {
-                planet.UpdateIncomes(false);
-                GrossPlanetIncomes += planet.Money.NetIncome;
-            }
+                foreach (Planet planet in OwnedPlanets)
+                {
+                    planet.UpdateIncomes(false);
+                    NetPlanetIncomes += planet.Money.NetIncome;
+                }
+        }
 
+        void UpdateTradeIncome()
+        {
             TradeMoneyAddedThisTurn = 0.0f;
             foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
             {
                 if (!kv.Value.Treaty_Trade) continue;
                 TradeMoneyAddedThisTurn += CommonValues.TradeMoney(kv.Value.Treaty_Trade_TurnsExisted);
             }
+        }
 
-            DoShipMaintenanceCost();
+        void UpdateBuildingMaintenance()
+        {
             using (OwnedPlanets.AcquireReadLock())
             {
                 float newBuildM = 0f;
-
                 foreach (Planet planet in OwnedPlanets)
                 {
                     planet.UpdateOwnedPlanet();
                     newBuildM += planet.GrossUpkeep;
                 }
-                totalBuildingMaintenance = newBuildM;
+                TotalBuildingMaintenance = newBuildM;
             }
-
-            totalMaint = GetTotalBuildingMaintenance() + GetTotalShipMaintenance();
-            AllTimeMaintTotal += totalMaint;
-
-            Money += NetIncome() - totalMaint;
         }
 
-        private void DoShipMaintenanceCost()
+        private void UpdateShipMaintenance()
         {
-            totalShipMaintenance = 0.0f;
+            TotalShipMaintenance = 0.0f;
 
             using (OwnedShips.AcquireReadLock())
                 foreach (Ship ship in OwnedShips)
@@ -1353,7 +1365,7 @@ namespace Ship_Game
                         data.DefenseBudget -= maintenance;
                         continue;
                     }
-                    totalShipMaintenance += maintenance;
+                    TotalShipMaintenance += maintenance;
                 }
 
             using (OwnedProjectors.AcquireReadLock())
@@ -1364,17 +1376,23 @@ namespace Ship_Game
                         data.SSPBudget -= ship.GetMaintCost();
                         continue;
                     }
-                    totalShipMaintenance += ship.GetMaintCost();
+                    TotalShipMaintenance += ship.GetMaintCost();
                 }
+
+            TotalShipMaintenance *= data.Traits.MaintMultiplier;
         }
 
-        public float EstimateIncomeAtTaxRate(float rate) => GrossPlanetIncomes * rate + TradeMoneyAddedThisTurn
-                                                                              + data.FlatMoneyBonus
-                                                            - (GetTotalBuildingMaintenance() + GetTotalShipMaintenance());
+        public float EstimateIncomeAtTaxRate(float rate)
+        {
+            float deltaTax = rate - data.TaxRate;
+            float plusNetIncome = deltaTax * NetPlanetIncomes;
+            float maintenance = (TotalBuildingMaintenance + TotalShipMaintenance);
+            return NetIncome() + plusNetIncome - maintenance;
+        }
 
         public float NetIncome()
         {
-            return GrossPlanetIncomes * data.TaxRate + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
+            return NetPlanetIncomes + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
         }
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;
@@ -1442,12 +1460,6 @@ namespace Ship_Game
                 = PickFromCandidates(ShipData.RoleName.carrier, this, targetModule: ShipModuleType.Hangar);
 
         }
-
-        public float GetTotalBuildingMaintenance() => totalBuildingMaintenance + data.Traits.MaintMod
-                                                      * totalBuildingMaintenance;
-
-        public float GetTotalShipMaintenance() => totalShipMaintenance + data.Traits.MaintMod
-                                                  * totalShipMaintenance;
 
         public bool WeCanBuildThis(string ship)
         {
@@ -1534,9 +1546,7 @@ namespace Ship_Game
 
         public int GetAverageTradeIncome()
         {
-            if (numberForAverage == 0)
-                return 0;
-            return totalTradeIncome / numberForAverage;
+            return totalTradeIncome / TurnCount;
         }
 
         public Planet.ColonyType AssessColonyNeeds2(Planet p)

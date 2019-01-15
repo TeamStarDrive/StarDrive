@@ -651,7 +651,7 @@ namespace Ship_Game.Debug
                 DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.NetIncome().String()})");
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
-                DrawString("Ship Maint:    "+e.GetTotalShipMaintenance());
+                DrawString("Ship Maint:    "+e.TotalShipMaintenance);
 
                 Array<Ship> ships = e.GetShips();
                 DrawString($"Ship Count:    {ships.Count}" +
@@ -661,7 +661,7 @@ namespace Ship_Game.Debug
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
                            $" :{ships.Count(warship => warship?.DesignRole >= ShipData.RoleName.bomber && warship?.DesignRole <= ShipData.RoleName.carrier)}"
                            );
-                DrawString("Build Maint:   "+e.GetTotalBuildingMaintenance());
+                DrawString("Build Maint:   "+e.TotalBuildingMaintenance);
                 DrawString("Spy Count:     "+e.data.AgentList.Count);
                 DrawString("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
                 DrawString("Planet Count:  "+e.GetPlanets().Count);
