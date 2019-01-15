@@ -158,6 +158,9 @@
       <HintPath>packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System" />
@@ -222,6 +225,7 @@
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
     <Compile Include="Ship_Game\Data\ImageUtils.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
+    <Compile Include="Ship_Game\Data\StarDataConverter.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
     <Compile Include="Ship_Game\Data\StarDataParser.cs" />
     <Compile Include="Ship_Game\Debug\DebugScreens.cs" />
@@ -252,7 +256,10 @@
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
     <Compile Include="Ship_Game\GameScreens\InputMessageBox.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame_CreateEntities.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\ShipDesignUtils.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\HangarDesignationDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShieldsBehaviorDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\DesignModuleGrid.cs" />
@@ -326,7 +333,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetTypeInfo.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_ConstructionQueue.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_EvaluateBuildings.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Generate.cs" />
@@ -884,7 +891,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Localizer.cs">
+    <Compile Include="Ship_Game\Data\Localizer.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1400,7 +1407,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\NumberToRomanConvertor.cs">
+    <Compile Include="Ship_Game\RomanNumerals.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1572,6 +1579,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Nebulas\nebula_512x512_08.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Suns.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Textures\Arcs\Arc120.xnb">
@@ -2121,9 +2131,9 @@
     <Content Include="Content\Hulls\Vulfen\Type XIII.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\PlanetTypes.txt">
+    <None Include="Content\PlanetTypes.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="Content\Races\Remnant.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

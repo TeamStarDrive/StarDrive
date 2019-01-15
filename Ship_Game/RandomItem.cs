@@ -1,3 +1,5 @@
+using System;
+
 namespace Ship_Game
 {
 	public sealed class RandomItem
@@ -24,5 +26,24 @@ namespace Ship_Game
 		public float GasInstanceMax;
 		public float VolcanicChance;
 		public float VolcanicInstanceMax;
+
+        public (float,float) ChanceAndMaxInstance(PlanetCategory category)
+        {
+            switch (category)
+            {
+                default:
+                case PlanetCategory.Other:
+                case PlanetCategory.Barren: return (BarrenChance, BarrenInstanceMax);
+                case PlanetCategory.Desert: return (DesertChance, DesertInstanceMax);
+                case PlanetCategory.Steppe: return (SteppeChance, SteppeInstanceMax);
+                case PlanetCategory.Tundra: return (TundraChance, TundraInstanceMax);
+                case PlanetCategory.Terran: return (TerranChance, TerranInstanceMax);
+                case PlanetCategory.Volcanic: return (VolcanicChance, VolcanicInstanceMax);
+                case PlanetCategory.Ice:      return (IceChance,      IceInstanceMax);
+                case PlanetCategory.Swamp:    return (SwampChance,    SwampInstanceMax);
+                case PlanetCategory.Oceanic:  return (OceanicChance,  OceanicInstanceMax);
+                case PlanetCategory.GasGiant: return (GasChance,      GasInstanceMax);
+            }
+        }
 	}
 }

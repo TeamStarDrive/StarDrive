@@ -20,7 +20,7 @@ namespace Ship_Game
         public ColonyResource Food;
         public ColonyResource Prod;
         public ColonyResource Res;
-        public ColonyResource Money;
+        public ColonyMoney    Money;
 
         public float FoodHere
         {
@@ -50,9 +50,6 @@ namespace Ship_Game
         public float PopulationRatio => Storage.Population / MaxPopulation;
         public float PlusFlatPopulationPerTurn;
         
-        private float TotalMaintenanceCostsPerTurn;
-        public float GrossUpkeep => TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn * Owner.data.Traits.MaintMod;
-
         public bool HasProduction => Prod.GrossIncome  >  1.0f;
 
         public float GetGoodHere(Goods good)

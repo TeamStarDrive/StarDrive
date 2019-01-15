@@ -46,7 +46,7 @@ namespace Ship_Game
         [Serialize(38)] public float Mercantile;
         [Serialize(39)] public int Miners;
         [Serialize(40)] public float ProductionMod;
-        [Serialize(41)] public float MaintMod;
+        [Serialize(41)] public float MaintMod; // ex: -0.25
         [Serialize(42)] public float InBordersSpeedBonus = 0.5f;
         [Serialize(43)] public float TaxMod; // bonus tax modifier
         [Serialize(44)] public float ShipCostMod;
@@ -106,6 +106,7 @@ namespace Ship_Game
         [Serialize(93)] public float SpyModifier;
 
         public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
+        public float MaintMultiplier => 1f + MaintMod; // Ex: 1.25
 
         public RacialTrait GetClone()
         {

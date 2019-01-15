@@ -84,8 +84,8 @@ namespace Ship_Game
             SaveData.AutoExplore         = EmpireManager.Player.AutoExplore;
             SaveData.AutoFreighters      = EmpireManager.Player.AutoFreighters;
             SaveData.AutoProjectors      = EmpireManager.Player.AutoBuild;
-            SaveData.GamePacing          = UniverseScreen.GamePaceStatic;
-            SaveData.GameScale           = UniverseScreen.GameScaleStatic;
+            SaveData.GamePacing          = CurrentGame.Pace;
+            SaveData.GameScale           = screenToSave.GameScale;
             SaveData.StarDate            = screenToSave.StarDate;
             SaveData.FTLModifier         = screenToSave.FTLModifier;
             SaveData.EnemyFTLModifier    = screenToSave.EnemyFTLModifier;
@@ -154,7 +154,7 @@ namespace Ship_Game
                             MaxFertility         = ring.planet.MaxFertility,
                             Richness             = ring.planet.MineralRichness,
                             Owner                = ring.planet.Owner?.data.Traits.Name ?? "",
-                            WhichPlanet          = ring.planet.PlanetType,
+                            WhichPlanet          = ring.planet.Type.Id,
                             OrbitalAngle         = ring.planet.OrbitalAngle,
                             OrbitalDistance      = ring.planet.OrbitalRadius,
                             HasRings             = ring.planet.HasRings,
@@ -685,7 +685,7 @@ namespace Ship_Game
             }
             decompressed.Delete();
 
-            HelperFunctions.CollectMemory();
+            //HelperFunctions.CollectMemory();
             return usData;
         }
 

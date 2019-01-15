@@ -64,5 +64,12 @@ namespace Ship_Game
             batch.Draw(texture.Texture, destinationRectangle, adjustedSrcRect,
                        color, rotation, origin, effects, layerDepth);
         }
+
+
+        public static void DrawString(
+            this SpriteBatch batch, SpriteFont font, string text, float x, float y)
+        {
+            batch.DrawString(font, text, new Vector2(x, y), Color.White);
+        }
     }
 }

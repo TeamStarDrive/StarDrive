@@ -63,7 +63,7 @@ namespace Ship_Game
             batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, c);
             PlanetMenu.Draw();
             PlanetInfo.Draw();
-            batch.Draw(ResourceManager.Texture(string.Concat("Planets/", p.PlanetType)), PlanetIcon, Color.White);
+            batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
             Vector2 PNameCursor = new Vector2(PlanetInfo.Menu.X + 20, PlanetInfo.Menu.Y + 45);
             batch.DrawString(Fonts.Arial20Bold, p.Name, PNameCursor, new Color(255, 239, 208));
             PNameCursor.Y = PNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;

@@ -123,7 +123,7 @@ namespace Ship_Game
                         };
                         ClickList.Add(cm);
                     }
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Planets/", s.PlanetList[i].PlanetType)), PlanetRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(s.PlanetList[i].PlanetTexture, PlanetRect, Color.White);
             
                     if (screen.SelectedPlanet == s.PlanetList[i])
                     {
