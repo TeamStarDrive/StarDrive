@@ -256,6 +256,7 @@
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
     <Compile Include="Ship_Game\GameScreens\InputMessageBox.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame_CreateEntities.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ShipDesignUtils.cs" />

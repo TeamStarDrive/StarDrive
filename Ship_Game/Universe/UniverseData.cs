@@ -55,5 +55,19 @@ namespace Ship_Game
             }
             return null;
         }
+
+        public bool FindShip(in Guid shipGuid, out Ship foundShip)
+        {
+            foreach (Ship ship in MasterShipList)
+            {
+                if (ship.guid == shipGuid)
+                {
+                    foundShip = ship;
+                    return true;
+                }
+            }
+            foundShip = null;
+            return false;
+        }
     }
 }

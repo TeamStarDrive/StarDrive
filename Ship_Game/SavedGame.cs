@@ -685,7 +685,7 @@ namespace Ship_Game
             }
             decompressed.Delete();
 
-            HelperFunctions.CollectMemory();
+            //HelperFunctions.CollectMemory();
             return usData;
         }
 
