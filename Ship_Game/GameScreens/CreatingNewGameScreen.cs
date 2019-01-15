@@ -285,11 +285,11 @@ namespace Ship_Game
         {
             step.Start(0.15f, 0.20f, 0.30f, 0.35f); // proportions for each step
 
-            CreateOpponents(step.AdvanceStep());
+            CreateOpponents(step.NextStep());
             PopulateRelations();
-            ShipDesignUtils.MarkDesignsUnlockable(step.AdvanceStep()); // 240ms
-            LoadEmpireStartingSystems(step.AdvanceStep()); // 420ms
-            GenerateRandomSystems(step.AdvanceStep());    // 425ms
+            ShipDesignUtils.MarkDesignsUnlockable(step.NextStep()); // 240ms
+            LoadEmpireStartingSystems(step.NextStep()); // 420ms
+            GenerateRandomSystems(step.NextStep());    // 425ms
 
             // This section added by Gretman
             if (Mode != RaceDesignScreen.GameMode.Corners)            
@@ -518,10 +518,10 @@ namespace Ship_Game
         void GenerateSystems()
         {
             Progress.Start(0.5f, 0.3f, 0.2f);
-            GenerateInitialSystemData(Progress.AdvanceStep());
-            SubmitSceneObjects(Progress.AdvanceStep());
+            GenerateInitialSystemData(Progress.NextStep());
+            SubmitSceneObjects(Progress.NextStep());
             FinalizeSolarSystems();
-            FinalizeEmpires(Progress.AdvanceStep());
+            FinalizeEmpires(Progress.NextStep());
             Progress.Finish();
 
             Log.Info(ConsoleColor.Blue,    $"  GenerateInitialSystemData elapsed: {Progress[0].ElapsedMillis}ms");
