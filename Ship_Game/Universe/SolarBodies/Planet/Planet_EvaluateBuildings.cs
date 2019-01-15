@@ -740,8 +740,7 @@ namespace Ship_Game
         {
             // Empire budget will go here instead of planet budget
             // if taxes go way up, don't want the governors to go too crazy
-            float income = MaxPopulationBillion * (Owner.data.TaxRate).Clamped(0.1f, 0.4f);
-            income = Money.AfterTax(income);
+            float income = MaxPopulationBillion * Money.TaxRate;
             income -= SbProduction.GetTotalConstructionQueueMaintenance();
             return income;
         }

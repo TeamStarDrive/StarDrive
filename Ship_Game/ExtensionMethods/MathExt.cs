@@ -277,6 +277,9 @@ namespace Ship_Game
         public static int CenterY(this Rectangle r) => r.Y + r.Height/2;
         public static int Area(this Rectangle r) => r.Width * r.Height;
 
+        public static float CenterTextX(this Rectangle r, string text)
+            => r.X + r.Width/2f - Fonts.Arial12Bold.MeasureString(text).X/2f;
+
         // Example: r.RelativeX(0.5) == r.CenterX()
         //          r.RelativeX(1.0) == r.Right
         public static int RelativeX(this Rectangle r, float percent) => r.X + (int)(r.Width*percent);
