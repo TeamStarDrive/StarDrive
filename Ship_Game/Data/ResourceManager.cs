@@ -119,13 +119,13 @@ namespace Ship_Game
                 GlobalStats.ClearActiveMod();
                 LoadAllResources(onEssentialsLoaded);
             }
-            Log.Info($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
+            Log.Write($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
         }
 
         static void LoadAllResources(Action onEssentialsLoaded)
         {
             Reset();
-            Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
+            Log.Write($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage(); // @todo Slower than expected [0.36]
             LoadToolTips();
             LoadHullData(); // we need Hull Data for main menu ship
@@ -1774,8 +1774,8 @@ namespace Ship_Game
         {
             foreach (var shipRole in LoadEntities<ShipRole>("ShipRoles", "LoadShipRoles"))
             {
-                Enum.TryParse(shipRole.Name, out ShipData.RoleName key);
-                ShipRoles[key] = shipRole;
+                if (Enum.TryParse(shipRole.Name, out ShipData.RoleName key))
+                    ShipRoles[key] = shipRole;
             }
         }
 
