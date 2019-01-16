@@ -30,9 +30,9 @@ namespace Ship_Game.Gameplay
             ClickRect = new Rectangle((int)cursor.X, (int)cursor.Y, width, font.LineSpacing);
         }
 
-        public void Draw(ScreenManager screenManager, SpriteFont font)
+        public void Draw(SpriteBatch batch, SpriteFont font)
         {
-            HelperFunctions.DrawDropShadowText(screenManager, string.Concat(Number.ToString(), ". ", Words),
+            HelperFunctions.DrawDropShadowText(batch, string.Concat(Number.ToString(), ". ", Words),
                 new Vector2(ClickRect.X, ClickRect.Y), font, (Hover ? Color.White : new Color(255, 255, 255, 220)));
         }
 

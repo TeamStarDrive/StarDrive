@@ -12,21 +12,28 @@ namespace Ship_Game
 
     public sealed class FloatSlider : UIElementV2
     {
-        private Rectangle SliderRect; // colored slider
-        private Rectangle KnobRect;   // knob area used to move the slider value
+        Rectangle SliderRect; // colored slider
+        Rectangle KnobRect;   // knob area used to move the slider value
         public string Text;
         public string Tooltip;
+        public ToolTip Tip;
 
-        public int TooltipId
+        public Action<FloatSlider> OnChange;
+
+        // Sets the tooltip string from Localization/GameText_EN.xml
+        public int LocalizeTooltipId
         {
             set => Tooltip = Localizer.Token(value);
         }
 
-        private bool Hover;
-        private bool Dragging;
-        private readonly float Min;
-        private float Max;
-        private float Value;
+        // Sets the Tip to a more complex ToolTip instance
+        public int TooltipId
+        {
+            set => Tip = ResourceManager.GetToolTip(value);
+        }
+
+        bool Hover, Dragging;
+        float Min, Max, Value;
         public SliderStyle Style = SliderStyle.Decimal;
 
         public float Range => Max-Min;
@@ -48,23 +55,19 @@ namespace Ship_Game
                 Value = value.Clamped(0f, 1f);
                 RequiresLayout = true;
                 PerformLegacyLayout(Pos);
+                OnChange?.Invoke(this);
             }
         }
 
-        private static readonly Color TextColor   = new Color(255, 239, 208);
-        private static readonly Color HoverColor  = new Color(164, 154, 133);
-        private static readonly Color NormalColor = new Color(72, 61, 38);
+        static readonly Color TextColor   = new Color(255, 239, 208);
+        static readonly Color HoverColor  = new Color(164, 154, 133);
+        static readonly Color NormalColor = new Color(72, 61, 38);
 
-        private static SubTexture SliderKnob;
-        private static SubTexture SliderKnobHover;
-        private static SubTexture SliderMinute;
-        private static SubTexture SliderMinuteHover;
-        private static SubTexture SliderGradient;   // background gradient for the slider
-
-        
-        public FloatSlider(UIElementV2 parent, Rectangle r, int text) : this(parent, r, Localizer.Token(text))
-        {
-        }
+        static SubTexture SliderKnob;
+        static SubTexture SliderKnobHover;
+        static SubTexture SliderMinute;
+        static SubTexture SliderMinuteHover;
+        static SubTexture SliderGradient;   // background gradient for the slider
 
         public FloatSlider(UIElementV2 parent, Rectangle r, string text, float min = 0f, float max = 10000f, float value = 5000f)
             : base(parent, r)
@@ -91,7 +94,7 @@ namespace Ship_Game
             Style = style;
         }
 
-        private void PerformLegacyLayout(Vector2 pos)
+        void PerformLegacyLayout(Vector2 pos)
         {
             SliderRect = new Rectangle((int)pos.X, (int)pos.Y + (int)Height/2 + 3, (int)Width - 20, 6);
             KnobRect = new Rectangle(SliderRect.X + (int)(SliderRect.Width * Value), 
@@ -144,8 +147,13 @@ namespace Ship_Game
             var textPos = new Vector2(SliderRect.X + SliderRect.Width + 8, SliderRect.Y + SliderRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, new Color(255, 239, 208));
 
-            if (Hover && Tooltip.NotEmpty())
-                ToolTip.CreateTooltip(Tooltip);
+            if (Hover)
+            {
+                if (Tip != null)
+                    ToolTip.CreateTooltip(Tip.TIP_ID);
+                else if (Tooltip.NotEmpty())
+                    ToolTip.CreateTooltip(Tooltip);
+            }
         }
         public bool HandleInput(InputState input, ref float currentValue, float dynamicMaxValue)
         {

@@ -115,7 +115,7 @@ namespace Ship_Game
             Rectangle rectangle = new Rectangle(border.X, border.Y, 512, 512);
             batch.Begin();
             Vector2 TitlePos = new Vector2(20f, 20f);
-            HelperFunctions.DrawDropShadowText(ScreenManager, "Ship Mod Tools", TitlePos, Fonts.Arial20Bold);
+            HelperFunctions.DrawDropShadowText(batch, "Ship Mod Tools", TitlePos, Fonts.Arial20Bold);
             TitlePos.Y = TitlePos.Y + (Fonts.Arial20Bold.LineSpacing + 3);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Use this tool to create module patterns for your ships", TitlePos, Color.White);
             if (shipSO != null)
