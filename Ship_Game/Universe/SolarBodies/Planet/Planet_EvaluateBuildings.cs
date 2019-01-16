@@ -38,7 +38,7 @@ namespace Ship_Game
             float score = b.Maintenance * 2;  //Base of 2x maintenance -- Also, I realize I am not calculating MaintMod here. It throws the algorithm off too much
             float maint = b.Maintenance + b.Maintenance * Owner.data.Traits.MaintMod;
             if (budget < maint)
-                score += maint * 10;   //Really don't want this if we cant afford it
+                score += maint * 10;   // Really don't want this if we cant afford it, since the scraping minister might scrap something else next turn
 
             score -= Owner.data.FlatMoneyBonus * 0.015f; // Acceptable loss (Note what this will do at high Difficulty)
             
@@ -667,6 +667,7 @@ namespace Ship_Game
 
             //New Build Logic by Gretman, modified by FB
             if (!lotsInQueueToBuild) BuildShipyardIfAble(); //If we can build a shipyard but dont have one, build it
+            // FB the above functio is buggy i think, need to check
 
             if (budget < 0)
             {
