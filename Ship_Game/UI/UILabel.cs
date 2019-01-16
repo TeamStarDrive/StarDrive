@@ -8,7 +8,7 @@ namespace Ship_Game
     {
         string LabelText; // Simple Text
         Array<string> Lines; // Multi-Line Text
-        Func<string> GetText; // Dynamic Text Binding
+        Func<UILabel, string> GetText; // Dynamic Text Binding
         SpriteFont LabelFont;
 
         public delegate void ClickHandler(UILabel label);
@@ -44,12 +44,12 @@ namespace Ship_Game
             }
         }
 
-        public Func<string> DynamicText
+        public Func<UILabel, string> DynamicText
         {
             set
             {
                 GetText = value;
-                Size = LabelFont.MeasureString(GetText());
+                Size = LabelFont.MeasureString(GetText(this));
             }
         }
 
@@ -105,11 +105,13 @@ namespace Ship_Game
                 batch.DrawString(LabelFont, text, pos, color);
         }
 
+        Color CurrentColor => IsMouseOver ? Highlight : Color;
+
         public override void Draw(SpriteBatch batch)
         {
-            Color color = IsMouseOver ? Highlight : Color;
             if (Lines != null && Lines.NotEmpty)
             {
+                Color color = CurrentColor;
                 Vector2 cursor = Pos;
                 for (int i = 0; i < Lines.Count; ++i)
                 {
@@ -120,11 +122,12 @@ namespace Ship_Game
             }
             else if (GetText != null)
             {
-                DrawLine(batch, GetText(), Pos, color);
+                string text = GetText(this); // GetText is allowed to modify [this]
+                DrawLine(batch, text, Pos, CurrentColor);
             }
             else if (LabelText.NotEmpty())
             {
-                DrawLine(batch, LabelText, Pos, color);
+                DrawLine(batch, LabelText, Pos, CurrentColor);
             }
         }
 

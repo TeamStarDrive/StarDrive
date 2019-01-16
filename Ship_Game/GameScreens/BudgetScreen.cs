@@ -10,8 +10,7 @@ namespace Ship_Game.GameScreens
 {
     public sealed class BudgetScreen : GameScreen
     {
-        Empire Player;
-        CloseButton Close;
+        readonly Empire Player;
         Menu2 Window;
         Rectangle TaxRateRect;
         Rectangle CostRect;
@@ -32,36 +31,47 @@ namespace Ship_Game.GameScreens
 
         public override void LoadContent()
         {
-            Window = new Menu2(new Rectangle(ScreenWidth / 2 - 197, ScreenHeight / 2 - 225, 394, 450));
-            Close = new CloseButton(this, new Rectangle(Window.Menu.Right - 40, Window.Menu.Y + 20, 20, 20));
+            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 197, ScreenHeight / 2 - 225, 394, 450)));
+            CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
 
-            // area for tax rate slider
-            TaxRateRect = new Rectangle(Window.Menu.X + 20, Window.Menu.Y + 37, 350, 84);
+            TaxRateRect = new Rectangle(Window.Menu.X + 20, Window.Menu.Y + 37, 350, 84); // top area for tax rate slider
+            IncomesRect = new Rectangle(TaxRateRect.X, TaxRateRect.Bottom + 6, 168, 104); // Middle-Left
+            CostRect    = new Rectangle(IncomesRect.Right + 12, IncomesRect.Y, 168, 104); // Middle-Right
+            TradeRect   = new Rectangle(TaxRateRect.X, IncomesRect.Bottom + 6, 168, 188); // Bottom left
+
+            // background panels for TaxRate, incomes, cost, trade:
+            Panel(TaxRateRect, new Color(17, 21, 28));
+            Panel(IncomesRect, new Color(18, 29, 29));
+            Panel(TradeRect,   new Color(30, 26, 19));
+            Panel(CostRect,    new Color(27, 22, 25));
 
             string title = Localizer.Token(310);
             Label(Window.Menu.CenterTextX(title), Window.Menu.Y + 20, title);
 
             BeginVLayout(TaxRateRect.X + 10, TaxRateRect.Y + 5, ystep: 40);
-                TaxSlider    = SliderPercent(312, 32, Localizer.Token(311), 0f, 1f, Player.data.TaxRate);
-                TreasuryGoal = SliderPercent(312, 32, "Auto Tax Treasury Goal", 0f, 1f, Player.data.treasuryGoal);
-                TaxSlider.TooltipId = 66;
+                TaxSlider    = SliderPercent(312, 32, Localizer.Token(311), 0f, 1f, 0.25f);
+                TreasuryGoal = SliderPercent(312, 32, "Auto Tax Treasury Goal", 0f, 1f, 0.20f);
+                TaxSlider.TooltipId    = 66;
                 TreasuryGoal.TooltipId = 66;
-                TreasuryGoal.OnChange = (s) => Player.data.treasuryGoal = s.AbsoluteValue;
+                TreasuryGoal.OnChange = (s) =>
+                {
+                    Player.data.treasuryGoal = s.RelativeValue;
+                    int goal = (int) (100 * Player.NetPlanetIncomes * s.RelativeValue);
+                    s.Text = $"Auto Tax Treasury Goal : {goal}";
+                };
                 TaxSlider.OnChange = (s) => {
                     Player.data.TaxRate = s.RelativeValue;
                     Player.UpdateNetPlanetIncomes();
                 };
+                TreasuryGoal.RelativeValue = Player.data.treasuryGoal; // trigger updates:
+                TaxSlider.RelativeValue    = Player.data.TaxRate;
             EndLayout();
-
-            IncomesRect = new Rectangle(TaxRateRect.X, TaxRateRect.Bottom + 6, 168, 104); // Middle-Left
-            CostRect    = new Rectangle(IncomesRect.Right + 12, IncomesRect.Y, 168, 104); // Middle-Right
-            TradeRect   = new Rectangle(TaxRateRect.X, IncomesRect.Bottom + 6, 168, 188); // Bottom left
 
             float lineSpacing = Fonts.Arial12Bold.LineSpacing + 4; // = 18
 
             void Title(int titleId)        => Label(titleId).DropShadow = true;
             void LabelT(int token)         => Label($"{Localizer.Token(token)}: ");
-            void MoneyLabel(Func<float> g) => Label(() => g().MoneyString(), alignRight:true);
+            void MoneyLabel(Func<float> value) => Label(DynamicText(value, f=>f.MoneyString()), alignRight:true);
 
             // Incomes tab
             BeginVLayout(IncomesRect.X + 10, IncomesRect.Y + 8, lineSpacing);
@@ -115,31 +125,31 @@ namespace Ship_Game.GameScreens
 
             EmpireNetIncome = Label(Window.Menu.Right - 170, Window.Menu.Bottom - 47, titleId:324, Fonts.Arial20Bold);
             EmpireNetIncome.DropShadow = true;
+            EmpireNetIncome.DynamicText = DynamicText(
+                () => Player.NetIncome(),
+                (f) => $"{Localizer.Token(f >= 0f ? 324 : 325)} : {f.MoneyString()}");
 
             base.LoadContent();
+        }
+
+        // Dynamic Text label; this is invoked every time MoneyLabels are drawn
+        static Func<UILabel, string> DynamicText(Func<float> getValue, 
+                                                      Func<float, string> stringify)
+        {
+            return (label) =>
+            {
+                float f = getValue(); // update money color based on value:
+                label.Color = f > 0f ? Color.ForestGreen : 
+                              f < 0f ? Color.DarkOrange : Color.White;
+                return stringify(f);
+            };
         }
 
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-
-            Window.Draw(batch);
-            batch.FillRectangle(TaxRateRect, new Color(17, 21, 28));
-            batch.FillRectangle(IncomesRect, new Color(18, 29, 29));
-            batch.FillRectangle(TradeRect,   new Color(30, 26, 19));
-            batch.FillRectangle(CostRect,    new Color(27, 22, 25));
-
-            int goal = (int) (100 * EmpireManager.Player.NetPlanetIncomes * TreasuryGoal.RelativeValue);
-            TreasuryGoal.Text = $"Auto Tax Treasury Goal : {goal}";
-
-            float net = Player.NetIncome();
-            string netIncomeTitle = Localizer.Token(net >= 0f ? 324 : 325);
-            EmpireNetIncome.Color = net >= 0f ? Color.GreenYellow : Color.OrangeRed;
-            EmpireNetIncome.Text = $"{netIncomeTitle} : {net.MoneyString()}";
-
             base.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 

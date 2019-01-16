@@ -13,10 +13,7 @@ namespace Ship_Game
         private int GameScale = 1;
 
         protected RacialTraits rt;
-        public Texture2D Panel;
         protected MainMenuScreen mmscreen;
-
-        public int NegativePicks;
 
         private GameMode mode = 0; //was unassigned
 
