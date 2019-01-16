@@ -378,7 +378,7 @@ namespace Ship_Game
                 powerCapacity += slot.Module.ActualPowerStoreMax;
                 ordnanceCap   += slot.Module.OrdinanceCapacity;
                 powerFlow     += slot.Module.ActualPowerFlowMax;
-                cost          += slot.Module.Cost;
+                cost          += slot.Module.ActualCost;
                 cargoSpace    += slot.Module.Cargo_Capacity;
 
                 if (slot.Module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
@@ -548,7 +548,8 @@ namespace Ship_Game
                     HullBonus(bonus.CostBonus, Localizer.HullCostBonus);
                 }
                 cursor = EndLayout();
-                cost = ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus) * CurrentGame.Pace;
+                cost += bonus.StartingCost * CurrentGame.Pace; // apply flat discount or extra price
+                cost *= (1f - bonus.CostBonus); // now apply % discount
                 DrawStatColor(ref cursor, TintedValue(109, cost, 99, Color.White));  
             }
 
