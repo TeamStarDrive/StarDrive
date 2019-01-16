@@ -2174,7 +2174,7 @@ namespace Ship_Game
             foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
             {
                 if (keyValuePair.Value.Unlocked)
-                    TechScore += ResourceManager.TechTree[keyValuePair.Key].ActualCost / 100;
+                    TechScore += ResourceManager.Tech(keyValuePair.Key).ActualCost / 100;
             }
             foreach (Planet planet in OwnedPlanets)
             {
