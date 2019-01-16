@@ -79,8 +79,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.Pace;
 
         public override string ToString()
-            => string.Format("BID:{0} Name:{1} Cost:{2} ACost:{3} +Tax:{4}  Short:{5}", 
-                             BID, Name, Cost, ActualCost, PlusTaxPercentage, ShortDescrText);
+            => string.Format("BID:{0} Name:{1} ActualCost:{2} +Tax:{3}  Short:{4}", 
+                             BID, Name, ActualCost, PlusTaxPercentage, ShortDescrText);
 
         [XmlIgnore][JsonIgnore] public string TranslatedName => Localizer.Token(NameTranslationIndex);
         [XmlIgnore][JsonIgnore] public string DescriptionText => Localizer.Token(DescriptionIndex);
