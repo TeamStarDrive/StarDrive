@@ -541,7 +541,7 @@ namespace Ship_Game
         {
             var data = new ShipData
             {
-                Name      = HullName,
+                Name      = name,
                 ModelPath = Path.GetFileNameWithoutExtension(ModelPath),
                 Role      = ShipData.RoleName.carrier,
                 Hull      = HullName,
