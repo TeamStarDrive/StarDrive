@@ -408,10 +408,6 @@
     <Compile Include="Ship_Game\SpriteSystem\TextureAtlas.cs" />
     <Compile Include="Ship_Game\ShipModuleFlyweight.cs" />
     <Compile Include="Ship_Game\TechnologyType.cs" />
-    <Compile Include="Ship_Game\GenericSlider.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\Gameplay\WorldData.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
