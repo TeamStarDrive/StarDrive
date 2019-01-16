@@ -677,7 +677,9 @@ namespace Ship_Game
                 LowRes = true;
             }
             ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490)));
-            foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
+
+            var hulls = EmpireManager.Player.GetHDict();
+            foreach (KeyValuePair<string, bool> hull in hulls)
                 if (hull.Value)
                     AvailableHulls.Add(ResourceManager.Hull(hull.Key));
 
@@ -815,7 +817,7 @@ namespace Ship_Game
             var categories = new Array<string>();
             foreach (ShipData hull in ResourceManager.Hulls)
             {
-                if ((hull.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.IsHullUnlocked(hull.Name))
+                if ((hull.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.IsHullUnlocked(hull.Hull))
                     continue;
                 string cat = Localizer.GetRole(hull.Role, EmpireManager.Player);
                 if (!categories.Contains(cat))
