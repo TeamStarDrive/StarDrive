@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -793,6 +794,25 @@ namespace Ship_Game
             HelperFunctions.parseTextToSL(rd, Description.Menu.Width - 50, Fonts.Arial12, ref DescriptionSL);
         }
 
+        static float DotSpaceWidth;
+
+        // Creates padded text: "Vulgar Animals . . . . . . . . . . . ."
+        static string PaddedWithDots(int localizedNameId, float totalWidth)
+        {
+            if (DotSpaceWidth <= 0f)
+                DotSpaceWidth = Fonts.Arial14Bold.MeasureString(" .").X;
+
+            string name = Localizer.Token(localizedNameId);
+            float nameWidth = Fonts.Arial14Bold.MeasureString(name).X;
+            int numDots = (int)Math.Ceiling((totalWidth - nameWidth) / DotSpaceWidth);
+
+            var sb = new StringBuilder(name, name.Length + numDots*2);
+            for (int i = 0; i < numDots; ++i)
+                sb.Append(" .");
+
+            return sb.ToString();
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
@@ -957,16 +977,14 @@ namespace Ship_Game
                 var bCursor = new Vector2(Traits.Menu.X + 20, Traits.Menu.Y + 45);
                 foreach (ScrollList.Entry e in traitsSL.VisibleEntries)
                 {
+                    string name = PaddedWithDots((e.item as TraitEntry).trait.TraitName, Traits.Menu.Width - 70);
+
                     if (e.Hovered)
                     {
                         bCursor.Y = (e.Y - 5);
                         var tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
-                        string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
+
                         var drawColor = new Color(95, 95, 95, 95);
-                        while (Fonts.Arial14Bold.MeasureString(name).X < Traits.Menu.Width - 70)
-                        {
-                            name = string.Concat(name, " .");
-                        }
                         if (!(e.item as TraitEntry).Selected)
                         {
                             drawColor = new Color(95, 95, 95, 95);
@@ -977,7 +995,7 @@ namespace Ship_Game
                         }
                         else if ((e.item as TraitEntry).Excluded)
                         {
-                            drawColor = drawColor = new Color(95, 95, 95, 95);
+                            drawColor = new Color(95, 95, 95, 95);
                         }
                         else if (TotalPointsUsed >= 0 && TotalPointsUsed - (e.item as TraitEntry).trait.Cost >= 0 || (e.item as TraitEntry).trait.Cost < 0)
                         {
@@ -995,13 +1013,9 @@ namespace Ship_Game
                     else
                     {
                         bCursor.Y = e.Y - 5;
-                        Vector2 tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
-                        string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
-                        Color drawColor = new Color(95, 95, 95, 95);
-                        while (Fonts.Arial14Bold.MeasureString(name).X < Traits.Menu.Width - 70)
-                        {
-                            name = string.Concat(name, " .");
-                        }
+                        var tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
+                        var drawColor = new Color(95, 95, 95, 95);
+
                         if (!(e.item as TraitEntry).Selected)
                         {
                             drawColor = new Color(95, 95, 95, 95);
