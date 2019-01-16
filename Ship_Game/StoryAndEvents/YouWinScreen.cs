@@ -91,7 +91,7 @@ namespace Ship_Game
                     Vector2 pos = ScreenCenter;
                     pos.X -= 250;
                     pos.Y -= 50;
-                    HelperFunctions.DrawDropShadowText(ScreenManager, txt, pos, Fonts.Arial20Bold);
+                    HelperFunctions.DrawDropShadowText(batch, txt, pos, Fonts.Arial20Bold);
                 }
                 batch.Draw(Reason, ReasonRect, Color.White);
                 if (!IsExiting && ShowingReplay)

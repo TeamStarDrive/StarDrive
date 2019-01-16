@@ -122,28 +122,20 @@ namespace Ship_Game
             batch.Draw(texture, offsetRect, Color.Black);
             batch.Draw(texture, rect, topColor);
         }
-        public static void DrawDropShadowText(ScreenManager screenManager, string text, Vector2 pos, SpriteFont font)
+        public static void DrawDropShadowText(SpriteBatch batch, string text, Vector2 pos, SpriteFont font)
         {
-            DrawDropShadowText(screenManager, text, pos, font, Color.White);
+            DrawDropShadowText(batch, text, pos, font, Color.White);
         }
-        public static void DrawDropShadowText1(ScreenManager screenManager, string text, Vector2 pos, SpriteFont font, Color c)
+        public static void DrawDropShadowText1(SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c)
         {
-            DrawDropShadowText(screenManager, text, pos, font, c, 1f);
+            DrawDropShadowText(batch, text, pos, font, c, 1f);
         }
-        public static void DrawDropShadowText(ScreenManager screenManager, string text, Vector2 pos, SpriteFont font, Color c, float shadowOffset = 2f)
+        public static void DrawDropShadowText(SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c, float shadowOffset = 2f)
         {
             pos.X = (int)pos.X;
             pos.Y = (int)pos.Y;
-            screenManager.SpriteBatch.DrawString(font, text, pos + new Vector2(shadowOffset), Color.Black);
-            screenManager.SpriteBatch.DrawString(font, text, pos, c);
-        }
-
-        public static void DrawDropShadowText(SpriteBatch spriteBatch, string text, Vector2 pos, SpriteFont font, Color c, float shadowOffset = 2f)
-        {
-            pos.X = (int)pos.X;
-            pos.Y = (int)pos.Y;
-            spriteBatch.DrawString(font, text, pos + new Vector2(shadowOffset), Color.Black);
-            spriteBatch.DrawString(font, text, pos, c);
+            batch.DrawString(font, text, pos + new Vector2(shadowOffset), Color.Black);
+            batch.DrawString(font, text, pos, c);
         }
 
         public static void DrawGrid(SpriteBatch spriteBatch, int xpos, int ypos, int xGridSize, int yGridSize, int numberXs, int numberYs)

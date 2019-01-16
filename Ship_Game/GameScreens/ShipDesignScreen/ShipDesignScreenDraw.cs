@@ -38,7 +38,7 @@ namespace Ship_Game
 
             DrawUi();
             selector?.Draw(batch);
-            ArcsButton.DrawWithShadowCaps(ScreenManager);
+            ArcsButton.DrawWithShadowCaps(batch);
             if (Debug)
                 DrawDebug();
 
@@ -276,9 +276,9 @@ namespace Ship_Game
         {
             float width2 = ScreenWidth / 2f;
             var pos  = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
-            HelperFunctions.DrawDropShadowText(ScreenManager, "Debug", pos, Fonts.Arial20Bold);
+            HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, "Debug", pos, Fonts.Arial20Bold);
             pos      = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
-            HelperFunctions.DrawDropShadowText(ScreenManager, Operation.ToString(), pos, Fonts.Arial20Bold);
+            HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, Operation.ToString(), pos, Fonts.Arial20Bold);
             #if SHIPYARD
                 string ratios = $"I: {TotalI}       O: {TotalO}      E: {TotalE}      IO: {TotalIO}      " +
                                 $"IE: {TotalIE}      OE: {TotalOE}      IOE: {TotalIOE}";

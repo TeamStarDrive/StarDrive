@@ -862,7 +862,7 @@ namespace Ship_Game.AI
             if (ToUs.TradeTreaty)
             {
                 ValueToUs = ValueToUs + 5f;
-                if ((double) OwnerEmpire.EstimateIncomeAtTaxRate(0.5f) < 1)
+                if ((double) OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 1)
                 {
                     ValueToUs = ValueToUs + 20f;
                 }
