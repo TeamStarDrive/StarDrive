@@ -23,7 +23,7 @@ namespace Ship_Game
         public bool NoBuild = false;
 
         //I believe this is for race specific hulls
-        public Array<Race> RaceList;
+        public Array<Race> RaceList = new Array<Race>();
 
         public class Race
         {
@@ -35,10 +35,6 @@ namespace Ship_Game
             public float ExpPerLevel;
         }
 
-        public ShipRole()
-        {
-            RaceList = new Array<Race>();
-        }
         public static Race GetExpSettings(Ship ship)
         {
             if (ResourceManager.ShipRoles.TryGetValue(ship.shipData.HullRole, out ShipRole role))
@@ -58,9 +54,7 @@ namespace Ship_Game
                 KillExp         = 1,
                 KillExpPerLevel = 1,
                 ExpPerLevel     = 1
-
             };
-
         }
         public static float GetMaxExpValue()
         {
@@ -70,7 +64,7 @@ namespace Ship_Game
                 if (kv.Value.KillExp > max)
                     max = kv.Value.KillExp;
             }
-            return max;            
+            return max;
         }
 
         public static int GetRoleName(ShipData.RoleName role, Empire owner)

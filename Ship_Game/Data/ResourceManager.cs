@@ -1762,14 +1762,16 @@ namespace Ship_Game
             }
         }
 
-        //Added by McShooterz: Load ship roles
-        private static void LoadShipRoles()
+        static void LoadShipRoles()
         {
-            foreach (var shipRole in LoadEntities<ShipRole>("ShipRoles", "LoadShipRoles"))
+            ShipRoles.Clear();
+            foreach (ShipRole shipRole in LoadEntities<ShipRole>("ShipRoles", "LoadShipRoles"))
             {
                 if (Enum.TryParse(shipRole.Name, out ShipData.RoleName key))
                     ShipRoles[key] = shipRole;
             }
+            if (ShipRoles.Count == 0)
+                Log.Error("Failed to load any ShipRoles! Make sure Content/ShipRoles/*.xml exist!");
         }
 
         private static void LoadPlanetEdicts()

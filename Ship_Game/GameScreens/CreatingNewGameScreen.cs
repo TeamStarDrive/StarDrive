@@ -131,7 +131,7 @@ namespace Ship_Game
 
                     if (planet.HasShipyard)
                     {
-                        SpaceStation spaceStation = new SpaceStation {planet = planet};
+                        var spaceStation = new SpaceStation {planet = planet};
                         planet.Station = spaceStation;
                         spaceStation.ParentSystem = planet.ParentSystem;
                         spaceStation.LoadContent(ScreenManager);
