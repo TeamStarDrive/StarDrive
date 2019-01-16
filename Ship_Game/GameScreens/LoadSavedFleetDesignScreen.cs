@@ -9,11 +9,6 @@ namespace Ship_Game
         private FleetDesignScreen parentScreen;
 
 
-        public LoadSavedFleetDesignScreen(GameScreen parent) : base(parent, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
-        {
-            Path = Dir.StarDriveAppData + "/Fleet Designs/";
-        }
-
         public LoadSavedFleetDesignScreen(FleetDesignScreen caller) : base(caller, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
             parentScreen = caller;
