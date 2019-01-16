@@ -445,13 +445,17 @@ namespace Ship_Game
             label.OnClick += click;
             return label;
         }
-        protected UILabel Label(Func<string> dynamicText, bool alignRight = false)
+        protected UILabel Label(Func<UILabel, string> dynamicText, bool alignRight = false)
         {
             UILabel label = Add(new UILabel(this, LayoutNext(), ""));
             label.DynamicText = dynamicText;
             label.AlignRight = alignRight;
             return label;
         }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        protected UIPanel Panel(Rectangle rect, Color color) => Add(new UIPanel(this, rect, color));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
