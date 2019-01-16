@@ -230,7 +230,7 @@ namespace Ship_Game
                 EffectsVolumeSlider = SliderPercent(270, 50, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume);
                 IconSize            = Slider(270, 50, "Icon Sizes", 0, 30, GlobalStats.IconSize);
                 AutoSaveFreq        = Slider(270, 50, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);
-                AutoSaveFreq.TooltipId = 4100;
+                AutoSaveFreq.LocalizeTooltipId = 4100;
             EndLayout();
 
             BeginVLayout(RightArea.X, RightArea.Y + 190, 60);

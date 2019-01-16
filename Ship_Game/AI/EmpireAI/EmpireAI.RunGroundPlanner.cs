@@ -15,7 +15,7 @@ namespace Ship_Game.AI
 
             IOrderedEnumerable<Troop> troopTemplates = ResourceManager.GetTroopTemplates()
                 .Where(t => OwnerEmpire.WeCanBuildTroop(t.Name))
-                .OrderBy(t => t.Cost);
+                .OrderBy(t => t.ActualCost);
             Troop lowCostTroop = troopTemplates.FirstOrDefault();
             Troop highCostTroop = troopTemplates.LastOrDefault();
             Troop troop = highCostTroop;
@@ -39,9 +39,8 @@ namespace Ship_Game.AI
                 .Where(planet => planet.AllowInfantry && planet.colonyType != Planet.ColonyType.Research
                                  && planet.Prod.NetMaxPotential > 5
                                  && (planet.ProdHere) - 2 * (planet.ConstructionQueue.Where(
-                                         goal => goal.Goal != null
-                                                 && goal.Goal.type == GoalType.BuildTroop)
-                                     .Sum(cost => cost.Cost)) > 0 
+                                         qi => qi.Goal != null && qi.Goal.type == GoalType.BuildTroop)
+                                     .Sum(qi => qi.Cost)) > 0 
                 )
                 .OrderBy(p => !p.HasSpacePort)
                 .ThenByDescending(p => p.Prod.GrossIncome)

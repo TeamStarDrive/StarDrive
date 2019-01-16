@@ -25,6 +25,11 @@ namespace Ship_Game
             }
         }
 
+        public static string MoneyString(this float number)
+        {
+            return number.ToString("0.00", CultureInfo.InvariantCulture);
+        }
+
         public static string StarDateString(this float starDate)
         {
             return starDate.ToString("####.0", CultureInfo.InvariantCulture);

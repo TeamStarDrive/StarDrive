@@ -240,11 +240,11 @@ namespace Ship_Game
                         }
                         if (p.Owner == null)
                         {
-                            HelperFunctions.DrawDropShadowText1(ScreenManager, p.Name, PlanetTypeCursor, SysFont, (p.Habitable ? tColor : Color.LightPink));
+                            HelperFunctions.DrawDropShadowText1(batch, p.Name, PlanetTypeCursor, SysFont, (p.Habitable ? tColor : Color.LightPink));
                         }
                         else
                         {
-                            HelperFunctions.DrawDropShadowText1(ScreenManager, p.Name, PlanetTypeCursor, SysFont, (p.Habitable ? p.Owner.EmpireColor : Color.LightPink));
+                            HelperFunctions.DrawDropShadowText1(batch, p.Name, PlanetTypeCursor, SysFont, (p.Habitable ? p.Owner.EmpireColor : Color.LightPink));
                         }
                         if (p.Habitable)
                         {

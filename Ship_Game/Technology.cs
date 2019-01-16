@@ -9,6 +9,7 @@ namespace Ship_Game
 
         /// This is purely used for logging/debugging to mark where the Technology was loaded from
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
+        [XmlIgnore] public float ActualCost => Cost * CurrentGame.Pace;
 
         public int RootNode;
         public float Cost;
@@ -116,6 +117,17 @@ namespace Ship_Game
                 buildings.AddUniqueRef(ResourceManager.GetBuildingTemplate(buildingName.Name));
             }
             return buildings.ToArray();
+        }
+
+        // @param baseValue base value per research point
+        public float DiplomaticValueTo(Empire them, float valuePerTechCost = 0.01f)
+        {
+            float value = ActualCost * valuePerTechCost;
+
+            // Technologists appreciate tech scores +25% higher:
+            if (them.data.EconomicPersonality.Name == "Technologists")
+                value *= 1.25f;
+            return value;
         }
     }
 }

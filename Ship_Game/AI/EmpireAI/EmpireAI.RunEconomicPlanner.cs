@@ -11,7 +11,7 @@ namespace Ship_Game.AI
         {
             for (int i = 0; i < 100; i++)
             {
-                if (OwnerEmpire.EstimateIncomeAtTaxRate(i / 100f) >= amount)
+                if (OwnerEmpire.EstimateNetIncomeAtTaxRate(i / 100f) >= amount)
                 {
                     return i / 100f;
                 }

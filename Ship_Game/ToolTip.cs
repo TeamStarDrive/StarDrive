@@ -24,7 +24,7 @@ namespace Ship_Game
         static ToolTip()
         {
             Hotkey = "";
-            TipTimer = 0; //Changed to 0 from 50. tooltips were taking a long time to come up.
+            TipTimer = 0; 
             LastWhich = -1;
         }
 
@@ -65,7 +65,7 @@ namespace Ship_Game
                 Ti = "";
             }
 
-            var text = Fonts.Arial12Bold.ParseText(intext, 200f);
+            string text = Fonts.Arial12Bold.ParseText(intext, 200f);
             
             if (TipTimer > 0 && Text == text)
             {
@@ -113,18 +113,21 @@ namespace Ship_Game
             SpawnTooltip("", which, hotKey);
         }
 
-        public static void Draw(SpriteBatch spriteBatch)
-        {            
+        static float FadeInTimer  => MaxTipTime * 0.75f;
+        static float FadeOutTimer => MaxTipTime * 0.25f;
+
+        static bool UpdateCurrentTip()
+        {
             float elapsedTime = (float)Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
-            if (TipTimer <= 0) return;
+            if (TipTimer <= 0)
+                return false;
+
             TipTimer = Math.Max(TipTimer - elapsedTime, 0);
             if (!AlwaysShow && MaxTipTime - TipTimer < 0.5f)
-                return;
-            float fadeOutTimer = MaxTipTime * 0.25f;
-            float fadeInTimer  = MaxTipTime * 0.75f;
-            
-            if (HoldTip && TipTimer  < fadeOutTimer)                
-                TipTimer = fadeOutTimer;
+                return false;
+
+            if (HoldTip && TipTimer  < FadeOutTimer)                
+                TipTimer = FadeOutTimer;
 
             HoldTip = false;
             if (TipTimer <= 0 || Text == null)
@@ -133,32 +136,41 @@ namespace Ship_Game
                     TipTimer = MaxTipTime;
                 if (TipTimer <= 0)
                     Text = null;
-                return;
+                return false;
             }
+            return true;
+        }
+
+        public static void Draw(SpriteBatch batch)
+        {            
+            if (UpdateCurrentTip() == false)
+                return;
 
             float alpha = 255;
-            if (TipTimer < fadeOutTimer)
-                alpha = 255f * TipTimer / fadeOutTimer;
-            else if (TipTimer > fadeInTimer)
-                alpha = 255f * ((MaxTipTime - TipTimer) / (MaxTipTime - fadeInTimer));
+            if (TipTimer < FadeOutTimer)
+                alpha = 255f * TipTimer / FadeOutTimer;
+            else if (TipTimer > FadeInTimer)
+                alpha = 255f * ((MaxTipTime - TipTimer) / (MaxTipTime - FadeInTimer));
 
-            var textpos = new Vector2(Rect.X + 10, Rect.Y + 5);
+            var textPos = new Vector2(Rect.X + 10, Rect.Y + 5);
             var sel = new Selector(Rect, new Color(Color.Black, (byte)alpha),  alpha);            
-            sel.Draw(spriteBatch);
-            var color = new Color(255, 239, 208, (byte) alpha);
+            sel.Draw(batch);
+
+            var textColor = new Color(255, 239, 208, (byte) alpha);
             if (Hotkey.NotEmpty())
             {
-                Vector2 hotkeypos = textpos;
-
                 string title = Localizer.Token(2300) + ": ";
 
-                spriteBatch.DrawString(Fonts.Arial12Bold, title, textpos, color);
-                hotkeypos.X = hotkeypos.X + Fonts.Arial12Bold.MeasureString(title).X;
-                var gold = new Color(Color.Gold, (byte) alpha);
-                spriteBatch.DrawString(Fonts.Arial12Bold, Hotkey, hotkeypos, gold);
-                textpos.Y = textpos.Y + Fonts.Arial12Bold.LineSpacing * 2;
+                batch.DrawString(Fonts.Arial12Bold, title, textPos, textColor);
+
+                Vector2 hotKey = textPos;
+                hotKey.X += Fonts.Arial12Bold.MeasureString(title).X;
+
+                batch.DrawString(Fonts.Arial12Bold, Hotkey, hotKey, new Color(Color.Gold, (byte)alpha));
+                textPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
             }
-            spriteBatch.DrawString(Fonts.Arial12Bold, Text, textpos, color);
+
+            batch.DrawString(Fonts.Arial12Bold, Text, textPos, textColor);
         }
     }
 }

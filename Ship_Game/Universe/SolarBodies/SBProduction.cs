@@ -278,7 +278,7 @@ namespace Ship_Game.Universe.SolarBodies
                 IsPlayerAdded = playerAdded,
                 isBuilding = true,
                 Building = b,
-                Cost = b.Cost * CurrentGame.Pace,
+                Cost = b.ActualCost,
                 productionTowards = 0.0f,
                 NotifyOnEmpty = false
             };
@@ -368,7 +368,7 @@ namespace Ship_Game.Universe.SolarBodies
             qi.pgs.QItem = qi;
             qi.Building = b;
             qi.isBuilding = true;
-            qi.Cost = b.Cost;
+            qi.Cost = b.ActualCost;
             qi.productionTowards = 0.0f;
             qi.NotifyOnEmpty = false;
             ConstructionQueue.Add(qi);
