@@ -50,14 +50,14 @@ namespace Ship_Game.GameScreens
 
             BeginVLayout(TaxRateRect.X + 10, TaxRateRect.Y + 5, ystep: 40);
                 TaxSlider    = SliderPercent(312, 32, Localizer.Token(311), 0f, 1f, 0.25f);
-                TreasuryGoal = SliderPercent(312, 32, "Auto Tax Treasury Goal", 0f, 1f, 0.20f);
+                TreasuryGoal = SliderPercent(312, 32, "Auto Tax Desired Treasury", 0f, 1f, 0.20f);
                 TaxSlider.TooltipId    = 66;
                 TreasuryGoal.TooltipId = 66;
                 TreasuryGoal.OnChange = (s) =>
                 {
                     Player.data.treasuryGoal = s.RelativeValue;
                     int goal = (int) (100 * Player.NetPlanetIncomes * s.RelativeValue);
-                    s.Text = $"Auto Tax Treasury Goal : {goal}";
+                    s.Text = $"Auto Tax Desired Treasury : {goal}";
                 };
                 TaxSlider.OnChange = (s) => {
                     Player.data.TaxRate = s.RelativeValue;
