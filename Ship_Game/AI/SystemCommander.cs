@@ -297,7 +297,7 @@ namespace Ship_Game.AI
             {
                 Value += Planet.PopulationBillion / 10f;
                 Value += Planet.GovBuildings ? 1 : 0;
-                Value += Planet.HasShipyard ? 5 : 0;
+                Value += Planet.HasSpacePort ? 5 : 0;
                 Value += Planet.Level;
                 if (Owner.data.Traits.Cybernetic > 0) Value += Planet.MineralRichness;
             }

@@ -84,7 +84,7 @@ namespace Ship_Game
         public Planet()
         {
             CreateManagers();
-            HasShipyard = false;
+            HasSpacePort = false;
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
@@ -527,7 +527,7 @@ namespace Ship_Game
                 DevelopmentStatus = Localizer.Token(1775); // densely populated
             }
 
-            if (Prod.NetIncome >= 10.0 && HasShipyard)
+            if (Prod.NetIncome >= 10.0 && HasSpacePort)
                 DevelopmentStatus += Localizer.Token(1776); // fine shipwright
             else if (Fertility >= 2.0 && Food.NetIncome > MaxPopulation)
                 DevelopmentStatus += Localizer.Token(1777); // fine agriculture
@@ -685,7 +685,7 @@ namespace Ship_Game
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
 
-            HasShipyard = shipyard && (colonyType != ColonyType.Research || Owner.isPlayer);
+            HasSpacePort = shipyard && (colonyType != ColonyType.Research || Owner.isPlayer);
 
             // greedy bastards
             Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
@@ -696,7 +696,7 @@ namespace Ship_Game
 
             if (Station != null && !loadUniverse)
             {
-                Station.SetVisibility(HasShipyard, Empire.Universe.ScreenManager, this);
+                Station.SetVisibility(HasSpacePort, Empire.Universe.ScreenManager, this);
             }
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);

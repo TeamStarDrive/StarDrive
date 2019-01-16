@@ -211,7 +211,7 @@ namespace Ship_Game
                             ParentSystem = p.ParentSystem
                         };
                         p.Station.LoadContent(ScreenManager);
-                        p.HasShipyard = true;
+                        p.HasSpacePort = true;
                     }
                     
                     if (p.Owner != null && !system.OwnerList.Contains(p.Owner))
