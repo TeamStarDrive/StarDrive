@@ -147,7 +147,7 @@ namespace Ship_Game
                 worth += MineralRichness*2.0f;
             }
             foreach (Building b in BuildingList)
-                worth += b.Cost / 50f;
+                worth += b.ActualCost / 50f;
             if (worth < 15f)
                 worth = 15f;
             if (toEmpire.data.EconomicPersonality.Name == "Expansionists")

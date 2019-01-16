@@ -648,7 +648,7 @@ namespace Ship_Game.Debug
                     DrawString(e.data.DiplomaticPersonality.Name);
                     DrawString(e.data.EconomicPersonality.Name);
                 }
-                DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.NetIncome().String()})");
+                DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome().String()})");
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
                 DrawString("Ship Maint:    "+e.TotalShipMaintenance);
@@ -667,7 +667,7 @@ namespace Ship_Game.Debug
                 DrawString("Planet Count:  "+e.GetPlanets().Count);
                 if (!string.IsNullOrEmpty(e.ResearchTopic))
                 {
-                    float cost = CurrentGame.Pace * ResourceManager.TechTree[e.ResearchTopic].Cost;
+                    float cost = ResourceManager.TechTree[e.ResearchTopic].ActualCost;
                     DrawString($"Research: {e.GetTDict()[e.ResearchTopic].Progress:0}/{cost:0}({e.GetProjectedResearchNextTurn().String()})");
                     DrawString("   --"+e.ResearchTopic);
                 }

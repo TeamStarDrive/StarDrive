@@ -132,6 +132,8 @@ namespace Ship_Game.Gameplay
         {
         }
 
+        public float TradeIncome() => (0.25f * Treaty_Trade_TurnsExisted - 3f).Clamped(-3f, 3f);
+
         public bool WarnedSystemListContains(Planet claimedPlanet) => WarnedSystemsList.Any(guid => guid == claimedPlanet.ParentSystem.guid);
 
         public void StoleOurColonyClaim(Empire onwer, Planet claimedPlanet)

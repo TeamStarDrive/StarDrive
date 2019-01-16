@@ -104,13 +104,25 @@ namespace Ship_Game
                     return false;
             }
 
+
             switch (governor)
             {
-                case ColonyType.Agricultural: return CanAffordAgricultural(a, b);
                 case ColonyType.Core:         return CanAffordCore(a, b);
+                case ColonyType.Agricultural: return CanAffordAgricultural(a, b);
                 case ColonyType.Industrial:   return CanAffordIndustrial(a, b);
                 case ColonyType.Military:     return CanAffordMilitary(a, b);
                 case ColonyType.Research:     return CanAffordForResearch(a, b);
+            }
+            // Player controlled colony type:
+            return CanAffordManualControlled(a, b);
+        }
+
+        bool CanAffordManualControlled(in Afford a, Building b)
+        {
+            if (b.IsBiospheres)
+            {
+                if (Money.NetRevenueGain(b) > 0f)
+                    return true;
             }
             return false;
         }
@@ -160,7 +172,7 @@ namespace Ship_Game
                 if (b.StorageAdded > 0
                     || (NonCybernetic && (b.PlusTerraformPoints > 0 && Fertility < 1) && MaxPopulation > 2000)
                     || ((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0)
-                        && Population == MaxPopulation && Money.GrossRevenue > b.Maintenance)
+                        && Population < MaxPopulation*0.5f && Money.NetRevenue*0.5f > b.Maintenance)
                     || (NonCybernetic && b.PlusFlatFoodAmount > 0)
                     || (NonCybernetic && b.PlusFoodPerColonist > 0)
                     || b.PlusFlatProductionAmount > 0

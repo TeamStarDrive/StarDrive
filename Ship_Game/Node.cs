@@ -37,7 +37,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawRectangle(NodeRect, Color.White, 3f);
             }
             Vector2 cursor = new Vector2(NodeRect.X + 10, NodeRect.Y + 4);
-            HelperFunctions.DrawDropShadowText(ScreenManager, Localizer.Token(ResourceManager.TechTree[tech.UID].NameIndex), cursor, Fonts.Arial12Bold);
+            HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, Localizer.Token(ResourceManager.TechTree[tech.UID].NameIndex), cursor, Fonts.Arial12Bold);
             Rectangle BlackBar = new Rectangle(NodeRect.X + 215, NodeRect.Y + 1, 1, NodeRect.Height - 2);
             ScreenManager.SpriteBatch.FillRectangle(BlackBar, Color.Black);
             Rectangle rIconRect = new Rectangle(BlackBar.X + 4, BlackBar.Y + 4, 19, 20);
@@ -45,9 +45,9 @@ namespace Ship_Game
             cursor.X = rIconRect.X + 24;
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             SpriteFont arial12Bold = Fonts.Arial12Bold;
-            int cost = (int)ResourceManager.TechTree[tech.UID].Cost;
+            int cost = (int)ResourceManager.Tech(tech.UID).ActualCost;
             spriteBatch.DrawString(arial12Bold, cost.ToString(), cursor, Color.White);
-            float progress = tech.Progress / ResourceManager.TechTree[tech.UID].Cost;
+            float progress = tech.Progress / ResourceManager.Tech(tech.UID).ActualCost;
             pb.Draw(ScreenManager, progress);
             cursor.X = pb.rect.X + pb.rect.Width + 33;
             cursor.Y = pb.rect.Y - 2;

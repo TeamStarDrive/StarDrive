@@ -552,7 +552,7 @@ namespace Ship_Game
             float score = EvalCommon(b, income);
 
             if (score > 0)
-                score *= FactorForConstructionCost(b.Cost, highestCost, popRatio);
+                score *= FactorForConstructionCost(b.ActualCost, highestCost, popRatio);
 
             if (IsPlanetExtraDebugTarget())
             {
@@ -577,7 +577,7 @@ namespace Ship_Game
             score -= EvalFertilityLossScrap(b);  // Yes, -= because it is calculated as negative in the function*/
 
             if (score > 0)
-              score *= FactorForConstructionCost(b.Cost, highestCost, popRatio);
+              score *= FactorForConstructionCost(b.ActualCost, highestCost, popRatio);
 
             if (!IsPlanetExtraDebugTarget())
                 return score;
@@ -633,8 +633,8 @@ namespace Ship_Game
 
         float EvalCostVsBuildTime(Building b)
         {
-            if (b.Cost.LessOrEqual(0)) return 0;
-            float netCost = Math.Max(b.Cost - Storage.Prod,0);
+            if (b.ActualCost.LessOrEqual(0)) return 0;
+            float netCost = Math.Max(b.ActualCost - Storage.Prod,0);
             if (netCost.AlmostZero())
                 return 0;
             float ratio   = netCost / Math.Max(Prod.NetMaxPotential / 4, 0.01f);
@@ -731,7 +731,7 @@ namespace Ship_Game
 
             Building best     = null;
             float bestValue   = 0.0f; // So a building with a value of 0 will not be built.
-            float highestCost = buildings.FindMax(building => building.Cost).Cost;
+            float highestCost = buildings.FindMax(building => building.ActualCost).ActualCost;
             
             for (int i = 0; i < buildings.Count; i++)
             {
@@ -766,7 +766,7 @@ namespace Ship_Game
                 if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded)
                     continue;
 
-                float highestCost   = buildings.FindMax(building => building.Cost).Cost;
+                float highestCost   = buildings.FindMax(building => building.ActualCost).ActualCost;
                 float buildingScore = EvaluateBuilding(b, budget, highestCost, popRatio);
                 if (buildingScore < worstValue && buildingScore >= minThreshold)
                 {
