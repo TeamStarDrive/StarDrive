@@ -719,7 +719,7 @@ namespace Ship_Game
                     });
                     ScreenManager.SpriteBatch.Draw(icon, vector2, empire.EmpireColor, 0.0f,
                         icon.CenterF, 0.35f, SpriteEffects.None, 1f);
-                    HelperFunctions.DrawDropShadowText(ScreenManager, fleet.Name,
+                    HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, fleet.Name,
                         new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
                 }
             }
