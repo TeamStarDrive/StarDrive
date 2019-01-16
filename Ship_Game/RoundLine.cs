@@ -6,20 +6,12 @@ namespace Ship_Game
 	public class RoundLine
 	{
 		private Vector2 p0;
-
 		private Vector2 p1;
 
-		private float rho;
-
-		private float theta;
-
-		public Vector2 P0
+        public Vector2 P0
 		{
-			get
-			{
-				return p0;
-			}
-			set
+			get => p0;
+            set
 			{
 				p0 = value;
 				RecalcRhoTheta();
@@ -28,34 +20,19 @@ namespace Ship_Game
 
 		public Vector2 P1
 		{
-			get
-			{
-				return p1;
-			}
-			set
+			get => p1;
+            set
 			{
 				p1 = value;
 				RecalcRhoTheta();
 			}
 		}
 
-		public float Rho
-		{
-			get
-			{
-				return rho;
-			}
-		}
+		public float Rho { get; private set; }
 
-		public float Theta
-		{
-			get
-			{
-				return theta;
-			}
-		}
+        public float Theta { get; private set; }
 
-		public RoundLine(Vector2 p0, Vector2 p1)
+        public RoundLine(Vector2 p0, Vector2 p1)
 		{
 			this.p0 = p0;
 			this.p1 = p1;
@@ -72,8 +49,8 @@ namespace Ship_Game
 		protected void RecalcRhoTheta()
 		{
 			Vector2 delta = P1 - P0;
-			rho = delta.Length();
-			theta = (float)Math.Atan2(delta.Y, delta.X);
+			Rho = delta.Length();
+			Theta = (float)Math.Atan2(delta.Y, delta.X);
 		}
 	}
 }
