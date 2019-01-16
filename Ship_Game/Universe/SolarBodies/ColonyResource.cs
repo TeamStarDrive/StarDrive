@@ -202,7 +202,8 @@ namespace Ship_Game.Universe.SolarBodies
     public class ColonyMoney
     {
         readonly Planet Planet;
-        
+        float IncomePerColonist;
+
         // The current tax rate applied by empire tax rate and planet tax rate modifiers
         public float TaxRate { get; private set; }
 
@@ -217,17 +218,24 @@ namespace Ship_Game.Universe.SolarBodies
 
         public ColonyMoney(Planet planet) { Planet = planet; }
 
+        public float NetRevenueGain(Building b)
+        {
+            float newPopulation = b.MaxPopIncrease/1000f;
+            float grossIncome = newPopulation*IncomePerColonist*TaxRate;
+            return grossIncome - b.Maintenance;
+        }
+
         public void Update()
         {
             // Base tax rate comes from current empire tax %
             TaxRate = Planet.Owner.data.TaxRate;
 
             Maintenance = 0f;
-            float incomePerColonist = 1f;
+            IncomePerColonist = 1f;
             float taxRateMultiplier = 1f + Planet.Owner.data.Traits.TaxMod;
             foreach (Building b in Planet.BuildingList)
             {
-                incomePerColonist += b.CreditsPerColonist;
+                IncomePerColonist += b.CreditsPerColonist;
                 taxRateMultiplier += b.PlusTaxPercentage;
                 Maintenance += b.Maintenance;
             }
@@ -236,7 +244,7 @@ namespace Ship_Game.Universe.SolarBodies
             TaxRate *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
             
-            GrossRevenue = Planet.PopulationBillion * incomePerColonist * TaxRate;
+            GrossRevenue = Planet.PopulationBillion * IncomePerColonist * TaxRate;
             NetRevenue   = GrossRevenue - Maintenance;
         }
     }
