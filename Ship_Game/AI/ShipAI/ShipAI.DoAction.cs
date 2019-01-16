@@ -718,7 +718,7 @@ namespace Ship_Game.AI
                               Owner.GetCost(Owner.loyalty));
             if (cost < 0)
                 cost = 0;
-            cost = cost + 10 * (int) CurrentGame.Pace;
+            cost += (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace
             qi.Cost = Owner.loyalty.isFaction ? 0 : cost;
             qi.isRefit = true;
             //Added by McShooterz: refit keeps name and level

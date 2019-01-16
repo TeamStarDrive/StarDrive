@@ -52,7 +52,7 @@ namespace Ship_Game
                     float textHeight = Fonts.Arial14Bold.LineSpacing + 5 + Fonts.Arial12.MeasureString(wrappedDescr).Y;
                     var pos = new Vector2(entry.X + 100, entry.CenterY - (int)(textHeight / 2f));
 
-                    HelperFunctions.DrawDropShadowText(ScreenManager, title, pos, Fonts.Arial14Bold, Color.Orange);
+                    HelperFunctions.DrawDropShadowText(batch, title, pos, Fonts.Arial14Bold, Color.Orange);
                     batch.DrawString(Fonts.Arial12, wrappedDescr, pos + new Vector2(0f, Fonts.Arial14Bold.LineSpacing + 2), Color.LightGray);
                 }
 

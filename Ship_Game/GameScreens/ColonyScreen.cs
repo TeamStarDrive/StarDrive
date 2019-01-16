@@ -515,7 +515,7 @@ namespace Ship_Game
                     position = new Vector2(destinationRectangle2.X + 26,
                         destinationRectangle2.Y + destinationRectangle2.Height / 2 -
                         Font12.LineSpacing / 2);
-                    batch.DrawString(Font12, ((int) troop.GetCost()).ToString(), position, Color.White);
+                    batch.DrawString(Font12, ((int) troop.ActualCost).ToString(), position, Color.White);
                     entry.DrawPlusEdit(batch);
                 }
                 else
@@ -533,7 +533,7 @@ namespace Ship_Game
                     position = new Vector2(destinationRectangle2.X + 26,
                         destinationRectangle2.Y + destinationRectangle2.Height / 2 -
                         Font12.LineSpacing / 2);
-                    batch.DrawString(Font12, ((int) troop.GetCost()).ToString(), position, Color.White);
+                    batch.DrawString(Font12, ((int) troop.ActualCost).ToString(), position, Color.White);
                     entry.DrawPlusEdit(batch);
                 }
             }
@@ -752,7 +752,7 @@ namespace Ship_Game
                     batch.Draw(iconProd, destinationRectangle2, Color.White);
                     position = new Vector2((destinationRectangle2.X + 26),
                         (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
-                    batch.DrawString(Font12, ((int) troop.GetCost()).ToString(), position, Color.White);
+                    batch.DrawString(Font12, ((int) troop.ActualCost).ToString(), position, Color.White);
 
                     entry.DrawPlusEdit(batch);
                 }
@@ -770,7 +770,7 @@ namespace Ship_Game
                     batch.Draw(iconProd, destinationRectangle2, Color.White);
                     position = new Vector2((destinationRectangle2.X + 26),
                         (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
-                    batch.DrawString(Font12, ((int) troop.GetCost()).ToString(), position, Color.White);
+                    batch.DrawString(Font12, ((int) troop.ActualCost).ToString(), position, Color.White);
 
                     entry.DrawPlusEdit(batch);
                 }
@@ -866,9 +866,7 @@ namespace Ship_Game
                     position = new Vector2((r.X + 26),
                         (r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
-                    batch.DrawString(Font12,
-                        ((int)b.Cost * CurrentGame.Pace).String(), position, Color.White);
-
+                    batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
                     entry.DrawPlus(batch);
                 }
                 else
@@ -892,8 +890,7 @@ namespace Ship_Game
                     position = new Vector2((r.X + 26),
                         (r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
-                    batch.DrawString(Font12,
-                        ((int) b.Cost * CurrentGame.Pace).String(), position, Color.White);
+                    batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
                     entry.DrawPlus(batch);
                 }
 
@@ -1776,7 +1773,7 @@ namespace Ship_Game
                 isBuilding = true,
                 Building = building,
                 IsPlayerAdded = playerAdded,
-                Cost = building.Cost * CurrentGame.Pace,
+                Cost = building.ActualCost,
                 productionTowards = 0f,
                 pgs = @where
             };

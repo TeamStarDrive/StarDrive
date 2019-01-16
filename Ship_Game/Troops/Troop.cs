@@ -300,10 +300,8 @@ namespace Ship_Game
             }
         }
 
-        public float GetCost()
-        {
-            return Cost * CurrentGame.Pace;
-        }
+        [XmlIgnore] [JsonIgnore]
+        public float ActualCost => Cost * CurrentGame.Pace;
 
         public bool AssignTroopToNearestAvailableTile(Troop t, PlanetGridSquare tile, Planet planet )
         {

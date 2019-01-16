@@ -64,10 +64,9 @@ namespace Ship_Game
 			spriteBatch.DrawString(font, text, textPos, white);
 		}
 
-		public void DrawWithShadow(ScreenManager ScreenManager)
+		public void DrawWithShadow(SpriteBatch batch)
 		{
 			Color white;
-			ScreenManager screenManager = ScreenManager;
 			string text = Text;
 			Vector2 textPos = TextPos;
 			SpriteFont font = Font;
@@ -79,14 +78,13 @@ namespace Ship_Game
 			{
 				white = (Hover ? Color.White : Color.DarkGray);
 			}
-			HelperFunctions.DrawDropShadowText(screenManager, text, textPos, font, white);
+			HelperFunctions.DrawDropShadowText(batch, text, textPos, font, white);
 		}
 
-		public void DrawWithShadowCaps(ScreenManager ScreenManager)
+		public void DrawWithShadowCaps(SpriteBatch batch)
 		{
 			Color white;
 			Color color;
-			ScreenManager screenManager = ScreenManager;
 			string str = capT;
 			Vector2 capitalPos = CapitalPos;
 			SpriteFont cap = Cap;
@@ -98,8 +96,7 @@ namespace Ship_Game
 			{
 				white = (Hover ? Color.White : Color.DarkGray);
 			}
-			HelperFunctions.DrawDropShadowText(screenManager, str, capitalPos, cap, white);
-			ScreenManager screenManager1 = ScreenManager;
+			HelperFunctions.DrawDropShadowText(batch, str, capitalPos, cap, white);
 			string str1 = smallT;
 			Vector2 textPos = TextPos;
 			SpriteFont small = Small;
@@ -111,7 +108,7 @@ namespace Ship_Game
 			{
 				color = (Hover ? Color.White : Color.DarkGray);
 			}
-			HelperFunctions.DrawDropShadowText(screenManager1, str1, textPos, small, color);
+			HelperFunctions.DrawDropShadowText(batch, str1, textPos, small, color);
 		}
 
 		public bool HandleInput(InputState input)

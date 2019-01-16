@@ -221,7 +221,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.FillRectangle(IntelligenceRect, new Color(23, 20, 14));
             ScreenManager.SpriteBatch.FillRectangle(OperationsRect, new Color(23, 20, 14));
             var textCursor = new Vector2(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 10);
-            HelperFunctions.DrawDropShadowText(ScreenManager, SelectedEmpire.data.Traits.Name, textCursor, Fonts.Arial20Bold);
+            HelperFunctions.DrawDropShadowText(batch, SelectedEmpire.data.Traits.Name, textCursor, Fonts.Arial20Bold);
             var flagRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width - 60, SelectedInfoRect.Y + 10, 40, 40);
             batch.Draw(ResourceManager.Flag(SelectedEmpire.data.Traits.FlagIndex), flagRect, SelectedEmpire.EmpireColor);
             textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 4);
@@ -261,7 +261,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), textCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
-                    orderby empire.NetIncome() descending
+                    orderby empire.GrossIncome() descending
                     select empire;
                 int rank = 1;
                 foreach (Empire e in MoneySortedList)
@@ -443,7 +443,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), textCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
-                    orderby empire.NetIncome() descending
+                    orderby empire.GrossIncome() descending
                     select empire;
                 int rank = 1;
 
@@ -492,7 +492,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank.ToString()), ColumnBCursor, Color.White);
             }
             textCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
-            HelperFunctions.DrawDropShadowText(ScreenManager, Localizer.Token(6091), textCursor, Fonts.Arial20Bold);
+            HelperFunctions.DrawDropShadowText(batch, Localizer.Token(6091), textCursor, Fonts.Arial20Bold);
             textCursor.Y = textCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
             if (IntelligenceLevel(SelectedEmpire) > 0)
             {
@@ -597,7 +597,7 @@ namespace Ship_Game
             }
             //End of intel report
             textCursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
-            HelperFunctions.DrawDropShadowText(ScreenManager, (SelectedEmpire == EmpireManager.Player ? Localizer.Token(2181) : Localizer.Token(2212)), textCursor, Fonts.Arial20Bold);
+            HelperFunctions.DrawDropShadowText(batch, (SelectedEmpire == EmpireManager.Player ? Localizer.Token(2181) : Localizer.Token(2212)), textCursor, Fonts.Arial20Bold);
             textCursor.Y = textCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
             //Added by McShooterz: Only display modified bonuses
             if (IntelligenceLevel(SelectedEmpire)>0)
@@ -910,7 +910,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    scientificStr = scientificStr + ResourceManager.TechTree[Technology.Key].Cost;
+                    scientificStr += ResourceManager.Tech(Technology.Key).ActualCost;
                 }
                 return scientificStr;
             }
@@ -922,7 +922,7 @@ namespace Ship_Game
             }
             foreach (string tech in techs)
             {
-                scientificStr = scientificStr + ResourceManager.TechTree[tech].Cost;
+                scientificStr += ResourceManager.Tech(tech).ActualCost;
             }
             return scientificStr;
 
