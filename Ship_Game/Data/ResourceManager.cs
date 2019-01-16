@@ -448,7 +448,7 @@ namespace Ship_Game
             return list;
         }
 
-        public static float GetTroopCost(string troopType) => TroopsDict[troopType].GetCost();
+        public static float GetTroopCost(string troopType) => TroopsDict[troopType].ActualCost;
         public static Troop GetTroopTemplate(string troopType)
         {
             if (TroopsDict.TryGetValue(troopType, out Troop troopO)) return troopO;
@@ -822,12 +822,6 @@ namespace Ship_Game
             });
         }
 
-        public static float GetModuleCost(string uid)
-        {
-            ShipModule template = ModuleTemplates[uid];
-            return template.Cost;
-        }
-
         public static ShipModule GetModuleTemplate(string uid) => ModuleTemplates[uid];
         public static bool ModuleExists(string uid) => ModuleTemplates.ContainsKey(uid);
         public static IReadOnlyDictionary<string, ShipModule> ShipModules => ModuleTemplates;
@@ -908,7 +902,6 @@ namespace Ship_Game
         public static Building CreateBuilding(Building template)
         {
             Building newB = template.Clone();
-            newB.Cost *= CurrentGame.Pace;
 
             // comp fix to ensure functionality of vanilla buildings
             if (newB.IsCapitalOrOutpost)
