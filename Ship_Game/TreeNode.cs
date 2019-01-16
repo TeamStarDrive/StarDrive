@@ -246,7 +246,7 @@ namespace Ship_Game
                         spriteBatch.DrawString(TitleFont, text, position, complete ? new Color(132, 172, 208) : Color.White);
                         ++num3;
                     }
-                    int num4 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / ResourceManager.TechTree[tech.UID].ActualCost * (double)progressRect.Height);
+                    int num4 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / ResourceManager.Tech(tech.UID).ActualCost * (double)progressRect.Height);
                     Rectangle destinationRectangle2 = progressRect;
                     destinationRectangle2.Height = num4;
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), progressRect, Color.White);

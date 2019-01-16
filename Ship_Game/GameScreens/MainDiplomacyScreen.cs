@@ -910,7 +910,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    scientificStr = scientificStr + ResourceManager.TechTree[Technology.Key].ActualCost;
+                    scientificStr += ResourceManager.Tech(Technology.Key).ActualCost;
                 }
                 return scientificStr;
             }
@@ -922,7 +922,7 @@ namespace Ship_Game
             }
             foreach (string tech in techs)
             {
-                scientificStr = scientificStr + ResourceManager.TechTree[tech].ActualCost;
+                scientificStr += ResourceManager.Tech(tech).ActualCost;
             }
             return scientificStr;
 
