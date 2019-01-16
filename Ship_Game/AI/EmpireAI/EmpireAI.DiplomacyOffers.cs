@@ -246,9 +246,9 @@ namespace Ship_Game.AI
                 TrustEntry te = new TrustEntry
                 {
                     TrustCost = (us.data.EconomicPersonality.Name == "Technologists"
-                        ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
-                          ResourceManager.TechTree[tech].Cost / 100f
-                        : ResourceManager.TechTree[tech].Cost / 100f),
+                        ? ResourceManager.TechTree[tech].ActualCost / 100f * 0.25f +
+                          ResourceManager.TechTree[tech].ActualCost / 100f
+                        : ResourceManager.TechTree[tech].ActualCost / 100f),
                     TurnTimer = 40,
                     Type = TrustEntryType.Technology
                 };
@@ -266,9 +266,9 @@ namespace Ship_Game.AI
                 TrustEntry te = new TrustEntry
                 {
                     TrustCost = (Them.data.EconomicPersonality.Name == "Technologists"
-                        ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
-                          ResourceManager.TechTree[tech].Cost / 100f
-                        : ResourceManager.TechTree[tech].Cost / 100f),
+                        ? ResourceManager.TechTree[tech].ActualCost / 100f * 0.25f +
+                          ResourceManager.TechTree[tech].ActualCost / 100f
+                        : ResourceManager.TechTree[tech].ActualCost / 100f),
                     Type = TrustEntryType.Treaty
                 };
                 Them.GetRelations(us).TrustEntries.Add(te);
@@ -623,9 +623,9 @@ namespace Ship_Game.AI
                 FearEntry te = new FearEntry
                 {
                     FearCost = (us.data.EconomicPersonality.Name == "Technologists"
-                        ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
-                          ResourceManager.TechTree[tech].Cost / 100f
-                        : ResourceManager.TechTree[tech].Cost / 100f),
+                        ? ResourceManager.TechTree[tech].ActualCost / 100f * 0.25f +
+                          ResourceManager.TechTree[tech].ActualCost / 100f
+                        : ResourceManager.TechTree[tech].ActualCost / 100f),
                     TurnTimer = 40
                 };
                 us.GetRelations(Them).FearEntries.Add(te);
@@ -640,9 +640,9 @@ namespace Ship_Game.AI
                 FearEntry te = new FearEntry
                 {
                     FearCost = (Them.data.EconomicPersonality.Name == "Technologists"
-                        ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
-                          ResourceManager.TechTree[tech].Cost / 100f
-                        : ResourceManager.TechTree[tech].Cost / 100f)
+                        ? ResourceManager.TechTree[tech].ActualCost / 100f * 0.25f +
+                          ResourceManager.TechTree[tech].ActualCost / 100f
+                        : ResourceManager.TechTree[tech].ActualCost / 100f)
                 };
                 Them.GetRelations(us).FearEntries.Add(te);
             }
@@ -835,7 +835,7 @@ namespace Ship_Game.AI
             }
             foreach (string tech in FromUs.TechnologiesOffered)
             {
-                TotalTrustRequiredFromUS = TotalTrustRequiredFromUS + ResourceManager.TechTree[tech].Cost / 50f;
+                TotalTrustRequiredFromUS += ResourceManager.TechTree[tech].ActualCost / 50f;
             }
             float ValueFromUs = 0f;
             float ValueToUs = 0f;
@@ -870,9 +870,9 @@ namespace Ship_Game.AI
             foreach (string tech in FromUs.TechnologiesOffered)
             {
                 ValueFromUs = ValueFromUs + (us.data.EconomicPersonality.Name == "Technologists"
-                                  ? ResourceManager.TechTree[tech].Cost / 50f * 0.25f +
-                                    ResourceManager.TechTree[tech].Cost / 50f
-                                  : ResourceManager.TechTree[tech].Cost / 50f);
+                                  ? ResourceManager.TechTree[tech].ActualCost / 50f * 0.25f +
+                                    ResourceManager.TechTree[tech].ActualCost / 50f
+                                  : ResourceManager.TechTree[tech].ActualCost / 50f);
             }
             foreach (string artifactsOffered in FromUs.ArtifactsOffered)
             {
@@ -885,9 +885,9 @@ namespace Ship_Game.AI
             foreach (string tech in ToUs.TechnologiesOffered)
             {
                 ValueToUs = ValueToUs + (us.data.EconomicPersonality.Name == "Technologists"
-                                ? ResourceManager.TechTree[tech].Cost / 50f * 0.25f +
-                                  ResourceManager.TechTree[tech].Cost / 50f
-                                : ResourceManager.TechTree[tech].Cost / 50f);
+                                ? ResourceManager.TechTree[tech].ActualCost / 50f * 0.25f +
+                                  ResourceManager.TechTree[tech].ActualCost / 50f
+                                : ResourceManager.TechTree[tech].ActualCost / 50f);
             }
             if (us.GetPlanets().Count - FromUs.ColoniesOffered.Count + ToUs.ColoniesOffered.Count < 1)
             {
@@ -1128,9 +1128,9 @@ namespace Ship_Game.AI
             foreach (string tech in FromUs.TechnologiesOffered)
             {
                 ValueFromUs = ValueFromUs + (us.data.EconomicPersonality.Name == "Technologists"
-                                  ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
-                                    ResourceManager.TechTree[tech].Cost / 100f
-                                  : ResourceManager.TechTree[tech].Cost / 100f);
+                                  ? ResourceManager.TechTree[tech].ActualCost / 100f * 0.25f +
+                                    ResourceManager.TechTree[tech].ActualCost / 100f
+                                  : ResourceManager.TechTree[tech].ActualCost / 100f);
             }
             foreach (string artifactsOffered in FromUs.ArtifactsOffered)
             {
@@ -1143,9 +1143,9 @@ namespace Ship_Game.AI
             foreach (string tech in ToUs.TechnologiesOffered)
             {
                 ValueToUs = ValueToUs + (us.data.EconomicPersonality.Name == "Technologists"
-                                ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
-                                  ResourceManager.TechTree[tech].Cost / 100f
-                                : ResourceManager.TechTree[tech].Cost / 100f);
+                                ? ResourceManager.TechTree[tech].ActualCost / 100f * 0.25f +
+                                  ResourceManager.TechTree[tech].ActualCost / 100f
+                                : ResourceManager.TechTree[tech].ActualCost / 100f);
             }
             foreach (string planetName in FromUs.ColoniesOffered)
             {

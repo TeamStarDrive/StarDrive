@@ -173,7 +173,7 @@ namespace Ship_Game
 			CostPos = new Vector2(65f, 70f) + new Vector2(BaseRect.X, BaseRect.Y);
 			float x = CostPos.X;
 			SpriteFont titleFont = TitleFont;                
-			float cost = tech.TechCost * CurrentGame.Pace;
+			float cost = tech.TechCost;
 			CostPos.X = x - titleFont.MeasureString(cost.String(1)).X;
 			CostPos.X = (int)CostPos.X;
 			CostPos.Y = (int)CostPos.Y - 3;
@@ -246,7 +246,7 @@ namespace Ship_Game
                         spriteBatch.DrawString(TitleFont, text, position, complete ? new Color(132, 172, 208) : Color.White);
                         ++num3;
                     }
-                    int num4 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / ResourceManager.TechTree[tech.UID].Cost * (double)progressRect.Height);
+                    int num4 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / ResourceManager.TechTree[tech.UID].ActualCost * (double)progressRect.Height);
                     Rectangle destinationRectangle2 = progressRect;
                     destinationRectangle2.Height = num4;
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), progressRect, Color.White);

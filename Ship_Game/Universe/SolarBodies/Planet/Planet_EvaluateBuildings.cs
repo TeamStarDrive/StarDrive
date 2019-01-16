@@ -496,7 +496,7 @@ namespace Ship_Game
             score -= EvalFertilityLoss(b);
 
             if (score > 0)
-                score = FactorForConstructionCost(score, b.Cost, highestCost);
+                score = FactorForConstructionCost(score, b.ActualCost, highestCost);
 
             if (IsPlanetExtraDebugTarget())
             {
@@ -578,7 +578,7 @@ namespace Ship_Game
 
             Building best = null;
             float bestValue = 0.0f; // So a building with a value of 0 will not be built.
-            float highestCost = BuildingsCanBuild.FindMax(building => building.Cost).Cost;
+            float highestCost = BuildingsCanBuild.FindMax(building => building.ActualCost).ActualCost;
             
             for (int i = 0; i < BuildingsCanBuild.Count; i++)
             {
@@ -620,7 +620,7 @@ namespace Ship_Game
 
             Building best = null;
             float bestValue = 0.0f;
-            float highestCost = BuildingsCanBuild.FindMax(building => building.Cost).Cost;
+            float highestCost = BuildingsCanBuild.FindMax(building => building.ActualCost).ActualCost;
          
             for (int i = 0; i < BuildingsCanBuild.Count; i++)
             {
@@ -630,7 +630,7 @@ namespace Ship_Game
 
                 float score = -EvalMaintenance(b, budget);
                 score += EvalMilitaryBuilding(b, budget);
-                score = FactorForConstructionCost(score, b.Cost, highestCost);
+                score = FactorForConstructionCost(score, b.ActualCost, highestCost);
                 if (score > bestValue)
                 {
                     best = b;
@@ -687,8 +687,7 @@ namespace Ship_Game
                 {
                     isShip = true,
                     sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
-                    Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) *
-                           CurrentGame.Pace
+                    Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner)
                 });
             }
         }

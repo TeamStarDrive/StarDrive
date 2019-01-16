@@ -667,7 +667,7 @@ namespace Ship_Game.Debug
                 DrawString("Planet Count:  "+e.GetPlanets().Count);
                 if (!string.IsNullOrEmpty(e.ResearchTopic))
                 {
-                    float cost = CurrentGame.Pace * ResourceManager.TechTree[e.ResearchTopic].Cost;
+                    float cost = ResourceManager.TechTree[e.ResearchTopic].ActualCost;
                     DrawString($"Research: {e.GetTDict()[e.ResearchTopic].Progress:0}/{cost:0}({e.GetProjectedResearchNextTurn().String()})");
                     DrawString("   --"+e.ResearchTopic);
                 }

@@ -45,9 +45,9 @@ namespace Ship_Game
             cursor.X = rIconRect.X + 24;
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             SpriteFont arial12Bold = Fonts.Arial12Bold;
-            int cost = (int)ResourceManager.TechTree[tech.UID].Cost;
+            int cost = (int)ResourceManager.TechTree[tech.UID].ActualCost;
             spriteBatch.DrawString(arial12Bold, cost.ToString(), cursor, Color.White);
-            float progress = tech.Progress / ResourceManager.TechTree[tech.UID].Cost;
+            float progress = tech.Progress / ResourceManager.TechTree[tech.UID].ActualCost;
             pb.Draw(ScreenManager, progress);
             cursor.X = pb.rect.X + pb.rect.Width + 33;
             cursor.Y = pb.rect.Y - 2;

@@ -9,6 +9,7 @@ namespace Ship_Game
 
         /// This is purely used for logging/debugging to mark where the Technology was loaded from
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
+        [XmlIgnore] public float ActualCost => Cost * CurrentGame.Pace;
 
         public int RootNode;
         public float Cost;
