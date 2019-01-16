@@ -290,7 +290,7 @@ namespace Ship_Game
                 {
                     qi.isBuilding = true;
                     qi.Building = ResourceManager.CreateBuilding(qisave.UID);
-                    qi.Cost = qi.Building.Cost;
+                    qi.Cost = qi.Building.ActualCost;
                     qi.NotifyOnEmpty = false;
                     qi.IsPlayerAdded = qisave.isPlayerAdded;
                     foreach (PlanetGridSquare pgs in p.TilesList)

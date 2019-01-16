@@ -1,3 +1,4 @@
+using System;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
@@ -75,7 +76,12 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
         [XmlIgnore] [JsonIgnore] public int CurrentNumDefenseShips { get; private set; } 
 
-        public override string ToString() => $"BID:{BID}  Name:{Name}  Cost:{Cost}  +Tax:{PlusTaxPercentage}  Short:{ShortDescrText}";
+        [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.Pace;
+
+        public override string ToString()
+            => string.Format("BID:{0} Name:{1} ActualCost:{2} +Tax:{3}  Short:{4}", 
+                             BID, Name, ActualCost, PlusTaxPercentage, ShortDescrText);
+
         [XmlIgnore][JsonIgnore] public string TranslatedName => Localizer.Token(NameTranslationIndex);
         [XmlIgnore][JsonIgnore] public string DescriptionText => Localizer.Token(DescriptionIndex);
         [XmlIgnore][JsonIgnore] public string ShortDescrText => Localizer.Token(ShortDescriptionIndex);
@@ -89,7 +95,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsOutpost => BID == OutpostId;
         [XmlIgnore][JsonIgnore] public bool IsCapitalOrOutpost => BID == CapitalId || BID == OutpostId;
         [XmlIgnore][JsonIgnore] public bool IsBiospheres => BID == BiospheresId;
-        [XmlIgnore][JsonIgnore] public bool IsSpacePort => BID == SpacePortId;
+        [XmlIgnore][JsonIgnore] public bool IsSpacePort  => BID == SpacePortId;
 
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
@@ -261,7 +267,7 @@ namespace Ship_Game
                     building1 = building2;
             }
             planet.BuildingList.Remove(building1);
-            planet.ProdHere += Cost / 2f;
+            planet.ProdHere += ActualCost / 2f;
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
                 if (planetGridSquare.building != null && planetGridSquare.building == building1)

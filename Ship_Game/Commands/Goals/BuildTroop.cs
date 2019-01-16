@@ -34,7 +34,7 @@ namespace Ship_Game.Commands.Goals
                 QueueNumber = PlanetBuildingAt.ConstructionQueue.Count,
                 troopType = ToBuildUID,
                 Goal = this,
-                Cost = troopTemplate.GetCost()
+                Cost = troopTemplate.ActualCost
             });
             return GoalStep.GoToNextStep;
         }

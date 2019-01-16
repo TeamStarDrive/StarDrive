@@ -155,7 +155,7 @@ namespace Ship_Game.GameScreens.NewGame
                     foreach (string techname in shipData.TechsNeeded)
                     {
                         var tech = ResourceManager.TechTree[techname];
-                        shipData.TechScore += tech.RootNode == 0 ? (int) tech.Cost : 0;
+                        shipData.TechScore += tech.RootNode == 0 ? (int) tech.ActualCost : 0;
                     }
                 }
                 else
