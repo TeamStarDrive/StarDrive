@@ -740,7 +740,7 @@ namespace Ship_Game.Ships
         public float GetCost(Empire empire)
         {
             if (shipData.HasFixedCost)
-                return shipData.FixedCost;
+                return shipData.FixedCost * CurrentGame.Pace;
 
             float cost = 0.0f;
             for (int i = 0; i < ModuleSlotList.Length; ++i)
