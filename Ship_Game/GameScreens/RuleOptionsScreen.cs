@@ -100,9 +100,9 @@ namespace Ship_Game
             MinimumWarpRange    = Slider(minimumWarpRange, "Minimum Warp Range",   0, 1200000f, GlobalStats.MinimumWarpRange);
             IncreaseMaintenance = Slider(maintenanceRect,  "Increase Maintenance", 1, 10f,      GlobalStats.ShipMaintenanceMulti);
 
-            FTLPenaltySlider.TooltipId = 2286;
-            EnemyFTLPenaltySlider.TooltipId = 7041;
-            GravityWellSize.TooltipId = 6003;
+            FTLPenaltySlider.LocalizeTooltipId = 2286;
+            EnemyFTLPenaltySlider.LocalizeTooltipId = 7041;
+            GravityWellSize.LocalizeTooltipId = 6003;
             extraPlanets.Tooltip = "Add up to 6 random planets to each system";
             MinimumWarpRange.Tooltip = "Minumum warp range a ship must have before it needs to recharge for the AI to build it";
 

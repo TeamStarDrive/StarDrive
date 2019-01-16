@@ -1,13 +1,15 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
     public class UILabel : UIElementV2
     {
-        private string LabelText;
-        private Array<string> Lines; // multiline
-        private SpriteFont LabelFont;
+        string LabelText; // Simple Text
+        Array<string> Lines; // Multi-Line Text
+        Func<UILabel, string> GetText; // Dynamic Text Binding
+        SpriteFont LabelFont;
 
         public delegate void ClickHandler(UILabel label);
         public event ClickHandler OnClick;
@@ -17,6 +19,10 @@ namespace Ship_Game
 
         public bool DropShadow = false;
         public bool IsMouseOver { get; private set; }
+
+        // Text will be flipped on the X axis:  TEXT x
+        // Versus normal text alignment:             x TEXT
+        public bool AlignRight = false;
 
         public string Text
         {
@@ -35,6 +41,15 @@ namespace Ship_Game
             {
                 Lines = value;
                 Size = LabelFont.MeasureLines(Lines);
+            }
+        }
+
+        public Func<UILabel, string> DynamicText
+        {
+            set
+            {
+                GetText = value;
+                Size = LabelFont.MeasureString(GetText(this));
             }
         }
 
@@ -81,22 +96,22 @@ namespace Ship_Game
             Color = color;
         }
 
-        private void DrawLine(SpriteBatch batch, string text, Vector2 pos, Color color)
+        void DrawLine(SpriteBatch batch, string text, Vector2 pos, Color color)
         {
+            if (AlignRight) pos.X -= Size.X;
             if (DropShadow)
                 HelperFunctions.DrawDropShadowText(batch, text, pos, LabelFont, color);
             else
                 batch.DrawString(LabelFont, text, pos, color);
         }
 
+        Color CurrentColor => IsMouseOver ? Highlight : Color;
+
         public override void Draw(SpriteBatch batch)
         {
-            if (LabelText.IsEmpty() && (Lines == null || Lines.IsEmpty))
-                return;
-
-            Color color = IsMouseOver ? Highlight : Color;
             if (Lines != null && Lines.NotEmpty)
             {
+                Color color = CurrentColor;
                 Vector2 cursor = Pos;
                 for (int i = 0; i < Lines.Count; ++i)
                 {
@@ -105,9 +120,14 @@ namespace Ship_Game
                     cursor.Y += LabelFont.LineSpacing + 2;
                 }
             }
-            else
+            else if (GetText != null)
             {
-                DrawLine(batch, LabelText, Pos, color);
+                string text = GetText(this); // GetText is allowed to modify [this]
+                DrawLine(batch, text, Pos, CurrentColor);
+            }
+            else if (LabelText.NotEmpty())
+            {
+                DrawLine(batch, LabelText, Pos, CurrentColor);
             }
         }
 

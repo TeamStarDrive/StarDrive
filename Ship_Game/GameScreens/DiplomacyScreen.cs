@@ -470,7 +470,7 @@ namespace Ship_Game
             {
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", them.PortraitName)), Portrait, Color.White);
             }
-            HelperFunctions.DrawDropShadowText(ScreenManager, them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20);
+            HelperFunctions.DrawDropShadowText(batch, them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20);
             if (dState == DialogState.Negotiate)
             {
                 Rectangle stripe = new Rectangle(0, R.Y, 1920, R.Height);
@@ -484,7 +484,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
             foreach (GenericButton taf in TAFButtons)
             {
-                taf.DrawWithShadowCaps(ScreenManager);
+                taf.DrawWithShadowCaps(batch);
                 TrustRect.Width = (int)them.GetRelations(playerEmpire).Trust;
                 if (TrustRect.Width < 1)
                 {
@@ -523,7 +523,7 @@ namespace Ship_Game
                 {
                     if (dState == DialogState.End || dState == DialogState.TheirOffer)
                     {
-                        Exit.DrawWithShadowCaps(ScreenManager);
+                        Exit.DrawWithShadowCaps(batch);
                     }
                     else
                     {
@@ -543,7 +543,7 @@ namespace Ship_Game
                                 r.X = r.X + (int)(transitionOffset * 512f);
                             }
                             b.TransitionCaps(r);
-                            b.DrawWithShadowCaps(ScreenManager);
+                            b.DrawWithShadowCaps(batch);
                         }
                     }
                     Vector2 pos = new Vector2((Portrait.X + 200), (Portrait.Y + 200));
@@ -570,7 +570,7 @@ namespace Ship_Game
                         if (!e.Hovered && e.item is DialogOption option)
                         {
                             option.Update(drawCurs);
-                            option.Draw(ScreenManager, Fonts.Consolas18);
+                            option.Draw(batch, Fonts.Consolas18);
                             drawCurs.Y += (Fonts.Consolas18.LineSpacing + 5);
                         }
                     }
@@ -589,7 +589,7 @@ namespace Ship_Game
                     }
                     if (!TheirOffer.IsBlank() || !OurOffer.IsBlank() || OurOffer.Alliance)
                     {
-                        SendOffer.DrawWithShadow(ScreenManager);
+                        SendOffer.DrawWithShadow(batch);
                     }
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Right"), Negotiate_Right, Color.White);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Left"), Negotiate_Left, Color.White);
@@ -615,8 +615,8 @@ namespace Ship_Game
                     text = parseText(TheirText, DialogRect.Width - 20, Fonts.Consolas18);
                     Position = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     DrawDropShadowText(text, Position, Fonts.Consolas18);
-                    Accept.DrawWithShadow(ScreenManager);
-                    Reject.DrawWithShadow(ScreenManager);
+                    Accept.DrawWithShadow(batch);
+                    Reject.DrawWithShadow(batch);
                     goto case DialogState.Choosing;
                 }
                 case DialogState.End:

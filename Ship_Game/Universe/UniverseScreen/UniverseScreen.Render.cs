@@ -268,6 +268,8 @@ namespace Ship_Game
             if (!Frustum.Contains(solarSystem.Position, 10f))
                 return;
 
+            SpriteBatch batch = ScreenManager.SpriteBatch;
+
             Vector3 vector3_4 =
                 Viewport.Project(solarSystem.Position.ToVec3(), projection, view,
                     Matrix.Identity);
@@ -407,7 +409,7 @@ namespace Ship_Game
                     {
                         if (SelectedSystem != solarSystem ||
                             viewState < UnivScreenState.GalaxyView)
-                            HelperFunctions.DrawDropShadowText(ScreenManager, solarSystem.Name,
+                            HelperFunctions.DrawDropShadowText(batch, solarSystem.Name,
                                 vector2, SystemInfoUIElement.SysFont,
                                 owners.ToList()[0].EmpireColor);
                     }
@@ -422,7 +424,7 @@ namespace Ship_Game
                         {
                             if (index2 + 1 > num4 + num4 * index1)
                                 ++index1;
-                            HelperFunctions.DrawDropShadowText(ScreenManager,
+                            HelperFunctions.DrawDropShadowText(batch,
                                 solarSystem.Name[index2].ToString(), Pos, SystemInfoUIElement.SysFont,
                                 owners.Count > index1
                                     ? owners.ToList()[index1].EmpireColor
