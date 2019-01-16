@@ -1603,7 +1603,7 @@ namespace Ship_Game
                 {
                     
                     if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
-                        researchPotential = (tech.Cost - Research) / tech.Cost
+                        researchPotential = (tech.ActualCost - Research) / tech.ActualCost
                                             * (p.Fertility*2 + p.MineralRichness + (p.MaxPopulation / 500));
                 }
             }
@@ -2174,13 +2174,13 @@ namespace Ship_Game
             foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
             {
                 if (keyValuePair.Value.Unlocked)
-                    TechScore += (int)ResourceManager.TechTree[keyValuePair.Key].Cost / 100;
+                    TechScore += ResourceManager.TechTree[keyValuePair.Key].ActualCost / 100;
             }
             foreach (Planet planet in OwnedPlanets)
             {
                 ExpansionScore += (float)(planet.Fertility + (double)planet.MineralRichness + planet.PopulationBillion);
                 foreach (Building building in planet.BuildingList)
-                    IndustrialScore += building.Cost / 20f;
+                    IndustrialScore += building.ActualCost / 20f;
             }
 
 

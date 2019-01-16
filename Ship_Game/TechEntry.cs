@@ -18,7 +18,7 @@ namespace Ship_Game
         [Serialize(7)] public float maxOffensiveValueFromthis = 0;
 
         [XmlIgnore][JsonIgnore]
-        public float TechCost => Tech.Cost * (float)Math.Max(1, Math.Pow(2.0, Level)) * CurrentGame.Pace;
+        public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
 
         //add initializer for tech
         [XmlIgnore][JsonIgnore]
@@ -230,7 +230,7 @@ namespace Ship_Game
             }
             else
             {
-                Progress = Tech.Cost ;
+                Progress = Tech.ActualCost;
                 Unlocked = true;
             }
             DoRevealedTechs(empire);
