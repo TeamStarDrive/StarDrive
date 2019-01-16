@@ -241,7 +241,12 @@ namespace Ship_Game
             LayoutStep    = new Vector2(xstep, 0f);
         }
 
-        private static int ElementSorter(UIElementV2 a, UIElementV2 b)
+        public void SkipLayoutStep() // skips a single layout step during V and H layout
+        {
+            LayoutCursor += LayoutStep;
+        }
+
+        static int ElementSorter(UIElementV2 a, UIElementV2 b)
         {
             return a.ZOrder - b.ZOrder;
         }
@@ -265,7 +270,7 @@ namespace Ship_Game
             return result;
         }
 
-        private Rectangle LayoutNextRect(int width, int height)
+        Rectangle LayoutNextRect(int width, int height)
         {
             Vector2 next = LayoutNext();
             return new Rectangle((int)next.X, (int)next.Y, width, height);
@@ -438,6 +443,13 @@ namespace Ship_Game
         {
             UILabel label = Add(new UILabel(this, LayoutNext(), text));
             label.OnClick += click;
+            return label;
+        }
+        protected UILabel Label(Func<string> dynamicText, bool alignRight = false)
+        {
+            UILabel label = Add(new UILabel(this, LayoutNext(), ""));
+            label.DynamicText = dynamicText;
+            label.AlignRight = alignRight;
             return label;
         }
 

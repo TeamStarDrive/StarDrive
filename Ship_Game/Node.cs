@@ -37,7 +37,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawRectangle(NodeRect, Color.White, 3f);
             }
             Vector2 cursor = new Vector2(NodeRect.X + 10, NodeRect.Y + 4);
-            HelperFunctions.DrawDropShadowText(ScreenManager, Localizer.Token(ResourceManager.TechTree[tech.UID].NameIndex), cursor, Fonts.Arial12Bold);
+            HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, Localizer.Token(ResourceManager.TechTree[tech.UID].NameIndex), cursor, Fonts.Arial12Bold);
             Rectangle BlackBar = new Rectangle(NodeRect.X + 215, NodeRect.Y + 1, 1, NodeRect.Height - 2);
             ScreenManager.SpriteBatch.FillRectangle(BlackBar, Color.Black);
             Rectangle rIconRect = new Rectangle(BlackBar.X + 4, BlackBar.Y + 4, 19, 20);
