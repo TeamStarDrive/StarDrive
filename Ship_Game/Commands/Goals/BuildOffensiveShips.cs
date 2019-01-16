@@ -50,7 +50,7 @@ namespace Ship_Game.Commands.Goals
                 return weight;
             }))
             {
-                if (planet2.HasShipyard && planet2.colonyType != Planet.ColonyType.Research)
+                if (planet2.HasSpacePort && planet2.colonyType != Planet.ColonyType.Research)
                     list.Add(planet2);
             }
             int num1 = 9999999;

@@ -793,7 +793,7 @@ namespace Ship_Game.AI
                         Array<Planet> list1 = new Array<Planet>();
                         foreach (Planet planet in Owner.GetPlanets())
                         {
-                            if (planet.HasShipyard)
+                            if (planet.HasSpacePort)
                                 list1.Add(planet);
                         }
                         IOrderedEnumerable<Planet> orderedEnumerable1 = list1.OrderBy(planet => Vector2.Distance(task.AO, planet.Center));
@@ -833,7 +833,7 @@ namespace Ship_Game.AI
                         Array<Planet> list2 = new Array<Planet>();
                         foreach (Planet planet in Owner.GetPlanets())
                         {
-                            if (planet.HasShipyard)
+                            if (planet.HasSpacePort)
                                 list2.Add(planet);
                         }
                         IOrderedEnumerable<Planet> orderedEnumerable2 = list2.OrderBy(p => Vector2.Distance(Position, p.Center));

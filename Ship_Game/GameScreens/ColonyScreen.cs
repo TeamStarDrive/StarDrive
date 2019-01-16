@@ -161,7 +161,7 @@ namespace Ship_Game
                 ToggleButtonStyle.Grid, "SelectionBox/icon_grid");
 
             PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
-            if (p.HasShipyard)
+            if (p.HasSpacePort)
                 build.AddTab(Localizer.Token(335));
             if (p.AllowInfantry)
                 build.AddTab(Localizer.Token(336));
@@ -294,11 +294,11 @@ namespace Ship_Game
             {
                 DrawBuildingsWeCanBuild(batch);
             }
-            else if (P.HasShipyard && build.Tabs[1].Selected)
+            else if (P.HasSpacePort && build.Tabs[1].Selected)
             {
                 DrawBuildableShipsList(batch);
             }
-            else if (!P.HasShipyard && P.AllowInfantry && build.Tabs[1].Selected)
+            else if (!P.HasSpacePort && P.AllowInfantry && build.Tabs[1].Selected)
             {
                 DrawBuildTroopsList(batch);
             }
@@ -1325,7 +1325,7 @@ namespace Ship_Game
 
             HandleSliders(input);
 
-            if (P.HasShipyard && build.Tabs.Count > 1 && build.Tabs[1].Selected)
+            if (P.HasSpacePort && build.Tabs.Count > 1 && build.Tabs[1].Selected)
             {
                 if (PlayerDesignsToggle.Rect.HitTest(input.CursorPosition))
                 {
@@ -1920,7 +1920,7 @@ namespace Ship_Game
                 {
                     build.Tabs.Clear();
                     build.AddTab(Localizer.Token(334));
-                    if (P.HasShipyard)
+                    if (P.HasSpacePort)
                     {
                         build.AddTab(Localizer.Token(335));
                     }
@@ -1942,14 +1942,14 @@ namespace Ship_Game
                 {
                     build.Tabs.Clear();
                     build.AddTab(Localizer.Token(334));
-                    if (P.HasShipyard)
+                    if (P.HasSpacePort)
                     {
                         build.AddTab(Localizer.Token(335));
                     }
                     build.AddTab(Localizer.Token(336));
                 }
             }
-            if (!P.HasShipyard)
+            if (!P.HasSpacePort)
             {
                 bool remove = false;
                 foreach (Submenu.Tab tab in build.Tabs)

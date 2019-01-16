@@ -112,7 +112,7 @@ namespace Ship_Game
 
             //Added by McShooterz: build defense platforms
 
-            if (HasShipyard && !ParentSystem.CombatInSystem
+            if (HasSpacePort && !ParentSystem.CombatInSystem
                             && (!Owner.isPlayer || colonyType == ColonyType.Military))
             {
                 SystemCommander systemCommander;

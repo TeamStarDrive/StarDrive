@@ -43,7 +43,7 @@ namespace Ship_Game.AI
                                                  && goal.Goal.type == GoalType.BuildTroop)
                                      .Sum(cost => cost.Cost)) > 0 
                 )
-                .OrderBy(p => !p.HasShipyard)
+                .OrderBy(p => !p.HasSpacePort)
                 .ThenByDescending(p => p.Prod.GrossIncome)
                 .FirstOrDefault();
             if (targetBuild == null)
