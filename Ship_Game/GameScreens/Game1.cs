@@ -253,7 +253,7 @@ namespace Ship_Game
             base.Dispose(disposing);
             GameAudio.Destroy();
             Instance = null;
-            Log.Info("Game Instance Disposed");
+            Log.Write("Exiting: Game Instance Disposed");
         }
     }
 }
