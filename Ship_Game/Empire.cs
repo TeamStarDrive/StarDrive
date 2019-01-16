@@ -73,11 +73,11 @@ namespace Ship_Game
         public float TotalBuildingMaintenance { get; private set; }
         public float updateContactsTimer;
         private bool InitialziedHostilesDict;
-        public float BuildingAndShipMaint; // This is for info display
+        public float BuildingAndShipMaint { get; private set; } // This is for info display
         public float NetPlanetIncomes { get; private set; } // = foreach Planet: p.GrossIncome - p.Maintenance
-        public float TradeMoneyAddedThisTurn;
+        public float TradeMoneyAddedThisTurn { get; private set; }
         public float MoneyLastTurn;
-        public int totalTradeIncome;
+        public int AllTimeTradeIncome;
         public bool AutoBuild;
         public bool AutoExplore;
         public bool AutoColonize;
@@ -520,12 +520,6 @@ namespace Ship_Game
             return solarSystems.ToArray();
         }
 
-        public void UpdatePlanetIncomes()
-        {
-            using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet planet in OwnedPlanets) planet.UpdateIncomes(false);
-        }
-
         public void RemovePlanet(Planet planet)
         {
             OwnedPlanets.Remove(planet);
@@ -554,7 +548,7 @@ namespace Ship_Game
         public void AddTradeMoney(float howMuch)
         {
             TradeMoneyAddedThisTurn += howMuch;
-            totalTradeIncome        += (int)howMuch;
+            AllTimeTradeIncome        += (int)howMuch;
         }
 
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
@@ -1286,7 +1280,7 @@ namespace Ship_Game
                 FleetUpdateTimer = 5f;
         }
 
-        private void DoMoney()
+        void DoMoney()
         {
             MoneyLastTurn = Money;
             ++TurnCount;
@@ -1298,12 +1292,10 @@ namespace Ship_Game
 
             BuildingAndShipMaint = TotalBuildingMaintenance + TotalShipMaintenance;
 
-            // building maintenance is already deducted from each planet
-            // so all we need to do is pay for the ships:
-            Money += NetIncome() - TotalShipMaintenance;
+            Money += NetIncome();
         }
 
-        void UpdateNetPlanetIncomes()
+        public void UpdateNetPlanetIncomes()
         {
             NetPlanetIncomes = 0f;
             using (OwnedPlanets.AcquireReadLock())
@@ -1314,14 +1306,24 @@ namespace Ship_Game
                 }
         }
 
+        public float TotalAvgTradeIncome => GetTotalTradeIncome() + GetAverageTradeIncome();
+
+        public int GetAverageTradeIncome()
+        {
+            return AllTimeTradeIncome / TurnCount;
+        }
+
+        public float GetTotalTradeIncome()
+        {
+            float total = 0f; 
+            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+                if (kv.Value.Treaty_Trade) total += kv.Value.TradeIncome();
+            return total;
+        }
+
         void UpdateTradeIncome()
         {
-            TradeMoneyAddedThisTurn = 0.0f;
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
-            {
-                if (!kv.Value.Treaty_Trade) continue;
-                TradeMoneyAddedThisTurn += CommonValues.TradeMoney(kv.Value.Treaty_Trade_TurnsExisted);
-            }
+            TradeMoneyAddedThisTurn = GetTotalTradeIncome();
         }
 
         void UpdateBuildingMaintenance()
@@ -1371,18 +1373,23 @@ namespace Ship_Game
             TotalShipMaintenance *= data.Traits.MaintMultiplier;
         }
 
-        public float EstimateIncomeAtTaxRate(float rate)
+        public float EstimateNetIncomeAtTaxRate(float rate)
         {
-            float deltaTax = rate - data.TaxRate;
-            float plusNetIncome = deltaTax * NetPlanetIncomes;
-            float maintenance = (TotalBuildingMaintenance + TotalShipMaintenance);
-            return NetIncome() + plusNetIncome - maintenance;
+            float plusNetIncome = (rate-data.TaxRate) * NetPlanetIncomes;
+            return GrossIncome() + plusNetIncome - TotalShipMaintenance;
         }
 
-        public float NetIncome()
+        // Income this turn before deducting ship maintenance
+        public float GrossIncome()
         {
             return NetPlanetIncomes + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
         }
+
+        // Building maintenance is already calculated per planet
+        // So all we need to do is pay for ship maintenance
+        // NetIncome = GrossIncome this turn - Ship maintenance
+        public float NetIncome() => GrossIncome() - TotalShipMaintenance;
+
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;
 
@@ -1531,11 +1538,6 @@ namespace Ship_Game
                 foreach (Planet p in OwnedPlanets)
                     num += p.Food.GrossIncome;
             return num;
-        }
-
-        public int GetAverageTradeIncome()
-        {
-            return totalTradeIncome / TurnCount;
         }
 
         public Planet.ColonyType AssessColonyNeeds2(Planet p)

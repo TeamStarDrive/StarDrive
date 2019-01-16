@@ -422,7 +422,7 @@ namespace Ship_Game
 
 			int money = (int)empire.Money;
 
-			float damoney = Empire.Universe.player.EstimateIncomeAtTaxRate(Empire.Universe.player.data.TaxRate);
+			float damoney = Empire.Universe.player.EstimateNetIncomeAtTaxRate(Empire.Universe.player.data.TaxRate);
 			if (damoney <= 0f)
 			{
 				textCursor.X = res4.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(money.ToString(), " (", damoney.ToString("#.0"), ")")).X;

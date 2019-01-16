@@ -16,10 +16,20 @@ namespace Ship_Game
         Rectangle KnobRect;   // knob area used to move the slider value
         public string Text;
         public string Tooltip;
+        public ToolTip Tip;
 
-        public int TooltipId
+        public Action<FloatSlider> OnChange;
+
+        // Sets the tooltip string from Localization/GameText_EN.xml
+        public int LocalizeTooltipId
         {
             set => Tooltip = Localizer.Token(value);
+        }
+
+        // Sets the Tip to a more complex ToolTip instance
+        public int TooltipId
+        {
+            set => Tip = ResourceManager.GetToolTip(value);
         }
 
         bool Hover, Dragging;
@@ -45,6 +55,7 @@ namespace Ship_Game
                 Value = value.Clamped(0f, 1f);
                 RequiresLayout = true;
                 PerformLegacyLayout(Pos);
+                OnChange?.Invoke(this);
             }
         }
 
@@ -136,8 +147,13 @@ namespace Ship_Game
             var textPos = new Vector2(SliderRect.X + SliderRect.Width + 8, SliderRect.Y + SliderRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, new Color(255, 239, 208));
 
-            if (Hover && Tooltip.NotEmpty())
-                ToolTip.CreateTooltip(Tooltip);
+            if (Hover)
+            {
+                if (Tip != null)
+                    ToolTip.CreateTooltip(Tip.TIP_ID);
+                else if (Tooltip.NotEmpty())
+                    ToolTip.CreateTooltip(Tooltip);
+            }
         }
         public bool HandleInput(InputState input, ref float currentValue, float dynamicMaxValue)
         {

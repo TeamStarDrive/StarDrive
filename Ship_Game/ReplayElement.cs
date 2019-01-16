@@ -90,6 +90,7 @@ namespace Ship_Game
 
 		public void Draw(ScreenManager ScreenManager)
 		{
+            SpriteBatch batch = ScreenManager.SpriteBatch;
 			float single;
 			Rectangle MapRect = new Rectangle(ElementRect.X + 30, ElementRect.Y + 30, ElementRect.Width - 60, ElementRect.Height - 60);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EndGameScreen/ReplayHousing"), ElementRect, Color.White);
@@ -276,7 +277,7 @@ namespace Ship_Game
 			for (int i = 0; i < 5 && TextMessages.Count > i; i++)
 			{
 				Vector2 TextPos = new Vector2(TextRect.X + 25, TextRect.Y + TextRect.Height - 30 - i * (Fonts.Arial20Bold.LineSpacing + 2));
-				HelperFunctions.DrawDropShadowText(ScreenManager, TextMessages[i], TextPos, Fonts.Arial20Bold);
+				HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, TextMessages[i], TextPos, Fonts.Arial20Bold);
 			}
 			Vector2 StarDatePos = new Vector2(ElementRect.X + 10, ElementRect.Y + ElementRect.Height - Fonts.Tahoma11.LineSpacing - 5);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma11, "StarDate: ", StarDatePos, Color.White);
@@ -288,7 +289,7 @@ namespace Ship_Game
 			ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma11, "Left/Right Arrows", PlusMinus, Color.White);
 			foreach (GenericButton button in Buttons)
 			{
-				button.DrawWithShadowCaps(ScreenManager);
+				button.DrawWithShadowCaps(batch);
 			}
 		}
 
