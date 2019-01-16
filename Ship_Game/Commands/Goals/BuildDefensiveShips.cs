@@ -26,7 +26,7 @@ namespace Ship_Game.Commands.Goals
             Array<Planet> list = new Array<Planet>();
             foreach (Planet planet2 in empire.GetPlanets())
             {
-                if (planet2.HasShipyard)
+                if (planet2.HasSpacePort)
                     list.Add(planet2);
             }
             int num1 = 9999999;

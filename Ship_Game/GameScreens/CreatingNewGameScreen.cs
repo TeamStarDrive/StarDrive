@@ -129,7 +129,7 @@ namespace Ship_Game
                             planet2.SetExploredBy(empire);
                     }
 
-                    if (planet.HasShipyard)
+                    if (planet.HasSpacePort)
                     {
                         SpaceStation spaceStation = new SpaceStation {planet = planet};
                         planet.Station = spaceStation;
