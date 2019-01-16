@@ -47,12 +47,12 @@ namespace Ship_Game
         public float PopulationBillion { get; private set; }
         public float PlusFlatPopulationPerTurn;
 
+        public bool HasProduction       => Prod.GrossIncome > 1.0f;
         public string PopulationString  => $"{PopulationBillion.String()} / {MaxPopulationBillion.String()}";
         public float PopulationRatio    => Storage.Population / MaxPopulation;
         public bool BuildingInTheWorks  => SbProduction.ConstructionQueue.Any(b => b.isBuilding);
         public bool BiosphereInTheWorks => SbProduction.ConstructionQueue.Find(b => b.isBuilding && b.Building.IsBiospheres) != null;
-
-        public bool HasProduction => Prod.GrossIncome  >  1.0f;
+        public Building BioSpheres      => BuildingsCanBuild.Find(b => b.IsBiospheres);
 
         public float GetGoodHere(Goods good)
         {
