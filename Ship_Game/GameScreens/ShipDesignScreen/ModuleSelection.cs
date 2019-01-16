@@ -453,7 +453,7 @@ namespace Ship_Game
 
         private void DrawModuleStats(ShipModule mod, Vector2 modTitlePos, float starty)
         {
-            DrawStat(ref modTitlePos, 128, mod.Cost * CurrentGame.Pace, 84);
+            DrawStat(ref modTitlePos, 128, mod.ActualCost, 84);
             float mass = mod.Mass * EmpireManager.Player.data.MassModifier;
             if (mod.ModuleType == ShipModuleType.Armor)
                 mass *= EmpireManager.Player.data.ArmourMassModifier;
@@ -622,7 +622,7 @@ namespace Ship_Game
             float ballisticDamage = rawDamage + rawDamage * EmpireManager.Player.data.OrdnanceEffectivenessBonus;
             float energyDamage    = rawDamage;
 
-            float cost  = m.Cost * CurrentGame.Pace;
+            float cost  = m.ActualCost;
             float mass  = m.Mass * EmpireManager.Player.data.MassModifier;
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 

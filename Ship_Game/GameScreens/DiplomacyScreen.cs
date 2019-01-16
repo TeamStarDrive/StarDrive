@@ -773,7 +773,7 @@ namespace Ship_Game
                         !other.HavePreReq(technology.Key) || technology.Value.Tech.RootNode == 1)
                         continue;
                     Technology tech = ResourceManager.TechTree[technology.Key];
-                    layout.AddSubItem($"{Localizer.Token(tech.NameIndex)}: {(int)tech.Cost}", "Tech", technology.Key);
+                    layout.AddSubItem($"{Localizer.Token(tech.NameIndex)}: {(int)tech.ActualCost}", "Tech", technology.Key);
                 }
             });
 
