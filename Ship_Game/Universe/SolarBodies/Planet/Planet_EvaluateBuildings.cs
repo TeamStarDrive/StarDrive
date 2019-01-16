@@ -14,13 +14,10 @@ namespace Ship_Game
                 return true;
 
             // Debug eval planet if we have colony screen open
-            if (Debugger.IsAttached
-                && Empire.Universe.LookingAtPlanet
-                && Empire.Universe.workersPanel is ColonyScreen colony
-                && colony.P == this)
-                return true;
-
-            return false;
+            return Debugger.IsAttached
+                   && Empire.Universe.LookingAtPlanet
+                   && Empire.Universe.workersPanel is ColonyScreen colony
+                   && colony.P == this;
         }
 
         void DebugEvalBuild(Building b, string what, float score)
@@ -368,14 +365,13 @@ namespace Ship_Game
                     desired += 3;
                     break;
             }
-
             return desired;
         }
 
-        float FactorForConstructionCost(float score, float cost, float highestCost, float popRatio)
+        float ConstructionCostModifier(float score, float cost, float highestCost, float popRatio)
         {
             if (PopulationBillion.GreaterOrEqual(10))
-                return 1; // no factor is needed for big colonies
+                return score; // no factor is needed for big colonies
 
             //1 minus cost divided by highestCost gives a decimal value that is higher for smaller construction cost. This will make buildings with lower cost more desirable,
             //but never disqualify a building that had a positive score to begin with. -Gretman
@@ -425,7 +421,7 @@ namespace Ship_Game
             float score = EvalCommon(b, budget);
 
             if (score > 0)
-                score = FactorForConstructionCost(score, b.ActualCost, highestCost, popRatio);
+                score = ConstructionCostModifier(score, b.ActualCost, highestCost, popRatio);
 
             if (!IsPlanetExtraDebugTarget())
                 return score;
@@ -437,22 +433,25 @@ namespace Ship_Game
             return score;
         }
 
-        float EvalbyGovernor(Building b)
+        float EvalbyGovernor(Building b) // by Fat Bastard
         {
-            float score = 0;
+            float score = -1; // Because governors do not like to spend money on things not close to their hearts.
+            if (b.IsMilitary) // military buildings are cool for all governors, even cooler if there was combat here recently
+                score += RecentCombat ? 2f : 1f;
+
             switch (colonyType)
             {
                 case ColonyType.Agricultural:
                     score += b.PlusFlatFoodAmount
                              + b.PlusFoodPerColonist * Fertility * 2
-                             + b.MaxPopIncrease * 0.5f
+                             + b.MaxPopIncrease / 1000 * 0.5f
                              + b.PlusFlatProductionAmount * 0.5f // some flat production as most people will be farming
                              -b.MinusFertilityOnBuild * 10; // we dont want reducing fertility and we really want improving it
                     break;
                 case ColonyType.Core:
                     score += b.CreditsPerColonist * 2
                              + b.PlusTaxPercentage * 10
-                             + b.MaxPopIncrease * 2
+                             + b.MaxPopIncrease / 1000 * 2
                              - b.MinusFertilityOnBuild * 5;
                     break;
                 case ColonyType.Industrial:
@@ -465,12 +464,12 @@ namespace Ship_Game
                     break;
                 case ColonyType.Research:
                     score += b.PlusResearchPerColonist * 4
-                             + b.MaxPopIncrease 
+                             + b.MaxPopIncrease / 1000
                              + b.PlusFlatResearchAmount * 2
                              - b.MinusFertilityOnBuild * 5;
                     break;
                 case ColonyType.Military:
-                    score += b.CombatStrength > 0 && b.MaxPopIncrease.AlmostZero() ? 2f : 0f;
+                    score += b.IsMilitary ? 2f : 0f; // yes, more military buildings!
                     score += b.AllowInfantry || b.AllowShipBuilding ? 1f : 0f;
                     break;
             }
@@ -498,7 +497,7 @@ namespace Ship_Game
 
         float EvalMilitaryBuilding(Building b)
         {
-            if (b.CombatStrength == 0 || b.MaxPopIncrease > 0 || b.IsCapitalOrOutpost)
+            if (!b.IsMilitary || b.IsCapitalOrOutpost)
                 return 0;
 
             int desiredMilitary  = DesiredMilitaryBuildings();
@@ -617,8 +616,9 @@ namespace Ship_Game
                 }
             }
 
-            if (worst != null)
-                Log.Info($"-- Worst Buidling is  {worst.Name} with score of {worstValue}== ");
+            Log.Info(worst == null
+                ? $"-- No Worst Buidlin was found --"
+                : $"-- Worst Buidling is  {worst.Name} with score of {worstValue} -- ");
 
             value = worstValue;
             return worst;
