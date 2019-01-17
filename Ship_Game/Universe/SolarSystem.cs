@@ -619,7 +619,7 @@ namespace Ship_Game
                 }
 
                 PlanetType type = ringData.WhichPlanet > 0
-                    ? ResourceManager.PlanetOrRandom(ringData.WhichPlanet)
+                    ? ResourceManager.Planet(ringData.WhichPlanet)
                     : ResourceManager.RandomPlanet();
 
                 float scale;

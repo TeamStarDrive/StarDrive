@@ -1874,6 +1874,7 @@ namespace Ship_Game
             return PlanetTypeMap.TryGetValue(planetId, out PlanetType type)
                  ? type : RandomPlanet();
         }
+        public static PlanetType Planet(int planetId) => PlanetTypeMap[planetId];
 
         static void LoadPlanetTypes()
         {

@@ -1,22 +1,5 @@
-PlanetType: 1
-  Category: Terran
-  Composition: 1700
-  IconPath: Planets/1
-  MeshPath: Model/SpaceObjects/planet_1
-  Glow: Terran
-  EarthLike: true
-  Habitable: true
-  Zone: Habital
-  MaxPop: [4000, 8000]
-  Fertility: [0.8, 1.5]
-PlanetType: 2
-  Category: GasGiant
-  Composition: 1701
-  IconPath: Planets/2
-  MeshPath: Model/SpaceObjects/planet_2
-  Zone: Far
-  Scale: 2.5
-PlanetType: 3
+# Barren planets
+PlanetType: 3 # this is the legacy planet ID
   Category: Barren
   Composition: 1702
   IconPath: Planets/3
@@ -34,24 +17,18 @@ PlanetType: 4
   HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
-PlanetType: 5
+PlanetType: 5 # Venus
   Category: Barren
   Composition: 1703
   IconPath: Planets/5
   MeshPath: Model/SpaceObjects/planet_5
   Glow: Red
+  EarthLike: true # Give it earthlike clouds
   Habitable: true
   HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
-PlanetType: 6
-  Category: GasGiant
-  Composition: 1701
-  IconPath: Planets/6
-  MeshPath: Model/SpaceObjects/planet_6
-  Zone: Far
-  Scale: 2.5
-PlanetType: 7
+PlanetType: 7 # Mercury
   Category: Barren
   Composition: 1704
   IconPath: Planets/7
@@ -61,7 +38,7 @@ PlanetType: 7
   HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
-PlanetType: 8
+PlanetType: 8 # Mars
   Category: Barren
   Composition: 1703
   IconPath: Planets/8
@@ -71,71 +48,6 @@ PlanetType: 8
   HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
-PlanetType: 9
-  Category: Volcanic
-  Composition: 1705
-  IconPath: Planets/9
-  MeshPath: Model/SpaceObjects/planet_9
-  Glow: Red
-  Zone: Any
-PlanetType: 10
-  Category: GasGiant
-  Composition: 1706
-  IconPath: Planets/10
-  MeshPath: Model/SpaceObjects/planet_10
-  Zone: Far
-  Scale: 2.5
-PlanetType: 11
-  Category: Tundra
-  Composition: 1707
-  IconPath: Planets/11
-  MeshPath: Model/SpaceObjects/planet_11
-  Glow: Terran
-  EarthLike: true
-  Habitable: true
-  HabitableTileChance: [15, 20]
-  MaxPop: [3000, 8000]
-  Fertility: [0.5, 1.0]
-  Zone: Far
-PlanetType: 12
-  Category: GasGiant
-  Composition: 1708
-  IconPath: Planets/12
-  MeshPath: Model/SpaceObjects/planet_12
-  Zone: Far
-  Scale: 2.5
-PlanetType: 13
-  Category: Terran
-  Composition: 1709
-  IconPath: Planets/13
-  MeshPath: Model/SpaceObjects/planet_13
-  Glow: Terran
-  PlanetTile: Terran_2
-  EarthLike: true
-  Habitable: true
-  HabitableTileChance: 75
-  MaxPop: [12000, 20000]
-  Fertility: [1.0, 3.0]
-  Zone: Habital
-PlanetType: 14
-  Category: Desert
-  Composition: 1710
-  IconPath: Planets/14
-  MeshPath: Model/SpaceObjects/planet_14
-  Glow: Orange
-  Habitable: true
-  HabitableTileChance: [10, 45]
-  MaxPop: [1000, 4500]
-  Fertility: [-2.0, 1.9]
-  MinFertility: 0.8
-  Zone: Near
-PlanetType: 15
-  Category: GasGiant
-  Composition: 1711
-  IconPath: Planets/15
-  MeshPath: Model/SpaceObjects/planet_15
-  Zone: Far
-  Scale: 2.5
 PlanetType: 16
   Category: Barren
   Composition: 1712
@@ -145,7 +57,44 @@ PlanetType: 16
   HabitableTileChance: 0
   MaxPop: [100, 500]
   Zone: Any
-PlanetType: 17
+PlanetType: 24
+  Category: Barren
+  Composition: 1719
+  IconPath: Planets/24
+  MeshPath: Model/SpaceObjects/planet_24
+  Habitable: true
+  HabitableTileChance: 0
+  MaxPop: [100, 500]
+  Zone: Any
+PlanetType: 20 # Moon, rocky barren
+  Category: Barren
+  Composition: 1711
+  IconPath: Planets/20
+  MeshPath: Model/SpaceObjects/planet_20
+  Habitable: true
+  HabitableTileChance: 0
+  MaxPop: [100, 500]
+  Zone: Any
+
+# Volcanic, terraforms to Ice
+PlanetType: 9
+  Category: Volcanic
+  Composition: 1705
+  IconPath: Planets/9
+  MeshPath: Model/SpaceObjects/planet_9
+  Glow: Red
+  Zone: Any
+PlanetType: 23 # Kahless
+  Category: Volcanic
+  Composition: 1718
+  IconPath: Planets/23
+  MeshPath: Model/SpaceObjects/planet_23
+  Glow: Red
+  Zone: Near
+  
+
+# Ice, terraforms to Swamp
+PlanetType: 17 # Kholin:Jasnah
   Category: Ice
   Composition: 1713
   IconPath: Planets/17
@@ -155,20 +104,9 @@ PlanetType: 17
   HabitableTileChance: [15, 35]
   MaxPop: [100, 500]
   Zone: VeryFar
-PlanetType: 18
-  Category: Steppe
-  Composition: 1714
-  IconPath: Planets/18
-  MeshPath: Model/SpaceObjects/planet_18
-  Glow: Orange
-  EarthLike: true
-  Habitable: true
-  HabitableTileChance: [15, 45]
-  MaxPop: [3000, 9000]
-  Fertility: [0.0, 2.1]
-  MinFertility: 0.8
-  Zone: Habital
-PlanetType: 19
+
+# Swamp, terraforms to Oceanic
+PlanetType: 19 # Polmar:Sporl
   Category: Swamp
   Composition: 1715
   IconPath: Planets/19
@@ -181,12 +119,8 @@ PlanetType: 19
   Fertility: [-2.0, 3.0]
   MinFertility: 1.0
   Zone: Near
-PlanetType: 20
-  Category: GasGiant
-  Composition: 1711
-  IconPath: Planets/20
-  MeshPath: Model/SpaceObjects/planet_20
-  Scale: 2.5
+
+# Oceanic 
 PlanetType: 21
   Category: Oceanic
   Composition: 1716
@@ -200,7 +134,78 @@ PlanetType: 21
   Fertility: [-3.0, 5.0]
   MinFertility: 1.0
   Zone: Habital
-PlanetType: 22
+  
+
+# Desert,  terraforms to Tundra
+PlanetType: 14 # Mradeep:Arrachus
+  Category: Desert
+  Composition: 1710
+  IconPath: Planets/14
+  MeshPath: Model/SpaceObjects/planet_14
+  Glow: Orange
+  Habitable: true
+  HabitableTileChance: [10, 45]
+  MaxPop: [1000, 4500]
+  Fertility: [-2.0, 1.9]
+  MinFertility: 0.8
+  Zone: Near
+
+# Tundra,  terraforms to Steppe
+PlanetType: 11 # Pandora, Rathi:Bul
+  Category: Tundra
+  Composition: 1707
+  IconPath: Planets/11
+  MeshPath: Model/SpaceObjects/planet_11
+  Glow: Terran
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [15, 20]
+  MaxPop: [3000, 8000]
+  Fertility: [0.5, 1.0]
+  Zone: Far
+
+# Steppe,  terraforms Terran
+PlanetType: 18
+  Category: Steppe
+  Composition: 1714
+  IconPath: Planets/18
+  MeshPath: Model/SpaceObjects/planet_18
+  Glow: Orange
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [15, 45]
+  MaxPop: [3000, 9000]
+  Fertility: [0.0, 2.1]
+  MinFertility: 0.8
+  Zone: Habital
+
+
+# Terran
+PlanetType: 1
+  Category: Terran
+  Composition: 1700
+  IconPath: Planets/1
+  MeshPath: Model/SpaceObjects/planet_1
+  Glow: Terran
+  EarthLike: true
+  Habitable: true
+  Zone: Habital
+  MaxPop: [4000, 8000]
+  Fertility: [0.8, 1.5]
+PlanetType: 13
+  Category: Terran
+  Composition: 1709
+  IconPath: Planets/13
+  MeshPath: Model/SpaceObjects/planet_13
+  Glow: Terran
+  PlanetTile: Terran_2
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: 75
+  MaxPop: [12000, 20000]
+  Fertility: [1.0, 3.0]
+  Zone: Habital
+PlanetType: 22 # Kholin:Adolin
   Category: Terran
   Composition: 1717
   IconPath: Planets/22
@@ -214,22 +219,6 @@ PlanetType: 22
   Fertility: [0.0, 3.0]
   MinFertility: 1.0
   Zone: Habital
-PlanetType: 23
-  Category: Volcanic
-  Composition: 1718
-  IconPath: Planets/23
-  MeshPath: Model/SpaceObjects/planet_23
-  Glow: Red
-  Zone: Near
-PlanetType: 24
-  Category: Barren
-  Composition: 1719
-  IconPath: Planets/24
-  MeshPath: Model/SpaceObjects/planet_24
-  Habitable: true
-  HabitableTileChance: 0
-  MaxPop: [100, 500]
-  Zone: Any
 PlanetType: 25
   Category: Terran
   Composition: 1720
@@ -243,14 +232,7 @@ PlanetType: 25
   Fertility: [-0.5, 3.0]
   MinFertility: 1.0
   Zone: Habital
-PlanetType: 26
-  Category: GasGiant
-  Composition: 1711
-  IconPath: Planets/26
-  MeshPath: Model/SpaceObjects/planet_26
-  Zone: Far
-  Scale: 2.5
-PlanetType: 27
+PlanetType: 27 # Rathi:Tor
   Category: Terran
   Composition: 1721
   IconPath: Planets/27
@@ -263,18 +245,6 @@ PlanetType: 27
   Fertility: [-10.0, 3.0]
   MinFertility: 1.0
   Zone: Habital
-PlanetType: 28 # Jupiter
-  Category: Desert
-  Composition: 1710
-  IconPath: Planets/28
-  MeshPath: Model/SpaceObjects/planet_28
-  EarthLike: true
-  Habitable: true
-  HabitableTileChance: [12, 50]
-  MaxPop: [1200, 5500]
-  Fertility: [-2.3, 1.9]
-  MinFertility: 0.9
-  Zone: Near
 PlanetType: 29
   Category: Terran
   Composition: 1722
@@ -288,3 +258,55 @@ PlanetType: 29
   Fertility: [-10.0, 3.0]
   MinFertility: 1.0
   Zone: Habital
+
+# GasGiants
+PlanetType: 2 # Less Stripey Light Beige Giant
+  Category: GasGiant
+  Composition: 1701
+  IconPath: Planets/2
+  MeshPath: Model/SpaceObjects/planet_2
+  Zone: Far
+  Scale: 2.5
+PlanetType: 6 # Blood Red Giant
+  Category: GasGiant
+  Composition: 1701
+  IconPath: Planets/6
+  MeshPath: Model/SpaceObjects/planet_6
+  Zone: Far
+  Scale: 2.5
+PlanetType: 10 # Yellow Giant
+  Category: GasGiant
+  Composition: 1706
+  IconPath: Planets/10
+  MeshPath: Model/SpaceObjects/planet_10
+  Zone: Far
+  Scale: 2.5
+PlanetType: 12 # Pink Giant
+  Category: GasGiant
+  Composition: 1708
+  IconPath: Planets/12
+  MeshPath: Model/SpaceObjects/planet_12
+  Zone: Far
+  Scale: 2.5
+PlanetType: 15 # Polyphemus, Uranus, Cyan/LightBlue giant
+  Category: GasGiant
+  Composition: 1711
+  IconPath: Planets/15
+  MeshPath: Model/SpaceObjects/planet_15
+  Zone: Far
+  Scale: 2.5
+PlanetType: 26 # Neptune, Blue giant
+  Category: GasGiant
+  Composition: 1711
+  IconPath: Planets/26
+  MeshPath: Model/SpaceObjects/planet_26
+  Zone: Far
+  Scale: 2.5
+PlanetType: 28 # Jupiter, striped beige giant
+  Category: GasGiant
+  Composition: 1710
+  IconPath: Planets/28
+  MeshPath: Model/SpaceObjects/planet_28
+  Habitable: false
+  Zone: Far
+  Scale: 2.5

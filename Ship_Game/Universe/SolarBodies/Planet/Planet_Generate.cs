@@ -77,6 +77,7 @@ namespace Ship_Game
 
         public void RestorePlanetTypeFromSave(int planetId)
         {
+            // we revert to random just in case people unload mods
             Type = ResourceManager.PlanetOrRandom(planetId);
         }
 
