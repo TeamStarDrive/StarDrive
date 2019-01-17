@@ -25,6 +25,8 @@ namespace Ship_Game
         [StarData] public readonly float MinFertility; // Clamp(MinFertility, float.Max)
         [StarData] public readonly SunZone Zone = SunZone.Any;
         [StarData] public readonly float Scale = 0f;
+
+        public override string ToString() => $"PlanetType {Id} {Category} {IconPath} {MeshPath}";
     }
 
     public enum PlanetGlow
