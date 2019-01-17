@@ -278,7 +278,7 @@ namespace Ship_Game.Ships
             if (num1 >= 57 && InFrustum)
             {
                 Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                ExplosionManager.AddExplosion(position, ShipSO.WorldBoundingSphere.Radius, 2.5f);
+                ExplosionManager.AddExplosion(position, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
                 Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero);
             }
             if (num1 >= 40)
