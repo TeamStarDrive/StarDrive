@@ -80,9 +80,9 @@ namespace Ship_Game
             var tipRect = new Rectangle((int) pos.X + 10, (int) pos.Y + 10,
                 (int) size.X + 20, (int) size.Y + 10);
 
-            if (tipRect.X + tipRect.Width > Game1.Instance.ScreenWidth)
+            if (tipRect.X + tipRect.Width > StarDriveGame.Instance.ScreenWidth)
                 tipRect.X = tipRect.X - (tipRect.Width + 10);
-            while (tipRect.Y + tipRect.Height > Game1.Instance.ScreenHeight)
+            while (tipRect.Y + tipRect.Height > StarDriveGame.Instance.ScreenHeight)
                 tipRect.Y = tipRect.Y - 1;
 
             if (alwaysShow || TextLast != Text)
@@ -118,7 +118,7 @@ namespace Ship_Game
 
         static bool UpdateCurrentTip()
         {
-            float elapsedTime = (float)Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
+            float elapsedTime = (float)StarDriveGame.Instance.GameTime.ElapsedGameTime.TotalSeconds;
             if (TipTimer <= 0)
                 return false;
 

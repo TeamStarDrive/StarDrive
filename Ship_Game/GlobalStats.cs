@@ -252,13 +252,12 @@ namespace Ship_Game
             SaveActiveMod();
         }
 
-        public static void LoadModInfo(ModEntry me)
+        public static void SetActiveModNoSave(ModEntry me)
         {
             ModName       = me.ModName;
             ModPath       = "Mods/" + ModName + "/";
             ActiveModInfo = me.mi;
             ActiveMod     = me;
-            SaveActiveMod();
         }
 
         public static void Statreset()
@@ -283,8 +282,8 @@ namespace Ship_Game
 
         public static void SaveSettings()
         {
-            XRES = Game1.Instance.Graphics.PreferredBackBufferWidth;
-            YRES = Game1.Instance.Graphics.PreferredBackBufferHeight;
+            XRES = StarDriveGame.Instance.Graphics.PreferredBackBufferWidth;
+            YRES = StarDriveGame.Instance.Graphics.PreferredBackBufferHeight;
 
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             WriteSetting(config, "GravityWellRange",       GravityWellRange);

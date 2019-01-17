@@ -74,7 +74,7 @@ namespace Ship_Game
 
         public void Update(float elapsedTime, UniverseScreen universe)
         {
-            float realTime = (float)Game1.Instance.GameTime.ElapsedRealTime.TotalSeconds;
+            float realTime = (float)StarDriveGame.Instance.GameTime.ElapsedRealTime.TotalSeconds;
             var player = EmpireManager.Player;
             DangerTimer -= realTime;            
             DangerUpdater -= realTime;

@@ -509,7 +509,7 @@ namespace Ship_Game
                 if (!ResourceManager.PreLoadModels(empire))
                 {
                     ExitScreen();
-                    Game1.Instance.Exit();
+                    StarDriveGame.Instance.Exit();
                     return;
                 }
             }

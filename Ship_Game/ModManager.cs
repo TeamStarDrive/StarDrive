@@ -42,15 +42,15 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();
             SaveMenu.Draw();
-            NameSave.Draw();
-            AllSaves.Draw();
+            NameSave.Draw(batch);
+            AllSaves.Draw(batch);
             foreach (ScrollList.Entry e in ModsSL.VisibleEntries)
             {
-                e.Get<ModEntry>().Draw(ScreenManager, e.Rect);
+                e.Get<ModEntry>().Draw(batch, e.Rect);
             }
             ModsSL.Draw(ScreenManager.SpriteBatch);
             EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, 
-                Game1.Instance.GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
+                StarDriveGame.Instance.GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
 
             base.Draw(batch);
             selector?.Draw(ScreenManager.SpriteBatch);
@@ -135,20 +135,17 @@ namespace Ship_Game
                 return;
 
             Log.Info("ModManager.ClearMods");
-            GlobalStats.ClearActiveMod();
-            ResourceManager.LoadItAll();
-            mmscreen.LoadContent();
             ExitScreen();
-            mmscreen.ResetMusic();
+            // @note This will trigger game unload and reload
+            ResourceManager.LoadItAll(ScreenManager, null, reset:true);
         }
         private void LoadModTask()
         {
             Log.Info($"ModManager.LoadMod {SelectedMod.ModName}");
-            GlobalStats.LoadModInfo(SelectedMod);
-            ResourceManager.LoadItAll();
-            mmscreen.LoadContent();
+            GlobalStats.SetActiveModNoSave(SelectedMod);
             ExitScreen();
-            mmscreen.ResetMusic();
+            // @note This will trigger game unload and reload
+            ResourceManager.LoadItAll(ScreenManager, SelectedMod, reset:true);
         }
         public override void LoadContent()
         {
@@ -161,7 +158,6 @@ namespace Ship_Game
             Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
             AllSaves = new Submenu(scrollList);
             AllSaves.AddTab(Localizer.Token(4013));
-            ModsSL = new ScrollList(AllSaves, 140);
 
             LoadMods();
             EnternamePos  = TitlePosition;
@@ -176,8 +172,10 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        private void LoadMods()
+        void LoadMods()
         {
+            ModsSL = new ScrollList(AllSaves, 140);
+
             var ser = new XmlSerializer(typeof(ModInformation));
             foreach (FileInfo info in Dir.GetFilesNoSub("Mods"))
             {
@@ -186,7 +184,9 @@ namespace Ship_Game
                 try
                 {                    
                     var modInfo = new FileInfo($"Mods\\{info.NameNoExt()}\\{info.Name}");
-                    ModsSL.AddItem(new ModEntry(ser.Deserialize<ModInformation>(modInfo.Exists ? modInfo : info)));
+                    var e = new ModEntry(ser.Deserialize<ModInformation>(modInfo.Exists ? modInfo : info));
+                    e.LoadContent(mmscreen.TransientContent);
+                    ModsSL.AddItem(e);
                 }
                 catch (Exception ex)
                 {
