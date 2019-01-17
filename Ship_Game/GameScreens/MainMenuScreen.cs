@@ -80,10 +80,12 @@ namespace Ship_Game
         {
             base.LoadContent();
             RemoveAll();
-
+            ScreenManager.ClearScene();
             GameAudio.ConfigureAudioSettings();
+            ResetMusic();
 
             LogoAnimation = new SpriteAnimation(TransientContent.Load<TextureAtlas>("MainMenu/Stardrive logo"));
+            LogoAnimation.StopAtLastFrame = true;
 
             BigPlanetTex = LoadTexture("Textures/MainMenu/planet");
             PlanetGrid   = LoadTexture("Textures/MainMenu/planet_grid");
@@ -102,6 +104,8 @@ namespace Ship_Game
             AlienText1 = LoadTexture("Textures/MainMenu/moon_1");
             AlienText2 = LoadTexture("Textures/MainMenu/moon_2");
             AlienText3 = LoadTexture("Textures/MainMenu/moon_3");
+            
+            GlobalStats.ActiveMod?.LoadContent(TransientContent);
 
             Vector2 size = ScreenArea;
 
@@ -121,23 +125,11 @@ namespace Ship_Game
                 Button(titleId: 5,      click: Exit_Clicked);
             EndLayout();
 
+            // Animate the buttons in and out
             StartTransition<UIButton>(512f, -1f);
             OnExit += () => StartTransition<UIButton>(512f, +1f);
 
-            ScreenManager.ClearScene();
-
-            // @todo Why are these global inits here??
-            ShieldManager.LoadContent(StarDriveGame.GameContent);
-            Beam.BeamEffect = StarDriveGame.GameContent.Load<Effect>("Effects/BeamFX");
-            BackgroundItem.QuadEffect = new BasicEffect(ScreenManager.GraphicsDevice, null)
-            {
-                World = Matrix.Identity,
-                View = View,
-                Projection = Projection,
-                TextureEnabled = true
-            };
             Portrait = new Rectangle((int)size.X / 2 - 960, (int)size.Y / 2 - 540, 1920, 1080);
-
             while (Portrait.Width < size.X && Portrait.Height < size.Y)
             {
                 Portrait.Width  += 12;
@@ -145,8 +137,6 @@ namespace Ship_Game
                 Portrait.X = (int)size.X / 2 - Portrait.Width  / 2;
                 Portrait.Y = (int)size.Y / 2 - Portrait.Height / 2;
             }
-
-            ResetMusic();
 
             LogoRect = new Rectangle((int)size.X - 600, 128, 512, 128);
             MoonPosition = new Vector3(size.X / 2 - 300, LogoRect.Y + 70 - size.Y / 2, 0f);
@@ -183,8 +173,6 @@ namespace Ship_Game
                 new FadeInOutAnim(AlienText2, rect2, fadeIn:161, stay:172, fadeOut:188, end:215),
                 new FadeInOutAnim(AlienText3, rect3, fadeIn:232, stay:242, fadeOut:258, end:286)
             };
-
-            GlobalStats.ActiveMod?.LoadContent(TransientContent);
 
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
         }

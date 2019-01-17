@@ -140,7 +140,7 @@ namespace Ship_Game
             ScreenManager.Update(gameTime);
             base.Update(gameTime);
 
-            if (ScreenManager.ScreenCount == 0)
+            if (ScreenManager.NumScreens == 0)
                 Instance.Exit();
         }
 
