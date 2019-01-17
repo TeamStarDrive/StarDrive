@@ -89,8 +89,6 @@ namespace Ship_Game
             }
         }
 
-
-
         // just echo info to console, don't write to logfile
         // not used in release builds or if there's no debugger attached
         [Conditional("DEBUG")] public static void Info(string text)
@@ -317,7 +315,7 @@ namespace Ship_Game
                 evt["Planets"]   = Empire.Universe?.PlanetsDict?.Count.ToString() ?? "NULL";
 
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
-                evt["XnaMemory"] = Game1.Instance != null ? (Game1.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
+                evt["XnaMemory"] = StarDriveGame.Instance != null ? (StarDriveGame.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
                 evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
                 if (GlobalStats.WarpBehaviorsEnabled)
                     evt["WarpBehaviorsEnabled"] = true;

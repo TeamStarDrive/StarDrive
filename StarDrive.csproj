@@ -313,6 +313,7 @@
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\SpriteSystem\FadeInOutAnim.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\SpriteAnimation.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteExtensions.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SubTexture.cs" />
     <Compile Include="Ship_Game\SpriteSystem\TextureInfo.cs" />
@@ -769,7 +770,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\Game1.cs">
+    <Compile Include="Ship_Game\GameScreens\StarDriveGame.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

@@ -229,11 +229,11 @@ namespace Ship_Game
                 ProdStorage.Max = P.Storage.Max;
                 ProdStorage.Progress = P.ProdHere;
             }
-            PlanetInfo.Draw();
-            pDescription.Draw();
-            pLabor.Draw();
-            pStorage.Draw();
-            subColonyGrid.Draw();
+            PlanetInfo.Draw(batch);
+            pDescription.Draw(batch);
+            pLabor.Draw(batch);
+            pStorage.Draw(batch);
+            subColonyGrid.Draw(batch);
             var destinationRectangle1 = new Rectangle(GridPos.X, GridPos.Y + 1, GridPos.Width - 4, GridPos.Height - 3);
             batch.Draw(ResourceManager.Texture("PlanetTiles/" + P.PlanetTileId), destinationRectangle1, Color.White);
             foreach (PlanetGridSquare pgs in P.TilesList)
@@ -271,7 +271,7 @@ namespace Ship_Game
                 var building = ActiveBuildingEntry.Get<Building>();
                 batch.Draw(ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48"), r, Color.White);
             }
-            pFacilities.Draw();
+            pFacilities.Draw(batch);
             launchTroops.Visible = P.Owner == Empire.Universe.player && P.TroopsHere.Count > 0;
 
             //fbedard: Display button
@@ -287,8 +287,8 @@ namespace Ship_Game
                     SendTroops.Text = "Send Troops";
             }
             DrawDetailInfo(new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35));
-            build.Draw();
-            queue.Draw();
+            build.Draw(batch);
+            queue.Draw(batch);
 
             if (build.Tabs[0].Selected)
             {
@@ -546,7 +546,7 @@ namespace Ship_Game
             {
                 buildSL.Reset();
 
-                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.ColoniserMenu)
+                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.ColoniserMenu)
                 {
                     added.Add("Coloniser");
                     buildSL.AddItem(new ModuleHeader("Coloniser"));
@@ -1298,7 +1298,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            pFacilities.HandleInputNoReset();
+            pFacilities.HandleInputNoReset(input);
 
             if (HandleCycleColoniesLeftRight(input))
                 return true;
@@ -1306,7 +1306,7 @@ namespace Ship_Game
             P.UpdateIncomes(false);
             HandleDetailInfo(input);
             buildSL.HandleInput(input);
-            build.HandleInput(this);
+            build.HandleInput(input);
 
             // AI specific
             if (P.Owner != EmpireManager.Player)

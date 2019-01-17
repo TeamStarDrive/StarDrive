@@ -34,6 +34,9 @@ namespace Ship_Game
 
         static void LoadAtlas(GameContentManager content, Array<TextureAtlas> target, string anim)
         {
+            // @note This is very slow, so we have to check for cancel before starting
+            if (ResourceManager.IsLoadCancelRequested)
+                throw new OperationCanceledException();
             TextureAtlas atlas = content.LoadTextureAtlas(anim); // guaranteed to load an atlas with at least 1 tex
             if (atlas != null)
                 target.Add(atlas);
@@ -52,7 +55,8 @@ namespace Ship_Game
             if (ShockWave.IsEmpty)
                 LoadAtlas(content, ShockWave, "Textures/sd_shockwave_01");
 
-            LowResExplode = ResourceManager.Texture("UI/icon_injury");
+            if (!ResourceManager.IsLoadCancelRequested)
+                LowResExplode = ResourceManager.Texture("UI/icon_injury");
         }
 
         static void LoadFromExplosionsList(GameContentManager content)
@@ -71,21 +75,26 @@ namespace Ship_Game
                     string[] values = line.Split(split, 2, StringSplitOptions.RemoveEmptyEntries);
                     switch (values[0])
                     {
-                        default:case "generic": LoadAtlas(content, Generic, values[1]); break;
-                        case "photon":          LoadAtlas(content, Photon, values[1]); break;
+                        default:case "generic": LoadAtlas(content, Generic, values[1]);   break;
+                        case "photon":          LoadAtlas(content, Photon, values[1]);    break;
                         case "shockwave":       LoadAtlas(content, ShockWave, values[1]); break;
                     }
                 }
             }
         }
 
+        // @note Since explosion atlas generation is slow, we need to check for cancellation event
         public static void Initialize(GameContentManager content)
         {
             Generic.Clear();
             Photon.Clear();
             ShockWave.Clear();
-            LoadFromExplosionsList(content);
-            LoadDefaults(content);
+            try
+            {
+                LoadFromExplosionsList(content);
+                LoadDefaults(content);
+            }
+            catch (OperationCanceledException) { /* expected */ }
         }
 
         static void AddLight(Explosion newExp, Vector3 position, float radius, float intensity)
@@ -212,7 +221,7 @@ namespace Ship_Game
 
         public static void DrawExplosions(SpriteBatch batch, in Matrix view, in Matrix projection)
         {
-            Viewport vp = Game1.Instance.Viewport;
+            Viewport vp = StarDriveGame.Instance.Viewport;
             using (Lock.AcquireReadLock())
             {
                 foreach (Explosion e in Explosions)

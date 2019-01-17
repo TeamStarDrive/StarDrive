@@ -103,7 +103,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            GameTime gameTime = Game1.Instance.GameTime;
+            GameTime gameTime = StarDriveGame.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);

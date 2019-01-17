@@ -67,14 +67,14 @@ namespace Ship_Game
             if (HitTest(input) && WeaponSl.HandleInput(input))
                 return true;            
             ChooseFighterSL.HandleInput(input, activeModule, highlightedModule);
-            ActiveModSubMenu.HandleInputNoReset();
+            ActiveModSubMenu.HandleInputNoReset(input);
             if (!base.HandleInput(input))
                 return false;
             ResetLists();
             return false;
             
         }
-        public void Draw(SpriteBatch spriteBatch)
+        public new void Draw(SpriteBatch batch)
         {
             Rectangle r = Menu;
             r.Y = r.Y + 25;
@@ -82,14 +82,14 @@ namespace Ship_Game
             Selector sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
 
-            WeaponSl.Draw(spriteBatch);
+            WeaponSl.Draw(batch);
             if (ParentScreen.ActiveModule != null || ParentScreen.HighlightedModule != null)
             {
-                ActiveModSubMenu.Draw();
+                ActiveModSubMenu.Draw(batch);
                 DrawActiveModuleData();
             }
-            ChooseFighterSL.Draw(spriteBatch);
-            base.Draw();
+            ChooseFighterSL.Draw(batch);
+            base.Draw(batch);
         }
 
         private string ParseText(string text, float width, SpriteFont font)

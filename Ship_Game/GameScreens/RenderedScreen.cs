@@ -25,7 +25,7 @@ namespace Ship_Game
 			if (SplashScreen.DisplayComplete)
 			{
 			    ScreenManager.HideSplashScreen();
-                ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref View, ref Projection);
+                ScreenManager.BeginFrameRendering(StarDriveGame.Instance.GameTime, ref View, ref Projection);
                 ScreenManager.RenderSceneObjects();
                 ScreenManager.EndFrameRendering();
 			}

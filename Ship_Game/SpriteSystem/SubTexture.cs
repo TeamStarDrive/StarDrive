@@ -33,9 +33,9 @@ namespace Ship_Game
         }
 
         // special case: SubTexture is a container for a full texture
-        public SubTexture(Texture2D fullTexture)
+        public SubTexture(string name, Texture2D fullTexture)
         {
-            Name = "";
+            Name = name;
             Width = fullTexture.Width;
             Height = fullTexture.Height;
             Texture = fullTexture;

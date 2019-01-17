@@ -863,12 +863,12 @@ namespace Ship_Game
                 }
             }
 
-            GameTime gameTime = Game1.Instance.GameTime;
+            GameTime gameTime = StarDriveGame.Instance.GameTime;
 
             Name.Draw();
             Color c = new Color(255, 239, 208);
-            NameSub.Draw();
-            ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), RaceNamePos, Color.BurlyWood);
+            NameSub.Draw(batch);
+            batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), RaceNamePos, Color.BurlyWood);
             Vector2 rpos = RaceNamePos;
             rpos.X = rpos.X + 205f;
             if (!RaceName.HandlingInput)
@@ -882,7 +882,7 @@ namespace Ship_Game
             RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
             rpos.Y = rpos.Y + (Fonts.Arial14Bold.LineSpacing + 2);
-            ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
+            batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
             rpos.X = rpos.X + 205f;
             if (!SingEntry.HandlingInput)
             {
@@ -947,7 +947,7 @@ namespace Ship_Game
             }
             rpos = drawCurs;
             rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", TotalPointsUsed), rpos, Color.White);
+            batch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", TotalPointsUsed), rpos, Color.White);
             rpos.Y += (Fonts.Arial14Bold.LineSpacing + 8);
             int numTraits = 0;
             foreach (TraitEntry t in AllTraits)
@@ -963,15 +963,15 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                batch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
                 rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
                 numTraits++;
             }
             TitleBar.Draw(batch);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, c);
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, c);
             Left.Draw();
-            Traits.Draw();
-            traitsSL.Draw(ScreenManager.SpriteBatch);
+            Traits.Draw(batch);
+            traitsSL.Draw(batch);
             if (Traits.Tabs[0].Selected || Traits.Tabs[1].Selected || Traits.Tabs[2].Selected)
             {
                 var bCursor = new Vector2(Traits.Menu.X + 20, Traits.Menu.Y + 45);
@@ -1219,7 +1219,7 @@ namespace Ship_Game
                     }
                 }
                 RaceArchetypeSL.HandleInput(input);
-                Traits.HandleInput(this);
+                Traits.HandleInput(input);
                 if (!RaceName.ClickableArea.HitTest(input.CursorPosition))
                 {
                     RaceName.Hover = false;
