@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Ship_Game.GameScreens.NewGame;
 
 namespace Ship_Game
@@ -188,6 +189,9 @@ namespace Ship_Game
             LoadPlanetTypes();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
+            ShieldManager.LoadContent(RootContent);
+            Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
+            BackgroundItem.QuadEffect = new BasicEffect(ScreenManager.GraphicsDevice, null) { TextureEnabled = true };
             TestLoad();
 
             ++ContentId; // LoadContent will see a new content id

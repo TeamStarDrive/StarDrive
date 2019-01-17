@@ -46,6 +46,7 @@ namespace Ship_Game
 
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => Screens.Count;
+        public GameScreen CurrentScreen => Screens[Screens.Count-1];
 
         public ScreenManager(StarDriveGame game, GraphicsDeviceManager graphics)
         {
@@ -297,8 +298,6 @@ namespace Ship_Game
             SpriteBatch.Draw(BlankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
             SpriteBatch.End();
         }
-
-        public int ScreenCount => Screens.Count;
 
         public void LoadContent()
         {

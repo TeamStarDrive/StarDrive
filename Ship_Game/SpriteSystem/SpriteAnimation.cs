@@ -15,6 +15,9 @@ namespace Ship_Game
         public bool Looping { get; set; }
         public bool IsAnimating { get; private set; }
 
+        // if true, this animation will freeze at the last frame
+        public bool StopAtLastFrame;
+
         public SpriteAnimation(TextureAtlas atlas, bool autoStart = true)
         {
             Atlas = atlas;
@@ -36,6 +39,10 @@ namespace Ship_Game
                 if (Looping)
                 {
                     CurrentFrame = 0;
+                }
+                else if (StopAtLastFrame)
+                {
+                    CurrentFrame = Atlas.Count-1;
                 }
                 else
                 {
