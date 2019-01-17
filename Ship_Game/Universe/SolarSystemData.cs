@@ -24,12 +24,21 @@ namespace Ship_Game
             //Using a separate boolean to ensure that modders can define an unusual 0-habitability planet (e.g. 0 tile Terran); otherwise would have to disregard 0.
             public bool UniqueHabitat; 
             public int UniqueHabPC;
+
+            public override string ToString()
+            {
+                if (WhichPlanet != 0)
+                    return $"{Planet} Rings:{HasRings} {ResourceManager.Planet(WhichPlanet)}";
+                return $"{Planet} Ast:{Asteroids} Rings:{HasRings}";
+            }
         }
 
         public struct Moon
         {
             public int WhichMoon;
             public float MoonScale;
+
+            public override string ToString() => $"Moon  P:{ResourceManager.Planet(WhichMoon)}";
         }
     }
 }
