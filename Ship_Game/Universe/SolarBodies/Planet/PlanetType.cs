@@ -10,7 +10,7 @@ namespace Ship_Game
     // @note This is parsed from PlanetTypes.yaml; All fields are immutable.
     public class PlanetType
     {
-        [StarData(true)] public readonly int Id;
+        [StarDataKey] public readonly int Id;
         [StarData] public readonly PlanetCategory Category;
         [StarData] public readonly LocText Composition;
         [StarData] public readonly string IconPath;

@@ -1,5 +1,5 @@
 ﻿<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-
+ 
   <Tag_Kinetic>false</Tag_Kinetic>
   <Tag_Energy>true</Tag_Energy>
   <Tag_Guided>false</Tag_Guided>
@@ -9,6 +9,7 @@
   <Tag_Intercept>false</Tag_Intercept>
   <Tag_Explosive>true</Tag_Explosive>
   <Tag_Bomb>false</Tag_Bomb>
+  <Tag_Railgun>false</Tag_Railgun>
   <Tag_BioWeapon>false</Tag_BioWeapon>
   <Tag_Warp>false</Tag_Warp>
   <Tag_Subspace>false</Tag_Subspace>
@@ -16,8 +17,9 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>true</Tag_Cannon>
 
-  <UID>DualPhotonCannon</UID>
-  <fireDelay>1.8</fireDelay>
+
+  <UID>PhotonCannon</UID>
+  <fireDelay>4.5</fireDelay>
   <Range>3800</Range>
   <PowerRequiredToFire>180</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
@@ -35,7 +37,7 @@
   <!-- Animation Information -->
   <Animated>1</Animated>
   <Light>Blue</Light>
-  <Scale>2</Scale>
+  <Scale>1.35</Scale>
   <Frames>31</Frames>
   <AnimationPath>projBall_01_plasma_1/projBall_01_plasma_1_cc_</AnimationPath>
   <LoopAnimation>1</LoopAnimation>

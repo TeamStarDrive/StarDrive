@@ -2334,10 +2334,10 @@ namespace Ship_Game.Ships
             if (GlobalStats.HasMod)
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
-            ExplosionManager.AddExplosion(position, size * boost, 12f);
+            ExplosionManager.AddExplosion(position, size * boost, 12f, ExplosionType.Ship);
             if (addWarpExplode)
             {
-                ExplosionManager.AddWarpExplosion(position, size*1.75f, 12f);
+                ExplosionManager.AddExplosion(position, size*1.75f, 12f, ExplosionType.Warp);
             }
             UniverseScreen.SpaceManager.ShipExplode(this, size * 50, Center, Radius);
         }

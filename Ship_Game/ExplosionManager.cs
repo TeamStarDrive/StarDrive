@@ -3,15 +3,21 @@ using System.IO;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {
+    public enum ExplosionType
+    {
+        Ship, Projectile, Photon, Warp
+    }
+
     public sealed class ExplosionManager
     {
-        sealed class Explosion
+        sealed class ExplosionState
         {
             public PointLight Light;
             public Vector2 Pos;
@@ -22,86 +28,55 @@ namespace Ship_Game
             public TextureAtlas Animation;
         }
 
+        sealed class Explosion
+        {
+            #pragma warning disable 649 // They are serialized
+            [StarDataKey] public readonly ExplosionType Type;
+            [StarData]    public readonly string Path;
+            [StarData]    public readonly float Scale = 1.0f;
+            #pragma warning restore 649
+            public TextureAtlas Atlas;
+        }
+
         public static UniverseScreen Universe;
-        static readonly Array<Explosion> Explosions = new Array<Explosion>();
+        static readonly Array<ExplosionState> ActiveExplosions = new Array<ExplosionState>();
         static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
-        static readonly Array<TextureAtlas> Generic   = new Array<TextureAtlas>();
-        static readonly Array<TextureAtlas> Photon    = new Array<TextureAtlas>();
-        static readonly Array<TextureAtlas> ShockWave = new Array<TextureAtlas>();
-
         static SubTexture LowResExplode;
-
-        static void LoadAtlas(GameContentManager content, Array<TextureAtlas> target, string anim)
+        static readonly Map<ExplosionType, Array<Explosion>> Types = new Map<ExplosionType, Array<Explosion>>(new []
         {
-            // @note This is very slow, so we have to check for cancel before starting
-            if (ResourceManager.IsLoadCancelRequested)
-                throw new OperationCanceledException();
-            TextureAtlas atlas = content.LoadTextureAtlas(anim); // guaranteed to load an atlas with at least 1 tex
-            if (atlas != null)
-                target.Add(atlas);
-        }
+            (ExplosionType.Ship,       new Array<Explosion>()),
+            (ExplosionType.Projectile, new Array<Explosion>()),
+            (ExplosionType.Photon,     new Array<Explosion>()),
+            (ExplosionType.Warp,       new Array<Explosion>()),
+        });
 
-        static void LoadDefaults(GameContentManager content)
+        public static void Initialize(GameContentManager content)
         {
-            if (Generic.IsEmpty)
+            foreach (var kv in Types)
+                kv.Value.Clear();
+
+            LowResExplode = ResourceManager.Texture("UI/icon_injury");
+            if (ResourceManager.IsLoadCancelRequested) return;
+
+            FileInfo expDescriptors = ResourceManager.GetModOrVanillaFile("Explosions.yaml");
+            using (var parser = new StarDataParser(expDescriptors))
             {
-                LoadAtlas(content, Generic, "Textures/sd_explosion_07a_cc");
-                LoadAtlas(content, Generic, "Textures/sd_explosion_12a_cc");
-                LoadAtlas(content, Generic, "Textures/sd_explosion_14a_cc");
-            }
-            if (Photon.IsEmpty)
-                LoadAtlas(content, Photon, "Textures/sd_explosion_03_photon_256");
-            if (ShockWave.IsEmpty)
-                LoadAtlas(content, ShockWave, "Textures/sd_shockwave_01");
-
-            if (!ResourceManager.IsLoadCancelRequested)
-                LowResExplode = ResourceManager.Texture("UI/icon_injury");
-        }
-
-        static void LoadFromExplosionsList(GameContentManager content)
-        {
-            FileInfo explosions = ResourceManager.GetModOrVanillaFile("Explosions.txt");
-            if (explosions == null) return;
-            using (var reader = new StreamReader(explosions.OpenRead()))
-            {
-                string line;
-                char[] split = { ' ' };
-                while ((line = reader.ReadLine()) != null)
+                Array<Explosion> explosions = parser.DeserializeArray<Explosion>();
+                foreach (Explosion e in explosions)
                 {
-                    line = line.TrimStart();
-                    if (line.Length == 0 || line[0] == '#')
+                    // @note LoadAtlas is very slow, so we have to check for cancel before starting
+                    if (ResourceManager.IsLoadCancelRequested) return;
+                    e.Atlas = content.LoadTextureAtlas(e.Path); // guaranteed to load an atlas with at least 1 tex
+                    if (e.Atlas == null)
                         continue;
-                    string[] values = line.Split(split, 2, StringSplitOptions.RemoveEmptyEntries);
-                    switch (values[0])
-                    {
-                        default:case "generic": LoadAtlas(content, Generic, values[1]);   break;
-                        case "photon":          LoadAtlas(content, Photon, values[1]);    break;
-                        case "shockwave":       LoadAtlas(content, ShockWave, values[1]); break;
-                    }
+                    Types[e.Type].Add(e);
                 }
             }
         }
 
-        // @note Since explosion atlas generation is slow, we need to check for cancellation event
-        public static void Initialize(GameContentManager content)
+        static void AddLight(ExplosionState newExp, Vector3 position, float intensity)
         {
-            Generic.Clear();
-            Photon.Clear();
-            ShockWave.Clear();
-            try
-            {
-                LoadFromExplosionsList(content);
-                LoadDefaults(content);
-            }
-            catch (OperationCanceledException) { /* expected */ }
-        }
-
-        static void AddLight(Explosion newExp, Vector3 position, float radius, float intensity)
-        {
-            if (radius <= 0f) radius = 1f;
-            newExp.Radius = radius;
-
             if (Universe.viewState > UniverseScreen.UnivScreenState.SectorView)
                 return;
 
@@ -109,7 +84,7 @@ namespace Ship_Game
             {
                 World        = Matrix.CreateTranslation(position),
                 Position     = position,
-                Radius       = radius,
+                Radius       = newExp.Radius,
                 ObjectType   = ObjectType.Dynamic,
                 DiffuseColor = new Vector3(0.9f, 0.8f, 0.7f),
                 Intensity    = intensity,
@@ -118,71 +93,34 @@ namespace Ship_Game
             Universe.AddLight(newExp.Light);
         }
 
-        static TextureAtlas ChooseExplosion(string animationPath)
+        public static void AddExplosion(Vector3 position, float radius, float intensity, ExplosionType type)
         {
-            if (animationPath.NotEmpty())
-            {
-                foreach (TextureAtlas anim in Generic)
-                    if (animationPath.Contains(anim.Name)) return anim;
-                foreach (TextureAtlas anim in Photon)
-                    if (animationPath.Contains(anim.Name)) return anim;
-                foreach (TextureAtlas anim in ShockWave)
-                    if (animationPath.Contains(anim.Name)) return anim;
-            }
-            return RandomMath2.RandItem(Generic); 
-        }
-
-        public static void AddExplosion(Vector3 position, float radius, float intensity, string explosionPath = null)
-        {
-            var newExp = new Explosion
+            Explosion expType = RandomMath2.RandItem(Types[type]);
+            var exp = new ExplosionState
             {
                 Duration = 2.25f,
                 Pos = position.ToVec2(),
-                Animation = ChooseExplosion(explosionPath)
+                Animation = expType.Atlas,
+                Radius = radius <= 0f ? 1f : radius*expType.Scale
             };
-            AddLight(newExp, position, radius, intensity);
-            AddExplosion(newExp);
+
+            AddLight(exp, position, intensity);
+            using (Lock.AcquireWriteLock())
+                ActiveExplosions.Add(exp);
         }
 
+        // Light flash only, no explosion anim texture is played
         public static void AddExplosionNoFlames(Vector3 position, float radius, float intensity)
         {
-            var newExp = new Explosion
+            var exp = new ExplosionState
             {
                 Duration = 2.25f,
                 Pos = position.ToVec2(),
+                Radius = radius <= 0f ? 1f : radius,
             };
-            AddLight(newExp, position, radius, intensity);
-            AddExplosion(newExp);
-        }
-
-        public static void AddProjectileExplosion(Vector3 position, float radius, float intensity, string expColor)
-        {
-            var newExp = new Explosion
-            {
-                Duration = 2.25f,
-                Pos = position.ToVec2(),
-                Animation = RandomMath2.RandItem(expColor == "Blue_1" ? Photon : Generic)
-            };
-            AddLight(newExp, position, radius, intensity);
-            AddExplosion(newExp);
-        }
-
-        public static void AddWarpExplosion(Vector3 position, float radius, float intensity)
-        {
-            var newExp = new Explosion
-            {
-                Duration = 2.25f,
-                Pos = position.ToVec2(),
-                Animation = RandomMath2.RandItem(ShockWave)
-            };
-            AddLight(newExp, position, radius, intensity);
-            AddExplosion(newExp);
-        }
-        
-        static void AddExplosion(Explosion exp)
-        {
+            AddLight(exp, position, intensity);
             using (Lock.AcquireWriteLock())
-                Explosions.Add(exp);
+                ActiveExplosions.Add(exp);
         }
 
         static bool DebugExplosions = false;
@@ -192,17 +130,20 @@ namespace Ship_Game
             if (DebugExplosions && Universe.Input.IsCtrlKeyDown && Universe.Input.LeftMouseClick)
             {
                 GameAudio.PlaySfxAsync("sd_explosion_ship_det_large");
-                AddExplosion(Universe.CursorWorldPosition, 500.0f, 5.0f);
+                AddExplosion(Universe.CursorWorldPosition, 500.0f, 5.0f, ExplosionType.Ship);
+                AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Projectile);
+                AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Photon);
+                AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Warp);
             }
 
             using (Lock.AcquireReadLock())
             {
-                for (int i = 0; i < Explosions.Count; ++i)
+                for (int i = 0; i < ActiveExplosions.Count; ++i)
                 {
-                    Explosion e = Explosions[i];
+                    ExplosionState e = ActiveExplosions[i];
                     if (e.Time > e.Duration)
                     {
-                        Explosions.RemoveAtSwapLast(i--);
+                        ActiveExplosions.RemoveAtSwapLast(i--);
                         Universe.RemoveLight(e.Light);
                         continue;
                     }
@@ -224,7 +165,7 @@ namespace Ship_Game
             Viewport vp = StarDriveGame.Instance.Viewport;
             using (Lock.AcquireReadLock())
             {
-                foreach (Explosion e in Explosions)
+                foreach (ExplosionState e in ActiveExplosions)
                 {
                     if (float.IsNaN(e.Radius) || e.Radius.AlmostZero() || e.Animation == null)
                         continue;
@@ -233,7 +174,7 @@ namespace Ship_Game
             }
         }
 
-        static void DrawExplosion(SpriteBatch batch, in Viewport vp, in Matrix view, in Matrix projection, Explosion e)
+        static void DrawExplosion(SpriteBatch batch, in Viewport vp, in Matrix view, in Matrix projection, ExplosionState e)
         {
             // explosion center in screen coords
             Vector3 expOnScreen = vp.Project(e.Pos.ToVec3(), projection, view, Matrix.Identity);

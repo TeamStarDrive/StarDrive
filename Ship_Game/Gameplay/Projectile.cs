@@ -321,6 +321,9 @@ namespace Ship_Game.Gameplay
             Owner = null;
         }
 
+        bool CloseEnoughForExplosion    => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SectorView;
+        bool CloseEnoughForFlashExplode => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView;
+
         private void ExplodeProjectile(bool cleanupOnly)
         {
             if (Explodes)
@@ -330,25 +333,26 @@ namespace Ship_Game.Gameplay
                     DamageRadius += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
                 }
 
-                if (!cleanupOnly && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (!cleanupOnly && CloseEnoughForExplosion)
                 {
-                    GameAudio.PlaySfxAsync(DieCueName, Emitter);
+                    ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
 
-                    if (Weapon.ExpColor != null)
-                        ExplosionManager.AddProjectileExplosion(new Vector3(Position, -50f), DamageRadius * 4.5f, 2.5f, Weapon.ExpColor);
-                    else
-                        ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionPath);
-
-                    if (FlashExplode)
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
+                    if (CloseEnoughForFlashExplode)
+                    {
+                        GameAudio.PlaySfxAsync(DieCueName, Emitter);
+                        if (FlashExplode)
+                            Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
+                    }
                 }
 
                 UniverseScreen.SpaceManager.ProjectileExplode(this, DamageAmount, DamageRadius);
             }
-            else if (Weapon.FakeExplode && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            // @note FakeExplode basically FORCES an explosion, I think it's used for Flak weapons
+            //       In Vanilla, it only appears in Flak & DualFlak weapons
+            else if (Weapon.FakeExplode && CloseEnoughForExplosion)
             {
-                ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f);
-                if (FlashExplode)
+                ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
+                if (CloseEnoughForFlashExplode && FlashExplode)
                 {
                     Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
                 }

@@ -11,8 +11,8 @@ namespace UnitTests
     {
         public class TestData
         {
-            [StarData(primary:true)] public int Id { get; set; }
-            [StarData] public PlanetCategory Category;
+            [StarDataKey] public int Id { get; set; }
+            [StarData]    public PlanetCategory Category;
         }
 
         [TestMethod]
