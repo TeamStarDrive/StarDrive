@@ -95,7 +95,7 @@ namespace Ship_Game
             return score;
         }
 
-        float EvalFlatProd(Building b)
+        float EvalFlatProd(Building b, float popRatio)
         {
             if (b.PlusFlatProductionAmount.AlmostZero())
                 return 0;
@@ -108,19 +108,19 @@ namespace Ship_Game
                 if (IsCybernetic)
                     score += b.PlusFlatProductionAmount / MaxPopulationBillion;     //Percentage of the filthy Opteris population this will feed
                 
-                score += (0.5f - PopulationRatio).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
+                score += (0.5f - popRatio).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
                 score += 1.5f - Prod.YieldPerColonist;      //Bonus for low richness planets
                 score += (0.66f - MineralRichness).Clamped(0.0f, 0.66f);      //More Bonus for really low richness planets
                 
                 float currentOutput = Prod.YieldPerColonist * LeftoverWorkerBillions() + Prod.FlatBonus;  //Current Prod Output
                 score += (b.PlusFlatProductionAmount / currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
                 if (score < b.PlusFlatProductionAmount * 0.1f) score = b.PlusFlatProductionAmount * 0.1f; //A little production is always useful
+                score += 10 - Prod.NetMaxPotential; // FB - jump start a new colony
             }
 
             DebugEvalBuild(b, "FlatProd", score);
             return score;
         }
-
         float EvalProdPerCol(Building b)
         {
             if (b.PlusProdPerColonist.AlmostZero() || PopulationRatio < 0.8f)
@@ -158,11 +158,18 @@ namespace Ship_Game
             float desiredStorage = 70.0f;
             if (Food.YieldPerColonist >= 2.5f || Prod.YieldPerColonist >= 2.5f || Prod.FlatBonus > 5)
                 desiredStorage += 100.0f;  //Potential high output
-            if (HasSpacePort) desiredStorage += 100.0f; // For buildin' ships 'n shit
+
+            if (HasSpacePort)
+                desiredStorage += 300.0f; // For buildin' ships 'n shit
 
             float score = 0;
-            if (Storage.Max < desiredStorage) score += (b.StorageAdded * 0.002f); // If we need more storage, rate this building
-            if (b.Maintenance > 0) score *= 0.25f; // Prefer free storage
+            if (Storage.Max < desiredStorage)
+                score += (b.StorageAdded * 0.02f); // If we need more storage, rate this building
+            else
+                score += (b.StorageAdded * 0.01f);
+
+            if (b.Maintenance > 0)
+                score *= 0.75f; // Prefer free storage
 
             DebugEvalBuild(b, "StorageAdd", score);
             return score;
@@ -378,24 +385,27 @@ namespace Ship_Game
             // FB - so highest cost building will get a factor of 0 (this is a multiplier) and the lowest cost building will get a factor of 1.
             // A building with a cost of 1/4 from the highest cost will get a factor of 0.75 to its score and so on.
             highestCost = highestCost.Clamped(50, 800);
-            float factor = (1f - cost / highestCost).Clamped(0f, 1.0f); // so highest cost building will get a factor of 0 (this is a multiplier). 
-            Log.Info($"--- Construction Factor phase 1 {factor}");
+            float factor = (1f - cost / highestCost).Clamped(0.01f, 1.0f); // so highest cost building will get a factor of 0 (this is a multiplier). 
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"--- Construction Factor phase 1: {factor}");
 
             // FB- this is a very powerful factor. So i added the factor's strength based on population. It will be used fully when the pop is low
             // and it wont used at all when the planet has full pop. So the planet can build expensive buildings as well
-            factor = 1 - (1 - (PopulationBillion / 10).Clamped(0,1)) * factor;
-            Log.Info($"--- Construction Factor phase 2 {factor}");
-            Log.Info($"--- TOTAL SCORE after Construction Factor {score * factor} ---");
+            factor = (1 - (PopulationBillion / 10).Clamped(0.01f,1)) * factor;
+            if (IsPlanetExtraDebugTarget())
+            {
+                Log.Info($"--- Construction Factor phase 2: {factor}");
+                Log.Info($"--- TOTAL SCORE after Construction Factor: {score * factor} ---");
+            }
             return score * factor;
         }
 
-        float EvalCommon (Building b, float budget)
+        float EvalCommon (Building b, float budget, float popRatio)
         {
             float score = 0.0f;
 
-            score += EvalMaintenance(b, budget);
             score += EvalbyGovernor(b);
-            score += EvalFlatProd(b);
+            score += EvalFlatProd(b, popRatio);
             score += EvalProdPerCol(b);
             score += EvalProdPerRichness(b);
             score += EvalStorage(b);
@@ -416,10 +426,20 @@ namespace Ship_Game
             return score;
         }
 
-        float EvaluateBuilding(Building b, float budget, float highestCost, float popRatio)     //Gretman function, to support DoGoverning()
+        float EvaluateBuilding(Building b, float budget, float highestCost, 
+            float popRatio, bool withMaint = true)     //Gretman function, to support DoGoverning()
         {
-            float score = EvalCommon(b, budget);
+            float score = 0;
+            if (withMaint)
+            {
+                float maint = b.Maintenance + b.Maintenance * Owner.data.Traits.MaintMod;
+                if (maint.GreaterOrEqual(budget))
+                    return -1; // building cannot be built since it has higher maint than budget
 
+                score = EvalMaintenance(b, budget);
+            }
+
+            score += EvalCommon(b, budget, popRatio);
             if (score > 0)
                 score = ConstructionCostModifier(score, b.ActualCost, highestCost, popRatio);
 
@@ -439,26 +459,31 @@ namespace Ship_Game
             if (b.IsMilitary) // military buildings are cool for all governors, even cooler if there was combat here recently
                 score += RecentCombat ? 2f : 1f;
 
+            score += b.StorageAdded * 0.01f // but they like a little storage for a rainy day and also money $$$
+                  + b.PlusTaxPercentage * 5
+                  + b.CreditsPerColonist;
             switch (colonyType)
             {
                 case ColonyType.Agricultural:
-                    score += b.PlusFlatFoodAmount
+                    score += b.PlusFlatFoodAmount +2
                              + b.PlusFoodPerColonist * Fertility * 2
                              + b.MaxPopIncrease / 1000 * 0.5f
-                             + b.PlusFlatProductionAmount * 0.5f // some flat production as most people will be farming
+                             + b.PlusFlatProductionAmount // some flat production as most people will be farming
                              -b.MinusFertilityOnBuild * 10; // we dont want reducing fertility and we really want improving it
                     break;
                 case ColonyType.Core:
-                    score += b.CreditsPerColonist * 2
+                    score += 1; // Core governors are open to different building functions
+                    score += + b.CreditsPerColonist * 2
                              + b.PlusTaxPercentage * 10
                              + b.MaxPopIncrease / 1000 * 2
+                             + b.PlusFlatPopulation / 10
                              - b.MinusFertilityOnBuild * 5;
                     break;
                 case ColonyType.Industrial:
                      if (b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0)
                          score += 1f;
                     score += b.PlusProdPerColonist * MineralRichness 
-                             + b.PlusFlatProductionAmount 
+                             + b.PlusFlatProductionAmount +1
                              + b.PlusProdPerRichness * MineralRichness
                              + b.PlusFlatFoodAmount * 0.5f; // some flat food as most people will be in production
                     break;
@@ -470,10 +495,12 @@ namespace Ship_Game
                     break;
                 case ColonyType.Military:
                     score += b.IsMilitary ? 2f : 0f; // yes, more military buildings!
-                    score += b.AllowInfantry || b.AllowShipBuilding ? 1f : 0f;
+                    score += b.AllowInfantry || b.AllowShipBuilding ? 2f : 0f;
                     break;
             }
-            score *= 3; // People do what the governor tells them to
+            // The influence of the Governor increase as the colony increases.
+            score *= 2 * PopulationRatio; 
+
             DebugEvalBuild(b, "Governor", score);
             return score;
         }
@@ -485,11 +512,8 @@ namespace Ship_Game
             if (netCost.AlmostZero())
                 return 0;
 
-            float ratio   = netCost / Math.Max(Prod.NetMaxPotential / 4, 0.01f);
-            float score   = 0;
-            if (ratio > 200) score      = -30; // we don't want it yet, not enough prod
-            else if (ratio > 100) score = -20;
-            else if (ratio > 50) score  = -10;
+            float ratio   = netCost / Math.Max(Prod.NetMaxPotential / 2, 0.01f);
+            float score   = -ratio / 100;
 
             DebugEvalBuild(b, "Cost VS Time", score);
             return score;
@@ -569,7 +593,7 @@ namespace Ship_Game
                 return null;
             }
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"==== Planet  {Name}  CHOOSE AND BUILD, Budget: {budget} ==== ");
+                Log.Info(ConsoleColor.Cyan,$"==== Planet  {Name}  CHOOSE BEST BUILDING, Budget: {budget} ==== ");
 
             Building best     = null;
             float bestValue   = 0f; // So a building with a value of 0 will not be built.
@@ -586,7 +610,7 @@ namespace Ship_Game
                     bestValue = buildingScore;
                 }
             }
-            if (best != null)
+            if (best != null && !IsPlanetExtraDebugTarget())
                 Log.Info($"-- Best Buidling is  {best.Name} with score of {bestValue}== ");
 
             value = bestValue;
@@ -597,7 +621,7 @@ namespace Ship_Game
             out float value, float threshold)
         {
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"==== Planet  {Name}  EVALUATE WORST BUILDINGS ==== ");
+                Log.Info(ConsoleColor.DarkRed,$"==== Planet  {Name}  CHOOSE WORST BUILDINGS ==== ");
 
             Building worst   = null;
             float worstValue = threshold;
@@ -608,17 +632,17 @@ namespace Ship_Game
                     continue;
 
                 float highestCost   = buildings.FindMax(building => building.ActualCost).ActualCost;
-                float buildingScore = EvaluateBuilding(b, budget, highestCost, popRatio);
+                float buildingScore = EvaluateBuilding(b, budget, highestCost, popRatio, withMaint: false);
                 if (buildingScore < worstValue)
                 {
                     worst      = b;
                     worstValue = buildingScore;
                 }
             }
-
-            Log.Info(worst == null
-                ? $"-- No Worst Buidlin was found --"
-                : $"-- Worst Buidling is  {worst.Name} with score of {worstValue} -- ");
+            if (IsPlanetExtraDebugTarget())
+                Log.Info(worst == null
+                    ? $"-- Planet {Name } No Worst Buidling was found --"
+                    : $"-- Planet {Name } Worst Buidling is  {worst.Name} with score of {worstValue} -- ");
 
             value = worstValue;
             return worst;
@@ -675,9 +699,7 @@ namespace Ship_Game
                 return; 
             }
 
-            if (ScrapBuilding(budget, popRatio, scoreThreshold: 0))
-                return; // we scrapped a negative value building, let's wait a turn for the mess to cool down
-
+            ScrapBuilding(budget, popRatio, scoreThreshold: 0); // scap a negative value building
             if (OpenTiles > 0)
             {
                 SimpleBuild(budget, popRatio); // lets try to build something within our debt tolerance
@@ -718,16 +740,16 @@ namespace Ship_Game
             switch (colonyType)
             {
                 case ColonyType.Industrial:
-                    debtTolerance = 4;
+                    debtTolerance = 5;
                     break;
                 case ColonyType.Agricultural:
-                    debtTolerance = 4;
+                    debtTolerance = 5;
                     break;
                 case ColonyType.Military:
-                    debtTolerance = 2;
+                    debtTolerance = 3;
                     break;
                 default:
-                    debtTolerance = 1;
+                    debtTolerance = 2;
                     break;
             }
             debtTolerance -= Level; // the more developed the colony, the less debt tolerance it has, it should be earning money
