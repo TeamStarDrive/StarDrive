@@ -37,7 +37,7 @@ namespace Ship_Game
                     if (string.IsNullOrEmpty(data.Name) || data.Version < 308)
                         continue;
 
-                    if (GlobalStats.ActiveMod != null)
+                    if (GlobalStats.HasMod)
                     {
                         if (data.ModPath != GlobalStats.ActiveMod.ModName)
                             continue;

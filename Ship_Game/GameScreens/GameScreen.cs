@@ -37,12 +37,12 @@ namespace Ship_Game
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
         // This is equivalent to PresentationParameters.BackBufferWidth
-        public int ScreenWidth      => Game1.Instance.ScreenWidth;
-        public int ScreenHeight     => Game1.Instance.ScreenHeight;
+        public int ScreenWidth      => StarDriveGame.Instance.ScreenWidth;
+        public int ScreenHeight     => StarDriveGame.Instance.ScreenHeight;
         public Vector2 MousePos     => Input.CursorPosition;
-        public Vector2 ScreenArea   => Game1.Instance.ScreenArea;
-        public Vector2 ScreenCenter => Game1.Instance.ScreenArea * 0.5f;
-        public GameTime GameTime    => Game1.Instance.GameTime;
+        public Vector2 ScreenArea   => StarDriveGame.Instance.ScreenArea;
+        public Vector2 ScreenCenter => StarDriveGame.Instance.ScreenArea * 0.5f;
+        public GameTime GameTime    => StarDriveGame.Instance.GameTime;
         protected bool Pauses = true;
 
         protected Action OnExit;
@@ -57,15 +57,15 @@ namespace Ship_Game
         protected Texture2D VideoTexture;
 
         protected GameScreen(GameScreen parent, bool pause = true) 
-            : this(parent, new Rectangle(0, 0, Game1.Instance.ScreenWidth, Game1.Instance.ScreenHeight), pause)
+            : this(parent, new Rectangle(0, 0, StarDriveGame.Instance.ScreenWidth, StarDriveGame.Instance.ScreenHeight), pause)
         {
         }
         
         protected GameScreen(GameScreen parent, Rectangle rect, bool pause = true) : base(parent, rect)
         {
             // hook the content chain to parent screen if possible
-            TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
-            ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
+            TransientContent = new GameContentManager(parent?.TransientContent ?? StarDriveGame.Instance.Content, GetType().Name);
+            ScreenManager    = parent?.ScreenManager ?? StarDriveGame.Instance.ScreenManager;
             UpdateViewport();
 
             if (pause & Empire.Universe?.IsActive == true && Empire.Universe?.Paused == false)
@@ -75,7 +75,7 @@ namespace Ship_Game
                 Input = ScreenManager.input;
         }
 
-        public void UpdateViewport() => Viewport = Game1.Instance.Viewport;
+        public void UpdateViewport() => Viewport = StarDriveGame.Instance.Viewport;
 
         public void AddObject(ISceneObject so)    => ScreenManager.AddObject(so);
         public void RemoveObject(ISceneObject so) => ScreenManager.RemoveObject(so);
@@ -125,7 +125,7 @@ namespace Ship_Game
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             // Update new UIElementV2
-            Update(Game1.Instance.DeltaTime);
+            Update(StarDriveGame.Instance.DeltaTime);
 
             OtherScreenHasFocus = otherScreenHasFocus;
             if (!IsExiting)

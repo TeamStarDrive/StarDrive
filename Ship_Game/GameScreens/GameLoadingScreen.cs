@@ -65,7 +65,7 @@ namespace Ship_Game
 
             if (!IsActive || LoadingFinished())
 				return;
-			ScreenManager.GraphicsDevice.Clear(Color.Black);
+			Device.Clear(Color.Black);
             batch.Begin();
             LoadingPlayer?.Draw(batch);
             SplashPlayer?.Draw(batch);
@@ -85,11 +85,9 @@ namespace Ship_Game
 
         bool LoadingFinished()
         {
-            if (Input.InGameSelect || (Ready && SplashPlayer?.IsPlaying != true))
+            if (Ready && (Input.InGameSelect ||  SplashPlayer?.IsPlaying != true))
             {
-                if (!ScreenManager.IsShowing<MainMenuScreen>())
-                    ScreenManager.AddScreen(new MainMenuScreen());
-                ExitScreen();
+                ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
                 return true;
             }
             return false;
@@ -99,8 +97,7 @@ namespace Ship_Game
 		{
             base.LoadContent();
 
-            var size = new Point(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
+            var size = new Point(ScreenWidth, ScreenHeight);
 
             BridgeRect = new Rectangle(size.X / 2 - 960, size.Y / 2 - 540, 1920, 1080);
             var screenRect = new Rectangle(0, 0, size.X, size.Y);
@@ -118,15 +115,15 @@ namespace Ship_Game
                 SplashPlayer.Play();
             }
 
-
             // Initialize all game resources in background
             // The splash videos will play while we're loading the assets
             Parallel.Run(() =>
             {
                 BridgeTexture = TransientContent.Load<Texture2D>("Textures/GameScreens/Bridge");
 
-                ResourceManager.LoadItAll(() => Ready = true);
-                Log.Info($"Loaded 'Root' Assets {Game1.GameContent.GetLoadedAssetMegabytes():0.0}MB");
+                ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod, reset:false);
+                Log.Write($"Finished loading 'Root' Assets {StarDriveGame.GameContent.GetLoadedAssetMegabytes():0.0}MB");
+                Ready = true;
             });
         }
 

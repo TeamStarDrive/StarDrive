@@ -38,10 +38,10 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             SaveMenu.Draw();
-            SaveShips.Draw();
+            SaveShips.Draw(batch);
             EnterNameArea.Draw(Fonts.Arial20Bold, batch, EnternamePos, 
-                Game1.Instance.GameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
-            subAllDesigns.Draw();
+                StarDriveGame.Instance.GameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
+            subAllDesigns.Draw(batch);
             ShipDesigns.Draw(batch);
             var bCursor = new Vector2(subAllDesigns.Menu.X + 20, subAllDesigns.Menu.Y + 20);
             foreach (ScrollList.Entry e in ShipDesigns.VisibleEntries)

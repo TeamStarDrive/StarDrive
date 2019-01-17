@@ -12,10 +12,10 @@ using Point = System.Drawing.Point;
 namespace Ship_Game
 {
     // This class is created only once during Program start
-    public sealed class Game1 : Game
+    public sealed class StarDriveGame : Game
     {
         public GraphicsDeviceManager Graphics;
-        public static Game1 Instance;
+        public static StarDriveGame Instance;
         public ScreenManager ScreenManager;
         public Viewport Viewport { get; private set; }
         public bool IsLoaded  { get; private set; }
@@ -33,7 +33,7 @@ namespace Ship_Game
         public float DeltaTime { get; private set; }
         public GameTime GameTime;
 
-        public Game1()
+        public StarDriveGame()
         {
             // need to set base Content, to ensure proper content disposal
             base.Content = Content = new GameContentManager(Services, "Game");
@@ -101,6 +101,7 @@ namespace Ship_Game
         {
             IsExiting = true;
             ScreenManager.ExitAll(clear3DObjects:true);
+            ResourceManager.WaitForExit();
         }
 
         protected override void Initialize()

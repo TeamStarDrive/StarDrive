@@ -223,7 +223,7 @@ namespace Ship_Game
         {
             Viewport viewport;
             SubTexture nodeTexture = ResourceManager.Texture("UI/node");
-            ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref View, ref Projection);
+            ScreenManager.BeginFrameRendering(StarDriveGame.Instance.GameTime, ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             Screen.bg.Draw(Screen, Screen.StarField);
@@ -444,7 +444,7 @@ namespace Ship_Game
                 ShipDesigns.Draw(batch);
                 batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
                 batch.FillRectangle(SubShips.Menu, new Color(0, 0, 0, 130));
-                SubShips.Draw();
+                SubShips.Draw(batch);
                 ShipSL.Draw(batch);
                 var bCursor = new Vector2(RightMenu.Menu.X + 5, RightMenu.Menu.Y + 25);
                 foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
@@ -585,7 +585,7 @@ namespace Ship_Game
                 MouseState state = Mouse.GetState();
                 batch.Draw(item, new Vector2(single, state.Y), EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
-            DrawSelectedData(Game1.Instance.GameTime);
+            DrawSelectedData(StarDriveGame.Instance.GameTime);
             Close.Draw(batch);
             ToolTip.Draw(batch);
             batch.End();
@@ -772,7 +772,7 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            if (!Game1.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
+            if (!StarDriveGame.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
             {
                 Empire.Universe.AssignLightRig("example/NewGamelight_rig");
                 Empire.Universe.RecomputeFleetButtons(true);
@@ -965,7 +965,7 @@ namespace Ship_Game
             }
             if (FleetToEdit != -1)
             {
-                SubShips.HandleInput(this);
+                SubShips.HandleInput(input);
                 if (ShipSL.HandleInput(input))
                 {
                     return true;

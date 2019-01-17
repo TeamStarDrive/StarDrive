@@ -36,7 +36,7 @@ namespace Ship_Game
         {
             batch.Begin();
             SaveMenu.Draw();
-            AllSaves.Draw();
+            AllSaves.Draw(batch);
             var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
             foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
             {

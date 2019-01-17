@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -38,17 +39,15 @@ namespace Ship_Game
         
         public UIButton(UIElementV2 parent, Vector2 pos, string text) : base(parent, pos)
         {
-            InitializeStyles();
-            Text     = text;
-            Size     = ButtonTexture().SizeF;
+            Text = text;
+            Size = ButtonTexture().SizeF;
         }
 
         public UIButton(UIElementV2 parent, ButtonStyle style, Vector2 pos, string text) : base(parent, pos)
         {
-            InitializeStyles();
-            Style    = style;
-            Text     = text;
-            Size     = ButtonTexture().SizeF;
+            Style = style;
+            Text  = text;
+            Size  = ButtonTexture().SizeF;
         }
 
         public UIButton(UIElementV2 parent, float x, float y, string text)
@@ -80,12 +79,15 @@ namespace Ship_Game
             }
         }
 
-        private static StyleTextures[] Styling;
+        static int ContentId;
+        static StyleTextures[] Styling;
         
-        private static void InitializeStyles()
+         static StyleTextures[] GetStyles()
         {
-            if (Styling != null)
-                return;
+            if (Styling != null && ContentId == ResourceManager.ContentId)
+                return Styling;
+
+            ContentId = ResourceManager.ContentId;
             Styling = new []
             {
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_168px"),
@@ -97,17 +99,17 @@ namespace Ship_Game
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_168px_dip"),
                 new StyleTextures("NewUI/Close_Normal", "NewUI/Close_Hover")
             };
+            return Styling;
         }
 
         public static Vector2 StyleSize(ButtonStyle style = ButtonStyle.Default)
         {
-            InitializeStyles();
-            return Styling[(int)style].Normal.SizeF;
+            return GetStyles()[(int)style].Normal.SizeF;
         }
 
         private SubTexture ButtonTexture()
         {
-            StyleTextures styling = Styling[(int)Style];
+            StyleTextures styling = GetStyles()[(int)Style];
             switch (State)
             {
                 default:                 return styling.Normal;

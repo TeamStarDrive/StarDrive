@@ -122,7 +122,7 @@ namespace Ship_Game
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
             }
             SelectionBox?.Draw(spriteBatch);
-            FighterSubMenu.Draw();
+            FighterSubMenu.Draw(spriteBatch);
             base.Draw(spriteBatch);
         }
     }

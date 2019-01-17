@@ -88,7 +88,7 @@ namespace Ship_Game
         public static ScreenManager ScreenManager;
 
         // All references to Game1.Instance.Content were replaced by this property
-        public static GameContentManager RootContent => Game1.Instance.Content;
+        public static GameContentManager RootContent => StarDriveGame.Instance.Content;
 
         public static Technology Tech(string techUid)
         {
@@ -104,27 +104,54 @@ namespace Ship_Game
             return EventsDict["default"];
         }
 
-        public static void LoadItAll(Action onEssentialsLoaded = null)
+        // This is used for lazy-loading content triggers
+        public static int ContentId { get; private set; }
+
+        public static void LoadItAll(ScreenManager manager, ModEntry mod, bool reset = true)
         {
             Stopwatch s = Stopwatch.StartNew();
             try
             {
-                LoadAllResources(onEssentialsLoaded);
+                LoadAllResources(manager, mod, reset);
+                if (mod != null) // if Mod load succeeded, then:
+                    GlobalStats.SaveActiveMod();
             }
             catch (Exception ex)
             {
-                if (!GlobalStats.HasMod)
+                if (mod == null)
                     throw;
                 Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", isFatal:false);
                 GlobalStats.ClearActiveMod();
-                LoadAllResources(onEssentialsLoaded);
+                LoadAllResources(manager, null, true);
             }
             Log.Write($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
         }
 
-        static void LoadAllResources(Action onEssentialsLoaded)
+        static TaskResult BackgroundLoad; // non-critical background load task
+        public static bool IsLoadCancelRequested => BackgroundLoad != null && BackgroundLoad.IsCancelRequested;
+
+        public static void WaitForExit()
         {
-            Reset();
+            if (BackgroundLoad != null && !BackgroundLoad.IsComplete)
+            {
+                Log.Write("Cannot exit immediately. CancelAndWait.");
+                BackgroundLoad.CancelAndWait();
+            }
+        }
+
+        static void LoadAllResources(ScreenManager manager, ModEntry mod, bool reset)
+        {
+            if (BackgroundLoad != null && !BackgroundLoad.IsComplete)
+            {
+                Log.Write("ResourceManager was already loading. CancelAndWait.");
+                BackgroundLoad.CancelAndWait();
+            }
+
+            if (reset) Reset(manager);
+
+            if (mod != null) GlobalStats.SetActiveModNoSave(mod);
+            else             GlobalStats.ClearActiveMod();
+
             Log.Write($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage(); // @todo Slower than expected [0.36]
             LoadToolTips();
@@ -143,6 +170,7 @@ namespace Ship_Game
             LoadShipModules(); // @todo Extremely slow [1.29%]
             LoadGoods();
             LoadShipTemplates(); // @note Extremely fast :))) Loads everything in [0.16%]
+            LoadShipRoles();
             LoadJunk();      // @todo SLOW [0.47%]
             LoadAsteroids(); // @todo SLOW [0.40%]
             LoadProjTexts(); // @todo SLOW [0.47%]
@@ -156,20 +184,61 @@ namespace Ship_Game
             TechValidator();
 
             LoadArtifacts();
-            LoadShipRoles();
             LoadPlanetEdicts();
             LoadPlanetTypes();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
             TestLoad();
+
+            ++ContentId; // LoadContent will see a new content id
+            if (reset) // now reload manager content, otherwise we're fked as soon as game calls Draw
+                manager.LoadContent(); 
+
+            // Load non-critical resources:
+            BackgroundLoad = Parallel.Run(() =>
+            {
+                Log.Write("Load non-critical resources");
+                ExplosionManager.Initialize(RootContent);
+                LoadNonEssentialAtlases(BackgroundLoad);
+                Log.Write("Finished loading non-critical resources");
+            });
+
             HelperFunctions.CollectMemory();
-
-            // after this point, everything truly essential for Main Menu should already be loaded
-            onEssentialsLoaded?.Invoke();
-
-            ExplosionManager.Initialize(RootContent);
-            LoadNonEssentialAtlases();
         }
+
+        public static void Reset(ScreenManager manager)
+        {
+            WeaponsDict.Clear();
+            TroopsDict.Clear();
+            TroopsDictKeys.Clear();
+            BuildingsDict.Clear();
+            BuildingsById.Clear();
+            ModuleTemplates.Clear();
+            TechTree.Clear();
+            ArtifactsDict.Clear();
+            ShipsDict.Clear();
+            SoundEffectDict = null;
+            ToolTips.Clear();
+            GoodsDict.Clear();
+            Encounters.Clear();
+            EventsDict.Clear();
+            RandomItemsList.Clear();
+            ProjectileMeshDict.Clear();
+            ProjTextDict.Clear();
+
+            HostileFleets.Fleets.Clear();
+            ShipNames.Clear();
+            MainMenuShipList.ModelPaths.Clear();
+            AgentMissionData = new AgentMissionData();
+
+            // Texture caches MUST be cleared before triggering content reload!
+            Textures.Clear();
+            
+            // This is a destructive operation that invalidates ALL game resources!
+            // @note It HAS to be done after clearing all ResourceManager texture caches!
+            manager.UnloadAllGameContent();
+        }
+
 
         private static void TestLoad()
         {
@@ -715,11 +784,11 @@ namespace Ship_Game
 
 
         // Load texture for a specific mod, such as modName="Overdrive"
-        public static Texture2D LoadModTexture(string modName, string textureName)
+        public static Texture2D LoadModTexture(GameContentManager content, string modName, string textureName)
         {
             string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
             if (File.Exists(modTexPath + ".xnb"))
-                return RootContent.LoadUncached<Texture2D>(modTexPath);
+                return content.Load<Texture2D>(modTexPath);
             return null;
         }
 
@@ -735,7 +804,7 @@ namespace Ship_Game
 
         public static SubTexture ProjTexture(string texturePath)
         {
-            return new SubTexture(ProjTextDict[texturePath]);
+            return new SubTexture(texturePath, ProjTextDict[texturePath]);
         }
 
         public static FileInfo[] GatherTextureFiles(string dir, bool recursive)
@@ -770,8 +839,6 @@ namespace Ship_Game
         // This is just to speed up initial atlas generation and avoid noticeable framerate hiccups
         static void LoadTextureAtlases()
         {
-            Textures.Clear();
-
             // these are essential for main menu, so we load them as blocking
             LoadAtlas("Textures");
             LoadAtlas("Textures/GameScreens");
@@ -780,7 +847,7 @@ namespace Ship_Game
             LoadAtlas("Textures/NewUI");
         }
 
-        static void LoadNonEssentialAtlases()
+        static void LoadNonEssentialAtlases(TaskResult task)
         {
             Stopwatch s = Stopwatch.StartNew();
             // these are non-critical and can be loaded in background
@@ -813,13 +880,13 @@ namespace Ship_Game
                 "Textures/Troops",
                 "Textures/OrderButtons",
             };
-
-            Parallel.Run(() =>
+            foreach (string atlas in atlases)
             {
-                foreach (string atlas in atlases)
-                    LoadAtlas(atlas);
-                Log.Info($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms");
-            });
+                if (task.IsCancelRequested)
+                    break;
+                LoadAtlas(atlas);
+            }
+            Log.Write($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms");
         }
 
         public static ShipModule GetModuleTemplate(string uid) => ModuleTemplates[uid];
@@ -1169,6 +1236,10 @@ namespace Ship_Game
         // Refactored by RedFox
         static void LoadNebulae()
         {
+            BigNebulae.Clear();
+            MedNebulae.Clear();
+            SmallNebulae.Clear();
+
             FileInfo[] files = Dir.GetFiles("Content/Nebulas", "xnb");
             var nebulae = new Texture2D[files.Length];
             Parallel.For(files.Length, (start, end) =>
@@ -1185,23 +1256,19 @@ namespace Ship_Game
         }
         public static SubTexture SmallNebulaRandom()
         {
-            return new SubTexture(RandomMath.RandItem(SmallNebulae));
+            return new SubTexture("small_nebula", RandomMath.RandItem(SmallNebulae));
         }
         public static SubTexture NebulaMedRandom()
         {
-            return new SubTexture(RandomMath.RandItem(MedNebulae));
+            return new SubTexture("med_nebula", RandomMath.RandItem(MedNebulae));
         }
         public static SubTexture NebulaBigRandom()
         {
-            return new SubTexture(RandomMath.RandItem(BigNebulae));
-        }
-        public static SubTexture MedNebula(int index)
-        {
-            return new SubTexture(MedNebulae[index]);
+            return new SubTexture("big_nebula", RandomMath.RandItem(BigNebulae));
         }
         public static SubTexture BigNebula(int index)
         {
-            return new SubTexture(BigNebulae[index]);
+            return new SubTexture("big_nebula", BigNebulae[index]);
         }
 
 
@@ -1844,39 +1911,6 @@ namespace Ship_Game
             sfx = null;
             return SoundEffectDict?.TryGetValue(cueName, out sfx) == true;
         }
-
-        public static void Reset()
-        {
-            //RootContent.Unload();
-
-            WeaponsDict.Clear();
-            TroopsDict.Clear();
-            TroopsDictKeys.Clear();
-            BuildingsDict.Clear();
-            BuildingsById.Clear();
-            ModuleTemplates.Clear();
-            TechTree.Clear();
-            ArtifactsDict.Clear();
-            ShipsDict.Clear();
-            SoundEffectDict = null;
-            ToolTips.Clear();
-            GoodsDict.Clear();
-            Encounters.Clear();
-            EventsDict.Clear();
-            RandomItemsList.Clear();
-            ProjectileMeshDict.Clear();
-            ProjTextDict.Clear();
-
-            HostileFleets.Fleets.Clear();
-            ShipNames.Clear();
-            MainMenuShipList.ModelPaths.Clear();
-            AgentMissionData = new AgentMissionData();
-
-            // @todo Make this work properly:
-            // Game1.GameContent.Unload();
-            HelperFunctions.CollectMemory();
-        }
-
 
         public static Video LoadVideo(GameContentManager content, string videoPath)
         {
