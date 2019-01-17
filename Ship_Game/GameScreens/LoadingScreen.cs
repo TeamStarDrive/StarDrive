@@ -20,7 +20,7 @@ namespace Ship_Game
 
 		public override void Draw(SpriteBatch batch)
 		{
-			if (ScreenState == ScreenState.Active && ScreenManager.ScreenCount == 1)
+			if (ScreenState == ScreenState.Active && ScreenManager.NumScreens == 1)
 			{
 				OtherScreensAreGone = true;
 			}
