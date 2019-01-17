@@ -80,7 +80,7 @@ namespace Ship_Game
 			foreach (FileInfo info in textList)
 			{
 			    string name = Path.GetFileNameWithoutExtension(info.Name);
-			    Texture2D tex = Game1.Instance.Content.Load<Texture2D>("Tutorials/"+ GlobalStats.Language+"/"+name);
+			    Texture2D tex = StarDriveGame.Instance.Content.Load<Texture2D>("Tutorials/"+ GlobalStats.Language+"/"+name);
 			    TexDict[name] = tex;
 			}
             var center = ScreenManager.Center();

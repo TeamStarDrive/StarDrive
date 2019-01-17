@@ -2095,13 +2095,13 @@ namespace Ship_Game
                 return true;
             }
 
-            Game1.Instance.EndingGame(true);
+            StarDriveGame.Instance.EndingGame(true);
             foreach (Ship ship in Universe.MasterShipList)
                 ship.Die(null, true);
 
             Universe.Paused = true;
             HelperFunctions.CollectMemory();
-            Game1.Instance.EndingGame(false);
+            StarDriveGame.Instance.EndingGame(false);
             Universe.ScreenManager.AddScreen(new YouLoseScreen(Universe));
             Universe.Paused = false;
             return true;

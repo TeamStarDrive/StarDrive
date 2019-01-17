@@ -60,7 +60,7 @@ namespace Ship_Game
         public void ApplyGraphicSettings()
         {
             SaveGlobalStats();
-            Game1.Instance.ApplyGraphics(ref this);
+            StarDriveGame.Instance.ApplyGraphics(ref this);
         }
 
         public bool Equals(ref GraphicsSettings other)

@@ -51,23 +51,23 @@ namespace Ship_Game
 			}
 		}
 
-		public void Draw()
+		public void Draw(SpriteBatch batch)
 		{
 			if (!Visible)
 			{
-				ShowQueue.DrawBlue(ScreenManager);
+				ShowQueue.DrawBlue(batch);
 				return;
 			}
-			ShowQueue.DrawBlue(ScreenManager);
-			ScreenManager.SpriteBatch.FillRectangle(container, Color.Black);
-			QSL.DrawBlue(ScreenManager.SpriteBatch);
-			csub.Draw();
+			ShowQueue.DrawBlue(batch);
+			batch.FillRectangle(container, Color.Black);
+			QSL.DrawBlue(batch);
+			csub.Draw(batch);
             var tech = CurrentResearch?.Node?.tech;
             var complete = tech == null || CurrentResearch.Node.complete || tech.TechCost == tech.Progress;
 			if ( !complete)
 			{
 				CurrentResearch.Draw(ScreenManager);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ResearchMenu/timeleft"), TimeLeft, Color.White);
+				batch.Draw(ResourceManager.Texture("ResearchMenu/timeleft"), TimeLeft, Color.White);
 				Vector2 Cursor = new Vector2(TimeLeft.X + TimeLeft.Width - 7, TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2);
 				float cost = tech.TechCost - tech.Progress;
 				int numTurns = (int)(cost / (0.01f + EmpireManager.Player.GetProjectedResearchNextTurn()));
@@ -81,13 +81,13 @@ namespace Ship_Game
 					text = ">999 turns";
 				}
 				Cursor.X -= Fonts.Verdana14Bold.MeasureString(text).X;
-				ScreenManager.SpriteBatch.DrawString(Fonts.Verdana14Bold, text, Cursor, new Color(205, 229, 255));
+				batch.DrawString(Fonts.Verdana14Bold, text, Cursor, new Color(205, 229, 255));
 			}
             foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
 			{
                 e.Get<ResearchQItem>().Draw(ScreenManager, e.Rect);
 			}
-			qsub.Draw();
+			qsub.Draw(batch);
 		}
 
 		public void HandleInput(InputState input)

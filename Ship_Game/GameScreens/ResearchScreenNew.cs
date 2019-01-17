@@ -65,11 +65,11 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            ScreenManager.SpriteBatch.Begin();
-            ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
+            batch.Begin();
+            batch.FillRectangle(new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
             MainMenu.Draw(batch);
-            ScreenManager.SpriteBatch.End();
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, camera.Transform);
+            batch.End();
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, camera.Transform);
             foreach (KeyValuePair<string, Node> keyValuePair in TechTree)
             {
                 RootNode rootNode = keyValuePair.Value as RootNode;
@@ -95,9 +95,9 @@ namespace Ship_Game
                     var vector23 = new Vector2(vector22.X, treeNode.BaseRect.Y + treeNode.BaseRect.Height / 2 - 10);
                     --vector23.Y;
                     if (vector23.Y > vector22.Y)
-                        ScreenManager.SpriteBatch.DrawResearchLineVertical(vector22, vector23, complete);
+                        batch.DrawResearchLineVertical(vector22, vector23, complete);
                     else
-                        ScreenManager.SpriteBatch.DrawResearchLineVertical(vector23, vector22, complete);
+                        batch.DrawResearchLineVertical(vector23, vector22, complete);
                 }
             }
             foreach (KeyValuePair<string, Node> keyValuePair in SubNodes)
@@ -123,9 +123,9 @@ namespace Ship_Game
                     TreeNode treeNode1 = SubNodes[techEntry1.UID] as TreeNode;
                     var vector23 = new Vector2(vector22.X, treeNode1.BaseRect.Y + treeNode1.BaseRect.Height / 2 - 10);
                     if (vector23.Y > vector22.Y)
-                        ScreenManager.SpriteBatch.DrawResearchLineVertical(vector22, vector23, complete);
+                        batch.DrawResearchLineVertical(vector22, vector23, complete);
                     else
-                        ScreenManager.SpriteBatch.DrawResearchLineVertical(vector23, vector22, complete);
+                        batch.DrawResearchLineVertical(vector23, vector22, complete);
                 }
             }
             foreach (KeyValuePair<string, Node> keyValuePair in SubNodes)
@@ -155,10 +155,10 @@ namespace Ship_Game
                             TreeNode treeNode3 = (SubNodes[techEntry2.UID] as TreeNode);
                             Vector2 LeftPoint2 = new Vector2(RightPoint1.X, treeNode3.BaseRect.Y + treeNode3.BaseRect.Height / 2 - 10);
                             Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
-                            ScreenManager.SpriteBatch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, complete2);
+                            batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, complete2);
                         }
                     }
-                    ScreenManager.SpriteBatch.DrawResearchLineHorizontal(LeftPoint1, RightPoint1, Complete1);
+                    batch.DrawResearchLineHorizontal(LeftPoint1, RightPoint1, Complete1);
                 }
             }
             foreach (KeyValuePair<string, Node> keyValuePair in TechTree)
@@ -189,10 +189,10 @@ namespace Ship_Game
                             Vector2 LeftPoint2 = new Vector2(RightPoint1.X, treeNode4.BaseRect.Y + treeNode4.BaseRect.Height / 2 - 10);
                             --LeftPoint2.Y;
                             Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
-                            ScreenManager.SpriteBatch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, Complete2);
+                            batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, Complete2);
                         }
                     }
-                    ScreenManager.SpriteBatch.DrawResearchLineHorizontal(LeftPoint1, RightPoint1, Complete1);
+                    batch.DrawResearchLineHorizontal(LeftPoint1, RightPoint1, Complete1);
                 }
             }
             foreach (KeyValuePair<string, Node> keyValuePair in TechTree)
@@ -205,13 +205,13 @@ namespace Ship_Game
                 if (keyValuePair.Value is TreeNode treeNode)
                     treeNode.Draw(ScreenManager);
             }
-            ScreenManager.SpriteBatch.End();
-            ScreenManager.SpriteBatch.Begin();
+            batch.End();
+            batch.Begin();
             //MainMenu.DrawHollow();
             close.Draw(batch);
-            qcomponent.Draw();
-            ToolTip.Draw(ScreenManager.SpriteBatch);
-            ScreenManager.SpriteBatch.End();
+            qcomponent.Draw(batch);
+            ToolTip.Draw(batch);
+            batch.End();
         }
 
         public override void ExitScreen()

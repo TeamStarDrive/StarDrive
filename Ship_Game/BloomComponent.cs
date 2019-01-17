@@ -111,7 +111,7 @@ namespace Ship_Game
 			parameters["BloomSaturation"].SetValue(Settings.BloomSaturation);
 			parameters["BaseSaturation"].SetValue(Settings.BaseSaturation);
 			GraphicsDevice.Textures[1] = resolveTarget;
-			Viewport viewport = Game1.Instance.Viewport;
+			Viewport viewport = StarDriveGame.Instance.Viewport;
 			DrawFullscreenQuad(renderTarget1.GetTexture(), viewport.Width, viewport.Height, bloomCombineEffect, IntermediateBuffer.FinalResult);
 		}
 
@@ -144,9 +144,9 @@ namespace Ship_Game
 
 		public void LoadContent()
 		{
-			bloomExtractEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomExtract");
-			bloomCombineEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomCombine");
-			gaussianBlurEffect = Game1.Instance.Content.Load<Effect>("Effects/GaussianBlur");
+			bloomExtractEffect = StarDriveGame.Instance.Content.Load<Effect>("Effects/BloomExtract");
+			bloomCombineEffect = StarDriveGame.Instance.Content.Load<Effect>("Effects/BloomCombine");
+			gaussianBlurEffect = StarDriveGame.Instance.Content.Load<Effect>("Effects/GaussianBlur");
 			PresentationParameters pp = GraphicsDevice.PresentationParameters;
 			int width = pp.BackBufferWidth;
 			int height = pp.BackBufferHeight;

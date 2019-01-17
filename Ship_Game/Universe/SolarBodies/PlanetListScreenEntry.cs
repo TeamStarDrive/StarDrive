@@ -92,7 +92,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
             }
 
-            double totalSeconds = Game1.Instance.GameTime.TotalGameTime.TotalSeconds;
+            double totalSeconds = StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds;
             if (planet.ParentSystem.DangerTimer > 0f)
             {
                 float f = (float)Math.Sin(totalSeconds);

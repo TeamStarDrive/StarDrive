@@ -358,7 +358,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            GameTime gameTime = Game1.Instance.GameTime;
+            GameTime gameTime = StarDriveGame.Instance.GameTime;
 
             // Wait for ProcessTurns to finish before we start drawing
             if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock

@@ -54,7 +54,7 @@ namespace Ship_Game
 		    {
 		        if (screen != null) ScreenManager.AddScreen(screen);
 		    }
-		    Game1.Instance.ResetElapsedTime();
+		    StarDriveGame.Instance.ResetElapsedTime();
 		}
 	}
 }
