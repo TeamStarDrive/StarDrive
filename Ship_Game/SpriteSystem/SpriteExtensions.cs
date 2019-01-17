@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,15 +11,23 @@ namespace Ship_Game
 {
     public static class SpriteExtensions
     {
+        [Conditional("DEBUG")] static void CheckSubTextureDisposed(SubTexture texture)
+        {
+            if (texture.Texture.IsDisposed)
+                throw new ObjectDisposedException($"SubTexture '{texture.Name}' in Texture2D '{texture.Texture.Name}'");
+        }
+
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
                                 Vector2 position, Color color)
         {
+            CheckSubTextureDisposed(texture);
             batch.Draw(texture.Texture, position, texture.Rect, color);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
                                 in Rectangle destinationRect, Color color)
         {
+            CheckSubTextureDisposed(texture);
             batch.Draw(texture.Texture, destinationRect, texture.Rect, color);
         }
 
@@ -26,6 +35,7 @@ namespace Ship_Game
             this SpriteBatch batch, SubTexture texture, Rectangle destinationRectangle,
             Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
+            CheckSubTextureDisposed(texture);
             batch.Draw(texture.Texture, destinationRectangle, texture.Rect,
                        color, rotation, origin, effects, layerDepth);
         }
@@ -34,6 +44,7 @@ namespace Ship_Game
             this SpriteBatch batch, SubTexture texture, Vector2 position, Color color,
             float rotation, Vector2 origin, float scale, SpriteEffects effects, float layerDepth)
         {
+            CheckSubTextureDisposed(texture);
             batch.Draw(texture.Texture, position, texture.Rect, color, 
                        rotation, origin, scale, effects, layerDepth);
         }
@@ -52,6 +63,7 @@ namespace Ship_Game
         public static void Draw(this SpriteBatch batch, SubTexture texture, Rectangle destinationRectangle,
                                 Rectangle sourceRectangle, Color color)
         {
+            CheckSubTextureDisposed(texture);
             Rectangle adjustedSrcRect = AdjustedToSubTexture(texture, sourceRectangle);
             batch.Draw(texture.Texture, destinationRectangle, adjustedSrcRect, color);
         }
@@ -60,6 +72,7 @@ namespace Ship_Game
             this SpriteBatch batch, SubTexture texture, Rectangle destinationRectangle, Rectangle sourceRectangle,
             Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
+            CheckSubTextureDisposed(texture);
             Rectangle adjustedSrcRect = AdjustedToSubTexture(texture, sourceRectangle);
             batch.Draw(texture.Texture, destinationRectangle, adjustedSrcRect,
                        color, rotation, origin, effects, layerDepth);

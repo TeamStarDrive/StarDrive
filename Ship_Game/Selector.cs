@@ -45,22 +45,27 @@ namespace Ship_Game
             Fill = fillColor;
             EdgeColor = new Color(Color.White, (byte)textureAlpha);
             Initialize(theMenu);
-            
-
         }
 
-        private class ElementTextures
+        class ElementTextures
         {
             public SubTexture CornerTL, CornerTR, CornerBL, CornerBR;
             public SubTexture RoundTL, RoundTR, RoundBL, RoundBR;
             public SubTexture HoriVert;
         }
-        private static ElementTextures Tex;
 
-        private void Initialize(Rectangle theMenu)
+        static int ContentId;
+        static ElementTextures Tex;
+
+        void Initialize(Rectangle theMenu)
         {
-            if (Tex == null)
+            Rect = theMenu;
+            int x = theMenu.X,     y = theMenu.Y;
+            int w = theMenu.Width, h = theMenu.Height;
+
+            if (Tex == null || ContentId != ResourceManager.ContentId)
             {
+                ContentId = ResourceManager.ContentId;
                 Tex = new ElementTextures
                 {
                     CornerTL = ResourceManager.Texture("NewUI/submenu_corner_TL"),
@@ -74,10 +79,6 @@ namespace Ship_Game
                     HoriVert = ResourceManager.Texture("NewUI/submenu_horiz_vert")
                 };
             }
-
-            Rect = theMenu;
-            int x = theMenu.X,     y = theMenu.Y;
-            int w = theMenu.Width, h = theMenu.Height;
 
             TL = new Rectangle(x, y - 2, Tex.CornerTL.Width, Tex.CornerTL.Height);
             TR = new Rectangle(x + w - Tex.CornerTR.Width, y - 2, Tex.CornerTR.Width, Tex.CornerTR.Height);

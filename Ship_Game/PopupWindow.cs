@@ -38,8 +38,8 @@ namespace Ship_Game
 
         private static Rectangle CenterScreen(int width, int height)
         {
-            return new Rectangle(Game1.Instance.ScreenWidth  / 2 - width  / 2, 
-                                 Game1.Instance.ScreenHeight / 2 - height / 2, width, height);
+            return new Rectangle(StarDriveGame.Instance.ScreenWidth  / 2 - width  / 2, 
+                                 StarDriveGame.Instance.ScreenHeight / 2 - height / 2, width, height);
         }
 
         protected PopupWindow(GameScreen parent, int width, int height) : base(parent, CenterScreen(width, height))

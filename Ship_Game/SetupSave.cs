@@ -39,7 +39,7 @@ namespace Ship_Game
             RaceDesignScreen.ExtraRemnantPresence extraRemnant, 
             int numOpponents, RaceDesignScreen.GameMode mode)
         {
-            if (GlobalStats.ActiveMod != null)
+            if (GlobalStats.HasMod)
             {
                 ModName = GlobalStats.ActiveMod.mi.ModName;
                 ModPath = GlobalStats.ActiveMod.ModName;

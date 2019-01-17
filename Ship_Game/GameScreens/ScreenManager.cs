@@ -22,7 +22,7 @@ namespace Ship_Game
         private SplashScreenGameComponent SplashScreen;
         private readonly SceneInterface SceneInter;
         private readonly object InterfaceLock = new object();
-        private Game1 GameInstance;
+        private StarDriveGame GameInstance;
         //public SceneInterface buffer1;
         //public SceneInterface buffer2;
         //public SceneInterface renderBuffer;
@@ -47,7 +47,7 @@ namespace Ship_Game
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => Screens.Count;
 
-        public ScreenManager(Game1 game, GraphicsDeviceManager graphics)
+        public ScreenManager(StarDriveGame game, GraphicsDeviceManager graphics)
         {
             GameInstance = game;
             GraphicsDevice = graphics.GraphicsDevice;
@@ -286,13 +286,13 @@ namespace Ship_Game
 
         public void FadeBackBufferToBlack(int alpha, SpriteBatch spriteBatch)
         {
-            Viewport viewport = Game1.Instance.Viewport;
+            Viewport viewport = StarDriveGame.Instance.Viewport;
             spriteBatch.Draw(BlankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
         }
 
         public void FadeBackBufferToBlack(int alpha)
         {
-            Viewport viewport = Game1.Instance.Viewport;
+            Viewport viewport = StarDriveGame.Instance.Viewport;
             SpriteBatch.Begin();
             SpriteBatch.Draw(BlankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
             SpriteBatch.End();
@@ -302,19 +302,30 @@ namespace Ship_Game
 
         public void LoadContent()
         {
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            if (SpriteBatch == null)
+                SpriteBatch = new SpriteBatch(GraphicsDevice);
             BlankTexture = ResourceManager.Texture("blank");
             foreach (GameScreen screen in Screens)
             {
                 screen.LoadContent();
             }
 
-            Viewport viewport = Game1.Instance.Viewport;
+            Viewport viewport = StarDriveGame.Instance.Viewport;
             TitleSafeArea = new Rectangle(
                 (int)(viewport.X + viewport.Width  * 0.05f),
                 (int)(viewport.Y + viewport.Height * 0.05f),
                 (int)(viewport.Width  * 0.9f),
                 (int)(viewport.Height * 0.9f));
+        }
+
+        // @warning This unloads ALL game content and is designed to be called only from ResourceManager!
+        public void UnloadAllGameContent()
+        {
+            foreach (GameScreen screen in Screens)
+            {
+                screen.UnloadContent();
+            }
+            GameInstance.Content.Unload();
         }
 
         public void RemoveScreen(GameScreen screen)
@@ -329,7 +340,7 @@ namespace Ship_Game
         {
             input.Update(gameTime);
 
-            bool otherScreenHasFocus = !Game1.Instance.IsActive;
+            bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;
             bool coveredByOtherScreen = false;
 
             for (int i = Screens.Count-1; i >= 0; --i)

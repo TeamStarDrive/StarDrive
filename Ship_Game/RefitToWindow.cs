@@ -39,7 +39,7 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            sub_ships.Draw();
+            sub_ships.Draw(batch);
             Rectangle r = sub_ships.Menu;
             r.Y += 25;
             r.Height -= 25;

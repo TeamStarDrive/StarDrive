@@ -10,7 +10,7 @@ namespace Ship_Game
     {
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            GraphicsDeviceManager graphicsMgr = Game1.Instance?.Graphics;
+            GraphicsDeviceManager graphicsMgr = StarDriveGame.Instance?.Graphics;
             if (graphicsMgr != null && graphicsMgr.IsFullScreen)
                 graphicsMgr.ToggleFullScreen();
 
@@ -21,7 +21,7 @@ namespace Ship_Game
             }
             finally
             {
-                Game1.Instance?.Exit();
+                StarDriveGame.Instance?.Exit();
             }
         }
 
@@ -44,7 +44,7 @@ namespace Ship_Game
                         return;
                     }
 
-                    using (var game = new Game1())
+                    using (var game = new StarDriveGame())
                         game.Run();
                 }
             }

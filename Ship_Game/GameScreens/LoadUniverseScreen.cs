@@ -98,7 +98,7 @@ namespace Ship_Game
                 const string begin = "Click to Continue!";
                 cursor.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(begin).X / 2f;
 
-                float f = (float)Math.Sin(Game1.Instance.GameTime.TotalGameTime.TotalSeconds);
+                float f = (float)Math.Sin(StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds);
                 f = Math.Abs(f) * 255f;
                 var flashColor = new Color(255, 255, 255, (byte)f);
                 batch.DrawString(Fonts.Pirulen16, begin, cursor, flashColor);
@@ -192,7 +192,7 @@ namespace Ship_Game
 
             step.NextStep().Start(1); // This last step is a mess, using arbitrary count
             
-            Game1.Instance.ResetElapsedTime();
+            StarDriveGame.Instance.ResetElapsedTime();
             us.LoadContent();
             us.UpdateAllSystems(0.01f);
 

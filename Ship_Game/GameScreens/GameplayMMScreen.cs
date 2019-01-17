@@ -46,7 +46,7 @@ namespace Ship_Game
             batch.Begin();
             if (SavedGame.IsSaving)
             {
-                GameTime gameTime = Game1.Instance.GameTime;
+                GameTime gameTime = StarDriveGame.Instance.GameTime;
                 TimeSpan totalGameTime = gameTime.TotalGameTime;
                 float f = (float)Math.Sin(totalGameTime.TotalSeconds);
                 f = Math.Abs(f) * 255f;
@@ -115,7 +115,7 @@ namespace Ship_Game
         }
         private void Exit_OnClick(UIButton button)
         {
-            if (SavedGame.NotSaving) Game1.Instance.Exit();
+            if (SavedGame.NotSaving) StarDriveGame.Instance.Exit();
             else GameAudio.PlaySfxAsync("UI_Misc20");
         }
 

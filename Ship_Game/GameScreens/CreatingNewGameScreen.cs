@@ -785,7 +785,7 @@ namespace Ship_Game
                 string token = Localizer.Token(2108);
                 position.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(token).X / 2f;
 
-                GameTime gameTime = Game1.Instance.GameTime;
+                GameTime gameTime = StarDriveGame.Instance.GameTime;
                 var color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 
                     (byte)(Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * byte.MaxValue));
                 batch.DrawString(Fonts.Pirulen16, token, position, color);
