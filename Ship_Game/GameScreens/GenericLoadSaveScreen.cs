@@ -108,8 +108,8 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             SaveMenu.Draw();
-            NameSave.Draw();
-            AllSaves.Draw();
+            NameSave.Draw(batch);
+            AllSaves.Draw(batch);
             var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
             foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
             {

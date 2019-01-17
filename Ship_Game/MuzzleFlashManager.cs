@@ -23,7 +23,7 @@ namespace Ship_Game
         public static void LoadContent(GameContentManager content)
         {
             flashModel   = content.Load<Model>("Model/Projectiles/muzzleEnergy");
-            FlashTexture = new SubTexture(content.Load<Texture2D>("Model/Projectiles/Textures/MuzzleFlash_01"));
+            FlashTexture = new SubTexture("MuzzleFlash_01", content.Load<Texture2D>("Model/Projectiles/Textures/MuzzleFlash_01"));
         }
 
         public static void AddFlash(MuzzleFlash flash)

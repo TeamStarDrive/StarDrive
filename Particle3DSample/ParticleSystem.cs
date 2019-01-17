@@ -143,7 +143,7 @@ namespace Particle3DSample
             if (FirstActiveParticle != FirstFreeParticle)
             {                
                 SetParticleRenderStates(device.RenderState);
-                EffectViewportHeightParameter.SetValue(Game1.Instance.Viewport.Height);
+                EffectViewportHeightParameter.SetValue(StarDriveGame.Instance.Viewport.Height);
                 EffectTimeParameter.SetValue(CurrentTime);
                 device.Vertices[0].SetSource(VertexBuffer, 0, 32);
                 device.VertexDeclaration = VertexDeclaration;          

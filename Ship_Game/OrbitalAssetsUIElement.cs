@@ -65,8 +65,8 @@ namespace Ship_Game
 			Body body = new Body(new Rectangle(slant.leftRect.X, sel.Rect.Y + 44, sel.Rect.Width, sel.Rect.Height - 44));
 			slant.Draw(ScreenManager);
 			body.Draw(ScreenManager);
-			BombardButton.DrawBlue(ScreenManager);
-			LandTroops.DrawBlue(ScreenManager);
+			BombardButton.DrawBlue(ScreenManager.SpriteBatch);
+			LandTroops.DrawBlue(ScreenManager.SpriteBatch);
 		}
 
 		public override bool HandleInput(InputState input)

@@ -2331,8 +2331,8 @@ namespace Ship_Game.Ships
             var position = new Vector3(Center.X, Center.Y, -100f);
 
             float boost = 1f;
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi != null)
-                boost = GlobalStats.ActiveMod.mi.GlobalShipExplosionVisualIncreaser;
+            if (GlobalStats.HasMod)
+                boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
             ExplosionManager.AddExplosion(position, size * boost, 12f);
             if (addWarpExplode)

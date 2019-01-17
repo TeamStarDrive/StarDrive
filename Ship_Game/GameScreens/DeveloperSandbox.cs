@@ -85,7 +85,7 @@ namespace Ship_Game
         {
             Stopwatch s = Stopwatch.StartNew();
             EmpireManager.Clear();
-            ResourceManager.LoadItAll();
+
             var sandbox = new UniverseData { Size = new Vector2(500000f) };
             CurrentGame.StartNew(sandbox, pace:1f);
             var claimedSpots = new Array<Vector2>();

@@ -35,8 +35,8 @@ namespace Ship_Game
 
 		public void LoadContent(ScreenManager screenManager)
 		{
-			Model innerModel = Game1.Instance.Content.Load<Model>("Model/Stations/spacestation01_inner");
-			Model outerModel = Game1.Instance.Content.Load<Model>("Model/Stations/spacestation01_outer");
+			Model innerModel = StarDriveGame.Instance.Content.Load<Model>("Model/Stations/spacestation01_inner");
+			Model outerModel = StarDriveGame.Instance.Content.Load<Model>("Model/Stations/spacestation01_outer");
 
 			ModelMesh mesh = innerModel.Meshes[0];
 			InnerSO = new SceneObject(mesh)
@@ -57,7 +57,7 @@ namespace Ship_Game
 
             //The Doctor: Mod definable spaceport 'station' art scaling
             float scale = 0.8f;
-            if (GlobalStats.ActiveMod != null)
+            if (GlobalStats.HasMod)
             {
                 scale = GlobalStats.ActiveModInfo.Spaceportscale;
             }
@@ -107,7 +107,7 @@ namespace Ship_Game
 
             //The Doctor: Mod definable spaceport 'station' art scaling
             float scale = 0.8f;
-            if (GlobalStats.ActiveMod != null)
+            if (GlobalStats.HasMod)
             {
                 scale = GlobalStats.ActiveModInfo.Spaceportscale;
             }

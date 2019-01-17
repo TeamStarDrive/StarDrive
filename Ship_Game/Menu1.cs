@@ -49,17 +49,17 @@ namespace Ship_Game
 
 		public void Draw()
 		{
-            var spriteBatch = Game1.Instance.ScreenManager.SpriteBatch;
-		    spriteBatch.FillRectangle(fillRect, new Color(0, 0, 0, 220));
-		    spriteBatch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_TL"), corner_TL, Color.White);
-		    spriteBatch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_TR"), corner_TR, Color.White);
-		    spriteBatch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_BL"), corner_BL, Color.White);
-		    spriteBatch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_BR"), corner_BR, Color.White);
-		    spriteBatch.Draw(ResourceManager.Texture("NewUI/menu_1_horiz_lower"), horizBot, Color.White);
-		    spriteBatch.Draw(ResourceManager.Texture("NewUI/menu_1_horiz_upper"), horizTop, Color.White);
-		    spriteBatch.Draw(ResourceManager.Texture("NewUI/menu_1_vert_left"), vertLeft, Color.White);
-		    spriteBatch.Draw(ResourceManager.Texture("NewUI/menu_1_vert_right"), vertRight, Color.White);
-		    subMenu?.Draw();
+            var batch = StarDriveGame.Instance.ScreenManager.SpriteBatch;
+		    batch.FillRectangle(fillRect, new Color(0, 0, 0, 220));
+		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_TL"), corner_TL, Color.White);
+		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_TR"), corner_TR, Color.White);
+		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_BL"), corner_BL, Color.White);
+		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_BR"), corner_BR, Color.White);
+		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_horiz_lower"), horizBot, Color.White);
+		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_horiz_upper"), horizTop, Color.White);
+		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_vert_left"), vertLeft, Color.White);
+		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_vert_right"), vertRight, Color.White);
+		    subMenu?.Draw(batch);
 		}
 
 		public void Update(Rectangle theMenu)

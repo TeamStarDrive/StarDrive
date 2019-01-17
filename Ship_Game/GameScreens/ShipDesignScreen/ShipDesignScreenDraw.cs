@@ -16,7 +16,7 @@ namespace Ship_Game
     {
         public override void Draw(SpriteBatch batch) 
         {
-            GameTime gameTime = Game1.Instance.GameTime;
+            GameTime gameTime = StarDriveGame.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
 
             Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.StarField);
@@ -287,16 +287,16 @@ namespace Ship_Game
             #endif
         }
 
-        private void DrawHullSelection()
+        private void DrawHullSelection(SpriteBatch batch)
         {
             Rectangle  r = HullSelectionSub.Menu;
             r.Y      += 25;
             r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(ScreenManager.SpriteBatch);
-            HullSL.Draw(ScreenManager.SpriteBatch);
+            sel.Draw(batch);
+            HullSL.Draw(batch);
             Vector2 mousePos = Mouse.GetState().Pos();
-            HullSelectionSub.Draw();
+            HullSelectionSub.Draw(batch);
 
             foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
@@ -308,11 +308,11 @@ namespace Ship_Game
                 else if (e.item is ShipData ship)
                 {
                     bCursor.X += 10f;
-                    ScreenManager.SpriteBatch.Draw(ship.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
+                    batch.Draw(ship.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
                     
                     e.CheckHover(mousePos);
                 }
@@ -786,7 +786,7 @@ namespace Ship_Game
 
             ModSel.Draw(ScreenManager.SpriteBatch);
             
-            DrawHullSelection();
+            DrawHullSelection(ScreenManager.SpriteBatch);
 
             if (IsActive)
                 ToolTip.Draw(ScreenManager.SpriteBatch);

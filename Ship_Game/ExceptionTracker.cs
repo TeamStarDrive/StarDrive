@@ -27,12 +27,12 @@ namespace Ship_Game
             string modVersion = null;
                 
             string data ="No Extra Info";
-            if (GlobalStats.ActiveMod != null)
+            if (GlobalStats.HasMod)
             {
                 mod = GlobalStats.ActiveMod.ModName;
-                if(GlobalStats.ActiveModInfo !=null && !string.IsNullOrEmpty(GlobalStats.ActiveModInfo.Version)) // && GlobalStats.ActiveModInfo.Version !="" )
+                if(GlobalStats.ActiveModInfo?.Version.NotEmpty() == true)
                 {
-                    modVersion = GlobalStats.ActiveMod.mi.Version;
+                    modVersion = GlobalStats.ActiveModInfo.Version;
                 }
             }
             
@@ -117,9 +117,9 @@ namespace Ship_Game
                     return;
 #endif
 
-            if (Game1.Instance?.Window != null)
+            if (StarDriveGame.Instance?.Window != null)
             {
-                Form form = (Form)Control.FromHandle(Game1.Instance.Window.Handle);
+                Form form = (Form)Control.FromHandle(StarDriveGame.Instance.Window.Handle);
                 form.WindowState = FormWindowState.Minimized;
                 form.Update();
             }
