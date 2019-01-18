@@ -90,7 +90,7 @@ namespace Ship_Game
 				if (input.InGameSelect)
 				{
 					
-                    GameAudio.SystemClick();
+                    GameAudio.MouseOver();
                     if (saveButton != null)
                     {
                         saveButton.saved = true;

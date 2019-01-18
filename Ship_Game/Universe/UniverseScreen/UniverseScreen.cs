@@ -1020,7 +1020,7 @@ namespace Ship_Game
             {
                 if (!(Vector2.Distance(touchPoint, ScreenPos) <= Radius)) return false;
 
-                GameAudio.SystemClick();
+                GameAudio.MouseOver();
                 return true;
             }
         }

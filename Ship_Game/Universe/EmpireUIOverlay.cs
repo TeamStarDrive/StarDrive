@@ -624,7 +624,7 @@ namespace Ship_Game
 					}
 					if (b.State != PressState.Hover && b.State != PressState.Pressed)
 					{
-						GameAudio.SystemClick();
+						GameAudio.MouseOver();
 					}
 					b.State = PressState.Hover;
 					if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed)
@@ -716,7 +716,7 @@ namespace Ship_Game
                     
                     if (b.State != PressState.Hover && b.State != PressState.Pressed)
 					{
-						GameAudio.SystemClick();
+						GameAudio.MouseOver();
 					}
 					b.State = PressState.Hover;
 					if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed)

@@ -164,7 +164,7 @@ namespace Ship_Game
             }
 
             if (State != PressState.Hover && State != PressState.Pressed)
-                GameAudio.SystemClick();
+                GameAudio.MouseOver();
 
             if (State == PressState.Pressed && input.LeftMouseReleased)
             {
@@ -175,7 +175,12 @@ namespace Ship_Game
                 return true;
             }
 
-            if (input.LeftMouseHeldDown)
+            if (State != PressState.Pressed && input.LeftMouseClick)
+            {
+                State = PressState.Pressed;
+                return true;
+            }
+            if (State == PressState.Pressed && input.LeftMouseHeldDown)
             {
                 State = PressState.Pressed;
                 return true;
