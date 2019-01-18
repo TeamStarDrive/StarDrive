@@ -61,12 +61,14 @@ namespace Ship_Game
         public int GetGroundLandingSpots() => TroopManager.GetGroundLandingSpots();
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
         public float AvgPopulationGrowth { get; private set; }
-        
+        public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
+
+
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
         
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
-        public const int MaxBuilding = 35; // FB currently this limited by number of tiles, all planets are 7 x 5
+        public const int MaxBuildings = 35; // FB currently this limited by number of tiles, all planets are 7 x 5
 
         void CreateManagers()
         {
@@ -576,9 +578,9 @@ namespace Ship_Game
                 return;
 
             if (Fertility < MaxFertility)
-                Fertility = (Fertility + 0.01f).Clamped(0, MaxFertility);
+                Fertility = (Fertility + 0.01f).Clamped(0, MaxFertility); // FB - Slowly increase fertility to max fertility
             else if (Fertility > MaxFertility)
-                Fertility = Fertility.Clamped(0, Fertility - 0.01f);
+                Fertility = Fertility.Clamped(0, Fertility - 0.01f); // FB - Slowly decrease fertility to max fertility
         }
 
         public void SetFertility(float fertility, float maxFertility)
@@ -772,6 +774,25 @@ namespace Ship_Game
 
         public int OpenTiles           => TilesList.Count(tile => tile.Habitable && tile.building == null);
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
+        public float BuiltCoverage     => TotalBuildings / (float)MaxBuildings;
+
+        public int ExistingMilitaryBuildings => BuildingList.Count(b => b.IsMilitary);
+
+        public int DesiredMilitaryBuildings
+        {
+            get
+            {
+                float militaryCoverage;
+                switch (colonyType)
+                {
+                    case ColonyType.Military: militaryCoverage = 0.4f; break;
+                    case ColonyType.Core: militaryCoverage = 0.3f; break;
+                    default: militaryCoverage = 0.2f; break;
+                }
+                float sizeFactor = (PopulationRatio + BuiltCoverage) / 2;
+                return (int)Math.Floor(militaryCoverage * sizeFactor * MaxBuildings);
+            }
+        }
 
         private void RepairBuildings(int repairAmount)
         {
