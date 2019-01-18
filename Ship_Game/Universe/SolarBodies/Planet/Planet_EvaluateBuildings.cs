@@ -473,9 +473,9 @@ namespace Ship_Game
                              + b.PlusFlatFoodAmount * 0.5f; // some flat food as most people will be in production
                     break;
                 case ColonyType.Research:
-                    score += b.PlusResearchPerColonist * 4
+                    score += b.PlusResearchPerColonist * 8
                              + b.MaxPopIncrease / 1000
-                             + b.PlusFlatResearchAmount * 2
+                             + b.PlusFlatResearchAmount * 8
                              + b.PlusFlatPopulation / 10
                              - b.MinusFertilityOnBuild * 10;
                     break;
