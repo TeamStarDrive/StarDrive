@@ -158,7 +158,7 @@ namespace Ship_Game
             {
                 Planet planet = PlanetList[i];
                 planet.Update(elapsedTime);
-                if (planet.HasShipyard && isVisible)
+                if (planet.HasSpacePort && isVisible)
                     planet.Station.Update(elapsedTime);
             }
 
@@ -686,7 +686,7 @@ namespace Ship_Game
                     if (!newSys.OwnerList.Contains(newOrbital.Owner))
                         newSys.OwnerList.Add(newOrbital.Owner);
 
-                    newOrbital.HasShipyard = true;
+                    newOrbital.HasSpacePort = true;
                     newOrbital.AddGood("ReactorFuel", 1000);
                     ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(newOrbital);
                     ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(newOrbital);

@@ -20,7 +20,7 @@ namespace Ship_Game.Universe.SolarBodies
         private Shield Shield => SolarSystemBody.Shield;
         private Vector2 Center => SolarSystemBody.Center;
         private SceneObject SO => SolarSystemBody.SO;
-        private bool HasSpacePort => SolarSystemBody.HasShipyard;
+        private bool HasSpacePort => SolarSystemBody.HasSpacePort;
         private int Level => SolarSystemBody.Level;
         private Map<Guid,Ship> Stations => SolarSystemBody.Shipyards;
         private float RepairPerTurn => SolarSystemBody.RepairPerTurn;        

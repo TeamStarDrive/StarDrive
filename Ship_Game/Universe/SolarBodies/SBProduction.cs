@@ -155,10 +155,10 @@ namespace Ship_Game.Universe.SolarBodies
                             Station.planet = Ground;
                             Station.ParentSystem = ParentSystem;
                             Station.LoadContent(Empire.Universe.ScreenManager);
-                            Ground.HasShipyard = true;
+                            Ground.HasSpacePort = true;
                         }
                         if (queueItem.Building.AllowShipBuilding)
-                            Ground.HasShipyard = true;
+                            Ground.HasSpacePort = true;
                         if (building.EventOnBuild != null && Owner != null && Owner == Empire.Universe.PlayerEmpire)
                             Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, Empire.Universe.PlayerEmpire, ResourceManager.EventsDict[building.EventOnBuild], ResourceManager.EventsDict[building.EventOnBuild].PotentialOutcomes[0], true));
                         ConstructionQueue.QueuePendingRemoval(queueItem);

@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals
             Array<Planet> list1 = new Array<Planet>();
             foreach (Planet planet in empire.GetPlanets())
             {
-                if (planet.HasShipyard && planet.ParentSystem.combatTimer <= 0)  //fbedard: do not build freighter if combat in system
+                if (planet.HasSpacePort && planet.ParentSystem.combatTimer <= 0)  //fbedard: do not build freighter if combat in system
                     list1.Add(planet);
             }
             Planet planet1 = null;

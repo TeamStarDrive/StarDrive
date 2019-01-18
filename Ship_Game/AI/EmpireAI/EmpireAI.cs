@@ -294,7 +294,7 @@ namespace Ship_Game.AI
             Array<Planet> planets = new Array<Planet>();
             foreach (Planet planet1 in OwnerEmpire.GetPlanets())
             {
-                if (planet1.Prod.NetMaxPotential <= 5f || !planet1.HasShipyard)                
+                if (planet1.Prod.NetMaxPotential <= 5f || !planet1.HasSpacePort)                
                     continue;
                 
                 bool flag = false;
