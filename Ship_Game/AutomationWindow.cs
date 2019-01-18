@@ -50,7 +50,7 @@ namespace Ship_Game
 
         public void ToggleVisibility()
         {
-            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            GameAudio.AcceptClick();
             IsOpen = !IsOpen;
         }
 
@@ -63,8 +63,8 @@ namespace Ship_Game
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(ScreenManager.SpriteBatch);
-            ConstructionSubMenu.Draw();
+            sel.Draw(batch);
+            ConstructionSubMenu.Draw(batch);
 
             base.Draw(batch);
         }

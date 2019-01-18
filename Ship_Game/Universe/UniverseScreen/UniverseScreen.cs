@@ -509,7 +509,7 @@ namespace Ship_Game
                 if (!ResourceManager.PreLoadModels(empire))
                 {
                     ExitScreen();
-                    Game1.Instance.Exit();
+                    StarDriveGame.Instance.Exit();
                     return;
                 }
             }
@@ -719,7 +719,7 @@ namespace Ship_Game
             pieMenu.ScaleFactor = 1f;
         }
 
-        public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
+        public void PlayNegativeSound() => GameAudio.NegativeClick();
 
         //added by gremlin replace redundant code with method
         public override void ExitScreen()
@@ -1020,7 +1020,7 @@ namespace Ship_Game
             {
                 if (!(Vector2.Distance(touchPoint, ScreenPos) <= Radius)) return false;
 
-                GameAudio.SystemClick();
+                GameAudio.MouseOver();
                 return true;
             }
         }

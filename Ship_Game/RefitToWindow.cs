@@ -39,7 +39,7 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            sub_ships.Draw();
+            sub_ships.Draw(batch);
             Rectangle r = sub_ships.Menu;
             r.Y += 25;
             r.Height -= 25;
@@ -94,7 +94,7 @@ namespace Ship_Game
         private void OnRefitOneClicked(UIButton b)
         {
             Shiptorefit.AI.OrderRefitTo(RefitTo);
-            GameAudio.PlaySfxAsync("echo_affirm");
+            GameAudio.EchoAffirmative();
             ExitScreen();
         }
 
@@ -105,7 +105,7 @@ namespace Ship_Game
                 if (ship.Name == Shiptorefit.Name)
                     ship.AI.OrderRefitTo(RefitTo);
             }
-            GameAudio.PlaySfxAsync("echo_affirm");
+            GameAudio.EchoAffirmative();
             ExitScreen();
         }
 
@@ -125,7 +125,7 @@ namespace Ship_Game
                     selector = e.CreateSelector();
                     if (input.InGameSelect)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.AcceptClick();
                         RefitTo = e.Get<string>();
                     }
                 }

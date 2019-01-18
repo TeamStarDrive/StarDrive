@@ -58,7 +58,7 @@ namespace Ship_Game
 			    if (!input.LeftMouseClick)
 			        return false;
 			    
-			    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+			    GameAudio.AcceptClick();
 			    Expand(!Open, e);
 			    return true;
 			}

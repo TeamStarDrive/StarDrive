@@ -304,7 +304,7 @@ namespace Ship_Game
 			{
 				if (nodeState != NodeState.Hover)
 				{
-					GameAudio.PlaySfxAsync("mouse_over4");
+					GameAudio.MouseOver();
 				}
 				nodeState = NodeState.Hover;
 				if (input.InGameSelect)

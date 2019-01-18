@@ -251,24 +251,24 @@
     <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
     <Compile Include="Ship_Game\Gameplay\CurrentGame.cs" />
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Build.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySlider.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
-    <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame_CreateEntities.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ShipDesignUtils.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\HangarDesignationDropDown.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShieldsBehaviorDropDown.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\DesignModuleGrid.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\FighterScrollList.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\LoadDesigns.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ModuleSelection.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShipDesignScreen.CategoryDropDown.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShipDesignScreenDraw.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShipDesignScreenInput.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\WeaponScrollList.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\HangarDesignationDropDown.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShieldsBehaviorDropDown.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignModuleGrid.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\FighterScrollList.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\LoadDesigns.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ModuleSelection.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen.CategoryDropDown.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenInput.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\WeaponScrollList.cs" />
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
@@ -287,13 +287,13 @@
     <Compile Include="Ship_Game\Ships\Ship_ModuleGrid.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Rendering.cs" />
     <Compile Include="Ship_Game\GameScreens\Colors.cs" />
-    <Compile Include="Ship_Game\GameScreens\GameLoadingScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainMenu\GameLoadingScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreen.cs" />
-    <Compile Include="Ship_Game\GameScreens\RuleOptionsScreen.cs" />
-    <Compile Include="Ship_Game\GameScreens\GenericLoadSaveScreen.cs" />
-    <Compile Include="Ship_Game\GameScreens\LoadSetupScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\RuleOptionsScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\GenericLoadSaveScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadSetupScreen.cs" />
     <Compile Include="Ship_Game\RaceSave.cs" />
-    <Compile Include="Ship_Game\GameScreens\SaveRaceScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveRaceScreen.cs" />
     <Compile Include="Ship_Game\ExceptionTracker.cs" />
     <Compile Include="Ship_Game\ExceptionViewer.cs">
       <SubType>Form</SubType>
@@ -313,14 +313,15 @@
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\SpriteSystem\FadeInOutAnim.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\SpriteAnimation.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteExtensions.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SubTexture.cs" />
     <Compile Include="Ship_Game\SpriteSystem\TextureInfo.cs" />
     <Compile Include="Ship_Game\SpriteSystem\TexturePacker.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentMissionData.cs" />
-    <Compile Include="Ship_Game\GameScreens\EspionageScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\Universe\EspionageScreen.cs" />
     <Compile Include="Ship_Game\HullBonus.cs" />
-    <Compile Include="Ship_Game\GameScreens\LoadRaceScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadRaceScreen.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIEffect.cs" />
     <Compile Include="Ship_Game\UI\Effects\UITransitionEffect.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
@@ -395,7 +396,7 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\SafeQueue.cs" />
-    <Compile Include="Ship_Game\GameScreens\SaveSetupScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveSetupScreen.cs" />
     <Compile Include="Ship_Game\SetupSave.cs" />
     <Compile Include="Ship_Game\Data\ShipNames.cs" />
     <Compile Include="Ship_Game\ShipRole.cs" />
@@ -430,11 +431,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameAudio.cs">
+    <Compile Include="Ship_Game\Audio\GameAudio.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\LoadSaveScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadSaveScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -450,7 +451,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\BudgetScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\BudgetScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -514,7 +515,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\GameplayMMScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\GameplayMMScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -534,7 +535,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\DesignManager.cs">
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignManager.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -561,7 +562,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\OptionsScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\MainMenu\OptionsScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -641,7 +642,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\FleetDesignScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -769,7 +770,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\Game1.cs">
+    <Compile Include="Ship_Game\GameScreens\StarDriveGame.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -789,7 +790,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\ResearchScreenNew.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\ResearchScreenNew.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -809,7 +810,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\RaceDesignScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -817,7 +818,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\EmpireScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\EmpireScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -845,11 +846,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\LoadUniverseScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\LoadGame\LoadUniverseScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\ShipToolScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipToolScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -897,7 +898,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\RequisitionScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\RequisitionScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -933,11 +934,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\CreatingNewGameScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\NewGame\CreatingNewGameScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\LoadSavedFleetDesignScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\LoadSavedFleetDesignScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -973,7 +974,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\LoadModelScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadModelScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1025,11 +1026,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\MainMenuScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\ShipListScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\ShipListScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1050,10 +1051,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\GameScreens\ScreenManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\LoadingScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1101,7 +1098,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\MainDiplomacyScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\MainDiplomacyScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1118,10 +1115,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\ExtensionMethods\HelperFunctions.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\DanProgressBar.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1197,7 +1190,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\SaveGameScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveGameScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1241,7 +1234,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\DiplomacyScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1297,7 +1290,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\EmpireScreenEntry.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\EmpireScreenEntry.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1329,7 +1322,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\TutorialScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\MainMenu\TutorialScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1357,7 +1350,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\ColonyScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1365,7 +1358,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShipDesignScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1373,7 +1366,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\SaveFleetDesignScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveFleetDesignScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1697,9 +1690,9 @@
     <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Explosions.txt">
+    <None Include="Content\Explosions.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="Content\HelpTopics\English\HelpTopics_English.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -3590,6 +3583,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Weapons\PDLaser.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Weapons\PhotonCannon.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Weapons\RepairBeam.xml" />

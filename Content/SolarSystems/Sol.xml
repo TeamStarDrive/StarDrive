@@ -48,20 +48,20 @@
     <Ring>
       <Planet>Saturn</Planet>
       <SpecialDescription>Saturn's planetary rings are the most conspicuous in the Sol system.  The rings are mostly composed of water ice and dust particles.  As a gas giant, it is not suitable for human colonization.  </SpecialDescription>
-      <WhichPlanet>10</WhichPlanet>
+      <WhichPlanet>2</WhichPlanet>
       <HasRings>Yes</HasRings>
 	  <planetScale>3.4</planetScale>
     </Ring>
     <Ring>
       <Planet>Uranus</Planet>
       <SpecialDescription>Uranus is sometimes classified as an "Ice Giant" due to the cold cloud of methane, water, and ammonia ices mixed into its hydrogen-helium atmosphere.  A unique feature of Uranus is that is axis of rotation is rotated sideways compared to the other planets in this solar system: its poles are located where the other planets' equators are located.  As a gas giant, this planet is not habitable.  </SpecialDescription>
-      <WhichPlanet>20</WhichPlanet>
+      <WhichPlanet>15</WhichPlanet>
 	  <planetScale>2.8</planetScale>
     </Ring>
 	<Ring>
       <Planet>Neptune</Planet>
       <SpecialDescription>Neptune is the outermost of the recognised 'planets' in the Solar System, and is a gas giant of a similar composition to Uranus, albeit denser. It is named after Neptunus, the Roman god of the sea - though in modern Greece, they call it Poseidon; the Greek pantheon's equivalent.</SpecialDescription>
-      <WhichPlanet>20</WhichPlanet>
+      <WhichPlanet>26</WhichPlanet>
 	  <planetScale>2.6</planetScale>
     </Ring>
   </RingList>

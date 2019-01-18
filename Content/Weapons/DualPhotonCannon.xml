@@ -42,7 +42,7 @@
 
   <!-- Explosion Information -->
   <explodes>true</explodes>
-  <ExpColor>Blue_1</ExpColor>
+  <ExplosionType>Photon</ExplosionType>
   <DamageRadius>20</DamageRadius>
   
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>

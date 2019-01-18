@@ -65,7 +65,7 @@ namespace Ship_Game
             r.Height = r.Height - 25;
             Selector sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
-            ConstructionSubMenu.Draw();
+            ConstructionSubMenu.Draw(ScreenManager.SpriteBatch);
             SL.Draw(ScreenManager.SpriteBatch);
             Vector2 bCursor = new Vector2(ConstructionSubMenu.Menu.X + 20, ConstructionSubMenu.Menu.Y + 45);
             float x = Mouse.GetState().X;
@@ -235,7 +235,7 @@ namespace Ship_Game
                 buildstuff.TetherTarget = TargetPlanet;
             }
             EmpireManager.Player.GetEmpireAI().Goals.Add(buildstuff);
-            GameAudio.PlaySfxAsync("echo_affirm");
+            GameAudio.EchoAffirmative();
             lock (GlobalStats.ClickableItemLocker)
             {
                 screen.UpdateClickableItems();

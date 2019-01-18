@@ -166,7 +166,7 @@ namespace Ship_Game.Ships
                 if (shipData.Animated && ShipMeshAnim != null)
                 {
                     ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
-                    ShipMeshAnim.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                    ShipMeshAnim.Update(StarDriveGame.Instance.TargetElapsedTime, Matrix.Identity);
                 }
                 UpdateThrusters();
             }
@@ -278,7 +278,7 @@ namespace Ship_Game.Ships
             if (num1 >= 57 && InFrustum)
             {
                 Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                ExplosionManager.AddExplosion(position, ShipSO.WorldBoundingSphere.Radius, 2.5f);
+                ExplosionManager.AddExplosion(position, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
                 Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero);
             }
             if (num1 >= 40)
@@ -303,7 +303,7 @@ namespace Ship_Game.Ships
                 if (shipData.Animated)
                 {
                     ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
-                    ShipMeshAnim.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                    ShipMeshAnim.Update(StarDriveGame.Instance.TargetElapsedTime, Matrix.Identity);
                 }
             }
             for (int i = 0; i < projectiles.Count; ++i)

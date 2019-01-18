@@ -57,12 +57,20 @@ namespace Ship_Game.Data
     // Note: StarDataParser is opt-in, so properties/fields
     //       must be marked with [StarData]
     [AttributeUsage(AttributeTargets.Property|AttributeTargets.Field)]
-    public sealed class StarDataAttribute : Attribute
+    public class StarDataAttribute : Attribute
     {
         public bool IsPrimaryKey;
-        public StarDataAttribute(bool primary=false)
+        public StarDataAttribute(bool key=false)
         {
-            IsPrimaryKey = primary;
+            IsPrimaryKey = key;
+        }
+    }
+
+    // Note: This can be used for Key attributes
+    public sealed class StarDataKeyAttribute : StarDataAttribute
+    {
+        public StarDataKeyAttribute() : base(true)
+        {
         }
     }
 
