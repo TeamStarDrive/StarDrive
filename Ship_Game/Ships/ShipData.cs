@@ -21,7 +21,6 @@ namespace Ship_Game.Ships
     //       However, we will have to support XML for a long time to have backwards compat.
     public sealed class ShipData
     {
-        public bool Animated;
         public string ShipStyle;
         public string EventOnDeath;
         public byte experience;
@@ -30,8 +29,9 @@ namespace Ship_Game.Ships
         public string Name; // ex: "Dodaving", just an arbitrary name
         public bool HasFixedCost;
         public short FixedCost;
-        public bool HasFixedUpkeep;
         public float FixedUpkeep;
+        public bool HasFixedUpkeep;
+        public bool Animated;
         public bool IsShipyard;
         public bool IsOrbitalDefense;
         public string IconPath;
@@ -78,6 +78,7 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public SubTexture Icon => ResourceManager.Texture(ActualIconPath);
         [XmlIgnore] [JsonIgnore] public string ActualIconPath => IconPath.NotEmpty() ? IconPath : BaseHull.IconPath;
         [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
+        [XmlIgnore] [JsonIgnore] public Vector3 Volume { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
 
@@ -302,8 +303,12 @@ namespace Ship_Game.Ships
             var content = Empire.Universe?.TransientContent ?? ResourceManager.RootContent;
 
             shipSO = ResourceManager.GetSceneMesh(content, HullModel, Animated);
-            if (BaseHull.ModelZ.AlmostEqual(0f) && HullRole >= RoleName.fighter)
-                BaseHull.ModelZ = shipSO.GetMeshBoundingBox().Max.Z;
+
+            if (BaseHull.Volume.X.AlmostEqual(0f))
+            {
+                BaseHull.Volume = shipSO.GetMeshBoundingBox().Max;
+                BaseHull.ModelZ = BaseHull.Volume.Z;
+            }
 
             shipMeshAnim = null;
             if (Animated)
