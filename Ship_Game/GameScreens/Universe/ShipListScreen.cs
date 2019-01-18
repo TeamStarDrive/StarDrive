@@ -310,7 +310,7 @@ namespace Ship_Game
                     }
                     if (SelectedShip != entry.ship)
                     {
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                         if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && !input.KeysCurr.IsKeyDown(Keys.LeftControl))
                         {
                             foreach (ShipListScreenEntry slEntry in ShipSL.AllExpandedItems<ShipListScreenEntry>())
@@ -336,7 +336,7 @@ namespace Ship_Game
 
             void Sort<T>(SortButton button, Func<ShipListScreenEntry, T> sortPredicate)
             {
-                GameAudio.ButtonClick();
+                GameAudio.AcceptClick();
                 button.Ascending = !button.Ascending;
                 StrSorted = button.Ascending;
                 if (button.Ascending) ShipSL.Sort(sortPredicate);
@@ -360,7 +360,7 @@ namespace Ship_Game
 
             void SortAndReset<T>(SortButton button, Func<ShipListScreenEntry, T> sortPredicate)
             {
-                GameAudio.PlaySfxAsync("blip_click");
+                GameAudio.BlipClick();
                 button.Ascending = !button.Ascending;
                 if (button.Ascending) ShipSL.Sort(sortPredicate);
                 else ShipSL.SortDescending(sortPredicate);
@@ -374,7 +374,7 @@ namespace Ship_Game
 
             if (input.WasKeyPressed(Keys.K) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 ExitScreen();
 
                 Empire.Universe.SelectedShipList.Clear();

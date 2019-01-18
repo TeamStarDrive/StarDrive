@@ -84,13 +84,13 @@ namespace Ship_Game
 			{
 				if (!Hover)
 				{
-					GameAudio.PlaySfxAsync("sd_ui_mouseover");
+					GameAudio.ButtonMouseOver();
 				}
 				Hover = true;
 				if (input.InGameSelect)
 				{
 					
-                    GameAudio.PlaySfxAsync("mouse_over4");
+                    GameAudio.SystemClick();
                     if (saveButton != null)
                     {
                         saveButton.saved = true;

@@ -1214,7 +1214,7 @@ namespace Ship_Game
                     if (e.WasClicked(input))
                     {
                         SelectedData = e.item as EmpireData;
-                        GameAudio.PlaySfxAsync("echo_affirm");
+                        GameAudio.EchoAffirmative();
                         SetEmpireData(SelectedData.Traits);
                     }
                 }
@@ -1299,7 +1299,7 @@ namespace Ship_Game
                             t.Selected = !t.Selected;
                             RaceDesignScreen totalPointsUsed = this;
                             totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
-                            GameAudio.PlaySfxAsync("blip_click");
+                            GameAudio.BlipClick();
                             foreach (TraitEntry ex in AllTraits)
                                 if (t.trait.Excludes == ex.trait.TraitName)
                                     ex.Excluded = false;
@@ -1320,7 +1320,7 @@ namespace Ship_Game
                             {
                                 t.Selected = true;
                                 TotalPointsUsed -= t.trait.Cost;
-                                GameAudio.PlaySfxAsync("blip_click");
+                                GameAudio.BlipClick();
                                 foreach (TraitEntry ex in AllTraits)
                                 {
                                     if (t.trait.Excludes == ex.trait.TraitName)
@@ -1333,7 +1333,7 @@ namespace Ship_Game
                 }
                 if (GalaxySizeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
-                    GameAudio.PlaySfxAsync("blip_click");
+                    GameAudio.BlipClick();
                     RaceDesignScreen galaxysize = this;
                     galaxysize.Galaxysize = (GalSize)((int)galaxysize.Galaxysize + (int)GalSize.Small);
                     if (Galaxysize > GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map UniverseRadius -Gretman
@@ -1343,7 +1343,7 @@ namespace Ship_Game
                 }
                 if (GameModeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
-                    GameAudio.PlaySfxAsync("blip_click");
+                    GameAudio.BlipClick();
                     //RaceDesignScreen gamemode = this;
                     mode = mode + 1;
                     if (mode == GameMode.Corners) numOpponents = 3;
@@ -1354,7 +1354,7 @@ namespace Ship_Game
                 }
                 if (NumberStarsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
-                    GameAudio.PlaySfxAsync("blip_click");
+                    GameAudio.BlipClick();
                     RaceDesignScreen starEnum = this;
                     starEnum.StarEnum = (StarNum)((int)starEnum.StarEnum + (int)StarNum.Rare);
                     if (StarEnum > StarNum.SuperPacked)
@@ -1378,7 +1378,7 @@ namespace Ship_Game
                 {
                     if (input.LeftMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         RaceDesignScreen gameScale = this;
                         gameScale.GameScale = gameScale.GameScale + 1;
                         if (GameScale > 6)
@@ -1388,7 +1388,7 @@ namespace Ship_Game
                     }
                     if (input.RightMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         RaceDesignScreen gameScale1 = this;
                         gameScale1.GameScale = gameScale1.GameScale - 1;
                         if (GameScale < 1)
@@ -1401,7 +1401,7 @@ namespace Ship_Game
                 {
                     if (input.LeftMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         RaceDesignScreen pacing = this;
                         pacing.Pacing = pacing.Pacing + 25;
                         if (Pacing > 400)
@@ -1411,7 +1411,7 @@ namespace Ship_Game
                     }
                     if (input.RightMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         RaceDesignScreen pacing1 = this;
                         pacing1.Pacing = pacing1.Pacing - 25;
                         if (Pacing < 100)
@@ -1424,7 +1424,7 @@ namespace Ship_Game
                 {
                     if (input.LeftMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         RaceDesignScreen raceDesignScreen2 = this;
                         raceDesignScreen2.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen2.difficulty + (int)UniverseData.GameDifficulty.Normal);
                         if (difficulty > UniverseData.GameDifficulty.Brutal)
@@ -1434,7 +1434,7 @@ namespace Ship_Game
                     }
                     if (input.RightMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         RaceDesignScreen raceDesignScreen3 = this;
                         raceDesignScreen3.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen3.difficulty - (int)UniverseData.GameDifficulty.Normal);
                         if (difficulty < UniverseData.GameDifficulty.Easy)
@@ -1449,14 +1449,14 @@ namespace Ship_Game
                 {
                     if (input.LeftMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         ++ExtraRemnant;
                         if (ExtraRemnant > ExtraRemnantPresence.Everywhere)
                             ExtraRemnant = ExtraRemnantPresence.Rare;
                     }
                     if (input.RightMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         --ExtraRemnant;
                         if (ExtraRemnant < 0)
                             ExtraRemnant = ExtraRemnantPresence.Everywhere;
@@ -1473,7 +1473,7 @@ namespace Ship_Game
                         FlagIndex = 0;
                     else
                         FlagIndex = FlagIndex + 1;
-                    GameAudio.PlaySfxAsync("blip_click");
+                    GameAudio.BlipClick();
                 }
                 if (FlagLeft.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
@@ -1481,7 +1481,7 @@ namespace Ship_Game
                         FlagIndex = ResourceManager.NumFlags - 1;
                     else
                         FlagIndex = FlagIndex - 1;
-                    GameAudio.PlaySfxAsync("blip_click");
+                    GameAudio.BlipClick();
                 }
             }
             else if (!ColorSelector.HitTest(input.CursorPosition))

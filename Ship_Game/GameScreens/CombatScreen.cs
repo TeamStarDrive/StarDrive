@@ -555,7 +555,7 @@ namespace Ship_Game
 
         private void OnLandAllClicked(UIButton b)
         {
-            GameAudio.PlaySfxAsync("sd_troop_land");
+            GameAudio.TroopLand();
             foreach (ScrollList.Entry e in OrbitSL.AllEntries)
             {
                 if (e.item is Ship ship)
@@ -600,7 +600,7 @@ namespace Ship_Game
             }
             if (play)
             {
-                GameAudio.PlaySfxAsync("sd_troop_takeoff");
+                GameAudio.TroopTakeOff();
                 ResetNextFrame = true;
             }
         }
@@ -649,7 +649,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        GameAudio.PlaySfxAsync("sd_troop_land");
+                        GameAudio.TroopLand();
                         pgs.TroopsHere.Add(draggedTroop.item as Troop);
                         pgs.TroopsHere[0].AvailableAttackActions = 0;
                         pgs.TroopsHere[0].AvailableMoveActions = 0;
@@ -670,7 +670,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        GameAudio.PlaySfxAsync("sd_troop_land");
+                        GameAudio.TroopLand();
                         pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
                         pgs.TroopsHere[0].AvailableAttackActions = 0;
                         pgs.TroopsHere[0].AvailableMoveActions = 0;
@@ -705,7 +705,7 @@ namespace Ship_Game
                 {
                     if (!pgs.highlighted)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                        GameAudio.ButtonMouseOver();
                     }
                     pgs.highlighted = true;
                 }

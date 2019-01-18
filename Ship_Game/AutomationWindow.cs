@@ -50,7 +50,7 @@ namespace Ship_Game
 
         public void ToggleVisibility()
         {
-            GameAudio.ButtonClick();
+            GameAudio.AcceptClick();
             IsOpen = !IsOpen;
         }
 

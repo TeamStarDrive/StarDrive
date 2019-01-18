@@ -191,7 +191,7 @@ namespace Ship_Game
                 if (change.Type == ChangeType.Removed)  PlaceModule(change.At, change.Module, change.Orientation);
             }
             
-            GameAudio.PlaySfxAsync("smallservo");
+            GameAudio.SmallServo();
             Redoable.Add(changes);
             RecalculatePower();
         }
@@ -210,7 +210,7 @@ namespace Ship_Game
                 if (change.Type == ChangeType.Removed) RemoveModule(change.At, change.Module);
             }
             
-            GameAudio.PlaySfxAsync("smallservo");
+            GameAudio.SmallServo();
             Undoable.Add(changes);
             RecalculatePower();
         }

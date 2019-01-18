@@ -80,7 +80,7 @@ namespace Ship_Game
 				Hover = true;
 				if (input.LeftMouseClick)
 				{
-					GameAudio.PlaySfxAsync("echo_affirm");
+					GameAudio.EchoAffirmative();
 					return true;
 				}
 			}

@@ -58,7 +58,7 @@ namespace Ship_Game
 			    if (!input.LeftMouseClick)
 			        return false;
 			    
-			    GameAudio.ButtonClick();
+			    GameAudio.AcceptClick();
 			    Expand(!Open, e);
 			    return true;
 			}

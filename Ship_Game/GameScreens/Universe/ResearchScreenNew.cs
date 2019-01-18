@@ -335,7 +335,7 @@ namespace Ship_Game
                     continue;
                 }
                 PopulateNodesFromRoot(tech.Value as RootNode);
-                GameAudio.PlaySfxAsync("sd_ui_research_select");
+                GameAudio.ResearchSelect();
             }
             RightClicked = false;
             foreach (KeyValuePair<string, Node> tech in SubNodes)
@@ -354,7 +354,7 @@ namespace Ship_Game
                 {
                     qcomponent.SetVisible();
                     qcomponent.AddToQueue(tech.Value as TreeNode);
-                    GameAudio.PlaySfxAsync("sd_ui_research_select");
+                    GameAudio.ResearchSelect();
                 }
                 else if (EmpireManager.Player.HavePreReq(tech.Key))
                 {
@@ -363,7 +363,7 @@ namespace Ship_Game
                 else
                 {
                     qcomponent.SetVisible();
-                    GameAudio.PlaySfxAsync("sd_ui_research_select");
+                    GameAudio.ResearchSelect();
                     var techToCheck = tech.Value.tech;
                     var techsToAdd = new Array<string>
                     {
@@ -402,7 +402,7 @@ namespace Ship_Game
             }
             if (input.ResearchExitScreen && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }

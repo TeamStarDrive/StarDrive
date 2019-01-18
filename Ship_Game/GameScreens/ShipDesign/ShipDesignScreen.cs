@@ -165,7 +165,7 @@ namespace Ship_Game
         
         public void SetActiveModule(ShipModule template, ModuleOrientation orientation, float facing)
         {
-            GameAudio.PlaySfxAsync("smallservo");
+            GameAudio.SmallServo();
 
             SpawnActiveModule(template, orientation, facing);
 

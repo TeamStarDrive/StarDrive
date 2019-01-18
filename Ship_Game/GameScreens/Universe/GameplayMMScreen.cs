@@ -65,7 +65,7 @@ namespace Ship_Game
         {
             if (input.WasKeyPressed(Keys.O) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }

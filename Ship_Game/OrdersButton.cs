@@ -274,7 +274,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(ID_tip);
                 if (SimpleToggle && input.InGameSelect)
                 {
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     switch (orderType)
                     {
                         case OrderType.TradeFood:
@@ -379,13 +379,13 @@ namespace Ship_Game
                 }
                 if (input.InGameSelect)
                 {
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     ValueToModify.Value = !ValueToModify.Value;
                     return true;
                 }
                 if (input.RightMouseClick)
                 {
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     if (RightClickValueToModify != null)
                     {
                         RightClickValueToModify.Value = !RightClickValueToModify.Value;

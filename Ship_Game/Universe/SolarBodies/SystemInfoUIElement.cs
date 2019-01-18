@@ -352,7 +352,7 @@ namespace Ship_Game
                         return true;
                     }
 
-                    GameAudio.PlaySfxAsync("mouse_over4");
+                    GameAudio.SystemClick();
                     screen.SelectedPlanet = clickMe.p;
                     screen.pInfoUI.SetPlanet(clickMe.p);
                     ClickTimer = 0.0f;

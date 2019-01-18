@@ -250,7 +250,7 @@ namespace Ship_Game
             }
             if (!Hover)
             {
-                GameAudio.MiniMapMouseOver();
+                GameAudio.ButtonMouseOver();
                 if (WhichToolTip != 0)
                     ToolTip.CreateTooltip(WhichToolTip);
             }

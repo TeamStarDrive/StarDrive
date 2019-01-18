@@ -141,7 +141,7 @@ namespace Ship_Game
                     if (input.LeftMouseClick)
                     {
                         LockedByUser = !LockedByUser;
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                     }
                     ToolTip.CreateTooltip(69);
                 }

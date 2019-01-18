@@ -257,7 +257,7 @@ namespace Ship_Game
                     SelectedAgent = e.Get<Agent>();
                     foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
                         mission.UpdateMissionAvailability();
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                 }
             }
 

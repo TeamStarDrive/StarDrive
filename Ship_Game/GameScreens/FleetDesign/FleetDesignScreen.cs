@@ -417,7 +417,7 @@ namespace Ship_Game
                     r.X = r.X - (int)(transitionOffset * 256f);
                     if (Math.Abs(transitionOffset) < .1f)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                     }
                 }
                 Selector sel = new Selector(r, Color.TransparentBlack);
@@ -902,7 +902,7 @@ namespace Ship_Game
                     }
                     SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
                     button.Active = true;
-                    GameAudio.PlaySfxAsync("echo_affirm");
+                    GameAudio.EchoAffirmative();
                     break;
                 }
             }
@@ -1024,7 +1024,7 @@ namespace Ship_Game
                             {
                                 b.Active = false;
                             }
-                            GameAudio.PlaySfxAsync("echo_affirm");
+                            GameAudio.EchoAffirmative();
                             button.Active = true;
                             foreach (FleetDataNode node in SelectedNodeList)
                             {
@@ -1355,7 +1355,7 @@ namespace Ship_Game
                     {
                         SelectedNodeList.Clear();
                     }
-                    GameAudio.PlaySfxAsync("techy_affirm1");
+                    GameAudio.FleetClicked();
                     hitsomething = true;
                     if (!SelectedNodeList.Contains(node.NodeToClick))
                     {
@@ -1434,7 +1434,7 @@ namespace Ship_Game
                         SelectedNodeList.Clear();
                     }
                     hitsomething = true;
-                    GameAudio.PlaySfxAsync("techy_affirm1");
+                    GameAudio.FleetClicked();
                     SelectedNodeList.Clear();
                     foreach (FleetDataNode node in SelectedSquad.DataNodes)
                     {

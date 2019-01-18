@@ -90,7 +90,7 @@ namespace Ship_Game
 
         protected virtual void DeleteFile(object sender, EventArgs e)
         {
-            GameAudio.PlaySfxAsync("echo_affirm");
+            GameAudio.EchoAffirmative();
             
             try
             {
@@ -145,7 +145,7 @@ namespace Ship_Game
             if( SLMode.Load == mode )
                 selectedFile = (e.item as FileData);
 
-            GameAudio.ButtonClick();
+            GameAudio.AcceptClick();
             EnterNameArea.Text = (e.item as FileData).FileName;
         }
 
