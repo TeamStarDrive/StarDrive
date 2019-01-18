@@ -246,8 +246,8 @@ namespace Ship_Game.Universe.SolarBodies
             float storageRatio = ProductionHere / Ground.Storage.Max;
             float take10Turns = maxp * storageRatio;
 
-            if (PS != Planet.GoodState.EXPORT)
-                take10Turns *= (storageRatio < 0.75f ? PS == Planet.GoodState.EXPORT ? 0.5f : PS == Planet.GoodState.STORE ? 0.25f : 1 : 1);
+            if (PS == Planet.GoodState.STORE && storageRatio < 0.75f)
+                take10Turns *= 0.25f;
 
             if (colonyType == Planet.ColonyType.Colony)
             {
