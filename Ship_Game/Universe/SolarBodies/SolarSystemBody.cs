@@ -83,7 +83,7 @@ namespace Ship_Game
         public SolarSystem ParentSystem;
         public Matrix CloudMatrix;
         public string SpecialDescription;
-        public bool HasShipyard; // This is terribly named. This should be 'HasStarPort'
+        public bool HasSpacePort;
         public string Name;
         public string Description;
         public Empire Owner;

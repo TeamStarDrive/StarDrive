@@ -54,7 +54,7 @@ namespace Ship_Game.Universe.SolarBodies
             // because government gets to eat their pie first :)))
             NetIncome           = AfterTax(GrossIncome) - consumption;
             NetMaxPotential     = AfterTax(GrossMaxPotential) - consumption;
-            NetFlatBonus        = AfterTax(NetFlatBonus);
+            NetFlatBonus        = AfterTax(FlatBonus);
             NetYieldPerColonist = AfterTax(YieldPerColonist);
         }
 
@@ -124,7 +124,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
 
-            YieldPerColonist = Planet.Fertility + plusPerColonist;
+            YieldPerColonist = Planet.Fertility * (1 + plusPerColonist);
             Tax = 0f;
             // If we use tax effects with Food resource,
             // we need a base yield offset for balance
@@ -159,7 +159,7 @@ namespace Ship_Game.Universe.SolarBodies
                 FlatBonus += b.PlusFlatProductionAmount;
             }
             float productMod = Planet.Owner.data.Traits.ProductionMod;
-            YieldPerColonist = (richness + plusPerColonist) * (1 + productMod);
+            YieldPerColonist = richness * (1+ plusPerColonist) * (1 + productMod);
             Tax = Planet.Owner.data.TaxRate;
         }
         

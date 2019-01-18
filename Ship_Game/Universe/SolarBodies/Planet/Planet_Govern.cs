@@ -21,8 +21,10 @@ namespace Ship_Game
             bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
 
             //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
-            if (colonyType == ColonyType.Research && notResearching)
-                colonyType = ColonyType.Industrial;
+            // FB - ignoring this if the owner is the player, or all of his research colonies will build stuff like
+            // deep core mines if he forget to add research
+            if (colonyType == ColonyType.Research && notResearching && !Owner.isPlayer)
+                colonyType = ColonyType.Core;
 
             Food.Percent = 0;
             Prod.Percent = 0;
@@ -42,7 +44,7 @@ namespace Ship_Game
                         break;
                     }
 
-                    BuildBuildings(budget);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
                     DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
 
@@ -54,7 +56,7 @@ namespace Ship_Game
                     if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
                     Res.AutoBalanceWorkers();
 
-                    BuildBuildings(budget);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
 
@@ -67,7 +69,7 @@ namespace Ship_Game
                     if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
                     Res.AutoBalanceWorkers();
 
-                    BuildBuildings(budget);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
                     DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
 
@@ -79,7 +81,7 @@ namespace Ship_Game
                     if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
                     Res.AutoBalanceWorkers();
 
-                    BuildBuildings(budget);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
 
@@ -91,7 +93,7 @@ namespace Ship_Game
                     if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
                     Res.AutoBalanceWorkers();
                     
-                    BuildBuildings(budget);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
                     DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
 
@@ -110,7 +112,7 @@ namespace Ship_Game
 
             //Added by McShooterz: build defense platforms
 
-            if (HasShipyard && !ParentSystem.CombatInSystem
+            if (HasSpacePort && !ParentSystem.CombatInSystem
                             && (!Owner.isPlayer || colonyType == ColonyType.Military))
             {
                 SystemCommander systemCommander;

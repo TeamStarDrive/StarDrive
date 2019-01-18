@@ -52,7 +52,7 @@ namespace Ship_Game.AI
 
             foreach (Planet coreWorld in maxProductionPotential)
             {
-                if (coreWorld == null || coreWorld.Prod.NetMaxPotential <= 5f || !coreWorld.HasShipyard) continue;
+                if (coreWorld == null || coreWorld.Prod.NetMaxPotential <= 5f || !coreWorld.HasSpacePort) continue;
                 float aoSize = 0;
                 foreach (SolarSystem system in coreWorld.ParentSystem.FiveClosestSystems)
                 {

@@ -61,11 +61,14 @@ namespace Ship_Game
         public int GetGroundLandingSpots() => TroopManager.GetGroundLandingSpots();
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
         public float AvgPopulationGrowth { get; private set; }
-        
+        public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
+
+
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
         
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
+        public const int MaxBuildings = 35; // FB currently this limited by number of tiles, all planets are 7 x 5
 
         void CreateManagers()
         {
@@ -83,7 +86,7 @@ namespace Ship_Game
         public Planet()
         {
             CreateManagers();
-            HasShipyard = false;
+            HasSpacePort = false;
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
@@ -526,7 +529,7 @@ namespace Ship_Game
                 DevelopmentStatus = Localizer.Token(1775); // densely populated
             }
 
-            if (Prod.NetIncome >= 10.0 && HasShipyard)
+            if (Prod.NetIncome >= 10.0 && HasSpacePort)
                 DevelopmentStatus += Localizer.Token(1776); // fine shipwright
             else if (Fertility >= 2.0 && Food.NetIncome > MaxPopulation)
                 DevelopmentStatus += Localizer.Token(1777); // fine agriculture
@@ -575,11 +578,9 @@ namespace Ship_Game
                 return;
 
             if (Fertility < MaxFertility)
-                Fertility += 0.01f;
-            else
-                Fertility -= 0.01f;
-
-            Fertility = Fertility.Clamped(0, MaxFertility);
+                Fertility = (Fertility + 0.01f).Clamped(0, MaxFertility); // FB - Slowly increase fertility to max fertility
+            else if (Fertility > MaxFertility)
+                Fertility = Fertility.Clamped(0, Fertility - 0.01f); // FB - Slowly decrease fertility to max fertility
         }
 
         public void SetFertility(float fertility, float maxFertility)
@@ -686,7 +687,7 @@ namespace Ship_Game
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
 
-            HasShipyard = shipyard && (colonyType != ColonyType.Research || Owner.isPlayer);
+            HasSpacePort = shipyard && (colonyType != ColonyType.Research || Owner.isPlayer);
 
             // greedy bastards
             Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
@@ -697,7 +698,7 @@ namespace Ship_Game
 
             if (Station != null && !loadUniverse)
             {
-                Station.SetVisibility(HasShipyard, Empire.Universe.ScreenManager, this);
+                Station.SetVisibility(HasSpacePort, Empire.Universe.ScreenManager, this);
             }
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
@@ -770,6 +771,28 @@ namespace Ship_Game
 
         public int TotalInvadeInjure   => BuildingList.Filter(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
         public float TotalSpaceOffense => BuildingList.Filter(b => b.isWeapon).Sum(b => b.Offense);
+
+        public int OpenTiles           => TilesList.Count(tile => tile.Habitable && tile.building == null);
+        public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
+        public float BuiltCoverage     => TotalBuildings / (float)MaxBuildings;
+
+        public int ExistingMilitaryBuildings => BuildingList.Count(b => b.IsMilitary);
+
+        public int DesiredMilitaryBuildings
+        {
+            get
+            {
+                float militaryCoverage;
+                switch (colonyType)
+                {
+                    case ColonyType.Military: militaryCoverage = 0.4f; break;
+                    case ColonyType.Core: militaryCoverage = 0.3f; break;
+                    default: militaryCoverage = 0.2f; break;
+                }
+                float sizeFactor = (PopulationRatio + BuiltCoverage) / 2;
+                return (int)Math.Floor(militaryCoverage * sizeFactor * MaxBuildings);
+            }
+        }
 
         private void RepairBuildings(int repairAmount)
         {

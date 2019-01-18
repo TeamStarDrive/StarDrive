@@ -109,12 +109,12 @@ namespace Ship_Game
                 }
                 if (ship.shipData.Role != ShipData.RoleName.troop)
                 {
-                    if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasShipyard && p.Owner == ship.loyalty)))  //fbedard
+                    if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  //fbedard
                         continue;
                     int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
                     foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1))
                         landingLimit += module.TransporterTroopLanding;
-                    if (p.HasShipyard && p.Owner == ship.loyalty) landingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
+                    if (p.HasSpacePort && p.Owner == ship.loyalty) landingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
                     for (int i = 0; i < ship.TroopList.Count() && landingLimit > 0; i++)
                     {
                         if (ship.TroopList[i] != null && ship.TroopList[i].GetOwner() == ship.loyalty)
