@@ -161,7 +161,7 @@ namespace Ship_Game
                 }
 
                 int building = RandomMath.RandItem(buildingIds);
-                PlanetGridSquare pgs = ResourceManager.CreateBuilding(building).AssignBuildingToRandomTile(this);
+                PlanetGridSquare pgs = ResourceManager.CreateBuilding(building).AssignBuildingToRandomTile(this as Planet);
                 BuildingList.Add(pgs.building);
                 Log.Info($"Event building : {pgs.building.Name} : created on {Name}");
             }
@@ -180,7 +180,7 @@ namespace Ship_Game
                 int itemCount = (int)RandomMath.RandomBetween(1f, instanceMax + 0.95f);
                 for (int i = 0; i < itemCount; ++i)
                 {
-                    PlanetGridSquare pgs = ResourceManager.CreateBuilding(template).AssignBuildingToRandomTile(this);
+                    PlanetGridSquare pgs = ResourceManager.CreateBuilding(template).AssignBuildingToRandomTile(this as Planet);
                     pgs.Habitable = true;
                     BuildingList.Add(pgs.building);
                     Log.Info($"Resource Created : '{pgs.building.Name}' : on '{Name}' ");

@@ -449,7 +449,8 @@ namespace Ship_Game
             PlanetsInCombat.Visible = !LookingAtPlanet;
 
             if (LookingAtPlanet)
-                workersPanel.HandleInput(input);
+                if (workersPanel.HandleInput(input))
+                    return true;
             if (IsActive)
                 EmpireUI.HandleInput(input);
             if (ShowingPlanetToolTip && input.CursorPosition.OutsideRadius(tippedPlanet.ScreenPos, tippedPlanet.Radius))

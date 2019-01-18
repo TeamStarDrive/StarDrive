@@ -30,5 +30,17 @@ namespace Ship_Game
 			Habitable = hab;
 			building = b;
 		}
+
+        public bool CanBuildHere(Building b)
+        {
+            if (QItem != null)
+                return false;
+
+            if (b.IsBiospheres && (Biosphere || Habitable))
+                return false; // don't allow double biosphere
+
+            return !Habitable && b.CanBuildAnywhere
+                 || Habitable && building == null;
+        }
 	}
 }
