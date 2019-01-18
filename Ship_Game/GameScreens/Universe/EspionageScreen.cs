@@ -89,7 +89,7 @@ namespace Ship_Game
             if (input.Escaped || input.RightMouseClick ||
                 (input.WasKeyPressed(Keys.E) && !GlobalStats.TakingInput))
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }
@@ -164,7 +164,7 @@ namespace Ship_Game
             {
                 if (input.InGameSelect && Rect.HitTest(input.CursorPosition))
                 {
-                    GameAudio.PlaySfxAsync("echo_affirm");
+                    GameAudio.EchoAffirmative();
                     OnClick(this);
                     return true;
                 }

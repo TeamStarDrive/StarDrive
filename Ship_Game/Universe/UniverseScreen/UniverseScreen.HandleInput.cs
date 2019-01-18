@@ -566,7 +566,7 @@ namespace Ship_Game
                 if (fleet.Ships.Count > 0)
                 {
                     SelectedFleet = fleet;
-                    GameAudio.PlaySfxAsync("techy_affirm1");
+                    GameAudio.FleetClicked();
                 }
                 else
                     SelectedFleet = null;
@@ -1400,7 +1400,7 @@ namespace Ship_Game
 
             ship.AI.HasPriorityOrder = true;
             if (audio)
-                GameAudio.PlaySfxAsync("echo_affirm1");
+                GameAudio.AffirmativeClick();
             if (ship.isColonyShip)
             {
                 if (planet.Owner == null && planet.Habitable)
@@ -1537,7 +1537,7 @@ namespace Ship_Game
 
             if (AORect.Width <= 5000 || AORect.Height <= 5000) return;
 
-            GameAudio.PlaySfxAsync("echo_affirm");
+            GameAudio.EchoAffirmative();
             SelectedShip.AreaOfOperation.Add(AORect);            
         }
 
@@ -1588,7 +1588,7 @@ namespace Ship_Game
                     {
                         if (system.systemToClick.IsExploredBy(player))
                         {
-                            GameAudio.OpenSolarSystemPopUp();
+                            GameAudio.SubBassWhoosh();
                             HeightOnSnap = CamHeight;
                             ViewSystem(system.systemToClick);
                         }
@@ -1628,7 +1628,7 @@ namespace Ship_Game
             {
                 if (player.empireShipCombat > 0)
                 {
-                    GameAudio.PlaySfxAsync("echo_affirm");
+                    GameAudio.EchoAffirmative();
                     int nbrship = 0;
                     if (lastshipcombat >= player.empireShipCombat)
                         lastshipcombat = 0;
@@ -1652,7 +1652,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    GameAudio.PlaySfxAsync("blip_click");
+                    GameAudio.BlipClick();
                 }
             }
         }
@@ -1665,7 +1665,7 @@ namespace Ship_Game
             {
                 if (player.empirePlanetCombat > 0)
                 {
-                    GameAudio.PlaySfxAsync("echo_affirm");
+                    GameAudio.EchoAffirmative();
                     Planet planetToView = null;
                     int nbrplanet = 0;
                     if (lastplanetcombat >= player.empirePlanetCombat)
@@ -1726,7 +1726,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    GameAudio.PlaySfxAsync("blip_click");
+                    GameAudio.BlipClick();
                 }
             }
         }
@@ -1784,7 +1784,7 @@ namespace Ship_Game
                     if (item.BuildPos == SelectedItem.BuildPos)
                     {
                         ItemsToBuild.QueuePendingRemoval(item);
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                     }
                 }
                 ItemsToBuild.ApplyPendingRemovals();
@@ -1820,7 +1820,7 @@ namespace Ship_Game
             if (fleet.Ships.Count > 0)
             {
                 SelectedFleet = fleet;
-                GameAudio.PlaySfxAsync("techy_affirm1");
+                GameAudio.FleetClicked();
             }
             else
                 SelectedFleet = null;

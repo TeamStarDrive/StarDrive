@@ -69,7 +69,7 @@ namespace Ship_Game
                             continue;
                         ActiveModule.hangarShipUID = ship.Name;
                         HangarShipUIDLast = ship.Name;
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                     }
                     else if (ActiveModule.hangarShipUID == ship.Name)
                     {

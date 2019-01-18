@@ -165,20 +165,19 @@ namespace Ship_Game
         private void ZoomToShip_OnClick(ToggleButton toggleButton)
         {
             Empire.Universe.InputZoomToShip();
-            GameAudio.MiniMapButton();
+            GameAudio.AcceptClick();
 
         }
 
         private void ZoomOut_OnClick(ToggleButton toggleButton)
         {
             Empire.Universe.InputZoomOut();
-            GameAudio.MiniMapButton();
+            GameAudio.AcceptClick();
 
         }
         public void DeepSpaceBuild_OnClick(ToggleButton toggleButton)
         {
-            GameAudio.MiniMapButton();            
-            GameAudio.MiniMapButton();
+            GameAudio.AcceptClick();
             if (Screen.showingDSBW)
             {
                 Screen.showingDSBW = false;
@@ -191,20 +190,20 @@ namespace Ship_Game
         }
         public void PlanetScreen_OnClick(ToggleButton toggleButton)
         {
-            GameAudio.MiniMapButton();
+            GameAudio.AcceptClick();
             Screen.ScreenManager.AddScreen(new PlanetListScreen(Screen, Screen.EmpireUI));
 
         }
         public void ShipScreen_OnClick(ToggleButton toggleButton)
         {
 
-            GameAudio.MiniMapButton();
+            GameAudio.AcceptClick();
             Screen.showingFTLOverlay = !Screen.showingFTLOverlay;
             
         }
         public void Fleets_OnClick(ToggleButton toggleButton)
         {
-            GameAudio.MiniMapButton();
+            GameAudio.AcceptClick();
             Screen.showingRangeOverlay = !Screen.showingRangeOverlay;            
         }
         public void AIScreen_OnClick(ToggleButton toggleButton) => Screen.aw.ToggleVisibility();

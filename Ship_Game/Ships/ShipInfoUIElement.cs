@@ -182,7 +182,7 @@ namespace Ship_Game.Ships
             {
                 if (toggleButton.HandleInput(input))
                 {                    
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     switch (toggleButton.Action)
                     {
                         case "attack":
@@ -569,7 +569,7 @@ namespace Ship_Game.Ships
                 ToolTip.CreateTooltip(Localizer.Token(2204));
             if (Gridbutton.HandleInput(input))
             {
-                GameAudio.ButtonClick();
+                GameAudio.AcceptClick();
                 ShowModules = !ShowModules;
                 Gridbutton.Active = ShowModules;
                 return true;

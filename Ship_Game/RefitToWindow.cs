@@ -94,7 +94,7 @@ namespace Ship_Game
         private void OnRefitOneClicked(UIButton b)
         {
             Shiptorefit.AI.OrderRefitTo(RefitTo);
-            GameAudio.PlaySfxAsync("echo_affirm");
+            GameAudio.EchoAffirmative();
             ExitScreen();
         }
 
@@ -105,7 +105,7 @@ namespace Ship_Game
                 if (ship.Name == Shiptorefit.Name)
                     ship.AI.OrderRefitTo(RefitTo);
             }
-            GameAudio.PlaySfxAsync("echo_affirm");
+            GameAudio.EchoAffirmative();
             ExitScreen();
         }
 
@@ -125,7 +125,7 @@ namespace Ship_Game
                     selector = e.CreateSelector();
                     if (input.InGameSelect)
                     {
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                         RefitTo = e.Get<string>();
                     }
                 }

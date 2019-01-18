@@ -108,7 +108,7 @@ namespace Ship_Game
 				Hover = true;
 				if (input.InGameSelect)
 				{
-					GameAudio.PlaySfxAsync("echo_affirm");
+					GameAudio.EchoAffirmative();
 					if (IsToggle)
 					{
 						Toggled = !Toggled;

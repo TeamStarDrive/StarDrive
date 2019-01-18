@@ -570,7 +570,7 @@ namespace Ship_Game
             }
             if (RefitButton.HandleInput(input))
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
             }
 
@@ -584,7 +584,7 @@ namespace Ship_Game
                 {
                     Status_Text = GetStatusText(ship);
                 }
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 if (!isScuttle)
                 {
                     if (ship.AI.State == AIState.Scrap)

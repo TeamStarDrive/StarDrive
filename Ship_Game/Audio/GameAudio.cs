@@ -228,20 +228,22 @@ namespace Ship_Game
         public static void PlanetClicked()    => PlaySfxAsync("techy_affirm1");
         public static void BuildItemClicked() => PlaySfxAsync("techy_affirm1");
 
-        public static void ButtonClick()      => PlaySfxAsync("sd_ui_accept_alt3"); // "clihk"
-        public static void MiniMapButton()    => PlaySfxAsync("sd_ui_accept_alt3"); // "clihk"
-        public static void MiniMapMouseOver() => PlaySfxAsync("sd_ui_mouseover"); // super soft "katik"
+        public static void AcceptClick()      => PlaySfxAsync("sd_ui_accept_alt3"); // "clihk"
+        public static void ButtonMouseOver()  => PlaySfxAsync("sd_ui_mouseover"); // super soft "katik"
+        public static void ResearchSelect()   => PlaySfxAsync("sd_ui_research_select");
         public static void EchoAffirmative()  => PlaySfxAsync("echo_affirm"); // barely audible
         public static void BlipClick()        => PlaySfxAsync("blip_click"); // "blop"
 
         //subbasewoosh
-        public static void SubBassWhoosh() => PlaySfxAsync("sub_bass_whoosh");
+        public static void SubBassWhoosh()        => PlaySfxAsync("sub_bass_whoosh");
         public static void OpenSolarSystemPopUp() => PlaySfxAsync("sub_bass_whoosh");
+        public static void SubBassMouseOver()     => PlaySfxAsync("sub_bass_mouseover");
 
         // badooommg
         public static void TacticalPause() => PlaySfxAsync("sd_ui_tactical_pause");
-
-
+        public static void TroopTakeOff()  => PlaySfxAsync("sd_troop_takeoff");
+        public static void TroopLand()     => PlaySfxAsync("sd_troop_land");
+        public static void SmallServo()    => PlaySfxAsync("smallservo"); // module placement sound
 
 
 

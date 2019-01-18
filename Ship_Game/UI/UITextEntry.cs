@@ -189,7 +189,7 @@ namespace Ship_Game
                     else
                     {
                         AddKeyToText(ref text, key, input);
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         break;
                     }
                 }

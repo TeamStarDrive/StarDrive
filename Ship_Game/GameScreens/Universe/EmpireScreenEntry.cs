@@ -289,7 +289,7 @@ namespace Ship_Game
                     bool flag=true;
                     while (p.ApplyStoredProduction(0))
                     {
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                         if(flag)
                         flag = false;
 
@@ -303,7 +303,7 @@ namespace Ship_Game
 				else if (p.ApplyStoredProduction(0))
 				{
 
-					GameAudio.ButtonClick();
+					GameAudio.AcceptClick();
 				}
 				else 
 				{
@@ -321,12 +321,12 @@ namespace Ship_Game
                 {
                     p.FS = Planet.GoodState.STORE;
                 }
-                GameAudio.ButtonClick();
+                GameAudio.AcceptClick();
             }
             if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
                 prodDropDown.Toggle();
-                GameAudio.ButtonClick();
+                GameAudio.AcceptClick();
                 Planet planet2 = p;
                 planet2.PS = (Planet.GoodState)((int)planet2.PS + (int)Planet.GoodState.IMPORT);
                 if (p.PS > Planet.GoodState.EXPORT)
