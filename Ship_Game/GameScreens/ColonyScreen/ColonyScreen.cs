@@ -33,8 +33,6 @@ namespace Ship_Game
         private UITextEntry PlanetName = new UITextEntry();
         private Rectangle PlanetIcon;
         private EmpireUIOverlay eui;
-        private float ClickTimer;
-        private float TimerDelay = 0.25f;
         private ToggleButton LeftColony;
         private ToggleButton RightColony;
         private UIButton launchTroops;
@@ -47,7 +45,7 @@ namespace Ship_Game
         private Rectangle GridPos;
         private Submenu subColonyGrid;
         private ScrollList buildSL;
-        private ScrollList QSL;
+        private ScrollList CQueue;
         private DropDownMenu foodDropDown;
         private DropDownMenu prodDropDown;
         private ProgressBar FoodStorage;
@@ -166,7 +164,7 @@ namespace Ship_Game
             queue = new Submenu(theMenu11);
             queue.AddTab(Localizer.Token(337));
 
-            QSL = new ScrollList(queue, ListOptions.Draggable);
+            CQueue = new ScrollList(queue, ListOptions.Draggable);
 
             PlanetIcon = new Rectangle(theMenu4.X + theMenu4.Width - 148, theMenu4.Y + (theMenu4.Height - 25) / 2 - 64 + 25, 128, 128);
             GridPos = new Rectangle(subColonyGrid.Menu.X + 10, subColonyGrid.Menu.Y + 30, subColonyGrid.Menu.Width - 20, subColonyGrid.Menu.Height - 35);
@@ -208,7 +206,6 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            ClickTimer += (float)GameTime.ElapsedGameTime.TotalSeconds;
             if (P.Owner == null)
                 return;
             P.UpdateIncomes(false);
@@ -260,13 +257,7 @@ namespace Ship_Game
                 if (planetGridSquare.highlighted)
                     batch.DrawRectangle(planetGridSquare.ClickRect, Color.White, 2f);
             }
-            if (ActiveBuildingEntry != null)
-            {
-                MouseState state2 = Mouse.GetState();
-                var r = new Rectangle(state2.X, state2.Y, 48, 48);
-                var building = ActiveBuildingEntry.Get<Building>();
-                batch.Draw(ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48"), r, Color.White);
-            }
+
             pFacilities.Draw(batch);
             launchTroops.Visible = P.Owner == Empire.Universe.player && P.TroopsHere.Count > 0;
 
@@ -306,7 +297,6 @@ namespace Ship_Game
             Selector?.Draw(batch);
 
             DrawSliders(batch);
-
 
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
             float num5 = 80f;
@@ -459,6 +449,8 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
             }
+            
+            DrawActiveBuildingEntry(batch);
 
             base.Draw(batch);
 
@@ -878,8 +870,14 @@ namespace Ship_Game
 
             HandleExportImportButtons(input);
             HandleConstructionQueueInput(input);
-            HandleDragBuildingOntoTile(input);
-            HandleBuildListClicks(input);
+            if (HandleDragBuildingOntoTile(input))
+            {
+                ActiveBuildingEntry = null; // building was placed or discarded
+                return true;
+            }
+
+            if (HandleBuildListClicks(input))
+                return true;
 
             if (Popup)
             {
