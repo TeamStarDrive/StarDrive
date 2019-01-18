@@ -625,7 +625,7 @@ namespace Ship_Game.Debug
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
-                    foreach (var defender in entry.Value.ShipsDict) {
+                    foreach (var defender in entry.Value.OurShips) {
                         if (defender.Key == ship.guid)
                             DrawString(entry.Value.System.Name);
                     }

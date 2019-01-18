@@ -1,9 +1,12 @@
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ship_Game.AI
 {
+    // This is a helper commander of tracking
+    // defense ships and assigning targets
     public sealed class SystemCommander
     {
         public SolarSystem System;
@@ -18,10 +21,9 @@ namespace Ship_Game.AI
         public float SystemDevelopmentlevel;
         public float RankImportance;
         public int TroopCount;
-        public int TroopsWanted                  => IdealTroopCount - TroopCount;
-        public Map<Guid, Ship> ShipsDict         = new Map<Guid, Ship>();
-        public Map<Ship, Ship[]> EnemyClumpsDict = new Map<Ship, Ship[]>();
-        public Ship[] GetShipList                => ShipsDict.Values.ToArray();
+        public int TroopsWanted => IdealTroopCount - TroopCount;
+        public Map<Guid, Ship> OurShips         = new Map<Guid, Ship>();
+        public ICollection<Ship> GetShipList => OurShips.Values;
         private readonly Empire Us;
         public Map<Planet, PlanetTracker> PlanetTracker = new Map<Planet, PlanetTracker>();
         
@@ -34,20 +36,17 @@ namespace Ship_Game.AI
         
         public float UpdateSystemValue()
         {            
-            ValueToUs = 0f;
             IdealShipStrength = 0;
             PercentageOfValue = 0f;
             ValueToUs = System.combatTimer > 0 ? 5 : 0;
             foreach (Planet p in System.PlanetList)
             {
-                if (!PlanetTracker.TryGetValue(p, out PlanetTracker planett))
+                if (!PlanetTracker.TryGetValue(p, out PlanetTracker trackedPlanet))
                 {
-                    planett = new PlanetTracker(p, Us);
-                    PlanetTracker.Add(p,planett);
+                    trackedPlanet = new PlanetTracker(p, Us);
+                    PlanetTracker.Add(p, trackedPlanet);
                 }
-                ValueToUs += planett.UpdateValue();
-                
-                
+                ValueToUs += trackedPlanet.UpdateValue();
             }
             foreach (SolarSystem fiveClosestSystem in System.FiveClosestSystems)
             {
@@ -57,10 +56,9 @@ namespace Ship_Game.AI
                 foreach (Empire e in fiveClosestSystem.OwnerList)
                 {
                     if (e == Us) continue;
-                    bool attack = Us.IsEmpireAttackable(e,null);   
+                    bool attack = Us.IsEmpireAttackable(e);   
                     if (attack) ValueToUs += 5f;
-                    else
-                    ValueToUs += 1f;
+                    else        ValueToUs += 1f;
                     noEnemies = noEnemies || !attack;
                 }
                 if (!noEnemies) continue;
@@ -70,27 +68,28 @@ namespace Ship_Game.AI
             return ValueToUs;
         }
         
+        // @return Ships that were removed or empty array
         public Array<Ship> RemoveExtraShips()
         {
-            var ships = new Array<Ship>();            
-            if (CurrentShipStr < IdealShipStrength) return ships;             
-            var ships2 = ShipsDict.Values.ToArray();
-            for (int index = 0; index < ships2.Length; index++)
+            var removed = new Array<Ship>();            
+            if (CurrentShipStr < IdealShipStrength)
+                return removed;
+
+            foreach (Ship ship in OurShips.Values)
             {
-                Ship ship = ships2[index];
                 float str = ship.BaseStrength;
                 if (CurrentShipStr - str > IdealShipStrength)
                 {
                     RemoveShip(ship);
-                    ships.Add(ship);
+                    removed.Add(ship);
                 }
             }
-            return ships;
-            
+            return removed;
         }
+
         public bool RemoveShip(Ship shipToRemove)
         {                                   
-            if (ShipsDict.Remove(shipToRemove.guid))
+            if (OurShips.Remove(shipToRemove.guid))
             {
                 CurrentShipStr -= (int)shipToRemove.BaseStrength;
                 shipToRemove.AI.SystemToDefend = null;
@@ -99,22 +98,22 @@ namespace Ship_Game.AI
             }            
             return false;
         }
+
         public bool AddShip(Ship ship)
         {
-            if (CurrentShipStr  > IdealShipStrength ) return false;
-            if (ShipsDict.TryGetValue(ship.guid, out Ship dictShip))
+            if (CurrentShipStr > IdealShipStrength) return false;
+            if (OurShips.TryGetValue(ship.guid, out Ship existing))
             {
-                if (dictShip != ship)
+                if (existing != ship) // @todo Why is this check here? Wtf?
                 {
-                    CurrentShipStr -= (int)dictShip.BaseStrength;
-                    dictShip = ship;
+                    CurrentShipStr -= (int)existing.BaseStrength;
                     CurrentShipStr += (int)ship.BaseStrength;
+                    OurShips[ship.guid] = ship;
                 }
-                
             }
             else
             {
-                ShipsDict.Add(ship.guid, ship);
+                OurShips.Add(ship.guid, ship);
                 CurrentShipStr += (int)ship.BaseStrength;
             }
 
@@ -122,14 +121,15 @@ namespace Ship_Game.AI
                 ship.AI.OrderSystemDefense(System);            
             return true;
         }
+
         private void Clear()
         {
-            if (ShipsDict == null) return;
-            foreach (Ship ship in ShipsDict.Values)
+            foreach (Ship ship in OurShips.Values)
                 if(ship.Active) ship.AI.SystemToDefend = null;
-            ShipsDict.Clear();
+            OurShips.Clear();
             CurrentShipStr = 0;
         }
+
         public Planet AssignIdleDuties(Ship ship)
         {
             var planets = PlanetTracker.Values;
@@ -143,57 +143,48 @@ namespace Ship_Game.AI
         }
         public void AssignTargets()
         {
-            EnemyClumpsDict = Us.GetEmpireAI().ThreatMatrix.PingRadarShipClustersByShip(System.Position, 150000, 15000, Us);
-            
-            if (EnemyClumpsDict.Count != 0)
+            Array<Ship> hostiles = Us.GetEmpireAI().ThreatMatrix.PingRadarClosestEnemyCluster(System.Position, 150000, 15000, Us);
+            if (hostiles.NotEmpty)
             {
-                int i = 0;
-                var clumpsList = new Ship[EnemyClumpsDict.Count];
-                foreach (var kv in EnemyClumpsDict)
-                    clumpsList[i++] = kv.Key;
-
-                Ship closest = clumpsList.FindMin(ship => System.Position.SqDist(ship.Center));
-                i = 0;
-                var assignedShips = new Ship[ShipsDict.Count];
-                foreach (Ship enemy in EnemyClumpsDict[closest])
+                var assignedShips = new HashSet<Ship>();
+                foreach (Ship hostile in hostiles)
                 {
                     float assignedStr = 0f;
-                    foreach (var kv in ShipsDict)
+                    foreach (Ship ship in OurShips.Values)
                     {
-                        if (!kv.Value.InCombat && kv.Value.System == System)
-                        {
-                            if ((assignedStr > 0f && assignedStr >= enemy.GetStrength())
-                                || kv.Value.AI.State == AIState.Resupply
-                                ||assignedShips.Contains(kv.Value))
-                                continue;
+                        if (assignedShips.Contains(ship))
+                            continue;
 
-                            kv.Value.AI.Intercepting = true;
-                            kv.Value.AI.OrderAttackSpecificTarget(enemy);
-                            assignedShips[i++]=kv.Value;
-                            assignedStr += kv.Value.GetStrength();
+                        if (!ship.InCombat && ship.System == System)
+                        {
+                            if (assignedStr <= 0f || assignedStr < hostile.GetStrength() 
+                                && ship.AI.State != AIState.Resupply)
+                            {
+                                ship.AI.Intercepting = true;
+                                ship.AI.OrderAttackSpecificTarget(hostile);
+                                assignedStr += ship.GetStrength();
+                                assignedShips.Add(ship);
+                            }
                         }
                         else
                         {
-                            if (assignedShips.Contains(kv.Value)) continue;
-                            assignedStr += kv.Value.GetStrength();
+                            assignedStr += ship.GetStrength();
                         }
                     }
                 }
-                foreach (var kv in ShipsDict)
+                foreach (Ship ship in OurShips.Values)
                 {
-                    Ship ship = kv.Value;
                     if (!assignedShips.Contains(ship))
                         continue;
                     if (ship.AI.State == AIState.Resupply || ship.System != System)
                         continue;
-
                     ship.AI.Intercepting = true;
-                    ship.AI.OrderAttackSpecificTarget(assignedShips[0].AI.Target as Ship);
+                    ship.AI.OrderAttackSpecificTarget(assignedShips.First().AI.Target as Ship);
                 }
             }
             else
             {
-                foreach (var kv in ShipsDict)
+                foreach (var kv in OurShips)
                 {
                     if (kv.Value.AI.State == AIState.Resupply ) continue;
    
@@ -205,7 +196,7 @@ namespace Ship_Game.AI
         public float GetOurStrength()
         {
             float str = 0f;
-            foreach (var kv in ShipsDict)
+            foreach (var kv in OurShips)
                 str = str + kv.Value.GetStrength();
             return str;
         }
@@ -266,14 +257,11 @@ namespace Ship_Game.AI
         private void Destroy()
         {
             Clear();            
-            ShipsDict = null;
-            EnemyClumpsDict?.Clear();
-            EnemyClumpsDict = null;
-            PlanetTracker?.Clear();
-            PlanetTracker = null;
+            PlanetTracker.Clear();
             System = null;          
         }
     }
+
     public class PlanetTracker
     {
         public float Value;

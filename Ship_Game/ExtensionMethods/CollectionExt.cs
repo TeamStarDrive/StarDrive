@@ -152,6 +152,36 @@ namespace Ship_Game
             return found;
         }
 
+        public static TKey FindMinKey<TKey, TValue>(this Map<TKey, TValue> map, Func<TKey, float> selector) where TKey : class
+        {
+            TKey found = null;
+            float min = +999999999999.999f;
+            foreach (KeyValuePair<TKey, TValue> kv in map)
+            {
+                TKey item = kv.Key;
+                float value = selector(item);
+                if (value > min) continue;
+                min = value;
+                found = item;
+            }
+            return found;
+        }
+
+        public static TValue FindMinValue<TKey, TValue>(this Map<TKey, TValue> map, Func<TValue, float> selector) where TValue : class
+        {
+            TValue found = null;
+            float min = +999999999999.999f;
+            foreach (KeyValuePair<TKey, TValue> kv in map)
+            {
+                TValue item = kv.Value;
+                float value = selector(item);
+                if (value > min) continue;
+                min = value;
+                found = item;
+            }
+            return found;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T FindMin<T>(this T[] items, Func<T, float> selector) where T : class
             => items.FindMin(items.Length, selector);
