@@ -137,7 +137,7 @@ namespace Ship_Game
 
             if (input.ExitWiki)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }

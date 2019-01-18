@@ -90,17 +90,19 @@ namespace Ship_Game
             SetPosition();
         }
 
-        private static Model DefaultModel;
-        private static Texture3D DefaultNoise;
-        private static Effect DefaultEffect;
-        private static readonly object ThrusterLocker = new object();
+        static int ContentId;
+        static Model DefaultModel;
+        static Texture3D DefaultNoise;
+        static Effect DefaultEffect;
+        static readonly object ThrusterLocker = new object();
 
         private static void InitializeDefaultEffects(GameContentManager content)
         {
             lock (ThrusterLocker)
             {
-                if (DefaultModel != null)
+                if (DefaultModel != null && ContentId == ResourceManager.ContentId)
                     return;
+                ContentId = ResourceManager.ContentId;
                 DefaultModel  = content.Load<Model>("Effects/ThrustCylinderB");
                 DefaultNoise  = content.Load<Texture3D>("Effects/NoiseVolume");
                 DefaultEffect = content.Load<Effect>("Effects/Thrust");
@@ -111,7 +113,7 @@ namespace Ship_Game
 
         public void LoadAndAssignDefaultEffects(GameContentManager content)
         {
-            if (DefaultModel == null) InitializeDefaultEffects(content);
+            InitializeDefaultEffects(content);
             LoadAndAssignEffects(DefaultModel, DefaultNoise, DefaultEffect);
         }
 

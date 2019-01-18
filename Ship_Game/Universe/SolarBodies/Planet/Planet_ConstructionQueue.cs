@@ -68,8 +68,11 @@ namespace Ship_Game
 
         public bool TryBiosphereBuild(Building b, QueueItem qi)           => SbProduction.TryBiosphereBuild(b, qi);
         public void ApplyProductionToQueue(float howMuch, int whichItem)  => SbProduction.ApplyProductiontoQueue(howMuch, whichItem);
-        public void AddBuildingToCQ(Building b, bool playerAdded = false) => SbProduction.AddBuildingToCQ(b, playerAdded);
 
+        // @return TRUE if building was added to CQ,
+        //         FALSE if `where` is occupied or if there is no free random tiles
+        public bool AddBuildingToCQ(Building b, PlanetGridSquare where = null, bool playerAdded = false)
+            => SbProduction.AddBuildingToCQ(b, where, playerAdded);
 
         public bool BuildingInQueue(int buildingId) => ConstructionQueue.Any(q => q.isBuilding
                                                                                   && q.Building.BID == buildingId);

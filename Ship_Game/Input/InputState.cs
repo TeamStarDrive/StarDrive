@@ -58,6 +58,8 @@ namespace Ship_Game
         public Vector2 CursorPosition { get; private set; }
         public float CursorX => CursorPosition.X;
         public float CursorY => CursorPosition.Y;
+        public int MouseX { get; private set; }
+        public int MouseY { get; private set; }
 
         private Vector2 MouseRightClickPos = Vector2.Zero;
         private Vector2 MouseLeftClickPos  = Vector2.Zero;
@@ -343,6 +345,8 @@ namespace Ship_Game
             ScrollWheelPrev = MouseCurr.ScrollWheelValue;
             MouseCurr = Mouse.GetState();
             CursorPosition = new Vector2(MouseCurr.X, MouseCurr.Y);
+            MouseX = MouseCurr.X;
+            MouseY = MouseCurr.Y;
             KeysCurr = Keyboard.GetState();
             MouseMoved = CursorPosition.Distance(MousePrev.Pos()) > 1;
             if (ExitScreenTimer >= 0)

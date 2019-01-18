@@ -226,7 +226,7 @@ namespace Ship_Game
             {
                 if (EmpireManager.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) || spyLimitCount <= 0)//EmpireManager.Player.data.AgentList.Count >= EmpireManager.Player.GetPlanets().Count)
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    GameAudio.NegativeClick();
                 }
                 else
                 {
@@ -257,7 +257,7 @@ namespace Ship_Game
                     SelectedAgent = e.Get<Agent>();
                     foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
                         mission.UpdateMissionAvailability();
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.AcceptClick();
                 }
             }
 

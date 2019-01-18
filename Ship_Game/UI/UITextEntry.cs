@@ -184,12 +184,12 @@ namespace Ship_Game
                 {
                     if (text.Length >= MaxCharacters)
                     {
-                        GameAudio.PlaySfxAsync("UI_Misc20");
+                        GameAudio.NegativeClick();
                     }
                     else
                     {
                         AddKeyToText(ref text, key, input);
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         break;
                     }
                 }

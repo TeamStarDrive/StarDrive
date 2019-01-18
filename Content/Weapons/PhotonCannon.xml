@@ -1,0 +1,55 @@
+﻿<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ 
+  <Tag_Kinetic>false</Tag_Kinetic>
+  <Tag_Energy>true</Tag_Energy>
+  <Tag_Guided>false</Tag_Guided>
+  <Tag_Missile>false</Tag_Missile>
+  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>false</Tag_Intercept>
+  <Tag_Explosive>true</Tag_Explosive>
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_Railgun>false</Tag_Railgun>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  <Tag_Warp>false</Tag_Warp>
+  <Tag_Subspace>false</Tag_Subspace>
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>true</Tag_Cannon>
+
+
+  <UID>PhotonCannon</UID>
+  <fireDelay>4.5</fireDelay>
+  <Range>3800</Range>
+  <PowerRequiredToFire>180</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
+
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <fireCueName>sd_weapon_pulse_alt2_01</fireCueName>
+  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+  <InFlightCue>sd_weapon_photon_flight_01</InFlightCue>
+  
+  <!-- Projectile Information -->
+  <DamageAmount>300</DamageAmount>
+  <MuzzleFlash>Yes</MuzzleFlash>
+  <ProjectileSpeed>1200</ProjectileSpeed>
+
+  <!-- Animation Information -->
+  <Animated>1</Animated>
+  <Light>Blue</Light>
+  <Scale>1.35</Scale>
+  <Frames>31</Frames>
+  <AnimationPath>projBall_01_plasma_1/projBall_01_plasma_1_cc_</AnimationPath>
+  <LoopAnimation>1</LoopAnimation>
+
+  <!-- Explosion Information -->
+  <explodes>true</explodes>
+  <ExplosionType>Photon</ExplosionType>
+  <DamageRadius>20</DamageRadius>
+  
+  <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
+  <ModelPath>projBall</ModelPath>
+  <WeaponType>Energy Torpedo</WeaponType>
+
+  <FireArc>5</FireArc>
+</Weapon>

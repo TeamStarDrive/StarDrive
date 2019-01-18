@@ -123,7 +123,7 @@ namespace Ship_Game
 
         private static bool IsMouseHoveringOver(Rectangle rect)
         {
-            return rect.HitTest(Game1.Instance.ScreenManager.input.CursorPosition);
+            return rect.HitTest(StarDriveGame.Instance.ScreenManager.input.CursorPosition);
         }
 
         private string WrappedString(string text)
@@ -222,7 +222,7 @@ namespace Ship_Game
                 if (Open && Options.Count == 1)
                     Open = false;
 
-                if (Open) GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                if (Open) GameAudio.AcceptClick();
                 Reset();
                 return true;
             }
@@ -242,7 +242,7 @@ namespace Ship_Game
                     if (PropertyRef != null)
                         PropertyRef.Value = ActiveValue;
 
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.AcceptClick();
                     Open = false;
                     Reset();
                     return true;

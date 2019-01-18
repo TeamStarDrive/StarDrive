@@ -152,7 +152,7 @@ namespace Ship_Game.SpriteSystem
                 CursorX += (t.Width + Padding);
 
                 // After filling our spot, there is a potential free spot.
-                // We know this because we fill our objects in descending order.
+                // We know this because we fill our objects in size descending order.
                 // ____________
                 // |  t.Width || (padding)
                 // |==========||

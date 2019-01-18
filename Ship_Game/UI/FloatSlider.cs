@@ -63,6 +63,7 @@ namespace Ship_Game
         static readonly Color HoverColor  = new Color(164, 154, 133);
         static readonly Color NormalColor = new Color(72, 61, 38);
 
+        static int ContentId;
         static SubTexture SliderKnob;
         static SubTexture SliderKnobHover;
         static SubTexture SliderMinute;
@@ -72,8 +73,9 @@ namespace Ship_Game
         public FloatSlider(UIElementV2 parent, Rectangle r, string text, float min = 0f, float max = 10000f, float value = 5000f)
             : base(parent, r)
         {
-            if (SliderKnob == null)
+            if (SliderKnob == null || ContentId != ResourceManager.ContentId)
             {
+                ContentId = ResourceManager.ContentId;
                 SliderKnob        = ResourceManager.Texture("NewUI/slider_crosshair");
                 SliderKnobHover   = ResourceManager.Texture("NewUI/slider_crosshair_hover");
                 SliderMinute      = ResourceManager.Texture("NewUI/slider_minute");

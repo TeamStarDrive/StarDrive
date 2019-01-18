@@ -218,7 +218,7 @@ namespace Ship_Game
         private void InitSortedItems<T>(SortButton button, Func<Planet, T> sortPredicate)
         {
             LastSorted = button;
-            GameAudio.PlaySfxAsync("blip_click");
+            GameAudio.BlipClick();
             button.Ascending = !button.Ascending;
             PlanetSL.Reset();
 
@@ -278,7 +278,7 @@ namespace Ship_Game
                     else 
                     {
                         ExitScreen();
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.AcceptClick();
                         Empire.Universe.SelectedPlanet = entry.planet;
                         Empire.Universe.ViewingShip = false;
                         Empire.Universe.returnToShip = false;
@@ -288,7 +288,7 @@ namespace Ship_Game
             }
             if (input.KeysCurr.IsKeyDown(Keys.L) && !input.KeysPrev.IsKeyDown(Keys.L) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }

@@ -76,7 +76,7 @@ namespace Ship_Game
                 Hover = true;
                 if (input.InGameSelect)
                 {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.AcceptClick();
                     if (IsToggle)
                     {
                         Toggled = !Toggled;

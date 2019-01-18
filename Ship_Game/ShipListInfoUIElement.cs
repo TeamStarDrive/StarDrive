@@ -275,7 +275,7 @@ namespace Ship_Game
 
             if (gridbutton.HandleInput(input))
             {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.AcceptClick();
                 ShowModules = !ShowModules;
                 gridbutton.Active = ShowModules;
                 return true;
@@ -286,7 +286,7 @@ namespace Ship_Game
                 {
                     if (button.HandleInput(input))
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.AcceptClick();
 
                         CombatState action = (CombatState) Enum.Parse(typeof(CombatState), button.Action);
                         foreach(Ship ship in ShipList)
@@ -363,7 +363,7 @@ namespace Ship_Game
                     {
                         if (HoveredShipLast != (Ship)button.ReferenceObject)
                         {
-                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                            GameAudio.ButtonMouseOver();
                         }
                         button.Hover = true;
                         HoveredShip = (Ship)button.ReferenceObject;

@@ -21,7 +21,6 @@ namespace Ship_Game.Ships
     //       However, we will have to support XML for a long time to have backwards compat.
     public sealed class ShipData
     {
-        public bool Animated;
         public string ShipStyle;
         public string EventOnDeath;
         public byte experience;
@@ -30,8 +29,9 @@ namespace Ship_Game.Ships
         public string Name; // ex: "Dodaving", just an arbitrary name
         public bool HasFixedCost;
         public short FixedCost;
-        public bool HasFixedUpkeep;
         public float FixedUpkeep;
+        public bool HasFixedUpkeep;
+        public bool Animated;
         public bool IsShipyard;
         public bool IsOrbitalDefense;
         public string IconPath;
@@ -78,6 +78,7 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public SubTexture Icon => ResourceManager.Texture(ActualIconPath);
         [XmlIgnore] [JsonIgnore] public string ActualIconPath => IconPath.NotEmpty() ? IconPath : BaseHull.IconPath;
         [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
+        [XmlIgnore] [JsonIgnore] public Vector3 Volume { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
 
@@ -181,15 +182,15 @@ namespace Ship_Game.Ships
                     EventOnDeath   = s->EventOnDeath.AsInternedOrNull,
                     experience     = s->Experience,
                     Level          = s->Level,
-                    Name           = s->Name.AsInterned,
+                    Name           = s->Name.AsString,
                     HasFixedCost   = s->HasFixedCost != 0,
                     FixedCost      = s->FixedCost,
                     HasFixedUpkeep = s->HasFixedUpkeep != 0,
                     FixedUpkeep    = s->FixedUpkeep,
                     IsShipyard     = s->IsShipyard != 0,
-                    IconPath       = s->IconPath.AsInterned,
-                    Hull           = s->Hull.AsInterned,
-                    ModelPath      = s->ModelPath.AsInterned,
+                    IconPath       = s->IconPath.AsString,
+                    Hull           = s->Hull.AsString,
+                    ModelPath      = s->ModelPath.AsString,
                     CarrierShip    = s->CarrierShip != 0,
                     BaseStrength   = s->BaseStrength,
                     BaseCanWarp    = s->BaseCanWarp != 0,
@@ -197,7 +198,7 @@ namespace Ship_Game.Ships
                     UnLockable     = s->UnLockable != 0,
                     TechScore      = s->TechScore,
                     IsOrbitalDefense          = s->IsOrbitalDefense != 0,
-                    SelectionGraphic          = s->SelectionGraphic.AsInterned,
+                    SelectionGraphic          = s->SelectionGraphic.AsString,
                     AllModulesUnlocakable     = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense
                 };
@@ -209,13 +210,17 @@ namespace Ship_Game.Ships
                 Enum.TryParse(s->DefaultAIState.AsString,    out ship.DefaultAIState);
 
                 // @todo Remove SDNative.ModuleSlot conversion
+                // @todo Optimize CModuleSlot -- we don't need string data for everything
+                //       GUID should be byte[16]
+                //       Orientation should be int
+                //       
                 ship.ModuleSlots = new ModuleSlotData[s->ModuleSlotsLen];
                 for (int i = 0; i < s->ModuleSlotsLen; ++i)
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     var slot = new ModuleSlotData();
                     slot.Position              = new Vector2(msd->PosX, msd->PosY);
-                    slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull;
+                    slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
                     slot.HangarshipGuid        = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health                = msd->Health;
                     slot.ShieldPower           = msd->ShieldPower;
@@ -224,8 +229,10 @@ namespace Ship_Game.Ships
                     slot.Facing                = msd->Facing;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
                     slot.Orientation           = msd->State.AsInterned;
-                    slot.SlotOptions           = msd->SlotOptions.AsInterned;
-
+                    // slot options can be:
+                    // "NotApplicable", "Ftr-Plasma Tentacle", "Vulcan Scout", ... etc.
+                    // It's a general purpose "whatever" sink, however it's used very frequently
+                    slot.SlotOptions = msd->SlotOptions.AsInterned;
                     ship.ModuleSlots[i] = slot;
                 }
 
@@ -296,8 +303,12 @@ namespace Ship_Game.Ships
             var content = Empire.Universe?.TransientContent ?? ResourceManager.RootContent;
 
             shipSO = ResourceManager.GetSceneMesh(content, HullModel, Animated);
-            if (BaseHull.ModelZ.AlmostEqual(0f) && HullRole >= RoleName.fighter)
-                BaseHull.ModelZ = shipSO.GetMeshBoundingBox().Max.Z;
+
+            if (BaseHull.Volume.X.AlmostEqual(0f))
+            {
+                BaseHull.Volume = shipSO.GetMeshBoundingBox().Max;
+                BaseHull.ModelZ = BaseHull.Volume.Z;
+            }
 
             shipMeshAnim = null;
             if (Animated)
