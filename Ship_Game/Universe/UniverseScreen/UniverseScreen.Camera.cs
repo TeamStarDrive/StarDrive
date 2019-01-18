@@ -356,7 +356,7 @@ namespace Ship_Game
 
         public void InputZoomToShip()
         {
-            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            GameAudio.ButtonClick();
             AdjustCamTimer = 1f;
             transitionElapsedTime = 0.0f;
             CamDestination.Z = 4500f;
@@ -366,7 +366,7 @@ namespace Ship_Game
 
         public void InputZoomOut()
         {
-            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            GameAudio.ButtonClick();
             AdjustCamTimer = 1f;
             transitionElapsedTime = 0.0f;
             CamDestination.X = CamPos.X;

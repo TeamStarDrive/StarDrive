@@ -184,7 +184,7 @@ namespace Ship_Game
                 {
                     if (text.Length >= MaxCharacters)
                     {
-                        GameAudio.PlaySfxAsync("UI_Misc20");
+                        GameAudio.NegativeClick();
                     }
                     else
                     {

@@ -278,7 +278,7 @@ namespace Ship_Game
                     else 
                     {
                         ExitScreen();
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                         Empire.Universe.SelectedPlanet = entry.planet;
                         Empire.Universe.ViewingShip = false;
                         Empire.Universe.returnToShip = false;

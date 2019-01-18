@@ -255,7 +255,7 @@ namespace Ship_Game
             }
             ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
             ModuleGrid.RecalculatePower();
-            GameAudio.PlaySfxAsync("sub_bass_whoosh");
+            GameAudio.SubBassWhoosh();
         }
 
         private DesignModuleGrid ModuleGrid;
@@ -293,7 +293,7 @@ namespace Ship_Game
         }
 
 
-        public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
+        public void PlayNegativeSound() => GameAudio.NegativeClick();
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {

@@ -222,7 +222,7 @@ namespace Ship_Game
                 if (Open && Options.Count == 1)
                     Open = false;
 
-                if (Open) GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                if (Open) GameAudio.ButtonClick();
                 Reset();
                 return true;
             }
@@ -242,7 +242,7 @@ namespace Ship_Game
                     if (PropertyRef != null)
                         PropertyRef.Value = ActiveValue;
 
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                     Open = false;
                     Reset();
                     return true;

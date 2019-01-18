@@ -310,7 +310,7 @@ namespace Ship_Game
                     }
                     if (SelectedShip != entry.ship)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                         if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && !input.KeysCurr.IsKeyDown(Keys.LeftControl))
                         {
                             foreach (ShipListScreenEntry slEntry in ShipSL.AllExpandedItems<ShipListScreenEntry>())
@@ -336,7 +336,7 @@ namespace Ship_Game
 
             void Sort<T>(SortButton button, Func<ShipListScreenEntry, T> sortPredicate)
             {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.ButtonClick();
                 button.Ascending = !button.Ascending;
                 StrSorted = button.Ascending;
                 if (button.Ascending) ShipSL.Sort(sortPredicate);

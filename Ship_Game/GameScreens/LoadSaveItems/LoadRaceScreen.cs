@@ -21,7 +21,7 @@ namespace Ship_Game
             }
             else
             {
-                GameAudio.PlaySfxAsync("UI_Misc20");
+                GameAudio.NegativeClick();
             }
             ExitScreen();
         }
