@@ -394,6 +394,30 @@ namespace Ship_Game
 
         #region Handle Inputs
 
+        void Build(Building b)
+        {
+            P.AddBuildingToCQ(b, true);
+            ResetLists(); // @note we reset because most buildings are single-use
+            GameAudio.AcceptClick();
+        }
+
+        void Build(Ship ship)
+        {
+            P.ConstructionQueue.Add(new QueueItem(P)
+            {
+                isShip = true, sData = ship.shipData, Cost = ship.GetCost(P.Owner), productionTowards = 0f
+            });
+            GameAudio.AcceptClick();
+        }
+
+        void Build(Troop troop)
+        {
+            P.ConstructionQueue.Add(new QueueItem(P)
+            {
+                isTroop = true, troopType = troop.Name, Cost = troop.ActualCost, productionTowards = 0f
+            });
+            GameAudio.AcceptClick();
+        }
 
         void HandleBuildListClicks(InputState input)
         {
@@ -409,43 +433,17 @@ namespace Ship_Game
                     Selector = e.CreateSelector();
 
                     if (input.LeftMouseHeldDown && e.item is Building && ActiveBuildingEntry == null)
-                    {
                         ActiveBuildingEntry = e;
-                    }
 
                     if (input.LeftMouseReleased)
                     {
                         if (ClickTimer >= TimerDelay)
-                        {
                             ClickTimer = 0f;
-                        }
                         else if (!e.WasPlusHovered(input))
                         {
-                            var qi = new QueueItem(P);
-                            if (e.TryGet(out Ship ship))
-                            {
-                                qi.isShip = true;
-                                qi.sData = ship.shipData;
-                                qi.Cost = ship.GetCost(P.Owner);
-                                qi.productionTowards = 0f;
-                                P.ConstructionQueue.Add(qi);
-                                GameAudio.AcceptClick();
-                            }
-                            else if (e.TryGet(out Troop troop))
-                            {
-                                qi.isTroop = true;
-                                qi.troopType = troop.Name;
-                                qi.Cost = ResourceManager.GetTroopCost(troop.Name);
-                                qi.productionTowards = 0f;
-                                P.ConstructionQueue.Add(qi);
-                                GameAudio.AcceptClick();
-                            }
-                            else if (e.TryGet(out Building building))
-                            {
-                                P.AddBuildingToCQ(building, true);
-                                ResetLists(); // @note we reset because most buildings are single-use
-                                GameAudio.AcceptClick();
-                            }
+                            if      (e.TryGet(out Building b)) Build(b);
+                            else if (e.TryGet(out Ship ship))  Build(ship);
+                            else if (e.TryGet(out Troop t))    Build(t);
                         }
                     }
                 }
@@ -455,28 +453,9 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(51);
                     if (input.LeftMouseClick)
                     {
-                        var qi = new QueueItem(P);
-                        if (e.item is Building building)
-                        {
-                            P.AddBuildingToCQ(building, true);
-                            ResetLists(); // @note we reset because most buildings are single-use
-                        }
-                        else if (e.item is Ship ship)
-                        {
-                            qi.isShip = true;
-                            qi.sData = ship.shipData;
-                            qi.Cost = ship.GetCost(P.Owner);
-                            qi.productionTowards = 0f;
-                            P.ConstructionQueue.Add(qi);
-                        }
-                        else if (e.item is Troop troop)
-                        {
-                            qi.isTroop = true;
-                            qi.troopType = troop.Name;
-                            qi.Cost = ResourceManager.GetTroopCost(troop.Name);
-                            qi.productionTowards = 0f;
-                            P.ConstructionQueue.Add(qi);
-                        }
+                        if      (e.item is Building b) Build(b);
+                        else if (e.item is Ship ship)  Build(ship);
+                        else if (e.item is Troop t)    Build(t);
                     }
                 }
 
@@ -487,7 +466,7 @@ namespace Ship_Game
                     {
                         var sdScreen = new ShipDesignScreen(Empire.Universe, eui);
                         ScreenManager.AddScreen(sdScreen);
-                        sdScreen.ChangeHull((e.item as Ship).shipData);
+                        sdScreen.ChangeHull(e.Get<Ship>().shipData);
                     }
                 }
             }
