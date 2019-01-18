@@ -235,7 +235,7 @@ namespace Ship_Game
                 buildstuff.TetherTarget = TargetPlanet;
             }
             EmpireManager.Player.GetEmpireAI().Goals.Add(buildstuff);
-            GameAudio.PlaySfxAsync("echo_affirm");
+            GameAudio.EchoAffirmative();
             lock (GlobalStats.ClickableItemLocker)
             {
                 screen.UpdateClickableItems();

@@ -33,7 +33,7 @@ namespace Ship_Game
             if (Direction < 0f && animWithOffset.AlmostEqual(0f) ||
                 Direction > 0f && animWithOffset.AlmostEqual(1f))
             {
-                GameAudio.PlaySfxAsync("blip_click"); // effect finished!
+                GameAudio.BlipClick(); // effect finished!
 
                 return true;
             }

@@ -775,7 +775,7 @@ namespace Ship_Game
                 Hovered = Rect.HitTest(mousePos);
 
                 if (!wasHovered && Hovered)
-                    GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                    GameAudio.ButtonMouseOver();
 
                 return Hovered;
             }

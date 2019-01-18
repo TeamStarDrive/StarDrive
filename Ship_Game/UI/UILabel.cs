@@ -138,13 +138,13 @@ namespace Ship_Game
                 if (OnClick != null)
                 {
                     if (!IsMouseOver)
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                        GameAudio.ButtonMouseOver();
 
                     IsMouseOver = true;
 
                     if (input.InGameSelect)
                     {
-                        GameAudio.PlaySfxAsync("blip_click");
+                        GameAudio.BlipClick();
                         OnClick(this);
                     }
                 }

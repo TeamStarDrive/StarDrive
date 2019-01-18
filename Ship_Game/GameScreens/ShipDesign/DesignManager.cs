@@ -85,7 +85,7 @@ namespace Ship_Game
                     if (input.LeftMouseClick)
                     {
                         EnterNameArea.Text = ((Ship)e.item).Name;
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                     }
                 }
             }
@@ -146,7 +146,7 @@ namespace Ship_Game
 
         private void OverWriteAccepted(object sender, EventArgs e)
         {
-            GameAudio.PlaySfxAsync("echo_affirm1");
+            GameAudio.AffirmativeClick();
             screen?.SaveShipDesign(EnterNameArea.Text);
 
             Empire emp = EmpireManager.Player;
@@ -198,7 +198,7 @@ namespace Ship_Game
                 ScreenManager.AddScreen(messageBox);
                 return;
             }
-            GameAudio.PlaySfxAsync("echo_affirm1");
+            GameAudio.AffirmativeClick();
             screen?.SaveShipDesign(EnterNameArea.Text);
             ExitScreen();
         }

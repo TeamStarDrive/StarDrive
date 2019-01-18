@@ -195,7 +195,7 @@ namespace Ship_Game
                         GameAudio.NegativeClick();                        
                         return true;
                     }
-                    GameAudio.PlaySfxAsync("sd_troop_takeoff");
+                    GameAudio.TroopTakeOff();
                     
                     using (pgs.TroopsHere.AcquireWriteLock())
                         if (pgs.TroopsHere.Count > 0) pgs.TroopsHere[0].Launch();

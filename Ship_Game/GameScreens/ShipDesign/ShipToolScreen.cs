@@ -353,7 +353,7 @@ namespace Ship_Game
                 {
                     if (!button.Hover)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                        GameAudio.ButtonMouseOver();
                     }
                     button.Hover = true;
                     if (button.HasToolTip)
@@ -362,7 +362,7 @@ namespace Ship_Game
                     }
                     if (input.InGameSelect)
                     {
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                         SetRestrictionFromText(button.Action);
                     }
                 }
@@ -572,7 +572,7 @@ namespace Ship_Game
 
         public void SetActiveModule(ShipModule mod)
         {
-            GameAudio.PlaySfxAsync("smallservo");
+            GameAudio.SmallServo();
             ActiveModule = mod;
         }
 

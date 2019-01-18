@@ -429,7 +429,7 @@ namespace Ship_Game
                                 qi.Cost = ship.GetCost(P.Owner);
                                 qi.productionTowards = 0f;
                                 P.ConstructionQueue.Add(qi);
-                                GameAudio.ButtonClick();
+                                GameAudio.AcceptClick();
                             }
                             else if (e.TryGet(out Troop troop))
                             {
@@ -438,13 +438,13 @@ namespace Ship_Game
                                 qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                                 qi.productionTowards = 0f;
                                 P.ConstructionQueue.Add(qi);
-                                GameAudio.ButtonClick();
+                                GameAudio.AcceptClick();
                             }
                             else if (e.TryGet(out Building building))
                             {
                                 P.AddBuildingToCQ(building, true);
                                 ResetLists(); // @note we reset because most buildings are single-use
-                                GameAudio.ButtonClick();
+                                GameAudio.AcceptClick();
                             }
                         }
                     }
@@ -569,7 +569,7 @@ namespace Ship_Game
                             QueueItem item = P.ConstructionQueue[i - 1];
                             P.ConstructionQueue[i - 1] = P.ConstructionQueue[i];
                             P.ConstructionQueue[i] = item;
-                            GameAudio.ButtonClick();
+                            GameAudio.AcceptClick();
                         }
                     }
                     else if (i > 0)
@@ -577,7 +577,7 @@ namespace Ship_Game
                         QueueItem item = P.ConstructionQueue[i];
                         P.ConstructionQueue.Remove(item);
                         P.ConstructionQueue.Insert(0, item);
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                         break;
                     }
                 }
@@ -592,7 +592,7 @@ namespace Ship_Game
                             QueueItem item = P.ConstructionQueue[i + 1];
                             P.ConstructionQueue[i + 1] = P.ConstructionQueue[i];
                             P.ConstructionQueue[i] = item;
-                            GameAudio.ButtonClick();
+                            GameAudio.AcceptClick();
                         }
                     }
                     else if (i + 1 < QSL.NumExpandedEntries)
@@ -600,7 +600,7 @@ namespace Ship_Game
                         QueueItem item = P.ConstructionQueue[i];
                         P.ConstructionQueue.Remove(item);
                         P.ConstructionQueue.Insert(0, item);
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                         break;
                     }
                 }
@@ -611,7 +611,8 @@ namespace Ship_Game
                     {
                         if (input.LeftMouseClick)
                         {
-                            GameAudio.PlaySfxAsync(P.ApplyStoredProduction(i) ? "sd_ui_accept_alt3" : "UI_Misc20");
+                            if (P.ApplyStoredProduction(i)) GameAudio.AcceptClick();
+                            else                            GameAudio.NegativeClick();
                         }
                     }
                     else if (P.ProdHere == 0f)
@@ -621,7 +622,7 @@ namespace Ship_Game
                     else
                     {
                         P.ApplyAllStoredProduction(i);
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                     }
                 }
 
@@ -647,7 +648,7 @@ namespace Ship_Game
                     }
 
                     P.ConstructionQueue.Remove(item);
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                 }
                 ++i;
             }

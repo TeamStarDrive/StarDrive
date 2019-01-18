@@ -250,7 +250,7 @@ namespace Ship_Game
                 tab.Hover = true;
                 if (input.LeftMouseClick)
                 {
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     tab.Selected = true;
                     foreach (Tab otherTab in Tabs)
                         if (otherTab != tab) otherTab.Selected = false;
@@ -274,7 +274,7 @@ namespace Ship_Game
                     tab.Hover = true;
                     if (input.LeftMouseClick)
                     {
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                         tab.Selected = true;
                         foreach (Tab t1 in Tabs)
                         {

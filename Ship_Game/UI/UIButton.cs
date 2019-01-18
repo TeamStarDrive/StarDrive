@@ -164,7 +164,7 @@ namespace Ship_Game
             }
 
             if (State != PressState.Hover && State != PressState.Pressed)
-                GameAudio.PlaySfxAsync("mouse_over4");
+                GameAudio.SystemClick();
 
             if (State == PressState.Pressed && input.LeftMouseReleased)
             {

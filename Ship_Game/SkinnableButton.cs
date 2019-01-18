@@ -76,7 +76,7 @@ namespace Ship_Game
                 Hover = true;
                 if (input.InGameSelect)
                 {
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     if (IsToggle)
                     {
                         Toggled = !Toggled;

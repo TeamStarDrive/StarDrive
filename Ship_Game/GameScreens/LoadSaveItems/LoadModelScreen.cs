@@ -106,7 +106,7 @@ namespace Ship_Game
         {
             try
             {
-                GameAudio.ButtonClick();
+                GameAudio.AcceptClick();
 
                 string relativePath = modelData.FileInfo.RelPath().Replace("Content\\", "");
                 screen.LoadModel(relativePath);

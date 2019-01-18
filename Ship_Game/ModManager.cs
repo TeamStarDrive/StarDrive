@@ -122,7 +122,7 @@ namespace Ship_Game
                 if (!input.InGameSelect)
                     continue;
 
-                GameAudio.ButtonClick();
+                GameAudio.AcceptClick();
                 SelectedMod = (ModEntry)e.item;
                 EnterNameArea.Text = SelectedMod.ModName;
                 Visit.Text = SelectedMod.mi.URL.IsEmpty() ? Localizer.Token(4015) : "Goto Mod URL";

@@ -865,7 +865,7 @@ namespace Ship_Game
                 }
                 if (PlayerDesignsToggle.HandleInput(input) && !input.LeftMouseReleased)
                 {
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     GlobalStats.ShowAllDesigns = !GlobalStats.ShowAllDesigns;
                     PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
                     ResetLists();
@@ -904,7 +904,7 @@ namespace Ship_Game
                 {
                     if (!pgs.highlighted)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                        GameAudio.ButtonMouseOver();
                     }
 
                     pgs.highlighted = true;
@@ -916,7 +916,7 @@ namespace Ship_Game
                 DetailInfo = pgs.TroopsHere[0];
                 if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.Player)
                 {
-                    GameAudio.PlaySfxAsync("sd_troop_takeoff");
+                    GameAudio.TroopTakeOff();
                     Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.TroopsHere[0]);
                     P.TroopsHere.Remove(pgs.TroopsHere[0]);
                     pgs.TroopsHere[0].SetPlanet(null);
@@ -1060,7 +1060,7 @@ namespace Ship_Game
                 if (foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     foodDropDown.Toggle();
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
                     if (P.FS > Planet.GoodState.EXPORT)
                         P.FS = Planet.GoodState.STORE;
@@ -1069,7 +1069,7 @@ namespace Ship_Game
                 if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     prodDropDown.Toggle();
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
                     if (P.PS > Planet.GoodState.EXPORT)
                         P.PS = Planet.GoodState.STORE;
@@ -1098,7 +1098,7 @@ namespace Ship_Game
 
             if (troopShips.Count > 0)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 troopShips.First().AI.OrderRebase(P, true);
             }
             else if (planetTroops.Count > 0)
@@ -1109,14 +1109,14 @@ namespace Ship_Game
                     Ship troop = troops.First().Launch();
                     if (troop != null)
                     {
-                        GameAudio.PlaySfxAsync("echo_affirm");
+                        GameAudio.EchoAffirmative();
                         troop.AI.OrderRebase(P, true);
                     }
                 }
             }
             else
             {
-                GameAudio.PlaySfxAsync("blip_click");
+                GameAudio.BlipClick();
             }
         }
 
@@ -1139,7 +1139,7 @@ namespace Ship_Game
 
             if (play)
             {
-                GameAudio.PlaySfxAsync("sd_troop_takeoff");
+                GameAudio.TroopTakeOff();
             }
         }
 

@@ -521,7 +521,7 @@ namespace Ship_Game
                 {
                     if (SelectedPlanet != entry.p)
                     {
-                        GameAudio.ButtonClick();
+                        GameAudio.AcceptClick();
                         SelectedPlanet = entry.p;
                         GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
                         SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
@@ -545,7 +545,7 @@ namespace Ship_Game
 
             if (input.KeysCurr.IsKeyDown(Keys.U) && !input.KeysPrev.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }                

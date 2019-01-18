@@ -104,13 +104,13 @@ namespace Ship_Game
                 {
                     if (((ResearchQItem)e.item).HandleInput(input))
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_research_select");
+                        GameAudio.ResearchSelect();
                         break;
                     }
                 }
 				if (CurrentResearch != null && CurrentResearch.HandleInput(input))
 				{
-					GameAudio.PlaySfxAsync("sd_ui_research_select");
+					GameAudio.ResearchSelect();
 				}
 				if (ShowQueue.HandleInput(input))
 				{

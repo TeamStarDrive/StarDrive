@@ -222,7 +222,7 @@ namespace Ship_Game
                 if (Open && Options.Count == 1)
                     Open = false;
 
-                if (Open) GameAudio.ButtonClick();
+                if (Open) GameAudio.AcceptClick();
                 Reset();
                 return true;
             }
@@ -242,7 +242,7 @@ namespace Ship_Game
                     if (PropertyRef != null)
                         PropertyRef.Value = ActiveValue;
 
-                    GameAudio.ButtonClick();
+                    GameAudio.AcceptClick();
                     Open = false;
                     Reset();
                     return true;
