@@ -206,9 +206,9 @@ namespace Ship_Game
 
         public bool AssignBuildingToTile(Building b, ref PlanetGridSquare where, Planet planet)
         {
-            // looks like we already have a valid spot assigned?
-            if (where != null && where.CanBuildHere(b))
-                return true;
+            // only validate the location
+            if (where != null)
+                return where.CanBuildHere(b);
             PlanetGridSquare[] freeSpots = planet.TilesList.Filter(pgs => pgs.CanBuildHere(b));
             if (freeSpots.Length > 0)
                 where = RandomMath.RandItem(freeSpots);

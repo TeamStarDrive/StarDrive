@@ -107,11 +107,6 @@ namespace Ship_Game
                 return true;    
             }
 
-            if (CurrentButton != null)
-            {
-                CurrentButton.State = UIButton.PressState.Pressed;
-                return false;
-            }
             ModsSL.HandleInput(input);
             foreach (ScrollList.Entry e in ModsSL.AllEntries)
             {

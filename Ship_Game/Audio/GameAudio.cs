@@ -222,7 +222,7 @@ namespace Ship_Game
 
         public static void NegativeClick()    => PlaySfxAsync("UI_Misc20"); // "eek-eek"
         public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1"); // soft "bubble" affirm
-        public static void SystemClick()      => PlaySfxAsync("mouse_over4");  // very soft "bumble"
+        public static void MouseOver()        => PlaySfxAsync("mouse_over4");  // very soft "bumble"
         public static void ShipClicked()      => PlaySfxAsync("techy_affirm1"); // "chu-duk"
         public static void FleetClicked()     => PlaySfxAsync("techy_affirm1");
         public static void PlanetClicked()    => PlaySfxAsync("techy_affirm1");
