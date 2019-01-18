@@ -65,8 +65,9 @@ namespace Ship_Game
                     score = 0;   //Dont want this if a lot would go to waste
 
                 float jumpStart = 10 * (1 - PopulationRatio)  - Food.NetMaxPotential * Food.Percent; // FB - jump start a new colony
-                if (b.PlusFoodPerColonist > 0 && jumpStart < 0)
-                    jumpStart = 0; // don't go all negative if the building also has per colonist yield
+                jumpStart = Math.Max(jumpStart, 0);
+                /*if (b.PlusFoodPerColonist > 0 && jumpStart < 0)
+                    jumpStart = 0; // don't go all negative if the building also has per colonist yield*/
 
                 score += jumpStart; // FB - jump start a new colony, as the colony grows, it will get negative and scrapped
             }
@@ -110,8 +111,9 @@ namespace Ship_Game
                     score = b.PlusFlatProductionAmount * 0.1f; //A little production is always useful
 
                 float jumpStart = 15 * (1 - popRatio) - Prod.NetMaxPotential * Prod.Percent; // FB - jump start a new colony
-                if (b.PlusProdPerColonist > 0 && jumpStart < 0)
-                    jumpStart = 0; // don't go all negative if the building also has per colonist yield
+                jumpStart = Math.Max(jumpStart, 0);
+                /*if (b.PlusProdPerColonist > 0 && jumpStart < 0)
+                    jumpStart = 0; // don't go all negative if the building also has per colonist yield*/
                         
                 score += jumpStart; 
             }
@@ -363,14 +365,14 @@ namespace Ship_Game
             //but never disqualify a building that had a positive score to begin with. -Gretman
             // FB - so highest cost building will get a factor of 0 (this is a multiplier) and the lowest cost building will get a factor of 1.
             // A building with a cost of 1/4 from the highest cost will get a factor of 0.75 to its score and so on.
-            highestCost = highestCost.Clamped(50, 200);
+            highestCost = highestCost.Clamped(50, 250);
             float factor = (1f - cost / highestCost).Clamped(0.01f, 1.0f); // so highest cost building will get a factor of 0 (this is a multiplier). 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.DarkGray,$"--- Construction Factor phase 1: {factor}");
 
             // FB- this is a very powerful factor. So i added the factor's strength based on population. It will be used fully when the pop is low
             // and it wont used at all when the planet has full pop. So the planet can build expensive buildings as well
-            factor = 1 - (1 - (PopulationBillion / 15).Clamped(0,1)) * factor;
+            factor = (1 - PopulationBillion / 15).Clamped(0,1) * factor;
             if (IsPlanetExtraDebugTarget())
             {
                 Log.Info(ConsoleColor.DarkGray, $"--- Construction Factor phase 2: {factor}");
@@ -449,14 +451,17 @@ namespace Ship_Game
                              + b.PlusFoodPerColonist * Fertility * 2
                              + b.MaxPopIncrease / 1000 * 0.5f
                              + b.PlusFlatProductionAmount // some flat production as most people will be farming
-                             -b.MinusFertilityOnBuild * 20; // we dont want reducing fertility and we really want improving it
+                             + b.PlusFlatPopulation / 5
+                             - b.MinusFertilityOnBuild * 20; // we dont want reducing fertility and we really want improving it
                     break;
                 case ColonyType.Core:
                     score += 1; // Core governors are open to different building functions
                     score += + b.CreditsPerColonist * 5
                              + b.PlusTaxPercentage * 10
                              + b.MaxPopIncrease / 1000 * 2
-                             + b.PlusFlatPopulation / 10
+                             + b.PlusFlatPopulation / 5
+                             + b.PlusFlatResearchAmount / 2
+                             + b.PlusResearchPerColonist
                              - b.MinusFertilityOnBuild * 12;
                     break;
                 case ColonyType.Industrial:
@@ -471,6 +476,7 @@ namespace Ship_Game
                     score += b.PlusResearchPerColonist * 4
                              + b.MaxPopIncrease / 1000
                              + b.PlusFlatResearchAmount * 2
+                             + b.PlusFlatPopulation / 10
                              - b.MinusFertilityOnBuild * 10;
                     break;
                 case ColonyType.Military:
@@ -653,7 +659,7 @@ namespace Ship_Game
         {
             Building bio = GetBiospheresWeCanBuild;
             if (bio != null && !BiosphereInTheWorks && totalBuildings < MaxBuildings
-                && bio.Maintenance < budget + 0.3f) //No habitable tiles, and not too much in debt
+                && bio.Maintenance < budget) // No habitable tiles and within budget
             {
                 if (IsPlanetExtraDebugTarget())
                     Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
@@ -662,18 +668,52 @@ namespace Ship_Game
             return bio != null;
         }
 
-        bool ScrapBuilding(float budget, float popRatio, float scoreThreshold = float.MaxValue)
+        bool ScrapBuilding(float budget, float scoreThreshold = float.MaxValue)
         {
             Building worstBuilding = ChooseWorstBuilding(BuildingList, budget, out float worstWeHave, scoreThreshold);
-            if (worstBuilding != null)
-            {
-                Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} SCRAPPED {worstBuilding.Name} on planet {Name}   value: {worstWeHave}");
-                worstBuilding.ScrapBuilding(this); // scrap the worst building  we have on the planet
-            }
-            return worstBuilding != null;
+            if (worstBuilding == null)
+                return false;
+
+            Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} SCRAPPED {worstBuilding.Name} on planet {Name}   value: {worstWeHave}");
+            worstBuilding.ScrapBuilding(this); // scrap the worst building  we have on the planet
+            return true;
         }
 
-        void BuildandScrapBuildings(float budget)
+        bool ReplaceBuilding(float budget, float popRatio)
+        {
+            if (BuildingInTheWorks)
+                return false;
+
+            Building bestBuilding  = ChooseBestBuilding(BuildingsCanBuild, budget, popRatio, out float bestValue);
+            Building worstBuilding = ChooseWorstBuilding(BuildingList, budget, out float worstValue, float.MaxValue);
+            if (bestBuilding == null || worstBuilding == null || bestValue.LessOrEqual(worstValue))
+                return false;
+
+            // the best building we can build is better than the worst building we have, let's replace it if the military approves
+            if (!MilitaryApprovesReplacement(worstBuilding, bestBuilding))
+                return false; // No approval from the military
+            Log.Info(ConsoleColor.Cyan, $"{Owner.PortraitName} REPLACED {worstBuilding.Name} on planet {Name}" +
+                                        $" value: {worstValue} with {bestBuilding.Name} value: {bestValue}");
+            worstBuilding.ScrapBuilding(this);
+            AddBuildingToCQ(bestBuilding);
+            return true;
+        }
+
+        bool MilitaryApprovesReplacement(Building toScrap, Building toBuild)  // by FB
+        {
+            if (!toScrap.IsMilitary)
+                return true; // Military does not interfere with cilivian buildings
+
+            if (toScrap.IsMilitary && toBuild.IsMilitary)
+                return true; // Military always likes to upgrade it's buildings
+
+            if (DesiredMilitaryBuildings < ExistingMilitaryBuildings)
+                return true; // Militray has too many buildings (probably after Recent Combat)
+
+            return false; //Military won't replace it's buildings with civilian ones
+        }
+
+        void BuildAndScrapBuildings(float budget)
         {
             int totalBuildings       = TotalBuildings;
             float popRatio           = PopulationRatio;
@@ -689,14 +729,15 @@ namespace Ship_Game
                 return; 
             }
 
-            ScrapBuilding(budget, popRatio, scoreThreshold: 0); // scap a negative value building
+            ScrapBuilding(budget,  scoreThreshold: 0); // scap a negative value building
             if (OpenTiles > 0)
             {
                 SimpleBuild(budget, popRatio); // lets try to build something within our debt tolerance
                 return;
             }
 
-            BuildBiospheres(budget, totalBuildings); // lets build biospheres if we, can since we have no open tiles
+            BuildBiospheres(budget, totalBuildings); // lets build biospheres if we can, since we have no open tiles
+            ReplaceBuilding(budget, popRatio); // we dont have room for expansion. Let's see if we can replace to a better value building
         }
 
         void BuildShipyardIfAble()
