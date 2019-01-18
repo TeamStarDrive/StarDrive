@@ -879,9 +879,6 @@ namespace Ship_Game
         {
             RemoveObject(shipSO);
 
-            if (Empire.Universe?.LookingAtPlanet == true && Empire.Universe.workersPanel is ColonyScreen colonyScreen)
-                colonyScreen.Reset = true;
-
             // this should go some where else, need to find it a home
             ScreenManager.RemoveScreen(this);
             base.ExitScreen();

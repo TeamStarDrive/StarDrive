@@ -2725,7 +2725,10 @@ namespace Ship_Game.Ships
             PackDamageModifier = modifier.Clamped(-0.25f, 0.5f);
         }
 
-        public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
+        // prefers VanityName, otherwise uses Name
+        public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
+
+        public override string ToString() => $"Ship Id={Id} '{ShipName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
@@ -2749,6 +2752,17 @@ namespace Ship_Game.Ships
             if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
                 return goodPower;
             return false;
+        }
+
+        public bool IsBuildableByPlayer
+        {
+            get
+            {
+                ShipRole role = shipData.ShipRole;
+                return  !shipData.CarrierShip && !Deleted
+                    && !role.Protected && !role.NoBuild 
+                    && (GlobalStats.ShowAllDesigns || IsPlayerDesign);
+            }
         }
 
         public bool ShipGoodToBuild(Empire empire)

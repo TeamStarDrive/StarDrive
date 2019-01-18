@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Ship_Game.Gameplay;
@@ -129,7 +130,7 @@ namespace Ship_Game
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
 
-        public Array<Building> GetBuildingsCanBuild () { return BuildingsCanBuild; }
+        public IReadOnlyList<Building> GetBuildingsCanBuild () { return BuildingsCanBuild; }
 
 
         protected void SetTileHabitability(float habChance)

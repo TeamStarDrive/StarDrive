@@ -803,6 +803,9 @@ namespace Ship_Game
 
         public EconomicResearchStrategy GetResStrat() => economicResearchStrategy;
 
+        public string[] GetTroopsWeCanBuild() => UnlockedTroopDict.Where(kv => kv.Value)
+                                                                  .Select(kv => kv.Key).ToArray();
+
         public bool WeCanBuildTroop(string id) => UnlockedTroopDict.TryGetValue(id, out bool canBuild) && canBuild;
 
         public void UnlockEmpireShipModule(string moduleUID, string techUID = "")

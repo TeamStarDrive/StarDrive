@@ -72,7 +72,7 @@ namespace Ship_Game
             if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
                 return 0;
 
-            foreach (ShipRole.Race race in shipRole.RaceList)
+            foreach (Race race in shipRole.RaceList)
                 if (race.ShipType == owner.data.Traits.ShipType)
                     return race.Localization;
 
