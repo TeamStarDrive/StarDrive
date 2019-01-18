@@ -10,6 +10,16 @@ namespace Ship_Game.AI
 {
     public sealed class ThreatMatrix
     {
+        public class Pin
+        {
+            [Serialize(0)] public Vector2 Position;
+            [Serialize(1)] public Vector2 Velocity;
+            [Serialize(2)] public float Strength;
+            [Serialize(3)] public string EmpireName;
+            [Serialize(4)] public bool InBorders;
+            [XmlIgnore][JsonIgnore] public Ship Ship;
+        }
+
         public Map<Guid, Pin> Pins = new Map<Guid, Pin>();
         public Map<Guid, Ship> Ship = new Map<Guid, Ship>();
 
@@ -72,126 +82,35 @@ namespace Ship_Game.AI
             }
             return str;
         }
-
-        public Array<Ship> GetAllProjectorsExcept(Empire empire)
+        
+        // @todo Document this in more detail.
+        public Array<Ship> PingRadarShip(Vector2 position, float radius, Empire empire)
         {
-            var projectors = new Array<Ship>();
-            foreach (var kv in Pins.Values.ToArray())
-            {
-                if (kv.EmpireName == string.Empty || kv.Ship == null) continue;
-                if (kv.Ship?.Name != "Subspace Projector") continue;                
-                Empire pinEmpire = kv.Ship?.loyalty ?? EmpireManager.GetEmpireByName(kv.EmpireName);
-                if (pinEmpire == empire) continue;
-                projectors.Add(kv.Ship);
-            }
-            return projectors;
-        }
-
-        public Vector2 GetPositionOfNearestEnemyWithinRadius(Vector2 position, float radius, Empire us)
-        {
-            var enemies = new Array<Pin>();
-            foreach (var kv in Pins)
-            {
-                Empire pinEmpire = kv.Value.Ship?.loyalty ?? EmpireManager.GetEmpireByName(kv.Value.EmpireName);
-                if (!us.IsEmpireAttackable(pinEmpire) || position.OutsideRadius(kv.Value.Position , radius))				
-                    continue;
-                
-                enemies.Add(kv.Value);
-            }
-            return enemies.Count == 0 ? Vector2.Zero : enemies.FindMin(ene => ene.Ship.Center.SqDist(position)).Ship.Center;
-        }
-
-        public Array<Pin> PingRadar(Vector2 position, float radius)
-        {
-            var retList = new Array<Pin>();
-            foreach (var kv in Pins)
-            {
-                if (position.OutsideRadius(kv.Value.Position, radius)) continue;
-                
-                retList.Add(kv.Value);
-            }
-            return retList;
-        }
-      
-        public Array<GameplayObject> PingRadarObj(Vector2 position, float radius)
-        {
-            var retList = new Array<GameplayObject>();
-            foreach (var kv in Pins)
-            {
-                if (position.OutsideRadius(kv.Value.Position, radius)) continue;
-                
-                retList.Add(kv.Value.Ship);
-            }
-            return retList;
-        }
-        public Array<Ship> PingRadarShip(Vector2 position, float radius)
-        {
-            Array<Ship> retList = new Array<Ship>();
-            foreach (var kv in Pins)
-            {
-                if (position.OutsideRadius(kv.Value.Position, radius)) continue;
-  
-                retList.Add(kv.Value.Ship);
-            }
-            return retList;
-        }
-        public Array<Ship> PingRadarShip(Vector2 position, float radius,Empire empire)
-        {
-            Array<Ship> retList = new Array<Ship>();
-            foreach (var kv in Pins)
+            var results = new Array<Ship>();
+            foreach (KeyValuePair<Guid, Pin> kv in Pins)
             {                                
                 Ship ship = kv.Value.Ship;
-                if (ship == null) continue;
-
-                if (!empire.IsEmpireAttackable(ship.loyalty, ship)) continue;
-                if (position.OutsideRadius(kv.Value.Position, radius)) continue;
-                retList.Add(kv.Value.Ship);
-                
+                if (ship != null && empire.IsEmpireAttackable(ship.loyalty, ship) &&
+                    position.InRadius(kv.Value.Position, radius))
+                {
+                    results.Add(kv.Value.Ship);
+                }
             }
-            return retList;
+            return results;
         }
-        public Map<Vector2, Ship[]> PingRadarShipClustersByVector(Vector2 position, float radius, float granularity,Empire empire, bool truePosition = false)
-        {
-            var retList = new Map<Vector2, Ship[]>();
-            Array<Ship> pings = PingRadarShip(position,radius,empire);
-            HashSet<Ship > filter = new HashSet<Ship>();
-            
-            foreach(Ship ship in pings)
-            {
-                if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
-                    continue;
-                if (position.Distance(ship.Center) > radius) continue;
-                Array<Ship> cluster = PingRadarShip(ship.Center, granularity,empire);
-                if (cluster.Count == 0)
-                    continue;
-                retList.Add(ship.Center, cluster.ToArray());                
-                filter.UnionWith(cluster);
 
-            }
-            return retList;
-
-        }
-        public Map<Ship, Ship[]> PingRadarShipClustersByShip(Vector2 position, float radius, float granularity, Empire empire)
+        // Pings for enemy ships, chooses the closest enemy ship
+        // and then pings around that ship to create a cluster of enemies
+        public Array<Ship> PingRadarClosestEnemyCluster(Vector2 position, float radius, float granularity, Empire empire)
         {
-            var retList = new Map<Ship, Ship[]>();
             Array<Ship> pings = PingRadarShip(position, radius, empire);
-            var filter = new HashSet<Ship>();
+            if (pings.IsEmpty)
+                return pings;
 
-            foreach (Ship ship in pings)
-            {
-                if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship))
-                    continue;
-
-                Array<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
-                if (cluster.Count == 0) continue;
-
-                retList.Add(ship, cluster.ToArray());
-                filter.UnionWith(cluster);
-
-            }
-            return retList;
-
+            Ship closest = pings.FindMin(ship => ship.Position.SqDist(position));
+            return PingRadarShip(closest.Center, granularity, empire);
         }
+
         public Map<Vector2, float> PingRadarStrengthClusters(Vector2 position, float radius, float granularity, Empire empire)
         {
             var retList = new Map<Vector2, float>();
@@ -264,25 +183,6 @@ namespace Ship_Game.AI
             return largestCluster;
 
         }
-        
-        public Vector2 PingRadarAvgPos(Vector2 position, float radius, Empire us)
-        {
-            var pos = new Vector2();
-            int count = 0;
-            foreach (var kv in Pins)
-            {
-                Empire pinEmpire = kv.Value.Ship?.loyalty ?? EmpireManager.GetEmpireByName(kv.Value.EmpireName);
-                if (pinEmpire == us || position.OutsideRadius(kv.Value.Position, radius) || !us.IsEmpireAttackable(pinEmpire))
-                    continue;
-
-                ++count;
-                pos += kv.Value.Position;
-            }
-            if (count > 0)
-                pos /= count;
-            return pos;
-        }
-
 
         public void ClearPinsInSensorRange(Vector2 position, float radius)
         {
@@ -295,6 +195,7 @@ namespace Ship_Game.AI
                 UpdatePin(ship, pin.InBorders, insensor);            
             }
         }
+
         public float PingRadarStr(Vector2 position, float radius, Empire us, bool factionOnly , bool any = false)
         {
             float str = 0f;
@@ -309,8 +210,8 @@ namespace Ship_Game.AI
             }
             return str;
         }
+
         public float PingRadarStr(Vector2 position, float radius, Empire us) => PingRadarStr(position, radius, us, false);
-        public float PingRadarAny(Vector2 position, float radius, Empire us) => PingRadarStr(position, radius, us, false, true);
 
         public void UpdatePin(Ship ship)
         {
@@ -334,6 +235,7 @@ namespace Ship_Game.AI
             pin.Velocity = ship.Center - pin.Position;
             pin.Position = ship.Center;
         }
+
         public void UpdatePin(Ship ship, bool shipinBorders, bool inSensorRadius)
         {           
             Pins.TryGetValue(ship.guid, out Pin pin);
@@ -361,6 +263,7 @@ namespace Ship_Game.AI
                 pin.Ship      = ship;
             }
         }
+
         public bool RemovePin(Ship ship) => (Pins.Remove(ship.guid));
 
         public void ClearBorders ()
@@ -373,52 +276,10 @@ namespace Ship_Game.AI
                     kv.Value.InBorders = false;
             }
         }
-        public void UpdatePinShip(Ship s, Guid guid)
-        {
-            if (!s.Active)
-            {
-                Pins.Remove(guid);
-            }
-            else if (!Pins.TryGetValue(s.guid, out Pin pin))
-            {
-                Pins.Add(s.guid, new Pin
-                {
-                    Position   = s.Center,
-                    Strength   = s.GetStrength(),
-                    EmpireName = s.loyalty.data.Traits.Name
-                });
-            }
-            else
-            {
-                pin.Velocity = s.Center - pin.Position;
-                pin.Position = s.Center;
-            }
-
-        }
 
         public bool ShipInOurBorders(Ship s)
         {
             return Pins.TryGetValue(s.guid, out Pin pin) && pin.InBorders;
-        }
-
-        public Array<Ship> FindShipsInOurBorders()
-        {
-            var temp = new Array<Ship>();
-            foreach (Pin p in Pins.Values)
-               if (p.InBorders && p.Ship != null)
-                   temp.Add(p.Ship);
-            return temp;
-        }        
-
-        public class Pin
-        {
-            [Serialize(0)] public Vector2 Position;
-            [Serialize(1)] public Vector2 Velocity;
-            [Serialize(2)] public float Strength;
-            [Serialize(3)] public string EmpireName;
-            [Serialize(4)] public bool InBorders;
-
-            [XmlIgnore][JsonIgnore] public Ship Ship;
         }
     }
 }
