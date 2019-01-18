@@ -66,8 +66,6 @@ namespace Ship_Game
 
                 float jumpStart = 10 * (1 - PopulationRatio)  - Food.NetMaxPotential * Food.Percent; // FB - jump start a new colony
                 jumpStart = Math.Max(jumpStart, 0);
-                /*if (b.PlusFoodPerColonist > 0 && jumpStart < 0)
-                    jumpStart = 0; // don't go all negative if the building also has per colonist yield*/
 
                 score += jumpStart; // FB - jump start a new colony, as the colony grows, it will get negative and scrapped
             }
@@ -112,8 +110,6 @@ namespace Ship_Game
 
                 float jumpStart = 15 * (1 - popRatio) - Prod.NetMaxPotential * Prod.Percent; // FB - jump start a new colony
                 jumpStart = Math.Max(jumpStart, 0);
-                /*if (b.PlusProdPerColonist > 0 && jumpStart < 0)
-                    jumpStart = 0; // don't go all negative if the building also has per colonist yield*/
                         
                 score += jumpStart; 
             }
