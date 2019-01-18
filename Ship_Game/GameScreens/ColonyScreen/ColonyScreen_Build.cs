@@ -91,7 +91,7 @@ namespace Ship_Game
 
         void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
-            if (ShouldResetBuildList<Ship>() || buildSL.NumEntries != P.GetBuildingsCanBuild().Count)
+            if (ShouldResetBuildList<Building>() || buildSL.NumEntries != P.GetBuildingsCanBuild().Count)
                 buildSL.SetItems(P.GetBuildingsCanBuild());
 
             foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
@@ -102,7 +102,7 @@ namespace Ship_Game
                 SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
 
                 bool unprofitable = !P.WeCanAffordThis(b, P.colonyType) && b.Maintenance > 0f;
-                Color buildColor = unprofitable ? Color.IndianRed : Color.White;
+                Color buildColor = unprofitable ? new Color(255,200,200) : Color.White;
                 if (entry.Hovered) buildColor = Color.White; // hover color
 
                 string descr = Localizer.Token(b.ShortDescriptionIndex) + (unprofitable ? " (unprofitable)" : "");
@@ -337,10 +337,10 @@ namespace Ship_Game
 
         void DrawConstructionQueue(SpriteBatch batch)
         {
-            QSL.SetItems(P.ConstructionQueue);
-            QSL.DrawDraggedEntry(batch);
+            CQueue.SetItems(P.ConstructionQueue);
+            CQueue.DrawDraggedEntry(batch);
 
-            foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
+            foreach (ScrollList.Entry entry in CQueue.VisibleExpandedEntries)
             {
                 entry.CheckHoverNoSound(Input.CursorPosition);
 
@@ -371,34 +371,21 @@ namespace Ship_Game
                 entry.DrawPlus(batch);
             }
 
-            QSL.Draw(batch);
+            CQueue.Draw(batch);
         }
 
-
-        void AddBuildingToConstructionQueue(Building building, PlanetGridSquare where, bool playerAdded = true)
+        bool Build(Building b, PlanetGridSquare where = null)
         {
-            var qi = new QueueItem(P)
+            if (P.AddBuildingToCQ(b, where, true))
             {
-                isBuilding = true,
-                Building = building,
-                IsPlayerAdded = playerAdded,
-                Cost = building.ActualCost,
-                productionTowards = 0f,
-                pgs = @where
-            };
-            where.QItem = qi;
-            P.ConstructionQueue.Add(qi);
-            ResetLists();
-        }
-
-
-        #region Handle Inputs
-
-        void Build(Building b)
-        {
-            P.AddBuildingToCQ(b, true);
-            ResetLists(); // @note we reset because most buildings are single-use
-            GameAudio.AcceptClick();
+                // remove building if it's unique:
+                if (b.Unique || b.BuildOnlyOnce)
+                    buildSL.RemoveFirstIf<Building>(b2 => b2 == b);
+                GameAudio.AcceptClick();
+                return true;
+            }
+            GameAudio.NegativeClick();
+            return false;
         }
 
         void Build(Ship ship)
@@ -419,119 +406,97 @@ namespace Ship_Game
             GameAudio.AcceptClick();
         }
 
-        void HandleBuildListClicks(InputState input)
+        #region Handle Inputs
+
+
+        bool HandleBuildListClicks(InputState input)
         {
             foreach (ScrollList.Entry e in buildSL.VisibleExpandedEntries)
             {
                 if (e.item is ModuleHeader header)
                 {
-                    if (header.HandleInput(input, e))
-                        break;
+                    if (header.HandleInput(input, e)) // try to open Ship category header
+                        return true;
                 }
                 else if (e.CheckHover(input))
                 {
                     Selector = e.CreateSelector();
 
-                    if (input.LeftMouseHeldDown && e.item is Building && ActiveBuildingEntry == null)
+                    if (ActiveBuildingEntry == null && input.LeftMouseHeld(0.05f) && e.item is Building)
                         ActiveBuildingEntry = e;
-
-                    if (input.LeftMouseReleased)
+                    
+                    if (e.CheckEdit(input))
                     {
-                        if (ClickTimer >= TimerDelay)
-                            ClickTimer = 0f;
-                        else if (!e.WasPlusHovered(input))
+                        ToolTip.CreateTooltip(52);
+                        if (input.LeftMouseClick)
                         {
-                            if      (e.TryGet(out Building b)) Build(b);
-                            else if (e.TryGet(out Ship ship))  Build(ship);
-                            else if (e.TryGet(out Troop t))    Build(t);
+                            var sdScreen = new ShipDesignScreen(Empire.Universe, eui);
+                            ScreenManager.AddScreen(sdScreen);
+                            sdScreen.ChangeHull(e.Get<Ship>().shipData);
+                            return true;
                         }
                     }
-                }
-
-                if (e.CheckPlus(input))
-                {
-                    ToolTip.CreateTooltip(51);
-                    if (input.LeftMouseClick)
+                    else if (e.CheckPlus(input))
                     {
-                        if      (e.item is Building b) Build(b);
-                        else if (e.item is Ship ship)  Build(ship);
-                        else if (e.item is Troop t)    Build(t);
+                        ToolTip.CreateTooltip(51);
+                        if (input.LeftMouseClick)
+                        {
+                            if      (e.item is Building b) Build(b);
+                            else if (e.item is Ship ship)  Build(ship);
+                            else if (e.item is Troop t)    Build(t);
+                            return true;
+                        }
                     }
-                }
-
-                if (e.CheckEdit(input))
-                {
-                    ToolTip.CreateTooltip(52);
-                    if (input.LeftMouseClick)
+                    else if (input.LeftMouseDoubleClick)
                     {
-                        var sdScreen = new ShipDesignScreen(Empire.Universe, eui);
-                        ScreenManager.AddScreen(sdScreen);
-                        sdScreen.ChangeHull(e.Get<Ship>().shipData);
+                        if      (e.TryGet(out Building b)) Build(b);
+                        else if (e.TryGet(out Ship ship))  Build(ship);
+                        else if (e.TryGet(out Troop t))    Build(t);
+                        return true;
                     }
+
                 }
             }
+            return false;
         }
 
-        void HandleDragBuildingOntoTile(InputState input)
+        void DrawActiveBuildingEntry(SpriteBatch batch)
         {
-            if (!(ActiveBuildingEntry?.item is Building building))
-                return;
+            if (ActiveBuildingEntry == null) return; // nothing to draw
 
-            foreach (PlanetGridSquare pgs in P.TilesList)
+            var b = ActiveBuildingEntry.Get<Building>();
+            var icon = ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48");
+            var rect = new Rectangle(Input.MouseX, Input.MouseY, icon.Width, icon.Height);
+
+            bool canBuild = P.FindTileUnderMouse(Input.CursorPosition)?.CanBuildHere(b) == true;
+            batch.Draw(icon, rect, canBuild ? Color.White : Color.OrangeRed);
+        }
+
+        bool HandleDragBuildingOntoTile(InputState input)
+        {
+            if (!(ActiveBuildingEntry?.item is Building b))
+                return false;
+
+            if (input.LeftMouseReleased)
             {
-                if (!pgs.ClickRect.HitTest(MousePos) || !input.LeftMouseReleased)
-                    continue;
-
-                if (pgs.Habitable && pgs.building == null && pgs.QItem == null && !building.IsBiospheres)
-                {
-                    AddBuildingToConstructionQueue(building, pgs, playerAdded: true);
-                    ActiveBuildingEntry = null;
-                    break;
-                }
-
-                if (pgs.Habitable || pgs.Biosphere || pgs.QItem != null || !building.CanBuildAnywhere)
-                {
+                PlanetGridSquare tile = P.FindTileUnderMouse(input.CursorPosition);
+                if (tile == null || !Build(b, tile))
                     GameAudio.NegativeClick();
-                    ActiveBuildingEntry = null;
-                    break;
-                }
-
-                AddBuildingToConstructionQueue(building, pgs, playerAdded: true);
-                ActiveBuildingEntry = null;
-                break;
+                return true;
             }
+            
+            if (input.RightMouseClick || input.LeftMouseClick)
+                return true;
 
-            if (ActiveBuildingEntry != null)
-            {
-                foreach (QueueItem qi in P.ConstructionQueue)
-                {
-                    if (qi.isBuilding && qi.Building.Name == building.Name && building.Unique)
-                    {
-                        ActiveBuildingEntry = null;
-                        break;
-                    }
-                }
-            }
-
-            if (input.RightMouseClick)
-            {
-                ClickedTroop = true;
-                ActiveBuildingEntry = null;
-            }
-
-            if (input.LeftMouseClick)
-            {
-                ClickedTroop = true;
-                ActiveBuildingEntry = null;
-            }
+            return ActiveBuildingEntry != null && b.Unique && P.BuildingExists(b);
         }
 
 
         
         void HandleConstructionQueueInput(InputState input)
         {
-            int i = QSL.FirstVisibleIndex;
-            foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
+            int i = CQueue.FirstVisibleIndex;
+            foreach (ScrollList.Entry e in CQueue.VisibleExpandedEntries)
             {
                 if (e.CheckHover(Input.CursorPosition))
                 {
@@ -566,7 +531,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(64);
                     if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
                     {
-                        if (input.LeftMouseClick && i + 1 < QSL.NumExpandedEntries)
+                        if (input.LeftMouseClick && i + 1 < CQueue.NumExpandedEntries)
                         {
                             QueueItem item = P.ConstructionQueue[i + 1];
                             P.ConstructionQueue[i + 1] = P.ConstructionQueue[i];
@@ -574,7 +539,7 @@ namespace Ship_Game
                             GameAudio.AcceptClick();
                         }
                     }
-                    else if (i + 1 < QSL.NumExpandedEntries)
+                    else if (i + 1 < CQueue.NumExpandedEntries)
                     {
                         QueueItem item = P.ConstructionQueue[i];
                         P.ConstructionQueue.Remove(item);
@@ -632,7 +597,7 @@ namespace Ship_Game
                 ++i;
             }
 
-            QSL.HandleInput(input, P);
+            CQueue.HandleInput(input, P);
         }
 
 

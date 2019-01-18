@@ -483,6 +483,9 @@ namespace Ship_Game
         public IReadOnlyList<Troop> GetUnlockedTroops() => UnlockedTroops;
 
         public Map<string, bool> GetBDict() => UnlockedBuildingsDict;
+        public bool IsBuildingUnlocked(string name) => UnlockedBuildingsDict.TryGetValue(name, out bool unlocked) && unlocked;
+        public bool IsBuildingUnlocked(int bid) => ResourceManager.GetBuilding(bid, out Building b)
+                                                        && IsBuildingUnlocked(b.Name);
 
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 

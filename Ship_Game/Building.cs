@@ -1,5 +1,6 @@
 using System;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -90,12 +91,13 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int BID { get; private set; }
         public void AssignBuildingId(int bid) => BID = bid;
 
-        public static int CapitalId, OutpostId, BiospheresId, SpacePortId;
+        public static int CapitalId, OutpostId, BiospheresId, SpacePortId, TerraformerId;
         [XmlIgnore][JsonIgnore] public bool IsCapital => BID == CapitalId;
         [XmlIgnore][JsonIgnore] public bool IsOutpost => BID == OutpostId;
         [XmlIgnore][JsonIgnore] public bool IsCapitalOrOutpost => BID == CapitalId || BID == OutpostId;
         [XmlIgnore][JsonIgnore] public bool IsBiospheres => BID == BiospheresId;
         [XmlIgnore][JsonIgnore] public bool IsSpacePort  => BID == SpacePortId;
+        [XmlIgnore][JsonIgnore] public bool IsTerraformer => BID == TerraformerId;
 
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
@@ -161,7 +163,7 @@ namespace Ship_Game
             return Production(planet, PlusFlatResearchAmount, PlusResearchPerColonist);
         }
 
-        public bool AssignBuildingToTile(SolarSystemBody solarSystemBody  = null)
+        public bool AssignBuildingToTile(Planet solarSystemBody = null)
         {
             if (AssignBuildingToRandomTile(solarSystemBody, true) != null)
                 return true;
@@ -184,14 +186,13 @@ namespace Ship_Game
             return false;            
         }
 
-        public PlanetGridSquare AssignBuildingToRandomTile(SolarSystemBody solarSystemBody, bool mustBeHabitableTile = false)
+        public PlanetGridSquare AssignBuildingToRandomTile(Planet planet, bool mustBeHabitableTile = false)
         {
             PlanetGridSquare[] list = mustBeHabitableTile 
-                ? solarSystemBody.TilesList.Filter(pgs => pgs.building == null && pgs.Habitable) 
-                : solarSystemBody.TilesList.Filter(pgs => pgs.building == null);
+                ? planet.TilesList.Filter(pgs => pgs.building == null && pgs.Habitable) 
+                : planet.TilesList.Filter(pgs => pgs.building == null);
             if (list.Length == 0)
                 return null;
-
             PlanetGridSquare target = RandomMath.RandItem(list);
             target.building = this;
             return target;
@@ -203,56 +204,15 @@ namespace Ship_Game
             return AssignBuildingToRandomTile(planet) != null;
         }
 
-        public bool AssignBuildingToTile(QueueItem qi, Planet planet)
+        public bool AssignBuildingToTile(Building b, ref PlanetGridSquare where, Planet planet)
         {
-            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
-            if (IsBiospheres) //biospheres are handled specifically, later in the calling function
-                return false;
-
-            foreach (PlanetGridSquare planetGridSquare in planet.TilesList) //Check all planet tiles
-            {
-                if (!planetGridSquare.Habitable || planetGridSquare.building != null) continue;
-
-                bool spotClaimed = false;
-                foreach (QueueItem queueItem in planet.ConstructionQueue)   //Check the queue to see if this grid square is already claimed
-                {
-                    if (queueItem.pgs == planetGridSquare)                  //Isn't the building assigned to the tile already? Why check the queue over and over?
-                    {
-                        spotClaimed = true;
-                        break;
-                    }
-                }
-                if (!spotClaimed) list.Add(planetGridSquare);   //Add to list of usable tiles 
-            }
-
-            if (list.Count > 0)
-            {
-                int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
-                PlanetGridSquare planetGridSquare1 = list[index];
-                foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)    //What the shit is this doing? Is it seriously itterating the foreach until it finds the random tile picked above?!
-                {                                                                   //There has to be a better way to translate from <list> back to <planet.TilesList>...
-                    if (planetGridSquare2 == planetGridSquare1)
-                    {
-                        planetGridSquare2.QItem = qi;
-                        qi.pgs = planetGridSquare2;
-                        return true;
-                    }
-                }
-            }
-            else if (CanBuildAnywhere)     //I would like buildings that CanBuildAnywhere to prefer uninhabitable tiles
-            {
-                PlanetGridSquare planetGridSquare1 = planet.TilesList[(int)RandomMath.RandomBetween(0.0f, planet.TilesList.Count)];
-                foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
-                {
-                    if (planetGridSquare2 == planetGridSquare1)
-                    {
-                        planetGridSquare2.QItem = qi;
-                        qi.pgs = planetGridSquare2;
-                        return true;
-                    }
-                }
-            }
-            return false;
+            // looks like we already have a valid spot assigned?
+            if (where != null && where.CanBuildHere(b))
+                return true;
+            PlanetGridSquare[] freeSpots = planet.TilesList.Filter(pgs => pgs.CanBuildHere(b));
+            if (freeSpots.Length > 0)
+                where = RandomMath.RandItem(freeSpots);
+            return where != null;
         }
 
         public void ScrapBuilding(Planet planet)

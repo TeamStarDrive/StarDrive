@@ -271,60 +271,48 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void AddBuildingToCQ(Building b, bool playerAdded = false)
+        public bool AddBuildingToCQ(Building b, PlanetGridSquare where = null, bool playerAdded = false)
         {
             var qi = new QueueItem(Ground)
             {
                 IsPlayerAdded = playerAdded,
                 isBuilding = true,
                 Building = b,
+                pgs = where,
                 Cost = b.ActualCost,
                 productionTowards = 0.0f,
                 NotifyOnEmpty = false
             };
 
-            if (!ResourceManager.BuildingsDict.TryGetValue("Terraformer", out Building terraformer))
+            // if not added by player, then skip biosphere, let it be handled below:
+            if (playerAdded || !b.IsBiospheres)
             {
-                foreach (KeyValuePair<string, bool> bdict in Owner.GetBDict())
+                if (b.AssignBuildingToTile(b, ref where, Ground))
                 {
-                    if (!bdict.Value)
-                        continue;
-                    Building check = ResourceManager.GetBuildingTemplate(bdict.Key);
+                    where.QItem = qi;
+                    qi.pgs = where; // re-set PGS if we got a new one
+                    ConstructionQueue.Add(qi);
+                    Ground.RefreshBuildingsWeCanBuildHere();
+                    return true;
+                }
+                if (playerAdded) // no magic terraform hocus-pocus for players
+                    return false;
+            }
 
-                    if (check.PlusTerraformPoints <= 0)
-                        continue;
-                    terraformer = check;
-                }
-            }
-            if (b.AssignBuildingToTile(qi, Ground))
+            // Try to Auto-build TerraFormer, since it's better than Biospheres
+            if (Owner.NonCybernetic && Fertility < 1.0f)
             {
-                ConstructionQueue.Add(qi);
-                Ground.RefreshBuildingsWeCanBuildHere();
-            }
-            else if (Owner.data.Traits.Cybernetic <= 0 && Owner.GetBDict()[terraformer.Name] && Fertility < 1.0
-                && Ground.WeCanAffordThis(terraformer, colonyType))
-            {
-                bool flag = true;
-                foreach (QueueItem queueItem in ConstructionQueue)
+                if (ResourceManager.GetBuilding(Building.TerraformerId, out Building terraFormer))
                 {
-                    if (queueItem.isBuilding && queueItem.Building.Name == terraformer.Name)
-                        flag = false;
+                    if (Ground.BuildingExists(terraFormer))
+                        return false;
+                    if (Owner.IsBuildingUnlocked(terraFormer.Name) && Ground.WeCanAffordThis(terraFormer, colonyType))
+                        return AddBuildingToCQ(ResourceManager.CreateBuilding(terraFormer.BID));
                 }
-                foreach (Building building in BuildingList)
-                {
-                    if (building.Name == terraformer.Name)
-                        flag = false;
-                }
-                if (!flag)
-                    return;
-                AddBuildingToCQ(ResourceManager.CreateBuilding(terraformer.Name), false);
             }
-            else
-            {
-                if (!Owner.GetBDict()["Biospheres"])
-                    return;
-                Ground.TryBiosphereBuild(ResourceManager.CreateBuilding(Building.BiospheresId), qi);
-            }
+
+            return Owner.IsBuildingUnlocked(Building.BiospheresId)
+                && TryBiosphereBuild(ResourceManager.CreateBuilding(Building.BiospheresId), qi);
         }
         public int EstimatedTurnsTillComplete(QueueItem qItem, float industry = float.MinValue)
         {

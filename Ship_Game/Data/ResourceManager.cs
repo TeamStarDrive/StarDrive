@@ -941,10 +941,17 @@ namespace Ship_Game
         }
 
         static readonly Array<Building> BuildingsById = new Array<Building>();
+        public static bool BuildingExists(int buildingId) => 0 < buildingId && buildingId < BuildingsById.Count;
         public static Building GetBuildingTemplate(string whichBuilding) => BuildingsDict[whichBuilding];
         public static Building GetBuildingTemplate(int buildingId) => BuildingsById[buildingId];
         public static Building CreateBuilding(string whichBuilding) => CreateBuilding(GetBuildingTemplate(whichBuilding));
         public static Building CreateBuilding(int buildingId) => CreateBuilding(GetBuildingTemplate(buildingId));
+        public static bool GetBuilding(string whichBuilding, out Building b) => BuildingsDict.Get(whichBuilding, out b);
+        public static bool GetBuilding(int buildingId, out Building b)
+        {
+            if (!BuildingExists(buildingId)) { b = null; return false; }
+            else { b = BuildingsById[buildingId]; return true; }
+        }
 
         static void LoadBuildings() // Refactored by RedFox
         {
@@ -963,6 +970,7 @@ namespace Ship_Game
                     case "Outpost":      Building.OutpostId    = b.BID; break;
                     case "Biospheres":   Building.BiospheresId = b.BID; break;
                     case "Space Port":   Building.SpacePortId  = b.BID; break;
+                    case "Terraformer":  Building.TerraformerId = b.BID; break;
                     case "Fissionables": Building.FissionablesId = b.BID; break;
                     case "Mine Fissionables": Building.MineFissionablesId = b.BID; break;
                     case "Fuel Refinery":     Building.FuelRefineryId = b.BID; break;
