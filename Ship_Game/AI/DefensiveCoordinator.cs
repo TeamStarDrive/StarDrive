@@ -183,9 +183,10 @@ namespace Ship_Game.AI
             int split = DefenseDict.Count / 10;
             int splitStore = split;
             //@Complex Double orderBy is not simple.
-            var sComs = DefenseDict.OrderBy(value => value.Value.PercentageOfValue)
-                .ThenBy(devlev => devlev.Value.SystemDevelopmentlevel);
-            foreach (var kv in sComs)
+            SystemCommander[] commanders = DefenseDict.Select(kv=>kv.Value)
+                                       .OrderBy(com => com.PercentageOfValue)
+                                       .ThenBy(com => com.SystemDevelopmentlevel).ToArray();
+            foreach (SystemCommander com in commanders)
             {
                 split--;
                 if (split <= 0)
@@ -195,16 +196,14 @@ namespace Ship_Game.AI
                     if (ranker > 10)
                         ranker = 10;
                 }
-
-                kv.Value.RankImportance = ranker;
+                com.RankImportance = ranker;
             }
-
-            foreach (var kv in sComs)
+            foreach (SystemCommander com in commanders)
             {
-                kv.Value.RankImportance = (int) (10 * (kv.Value.RankImportance / ranker));
-                TotalValue += (int) kv.Value.ValueToUs;
-                kv.Value.CalculateShipneeds();
-                kv.Value.CalculateTroopNeeds();
+                com.RankImportance = (int) (10 * (com.RankImportance / ranker));
+                TotalValue += (int) com.ValueToUs;
+                com.CalculateShipneeds();
+                com.CalculateTroopNeeds();
             }
         }
 
@@ -291,9 +290,8 @@ namespace Ship_Game.AI
         {
             float width = Empire.Universe.UniverseSize;
             return DefenseDict.MaxKeyByValuesFiltered(
-                com => (1 - com.TroopCount / com.IdealTroopCount) * com.ValueToUs
-                                                                  * ((width - com.System.Position.SqDist(fromPos)) /
-                                                                     width),
+                com => (1f - ((float)com.TroopCount / com.IdealTroopCount))
+                       * com.ValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width),
                 com => com.TroopStrengthNeeded > 0
                        && com.System.PlanetList.Count > 0
                        && com.System.PlanetList.Sum(p => p.GetGroundLandingSpots()) > 0
