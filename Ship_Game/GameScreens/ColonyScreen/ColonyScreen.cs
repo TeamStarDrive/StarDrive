@@ -834,11 +834,11 @@ namespace Ship_Game
             buildSL.HandleInput(input);
             build.HandleInput(input);
 
-            // AI specific
+            // We are monitoring AI Colonies
             if (P.Owner != EmpireManager.Player)
             {
-                HandleDetailInfo(input);
-                return true;
+                // Input not captured, let Universe Screen manager what happens
+                return false;
             }
 
             HandlePlanetNameChangeTextBox(input);
