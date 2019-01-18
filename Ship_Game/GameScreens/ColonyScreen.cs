@@ -1902,7 +1902,7 @@ namespace Ship_Game
         public override void Update(float elapsedTime)
         {
             P.UpdateIncomes(false);
-            if (!P.CanBuildInfantry())
+            if (!P.CanBuildInfantry)
             {
                 bool remove = false;
                 foreach (Submenu.Tab tab in build.Tabs)
