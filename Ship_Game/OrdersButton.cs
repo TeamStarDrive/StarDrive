@@ -274,7 +274,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(ID_tip);
                 if (SimpleToggle && input.InGameSelect)
                 {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                     switch (orderType)
                     {
                         case OrderType.TradeFood:
@@ -379,13 +379,13 @@ namespace Ship_Game
                 }
                 if (input.InGameSelect)
                 {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                     ValueToModify.Value = !ValueToModify.Value;
                     return true;
                 }
                 if (input.RightMouseClick)
                 {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                     if (RightClickValueToModify != null)
                     {
                         RightClickValueToModify.Value = !RightClickValueToModify.Value;

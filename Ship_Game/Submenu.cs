@@ -250,7 +250,7 @@ namespace Ship_Game
                 tab.Hover = true;
                 if (input.LeftMouseClick)
                 {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                     tab.Selected = true;
                     foreach (Tab otherTab in Tabs)
                         if (otherTab != tab) otherTab.Selected = false;
@@ -274,7 +274,7 @@ namespace Ship_Game
                     tab.Hover = true;
                     if (input.LeftMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                         tab.Selected = true;
                         foreach (Tab t1 in Tabs)
                         {

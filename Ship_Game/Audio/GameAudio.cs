@@ -205,7 +205,7 @@ namespace Ship_Game
             RacialMusic.SetVolume(music);
             CombatMusic.SetVolume(music);
             Weapons.SetVolume(effects);
-            Default.SetVolume(effects * 0.5f);
+            Default.SetVolume(effects);
         }
 
         public static void StopGenericMusic(bool immediate = true)
@@ -220,21 +220,29 @@ namespace Ship_Game
         public static void MuteRacialMusic()    => RacialMusic.SetVolume(0f);
         public static void UnmuteRacialMusic()  => RacialMusic.SetVolume(GlobalStats.MusicVolume);
 
-        public static void NegativeClick()    => PlaySfxAsync("UI_Misc20");
-        public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1");
-        public static void SystemClick()      => PlaySfxAsync("mouse_over4");
-        public static void ShipClicked()      => PlaySfxAsync("techy_affirm1");
+        public static void NegativeClick()    => PlaySfxAsync("UI_Misc20"); // "eek-eek"
+        public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1"); // soft "bubble" affirm
+        public static void SystemClick()      => PlaySfxAsync("mouse_over4");  // very soft "bumble"
+        public static void ShipClicked()      => PlaySfxAsync("techy_affirm1"); // "chu-duk"
         public static void FleetClicked()     => PlaySfxAsync("techy_affirm1");
         public static void PlanetClicked()    => PlaySfxAsync("techy_affirm1");
         public static void BuildItemClicked() => PlaySfxAsync("techy_affirm1");
 
-        public static void MiniMapButton()    => PlaySfxAsync("sd_ui_accept_alt3");
-        public static void MiniMapMouseOver() => PlaySfxAsync("sd_ui_mouseover");
-        public static void EchoAffirmative()      => PlaySfxAsync("echo_affirm");
-        public static void BlipClick()        => PlaySfxAsync("blip_click");
+        public static void ButtonClick()      => PlaySfxAsync("sd_ui_accept_alt3"); // "clihk"
+        public static void MiniMapButton()    => PlaySfxAsync("sd_ui_accept_alt3"); // "clihk"
+        public static void MiniMapMouseOver() => PlaySfxAsync("sd_ui_mouseover"); // super soft "katik"
+        public static void EchoAffirmative()  => PlaySfxAsync("echo_affirm"); // barely audible
+        public static void BlipClick()        => PlaySfxAsync("blip_click"); // "blop"
 
         //subbasewoosh
+        public static void SubBassWhoosh() => PlaySfxAsync("sub_bass_whoosh");
         public static void OpenSolarSystemPopUp() => PlaySfxAsync("sub_bass_whoosh");
+
+        // badooommg
+        public static void TacticalPause() => PlaySfxAsync("sd_ui_tactical_pause");
+
+
+
 
 
         // this is used for the DiplomacyScreen

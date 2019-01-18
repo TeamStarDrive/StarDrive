@@ -1306,7 +1306,7 @@ namespace Ship_Game
                         }
                         else if (TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
                         {
-                            GameAudio.PlaySfxAsync("UI_Misc20");
+                            GameAudio.NegativeClick();
                         }
                         else
                         {

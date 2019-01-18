@@ -429,7 +429,7 @@ namespace Ship_Game
                                 qi.Cost = ship.GetCost(P.Owner);
                                 qi.productionTowards = 0f;
                                 P.ConstructionQueue.Add(qi);
-                                GameAudio.PlaySfxAsync("UI_Misc20");
+                                GameAudio.ButtonClick();
                             }
                             else if (e.TryGet(out Troop troop))
                             {
@@ -438,13 +438,13 @@ namespace Ship_Game
                                 qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                                 qi.productionTowards = 0f;
                                 P.ConstructionQueue.Add(qi);
-                                GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                                GameAudio.ButtonClick();
                             }
                             else if (e.TryGet(out Building building))
                             {
                                 P.AddBuildingToCQ(building, true);
                                 ResetLists(); // @note we reset because most buildings are single-use
-                                GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                                GameAudio.ButtonClick();
                             }
                         }
                     }
@@ -512,7 +512,7 @@ namespace Ship_Game
 
                 if (pgs.Habitable || pgs.Biosphere || pgs.QItem != null || !building.CanBuildAnywhere)
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    GameAudio.NegativeClick();
                     ActiveBuildingEntry = null;
                     break;
                 }
@@ -569,7 +569,7 @@ namespace Ship_Game
                             QueueItem item = P.ConstructionQueue[i - 1];
                             P.ConstructionQueue[i - 1] = P.ConstructionQueue[i];
                             P.ConstructionQueue[i] = item;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                            GameAudio.ButtonClick();
                         }
                     }
                     else if (i > 0)
@@ -577,7 +577,7 @@ namespace Ship_Game
                         QueueItem item = P.ConstructionQueue[i];
                         P.ConstructionQueue.Remove(item);
                         P.ConstructionQueue.Insert(0, item);
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                         break;
                     }
                 }
@@ -592,7 +592,7 @@ namespace Ship_Game
                             QueueItem item = P.ConstructionQueue[i + 1];
                             P.ConstructionQueue[i + 1] = P.ConstructionQueue[i];
                             P.ConstructionQueue[i] = item;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                            GameAudio.ButtonClick();
                         }
                     }
                     else if (i + 1 < QSL.NumExpandedEntries)
@@ -600,7 +600,7 @@ namespace Ship_Game
                         QueueItem item = P.ConstructionQueue[i];
                         P.ConstructionQueue.Remove(item);
                         P.ConstructionQueue.Insert(0, item);
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                         break;
                     }
                 }
@@ -616,12 +616,12 @@ namespace Ship_Game
                     }
                     else if (P.ProdHere == 0f)
                     {
-                        GameAudio.PlaySfxAsync("UI_Misc20");
+                        GameAudio.NegativeClick();
                     }
                     else
                     {
                         P.ApplyAllStoredProduction(i);
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                     }
                 }
 
@@ -647,7 +647,7 @@ namespace Ship_Game
                     }
 
                     P.ConstructionQueue.Remove(item);
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                 }
                 ++i;
             }

@@ -348,7 +348,7 @@ namespace Ship_Game
                 }
                 if (EmpireManager.Player.GetTechEntry(tech.Key).Unlocked)
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    GameAudio.NegativeClick();
                 }
                 else if (EmpireManager.Player.HavePreReq(tech.Key))
                 {
@@ -358,7 +358,7 @@ namespace Ship_Game
                 }
                 else if (EmpireManager.Player.HavePreReq(tech.Key))
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    GameAudio.NegativeClick();
                 }
                 else
                 {

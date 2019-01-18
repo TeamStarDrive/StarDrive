@@ -145,7 +145,7 @@ namespace Ship_Game
             if( SLMode.Load == mode )
                 selectedFile = (e.item as FileData);
 
-            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            GameAudio.ButtonClick();
             EnterNameArea.Text = (e.item as FileData).FileName;
         }
 

@@ -82,7 +82,7 @@ namespace Ship_Game
         {
             if (SavedGame.NotSaving) // no save in progress
                 ScreenManager.AddScreen(new SaveGameScreen(Empire.Universe));
-            else GameAudio.PlaySfxAsync("UI_Misc20");
+            else GameAudio.NegativeClick();
         }
         private void Load_OnClick(UIButton button)
         {
@@ -91,7 +91,7 @@ namespace Ship_Game
                 ScreenManager.AddScreen(new LoadSaveScreen(Empire.Universe));
                 ExitScreen();
             }
-            else GameAudio.PlaySfxAsync("UI_Misc20");
+            else GameAudio.NegativeClick();
         }
         private void Options_OnClick(UIButton button)
         {
@@ -116,7 +116,7 @@ namespace Ship_Game
         private void Exit_OnClick(UIButton button)
         {
             if (SavedGame.NotSaving) StarDriveGame.Instance.Exit();
-            else GameAudio.PlaySfxAsync("UI_Misc20");
+            else GameAudio.NegativeClick();
         }
 
         public override void LoadContent()

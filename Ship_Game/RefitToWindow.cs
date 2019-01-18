@@ -125,7 +125,7 @@ namespace Ship_Game
                     selector = e.CreateSelector();
                     if (input.InGameSelect)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                         RefitTo = e.Get<string>();
                     }
                 }

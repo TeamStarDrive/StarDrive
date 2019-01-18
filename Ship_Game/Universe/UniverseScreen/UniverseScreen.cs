@@ -719,7 +719,7 @@ namespace Ship_Game
             pieMenu.ScaleFactor = 1f;
         }
 
-        public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
+        public void PlayNegativeSound() => GameAudio.NegativeClick();
 
         //added by gremlin replace redundant code with method
         public override void ExitScreen()

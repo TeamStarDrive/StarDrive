@@ -692,7 +692,7 @@ namespace Ship_Game
                 if (!foundPlace)
                 {
                     draggedTroop = null;
-                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    GameAudio.NegativeClick();
                 }
             }
             foreach (PlanetGridSquare pgs in p.TilesList)
