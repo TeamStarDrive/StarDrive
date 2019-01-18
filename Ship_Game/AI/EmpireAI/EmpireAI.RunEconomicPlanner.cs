@@ -76,6 +76,8 @@ namespace Ship_Game.AI
                 OwnerEmpire.data.TaxRate += .02f;
             else
                 OwnerEmpire.data.TaxRate = tempTax;
+
+            OwnerEmpire.data.TaxRate = OwnerEmpire.data.TaxRate.Clamped(0.25f, 0.75f); // FB - temp hack until this code is refactored. no chance tax can be 0%
         }
 #if DEBUG
         public Array<PlanetBudget> PlanetBudgets;
