@@ -3,6 +3,7 @@ using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ship_Game.AI.Tasks
@@ -289,11 +290,8 @@ namespace Ship_Game.AI.Tasks
                         .ThenByDescending(ship => (ship.Value.GetOurStrength() - ship.Value.IdealShipStrength) < 1000)
                     )
                     {
-                        var ships = kv.Value.GetShipList;
-
-                        for (int index = 0; index < ships.Length; index++)
+                        foreach (Ship ship in kv.Value.GetShipList)
                         {
-                            Ship ship = ships[index];
                             if (ship.AI.BadGuysNear || ship.fleet != null || tfstrength >= minimumEscortStrength ||
                                 ship.GetStrength() <= 0f
                                 || ship.shipData.Role == ShipData.RoleName.troop || ship.Carrier.HasAssaultTransporters ||
