@@ -143,13 +143,13 @@ namespace Ship_Game
             return RallyPoints?.FindMin(p => p.Center.SqDist(location)) ?? OwnedPlanets?.FindMin(p => p.Center.SqDist(location));
         }
 
-        public Planet[] RallyShipYards => RallyPoints.Filter(sy => sy.HasShipyard);
+        public Planet[] RallyShipYards => RallyPoints.Filter(sy => sy.HasSpacePort);
 
         public Planet RallyShipYardNearestTo(Vector2 position)
         {
             Planet p = RallyPoints.Length == 0
                 ? null
-                : RallyPoints.FindMaxFiltered(planet => planet?.HasShipyard ?? false,
+                : RallyPoints.FindMaxFiltered(planet => planet?.HasSpacePort ?? false,
                     planet => -position.SqDist(planet?.Center ?? Vector2.Zero));
             switch (p) {
                 case null when RallyPoints.Length > 0:
@@ -163,7 +163,7 @@ namespace Ship_Game
         }
 
         public Planet[] BestBuildPlanets => RallyPoints.Filter(planet =>
-            planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
+            planet.HasSpacePort && planet.ParentSystem.combatTimer <= 0
             && planet.IsVibrant
             && planet.colonyType != Planet.ColonyType.Research
             && (planet.colonyType != Planet.ColonyType.Industrial || planet.IsCoreWorld)
@@ -230,7 +230,7 @@ namespace Ship_Game
             home.Population      = 14000f;
             home.FoodHere        = 100f;
             home.ProdHere        = 100f;
-            home.HasShipyard     = true;
+            home.HasSpacePort     = true;
             home.AddGood("ReactorFuel", 1000); // WTF?
             ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(home);
             ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(home);
@@ -276,7 +276,7 @@ namespace Ship_Game
 
             foreach (Planet planet in OwnedPlanets)
             {
-                if (planet.HasShipyard)
+                if (planet.HasSpacePort)
                     rallyPlanets.Add(planet);
             }
 

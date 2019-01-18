@@ -131,7 +131,7 @@ namespace Ship_Game
 
                     if (planet.HasSpacePort)
                     {
-                        var spaceStation = new SpaceStation {planet = planet};
+                        SpaceStation spaceStation = new SpaceStation {planet = planet};
                         planet.Station = spaceStation;
                         spaceStation.ParentSystem = planet.ParentSystem;
                         spaceStation.LoadContent(ScreenManager);
@@ -785,7 +785,7 @@ namespace Ship_Game
                 string token = Localizer.Token(2108);
                 position.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(token).X / 2f;
 
-                GameTime gameTime = StarDriveGame.Instance.GameTime;
+                GameTime gameTime = Game1.Instance.GameTime;
                 var color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 
                     (byte)(Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * byte.MaxValue));
                 batch.DrawString(Fonts.Pirulen16, token, position, color);

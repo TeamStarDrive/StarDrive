@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
         {
             var shipyardPlanets = new Array<Planet>();
             foreach (Planet planet in empire.GetPlanets())
-                if (planet.HasShipyard)
+                if (planet.HasSpacePort)
                     shipyardPlanets.Add(planet);
 
             if (shipyardPlanets.IsEmpty)
