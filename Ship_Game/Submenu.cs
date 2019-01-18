@@ -3,6 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
+    public interface IListScreen
+    {
+        void ResetLists();
+    }
+
     public class SubmenuStyle
     {
         public int ContentId { get; set; }
