@@ -24,7 +24,7 @@ namespace Ship_Game
             // FB - ignoring this if the owner is the player, or all of his research colonies will build stuff like
             // deep core mines if he forget to add research
             if (colonyType == ColonyType.Research && notResearching && !Owner.isPlayer)
-                colonyType = ColonyType.Industrial;
+                colonyType = ColonyType.Core;
 
             Food.Percent = 0;
             Prod.Percent = 0;

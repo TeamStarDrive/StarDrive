@@ -136,7 +136,7 @@ namespace Ship_Game
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;
-        public bool IsMilitary         => CombatStrength > 0 && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
+        public bool IsMilitary         => CombatStrength > 0&& !IsCapitalOrOutpost && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
 
         static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
         {
