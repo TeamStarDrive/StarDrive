@@ -138,7 +138,7 @@ namespace Ship_Game
                 string buttonText =  troop.AvailableAttackActions >= 1 ? "" : string.Concat(" (", troop.MoveTimer.ToString("0"), ")");
                 LaunchTroop = new DanButton(new Vector2(slant.leftRect.X + 5, ElementRect.Y + ElementRect.Height + 15), 
                                             string.Concat(Localizer.Token(1435), buttonText));
-                LaunchTroop.DrawBlue(ScreenManager);
+                LaunchTroop.DrawBlue(ScreenManager.SpriteBatch);
             }
         }
 
@@ -192,10 +192,10 @@ namespace Ship_Game
                 {
                     if ((screen.workersPanel as CombatScreen).ActiveTroop.TroopsHere[0].AvailableMoveActions < 1)
                     {
-                        GameAudio.PlaySfxAsync("UI_Misc20");                        
+                        GameAudio.NegativeClick();                        
                         return true;
                     }
-                    GameAudio.PlaySfxAsync("sd_troop_takeoff");
+                    GameAudio.TroopTakeOff();
                     
                     using (pgs.TroopsHere.AcquireWriteLock())
                         if (pgs.TroopsHere.Count > 0) pgs.TroopsHere[0].Launch();

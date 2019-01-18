@@ -16,10 +16,27 @@ namespace Ship_Game
     public class TaskResult : ITaskResult
     {
         public bool IsComplete { get; private set; }
-        
+        // @note Task has to check this value itself and cancel manually
+        public bool IsCancelRequested { get; private set; }
+        readonly ManualResetEvent Finished = new ManualResetEvent(false);
+
         void ITaskResult.SetResult(object value)
         {
             IsComplete = true;
+            Finished.Set();
+        }
+
+        // wait until task has finished
+        public void Wait(int millisecondTimeout=-1)
+        {
+            if (!IsComplete)
+                Finished.WaitOne(millisecondTimeout);
+        }
+
+        public void CancelAndWait(int millisecondTimeout=-1)
+        {
+            IsCancelRequested = true;
+            Wait(millisecondTimeout);
         }
     }
 
@@ -27,11 +44,28 @@ namespace Ship_Game
     {
         public T Result { get; private set; }
         public bool IsComplete { get; private set; }
+        // @note Task has to check this value itself and cancel manually
+        public bool IsCancelRequested { get; private set; }
+        readonly ManualResetEvent Finished = new ManualResetEvent(false);
 
         void ITaskResult.SetResult(object value)
         {
             Result = (T)value;
             IsComplete = true;
+            Finished.Set();
+        }
+
+        // wait until task has finished
+        public void Wait(int millisecondTimeout=-1)
+        {
+            if (!IsComplete)
+                Finished.WaitOne(millisecondTimeout);
+        }
+
+        public void CancelAndWait(int millisecondTimeout=-1)
+        {
+            IsCancelRequested = true;
+            Wait(millisecondTimeout);
         }
     }
 

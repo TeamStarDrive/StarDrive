@@ -102,7 +102,7 @@ namespace Ship_Game
         private void OnOkClicked(UIButton b)
         {
             Accepted?.Invoke(this, EventArgs.Empty);
-            GameAudio.PlaySfxAsync("echo_affirm1");
+            GameAudio.AffirmativeClick();
             ExitScreen();
         }
 

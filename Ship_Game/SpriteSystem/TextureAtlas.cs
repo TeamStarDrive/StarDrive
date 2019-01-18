@@ -119,18 +119,18 @@ namespace Ship_Game
 
         void CreateAtlas(GameContentManager content, FileInfo[] textureFiles, AtlasPath path)
         {
-            int load = 0, pack = 0, transfer = 0, save = 0;
+            int transfer = 0, save = 0;
             Stopwatch total = Stopwatch.StartNew();
             Stopwatch perf = Stopwatch.StartNew();
 
             TextureInfo[] textures = LoadTextureInfo(content, path, textureFiles);
-            load = perf.NextMillis();
+            int load = perf.NextMillis();
 
             var packer = new TexturePacker();
             NumPacked = packer.PackTextures(textures);
             Width = packer.Width;
             Height = packer.Height;
-            pack = perf.NextMillis();
+            int pack = perf.NextMillis();
 
             if (NumPacked > 0)
             {

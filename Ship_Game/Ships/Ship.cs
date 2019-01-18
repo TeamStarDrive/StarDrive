@@ -450,7 +450,7 @@ namespace Ship_Game.Ships
             {
                 if (engineState == MoveState.Warp || isSpooling)
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20"); // dont allow changing button state if the ship is spooling or at warp
+                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
                     return;
                 }
                 FightersLaunched = value;
@@ -585,7 +585,7 @@ namespace Ship_Game.Ships
             {
                 if (engineState == MoveState.Warp || isSpooling)
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20"); // dont allow changing button state if the ship is spooling or at warp
+                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
                     return;
                 }
                 TroopsLaunched = value;
@@ -2331,13 +2331,13 @@ namespace Ship_Game.Ships
             var position = new Vector3(Center.X, Center.Y, -100f);
 
             float boost = 1f;
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi != null)
-                boost = GlobalStats.ActiveMod.mi.GlobalShipExplosionVisualIncreaser;
+            if (GlobalStats.HasMod)
+                boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
-            ExplosionManager.AddExplosion(position, size * boost, 12f);
+            ExplosionManager.AddExplosion(position, size * boost, 12f, ExplosionType.Ship);
             if (addWarpExplode)
             {
-                ExplosionManager.AddWarpExplosion(position, size*1.75f, 12f);
+                ExplosionManager.AddExplosion(position, size*1.75f, 12f, ExplosionType.Warp);
             }
             UniverseScreen.SpaceManager.ShipExplode(this, size * 50, Center, Radius);
         }
@@ -2725,7 +2725,10 @@ namespace Ship_Game.Ships
             PackDamageModifier = modifier.Clamped(-0.25f, 0.5f);
         }
 
-        public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
+        // prefers VanityName, otherwise uses Name
+        public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
+
+        public override string ToString() => $"Ship Id={Id} '{ShipName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
@@ -2749,6 +2752,17 @@ namespace Ship_Game.Ships
             if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
                 return goodPower;
             return false;
+        }
+
+        public bool IsBuildableByPlayer
+        {
+            get
+            {
+                ShipRole role = shipData.ShipRole;
+                return  !shipData.CarrierShip && !Deleted
+                    && !role.Protected && !role.NoBuild 
+                    && (GlobalStats.ShowAllDesigns || IsPlayerDesign);
+            }
         }
 
         public bool ShipGoodToBuild(Empire empire)

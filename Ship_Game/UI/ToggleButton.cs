@@ -7,16 +7,28 @@ namespace Ship_Game
     {
         public int Width  { get; private set; }
         public int Height { get; private set; }
-
+        public int ContentId { get; private set; }
+        string Folder;
         public SubTexture Active   { get; private set; }
         public SubTexture Inactive { get; private set; }
         public SubTexture Hover    { get; private set; }
         public SubTexture Press    { get; private set; }
 
+        public void Reload()
+        {
+            ContentId = ResourceManager.ContentId;
+            Active   = ResourceManager.Texture(Folder + Active.Name);
+            Inactive = ResourceManager.Texture(Folder + Inactive.Name);
+            Hover    = ResourceManager.Texture(Folder + Hover.Name);
+            Press    = ResourceManager.Texture(Folder + Press.Name);
+        }
+
         public static readonly ToggleButtonStyle Formation = new ToggleButtonStyle
         {
             Width  = 24,
             Height = 24,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "SelectionBox/",
             Active   = ResourceManager.Texture("SelectionBox/button_formation_active"),
             Inactive = ResourceManager.Texture("SelectionBox/button_formation_inactive"),
             Hover    = ResourceManager.Texture("SelectionBox/button_formation_hover"),
@@ -27,6 +39,8 @@ namespace Ship_Game
         {
             Width  = 34,
             Height = 24,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "SelectionBox/",
             Active   = ResourceManager.Texture("SelectionBox/button_grid_active"),
             Inactive = ResourceManager.Texture("SelectionBox/button_grid_inactive"),
             Hover    = ResourceManager.Texture("SelectionBox/button_grid_hover"),
@@ -37,6 +51,8 @@ namespace Ship_Game
         {
             Width  = 29,
             Height = 20,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "SelectionBox/",
             Active   = ResourceManager.Texture("SelectionBox/PlayerDesignsPressed"),
             Inactive = ResourceManager.Texture("SelectionBox/PlayerDesignsActive"),
             Hover    = ResourceManager.Texture("SelectionBox/button_grid_hover"),
@@ -47,6 +63,8 @@ namespace Ship_Game
         {
             Width  = 14,
             Height = 35,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "SelectionBox/",
             Active   = ResourceManager.Texture("SelectionBox/button_arrow_left"),
             Inactive = ResourceManager.Texture("SelectionBox/button_arrow_left"),
             Hover    = ResourceManager.Texture("SelectionBox/button_arrow_left_hover"),
@@ -57,6 +75,8 @@ namespace Ship_Game
         {
             Width  = 14,
             Height = 35,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "SelectionBox/",
             Active   = ResourceManager.Texture("SelectionBox/button_arrow_right"),
             Inactive = ResourceManager.Texture("SelectionBox/button_arrow_right"),
             Hover    = ResourceManager.Texture("SelectionBox/button_arrow_right_hover"),
@@ -67,6 +87,8 @@ namespace Ship_Game
         {
             Width  = 25,
             Height = 22,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "Minimap/",
             Active   = ResourceManager.Texture("Minimap/button_B_normal"),
             Inactive = ResourceManager.Texture("Minimap/button_B_normal"),
             Hover    = ResourceManager.Texture("Minimap/button_B_hover"),
@@ -77,6 +99,8 @@ namespace Ship_Game
         {
             Width  = 25,
             Height = 22,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "Minimap/",
             Active   = ResourceManager.Texture("Minimap/button_C_normal"),
             Inactive = ResourceManager.Texture("Minimap/button_C_normal"),
             Hover    = ResourceManager.Texture("Minimap/button_hover"),
@@ -87,6 +111,8 @@ namespace Ship_Game
         {
             Width  = 25,
             Height = 22,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "Minimap/",
             Active   = ResourceManager.Texture("Minimap/button_active"),
             Inactive = ResourceManager.Texture("Minimap/button_normal"),
             Hover    = ResourceManager.Texture("Minimap/button_hover"),
@@ -97,6 +123,8 @@ namespace Ship_Game
         {
             Width  = 25,
             Height = 26,
+            ContentId = ResourceManager.ContentId,
+            Folder   = "Minimap/",
             Active   = ResourceManager.Texture("Minimap/button_active"),
             Inactive = ResourceManager.Texture("Minimap/button_down_inactive"),
             Hover    = ResourceManager.Texture("Minimap/button_down_hover"),
@@ -116,15 +144,12 @@ namespace Ship_Game
         public bool HasToolTip;
         public Color BaseColor = Color.White;
 
-        private readonly SubTexture PressTexture;
-        private readonly SubTexture HoverTexture;
-        private readonly SubTexture ActiveTexture;
-        private readonly SubTexture InactiveTexture;
-        private readonly SubTexture IconTexture;
-        private readonly Vector2 WordPos;
-        private readonly string IconPath;
-        private readonly SubTexture IconActive;
-        private readonly Rectangle IconRect;
+        readonly ToggleButtonStyle Style;
+        SubTexture IconTexture, IconActive;
+
+        readonly Vector2 WordPos;
+        readonly string IconPath;
+        readonly Rectangle IconRect;
 
         public delegate void ClickHandler(ToggleButton button);
         public event ClickHandler OnClick;
@@ -134,16 +159,8 @@ namespace Ship_Game
         public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "", UIElementV2 container = null)
             : base(container, new Rectangle((int)pos.X, (int)pos.Y, style.Width, style.Height))
         {
-            PressTexture    = style.Press;
-            HoverTexture    = style.Hover;
-            ActiveTexture   = style.Active;
-            InactiveTexture = style.Inactive;      
-            
-            if (iconPath.NotEmpty())
-            {
-                IconTexture = ResourceManager.TextureOrNull(iconPath);
-                IconActive  = ResourceManager.TextureOrNull(iconPath+"_active");
-            }
+            Style = style;    
+            UpdateStyle(iconPath);
 
             if (IconTexture == null)
             {
@@ -162,23 +179,38 @@ namespace Ship_Game
         //hack... until this is all straightend out to allow override of base draw.
         public void Draw(ScreenManager screenManager) => Draw(screenManager.SpriteBatch);
         
+        void UpdateStyle(string iconPath)
+        {
+            if (Style.ContentId != ResourceManager.ContentId)
+            {
+                Style.Reload();
+            }
+            if (iconPath.NotEmpty())
+            {
+                IconTexture = ResourceManager.TextureOrNull(iconPath);
+                IconActive  = ResourceManager.TextureOrNull(iconPath+"_active");
+            }
+        }
+
         public override void Draw(SpriteBatch batch)
         {
+            UpdateStyle(IconPath);
+
             if (Pressed)
             {
-                batch.Draw(PressTexture, Rect, Color.White);
+                batch.Draw(Style.Press, Rect, Color.White);
             }
             else if (Hover)
             {
-                batch.Draw(HoverTexture, Rect, Color.White);                
+                batch.Draw(Style.Hover, Rect, Color.White);                
             }
             else if (Active)
             {
-                batch.Draw(ActiveTexture, Rect, Color.White);
+                batch.Draw(Style.Active, Rect, Color.White);
             }
             else
             {
-                batch.Draw(InactiveTexture, Rect, Color.White);
+                batch.Draw(Style.Inactive, Rect, Color.White);
             }
 
             if (IconTexture == null)
@@ -218,7 +250,7 @@ namespace Ship_Game
             }
             if (!Hover)
             {
-                GameAudio.MiniMapMouseOver();
+                GameAudio.ButtonMouseOver();
                 if (WhichToolTip != 0)
                     ToolTip.CreateTooltip(WhichToolTip);
             }

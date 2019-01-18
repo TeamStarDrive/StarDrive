@@ -76,7 +76,7 @@ namespace Ship_Game
 			spriteBatch.DrawString(arial12Bold, str, vector2, color);
 		}
 
-		public void DrawBlue(ScreenManager screenManager)
+		public void DrawBlue(SpriteBatch batch)
 		{
 		    Color color;
 			Vector2 pos = TextPos;
@@ -84,11 +84,8 @@ namespace Ship_Game
 			{
 				pos.X = pos.X - 9f;
 			}
-			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), r, Color.White);
-			SpriteBatch spriteBatch = screenManager.SpriteBatch;
-			SpriteFont arial12Bold = Fonts.Arial12Bold;
+            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), r, Color.White);
 			string str = (Toggled ? ToggledText : Text);
-			Vector2 vector2 = pos;
 			if (Hover)
 			{
 				color = new Color(174, 202, 255);
@@ -97,7 +94,7 @@ namespace Ship_Game
 			{
 				color = (Toggled ? Color.White : new Color(88, 108, 146));
 			}
-			spriteBatch.DrawString(arial12Bold, str, vector2, color);
+            batch.DrawString(Fonts.Arial12Bold, str, pos, color);
 		}
 
 		public bool HandleInput(InputState input)
@@ -111,7 +108,7 @@ namespace Ship_Game
 				Hover = true;
 				if (input.InGameSelect)
 				{
-					GameAudio.PlaySfxAsync("echo_affirm");
+					GameAudio.EchoAffirmative();
 					if (IsToggle)
 					{
 						Toggled = !Toggled;

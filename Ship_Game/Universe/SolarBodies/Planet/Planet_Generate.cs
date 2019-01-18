@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Ship_Game.Data;
 
 namespace Ship_Game
@@ -77,8 +78,13 @@ namespace Ship_Game
 
         public void RestorePlanetTypeFromSave(int planetId)
         {
+            // we revert to random just in case people unload mods
             Type = ResourceManager.PlanetOrRandom(planetId);
         }
+
+        
+        public PlanetGridSquare FindTileUnderMouse(Vector2 mousePos)
+            => TilesList.Find(pgs => pgs.ClickRect.HitTest(mousePos));
 
         void GenerateNewFromPlanetType(PlanetType type)
         {

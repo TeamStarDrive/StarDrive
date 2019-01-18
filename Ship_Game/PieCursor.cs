@@ -29,7 +29,7 @@ namespace Ship_Game
 
 	    public Vector2 Position => position;
 
-	    public PieCursor(Game1 game, GameContentManager content) : base(game)
+	    public PieCursor(StarDriveGame game, GameContentManager content) : base(game)
 		{
 			pieMenu = new PieMenu();
 			this.content = content;
@@ -39,8 +39,8 @@ namespace Ship_Game
 		{
 			Vector3 nearSource = new Vector3(Position, 0f);
 			Vector3 farSource = new Vector3(Position, 1f);
-			Vector3 nearPoint = Game1.Instance.Viewport.Unproject(nearSource, projectionMatrix, viewMatrix, Matrix.Identity);
-			Vector3 farPoint = Game1.Instance.Viewport.Unproject(farSource, projectionMatrix, viewMatrix, Matrix.Identity);
+			Vector3 nearPoint = StarDriveGame.Instance.Viewport.Unproject(nearSource, projectionMatrix, viewMatrix, Matrix.Identity);
+			Vector3 farPoint = StarDriveGame.Instance.Viewport.Unproject(farSource, projectionMatrix, viewMatrix, Matrix.Identity);
 			Vector3 direction = farPoint - nearPoint;
 			direction.Normalize();
 			return new Ray(nearPoint, direction);

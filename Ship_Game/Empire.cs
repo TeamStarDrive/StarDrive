@@ -483,6 +483,9 @@ namespace Ship_Game
         public IReadOnlyList<Troop> GetUnlockedTroops() => UnlockedTroops;
 
         public Map<string, bool> GetBDict() => UnlockedBuildingsDict;
+        public bool IsBuildingUnlocked(string name) => UnlockedBuildingsDict.TryGetValue(name, out bool unlocked) && unlocked;
+        public bool IsBuildingUnlocked(int bid) => ResourceManager.GetBuilding(bid, out Building b)
+                                                        && IsBuildingUnlocked(b.Name);
 
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 
@@ -802,6 +805,9 @@ namespace Ship_Game
 
 
         public EconomicResearchStrategy GetResStrat() => economicResearchStrategy;
+
+        public string[] GetTroopsWeCanBuild() => UnlockedTroopDict.Where(kv => kv.Value)
+                                                                  .Select(kv => kv.Key).ToArray();
 
         public bool WeCanBuildTroop(string id) => UnlockedTroopDict.TryGetValue(id, out bool canBuild) && canBuild;
 
@@ -2095,13 +2101,13 @@ namespace Ship_Game
                 return true;
             }
 
-            Game1.Instance.EndingGame(true);
+            StarDriveGame.Instance.EndingGame(true);
             foreach (Ship ship in Universe.MasterShipList)
                 ship.Die(null, true);
 
             Universe.Paused = true;
             HelperFunctions.CollectMemory();
-            Game1.Instance.EndingGame(false);
+            StarDriveGame.Instance.EndingGame(false);
             Universe.ScreenManager.AddScreen(new YouLoseScreen(Universe));
             Universe.Paused = false;
             return true;

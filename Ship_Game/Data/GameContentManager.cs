@@ -181,6 +181,8 @@ namespace Ship_Game
 
         public float GetLoadedAssetMegabytes() => GetLoadedAssetBytes() / (1024f * 1024f);
 
+        // @warning Please be careful with this. Just let ScreenManager do the task of unloading.
+        // Call ScreenManager.UnloadContent() to unload EVERYTHING
         public override void Unload()
         {
             if (LoadedAssets == null)
@@ -207,6 +209,7 @@ namespace Ship_Game
             {
                 LoadedAssets.Clear();
                 DisposableAssets.Clear();
+                LoadedEffects.Clear();
             }
 
             if (totalMemSaved > 0f)
@@ -314,7 +317,12 @@ namespace Ship_Game
             #if false
                 SlowCheckForResourceLeaks(asset.NoExt);
             #endif
-            if (useCache) RecordCacheObject(asset.NoExt, loaded);
+            if (useCache)
+            {
+                RecordCacheObject(asset.NoExt, loaded);
+                if (loaded is Texture2D texture)
+                    texture.Name = asset.NoExt;
+            }
             return loaded;
         }
 

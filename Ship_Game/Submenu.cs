@@ -3,8 +3,15 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
+    public interface IListScreen
+    {
+        void ResetLists();
+    }
+
     public class SubmenuStyle
     {
+        public int ContentId { get; set; }
+
         public SubTexture HorizVert       { get; private set; }
         public SubTexture CornerTL        { get; private set; }
         public SubTexture CornerTR        { get; private set; }
@@ -50,11 +57,12 @@ namespace Ship_Game
 
         public static SubmenuStyle CreateBlue() => new SubmenuStyle
         {
-            HorizVert       = ResourceManager.Texture("ResearchMenu/submenu_horiz_vert"),
-            CornerTL        = ResourceManager.Texture("ResearchMenu/submenu_corner_TL"),
-            CornerTR        = ResourceManager.Texture("ResearchMenu/submenu_corner_TR"),
-            CornerBR        = ResourceManager.Texture("ResearchMenu/submenu_corner_BR"),
-            CornerBL        = ResourceManager.Texture("ResearchMenu/submenu_corner_BL"),
+            ContentId     = ResourceManager.ContentId,
+            HorizVert     = ResourceManager.Texture("ResearchMenu/submenu_horiz_vert"),
+            CornerTL      = ResourceManager.Texture("ResearchMenu/submenu_corner_TL"),
+            CornerTR      = ResourceManager.Texture("ResearchMenu/submenu_corner_TR"),
+            CornerBR      = ResourceManager.Texture("ResearchMenu/submenu_corner_BR"),
+            CornerBL      = ResourceManager.Texture("ResearchMenu/submenu_corner_BL"),
 
             // research menu doesn't have any hovers, so just reuse left/middle/right
             HoverLeftEdge = ResourceManager.Texture("ResearchMenu/submenu_header_left"),
@@ -76,7 +84,6 @@ namespace Ship_Game
     public class Submenu
     {
         public Rectangle Menu;
-        private readonly ScreenManager ScreenManager;
         public Array<Tab> Tabs = new Array<Tab>();
 
         private Rectangle UpperLeft;
@@ -91,25 +98,26 @@ namespace Ship_Game
 
         private SpriteFont toUse;
 
-        private readonly SubmenuStyle Style;
-        private readonly InputState Input;
+        readonly bool Blue;
+        SubmenuStyle Style;
 
         public Submenu(Rectangle theMenu)
         {
-            ScreenManager = Game1.Instance.ScreenManager;
-            Input = ScreenManager.input;
-
-            Style = SubmenuStyle.CreateBrown();
+            ReloadStyle();
             toUse = Fonts.Pirulen12;
             InitLayout(theMenu);
         }
         public Submenu(bool blue, Rectangle theMenu)
         {
-            ScreenManager = Game1.Instance.ScreenManager;
-            Input = ScreenManager.input;
-            Style = blue ? SubmenuStyle.CreateBlue() : SubmenuStyle.CreateBrown();
+            Blue = blue;
+            ReloadStyle();
             toUse = Fonts.Pirulen12;
             InitLayout(theMenu);
+        }
+
+        void ReloadStyle()
+        {
+            Style = Blue ? SubmenuStyle.CreateBlue() : SubmenuStyle.CreateBrown();
         }
 
         private void InitLayout(Rectangle theMenu)
@@ -143,17 +151,18 @@ namespace Ship_Game
             });
         }
 
-        public void Draw()
+        public void Draw(SpriteBatch batch)
         {
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
+            if (Style.ContentId != ResourceManager.ContentId)
+                ReloadStyle();
 
-            spriteBatch.Draw(Style.CornerTL, TL, Color.White);
+            batch.Draw(Style.CornerTL, TL, Color.White);
             if (Tabs.Count > 0)
             {
                 SubTexture header = Tabs[0].Selected ? Style.Left :
                                     Tabs[0].Hover    ? Style.HoverLeftEdge :
                                                        Style.LeftUnsel;
-                spriteBatch.Draw(header, UpperLeft, Color.White);
+                batch.Draw(header, UpperLeft, Color.White);
             }
 
             if (Tabs.Count == 1)
@@ -163,9 +172,9 @@ namespace Ship_Game
                     var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.Right.Width, 25);
                     var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - toUse.LineSpacing / 2));
 
-                    spriteBatch.Draw(Style.Middle, t.tabRect, Color.White);
-                    spriteBatch.Draw(Style.Right, right, Color.White);
-                    spriteBatch.DrawString(toUse, t.Title, textPos, new Color(255, 239, 208));
+                    batch.Draw(Style.Middle, t.tabRect, Color.White);
+                    batch.Draw(Style.Right, right, Color.White);
+                    batch.DrawString(toUse, t.Title, textPos, new Color(255, 239, 208));
                 }
             }
             else if (Tabs.Count > 1)
@@ -177,71 +186,71 @@ namespace Ship_Game
                     {
                         var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.Right.Width, 25);
 
-                        spriteBatch.Draw(Style.Middle, t.tabRect, Color.White);
-                        spriteBatch.Draw(Style.Right, right, Color.White);
+                        batch.Draw(Style.Middle, t.tabRect, Color.White);
+                        batch.Draw(Style.Right, right, Color.White);
 
                         if (Tabs.Count - 1 > i && !Tabs[i + 1].Selected)
                         {
                             SubTexture tab = Tabs[i + 1].Hover ? Style.HoverLeft : Style.RightExtUnsel;
-                            spriteBatch.Draw(tab, right, Color.White);
+                            batch.Draw(tab, right, Color.White);
                         }
                     }
                     else if (!t.Hover)
                     {
                         var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.RightUnsel.Width, 25);
 
-                        spriteBatch.Draw(Style.MiddleUnsel, t.tabRect, Color.White);
-                        spriteBatch.Draw(Style.RightUnsel, right, Color.White);
+                        batch.Draw(Style.MiddleUnsel, t.tabRect, Color.White);
+                        batch.Draw(Style.RightUnsel, right, Color.White);
                         if (Tabs.Count - 1 > i)
                         {
                             SubTexture tex = Tabs[i + 1].Selected ? Style.RightExt :
                                              Tabs[i + 1].Hover    ? Style.HoverLeft :
                                                                     Style.RightExtUnsel;
-                            spriteBatch.Draw(tex, right, Color.White);
+                            batch.Draw(tex, right, Color.White);
                         }
                     }
                     else
                     {
                         var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.HoverRight.Width, 25);
 
-                        spriteBatch.Draw(Style.HoverMid, t.tabRect, Color.White);
-                        spriteBatch.Draw(Style.HoverRight, right, Color.White);
+                        batch.Draw(Style.HoverMid, t.tabRect, Color.White);
+                        batch.Draw(Style.HoverRight, right, Color.White);
                         if (Tabs.Count - 1 > i)
                         {
                             SubTexture tex = Tabs[i + 1].Selected ? Style.RightExt :
                                              Tabs[i + 1].Hover    ? Style.HoverLeft :
                                                                     Style.RightExtUnsel;
-                            spriteBatch.Draw(tex, right, Color.White);
+                            batch.Draw(tex, right, Color.White);
                         }
                     }
                     var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - toUse.LineSpacing / 2));
-                    spriteBatch.DrawString(toUse, t.Title, textPos, new Color(255, 239, 208));
+                    batch.DrawString(toUse, t.Title, textPos, new Color(255, 239, 208));
                 }
             }
-            spriteBatch.Draw(Style.HorizVert, topHoriz, Color.White);
-            spriteBatch.Draw(Style.CornerTR,  TR, Color.White);
-            spriteBatch.Draw(Style.HorizVert, botHoriz, Color.White);
-            spriteBatch.Draw(Style.CornerBR,  BR, Color.White);
-            spriteBatch.Draw(Style.CornerBL,  BL, Color.White);
-            spriteBatch.Draw(Style.HorizVert, VR, Color.White);
-            spriteBatch.Draw(Style.HorizVert, VL, Color.White);
+            batch.Draw(Style.HorizVert, topHoriz, Color.White);
+            batch.Draw(Style.CornerTR,  TR, Color.White);
+            batch.Draw(Style.HorizVert, botHoriz, Color.White);
+            batch.Draw(Style.CornerBR,  BR, Color.White);
+            batch.Draw(Style.CornerBL,  BL, Color.White);
+            batch.Draw(Style.HorizVert, VR, Color.White);
+            batch.Draw(Style.HorizVert, VL, Color.White);
         }
 
         /// TODO: there are 3 pretty much identical functions here... what the hell??
-        public void HandleInput(IListScreen caller)
+        public void HandleInput(InputState input, IListScreen caller)
         {
             for (int i = 0; i < Tabs.Count; i++)
             {
                 Tab tab = Tabs[i];
-                if (!tab.tabRect.HitTest(Input.CursorPosition))
+                if (!tab.tabRect.HitTest(input.CursorPosition))
                 {
                     tab.Hover = false;
                     continue;
                 }
                 tab.Hover = true;
-                if (Input.LeftMouseClick)
+                if (input.LeftMouseClick)
                 {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.AcceptClick();
                     tab.Selected = true;
                     foreach (Tab otherTab in Tabs)
                         if (otherTab != tab) otherTab.Selected = false;
@@ -265,7 +274,7 @@ namespace Ship_Game
                     tab.Hover = true;
                     if (input.LeftMouseClick)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.AcceptClick();
                         tab.Selected = true;
                         foreach (Tab t1 in Tabs)
                         {
@@ -282,18 +291,18 @@ namespace Ship_Game
             }
             return false;
         }
-        public void HandleInputNoReset()
+        public void HandleInputNoReset(InputState input)
         {
             foreach (Tab tab in Tabs)
             {
-                if (!tab.tabRect.HitTest(Input.CursorPosition))
+                if (!tab.tabRect.HitTest(input.CursorPosition))
                 {
                     tab.Hover = false;
                     continue;
                 }
 
                 tab.Hover = true;
-                if (Input.LeftMouseClick)
+                if (input.LeftMouseClick)
                     continue;
                 tab.Selected = true;
                 foreach (Tab otherTab in Tabs)
