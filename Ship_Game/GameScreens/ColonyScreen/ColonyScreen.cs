@@ -450,14 +450,13 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
             }
             
-            DrawActiveBuildingEntry(batch);
-
             base.Draw(batch);
 
             if (ScreenManager.NumScreens == 2)
                 Popup = true;
 
             close.Draw(batch);
+            DrawActiveBuildingEntry(batch); // draw dragged item as topmost
 
             if (FoodStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(73);
