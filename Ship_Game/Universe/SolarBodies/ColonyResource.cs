@@ -54,7 +54,7 @@ namespace Ship_Game.Universe.SolarBodies
             // because government gets to eat their pie first :)))
             NetIncome           = AfterTax(GrossIncome) - consumption;
             NetMaxPotential     = AfterTax(GrossMaxPotential) - consumption;
-            NetFlatBonus        = AfterTax(NetFlatBonus);
+            NetFlatBonus        = AfterTax(FlatBonus);
             NetYieldPerColonist = AfterTax(YieldPerColonist);
         }
 
