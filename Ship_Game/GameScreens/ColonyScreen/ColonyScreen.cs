@@ -865,7 +865,7 @@ namespace Ship_Game
                 }
                 if (PlayerDesignsToggle.HandleInput(input) && !input.LeftMouseReleased)
                 {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                     GlobalStats.ShowAllDesigns = !GlobalStats.ShowAllDesigns;
                     PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
                     ResetLists();
@@ -1060,7 +1060,7 @@ namespace Ship_Game
                 if (foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     foodDropDown.Toggle();
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                     P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
                     if (P.FS > Planet.GoodState.EXPORT)
                         P.FS = Planet.GoodState.STORE;
@@ -1069,7 +1069,7 @@ namespace Ship_Game
                 if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     prodDropDown.Toggle();
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                     P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
                     if (P.PS > Planet.GoodState.EXPORT)
                         P.PS = Planet.GoodState.STORE;

@@ -289,25 +289,25 @@ namespace Ship_Game
                     bool flag=true;
                     while (p.ApplyStoredProduction(0))
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                         if(flag)
                         flag = false;
 
                     }
                     
                     if(flag)
-						GameAudio.PlaySfxAsync("UI_Misc20");
+						GameAudio.NegativeClick();
 
 
 				}
 				else if (p.ApplyStoredProduction(0))
 				{
 
-					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+					GameAudio.ButtonClick();
 				}
 				else 
 				{
-					GameAudio.PlaySfxAsync("UI_Misc20");
+					GameAudio.NegativeClick();
 				}
 
 			}
@@ -321,12 +321,12 @@ namespace Ship_Game
                 {
                     p.FS = Planet.GoodState.STORE;
                 }
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.ButtonClick();
             }
             if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
                 prodDropDown.Toggle();
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.ButtonClick();
                 Planet planet2 = p;
                 planet2.PS = (Planet.GoodState)((int)planet2.PS + (int)Planet.GoodState.IMPORT);
                 if (p.PS > Planet.GoodState.EXPORT)

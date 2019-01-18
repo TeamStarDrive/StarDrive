@@ -1394,7 +1394,7 @@ namespace Ship_Game
             {
                 if (!audio)
                     return;
-                GameAudio.PlaySfxAsync("UI_Misc20");
+                GameAudio.NegativeClick();
                 return;
             }
 
@@ -1553,7 +1553,7 @@ namespace Ship_Game
                 {
                     if (input.CursorPosition.InRadius(clickablePlanets.ScreenPos, clickablePlanets.Radius))
                     {
-                        GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                        GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
                         if (!SnapBackToSystem)
                             HeightOnSnap = CamHeight;

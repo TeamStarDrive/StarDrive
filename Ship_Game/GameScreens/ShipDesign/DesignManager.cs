@@ -85,7 +85,7 @@ namespace Ship_Game
                     if (input.LeftMouseClick)
                     {
                         EnterNameArea.Text = ((Ship)e.item).Name;
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                     }
                 }
             }
@@ -186,7 +186,7 @@ namespace Ship_Game
 
             if (reserved && !Empire.Universe.Debug)
             {
-                GameAudio.PlaySfxAsync("UI_Misc20");
+                GameAudio.NegativeClick();
                 var messageBox = new MessageBoxScreen(this, $"{EnterNameArea.Text} is a reserved ship name and you cannot overwrite this design");
                 ScreenManager.AddScreen(messageBox);
                 return;

@@ -521,7 +521,7 @@ namespace Ship_Game
                 {
                     if (SelectedPlanet != entry.p)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                         SelectedPlanet = entry.p;
                         GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
                         SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;

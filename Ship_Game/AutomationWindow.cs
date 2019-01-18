@@ -50,7 +50,7 @@ namespace Ship_Game
 
         public void ToggleVisibility()
         {
-            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            GameAudio.ButtonClick();
             IsOpen = !IsOpen;
         }
 

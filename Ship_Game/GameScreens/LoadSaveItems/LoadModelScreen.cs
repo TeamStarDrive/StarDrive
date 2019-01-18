@@ -68,7 +68,7 @@ namespace Ship_Game
             }
             else
             {
-                GameAudio.PlaySfxAsync("UI_Misc20");
+                GameAudio.NegativeClick();
             }
             ExitScreen();
         }
@@ -106,7 +106,7 @@ namespace Ship_Game
         {
             try
             {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.ButtonClick();
 
                 string relativePath = modelData.FileInfo.RelPath().Replace("Content\\", "");
                 screen.LoadModel(relativePath);

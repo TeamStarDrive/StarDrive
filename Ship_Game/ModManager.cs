@@ -122,7 +122,7 @@ namespace Ship_Game
                 if (!input.InGameSelect)
                     continue;
 
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.ButtonClick();
                 SelectedMod = (ModEntry)e.item;
                 EnterNameArea.Text = SelectedMod.ModName;
                 Visit.Text = SelectedMod.mi.URL.IsEmpty() ? Localizer.Token(4015) : "Goto Mod URL";

@@ -415,7 +415,7 @@ namespace Ship_Game
                     selector = e.CreateSelector();
                     if (!input.InGameSelect)
                         continue;
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    GameAudio.ButtonClick();
                     if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
                     {
                         Changeto = e.item as ShipData;
@@ -620,7 +620,7 @@ namespace Ship_Game
         {
             if (ActiveHull == null)
                 return;
-            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            GameAudio.ButtonClick();
             ActiveHull.CombatState = CombatStateFromAction(button);
             UpdateActiveCombatButton();
         }
@@ -777,7 +777,7 @@ namespace Ship_Game
             ButtonMedium(titleId:105, click: b =>
             {
                 if (!CheckDesign()) {
-                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    GameAudio.NegativeClick();
                     ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
                     return;
                 }

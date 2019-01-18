@@ -192,7 +192,7 @@ namespace Ship_Game
                 {
                     if ((screen.workersPanel as CombatScreen).ActiveTroop.TroopsHere[0].AvailableMoveActions < 1)
                     {
-                        GameAudio.PlaySfxAsync("UI_Misc20");                        
+                        GameAudio.NegativeClick();                        
                         return true;
                     }
                     GameAudio.PlaySfxAsync("sd_troop_takeoff");

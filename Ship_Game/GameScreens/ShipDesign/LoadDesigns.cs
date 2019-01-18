@@ -156,7 +156,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         {
                             EnterNameArea.Text = data.Name;
                             selectedWIP = data;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                            GameAudio.ButtonClick();
                         }
                     }
                 }
@@ -176,7 +176,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         if (input.LeftMouseClick)
                         {
                             EnterNameArea.Text = ship.Name;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                            GameAudio.ButtonClick();
                         }
                     }
                 }
@@ -196,7 +196,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(SaveShips.Menu.X + SaveShips.Menu.Width - 44, SaveShips.Menu.Y)));
             PlayerDesignsToggle.OnClick += p =>
             {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                GameAudio.ButtonClick();
                 ShowAllDesigns = !ShowAllDesigns;
                 PlayerDesignsToggle.Active = ShowAllDesigns;
                 ResetSL();

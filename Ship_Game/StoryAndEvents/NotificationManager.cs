@@ -472,7 +472,7 @@ namespace Ship_Game
                         }
                         if (input.RightMouseClick && n.Action != "LoadEvent")
                         {
-                            GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                            GameAudio.SubBassWhoosh();
                             NotificationList.QueuePendingRemoval(n);
                             recalculate = true;
                             retValue = true;
@@ -505,7 +505,7 @@ namespace Ship_Game
 
         public void SnapToCombat(Planet p)
         {
-            GameAudio.PlaySfxAsync("sub_bass_whoosh");
+            GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
             if (!Screen.SnapBackToSystem)
             {
@@ -516,7 +516,7 @@ namespace Ship_Game
 
         public void SnapToPlanet(Planet p)
         {
-            GameAudio.PlaySfxAsync("sub_bass_whoosh");
+            GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
             if (!Screen.SnapBackToSystem)
             {
@@ -526,7 +526,7 @@ namespace Ship_Game
         }
         public void SnapToExpandedSystem(Planet p, SolarSystem system)
         {
-            GameAudio.PlaySfxAsync("sub_bass_whoosh");
+            GameAudio.SubBassWhoosh();
             if (p != null) Screen.SelectedPlanet = p;
             Screen.SelectedSystem = system;
            // Screen.mouseWorldPos = p == null ? system.Position : p.Position;
@@ -535,7 +535,7 @@ namespace Ship_Game
 
         public void SnapToSystem(SolarSystem system)
         {
-            GameAudio.PlaySfxAsync("sub_bass_whoosh");
+            GameAudio.SubBassWhoosh();
             Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
         }
 

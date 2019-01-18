@@ -74,7 +74,7 @@ namespace Ship_Game
         {
             if (Node.tech.UID == EmpireManager.Player.ResearchTopic)
             {
-                GameAudio.PlaySfxAsync("UI_Misc20");
+                GameAudio.NegativeClick();
                 return true;
             }
             int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(q => q.Node.tech.UID == Node.tech.UID);
@@ -82,7 +82,7 @@ namespace Ship_Game
             {
                 if (AboveisPrereq(indexOfThis))
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    GameAudio.NegativeClick();
                     return true;
                 }
                 SwapQueueItems(indexOfThis - 1, indexOfThis);
@@ -92,7 +92,7 @@ namespace Ship_Game
             {
                 if (CurrentIsPreReq())
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    GameAudio.NegativeClick();
                     return true;
                 }
                 SwapResearchTopic(0);
@@ -106,7 +106,7 @@ namespace Ship_Game
 	    {
 	        if (Node.tech.UID == EmpireManager.Player.ResearchTopic && EmpireManager.Player.data.ResearchQueue.Count == 0)
 	        {
-	            GameAudio.PlaySfxAsync("UI_Misc20");
+	            GameAudio.NegativeClick();
                 return true;
 	        }
 	        if (Node.tech.UID != EmpireManager.Player.ResearchTopic) // move tech down
@@ -114,7 +114,7 @@ namespace Ship_Game
 	            int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(r => r.Node.tech.UID == Node.tech.UID);
 	            if (indexOfThis == -1 || indexOfThis == EmpireManager.Player.data.ResearchQueue.Count - 1 || ThisIsPreReq(indexOfThis))
 	            {
-	                GameAudio.PlaySfxAsync("UI_Misc20");
+	                GameAudio.NegativeClick();
                     return true;
 	            }
 	            SwapQueueItems(indexOfThis + 1, indexOfThis);
@@ -124,7 +124,7 @@ namespace Ship_Game
 	        {
 	            if (ThisIsPreReq1())
 	            {
-	                GameAudio.PlaySfxAsync("UI_Misc20");
+	                GameAudio.NegativeClick();
                     return true;
 	            }
 	            SwapResearchTopic(0);

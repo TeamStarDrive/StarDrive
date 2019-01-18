@@ -362,7 +362,7 @@ namespace Ship_Game
                     }
                     if (input.InGameSelect)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        GameAudio.ButtonClick();
                         SetRestrictionFromText(button.Action);
                     }
                 }

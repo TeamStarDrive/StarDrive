@@ -450,7 +450,7 @@ namespace Ship_Game.Ships
             {
                 if (engineState == MoveState.Warp || isSpooling)
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20"); // dont allow changing button state if the ship is spooling or at warp
+                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
                     return;
                 }
                 FightersLaunched = value;
@@ -585,7 +585,7 @@ namespace Ship_Game.Ships
             {
                 if (engineState == MoveState.Warp || isSpooling)
                 {
-                    GameAudio.PlaySfxAsync("UI_Misc20"); // dont allow changing button state if the ship is spooling or at warp
+                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
                     return;
                 }
                 TroopsLaunched = value;
