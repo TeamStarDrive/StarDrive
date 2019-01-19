@@ -83,16 +83,14 @@ namespace Ship_Game
             UpdateRequisitionStatus();
         }
 
-        private void CreateShipGoals()
+        private void CreateFleetRequisitionGoals()
         {
             foreach (FleetDataNode node in f.DataNodes)
             {
-                if (node.Ship!= null || node.GoalGUID != Guid.Empty)
-                {
+                if (node.Ship != null || node.GoalGUID != Guid.Empty)
                     continue;
-                }
                 var g = new FleetRequisition(node.ShipName, f.Owner);
-                g.SetFleet(f);
+                g.Fleet = f;
                 node.GoalGUID = g.guid;
                 f.Owner.GetEmpireAI().Goals.Add(g);
                 g.Evaluate();
@@ -218,7 +216,7 @@ namespace Ship_Game
             }
             if (BuildNow.HandleInput(input))
             {
-                CreateShipGoals();
+                CreateFleetRequisitionGoals();
                 UpdateRequisitionStatus();
             }
             if (input.Escaped || input.RightMouseClick)

@@ -6,6 +6,8 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
+    public delegate void QueueItemCompleted(bool success);
+
     public class QueueItem
     {
         public Planet Planet;
@@ -28,6 +30,9 @@ namespace Ship_Game
         public Goal Goal;
         public bool NotifyOnEmpty = true;
         public bool IsPlayerAdded = false;
+
+        // Event action for when this QueueItem is finished
+        public QueueItemCompleted OnComplete;
 
         // production still needed until this item is finished
         public float ProductionNeeded => ActualCost - ProductionSpent;

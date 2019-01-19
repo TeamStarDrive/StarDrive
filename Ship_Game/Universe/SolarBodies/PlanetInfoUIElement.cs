@@ -371,13 +371,10 @@ namespace Ship_Game
                 if (marked)
                 {
                     GameAudio.EchoAffirmative();
-                    if (markedGoal.GetColonyShip() != null)
+                    if (markedGoal.FinishedShip != null)
                     {
-                        lock (markedGoal.GetColonyShip())
-                        {
-                            markedGoal.GetColonyShip().AI.OrderQueue.Clear();
-                            markedGoal.GetColonyShip().AI.State = AIState.AwaitingOrders;
-                        }
+                        markedGoal.FinishedShip.AI.OrderQueue.Clear();
+                        markedGoal.FinishedShip.AI.State = AIState.AwaitingOrders;
                     }
                     EmpireManager.Player.GetEmpireAI().Goals.QueuePendingRemoval(markedGoal);
                     EmpireManager.Player.GetEmpireAI().Goals.ApplyPendingRemovals();

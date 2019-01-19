@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
@@ -98,8 +99,7 @@ namespace Ship_Game.Universe.SolarBodies
                     if (q.isBuilding)   ok = OnBuildingComplete(q);
                     else if (q.isShip)  ok = OnShipComplete(q);
                     else if (q.isTroop) ok = TrySpawnTroop(q);
-                    if (ok) Remove(i);
-                    else    Cancel(q);
+                    Finish(q, success: ok);
                     continue; // this item was removed, so skip
                 }
                 ++i;
@@ -172,15 +172,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (q.Goal != null)
             {
-                if (q.Goal is BuildConstructionShip)
-                {
-                    shipAt.AI.OrderDeepSpaceBuild(q.Goal);
-                    shipAt.isConstructor = true;
-                    shipAt.VanityName = "Construction Ship";
-                }
-                else if (!(q.Goal is BuildDefensiveShips)
-                         && !(q.Goal is BuildOffensiveShips)
-                         && !(q.Goal is FleetRequisition))
+                if (!(q.Goal is FleetRequisition))
                 {
                     q.Goal.AdvanceToNextStep();
                 }
@@ -188,11 +180,11 @@ namespace Ship_Game.Universe.SolarBodies
                 {
                     if (Owner != Empire.Universe.PlayerEmpire)
                         Owner.ForcePoolAdd(shipAt);
-                    q.Goal.ReportShipComplete(shipAt);
                 }
+                q.Goal.ReportShipComplete(shipAt);
             }
-            else if ((q.sData.Role != ShipData.RoleName.station || q.sData.Role == ShipData.RoleName.platform)
-                     && Owner != Empire.Universe.PlayerEmpire)
+            else if (q.sData.Role != ShipData.RoleName.station &&
+                     q.sData.Role != ShipData.RoleName.platform && !Owner.isPlayer)
             {
                 Owner.ForcePoolAdd(shipAt);
             }
@@ -226,7 +218,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         // @return TRUE if building was added to CQ,
         //         FALSE if `where` is occupied or if there is no free random tiles
-        public bool AddToBuildQueue(Building b, PlanetGridSquare where = null, bool playerAdded = false)
+        public bool AddBuilding(Building b, PlanetGridSquare where = null, bool playerAdded = false)
         {
             var qi = new QueueItem(P)
             {
@@ -236,7 +228,8 @@ namespace Ship_Game.Universe.SolarBodies
                 pgs = where,
                 Cost = b.ActualCost,
                 ProductionSpent = 0.0f,
-                NotifyOnEmpty = false
+                NotifyOnEmpty = false,
+                QueueNumber = ConstructionQueue.Count
             };
 
             // if not added by player, then skip biosphere, let it be handled below:
@@ -262,12 +255,68 @@ namespace Ship_Game.Universe.SolarBodies
                     if (P.BuildingBuiltOrQueued(terraFormer))
                         return false;
                     if (Owner.IsBuildingUnlocked(terraFormer.Name) && P.WeCanAffordThis(terraFormer, P.colonyType))
-                        return AddToBuildQueue(ResourceManager.CreateBuilding(terraFormer.BID));
+                        return AddBuilding(ResourceManager.CreateBuilding(terraFormer.BID));
                 }
             }
 
             return Owner.IsBuildingUnlocked(Building.BiospheresId)
                 && TryBiosphereBuild(ResourceManager.CreateBuilding(Building.BiospheresId), qi);
+        }
+
+        public QueueItem AddPlatform(Ship platform, Ship constructor, Goal goal = null)
+        {
+            var qi = new QueueItem(P)
+            {
+                isShip        = true,
+                Goal          = goal,
+                NotifyOnEmpty = false,
+                DisplayName = "Construction Ship",
+                QueueNumber = ConstructionQueue.Count,
+                sData       = platform.shipData,
+                Cost        = constructor.GetCost(Owner)
+            };
+            ConstructionQueue.Add(qi);
+            return qi;
+        }
+
+        public QueueItem AddShip(Ship ship, Goal goal = null)
+        {
+            var qi = new QueueItem(P)
+            {
+                isShip = true,
+                Goal   = goal,
+                sData  = ship.shipData,
+                Cost   = ship.GetCost(Owner),
+                QueueNumber = ConstructionQueue.Count,
+            };
+            ConstructionQueue.Add(qi);
+            return qi;
+        }
+
+        public QueueItem AddTroop(Troop template, Goal goal = null)
+        {
+            var qi = new QueueItem(P)
+            {
+                isTroop = true,
+                QueueNumber = ConstructionQueue.Count,
+                TroopType = template.Name,
+                Goal = goal,
+                Cost = template.ActualCost
+            };
+            ConstructionQueue.Add(qi);
+            return qi;
+        }
+
+        public void Finish(QueueItem q, bool success)
+        {
+            if (success) Finish(q);
+            else         Cancel(q);
+        }
+
+        public void Finish(QueueItem q)
+        {
+            P.ConstructionQueue.Remove(q);
+            q.OnComplete?.Invoke(success: true);
         }
 
         public void Cancel(QueueItem q)
@@ -284,19 +333,17 @@ namespace Ship_Game.Universe.SolarBodies
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
                 }
 
-                if (q.Goal.GetFleet() != null)
+                if (q.Goal.Fleet != null)
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
             }
             P.ConstructionQueue.Remove(q);
-        }
-
-        public void Remove(int itemIndex)
-        {
-            P.ConstructionQueue.RemoveAt(itemIndex);
+            q.OnComplete?.Invoke(success: false);
         }
 
         public int EstimateMinTurnsToBuildShip(float shipCost)
         {
+            if (!P.HasSpacePort)
+                return 9999; // waaaay impossible
             int shipTurns = (int)Math.Ceiling((shipCost*P.ShipBuildingModifier) / P.Prod.NetMaxPotential);
             int otherItems = ConstructionQueue.Sum(q => q.TurnsUntilComplete);
             int total = shipTurns + otherItems;
