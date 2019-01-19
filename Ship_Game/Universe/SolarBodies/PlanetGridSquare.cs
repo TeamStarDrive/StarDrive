@@ -57,5 +57,18 @@ namespace Ship_Game
             }
             QItem = null;
         }
+
+        public bool ShouldPerformAutoCombat(Planet p)
+        {
+            return (GlobalStats.AutoCombat // always auto combat
+                || p.Owner?.isPlayer == false // or we're AI?
+                || !Empire.Universe.IsViewingCombatScreen(p)); // or we're not looking at combat screen
+        }
+
+        public bool ShouldBuildingPerformAutoCombat(Planet p)
+        {
+            return building?.CanAttackThisTurn == true
+                && ShouldPerformAutoCombat(p);
+        }
 	}
 }
