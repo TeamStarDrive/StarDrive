@@ -666,6 +666,12 @@ namespace Ship_Game
             return center + RandomMath.RandomDirection() * distance;
         }
 
+        // Gives a random point from a vector within a specified distance
+        public static Vector2 RandomOffsetAndDistance(Vector2 center, float distance)
+        {
+            return center + RandomMath.RandomDirection() * RandomMath.RandomBetween(0, distance);
+        }
+
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
         public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)
@@ -906,17 +912,6 @@ namespace Ship_Game
             if (rem != 0)
                 value += multipleOf - rem;
             return value;
-        }
-
-
-        // Gives a random point from a vector in a specified range
-        public static Vector2 RandomPointFromCenter(Vector2 origin, float range)
-        {
-            Vector2 point;
-            point.X = RandomMath.RandomBetween(origin.X - range, origin.X + range);
-            point.Y = RandomMath.RandomBetween(origin.Y - range, origin.Y + range);
-
-            return point;
         }
     }
 }
