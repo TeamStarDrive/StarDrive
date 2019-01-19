@@ -75,7 +75,7 @@ namespace Ship_Game
             TroopManager    = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
             Storage         = new ColonyStorage(this);
-            SbProduction    = new SBProduction(this);
+            Construction    = new SBProduction(this);
 
             Food  = new ColonyFood(this)       { Percent = 0.34f };
             Prod  = new ColonyProduction(this) { Percent = 0.33f };
@@ -185,12 +185,11 @@ namespace Ship_Game
             if (Shipyards.Count != 0)
             {
                 Guid[] keys = Shipyards.Keys.ToArray();
-                for (int x = 0; x < keys.Length; x++)
+                for (int i = 0; i < keys.Length; i++)
                 {
-                    Guid key = keys[x];
+                    Guid key = keys[i];
                     Ship shipyard = Shipyards[key];
-                    if (shipyard == null || !shipyard.Active
-                                         || shipyard.SurfaceArea == 0)
+                    if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
                         Shipyards.Remove(key);
                 }
             }
@@ -208,7 +207,7 @@ namespace Ship_Game
             UpdatePosition(elapsedTime);
         }
 
-        private void UpdateSpaceCombatBuildings(float elapsedTime)
+        void UpdateSpaceCombatBuildings(float elapsedTime)
         {
             if (Owner == null) return;
             if (ParentSystem.ShipList.Count <= 0) return; 
@@ -286,7 +285,7 @@ namespace Ship_Game
             }
         }
 
-        private void LaunchDefenseShips(ShipData.RoleName roleName, Empire empire)
+        void LaunchDefenseShips(ShipData.RoleName roleName, Empire empire)
         {
             string defaultShip         = empire.data.StartingShip;
             string selectedShip        = GetDefenseShipName(roleName, empire) ?? defaultShip;
@@ -300,7 +299,7 @@ namespace Ship_Game
             }
         }
 
-        private static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire)
+        static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire)
         {
             return ShipBuilder.PickFromCandidates(roleName, empire);
         }
@@ -321,26 +320,23 @@ namespace Ship_Game
 
         void UpdatePlanetaryProjectiles(float elapsedTime)
         {
-            for (int index = Projectiles.Count - 1; index >= 0; --index)
+            for (int i = Projectiles.Count - 1; i >= 0; --i)
             {
-                Projectile projectile = Projectiles[index];
+                Projectile projectile = Projectiles[i];
                 if (projectile.Active)
                 {
-                    if (elapsedTime > 0)
+                    if (elapsedTime > 0f)
                         projectile.Update(elapsedTime);
                 }
-                else
-                    Projectiles.RemoveAtSwapLast(index);
+                else Projectiles.RemoveAtSwapLast(i);
             }
         }
 
         public void TerraformExternal(float amount)
         {
             ChangeMaxFertility(amount);
-            if (amount > 0)
-                ImprovePlanetType();
-            else
-                DegradePlanetType();
+            if (amount > 0) ImprovePlanetType();
+            else            DegradePlanetType();
         }
 
         public void ImprovePlanetType() // Refactored by Fat Bastard
@@ -458,8 +454,7 @@ namespace Ship_Game
             }
 
             //this.UpdateTimer = 10f;
-            HarvestResources();
-            ApplyProductionTowardsConstruction();
+            ApplyResources();
             GrowPopulation();
             TroopManager.HealTroops(2);
             RepairBuildings(1);
@@ -692,7 +687,7 @@ namespace Ship_Game
             // greedy bastards
             Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
             Food.Update(NonCybernetic ? Consumption : 0f);
-            Prod.Update(IsCybernetic ? Consumption : 0f);
+            Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
             Money.Update();
 
@@ -704,54 +699,44 @@ namespace Ship_Game
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
 
-        void HarvestResources()
+        void ApplyResources()
         {
+            float foodRemainder = Storage.AddFoodWithRemainder(Food.NetIncome);
+            float prodRemainder = Storage.AddProdWithRemainder(Prod.NetIncome);
+
             // produced food is already consumed by denizens during resource update
-            // if we have shortage, then NetIncome will be negative
-            Unfed = IsCybernetic ? Prod.NetIncome : Food.NetIncome;
-            if (Unfed > 0f) Unfed = 0f;
+            // if remainder is negative even after adding to storage,
+            // then we are starving
+            Unfed = IsCybernetic ? prodRemainder : foodRemainder;
+            if (Unfed > 0f) Unfed = 0f; // we have surplus, nobody is unfed
 
-            FoodHere += Food.NetIncome;
-            ProdHere += Prod.NetIncome;
+            // special buildings generate ReactorFuel,Fissionables,etc.
+            Storage.DistributeSpecialBuildingResources();
 
-            // now if food income was < 0, we will have to get some from Storage:
-            if (Unfed < 0)
-            {
-                float needed = -Unfed;
-                if (Storage.RaceFood >= needed)
-                {
-                    Storage.RaceFood -= needed;
-                    Unfed = 0;
-                }
-                else // consume everything (greedy bastards!)
-                {
-                    Unfed += Storage.RaceFood;
-                    Storage.RaceFood = 0;
-                }
-            }
-            Storage.BuildingResources();
+            // production surplus is sent to auto-construction
+            float prodSurplus = Math.Max(prodRemainder, 0f);
+            Construction.AutoApplyProduction(prodSurplus);
         }
 
 
-        private void GrowPopulation()
+        void GrowPopulation()
         {
             if (Owner == null) return;
-
+            
             float repRate = Owner.data.BaseReproductiveRate * Population;
-            if (repRate > Owner.data.Traits.PopGrowthMax * 1000 && !Owner.data.Traits.PopGrowthMax.AlmostZero())
-                repRate = Owner.data.Traits.PopGrowthMax * 1000f;
-            if (repRate < Owner.data.Traits.PopGrowthMin * 1000 )
-                repRate = Owner.data.Traits.PopGrowthMin * 1000f;
+            if (Owner.data.Traits.PopGrowthMax.NotZero())
+                repRate = Math.Min(repRate, Owner.data.Traits.PopGrowthMax * 1000f);
+            repRate = Math.Max(repRate, Owner.data.Traits.PopGrowthMin * 1000f);
             repRate += PlusFlatPopulationPerTurn;
+            repRate += repRate * Owner.data.Traits.ReproductionMod;
 
-            float adjustedRepRate = repRate + Owner.data.Traits.ReproductionMod * repRate;
             if (IsStarving)
-                Population += Unfed * 10f; // <-- This reduces population due to starvation.
+                Population += Unfed * 10f; // <-- This reduces population depending on starvation severity.
             else
-                Population += adjustedRepRate;
+                Population += repRate;
 
             Population = Population.Clamped(100f, MaxPopulation);
-            AvgPopulationGrowth = (AvgPopulationGrowth + adjustedRepRate) / 2;
+            AvgPopulationGrowth = (AvgPopulationGrowth + repRate) / 2;
         }
 
 
@@ -814,7 +799,7 @@ namespace Ship_Game
         {
             ActiveCombats?.Dispose(ref ActiveCombats);
             OrbitalDropList?.Dispose(ref OrbitalDropList);
-            SbProduction    = null;
+            Construction    = null;
             Storage   = null;
             TroopManager    = null;
             GeodeticManager = null;

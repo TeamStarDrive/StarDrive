@@ -169,9 +169,9 @@ namespace Ship_Game
             && (planet.colonyType != Planet.ColonyType.Industrial || planet.IsCoreWorld)
         );
 
-        public Planet PlanetToBuildAt (float productionNeeded)
+        public Planet PlanetToBuildShipAt(float actualCost)
         {
-            Planet planet = OwnedPlanets.FindMin(p => p.SbProduction.EstimateMinTurnsToBuildShip(productionNeeded));
+            Planet planet = OwnedPlanets.FindMin(p => p.Construction.EstimateMinTurnsToBuildShip(actualCost));
             return planet;
         }
         public string Name => data.Traits.Name;

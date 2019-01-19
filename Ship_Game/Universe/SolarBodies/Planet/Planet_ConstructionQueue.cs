@@ -28,25 +28,25 @@ namespace Ship_Game
                 if (!needCommandBuilding && b.IsCapitalOrOutpost)
                     continue;
                 // Make sure the building isn't already built on this planet
-                if (b.Unique && BuildingExists(b))
+                if (b.Unique && BuildingBuiltOrQueued(b))
                     continue;
                 // Hide Biospheres if the entire planet is already habitable
                 if (b.IsBiospheres && AllTilesHabitable())
                     continue;
                 // If this is a one-per-empire building, make sure it hasn't been built already elsewhere
                 // Reusing fountIt bool from above
-                if (b.BuildOnlyOnce && IsBuiltWithinEmpire(b))
+                if (b.BuildOnlyOnce && IsBuiltOrQueuedWithinEmpire(b))
                     continue;
                 // If the building is still a candidate after all that, then add it to the list!
                 BuildingsCanBuild.Add(b);
             }
         }
 
-        bool IsBuiltWithinEmpire(Building b)
+        public bool IsBuiltOrQueuedWithinEmpire(Building b)
         {
             // Check for this unique building across the empire
             foreach (Planet planet in Owner.GetPlanets())
-                if (planet.BuildingExists(b))
+                if (planet.BuildingBuiltOrQueued(b))
                     return true;
             return false;
         }
@@ -57,28 +57,19 @@ namespace Ship_Game
         }
 
         
-        public void ApplyAllStoredProduction(int index)  => SbProduction.ApplyAllStoredProduction(index);
-        public bool ApplyStoredProduction(int index)     => SbProduction.ApplyStoredProduction(index);
-        public void ApplyProductionTowardsConstruction() => SbProduction.ApplyProductionTowardsConstruction();
-        public bool BuildingExists(Building b)           => BuildingExists(b.BID);
-        public bool CanBuildInfantry                     => BuildingList.Any(b => b.AllowInfantry);
-        public bool BuildingInTheWorks                   => ConstructionQueue.Any(b => b.isBuilding);
-        public bool BiosphereInTheWorks                  => BuildingInQueue(Building.BiospheresId);
-        public int TotalTurnsInConstruction              => ConstructionQueue.Count > 0 ? NumberOfTurnsUntilCompleted(ConstructionQueue.Last) : 0;
+        public bool CanBuildInfantry        => BuildingList.Any(b => b.AllowInfantry);
+        public bool BuildingInTheWorks      => ConstructionQueue.Any(b => b.isBuilding);
+        public bool BiosphereInTheWorks     => BuildingInQueue(Building.BiospheresId);
+        public int TotalTurnsInConstruction => ConstructionQueue.Count > 0 ? NumberOfTurnsUntilCompleted(ConstructionQueue.Last) : 0;
 
-        public bool TryBiosphereBuild(Building b, QueueItem qi)           => SbProduction.TryBiosphereBuild(b, qi);
-        public void ApplyProductionToQueue(float howMuch, int whichItem)  => SbProduction.ApplyProductiontoQueue(howMuch, whichItem);
+        public bool BuildingInQueue(int bid) => ConstructionQueue
+                                               .Any(q => q.isBuilding && q.Building.BID == bid);
 
-        // @return TRUE if building was added to CQ,
-        //         FALSE if `where` is occupied or if there is no free random tiles
-        public bool AddBuildingToCQ(Building b, PlanetGridSquare where = null, bool playerAdded = false)
-            => SbProduction.AddBuildingToCQ(b, where, playerAdded);
-
-        public bool BuildingInQueue(int buildingId) => ConstructionQueue.Any(q => q.isBuilding
-                                                                                  && q.Building.BID == buildingId);
-
-        public bool BuildingExists(int buildingId)  => BuildingList.Any(existing => existing.BID == buildingId)
-                                                      || BuildingInQueue(buildingId);
+        public bool BuildingBuilt(int bid) => BuildingList.Any(existing => existing.BID == bid);
+                                            
+        // exists on planet OR in queue
+        public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
+        public bool BuildingBuiltOrQueued(int bid) => BuildingBuilt(bid) || BuildingInQueue(bid);
 
         bool FindConstructionBuilding(Goods goods, out QueueItem item)
         {
@@ -97,25 +88,14 @@ namespace Ship_Game
 
         int NumberOfTurnsUntilCompleted(QueueItem item)
         {
-            int totalTurns = 0;
-            foreach (QueueItem it in ConstructionQueue)
+            int turns = 0;
+            foreach (QueueItem q in ConstructionQueue)
             {
-                totalTurns += it.EstimatedTurnsToComplete;
-                if (it == item)
+                turns += q.TurnsUntilComplete;
+                if (q == item)
                     break;
             }
-            return totalTurns;
-        }
-
-        public float GetTotalConstructionQueueMaintenance()
-        {
-            float count = 0;
-            foreach (QueueItem b in ConstructionQueue)
-            {
-                if (!b.isBuilding) continue;
-                count -= b.Building.Maintenance + b.Building.Maintenance * Owner.data.Traits.MaintMod;
-            }
-            return count;
+            return turns;
         }
     }
 }

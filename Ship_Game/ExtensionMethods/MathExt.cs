@@ -81,6 +81,15 @@ namespace Ship_Game
                                Max(min.Y, Min(v.Y, max.Y)));
         }
 
+        // This is a common pattern in the codebase, there is some amount
+        // and we wish to subtract another value from it, but not beyond 0
+        public static void Consume(ref float fromAmount, ref float toConsume)
+        {
+            if (fromAmount <= 0f || toConsume <= 0f) return; // nothing to consume
+            if     (fromAmount >= toConsume) { fromAmount -= toConsume;  toConsume  = 0f; }
+            else if (fromAmount < toConsume) { toConsume  -= fromAmount; fromAmount = 0f; }
+        }
+
         // Angle normalized to [0, 360] degrees
         public static float NormalizedAngle(this float angle)
         {
@@ -812,7 +821,7 @@ namespace Ship_Game
         public static bool AlmostEqual(this float a, float b)
         {
             float delta = a - b;
-            return -0.000001f <= delta && delta <= 0.000001f;
+            return -0.000001f <= delta && delta <= +0.000001f;
         }
         public static bool AlmostEqual(this float a, float b, float tolerance)
         {
@@ -822,7 +831,12 @@ namespace Ship_Game
 
         public static bool AlmostZero(this float a)
         {
-            return -0.000001f <= a && a <= 0.000001f;
+            return -0.000001f <= a && a <= +0.000001f;
+        }
+
+        public static bool NotZero(this float a)
+        {
+            return a < -0.000001f && +0.000001f <= a;
         }
 
         /// <summary>Returns true if a less than b or almost equal</summary>

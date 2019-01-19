@@ -32,7 +32,7 @@ namespace Ship_Game.Commands.Goals
             {
                 isTroop = true,
                 QueueNumber = PlanetBuildingAt.ConstructionQueue.Count,
-                troopType = ToBuildUID,
+                TroopType = ToBuildUID,
                 Goal = this,
                 Cost = troopTemplate.ActualCost
             });

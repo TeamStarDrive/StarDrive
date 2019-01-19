@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // @todo We should use production based estimation instead
                 float distance = p.Center.Distance(BuildPosition);
-                return distance + distance*p.ConstructionQueue.Count;
+                return distance + distance*p.NumConstructing;
             });
 
             if (!ResourceManager.GetShipTemplate(ToBuildUID, out Ship toBuild))
@@ -64,7 +64,7 @@ namespace Ship_Game.Commands.Goals
                 Goal          = this,
                 NotifyOnEmpty = false,
                 DisplayName = "Construction Ship",
-                QueueNumber = shipyard.ConstructionQueue.Count,
+                QueueNumber = shipyard.NumConstructing,
                 sData       = beingBuilt.shipData,
                 Cost        = toBuild.GetCost(empire)
             };
