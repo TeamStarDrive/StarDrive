@@ -335,7 +335,7 @@ namespace Ship_Game
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
                 var r = new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30);
                 var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y + Fonts.Arial12Bold.LineSpacing, 150, 18);
-                var pb = new ProgressBar(pbRect, queueItem.Cost, queueItem.productionTowards);
+                var pb = new ProgressBar(pbRect, queueItem.Cost, queueItem.ProductionSpent);
 
                 if (queueItem.isBuilding)
                 {
@@ -351,9 +351,9 @@ namespace Ship_Game
                 }
                 else if (queueItem.isTroop)
                 {
-                    Troop template = ResourceManager.GetTroopTemplate(queueItem.troopType);
+                    Troop template = ResourceManager.GetTroopTemplate(queueItem.TroopType);
                     template.Draw(spriteBatch, r);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.troopType, tCursor, Color.White);
+                    spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.TroopType, tCursor, Color.White);
                     pb.Draw(spriteBatch);
                 }
             }

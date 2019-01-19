@@ -7,7 +7,7 @@ namespace Ship_Game.Commands
         public BuildShip(ShipAI.ShipGoal goal, Planet planet) : base(planet)
         {
             isShip = true;
-            productionTowards = 0f;
+            ProductionSpent = 0f;
             sData = ResourceManager.ShipsDict[goal.VariableString].shipData;
         }
     }

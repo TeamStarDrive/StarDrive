@@ -39,7 +39,7 @@ namespace Ship_Game.Commands.Goals
         private GoalStep FindPlanetForFleetRequisition()
         {            
 
-            Planet planet1 = empire.PlanetToBuildAt(beingBuilt.GetCost(empire));
+            Planet planet1 = empire.PlanetToBuildShipAt(beingBuilt.GetCost(empire));
             
             if (planet1 == null)
                 return GoalStep.TryAgain;

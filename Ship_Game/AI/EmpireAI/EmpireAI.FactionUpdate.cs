@@ -19,19 +19,12 @@ namespace Ship_Game.AI {
                     foreach (Planet planet in OwnerEmpire.GetPlanets())
                     {
                         HasPlanets = true;
-
-                        foreach (QueueItem item in planet.ConstructionQueue)
-                        {
-                            {
-                                item.Cost = 0;
-                            }
-                        }
-                        planet.ApplyProductionToQueue(1, 0);
+                        planet.Construction.RemnantCheatProduction();
                     }
                     foreach (Ship assimilate in OwnerEmpire.GetShips())
                     {
                         if (assimilate.shipData.ShipStyle != "Remnant" && assimilate.shipData.ShipStyle != null 
-                                && assimilate.AI.State !=  AIState.Colonize && assimilate.AI.State != AIState.Refit)
+                        && assimilate.AI.State !=  AIState.Colonize && assimilate.AI.State != AIState.Refit)
                         {
                             if (HasPlanets)
                             {
@@ -106,19 +99,15 @@ namespace Ship_Game.AI {
                     break;
                 case "Corsairs":
                 {
-                    bool AttackingSomeone = false;
-                    //lock (GlobalStats.TaskLocker)
+                    bool alreadyAttacking = false;
+                    // @todo Wtf?
+                    foreach (MilitaryTask task in TaskList)
                     {
-                        TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
-                        {
-                            if (task.type != MilitaryTask.TaskType.CorsairRaid)
-                            {
-                                return;
-                            }
-                            AttackingSomeone = true;
-                        }, false, false, false);
+                        if (task.type != MilitaryTask.TaskType.CorsairRaid)
+                            return;
+                        alreadyAttacking = true;
                     }
-                    if (!AttackingSomeone)
+                    if (!alreadyAttacking)
                     {
                         foreach (KeyValuePair<Empire, Relationship> r in OwnerEmpire.AllRelations)
                         {
@@ -136,20 +125,15 @@ namespace Ship_Game.AI {
                                 from planet in r.Key.GetPlanets()
                                 orderby Vector2.Distance(planet.Center, center)
                                 select planet;
-                            MilitaryTask task = new MilitaryTask(OwnerEmpire);
+                            var task = new MilitaryTask(OwnerEmpire);
                             task.SetTargetPlanet(sortedList.First());
                             task.TaskTimer = 300f;
                             task.type = MilitaryTask.TaskType.CorsairRaid;
-                            //  lock (GlobalStats.TaskLocker)
-                            {
-                                TaskList.Add(task);
-                            }
+                            TaskList.Add(task);
                         }
                     }
                 }
-                    break;
-                default:
-                    break;
+                break;
             }
 
 
