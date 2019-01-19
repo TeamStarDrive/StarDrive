@@ -907,5 +907,16 @@ namespace Ship_Game
                 value += multipleOf - rem;
             return value;
         }
+
+
+        // Gives a random point from a vector in a specified range
+        public static Vector2 RandomPointFromCenter(Vector2 origin, float range)
+        {
+            Vector2 point;
+            point.X = RandomMath.RandomBetween(origin.X - range, origin.X + range);
+            point.Y = RandomMath.RandomBetween(origin.Y - range, origin.Y + range);
+
+            return point;
+        }
     }
 }

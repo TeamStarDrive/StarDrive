@@ -2,6 +2,7 @@ using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -102,6 +103,8 @@ namespace Ship_Game
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
 
+        public float StrengthMax => ResourceManager.GetBuildingTemplate(BID).Strength;
+
         public void SetPlanet(Planet p)
         {
             p.BuildingList.Add(this);
@@ -112,7 +115,7 @@ namespace Ship_Game
         {
             var b = (Building)MemberwiseClone();
             b.TheWeapon = null;
-            b.CurrentNumDefenseShips = b.DefenseShipsCapacity;
+            //b.CurrentNumDefenseShips = b.DefenseShipsCapacity;
             return b;
         }
 
@@ -122,15 +125,33 @@ namespace Ship_Game
                 return;
 
             TheWeapon = ResourceManager.CreateWeapon(Weapon);
-            Offense = TheWeapon.CalculateWeaponOffense() * 3; //360 degree angle
+            CalcBuildingOffense();
         }
         
-        public float StrengthMax => ResourceManager.GetBuildingTemplate(BID).Strength;
+        private void CalcBuildingOffense()
+        {
+            if (isWeapon)
+                Offense = TheWeapon.CalculateWeaponOffense() * 3; //360 degree angle
+        }
 
-        public void UpdateCurrentDefenseShips(int num)
+        private void CalcBuildingOffense(Empire empire)
+        {
+            Offense = 0;
+            CalcBuildingOffense();
+            if (DefenseShipsCapacity <= 0)
+                return;
+
+            string shipName = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
+            if (ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship))
+                Offense += ship.CalculateShipStrength() * DefenseShipsCapacity;
+        }
+
+        public void UpdateCurrentDefenseShips(int num, Empire empire)
         {
             if (DefenseShipsCapacity > 0)
-                CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0,DefenseShipsCapacity);
+                CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0, DefenseShipsCapacity);
+
+            CalcBuildingOffense(empire);
         }
 
         public float ActualMaintenance(Planet p) => Maintenance + Maintenance * p.Owner.data.Traits.MaintMod;
