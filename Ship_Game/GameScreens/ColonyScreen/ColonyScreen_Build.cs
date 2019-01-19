@@ -376,7 +376,7 @@ namespace Ship_Game
 
         bool Build(Building b, PlanetGridSquare where = null)
         {
-            if (P.Construction.AddToBuildQueue(b, where, true))
+            if (P.Construction.AddBuilding(b, where, true))
             {
                 // remove building if it's unique:
                 if (b.Unique || b.BuildOnlyOnce)

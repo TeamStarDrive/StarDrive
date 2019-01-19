@@ -15,7 +15,8 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                WaitMainGoalCompletion
+                WaitMainGoalCompletion,
+                OrderDeepSpaceBuild
             };
         }
 
@@ -27,51 +28,35 @@ namespace Ship_Game.Commands.Goals
             Evaluate();
         }
 
-        private GoalStep FindPlanetToBuildAt()
+        GoalStep FindPlanetToBuildAt()
         {
-            var shipyardPlanets = new Array<Planet>();
-            foreach (Planet planet in empire.GetPlanets())
-                if (planet.HasSpacePort)
-                    shipyardPlanets.Add(planet);
-
-            if (shipyardPlanets.IsEmpty)
-                return GoalStep.TryAgain;
-
-            // pick planet with best chance for quickly completing our production
-            Planet shipyard = shipyardPlanets.FindMin(p =>
-            {
-                // @todo We should use production based estimation instead
-                float distance = p.Center.Distance(BuildPosition);
-                return distance + distance*p.NumConstructing;
-            });
-
             if (!ResourceManager.GetShipTemplate(ToBuildUID, out Ship toBuild))
             {
                 Log.Error($"BuildConstructionShip: no ship to build with uid={ToBuildUID ?? "null"}");
                 return GoalStep.GoalFailed;
             }
 
-            string constructionShip = empire.data.ConstructorShip;
-            if (!ResourceManager.GetShipTemplate(constructionShip, out beingBuilt))
+            string constructorId = empire.data.ConstructorShip;
+            if (!ResourceManager.GetShipTemplate(constructorId, out ShipToBuild))
             {
-                Log.Error($"BuildConstructionShip: no construction ship with uid={constructionShip}");
+                Log.Error($"BuildConstructionShip: no construction ship with uid={constructorId}");
                 return GoalStep.GoalFailed;
             }
 
-            var queueItem = new QueueItem(shipyard)
-            {
-                isShip        = true,
-                Goal          = this,
-                NotifyOnEmpty = false,
-                DisplayName = "Construction Ship",
-                QueueNumber = shipyard.NumConstructing,
-                sData       = beingBuilt.shipData,
-                Cost        = toBuild.GetCost(empire)
-            };
+            if (!empire.FindClosestPlanetToBuildAt(BuildPosition, out Planet planet))
+                return GoalStep.TryAgain;
 
-            shipyard.ConstructionQueue.Add(queueItem);
-            PlanetBuildingAt = shipyard;
+            planet.Construction.AddPlatform(toBuild, ShipToBuild, this);
+            PlanetBuildingAt = planet;
             return GoalStep.GoToNextStep;
+        }
+
+        GoalStep OrderDeepSpaceBuild()
+        {
+            FinishedShip.AI.OrderDeepSpaceBuild(this);
+            FinishedShip.isConstructor = true;
+            FinishedShip.VanityName = "Construction Ship";
+            return GoalStep.GoalComplete;
         }
 
     }

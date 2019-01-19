@@ -137,10 +137,10 @@ namespace Ship_Game.AI
                 {
                     if (g.UID != "BuildOffensiveShips")
                         continue;
-                    if (g.beingBuilt == null)
+                    if (g.ShipToBuild == null)
                         continue;
-                    var upKeep = g.beingBuilt.GetMaintCost();
-                    var role = g.beingBuilt.DesignRole;
+                    var upKeep = g.ShipToBuild.GetMaintCost();
+                    var role = g.ShipToBuild.DesignRole;
                     CountShips(upKeep, role);
                     underConstruction++;                    
                 }

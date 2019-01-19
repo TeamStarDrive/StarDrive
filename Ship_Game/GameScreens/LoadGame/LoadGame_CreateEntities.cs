@@ -344,7 +344,7 @@ namespace Ship_Game
 
                 if (qisave.isShip && qi.Goal != null)
                 {
-                    qi.Goal.beingBuilt = ResourceManager.GetShipTemplate(qisave.UID);
+                    qi.Goal.ShipToBuild = ResourceManager.GetShipTemplate(qisave.UID);
                 }
 
                 qi.ProductionSpent = qisave.ProgressTowards;
@@ -503,7 +503,7 @@ namespace Ship_Game
                 {
                     foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
                     {
-                        if (fleet.Value.Guid == gsave.fleetGuid) g.SetFleet(fleet.Value);
+                        if (fleet.Value.Guid == gsave.fleetGuid) g.Fleet = fleet.Value;
                     }
                 }
 
@@ -518,8 +518,8 @@ namespace Ship_Game
 
                 foreach (Ship s in data.MasterShipList)
                 {
-                    if (gsave.colonyShipGuid == s.guid) g.SetColonyShip(s);
-                    if (gsave.beingBuiltGUID == s.guid) g.SetBeingBuilt(s);
+                    if      (gsave.colonyShipGuid == s.guid) g.FinishedShip = s;
+                    else if (gsave.beingBuiltGUID == s.guid) g.ShipToBuild = s;
                 }
 
                 e.GetEmpireAI().Goals.Add(g);

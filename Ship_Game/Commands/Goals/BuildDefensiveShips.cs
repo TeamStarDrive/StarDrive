@@ -1,5 +1,6 @@
 ﻿using System;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -18,66 +19,23 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        private GoalStep FindPlanetToBuildDefensiveShipsAt()
+        GoalStep FindPlanetToBuildDefensiveShipsAt()
         {
-            if (beingBuilt == null)
-                beingBuilt = ResourceManager.ShipsDict[ToBuildUID];
-            Planet planet1 = null;
-            Array<Planet> list = new Array<Planet>();
-            foreach (Planet planet2 in empire.GetPlanets())
-            {
-                if (planet2.HasSpacePort)
-                    list.Add(planet2);
-            }
-            int num1 = 9999999;
-            foreach (Planet planet2 in list)
-            {
-                if (planet2.ParentSystem.combatTimer > 0f)  //fbedard
-                {
-                    int num2 = 0;
-                    foreach (QueueItem queueItem in planet2.ConstructionQueue)
-                        num2 += (int)((queueItem.Cost - (double)queueItem.ProductionSpent) / planet2.Prod.NetIncome);
-                    if (planet2.NotConstructing)
-                        num2 = (int)((beingBuilt.GetCost(empire) - (double)planet2.ProdHere) / planet2.Prod.NetIncome);
-                    if (num2 < num1)
-                    {
-                        num1 = num2;
-                        planet1 = planet2;
-                    }
-                }
-            }
-            if (planet1 == null)
-                foreach (Planet p2 in list)
-                {
-                    int num2 = 0;
-                    foreach (QueueItem qi in p2.ConstructionQueue)
-                        num2 += (int)((qi.Cost - qi.ProductionSpent) / p2.Prod.NetMaxPotential);
-                    if (p2.NotConstructing)
-                        num2 = (int)((beingBuilt.GetCost(empire) - p2.ProdHere) / p2.Prod.NetMaxPotential);
-                    if (num2 < num1)
-                    {
-                        num1 = num2;
-                        planet1 = p2;
-                    }
-                }
-            if (planet1 == null)
+            if (!ResourceManager.GetShipTemplate(ToBuildUID, out Ship template))
+                return GoalStep.GoalFailed;
+
+            if (!empire.TryFindSpaceportToBuildShipAt(template, out Planet spacePort))
                 return GoalStep.TryAgain;
 
-            PlanetBuildingAt = planet1;
-            planet1.ConstructionQueue.Add(new QueueItem(planet1)
-            {
-                isShip = true,
-                QueueNumber = planet1.ConstructionQueue.Count,
-                sData = beingBuilt.shipData,
-                Goal = this,
-                Cost = beingBuilt.GetCost(empire)
-            });
+            spacePort.Construction.AddShip(template, this);
+            PlanetBuildingAt = spacePort;
             return GoalStep.GoToNextStep;
         }
 
-        private GoalStep OrderBuiltShipToDefend()
+        GoalStep OrderBuiltShipToDefend()
         {
-            beingBuilt.DoDefense();
+            FinishedShip.DoDefense();
+            empire.ForcePoolAdd(FinishedShip);
             return GoalStep.GoalComplete;
         }
 

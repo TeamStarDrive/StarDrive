@@ -331,6 +331,8 @@ namespace Ship_Game
                 marked = true;
                 return;
             }
+
+            // @todo this is so hacky
             foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
                 if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != planet)
@@ -338,10 +340,7 @@ namespace Ship_Game
                     continue;
                 }
                 GameAudio.EchoAffirmative();
-                if (g.GetColonyShip() != null)
-                {
-                    g.GetColonyShip().AI.OrderOrbitNearest(true);
-                }
+                g.FinishedShip?.AI.OrderOrbitNearest(true);
                 Empire.Universe.player.GetEmpireAI().Goals.QueuePendingRemoval(g);
                 marked = false;
                 Colonize.Text = "Colonize";
