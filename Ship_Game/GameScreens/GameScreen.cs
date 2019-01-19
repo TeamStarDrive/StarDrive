@@ -39,6 +39,7 @@ namespace Ship_Game
         // This is equivalent to PresentationParameters.BackBufferWidth
         public int ScreenWidth      => StarDriveGame.Instance.ScreenWidth;
         public int ScreenHeight     => StarDriveGame.Instance.ScreenHeight;
+        public Rectangle ScreenRect => new Rectangle(0, 0, ScreenWidth, ScreenHeight);
         public Vector2 MousePos     => Input.CursorPosition;
         public Vector2 ScreenArea   => StarDriveGame.Instance.ScreenArea;
         public Vector2 ScreenCenter => StarDriveGame.Instance.ScreenArea * 0.5f;
