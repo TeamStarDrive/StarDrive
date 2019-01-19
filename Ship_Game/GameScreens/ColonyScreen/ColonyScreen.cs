@@ -665,9 +665,12 @@ namespace Ship_Game
             {
                 DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.Range, "UI/icon_offense", "Range", signs: false);
                 DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
-                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "EMP Damage", signs: false);
+                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
                 DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.NetFireDelay, "UI/icon_offense", "Fire Delay", signs: false);
             }
+
+            if (b.DefenseShipsCapacity > 0)
+                DrawBuildingInfo(ref bCursor, batch, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
         }
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture, 
