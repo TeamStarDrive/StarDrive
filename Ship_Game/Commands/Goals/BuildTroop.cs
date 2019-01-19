@@ -25,17 +25,10 @@ namespace Ship_Game.Commands.Goals
                 Log.Warning($"Missing Troop {ToBuildUID}");
         }
 
-        private GoalStep FindPlanetToBuildAt()
+        GoalStep FindPlanetToBuildAt()
         {
             Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
-            PlanetBuildingAt.ConstructionQueue.Add(new QueueItem(PlanetBuildingAt)
-            {
-                isTroop = true,
-                QueueNumber = PlanetBuildingAt.ConstructionQueue.Count,
-                TroopType = ToBuildUID,
-                Goal = this,
-                Cost = troopTemplate.ActualCost
-            });
+            PlanetBuildingAt.Construction.AddTroop(troopTemplate, this);
             return GoalStep.GoToNextStep;
         }
     }

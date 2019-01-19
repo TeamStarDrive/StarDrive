@@ -35,7 +35,7 @@ namespace Ship_Game.AI
         public Empire empire;
         public GoalType type;
         public int Step { get; protected set; }
-        protected Fleet fleet;
+        public Fleet Fleet;
         public Vector2 TetherOffset;
         public Guid TetherTarget;
         public bool Held;
@@ -43,9 +43,8 @@ namespace Ship_Game.AI
         public string ToBuildUID;
         protected Planet PlanetBuildingAt;
         protected Planet markedPlanet;
-        public Ship beingBuilt;
-        protected Ship colonyShip;
-        protected Ship freighter;
+        public Ship ShipToBuild; // this is a template
+        public Ship FinishedShip;   // this is the actual ship that was built
         protected Ship passTran;
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
@@ -107,15 +106,6 @@ namespace Ship_Game.AI
             MainGoalCompleted = true;
         }
 
-        public void SetFleet(Fleet f)
-        {
-            fleet = f;
-        }
-        public Fleet GetFleet()
-        {
-            return fleet;
-        }
-
         public void Evaluate()
         {
             //CG hrmm i guess this should just be part of the goal enum. But that will require more cleanup of the goals. 
@@ -148,19 +138,9 @@ namespace Ship_Game.AI
             return PlanetBuildingAt;
         }
 
-        public void SetColonyShip(Ship s)
-        {
-            colonyShip = s;
-        }
-
         public void SetPlanetWhereBuilding(Planet p)
         {
             PlanetBuildingAt = p;
-        }
-
-        public void SetBeingBuilt(Ship s)
-        {
-            beingBuilt = s;
         }
 
         public void SetMarkedPlanet(Planet p)
@@ -170,13 +150,8 @@ namespace Ship_Game.AI
 
         public void ReportShipComplete(Ship ship)
         {
-            beingBuilt = ship;
+            FinishedShip = ship;
             ++Step;
-        }
-
-        public Ship GetColonyShip()
-        {
-            return colonyShip;
         }
 
         public Planet GetMarkedPlanet()

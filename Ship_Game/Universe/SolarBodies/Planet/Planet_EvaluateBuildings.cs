@@ -646,7 +646,7 @@ namespace Ship_Game
 
             Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget, popRatio, out float bestValue);
             if (bestBuilding != null && bestValue > 0)
-                Construction.AddToBuildQueue(bestBuilding);
+                Construction.AddBuilding(bestBuilding);
 
             return bestBuilding != null; ;
         }
@@ -659,7 +659,7 @@ namespace Ship_Game
             {
                 if (IsPlanetExtraDebugTarget())
                     Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
-                Construction.AddToBuildQueue(bio);
+                Construction.AddBuilding(bio);
             }
             return bio != null;
         }
@@ -691,7 +691,7 @@ namespace Ship_Game
             Log.Info(ConsoleColor.Cyan, $"{Owner.PortraitName} REPLACED {worstBuilding.Name} on planet {Name}" +
                                         $" value: {worstValue} with {bestBuilding.Name} value: {bestValue}");
             worstBuilding.ScrapBuilding(this);
-            Construction.AddToBuildQueue(bestBuilding);
+            Construction.AddBuilding(bestBuilding);
             return true;
         }
 
@@ -785,7 +785,7 @@ namespace Ship_Game
                 return;
 
             // Build it!
-            Construction.AddToBuildQueue(ResourceManager.CreateBuilding(Building.OutpostId), playerAdded: false);
+            Construction.AddBuilding(ResourceManager.CreateBuilding(Building.OutpostId), playerAdded: false);
 
             // Move Outpost to the top of the list, and rush production
             for (int i = 0; i < ConstructionQueue.Count; ++i)
