@@ -253,7 +253,7 @@ namespace Ship_Game
             bool marked = false;
             foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
             {
-                if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
+                if (g.ColonizationTarget == null || g.ColonizationTarget != p)
                 {
                     continue;
                 }
@@ -361,7 +361,7 @@ namespace Ship_Game
                 Goal markedGoal = null;
                 foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
                 {
-                    if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
+                    if (g.ColonizationTarget == null || g.ColonizationTarget != p)
                     {
                         continue;
                     }

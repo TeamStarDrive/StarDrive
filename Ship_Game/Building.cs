@@ -139,7 +139,10 @@ namespace Ship_Game
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;
-        public bool IsMilitary         => CombatStrength > 0&& !IsCapitalOrOutpost && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
+        public bool IsMilitary         => CombatStrength > 0 
+                                        && !IsCapitalOrOutpost
+                                        && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
+        public bool CanAttackThisTurn => CombatStrength > 0 || AvailableAttackActions > 0;
 
         static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
         {
@@ -150,16 +153,19 @@ namespace Ship_Game
         {
             return Production(planet, 0, CreditsPerColonist);            
         }
+
         public float FoodProduced(Planet planet)
         {
             if (planet.NonCybernetic)
                 return Production(planet, PlusFlatFoodAmount, PlusFoodPerColonist, planet.Fertility);
             return ProductionProduced(planet);
         }
+
         public float ProductionProduced(Planet planet)
         {
             return Production(planet, PlusFlatProductionAmount, PlusProdPerColonist, planet.MineralRichness);
         }
+
         public float ResearchProduced(Planet planet)
         {
             return Production(planet, PlusFlatResearchAmount, PlusResearchPerColonist);

@@ -29,16 +29,16 @@ namespace Ship_Game.Commands.Goals
         public MarkForColonization(Planet toColonize, Empire e) : this()
         {
             empire = e;
-            markedPlanet = toColonize;
+            ColonizationTarget = toColonize;
         }
 
         static Planet FindPlanetForConstruction(Empire e) => e.BestBuildPlanets.FindMin(p => p.TotalTurnsInConstruction);            
 
         bool IsValid()
         {
-            if (markedPlanet.Owner == null) return true;
+            if (ColonizationTarget.Owner == null) return true;
             foreach (var relationship in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(relationship, GetMarkedPlanet());
+                empire.GetEmpireAI().CheckClaim(relationship, ColonizationTarget);
                         
             RemoveEscortTask();
 
@@ -95,7 +95,7 @@ namespace Ship_Game.Commands.Goals
             WaitingForEscort = HasEscort = false;
             if (empire.isPlayer || empire.isFaction) return false;
             
-            float str = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(markedPlanet.Center, 150000f, empire);
+            float str = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(ColonizationTarget.Center, 150000f, empire);
             if (str < 10)
                 return false;
             WaitingForEscort = true;
@@ -110,19 +110,19 @@ namespace Ship_Game.Commands.Goals
 
                 var tohold = new Array<Goal> { this };
                 var task =
-                    new MilitaryTask(markedPlanet.Center, 125000f, tohold, empire, str);
-                task.SetTargetPlanet(markedPlanet);
+                    new MilitaryTask(ColonizationTarget.Center, 125000f, tohold, empire, str);
+                task.SetTargetPlanet(ColonizationTarget);
                     empire.GetEmpireAI().TaskList.Add(task);                                    
             }
 
             var militaryTask = new MilitaryTask
             {
-                AO = markedPlanet.Center
+                AO = ColonizationTarget.Center
             };
             militaryTask.SetEmpire(empire);
             militaryTask.AORadius                 = 75000f;
-            militaryTask.SetTargetPlanet(markedPlanet);
-            militaryTask.TargetPlanetGuid         = markedPlanet.guid;
+            militaryTask.SetTargetPlanet(ColonizationTarget);
+            militaryTask.TargetPlanetGuid         = ColonizationTarget.guid;
             militaryTask.MinimumTaskForceStrength = str;
             militaryTask.HeldGoals.Add(guid);
             militaryTask.type                     = MilitaryTask.TaskType.DefendClaim;
@@ -196,11 +196,11 @@ namespace Ship_Game.Commands.Goals
                 PlanetBuildingAt = null;
                 return GoalStep.RestartGoal;
             }
-            if (markedPlanet.Owner == null)
+            if (ColonizationTarget.Owner == null)
                 return GoalStep.TryAgain;
 
             foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(them, markedPlanet);
+                empire.GetEmpireAI().CheckClaim(them, ColonizationTarget);
             return GoalStep.GoalComplete;
         }
 
@@ -228,7 +228,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip == null)
                 return GoalStep.RestartGoal;
 
-            FinishedShip.DoColonize(markedPlanet, this);
+            FinishedShip.DoColonize(ColonizationTarget, this);
             return GoalStep.GoToNextStep;
         }
 
@@ -245,9 +245,9 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.RestartGoal;
             if (FinishedShip != null && FinishedShip.Active && FinishedShip.AI.State != AIState.Colonize)
                 return GoalStep.RestartGoal;
-            if (FinishedShip != null && !FinishedShip.Active && markedPlanet.Owner == null)
+            if (FinishedShip != null && !FinishedShip.Active && ColonizationTarget.Owner == null)
                 return GoalStep.RestartGoal;
-            if (markedPlanet.Owner == null)
+            if (ColonizationTarget.Owner == null)
                 return GoalStep.TryAgain;
 
             //foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)

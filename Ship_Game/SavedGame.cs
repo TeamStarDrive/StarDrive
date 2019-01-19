@@ -372,9 +372,9 @@ namespace Ship_Game
                     {
                         gdata.colonyShipGuid = g.FinishedShip.guid;
                     }
-                    if (g.GetMarkedPlanet() != null)
+                    if (g.ColonizationTarget != null)
                     {
-                        gdata.markedPlanetGuid = g.GetMarkedPlanet().guid;
+                        gdata.markedPlanetGuid = g.ColonizationTarget.guid;
                     }
                     if (g.PlanetBuildingAt != null)
                     {
@@ -739,8 +739,8 @@ namespace Ship_Game
         {
             [Serialize(0)] public GoalType type;
             [Serialize(1)] public int GoalStep;
-            [Serialize(2)] public Guid markedPlanetGuid;
-            [Serialize(3)] public Guid colonyShipGuid; // @todo FinishedShip
+            [Serialize(2)] public Guid markedPlanetGuid; // @note renamed to: Goal.ColonizationTarget
+            [Serialize(3)] public Guid colonyShipGuid;   // @note renamed to: Goal.FinishedShip
             [Serialize(4)] public Vector2 BuildPosition;
             [Serialize(5)] public string ToBuildUID;
             [Serialize(6)] public Guid planetWhereBuildingAtGuid;

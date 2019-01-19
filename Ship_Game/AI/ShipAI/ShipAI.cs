@@ -85,7 +85,7 @@ namespace Ship_Game.AI
 
             foreach (Goal g in Owner.loyalty.GetEmpireAI().Goals)
             {
-                if (g.type != GoalType.Colonize || g.GetMarkedPlanet() != ColonizeTarget)
+                if (g.type != GoalType.Colonize || g.ColonizationTarget != ColonizeTarget)
                     continue;
                 Owner.loyalty.GetEmpireAI().Goals.QueuePendingRemoval(g);
                 break;

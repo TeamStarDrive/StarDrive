@@ -247,6 +247,8 @@ namespace Ship_Game
         // for really specific debuggingD
         public static int FrameId;
 
+        public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
+
         public UniverseScreen(UniverseData data) : base(null) // new game
         {
             UniverseSize          = data.Size.X;
