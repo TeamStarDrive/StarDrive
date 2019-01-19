@@ -198,18 +198,38 @@ namespace Ship_Game
             {
                 TroopManager.Update(elapsedTime);
                 GeodeticManager.Update(elapsedTime);
+                ScanForEnemy();
                 if (ParentSystem.CombatInSystem)
-                    UpdateSpaceCombatBuildings(elapsedTime);
+                        UpdateSpaceCombatBuildings(elapsedTime);
+
 
                 UpdatePlanetaryProjectiles(elapsedTime);
             }
             UpdatePosition(elapsedTime);
         }
 
-        private void UpdateSpaceCombatBuildings(float elapsedTime)
+        private void ScanForEnemy()
         {
             if (Owner == null) return;
-            if (ParentSystem.ShipList.Count <= 0) return; 
+            if (ParentSystem.ShipList.Count <= 0) return;
+            for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
+            {
+                Ship ship = ParentSystem.ShipList[i];
+                if (ship.loyalty == Owner)
+                    continue;
+
+                if (ship.loyalty == Owner || !ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
+                    ParentSystem.CombatInSystem = false;
+                else
+                {
+                    ParentSystem.CombatInSystem = true;
+                    return;
+                }
+            }
+        }
+
+        private void UpdateSpaceCombatBuildings(float elapsedTime)
+        {
             for (int i = 0; i < BuildingList.Count; ++i)
             {
                 float previousD;
@@ -415,7 +435,7 @@ namespace Ship_Game
             DoTerraforming();
             UpdateFertility();
             DoGoverning();
-            UpdateIncomes(false);
+            //UpdateIncomes(false);  // FB - it is called also from Empire.UpdateNetPlanetIncomes so no need to call this twice. I think
 
             // notification about empty queue
             if (GlobalStats.ExtraNotifications && Owner != null && Owner.isPlayer)
@@ -694,7 +714,7 @@ namespace Ship_Game
                 return;
 
             if (Enumerable.Any(ParentSystem.ShipList, t => t.HomePlanet != null))
-                return;
+                return; // if there are still defense ships our there, don't update building's hangars
 
             b.UpdateCurrentDefenseShips(1);
         }
