@@ -281,120 +281,7 @@ namespace Ship_Game
             Flip = !Flip;
             if (Flip) AnimationFrame += 1;
 
-            // @todo What the hell is this bloody thing?? REFACTOR
-            int width  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            int height = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-
-            batch.Begin();
-            Rectangle screenRect = new Rectangle(0, 0, width, height);
-            batch.Draw(StarField, StarFieldRect, Color.White);
-            Rectangle planetRect = new Rectangle(0, height - 680, 1016, 680);
-            batch.Draw(BigPlanetTex, planetRect, Color.White);
-            if (AnimationFrame >= 127 && AnimationFrame < 145)
-            {
-                float alphaStep = 255f / 18;
-                float alpha = (AnimationFrame - 127) * alphaStep;
-                Rectangle planetGridRect = new Rectangle(0, height - 640, 972, 640);
-                batch.Draw(PlanetGrid, planetGridRect, new Color(Color.White, (byte)alpha));
-            }
-            if (AnimationFrame >= 145 && AnimationFrame <= 148)
-            {
-                Rectangle planetGridRect = new Rectangle(0, height - 640, 972, 640);
-                batch.Draw(PlanetGrid, planetGridRect, Color.White);
-            }
-            if (AnimationFrame > 148 && AnimationFrame <= 180)
-            {
-                float alphaStep = 255f / 31;
-                float alpha = 255f - (AnimationFrame - 148) * alphaStep;
-                if (alpha < 0f) alpha = 0f;
-                Rectangle planetGridRect = new Rectangle(0, height - 640, 972, 640);
-                batch.Draw(PlanetGrid, planetGridRect, new Color(Color.White, (byte)alpha));
-            }
-            if (AnimationFrame >= 141 && AnimationFrame <= 149)
-            {
-                float alphaStep = 255f / 9;
-                float alpha = (AnimationFrame - 141) * alphaStep;
-                Rectangle grid1Hex = new Rectangle(277, height - 592, 77, 33);
-                batch.Draw(PlanetGridHex1, grid1Hex, new Color(Color.White, (byte)alpha));
-            }
-            if (AnimationFrame > 149 && AnimationFrame <= 165)
-            {
-                float alphaStep = 255f / 16;
-                float alpha = 255f - (AnimationFrame - 149) * alphaStep;
-                Rectangle grid1Hex = new Rectangle(277, height - 592, 77, 33);
-                batch.Draw(PlanetGridHex1, grid1Hex, new Color(Color.White, (byte)alpha));
-            }
-            if (AnimationFrame >= 159 && AnimationFrame <= 168)
-            {
-                float alphaStep = 255f / 10;
-                float alpha = (AnimationFrame - 159) * alphaStep;
-                Rectangle grid1Hex = new Rectangle(392, height - 418, 79, 60);
-                batch.Draw(PlanetGridHex2, grid1Hex, new Color(Color.White, (byte)alpha));
-            }
-            if (AnimationFrame > 168 && AnimationFrame <= 183)
-            {
-                float alphaStep = 255f / 15;
-                float alpha = 255f - (AnimationFrame - 168) * alphaStep;
-                Rectangle grid1Hex = new Rectangle(392, height - 418, 79, 60);
-                batch.Draw(PlanetGridHex2, grid1Hex, new Color(Color.White, (byte)alpha));
-            }
-            if (AnimationFrame >= 150 && AnimationFrame <= 158)
-            {
-                float alphaStep = 255f / 9;
-                float alpha = (AnimationFrame - 150) * alphaStep;
-                Rectangle grid1Hex = new Rectangle(682, height - 295, 63, 67);
-                batch.Draw(PlanetGridHex3, grid1Hex, new Color(Color.White, (byte)alpha));
-            }
-            if (AnimationFrame > 158 && AnimationFrame <= 174)
-            {
-                float alphaStep = 255f / 16;
-                float alpha = 255f - (AnimationFrame - 158) * alphaStep;
-                Rectangle grid1Hex = new Rectangle(682, height - 295, 63, 67);
-                batch.Draw(PlanetGridHex3, grid1Hex, new Color(Color.White, (byte)alpha));
-            }
-            if (AnimationFrame >= 7 || StayOn)
-            {
-                float alphaStep = 255f / 30;
-                float alpha = MathHelper.SmoothStep((AnimationFrame - 1 - 7) * alphaStep, (AnimationFrame - 7) * alphaStep, 0.9f);
-                if (alpha > 225f || StayOn)
-                {
-                    alpha = 225f;
-                    StayOn = true;
-                }
-                Rectangle cornerTl = new Rectangle(31, 30, 608, 340);
-                batch.Draw(CornerTL, cornerTl, new Color(Color.White, (byte)alpha));
-                Rectangle cornerBr = new Rectangle(width - 551, height - 562, 520, 532);
-                batch.Draw(CornerBR, cornerBr, new Color(Color.White, (byte)alpha));
-                
-                Rectangle version = new Rectangle(205, height - 37, 318, 12);
-                batch.Draw(VersionBar, version, new Color(Color.White, (byte)alpha));
-                Vector2 textPos = new Vector2(20f, version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
-                batch.DrawString(Fonts.Pirulen12, "StarDrive 15B", textPos, Color.White);
-
-                version = new Rectangle(20+ (int)Fonts.Pirulen12.MeasureString(GlobalStats.ExtendedVersion).X , height - 85, 318, 12);
-                batch.Draw(VersionBar, version, new Color(Color.White, (byte)alpha));
-                textPos = new Vector2(20f, version.Y  +6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
-                batch.DrawString(Fonts.Pirulen12, GlobalStats.ExtendedVersion, textPos, Color.White);
-
-                if (GlobalStats.ActiveModInfo != null)
-                {
-                    string title = GlobalStats.ActiveModInfo.ModName;
-                    //if (GlobalStats.ActiveModInfo.Version != null && GlobalStats.ActiveModInfo.Version != "" && !title.Contains(GlobalStats.ActiveModInfo.Version))
-                    if (!string.IsNullOrEmpty(GlobalStats.ActiveModInfo.Version) && !title.Contains(GlobalStats.ActiveModInfo.Version))
-                        title = string.Concat(title, " - ", GlobalStats.ActiveModInfo.Version);
-
-                    version = new Rectangle(20 + (int)Fonts.Pirulen12.MeasureString(title).X, height - 60, 318, 12);
-                    batch.Draw(VersionBar, version, new Color(Color.White, (byte)alpha));
-
-                    textPos = new Vector2(20f, version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
-                    batch.DrawString(Fonts.Pirulen12, title, textPos, Color.White);
-                }
-            }
-            if (AnimationFrame > 300)
-            {
-                AnimationFrame = 0;
-            }
-            batch.End();
+            UpdateAlienTextAnim(batch);
 
             ScreenManager.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;
             ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
@@ -404,6 +291,8 @@ namespace Ship_Game
             ScreenManager.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;
             ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
             ScreenManager.GraphicsDevice.RenderState.BlendFunction    = BlendFunction.Add;
+
+            int height = ScreenHeight;
             if (FlareFrames >= 0 && FlareFrames <= 31)
             {
                 float alphaStep = 35f / 32f;
@@ -428,7 +317,89 @@ namespace Ship_Game
             }
             batch.End();
             batch.Begin();
-            batch.Draw(Vignette, screenRect, Color.White);
+            batch.Draw(Vignette, ScreenRect, Color.White);
+            batch.End();
+        }
+
+        Rectangle PlanetGridRect => new Rectangle(0, ScreenHeight - 640, 972, 640);
+        Rectangle PlanetHexRect  => new Rectangle(277, ScreenHeight - 592, 77, 33);
+
+        enum AnimMode { FadeIn, Stay, FadeOut }
+        void PlanetOverlay(SpriteBatch batch, SubTexture tex, Rectangle rect, int first, int last, AnimMode mode)
+        {
+            if (first <= AnimationFrame && AnimationFrame <= last)
+            {
+                int range = Math.Abs(last-first) + 1;
+                float alphaStep = 255f / range;
+                float alpha = 255f;
+                if      (mode == AnimMode.FadeIn)  alpha = (AnimationFrame - first) * alphaStep;
+                else if (mode == AnimMode.FadeOut) alpha = 255f - (AnimationFrame - first) * alphaStep;
+                batch.Draw(tex, rect, new Color(Color.White, (byte)alpha.Clamped(0f, 255f)));
+            }
+        }
+
+        void UpdateAlienTextAnim(SpriteBatch batch)
+        {
+            batch.Begin();
+            batch.Draw(StarField, StarFieldRect, Color.White);
+            int width = ScreenWidth;
+            int height = ScreenHeight;
+            var planetRect = new Rectangle(0, height - 680, 1016, 680);
+            batch.Draw(BigPlanetTex, planetRect, Color.White);
+
+            PlanetOverlay(batch, PlanetGrid, PlanetGridRect, 127, 144, AnimMode.FadeIn);
+            PlanetOverlay(batch, PlanetGrid, PlanetGridRect, 145, 148, AnimMode.Stay);
+            PlanetOverlay(batch, PlanetGrid, PlanetGridRect, 149, 180, AnimMode.FadeOut);
+
+            PlanetOverlay(batch, PlanetGridHex1, PlanetHexRect, 141, 149, AnimMode.FadeIn);
+            PlanetOverlay(batch, PlanetGridHex1, PlanetHexRect, 150, 165, AnimMode.FadeOut);
+
+            PlanetOverlay(batch, PlanetGridHex2, PlanetHexRect, 159, 168, AnimMode.FadeIn);
+            PlanetOverlay(batch, PlanetGridHex2, PlanetHexRect, 169, 183, AnimMode.FadeOut);
+
+            PlanetOverlay(batch, PlanetGridHex3, PlanetHexRect, 150, 158, AnimMode.FadeIn);
+            PlanetOverlay(batch, PlanetGridHex3, PlanetHexRect, 159, 174, AnimMode.FadeOut);
+
+            if (AnimationFrame >= 7 || StayOn)
+            {
+                float alphaStep = 255f / 30;
+                float alpha = MathHelper.SmoothStep((AnimationFrame - 1 - 7) * alphaStep, (AnimationFrame - 7) * alphaStep, 0.9f);
+                if (alpha > 225f || StayOn)
+                {
+                    alpha = 225f;
+                    StayOn = true;
+                }
+
+                SpriteFont font = Fonts.Pirulen12;
+                var c = new Color(Color.White, (byte) alpha);
+
+                batch.Draw(CornerTL, new Rectangle(31, 30, 608, 340), c);
+                batch.Draw(CornerBR, new Rectangle(width - 551, height - 562, 520, 532), c);
+
+                var verRect = new Rectangle(205, height - 37, 318, 12);
+                batch.Draw(VersionBar, verRect, c);
+                var textPos = new Vector2(20f, verRect.Y + 6 - font.LineSpacing / 2 - 1);
+                batch.DrawString(font, "StarDrive 15B", textPos, Color.White);
+
+                var extVerRect = new Rectangle(20 + font.TextWidth(GlobalStats.ExtendedVersion), height - 85, 318, 12);
+                batch.Draw(VersionBar, extVerRect, c);
+                textPos = new Vector2(20f, extVerRect.Y + 6 - font.LineSpacing / 2 - 1);
+                batch.DrawString(font, GlobalStats.ExtendedVersion, textPos, Color.White);
+
+                if (GlobalStats.HasMod)
+                {
+                    string title = GlobalStats.ActiveModInfo.ModName;
+                    string version = GlobalStats.ActiveModInfo.Version;
+                    if (version.NotEmpty() && !title.Contains(version))
+                        title = title+" - "+version;
+                    batch.Draw(VersionBar, new Rectangle(20 + font.TextWidth(title), height - 60, 318, 12), c);
+                    batch.DrawString(font, title, new Vector2(20f, extVerRect.Y + 6 - font.LineSpacing / 2 - 1), c);
+                }
+            }
+
+            if (AnimationFrame > 300)
+                AnimationFrame = 0;
+
             batch.End();
         }
 
@@ -436,7 +407,7 @@ namespace Ship_Game
         {
             // Use these controls to reorient the ship and planet in the menu. The new rotation
             // is logged into debug console and can be set as default values later
-            if (DebugMeshInspect)
+            if (DebugMeshInspect && IsActive)
             {
                 if (input.IsKeyDown(Keys.W)) ShipRotation.X += 1.0f;
                 if (input.IsKeyDown(Keys.S)) ShipRotation.X -= 1.0f;
@@ -601,9 +572,10 @@ namespace Ship_Game
             ScreenManager.UpdateSceneObjects(gameTime);
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            MoonPosition.X += deltaTime * 0.6f; // 0.6 units/s
+            MoonRotation.X += deltaTime * 0.6f; // 0.6 units/s
             MoonRotation.Y += deltaTime * 1.2f;
             MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
+
 
             if (!DebugMeshInspect)
             {
