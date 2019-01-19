@@ -35,7 +35,7 @@ namespace Ship_Game.Commands.Goals
                 int finCon = 0;
                 foreach (QueueItem queueItem in planet2.ConstructionQueue)
                 {
-                    num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.Prod.NetIncome);
+                    num2 += (int)((queueItem.Cost - queueItem.ProductionSpent) / planet2.Prod.NetIncome);
                     if (queueItem.Goal is IncreaseFreighters)
                         finCon++;
                 }

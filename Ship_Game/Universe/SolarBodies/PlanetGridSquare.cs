@@ -42,5 +42,20 @@ namespace Ship_Game
             return !Habitable && b.CanBuildAnywhere
                  || Habitable && building == null;
         }
+
+        public void PlaceBuilding(Building b)
+        {
+            if (b.IsBiospheres)
+            {
+                Habitable = true;
+                Biosphere = true;
+                building = null;
+            }
+            else
+            {
+                building = b;
+            }
+            QItem = null;
+        }
 	}
 }

@@ -61,7 +61,7 @@ namespace Ship_Game.Commands.Goals
                     break;
                 int num2 = 0;
                 foreach (QueueItem queueItem in planet2.ConstructionQueue)
-                    num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.Prod.NetMaxPotential);
+                    num2 += (int)((queueItem.Cost - queueItem.ProductionSpent) / planet2.Prod.NetMaxPotential);
                 if (planet2.ConstructionQueue.Count == 0)
                     num2 = (int)((beingBuilt.GetCost(empire) - planet2.ProdHere) / planet2.Prod.NetMaxPotential);
                 if (num2 < num1)
@@ -95,7 +95,7 @@ namespace Ship_Game.Commands.Goals
             if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
             {
                 if (PlanetBuildingAt.ProdHere > PlanetBuildingAt.Storage.Max * 0.5f)
-                    PlanetBuildingAt.ApplyStoredProduction(0);
+                    PlanetBuildingAt.Construction.RushProduction(0);
             }
             return GoalStep.TryAgain;
         }

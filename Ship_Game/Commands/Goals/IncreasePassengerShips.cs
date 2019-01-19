@@ -51,7 +51,7 @@ namespace Ship_Game.Commands.Goals
             {
                 int num2 = 0;
                 foreach (QueueItem queueItem in planet2.ConstructionQueue)
-                    num2 += (int)((queueItem.Cost - (double)queueItem.productionTowards) / planet2.Prod.NetIncome);
+                    num2 += (int)((queueItem.Cost - (double)queueItem.ProductionSpent) / planet2.Prod.NetIncome);
                 if (num2 < num1)
                 {
                     num1 = num2;

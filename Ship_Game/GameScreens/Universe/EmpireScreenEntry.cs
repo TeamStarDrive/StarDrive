@@ -224,7 +224,7 @@ namespace Ship_Game
 					ProgressBar pb = new ProgressBar(pbRect)
 					{
 						Max = qi.Cost,
-						Progress = qi.productionTowards
+						Progress = qi.ProductionSpent
 					};
 					pb.Draw(batch);
 				}
@@ -241,22 +241,22 @@ namespace Ship_Game
 					ProgressBar pb = new ProgressBar(pbRect)
 					{
 						Max = qi.Cost,
-						Progress = qi.productionTowards
+						Progress = qi.ProductionSpent
 					};
 					pb.Draw(batch);
 				}
 				else if (qi.isTroop)
 				{
-                    Troop template = ResourceManager.GetTroopTemplate(qi.troopType);
+                    Troop template = ResourceManager.GetTroopTemplate(qi.TroopType);
 					batch.Draw(ResourceManager.Texture("Troops/" + template.TexturePath), new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
-					batch.DrawString(Fonts.Arial12Bold, qi.troopType, tCursor, Color.White);
+					batch.DrawString(Fonts.Arial12Bold, qi.TroopType, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
 					Rectangle pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
 					ProgressBar pb = new ProgressBar(pbRect)
 					{
 						Max = qi.Cost,
-						Progress = qi.productionTowards
+						Progress = qi.ProductionSpent
 					};
 					pb.Draw(batch);
 				}
@@ -272,71 +272,47 @@ namespace Ship_Game
 		public void HandleInput(InputState input, ScreenManager ScreenManager)
 		{
             p.UpdateIncomes(false);
-			if (!ApplyProductionRect.HitTest(input.CursorPosition))
-			{
-				ApplyHover = false;
-			}
-			else
-			{
-				ToolTip.CreateTooltip(50);
-				ApplyHover = true;
-			}
-			if (HelperFunctions.ClickedRect(ApplyProductionRect, input) && p.ConstructionQueue.Count > 0)
-			{
-				eScreen.ClickTimer = 0.25f;
-				if (input.KeysCurr.IsKeyDown(Keys.LeftControl))
-				{
-                    bool flag=true;
-                    while (p.ApplyStoredProduction(0))
-                    {
-                        GameAudio.AcceptClick();
-                        if(flag)
-                        flag = false;
 
-                    }
-                    
-                    if(flag)
-						GameAudio.NegativeClick();
-
-
-				}
-				else if (p.ApplyStoredProduction(0))
-				{
-
-					GameAudio.AcceptClick();
-				}
-				else 
-				{
-					GameAudio.NegativeClick();
-				}
-
-			}
-
-            if (p.Owner.data.Traits.Cybernetic == 0 && foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
+            ApplyHover = ApplyProductionRect.HitTest(input.CursorPosition);
+            if (ApplyProductionRect.HitTest(input.CursorPosition))
             {
+                ToolTip.CreateTooltip(50);
+            }
+
+            if (Sliders.HandleInput(input))
+                return;
+
+            if (!input.LeftMouseClick)
+                return;
+
+            if (ApplyHover && p.IsConstructing)
+            {
+                eScreen.ClickTimer = 0.25f;
+
+                float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
+                if (p.Construction.RushProduction(0, maxAmount))
+                    GameAudio.AcceptClick();
+                else
+                    GameAudio.NegativeClick();
+            }
+
+            if (p.NonCybernetic && foodDropDown.r.HitTest(input.CursorPosition))
+            {
+                GameAudio.AcceptClick();
                 foodDropDown.Toggle();
-                Planet planet1 = p;
-                planet1.FS = (Planet.GoodState)((int)planet1.FS + (int)Planet.GoodState.IMPORT);
+                p.FS = (Planet.GoodState) ((int) p.FS + (int) Planet.GoodState.IMPORT);
                 if (p.FS > Planet.GoodState.EXPORT)
-                {
                     p.FS = Planet.GoodState.STORE;
-                }
-                GameAudio.AcceptClick();
-            }
-            if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
-            {
-                prodDropDown.Toggle();
-                GameAudio.AcceptClick();
-                Planet planet2 = p;
-                planet2.PS = (Planet.GoodState)((int)planet2.PS + (int)Planet.GoodState.IMPORT);
-                if (p.PS > Planet.GoodState.EXPORT)
-                {
-                    p.PS = Planet.GoodState.STORE;
-                }
             }
 
-            Sliders.HandleInput(input);
-            p.UpdateIncomes(false);
+            if (prodDropDown.r.HitTest(input.CursorPosition))
+            {
+                GameAudio.AcceptClick();
+                prodDropDown.Toggle();
+                p.PS = (Planet.GoodState) ((int) p.PS + (int) Planet.GoodState.IMPORT);
+                if (p.PS > Planet.GoodState.EXPORT)
+                    p.PS = Planet.GoodState.STORE;
+            }
 		}
 
 		public void SetNewPos(int x, int y)

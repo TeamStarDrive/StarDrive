@@ -306,7 +306,7 @@ namespace Ship_Game
                 if (qisave.isTroop)
                 {
                     qi.isTroop = true;
-                    qi.troopType = qisave.UID;
+                    qi.TroopType = qisave.UID;
                     qi.Cost = ResourceManager.GetTroopCost(qisave.UID);
                     qi.NotifyOnEmpty = false;
                 }
@@ -347,7 +347,7 @@ namespace Ship_Game
                     qi.Goal.beingBuilt = ResourceManager.GetShipTemplate(qisave.UID);
                 }
 
-                qi.productionTowards = qisave.ProgressTowards;
+                qi.ProductionSpent = qisave.ProgressTowards;
                 p.ConstructionQueue.Add(qi);
             }
         }

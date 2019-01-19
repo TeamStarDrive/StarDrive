@@ -14,12 +14,9 @@ namespace Ship_Game
         public bool isTroop;
         public ShipData sData;
         public Building Building;
-        public string troopType;
+        public string TroopType;
+
         public Rectangle rect;
-        public Rectangle ProgressBarRect;
-        public float productionTowards;
-        public Rectangle promoteRect;
-        public Rectangle demoteRect;
         public Rectangle removeRect;
         public int QueueNumber;
         public bool isRefit;
@@ -27,28 +24,42 @@ namespace Ship_Game
         public PlanetGridSquare pgs;
         public string DisplayName;
         public float Cost;
+        public float ProductionSpent;
         public Goal Goal;
-        public Color PromoteColor = Color.White;
-        public Color DemoteColor = Color.White;
-        public bool NotifyOnEmpty =true;
-        public bool notifyWhenBuilt =false;
+        public bool NotifyOnEmpty = true;
         public bool IsPlayerAdded = false;
 
-        public int EstimatedTurnsToComplete
+        // production still needed until this item is finished
+        public float ProductionNeeded => ActualCost - ProductionSpent;
+
+        // is this item finished constructing?
+        public bool IsComplete => ProductionSpent.GreaterOrEqual(ActualCost); // float imprecision
+
+        public QueueItem(Planet planet)
+        {
+            Planet = planet;
+        }
+
+        public int TurnsUntilComplete
         {
             get
             {
                 float production = Planet.Prod.NetIncome;
                 if (production <= 0f)
-                    return 10000;
-                float turns = (Cost - productionTowards) / production;
+                    return 999;
+                float turns = ProductionNeeded / production;
                 return (int)Math.Ceiling(turns);
             }
         }
-            
-        public QueueItem(Planet planet)
+
+        public float ActualCost
         {
-            Planet = planet;
+            get
+            {
+                float cost = Cost;
+                if (isShip) cost *= Planet.ShipBuildingModifier;
+                return cost;
+            }
         }
 
         public string DisplayText
@@ -60,7 +71,7 @@ namespace Ship_Game
                 if (isShip)
                     return DisplayName ?? sData.Name;
                 if (isTroop)
-                    return troopType;
+                    return TroopType;
                 return "";
             }
         }

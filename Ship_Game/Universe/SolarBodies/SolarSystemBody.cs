@@ -65,13 +65,16 @@ namespace Ship_Game
         public string IconPath => Type.IconPath;
         public bool Habitable => Type.Habitable;
 
-        public SBProduction SbProduction;
+        public SBProduction Construction;
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
         protected readonly Array<Building> BuildingsCanBuild = new Array<Building>();
-        public BatchRemovalCollection<QueueItem> ConstructionQueue => SbProduction.ConstructionQueue;
+        public bool IsConstructing => Construction.NotEmpty;
+        public bool NotConstructing => Construction.Empty;
+        public int NumConstructing => Construction.Count;
+        public BatchRemovalCollection<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
         public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
         public Map<Guid, Ship> Shipyards = new Map<Guid, Ship>();
