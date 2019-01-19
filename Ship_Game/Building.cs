@@ -113,9 +113,8 @@ namespace Ship_Game
 
         public Building Clone()
         {
-            var b = (Building)MemberwiseClone();
+            var b       = (Building)MemberwiseClone();
             b.TheWeapon = null;
-            //b.CurrentNumDefenseShips = b.DefenseShipsCapacity;
             return b;
         }
 
@@ -125,19 +124,19 @@ namespace Ship_Game
                 return;
 
             TheWeapon = ResourceManager.CreateWeapon(Weapon);
-            CalcBuildingOffense();
+            UpdateOffense();
         }
         
-        private void CalcBuildingOffense()
+        private void UpdateOffense()
         {
             if (isWeapon)
-                Offense = TheWeapon.CalculateWeaponOffense() * 3; //360 degree angle
+                Offense = TheWeapon.UpdateOffense() * 3; //360 degree angle
         }
 
-        private void CalcBuildingOffense(Empire empire)
+        private void UpdateOffense(Empire empire)
         {
             Offense = 0;
-            CalcBuildingOffense();
+            UpdateOffense();
             if (DefenseShipsCapacity <= 0)
                 return;
 
@@ -151,7 +150,7 @@ namespace Ship_Game
             if (DefenseShipsCapacity > 0)
                 CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0, DefenseShipsCapacity);
 
-            CalcBuildingOffense(empire);
+            UpdateOffense(empire);
         }
 
         public float ActualMaintenance(Planet p) => Maintenance + Maintenance * p.Owner.data.Traits.MaintMod;
