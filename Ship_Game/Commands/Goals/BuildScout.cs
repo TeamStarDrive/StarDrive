@@ -69,7 +69,7 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
-        private GoalStep ReportGoalCompleteToEmpire()
+        GoalStep ReportGoalCompleteToEmpire()
         {
             empire.ReportGoalComplete(this);
             return GoalStep.GoalComplete;

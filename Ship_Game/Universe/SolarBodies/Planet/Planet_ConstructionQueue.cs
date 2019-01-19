@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -96,6 +97,11 @@ namespace Ship_Game
                     break;
             }
             return turns;
+        }
+
+        public float TotalCostOfTroopsInQueue()
+        {
+            return ConstructionQueue.Filter(qi => qi.isTroop).Sum(qi => qi.Cost);
         }
     }
 }

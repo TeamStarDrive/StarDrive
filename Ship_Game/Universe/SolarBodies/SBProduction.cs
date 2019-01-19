@@ -304,6 +304,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Goal = goal,
                 Cost = template.ActualCost
             };
+            if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
         }
 

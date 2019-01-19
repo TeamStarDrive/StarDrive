@@ -330,7 +330,7 @@ namespace Ship_Game.Gameplay
                         {
                             continue;
                         }
-                        OurTargetPlanets.Add(g.GetMarkedPlanet());
+                        OurTargetPlanets.Add(g.ColonizationTarget);
                     }
                     foreach (Planet theirp in Them.GetPlanets())
                     {

@@ -360,12 +360,12 @@ namespace Ship_Game.AI
             foreach (Goal g in Goals)
             {
                 if (g.type == GoalType.Colonize)
-                    ourTargetPlanets.Add(g.GetMarkedPlanet());
+                    ourTargetPlanets.Add(g.ColonizationTarget);
             }
             foreach (Goal g in them.Key.GetEmpireAI().Goals)
             {
                 if (g.type == GoalType.Colonize)
-                    theirTargetPlanets.Add(g.GetMarkedPlanet());
+                    theirTargetPlanets.Add(g.ColonizationTarget);
             }
             SolarSystem sharedSystem = null;
             them.Key.GetShips().ForEach(ship =>

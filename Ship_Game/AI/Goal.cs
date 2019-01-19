@@ -42,9 +42,9 @@ namespace Ship_Game.AI
         public Vector2 BuildPosition;
         public string ToBuildUID;
         public Planet PlanetBuildingAt;
-        protected Planet markedPlanet;
-        public Ship ShipToBuild; // this is a template
-        public Ship FinishedShip;   // this is the actual ship that was built
+        public Planet ColonizationTarget { get; set; }
+        public Ship ShipToBuild;  // this is a template
+        public Ship FinishedShip; // this is the actual ship that was built
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
@@ -132,20 +132,10 @@ namespace Ship_Game.AI
             ++Step;
         }
 
-        public void SetMarkedPlanet(Planet p)
-        {
-            markedPlanet = p;
-        }
-
         public void ReportShipComplete(Ship ship)
         {
             FinishedShip = ship;
             ++Step;
-        }
-
-        public Planet GetMarkedPlanet()
-        {
-            return markedPlanet;
         }
 
         public struct PlanetRanker
