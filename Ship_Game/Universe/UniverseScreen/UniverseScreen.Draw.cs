@@ -577,7 +577,7 @@ namespace Ship_Game
                 if (flag)
                 {
                     string titleText = "(" + ResourceManager.ShipsDict[SelectedItem.UID].Name + ")";
-                    string bodyText = Localizer.Token(1410) + SelectedItem.AssociatedGoal.GetPlanetWhereBuilding().Name;
+                    string bodyText = Localizer.Token(1410) + SelectedItem.AssociatedGoal.PlanetBuildingAt.Name;
                     vuiElement.Draw(gameTime, titleText, bodyText);
                     DrawItemInfoForUI();
                 }

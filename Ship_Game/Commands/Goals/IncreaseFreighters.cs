@@ -53,7 +53,7 @@ namespace Ship_Game.Commands.Goals
             return freighter != null;
         }
 
-        private GoalStep FindPlanetToBuildAt()
+        GoalStep FindPlanetToBuildAt()
         {
             if (!PickFreighter(out Ship freighter))
                 return GoalStep.GoalFailed;
@@ -61,13 +61,11 @@ namespace Ship_Game.Commands.Goals
             if (!empire.FindPlanetToBuildAt(empire.BestBuildPlanets, null, out Planet planet))
                 return GoalStep.TryAgain;
 
-            QueueItem qi = planet.Construction.AddShip(freighter, this);
-            qi.NotifyOnEmpty = false;
-            PlanetBuildingAt = planet;
+            planet.Construction.AddShip(freighter, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
 
-        private GoalStep ReportGoalCompleteToEmpireAndStartTrading()
+        GoalStep ReportGoalCompleteToEmpireAndStartTrading()
         {
             empire.ReportGoalComplete(this);
             FinishedShip.DoTrading();

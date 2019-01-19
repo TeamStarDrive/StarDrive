@@ -41,11 +41,10 @@ namespace Ship_Game.AI
         public bool Held;
         public Vector2 BuildPosition;
         public string ToBuildUID;
-        protected Planet PlanetBuildingAt;
+        public Planet PlanetBuildingAt;
         protected Planet markedPlanet;
         public Ship ShipToBuild; // this is a template
         public Ship FinishedShip;   // this is the actual ship that was built
-        protected Ship passTran;
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
@@ -131,16 +130,6 @@ namespace Ship_Game.AI
         public void AdvanceToNextStep()
         {
             ++Step;
-        }
-
-        public Planet GetPlanetWhereBuilding()
-        {
-            return PlanetBuildingAt;
-        }
-
-        public void SetPlanetWhereBuilding(Planet p)
-        {
-            PlanetBuildingAt = p;
         }
 
         public void SetMarkedPlanet(Planet p)

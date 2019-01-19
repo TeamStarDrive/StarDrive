@@ -511,7 +511,7 @@ namespace Ship_Game
                 {
                     foreach (Planet p in s.PlanetList)
                     {
-                        if (p.guid == gsave.planetWhereBuildingAtGuid) g.SetPlanetWhereBuilding(p);
+                        if (p.guid == gsave.planetWhereBuildingAtGuid) g.PlanetBuildingAt = p;
                         if (p.guid == gsave.markedPlanetGuid) g.SetMarkedPlanet(p);
                     }
                 }

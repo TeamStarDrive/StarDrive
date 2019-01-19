@@ -36,7 +36,6 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             planet.Construction.AddShip(template, this);
-            PlanetBuildingAt = planet;
             return GoalStep.GoToNextStep;
         }
 
