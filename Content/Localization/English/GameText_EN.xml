@@ -4696,8 +4696,12 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1974</Index>
+      <Text>The number of Defense Ships hidden inside hangars on the planet's surface, piloted by aces. They will be scrambled and return home automatically for you, if you have enough money. You can control them only in battle.</Text>
+    </Token>
+    <Token>
       <Index>1975</Index>
-      <Text>EMP overload. Ship is disabled. When the number goes below 1, the ship has revocered from the EMP overload</Text>
+      <Text>EMP overload. Ship is disabled. When the number goes below 1, the ship has revocered from the EMP overload.</Text>
     </Token>
     <Token>
       <Index>1976</Index>

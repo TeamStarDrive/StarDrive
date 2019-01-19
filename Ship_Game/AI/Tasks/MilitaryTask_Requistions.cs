@@ -77,7 +77,7 @@ namespace Ship_Game.AI.Tasks
 
             float distance = AORadius * importance;
             minimumEscortStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(AO, distance, Owner);
-            standardMinimum *= importance;            
+            standardMinimum *= importance + TargetPlanet.TotalSpaceOffense;             
 
             return  Math.Max(standardMinimum, minimumEscortStrength);
         }
