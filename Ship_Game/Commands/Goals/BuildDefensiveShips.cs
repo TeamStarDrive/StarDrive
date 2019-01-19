@@ -28,7 +28,6 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             spacePort.Construction.AddShip(template, this);
-            PlanetBuildingAt = spacePort;
             return GoalStep.GoToNextStep;
         }
 

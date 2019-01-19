@@ -28,7 +28,7 @@ namespace Ship_Game.Commands.Goals
             ShipToBuild.fleet = ai.Owner.fleet;
             ShipToBuild.RelativeFleetOffset = node.FleetOffset;
             Fleet = ai.Owner.fleet;
-            SetPlanetWhereBuilding(ai.OrbitTarget);
+            PlanetBuildingAt = ai.OrbitTarget;
         }
 
         public FleetRequisition(string shipName, Empire owner) : this()
@@ -40,13 +40,11 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetForFleetRequisition()
         {            
-            Planet p = empire.PlanetToBuildShipAt(ShipToBuild.GetCost(empire));
+            Planet p = PlanetBuildingAt ?? empire.PlanetToBuildShipAt(ShipToBuild.GetCost(empire));
             if (p == null)
                 return GoalStep.TryAgain;
             
-            QueueItem q = p.Construction.AddShip(ShipToBuild, this);
-            q.NotifyOnEmpty = false;
-            PlanetBuildingAt = p;
+            p.Construction.AddShip(ShipToBuild, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
 

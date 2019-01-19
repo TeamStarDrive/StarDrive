@@ -376,9 +376,9 @@ namespace Ship_Game
                     {
                         gdata.markedPlanetGuid = g.GetMarkedPlanet().guid;
                     }
-                    if (g.GetPlanetWhereBuilding() != null)
+                    if (g.PlanetBuildingAt != null)
                     {
-                        gdata.planetWhereBuildingAtGuid = g.GetPlanetWhereBuilding().guid;
+                        gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
                     }
                     if (g.Fleet != null)
                     {

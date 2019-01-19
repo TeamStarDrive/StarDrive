@@ -9,6 +9,7 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "IncreasePassengerShips";
         public override string UID => ID;
+        Ship IdleTransport;
 
         public IncreasePassengerShips() : base(GoalType.BuildShips)
         {
@@ -20,72 +21,39 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        private GoalStep FindPlanetToBuildAt()
+        bool FindIdleTransport(out Ship transport)
         {
-            bool flag1 = false;
             foreach (Ship ship in empire.GetShips())
             {
-                if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpaceMax > 0
-                    && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
-                    && (!ship.PlayerShip && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
-                {
-                    passTran = ship;
-                    flag1 = true;
-                }
+                if (!ship.IsFreighter || !ship.IsIdleFreighter) continue;
+                transport = ship;
+                return true;
             }
-            if (flag1)
-            {
-                AdvanceToNextStep();
-                return GoalStep.GoToNextStep;
-            }
+            transport = null;
+            return false;
+        }
 
-            Array<Planet> list1 = new Array<Planet>();
-            foreach (Planet planet in empire.GetPlanets())
-            {
-                if (planet.HasSpacePort && planet.ParentSystem.combatTimer <= 0)  //fbedard: do not build freighter if combat in system
-                    list1.Add(planet);
-            }
-            Planet planet1 = null;
-            int num1 = 9999999;
-            foreach (Planet planet2 in list1)
-            {
-                int num2 = 0;
-                foreach (QueueItem queueItem in planet2.ConstructionQueue)
-                    num2 += (int)((queueItem.Cost - (double)queueItem.ProductionSpent) / planet2.Prod.NetIncome);
-                if (num2 < num1)
-                {
-                    num1 = num2;
-                    planet1 = planet2;
-                }
-            }
-            if (planet1 == null)
-                return GoalStep.TryAgain;
-            if (empire.isPlayer && empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoFreighter))
-            {
-                planet1.ConstructionQueue.Add(new QueueItem(planet1)
-                {
-                    isShip = true,
-                    QueueNumber = planet1.ConstructionQueue.Count,
-                    sData = ResourceManager.ShipsDict[empire.data.CurrentAutoFreighter].shipData,
-                    Goal = this,
-                    Cost = ResourceManager.ShipsDict[empire.data.CurrentAutoFreighter].GetCost(empire),
-                    NotifyOnEmpty = false
-                });
-                return GoalStep.GoToNextStep;
-            }
+        bool GetNewFreighterType(out Ship freighter)
+        {
+            if (empire.isPlayer && empire.AutoFreighters && 
+                ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out freighter))
+                return true;
 
-            var civilianFreighters = new Array<Ship>();
+            var freighters = new Array<Ship>();
             foreach (string uid in empire.ShipsWeCanBuild)
             {
-                Ship ship = ResourceManager.ShipsDict[uid];
-                if (!ship.isColonyShip && !ship.isConstructor && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian))
-                    civilianFreighters.Add(ship);
+                Ship ship = ResourceManager.GetShipTemplate(uid);
+                if (ship.IsFreighter) freighters.Add(ship);
             }
-            if (civilianFreighters.IsEmpty)
-                return GoalStep.TryAgain;
+            if (freighters.IsEmpty)
+            {
+                freighter = null;
+                return false;
+            }
 
-            Ship[] orderedByCargoSpace = civilianFreighters.OrderByDescending(ship => ship.CargoSpaceMax).ToArray();
+            Ship[] orderedByCargoSpace = freighters.OrderByDescending(ship => ship.CargoSpaceMax).ToArray();
 
+            // best cargo ships with equal cargo space value
             var bestCargoShips = new Array<Ship>();
             foreach (Ship ship in orderedByCargoSpace)
             {
@@ -93,41 +61,42 @@ namespace Ship_Game.Commands.Goals
                     bestCargoShips.Add(ship);
             }
 
-            Ship fastestWarpSpeed = bestCargoShips.FindMax(ship => ship.WarpThrust / ship.Mass);
-            planet1.ConstructionQueue.Add(new QueueItem(planet1)
+            // pick the one with best thrust
+            freighter = bestCargoShips.FindMax(ship => ship.WarpThrust / ship.Mass);
+            return freighter != null;
+        }
+
+        GoalStep FindPlanetToBuildAt()
+        {
+            if (FindIdleTransport(out IdleTransport))
             {
-                isShip = true,
-                QueueNumber = planet1.ConstructionQueue.Count,
-                sData = fastestWarpSpeed.shipData,
-                Goal = this,
-                Cost = fastestWarpSpeed.GetCost(empire)
-            });
+                AdvanceToNextStep(); // jump to final step
+                return GoalStep.GoToNextStep;
+            }
+
+            if (!GetNewFreighterType(out Ship freighter))
+            {
+                Log.Warning("IncreasePassengerShips failed: no freighter types");
+                return GoalStep.GoalFailed;
+            }
+
+            if (!empire.TryFindSpaceportToBuildShipAt(freighter, out Planet planet))
+                return GoalStep.TryAgain;
+
+            planet.Construction.AddShip(freighter, this);
             return GoalStep.GoToNextStep;
         }
 
-        private GoalStep OrderLastIdleTransportToTransportPassengers()
+        GoalStep OrderLastIdleTransportToTransportPassengers()
         {
-            bool flag2 = false;
-            foreach (Ship ship in empire.GetShips())
-            {
-                if (!ship.isColonyShip && !ship.isConstructor
-                    && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
-                    && (!ship.PlayerShip && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport
-                                                                 && ship.AI.State != AIState.SystemTrader && (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Refit))
-                    && ship.AI.State != AIState.Scrap)
-                {
-                    passTran = ship;
-                    flag2 = true;
-                }
-            }
-            if (flag2)
-            {
-                passTran.AI.OrderTransportPassengers(0.1f);
-                empire.ReportGoalComplete(this);
-                return GoalStep.GoalComplete;
-            }
+            Ship transport = FinishedShip ?? IdleTransport;
 
-            return GoalStep.RestartGoal;
+            if (transport == null && !FindIdleTransport(out transport))
+                return GoalStep.RestartGoal;
+
+            transport.AI.OrderTransportPassengers(0.1f);
+            empire.ReportGoalComplete(this);
+            return GoalStep.GoalComplete;
         }
     }
 }
