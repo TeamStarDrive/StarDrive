@@ -263,7 +263,7 @@ namespace Ship_Game.Universe.SolarBodies
                 && TryBiosphereBuild(ResourceManager.CreateBuilding(Building.BiospheresId), qi);
         }
 
-        public QueueItem AddPlatform(Ship platform, Ship constructor, Goal goal = null)
+        public void AddPlatform(Ship platform, Ship constructor, Goal goal = null)
         {
             var qi = new QueueItem(P)
             {
@@ -275,11 +275,11 @@ namespace Ship_Game.Universe.SolarBodies
                 sData       = platform.shipData,
                 Cost        = constructor.GetCost(Owner)
             };
+            if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
-            return qi;
         }
 
-        public QueueItem AddShip(Ship ship, Goal goal = null)
+        public void AddShip(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
         {
             var qi = new QueueItem(P)
             {
@@ -287,13 +287,14 @@ namespace Ship_Game.Universe.SolarBodies
                 Goal   = goal,
                 sData  = ship.shipData,
                 Cost   = ship.GetCost(Owner),
+                NotifyOnEmpty = notifyOnEmpty,
                 QueueNumber = ConstructionQueue.Count,
             };
+            if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
-            return qi;
         }
 
-        public QueueItem AddTroop(Troop template, Goal goal = null)
+        public void AddTroop(Troop template, Goal goal = null)
         {
             var qi = new QueueItem(P)
             {
@@ -304,7 +305,6 @@ namespace Ship_Game.Universe.SolarBodies
                 Cost = template.ActualCost
             };
             ConstructionQueue.Add(qi);
-            return qi;
         }
 
         public void Finish(QueueItem q, bool success)

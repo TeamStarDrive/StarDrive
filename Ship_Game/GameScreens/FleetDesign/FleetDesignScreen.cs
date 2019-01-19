@@ -527,11 +527,11 @@ namespace Ship_Game
                         string buildingat = "";
                         foreach (Goal g in SelectedFleet.Owner.GetEmpireAI().Goals)
                         {
-                            if (!(g.guid == node.GoalGUID) || g.GetPlanetWhereBuilding() == null)
+                            if (!(g.guid == node.GoalGUID) || g.PlanetBuildingAt == null)
                             {
                                 continue;
                             }
-                            buildingat = g.GetPlanetWhereBuilding().Name;
+                            buildingat = g.PlanetBuildingAt.Name;
                         }
                         batch.DrawString(Fonts.Arial8Bold,
                             (!string.IsNullOrEmpty(buildingat)

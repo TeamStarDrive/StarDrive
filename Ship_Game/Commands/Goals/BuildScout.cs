@@ -54,8 +54,7 @@ namespace Ship_Game.Commands.Goals
             if (!empire.FindPlanetToBuildAt(empire.BestBuildPlanets, scout, out Planet planet))
                 return GoalStep.TryAgain;
 
-            QueueItem qi = planet.Construction.AddShip(scout, this);
-            qi.NotifyOnEmpty = false;
+            planet.Construction.AddShip(scout, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
        
