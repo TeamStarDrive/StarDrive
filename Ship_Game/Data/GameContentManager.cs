@@ -26,10 +26,12 @@ namespace Ship_Game
         // Enables verbose logging for all asset loads and disposes
         public bool EnableLoadInfoLog { get; set; } = false && Debugger.IsAttached;
 
-        private RawContentLoader RawContent;
+        RawContentLoader RawContent;
 
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
-        private readonly object LoadSync = new object();
+        readonly object LoadSync = new object();
+
+        public override string ToString() => $"Content:{Name} Assets:{LoadedAssets.Count} Root:{RootDirectory}";
 
         static GameContentManager()
         {
@@ -375,6 +377,17 @@ namespace Ship_Game
             string name = Path.GetFileName(textureName);
             atlas.TryGetTexture(name, out SubTexture texture);
             return texture;
+        }
+
+        public SubTexture DefaultTexture() => LoadSubTexture("Textures/NewUI/x_red");
+
+        // ex: texturePath="Textures/NewUI/x_red"
+        public SubTexture LoadTextureOrDefault(string texturePath)
+        {
+            SubTexture texture = LoadSubTexture(texturePath);
+            if (texture != null) return texture;
+            Log.Warning($"{Name} failed to load texture {texturePath}");
+            return DefaultTexture();
         }
 
         public StaticMesh LoadStaticMesh(string modelName)

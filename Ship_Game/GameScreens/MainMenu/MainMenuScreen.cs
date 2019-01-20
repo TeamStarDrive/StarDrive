@@ -29,16 +29,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         AnimationController ShipAnim;
 
-        Rectangle Portrait;
-
         bool DebugMeshInspect = false;
-        
-        Texture2D StarField;
-        SubTexture Vignette;
-        SubTexture BackgroundPlanet;
-        SubTexture TexComet, MoonGlow;
-        Vector2 MoonGlowPos;
-
         UIElementContainer VersionArea;
 
         public MainMenuScreen() : base(null /*no parent*/)
@@ -54,8 +45,6 @@ namespace Ship_Game.GameScreens.MainMenu
             base.Destroy();
         }
         
-        SubTexture LoadTexture(string path) => TransientContent.Load<SubTexture>(path);
-
         public override void LoadContent()
         {
             base.LoadContent();
@@ -64,21 +53,31 @@ namespace Ship_Game.GameScreens.MainMenu
             GameAudio.ConfigureAudioSettings();
             ResetMusic();
 
-            SDLogoAnim = Add(new SpriteAnimation(this, "MainMenu/Stardrive logo"));
-            SDLogoAnim.StopAtLastFrame = true;
-            SDLogoAnim.Rect = new Rectangle(ScreenWidth - 600, 128, 512, 128);
-
-            BackgroundPlanet = LoadTexture("Textures/MainMenu/planet");
-            Vignette    = LoadTexture("Textures/MainMenu/vignette");
-            TexComet = LoadTexture("Textures/GameScreens/comet2");
-            MoonGlow = LoadTexture("Textures/MainMenu/moon_flare");
-            
-            GlobalStats.ActiveMod?.LoadContent(TransientContent);
-
             int w = ScreenWidth, h = ScreenHeight;
 
-            string nebula = h <= 1080 ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg";
-            StarField = TransientContent.Load<Texture2D>(nebula);
+            // Confusing: Main menu background is in `Content/MainMenu` not `Content/Textures/MainMenu`
+            SubTexture nebula = TransientContent.LoadSubTexture(h <= 1080 
+                              ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg");
+            Panel(nebula, ScreenRect).InBackground(); // fill background
+            Panel("MainMenu/planet", new Rectangle(0, h-680, 1016, 680)).InBackground(); // big planet at left side
+
+            bool showMoon = true;
+            if (GlobalStats.HasMod)
+            {
+                var portrait = new Rectangle(w / 2 - 960, h / 2 - 540, 1920, 1080);
+                while (portrait.Width < w && portrait.Height < h)
+                {
+                    portrait.Width  += 12;
+                    portrait.Height += 7;
+                    portrait.X = w / 2 - portrait.Width  / 2;
+                    portrait.Y = h / 2 - portrait.Height / 2;
+                }
+                showMoon = GlobalStats.ActiveModInfo.HideMainMenuMoon == false;
+                GlobalStats.ActiveMod.LoadContent(TransientContent);
+                GlobalStats.ActiveMod.Portrait = portrait;
+                Add(GlobalStats.ActiveMod).InBackground();
+            }
+            Panel("MainMenu/vignette", ScreenRect); // vignette goes on top of everything
 
             BeginVLayout(w - 200, h / 2 - 100, UIButton.StyleSize().Y + 15);
                 Button(titleId: 1,      click: NewGame_Clicked);
@@ -95,16 +94,10 @@ namespace Ship_Game.GameScreens.MainMenu
             // Animate the buttons in and out
             StartTransition<UIButton>(512f, -1f);
             OnExit += () => StartTransition<UIButton>(512f, +1f);
-
-            Portrait = new Rectangle(w / 2 - 960, h / 2 - 540, 1920, 1080);
-            while (Portrait.Width < w && Portrait.Height < h)
-            {
-                Portrait.Width  += 12;
-                Portrait.Height += 7;
-                Portrait.X = w / 2 - Portrait.Width  / 2;
-                Portrait.Y = h / 2 - Portrait.Height / 2;
-            }
-
+                        
+            SDLogoAnim = Add(new SpriteAnimation(this, "MainMenu/Stardrive logo"));
+            SDLogoAnim.StopAtLastFrame = true;
+            SDLogoAnim.Rect = new Rectangle(w-600, 128, 512, 128);
             MoonPosition = new Vector3(+w / 2f - 300, SDLogoAnim.Y + 70 - h / 2f, 0f);
             ShipPosition = new Vector3(-w / 4f, SDLogoAnim.Y + 400 - h / 2f, 0f);
 
@@ -124,23 +117,33 @@ namespace Ship_Game.GameScreens.MainMenu
                 * Matrix.CreateRotationY(180f.ToRadians())
                 * Matrix.CreateRotationX(0f.ToRadians())
                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-
             Projection = Matrix.CreateOrthographic(w, h, 1f, 80000f);
-            
-            Vector3 mp = Viewport.Project(MoonObj.WorldBoundingSphere.Center, Projection, View, Matrix.Identity);
-            MoonGlowPos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
 
-            CreateAnimatedOverlays();
+            Vector2 moonCenter = Viewport.Project(MoonObj.WorldBoundingSphere.Center, Projection, View, Matrix.Identity).ToVec2();
+
+            if (showMoon)
+            {
+                // @todo place automatically depending on planet size?
+                UIPanel flare = Panel("MainMenu/moon_flare").InForeAdditive();
+                flare.Size *= 0.95f;
+                flare.Pos = moonCenter - new Vector2(216f, 193f);
+            }
+            else
+            {
+                MoonObj.Visibility = ObjectVisibility.None;
+            }
+
+            CreateAnimatedOverlays(moonCenter);
             CreateVersionArea();
 
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
         }
 
-        void CreateAnimatedOverlays()
+        void CreateAnimatedOverlays(Vector2 moonCenter)
         {
             int h = ScreenHeight;
             // alien text markers flashing on top of right hand side moon
-            int mx = (int) MoonGlowPos.X, my = (int) MoonGlowPos.Y;
+            int mx = (int) moonCenter.X, my = (int) moonCenter.Y;
             
             const float moonLoop = 12.0f; // total animation loop sync time
             Panel("MainMenu/moon_1", mx - 220, my - 130).Anim(1.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
@@ -192,49 +195,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override void Draw(SpriteBatch batch)
         {
-            if (!SplashScreen.DisplayComplete)
-                return;
-
-            ScreenManager.HideSplashScreen();
-            ScreenManager.BeginFrameRendering(GameTime, ref View, ref Projection);
-            
-            // BACK NORMAL
-            batch.Begin();
-            batch.Draw(StarField, ScreenRect, Color.White); // background
-            batch.Draw(BackgroundPlanet, new Rectangle(0, ScreenHeight - 680, 1016, 680), Color.White); // big planet at left side
-            DrawElementsAtDepth(batch, DrawDepth.Background);
-            GlobalStats.ActiveMod?.DrawMainMenuOverlay(batch, Portrait);
-            batch.Draw(Vignette, ScreenRect, Color.White);
-            batch.End();
-            
-            // BACK ADD
-            BeginAdditive(batch);
-            DrawElementsAtDepth(batch, DrawDepth.BackAdditive);
-            batch.End();
-
-            // 3D render
-            ScreenManager.RenderSceneObjects();
-
-            // FORE NORMAL
-            batch.Begin();
-            DrawElementsAtDepth(batch, DrawDepth.Foreground);
-            batch.End();
-
-            // FORE ADD
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-            Device.RenderState.SourceBlend      = Blend.InverseDestinationColor;
-            Device.RenderState.DestinationBlend = Blend.One;
-            Device.RenderState.BlendFunction    = BlendFunction.Add;
-            batch.Draw(MoonGlow, MoonGlowPos, Color.White, 0f, new Vector2(184f), 0.95f, SpriteEffects.None, 1f);
-            batch.End();
-
-            BeginAdditive(batch);
-            DrawElementsAtDepth(batch, DrawDepth.ForeAdditive);
-            batch.End();
-
-            ScreenManager.EndFrameRendering();
-
-            //DrawMultiLayeredExperimental(ScreenManager);
+            DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
         }
 
         public override bool HandleInput(InputState input)
@@ -272,22 +233,28 @@ namespace Ship_Game.GameScreens.MainMenu
             if (base.HandleInput(input))
                 return true; // something was clicked, return early
 
+            if (input.DebugMode)
+            {
+                LoadContent();
+                return true;
+            }
+
             // we didn't hit any buttons or stuff, so just spawn a comet
             if (input.InGameSelect)
             {
-                Comet c = Add(new Comet(this, TexComet));
+                Comet c = Add(new Comet(this));
                 c.SetDirection(c.Pos.DirectionToTarget(input.CursorPosition));
 
                 // and if we clicked on the moon, then play a cool sfx
-                Viewport viewport = Viewport;
-                Vector3 nearPoint = viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View, Matrix.Identity);
-                Vector3 farPoint  = viewport.Unproject(new Vector3(input.CursorPosition, 1f), Projection, View, Matrix.Identity);
+                Vector3 nearPoint = Viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View, Matrix.Identity);
+                Vector3 farPoint  = Viewport.Unproject(new Vector3(input.CursorPosition, 1f), Projection, View, Matrix.Identity);
                 Vector3 direction = nearPoint.DirectionToTarget(farPoint);
 
                 var pickRay = new Ray(nearPoint, direction);
                 float k = -pickRay.Position.Z / pickRay.Direction.Z;
-                var pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-                if (pickedPosition.InRadius(MoonObj.WorldBoundingSphere.Center, MoonObj.WorldBoundingSphere.Radius))
+                var picked = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, 
+                                         pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
+                if (picked.InRadius(MoonObj.WorldBoundingSphere.Center, MoonObj.WorldBoundingSphere.Radius))
                 {
                     GameAudio.PlaySfxAsync("sd_bomb_impact_01");
                 }
@@ -425,7 +392,7 @@ namespace Ship_Game.GameScreens.MainMenu
             
             if (RandomMath.RandomBetween(0f, 100f) > 99.75f)
             {
-                Comet c = Add(new Comet(this, TexComet));
+                Comet c = Add(new Comet(this));
                 c.SetDirection(new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f));
             }
 
