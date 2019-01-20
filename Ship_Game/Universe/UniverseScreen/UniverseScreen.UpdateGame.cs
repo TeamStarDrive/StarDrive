@@ -24,9 +24,9 @@ namespace Ship_Game
                     if (ProcessTurnsThread == null)
                         return; // this thread is aborting
 
-                    float deltaTime = (float) zgameTime.ElapsedGameTime.TotalSeconds;
+                    float deltaTime = (float)SimulationTime.ElapsedGameTime.TotalSeconds;
                     PieMenuTimer += deltaTime;
-                    pieMenu.Update(zgameTime);
+                    pieMenu.Update(SimulationTime);
 
                     if (Paused)
                     {
@@ -72,7 +72,7 @@ namespace Ship_Game
                                 {
                                     ++FrameId;
                                     ProcessTurnDelta(deltaTime);
-                                    deltaTime = (float) zgameTime.ElapsedGameTime.TotalSeconds;
+                                    deltaTime = (float) SimulationTime.ElapsedGameTime.TotalSeconds;
                                 }
                             }
                             if (GlobalStats.RestrictAIPlayerInteraction)
@@ -82,8 +82,6 @@ namespace Ship_Game
                                 else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
 
                             }
-
-
                         }
                     }
                     failedLoops = 0; // no exceptions this turn
@@ -105,7 +103,7 @@ namespace Ship_Game
                 {
                     //if the debug window hits a cyclic crash it can be turned off ingame.
                     // i dont see a point in crashing the game because of a debug window error.
-                    try { DebugWin?.Update(DeltaTime); }
+                    try { DebugWin?.Update(SimulationDeltaTime); }
                     catch { Log.Info("DebugWindowCrashed"); }
 
                     // Notify Draw() that taketurns has finished and another frame can be drawn now
@@ -162,12 +160,13 @@ namespace Ship_Game
                 }
         }
 
-        public static float DeltaTime;
+        // This is different than normal DeltaTime
+        public float SimulationDeltaTime { get; private set; }
 
         private void ProcessTurnDelta(float elapsedTime)
         {
-            DeltaTime = elapsedTime;
-            perfavg5.Start(); // total dowork perf counter
+            SimulationDeltaTime = elapsedTime;
+            perfavg5.Start(); // total do work perf counter
 
             GlobalStats.BeamTests     = 0;
             GlobalStats.Comparisons   = 0;
@@ -622,9 +621,7 @@ namespace Ship_Game
                 return;
 
             foreach (SolarSystem system in SolarSystemList)
-            {
                 system.Update(elapsedTime, this);
-            }
         }
 
         private void HandleGameSpeedChange(InputState input)
