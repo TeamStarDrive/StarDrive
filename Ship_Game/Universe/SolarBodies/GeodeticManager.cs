@@ -185,7 +185,7 @@ namespace Ship_Game.Universe.SolarBodies
                         }
                     }
                 }
-                if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == SolarSystemBody)
+                if (Empire.Universe.IsViewingCombatScreen(SolarSystemBody))
                 {
                     GameAudio.PlaySfxAsync("Explo1");
                     ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(od.Target.ClickRect, 4);

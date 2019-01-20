@@ -306,7 +306,7 @@ namespace Ship_Game
                         Vector2 MousePos = new Vector2(x, state.Y);
                         foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
                         {
-                            if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
+                            if (g.ColonizationTarget == null || g.ColonizationTarget != p)
                             {
                                 continue;
                             }

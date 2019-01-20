@@ -4,17 +4,18 @@ using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using Ship_Game.GameScreens.MainMenu;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
 	public sealed class GameLoadingScreen : GameScreen
 	{
-        private VideoPlayer2 LoadingPlayer;
-        private VideoPlayer2 SplashPlayer;
-		private Rectangle BridgeRect;
-        private Texture2D BridgeTexture;
-        private bool Ready;
+        VideoPlayer2 LoadingPlayer;
+        VideoPlayer2 SplashPlayer;
+        Rectangle BridgeRect;
+        Texture2D BridgeTexture;
+        AutoResetEvent Ready = new AutoResetEvent(false);
 
         public GameLoadingScreen() : base(null/*no parent*/)
         {
@@ -85,7 +86,8 @@ namespace Ship_Game
 
         bool LoadingFinished()
         {
-            if (Ready && (Input.InGameSelect ||  SplashPlayer?.IsPlaying != true))
+            bool ready = Ready.WaitOne(1);
+            if (ready && (Input.InGameSelect ||  SplashPlayer?.IsPlaying != true))
             {
                 ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
                 return true;
@@ -123,7 +125,7 @@ namespace Ship_Game
 
                 ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod, reset:false);
                 Log.Write($"Finished loading 'Root' Assets {StarDriveGame.GameContent.GetLoadedAssetMegabytes():0.0}MB");
-                Ready = true;
+                Ready.Set();
             });
         }
 

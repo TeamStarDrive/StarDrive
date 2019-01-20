@@ -169,11 +169,43 @@ namespace Ship_Game
             && (planet.colonyType != Planet.ColonyType.Industrial || planet.IsCoreWorld)
         );
 
-        public Planet PlanetToBuildAt (float productionNeeded)
+        public Planet PlanetToBuildShipAt(float actualCost)
         {
-            Planet planet = OwnedPlanets.FindMin(p => p.SbProduction.EstimateMinTurnsToBuildShip(productionNeeded));
+            Planet planet = OwnedPlanets.FindMin(p => p.Construction.EstimateMinTurnsToBuildShip(actualCost));
             return planet;
         }
+
+        public bool TryFindSpaceportToBuildShipAt(Ship ship, out Planet spacePort)
+        {
+            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
+            return FindPlanetToBuildAt(spacePorts, ship, out spacePort);
+        }
+
+        public bool FindPlanetToBuildOffensiveShipAt(Ship ship, out Planet planet)
+        {
+            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort && p.colonyType != Planet.ColonyType.Research);
+            return FindPlanetToBuildAt(spacePorts, ship, out planet);
+        }
+
+        public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen)
+        {
+            if (ports.Count != 0)
+            {
+                float cost = ship.GetCost(this);
+                chosen = ports.FindMin(p => p.Construction.EstimateMinTurnsToBuildShip(cost));
+                return true;
+            }
+            chosen = null;
+            return false;
+        }
+
+        public bool FindClosestPlanetToBuildAt(Vector2 position, out Planet chosen)
+        {
+            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
+            chosen = spacePorts.FindMin(p => p.Center.SqDist(position));
+            return chosen != null;
+        }
+
         public string Name => data.Traits.Name;
 
         // Empire unique ID. If this is 0, then this empire is invalid!
@@ -2326,7 +2358,8 @@ namespace Ship_Game
 
         public void ForcePoolAdd(Ship s)
         {
-            if (s.shipData.Role <= ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian )
+            if (s.shipData.Role <= ShipData.RoleName.freighter ||
+                s.shipData.ShipCategory == ShipData.Category.Civilian)
                 return;
             EmpireAI.AssignShipToForce(s);
         }

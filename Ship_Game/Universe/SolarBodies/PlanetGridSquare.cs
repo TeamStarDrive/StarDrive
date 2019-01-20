@@ -42,5 +42,33 @@ namespace Ship_Game
             return !Habitable && b.CanBuildAnywhere
                  || Habitable && building == null;
         }
+
+        public void PlaceBuilding(Building b)
+        {
+            if (b.IsBiospheres)
+            {
+                Habitable = true;
+                Biosphere = true;
+                building = null;
+            }
+            else
+            {
+                building = b;
+            }
+            QItem = null;
+        }
+
+        public bool ShouldPerformAutoCombat(Planet p)
+        {
+            return (GlobalStats.AutoCombat // always auto combat
+                || p.Owner?.isPlayer == false // or we're AI?
+                || !Empire.Universe.IsViewingCombatScreen(p)); // or we're not looking at combat screen
+        }
+
+        public bool ShouldBuildingPerformAutoCombat(Planet p)
+        {
+            return building?.CanAttackThisTurn == true
+                && ShouldPerformAutoCombat(p);
+        }
 	}
 }
