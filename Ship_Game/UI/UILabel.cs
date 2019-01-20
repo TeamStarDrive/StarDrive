@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public class UILabel : UIElementV2
+    public class UILabel : UIElementV2, IColorElement
     {
         string LabelText; // Simple Text
         Array<string> Lines; // Multi-Line Text
@@ -14,7 +14,7 @@ namespace Ship_Game
         public delegate void ClickHandler(UILabel label);
         public event ClickHandler OnClick;
 
-        public Color Color = Color.White;
+        public Color Color { get; set; } = Color.White;
         public Color Highlight = UIColors.LightBeige;
 
         public bool DropShadow = false;
