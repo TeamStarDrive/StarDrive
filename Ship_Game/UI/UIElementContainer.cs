@@ -57,6 +57,9 @@ namespace Ship_Game
         protected UIElementContainer(UIElementV2 parent, Vector2 pos) : base(parent, pos)
         {
         }
+        protected UIElementContainer(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size)
+        {
+        }
         protected UIElementContainer(UIElementV2 parent, Rectangle rect) : base(parent, rect)
         {
         }
@@ -464,10 +467,14 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        protected internal UIPanel Panel(Rectangle rect, Color color)          => Add(new UIPanel(this, rect, color));
-        protected internal UIPanel Panel(SubTexture tex, Rectangle r)          => Add(new UIPanel(this, tex, r));
-        protected internal UIPanel Panel(SubTexture tex, Rectangle r, Color c) => Add(new UIPanel(this, tex, r, c));
-        protected internal UIPanel Panel(string tex, int x, int y) => Add(new UIPanel(this, tex, x, y));
+        public UIPanel Panel(in Rectangle r, Color c)               => Add(new UIPanel(this, r, c));
+        public UIPanel Panel(SubTexture t, in Rectangle r)          => Add(new UIPanel(this, t, r));
+        public UIPanel Panel(SubTexture t, in Rectangle r, Color c) => Add(new UIPanel(this, t, r, c));
+        public UIPanel Panel(string t, int x, int y)   => Add(new UIPanel(this, t, x, y));
+        public UIPanel Panel(string t, in Rectangle r) => Add(new UIPanel(this, t, r));
+        public UIPanel Panel(string t, Vector2 pos)    => Add(new UIPanel(this, t, pos));
+        public UIPanel Panel(string t)                 => Add(new UIPanel(this, t));
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
         public UIBasicAnimEffect Anim() => AddEffect(new UIBasicAnimEffect(this));

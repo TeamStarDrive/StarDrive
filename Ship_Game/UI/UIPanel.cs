@@ -15,34 +15,58 @@ namespace Ship_Game
     {
         public SubTexture Texture;
         public Color Color { get; set; }
+        public bool DebugBorder;
 
         // Hint: use Color.TransparentBlack to create Panels with no fill
-        public UIPanel(UIElementV2 parent, Rectangle rect, Color color)
-            : base(parent, rect)
+        public UIPanel(UIElementV2 parent, in Rectangle rect, Color color) : base(parent, rect)
         {
             Color = color;
         }
 
-        public UIPanel(UIElementV2 parent, SubTexture texture, Rectangle rect)
-            : base(parent, rect)
+        public UIPanel(UIElementV2 parent, SubTexture tex, in Rectangle rect) : base(parent, rect)
         {
-            Texture = texture;
+            Texture = tex;
             Color = Color.White;
         }
         
-        public UIPanel(UIElementV2 parent, SubTexture texture, Rectangle rect, Color color)
-            : base(parent, rect)
+        public UIPanel(UIElementV2 parent, SubTexture tex, in Rectangle r, Color c) : base(parent, r)
         {
-            Texture = texture;
-            Color = color;
+            Texture = tex;
+            Color = c;
         }
 
-        public UIPanel(UIElementV2 parent, string tex, int x, int y)
-            : base(parent, new Vector2(x,y))
+        public UIPanel(UIElementV2 parent, string tex, int x, int y) : base(parent, new Vector2(x,y))
         {
-            Texture = parent.ContentManager.Load<SubTexture>("Textures/"+tex);
+            Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
             Size = Texture.SizeF;
             Color = Color.White;
+        }
+
+        public UIPanel(UIElementV2 parent, string tex, in Rectangle r) : base(parent, r)
+        {
+            Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
+            Color = Color.White;
+        }
+
+        public UIPanel(UIElementV2 parent, string tex, Vector2 pos) : base(parent, pos)
+        {
+            Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
+            Size = Texture.SizeF;
+            Color = Color.White;
+        }
+
+        public UIPanel(UIElementV2 parent, string tex) : base(parent, Vector2.Zero)
+        {
+            Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
+            Size = Texture.SizeF;
+            Color = Color.White;
+        }
+
+        public override string ToString()
+        {
+            return Texture == null
+                ? $"Panel Color:{Color} Pos:{X},{Y} {Width}x{Height}"
+                : $"Panel Name:{Texture.Name} Pos:{X},{Y} {Width}x{Height}";
         }
 
         public override void Draw(SpriteBatch batch)
@@ -54,6 +78,10 @@ namespace Ship_Game
             else if (Color.A > 0)
             {
                 batch.FillRectangle(Rect, Color);
+            }
+            if (DebugBorder)
+            {
+                batch.DrawRectangle(Rect, Color.Red);
             }
             base.Draw(batch);
         }

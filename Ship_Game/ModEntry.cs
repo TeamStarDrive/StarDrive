@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class ModEntry
+	public sealed class ModEntry : UIElementV2
 	{
 		public string ModName;
 		public Rectangle Container;
@@ -15,7 +15,7 @@ namespace Ship_Game
         Texture2D PortraitTex;
         Texture2D MainMenuTex;
 
-        public ModEntry(ModInformation modInfo)
+        public ModEntry(ModInformation modInfo) : base(null, Vector2.Zero)
 		{
 			ModName       = modInfo.ModName;
 			mi            = modInfo;
@@ -62,10 +62,14 @@ namespace Ship_Game
             batch.DrawRectangle(Portrait, Color.White);
 		}
 
-        public void DrawMainMenuOverlay(SpriteBatch batch, Rectangle portrait)
+        public override void Draw(SpriteBatch batch)
         {
-            batch.Draw(MainMenuTex, portrait, Color.White);
+            batch.Draw(MainMenuTex, Portrait, Color.White);
         }
 
+        public override bool HandleInput(InputState input)
+        {
+            return false;
+        }
     }
 }

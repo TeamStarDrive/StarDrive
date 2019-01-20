@@ -19,7 +19,6 @@ namespace Ship_Game
         public LightingSystemEditor editor;
         private readonly SceneState GameSceneState;
         public SceneEnvironment environment;
-        private SplashScreenGameComponent SplashScreen;
         private readonly SceneInterface SceneInter;
         private readonly object InterfaceLock = new object();
         private StarDriveGame GameInstance;
@@ -66,9 +65,6 @@ namespace Ship_Game
                 UserHandledView = true
             };
             SceneInter.AddManager(editor);
-
-            SplashScreen = new SplashScreenGameComponent(game, graphics);
-            game.Components.Add(SplashScreen);
         }
 
         public void UpdatePreferences(LightingSystemPreferences prefs)
@@ -115,16 +111,6 @@ namespace Ship_Game
             foreach (GameScreen gs in Screens)
                 if (gs is T) return true;
             return false;
-        }
-
-
-        public void HideSplashScreen()
-        {
-            if (SplashScreen == null)
-                return;
-            SplashScreen.Visible = false;
-            GameInstance.Components.Remove(SplashScreen);
-            SplashScreen = null;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////
