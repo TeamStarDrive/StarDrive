@@ -346,7 +346,7 @@ namespace Ship_Game
 
         public void TerraformExternal(float amount)
         {
-            ChangeMaxFertility(amount);
+            AddMaxFertility(amount);
             if (amount > 0) ImprovePlanetType();
             else            DegradePlanetType();
         }
@@ -408,7 +408,7 @@ namespace Ship_Game
             TerraformPoints += TerraformToAdd;
             if (TerraformPoints > 0.0f && Fertility < 1f)
             {
-                ChangeMaxFertility(TerraformToAdd);
+                AddMaxFertility(TerraformToAdd);
                 MaxFertility = MaxFertility.Clamped(0f, 1f);
                 ImprovePlanetType();
                 if (MaxFertility.AlmostEqual(1f)) // remove Terraformers - their job is done
@@ -595,34 +595,20 @@ namespace Ship_Game
             MaxFertility = maxFertility;
             Fertility = fertility;
         }
+        
+        public void SetFertilityMinMax(float fertility) => SetFertility(fertility, fertility);
 
-        public void ChangeMaxFertility(float amount)
+        public void AddMaxFertility(float amount)
         {
             MaxFertility += amount;
             MaxFertility  = Math.Max(0, MaxFertility);
         }
 
         // FB: to enable bombs to temp change fertility immediately by specified amount
-        public void ChangeFertility(float amount)
+        public void AddFertility(float amount)
         {
             Fertility += amount;
             Fertility  = Math.Max(0, Fertility);
-        }
-
-        public void InitFertility(float amount)
-        {
-            Fertility = amount;
-        }
-
-        public void InitMaxFertility(float amount)
-        {
-            MaxFertility = amount;
-        }
-
-        public void InitFertilityMinMax(float amount)
-        {
-            InitFertility(amount);
-            InitMaxFertility(amount);
         }
 
         public void UpdateIncomes(bool loadUniverse) // FB: note that this can be called multiple times in a turn

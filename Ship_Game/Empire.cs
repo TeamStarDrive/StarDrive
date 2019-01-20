@@ -256,7 +256,7 @@ namespace Ship_Game
             AddPlanet(home);
             home.GenerateNewHomeWorld(type);
             home.InitializeWorkerDistribution(this);
-            home.ChangeFertility(2f + data.Traits.HomeworldFertMod);
+            home.SetFertilityMinMax(2f + data.Traits.HomeworldFertMod);
             home.MineralRichness = 1f + data.Traits.HomeworldRichMod;
             home.MaxPopBase      = 14000f * data.Traits.HomeworldSizeMultiplier;
             home.Population      = 14000f;
@@ -2645,7 +2645,7 @@ namespace Ship_Game
             for (int i = 0; i < list.Count; i++)
             {
                 Planet planet = list[i];
-                planet.ChangeFertility(amount);
+                planet.AddFertility(amount);
             }
         }
 
