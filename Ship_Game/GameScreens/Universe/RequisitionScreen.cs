@@ -89,8 +89,7 @@ namespace Ship_Game
             {
                 if (node.Ship != null || node.GoalGUID != Guid.Empty)
                     continue;
-                var g = new FleetRequisition(node.ShipName, f.Owner);
-                g.Fleet = f;
+                var g = new FleetRequisition(node.ShipName, f.Owner) {Fleet = f};
                 node.GoalGUID = g.guid;
                 f.Owner.GetEmpireAI().Goals.Add(g);
                 g.Evaluate();

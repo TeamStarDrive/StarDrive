@@ -64,7 +64,6 @@ namespace Ship_Game.Commands.Goals
             }
 
             FinishedShip.AI.State = AIState.AwaitingOrders;
-            empire.ForcePoolAdd(FinishedShip);
             return GoalStep.GoalComplete;
         }
     }
