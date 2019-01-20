@@ -109,8 +109,7 @@ namespace Ship_Game
             p.OrbitalRadius         = psdata.OrbitalDistance;
             p.MaxPopBase            = psdata.PopulationMax;
 
-            p.InitMaxFertility(psdata.MaxFertility);
-            p.InitFertility(psdata.Fertility);
+            p.SetFertility(psdata.Fertility, psdata.MaxFertility);
 
             p.MineralRichness       = psdata.Richness;
             p.TerraformPoints       = psdata.TerraformPoints;

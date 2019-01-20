@@ -246,7 +246,7 @@ namespace Ship_Game
         public void ScrapBuilding(Planet planet)
         {
             if (MinusFertilityOnBuild < 0)
-                planet.ChangeMaxFertility(MinusFertilityOnBuild);
+                planet.AddMaxFertility(MinusFertilityOnBuild);
 
             planet.BuildingList.Remove(this);
             planet.ProdHere += ActualCost / 2f;
@@ -261,7 +261,7 @@ namespace Ship_Game
         // Event when a building is built at planet p
         public void OnBuildingBuiltAt(Planet p)
         {
-            p.ChangeMaxFertility(-MinusFertilityOnBuild);
+            p.AddMaxFertility(-MinusFertilityOnBuild);
             p.BuildingList.Add(this);
 
             if (IsSpacePort)
