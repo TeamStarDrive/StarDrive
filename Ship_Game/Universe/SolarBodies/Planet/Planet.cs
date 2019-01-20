@@ -63,6 +63,7 @@ namespace Ship_Game
         public float AvgPopulationGrowth { get; private set; }
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
+        public float ColonyValue { get; private set;}
 
 
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
@@ -199,10 +200,10 @@ namespace Ship_Game
             {
                 TroopManager.Update(elapsedTime);
                 GeodeticManager.Update(elapsedTime);
+                UpdateColonyValue();
                 ScanForEnemy();
                 if (ParentSystem.CombatInSystem)
                         UpdateSpaceCombatBuildings(elapsedTime);
-
 
                 UpdatePlanetaryProjectiles(elapsedTime);
             }
@@ -475,6 +476,17 @@ namespace Ship_Game
             CalculateIncomingTrade();
         }
 
+        private void UpdateColonyValue()
+        {
+            ColonyValue = 0;
+            if (Owner == null)
+                return;
+
+            ColonyValue  = BuildingList.Any(b => b.IsCapital) ? 100 : 0;
+            ColonyValue += BuildingList.Sum(b => b.ActualCost) / 10;
+            ColonyValue += (PopulationBillion + MaxPopulationBillion) * 5;
+        }
+
         // these are intentionally duplicated so we don't easily modify them...
         float MaxPopBaseVal, MaxPopVal, MaxPopBillionVal;
         public float MaxPopBase // planetary base max population value
@@ -743,7 +755,7 @@ namespace Ship_Game
             Storage.BuildingResources();
         }
 
-
+        
         private void GrowPopulation()
         {
             if (Owner == null) return;
