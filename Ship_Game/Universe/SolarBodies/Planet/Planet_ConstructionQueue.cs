@@ -63,6 +63,7 @@ namespace Ship_Game
         public bool BuildingExists(Building b)           => BuildingExists(b.BID);
         public bool CanBuildInfantry                     => BuildingList.Any(b => b.AllowInfantry);
         public bool BuildingInTheWorks                   => ConstructionQueue.Any(b => b.isBuilding);
+        public bool OrbitalsInTheWorks                   => ConstructionQueue.Any(b => b.isOrbital);
         public bool BiosphereInTheWorks                  => BuildingInQueue(Building.BiospheresId);
         public int TotalTurnsInConstruction              => ConstructionQueue.Count > 0 ? NumberOfTurnsUntilCompleted(ConstructionQueue.Last) : 0;
 

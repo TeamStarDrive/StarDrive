@@ -105,6 +105,7 @@ namespace Ship_Game
         public float freighterBudget;
         public float cargoNeed = 0;
         public float MaxResearchPotential = 10;
+        public float MaxColonyValue { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         private float leftoverResearch;
@@ -1229,6 +1230,12 @@ namespace Ship_Game
             UpdateFleets(elapsedTime);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
+            UpdateMaxColonyValue();
+        }
+
+        private void UpdateMaxColonyValue()
+        {
+            MaxColonyValue = OwnedPlanets.Max(p => p.ColonyValue);
         }
 
         public DebugTextBlock DebugEmpireTradeInfo()
