@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.UI.Effects;
 
 namespace Ship_Game
 {
@@ -21,6 +23,7 @@ namespace Ship_Game
         protected LayoutStyle CurrentLayout = LayoutStyle.HorizontalEven;
 
         protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
+        public IReadOnlyList<UIElementV2> Children => Elements;
         protected bool LayoutStarted;
         protected Vector2 LayoutCursor = Vector2.Zero;
         protected Vector2 LayoutStep   = Vector2.Zero;
@@ -461,13 +464,23 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        protected UIPanel Panel(Rectangle rect, Color color)          => Add(new UIPanel(this, rect, color));
-        protected UIPanel Panel(SubTexture tex, Rectangle r)          => Add(new UIPanel(this, tex, r));
-        protected UIPanel Panel(SubTexture tex, Rectangle r, Color c) => Add(new UIPanel(this, tex, r, c));
-
+        protected internal UIPanel Panel(Rectangle rect, Color color)          => Add(new UIPanel(this, rect, color));
+        protected internal UIPanel Panel(SubTexture tex, Rectangle r)          => Add(new UIPanel(this, tex, r));
+        protected internal UIPanel Panel(SubTexture tex, Rectangle r, Color c) => Add(new UIPanel(this, tex, r, c));
+        protected internal UIPanel Panel(string tex, int x, int y) => Add(new UIPanel(this, tex, x, y));
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        protected FadeInOutAnim Anim(string texture, int x, int y) => Add(new FadeInOutAnim(this, texture, x, y));
+        public FadeInOutAnim Anim() => AddEffect(new FadeInOutAnim(this));
+
+        /// <param name="delay">Start animation fadeIn/stay/fadeOut after seconds</param>
+        /// <param name="duration">Duration of fadeIn/stay/fadeOut</param>
+        /// <param name="fadeIn">Fade in time</param>
+        /// <param name="fadeOut">Fade out time</param>
+        public FadeInOutAnim Anim(
+            float delay, 
+            float duration = 1.0f, 
+            float fadeIn   = 0.25f, 
+            float fadeOut  = 0.25f) => Anim().Time(delay, duration, fadeIn, fadeOut);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
@@ -486,6 +499,13 @@ namespace Ship_Game
                 float modifier = i / (float)candidates.Count;
                 e.AddEffect(new UITransitionEffect(e, distance, modifier, direction));
             }
+        }
+
+        public UIFadeInEffect StartFadeIn(float fadeInTime, float delay = 0f)
+        {
+            var fx = new UIFadeInEffect(this, fadeInTime, delay);
+            AddEffect(fx);
+            return fx;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
