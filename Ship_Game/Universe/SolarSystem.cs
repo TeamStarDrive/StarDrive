@@ -673,7 +673,7 @@ namespace Ship_Game
                     newOrbital.GenerateNewHomeWorld(type);
                     newOrbital.InitializeWorkerDistribution(owner);
                     newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
-                    newOrbital.InitFertilityMinMax(2f + owner.data.Traits.HomeworldFertMod);
+                    newOrbital.SetFertilityMinMax(2f + owner.data.Traits.HomeworldFertMod);
                     if (ringData.MaxPopDefined > 0)
                         newOrbital.MaxPopBase =
                             ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMultiplier;
