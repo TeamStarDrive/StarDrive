@@ -77,7 +77,7 @@ namespace Ship_Game.Universe.SolarBodies
             float remainder = 0f;
             float newValue = oldValue + amount;
             if      (newValue < 0f)  remainder = newValue;
-            else if (newValue > Max) remainder = Max - newValue;
+            else if (newValue > Max) remainder = newValue - Max;
             oldValue = newValue.Clamped(0f, Max);
             return remainder;
         }
