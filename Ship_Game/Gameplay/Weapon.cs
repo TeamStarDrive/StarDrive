@@ -875,7 +875,7 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        public float CalculateWeaponOffense(ShipModule m = null)
+        public float UpdateOffense(ShipModule m = null)
         {
             float off = 0f;
             if (isBeam)

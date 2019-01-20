@@ -1207,7 +1207,7 @@ namespace Ship_Game.Ships
 
         public float CalculateModuleOffense()
         {
-            float off = InstalledWeapon?.CalculateWeaponOffense(this) ?? 0f;
+            float off = InstalledWeapon?.UpdateOffense(this) ?? 0f;
 
             off += IsTroopBay ? 50 : 0;
             if (ModuleType != ShipModuleType.Hangar || hangarShipUID.IsEmpty() 

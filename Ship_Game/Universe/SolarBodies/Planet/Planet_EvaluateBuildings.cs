@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -207,10 +208,11 @@ namespace Ship_Game
                 score = b.MaxPopIncrease * 0.002f; // Which is sorta like 0.001f * 2
             else
             {
-                // Basically, only add to the score if we would be able to feed the extra people
-                if ((Food.YieldPerColonist + b.PlusFoodPerColonist) * (MaxPopulationBillion + (b.MaxPopIncrease / 1000))
-                    >= (MaxPopulationBillion + (b.MaxPopIncrease / 1000) - Food.FlatBonus - b.PlusFlatFoodAmount))
-                    score += b.MaxPopIncrease * 0.001f;
+                ColonyResource resource = IsCybernetic ? Prod : Food;
+                if (resource.NetMaxPotential / PopulationBillion > 1)
+                    score = b.MaxPopIncrease * 0.002f;
+
+                score *= 2 * PopulationRatio;
             }
             DebugEvalBuild(b, "MaxPop", score);
             return score;
@@ -307,7 +309,8 @@ namespace Ship_Game
         float EvalTerraformer(Building b)
         {
             if (b.PlusTerraformPoints.AlmostZero() || Category == PlanetCategory.Terran
-                                                   || Category == PlanetCategory.Oceanic)
+                                                   || Category == PlanetCategory.Oceanic
+                                                   || Fertility.GreaterOrEqual(1)) 
                 return 0; // FB - note that Terafformers are automatically scraped when they finish their job (not here)
 
             float score = 0;
@@ -464,20 +467,22 @@ namespace Ship_Game
                      if (b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0)
                          score += 1f;
                     score += b.PlusProdPerColonist * MineralRichness 
-                             + b.PlusFlatProductionAmount +1
+                             + b.PlusFlatProductionAmount + 1
                              + b.PlusProdPerRichness * MineralRichness
                              + b.PlusFlatFoodAmount * 0.5f; // some flat food as most people will be in production
                     break;
                 case ColonyType.Research:
-                    score += b.PlusResearchPerColonist * 8
+                    score += b.PlusResearchPerColonist * 10
                              + b.MaxPopIncrease / 1000
-                             + b.PlusFlatResearchAmount * 8
+                             + b.PlusFlatResearchAmount * 10
                              + b.PlusFlatPopulation / 10
                              - b.MinusFertilityOnBuild * 10;
                     break;
                 case ColonyType.Military:
-                    score += b.IsMilitary ? 2f : 0f; // yes, more military buildings!
-                    score += b.AllowInfantry || b.AllowShipBuilding ? 2f : 0f;
+                    score += (b.IsMilitary ? 2f : 0f) // yes, more military buildings!
+                             + (b.AllowInfantry || b.AllowShipBuilding ? 2f : 0f)
+                             + b.PlusFlatProductionAmount
+                             + b.PlusProdPerColonist * MineralRichness; // allow production for the war machine
                     break;
             }
             // The influence of the Governor increase as the colony increases.
@@ -490,7 +495,7 @@ namespace Ship_Game
         float EvalCostVsBuildTime(Building b)
         {
             if (b.ActualCost.LessOrEqual(0)) return 0;
-            float netCost = Math.Max(b.ActualCost - Storage.Prod * (1.5f - PopulationRatio), 0);
+            float netCost = Math.Max(b.ActualCost - Storage.Prod, 0);
             if (netCost.AlmostZero())
                 return 0;
 
@@ -555,11 +560,11 @@ namespace Ship_Game
             float defenseShipScore;
             switch (b.DefenseShipsRole)
             {
-                case ShipData.RoleName.drone:    defenseShipScore = 0.05f; break;
-                case ShipData.RoleName.fighter:  defenseShipScore = 0.1f;  break;
-                case ShipData.RoleName.corvette: defenseShipScore = 0.2f;  break;
-                case ShipData.RoleName.frigate:  defenseShipScore = 0.4f;  break;
-                default:                         defenseShipScore = 1f;    break;
+                case ShipData.RoleName.drone:    defenseShipScore = 0.1f; break;
+                case ShipData.RoleName.fighter:  defenseShipScore = 0.2f;  break;
+                case ShipData.RoleName.corvette: defenseShipScore = 0.4f;  break;
+                case ShipData.RoleName.frigate:  defenseShipScore = 1.5f;  break;
+                default:                         defenseShipScore = 3f;    break;
             }
             return defenseShipScore * b.DefenseShipsCapacity;
         }
@@ -655,7 +660,7 @@ namespace Ship_Game
         {
             Building bio = GetBiospheresWeCanBuild;
             if (bio != null && !BiosphereInTheWorks && totalBuildings < MaxBuildings
-                && bio.Maintenance < budget) // No habitable tiles and within budget
+                && bio.Maintenance < budget + 0.3) // No habitable tiles and within budget plus some tolerance
             {
                 if (IsPlanetExtraDebugTarget())
                     Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
@@ -760,11 +765,10 @@ namespace Ship_Game
         float BuildingBudget()
         {
             // FB this will give the budget the colony will have for building selection
-            float colonyIncome = Money.NetRevenue;
-            colonyIncome -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
-            float debtTolerance = (5 - PopulationBillion).Clamped(0,5); // the bigger the colony, the less debt tolerance it has, it should be earning money 
-            if (Owner.Money < 0)
-                debtTolerance -= 3; // if the empire is in debt, we must scrap staff
+            float colonyIncome  = Money.NetRevenue;
+            colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
+            float debtTolerance = (5 - PopulationBillion).Clamped(-5,5); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+            debtTolerance += Owner.Money / 1000; // FB this will ensure AI wont get stuck with no colony budget
             return colonyIncome + debtTolerance;
         }
 

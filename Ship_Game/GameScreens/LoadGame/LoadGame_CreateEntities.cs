@@ -100,10 +100,6 @@ namespace Ship_Game
             }
 
             p.colonyType = psdata.ColonyType;
-            if (!psdata.GovernorOn)
-            {
-                p.colonyType = Planet.ColonyType.Colony;
-            }
 
             p.FS                    = psdata.FoodState;
             p.PS                    = psdata.ProdState;
