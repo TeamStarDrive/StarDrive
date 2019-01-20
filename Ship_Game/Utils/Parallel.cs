@@ -74,22 +74,36 @@ namespace Ship_Game
     {
         AutoResetEvent EvtNewTask = new AutoResetEvent(false);
         AutoResetEvent EvtEndTask = new AutoResetEvent(false);
+        readonly object KillSync = new object();
         Thread Thread;
         Action VoidTask;
         Func<object> ResultTask;
         ITaskResult Result;
         RangeAction RangeTask;
-        int LoopStart;
-        int LoopEnd;
+        int LoopStart, LoopEnd;
         Stopwatch IdleTimer;
-        public bool Running => RangeTask != null || VoidTask != null || ResultTask != null;
-        public int ThreadId => Thread.ManagedThreadId;
         Exception Error;
         volatile bool Killed;
+        readonly string Name;
+
+        public bool Running => RangeTask != null || VoidTask != null || ResultTask != null;
+        public int ThreadId => Thread.ManagedThreadId;
 
         public ParallelTask(int index)
         {
-            Thread = new Thread(Run){ Name = "ParallelTask_"+(index+1) };
+            Name = "ParallelTask_"+(index+1);
+            Thread = new Thread(Run){ Name = Name };
+        }
+        void TriggerTaskStart()
+        {
+            lock (KillSync) // we need to sync here, because background thread can auto-terminate
+            {
+                EvtNewTask.Set();
+                if (Thread == null)
+                    Thread = new Thread(Run) { Name = Name };
+                if (!Thread.IsAlive)
+                    Thread.Start();
+            }
         }
         public void Start(int start, int end, RangeAction taskBody)
         {
@@ -98,9 +112,7 @@ namespace Ship_Game
             RangeTask = taskBody;
             LoopStart = start;
             LoopEnd   = end;
-            EvtNewTask.Set();
-            if (!Thread.IsAlive)
-                Thread.Start();
+            TriggerTaskStart();
         }
         public void Start(Action taskBody, ITaskResult result)
         {
@@ -108,9 +120,7 @@ namespace Ship_Game
                 throw new InvalidOperationException("ParallelTask is still running");
             VoidTask = taskBody;
             Result = result;
-            EvtNewTask.Set();
-            if (!Thread.IsAlive)
-                Thread.Start();
+            TriggerTaskStart();
         }
         public void Start(Func<object> taskBody, ITaskResult result)
         {
@@ -118,9 +128,7 @@ namespace Ship_Game
                 throw new InvalidOperationException("ParallelTask is still running");
             ResultTask = taskBody;
             Result = result;
-            EvtNewTask.Set();
-            if (!Thread.IsAlive)
-                Thread.Start();
+            TriggerTaskStart();
         }
         public Exception Wait()
         {
@@ -134,7 +142,6 @@ namespace Ship_Game
             Error = null;
             return ex;
         }
-
         void SetResultValue(object value)
         {
             ITaskResult result = Result;
@@ -142,17 +149,19 @@ namespace Ship_Game
             Result = null; // so if SetResult fails, we don't crash twice
             result.SetResult(value);
         }
-
         void Run()
         {
             while (!Killed)
             {
                 IdleTimer = Stopwatch.StartNew();
                 EvtNewTask.WaitOne(5000);
-                if (!Running)
-                {
-                    if (IdleTimer.ElapsedMilliseconds > 5000)
-                        return; // Die!
+                if (!Running) { // no tasks
+                    lock (KillSync) { // lock before deciding to kill thread
+                        if (IdleTimer.ElapsedMilliseconds > 5000) {
+                            Thread = null; // Die!
+                            return;
+                        }
+                    }
                     continue;
                 }
                 try
@@ -200,7 +209,7 @@ namespace Ship_Game
             ResultTask = null;
             Result     = null;
             EvtNewTask.Set();
-            Thread.Join(100);
+            Thread?.Join(100);
 
             EvtNewTask.Dispose();
             EvtEndTask.Dispose();
@@ -338,8 +347,8 @@ namespace Ship_Game
 
                 ParallelTask task = NextTask(ref poolIndex);
                 tasks[i] = task;
-                MarkProtected(task.ThreadId, true); // mark PFor sub-tasks as protected
                 task.Start(start, end, body);
+                MarkProtected(task.ThreadId, true); // mark PFor sub-tasks as protected
             }
 
             Exception ex = null; // only store a single exception

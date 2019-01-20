@@ -16,11 +16,12 @@ namespace Ship_Game.GameScreens.MainMenu
         Vector2 Direction;
         float Rotation;
 
-        public Comet(GameScreen screen, SubTexture comet)
-            : base(screen, new Vector2(RandomMath.RandomBetween(-100f, screen.ScreenWidth+100f), 0f), comet.SizeF)
+        public Comet(GameScreen screen)
+            : base(screen, new Vector2(RandomMath.RandomBetween(-100f, screen.ScreenWidth+100f), 0f))
         {
             Screen = screen;
-            Texture = comet;
+            Texture = screen.TransientContent.Load<SubTexture>("Textures/GameScreens/comet2");
+            Size = Texture.SizeF;
             Direction = new Vector2(0f, 1f);
             DrawDepth = DrawDepth.ForeAdditive;
         }
