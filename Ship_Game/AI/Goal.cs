@@ -23,10 +23,10 @@ namespace Ship_Game.AI
     public enum GoalStep
     {
         GoToNextStep, // this step succeeded, go to next step
-        TryAgain,     // goal step failed, so we should try again
+        TryAgain,     // goal step failed, so we should try this step again
         GoalComplete, // entire goal is complete and should be removed!
-        RestartGoal,  // restart goal from scratch
-        GoalFailed   // abort, abort!!
+        RestartGoal,  // restart entire goal from scratch (step 0)
+        GoalFailed    // abort, abort!!
     }
 
     public abstract class Goal
@@ -34,7 +34,7 @@ namespace Ship_Game.AI
         public Guid guid = Guid.NewGuid();
         public Empire empire;
         public GoalType type;
-        public int Step { get; protected set; }
+        public int Step { get; private set; }
         public Fleet Fleet;
         public Vector2 TetherOffset;
         public Guid TetherTarget;
@@ -105,37 +105,56 @@ namespace Ship_Game.AI
             MainGoalCompleted = true;
         }
 
-        public void Evaluate()
+        // @note Goals are mainly evaluated during Empire update
+        public GoalStep Evaluate()
         {
-            //CG hrmm i guess this should just be part of the goal enum. But that will require more cleanup of the goals. 
+            // CG hrmm i guess this should just be part of the goal enum.
+            // But that will require more cleanup of the goals. 
             if (Holding?.Invoke() == true) 
-                return;
+                return GoalStep.TryAgain;
             
             if ((uint)Step >= Steps.Length)
             {
-                throw new ArgumentOutOfRangeException(
-                    $"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+                Log.Error($"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+                RemoveThisGoal(); // don't crash, just remove the step
+                return GoalStep.GoalFailed;
             }
-            switch (Steps[Step].Invoke())
+
+            GoalStep result = Steps[Step].Invoke();
+            switch (result)
             {
                 case GoalStep.GoToNextStep: ++Step; break;
-                case GoalStep.TryAgain: break;
+                case GoalStep.TryAgain:             break;
                 case GoalStep.GoalComplete:
                 case GoalStep.GoalFailed:
-                    empire?.GetEmpireAI().Goals.QueuePendingRemoval(this);
+                    RemoveThisGoal();
                     break;
-            }            
+                case GoalStep.RestartGoal:
+                    Step = 0;
+                    break;
+            }
+            return result;
+        }
+
+        void RemoveThisGoal()
+        {
+            empire?.GetEmpireAI().Goals.QueuePendingRemoval(this);
         }
 
         public void AdvanceToNextStep()
         {
             ++Step;
+            if ((uint)Step >= Steps.Length)
+            {
+                Log.Error($"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+                RemoveThisGoal();
+            }
         }
 
         public void ReportShipComplete(Ship ship)
         {
             FinishedShip = ship;
-            ++Step;
+            AdvanceToNextStep();
         }
 
         public struct PlanetRanker

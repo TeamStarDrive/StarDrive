@@ -119,16 +119,14 @@ namespace Ship_Game.Commands.Goals
             {
                 AO = ColonizationTarget.Center
             };
+            militaryTask.type = MilitaryTask.TaskType.DefendClaim;
             militaryTask.SetEmpire(empire);
             militaryTask.AORadius                 = 75000f;
-            militaryTask.SetTargetPlanet(ColonizationTarget);
-            militaryTask.TargetPlanetGuid         = ColonizationTarget.guid;
             militaryTask.MinimumTaskForceStrength = str;
+            militaryTask.SetTargetPlanet(ColonizationTarget);
             militaryTask.HeldGoals.Add(guid);
-            militaryTask.type                     = MilitaryTask.TaskType.DefendClaim;
-            {
-                empire.GetEmpireAI().TaskList.Add(militaryTask);
-            }
+
+            empire.GetEmpireAI().TaskList.Add(militaryTask);
             WaitingForEscort = true;
             return true;
         }
@@ -141,8 +139,8 @@ namespace Ship_Game.Commands.Goals
             FinishedShip = FindIdleColonyShip();
             if (FinishedShip != null)
             {
-                Step = 2;
-                return Steps[Step]();
+                AdvanceToNextStep(); // advance to Step2
+                return GoalStep.GoToNextStep;
             }
 
             Planet planet = FindPlanetForConstruction(empire);
@@ -219,7 +217,7 @@ namespace Ship_Game.Commands.Goals
         private GoalStep Step2()
         {
             if (!IsValid())
-                return GoalStep.GoalComplete;
+                return GoalStep.GoalFailed;
             NeedsEscort();
             if (!HasEscort && WaitingForEscort)
                 return GoalStep.TryAgain;
@@ -235,7 +233,7 @@ namespace Ship_Game.Commands.Goals
         private GoalStep FinalStep()
         {
             if (!IsValid())
-                return GoalStep.GoalComplete;
+                return GoalStep.GoalFailed;
 
             NeedsEscort();
             if (!HasEscort && WaitingForEscort)

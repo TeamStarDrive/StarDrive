@@ -620,17 +620,6 @@ namespace Ship_Game.AI.Tasks
             TargetPlanetGuid = p.guid;
         }
 
-
-        private bool IsNull<T>(T item)
-        {
-            if (item == null)
-            {
-                Log.Error("Null Value");
-                return false;
-            }
-            return true;
-        }
-
         public enum TaskType
         {
             ClearAreaOfEnemies,
