@@ -13,7 +13,8 @@ namespace Ship_Game
     /// </summary>
     public class UIPanel : UIElementContainer
     {
-        public Color Color { get; set; }
+        public SubTexture Texture;
+        public Color Color;
 
         public UIPanel(UIElementV2 parent, Rectangle rect, Color color)
             : base(parent, rect)
@@ -21,9 +22,30 @@ namespace Ship_Game
             Color = color;
         }
 
+        public UIPanel(UIElementV2 parent, SubTexture texture, Rectangle rect)
+            : base(parent, rect)
+        {
+            Texture = texture;
+            Color = Color.White;
+        }
+        
+        public UIPanel(UIElementV2 parent, SubTexture texture, Rectangle rect, Color color)
+            : base(parent, rect)
+        {
+            Texture = texture;
+            Color = color;
+        }
+
         public override void Draw(SpriteBatch batch)
         {
-            batch.FillRectangle(Rect, Color);
+            if (Texture != null)
+            {
+                batch.Draw(Texture, Rect, Color);
+            }
+            else
+            {
+                batch.FillRectangle(Rect, Color);
+            }
             base.Draw(batch);
         }
     }

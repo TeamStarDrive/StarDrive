@@ -4,6 +4,7 @@ using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using Ship_Game.GameScreens.MainMenu;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
