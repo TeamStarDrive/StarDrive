@@ -116,18 +116,21 @@ namespace Ship_Game
 
         private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int wantedOrbitals, ShipData.RoleName role)
         {
-            int orbitalsWewant = orbitalList.Count;
-            if (wantedOrbitals < orbitalsWewant)
+            int orbitalsWeHave = orbitalList.Count;
+            if (wantedOrbitals > orbitalsWeHave)
             {
                 Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
                 ScrapOrbital(weakest); // remove this old garbage
+                return;
             }
 
-            if (wantedOrbitals > orbitalsWewant) // lets build an orbital
+            if (wantedOrbitals < orbitalsWeHave) // lets build an orbital
             {
                 BuildOrbital(role);
                 return;
             }
+
+            ReplaceOrbital(orbitalList, role);  // check if we can replace an orbirtal with a better one
         }
 
         private void ScrapOrbital(Ship orbital)
@@ -149,19 +152,45 @@ namespace Ship_Game
             if (OrbitalsInTheWorks)
                 return;
 
-            string orbitalName = ShipBuilder.PickFromCandidates(role, Owner); // FB - build the best Orbital we can
-            if (ResourceManager.ShipsDict.TryGetValue(orbitalName, out Ship orbital))
+            Ship orbital = GetBestOrbital(role);
+            if (orbital == null)
+                return;
+
+            AddOrbital(orbital);
+        }
+
+        private void AddOrbital(Ship orbital) // add Orbital to ConstructionQueue
+        {
+            float cost = orbital.GetCost(Owner); // FB - need to check what happens with cost after shipyard is built.
+            ConstructionQueue.Add(new QueueItem(this)
             {
-                float cost = orbital.GetCost(Owner); // FB - need to check what happens with cost after shipyard is built.
-                ConstructionQueue.Add(new QueueItem(this)
-                {
-                    isOrbital = true,
-                    sData     = orbital.shipData,
-                    Cost      = cost
-                });
-            }
-            else
+                isOrbital = true,
+                sData = orbital.shipData,
+                Cost = cost
+            });
+        }
+
+        private Ship GetBestOrbital(ShipData.RoleName role)
+        {
+            string orbitalName = ShipBuilder.PickFromCandidates(role, Owner); // FB - get the best Orbital we can
+            if (!ResourceManager.ShipsDict.TryGetValue(orbitalName, out Ship orbital))
                 Log.Warning($"BuildOrbiral - Could not find {orbitalName} in {Owner.Name} list");
+
+            return orbital;
+        }
+
+        private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role)
+        {
+            if (OrbitalsInTheWorks)
+                return;
+
+            Ship weakestWeHave  = orbitalList.FindMin(s => s.BaseStrength);
+            Ship bestWeCanBuild = GetBestOrbital(role);
+            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength))
+                return;
+
+            ScrapOrbital(weakestWeHave);
+            AddOrbital(bestWeCanBuild);
         }
 
         /*private bool LogicalCostVsBuiltTime(float cost)
