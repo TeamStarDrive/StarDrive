@@ -64,17 +64,8 @@ namespace Ship_Game.GameScreens.MainMenu
             bool showMoon = true;
             if (GlobalStats.HasMod)
             {
-                var portrait = new Rectangle(w / 2 - 960, h / 2 - 540, 1920, 1080);
-                while (portrait.Width < w && portrait.Height < h)
-                {
-                    portrait.Width  += 12;
-                    portrait.Height += 7;
-                    portrait.X = w / 2 - portrait.Width  / 2;
-                    portrait.Y = h / 2 - portrait.Height / 2;
-                }
                 showMoon = GlobalStats.ActiveModInfo.HideMainMenuMoon == false;
-                GlobalStats.ActiveMod.LoadContent(TransientContent);
-                GlobalStats.ActiveMod.Portrait = portrait;
+                GlobalStats.ActiveMod.LoadContent(this);
                 Add(GlobalStats.ActiveMod).InBackground();
             }
             Panel("MainMenu/vignette", ScreenRect); // vignette goes on top of everything
