@@ -62,6 +62,7 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
         public float AvgPopulationGrowth { get; private set; }
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
+        public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
 
 
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
@@ -194,24 +195,42 @@ namespace Ship_Game
                         Shipyards.Remove(key);
                 }
             }
-            if (!Habitable)
+            if (Habitable)
             {
-                UpdatePosition(elapsedTime);
-                return;
+                TroopManager.Update(elapsedTime);
+                GeodeticManager.Update(elapsedTime);
+                ScanForEnemy();
+                if (ParentSystem.CombatInSystem)
+                        UpdateSpaceCombatBuildings(elapsedTime);
+
+
+                UpdatePlanetaryProjectiles(elapsedTime);
             }
-            TroopManager.Update(elapsedTime);
-            GeodeticManager.Update(elapsedTime);
-
-            UpdateSpaceCombatBuildings(elapsedTime);
-            UpdatePlanetaryProjectiles(elapsedTime);
-
             UpdatePosition(elapsedTime);
+        }
+
+        private void ScanForEnemy()
+        {
+            if (Owner == null) return;
+            if (ParentSystem.ShipList.Count <= 0) return;
+            for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
+            {
+                Ship ship = ParentSystem.ShipList[i];
+                if (ship.loyalty == Owner)
+                    continue;
+
+                if (ship.loyalty == Owner || !ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
+                    ParentSystem.CombatInSystem = false;
+                else
+                {
+                    ParentSystem.CombatInSystem = true;
+                    return;
+                }
+            }
         }
 
         private void UpdateSpaceCombatBuildings(float elapsedTime)
         {
-            if (Owner == null) return;
-            if (ParentSystem.ShipList.Count <= 0) return; 
             for (int i = 0; i < BuildingList.Count; ++i)
             {
                 float previousD;
@@ -231,46 +250,39 @@ namespace Ship_Game
                     previousD = 10000f;
                     previousT = previousD;
                 }
-                else continue;
-
+                else
+                    continue;
 
                 Ship target = null;
                 Ship troop = null;
-                bool defenseShipNameStillOut =  false;
                 for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
                 {
                     Ship ship = ParentSystem.ShipList[j];
                     if (ship.loyalty == Owner)
-                    {
-                        defenseShipNameStillOut = ship.HomePlanet == this;
                         continue;
-                    }
+
                     if (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
                         continue;
+
                     float currentD = Vector2.Distance(Center, ship.Center);
                     if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
                     {
                         previousT = currentD;
-                        troop = ship;
+                        troop     = ship;
                         continue;
                     }
                     if (currentD < previousD && troop == null)
                     {
                         previousD = currentD;
-                        target = ship;
+                        target    = ship;
                     }
                 }
 
                 if (troop != null)
                     target = troop;
                 if (target == null)
-                {
-                    if (!defenseShipNameStillOut &&
-                        building.CurrentNumDefenseShips < building.DefenseShipsCapacity)
-                        building.UpdateCurrentDefenseShips(building.DefenseShipsCapacity);
-                    
                     continue;
-                }
+
                 if (building.isWeapon)
                 {
                     building.TheWeapon.Center = Center;
@@ -280,9 +292,8 @@ namespace Ship_Game
                 else if (building.CurrentNumDefenseShips > 0)
                 {
                     LaunchDefenseShips(building.DefenseShipsRole, Owner);
-                    building.UpdateCurrentDefenseShips(-1);
+                    building.UpdateCurrentDefenseShips(-1, Owner);
                 }
-                break;
             }
         }
 
@@ -290,19 +301,16 @@ namespace Ship_Game
         {
             string defaultShip         = empire.data.StartingShip;
             string selectedShip        = GetDefenseShipName(roleName, empire) ?? defaultShip;
-            Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire, Center, this);
+            Vector2 launchVector       = MathExt.RandomOffsetAndDistance(Center, 1000);
+            Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire, launchVector, this);
             if (defenseShip == null)
                 Log.Warning($"Could not create defense ship, shipname = {selectedShip}");
             else
             {
-                empire.AddMoney(-defenseShip.BaseCost);
+                defenseShip.Level = 3;
                 defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.Speed;
+                empire.AddMoney(-defenseShip.BaseCost);
             }
-        }
-
-        private static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire)
-        {
-            return ShipBuilder.PickFromCandidates(roleName, empire);
         }
 
         public void LandDefenseShip(ShipData.RoleName roleName, float shipCost, float shipHealthPercent)
@@ -313,7 +321,7 @@ namespace Ship_Game
                 if (building.DefenseShipsRole == roleName
                     && building.CurrentNumDefenseShips < building.DefenseShipsCapacity)
                 {
-                    building.UpdateCurrentDefenseShips(1);
+                    building.UpdateCurrentDefenseShips(1, Owner);
                 }
             }
             Owner.AddMoney(shipCost * shipHealthPercent);
@@ -425,7 +433,7 @@ namespace Ship_Game
             DoTerraforming();
             UpdateFertility();
             DoGoverning();
-            UpdateIncomes(false);
+            UpdateIncomes(false);  
 
             // notification about empty queue
             if (GlobalStats.ExtraNotifications && Owner != null && Owner.isPlayer)
@@ -618,23 +626,26 @@ namespace Ship_Game
             InitMaxFertility(amount);
         }
 
-        public void UpdateIncomes(bool loadUniverse)
+        public void UpdateIncomes(bool loadUniverse) // FB: note that this can be called multiple times in a turn
         {
             if (Owner == null)
                 return;
 
-            AllowInfantry = false;
-            ShieldStrengthMax = 0f;
-            TotalDefensiveStrength = 0;
-            PlusFlatPopulationPerTurn = 0f;
-            ShipBuildingModifier = 0f;
-
-            float shipBuildingModifier = 1f;
+            RepairPerTurn              = 0;
+            TerraformToAdd             = 0;
+            bool shipyard              = false;
+            AllowInfantry              = false;
+            ShieldStrengthMax          = 0;
+            float totalStorage         = 0;
+            ShipBuildingModifier       = 0;
+            TotalDefensiveStrength     = 0;
+            PlusFlatPopulationPerTurn  = 0;
+            float shipBuildingModifier = 1;
 
             if (!loadUniverse)
             {
                 var deadShipyards = new Array<Guid>();
-                float shipyards = 1;
+                float shipyards   = 1;
                 foreach (KeyValuePair<Guid, Ship> keyValuePair in Shipyards)
                 {
                     if (keyValuePair.Value == null)
@@ -657,37 +668,28 @@ namespace Ship_Game
                 ShipBuildingModifier = shipBuildingModifier;
             }
 
-            TerraformToAdd = 0f;
-            RepairPerTurn = 0;
-            float totalStorage = 0;
-            bool shipyard = false;
-
             for (int i = 0; i < BuildingList.Count; ++i)
             {
-                Building b = BuildingList[i];
+                Building b                 = BuildingList[i];
+                PlusFlatPopulationPerTurn += b.PlusFlatPopulation;
+                ShieldStrengthMax         += b.PlanetaryShieldStrengthAdded;
+                TerraformToAdd            += b.PlusTerraformPoints;
+                totalStorage              += b.StorageAdded;
+                RepairPerTurn             += b.ShipRepair;
+                if (b.AllowInfantry)
+                    AllowInfantry = true;
                 if (b.WinsGame)
                     HasWinBuilding = true;
                 if (b.AllowShipBuilding || b.IsSpacePort)
                     shipyard = true;
-
-                PlusFlatPopulationPerTurn += b.PlusFlatPopulation;
-                ShieldStrengthMax += b.PlanetaryShieldStrengthAdded;
-                TerraformToAdd += b.PlusTerraformPoints;
-
-                if (b.AllowInfantry)
-                    AllowInfantry = true;
-                totalStorage += b.StorageAdded;
-                RepairPerTurn += b.ShipRepair;
             }
 
             UpdateMaxPopulation();
-
             TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner);
 
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
-            if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
-
-            HasSpacePort = shipyard && (colonyType != ColonyType.Research || Owner.isPlayer);
+            ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
+            HasSpacePort          = shipyard && (colonyType != ColonyType.Research || Owner.isPlayer);
 
             // greedy bastards
             Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
@@ -697,14 +699,23 @@ namespace Ship_Game
             Money.Update();
 
             if (Station != null && !loadUniverse)
-            {
                 Station.SetVisibility(HasSpacePort, Empire.Universe.ScreenManager, this);
-            }
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
 
-        void HarvestResources()
+        private void UpdateHomeDefenseHangars(Building b)
+        {
+            if (ParentSystem.CombatInSystem || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
+                return;
+
+            if (ParentSystem.ShipList.Any(t => t.HomePlanet != null))
+                return; // if there are still defense ships our there, don't update building's hangars
+
+            b.UpdateCurrentDefenseShips(1, Owner);
+        }
+
+        private void HarvestResources()
         {
             // produced food is already consumed by denizens during resource update
             // if we have shortage, then NetIncome will be negative
@@ -769,8 +780,10 @@ namespace Ship_Game
             return events;
         }
 
-        public int TotalInvadeInjure   => BuildingList.Filter(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
-        public float TotalSpaceOffense => BuildingList.Filter(b => b.isWeapon).Sum(b => b.Offense);
+        public int TotalInvadeInjure   => BuildingList.Sum(b => b.InvadeInjurePoints);
+        public float TotalSpaceOffense => BuildingList.Sum(b => b.Offense);
+        public int MaxDefenseShips     => BuildingList.Sum(b => b.DefenseShipsCapacity);
+        public int CurrentDefenseShips => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s.HomePlanet == this);
 
         public int OpenTiles           => TilesList.Count(tile => tile.Habitable && tile.building == null);
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
@@ -805,6 +818,7 @@ namespace Ship_Game
                 Building t        = ResourceManager.GetBuildingTemplate(b.BID);
                 b.CombatStrength  = (b.CombatStrength + repairAmount).Clamped(0, t.CombatStrength);
                 b.Strength        = (b.Strength + repairAmount).Clamped(0, t.Strength);
+                UpdateHomeDefenseHangars(b);
             }
         }
 
