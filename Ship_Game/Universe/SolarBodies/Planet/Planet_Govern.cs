@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -22,7 +23,7 @@ namespace Ship_Game
 
             //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
             // FB - ignoring this if the owner is the player, or all of his research colonies will build stuff like
-            // deep core mines if he forget to add research
+            // deep core mines if he forgets to add research
             if (colonyType == ColonyType.Research && notResearching && !Owner.isPlayer)
                 colonyType = ColonyType.Core;
 
@@ -33,21 +34,15 @@ namespace Ship_Game
             switch (colonyType)
             {
                 case ColonyType.TradeHub:
+                    DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
+                    DetermineProdState(0.15f, 0.95f);
+                    break;
                 case ColonyType.Core:
                     //New resource management by Gretman
                     AssignCoreWorldWorkers();
-
-                    if (colonyType == ColonyType.TradeHub)
-                    {
-                        DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
-                        DetermineProdState(0.15f, 0.95f);
-                        break;
-                    }
-
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
                     DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
-
                     break;
                 case ColonyType.Industrial:
                     //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
@@ -59,9 +54,7 @@ namespace Ship_Game
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
-
                     break;
-
                 case ColonyType.Research:
                     //This governor will rely on imports, focusing on research as long as no one is starving
                     Food.Percent = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
@@ -72,9 +65,7 @@ namespace Ship_Game
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
                     DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
-
                     break;
-
                 case ColonyType.Agricultural:
                     Food.Percent = FarmToPercentage(1);     //Farm all you can
                     Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.333f));    //Then work to a small savings
@@ -84,9 +75,7 @@ namespace Ship_Game
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
-
                     break;
-
                 case ColonyType.Military:    //This on is incomplete
                     Food.Percent = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
                     Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.5f));    //Keep some prod handy
@@ -96,13 +85,164 @@ namespace Ship_Game
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
                     DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
-
                     break;
-
             } //End Gov type Switch
+            //GovernTroopsAndPlatforms();
+            BuildPlatformsAndStations();
+        }
 
-            GovernTroopsAndPlatforms();
+        private void BuildPlatformsAndStations()
+        {
+            int rank           = FindColonyRank();
+            var wantedOrbitals = new WantedOrbitals(rank);
+            var platforms      = FilterOrbitals(ShipData.RoleName.platform);
+            var stations       = FilterOrbitals(ShipData.RoleName.station);
 
+            BuildShipyardIfAble(wantedOrbitals.Shipyard);
+            BuildOrScrapOrbitals(platforms, wantedOrbitals.Platforms, ShipData.RoleName.platform);
+            BuildOrScrapOrbitals(stations, wantedOrbitals.Stations, ShipData.RoleName.station);
+        }
+
+        private Array<Ship> FilterOrbitals(ShipData.RoleName role)
+        {
+            var orbitalList = new Array<Ship>();
+            foreach (Ship orbital in Shipyards.Values)
+            {
+                if (orbital.shipData.Role == role)
+                    orbitalList.Add(orbital);
+            }
+            return orbitalList;
+        }
+
+        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int wantedOrbitals, ShipData.RoleName role)
+        {
+            int orbitalsWewant = orbitalList.Count;
+            if (wantedOrbitals < orbitalsWewant)
+            {
+                Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
+                ScrapOrbital(weakest); // remove this old garbage
+            }
+
+            if (wantedOrbitals > orbitalsWewant) // lets build an orbital
+            {
+                BuildOrbital(role);
+                return;
+            }
+        }
+
+        private void ScrapOrbital(Ship orbital)
+        {
+            float expectedStorage = Storage.Prod + orbital.BaseCost / 2;
+            if (expectedStorage > Storage.Max) // excess cost will go to empire treasury
+            {
+                Storage.Prod = Storage.Max;
+                Owner.AddMoney(expectedStorage - Storage.Max);
+            }
+            else
+                Storage.Prod = expectedStorage;
+
+            orbital.QueueTotalRemoval();
+        }
+
+        private void BuildOrbital(ShipData.RoleName role)
+        {
+            if (OrbitalsInTheWorks)
+                return;
+
+            string orbitalName = ShipBuilder.PickFromCandidates(role, Owner); // FB - build the best Orbital we can
+            if (ResourceManager.ShipsDict.TryGetValue(orbitalName, out Ship orbital))
+            {
+                float cost = orbital.GetCost(Owner); // FB - need to check what happens with cost after shipyard is built.
+                ConstructionQueue.Add(new QueueItem(this)
+                {
+                    isOrbital = true,
+                    sData     = orbital.shipData,
+                    Cost      = cost
+                });
+            }
+            else
+                Log.Warning($"BuildOrbiral - Could not find {orbitalName} in {Owner.Name} list");
+        }
+
+        /*private bool LogicalCostVsBuiltTime(float cost)
+        {
+            float netCost = cost - Storage.Prod;
+            float ratio   = netCost / Prod.NetMaxPotential;
+            return (ratio < 50);
+        }*/
+
+        private struct WantedOrbitals
+        {
+            public readonly int Platforms;
+            public readonly int Stations;
+            public readonly bool Shipyard;
+
+            public WantedOrbitals(int rank)
+            {
+                switch (rank)
+                {
+                    case 1:  Platforms = 1; Stations = 0; break;
+                    case 2:  Platforms = 2; Stations = 0; break;
+                    case 3:  Platforms = 5; Stations = 0; break;
+                    case 4:  Platforms = 7; Stations = 1; break;
+                    case 5:  Platforms = 9; Stations = 1; break;
+                    case 6:  Platforms = 5; Stations = 2; break;
+                    case 7:  Platforms = 3; Stations = 2; break;
+                    case 8:  Platforms = 1; Stations = 3; break;
+                    case 9:  Platforms = 0; Stations = 3; break;
+                    case 10: Platforms = 0; Stations = 4; break;
+                    case 11: Platforms = 0; Stations = 4; break;
+                    case 12: Platforms = 0; Stations = 5; break;
+                    case 13: Platforms = 0; Stations = 6; break;
+                    case 14: Platforms = 0; Stations = 7; break;
+                    case 15: Platforms = 0; Stations = 8; break;
+                    default: Platforms = 0; Stations = 0; break;
+                }
+                Shipyard = rank > 2;
+            }
+        }
+
+        // FB - gives a value from 1 to 10 based on the max colony value in the empire
+        private int FindColonyRank()
+        {
+            int rank = (int)(ColonyValue / Owner.MaxColonyValue * 10);
+            return ApplyRankModifiers(rank);
+        }
+
+        private int ApplyRankModifiers(int currentRank)
+        {
+            int rank = currentRank -1 + (int)(Owner.Money / 10000);
+            if (Owner.Money < 500)
+                return (currentRank - 1).Clamped(0,15);
+
+            if (RecentCombat)
+                rank++;
+            switch (colonyType)
+            {
+                case ColonyType.Core    : rank++;    break;
+                case ColonyType.Military: rank += 2; break;
+            }
+            return rank;
+        }
+
+        public void BuildShipyardIfAble(bool wantShipyard)
+        {
+            if (!wantShipyard || RecentCombat || !HasSpacePort) return;
+            if (Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
+                || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
+                return;
+
+            bool hasShipyard = ConstructionQueue.Any(q => q.isShip && q.sData.IsShipyard);
+
+            if (!hasShipyard && IsVibrant)
+            {
+                ConstructionQueue.Add(new QueueItem(this)
+                {
+                    isShip = true,
+                    sData  = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
+                    Cost   = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner)
+                });
+            }
         }
 
         void GovernTroopsAndPlatforms()

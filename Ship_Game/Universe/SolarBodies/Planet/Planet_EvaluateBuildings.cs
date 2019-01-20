@@ -721,7 +721,7 @@ namespace Ship_Game
             bool lotsInQueueToBuild  = ConstructionQueue.Count >= 4;
 
             //New Build Logic by Gretman, modified by FB
-            if (!lotsInQueueToBuild) BuildShipyardIfAble(); //If we can build a shipyard but dont have one, build it
+            //if (!lotsInQueueToBuild) BuildShipyardIfAble(); //If we can build a shipyard but dont have one, build it
             // FB the above functio is buggy i think, need to check
 
             if (budget < 0)
@@ -739,27 +739,6 @@ namespace Ship_Game
 
             BuildBiospheres(budget, totalBuildings); // lets build biospheres if we can, since we have no open tiles
             ReplaceBuilding(budget, popRatio); // we dont have room for expansion. Let's see if we can replace to a better value building
-        }
-
-        void BuildShipyardIfAble()
-        {
-            if (RecentCombat || !HasSpacePort) return;
-            if (Owner == Empire.Universe.PlayerEmpire
-                || Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
-                || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
-                return;
-
-            bool hasShipyard = ConstructionQueue.Any(q => q.isShip && q.sData.IsShipyard);
-
-            if (!hasShipyard && IsVibrant)
-            {
-                ConstructionQueue.Add(new QueueItem(this)
-                {
-                    isShip = true,
-                    sData  = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
-                    Cost   = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) 
-                });
-            }
         }
 
         float BuildingBudget()
