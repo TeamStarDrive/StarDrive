@@ -155,9 +155,7 @@ namespace Ship_Game
             base.Draw(gameTime);
         }
 
-
-
-        private void UpdateRendererPreferences(ref GraphicsSettings settings)
+        void UpdateRendererPreferences(ref GraphicsSettings settings)
         {
             ScreenManager?.UpdatePreferences(new LightingSystemPreferences
             {

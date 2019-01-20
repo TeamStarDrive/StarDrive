@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public class SpriteAnimation
+    public class SpriteAnimation : UIElementV2
     {
         readonly TextureAtlas Atlas;
         int CurrentFrame;
@@ -18,9 +18,10 @@ namespace Ship_Game
         // if true, this animation will freeze at the last frame
         public bool StopAtLastFrame;
 
-        public SpriteAnimation(TextureAtlas atlas, bool autoStart = true)
+        public SpriteAnimation(UIElementV2 parent, string atlasPath, bool autoStart = true)
+            : base(parent, Vector2.Zero)
         {
-            Atlas = atlas;
+            Atlas = ContentManager.Load<TextureAtlas>(atlasPath);
             if (autoStart) Start();
         }
 
@@ -31,7 +32,7 @@ namespace Ship_Game
             IsAnimating = numFrames != 0;
         }
 
-        public void Draw(SpriteBatch batch, Rectangle rect)
+        public override void Draw(SpriteBatch batch)
         {
             if (!IsAnimating) return;
             if (CurrentFrame >= Atlas.Count)
@@ -52,8 +53,13 @@ namespace Ship_Game
             }
 
             SubTexture frame = Atlas[CurrentFrame];
-            batch.Draw(frame, rect, Color.White);
+            batch.Draw(frame, Rect, Color.White);
             ++CurrentFrame;
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            return false;
         }
     }
 }

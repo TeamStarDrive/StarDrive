@@ -196,20 +196,21 @@ namespace Ship_Game
                     default:
                     case DrawDepth.Foreground:         ForeElements.Add(e); break;
                     case DrawDepth.Background:         BackElements.Add(e); break;
-                    case DrawDepth.ForegroundAdditive: ForeAdditive.Add(e); break;
-                    case DrawDepth.BackgroundAdditive: BackAdditive.Add(e); break;
+                    case DrawDepth.ForeAdditive: ForeAdditive.Add(e); break;
+                    case DrawDepth.BackAdditive: BackAdditive.Add(e); break;
                 }
             }
         }
 
-        public void DrawMultiLayeredExperimental(ScreenManager manager)
+        public void DrawMultiLayeredExperimental(ScreenManager manager, bool draw3D = false)
         {
             if (!Visible)
                 return;
             
-            ScreenManager.BeginFrameRendering(GameTime, ref View, ref Projection);
-
             GatherDrawLayers();
+
+            if (draw3D)
+                manager.BeginFrameRendering(GameTime, ref View, ref Projection);
 
             SpriteBatch batch = manager.SpriteBatch;
 
@@ -219,24 +220,19 @@ namespace Ship_Game
             if (BackAdditive.NotEmpty)
                 BatchDrawAdditive(batch, BackAdditive);
 
+            if (draw3D)
+                manager.RenderSceneObjects();
+
             if (ForeElements.NotEmpty) // @note This is the default layer
                 BatchDrawSimple(batch, ForeElements, drawToolTip: true);
 
             if (ForeAdditive.NotEmpty)
                 BatchDrawAdditive(batch, ForeAdditive);
 
-            ScreenManager.EndFrameRendering();
-            ClearDrawLayers();
-        }
+            if (draw3D)
+                manager.EndFrameRendering();
 
-        public void DrawElementsActiveBatch(SpriteBatch batch, IReadOnlyList<UIElementV2> elements)
-        {
-            int count = elements.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                UIElementV2 e = elements[i];
-                if (e.Visible) e.Draw(batch);
-            }
+            ClearDrawLayers();
         }
 
         public void BatchDrawSimple(SpriteBatch batch, Array<UIElementV2> elements, bool drawToolTip = false)
@@ -256,13 +252,18 @@ namespace Ship_Game
             }
             batch.End();
         }
-        
-        public void BatchDrawAdditive(SpriteBatch batch, IReadOnlyList<UIElementV2> elements, SaveStateMode mode = SaveStateMode.None)
+
+        public void BeginAdditive(SpriteBatch batch)
         {
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, mode);
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
             Device.RenderState.SourceBlend      = Blend.InverseDestinationColor;
             Device.RenderState.DestinationBlend = Blend.One;
             Device.RenderState.BlendFunction    = BlendFunction.Add;
+        }
+        
+        public void BatchDrawAdditive(SpriteBatch batch, IReadOnlyList<UIElementV2> elements)
+        {
+            BeginAdditive(batch);
 
             int count = elements.Count;
             for (int i = 0; i < count; ++i)
@@ -274,6 +275,28 @@ namespace Ship_Game
             batch.End();
         }
 
+        
+        public void DrawElementsActiveBatch(SpriteBatch batch, IReadOnlyList<UIElementV2> elements)
+        {
+            int count = elements.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                UIElementV2 e = elements[i];
+                if (e.Visible) e.Draw(batch);
+            }
+        }
+
+        public void DrawElementsAtDepth(SpriteBatch batch, DrawDepth depth)
+        {
+            int count = Elements.Count;
+            UIElementV2[] items = Elements.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                UIElementV2 e = items[i];
+                if (e.Visible && e.DrawDepth == depth)
+                    e.Draw(batch);
+            }
+        }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
