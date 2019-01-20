@@ -31,15 +31,15 @@ namespace Ship_Game.GameScreens.MainMenu
 
         Rectangle Portrait;
 
-        bool ModsVisible;
         bool DebugMeshInspect = false;
         
         Texture2D StarField;
         SubTexture Vignette;
         SubTexture BackgroundPlanet;
-        SubTexture CornerTL, CornerBR, VersionBar;
         SubTexture TexComet, MoonGlow;
         Vector2 MoonGlowPos;
+
+        UIElementContainer VersionArea;
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
@@ -70,9 +70,6 @@ namespace Ship_Game.GameScreens.MainMenu
 
             BackgroundPlanet = LoadTexture("Textures/MainMenu/planet");
             Vignette    = LoadTexture("Textures/MainMenu/vignette");
-            CornerTL    = LoadTexture("Textures/MainMenu/corner_TL");
-            CornerBR    = LoadTexture("Textures/MainMenu/corner_BR");
-            VersionBar  = LoadTexture("Textures/MainMenu/version_bar");
             TexComet = LoadTexture("Textures/GameScreens/comet2");
             MoonGlow = LoadTexture("Textures/MainMenu/moon_flare");
             
@@ -111,7 +108,8 @@ namespace Ship_Game.GameScreens.MainMenu
             MoonPosition = new Vector3(+w / 2f - 300, SDLogoAnim.Y + 70 - h / 2f, 0f);
             ShipPosition = new Vector3(-w / 4f, SDLogoAnim.Y + 400 - h / 2f, 0f);
 
-            string planet = "Model/SpaceObjects/planet_" + RandomMath.IntBetween(1, 29);
+            PlanetType planetType = ResourceManager.RandomPlanet();
+            string planet = planetType.MeshPath;
             MoonObj = new SceneObject(TransientContent.Load<Model>(planet).Meshes[0]) { ObjectType = ObjectType.Dynamic };
             MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
             ScreenManager.AddObject(MoonObj);
@@ -133,32 +131,52 @@ namespace Ship_Game.GameScreens.MainMenu
             MoonGlowPos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
 
             CreateAnimatedOverlays();
+            CreateVersionArea();
 
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
         }
 
         void CreateAnimatedOverlays()
         {
+            int h = ScreenHeight;
             // alien text markers flashing on top of right hand side moon
             int mx = (int) MoonGlowPos.X, my = (int) MoonGlowPos.Y;
             
             const float moonLoop = 12.0f; // total animation loop sync time
-            Anim("MainMenu/moon_1", mx - 220, my - 130).Time(1.5f, 2.0f, 0.4f, 0.7f, moonLoop);
-            Anim("MainMenu/moon_2", mx - 250, my + 60).Time(5.5f, 2.0f, 0.4f, 0.7f, moonLoop);
-            Anim("MainMenu/moon_3", mx + 60,  my + 80).Time(7.5f, 2.0f, 0.4f, 0.7f, moonLoop);
+            Panel("MainMenu/moon_1", mx - 220, my - 130).Anim(1.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
+            Panel("MainMenu/moon_2", mx - 250, my + 60).Anim(5.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
+            Panel("MainMenu/moon_3", mx + 60,  my + 80).Anim(7.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
 
             // flashing planet hex grid overlays
             const float hexLoop = 10.0f;
-            Anim("MainMenu/planet_grid",         0, ScreenHeight-640).Time(4.0f, 3.0f, 0.6f, 1.2f, hexLoop).InBackground();
-            Anim("MainMenu/planet_grid_hex_1", 277, ScreenHeight-592).Time(4.7f, 0.9f, 0.3f, 0.5f, hexLoop).InBackground();
-            Anim("MainMenu/planet_grid_hex_2", 392, ScreenHeight-418).Time(5.7f, 0.9f, 0.3f, 0.5f, hexLoop).InBackground();
-            Anim("MainMenu/planet_grid_hex_3", 682, ScreenHeight-295).Time(5.2f, 0.9f, 0.3f, 0.5f, hexLoop).InBackground();
+            Panel("MainMenu/planet_grid",         0, h-640).InBackground().Anim(4.0f, 3.0f, 0.6f, 1.2f).Alpha().Loop(hexLoop);
+            Panel("MainMenu/planet_grid_hex_1", 277, h-592).InBackground().Anim(4.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
+            Panel("MainMenu/planet_grid_hex_2", 392, h-418).InBackground().Anim(5.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
+            Panel("MainMenu/planet_grid_hex_3", 682, h-295).InBackground().Anim(5.2f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
 
-            Anim("MainMenu/planet_solarflare", 0, ScreenHeight - 784)
-                .Loop(4.0f, 1.5f, 1.5f)
-                .Alpha(0.85f, 1.0f)
-                .AnimateColor()
-                .InBackAdditive(); // behind 3d objects
+            Panel("MainMenu/planet_solarflare", 0, h - 784)
+                .InBackAdditive() // behind 3d objects
+                .Anim().Loop(4.0f, 1.5f, 1.5f).Color(Color.White.MultiplyRgb(0.85f), Color.White);
+
+            Panel("MainMenu/corner_TL", 31, 30).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop);
+            Panel("MainMenu/corner_BR", ScreenWidth-551, h-562).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop);
+        }
+
+        void CreateVersionArea()
+        {
+            VersionArea = Panel(Rectangle.Empty, Color.TransparentBlack);
+            VersionArea.StartFadeIn(3.0f, delay: 2.0f);
+
+            VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 90, "StarDrive 16A"));
+            VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 64, GlobalStats.ExtendedVersion));
+            if (GlobalStats.HasMod)
+            {
+                string title = GlobalStats.ActiveModInfo.ModName;
+                string version = GlobalStats.ActiveModInfo.Version;
+                if (version.NotEmpty() && !title.Contains(version))
+                    title = title+" - "+version;
+                VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 38, title));
+            }
         }
 
         void NewGame_Clicked(UIButton button)   => ScreenManager.AddScreen(new RaceDesignScreen(this));
@@ -184,8 +202,8 @@ namespace Ship_Game.GameScreens.MainMenu
             batch.Begin();
             batch.Draw(StarField, ScreenRect, Color.White); // background
             batch.Draw(BackgroundPlanet, new Rectangle(0, ScreenHeight - 680, 1016, 680), Color.White); // big planet at left side
-            DrawModOverlay(batch);
             DrawElementsAtDepth(batch, DrawDepth.Background);
+            GlobalStats.ActiveMod?.DrawMainMenuOverlay(batch, Portrait);
             batch.Draw(Vignette, ScreenRect, Color.White);
             batch.End();
             
@@ -199,7 +217,6 @@ namespace Ship_Game.GameScreens.MainMenu
 
             // FORE NORMAL
             batch.Begin();
-            GlobalStats.ActiveMod?.DrawMainMenuOverlay(batch, Portrait);
             DrawElementsAtDepth(batch, DrawDepth.Foreground);
             batch.End();
 
@@ -218,55 +235,6 @@ namespace Ship_Game.GameScreens.MainMenu
             ScreenManager.EndFrameRendering();
 
             //DrawMultiLayeredExperimental(ScreenManager);
-        }
-
-        int AnimationFrame;
-        bool Flip;
-        void DrawModOverlay(SpriteBatch batch)
-        {
-            if (Flip) AnimationFrame++;
-            Flip = !Flip;
-
-            // and this is the version numbers
-            if (AnimationFrame >= 7 || ModsVisible)
-            {
-                float alphaStep = 255f / 30;
-                float alpha = MathHelper.SmoothStep((AnimationFrame - 1 - 7) * alphaStep, (AnimationFrame - 7) * alphaStep, 0.9f);
-                if (alpha > 225f || ModsVisible)
-                {
-                    alpha = 225f;
-                    ModsVisible = true;
-                }
-
-                SpriteFont font = Fonts.Pirulen12;
-                var c = new Color(Color.White, (byte) alpha);
-                int width = ScreenWidth;
-                int height = ScreenHeight;
-                batch.Draw(CornerTL, new Rectangle(31, 30, 608, 340), c);
-                batch.Draw(CornerBR, new Rectangle(width - 551, height - 562, 520, 532), c);
-
-                var verRect = new Rectangle(205, height - 37, 318, 12);
-                batch.Draw(VersionBar, verRect, c);
-                var textPos = new Vector2(20f, verRect.Y + 6 - font.LineSpacing / 2 - 1);
-                batch.DrawString(font, "StarDrive 15B", textPos, Color.White);
-
-                var extVerRect = new Rectangle(20 + font.TextWidth(GlobalStats.ExtendedVersion), height - 85, 318, 12);
-                batch.Draw(VersionBar, extVerRect, c);
-                textPos = new Vector2(20f, extVerRect.Y + 6 - font.LineSpacing / 2 - 1);
-                batch.DrawString(font, GlobalStats.ExtendedVersion, textPos, Color.White);
-
-                if (GlobalStats.HasMod)
-                {
-                    string title = GlobalStats.ActiveModInfo.ModName;
-                    string version = GlobalStats.ActiveModInfo.Version;
-                    if (version.NotEmpty() && !title.Contains(version))
-                        title = title+" - "+version;
-                    batch.Draw(VersionBar, new Rectangle(20 + font.TextWidth(title), height - 60, 318, 12), c);
-                    batch.DrawString(font, title, new Vector2(20f, extVerRect.Y + 6 - font.LineSpacing / 2 - 1), c);
-                }
-            }
-            if (AnimationFrame > 300)
-                AnimationFrame = 0;
         }
 
         public override bool HandleInput(InputState input)

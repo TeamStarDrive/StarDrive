@@ -27,6 +27,11 @@ namespace Ship_Game
         BackAdditive, // Background + Additive alpha blend
     }
 
+    public interface IColorElement
+    {
+        Color Color { get; set; }
+    }
+
     public abstract class UIElementV2 : IInputHandler
     {
         public readonly UIElementV2 Parent;
@@ -140,10 +145,6 @@ namespace Ship_Game
             }
         }
 
-        public void InBackground()   { DrawDepth = DrawDepth.Background; }
-        public void InBackAdditive() { DrawDepth = DrawDepth.BackAdditive; }
-        public void InForeAdditive() { DrawDepth = DrawDepth.ForeAdditive; }
-
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected UIElementV2(UIElementV2 parent, Vector2 pos)
@@ -182,12 +183,13 @@ namespace Ship_Game
                 container.Remove(this);
         }
 
-        public void AddEffect(UIEffect effect)
+        public T AddEffect<T>(T effect) where T : UIEffect
         {
             Log.Assert(effect != null, "UIEffect cannot be null");
             if (Effects == null)
                 Effects = new Array<UIEffect>();
             Effects.Add(effect);
+            return effect;
         }
 
         protected void UpdateEffects(float deltaTime)
@@ -239,5 +241,24 @@ namespace Ship_Game
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
+    }
+
+    public static class UIElementExt
+    {
+        public static T InBackground<T>(this T element) where T : UIElementV2
+        {
+            element.DrawDepth = DrawDepth.Background;
+            return element;
+        }
+        public static T InBackAdditive<T>(this T element) where T : UIElementV2
+        {
+            element.DrawDepth = DrawDepth.BackAdditive;
+            return element;
+        }
+        public static T InForeAdditive<T>(this T element) where T : UIElementV2
+        {
+            element.DrawDepth = DrawDepth.ForeAdditive;
+            return element;
+        }
     }
 }

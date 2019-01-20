@@ -11,11 +11,12 @@ namespace Ship_Game
     /// <summary>
     /// A colored UI Panel that also behaves as a container for UI elements
     /// </summary>
-    public class UIPanel : UIElementContainer
+    public class UIPanel : UIElementContainer, IColorElement
     {
         public SubTexture Texture;
-        public Color Color;
+        public Color Color { get; set; }
 
+        // Hint: use Color.TransparentBlack to create Panels with no fill
         public UIPanel(UIElementV2 parent, Rectangle rect, Color color)
             : base(parent, rect)
         {
@@ -36,13 +37,21 @@ namespace Ship_Game
             Color = color;
         }
 
+        public UIPanel(UIElementV2 parent, string tex, int x, int y)
+            : base(parent, new Vector2(x,y))
+        {
+            Texture = parent.ContentManager.Load<SubTexture>("Textures/"+tex);
+            Size = Texture.SizeF;
+            Color = Color.White;
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             if (Texture != null)
             {
                 batch.Draw(Texture, Rect, Color);
             }
-            else
+            else if (Color.A > 0)
             {
                 batch.FillRectangle(Rect, Color);
             }

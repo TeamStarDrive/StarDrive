@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Management;
 using System.Threading;
 
@@ -71,19 +72,20 @@ namespace Ship_Game
 
     public class ParallelTask : IDisposable
     {
-        private AutoResetEvent EvtNewTask = new AutoResetEvent(false);
-        private AutoResetEvent EvtEndTask = new AutoResetEvent(false);
-        private Thread Thread;
-        private Action VoidTask;
-        private Func<object> ResultTask;
-        private ITaskResult Result;
-        private RangeAction RangeTask;
-        private int LoopStart;
-        private int LoopEnd;
+        AutoResetEvent EvtNewTask = new AutoResetEvent(false);
+        AutoResetEvent EvtEndTask = new AutoResetEvent(false);
+        Thread Thread;
+        Action VoidTask;
+        Func<object> ResultTask;
+        ITaskResult Result;
+        RangeAction RangeTask;
+        int LoopStart;
+        int LoopEnd;
+        Stopwatch IdleTimer;
         public bool Running => RangeTask != null || VoidTask != null || ResultTask != null;
         public int ThreadId => Thread.ManagedThreadId;
-        private Exception Error;
-        private volatile bool Killed;
+        Exception Error;
+        volatile bool Killed;
 
         public ParallelTask(int index)
         {
@@ -141,13 +143,18 @@ namespace Ship_Game
             result.SetResult(value);
         }
 
-        private void Run()
+        void Run()
         {
             while (!Killed)
             {
-                EvtNewTask.WaitOne();
+                IdleTimer = Stopwatch.StartNew();
+                EvtNewTask.WaitOne(5000);
                 if (!Running)
+                {
+                    if (IdleTimer.ElapsedMilliseconds > 5000)
+                        return; // Die!
                     continue;
+                }
                 try
                 {
                     Error = null;
@@ -230,7 +237,7 @@ namespace Ship_Game
 
         public static int PoolSize => Pool.Count;
 
-        private static ParallelTask NextTask(ref int poolIndex)
+        static ParallelTask NextTask(ref int poolIndex)
         {
             lock (Pool)
             {
@@ -245,7 +252,7 @@ namespace Ship_Game
             }
         }
 
-        private static int PhysicalCoreCount;
+        static int PhysicalCoreCount;
         public static int NumPhysicalCores
         {
             get
