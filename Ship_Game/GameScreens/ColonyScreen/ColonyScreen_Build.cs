@@ -353,18 +353,18 @@ namespace Ship_Game
                 {
                     SubTexture icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
                     batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
-                    new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
+                    new ProgressBar(r, qi.Cost, qi.ProductionSpent).Draw(batch);
                 }
                 else if (qi.isShip)
                 {
                     batch.Draw(qi.sData.Icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
-                    new ProgressBar(r, qi.Cost * P.ShipBuildingModifier, qi.productionTowards).Draw(batch);
+                    new ProgressBar(r, qi.Cost * P.ShipBuildingModifier, qi.ProductionSpent).Draw(batch);
                 }
                 else if (qi.isTroop)
                 {
-                    Troop template = ResourceManager.GetTroopTemplate(qi.troopType);
+                    Troop template = ResourceManager.GetTroopTemplate(qi.TroopType);
                     template.Draw(batch, new Rectangle(entry.X, entry.Y, 29, 30));
-                    new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
+                    new ProgressBar(r, qi.Cost, qi.ProductionSpent).Draw(batch);
                 }
 
                 entry.DrawUpDownApplyCancel(batch, Input);
@@ -376,7 +376,7 @@ namespace Ship_Game
 
         bool Build(Building b, PlanetGridSquare where = null)
         {
-            if (P.AddBuildingToCQ(b, where, true))
+            if (P.Construction.AddBuilding(b, where, true))
             {
                 // remove building if it's unique:
                 if (b.Unique || b.BuildOnlyOnce)
@@ -392,7 +392,7 @@ namespace Ship_Game
         {
             P.ConstructionQueue.Add(new QueueItem(P)
             {
-                isShip = true, sData = ship.shipData, Cost = ship.GetCost(P.Owner), productionTowards = 0f
+                isShip = true, sData = ship.shipData, Cost = ship.GetCost(P.Owner), ProductionSpent = 0f
             });
             GameAudio.AcceptClick();
         }
@@ -401,7 +401,7 @@ namespace Ship_Game
         {
             P.ConstructionQueue.Add(new QueueItem(P)
             {
-                isTroop = true, troopType = troop.Name, Cost = troop.ActualCost, productionTowards = 0f
+                isTroop = true, TroopType = troop.Name, Cost = troop.ActualCost, ProductionSpent = 0f
             });
             GameAudio.AcceptClick();
         }
@@ -488,7 +488,7 @@ namespace Ship_Game
             if (input.RightMouseClick || input.LeftMouseClick)
                 return true;
 
-            return ActiveBuildingEntry != null && b.Unique && P.BuildingExists(b);
+            return ActiveBuildingEntry != null && b.Unique && P.BuildingBuiltOrQueued(b);
         }
 
 
@@ -549,49 +549,22 @@ namespace Ship_Game
                     }
                 }
 
-                if (e.WasApplyHovered(input) && !P.RecentCombat && P.CrippledTurns <= 0)
+                if (e.WasApplyHovered(input))
                 {
-                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
+                    if (input.LeftMouseClick)
                     {
-                        if (input.LeftMouseClick)
-                        {
-                            if (P.ApplyStoredProduction(i)) GameAudio.AcceptClick();
-                            else                            GameAudio.NegativeClick();
-                        }
-                    }
-                    else if (P.ProdHere == 0f)
-                    {
-                        GameAudio.NegativeClick();
-                    }
-                    else
-                    {
-                        P.ApplyAllStoredProduction(i);
-                        GameAudio.AcceptClick();
+                        float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
+                        if (P.Construction.RushProduction(i, maxAmount))
+                            GameAudio.AcceptClick();
+                        else
+                            GameAudio.NegativeClick();
                     }
                 }
 
                 if (e.WasCancelHovered(input) && input.LeftMouseClick)
                 {
                     var item = e.Get<QueueItem>();
-                    P.ProdHere += item.productionTowards;
-
-                    if (item.pgs != null)
-                    {
-                        item.pgs.QItem = null;
-                    }
-
-                    if (item.Goal != null)
-                    {
-                        if (item.Goal is BuildConstructionShip)
-                        {
-                            P.Owner.GetEmpireAI().Goals.Remove(item.Goal);
-                        }
-
-                        if (item.Goal.GetFleet() != null)
-                            P.Owner.GetEmpireAI().Goals.Remove(item.Goal);
-                    }
-
-                    P.ConstructionQueue.Remove(item);
+                    P.Construction.Cancel(item);
                     GameAudio.AcceptClick();
                 }
                 ++i;

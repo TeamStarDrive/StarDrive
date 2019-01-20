@@ -38,7 +38,7 @@ namespace Ship_Game
 
         public PlanetListScreen screen;
 
-        private bool marked;
+        private bool MarkedForColonization;
 
         //private string Status_Text;
 
@@ -62,15 +62,15 @@ namespace Ship_Game
 
             foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
-                if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
+                if (g.ColonizationTarget == null || g.ColonizationTarget != p)
                 {
                     continue;
                 }
-                marked = true;
+                MarkedForColonization = true;
             }
 
-            ButtonStyle style = marked ? ButtonStyle.Default : ButtonStyle.BigDip;
-            string colonizeText = !marked ? Localizer.Token(1425) : "Cancel Colonize";
+            ButtonStyle style = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
+            string colonizeText = !MarkedForColonization ? Localizer.Token(1425) : "Cancel Colonize";
             Colonize = Button(style, 0f, 0f, colonizeText, OnColonizeClicked);
             Colonize.SetAbsPos(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height - Colonize.Size.Y);
             SendTroops = Button(ButtonStyle.BigDip, OrdersRect.X + Colonize.Rect.Width + 10, 0f, "", OnSendTroopsClicked);
@@ -321,29 +321,28 @@ namespace Ship_Game
 
         private void OnColonizeClicked(UIButton b)
         {
-            if (!marked)
+            if (!MarkedForColonization)
             {
                 GameAudio.EchoAffirmative();
                 Empire.Universe.player.GetEmpireAI().Goals.Add(
                     new MarkForColonization(planet, Empire.Universe.player));
                 Colonize.Text = "Cancel Colonize";
                 Colonize.Style = ButtonStyle.Default;
-                marked = true;
+                MarkedForColonization = true;
                 return;
             }
+
+            // @todo this is so hacky
             foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
-                if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != planet)
+                if (g.ColonizationTarget == null || g.ColonizationTarget != planet)
                 {
                     continue;
                 }
                 GameAudio.EchoAffirmative();
-                if (g.GetColonyShip() != null)
-                {
-                    g.GetColonyShip().AI.OrderOrbitNearest(true);
-                }
+                g.FinishedShip?.AI.OrderOrbitNearest(true);
                 Empire.Universe.player.GetEmpireAI().Goals.QueuePendingRemoval(g);
-                marked = false;
+                MarkedForColonization = false;
                 Colonize.Text = "Colonize";
                 Colonize.Style = ButtonStyle.BigDip;
                 break;

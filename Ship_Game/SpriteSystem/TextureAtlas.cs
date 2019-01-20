@@ -56,6 +56,8 @@ namespace Ship_Game
         public bool TryGetTexture(string name, out SubTexture texture)
             => Lookup.TryGetValue(name, out texture);
 
+        static string Mod => GlobalStats.HasMod ? $"[{GlobalStats.ActiveModInfo.ModName}]" : "[Vanilla]";
+
         static FileInfo[] GatherUniqueTextures(string folder)
         {
             FileInfo[] textureFiles = ResourceManager.GatherTextureFiles(folder, recursive:false);
@@ -162,7 +164,7 @@ namespace Ship_Game
             SortLoadedTextures();
 
             int elapsed = total.NextMillis();
-            Log.Write(ConsoleColor.Blue, $"CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
+            Log.Write(ConsoleColor.Blue, $"{Mod} CreateAtlas {this} t:{elapsed,4}ms l:{load} p:{pack} t:{transfer} s:{save}");
         }
 
         void SaveAtlasDescriptor(TextureInfo[] textures, string descriptorPath)
@@ -189,7 +191,10 @@ namespace Ship_Game
             {
                 int.TryParse(fs.ReadLine(), out int hash);
                 if (hash != Hash)
+                {
+                    Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED");
                     return false; // hash mismatch, we need to regenerate cache
+                }
 
                 Lookup.Clear();
                 Width  = 0;
@@ -226,7 +231,7 @@ namespace Ship_Game
             }
 
             int elapsed = s.NextMillis();
-            Log.Write(ConsoleColor.Blue, $"LoadAtlas {this} t:{elapsed,4}ms");
+            Log.Write(ConsoleColor.Blue, $"{Mod} LoadAtlas   {this} t:{elapsed,4}ms");
             return true; // we loaded everything
         }
 
@@ -341,7 +346,7 @@ namespace Ship_Game
                 FileInfo[] files = GatherUniqueTextures(folder);
                 if (files.Length == 0)
                 {
-                    Log.Warning($"TextureAtlas create failed: {folder}  No textures.");
+                    Log.Warning($"{Mod} TextureAtlas create failed: {folder}  No textures.");
                     return null;
                 }
 
