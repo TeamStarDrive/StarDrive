@@ -209,28 +209,20 @@ namespace Ship_Game
             
             GatherDrawLayers();
 
-            if (draw3D)
-                manager.BeginFrameRendering(GameTime, ref View, ref Projection);
+            if (draw3D) manager.BeginFrameRendering(GameTime, ref View, ref Projection);
 
             SpriteBatch batch = manager.SpriteBatch;
 
-            if (BackElements.NotEmpty)
-                BatchDrawSimple(batch, BackElements);
+            if (BackElements.NotEmpty) BatchDrawSimple(batch, BackElements);
+            if (BackAdditive.NotEmpty) BatchDrawAdditive(batch, BackAdditive);
 
-            if (BackAdditive.NotEmpty)
-                BatchDrawAdditive(batch, BackAdditive);
+            if (draw3D) manager.RenderSceneObjects();
 
-            if (draw3D)
-                manager.RenderSceneObjects();
+            // @note Foreground is the default layer
+            if (ForeElements.NotEmpty) BatchDrawSimple(batch, ForeElements, drawToolTip: true);
+            if (ForeAdditive.NotEmpty) BatchDrawAdditive(batch, ForeAdditive);
 
-            if (ForeElements.NotEmpty) // @note This is the default layer
-                BatchDrawSimple(batch, ForeElements, drawToolTip: true);
-
-            if (ForeAdditive.NotEmpty)
-                BatchDrawAdditive(batch, ForeAdditive);
-
-            if (draw3D)
-                manager.EndFrameRendering();
+            if (draw3D) manager.EndFrameRendering();
 
             ClearDrawLayers();
         }
