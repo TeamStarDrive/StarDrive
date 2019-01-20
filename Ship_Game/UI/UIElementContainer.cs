@@ -30,9 +30,9 @@ namespace Ship_Game
         /// in their appropriate ZOrder
         /// </summary>
         public bool DebugDraw;
-        private int DebugDrawIndex;
-        private float DebugDrawTimer;
-        private const float DebugDrawInterval = 0.5f;
+        int DebugDrawIndex;
+        float DebugDrawTimer;
+        const float DebugDrawInterval = 0.5f;
 
         public LayoutStyle Layout
         {
@@ -455,7 +455,13 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        protected UIPanel Panel(Rectangle rect, Color color) => Add(new UIPanel(this, rect, color));
+        protected UIPanel Panel(Rectangle rect, Color color)          => Add(new UIPanel(this, rect, color));
+        protected UIPanel Panel(SubTexture tex, Rectangle r)          => Add(new UIPanel(this, tex, r));
+        protected UIPanel Panel(SubTexture tex, Rectangle r, Color c) => Add(new UIPanel(this, tex, r, c));
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        protected FadeInOutAnim Anim(string texture, int x, int y) => Add(new FadeInOutAnim(this, texture, x, y));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         

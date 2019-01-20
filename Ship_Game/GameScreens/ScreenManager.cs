@@ -136,13 +136,6 @@ namespace Ship_Game
                 SceneInter.ObjectManager.Submit(so);
         }
 
-        public void AddObjects(IEnumerable<ISceneObject> sceneObjects)
-        {
-            lock (InterfaceLock)
-                foreach (ISceneObject so in sceneObjects)
-                    SceneInter.ObjectManager.Submit(so);
-        }
-
         public void RemoveObject(ISceneObject so)
         {
             if (so == null) return;
@@ -249,20 +242,20 @@ namespace Ship_Game
 
         public void Draw(GameTime gameTime)
         {
-            SpriteBatch spriteBatch = SpriteBatch;
+            SpriteBatch batch = SpriteBatch;
             try
             {
                 for (int i = 0; i < Screens.Count; ++i)
                 {
                     GameScreen screen = Screens[i];
                     if (screen.ScreenState != ScreenState.Hidden)
-                        screen.Draw(spriteBatch);
+                        screen.Draw(batch);
                 }
             }
             catch (Exception e)
             {
                 Log.Error(e, "ScreenManager.Draw Crashed");
-                try { spriteBatch.End(); } catch { }
+                try { batch.End(); } catch { }
             }
         }
 

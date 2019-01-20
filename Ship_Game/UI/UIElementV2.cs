@@ -19,6 +19,14 @@ namespace Ship_Game
         BottomRight // "bottomright"  x=1.0  y=1.0
     }
 
+    public enum DrawDepth
+    {
+        Foreground, // draw 2D on top of 3D objects -- default behaviour
+        Background, // draw 2D behind 3D objects
+        ForegroundAdditive, // Foreground + Additive alpha blend
+        BackgroundAdditive, // Background + Additive alpha blend
+    }
+
     public abstract class UIElementV2 : IInputHandler
     {
         public readonly UIElementV2 Parent;
@@ -36,10 +44,13 @@ namespace Ship_Game
         
         public bool Visible = true; // If TRUE, this UIElement is rendered
         public bool Enabled = true; // If TRUE, this UIElement can receive input events
+        protected bool DeferredRemove; // If TRUE, this UIElement will be deleted during update
 
+        // This controls the layer ordering of 2D UI Elements
+        public DrawDepth DrawDepth;
 
         // Nullable to save memory
-        private Array<UIEffect> Effects;
+        Array<UIEffect> Effects;
 
 
         public void Show() => Visible = true;
@@ -112,7 +123,7 @@ namespace Ship_Game
             }
         }
 
-        private static Vector2 AlignValue(Align align)
+        static Vector2 AlignValue(Align align)
         {
             switch (align)
             {
@@ -159,9 +170,11 @@ namespace Ship_Game
             UpdateEffects(deltaTime);
         }
 
-        public void RemoveFromParent()
+        public void RemoveFromParent(bool deferred = false)
         {
-            if (Parent is UIElementContainer container)
+            if (deferred)
+                DeferredRemove = true;
+            else if (Parent is UIElementContainer container)
                 container.Remove(this);
         }
 

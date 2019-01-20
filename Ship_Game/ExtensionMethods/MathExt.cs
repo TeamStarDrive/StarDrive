@@ -108,9 +108,11 @@ namespace Ship_Game
         }
 
         // Basic Linear Interpolation
-        public static float LerpTo(this float minValue, float maxValue, float amount)
+        // ex: 0f.LerpTo(100f, 0.75f) => 75f
+        // ex: 100f.LerpTo(0f, 0.75f) => 25f
+        public static float LerpTo(this float start, float end, float amount)
         {
-            return minValue + (maxValue - minValue) * amount;
+            return start + (end - start) * amount;
         }
 
         public static Vector3 LerpTo(this Vector3 start, Vector3 end, float amount)
@@ -430,6 +432,14 @@ namespace Ship_Game
             return ship.Position + (strafeVector * distance);
         }
 
+        public static Vector3 DirectionToTarget(this Vector3 origin, Vector3 target)
+        {
+            float dx = target.X - origin.X;
+            float dy = target.Y - origin.Y;
+            float dz = target.Z - origin.Z;
+            float len = (float)Sqrt(dx*dx + dy*dy + dz*dz);
+            return new Vector3(dx / len, dy / len, dz / len);
+        }
 
         public static Vector2 DirectionToTarget(this Vector2 origin, Vector2 target)
         {

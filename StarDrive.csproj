@@ -273,6 +273,7 @@
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
+    <Compile Include="Ship_Game\Ships\IShipTemplate.cs" />
     <Compile Include="Ship_Game\Ships\RoleData.cs" />
     <Compile Include="Ship_Game\Ships\EmpireShipBonuses.cs" />
     <Compile Include="Ship_Game\Ships\IDamageModifier.cs" />
