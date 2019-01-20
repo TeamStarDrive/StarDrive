@@ -117,6 +117,10 @@ namespace Ship_Game
         private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int wantedOrbitals, ShipData.RoleName role)
         {
             int orbitalsWeHave = orbitalList.Count;
+
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"{role.ToString()}s we have: {orbitalsWeHave}, {role.ToString()}s we want: {wantedOrbitals}");
+
             if (wantedOrbitals > orbitalsWeHave)
             {
                 Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
@@ -235,7 +239,12 @@ namespace Ship_Game
         private int FindColonyRank()
         {
             int rank = (int)(ColonyValue / Owner.MaxColonyValue * 10);
-            return ApplyRankModifiers(rank);
+            rank     = ApplyRankModifiers(rank);
+
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"COLONY RANK: {rank}, Colony Value: {ColonyValue}, Empire Max Value: {Owner.MaxColonyValue}");
+
+            return rank;
         }
 
         private int ApplyRankModifiers(int currentRank)
