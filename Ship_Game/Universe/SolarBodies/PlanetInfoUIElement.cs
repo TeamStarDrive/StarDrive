@@ -46,6 +46,7 @@ namespace Ship_Game
         private Rectangle InjuryRect;
         private Rectangle OffenseRect;
         private Rectangle ShieldRect;
+        private Rectangle DefenseShipsRect;
         private Array<TippedItem> ToolTipItems = new Array<TippedItem>();
         private Rectangle Mark;
 
@@ -77,11 +78,12 @@ namespace Ship_Game
             Sliders = new ColonySliderGroup(null, SliderRect);
             Sliders.Create(RightRect.X, Housing.Y + 120, 145, 40);
 
-            flagRect    = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
-            DefenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 114, 22, 22);
-            OffenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 22, 22, 22);
-            InjuryRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 44, 22, 22);
-            ShieldRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 66, 22, 22);
+            flagRect         = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
+            DefenseRect      = new Rectangle(LeftRect.X + 13, Housing.Y + 114, 22, 22);
+            OffenseRect      = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 22, 22, 22);
+            InjuryRect       = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 44, 22, 22);
+            ShieldRect       = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 66, 22, 22);
+            DefenseShipsRect = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 88, 22, 22);
         }
 
         public override void Draw(GameTime gameTime)
@@ -111,6 +113,12 @@ namespace Ship_Game
                 TIP_ID = 250
             };
             ToolTipItems.Add(offense);
+            var defenseShips = new TippedItem
+            {
+                r = DefenseShipsRect,
+                TIP_ID = 251
+            };
+            ToolTipItems.Add(defenseShips);
             float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             var MousePos = new Vector2(x, state.Y);
@@ -164,6 +172,16 @@ namespace Ship_Game
             if (p.ShieldStrengthMax > 0f)
                 DrawPlanetStats(ShieldRect, p.ShieldStrengthCurrent.String(1), "NewUI/icon_planetshield", Color.White, Color.Green);
 
+            // Added by Fat Bastard - display total defense ships stationed on this planet
+            int maxDefenseShips = p.MaxDefenseShips;
+            if (maxDefenseShips > 0 )
+            {
+                int currentDefenseShips = p.CurrentDefenseShips;
+                if (currentDefenseShips == maxDefenseShips)
+                    DrawPlanetStats(DefenseShipsRect, currentDefenseShips.ToString(), "UI/icon_hangar", Color.White, Color.White);
+                else
+                    DrawPlanetStats(DefenseShipsRect, currentDefenseShips + "/" + maxDefenseShips , "UI/icon_hangar", Color.Yellow, Color.White);
+            }
             Inspect.Draw(ScreenManager);
             Invade.Draw(ScreenManager);
         }
