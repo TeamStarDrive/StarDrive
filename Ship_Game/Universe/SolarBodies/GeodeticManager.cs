@@ -49,7 +49,7 @@ namespace Ship_Game.Universe.SolarBodies
         private void ApplyBombEnvEffects(float amount) // added by Fat Bastard
         {
             SolarSystemBody.Population -= 1000f * amount;
-            SolarSystemBody.ChangeFertility(-(amount / 2));
+            SolarSystemBody.AddFertility(amount * -0.5f);
             if (SolarSystemBody.Fertility > 0)
                 return;
 
@@ -57,7 +57,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (envDestructionRoll > amount * 250)
                 return;
 
-            SolarSystemBody.ChangeMaxFertility(-0.02f);
+            SolarSystemBody.AddMaxFertility(-0.02f);
             SolarSystemBody.DegradePlanetType();
         }
 
