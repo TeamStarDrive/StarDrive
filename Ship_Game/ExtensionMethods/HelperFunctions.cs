@@ -207,6 +207,11 @@ namespace Ship_Game
             return size;
         }
 
+        public static int TextWidth(this SpriteFont font, string text)
+        {
+            return (int)font.MeasureString(text).X;
+        }
+
         public static void parseTextToSL(string text, float width, SpriteFont font, ref ScrollList List)
         {
             string line = "";

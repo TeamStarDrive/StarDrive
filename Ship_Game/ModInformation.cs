@@ -72,6 +72,8 @@ namespace Ship_Game
         public int SteppeHab = 67;
         public int SwampHab  = 67;
         public int TerranHab = 75;
+        
+        public bool HideMainMenuMoon; // some mods need to hide the moon+glare on main menu
 
         public int ChanceForCategory(PlanetCategory category)
         {

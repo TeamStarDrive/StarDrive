@@ -201,6 +201,25 @@ namespace Ship_Game.Ships
             radius = Math.Min(radius, SensorRange);
             return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
         }
+
+        public bool IsFreighter
+        {
+            get
+            {
+                if (isColonyShip || isConstructor || CargoSpaceMax < 1f)
+                    return false;
+                return shipData.Role == ShipData.RoleName.freighter 
+                    || shipData.ShipCategory == ShipData.Category.Civilian
+                    || shipData.ShipCategory == ShipData.Category.Unclassified;
+            }
+        }
+
+        public bool IsIdleFreighter => !PlayerShip && AI != null 
+                                    &&!AI.HasPriorityOrder 
+                                    && AI.State != AIState.PassengerTransport
+                                    && AI.State != AIState.SystemTrader
+                                    && AI.State != AIState.Refit;
+
         public bool IsInNeutralSpace
         {
             get
@@ -2600,7 +2619,7 @@ namespace Ship_Game.Ships
                     continue;
 
                 Building template = ResourceManager.GetBuildingTemplate(slot.DeployBuildingOnColonize);
-                if (template.Unique && colonizeTarget.BuildingExists(template))
+                if (template.Unique && colonizeTarget.BuildingBuiltOrQueued(template))
                     continue;
 
                 Building building = ResourceManager.CreateBuilding(template);

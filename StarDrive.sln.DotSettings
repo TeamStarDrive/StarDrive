@@ -125,4 +125,5 @@
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=F6259B5B94301B469F2D7385CFE66669/TodoIconStyle/@EntryValue">Normal</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=bgra/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=blackbox/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Ralyeh/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Unlockable/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

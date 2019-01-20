@@ -6,51 +6,39 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        private void RunGroundPlanner()
+        void RunGroundPlanner()
         {
             if (DefensiveCoordinator.UniverseWants > .8)
                 return;
-            float totalideal  = 0;
-            float totalwanted = 0;
 
-            IOrderedEnumerable<Troop> troopTemplates = ResourceManager.GetTroopTemplates()
-                .Where(t => OwnerEmpire.WeCanBuildTroop(t.Name))
-                .OrderBy(t => t.ActualCost);
-            Troop lowCostTroop = troopTemplates.FirstOrDefault();
-            Troop highCostTroop = troopTemplates.LastOrDefault();
-            Troop troop = highCostTroop;
-
-            foreach (SolarSystem system in OwnerEmpire.GetOwnedSystems())
+            Troop[] troops = ResourceManager.GetTroopTemplates()
+                            .Filter(t => OwnerEmpire.WeCanBuildTroop(t.Name))
+                            .Sorted(t => t.ActualCost);
+            if (troops.Length == 0)
             {
-                SystemCommander defenseSystem = DefensiveCoordinator.DefenseDict[system];
-
-                if (defenseSystem.TroopStrengthNeeded <= 0)                
-                    continue;
-                
-                totalwanted += defenseSystem.TroopStrengthNeeded;
-                totalideal += defenseSystem.IdealTroopCount; 
+                Log.Warning($"EmpireAI GroundPlanner no Troops for {EmpireName}");
+                return;
             }
-            if (totalwanted / totalideal > .5f)            
-                troop = lowCostTroop;
+
+            float totalIdeal  = 0f;
+            float totalWanted = 0f;
+            foreach (SolarSystem sys in OwnerEmpire.GetOwnedSystems())
+            {
+                if (!DefensiveCoordinator.DefenseDict.Get(sys, out SystemCommander commander)
+                    || commander.TroopStrengthNeeded <= 0f)
+                    continue;
+                totalWanted += commander.TroopStrengthNeeded;
+                totalIdeal  += commander.IdealTroopCount; 
+            }
+
+            float requiredRatio = totalWanted / totalIdeal;
+            if (requiredRatio <= 0.1f)
+                return;
             
-            if (totalwanted / totalideal <= .1f)
-                return;
-            Planet targetBuild = OwnerEmpire.GetPlanets()
-                .Where(planet => planet.AllowInfantry && planet.colonyType != Planet.ColonyType.Research
-                                 && planet.Prod.NetMaxPotential > 5
-                                 && (planet.ProdHere) - 2 * (planet.ConstructionQueue.Where(
-                                         qi => qi.Goal != null && qi.Goal.type == GoalType.BuildTroop)
-                                     .Sum(qi => qi.Cost)) > 0 
-                )
-                .OrderBy(p => !p.HasSpacePort)
-                .ThenByDescending(p => p.Prod.GrossIncome)
-                .FirstOrDefault();
-            if (targetBuild == null)
-                return;
-
-
-            var g = new BuildTroop(troop, OwnerEmpire, targetBuild);
-            Goals.Add(g);
+            Troop loCost = troops.First();
+            Troop hiCost = troops.Last();
+            Troop chosenTroop = requiredRatio > 0.5f ? hiCost : loCost;
+            Goals.Add(new BuildTroop(chosenTroop, OwnerEmpire));
         }
     }
 }

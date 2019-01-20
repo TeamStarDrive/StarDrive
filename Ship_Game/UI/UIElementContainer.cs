@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.UI.Effects;
 
 namespace Ship_Game
 {
@@ -21,6 +23,7 @@ namespace Ship_Game
         protected LayoutStyle CurrentLayout = LayoutStyle.HorizontalEven;
 
         protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
+        public IReadOnlyList<UIElementV2> Children => Elements;
         protected bool LayoutStarted;
         protected Vector2 LayoutCursor = Vector2.Zero;
         protected Vector2 LayoutStep   = Vector2.Zero;
@@ -30,9 +33,9 @@ namespace Ship_Game
         /// in their appropriate ZOrder
         /// </summary>
         public bool DebugDraw;
-        private int DebugDrawIndex;
-        private float DebugDrawTimer;
-        private const float DebugDrawInterval = 0.5f;
+        int DebugDrawIndex;
+        float DebugDrawTimer;
+        const float DebugDrawInterval = 0.5f;
 
         public LayoutStyle Layout
         {
@@ -52,6 +55,9 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected UIElementContainer(UIElementV2 parent, Vector2 pos) : base(parent, pos)
+        {
+        }
+        protected UIElementContainer(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size)
         {
         }
         protected UIElementContainer(UIElementV2 parent, Rectangle rect) : base(parent, rect)
@@ -111,7 +117,13 @@ namespace Ship_Game
             for (int i = 0; i < Elements.Count; ++i)
             {
                 UIElementV2 e = Elements[i];
-                if (e.Visible) e.Update(deltaTime);
+                if (e.Visible)
+                {
+                    e.Update(deltaTime);
+                    if (e.DeferredRemove) { Elements.RemoveAtSwapLast(i--); }
+                    // Update directly modified Elements array?
+                    else if (Elements[i] != e) { --i; }
+                }
             }
 
             if (DebugDraw)
@@ -455,7 +467,27 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        protected UIPanel Panel(Rectangle rect, Color color) => Add(new UIPanel(this, rect, color));
+        public UIPanel Panel(in Rectangle r, Color c)               => Add(new UIPanel(this, r, c));
+        public UIPanel Panel(SubTexture t, in Rectangle r)          => Add(new UIPanel(this, t, r));
+        public UIPanel Panel(SubTexture t, in Rectangle r, Color c) => Add(new UIPanel(this, t, r, c));
+        public UIPanel Panel(string t, int x, int y)   => Add(new UIPanel(this, t, x, y));
+        public UIPanel Panel(string t, in Rectangle r) => Add(new UIPanel(this, t, r));
+        public UIPanel Panel(string t, Vector2 pos)    => Add(new UIPanel(this, t, pos));
+        public UIPanel Panel(string t)                 => Add(new UIPanel(this, t));
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        public UIBasicAnimEffect Anim() => AddEffect(new UIBasicAnimEffect(this));
+
+        /// <param name="delay">Start animation fadeIn/stay/fadeOut after seconds</param>
+        /// <param name="duration">Duration of fadeIn/stay/fadeOut</param>
+        /// <param name="fadeIn">Fade in time</param>
+        /// <param name="fadeOut">Fade out time</param>
+        public UIBasicAnimEffect Anim(
+            float delay, 
+            float duration = 1.0f, 
+            float fadeIn   = 0.25f, 
+            float fadeOut  = 0.25f) => Anim().Time(delay, duration, fadeIn, fadeOut);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
@@ -474,6 +506,13 @@ namespace Ship_Game
                 float modifier = i / (float)candidates.Count;
                 e.AddEffect(new UITransitionEffect(e, distance, modifier, direction));
             }
+        }
+
+        public UIFadeInEffect StartFadeIn(float fadeInTime, float delay = 0f)
+        {
+            var fx = new UIFadeInEffect(this, fadeInTime, delay);
+            AddEffect(fx);
+            return fx;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////

@@ -76,23 +76,21 @@ namespace Ship_Game.AI
         public void OrderTrade(float elapsedTime)
         {
             //trade timer is sent but uses arbitrary timer just to delay the routine.
-
             Owner.TradeTimer -= elapsedTime;
             if (Owner.TradeTimer > 0f)
                 return;
 
-
             PlayerManualTrade();
 
-            if (Owner.GetColonists() > 0.0f) return;
-
+            if (Owner.GetColonists() > 0.0f)
+                return;
             if (Owner.loyalty.TradeBlocked)
             {
                 Owner.TradeTimer = 5;
                 return;
             }
-            if (IsAlreadyTrading()) return;
-            if (!IsReadyForTrade) return;
+            if (UpdateTradeStatus() || !IsReadyForTrade)
+                return;
 
             if (NoGoods)
             {
@@ -101,7 +99,8 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (Owner.loyalty.data.Traits.Cybernetic < 1 && IsFood && (end == null || Owner.GetFood() > 0))
+            // @note Cybernetic factions never touch Food trade. Filthy Opteris are disgusted by protein-bugs. Ironic.
+            if (Owner.loyalty.NonCybernetic && IsFood && (end == null || Owner.GetFood() > 0))
             {
                 if (DeliverShipment(Goods.Food))
                 {
@@ -160,7 +159,7 @@ namespace Ship_Game.AI
             start?.TradeAI.AddTrade(Owner);
         }
 
-        private void PlayerManualTrade()
+        void PlayerManualTrade()
         {
             if (!Owner.loyalty.isPlayer || Owner.loyalty.AutoFreighters || start != null || end != null) return;
             State = AIState.SystemTrader;
@@ -179,7 +178,6 @@ namespace Ship_Game.AI
                 FoodOrProd = Goods.Food;
                 return;
             }
-
             FoodOrProd = Goods.Production;
         }
 
@@ -188,16 +186,14 @@ namespace Ship_Game.AI
             var routes = new TradeAI.TradeRoute[tradePlanets.Length];
             for (int i = 0; i < tradePlanets.Length; i++)
             {
-                Planet planet = tradePlanets[i];
-                routes[i] = planet.TradeAI.GetTradeRoute(good, Owner);
+                routes[i] = tradePlanets[i].TradeAI.GetTradeRoute(good, Owner);
             }
-
             return routes;
         }
 
         private bool DeliverShipment(Goods good)
         {
-            var planets = GetTradePlanets(good, Planet.GoodState.IMPORT);
+            Planet[] planets = GetTradePlanets(good, Planet.GoodState.IMPORT);
             if (planets.Length <= 0)
                 return false;
             TradeAI.TradeRoute[] tradeRoutes = GetTradeRoutes(good, planets);
@@ -210,7 +206,6 @@ namespace Ship_Game.AI
 
             if (Owner.GetCargo(good) <= 0)
                 start = route.Start;
-
 
             WayPoints.Clear();
             OrderQueue.Clear();
@@ -240,20 +235,22 @@ namespace Ship_Game.AI
         }
 
 
-        private bool IsReadyForTrade => Math.Abs(Owner.CargoSpaceMax) > 0 && State != AIState.Flee && !Owner.isConstructor &&
-                   !Owner.isColonyShip && Owner.DesignRole == ShipData.RoleName.freighter;
+        bool IsReadyForTrade => Math.Abs(Owner.CargoSpaceMax) > 0 
+                            && State != AIState.Flee
+                            && !Owner.isConstructor && !Owner.isColonyShip
+                            && Owner.DesignRole == ShipData.RoleName.freighter;
 
-        private bool IsAlreadyTrading()
+        bool UpdateTradeStatus()
         {
-            if (start == null || end == null) return false;
+            if (start == null || end == null) 
+                return false;
+
             Owner.TradeTimer = 5f;
             if (OrderQueue.NotEmpty) return true;
             if (Owner.GetFood() > 0f || Owner.GetProduction() > 0f)
             {
                 OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
-
                 AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
-
                 State = AIState.SystemTrader;
                 return true;
             }
@@ -261,7 +258,7 @@ namespace Ship_Game.AI
             {
                 Owner.TradingFood = false;
                 Owner.TradingProd = false;
-                end = null;
+                end   = null;
                 start = null;
                 FoodOrProd = Goods.None;
                 return false;
@@ -269,12 +266,11 @@ namespace Ship_Game.AI
             OrderMoveTowardsPosition(start.Center, 0f, new Vector2(0f, -1f), true, start);
 
             AddShipGoal(Plan.PickupGoods, Vector2.Zero, 0f);
-
             State = AIState.SystemTrader;
             return true;
         }
 
-        private bool ShouldSuspendTradeDueToCombat()
+        bool ShouldSuspendTradeDueToCombat()
         {
             return Owner.loyalty.GetOwnedSystems().All(combat => combat.combatTimer > 0);
         }
