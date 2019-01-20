@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -16,78 +17,79 @@ namespace Ship_Game.Commands.Goals
             {
                 FindPlanetForFleetRequisition,
                 DummyStepTryAgain,
-                DoSomeStuffWithFleets
+                AddShipToFleetAndMoveToPosition
             };
         }
         public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai) : this()
         {
-            FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
-            beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
-            
-            beingBuilt.fleet = ai.Owner.fleet;
-            beingBuilt.RelativeFleetOffset = node.FleetOffset;
-            SetFleet(ai.Owner.fleet);
-            SetPlanetWhereBuilding(ai.OrbitTarget);
+            FleetDataNode node = ai.Owner.fleet.DataNodes.First(n => n.Ship == ai.Owner);
+            ToBuildUID = goal.VariableString;
+            ShipToBuild = ResourceManager.GetShipTemplate(ToBuildUID);
+            ShipToBuild.fleet = ai.Owner.fleet;
+            ShipToBuild.RelativeFleetOffset = node.FleetOffset;
+            Fleet = ai.Owner.fleet;
+            PlanetBuildingAt = ai.OrbitTarget;
         }
 
         public FleetRequisition(string shipName, Empire owner) : this()
         {
             empire = owner;
             ToBuildUID = shipName;
-            beingBuilt = ResourceManager.GetShipTemplate(shipName);
+            ShipToBuild = ResourceManager.GetShipTemplate(shipName);
         }
-        private GoalStep FindPlanetForFleetRequisition()
-        {            
 
-            Planet planet1 = empire.PlanetToBuildAt(beingBuilt.GetCost(empire));
-            
-            if (planet1 == null)
+        GoalStep FindPlanetForFleetRequisition()
+        {            
+            Planet p = PlanetBuildingAt ?? empire.PlanetToBuildShipAt(ShipToBuild.GetCost(empire));
+            if (p == null)
                 return GoalStep.TryAgain;
-            PlanetBuildingAt = planet1;
-            planet1.ConstructionQueue.Add(new QueueItem(planet1)
-            {
-                isShip        = true,
-                QueueNumber   = planet1.ConstructionQueue.Count,
-                sData         = beingBuilt.shipData,
-                Goal          = this,
-                Cost          = beingBuilt.GetCost(empire),
-                NotifyOnEmpty = false
-            });
+            
+            p.Construction.AddShip(ShipToBuild, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
 
-        private GoalStep DoSomeStuffWithFleets()
+        GoalStep AddShipToFleetAndMoveToPosition()
         {
-            if (fleet == null)
+            if (Fleet == null)
+            {
+                Log.Error($"FleetRequisition {ToBuildUID} complete but Fleet is null!");
                 return GoalStep.GoalComplete;
-            bool allEmptyGuid = true; //goal never complete bug.
-            using (fleet.DataNodes.AcquireWriteLock())
-                foreach (FleetDataNode current in fleet.DataNodes)
-                {
+            }
+            if (FinishedShip == null)
+            {
+                Log.Error($"FleetRequisition {ToBuildUID} failed: BuiltShip is null!");
+                return GoalStep.GoalFailed;
+            }
 
-                    if (current.GoalGUID != guid) continue;
-                    allEmptyGuid = false; //fix older save games that have orphaned tasks
-                    if (fleet.Ships.Count == 0)
-                        fleet.Position = beingBuilt.Position +
-                                         new Vector2(RandomMath.RandomBetween(-3000f, 3000f)
-                                             , RandomMath.RandomBetween(-3000f, 3000f));                    
-                    var ship = beingBuilt;
-                    current.Ship = ship;
-                    if (fleet.Position == Vector2.Zero)
-                        fleet.Position = empire.FindNearestRallyPoint(ship.Center).Center;
-                    ship.RelativeFleetOffset = current.FleetOffset;
-                    current.GoalGUID = Guid.Empty;
-                    fleet.AddShip(ship);
+            using (Fleet.DataNodes.AcquireWriteLock())
+            {
+                foreach (FleetDataNode node in Fleet.DataNodes)
+                {
+                    if (node.GoalGUID != guid)
+                        continue;
+
+                    Ship ship = FinishedShip;
+                    node.Ship = ship;
+                    node.GoalGUID = Guid.Empty;
+
+                    if (Fleet.Ships.Count == 0)
+                        Fleet.Position = ship.Position + RandomMath.Vector2D(3000f);        
+                    if (Fleet.Position == Vector2.Zero)
+                        Fleet.Position = empire.FindNearestRallyPoint(ship.Center).Center;
+
+                    ship.RelativeFleetOffset = node.FleetOffset;
+
+                    Fleet.AddShip(ship);
                     ship.AI.SetPriorityOrder(false);
+
                     //ship.AI.OrderMoveToFleetPosition(
                     //    fleet.Position + ship.FleetOffset, ship.fleet.Facing, 
                     //    new Vector2(0.0f, -1f), true, fleet.Speed, fleet);
-                    ship.AI.OrderMoveTowardsPosition(fleet.Position + ship.FleetOffset, ship.fleet.Facing, true, null);
+                    ship.AI.OrderMoveTowardsPosition(Fleet.Position + ship.FleetOffset, ship.fleet.Facing, true, null);
                     return GoalStep.GoalComplete;
                 } 
-            if (allEmptyGuid)
-                return GoalStep.GoalComplete;
-            return GoalStep.TryAgain;
+            }
+            return GoalStep.GoalComplete;
         }
     }
 }

@@ -109,8 +109,7 @@ namespace Ship_Game
             p.OrbitalRadius         = psdata.OrbitalDistance;
             p.MaxPopBase            = psdata.PopulationMax;
 
-            p.InitMaxFertility(psdata.MaxFertility);
-            p.InitFertility(psdata.Fertility);
+            p.SetFertility(psdata.Fertility, psdata.MaxFertility);
 
             p.MineralRichness       = psdata.Richness;
             p.TerraformPoints       = psdata.TerraformPoints;
@@ -302,7 +301,7 @@ namespace Ship_Game
                 if (qisave.isTroop)
                 {
                     qi.isTroop = true;
-                    qi.troopType = qisave.UID;
+                    qi.TroopType = qisave.UID;
                     qi.Cost = ResourceManager.GetTroopCost(qisave.UID);
                     qi.NotifyOnEmpty = false;
                 }
@@ -340,10 +339,10 @@ namespace Ship_Game
 
                 if (qisave.isShip && qi.Goal != null)
                 {
-                    qi.Goal.beingBuilt = ResourceManager.GetShipTemplate(qisave.UID);
+                    qi.Goal.ShipToBuild = ResourceManager.GetShipTemplate(qisave.UID);
                 }
 
-                qi.productionTowards = qisave.ProgressTowards;
+                qi.ProductionSpent = qisave.ProgressTowards;
                 p.ConstructionQueue.Add(qi);
             }
         }
@@ -499,7 +498,7 @@ namespace Ship_Game
                 {
                     foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
                     {
-                        if (fleet.Value.Guid == gsave.fleetGuid) g.SetFleet(fleet.Value);
+                        if (fleet.Value.Guid == gsave.fleetGuid) g.Fleet = fleet.Value;
                     }
                 }
 
@@ -507,15 +506,15 @@ namespace Ship_Game
                 {
                     foreach (Planet p in s.PlanetList)
                     {
-                        if (p.guid == gsave.planetWhereBuildingAtGuid) g.SetPlanetWhereBuilding(p);
-                        if (p.guid == gsave.markedPlanetGuid) g.SetMarkedPlanet(p);
+                        if (p.guid == gsave.planetWhereBuildingAtGuid) g.PlanetBuildingAt = p;
+                        if (p.guid == gsave.markedPlanetGuid) g.ColonizationTarget = p;
                     }
                 }
 
                 foreach (Ship s in data.MasterShipList)
                 {
-                    if (gsave.colonyShipGuid == s.guid) g.SetColonyShip(s);
-                    if (gsave.beingBuiltGUID == s.guid) g.SetBeingBuilt(s);
+                    if      (gsave.colonyShipGuid == s.guid) g.FinishedShip = s;
+                    else if (gsave.beingBuiltGUID == s.guid) g.ShipToBuild = s;
                 }
 
                 e.GetEmpireAI().Goals.Add(g);

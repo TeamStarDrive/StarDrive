@@ -144,6 +144,8 @@ namespace Ship_Game
             else
                 Storage.Prod = expectedStorage;
 
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"SCRAPPED Orbital ----- {orbital.Name}, STR: {orbital.BaseStrength}");
             orbital.QueueTotalRemoval();
         }
 
@@ -162,6 +164,8 @@ namespace Ship_Game
         private void AddOrbital(Ship orbital) // add Orbital to ConstructionQueue
         {
             float cost = orbital.GetCost(Owner); // FB - need to check what happens with cost after shipyard is built.
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {cost}, STR: {orbital.BaseStrength}");
             ConstructionQueue.Add(new QueueItem(this)
             {
                 isOrbital = true,
@@ -191,14 +195,10 @@ namespace Ship_Game
 
             ScrapOrbital(weakestWeHave);
             AddOrbital(bestWeCanBuild);
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"REPLACED Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
+                         $"STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
         }
-
-        /*private bool LogicalCostVsBuiltTime(float cost)
-        {
-            float netCost = cost - Storage.Prod;
-            float ratio   = netCost / Prod.NetMaxPotential;
-            return (ratio < 50);
-        }*/
 
         private struct WantedOrbitals
         {
@@ -248,7 +248,7 @@ namespace Ship_Game
                 rank++;
             switch (colonyType)
             {
-                case ColonyType.Core    : rank++;    break;
+                case ColonyType.Core    : rank += 1; break;
                 case ColonyType.Military: rank += 2; break;
             }
             return rank;

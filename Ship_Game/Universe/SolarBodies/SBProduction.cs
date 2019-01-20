@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
@@ -9,290 +10,222 @@ namespace Ship_Game.Universe.SolarBodies
     // Production facilities
     public class SBProduction
     {
-        private readonly Planet Ground;
+        readonly Planet P;
+        Empire Owner => P.Owner;
 
-        private Array<PlanetGridSquare> TilesList                  => Ground.TilesList;
-        private Empire Owner                                       => Ground.Owner;        
-        private Array<Building> BuildingList                       => Ground.BuildingList;        
-        private SolarSystem ParentSystem                           => Ground.ParentSystem;        
+        public bool NotEmpty => ConstructionQueue.NotEmpty;
+        public bool Empty => ConstructionQueue.IsEmpty;
+        public int Count => ConstructionQueue.Count;
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
-        private int CrippledTurns                                  => Ground.CrippledTurns;
-        private bool RecentCombat                                  => Ground.RecentCombat;
-        private float ShipBuildingModifier                         => Ground.ShipBuildingModifier;
-        private float Fertility                                    => Ground.Fertility;
-        private SpaceStation Station                               => Ground.Station;        
-        private Planet.GoodState PS                                => Ground.PS;
-        private Planet.ColonyType colonyType                       => Ground.colonyType;
-        private float NetProductionPerTurn                         => Ground.Prod.NetIncome;
 
-        private float ProductionHere
+        float ProductionHere
         {
-            get => Ground.ProdHere;
-            set => Ground.ProdHere = value;
+            get => P.ProdHere;
+            set => P.ProdHere = value;
         }
+
+        float SurplusThisTurn;
 
         public SBProduction(Planet planet)
         {
-            Ground = planet;
+            P = planet;
         }
 
-        public bool ApplyStoredProduction(int index)
+        bool IsCrippled => P.CrippledTurns > 0 || P.RecentCombat;
+
+        public bool RushProduction(int itemIndex, float maxAmount = 1000f)
         {
-
-            if (CrippledTurns > 0 || RecentCombat || (ConstructionQueue.Count <= 0 || Owner == null))//|| this.Owner.Money <=0))
-                return false;
-            if (Owner != null && !Owner.isPlayer && Owner.data.Traits.Cybernetic > 0)
+            // don't allow rush if we're crippled
+            if (IsCrippled || ConstructionQueue.IsEmpty || Owner == null)
                 return false;
 
-            float amountToRush = Ground.Prod.NetMaxPotential; //for debug help
-            float amount = Math.Min(ProductionHere, amountToRush);
-            if (Empire.Universe.Debug && Owner.isPlayer)
-                amount = float.MaxValue;
-            if (amount < 1)
+            float amount = Math.Min(ProductionHere, maxAmount);
+            return ApplyProductionToQueue(maxAmount: amount, itemIndex);
+        }
+
+        // The Remnant get a "magic" production cheat
+        public void RemnantCheatProduction()
+        {
+            foreach (QueueItem item in ConstructionQueue)
+                item.Cost = 0;
+            ProductionHere += 1f; // add some free production before building
+            ApplyProductionToQueue(maxAmount:2f, 0);
+        }
+
+        // Spend up to `max` production for QueueItem
+        // @return TRUE if QueueItem is complete
+        bool SpendProduction(QueueItem q, float max)
+        {
+            float needed = q.ProductionNeeded;
+            if (needed <= 0f) return true; // complete!
+
+            float spendMax = Math.Min(needed, max); // how much can we spend?
+            float spend = spendMax;
+
+            MathExt.Consume(ref SurplusThisTurn, ref spend);
+            P.Storage.ConsumeProduction(ref spend);
+
+            q.ProductionSpent += (spendMax - spend); // apply it
+
+            // if we spent everything, this QueueItem is complete
+            return spend <= 0f;
+        }
+
+        // @note `maxProduction` is a max limit, this method will attempt
+        //       to consume no more than `maxAmount` from local production
+        // @return true if at least some production was applied
+        bool ApplyProductionToQueue(float maxAmount, int itemIndex)
+        {
+            if (maxAmount <= 0.0f || ConstructionQueue.IsEmpty)
+                return false;
+
+            // apply production to specified item
+            if (ConstructionQueue.Count > itemIndex)
             {
-                return false;
+                SpendProduction(ConstructionQueue[itemIndex], maxAmount);                            
             }
-            ProductionHere -= amount;
-            ApplyProductiontoQueue(amount, index);
 
+            for (int i = 0; i < ConstructionQueue.Count; )
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isTroop && !HasRoomForTroops()) // remove excess troops from queue
+                {
+                    Cancel(q);
+                    continue;
+                }
+                if (q.IsComplete)
+                {
+                    bool ok = false;
+                    if (q.isBuilding)   ok = OnBuildingComplete(q);
+                    else if (q.isShip)  ok = OnShipComplete(q);
+                    else if (q.isTroop) ok = TrySpawnTroop(q);
+                    Finish(q, success: ok);
+                    continue; // this item was removed, so skip
+                }
+                ++i;
+            }
+            ConstructionQueue.ApplyPendingRemovals();
             return true;
         }
 
-        public void ApplyProductiontoQueue(float howMuch, int whichItem)
+        bool HasRoomForTroops()
         {
-            if (CrippledTurns > 0 || RecentCombat || howMuch <= 0.0)
+            foreach (PlanetGridSquare tile in P.TilesList)
             {
-                if (howMuch > 0 && CrippledTurns <= 0)
-                    ProductionHere += howMuch;
-                return;
+                if (tile.TroopsHere.Count < tile.number_allowed_troops &&
+                    (tile.building == null || (tile.building != null && tile.building.CombatStrength == 0)))
+                    return true;
             }
-
-            if (ConstructionQueue.Count > 0 && ConstructionQueue.Count > whichItem)
-            {
-                QueueItem item = ConstructionQueue[whichItem];
-                float cost = item.Cost;
-                if (item.isShip)
-                    cost *= ShipBuildingModifier;
-                //cost -= item.productionTowards;
-                item.productionTowards += howMuch;
-                float remainder = item.productionTowards - cost;
-                ProductionHere += Math.Max(0, remainder);                                
-            }
-            else ProductionHere += howMuch;
-
-            for (int index1 = 0; index1 < ConstructionQueue.Count; ++index1)
-            {
-                QueueItem queueItem = ConstructionQueue[index1];
-
-                //Added by gremlin remove exess troops from queue 
-                if (queueItem.isTroop)
-                {
-
-                    int space = 0;
-                    foreach (PlanetGridSquare tilesList in TilesList)
-                    {
-                        if (tilesList.TroopsHere.Count >= tilesList.number_allowed_troops || tilesList.building != null 
-                            && (tilesList.building == null || tilesList.building.CombatStrength != 0))
-                        {
-                            continue;
-                        }
-                        space++;
-                    }
-
-                    if (space < 1)
-                    {
-                        if (queueItem.productionTowards == 0)
-                        {
-                            ConstructionQueue.Remove(queueItem);
-                        }
-                        else
-                        {
-                            ProductionHere += queueItem.productionTowards;
-                            if (queueItem.pgs != null)
-                                queueItem.pgs.QItem = null;
-                            ConstructionQueue.Remove(queueItem);
-                        }
-                    }
-                }
-
-                if (queueItem.isBuilding && queueItem.productionTowards >= queueItem.Cost)
-                {
-                    bool dupBuildingWorkaround = false;
-                    if (!queueItem.Building.IsBiospheres)
-                        foreach (Building dup in BuildingList)
-                        {
-                            if (dup.Name == queueItem.Building.Name)
-                            {
-                                ProductionHere += queueItem.productionTowards;
-                                ConstructionQueue.QueuePendingRemoval(queueItem);
-                                dupBuildingWorkaround = true;
-                            }
-                        }
-                    if (!dupBuildingWorkaround)
-                    {
-                        Building building = ResourceManager.CreateBuilding(queueItem.Building.Name);
-                        if (queueItem.IsPlayerAdded)
-                            building.IsPlayerAdded = queueItem.IsPlayerAdded;
-                        BuildingList.Add(building);
-                        Ground.ChangeMaxFertility(-building.MinusFertilityOnBuild);
-                        if (queueItem.pgs != null)
-                        {
-                            if (queueItem.Building != null && queueItem.Building.IsBiospheres)
-                            {
-                                queueItem.pgs.Habitable = true;
-                                queueItem.pgs.Biosphere = true;
-                                queueItem.pgs.building = null;
-                                queueItem.pgs.QItem = null;
-                            }
-                            else
-                            {
-                                queueItem.pgs.building = building;
-                                queueItem.pgs.QItem = null;
-                            }
-                        }
-                        if (queueItem.Building.IsSpacePort)
-                        {
-                            Station.planet = Ground;
-                            Station.ParentSystem = ParentSystem;
-                            Station.LoadContent(Empire.Universe.ScreenManager);
-                            Ground.HasSpacePort = true;
-                        }
-                        if (queueItem.Building.AllowShipBuilding)
-                            Ground.HasSpacePort = true;
-                        if (building.EventOnBuild != null && Owner != null && Owner == Empire.Universe.PlayerEmpire)
-                            Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, Empire.Universe.PlayerEmpire, ResourceManager.EventsDict[building.EventOnBuild], ResourceManager.EventsDict[building.EventOnBuild].PotentialOutcomes[0], true));
-                        ConstructionQueue.QueuePendingRemoval(queueItem);
-                    }
-                }
-                else if (queueItem.isShip && !ResourceManager.ShipsDict.ContainsKey(queueItem.sData.Name))
-                {
-                    ConstructionQueue.QueuePendingRemoval(queueItem);
-                    ProductionHere += queueItem.productionTowards;
-                }
-                else if (queueItem.isShip && queueItem.productionTowards >= queueItem.Cost * ShipBuildingModifier)
-                {
-                    Ship shipAt;
-                    if (queueItem.isRefit)
-                        shipAt = Ship.CreateShipAt(queueItem.sData.Name, Owner, Ground, true, !string.IsNullOrEmpty(queueItem.RefitName) ? queueItem.RefitName : queueItem.sData.Name, queueItem.sData.Level);
-                    else
-                        shipAt = Ship.CreateShipAt(queueItem.sData.Name, Owner, Ground, true);
-                    ConstructionQueue.QueuePendingRemoval(queueItem);
-
-                    if (queueItem.sData.Role == ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform)
-                    {
-                        int num = Ground.Shipyards.Count / 9;
-                        shipAt.Position = Ground.Center + MathExt.PointOnCircle(Ground.Shipyards.Count * 40, 2000 + 2000 * num * Ground.Scale);
-                        shipAt.Center = shipAt.Position;
-                        shipAt.TetherToPlanet(Ground);
-                        Ground.Shipyards.Add(shipAt.guid, shipAt);
-                    }
-                    if (queueItem.Goal != null)
-                    {
-                        if (queueItem.Goal is BuildConstructionShip)
-                        {
-                            shipAt.AI.OrderDeepSpaceBuild(queueItem.Goal);
-                            shipAt.isConstructor = true;
-                            shipAt.VanityName = "Construction Ship";
-                        }
-                        else if (!(queueItem.Goal is BuildDefensiveShips) 
-                            && !(queueItem.Goal is BuildOffensiveShips) 
-                            && !(queueItem.Goal is FleetRequisition))
-                        {
-                            queueItem.Goal.AdvanceToNextStep();
-                        }
-                        else
-                        {
-                            if (Owner != Empire.Universe.PlayerEmpire)
-                                Owner.ForcePoolAdd(shipAt);
-                            queueItem.Goal.ReportShipComplete(shipAt);
-                        }
-                    }
-                    else if ((queueItem.sData.Role != ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform)
-                        && Owner != Empire.Universe.PlayerEmpire)
-                        Owner.ForcePoolAdd(shipAt);
-                }
-                else if (queueItem.isTroop && queueItem.productionTowards >= queueItem.Cost)
-                {
-                    if (ResourceManager.CreateTroop(queueItem.troopType, Owner).AssignTroopToTile(Ground))
-                    {
-                        queueItem.Goal?.NotifyMainGoalCompleted();
-                        ConstructionQueue.QueuePendingRemoval(queueItem);
-                    }
-                }
-            }
-            ConstructionQueue.ApplyPendingRemovals();
+            return false;
         }
 
-        public void ApplyAllStoredProduction(int Index)
+        bool OnBuildingComplete(QueueItem q)
         {
-            if (CrippledTurns > 0 || RecentCombat || (ConstructionQueue.Count <= 0 || Owner == null)) //|| this.Owner.Money <= 0))
-                return;
-
-            float amount = Empire.Universe.Debug ? float.MaxValue : ProductionHere;
-            ProductionHere = 0f;
-            ApplyProductiontoQueue(amount, Index);
-
-        }
-
-        public void ApplyProductionTowardsConstruction()
-        {
-            if (CrippledTurns > 0 || RecentCombat)
-                return;
-         
-            float maxp = Ground.Prod.NetMaxPotential * (1 - Ground.Food.Percent); 
-            if (maxp < 5)
-                maxp = 5;
-
-            float storageRatio = ProductionHere / Ground.Storage.Max;
-            float take10Turns = maxp * storageRatio;
-
-            if (PS == Planet.GoodState.STORE && storageRatio < 0.75f)
-                take10Turns *= 0.25f;
-
-            if (colonyType == Planet.ColonyType.Colony)
+            // we can't place it... there's some sort of bug
+            if (q.Building.Unique && P.BuildingBuilt(q.Building.BID))
             {
-                take10Turns = NetProductionPerTurn;
+                Log.Error($"Unique building {q.Building} already exists on planet {P}");
+                return false;
+            }
+            if (q.pgs.CanBuildHere(q.Building))
+            {
+                Log.Error($"We can no longer build {q.Building} at tile {q.pgs}");
+                return false;
             }
 
-            float normalAmount = take10Turns;
-
-            normalAmount = ProductionHere.Clamped(0, normalAmount);
-            ProductionHere -= normalAmount;
-
-            ApplyProductiontoQueue(normalAmount, 0);
-            ProductionHere += NetProductionPerTurn > 0.0f ? NetProductionPerTurn : 0.0f;
-
-            //fbedard: apply all remaining production on Planet with no governor
-            if (PS != Planet.GoodState.EXPORT && colonyType == Planet.ColonyType.Colony && Owner.isPlayer)
-            {
-                normalAmount = ProductionHere;
-                ProductionHere = 0f;
-                ApplyProductiontoQueue(normalAmount, 0);
-            }
+            Building b = ResourceManager.CreateBuilding(q.Building.Name);
+            b.IsPlayerAdded = q.IsPlayerAdded;
+            q.pgs.PlaceBuilding(b);
+            b.OnBuildingBuiltAt(P);
+            return true;
         }
 
-        public bool AddBuildingToCQ(Building b, PlanetGridSquare where = null, bool playerAdded = false)
+        bool TrySpawnTroop(QueueItem q)
         {
-            var qi = new QueueItem(Ground)
+            Troop troop = ResourceManager.CreateTroop(q.TroopType, Owner);
+            if (!troop.AssignTroopToTile(P))
+                return false; // eek-eek
+            q.Goal?.NotifyMainGoalCompleted();
+            return true;
+        }
+
+        bool OnShipComplete(QueueItem q)
+        {
+            if (!ResourceManager.ShipsDict.ContainsKey(q.sData.Name))
+                return false;
+
+            Ship shipAt;
+            if (q.isRefit)
+                shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true,
+                                q.RefitName.NotEmpty() ? q.RefitName : q.sData.Name, q.sData.Level);
+            else
+                shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true);
+
+            if (q.sData.Role == ShipData.RoleName.station || q.sData.Role == ShipData.RoleName.platform)
+            {
+                int num = P.Shipyards.Count / 9;
+                shipAt.Position = P.Center + MathExt.PointOnCircle(P.Shipyards.Count * 40, 2000 + 2000 * num * P.Scale);
+                shipAt.Center = shipAt.Position;
+                shipAt.TetherToPlanet(P);
+                P.Shipyards.Add(shipAt.guid, shipAt);
+            }
+
+            q.Goal?.ReportShipComplete(shipAt);
+            if (!Owner.isPlayer)
+                Owner.ForcePoolAdd(shipAt);
+            return true;
+        }
+
+        // Applies available production to production queue
+        public void AutoApplyProduction(float surplusFromPlanet)
+        {
+            // surplus will be reset every turn and consumed at first opportunity
+            SurplusThisTurn = surplusFromPlanet;
+            if (ConstructionQueue.IsEmpty)
+                return;
+            
+            float percentToApply = 1f;
+            if (P.CrippledTurns > 0) // massive sabotage to planetary facilities
+            {
+                percentToApply = 0.05f;
+            }
+            else if (P.RecentCombat) // ongoing combat is hindering logistics
+            {
+                percentToApply = 0.2f;
+            }
+            else if (P.colonyType != Planet.ColonyType.Colony)
+            {
+                if (P.PS == Planet.GoodState.STORE && P.Storage.ProdRatio < 0.66f)
+                    percentToApply = 0.5f; // only apply 50% if AI is trying to store goods
+            }
+            ApplyProductionToQueue(maxAmount: ProductionHere*percentToApply, 0);
+        }
+
+        // @return TRUE if building was added to CQ,
+        //         FALSE if `where` is occupied or if there is no free random tiles
+        public bool AddBuilding(Building b, PlanetGridSquare where = null, bool playerAdded = false)
+        {
+            var qi = new QueueItem(P)
             {
                 IsPlayerAdded = playerAdded,
                 isBuilding = true,
                 Building = b,
                 pgs = where,
                 Cost = b.ActualCost,
-                productionTowards = 0.0f,
-                NotifyOnEmpty = false
+                ProductionSpent = 0.0f,
+                NotifyOnEmpty = false,
+                QueueNumber = ConstructionQueue.Count
             };
 
             // if not added by player, then skip biosphere, let it be handled below:
             if (playerAdded || !b.IsBiospheres)
             {
-                if (b.AssignBuildingToTile(b, ref where, Ground))
+                if (b.AssignBuildingToTile(b, ref where, P))
                 {
                     where.QItem = qi;
-                    qi.pgs = where; // re-set PGS if we got a new one
+                    qi.pgs = where; // reset PGS if we got a new one
                     ConstructionQueue.Add(qi);
-                    Ground.RefreshBuildingsWeCanBuildHere();
+                    P.RefreshBuildingsWeCanBuildHere();
                     return true;
                 }
                 if (playerAdded) // no magic terraform hocus-pocus for players
@@ -300,53 +233,117 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             // Try to Auto-build TerraFormer, since it's better than Biospheres
-            if (Owner.NonCybernetic && Fertility < 1.0f)
+            if (Owner.NonCybernetic && P.Fertility < 1.0f)
             {
                 if (ResourceManager.GetBuilding(Building.TerraformerId, out Building terraFormer))
                 {
-                    if (Ground.BuildingExists(terraFormer))
+                    if (P.BuildingBuiltOrQueued(terraFormer))
                         return false;
-                    if (Owner.IsBuildingUnlocked(terraFormer.Name) && Ground.WeCanAffordThis(terraFormer, colonyType))
-                        return AddBuildingToCQ(ResourceManager.CreateBuilding(terraFormer.BID));
+                    if (Owner.IsBuildingUnlocked(terraFormer.Name) && P.WeCanAffordThis(terraFormer, P.colonyType))
+                        return AddBuilding(ResourceManager.CreateBuilding(terraFormer.BID));
                 }
             }
 
             return Owner.IsBuildingUnlocked(Building.BiospheresId)
                 && TryBiosphereBuild(ResourceManager.CreateBuilding(Building.BiospheresId), qi);
         }
-        public int EstimatedTurnsTillComplete(QueueItem qItem, float industry = float.MinValue)
+
+        public void AddPlatform(Ship platform, Ship constructor, Goal goal = null)
         {
-            float production = qItem.Cost;
-            industry = industry < 0 ? NetProductionPerTurn : industry;
-            if (qItem.isShip)
-                production *= ShipBuildingModifier;
-            production -= -qItem.productionTowards;
-            production /= industry;
-            int turns = (int)Math.Ceiling(production);
-            return industry > 0.0 ? turns : 999;
+            var qi = new QueueItem(P)
+            {
+                isShip        = true,
+                Goal          = goal,
+                NotifyOnEmpty = false,
+                DisplayName = "Construction Ship",
+                QueueNumber = ConstructionQueue.Count,
+                sData       = platform.shipData,
+                Cost        = constructor.GetCost(Owner)
+            };
+            if (goal != null) goal.PlanetBuildingAt = P;
+            ConstructionQueue.Add(qi);
         }
-        //public int TotalTurnsInProductionQueue() => ConstructionQueue.Sum(q => EstimatedTurnsTillComplete(q, NetProductionPerTurn));
-        public int TotalTurnsInProductionQueue(float industry) => ConstructionQueue.Sum(q=> EstimatedTurnsTillComplete(q,industry));
+
+        public void AddShip(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
+        {
+            var qi = new QueueItem(P)
+            {
+                isShip = true,
+                Goal   = goal,
+                sData  = ship.shipData,
+                Cost   = ship.GetCost(Owner),
+                NotifyOnEmpty = notifyOnEmpty,
+                QueueNumber = ConstructionQueue.Count,
+            };
+            if (goal != null) goal.PlanetBuildingAt = P;
+            ConstructionQueue.Add(qi);
+        }
+
+        public void AddTroop(Troop template, Goal goal = null)
+        {
+            var qi = new QueueItem(P)
+            {
+                isTroop = true,
+                QueueNumber = ConstructionQueue.Count,
+                TroopType = template.Name,
+                Goal = goal,
+                Cost = template.ActualCost
+            };
+            if (goal != null) goal.PlanetBuildingAt = P;
+            ConstructionQueue.Add(qi);
+        }
+
+        public void Finish(QueueItem q, bool success)
+        {
+            if (success) Finish(q);
+            else         Cancel(q);
+        }
+
+        public void Finish(QueueItem q)
+        {
+            P.ConstructionQueue.Remove(q);
+            q.OnComplete?.Invoke(success: true);
+        }
+
+        public void Cancel(QueueItem q)
+        {
+            P.ProdHere += q.ProductionSpent;
+            if (q.pgs != null)
+            {
+                q.pgs.QItem = null;
+            }
+            if (q.Goal != null)
+            {
+                if (q.Goal is BuildConstructionShip)
+                {
+                    Owner.GetEmpireAI().Goals.Remove(q.Goal);
+                }
+
+                if (q.Goal.Fleet != null)
+                    Owner.GetEmpireAI().Goals.Remove(q.Goal);
+            }
+            P.ConstructionQueue.Remove(q);
+            q.OnComplete?.Invoke(success: false);
+        }
 
         public int EstimateMinTurnsToBuildShip(float shipCost)
         {
-            shipCost *= ShipBuildingModifier;
-            var prodPow = Ground.Prod.NetMaxPotential;
-            int turns = TotalTurnsInProductionQueue(prodPow); //Ground.GetMaxGoodProd("Production")
-            turns += (int)Math.Ceiling(shipCost / prodPow);
-            return Math.Min(999, turns);
-
+            if (!P.HasSpacePort)
+                return 9999; // waaaay impossible
+            int shipTurns = (int)Math.Ceiling((shipCost*P.ShipBuildingModifier) / P.Prod.NetMaxPotential);
+            int otherItems = ConstructionQueue.Sum(q => q.TurnsUntilComplete);
+            int total = shipTurns + otherItems;
+            return Math.Min(999, total);
         }
-
 
         public bool TryBiosphereBuild(Building b, QueueItem qi)
         {
             if (!b.IsBiospheres)
                 return false;
-            if (qi.isBuilding == false && Ground.NeedsFood())
+            if (qi.isBuilding == false && P.NeedsFood())
                 return false;
 
-            PlanetGridSquare[] list = TilesList.Filter(
+            PlanetGridSquare[] list = P.TilesList.Filter(
                 g => !g.Habitable && g.building == null && !g.Biosphere && g.QItem == null);
 
             if (list.Length == 0)
@@ -357,21 +354,19 @@ namespace Ship_Game.Universe.SolarBodies
             qi.Building = b;
             qi.isBuilding = true;
             qi.Cost = b.ActualCost;
-            qi.productionTowards = 0.0f;
+            qi.ProductionSpent = 0.0f;
             qi.NotifyOnEmpty = false;
             ConstructionQueue.Add(qi);
             return true;
         }
 
-        public float GetTotalConstructionQueueMaintenance()
+        // Returns maintenance as a positive number
+        public float TotalQueuedBuildingMaintenance()
         {
-            float count = 0;
+            float maintenance = 0;
             foreach (QueueItem b in ConstructionQueue)
-            {
-                if (!b.isBuilding) continue;
-                count -= b.Building.Maintenance + b.Building.Maintenance * Owner.data.Traits.MaintMod;
-            }
-            return count;
+                if (b.isBuilding) maintenance += b.Building.ActualMaintenance(P);
+            return maintenance;
         }
 
         public void Dispose()

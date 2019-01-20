@@ -16,7 +16,7 @@ namespace Ship_Game.Commands.Goals
             {
                 FindPlanetToBuildAt,
                 WaitMainGoalCompletion,
-                ReportGoalCompleteToEmpire
+                ReportGoalCompleteToEmpireAndStartTrading
             };
         }
         public IncreaseFreighters(Empire empire) : this()
@@ -24,82 +24,51 @@ namespace Ship_Game.Commands.Goals
             this.empire = empire;
         }
 
-        private GoalStep FindPlanetToBuildAt()
+        bool PickFreighter(out Ship freighter)
         {
-            Planet planet1 = null;
-            int num1 = 9999999;
+            if (empire.isPlayer && empire.AutoFreighters &&
+                ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out freighter))
+                return true;
 
-            foreach (Planet planet2 in empire.BestBuildPlanets)
+            var freighters = new Array<Ship>();
+            foreach (string shipId in empire.ShipsWeCanBuild)
             {
-                int num2 = 0;
-                int finCon = 0;
-                foreach (QueueItem queueItem in planet2.ConstructionQueue)
-                {
-                    num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.Prod.NetIncome);
-                    if (queueItem.Goal is IncreaseFreighters)
-                        finCon++;
-                }
-                if (finCon > 2)
-                    continue;
-                if (num2 < num1)
-                {
-                    num1 = num2;
-                    planet1 = planet2;
-                }
+                Ship ship = ResourceManager.GetShipTemplate(shipId);
+                if (ship.shipData.Role != ShipData.RoleName.freighter || ship.CargoSpaceMax < 1f)
+                    continue; // definitely not a freighter
+
+                if (ship.isColonyShip || ship.isConstructor)
+                    continue; // ignore colony ships and constructors
+
+                if (ship.shipData.ShipCategory == ShipData.Category.Civilian ||
+                    ship.shipData.ShipCategory == ShipData.Category.Unclassified)
+                    freighters.Add(ship); // only consider civilian/unclassified as freighters
             }
-            if (planet1 == null)
-            {
-                return GoalStep.TryAgain;
-            }
-            if (empire.isPlayer && empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoFreighter))
-            {
-                planet1.ConstructionQueue.Add(new QueueItem(planet1)
-                {
-                    isShip = true,
-                    QueueNumber = planet1.ConstructionQueue.Count,
-                    sData = ResourceManager.ShipsDict[empire.data.CurrentAutoFreighter].shipData,
-                    Goal = this,
-                    Cost = ResourceManager.ShipsDict[empire.data.CurrentAutoFreighter].GetCost(empire),
-                    NotifyOnEmpty = false
-                });
-                return GoalStep.GoToNextStep;
-            }
-            Array<Ship> list2 = new Array<Ship>();
-            foreach (string index in empire.ShipsWeCanBuild)
-            {
-                Ship ship = ResourceManager.GetShipTemplate(index);
-                if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpaceMax > 0
-                    && (ship.shipData.Role == ShipData.RoleName.freighter
-                        && (ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.shipData.ShipCategory == ShipData.Category.Unclassified)))
-                    list2.Add(ship);
-            }
-            Ship toBuild = list2
-                .OrderByDescending(ship => ship.CargoSpaceMax <= empire.cargoNeed * .5f ? ship.CargoSpaceMax : 0)
+
+            freighter = freighters
+                .OrderByDescending(ship => ship.CargoSpaceMax <= empire.cargoNeed * 0.5f ? ship.CargoSpaceMax : 0)
                 .ThenByDescending(ship => (int)(ship.WarpThrust / ship.Mass / 1000f))
                 .ThenByDescending(ship => ship.Thrust / ship.Mass)
                 .FirstOrDefault();
+            return freighter != null;
+        }
 
-            if (toBuild == null)
-            {
+        GoalStep FindPlanetToBuildAt()
+        {
+            if (!PickFreighter(out Ship freighter))
+                return GoalStep.GoalFailed;
+
+            if (!empire.FindPlanetToBuildAt(empire.BestBuildPlanets, freighter, out Planet planet))
                 return GoalStep.TryAgain;
-            }
-            PlanetBuildingAt = planet1;
-            planet1.ConstructionQueue.Add(new QueueItem(planet1)
-            {
-                isShip = true,
-                QueueNumber = planet1.ConstructionQueue.Count,
-                //sData = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetShipData(),
-                sData = toBuild.shipData,
-                Goal = this,
-                //Cost = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetCost(this.empire)
-                Cost = toBuild.GetCost(empire)
-            });
+
+            planet.Construction.AddShip(freighter, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
 
-        private GoalStep ReportGoalCompleteToEmpire()
+        GoalStep ReportGoalCompleteToEmpireAndStartTrading()
         {
             empire.ReportGoalComplete(this);
+            FinishedShip.DoTrading();
             return GoalStep.GoalComplete;
         }
     }

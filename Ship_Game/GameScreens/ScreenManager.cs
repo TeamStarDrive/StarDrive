@@ -19,7 +19,6 @@ namespace Ship_Game
         public LightingSystemEditor editor;
         private readonly SceneState GameSceneState;
         public SceneEnvironment environment;
-        private SplashScreenGameComponent SplashScreen;
         private readonly SceneInterface SceneInter;
         private readonly object InterfaceLock = new object();
         private StarDriveGame GameInstance;
@@ -66,9 +65,6 @@ namespace Ship_Game
                 UserHandledView = true
             };
             SceneInter.AddManager(editor);
-
-            SplashScreen = new SplashScreenGameComponent(game, graphics);
-            game.Components.Add(SplashScreen);
         }
 
         public void UpdatePreferences(LightingSystemPreferences prefs)
@@ -117,16 +113,6 @@ namespace Ship_Game
             return false;
         }
 
-
-        public void HideSplashScreen()
-        {
-            if (SplashScreen == null)
-                return;
-            SplashScreen.Visible = false;
-            GameInstance.Components.Remove(SplashScreen);
-            SplashScreen = null;
-        }
-
         ////////////////////////////////////////////////////////////////////////////////////
 
         public void AddObject(ISceneObject so)
@@ -134,13 +120,6 @@ namespace Ship_Game
             if (so == null) return;
             lock (InterfaceLock)
                 SceneInter.ObjectManager.Submit(so);
-        }
-
-        public void AddObjects(IEnumerable<ISceneObject> sceneObjects)
-        {
-            lock (InterfaceLock)
-                foreach (ISceneObject so in sceneObjects)
-                    SceneInter.ObjectManager.Submit(so);
         }
 
         public void RemoveObject(ISceneObject so)
@@ -249,20 +228,20 @@ namespace Ship_Game
 
         public void Draw(GameTime gameTime)
         {
-            SpriteBatch spriteBatch = SpriteBatch;
+            SpriteBatch batch = SpriteBatch;
             try
             {
                 for (int i = 0; i < Screens.Count; ++i)
                 {
                     GameScreen screen = Screens[i];
                     if (screen.ScreenState != ScreenState.Hidden)
-                        screen.Draw(spriteBatch);
+                        screen.Draw(batch);
                 }
             }
             catch (Exception e)
             {
                 Log.Error(e, "ScreenManager.Draw Crashed");
-                try { spriteBatch.End(); } catch { }
+                try { batch.End(); } catch { }
             }
         }
 

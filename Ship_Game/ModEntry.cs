@@ -4,18 +4,16 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class ModEntry
+	public sealed class ModEntry : UIElementV2
 	{
 		public string ModName;
-		public Rectangle Container;
-		public Rectangle Portrait;
 		public ModInformation mi;
 		public string MainMenuMusic;
         public string Version;        
         Texture2D PortraitTex;
-        Texture2D MainMenuTex;
+        Texture2D BackgroundTex;
 
-        public ModEntry(ModInformation modInfo)
+        public ModEntry(ModInformation modInfo) : base(null, Vector2.Zero)
 		{
 			ModName       = modInfo.ModName;
 			mi            = modInfo;
@@ -23,17 +21,22 @@ namespace Ship_Game
             Version       = mi.Version;
 		}
 
-        public void LoadContent(GameContentManager content)
+        public void LoadContent(GameScreen screen)
         {
-            MainMenuTex = ResourceManager.LoadModTexture(content, ModName, mi.ModImagePath_1920x1280);
-            PortraitTex = ResourceManager.LoadModTexture(content, ModName, mi.PortraitPath);
+            BackgroundTex = ResourceManager.LoadModTexture(screen.ContentManager, ModName, mi.ModImagePath_1920x1280);
+            PortraitTex   = ResourceManager.LoadModTexture(screen.ContentManager, ModName, mi.PortraitPath);
+
+            // fill the width of the screen
+            // and place logo to the top
+            float aspectRatio = (float)BackgroundTex.Height / BackgroundTex.Width;
+            Size = new Vector2(screen.ScreenWidth, screen.ScreenWidth * aspectRatio);
+            Pos = new Vector2(0f, 0f);
         }
 
-        public void Draw(SpriteBatch batch, Rectangle clickRect)
+        public void DrawListElement(SpriteBatch batch, Rectangle clickRect)
 		{
-			Container = clickRect;
-			Portrait = new Rectangle(Container.X + 6, Container.Y, 128, 128);
-			var titlePos = new Vector2(Portrait.X + 140, Portrait.Y);
+			var portrait = new Rectangle(clickRect.X + 6, clickRect.Y, 128, 128);
+			var titlePos = new Vector2(portrait.X + 140, portrait.Y);
             
             //added by gremlin Draw Mod Version
             string title = mi.ModName;
@@ -56,16 +59,18 @@ namespace Ship_Game
                 description = description + "\n----\nVersion - " + Version;
 
             batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(description, 450f), titlePos, Color.White);
-
-            batch.Draw(PortraitTex, Portrait, Color.White);
-
-            batch.DrawRectangle(Portrait, Color.White);
+            batch.Draw(PortraitTex, portrait, Color.White);
+            batch.DrawRectangle(portrait, Color.White);
 		}
 
-        public void DrawMainMenuOverlay(SpriteBatch batch, Rectangle portrait)
+        public override void Draw(SpriteBatch batch)
         {
-            batch.Draw(MainMenuTex, portrait, Color.White);
+            batch.Draw(BackgroundTex, Rect, Color.White);
         }
 
+        public override bool HandleInput(InputState input)
+        {
+            return false;
+        }
     }
 }
