@@ -170,24 +170,9 @@ namespace Ship_Game.Universe.SolarBodies
                 P.Shipyards.Add(shipAt.guid, shipAt);
             }
 
-            if (q.Goal != null)
-            {
-                if (!(q.Goal is FleetRequisition))
-                {
-                    q.Goal.AdvanceToNextStep();
-                }
-                else
-                {
-                    if (Owner != Empire.Universe.PlayerEmpire)
-                        Owner.ForcePoolAdd(shipAt);
-                }
-                q.Goal.ReportShipComplete(shipAt);
-            }
-            else if (q.sData.Role != ShipData.RoleName.station &&
-                     q.sData.Role != ShipData.RoleName.platform && !Owner.isPlayer)
-            {
+            q.Goal?.ReportShipComplete(shipAt);
+            if (!Owner.isPlayer)
                 Owner.ForcePoolAdd(shipAt);
-            }
             return true;
         }
 

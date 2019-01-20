@@ -2358,7 +2358,8 @@ namespace Ship_Game
 
         public void ForcePoolAdd(Ship s)
         {
-            if (s.shipData.Role <= ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian )
+            if (s.shipData.Role <= ShipData.RoleName.freighter ||
+                s.shipData.ShipCategory == ShipData.Category.Civilian)
                 return;
             EmpireAI.AssignShipToForce(s);
         }

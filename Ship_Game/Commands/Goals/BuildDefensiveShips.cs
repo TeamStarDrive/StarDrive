@@ -34,7 +34,6 @@ namespace Ship_Game.Commands.Goals
         GoalStep OrderBuiltShipToDefend()
         {
             FinishedShip.DoDefense();
-            empire.ForcePoolAdd(FinishedShip);
             return GoalStep.GoalComplete;
         }
 

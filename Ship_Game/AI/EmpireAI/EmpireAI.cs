@@ -194,7 +194,7 @@ namespace Ship_Game.AI
             }
             //need to rework this better divide the ships. 
             AO area = AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
-            if (!area?.AddShip(toAdd) ?? false )
+            if (!area?.AddShip(toAdd) ?? false)
                 OwnerEmpire.GetForcePool().Add(toAdd);
         }
 
@@ -494,8 +494,7 @@ namespace Ship_Game.AI
 
             for (int i = Goals.Count - 1; i >= 0; i--)
             {
-                Goal g = Goals[i];
-                g.Evaluate();
+                Goals[i].Evaluate();
             }
 
             Goals.ApplyPendingRemovals();
