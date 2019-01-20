@@ -8,8 +8,6 @@ namespace Ship_Game
 {
 	public sealed class RenderedScreen : GameScreen
 	{
-		private Matrix View;
-		private Matrix Projection;
 		private SceneObject ShipSO;
 		private Vector2 ShipPosition = new Vector2(640f, 350f);
 		private float Zrotate;
