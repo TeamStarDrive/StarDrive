@@ -14,12 +14,6 @@ namespace Ship_Game
     {
         public static bool Open;
 
-        //private Matrix worldMatrix = Matrix.Identity;
-
-        private Matrix View;
-
-        private Matrix Projection;
-
         public Camera2D Camera;
 
         public ShipData ActiveHull;

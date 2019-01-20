@@ -23,8 +23,8 @@ namespace Ship_Game
     {
         Foreground, // draw 2D on top of 3D objects -- default behaviour
         Background, // draw 2D behind 3D objects
-        ForegroundAdditive, // Foreground + Additive alpha blend
-        BackgroundAdditive, // Background + Additive alpha blend
+        ForeAdditive, // Foreground + Additive alpha blend
+        BackAdditive, // Background + Additive alpha blend
     }
 
     public abstract class UIElementV2 : IInputHandler
@@ -44,7 +44,7 @@ namespace Ship_Game
         
         public bool Visible = true; // If TRUE, this UIElement is rendered
         public bool Enabled = true; // If TRUE, this UIElement can receive input events
-        protected bool DeferredRemove; // If TRUE, this UIElement will be deleted during update
+        protected internal bool DeferredRemove; // If TRUE, this UIElement will be deleted during update
 
         // This controls the layer ordering of 2D UI Elements
         public DrawDepth DrawDepth;
@@ -140,6 +140,10 @@ namespace Ship_Game
             }
         }
 
+        public void InBackground()   { DrawDepth = DrawDepth.Background; }
+        public void InBackAdditive() { DrawDepth = DrawDepth.BackAdditive; }
+        public void InForeAdditive() { DrawDepth = DrawDepth.ForeAdditive; }
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected UIElementV2(UIElementV2 parent, Vector2 pos)
@@ -222,6 +226,16 @@ namespace Ship_Game
         public bool HitTest(Vector2 pos)
         {
             return pos.X > Pos.X && pos.Y > Pos.Y && pos.X < Pos.X + Size.X && pos.Y < Pos.Y + Size.Y;
+        }
+
+        public GameContentManager ContentManager
+        {
+            get
+            {
+                if (this is GameScreen screen)
+                    return screen.TransientContent;
+                return Parent == null ? ResourceManager.RootContent : Parent.ContentManager;
+            }
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
