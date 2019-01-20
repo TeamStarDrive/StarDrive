@@ -315,7 +315,7 @@
     </Compile>
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
-    <Compile Include="Ship_Game\UI\Effects\FadeInOutAnim.cs" />
+    <Compile Include="Ship_Game\UI\Effects\UIBasicAnimEffect.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteAnimation.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteExtensions.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SubTexture.cs" />
@@ -325,7 +325,6 @@
     <Compile Include="Ship_Game\GameScreens\Universe\EspionageScreen.cs" />
     <Compile Include="Ship_Game\HullBonus.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadRaceScreen.cs" />
-    <Compile Include="Ship_Game\UI\Effects\UIBasicAnimEffect.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIEffect.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIFadeInEffect.cs" />
     <Compile Include="Ship_Game\UI\Effects\UITransitionEffect.cs" />

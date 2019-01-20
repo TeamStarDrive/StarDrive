@@ -158,8 +158,8 @@ namespace Ship_Game.GameScreens.MainMenu
                 .InBackAdditive() // behind 3d objects
                 .Anim().Loop(4.0f, 1.5f, 1.5f).Color(Color.White.MultiplyRgb(0.85f), Color.White);
 
-            Panel("MainMenu/corner_TL", 31, 30).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop);
-            Panel("MainMenu/corner_BR", ScreenWidth-551, h-562).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop);
+            Panel("MainMenu/corner_TL", 31, 30).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
+            Panel("MainMenu/corner_BR", ScreenWidth-551, h-562).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
         }
 
         void CreateVersionArea()
