@@ -14,7 +14,8 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                WaitMainGoalCompletion,  
+                WaitMainGoalCompletion,
+                OrderExplore,
                 ReportGoalCompleteToEmpire
             };
         }
@@ -23,44 +24,11 @@ namespace Ship_Game.Commands.Goals
             this.empire = empire;
         }
 
-        private Planet FindScoutProductionPlanet()
+        bool ChooseScoutShipToBuild(out Ship scout)
         {
-            Planet bestPlanet = null;
-            int num1 = 9999999;
-            foreach (Planet planet2 in empire.BestBuildPlanets)
-            {
-                int num2 = 0;
-                foreach (QueueItem queueItem in planet2.ConstructionQueue)
-                    num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.Prod.NetIncome);
-                if (num2 < num1)
-                {
-                    num1 = num2;
-                    bestPlanet = planet2;
-                }
-            }
-            return bestPlanet;
-        }
-
-        private GoalStep FindPlanetToBuildAt()
-        {
-            Planet planet = FindScoutProductionPlanet();
-            if (planet == null)
-                return GoalStep.TryAgain;
             if (EmpireManager.Player == empire
-                && ResourceManager.ShipsDict.TryGetValue(EmpireManager.Player.data.CurrentAutoScout, out Ship autoScout))
-            {
-                planet.ConstructionQueue.Add(new QueueItem(planet)
-                {
-                    isShip = true,
-                    QueueNumber = planet.ConstructionQueue.Count,
-                    sData = autoScout.shipData,
-                    Goal = this,
-                    Cost = autoScout.GetCost(empire),
-                    NotifyOnEmpty = false
-                });
-                return GoalStep.GoToNextStep;
-            }
-
+                && ResourceManager.ShipsDict.TryGetValue(EmpireManager.Player.data.CurrentAutoScout, out scout))
+                return true;
             var scoutShipsWeCanBuild = new Array<Ship>();
             foreach (string shipUid in empire.ShipsWeCanBuild)
             {
@@ -69,39 +37,39 @@ namespace Ship_Game.Commands.Goals
                     scoutShipsWeCanBuild.Add(ship);
             }
             if (scoutShipsWeCanBuild.IsEmpty)
+            {
+                scout = null;
+                return false;
+            }
+            // pick most power efficient scout
+            scout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
+            return scout != null;
+        }
+
+        GoalStep FindPlanetToBuildAt()
+        {
+            if (!ChooseScoutShipToBuild(out Ship scout))
+                return GoalStep.GoalFailed;
+
+            if (!empire.FindPlanetToBuildAt(empire.BestBuildPlanets, scout, out Planet planet))
                 return GoalStep.TryAgain;
 
-            Ship mostPowerEfficientScout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
-            planet.ConstructionQueue.Add(new QueueItem(planet)
-            {
-                isShip = true,
-                QueueNumber = planet.ConstructionQueue.Count,
-                sData = mostPowerEfficientScout.shipData,
-                Goal = this,
-                Cost = mostPowerEfficientScout.GetCost(empire)
-            });
+            planet.Construction.AddShip(scout, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
        
-        private GoalStep OrderExploreForLastFoundScoutInEmpire()
+        GoalStep OrderExplore()
         {
-            bool foundFreighter = false;
-            foreach (Ship ship in empire.GetShips())
+            if (FinishedShip == null)
             {
-                if ((ship.shipData.Role == ShipData.RoleName.scout
-                     || ship.Name == EmpireManager.Player.data.CurrentAutoScout) && !ship.PlayerShip)
-                {
-                    freighter = ship;
-                    foundFreighter = true;
-                }
+                Log.Error($"BuildScout {ToBuildUID} failed: BuiltShip is null!");
+                return GoalStep.GoalFailed;
             }
-            if (!foundFreighter)
-                return GoalStep.TryAgain;
-            freighter.AI.OrderExplore();
+            FinishedShip.AI.OrderExplore();
             return GoalStep.GoToNextStep;
         }
 
-        private GoalStep ReportGoalCompleteToEmpire()
+        GoalStep ReportGoalCompleteToEmpire()
         {
             empire.ReportGoalComplete(this);
             return GoalStep.GoalComplete;

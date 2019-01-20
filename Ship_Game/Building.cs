@@ -153,12 +153,16 @@ namespace Ship_Game
             UpdateOffense(empire);
         }
 
-        public float ActualMaintenance(Planet p) => Maintenance + Maintenance * p.Owner.data.Traits.MaintMod;
+        public float ActualMaintenance(Planet p)
+            => Maintenance * p.Owner.data.Traits.MaintMultiplier;
         
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;
-        public bool IsMilitary         => CombatStrength > 0&& !IsCapitalOrOutpost && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
+        public bool IsMilitary         => CombatStrength > 0 
+                                        && !IsCapitalOrOutpost
+                                        && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
+        public bool CanAttackThisTurn => CombatStrength > 0 || AvailableAttackActions > 0;
 
         static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
         {
@@ -169,16 +173,19 @@ namespace Ship_Game
         {
             return Production(planet, 0, CreditsPerColonist);            
         }
+
         public float FoodProduced(Planet planet)
         {
             if (planet.NonCybernetic)
                 return Production(planet, PlusFlatFoodAmount, PlusFoodPerColonist, planet.Fertility);
             return ProductionProduced(planet);
         }
+
         public float ProductionProduced(Planet planet)
         {
             return Production(planet, PlusFlatProductionAmount, PlusProdPerColonist, planet.MineralRichness);
         }
+
         public float ResearchProduced(Planet planet)
         {
             return Production(planet, PlusFlatResearchAmount, PlusResearchPerColonist);
@@ -238,21 +245,38 @@ namespace Ship_Game
 
         public void ScrapBuilding(Planet planet)
         {
-            Building building1 = null;
             if (MinusFertilityOnBuild < 0)
-                planet.ChangeMaxFertility(MinusFertilityOnBuild);
+                planet.AddMaxFertility(MinusFertilityOnBuild);
 
-            foreach (Building building2 in planet.BuildingList)
-            {
-                if (this == building2)
-                    building1 = building2;
-            }
-            planet.BuildingList.Remove(building1);
+            planet.BuildingList.Remove(this);
             planet.ProdHere += ActualCost / 2f;
-            foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
+            foreach (PlanetGridSquare pgs in planet.TilesList)
             {
-                if (planetGridSquare.building != null && planetGridSquare.building == building1)
-                    planetGridSquare.building = null;
+                if (pgs.building != this) continue;
+                pgs.building = null;
+                break;
+            }
+        }
+
+        // Event when a building is built at planet p
+        public void OnBuildingBuiltAt(Planet p)
+        {
+            p.AddMaxFertility(-MinusFertilityOnBuild);
+            p.BuildingList.Add(this);
+
+            if (IsSpacePort)
+            {
+                p.Station.planet = p;
+                p.Station.ParentSystem = p.ParentSystem;
+                p.Station.LoadContent(Empire.Universe.ScreenManager);
+            }
+            p.HasSpacePort |= IsSpacePort || AllowShipBuilding;
+
+            if (EventOnBuild != null && p.Owner?.isPlayer == true)
+            {
+                UniverseScreen u = Empire.Universe;
+                ExplorationEvent e = ResourceManager.Event(EventOnBuild);
+                u.ScreenManager.AddScreen(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true));
             }
         }
     }

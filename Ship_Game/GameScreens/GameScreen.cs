@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,8 +14,7 @@ namespace Ship_Game
     {
         public InputState Input;
         public bool IsLoaded;
-        public bool AlwaysUpdate;
-        private bool OtherScreenHasFocus;
+        bool OtherScreenHasFocus;
 
         public bool IsActive => !OtherScreenHasFocus && !IsExiting
                                 && ScreenState == ScreenState.TransitionOn 
@@ -39,6 +39,7 @@ namespace Ship_Game
         // This is equivalent to PresentationParameters.BackBufferWidth
         public int ScreenWidth      => StarDriveGame.Instance.ScreenWidth;
         public int ScreenHeight     => StarDriveGame.Instance.ScreenHeight;
+        public Rectangle ScreenRect => new Rectangle(0, 0, ScreenWidth, ScreenHeight);
         public Vector2 MousePos     => Input.CursorPosition;
         public Vector2 ScreenArea   => StarDriveGame.Instance.ScreenArea;
         public Vector2 ScreenCenter => StarDriveGame.Instance.ScreenArea * 0.5f;
@@ -50,11 +51,16 @@ namespace Ship_Game
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
 
+        // Current delta time between this and last game frame
+        public float DeltaTime { get; protected set; }
+
         //video player
         protected AudioHandle MusicPlaying;
         protected Video VideoFile;
         protected VideoPlayer VideoPlaying;
         protected Texture2D VideoTexture;
+
+        protected Matrix View, Projection;
 
         protected GameScreen(GameScreen parent, bool pause = true) 
             : this(parent, new Rectangle(0, 0, StarDriveGame.Instance.ScreenWidth, StarDriveGame.Instance.ScreenHeight), pause)
@@ -124,8 +130,10 @@ namespace Ship_Game
 
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            DeltaTime = StarDriveGame.Instance.DeltaTime;
+
             // Update new UIElementV2
-            Update(StarDriveGame.Instance.DeltaTime);
+            Update(DeltaTime);
 
             OtherScreenHasFocus = otherScreenHasFocus;
             if (!IsExiting)
@@ -161,6 +169,126 @@ namespace Ship_Game
             return false;
         }
 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        readonly Array<UIElementV2> BackElements = new Array<UIElementV2>();
+        readonly Array<UIElementV2> BackAdditive = new Array<UIElementV2>();
+        readonly Array<UIElementV2> ForeElements = new Array<UIElementV2>();
+        readonly Array<UIElementV2> ForeAdditive = new Array<UIElementV2>();
+
+        void ClearDrawLayers()
+        {
+            BackElements.Clear();
+            BackAdditive.Clear();
+            ForeElements.Clear();
+            ForeAdditive.Clear();
+        }
+
+        void GatherDrawLayers()
+        {
+            int count = Elements.Count;
+            UIElementV2[] elements = Elements.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                UIElementV2 e = elements[i];
+                if (e.Visible) switch (e.DrawDepth)
+                {
+                    default:
+                    case DrawDepth.Foreground:         ForeElements.Add(e); break;
+                    case DrawDepth.Background:         BackElements.Add(e); break;
+                    case DrawDepth.ForeAdditive: ForeAdditive.Add(e); break;
+                    case DrawDepth.BackAdditive: BackAdditive.Add(e); break;
+                }
+            }
+        }
+
+        public void DrawMultiLayeredExperimental(ScreenManager manager, bool draw3D = false)
+        {
+            if (!Visible)
+                return;
+            
+            GatherDrawLayers();
+
+            if (draw3D) manager.BeginFrameRendering(GameTime, ref View, ref Projection);
+
+            SpriteBatch batch = manager.SpriteBatch;
+
+            if (BackElements.NotEmpty) BatchDrawSimple(batch, BackElements);
+            if (BackAdditive.NotEmpty) BatchDrawAdditive(batch, BackAdditive);
+
+            if (draw3D) manager.RenderSceneObjects();
+
+            // @note Foreground is the default layer
+            if (ForeElements.NotEmpty) BatchDrawSimple(batch, ForeElements, drawToolTip: true);
+            if (ForeAdditive.NotEmpty) BatchDrawAdditive(batch, ForeAdditive);
+
+            if (draw3D) manager.EndFrameRendering();
+
+            ClearDrawLayers();
+        }
+
+        public void BatchDrawSimple(SpriteBatch batch, Array<UIElementV2> elements, bool drawToolTip = false)
+        {
+            batch.Begin();
+            int count = elements.Count;
+            UIElementV2[] items = elements.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                UIElementV2 e = items[i];
+                if (e.Visible) e.Draw(batch);
+            }
+            if (drawToolTip)
+            {
+                if (ToolTip.Hotkey.IsEmpty())
+                    ToolTip.Draw(batch);
+            }
+            batch.End();
+        }
+
+        public void BeginAdditive(SpriteBatch batch)
+        {
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+            Device.RenderState.SourceBlend      = Blend.InverseDestinationColor;
+            Device.RenderState.DestinationBlend = Blend.One;
+            Device.RenderState.BlendFunction    = BlendFunction.Add;
+        }
+        
+        public void BatchDrawAdditive(SpriteBatch batch, IReadOnlyList<UIElementV2> elements)
+        {
+            BeginAdditive(batch);
+
+            int count = elements.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                UIElementV2 e = elements[i];
+                if (e.Visible) e.Draw(batch);
+            }
+
+            batch.End();
+        }
+
+        
+        public void DrawElementsActiveBatch(SpriteBatch batch, IReadOnlyList<UIElementV2> elements)
+        {
+            int count = elements.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                UIElementV2 e = elements[i];
+                if (e.Visible) e.Draw(batch);
+            }
+        }
+
+        public void DrawElementsAtDepth(SpriteBatch batch, DrawDepth depth)
+        {
+            int count = Elements.Count;
+            UIElementV2[] items = Elements.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                UIElementV2 e = items[i];
+                if (e.Visible && e.DrawDepth == depth)
+                    e.Draw(batch);
+            }
+        }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -203,9 +331,6 @@ namespace Ship_Game
         public void DrawTexture(SubTexture texture, Vector2 posOnScreen, float scale, float rotation, Color color)
             => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color, rotation, texture.CenterF, scale, SpriteEffects.None, 1f);
 
-        public void DrawTexture(SubTexture texture, Vector2 posOnScreen, Color color)
-            => ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color);
-
         // just draws a texture to screen, no fancy reprojections, where screenPos is the texture CENTER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureSized(SubTexture texture, Vector2 posOnScreen, float rotation, float width, float height, Color color)
@@ -224,46 +349,20 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Draw(texture, posOnScreen, color, rotation, Vector2.Zero, 0.5f, SpriteEffects.None, 1f);
         }
 
-        //// just draws a texture to screen, no fancy reprojections, where screenPos is the rectangle top left and texture exists in it
-        //public void DrawTextureRect(SubTexture texture, Vector2 posOnScreen, Rectangle? sourceRectangle, Color color, Vector2 origin, float rotation = 0f, float scale = 0, SpriteEffects effects = SpriteEffects.None, float layerDepth = 0f)
-        //{
-        //    ScreenManager.SpriteBatch.Draw(texture,  posOnScreen, sourceRectangle, color, rotation, origin, scale, effects, layerDepth);
-        //}
-
         public void CheckToolTip(int toolTipId, Rectangle rectangle, Vector2 mousePos)
         {
             if (rectangle.HitTest(mousePos))
                 ToolTip.CreateTooltip(toolTipId);                
         }
-
-        public void CheckToolTip(string text, Rectangle rectangle, Vector2 mousePos)
-        {
-            if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(text);
-        }
-        public void CheckToolTip(string text, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
-        {
-            var rect = new Rectangle((int)cursor.X, (int)cursor.Y
-                , (int)font.MeasureString(words).X + (int)font.MeasureString(numbers).X
-                , font.LineSpacing);
-            CheckToolTip(text, rect, mousePos);
-        }
         public void CheckToolTip(int toolTipId, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
         {
-            var rect = new Rectangle((int)cursor.X, (int)cursor.Y
-                , (int)font.MeasureString(words).X + (int)font.MeasureString(numbers).X
-                , font.LineSpacing);
+            var rect = new Rectangle((int)cursor.X, (int)cursor.Y, 
+                font.TextWidth(words) + font.TextWidth(numbers), font.LineSpacing);
             CheckToolTip(toolTipId, rect, mousePos);
         }
-
         public Vector2 FontSpace(Vector2 cursor, float spacing, string drawnString, SpriteFont font)
         {
             cursor.X += (spacing - font.MeasureString(drawnString).X);
-            return cursor;
-        }
-        public Vector2 FontBackSpace(Vector2 cursor, float spacing, string drawnString, SpriteFont font)
-        {
-            cursor.X -= (spacing - font.MeasureString(drawnString).X);
             return cursor;
         }
         public void DrawString(Vector2 posOnScreen, float rotation, float textScale, Color textColor, string text)
@@ -273,7 +372,6 @@ namespace Ship_Game
         }
         public void DrawString(Vector2 posOnScreen, Color textColor, string text, SpriteFont font, float rotation = 0f, float textScale = 1f)
         {
-            Vector2 size = font.MeasureString(text);
             ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale, SpriteEffects.None, 1f);
         }
         public float Spacing(float amount)
@@ -281,8 +379,6 @@ namespace Ship_Game
             if (GlobalStats.IsGermanFrenchOrPolish) amount += 20f;
             return amount;
         }
-
-
 
         public void MakeMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localId, string okText, string cancelledText)
         {

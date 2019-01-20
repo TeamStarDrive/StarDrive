@@ -69,14 +69,14 @@ namespace Ship_Game
 
             var a = new Afford(Owner, this, b);
 
-            if (b.Unique && BuildingExists(b) && (a.MakingMoney || b.Maintenance < Owner.Money * 0.001))
+            if (b.Unique && BuildingBuiltOrQueued(b) && (a.MakingMoney || b.Maintenance < Owner.Money * 0.001))
                 return true;
 
             // don't build +food if you don't need to
             if (NonCybernetic)
             {
                 if (b.PlusFlatFoodAmount > 0)
-                    return (Food.NetIncome <= 0 || Food.Percent >= 0.3f) && !BuildingExists(b);
+                    return (Food.NetIncome <= 0 || Food.Percent >= 0.3f) && !BuildingBuiltOrQueued(b);
                 if (Money.GrossRevenue > b.Maintenance && b.FoodProduced(this) * Food.Percent > 1f)
                     return true;
             }
@@ -95,7 +95,7 @@ namespace Ship_Game
 
             if (b.PlusTerraformPoints > 0)
             {
-                if (!a.MakingMoney || IsCybernetic || BuildingExists(b))
+                if (!a.MakingMoney || IsCybernetic || BuildingBuiltOrQueued(b))
                     return false;
             }
             if (!a.MakingMoney || IsMeagerOrBarren)

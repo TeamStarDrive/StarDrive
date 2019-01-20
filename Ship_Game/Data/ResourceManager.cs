@@ -549,6 +549,21 @@ namespace Ship_Game
             return troop;
         }
 
+        static void LoadTroops()
+        {
+            foreach (var pair in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops"))
+            {
+                Troop troop = pair.Entity;
+                troop.Name = pair.Info.NameNoExt();
+                troop.Type = pair.Info.NameNoExt();
+                TroopsDict[troop.Name] = troop;
+
+                if (troop.StrengthMax <= 0)
+                    troop.StrengthMax = troop.Strength;
+            }
+            TroopsDictKeys = new Array<string>(TroopsDict.Keys);
+        }
+
         public static MarkovNameGenerator GetRandomNames(Empire empire)
         {
             string nameFileName = $"NameGenerators/spynames_{empire?.PortraitName}.txt";
@@ -1798,21 +1813,6 @@ namespace Ship_Game
                 return null;
             }
             return ToolTips[tipId - 1];
-        }
-
-        private static void LoadTroops()
-        {
-            foreach (var pair in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops"))
-            {
-                Troop troop = pair.Entity;
-                troop.Name = pair.Info.NameNoExt();
-                troop.Type = pair.Info.NameNoExt();
-                TroopsDict[troop.Name] = troop;
-
-                if (troop.StrengthMax <= 0)
-                    troop.StrengthMax = troop.Strength;
-            }
-            TroopsDictKeys = new Array<string>(TroopsDict.Keys);
         }
 
         

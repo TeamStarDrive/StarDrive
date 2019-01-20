@@ -130,7 +130,7 @@ namespace Ship_Game
             if ((Type & GameObjectType.Proj) != 0) ((Projectile)this).Loyalty = changeTo;
             if ((Type & GameObjectType.Ship) != 0)
             {
-                Ship ship = this as Ship;
+                var ship = (Ship)this;
                 Empire oldLoyalty = ship.loyalty;
                 ship.ClearFleet();
                 oldLoyalty.GetShips().QueuePendingRemoval(ship);
@@ -139,10 +139,8 @@ namespace Ship_Game
                 oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
                 changeTo.AddShipNextFrame(ship);
                 ship.shipStatusChanged = true;
-                ((Ship)this).loyalty = changeTo;
+                ship.loyalty = changeTo;
                 SetSystem(null);
-
-
             }
             if (!DisableSpatialCollision && Active && NotInSpatial)
                 UniverseScreen.SpaceManager.Add(this);
