@@ -47,7 +47,8 @@ namespace Ship_Game
         public static void Add(Empire e)
         {
             // avoid duplicate entries, due to some bad design code structuring...
-            if (FindDuplicateEmpire(e) != null) return;
+            if (FindDuplicateEmpire(e) != null)
+                return;
 
             EmpireList.Add(e);
             e.Id = EmpireList.Count;

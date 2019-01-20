@@ -58,7 +58,7 @@ namespace Ship_Game.Commands.Goals
             if (!PickFreighter(out Ship freighter))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildAt(empire.BestBuildPlanets, null, out Planet planet))
+            if (!empire.FindPlanetToBuildAt(empire.BestBuildPlanets, freighter, out Planet planet))
                 return GoalStep.TryAgain;
 
             planet.Construction.AddShip(freighter, this, notifyOnEmpty: false);
