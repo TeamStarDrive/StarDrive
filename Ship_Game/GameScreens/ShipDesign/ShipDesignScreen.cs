@@ -9,8 +9,6 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen : GameScreen
     {
-        private Matrix View;
-        private Matrix Projection;
         public Camera2D Camera;
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
         public ShipData ActiveHull;

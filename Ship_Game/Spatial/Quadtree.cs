@@ -759,7 +759,7 @@ namespace Ship_Game
                     screen.DrawLineProjected(debug.Obj.Center, nearby.Center, GetRelationColor(debug.Obj, nearby));
                 }
 
-                debug.Timer -= UniverseScreen.DeltaTime;
+                debug.Timer -= screen.SimulationDeltaTime;
                 if (debug.Timer > 0f)
                     DebugFindNearby[i] = debug;
                 else

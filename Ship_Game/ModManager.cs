@@ -4,6 +4,7 @@ using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game
 {
@@ -46,7 +47,7 @@ namespace Ship_Game
             AllSaves.Draw(batch);
             foreach (ScrollList.Entry e in ModsSL.VisibleEntries)
             {
-                e.Get<ModEntry>().Draw(batch, e.Rect);
+                e.Get<ModEntry>().DrawListElement(batch, e.Rect);
             }
             ModsSL.Draw(ScreenManager.SpriteBatch);
             EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, 
@@ -180,7 +181,7 @@ namespace Ship_Game
                 {                    
                     var modInfo = new FileInfo($"Mods\\{info.NameNoExt()}\\{info.Name}");
                     var e = new ModEntry(ser.Deserialize<ModInformation>(modInfo.Exists ? modInfo : info));
-                    e.LoadContent(mmscreen.TransientContent);
+                    e.LoadContent(mmscreen);
                     ModsSL.AddItem(e);
                 }
                 catch (Exception ex)

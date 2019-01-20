@@ -200,9 +200,9 @@ namespace Ship_Game
                                 qi.isTroop = item.isTroop;
                                 if (qi.isTroop)
                                 {
-                                    qi.UID = item.troopType;
+                                    qi.UID = item.TroopType;
                                 }
-                                qi.ProgressTowards = item.productionTowards;
+                                qi.ProgressTowards = item.ProductionSpent;
                                 if (item.Goal != null)
                                 {
                                     qi.GoalGUID = item.Goal.guid;
@@ -368,25 +368,25 @@ namespace Ship_Game
                         GoalGuid      = g.guid,
                         GoalName      = g.UID
                     };
-                    if (g.GetColonyShip() != null)
+                    if (g.FinishedShip != null)
                     {
-                        gdata.colonyShipGuid = g.GetColonyShip().guid;
+                        gdata.colonyShipGuid = g.FinishedShip.guid;
                     }
-                    if (g.GetMarkedPlanet() != null)
+                    if (g.ColonizationTarget != null)
                     {
-                        gdata.markedPlanetGuid = g.GetMarkedPlanet().guid;
+                        gdata.markedPlanetGuid = g.ColonizationTarget.guid;
                     }
-                    if (g.GetPlanetWhereBuilding() != null)
+                    if (g.PlanetBuildingAt != null)
                     {
-                        gdata.planetWhereBuildingAtGuid = g.GetPlanetWhereBuilding().guid;
+                        gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
                     }
-                    if (g.GetFleet() != null)
+                    if (g.Fleet != null)
                     {
-                        gdata.fleetGuid = g.GetFleet().Guid;
+                        gdata.fleetGuid = g.Fleet.Guid;
                     }
-                    if (g.beingBuilt != null)
+                    if (g.ShipToBuild != null)
                     {
-                        gdata.beingBuiltGUID = g.beingBuilt.guid;
+                        gdata.beingBuiltGUID = g.ShipToBuild.guid;
                     }
                     gsaidata.Goals.Add(gdata);
                 }
@@ -739,8 +739,8 @@ namespace Ship_Game
         {
             [Serialize(0)] public GoalType type;
             [Serialize(1)] public int GoalStep;
-            [Serialize(2)] public Guid markedPlanetGuid;
-            [Serialize(3)] public Guid colonyShipGuid;
+            [Serialize(2)] public Guid markedPlanetGuid; // @note renamed to: Goal.ColonizationTarget
+            [Serialize(3)] public Guid colonyShipGuid;   // @note renamed to: Goal.FinishedShip
             [Serialize(4)] public Vector2 BuildPosition;
             [Serialize(5)] public string ToBuildUID;
             [Serialize(6)] public Guid planetWhereBuildingAtGuid;

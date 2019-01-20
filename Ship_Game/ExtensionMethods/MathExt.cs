@@ -81,6 +81,15 @@ namespace Ship_Game
                                Max(min.Y, Min(v.Y, max.Y)));
         }
 
+        // This is a common pattern in the codebase, there is some amount
+        // and we wish to subtract another value from it, but not beyond 0
+        public static void Consume(ref float fromAmount, ref float toConsume)
+        {
+            if (fromAmount <= 0f || toConsume <= 0f) return; // nothing to consume
+            if     (fromAmount >= toConsume) { fromAmount -= toConsume;  toConsume  = 0f; }
+            else if (fromAmount < toConsume) { toConsume  -= fromAmount; fromAmount = 0f; }
+        }
+
         // Angle normalized to [0, 360] degrees
         public static float NormalizedAngle(this float angle)
         {
@@ -99,9 +108,11 @@ namespace Ship_Game
         }
 
         // Basic Linear Interpolation
-        public static float LerpTo(this float minValue, float maxValue, float amount)
+        // ex: 0f.LerpTo(100f, 0.75f) => 75f
+        // ex: 100f.LerpTo(0f, 0.75f) => 25f
+        public static float LerpTo(this float start, float end, float amount)
         {
-            return minValue + (maxValue - minValue) * amount;
+            return start + (end - start) * amount;
         }
 
         public static Vector3 LerpTo(this Vector3 start, Vector3 end, float amount)
@@ -421,6 +432,14 @@ namespace Ship_Game
             return ship.Position + (strafeVector * distance);
         }
 
+        public static Vector3 DirectionToTarget(this Vector3 origin, Vector3 target)
+        {
+            float dx = target.X - origin.X;
+            float dy = target.Y - origin.Y;
+            float dz = target.Z - origin.Z;
+            float len = (float)Sqrt(dx*dx + dy*dy + dz*dz);
+            return new Vector3(dx / len, dy / len, dz / len);
+        }
 
         public static Vector2 DirectionToTarget(this Vector2 origin, Vector2 target)
         {
@@ -818,7 +837,7 @@ namespace Ship_Game
         public static bool AlmostEqual(this float a, float b)
         {
             float delta = a - b;
-            return -0.000001f <= delta && delta <= 0.000001f;
+            return -0.000001f <= delta && delta <= +0.000001f;
         }
         public static bool AlmostEqual(this float a, float b, float tolerance)
         {
@@ -828,7 +847,12 @@ namespace Ship_Game
 
         public static bool AlmostZero(this float a)
         {
-            return -0.000001f <= a && a <= 0.000001f;
+            return -0.000001f <= a && a <= +0.000001f;
+        }
+
+        public static bool NotZero(this float a)
+        {
+            return a < -0.000001f && +0.000001f <= a;
         }
 
         /// <summary>Returns true if a less than b or almost equal</summary>

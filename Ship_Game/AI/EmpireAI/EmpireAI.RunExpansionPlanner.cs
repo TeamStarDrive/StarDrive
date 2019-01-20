@@ -156,7 +156,7 @@ namespace Ship_Game.AI
             var list = new Array<Planet>();
             foreach (Goal g in Goals)
                 if (g.type == GoalType.Colonize) 
-                    list.Add(g.GetMarkedPlanet());
+                    list.Add(g.ColonizationTarget);
             return list.ToArray();
         }
     }

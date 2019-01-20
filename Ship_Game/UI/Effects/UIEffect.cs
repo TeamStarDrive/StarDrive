@@ -10,7 +10,7 @@
 
         /// <summary>
         /// Animation progress from 0f to 1f.
-        /// Values above 1f may occurr for exaggerated animations.
+        /// Values above 1f may occur for exaggerated animations.
         /// </summary>
         public float Animation { get; protected set; }
 

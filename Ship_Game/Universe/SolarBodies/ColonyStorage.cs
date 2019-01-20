@@ -18,19 +18,6 @@ namespace Ship_Game.Universe.SolarBodies
 
         public int CommoditiesCount => Commodities.Count;
         public bool ContainsGood(string goodId) => Commodities.ContainsKey(goodId);
-        public void ClearGoods() => Commodities.Clear();
-
-        // different from Food -- this is based on race
-        // cybernetics consume production, organics consume food
-        public float RaceFood
-        {
-            get => Ground.IsCybernetic ? ProdValue : FoodValue;
-            set
-            {
-                if (Ground.IsCybernetic) ProdValue = value;
-                else FoodValue = value;
-            }
-        }
 
         float FoodValue; // @note These are special fields for perf reasons.
         float ProdValue;
@@ -53,6 +40,10 @@ namespace Ship_Game.Universe.SolarBodies
             get => PopValue;
             set => PopValue = value.Clamped(0f, Ground.MaxPopulation);
         }
+
+        // different from Food -- this is based on race
+        // cybernetics consume production, organics consume food
+        public float RaceFood => Ground.IsCybernetic ? ProdValue : FoodValue;
 
         public float RaceFoodRatio => RaceFood / Max;
         public float FoodRatio => FoodValue / Max;
@@ -81,17 +72,38 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        // @note Uses RaceFood for Food
+        float AddWithRemainder(ref float oldValue, float amount)
+        {
+            float remainder = 0f;
+            float newValue = oldValue + amount;
+            if      (newValue < 0f)  remainder = newValue;
+            else if (newValue > Max) remainder = newValue - Max;
+            oldValue = newValue.Clamped(0f, Max);
+            return remainder;
+        }
+
+        public void ConsumeProduction(ref float toConsume)
+        {
+            MathExt.Consume(ref ProdValue, ref toConsume);
+        }
+
+        // @return Surplus (positive) or Shortage (negative)
+        public float AddFoodWithRemainder(float amount) => AddWithRemainder(ref FoodValue, amount);
+
+        // @return Surplus (positive) or Shortage (negative)
+        public float AddProdWithRemainder(float amount) => AddWithRemainder(ref ProdValue, amount);
+
+        // @note Uses RaceFood for Food. Is this correct??
         public float GetGoodAmount(Goods good)
         {
             switch (good)
             {
                 default:               return 0;
+                case Goods.Food:       return Food;
                 case Goods.Production: return Prod;
-                case Goods.Food:       return RaceFood;
                 case Goods.Colonists:  return Population;
             }
-        }        
+        }
 
         public float GetGoodAmount(string goodId)
         {
@@ -104,7 +116,7 @@ namespace Ship_Game.Universe.SolarBodies
             return Commodities.TryGetValue(goodId, out float commodity) ? commodity : 0;
         }
 
-        public void BuildingResources()
+        public void DistributeSpecialBuildingResources()
         {
             foreach (Building b in Ground.BuildingList)
             {
@@ -119,6 +131,7 @@ namespace Ship_Game.Universe.SolarBodies
                         SetGoodAmount(b.ResourceConsumed, resource);
                     }
                 }
+                // CommodityRequired for ResourceCreated
                 else if (b.CommodityRequired != null)
                 {
                     if (Ground.Storage.ContainsGood(b.CommodityRequired))

@@ -19,6 +19,19 @@ namespace Ship_Game
         BottomRight // "bottomright"  x=1.0  y=1.0
     }
 
+    public enum DrawDepth
+    {
+        Foreground, // draw 2D on top of 3D objects -- default behaviour
+        Background, // draw 2D behind 3D objects
+        ForeAdditive, // Foreground + Additive alpha blend
+        BackAdditive, // Background + Additive alpha blend
+    }
+
+    public interface IColorElement
+    {
+        Color Color { get; set; }
+    }
+
     public abstract class UIElementV2 : IInputHandler
     {
         public readonly UIElementV2 Parent;
@@ -36,10 +49,13 @@ namespace Ship_Game
         
         public bool Visible = true; // If TRUE, this UIElement is rendered
         public bool Enabled = true; // If TRUE, this UIElement can receive input events
+        protected internal bool DeferredRemove; // If TRUE, this UIElement will be deleted during update
 
+        // This controls the layer ordering of 2D UI Elements
+        public DrawDepth DrawDepth;
 
         // Nullable to save memory
-        private Array<UIEffect> Effects;
+        Array<UIEffect> Effects;
 
 
         public void Show() => Visible = true;
@@ -112,7 +128,7 @@ namespace Ship_Game
             }
         }
 
-        private static Vector2 AlignValue(Align align)
+        static Vector2 AlignValue(Align align)
         {
             switch (align)
             {
@@ -159,18 +175,21 @@ namespace Ship_Game
             UpdateEffects(deltaTime);
         }
 
-        public void RemoveFromParent()
+        public void RemoveFromParent(bool deferred = false)
         {
-            if (Parent is UIElementContainer container)
+            if (deferred)
+                DeferredRemove = true;
+            else if (Parent is UIElementContainer container)
                 container.Remove(this);
         }
 
-        public void AddEffect(UIEffect effect)
+        public T AddEffect<T>(T effect) where T : UIEffect
         {
             Log.Assert(effect != null, "UIEffect cannot be null");
             if (Effects == null)
                 Effects = new Array<UIEffect>();
             Effects.Add(effect);
+            return effect;
         }
 
         protected void UpdateEffects(float deltaTime)
@@ -211,6 +230,35 @@ namespace Ship_Game
             return pos.X > Pos.X && pos.Y > Pos.Y && pos.X < Pos.X + Size.X && pos.Y < Pos.Y + Size.Y;
         }
 
+        public GameContentManager ContentManager
+        {
+            get
+            {
+                if (this is GameScreen screen)
+                    return screen.TransientContent;
+                return Parent == null ? ResourceManager.RootContent : Parent.ContentManager;
+            }
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
+    }
+
+    public static class UIElementExt
+    {
+        public static T InBackground<T>(this T element) where T : UIElementV2
+        {
+            element.DrawDepth = DrawDepth.Background;
+            return element;
+        }
+        public static T InBackAdditive<T>(this T element) where T : UIElementV2
+        {
+            element.DrawDepth = DrawDepth.BackAdditive;
+            return element;
+        }
+        public static T InForeAdditive<T>(this T element) where T : UIElementV2
+        {
+            element.DrawDepth = DrawDepth.ForeAdditive;
+            return element;
+        }
     }
 }

@@ -68,7 +68,7 @@ namespace Ship_Game
         private float TooltipTimer = 0.5f;
         private float sTooltipTimer = 0.5f;
         private float TimerDelay = 0.25f;
-        private GameTime zgameTime = new GameTime();
+        private GameTime SimulationTime = new GameTime();
         public Array<ShipModule> ModulesNeedingReset = new Array<ShipModule>();
         private bool TurnFlip = true;
         private float TurnFlipCounter;
@@ -246,6 +246,8 @@ namespace Ship_Game
 
         // for really specific debuggingD
         public static int FrameId;
+
+        public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
         public UniverseScreen(UniverseData data) : base(null) // new game
         {
@@ -681,7 +683,7 @@ namespace Ship_Game
                 foreach (NebulousOverlay nebulousOverlay in NebulousShit)
                     engineTrailParticles.AddParticleThreadA(nebulousOverlay.Position, Vector3.Zero);
             }
-            zgameTime = gameTime;
+            SimulationTime = gameTime;
             float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
             SelectedSomethingTimer -= num;
             if (SelectorFrame < 299)

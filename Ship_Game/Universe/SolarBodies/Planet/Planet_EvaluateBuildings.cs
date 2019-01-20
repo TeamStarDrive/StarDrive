@@ -292,7 +292,7 @@ namespace Ship_Game
                 return 0;
 
             float score = 0;
-            if (BuildingExists(Building.CapitalId))
+            if (BuildingBuiltOrQueued(Building.CapitalId))
                 score += 4.0f; // we can't be a space-faring species if our capital doesn't have a space-port...
 
             float prodFromLabor = LeftoverWorkerBillions() * (Prod.YieldPerColonist + b.PlusProdPerColonist);
@@ -651,7 +651,7 @@ namespace Ship_Game
 
             Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget, popRatio, out float bestValue);
             if (bestBuilding != null && bestValue > 0)
-                AddBuildingToCQ(bestBuilding);
+                Construction.AddBuilding(bestBuilding);
 
             return bestBuilding != null; ;
         }
@@ -664,7 +664,7 @@ namespace Ship_Game
             {
                 if (IsPlanetExtraDebugTarget())
                     Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
-                AddBuildingToCQ(bio);
+                Construction.AddBuilding(bio);
             }
             return bio != null;
         }
@@ -696,7 +696,7 @@ namespace Ship_Game
             Log.Info(ConsoleColor.Cyan, $"{Owner.PortraitName} REPLACED {worstBuilding.Name} on planet {Name}" +
                                         $" value: {worstValue} with {bestBuilding.Name} value: {bestValue}");
             worstBuilding.ScrapBuilding(this);
-            AddBuildingToCQ(bestBuilding);
+            Construction.AddBuilding(bestBuilding);
             return true;
         }
 
@@ -745,7 +745,7 @@ namespace Ship_Game
         {
             // FB this will give the budget the colony will have for building selection
             float colonyIncome  = Money.NetRevenue;
-            colonyIncome       -= SbProduction.GetTotalConstructionQueueMaintenance(); // take into account buildings maint in queue
+            colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
             float debtTolerance = (5 - PopulationBillion).Clamped(-5,5); // the bigger the colony, the less debt tolerance it has, it should be earning money 
             debtTolerance += Owner.Money / 1000; // FB this will ensure AI wont get stuck with no colony budget
             return colonyIncome + debtTolerance;
@@ -763,28 +763,22 @@ namespace Ship_Game
 
         void BuildOutpostIfAble() // A Gretman function to support DoGoverning()
         {
-            //Check Existing Buildings and the queue
+            // Check Existing Buildings and the queue
             if (OutpostBuiltOrInQueue())
                 return;
 
-            //Build it!
-            AddBuildingToCQ(ResourceManager.CreateBuilding(Building.OutpostId), playerAdded: false);
+            // Build it!
+            Construction.AddBuilding(ResourceManager.CreateBuilding(Building.OutpostId), playerAdded: false);
 
             // Move Outpost to the top of the list, and rush production
             for (int i = 0; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
-                if (i == 0 && q.isBuilding)
-                {
-                    if (q.Building.IsOutpost)
-                        SbProduction.ApplyAllStoredProduction(0);
-                    break;
-                }
-
                 if (q.isBuilding && q.Building.IsOutpost)
                 {
-                    ConstructionQueue.Remove(q);
+                    ConstructionQueue.RemoveAt(i);
                     ConstructionQueue.Insert(0, q);
+                    Construction.RushProduction(0);
                     break;
                 }
             }

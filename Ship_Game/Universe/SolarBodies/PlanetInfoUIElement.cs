@@ -271,7 +271,7 @@ namespace Ship_Game
             bool marked = false;
             foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
             {
-                if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
+                if (g.ColonizationTarget == null || g.ColonizationTarget != p)
                 {
                     continue;
                 }
@@ -379,7 +379,7 @@ namespace Ship_Game
                 Goal markedGoal = null;
                 foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
                 {
-                    if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
+                    if (g.ColonizationTarget == null || g.ColonizationTarget != p)
                     {
                         continue;
                     }
@@ -389,13 +389,10 @@ namespace Ship_Game
                 if (marked)
                 {
                     GameAudio.EchoAffirmative();
-                    if (markedGoal.GetColonyShip() != null)
+                    if (markedGoal.FinishedShip != null)
                     {
-                        lock (markedGoal.GetColonyShip())
-                        {
-                            markedGoal.GetColonyShip().AI.OrderQueue.Clear();
-                            markedGoal.GetColonyShip().AI.State = AIState.AwaitingOrders;
-                        }
+                        markedGoal.FinishedShip.AI.OrderQueue.Clear();
+                        markedGoal.FinishedShip.AI.State = AIState.AwaitingOrders;
                     }
                     EmpireManager.Player.GetEmpireAI().Goals.QueuePendingRemoval(markedGoal);
                     EmpireManager.Player.GetEmpireAI().Goals.ApplyPendingRemovals();

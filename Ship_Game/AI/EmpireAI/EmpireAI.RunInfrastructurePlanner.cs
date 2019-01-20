@@ -159,7 +159,7 @@ namespace Ship_Game.AI {
                                     
                                     Planet productionHere = p;
                                     productionHere.ProdHere =
-                                        productionHere.ProdHere + qi.productionTowards;                                                                        
+                                        productionHere.ProdHere + qi.ProductionSpent;                                                                        
                                     p.ConstructionQueue.QueuePendingRemoval(qi);
                                 }
                                 p.ConstructionQueue.ApplyPendingRemovals();
