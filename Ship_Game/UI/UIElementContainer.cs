@@ -470,13 +470,13 @@ namespace Ship_Game
         protected internal UIPanel Panel(string tex, int x, int y) => Add(new UIPanel(this, tex, x, y));
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public FadeInOutAnim Anim() => AddEffect(new FadeInOutAnim(this));
+        public UIBasicAnimEffect Anim() => AddEffect(new UIBasicAnimEffect(this));
 
         /// <param name="delay">Start animation fadeIn/stay/fadeOut after seconds</param>
         /// <param name="duration">Duration of fadeIn/stay/fadeOut</param>
         /// <param name="fadeIn">Fade in time</param>
         /// <param name="fadeOut">Fade out time</param>
-        public FadeInOutAnim Anim(
+        public UIBasicAnimEffect Anim(
             float delay, 
             float duration = 1.0f, 
             float fadeIn   = 0.25f, 
