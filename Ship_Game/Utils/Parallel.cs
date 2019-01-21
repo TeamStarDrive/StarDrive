@@ -11,30 +11,37 @@ namespace Ship_Game
     public interface ITaskResult
     {
         bool IsComplete { get; }
-        void SetResult(object value);
+        void SetResult(object value, Exception e);
+        bool Wait(int millisecondTimeout);
+        void CancelAndWait(int millisecondTimeout);
     }
 
     public class TaskResult : ITaskResult
     {
+        public Exception Error { get; private set; }
         public bool IsComplete { get; private set; }
         // @note Task has to check this value itself and cancel manually
         public bool IsCancelRequested { get; private set; }
         readonly ManualResetEvent Finished = new ManualResetEvent(false);
 
-        void ITaskResult.SetResult(object value)
+        void ITaskResult.SetResult(object value, Exception e)
         {
+            Error = e;
             IsComplete = true;
             Finished.Set();
         }
 
         // wait until task has finished
-        public void Wait(int millisecondTimeout=-1)
+        public bool Wait(int millisecondTimeout = -1)
         {
             if (!IsComplete)
                 Finished.WaitOne(millisecondTimeout);
+            if (Error != null)
+                throw Error;
+            return IsComplete;
         }
 
-        public void CancelAndWait(int millisecondTimeout=-1)
+        public void CancelAndWait(int millisecondTimeout = -1)
         {
             IsCancelRequested = true;
             Wait(millisecondTimeout);
@@ -43,27 +50,33 @@ namespace Ship_Game
 
     public class TaskResult<T> : ITaskResult
     {
+        public Exception Error { get; private set; }
         public T Result { get; private set; }
         public bool IsComplete { get; private set; }
         // @note Task has to check this value itself and cancel manually
         public bool IsCancelRequested { get; private set; }
         readonly ManualResetEvent Finished = new ManualResetEvent(false);
 
-        void ITaskResult.SetResult(object value)
+        void ITaskResult.SetResult(object value, Exception e)
         {
+            Error = e;
             Result = (T)value;
             IsComplete = true;
             Finished.Set();
         }
 
-        // wait until task has finished
-        public void Wait(int millisecondTimeout=-1)
+        // Wait until task has finished
+        // @return TRUE if task was completed
+        public bool Wait(int millisecondTimeout = -1)
         {
             if (!IsComplete)
                 Finished.WaitOne(millisecondTimeout);
+            if (Error != null)
+                throw Error;
+            return IsComplete;
         }
 
-        public void CancelAndWait(int millisecondTimeout=-1)
+        public void CancelAndWait(int millisecondTimeout = -1)
         {
             IsCancelRequested = true;
             Wait(millisecondTimeout);
@@ -145,12 +158,12 @@ namespace Ship_Game
             Error = null;
             return ex;
         }
-        void SetResultValue(object value)
+        void SetResult(object value, Exception e)
         {
             ITaskResult result = Result;
             if (result == null) return;
             Result = null; // so if SetResult fails, we don't crash twice
-            result.SetResult(value);
+            result.SetResult(value, e);
         }
         void Run()
         {
@@ -177,18 +190,20 @@ namespace Ship_Game
                     else if (VoidTask != null)
                     {
                         VoidTask.Invoke();
-                        SetResultValue(null);
+                        SetResult(null, null);
                     }
                     else if (ResultTask != null)
                     {
                         object value = ResultTask.Invoke();
-                        SetResultValue(value);
+                        SetResult(value, null);
                     }
                 }
                 catch (Exception ex)
                 {
+                    if (RangeTask == null) // don't log ex for RangeTasks
+                        Log.Warning($"{Name} caught unhandled exception: {ex}");
                     Error = ex;
-                    SetResultValue(null);
+                    SetResult(null, ex);
                 }
                 finally
                 {

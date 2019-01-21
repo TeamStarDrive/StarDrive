@@ -8,6 +8,9 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Gameplay
 {
@@ -38,12 +41,9 @@ namespace Ship_Game.Gameplay
         public bool Miss;
         public Empire Loyalty;
         private float InitialDuration;
-        private float SwitchFrames;
-        private float FrameTimer;
         public float RotationRadsPerSecond;
         public DroneAI DroneAI { get; private set; }
         public Weapon Weapon;
-        public string TexturePath;
         public string ModelPath;
         private float ZStart = -25f;
         private float ParticleDelay;
@@ -52,8 +52,10 @@ namespace Ship_Game.Gameplay
         private MuzzleFlash Flash;
         private PointLight MuzzleFlash;
         private float FlashTimer = 0.142f;
-        //public float Scale = 1f; //Set to Weapon.Scale every frame. Removing...  -Gretman
-        private int AnimationFrame;
+
+        SpriteAnimation Animation;
+        SubTexture ProjectileTexture;
+
         public bool DieNextFrame { get; private set; }
         public bool DieSound;
         private AudioHandle InFlightSfx = default(AudioHandle);
@@ -198,14 +200,16 @@ namespace Ship_Game.Gameplay
         {
             if (Weapon.Animated == 1)
             {
-                SwitchFrames = InitialDuration / Weapon.Frames;
-                if (Weapon.LoopAnimation == 1)
-                    AnimationFrame = UniverseRandom.InRange(Weapon.Frames);
-                TexturePath = Weapon.AnimationPath + AnimationFrame.ToString("00000.##");
+                string animFolder = "Textures/"+Path.GetDirectoryName(Weapon.AnimationPath);
+                Animation = new SpriteAnimation(ResourceManager.RootContent, animFolder);
+                Animation.Looping = Weapon.LoopAnimation == 1;
+                float loopDuration = (InitialDuration / Animation.NumFrames);
+                float startAt = Animation.Looping ? UniverseRandom.RandomBetween(0f, loopDuration) : 0f;
+                Animation.Start(loopDuration, startAt);
             }
             else
             {
-                TexturePath = Weapon.ProjectileTexturePath;
+                ProjectileTexture = ResourceManager.ProjTexture(Weapon.ProjectileTexturePath);
             }
 
             ModelPath = Weapon.ModelPath;
@@ -265,16 +269,42 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        public void DrawProjectile(UniverseScreen screen)
+        bool ShouldDrawAsProjectile()
         {
             // if not using visible mesh (rockets, etc), we draw a transparent mesh manually
             InFrustrum = Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView 
-                         && ((Owner?.InFrustum ?? true) || screen.Frustum.Contains(Center, Radius)) ;
-            if (UsesVisibleMesh || !InFrustrum) return;
+                         && Empire.Universe.Frustum.Contains(Center, Radius*100f);
+            return !UsesVisibleMesh && Active && InFrustrum;
+        }
 
-            var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
-            var tex = Weapon.Animated != 0 ? ResourceManager.Texture(TexturePath) : ResourceManager.ProjTexture(TexturePath);
-            screen.DrawTransparentModel(projMesh, WorldMatrix, tex, Weapon.Scale);
+        void DrawProjectile(UniverseScreen us, SpriteBatch batch)
+        {
+            if (Animation != null)
+            {
+                us.ProjectToScreenCoords(Center, -ZStart, 20f*Weapon.ProjectileRadius*Weapon.Scale,
+                    out Vector2 pos, out float size);
+
+                Animation.Draw(batch, pos, new Vector2(size), Rotation, 1f);
+            }
+            else
+            {
+                var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
+                us.DrawTransparentModel(projMesh, WorldMatrix, ProjectileTexture, Weapon.Scale);
+            }
+        }
+
+        public static void DrawList(UniverseScreen us, SpriteBatch batch, 
+                                    IReadOnlyList<Projectile> projectiles)
+        {
+            int count = projectiles.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                Projectile p = projectiles[i];
+                if (p.ShouldDrawAsProjectile())
+                {
+                    p.DrawProjectile(us, batch);
+                }
+            }
         }
 
         public void DamageMissile(GameplayObject source, float damageAmount)
@@ -515,6 +545,7 @@ namespace Ship_Game.Gameplay
         {
             if (!Active)
                 return;
+
             if (DieNextFrame)
             {
                 Die(this, false);
@@ -524,21 +555,7 @@ namespace Ship_Game.Gameplay
             Position += Velocity * elapsedTime;
             if (Weapon.Animated == 1 && InFrustrum)
             {
-                FrameTimer += elapsedTime;
-                if (Weapon.LoopAnimation == 0 && FrameTimer > SwitchFrames)
-                {
-                    FrameTimer = 0.0f;
-                    ++AnimationFrame;
-                    if (AnimationFrame >= Weapon.Frames)
-                        AnimationFrame = 0;
-                }
-                else if (Weapon.LoopAnimation == 1)
-                {
-                    ++AnimationFrame;
-                    if (AnimationFrame >= Weapon.Frames)
-                        AnimationFrame = 0;
-                }
-                TexturePath = Weapon.AnimationPath + AnimationFrame.ToString("00000.##");
+                Animation.Update(elapsedTime);
             }
 
             if (InFlightSfx.IsStopped)

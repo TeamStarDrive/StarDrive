@@ -15,7 +15,7 @@ namespace Ship_Game.GameScreens.MainMenu
     {
         IWavePlayer WaveOut;
         Mp3FileReader Mp3FileReader;
-        SpriteAnimation SDLogoAnim;
+        UISpriteElement SDLogoAnim;
 
         SceneObject MoonObj;
         Vector3 MoonPosition;
@@ -86,9 +86,9 @@ namespace Ship_Game.GameScreens.MainMenu
             StartTransition<UIButton>(512f, -1f);
             OnExit += () => StartTransition<UIButton>(512f, +1f);
                         
-            SDLogoAnim = Add(new SpriteAnimation(this, "MainMenu/Stardrive logo"));
-            SDLogoAnim.StopAtLastFrame = true;
-            SDLogoAnim.Rect = new Rectangle(w-600, 128, 512, 128);
+            SDLogoAnim = Add(new UISpriteElement(this, "MainMenu/Stardrive logo"));
+            SDLogoAnim.Animation.FreezeAtLastFrame = true;
+            SDLogoAnim.SetAbsPos(w-600, 128);
             MoonPosition = new Vector3(+w / 2f - 300, SDLogoAnim.Y + 70 - h / 2f, 0f);
             ShipPosition = new Vector3(-w / 4f, SDLogoAnim.Y + 400 - h / 2f, 0f);
 
