@@ -195,8 +195,9 @@ namespace Ship_Game
                 return;
             }
 
-            int frame = (int)(e.Animation.Count * (e.Time / e.Duration));
-            frame = frame.Clamped(0, e.Animation.Count-1);
+            int last = e.Animation.Count-1;
+            int frame = (int)(last * (e.Time / e.Duration));
+            frame = frame.Clamped(0, last);
             SubTexture tex = e.Animation[frame];
 
             // support non-rectangular explosion anims:

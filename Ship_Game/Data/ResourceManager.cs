@@ -56,8 +56,6 @@ namespace Ship_Game
         public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>();
         private static readonly Map<string, ShipModule> ModuleTemplates = new Map<string, ShipModule>(GlobalStats.CaseControl);
         public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>();
-        public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
-        public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
 
         public static Array<RandomItem> RandomItemsList           = new Array<RandomItem>();
         private static readonly Map<string, Troop> TroopsDict     = new Map<string, Troop>();
@@ -823,7 +821,9 @@ namespace Ship_Game
 
         public static SubTexture ProjTexture(string texturePath)
         {
-            return new SubTexture(texturePath, ProjTextDict[texturePath]);
+            if (ProjTextDict.TryGetValue(texturePath, out Texture2D proj))
+                return new SubTexture(texturePath, proj);
+            return RootContent.DefaultTexture();
         }
 
         public static FileInfo[] GatherTextureFiles(string dir, bool recursive)
@@ -1300,6 +1300,8 @@ namespace Ship_Game
 
 
         // Refactored by RedFox
+        public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
+        public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
         private static void LoadProjectileMesh(string projectileDir, string nameNoExt)
         {
             string path = projectileDir + nameNoExt;
