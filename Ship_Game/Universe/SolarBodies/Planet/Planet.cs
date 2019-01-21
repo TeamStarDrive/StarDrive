@@ -183,15 +183,15 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            if (Shipyards.Count != 0)
+            if (OrbitalStations.Count != 0)
             {
-                Guid[] keys = Shipyards.Keys.ToArray();
+                Guid[] keys = OrbitalStations.Keys.ToArray();
                 for (int i = 0; i < keys.Length; i++)
                 {
                     Guid key = keys[i];
-                    Ship shipyard = Shipyards[key];
+                    Ship shipyard = OrbitalStations[key];
                     if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
-                        Shipyards.Remove(key);
+                        OrbitalStations.Remove(key);
                 }
             }
             if (Habitable)
@@ -639,7 +639,7 @@ namespace Ship_Game
             {
                 var deadShipyards = new Array<Guid>();
                 float shipyards   = 1;
-                foreach (KeyValuePair<Guid, Ship> keyValuePair in Shipyards)
+                foreach (KeyValuePair<Guid, Ship> keyValuePair in OrbitalStations)
                 {
                     if (keyValuePair.Value == null)
                         deadShipyards.Add(keyValuePair.Key);
@@ -657,7 +657,7 @@ namespace Ship_Game
                         deadShipyards.Add(keyValuePair.Key);
                 }
                 foreach (Guid key in deadShipyards)
-                    Shipyards.Remove(key);
+                    OrbitalStations.Remove(key);
                 ShipBuildingModifier = shipBuildingModifier;
             }
 
