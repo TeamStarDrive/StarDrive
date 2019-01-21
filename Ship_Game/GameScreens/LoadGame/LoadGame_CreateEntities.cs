@@ -9,6 +9,7 @@ using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -168,7 +169,7 @@ namespace Ship_Game
                 guid          = ssd.guid,
                 Name          = ssd.Name,
                 Position      = ssd.Position,
-                SunPath       = ssd.SunPath,
+                Sun           = ResourceManager.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
                 AsteroidsList = new BatchRemovalCollection<Asteroid>(),
                 MoonList      = new Array<Moon>()
             };

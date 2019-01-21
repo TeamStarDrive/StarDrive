@@ -1,5 +1,30 @@
-﻿Sun: star_yellow
-  TexturePath: Suns/star_yellow
+﻿Sun: star_red
+  IconPath: Suns/star_red
+  Intensity: 1.4
+  Radius: 100000
+  Color: [255,160,122] # LightSalmon
+Sun: star_yellow
+  IconPath: Suns/star_yellow
   Intensity: 1.5
   Radius: 150000
-  Color: LightYellow
+  Color: [255,255,224] # LightYellow
+Sun: star_green
+  IconPath: Suns/star_green
+  Intensity: 1.5
+  Radius: 150000
+  Color: [144,238,144] # LightGreen
+Sun: star_blue
+  IconPath: Suns/star_blue
+  Intensity: 1.5
+  Radius: 150000
+  Color: [173,216,230] # LightBlue
+Sun: star_yellow2
+  IconPath: Suns/star_yellow2
+  Intensity: 1.5
+  Radius: 150000
+  Color: [255,255,255] # White
+Sun: star_binary
+  IconPath: Suns/star_binary
+  Intensity: 1.7
+  Radius: 200000
+  Color: [255,255,255] # White

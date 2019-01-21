@@ -145,15 +145,13 @@ namespace Ship_Game
         // This draws the hi-res 3D sun and orbital circles
         void DrawSolarSysWithOrbits(SolarSystem solarSystem, Vector2 sysScreenPos)
         {
-            SubTexture sunTexture = solarSystem.SunTexture;
-
             DrawTransparentModel(SunModel,
                 Matrix.CreateRotationZ(Zrotate) *
-                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
+                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), solarSystem.Sun.HiRes, 10.0f);
 
             DrawTransparentModel(SunModel,
                 Matrix.CreateRotationZ((float)(-Zrotate / 2.0)) *
-                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
+                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), solarSystem.Sun.HiRes, 10.0f);
 
             if (!solarSystem.IsExploredBy(EmpireManager.Player))
                 return;
@@ -258,7 +256,7 @@ namespace Ship_Game
             float scale = 0.05f;
             Vector2 position = Viewport.Project(solarSystem.Position.ToVec3(), projection, view, Matrix.Identity).ToVec2();
 
-            SubTexture sunTex = solarSystem.SunTexture;
+            SubTexture sunTex = solarSystem.Sun.LoResIcon;
             batch.Draw(sunTex, position, Color.White, Zrotate, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
             batch.Draw(sunTex, position, Color.White, Zrotate/-2f, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
         }
