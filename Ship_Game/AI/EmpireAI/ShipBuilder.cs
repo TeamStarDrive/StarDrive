@@ -172,8 +172,21 @@ namespace Ship_Game.AI
 
             return false;
         }
+
+        public static Ship BestShipWeCanBuild(ShipData.RoleName role, Empire empire)
+        {
+            string shipName = PickFromCandidates(role, empire); // FB - get the best Orbital we can
+            if (shipName.IsEmpty())
+                return null;
+
+            ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship);
+            if (ship == null || ship.shipData.IsShipyard)
+                return null;
+
+            return ship;
+        }
     }
-    
+   
     public enum DynamicHangarOptions
     {
         Static,
