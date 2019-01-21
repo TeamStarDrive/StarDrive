@@ -108,7 +108,8 @@ namespace Ship_Game
             var orbitalList = new Array<Ship>();
             foreach (Ship orbital in OrbitalStations.Values)
             {
-                if (orbital.shipData.Role == role && !orbital.shipData.IsShipyard) // dont treat shipyard as a full blown station
+                if (orbital.shipData.Role == role && !orbital.shipData.IsShipyard  // shipyards are not defense stations
+                                                  && !orbital.isConstructor) 
                     orbitalList.Add(orbital);
             }
             return orbitalList;
@@ -134,7 +135,7 @@ namespace Ship_Game
                 return;
             }
             if (orbitalsWeHave > 0)
-                ReplaceOrbital(orbitalList, role);  // check if we can replace an orbirtal with a better one
+                ReplaceOrbital(orbitalList, role);  // check if we can replace an orbital with a better one
         }
 
         private void ScrapOrbital(Ship orbital)
@@ -195,7 +196,7 @@ namespace Ship_Game
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength))
+            if (bestWeCanBuild.BaseStrength.LessOrEqual(weakestWeHave.BaseStrength))
                 return;
 
             if (!LogicalBuiltTimecVsCost(bestWeCanBuild.BaseCost, 50))
@@ -238,14 +239,14 @@ namespace Ship_Game
                 switch (rank)
                 {
                     case 1:  Platforms = 1; Stations = 0; break;
-                    case 2:  Platforms = 2; Stations = 0; break;
+                    case 2:  Platforms = 3; Stations = 0; break;
                     case 3:  Platforms = 5; Stations = 0; break;
                     case 4:  Platforms = 7; Stations = 1; break;
                     case 5:  Platforms = 9; Stations = 1; break;
-                    case 6:  Platforms = 5; Stations = 2; break;
-                    case 7:  Platforms = 3; Stations = 2; break;
-                    case 8:  Platforms = 1; Stations = 3; break;
-                    case 9:  Platforms = 0; Stations = 3; break;
+                    case 6:  Platforms = 7; Stations = 2; break;
+                    case 7:  Platforms = 5; Stations = 2; break;
+                    case 8:  Platforms = 3; Stations = 3; break;
+                    case 9:  Platforms = 1; Stations = 3; break;
                     case 10: Platforms = 0; Stations = 4; break;
                     case 11: Platforms = 0; Stations = 4; break;
                     case 12: Platforms = 0; Stations = 5; break;
@@ -273,20 +274,20 @@ namespace Ship_Game
 
         private int ApplyRankModifiers(int currentRank)
         {
-            int rank = currentRank -1 + (int)(Owner.Money / 10000);
+            int rank = currentRank + ((int)(Owner.Money / 10000)).Clamped(-3,3);
             if (Owner.Money < 500)
-                return (currentRank - 2).Clamped(0,15);
-            if (Owner.Money < 1000)
-                return (currentRank - 1).Clamped(0, 15);
+                rank -= 2;
+            else if (Owner.Money < 1000)
+                rank -= 1;
 
             if (RecentCombat)
-                rank++;
+                rank += 1;
             switch (colonyType)
             {
                 case ColonyType.Core    : rank += 1; break;
                 case ColonyType.Military: rank += 2; break;
             }
-            return rank;
+            return rank.Clamped(0, 15);
         }
 
         public void BuildShipyardIfAble(bool wantShipyard)
