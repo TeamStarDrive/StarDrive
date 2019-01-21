@@ -49,9 +49,6 @@ namespace Ship_Game.Gameplay
         private float ParticleDelay;
         private PointLight Light;
         public bool FirstRun = true;
-        private MuzzleFlash Flash;
-        private PointLight MuzzleFlash;
-        private float FlashTimer = 0.142f;
 
         SpriteAnimation Animation;
         SubTexture ProjectileTexture;
@@ -341,10 +338,6 @@ namespace Ship_Game.Gameplay
                     beam.Die(this, true);
                 }
                 DroneAI.Beams.Clear();
-            }
-            if (MuzzleFlashAdded)
-            {
-                Empire.Universe.RemoveLight(MuzzleFlash);
             }
             SetSystem(null);
             base.Die(source, cleanupOnly);
@@ -652,44 +645,10 @@ namespace Ship_Game.Gameplay
                 Light.Position = new Vector3(Center.X, Center.Y, -25f);
                 Light.World = Matrix.CreateTranslation(Light.Position);
             }
-            if (Module != null)
+            if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon.MuzzleFlash != null && InFrustrum)
             {
-                if (MuzzleFlash == null && Module.InstalledWeapon.MuzzleFlash != null && InFrustrum && !MuzzleFlashAdded)
-                {
-                    MuzzleFlashAdded = true;
-                    var pos = new Vector3(Module.Center.X, Module.Center.Y, -45f);
-                    MuzzleFlash = new PointLight
-                    {
-                        Position     = pos,
-                        World        = Matrix.CreateTranslation(pos),
-                        Radius       = 65f,
-                        ObjectType   = ObjectType.Dynamic,
-                        DiffuseColor = new Vector3(1f, 0.97f, 0.9f),
-                        Intensity    = 1f,
-                        FillLight    = false,
-                        Enabled      = true
-                    };
-                    Empire.Universe.AddLight(MuzzleFlash);
-                    FlashTimer -= elapsedTime;
-                    Flash = new MuzzleFlash
-                    {
-                        WorldMatrix = Matrix.CreateRotationZ(Rotation)
-                                    * Matrix.CreateTranslation(pos),
-                        Owner = this
-                    };
-                    MuzzleFlashManager.AddFlash(Flash);
-                }
-                else if (FlashTimer > 0f && Module.InstalledWeapon.MuzzleFlash != null && MuzzleFlashAdded)
-                {
-                    FlashTimer -= elapsedTime;
-                    MuzzleFlash.Position = new Vector3(Module.Center.X, Module.Center.Y, -45f);
-                    Flash.WorldMatrix = Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(MuzzleFlash.Position);
-                    MuzzleFlash.World = Matrix.CreateTranslation(MuzzleFlash.Position);
-                }
-            }
-            if (FlashTimer <= 0f && MuzzleFlashAdded)
-            {
-                Empire.Universe.RemoveLight(MuzzleFlash);
+                MuzzleFlashAdded = true;
+                MuzzleFlashManager.AddFlash(this);
             }
             base.Update(elapsedTime);
         }
