@@ -120,7 +120,7 @@ namespace Ship_Game
             p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
             foreach (Guid guid in psdata.StationsList)
-                p.OrbitalStations[guid]   = null; // reserve shipyards
+                p.OrbitalStations[guid]   = null; // reserve orbital stations (and platforms)
             p.Food.Percent = psdata.farmerPercentage;
             p.Prod.Percent = psdata.workerPercentage;
             p.Res.Percent  = psdata.researcherPercentage;
