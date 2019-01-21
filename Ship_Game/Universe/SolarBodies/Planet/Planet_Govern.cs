@@ -87,7 +87,7 @@ namespace Ship_Game
                     DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
                     break;
             } //End Gov type Switch
-            //GovernTroopsAndPlatforms();
+
             BuildPlatformsAndStations();
         }
 
@@ -108,33 +108,33 @@ namespace Ship_Game
             var orbitalList = new Array<Ship>();
             foreach (Ship orbital in Shipyards.Values)
             {
-                if (orbital.shipData.Role == role)
+                if (orbital.shipData.Role == role || !orbital.shipData.IsShipyard) // dont treat shipyard as a full blown station
                     orbitalList.Add(orbital);
             }
             return orbitalList;
         }
 
-        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int wantedOrbitals, ShipData.RoleName role)
+        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role)
         {
             int orbitalsWeHave = orbitalList.Count;
 
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"{role.ToString()}s we have: {orbitalsWeHave}, {role.ToString()}s we want: {wantedOrbitals}");
+                Log.Info($"{role.ToString()}s we have: {orbitalsWeHave}, {role.ToString()}s we want: {orbitalsWeWant}");
 
-            if (wantedOrbitals > orbitalsWeHave)
+            if (orbitalsWeHave > orbitalsWeWant)
             {
                 Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
                 ScrapOrbital(weakest); // remove this old garbage
                 return;
             }
 
-            if (wantedOrbitals < orbitalsWeHave) // lets build an orbital
+            if (orbitalsWeHave < orbitalsWeWant) // lets build an orbital
             {
                 BuildOrbital(role);
                 return;
             }
-
-            ReplaceOrbital(orbitalList, role);  // check if we can replace an orbirtal with a better one
+            if (orbitalsWeHave > 0)
+                ReplaceOrbital(orbitalList, role);  // check if we can replace an orbirtal with a better one
         }
 
         private void ScrapOrbital(Ship orbital)
@@ -162,8 +162,13 @@ namespace Ship_Game
             if (orbital == null)
                 return;
 
+            if (!LogicalBuiltTimecVsCost(orbital.BaseCost, TimeVsCostThreshold))
+                return;
+
             AddOrbital(orbital);
         }
+
+        private int TimeVsCostThreshold => 50 + (int)(Owner.Money / 1000);
 
         private void AddOrbital(Ship orbital) // add Orbital to ConstructionQueue
         {
@@ -173,6 +178,7 @@ namespace Ship_Game
             ConstructionQueue.Add(new QueueItem(this)
             {
                 isOrbital = true,
+                isShip    = true,
                 sData = orbital.shipData,
                 Cost = cost
             });
@@ -181,8 +187,11 @@ namespace Ship_Game
         private Ship GetBestOrbital(ShipData.RoleName role)
         {
             string orbitalName = ShipBuilder.PickFromCandidates(role, Owner); // FB - get the best Orbital we can
+            if (orbitalName.IsEmpty())
+                return null;
+
             if (!ResourceManager.ShipsDict.TryGetValue(orbitalName, out Ship orbital))
-                Log.Warning($"BuildOrbiral - Could not find {orbitalName} in {Owner.Name} list");
+                Log.Warning($"Build Orbiral - Could not find {orbitalName} in {Owner.Name} list");
 
             return orbital;
         }
@@ -197,11 +206,22 @@ namespace Ship_Game
             if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength))
                 return;
 
-            ScrapOrbital(weakestWeHave);
-            AddOrbital(bestWeCanBuild);
+            if (!LogicalBuiltTimecVsCost(bestWeCanBuild.BaseCost, 50))
+                return;
+
+            // FB - we are building without scraping, since when that orbital is built, the scrap code will remove the weakest we have
+            // since we would have more orbitals than what we want. This will keep our orbitals at full capacity. We are clever!
+            AddOrbital(bestWeCanBuild); 
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"REPLACED Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
                          $"STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
+        }
+
+        private bool LogicalBuiltTimecVsCost(float cost, int threshold)
+        {
+            float netCost = Math.Max(cost - Storage.Prod, 0);
+            float ratio   = netCost / Prod.NetMaxPotential;
+            return ratio < threshold;
         }
 
         private struct WantedOrbitals
@@ -242,7 +262,8 @@ namespace Ship_Game
             rank     = ApplyRankModifiers(rank);
 
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"COLONY RANK: {rank}, Colony Value: {ColonyValue}, Empire Max Value: {Owner.MaxColonyValue}");
+                Log.Info($"COLONY RANK: {rank}, Colony Value: {ColonyValue}, Empire Max Value: {Owner.MaxColonyValue}," +
+                         $" Time vs Cost threshold: {TimeVsCostThreshold}");
 
             return rank;
         }
@@ -251,7 +272,9 @@ namespace Ship_Game
         {
             int rank = currentRank -1 + (int)(Owner.Money / 10000);
             if (Owner.Money < 500)
-                return (currentRank - 1).Clamped(0,15);
+                return (currentRank - 2).Clamped(0,15);
+            if (Owner.Money < 1000)
+                return (currentRank - 1).Clamped(0, 15);
 
             if (RecentCombat)
                 rank++;
@@ -265,20 +288,25 @@ namespace Ship_Game
 
         public void BuildShipyardIfAble(bool wantShipyard)
         {
-            if (!wantShipyard || RecentCombat || !HasSpacePort) return;
+            if (!wantShipyard || RecentCombat || !HasSpacePort)
+                return;
+
             if (Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
                 || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
                 return;
 
             bool hasShipyard = ConstructionQueue.Any(q => q.isShip && q.sData.IsShipyard);
+            float cost       = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner);
+            if (!LogicalBuiltTimecVsCost(cost, 30))
+                return;
 
-            if (!hasShipyard && IsVibrant)
+            if (!hasShipyard && IsVibrant && LogicalBuiltTimecVsCost(cost, 30))
             {
                 ConstructionQueue.Add(new QueueItem(this)
                 {
-                    isShip = true,
-                    sData  = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
-                    Cost   = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner)
+                    isShip    = true,
+                    sData     = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
+                    Cost      = cost
                 });
             }
         }

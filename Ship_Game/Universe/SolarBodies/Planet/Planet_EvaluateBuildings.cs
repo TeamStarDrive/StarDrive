@@ -597,7 +597,8 @@ namespace Ship_Game
                 }
             }
             if (best != null && IsPlanetExtraDebugTarget())
-                Log.Info($"-- Planet {Name}: Best Buidling is {best.Name} with score of {bestValue} Budget: {budget} -- ");
+                Log.Info(ConsoleColor.Green,$"-- Planet {Name}: Best Buidling is {best.Name} " +
+                                            $"with score of {bestValue} Budget: {budget} -- ");
 
             value = bestValue;
             return best;
@@ -636,7 +637,7 @@ namespace Ship_Game
                 }
             }
             if (IsPlanetExtraDebugTarget())
-                Log.Info(worst == null
+                Log.Info(ConsoleColor.Magenta, worst == null
                     ? $"-- Planet {Name}: No Worst Buidling was found --"
                     : $"-- Planet {Name}: Worst Buidling is  {worst.Name} with score of {worstValue} -- ");
 
