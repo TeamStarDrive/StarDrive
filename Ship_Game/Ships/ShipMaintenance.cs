@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
             //added by gremlin shipyard exploit fix
             if (ship.IsTethered)
             {
-                if (role == ShipData.RoleName.platform)
+                if (role == ShipData.RoleName.platform || role == ShipData.RoleName.station)
                     return maint * 0.5f;
                 if (ship.shipData.IsShipyard)
                 {
@@ -43,7 +43,7 @@ namespace Ship_Game.Ships
                         maint *= numShipYards - 3;
                 }
             }
-            float repairMaintModifier =  ship.HealthMax > 0 ?  2 - ship.Health / ship.HealthMax : 1;
+            float repairMaintModifier =  ship.HealthMax > 0 ? (2 - ship.HealthPercent).Clamped(0,1.5f) : 1;
             maint *= repairMaintModifier;
             return maint;
         }
