@@ -59,8 +59,7 @@ namespace Ship_Game
             LowResExplode = ResourceManager.Texture("UI/icon_injury");
             if (ResourceManager.IsLoadCancelRequested) return;
 
-            FileInfo expDescriptors = ResourceManager.GetModOrVanillaFile("Explosions.yaml");
-            using (var parser = new StarDataParser(expDescriptors))
+            using (var parser = new StarDataParser("Explosions.yaml"))
             {
                 Array<Explosion> explosions = parser.DeserializeArray<Explosion>();
                 foreach (Explosion e in explosions)
