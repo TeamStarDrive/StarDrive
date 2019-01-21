@@ -175,7 +175,7 @@ namespace Ship_Game.AI
 
         public static Ship BestShipWeCanBuild(ShipData.RoleName role, Empire empire)
         {
-            string shipName = PickFromCandidates(role, empire); // FB - get the best Orbital we can
+            string shipName = PickFromCandidates(role, empire);
             if (shipName.IsEmpty())
                 return null;
 

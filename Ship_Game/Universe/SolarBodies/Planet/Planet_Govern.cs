@@ -31,14 +31,14 @@ namespace Ship_Game
             Prod.Percent = 0;
             Res.Percent = 0;
 
-            switch (colonyType)
+            switch (colonyType) //New resource management by Gretman
             {
                 case ColonyType.TradeHub:
+                    AssignCoreWorldWorkers();
                     DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
                     DetermineProdState(0.15f, 0.95f);
                     break;
                 case ColonyType.Core:
-                    //New resource management by Gretman
                     AssignCoreWorldWorkers();
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
