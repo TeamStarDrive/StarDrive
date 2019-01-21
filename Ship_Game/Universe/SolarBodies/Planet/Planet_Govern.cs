@@ -93,14 +93,14 @@ namespace Ship_Game
 
         private void BuildPlatformsAndStations()
         {
-            int rank           = FindColonyRank();
-            var wantedOrbitals = new WantedOrbitals(rank);
-            var platforms      = FilterOrbitals(ShipData.RoleName.platform);
-            var stations       = FilterOrbitals(ShipData.RoleName.station);
+            var currentPlatforms      = FilterOrbitals(ShipData.RoleName.platform);
+            var currentStations       = FilterOrbitals(ShipData.RoleName.station);
+            int rank                  = FindColonyRank();
+            var wantedOrbitals        = new WantedOrbitals(rank, currentStations);
 
             BuildShipyardIfAble(wantedOrbitals.Shipyard);
-            BuildOrScrapOrbitals(platforms, wantedOrbitals.Platforms, ShipData.RoleName.platform);
-            BuildOrScrapOrbitals(stations, wantedOrbitals.Stations, ShipData.RoleName.station);
+            BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform);
+            BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station);
         }
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
@@ -173,7 +173,7 @@ namespace Ship_Game
 
         private void AddOrbital(Ship orbital) // add Orbital to ConstructionQueue
         {
-            float cost = orbital.GetCost(Owner); // FB - need to check what happens with cost after shipyard is built.
+            float cost = orbital.GetCost(Owner);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {cost}, STR: {orbital.BaseStrength}");
             ConstructionQueue.Add(new QueueItem(this)
@@ -234,7 +234,7 @@ namespace Ship_Game
             public readonly int Stations;
             public readonly bool Shipyard;
 
-            public WantedOrbitals(int rank)
+            public WantedOrbitals(int rank, Array<Ship> stationList)
             {
                 switch (rank)
                 {
@@ -256,6 +256,10 @@ namespace Ship_Game
                     default: Platforms = 0; Stations = 0; break;
                 }
                 Shipyard = rank > 2;
+                // Fb - this will replace stations with temp platforms until proper stations are built
+                int existingStations = stationList.Count;
+                if (existingStations < Stations)
+                    Platforms += Stations - stationList.Count; 
             }
         }
 
