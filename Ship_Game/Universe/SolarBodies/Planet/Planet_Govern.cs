@@ -108,7 +108,7 @@ namespace Ship_Game
             var orbitalList = new Array<Ship>();
             foreach (Ship orbital in Shipyards.Values)
             {
-                if (orbital.shipData.Role == role || !orbital.shipData.IsShipyard) // dont treat shipyard as a full blown station
+                if (orbital.shipData.Role == role && !orbital.shipData.IsShipyard) // dont treat shipyard as a full blown station
                     orbitalList.Add(orbital);
             }
             return orbitalList;
@@ -119,7 +119,7 @@ namespace Ship_Game
             int orbitalsWeHave = orbitalList.Count;
 
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"{role.ToString()}s we have: {orbitalsWeHave}, {role.ToString()}s we want: {orbitalsWeWant}");
+                Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
 
             if (orbitalsWeHave > orbitalsWeWant)
             {
@@ -184,18 +184,6 @@ namespace Ship_Game
             });
         }
 
-        private Ship GetBestOrbital(ShipData.RoleName role)
-        {
-            string orbitalName = ShipBuilder.PickFromCandidates(role, Owner); // FB - get the best Orbital we can
-            if (orbitalName.IsEmpty())
-                return null;
-
-            if (!ResourceManager.ShipsDict.TryGetValue(orbitalName, out Ship orbital))
-                Log.Warning($"Build Orbiral - Could not find {orbitalName} in {Owner.Name} list");
-
-            return orbital;
-        }
-
         private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role)
         {
             if (OrbitalsInTheWorks)
@@ -203,6 +191,10 @@ namespace Ship_Game
 
             Ship weakestWeHave  = orbitalList.FindMin(s => s.BaseStrength);
             Ship bestWeCanBuild = GetBestOrbital(role);
+
+            if (bestWeCanBuild == null)
+                return;
+
             if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength))
                 return;
 
@@ -215,6 +207,17 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"REPLACED Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
                          $"STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
+        }
+
+        private Ship GetBestOrbital(ShipData.RoleName role)
+        {
+            Ship orbital =  null;
+            switch (role)
+            {
+                case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
+                case ShipData.RoleName.station:  orbital = Owner.BestStationWeCanBuild; break;
+            }
+            return orbital;
         }
 
         private bool LogicalBuiltTimecVsCost(float cost, int threshold)
