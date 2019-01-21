@@ -1267,7 +1267,8 @@ namespace Ship_Game
 
         private void UpdateMaxColonyValue()
         {
-            MaxColonyValue = OwnedPlanets.Max(p => p.ColonyValue);
+            if (!isFaction && OwnedPlanets.Count > 0)
+                MaxColonyValue = OwnedPlanets.Max(p => p.ColonyValue);
         }
 
         public DebugTextBlock DebugEmpireTradeInfo()
