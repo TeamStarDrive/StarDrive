@@ -82,7 +82,12 @@ namespace Ship_Game.AI
 
             const float normalTaxRate = 0.25f;
             float treasuryGoalRatio   = OwnerEmpire.Money / treasuryGoal;
-            float taxRateModifer      = -(float)Math.Round((treasuryGoalRatio -1) / 10, 2) ; // this will increase or decrease tax based on ratio
+            float taxRateModifer = 0;
+            if (treasuryGoalRatio > 1)
+                taxRateModifer = -(float)Math.Round((treasuryGoalRatio -1) / 10, 2); // this will decrease tax based on ratio
+            if (treasuryGoal < 1)
+                taxRateModifer = (float)Math.Round((1 / treasuryGoalRatio - 1) / 10, 2); // this will decrease tax based on oppsite ratio
+
             OwnerEmpire.data.TaxRate  = (normalTaxRate + taxRateModifer).Clamped(0.05f,0.95f);
         }
 #if DEBUG
