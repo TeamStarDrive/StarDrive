@@ -26,8 +26,9 @@ namespace Ship_Game.AI
             money = money < 1 ? 1 : money;
             float treasuryGoal = TreasuryGoal();
 
+
             float goal = money / treasuryGoal;
-            AutoSetTaxes(treasuryGoal, goal);
+            AutoSetTaxes(treasuryGoal);
 
             float goalClamped = goal.Clamped(0, 1);
             var resStrat = OwnerEmpire.GetResStrat();
@@ -53,6 +54,11 @@ namespace Ship_Game.AI
 #endif
         }
 
+        private float Income => OwnerEmpire.NetPlanetIncomes
+                                 + OwnerEmpire.TradeMoneyAddedThisTurn
+                                 + OwnerEmpire.data.FlatMoneyBonus
+                                 - OwnerEmpire.TotalShipMaintenance;
+
         private float TreasuryGoal()
         {
             float treasuryGoal = OwnerEmpire.data.treasuryGoal;
@@ -64,23 +70,20 @@ namespace Ship_Game.AI
                                + OwnerEmpire.data.FlatMoneyBonus
                                + OwnerEmpire.TotalShipMaintenance; //more savings than GDP 
             }
-            treasuryGoal *= (OwnerEmpire.data.treasuryGoal * 1000);
+            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 500;
             treasuryGoal = Math.Max(1000, treasuryGoal);
             return treasuryGoal;
         }
 
-        private void AutoSetTaxes(float treasuryGoal, float goalClamped)
+        private void AutoSetTaxes(float treasuryGoal)
         {
-            if (OwnerEmpire.isPlayer && !OwnerEmpire.data.AutoTaxes) return;
-            float treasuryGoalRatio = 1 - goalClamped;
-            treasuryGoal *= treasuryGoalRatio;
-            float tempTax = FindTaxRateToReturnAmount(treasuryGoal);
-            if (tempTax - OwnerEmpire.data.TaxRate > .02f)
-                OwnerEmpire.data.TaxRate += .02f;
-            else
-                OwnerEmpire.data.TaxRate = tempTax;
+            if (OwnerEmpire.isPlayer && !OwnerEmpire.data.AutoTaxes)
+                return;
 
-            OwnerEmpire.data.TaxRate = OwnerEmpire.data.TaxRate.Clamped(0.25f, 0.75f); // FB - temp hack until this code is refactored. no chance tax can be 0%
+            const float normalTaxRate = 0.25f;
+            float treasuryGoalRatio   = OwnerEmpire.Money / treasuryGoal;
+            float taxRateModifer      = -(float)Math.Round((treasuryGoalRatio -1) / 10, 2) ; // this will increase or decrease tax based on ratio
+            OwnerEmpire.data.TaxRate  = (normalTaxRate + taxRateModifer).Clamped(0.05f,0.95f);
         }
 #if DEBUG
         public Array<PlanetBudget> PlanetBudgets;
