@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Ship_Game.GameScreens.NewGame;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -185,6 +186,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadPlanetEdicts();
             LoadPlanetTypes();
+            LoadSunTypes();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
             ShieldManager.LoadContent(RootContent);
@@ -1871,6 +1873,9 @@ namespace Ship_Game
             }
         }
 
+
+
+
         static Array<PlanetType> PlanetTypes;
         static Map<int, PlanetType> PlanetTypeMap;
 
@@ -1888,9 +1893,7 @@ namespace Ship_Game
 
         static void LoadPlanetTypes()
         {
-            FileInfo file = GetModOrVanillaFile("PlanetTypes.yaml");
-            if (file == null) throw new Exception("Required PlanetTypes.yaml not found!");
-            using (var parser = new Data.StarDataParser(file))
+            using (var parser = new Data.StarDataParser("PlanetTypes.yaml"))
             {
                 PlanetTypes = parser.DeserializeArray<PlanetType>();
             }
@@ -1900,6 +1903,34 @@ namespace Ship_Game
             foreach (PlanetType type in PlanetTypes)
                 PlanetTypeMap[type.Id] = type;
         }
+
+
+
+        public static Array<SunType> SunTypes;
+        static readonly Map<string, SunType> SunTypesMap = new Map<string, SunType>();
+
+        public static SunType RandomSun(Predicate<SunType> filter)
+        {
+            return RandomMath.RandItem(SunTypes.Filter(filter));
+        }
+
+        public static SunType FindSun(string id) => SunTypesMap[id];
+
+        static void LoadSunTypes()
+        {
+            using (var parser = new Data.StarDataParser("Suns.yaml"))
+                SunTypes = parser.DeserializeArray<SunType>();
+            
+            SunTypesMap.Clear();
+            foreach (SunType sun in SunTypes)
+            {
+                sun.Texture = RootContent.Load<Texture2D>("Textures/"+sun.IconPath);
+                sun.LoResIcon = new SubTexture(sun.Id, sun.Texture);
+                sun.HiRes     = new SubTexture(sun.Id, sun.Texture);
+                SunTypesMap[sun.Id] = sun;
+            }
+        }
+
 
         // Added by RedFox
         private static void LoadBlackboxSpecific()

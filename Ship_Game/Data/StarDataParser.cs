@@ -85,20 +85,14 @@ namespace Ship_Game.Data
 
         public StarDataParser(string file)
         {
-            Reader = new StreamReader(file, Encoding.UTF8);
+            FileInfo f = ResourceManager.GetModOrVanillaFile(file);
+            if (f == null || !f.Exists)
+                throw new FileNotFoundException($"Required StarData file not found! {file}");
+
+            Reader = f.OpenText();
             Root = new SDNode
             {
-                Name = Path.GetFileNameWithoutExtension(file),
-                Value = "",
-            };
-            Parse();
-        }
-        public StarDataParser(FileInfo file)
-        {
-            Reader = new StreamReader(file.OpenRead(), Encoding.UTF8);
-            Root = new SDNode
-            {
-                Name = file.NameNoExt(),
+                Name = f.NameNoExt(),
                 Value = "",
             };
             Parse();

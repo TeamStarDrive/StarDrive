@@ -6,6 +6,7 @@ using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -15,7 +16,6 @@ namespace Ship_Game
         public bool CombatInSystem;
         public float combatTimer;
         public Guid guid = Guid.NewGuid();
-        public int IndexOfResetEvent;
         public bool DontStartNearPlayer;
         public float DangerTimer;
         public float DangerUpdater = 10f;
@@ -29,21 +29,9 @@ namespace Ship_Game
         public Array<Asteroid> AsteroidsList = new Array<Asteroid>();
         public Array<Moon> MoonList = new Array<Moon>();
 
-        private Empire[] FullyExplored = Empty<Empire>.Array;
+        Empire[] FullyExplored = Empty<Empire>.Array;
 
-        public string SunIconPath { get; private set; }
-        public SubTexture SunTexture { get; private set; }
-        string Path;
-        public string SunPath
-        {
-            get => Path;
-            set
-            {
-                Path = value;
-                SunIconPath = "Suns/" + value;
-                SunTexture = ResourceManager.Texture(SunIconPath);
-            }
-        }
+        public SunType Sun;
 
         public Array<Ring> RingList = new Array<Ring>();
         private int NumberOfRings;
@@ -54,23 +42,7 @@ namespace Ship_Game
         public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
         public bool isStartingSystem;
         public Array<string> DefensiveFleets = new Array<string>();
-        public Map<Empire,PredictionTimeout> predictionTimeout =new Map<Empire,PredictionTimeout>();
-        [XmlIgnore] [JsonIgnore] public bool VisibilityUpdated;
-
-        public class PredictionTimeout
-        {
-            public float prediction;
-            public float predictionTimeout;
-            public float predictedETA;
-            public void Update(float time)
-            {
-                predictionTimeout -= time;
-                predictedETA -= time;
-                Log.Info($"Prediction Timeout: {predictionTimeout}");
-                Log.Info($"Prediction ETA: {predictedETA}");
-                Log.Info($"Prediction: {prediction}");
-            }
-        }
+        [XmlIgnore][JsonIgnore] public bool VisibilityUpdated;
 
         public void Update(float elapsedTime, UniverseScreen universe)
         {
@@ -467,22 +439,11 @@ namespace Ship_Game
             }
         }
 
-        private void SetSunPath(int whichSun)
-        {
-            switch (whichSun)
-            {
-                default:SunPath = "star_red";     break;
-                case 2: SunPath = "star_yellow";  break;
-                case 3: SunPath = "star_green";   break;
-                case 4: SunPath = "star_blue";    break;
-                case 5: SunPath = "star_yellow2"; break;
-                case 6: SunPath = "star_binary";  break;
-            }
-        }
-
         public void GenerateCorsairSystem(string systemName)
         {
-            SetSunPath(RandomMath.IntBetween(1, 3));
+            Sun = ResourceManager.RandomSun(s => s.Id == "star_red" 
+                                              || s.Id == "star_yellow" 
+                                              || s.Id == "star_green");
             Name = systemName;
             NumberOfRings = 2;
             StarRadius = RandomMath.IntBetween(250, 500);
@@ -533,8 +494,10 @@ namespace Ship_Game
 
         public void GenerateRandomSystem(string name, UniverseData data, float systemScale, Empire owner = null)
         {
-            // Changed by RedFox: 3% chance to get a tri-sun star
-            SetSunPath(RandomMath.IntBetween(0, 100) < 3 ? (6) : RandomMath.IntBetween(1, 5));
+            // Changed by RedFox: 2% chance to get a tri-sun "star_binary"
+            Sun = RandomMath.IntBetween(0, 100) < 2
+                ? ResourceManager.FindSun("star_binary")
+                : ResourceManager.RandomSun(s => s.Id != "star_binary");
 
             Name              = name;
             StarRadius        = (int) (RandomMath.IntBetween(250, 500) * systemScale);
@@ -600,8 +563,8 @@ namespace Ship_Game
         {
             var newSys = new SolarSystem
             {
-                SunPath = data.SunPath,
-                Name    = data.Name
+                Sun  = ResourceManager.FindSun(data.SunPath),
+                Name = data.Name
             };
             newSys.RingList.Capacity = data.RingList.Count;
             int numberOfRings = data.RingList.Count;

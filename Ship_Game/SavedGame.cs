@@ -111,7 +111,7 @@ namespace Ship_Game
                 {
                     Name          = system.Name,
                     Position      = system.Position,
-                    SunPath       = system.SunPath,
+                    SunPath       = system.Sun.Id, // old SunPath is actually the ID @todo RENAME
                     AsteroidsList = new Array<Asteroid>(),
                     Moons         = new Array<Moon>()
                 };
@@ -915,7 +915,7 @@ namespace Ship_Game
         public class SolarSystemSaveData
         {
             [Serialize(0)] public Guid guid;
-            [Serialize(1)] public string SunPath;
+            [Serialize(1)] public string SunPath; // old SunPath is actually the ID @todo RENAME
             [Serialize(2)] public string Name;
             [Serialize(3)] public Vector2 Position;
             [Serialize(4)] public Array<RingSave> RingList;
