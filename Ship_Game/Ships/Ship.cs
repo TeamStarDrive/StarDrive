@@ -1293,7 +1293,7 @@ namespace Ship_Game.Ships
 
         public float GetMaintCost(Empire empire)
         {
-            int numShipYards = IsTethered ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
+            int numShipYards = IsTethered ? GetTether().OrbitalStations.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
             return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 

@@ -163,11 +163,11 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (q.sData.Role == ShipData.RoleName.station || q.sData.Role == ShipData.RoleName.platform)
             {
-                int num = P.Shipyards.Count / 9;
-                shipAt.Position = P.Center + MathExt.PointOnCircle(P.Shipyards.Count * 40, 2000 + 2000 * num * P.Scale);
+                int num = P.OrbitalStations.Count / 9;
+                shipAt.Position = P.Center + MathExt.PointOnCircle(P.OrbitalStations.Count * 40, 2000 + 2000 * num * P.Scale);
                 shipAt.Center = shipAt.Position;
                 shipAt.TetherToPlanet(P);
-                P.Shipyards.Add(shipAt.guid, shipAt);
+                P.OrbitalStations.Add(shipAt.guid, shipAt);
             }
 
             q.Goal?.ReportShipComplete(shipAt);

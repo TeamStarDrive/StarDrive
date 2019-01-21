@@ -106,7 +106,7 @@ namespace Ship_Game
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
         {
             var orbitalList = new Array<Ship>();
-            foreach (Ship orbital in Shipyards.Values)
+            foreach (Ship orbital in OrbitalStations.Values)
             {
                 if (orbital.shipData.Role == role && !orbital.shipData.IsShipyard) // dont treat shipyard as a full blown station
                     orbitalList.Add(orbital);
@@ -294,7 +294,7 @@ namespace Ship_Game
             if (!wantShipyard || RecentCombat || !HasSpacePort)
                 return;
 
-            if (Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
+            if (OrbitalStations.Any(ship => ship.Value.shipData.IsShipyard)
                 || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
                 return;
 
@@ -365,7 +365,7 @@ namespace Ship_Game
                         }
                     }
 
-                    foreach (Ship platform in Shipyards.Values)
+                    foreach (Ship platform in OrbitalStations.Values)
                     {
                         if (platform.AI.State == AIState.Scrap)
                             continue;

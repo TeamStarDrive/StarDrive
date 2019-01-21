@@ -286,11 +286,11 @@ namespace Ship_Game
                 Guid orbitTargetGuid = ship.AI.OrbitTargetGuid;
                 foreach (Planet p in s.PlanetList)
                 {
-                    foreach (Guid station in p.Shipyards.Keys.ToArray())
+                    foreach (Guid station in p.OrbitalStations.Keys.ToArray())
                     {
                         if (station == ship.guid)
                         {
-                            p.Shipyards[station] = ship;
+                            p.OrbitalStations[station] = ship;
                             ship.TetherToPlanet(p);
                         }
                     }
