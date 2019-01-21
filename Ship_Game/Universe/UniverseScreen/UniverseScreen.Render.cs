@@ -573,27 +573,28 @@ namespace Ship_Game
                     }
             }
 
-            var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.DepthBufferWriteEnable = true;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.One;
+            var rs = ScreenManager.GraphicsDevice.RenderState;
+            rs.DepthBufferWriteEnable = true;
+            rs.SourceBlend = Blend.SourceAlpha;
+            rs.DestinationBlend = Blend.One;
             for (int x = 0; x < anomalyManager.AnomaliesList.Count; x++)
             {
                 Anomaly anomaly = anomalyManager.AnomaliesList[x];
                 anomaly.Draw();
             }
             DrawSolarSystemsClose();
-            renderState.AlphaBlendEnable = true;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.One;
-            renderState.DepthBufferWriteEnable = false;
-            renderState.CullMode = CullMode.None;
+            rs.AlphaBlendEnable = true;
+            rs.SourceBlend = Blend.SourceAlpha;
+            rs.DestinationBlend = Blend.One;
+            rs.DepthBufferWriteEnable = false;
+            rs.CullMode = CullMode.None;
             if (viewState < UnivScreenState.SectorView)
             {
                 RenderThrusters();
                 RenderParticles();
 
                 DrawWarpFlash();
+
                 beamflashes.Draw(gameTime);
                 explosionParticles.Draw(gameTime);
                 photonExplosionParticles.Draw(gameTime);
@@ -633,7 +634,7 @@ namespace Ship_Game
             ScreenManager.EndFrameRendering();
             if (viewState < UnivScreenState.SectorView)
                 DrawShields();
-            renderState.DepthBufferWriteEnable = true;
+            rs.DepthBufferWriteEnable = true;
         }
 
         private void DrawWarpFlash()
