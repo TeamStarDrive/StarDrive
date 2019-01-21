@@ -169,7 +169,7 @@ namespace Ship_Game
                             StationsList         = new Array<Guid>(),
                             SpecialDescription = ring.planet.SpecialDescription
                         };
-                        foreach (var station in ring.planet.Shipyards)
+                        foreach (var station in ring.planet.OrbitalStations)
                         {
                             if (station.Value.Active) pdata.StationsList.Add(station.Key);
                         }
