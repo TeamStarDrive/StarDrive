@@ -106,6 +106,8 @@ namespace Ship_Game
         public float cargoNeed = 0;
         public float MaxResearchPotential = 10;
         public float MaxColonyValue { get; private set; }
+        public Ship BestPlatformWeCanBuild { get; private set; }
+        public Ship BestStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         private float leftoverResearch;
@@ -1262,13 +1264,19 @@ namespace Ship_Game
             UpdateFleets(elapsedTime);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
-            UpdateMaxColonyValue();
         }
 
         private void UpdateMaxColonyValue()
         {
-            if (!isFaction && OwnedPlanets.Count > 0)
+            if (OwnedPlanets.Count > 0)
                 MaxColonyValue = OwnedPlanets.Max(p => p.ColonyValue);
+        }
+
+        private void UpdateBestOrbitals()
+        {
+            // FB - this is done here for more performance. having set values here prevents calling shipbuilder by every planet every turn
+            BestPlatformWeCanBuild = BestShipWeCanBuild(ShipData.RoleName.platform, this);
+            BestStationWeCanBuild  = BestShipWeCanBuild(ShipData.RoleName.station, this);
         }
 
         public DebugTextBlock DebugEmpireTradeInfo()
@@ -2041,7 +2049,11 @@ namespace Ship_Game
             if (isFaction)
                 EmpireAI.FactionUpdate();
             else if (!data.Defeated)
+            {
                 EmpireAI.Update();
+                UpdateMaxColonyValue();
+                UpdateBestOrbitals();
+            }
             if (Money > data.CounterIntelligenceBudget)
             {
                 Money -= data.CounterIntelligenceBudget;
