@@ -1259,7 +1259,7 @@ namespace Ship_Game
         public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)
         {
             DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);
-            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            Device.RenderState.DepthBufferWriteEnable = true;
         }
 
     }

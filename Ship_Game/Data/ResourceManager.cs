@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Ship_Game.GameScreens.NewGame;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -185,6 +186,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadPlanetEdicts();
             LoadPlanetTypes();
+            SunType.LoadAll(RootContent);
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
             ShieldManager.LoadContent(RootContent);
@@ -883,7 +885,6 @@ namespace Ship_Game
                 "Textures/SelectionBox",
                 "Textures/Minimap",
                 "Textures/Ships",
-                "Textures/Suns",
                 "Textures/hqspace",
                 "Textures/PlanetGlows",
                 "Textures/TacticalIcons",
@@ -1871,6 +1872,9 @@ namespace Ship_Game
             }
         }
 
+
+
+
         static Array<PlanetType> PlanetTypes;
         static Map<int, PlanetType> PlanetTypeMap;
 
@@ -1888,9 +1892,7 @@ namespace Ship_Game
 
         static void LoadPlanetTypes()
         {
-            FileInfo file = GetModOrVanillaFile("PlanetTypes.yaml");
-            if (file == null) throw new Exception("Required PlanetTypes.yaml not found!");
-            using (var parser = new Data.StarDataParser(file))
+            using (var parser = new Data.StarDataParser("PlanetTypes.yaml"))
             {
                 PlanetTypes = parser.DeserializeArray<PlanetType>();
             }
@@ -1900,6 +1902,7 @@ namespace Ship_Game
             foreach (PlanetType type in PlanetTypes)
                 PlanetTypeMap[type.Id] = type;
         }
+
 
         // Added by RedFox
         private static void LoadBlackboxSpecific()
