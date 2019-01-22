@@ -299,6 +299,19 @@ namespace Ship_Game
         public static Rectangle Bevel(this Rectangle r, int bevel)
             => new Rectangle(r.X - bevel, r.Y - bevel, r.Width + bevel*2, r.Height + bevel*2);
 
+        public static Rectangle ScaledBy(this Rectangle r, float scale)
+        {
+            if (scale.AlmostEqual(1f))
+                return r;
+            float extrude = scale - 1f;
+            int extrudeX = (int)(r.Width*extrude);
+            int extrudeY = (int)(r.Height*extrude);
+            return new Rectangle(r.X - extrudeX, 
+                                 r.Y - extrudeY, 
+                                 r.Width  + extrudeX*2,
+                                 r.Height + extrudeY*2);
+        }
+
         public static bool IsDiagonalTo(this Point a, Point b) => Abs(b.X - a.X) > 0 && Abs(b.Y - a.Y) > 0;
 
         // Angle degrees from origin to tgt; result between [0, 360)

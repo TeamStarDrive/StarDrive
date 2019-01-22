@@ -175,14 +175,14 @@ namespace Ship_Game.Ships
         }
 
         // safe and fast module lookup by x,y where coordinates (0,1) (2,1) etc
-        private bool GetModuleAt(ShipModule[] sparseGrid, int x, int y, out ShipModule module)
+        bool GetModuleAt(ShipModule[] sparseGrid, int x, int y, out ShipModule module)
         {
             module = (uint)x < GridWidth && (uint)y < GridHeight ? sparseGrid[x + y * GridWidth] : null;
             return module != null;
         }
 
         // The simplest form of collision against shields. This is handled in all other HitTest functions
-        private ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
+        ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
         {
             for (int i = 0; i < Shields.Length; ++i)
             {
@@ -194,7 +194,7 @@ namespace Ship_Game.Ships
         }
 
         // Slightly more complicated ray-collision against shields
-        private ShipModule RayHitTestShields(Vector2 worldStartPos, Vector2 worldEndPos, float rayRadius, out float hitDistance)
+        ShipModule RayHitTestShields(Vector2 worldStartPos, Vector2 worldEndPos, float rayRadius, out float hitDistance)
         {
             float minD = float.MaxValue;
             ShipModule hit = null;
@@ -213,6 +213,21 @@ namespace Ship_Game.Ships
             }
             hitDistance = minD;
             return hit;
+        }
+
+        // Gets the strongest shield currently covering internalModule
+        bool IsCoveredByShield(ShipModule internalModule, out ShipModule shield)
+        {
+            float maxPower = 0f;
+            shield = null;
+            for (int i = 0; i < Shields.Length; ++i)
+            {
+                ShipModule m = Shields[i];
+                float power = m.ShieldPower;
+                if (power > maxPower && m.HitTestShield(internalModule.Center, internalModule.Radius))
+                    shield = m;
+            }
+            return shield != null;
         }
 
 

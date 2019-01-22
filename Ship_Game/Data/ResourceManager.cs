@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Ship_Game.GameScreens.NewGame;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -56,8 +57,6 @@ namespace Ship_Game
         public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>();
         private static readonly Map<string, ShipModule> ModuleTemplates = new Map<string, ShipModule>(GlobalStats.CaseControl);
         public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>();
-        public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
-        public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
 
         public static Array<RandomItem> RandomItemsList           = new Array<RandomItem>();
         private static readonly Map<string, Troop> TroopsDict     = new Map<string, Troop>();
@@ -187,6 +186,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadPlanetEdicts();
             LoadPlanetTypes();
+            SunType.LoadAll(RootContent);
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
             ShieldManager.LoadContent(RootContent);
@@ -806,9 +806,7 @@ namespace Ship_Game
         public static Texture2D LoadModTexture(GameContentManager content, string modName, string textureName)
         {
             string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
-            if (File.Exists(modTexPath + ".xnb"))
-                return content.Load<Texture2D>(modTexPath);
-            return null;
+            return content.Load<Texture2D>(modTexPath);
         }
 
         public static Texture2D Texture2D(string textureNamePath)
@@ -823,7 +821,9 @@ namespace Ship_Game
 
         public static SubTexture ProjTexture(string texturePath)
         {
-            return new SubTexture(texturePath, ProjTextDict[texturePath]);
+            if (ProjTextDict.TryGetValue(texturePath, out Texture2D proj))
+                return new SubTexture(texturePath, proj);
+            return RootContent.DefaultTexture();
         }
 
         public static FileInfo[] GatherTextureFiles(string dir, bool recursive)
@@ -883,7 +883,6 @@ namespace Ship_Game
                 "Textures/SelectionBox",
                 "Textures/Minimap",
                 "Textures/Ships",
-                "Textures/Suns",
                 "Textures/hqspace",
                 "Textures/PlanetGlows",
                 "Textures/TacticalIcons",
@@ -1300,6 +1299,8 @@ namespace Ship_Game
 
 
         // Refactored by RedFox
+        public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
+        public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
         private static void LoadProjectileMesh(string projectileDir, string nameNoExt)
         {
             string path = projectileDir + nameNoExt;
@@ -1869,6 +1870,9 @@ namespace Ship_Game
             }
         }
 
+
+
+
         static Array<PlanetType> PlanetTypes;
         static Map<int, PlanetType> PlanetTypeMap;
 
@@ -1886,9 +1890,7 @@ namespace Ship_Game
 
         static void LoadPlanetTypes()
         {
-            FileInfo file = GetModOrVanillaFile("PlanetTypes.yaml");
-            if (file == null) throw new Exception("Required PlanetTypes.yaml not found!");
-            using (var parser = new Data.StarDataParser(file))
+            using (var parser = new Data.StarDataParser("PlanetTypes.yaml"))
             {
                 PlanetTypes = parser.DeserializeArray<PlanetType>();
             }
@@ -1898,6 +1900,7 @@ namespace Ship_Game
             foreach (PlanetType type in PlanetTypes)
                 PlanetTypeMap[type.Id] = type;
         }
+
 
         // Added by RedFox
         private static void LoadBlackboxSpecific()

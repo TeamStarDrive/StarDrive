@@ -15,7 +15,7 @@ namespace Ship_Game.GameScreens.MainMenu
     {
         IWavePlayer WaveOut;
         Mp3FileReader Mp3FileReader;
-        SpriteAnimation SDLogoAnim;
+        UISpriteElement SDLogoAnim;
 
         SceneObject MoonObj;
         Vector3 MoonPosition;
@@ -56,7 +56,7 @@ namespace Ship_Game.GameScreens.MainMenu
             int w = ScreenWidth, h = ScreenHeight;
 
             // Confusing: Main menu background is in `Content/MainMenu` not `Content/Textures/MainMenu`
-            SubTexture nebula = TransientContent.LoadSubTexture(h <= 1080 
+            SubTexture nebula = TransientContent.LoadSubTexture(h <= 1080
                               ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg");
             Panel(nebula, ScreenRect).InBackground(); // fill background
             Panel("MainMenu/planet", new Rectangle(0, h-680, 1016, 680)).InBackground(); // big planet at left side
@@ -86,9 +86,9 @@ namespace Ship_Game.GameScreens.MainMenu
             StartTransition<UIButton>(512f, -1f);
             OnExit += () => StartTransition<UIButton>(512f, +1f);
                         
-            SDLogoAnim = Add(new SpriteAnimation(this, "MainMenu/Stardrive logo"));
-            SDLogoAnim.StopAtLastFrame = true;
-            SDLogoAnim.Rect = new Rectangle(w-600, 128, 512, 128);
+            SDLogoAnim = Add(new UISpriteElement(this, "MainMenu/Stardrive logo"));
+            SDLogoAnim.Animation.FreezeAtLastFrame = true;
+            SDLogoAnim.SetAbsPos(w-600, 128);
             MoonPosition = new Vector3(+w / 2f - 300, SDLogoAnim.Y + 70 - h / 2f, 0f);
             ShipPosition = new Vector3(-w / 4f, SDLogoAnim.Y + 400 - h / 2f, 0f);
 
@@ -381,7 +381,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
             ScreenManager.UpdateSceneObjects(gameTime);
             
-            if (RandomMath.RandomBetween(0f, 100f) > 99.75f)
+            if (RandomMath.RollDice(percent:0.25f)) // 0.25%
             {
                 Comet c = Add(new Comet(this));
                 c.SetDirection(new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f));

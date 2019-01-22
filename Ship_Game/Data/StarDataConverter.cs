@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data
 {
@@ -26,6 +27,9 @@ namespace Ship_Game.Data
 
             if (targetT == LocTextType)
                 return ToLocText(value);
+
+            if (targetT == ColorType)
+                return ToColor(value);
 
             return System.Convert.ChangeType(value, targetT);
         }
@@ -64,6 +68,33 @@ namespace Ship_Game.Data
             if (!(value is int id))
                 throw new Exception($"StarDataConverter could not convert '{value}' to LocText");
             return new LocText(id);
+        }
+
+        static readonly Type ColorType = typeof(Color);
+
+        static object ToColor(object value)
+        {
+            if (!(value is object[] objects))
+                throw new Exception($"StarDataConverter could not convert '{value}' to Color");
+
+            if (objects[0] is int)
+            {
+                byte r = 255, g = 255, b = 255, a = 255;
+                if (objects.Length >= 1) r = (byte)(int)objects[0];
+                if (objects.Length >= 2) g = (byte)(int)objects[1];
+                if (objects.Length >= 3) b = (byte)(int)objects[2];
+                if (objects.Length >= 4) a = (byte)(int)objects[3];
+                return new Color(r, g, b, a);
+            }
+            else
+            {
+                float r = 1f, g = 1f, b = 1f, a = 1f;
+                if (objects.Length >= 1) r = (float)objects[0];
+                if (objects.Length >= 2) g = (float)objects[1];
+                if (objects.Length >= 3) b = (float)objects[2];
+                if (objects.Length >= 4) a = (float)objects[3];
+                return new Color(r, g, b, a);
+            }
         }
     }
 }

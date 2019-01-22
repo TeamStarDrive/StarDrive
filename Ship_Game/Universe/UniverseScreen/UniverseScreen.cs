@@ -177,7 +177,6 @@ namespace Ship_Game
         public bool WorkerUpdateGameWorld;
         public Ship playerShip;
         public float transitionElapsedTime;
-        private float Zrotate;
         public BoundingFrustum Frustum;
         private ClickablePlanets tippedPlanet;
         private ClickableSystem tippedSystem;
@@ -304,25 +303,9 @@ namespace Ship_Game
 
             foreach (SolarSystem system in SolarSystemList)
             {
-                Color color = Color.White;
-                float intensity = 1.5f;
-                float radius = 150000f;
-                switch (system.SunPath)
-                {
-                    case "star_red":
-                        intensity -= 0.1f;
-                        radius -= 50000f;
-                        color = Color.LightSalmon;
-                        break;
-                    case "star_binary":
-                        intensity += 0.2f;
-                        radius += 50000f;
-                        break;
-                    case "star_yellow":  color = Color.LightYellow; break;
-                    case "star_yellow2": color = Color.White;       break;
-                    case "star_green":   color = Color.LightGreen;  break;
-                    case "star_blue":    color = Color.LightBlue;   break;
-                }
+                Color color     = system.Sun.Color;
+                float intensity = system.Sun.LightIntensity;
+                float radius    = system.Sun.Radius;
                 AddLight("Key",               system, intensity,         radius,         color, -5500);
                 AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
                 AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);
@@ -332,7 +315,7 @@ namespace Ship_Game
 
         private void AddLight(string name, SolarSystem system, float intensity, float radius, Color color, float zpos, float fallOff = 1f, bool fillLight = false)
         {
-            AddLight($"{system.Name} - {system.SunPath} - {name}", system.Position, intensity, radius, color,
+            AddLight($"{system.Name} - {system.Sun.Id} - {name}", system.Position, intensity, radius, color,
                 zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
         }
 
