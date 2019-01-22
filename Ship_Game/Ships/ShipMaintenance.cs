@@ -27,7 +27,7 @@ namespace Ship_Game.Ships
             if (IsFreeUpkeepShip(role, empire, ship))
                 return 0;
 
-            float maint = GetBaseMainCost(role, ship.shipData.FixedCost > 0 ? ship.shipData.FixedCost : ship.BaseCost, empire);
+            float maint = GetBaseMainCost(role, ship.GetCost(empire), empire);
 
             // Subspace Projectors do not get any more modifiers
             if (ship.Name == "Subspace Projector")

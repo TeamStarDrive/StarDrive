@@ -108,7 +108,9 @@ namespace Ship_Game.AI
                 return pings;
 
             Ship closest = pings.FindMin(ship => ship.Position.SqDist(position));
-            return PingRadarShip(closest.Center, granularity, empire);
+            
+            //return PingRadarShip(closest.Center, granularity, empire);
+            return closest == null ? null : PingRadarShip(closest.Center, granularity, empire);
         }
 
         public Map<Vector2, float> PingRadarStrengthClusters(Vector2 position, float radius, float granularity, Empire empire)

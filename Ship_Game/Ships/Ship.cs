@@ -785,16 +785,14 @@ namespace Ship_Game.Ships
             if (shipData.HasFixedCost)
                 return shipData.FixedCost * CurrentGame.Pace;
 
-            float cost = 0.0f;
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-                cost += ModuleSlotList[i].ActualCost;
+            float cost = BaseCost;
 
-            if (empire != null)
-            {
-                cost += shipData.Bonuses.StartingCost;
-                cost += cost * empire.data.Traits.ShipCostMod;
-                cost *= 1f - shipData.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
-            }
+            if (empire == null)
+                return (int) cost;
+
+            cost += shipData.Bonuses.StartingCost;
+            cost += cost * empire.data.Traits.ShipCostMod;
+            cost *= 1f - shipData.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
             return (int)cost;
         }
 

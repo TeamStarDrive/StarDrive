@@ -47,42 +47,52 @@ namespace Ship_Game
         float EvalFlatFood(Building b)
         {
             float score = 0;
-            if (b.PlusFlatFoodAmount.AlmostZero() || IsCybernetic)
+            if (b.PlusFlatFoodAmount.AlmostZero())
                 return 0;
-            if (b.PlusFlatFoodAmount < 0)
-                score = b.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
-            else
+            if (!IsCybernetic)
             {
-                float farmers = Food.WorkersNeededForEquilibrium();
-                score += ((b.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
-                score += 1.5f - (Food.YieldPerColonist/2);//Bonus for low Effective Fertility
-                if (farmers.AlmostZero())
-                    score += b.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
-                if (farmers > 0.5f)
-                    score += farmers - 0.5f;            //Bonus if planet is spending a lot of labor feeding itself
-                if (score < b.PlusFlatFoodAmount * 0.1f)
-                    score = b.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
-                if (b.PlusFlatFoodAmount + Food.FlatBonus - 0.5f > MaxPopulationBillion)
-                    score = 0;   //Dont want this if a lot would go to waste
+                if (b.PlusFlatFoodAmount < 0)
+                    score = b.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
+                else
+                {
+                    float farmers = Food.WorkersNeededForEquilibrium();
+                    score += ((b.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
+                    score += 1.5f - (Food.YieldPerColonist / 2);//Bonus for low Effective Fertility
+                    if (farmers.AlmostZero())
+                        score += b.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
+                    if (farmers > 0.5f)
+                        score += farmers - 0.5f;            //Bonus if planet is spending a lot of labor feeding itself
+                    if (score < b.PlusFlatFoodAmount * 0.1f)
+                        score = b.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
+                    if (b.PlusFlatFoodAmount + Food.FlatBonus - 0.5f > MaxPopulationBillion)
+                        score = 0;   //Dont want this if a lot would go to waste
 
-                float jumpStart = 10 * (1 - PopulationRatio)  - Food.NetMaxPotential * Food.Percent; // FB - jump start a new colony
-                jumpStart = Math.Max(jumpStart, 0);
+                    float jumpStart = 10 * (1 - PopulationRatio) - Food.NetMaxPotential * Food.Percent; // FB - jump start a new colony
+                    jumpStart = Math.Max(jumpStart, 0);
 
-                score += jumpStart; // FB - jump start a new colony, as the colony grows, it will get negative and scrapped
+                    score += jumpStart; // FB - jump start a new colony, as the colony grows, it will get negative and scrapped
+                }
             }
+            else score += -10; // FB - Filthy Opteris do not need this crap. Let's even scrap this shit.
+
             DebugEvalBuild(b, "FlatFood", score);
             return score;
         }
 
         float EvalFoodPerCol(Building b)
         {
-            if (IsCybernetic)
-                return -10; // FB - Filthy Opteris do not need this crap. Let's even scrap this shit.
             if (b.PlusFoodPerColonist.AlmostZero() || Fertility.AlmostZero())
                 return 0;
 
-            float gain  = b.PlusFoodPerColonist * Fertility * MaxPopulationBillion;
-            float score = gain * (Food.NetYieldPerColonist < 1 ? 2 : 1); // if we have low yield, let's add some
+            float score = 0;
+            if (!IsCybernetic)
+            {
+                float gain = b.PlusFoodPerColonist * Fertility * MaxPopulationBillion;
+                score += gain * (Food.NetYieldPerColonist < 1 ? 2 : 1); // if we have low yield, let's add some
+            }
+            else
+                score += -10; // FB - Filthy Opteris do not need this crap. Let's even scrap this shit.
+
             DebugEvalBuild(b, "FoodPerCol", score);
             return score;
         }
