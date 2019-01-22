@@ -806,9 +806,7 @@ namespace Ship_Game
         public static Texture2D LoadModTexture(GameContentManager content, string modName, string textureName)
         {
             string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
-            if (File.Exists(modTexPath + ".xnb"))
-                return content.Load<Texture2D>(modTexPath);
-            return null;
+            return content.Load<Texture2D>(modTexPath);
         }
 
         public static Texture2D Texture2D(string textureNamePath)

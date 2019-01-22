@@ -62,7 +62,7 @@ namespace Ship_Game
         }
 
         public object LoadAsset(string fileNameWithExt, string ext)
-        {            
+        {
             if (IsSupportedMeshExtension(ext))
             {
                 Log.Info(ConsoleColor.Magenta, $"Raw LoadMesh: {fileNameWithExt}");

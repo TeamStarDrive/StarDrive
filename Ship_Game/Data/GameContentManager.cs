@@ -481,6 +481,7 @@ namespace Ship_Game
         static Assembly XnaAssembly;
         static string SunburnAssemblyName;
 
+        // @note This IS used, but only through reflection. It's referenced by string in `FixSunBurnTypeLoader()`
         static bool InstantiateTypeReader(string readerTypeName, ContentReader contentReader, out ContentTypeReader reader)
         {
             try
