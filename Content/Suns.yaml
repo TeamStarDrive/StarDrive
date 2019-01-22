@@ -6,7 +6,7 @@
   Color: [255,160,122] # LightSalmon, light source color
   PulsePeriod: 5.0
   PulseScale: [0.96,1.04]
-  PulseColor: [0.95,1.25]
+  PulseColor: [0.90,1.20]
   Habitable: true
 Sun: star_yellow
   LoResPath: Suns/star_yellow
@@ -16,7 +16,7 @@ Sun: star_yellow
   Color: [255,255,224] # LightYellow
   PulsePeriod: 5.0
   PulseScale: [0.96,1.04]
-  PulseColor: [0.95,1.25]
+  PulseColor: [0.90,1.20]
   Habitable: true
 Sun: star_green
   LoResPath: Suns/star_green
@@ -26,7 +26,7 @@ Sun: star_green
   Color: [144,238,144] # LightGreen
   PulsePeriod: 5.0
   PulseScale: [0.97,1.03]
-  PulseColor: [0.95,1.25]
+  PulseColor: [0.90,1.20]
   Habitable: true
 Sun: star_blue
   LoResPath: Suns/star_blue
@@ -36,7 +36,7 @@ Sun: star_blue
   Color: [173,216,230] # LightBlue
   PulsePeriod: 5.0
   PulseScale: [0.96,1.04]
-  PulseColor: [0.95,1.25]
+  PulseColor: [0.90,1.20]
   Habitable: true
 Sun: star_yellow2
   LoResPath: Suns/star_yellow2
@@ -46,17 +46,17 @@ Sun: star_yellow2
   Color: [255,255,255] # White
   PulsePeriod: 5.0
   PulseScale: [0.96,1.04]
-  PulseColor: [0.95,1.25]
+  PulseColor: [0.90,1.20]
   Habitable: true
 Sun: star_binary
   LoResPath: Suns/star_binary
   HiResPath: Suns/star_binary
   LightIntensity: 1.7
-  Radius: 200000
+  Radius: 100000
   Color: [255,255,255] # White
   PulsePeriod: 5.0
   PulseScale: [0.96,1.04]
-  PulseColor: [0.95,1.25]
+  PulseColor: [0.90,1.20]
   Habitable: true
   DoubleLayered: false # don't render hi-res twice
 Sun: star_neutron
@@ -69,7 +69,7 @@ Sun: star_neutron
   DoubleLayered: false # don't render neutron cloud twice
   PulsePeriod: 5.0
   PulseScale: [0.98,1.03]
-  PulseColor: [1.1,1.6]
+  PulseColor: [0.8,1.6]
   RadiationDamage: 100 # per second, falls off depending on RadiationRadius
   RadiationRadius: 50000
-  RotationSpeed: 0.02 # default is 0.03
+  RotationSpeed: 0.005 # default is 0.03
