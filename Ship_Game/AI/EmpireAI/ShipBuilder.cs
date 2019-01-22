@@ -180,7 +180,7 @@ namespace Ship_Game.AI
                 return null;
 
             ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship);
-            if (ship == null || ship.shipData.IsShipyard)
+            if (ship == null || ship.shipData.IsShipyard || ship.Name == "Subspace Projector") 
                 return null;
 
             return ship;
