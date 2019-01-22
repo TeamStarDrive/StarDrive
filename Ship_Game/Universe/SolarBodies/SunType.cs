@@ -33,6 +33,8 @@ namespace Ship_Game.Universe.SolarBodies
         public SubTexture LoRes {get;private set;} // lo-res icon used in background star fields
         public SubTexture HiRes {get;private set;} // hi-res texture applied on a 3D object
 
+        public override string ToString()
+            => $"SunType {Id}  {LoResPath}  Color:{Color}  Habitable:{Habitable}";
 
         public float DamageMultiplier(float distFromSun)
         {
