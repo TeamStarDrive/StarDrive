@@ -186,7 +186,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadPlanetEdicts();
             LoadPlanetTypes();
-            LoadSunTypes();
+            SunType.LoadAll(RootContent);
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
             ShieldManager.LoadContent(RootContent);
@@ -885,7 +885,6 @@ namespace Ship_Game
                 "Textures/SelectionBox",
                 "Textures/Minimap",
                 "Textures/Ships",
-                "Textures/Suns",
                 "Textures/hqspace",
                 "Textures/PlanetGlows",
                 "Textures/TacticalIcons",
@@ -1902,33 +1901,6 @@ namespace Ship_Game
             PlanetTypeMap = new Map<int, PlanetType>(PlanetTypes.Count);
             foreach (PlanetType type in PlanetTypes)
                 PlanetTypeMap[type.Id] = type;
-        }
-
-
-
-        public static Array<SunType> SunTypes;
-        static readonly Map<string, SunType> SunTypesMap = new Map<string, SunType>();
-
-        public static SunType RandomSun(Predicate<SunType> filter)
-        {
-            return RandomMath.RandItem(SunTypes.Filter(filter));
-        }
-
-        public static SunType FindSun(string id) => SunTypesMap[id];
-
-        static void LoadSunTypes()
-        {
-            using (var parser = new Data.StarDataParser("Suns.yaml"))
-                SunTypes = parser.DeserializeArray<SunType>();
-            
-            SunTypesMap.Clear();
-            foreach (SunType sun in SunTypes)
-            {
-                sun.Texture = RootContent.Load<Texture2D>("Textures/"+sun.IconPath);
-                sun.LoResIcon = new SubTexture(sun.Id, sun.Texture);
-                sun.HiRes     = new SubTexture(sun.Id, sun.Texture);
-                SunTypesMap[sun.Id] = sun;
-            }
         }
 
 

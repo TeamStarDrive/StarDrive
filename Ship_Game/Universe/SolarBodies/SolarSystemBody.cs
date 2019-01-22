@@ -62,6 +62,8 @@ namespace Ship_Game
         public SubTexture PlanetTexture => ResourceManager.Texture(Type.IconPath);
         public PlanetCategory Category => Type.Category;
         public bool IsBarrenType => Type.Category == PlanetCategory.Barren;
+        public bool IsBarrenOrVolcanic => Type.Category == PlanetCategory.Barren
+                                       || Type.Category == PlanetCategory.Volcanic;
         public string IconPath => Type.IconPath;
         public bool Habitable => Type.Habitable;
 

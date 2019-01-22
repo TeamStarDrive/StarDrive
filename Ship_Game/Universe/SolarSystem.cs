@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Universe.SolarBodies;
 
@@ -25,6 +26,7 @@ namespace Ship_Game
         public Array<Ship> ShipList = new Array<Ship>();
         public bool isVisible;
         public Vector2 Position;
+        public float Radius = 150000f; // solar system radius
         public Array<Planet> PlanetList = new Array<Planet>();
         public Array<Asteroid> AsteroidsList = new Array<Asteroid>();
         public Array<Moon> MoonList = new Array<Moon>();
@@ -32,10 +34,14 @@ namespace Ship_Game
         Empire[] FullyExplored = Empty<Empire>.Array;
 
         public SunType Sun;
+        public float Zrotate;
+        public float DamageIntensity = 1f; // animated current intensity of the sun
+        public float ScaleIntensity = 1f;
+        public float ColorIntensity = 1f;
+        float PulseTime = 0f;
 
         public Array<Ring> RingList = new Array<Ring>();
         private int NumberOfRings;
-        public int StarRadius;
         public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>();
         public Array<string> ShipsToSpawn = new Array<string>();
         public Array<FleetAndPos> FleetsToSpawn = new Array<FleetAndPos>();
@@ -54,34 +60,44 @@ namespace Ship_Game
             {
                 DangerUpdater = 10f;
 
-                DangerTimer =  player.KnownShips.Any(s => s.Center.InRadius(Position, 150000))
+                DangerTimer = player.KnownShips.Any(s => s.Center.InRadius(Position, Radius))
                     ? 120f
                     : 0.0f;
             }
 
             combatTimer -= realTime;
 
+            Zrotate += Sun.RotationSpeed * elapsedTime;
+
+            // this is a nice sine-wave pulse effect that varies our intensity
+            PulseTime += elapsedTime;
+            float progress = PulseTime / (Sun.PulsePeriod*0.33f);
+            DamageIntensity = (1.0f + (float)Math.Sin(progress))*0.5f; // convert to positive [0.0-1.0] scale
+            ScaleIntensity = Sun.PulseScale.Min.LerpTo(Sun.PulseScale.Max, DamageIntensity);
+            ColorIntensity = Sun.PulseColor.Min.LerpTo(Sun.PulseColor.Max, DamageIntensity);
+            
             if (combatTimer <= 0.0)
                 CombatInSystem = false;
             bool viewing = false;
             Vector3 v3SystemPosition = Position.ToVec3();
             universe.Viewport.Project(v3SystemPosition, universe.projection, universe.view, Matrix.Identity);
-            if (universe.Frustum.Contains(new BoundingSphere(v3SystemPosition, 100000f)) !=
+            if (universe.Frustum.Contains(new BoundingSphere(v3SystemPosition, Radius)) !=
                 ContainmentType.Disjoint)
                 viewing = true;
+
             //WTF is this doing?
             else if (universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
-                var rect = new Rectangle((int) Position.X - 100000,
-                    (int) Position.Y - 100000, 200000, 200000);
-                Vector3 position = universe.Viewport.Unproject(new Vector3(500f, 500f, 0.0f), universe.projection, universe.view, Matrix.Identity);
+                var rect = new Rectangle((int) Position.X - (int)Radius,
+                                         (int) Position.Y - (int)Radius, (int)Radius*2, (int)Radius*2);
+                Vector3 position = universe.Viewport.Unproject(new Vector3(500f, 500f, 0f), universe.projection, universe.view, Matrix.Identity);
                 Vector3 direction = universe.Viewport.Unproject(new Vector3(500f, 500f, 1f), universe.projection, universe.view, Matrix.Identity) -
                                     position;
                 direction.Normalize();
                 var ray = new Ray(position, direction);
                 float num = -ray.Position.Z / ray.Direction.Z;
                 var vector3 = new Vector3(ray.Position.X + num * ray.Direction.X,
-                    ray.Position.Y + num * ray.Direction.Y, 0.0f);
+                                          ray.Position.Y + num * ray.Direction.Y, 0.0f);
                 var pos = new Vector2(vector3.X, vector3.Y);
                 if (rect.HitTest(pos))
                     viewing = true;
@@ -140,7 +156,9 @@ namespace Ship_Game
                 if (!ship.ShipInitialized) continue;
                 if (ship.System == null)
                     continue;
-                if (!ship.Active || ship.ModuleSlotsDestroyed) // added by gremlin ghost ship killer
+
+                // added by gremlin ghost ship killer
+                if (!ship.Active || ship.ModuleSlotsDestroyed)
                 {
                     ship.Die(null, true);
                 }
@@ -151,10 +169,23 @@ namespace Ship_Game
                         ship.Inhibited = true;
                         ship.InhibitedTimer = 10f;
                     }
+                    ApplySolarRadiationDamage(ship);
                     ship.Update(elapsedTime);
                     if (ship.PlayerShip)
                         ship.ProcessInput(elapsedTime);
                 }
+            }
+        }
+
+        void ApplySolarRadiationDamage(Ship ship)
+        {
+            if (Sun.RadiationDamage <= 0f) return;
+
+            float distance = ship.Center.Distance(Position);
+            if (distance < Sun.RadiationRadius)
+            {
+                float damage = DamageIntensity * Sun.DamageMultiplier(distance) * Sun.RadiationDamage;
+                ship.CauseRadiationDamage(damage);
             }
         }
 
@@ -441,15 +472,15 @@ namespace Ship_Game
 
         public void GenerateCorsairSystem(string systemName)
         {
-            Sun = ResourceManager.RandomSun(s => s.Id == "star_red" 
-                                              || s.Id == "star_yellow" 
-                                              || s.Id == "star_green");
+            Sun = SunType.RandomHabitableSun(s => s.Id == "star_red" 
+                                      || s.Id == "star_yellow" 
+                                      || s.Id == "star_green");
             Name = systemName;
             NumberOfRings = 2;
-            StarRadius = RandomMath.IntBetween(250, 500);
+            int starRadius = RandomMath.IntBetween(250, 500);
             for (int i = 1; i < NumberOfRings + 1; i++)
             {
-                float ringRadius = i * (StarRadius + RandomMath.RandomBetween(10500f, 12000f));
+                float ringRadius = i * (starRadius + RandomMath.RandomBetween(10500f, 12000f));
                 if (i != 1)
                 {
                     GenerateAsteroidRing(ringRadius, spread:3500f);
@@ -495,13 +526,13 @@ namespace Ship_Game
         public void GenerateRandomSystem(string name, UniverseData data, float systemScale, Empire owner = null)
         {
             // Changed by RedFox: 2% chance to get a tri-sun "star_binary"
-            Sun = RandomMath.IntBetween(0, 100) < 2
-                ? ResourceManager.FindSun("star_binary")
-                : ResourceManager.RandomSun(s => s.Id != "star_binary");
+            Sun = RandomMath.RollDice(percent:2)
+                ? SunType.FindSun("star_binary")
+                : SunType.RandomHabitableSun(s => s.Id != "star_binary");
 
             Name              = name;
-            StarRadius        = (int) (RandomMath.IntBetween(250, 500) * systemScale);
-            float ringMax     = StarRadius * 300;
+            int starRadius    = (int)(RandomMath.IntBetween(250, 500) * systemScale);
+            float ringMax     = starRadius * 300;
             float ringbase    = ringMax * .1f;
             int bonusP        = GlobalStats.ExtraPlanets > 0 ? (int)Math.Ceiling(GlobalStats.ExtraPlanets  / 2f) : 0;            
             int minR          = RandomMath.IntBetween(0 + bonusP > 0 ? 1 : 0, 3 + GlobalStats.ExtraPlanets);
@@ -532,7 +563,7 @@ namespace Ship_Game
                     float randomAngle = RandomMath.RandomBetween(0f, 360f);
                     string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(i);
                    
-                    Planet newOrbital = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
+                    var newOrbital = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
 
                     if (owner == null)
                         GenerateRemnantPresence(newOrbital, data);
@@ -540,7 +571,7 @@ namespace Ship_Game
                     PlanetList.Add(newOrbital);
                     RandomMath.RandomBetween(0f, 3f);
                     ringRadius += newOrbital.ObjectRadius;
-                    Ring ring = new Ring
+                    var ring = new Ring
                     {
                         Distance  = ringRadius,
                         Asteroids = false,
@@ -549,6 +580,14 @@ namespace Ship_Game
                     RingList.Add(ring);
                 }
                 ringbase = ringRadius;
+            }
+
+            // now, if number of planets is <= 2 and they are barren,
+            // then 33% chance to have neutron star:
+            if (PlanetList.Count <= 2 && PlanetList.All(p => p.IsBarrenOrVolcanic)
+                && RandomMath.RollDice(percent:33))
+            {
+                Sun = SunType.RandomBarrenSun();
             }
         }
 
@@ -563,7 +602,7 @@ namespace Ship_Game
         {
             var newSys = new SolarSystem
             {
-                Sun  = ResourceManager.FindSun(data.SunPath),
+                Sun  = SunType.FindSun(data.SunPath),
                 Name = data.Name
             };
             newSys.RingList.Capacity = data.RingList.Count;
@@ -721,14 +760,6 @@ namespace Ship_Game
                 strength += ship.GetStrength();
             }
             return strength;
-        }
-
-        public int GetPredictedEnemyPresence(float time, Empire us)
-        {
-             
-            float prediction =us.GetEmpireAI().ThreatMatrix.PingRadarStr(Position, 150000 *2,us);
-            return (int)prediction;
-
         }
 
         private bool NoAsteroidProximity(Vector2 pos)
