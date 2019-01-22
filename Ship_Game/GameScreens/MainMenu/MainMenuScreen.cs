@@ -381,7 +381,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
             ScreenManager.UpdateSceneObjects(gameTime);
             
-            if (RandomMath.RandomBetween(0f, 100f) > 99.75f)
+            if (RandomMath.RollDice(percent:0.25f)) // 0.25%
             {
                 Comet c = Add(new Comet(this));
                 c.SetDirection(new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f));

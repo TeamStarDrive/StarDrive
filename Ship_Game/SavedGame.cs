@@ -432,8 +432,7 @@ namespace Ship_Game
                     sdata.FightersLaunched = ship.FightersLaunched;
                     sdata.TroopsLaunched   = ship.TroopsLaunched;
 
-                    sdata.AreaOfOperation = ship.AreaOfOperation
-                        .Select(r => new RectangleData(r)).ToArrayList();
+                    sdata.AreaOfOperation = ship.AreaOfOperation.Select(r => new RectangleData(r));
 
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
@@ -900,7 +899,7 @@ namespace Ship_Game
             [Serialize(15)] public float experience;
             [Serialize(16)] public int kills;
             [Serialize(17)] public Array<Troop> TroopList;
-            [Serialize(18)] public Array<RectangleData> AreaOfOperation;
+            [Serialize(18)] public RectangleData[] AreaOfOperation;
             [Serialize(19)] public float FoodCount;
             [Serialize(20)] public float ProdCount;
             [Serialize(21)] public float PopCount;

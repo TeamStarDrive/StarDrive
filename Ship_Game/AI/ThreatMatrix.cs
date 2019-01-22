@@ -76,7 +76,7 @@ namespace Ship_Game.AI
             {
                 if (kv.Value.EmpireName == string.Empty) continue;
                 if (kv.Value.EmpireName != empire.data.Traits.Name) continue;
-                if (system.Position.OutsideRadius(kv.Value.Position, system.StarRadius)) continue;
+                if (system.Position.OutsideRadius(kv.Value.Position, system.Radius)) continue;
                 str += kv.Value.Strength;
 
             }

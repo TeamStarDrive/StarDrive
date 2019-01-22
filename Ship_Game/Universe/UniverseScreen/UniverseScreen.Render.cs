@@ -59,7 +59,7 @@ namespace Ship_Game
             for (int index = 0; index < SolarSystemList.Count; index++)
             {
                 SolarSystem solarSystem = SolarSystemList[index];
-                if (!Frustum.Contains(solarSystem.Position, 100000f))
+                if (!Frustum.Contains(solarSystem.Position, solarSystem.Radius))
                     continue;
 
                 ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2 sysScreenPos,
@@ -142,16 +142,31 @@ namespace Ship_Game
             }
         }
 
+        void DrawSun(SolarSystem sys)
+        {
+            Vector3 color = new Vector3(1f,1f,1f) * sys.ColorIntensity;
+            float scale = 10.0f * sys.ScaleIntensity;
+
+            DrawModelMesh(SunModel,
+                Matrix.CreateScale(scale) *
+                Matrix.CreateRotationZ(sys.Zrotate) *
+                Matrix.CreateTranslation(sys.Position.ToVec3()), view, color, projection, sys.Sun.HiRes);
+            Device.RenderState.DepthBufferWriteEnable = true;
+
+            if (sys.Sun.DoubleLayered) // draw second star layer
+            {
+                DrawModelMesh(SunModel,
+                    Matrix.CreateScale(scale) *
+                    Matrix.CreateRotationZ((float)(-sys.Zrotate / 2.0)) *
+                    Matrix.CreateTranslation(sys.Position.ToVec3()), view, color, projection, sys.Sun.HiRes);
+                Device.RenderState.DepthBufferWriteEnable = true;
+            }
+        }
+
         // This draws the hi-res 3D sun and orbital circles
         void DrawSolarSysWithOrbits(SolarSystem solarSystem, Vector2 sysScreenPos)
         {
-            DrawTransparentModel(SunModel,
-                Matrix.CreateRotationZ(Zrotate) *
-                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), solarSystem.Sun.HiRes, 10.0f);
-
-            DrawTransparentModel(SunModel,
-                Matrix.CreateRotationZ((float)(-Zrotate / 2.0)) *
-                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), solarSystem.Sun.HiRes, 10.0f);
+            DrawSun(solarSystem);
 
             if (!solarSystem.IsExploredBy(EmpireManager.Player))
                 return;
@@ -251,14 +266,14 @@ namespace Ship_Game
             }
         }
 
-        void DrawLowResSun(SpriteBatch batch, SolarSystem solarSystem)
+        void DrawLowResSun(SpriteBatch batch, SolarSystem sys)
         {
-            float scale = 0.05f;
-            Vector2 position = Viewport.Project(solarSystem.Position.ToVec3(), projection, view, Matrix.Identity).ToVec2();
+            float scale = 0.05f * sys.ScaleIntensity;
+            Vector2 position = Viewport.Project(sys.Position.ToVec3(), projection, view, Matrix.Identity).ToVec2();
 
-            SubTexture sunTex = solarSystem.Sun.LoResIcon;
-            batch.Draw(sunTex, position, Color.White, Zrotate, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
-            batch.Draw(sunTex, position, Color.White, Zrotate/-2f, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
+            SubTexture sunTex = sys.Sun.LoRes;
+            batch.Draw(sunTex, position, Color.White, sys.Zrotate, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
+            batch.Draw(sunTex, position, Color.White, sys.Zrotate/-2f, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
         }
 
         void DrawSolarSystemSectorView(GameTime gameTime, SolarSystem solarSystem)

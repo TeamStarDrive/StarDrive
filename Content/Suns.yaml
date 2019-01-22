@@ -1,30 +1,75 @@
 ﻿Sun: star_red
-  IconPath: Suns/star_red
-  Intensity: 1.4
-  Radius: 100000
-  Color: [255,160,122] # LightSalmon
+  LoResPath: Suns/star_red # lo res icon is used in background star field
+  HiResPath: Suns/star_red # hi res texture is used for solar system suns
+  LightIntensity: 1.4 # intensity of the light source
+  Radius: 100000 # radius of the light source
+  Color: [255,160,122] # LightSalmon, light source color
+  PulsePeriod: 5.0
+  PulseScale: [0.96,1.04]
+  PulseColor: [0.95,1.25]
+  Habitable: true
 Sun: star_yellow
-  IconPath: Suns/star_yellow
-  Intensity: 1.5
+  LoResPath: Suns/star_yellow
+  HiResPath: Suns/star_yellow
+  LightIntensity: 1.5
   Radius: 150000
   Color: [255,255,224] # LightYellow
+  PulsePeriod: 5.0
+  PulseScale: [0.96,1.04]
+  PulseColor: [0.95,1.25]
+  Habitable: true
 Sun: star_green
-  IconPath: Suns/star_green
-  Intensity: 1.5
+  LoResPath: Suns/star_green
+  HiResPath: Suns/star_green
+  LightIntensity: 1.5
   Radius: 150000
   Color: [144,238,144] # LightGreen
+  PulsePeriod: 5.0
+  PulseScale: [0.97,1.03]
+  PulseColor: [0.95,1.25]
+  Habitable: true
 Sun: star_blue
-  IconPath: Suns/star_blue
-  Intensity: 1.5
+  LoResPath: Suns/star_blue
+  HiResPath: Suns/star_blue
+  LightIntensity: 1.5
   Radius: 150000
   Color: [173,216,230] # LightBlue
+  PulsePeriod: 5.0
+  PulseScale: [0.96,1.04]
+  PulseColor: [0.95,1.25]
+  Habitable: true
 Sun: star_yellow2
-  IconPath: Suns/star_yellow2
-  Intensity: 1.5
+  LoResPath: Suns/star_yellow2
+  HiResPath: Suns/star_yellow2
+  LightIntensity: 1.5
   Radius: 150000
   Color: [255,255,255] # White
+  PulsePeriod: 5.0
+  PulseScale: [0.96,1.04]
+  PulseColor: [0.95,1.25]
+  Habitable: true
 Sun: star_binary
-  IconPath: Suns/star_binary
-  Intensity: 1.7
+  LoResPath: Suns/star_binary
+  HiResPath: Suns/star_binary
+  LightIntensity: 1.7
   Radius: 200000
   Color: [255,255,255] # White
+  PulsePeriod: 5.0
+  PulseScale: [0.96,1.04]
+  PulseColor: [0.95,1.25]
+  Habitable: true
+  DoubleLayered: false # don't render hi-res twice
+Sun: star_neutron
+  LoResPath: Suns/star_neutron
+  HiResPath: Suns/star_neutron
+  LightIntensity: 1.4
+  Radius: 150000
+  Color: [225,235,255] # Blueish tint
+  Habitable: false # this star is dangerous and leaves all planets barren
+  DoubleLayered: false # don't render neutron cloud twice
+  PulsePeriod: 5.0
+  PulseScale: [0.98,1.03]
+  PulseColor: [1.1,1.6]
+  RadiationDamage: 100 # per second, falls off depending on RadiationRadius
+  RadiationRadius: 50000
+  RotationSpeed: 0.02 # default is 0.03
