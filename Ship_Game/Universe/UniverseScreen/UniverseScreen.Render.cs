@@ -142,38 +142,51 @@ namespace Ship_Game
             }
         }
 
-        void DrawSun(SolarSystem sys)
+        // some custom tweaks for the sun mesh specifically
+        public void DrawSunMesh(SolarSystem sys, float rotation)
         {
             Vector3 color = new Vector3(1f,1f,1f) * sys.ColorIntensity;
-            float scale = 10.0f * sys.ScaleIntensity;
 
-            DrawModelMesh(SunModel,
+            float radius = sys.Sun.Radius / 3000f;
+            float scale = radius * 10.0f * sys.ScaleIntensity;
+            Matrix world = 
                 Matrix.CreateScale(scale) *
-                Matrix.CreateRotationZ(sys.Zrotate) *
-                Matrix.CreateTranslation(sys.Position.ToVec3()), view, color, projection, sys.Sun.HiRes);
-            Device.RenderState.DepthBufferWriteEnable = true;
+                Matrix.CreateRotationZ(rotation) *
+                Matrix.CreateTranslation(sys.Position.ToVec3());
 
-            if (sys.Sun.DoubleLayered) // draw second star layer
+            foreach (ModelMesh modelMesh in SunModel.Meshes)
             {
-                DrawModelMesh(SunModel,
-                    Matrix.CreateScale(scale) *
-                    Matrix.CreateRotationZ((float)(-sys.Zrotate / 2.0)) *
-                    Matrix.CreateTranslation(sys.Position.ToVec3()), view, color, projection, sys.Sun.HiRes);
-                Device.RenderState.DepthBufferWriteEnable = true;
+                foreach (Effect effect in modelMesh.Effects)
+                {
+                    var be = effect as BasicEffect;
+                    if (be == null) continue;
+                    be.World           = world;
+                    be.View            = view;
+                    be.DiffuseColor    = color;
+                    be.Texture         = sys.Sun.HiRes.Texture;
+                    be.Alpha           = be.Alpha;                    
+                    be.TextureEnabled  = true;
+                    be.Projection      = projection;
+                    be.LightingEnabled = false;
+                }
+                modelMesh.Draw();
             }
+            Device.RenderState.DepthBufferWriteEnable = true;
         }
 
         // This draws the hi-res 3D sun and orbital circles
-        void DrawSolarSysWithOrbits(SolarSystem solarSystem, Vector2 sysScreenPos)
+        void DrawSolarSysWithOrbits(SolarSystem sys, Vector2 sysScreenPos)
         {
-            DrawSun(solarSystem);
+            DrawSunMesh(sys, sys.Zrotate);
+            if (sys.Sun.DoubleLayered) // draw second sun layer
+                DrawSunMesh(sys, sys.Zrotate / -2.0f);
 
-            if (!solarSystem.IsExploredBy(EmpireManager.Player))
+            if (!sys.IsExploredBy(EmpireManager.Player))
                 return;
 
-            for (int i = 0; i < solarSystem.PlanetList.Count; i++)
+            for (int i = 0; i < sys.PlanetList.Count; i++)
             {
-                Planet planet = solarSystem.PlanetList[i];
+                Planet planet = sys.PlanetList[i];
                 Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
 
