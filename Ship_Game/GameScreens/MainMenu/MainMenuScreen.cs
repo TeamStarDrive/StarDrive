@@ -56,7 +56,7 @@ namespace Ship_Game.GameScreens.MainMenu
             int w = ScreenWidth, h = ScreenHeight;
 
             // Confusing: Main menu background is in `Content/MainMenu` not `Content/Textures/MainMenu`
-            SubTexture nebula = TransientContent.LoadSubTexture(h <= 1080 
+            SubTexture nebula = TransientContent.LoadSubTexture(h <= 1080
                               ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg");
             Panel(nebula, ScreenRect).InBackground(); // fill background
             Panel("MainMenu/planet", new Rectangle(0, h-680, 1016, 680)).InBackground(); // big planet at left side
