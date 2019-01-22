@@ -146,7 +146,8 @@ namespace Ship_Game.AI
             Map<Vector2, float> strengthClusters = PingRadarStrengthClusters(strengthCluster.Postition, strengthCluster.Radius,
                 strengthCluster.Granularity, strengthCluster.Empire);
 
-            Vector2 clusterPostion = strengthClusters.MaxKeyByValuesFiltered(str => str, str => str < maxStength);
+            Vector2 clusterPostion = strengthClusters
+                .FindMaxKeyByValuesFiltered(str => str, str => str < maxStength);
 
             if (clusterPostion == default(Vector2))
             {
