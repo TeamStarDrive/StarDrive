@@ -41,7 +41,7 @@ namespace Ship_Game
                 T item = items[i];
                 float value = selector(item);
                 CheckForNaNInfinity(value);
-                if (value < max)
+                if (value > max)
                 {
                     max = value;
                     found = item;
@@ -65,7 +65,7 @@ namespace Ship_Game
                 T item = list[i];
                 float value = selector(item);
                 CheckForNaNInfinity(value);
-                if (value < max)
+                if (value > max)
                 {
                     max = value;
                     found = item;
@@ -107,28 +107,8 @@ namespace Ship_Game
 
 
         // @return the element with the greatest filtered selector value, or NULL if empty
-        public static TKey FindMaxKeyByValues<TKey,TValue>(
-            this Map<TKey, TValue> map, Func<TValue, float> selector)
-        {            
-            TKey found = default;
-            float max = float.MinValue;
-            foreach(KeyValuePair<TKey, TValue> kv in map)
-            {
-                float value = selector(kv.Value);
-                CheckForNaNInfinity(value);
-                if (value > max || found == null) // @note found==null prevents float NaN/Infinity comparison issue
-                {
-                    max = value;
-                    found = kv.Key;
-                }
-            }
-            return found;
-        }
-
-
-        // @return the element with the greatest filtered selector value, or NULL if empty
         public static TKey FindMaxKeyByValuesFiltered<TKey,TValue>(
-            this Map<TKey, TValue> map, Func<TValue, float> selector, Predicate<TValue> filter)
+            this Map<TKey, TValue> map, Predicate<TValue> filter, Func<TValue, float> selector)
         {
             TKey found = default;
             float max = float.MinValue;
@@ -147,6 +127,7 @@ namespace Ship_Game
             }
             return found;
         }
+
 
         // @return default(KeyValuePair) if list is empty! Or the item with smallest selected value
         public static KeyValuePair<TKey, TValue> FindMax<TKey, TValue>(this Map<TKey, TValue> map, 
@@ -230,14 +211,6 @@ namespace Ship_Game
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool FindMax<T>(this Array<T> list, out T elem, Func<T, float> selector)
-            where T : class
-        {
-            return (elem = FindMax(list, selector)) != null;
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T FindMaxFiltered<T>(this T[] items, Predicate<T> filter, Func<T, float> selector)
             where T : class
         {
@@ -251,5 +224,15 @@ namespace Ship_Game
         {
             return list.GetInternalArrayItems().FindMaxFiltered(list.Count, filter, selector);
         }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool FindMax<T>(this Array<T> list, out T elem, Func<T, float> selector)
+            where T : class
+        {
+            return (elem = FindMax(list, selector)) != null;
+        }
+
     }
 }
