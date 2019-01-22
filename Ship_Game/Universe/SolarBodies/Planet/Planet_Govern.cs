@@ -140,7 +140,7 @@ namespace Ship_Game
 
         private void ScrapOrbital(Ship orbital)
         {
-            float expectedStorage = Storage.Prod + orbital.BaseCost / 2;
+            float expectedStorage = Storage.Prod + orbital.GetCost(Owner) / 2;
             if (expectedStorage > Storage.Max) // excess cost will go to empire treasury
             {
                 Storage.Prod = Storage.Max;
@@ -163,7 +163,7 @@ namespace Ship_Game
             if (orbital == null)
                 return;
 
-            if (!LogicalBuiltTimecVsCost(orbital.BaseCost, TimeVsCostThreshold))
+            if (!LogicalBuiltTimecVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
                 return;
 
             AddOrbital(orbital);
@@ -199,7 +199,7 @@ namespace Ship_Game
             if (bestWeCanBuild.BaseStrength.LessOrEqual(weakestWeHave.BaseStrength))
                 return;
 
-            if (!LogicalBuiltTimecVsCost(bestWeCanBuild.BaseCost, 50))
+            if (!LogicalBuiltTimecVsCost(bestWeCanBuild.GetCost(Owner), 50))
                 return;
 
             // FB - we are building without scraping, since when that orbital is built, the scrap code will remove the weakest we have
