@@ -259,7 +259,7 @@ namespace Ship_Game
                 // Fb - this will replace stations with temp platforms until proper stations are built
                 int existingStations = stationList.Count;
                 if (existingStations < Stations)
-                    Platforms += Stations - stationList.Count; 
+                    Platforms += Stations - existingStations; 
             }
         }
 
