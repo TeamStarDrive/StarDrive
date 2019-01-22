@@ -143,7 +143,7 @@ namespace Ship_Game.AI
         }
         public void AssignTargets()
         {
-            Array<Ship> hostiles = Us.GetEmpireAI().ThreatMatrix.PingRadarClosestEnemyCluster(System.Position, 150000, 15000, Us);
+            Array<Ship> hostiles = Us.GetEmpireAI().ThreatMatrix.PingRadarClosestEnemyCluster(System.Position, System.Radius, 15000, Us);
             if (hostiles.NotEmpty)
             {
                 var assignedShips = new HashSet<Ship>();

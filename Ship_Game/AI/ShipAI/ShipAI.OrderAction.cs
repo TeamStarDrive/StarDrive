@@ -475,24 +475,25 @@ namespace Ship_Game.AI
             OrbitTarget = emergencyPlanet[0];
         }
 
-        public void OrderFlee(bool ClearOrders)
+        public void OrderFlee(bool clearOrders)
         {
             WayPoints.Clear();
 
             Target = null;
             Intercepting = false;
             Owner.HyperspaceReturn();
-            if (ClearOrders)
+            if (clearOrders)
                 OrderQueue.Clear();
 
-            var systemList =
-                from solarsystem in Owner.loyalty.GetOwnedSystems()
-                where solarsystem.combatTimer <= 0f && Vector2.Distance(solarsystem.Position, Owner.Position) > 200000f
-                orderby Vector2.Distance(Owner.Center, solarsystem.Position)
-                select solarsystem;
-            if (systemList.Any())
+            var systemList = (
+                from sys in Owner.loyalty.GetOwnedSystems()
+                where sys.combatTimer <= 0f && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
+                orderby Owner.Center.Distance(sys.Position)
+                select sys).ToArray();
+
+            if (systemList.Length > 0)
             {
-                Planet item = systemList.First().PlanetList[0];
+                Planet item = systemList[0].PlanetList[0];
                 OrbitTarget = item;
                 var orbit = new ShipGoal(Plan.Orbit, Vector2.Zero, 0f)
                 {
