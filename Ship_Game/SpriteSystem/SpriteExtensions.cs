@@ -49,6 +49,23 @@ namespace Ship_Game
                        rotation, origin, scale, effects, layerDepth);
         }
 
+        public static void Draw(this SpriteBatch batch, SubTexture texture, in Rectangle rect, 
+                                float rotation)
+        {
+            CheckSubTextureDisposed(texture);
+            batch.Draw(texture.Texture, rect, texture.Rect, Color.White, 
+                       rotation, texture.CenterF, SpriteEffects.None, 1f);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture texture, in Rectangle rect, 
+                                float rotation, float scale, float z)
+        {
+            CheckSubTextureDisposed(texture);
+            Rectangle r = rect.ScaledBy(scale);
+            batch.Draw(texture.Texture, r, texture.Rect, Color.White, 
+                       rotation, texture.CenterF, SpriteEffects.None, z);
+        }
+
         static Rectangle AdjustedToSubTexture(SubTexture texture, Rectangle sourceRectangle)
         {
             Rectangle subRect = texture.Rect;

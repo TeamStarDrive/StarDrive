@@ -47,6 +47,14 @@ namespace Ship_Game
             return Random.Next(0, arrayLength);
         }
 
+        // performs a dice-roll, where chance must be between [0..100]
+        // @return TRUE if random chance passed
+        // @example if (RandomMath.RollDice(33)) {..} // 33% chance
+        public static bool RollDice(float percent)
+        {
+            return RandomBetween(0f, 100f) < percent;
+        }
+
         public static T RandItem<T>(Array<T> items)
         {
             return items[InRange(items.Count)];

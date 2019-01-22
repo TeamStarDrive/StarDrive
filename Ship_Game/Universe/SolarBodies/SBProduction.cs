@@ -40,6 +40,13 @@ namespace Ship_Game.Universe.SolarBodies
                 return false;
 
             float amount = Math.Min(ProductionHere, maxAmount);
+
+            // inject artificial surplus to instantly rush & finish production
+            if (Empire.Universe.Debug || System.Diagnostics.Debugger.IsAttached)
+            {
+                amount = SurplusThisTurn = maxAmount;
+            }
+
             return ApplyProductionToQueue(maxAmount: amount, itemIndex);
         }
 

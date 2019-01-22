@@ -59,8 +59,7 @@ namespace Ship_Game
             LowResExplode = ResourceManager.Texture("UI/icon_injury");
             if (ResourceManager.IsLoadCancelRequested) return;
 
-            FileInfo expDescriptors = ResourceManager.GetModOrVanillaFile("Explosions.yaml");
-            using (var parser = new StarDataParser(expDescriptors))
+            using (var parser = new StarDataParser("Explosions.yaml"))
             {
                 Array<Explosion> explosions = parser.DeserializeArray<Explosion>();
                 foreach (Explosion e in explosions)
@@ -195,8 +194,9 @@ namespace Ship_Game
                 return;
             }
 
-            int frame = (int)(e.Animation.Count * (e.Time / e.Duration));
-            frame = frame.Clamped(0, e.Animation.Count-1);
+            int last = e.Animation.Count-1;
+            int frame = (int)(last * (e.Time / e.Duration));
+            frame = frame.Clamped(0, last);
             SubTexture tex = e.Animation[frame];
 
             // support non-rectangular explosion anims:

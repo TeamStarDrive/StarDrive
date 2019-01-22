@@ -390,9 +390,9 @@ namespace Ship_Game
                 for (int i = 0; i < NotificationList.Count && i <= MaxEntriesToDisplay; i++)
                 {
                     Notification n = NotificationList[i];
-                    if (n.IconPath != null)
+                    if (n.Icon != null || n.IconPath != null)
                     {
-                        SubTexture iconTex = ResourceManager.Texture(n.IconPath);
+                        SubTexture iconTex = n.Icon ?? ResourceManager.Texture(n.IconPath);
                         if (!n.Tech)
                         {
                             batch.Draw(iconTex, n.ClickRect, Color.White);

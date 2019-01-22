@@ -346,6 +346,30 @@ namespace Ship_Game.Ships
             shipStatusChanged = true;
         }
 
+        public void CauseRadiationDamage(float damage)
+        {
+            GameplayObject damageCauser = this; // @todo We need a way to do environmental damage
+            var damagedShields = new HashSet<ShipModule>();
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                ShipModule module = ModuleSlotList[i];
+                if (IsCoveredByShield(module, out ShipModule shield))
+                {
+                    // only damage shields once, depending on their radius
+                    if (!damagedShields.Contains(shield))
+                    {
+                        float damageAbsorb = 0.01f; // @todo Radiation Resistance
+                        shield.Damage(damageCauser, damage * damageAbsorb * shield.ShieldHitRadius); 
+                        damagedShields.Add(shield);
+                    }
+                }
+                else
+                {
+                    module.Damage(damageCauser, damage);
+                }
+            }
+        }
+
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
             if (attackerRelationThis.Treaty_NAPact) return false;

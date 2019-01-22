@@ -604,6 +604,74 @@ namespace Ship_Game
             return results;
         }
 
+        public static unsafe TValue[] FilterValues<TKey,TValue>(this Map<TKey,TValue> dict, Predicate<TValue> predicate)
+        {
+            var items = new TValue[dict.Count];
+            dict.Values.CopyTo(items, 0);
+
+            int count = items.Length;
+            byte* map = stackalloc byte[count];
+
+            int resultCount = 0;
+            for (int i = 0; i < items.Length; ++i)
+            {
+                bool keep = predicate(items[i]);
+                if (keep) ++resultCount;
+                map[i] = keep ? (byte)1 : (byte)0;
+            }
+
+            var results = new TValue[resultCount];
+            resultCount = 0;
+            for (int i = 0; i < count; ++i)
+                if (map[i] > 0) results[resultCount++] = items[i];
+
+            return results;
+        }
+
+        // performs a combined and optimized:
+        // list.Filter(x => x.Condition).Select(x => x.Value).ToArray();
+        // concrete example:
+        // string[] names = ships.FilterSelect(s => s.IsPlatform, s => s.Name);
+        public static unsafe U[] FilterSelect<T,U>(this IReadOnlyList<T> items, 
+                                                   Predicate<T> filter, Func<T,U> select)
+        {
+            int count = items.Count;
+            byte* map = stackalloc byte[count];
+
+            int resultCount = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                bool keep = filter(items[i]);
+                if (keep) ++resultCount;
+                map[i] = keep ? (byte)1 : (byte)0;
+            }
+
+            var results = new U[resultCount];
+            resultCount = 0;
+            for (int i = 0; i < count; ++i)
+                if (map[i] > 0) results[resultCount++] = select(items[i]);
+
+            return results;
+        }
+
+
+        public static U[] Select<T, U>(this T[] items, Func<T, U> selector)
+        {
+            var selected = new U[items.Length];
+            for (int i = 0; i < items.Length; ++i)
+                selected[i] = selector(items[i]);
+            return selected;
+        }
+
+        public static U[] Select<T, U>(this IReadOnlyList<T> items, Func<T, U> selector)
+        {
+            var selected = new U[items.Count];
+            for (int i = 0; i < selected.Length; ++i)
+                selected[i] = selector(items[i]);
+            return selected;
+        }
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] UniqueGameObjects<T>(this T[] items) where T : GameplayObject
             => items.UniqueGameObjects(items.Length);
