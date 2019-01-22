@@ -35,6 +35,56 @@ namespace SDUnitTests
         }
 
         [TestMethod]
+        public void TestFindMinKeyValue()
+        {
+            var map = new Map<string, string>{ ("a","x"), ("bb", "xx"), ("ccc", "xxx") };
+
+            Assert.AreEqual("x", map.FindMinValue(s => s.Length));
+            Assert.AreEqual("xxx", map.FindMinValue(s => 3-s.Length));
+            
+            Assert.AreEqual("a", map.FindMinKey(s => s.Length));
+            Assert.AreEqual("ccc", map.FindMinKey(s => 3-s.Length));
+
+            Assert.AreEqual("a", map.FindMin((k,v) => v.Length).Key);
+            Assert.AreEqual("ccc", map.FindMin((k,v) => 3-v.Length).Key);
+
+            var map2 = new Map<string, float>
+            {
+                ("a", float.PositiveInfinity), 
+                ("b", float.NaN),
+                ("c", float.NegativeInfinity), 
+                ("d", 10f)
+            };
+
+            Assert.AreEqual("c", map2.FindMin((key, value) => value).Key);
+        }
+
+        [TestMethod]
+        public void TestFindMaxKeyValue()
+        {
+            var map = new Map<int, string>{ (0,"x"), (1, "xx"), (2, "xxx") };
+
+            Assert.AreEqual("xxx", map.FindMaxValue(s => s.Length));
+            Assert.AreEqual("x", map.FindMaxValue(s => 3-s.Length));
+            
+            Assert.AreEqual(2, map.FindMaxKey(i => i));
+            Assert.AreEqual(0, map.FindMaxKey(i => 3-i));
+
+            Assert.AreEqual(2, map.FindMax((k,v) => v.Length).Key);
+            Assert.AreEqual(0, map.FindMax((k,v) => 3-v.Length).Key);
+
+            var map2 = new Map<string, float>
+            {
+                ("b", float.NaN),
+                ("c", float.NegativeInfinity), 
+                ("d", 10f),
+                ("a", float.PositiveInfinity), 
+            };
+
+            Assert.AreEqual("a", map2.FindMax((key, value) => value).Key);
+        }
+
+        [TestMethod]
         public void TestAny()
         {
             var list = new Array<string> { "a", "bb", "ccc", "dddd", "55555", "666666" };
