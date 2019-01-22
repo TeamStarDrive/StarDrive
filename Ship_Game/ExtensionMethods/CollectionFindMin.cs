@@ -166,7 +166,7 @@ namespace Ship_Game
 
         // finds a limited number of items, filtered and sorted by selector
         public static Array<T> FindMinItemsFiltered<T>(this Array<T> list, int maxCount, 
-            Predicate<T> filter, Func<T, float> selector) where T : class
+                                                       Predicate<T> filter, Func<T, float> selector)
         {
             T[] filtered = list.Filter(filter);
             filtered.Sort(selector);
@@ -177,6 +177,14 @@ namespace Ship_Game
             return found;
         }
 
+
+        // @return NULL if list is empty! Or the item with smallest selected value
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T FindMinFiltered<T>(this T[] items, Predicate<T> filter, 
+            Func<T, float> selector) where T : class
+        {
+            return items.FindMinFiltered(items.Length, filter, selector);
+        }
 
         // @return NULL if list is empty! Or the item with smallest selected value
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
