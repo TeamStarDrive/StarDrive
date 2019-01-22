@@ -428,26 +428,22 @@ namespace Ship_Game
 
             RenderOverFog(batch, gameTime);
             batch.End();
+
             batch.Begin();
             DrawPlanetInfo();
-
             if (LookingAtPlanet && SelectedPlanet != null)
                 workersPanel?.Draw(batch);
+
             DrawShipsInRange();
 
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 if (!solarSystem.isVisible)
                     continue;
-                for (int y = 0; y < solarSystem.PlanetList.Count; y++)
+                for (int i = 0; i < solarSystem.PlanetList.Count; i++)
                 {
-                    Planet planet = solarSystem.PlanetList[y];
-                    for (int x = 0; x < planet.Projectiles.Count; x++)
-                    {
-                        Projectile projectile = planet.Projectiles[x];
-
-                        projectile?.DrawProjectile(this);
-                    }
+                    Planet planet = solarSystem.PlanetList[i];
+                    Projectile.DrawList(this, batch, planet.Projectiles);
                 }
             }
 
@@ -859,15 +855,15 @@ namespace Ship_Game
 
         private void DrawShipsInRange()
         {
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.One;
-            renderState.DepthBufferWriteEnable = false;
-            renderState.CullMode = CullMode.None;
+            Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            var rs = Device.RenderState;
+            rs.AlphaBlendEnable = true;
+            rs.AlphaBlendOperation = BlendFunction.Add;
+            rs.SourceBlend = Blend.SourceAlpha;
+            rs.DestinationBlend = Blend.One;
+            rs.DepthBufferWriteEnable = false;
+            rs.CullMode = CullMode.None;
 
             using (player.KnownShips.AcquireReadLock())
             {
@@ -877,14 +873,14 @@ namespace Ship_Game
                     DrawShipProjectilesInRange(ship);
                 }
             }
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            renderState.AlphaBlendEnable                           = true;
-            renderState.AlphaBlendOperation                        = BlendFunction.Add;
-            renderState.SourceBlend                                = Blend.SourceAlpha;
-            renderState.DestinationBlend                           = Blend.InverseSourceAlpha;
-            renderState.DepthBufferWriteEnable                     = false;
-            renderState.CullMode                                   = CullMode.None;
+            Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            rs.AlphaBlendEnable                           = true;
+            rs.AlphaBlendOperation                        = BlendFunction.Add;
+            rs.SourceBlend                                = Blend.SourceAlpha;
+            rs.DestinationBlend                           = Blend.InverseSourceAlpha;
+            rs.DepthBufferWriteEnable                     = false;
+            rs.CullMode                                   = CullMode.None;
 
             // @todo This should make use of spatial manager's quadtree
             //       We can select all ships inside screen area and check if those ships are Known
@@ -1018,14 +1014,9 @@ namespace Ship_Game
 
         private void DrawShipProjectilesInRange(Ship ship)
         {
-            if (viewState > UnivScreenState.SystemView || !ship.InFrustum || ship.Projectiles == null)
+            if (viewState > UnivScreenState.SystemView || !ship.InFrustum)
                 return;
-            
-            for (int i = 0; i < ship.Projectiles.Count; i++)
-            {
-                Projectile projectile = ship.Projectiles[i];
-                projectile?.DrawProjectile(this);
-            }
+            Projectile.DrawList(this, ScreenManager.SpriteBatch, ship.Projectiles);
         }
 
         private void DrawShipLines(Ship ship, byte alpha)
@@ -1268,7 +1259,7 @@ namespace Ship_Game
         public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)
         {
             DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);
-            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            Device.RenderState.DepthBufferWriteEnable = true;
         }
 
     }

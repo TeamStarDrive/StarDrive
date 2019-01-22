@@ -99,26 +99,26 @@ namespace Ship_Game
 			{
 				for (int x = 0; x < 21; x++)
 				{
-					Vector2 Origin = new Vector2(x * MapRect.Width / 20, 0f) + new Vector2(MapRect.X, MapRect.Y);
-					Vector2 End = new Vector2(x * MapRect.Width / 20, MapRect.Height) + new Vector2(MapRect.X, MapRect.Y);
-					ScreenManager.SpriteBatch.DrawLine(Origin, End, new Color(100, 100, 100, 70));
+					Vector2 origin = new Vector2(x * MapRect.Width / 20f, 0f) + new Vector2(MapRect.X, MapRect.Y);
+					Vector2 end    = new Vector2(x * MapRect.Width / 20f, MapRect.Height) + new Vector2(MapRect.X, MapRect.Y);
+                    batch.DrawLine(origin, end, new Color(100, 100, 100, 70));
 				}
 				for (int y = 0; y < 21; y++)
 				{
-					Vector2 Origin = new Vector2(0f, y * MapRect.Height / 20) + new Vector2(MapRect.X, MapRect.Y);
-					Vector2 End = new Vector2(MapRect.Width, y * MapRect.Height / 20) + new Vector2(MapRect.X, MapRect.Y);
-					ScreenManager.SpriteBatch.DrawLine(Origin, End, new Color(100, 100, 100, 40));
+					Vector2 origin = new Vector2(0f, y * MapRect.Height / 20f) + new Vector2(MapRect.X, MapRect.Y);
+					Vector2 end    = new Vector2(MapRect.Width, y * MapRect.Height / 20f) + new Vector2(MapRect.X, MapRect.Y);
+                    batch.DrawLine(origin, end, new Color(100, 100, 100, 40));
 				}
 			}
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EndGameScreen/TextBox"), TextRect, Color.White);
+			batch.Draw(ResourceManager.Texture("EndGameScreen/TextBox"), TextRect, Color.White);
 			foreach (SolarSystem star in UniverseScreen.SolarSystemList)
 			{
-				Vector2 starPos = (star.Position * scale) + new Vector2(MapRect.X, MapRect.Y);
-                starPos.X = starPos.X + (MapRect.Width / 2);        //Correction for negative map values -Gretman
-                starPos.Y = starPos.Y + (MapRect.Height / 2);
-                Rectangle StarRect = new Rectangle((int)starPos.X - 3, (int)starPos.Y - 3, 6, 6);
-				ScreenManager.SpriteBatch.Draw(star.SunTexture, StarRect, Color.White);
-			}
+				Vector2 starPos = (star.Position * scale) + MapRect.PosVec();
+                starPos.X += (MapRect.Width  / 2f); // Correction for negative map values -Gretman
+                starPos.Y += (MapRect.Height / 2f);
+                var starRect = new Rectangle((int)starPos.X - 3, (int)starPos.Y - 3, 6, 6);
+                star.Sun.DrawIcon(batch, starRect);
+            }
 			string date = StarDate.StarDateString();
 			foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> shotdict in StatTracker.SnapshotsDict)
 			{

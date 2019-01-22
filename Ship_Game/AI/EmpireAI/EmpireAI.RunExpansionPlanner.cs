@@ -65,7 +65,7 @@ namespace Ship_Game.AI
             if (allPlanetsRanker.Count < 1)
                 return;
 
-            DesiredPlanets = allPlanetsRanker.Sorted(v => -(v.Value - (v.OutOfRange ? 1 :0))).Select(p => p.Planet).ToArray();
+            DesiredPlanets = allPlanetsRanker.Sorted(v => -(v.Value - (v.OutOfRange ? 1 :0))).Select(p => p.Planet);
 
             if (DesiredPlanets.Length == 0)
                 return;
@@ -90,19 +90,19 @@ namespace Ship_Game.AI
             
             for (int x = 0; x < UniverseScreen.SolarSystemList.Count; x++)
             {
-                SolarSystem s = UniverseScreen.SolarSystemList[x];
+                SolarSystem sys = UniverseScreen.SolarSystemList[x];
 
-                if (!s.IsExploredBy(OwnerEmpire))
+                if (!sys.IsExploredBy(OwnerEmpire))
                     continue;
                
-                if (IsColonizeBlockedByMorals(s))
+                if (IsColonizeBlockedByMorals(sys))
                     continue;
 
-                float str = ThreatMatrix.PingRadarStr(s.Position, 150000f, OwnerEmpire, true);
+                float str = ThreatMatrix.PingRadarStr(sys.Position, sys.Radius, OwnerEmpire, true);
 
-                for (int y = 0; y < s.PlanetList.Count; y++)
+                for (int y = 0; y < sys.PlanetList.Count; y++)
                 {
-                    Planet planet = s.PlanetList[y];
+                    Planet planet = sys.PlanetList[y];
                     if (!planet.Habitable)
                         continue;
                     if (planet.Owner != null)

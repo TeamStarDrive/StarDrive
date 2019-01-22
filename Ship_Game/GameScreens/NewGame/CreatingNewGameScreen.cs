@@ -211,7 +211,7 @@ namespace Ship_Game
                 {
                     if (solarSystem1 != solarSystem2)
                     {
-                        float num1 = Vector2.Distance(solarSystem1.Position, solarSystem2.Position);
+                        float num1 = solarSystem1.Position.Distance(solarSystem2.Position);
                         if (list.Count < 5)
                         {
                             list.Add(new SysDisPair

@@ -151,7 +151,7 @@ namespace Ship_Game
                 return 0;
 
             int numBytes = 0;
-            foreach (object asset in LoadedAssets.Values)
+            foreach (object asset in LoadedAssets.Values.ToArray())
             {
                 if (asset is Texture2D tex)
                 {
@@ -481,6 +481,7 @@ namespace Ship_Game
         static Assembly XnaAssembly;
         static string SunburnAssemblyName;
 
+        // @note This IS used, but only through reflection. It's referenced by string in `FixSunBurnTypeLoader()`
         static bool InstantiateTypeReader(string readerTypeName, ContentReader contentReader, out ContentTypeReader reader)
         {
             try

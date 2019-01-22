@@ -699,7 +699,7 @@ namespace Ship_Game.Debug
                     for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
                     {
                         SolarSystem sys = UniverseScreen.SolarSystemList[i];
-                        if (task.AO.InRadius(sys.Position, 100000f))
+                        if (task.AO.InRadius(sys.Position, sys.Radius))
                             sysName = sys.Name;
                     }
                     NewLine();

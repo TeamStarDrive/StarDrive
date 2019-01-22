@@ -245,9 +245,10 @@ namespace Ship_Game
             batch.End();
         }
 
-        public void BeginAdditive(SpriteBatch batch)
+        public void BeginAdditive(SpriteBatch batch, bool saveState = false)
         {
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, 
+                saveState ? SaveStateMode.SaveState : SaveStateMode.None);
             Device.RenderState.SourceBlend      = Blend.InverseDestinationColor;
             Device.RenderState.DestinationBlend = Blend.One;
             Device.RenderState.BlendFunction    = BlendFunction.Add;
@@ -408,7 +409,7 @@ namespace Ship_Game
                     if (be == null) continue;
                     be.World           = Matrix.CreateScale(50f) * world;
                     be.View            = view;
-                    be.DiffuseColor    = new Vector3(1f, 1f, 1f);
+                    be.DiffuseColor    = diffuseColor;
                     be.Texture         = projTex.Texture;
                     be.Alpha           = alpha > 0 ? alpha : be.Alpha;                    
                     be.TextureEnabled  = true;

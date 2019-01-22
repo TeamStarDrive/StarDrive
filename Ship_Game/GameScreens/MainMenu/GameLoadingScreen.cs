@@ -15,7 +15,7 @@ namespace Ship_Game
         VideoPlayer2 SplashPlayer;
         Rectangle BridgeRect;
         Texture2D BridgeTexture;
-        AutoResetEvent Ready = new AutoResetEvent(false);
+        TaskResult LoadResult;
 
         public GameLoadingScreen() : base(null/*no parent*/)
         {
@@ -86,7 +86,7 @@ namespace Ship_Game
 
         bool LoadingFinished()
         {
-            bool ready = Ready.WaitOne(1);
+            bool ready = LoadResult?.Wait(1) == true;
             if (ready && (Input.InGameSelect ||  SplashPlayer?.IsPlaying != true))
             {
                 ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
@@ -119,14 +119,23 @@ namespace Ship_Game
 
             // Initialize all game resources in background
             // The splash videos will play while we're loading the assets
-            Parallel.Run(() =>
+            LoadResult = Parallel.Run(LoadGameThread);
+        }
+
+        void LoadGameThread()
+        {
+            try
             {
                 BridgeTexture = TransientContent.Load<Texture2D>("Textures/GameScreens/Bridge");
 
                 ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod, reset:false);
                 Log.Write($"Finished loading 'Root' Assets {StarDriveGame.GameContent.GetLoadedAssetMegabytes():0.0}MB");
-                Ready.Set();
-            });
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Failed to load game data!");
+                throw;
+            }
         }
 
         public override void ExitScreen()
