@@ -169,7 +169,7 @@ namespace Ship_Game
                 guid          = ssd.guid,
                 Name          = ssd.Name,
                 Position      = ssd.Position,
-                Sun           = ResourceManager.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
+                Sun           = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
                 AsteroidsList = new BatchRemovalCollection<Asteroid>(),
                 MoonList      = new Array<Moon>()
             };

@@ -268,7 +268,6 @@ namespace Ship_Game
             }
             if (!flag2)
                 ShowingSysTooltip = false;
-            Zrotate += 0.03f * elapsedTime;
 
             JunkList.ApplyPendingRemovals();
 
@@ -336,15 +335,14 @@ namespace Ship_Game
                     Ship ship = MasterShipList[i];
                     foreach (SolarSystem system in SolarSystemList)
                     {
-                        if (ship.Position.InRadius(system.Position, 100000.0f))
+                        if (ship.Position.InRadius(system.Position, system.Radius))
                         {
                             system.SetExploredBy(ship.loyalty);
                             ship.SetSystem(system);
                             break; // No need to keep looping through all other systems if one is found -Gretman
                         }
                     }
-                    // Add ships to deepspacemanageer if system is null.
-                    // Ships are not getting added to the deepspace manager from here.
+                    // Add ships to spatial manager if system is null.
                     if (ship.System == null)
                         ship.SetSystem(null);
                 }
@@ -552,7 +550,7 @@ namespace Ship_Game
                 var point = WorldToPathMap(ss.Value.Position, universeOffSet);
                 grid[point.X, point.Y] = 0;
                 byte weight = blockSystems ? (byte)0 : (byte)90;
-                ApplyWeightToMapArea(ss.Value.Position, 150000, weight, universeOffSet, grid);
+                ApplyWeightToMapArea(ss.Value.Position, ss.Value.Radius, weight, universeOffSet, grid);
 
                 foreach(var p in PlanetsDict)
                 {

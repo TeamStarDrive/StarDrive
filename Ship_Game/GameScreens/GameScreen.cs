@@ -409,7 +409,7 @@ namespace Ship_Game
                     if (be == null) continue;
                     be.World           = Matrix.CreateScale(50f) * world;
                     be.View            = view;
-                    be.DiffuseColor    = new Vector3(1f, 1f, 1f);
+                    be.DiffuseColor    = diffuseColor;
                     be.Texture         = projTex.Texture;
                     be.Alpha           = alpha > 0 ? alpha : be.Alpha;                    
                     be.TextureEnabled  = true;

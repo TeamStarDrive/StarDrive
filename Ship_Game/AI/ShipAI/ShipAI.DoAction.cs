@@ -398,7 +398,7 @@ namespace Ship_Game.AI
                         Pause = false,
                         Message = message.ToString(),
                         ReferencedItem1 = system,
-                        Icon = system.Sun.LoResIcon,
+                        Icon = system.Sun.LoRes,
                         Action = "SnapToExpandSystem"
                     }, "sd_ui_notification_warning");
                 }

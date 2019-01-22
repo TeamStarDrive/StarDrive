@@ -177,7 +177,6 @@ namespace Ship_Game
         public bool WorkerUpdateGameWorld;
         public Ship playerShip;
         public float transitionElapsedTime;
-        private float Zrotate;
         public BoundingFrustum Frustum;
         private ClickablePlanets tippedPlanet;
         private ClickableSystem tippedSystem;
@@ -305,7 +304,7 @@ namespace Ship_Game
             foreach (SolarSystem system in SolarSystemList)
             {
                 Color color     = system.Sun.Color;
-                float intensity = system.Sun.Intensity;
+                float intensity = system.Sun.LightIntensity;
                 float radius    = system.Sun.Radius;
                 AddLight("Key",               system, intensity,         radius,         color, -5500);
                 AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
