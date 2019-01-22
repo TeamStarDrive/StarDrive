@@ -290,11 +290,12 @@ namespace Ship_Game.AI
         {
             float width = Empire.Universe.UniverseSize;
             return DefenseDict.FindMaxKeyByValuesFiltered(
-                com => (1f - ((float)com.TroopCount / com.IdealTroopCount))
-                       * com.ValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width),
                 com => com.TroopStrengthNeeded > 0
                        && com.System.PlanetList.Count > 0
-                       && com.System.PlanetList.Sum(p => p.GetGroundLandingSpots()) > 0
+                       && com.System.PlanetList.Sum(p => p.GetGroundLandingSpots()) > 0,
+                com => (1f - ((float)com.TroopCount / com.IdealTroopCount))
+                       * com.ValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width)
+
             );
         }
 
