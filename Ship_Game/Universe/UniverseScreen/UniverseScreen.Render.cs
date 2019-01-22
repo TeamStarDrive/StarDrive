@@ -59,7 +59,7 @@ namespace Ship_Game
             for (int index = 0; index < SolarSystemList.Count; index++)
             {
                 SolarSystem solarSystem = SolarSystemList[index];
-                if (!Frustum.Contains(solarSystem.Position, 100000f))
+                if (!Frustum.Contains(solarSystem.Position, solarSystem.Radius))
                     continue;
 
                 ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2 sysScreenPos,
@@ -142,25 +142,51 @@ namespace Ship_Game
             }
         }
 
-        // This draws the hi-res 3D sun and orbital circles
-        void DrawSolarSysWithOrbits(SolarSystem solarSystem, Vector2 sysScreenPos)
+        // some custom tweaks for the sun mesh specifically
+        public void DrawSunMesh(SolarSystem sys, float rotation)
         {
-            SubTexture sunTexture = solarSystem.SunTexture;
+            Vector3 color = new Vector3(1f,1f,1f) * sys.ColorIntensity;
 
-            DrawTransparentModel(SunModel,
-                Matrix.CreateRotationZ(Zrotate) *
-                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
+            float radius = sys.Sun.Radius / 3000f;
+            float scale = radius * 10.0f * sys.ScaleIntensity;
+            Matrix world = 
+                Matrix.CreateScale(scale) *
+                Matrix.CreateRotationZ(rotation) *
+                Matrix.CreateTranslation(sys.Position.ToVec3());
 
-            DrawTransparentModel(SunModel,
-                Matrix.CreateRotationZ((float)(-Zrotate / 2.0)) *
-                Matrix.CreateTranslation(solarSystem.Position.ToVec3()), sunTexture, 10.0f);
+            foreach (ModelMesh modelMesh in SunModel.Meshes)
+            {
+                foreach (Effect effect in modelMesh.Effects)
+                {
+                    var be = effect as BasicEffect;
+                    if (be == null) continue;
+                    be.World           = world;
+                    be.View            = view;
+                    be.DiffuseColor    = color;
+                    be.Texture         = sys.Sun.HiRes.Texture;
+                    be.Alpha           = be.Alpha;                    
+                    be.TextureEnabled  = true;
+                    be.Projection      = projection;
+                    be.LightingEnabled = false;
+                }
+                modelMesh.Draw();
+            }
+            Device.RenderState.DepthBufferWriteEnable = true;
+        }
 
-            if (!solarSystem.IsExploredBy(EmpireManager.Player))
+        // This draws the hi-res 3D sun and orbital circles
+        void DrawSolarSysWithOrbits(SolarSystem sys, Vector2 sysScreenPos)
+        {
+            DrawSunMesh(sys, sys.Zrotate);
+            if (sys.Sun.DoubleLayered) // draw second sun layer
+                DrawSunMesh(sys, sys.Zrotate / -2.0f);
+
+            if (!sys.IsExploredBy(EmpireManager.Player))
                 return;
 
-            for (int i = 0; i < solarSystem.PlanetList.Count; i++)
+            for (int i = 0; i < sys.PlanetList.Count; i++)
             {
-                Planet planet = solarSystem.PlanetList[i];
+                Planet planet = sys.PlanetList[i];
                 Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
 
@@ -253,14 +279,14 @@ namespace Ship_Game
             }
         }
 
-        void DrawLowResSun(SpriteBatch batch, SolarSystem solarSystem)
+        void DrawLowResSun(SpriteBatch batch, SolarSystem sys)
         {
-            float scale = 0.05f;
-            Vector2 position = Viewport.Project(solarSystem.Position.ToVec3(), projection, view, Matrix.Identity).ToVec2();
+            float scale = 0.05f * sys.ScaleIntensity;
+            Vector2 position = Viewport.Project(sys.Position.ToVec3(), projection, view, Matrix.Identity).ToVec2();
 
-            SubTexture sunTex = solarSystem.SunTexture;
-            batch.Draw(sunTex, position, Color.White, Zrotate, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
-            batch.Draw(sunTex, position, Color.White, Zrotate/-2f, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
+            SubTexture sunTex = sys.Sun.LoRes;
+            batch.Draw(sunTex, position, Color.White, sys.Zrotate, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
+            batch.Draw(sunTex, position, Color.White, sys.Zrotate/-2f, sunTex.CenterF, scale, SpriteEffects.None, 0.9f);
         }
 
         void DrawSolarSystemSectorView(GameTime gameTime, SolarSystem solarSystem)

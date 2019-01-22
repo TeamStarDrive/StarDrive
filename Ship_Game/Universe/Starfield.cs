@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -37,7 +39,7 @@ namespace Ship_Game
 
         readonly Rectangle StarFieldR;
         readonly Star[] Stars;
-        readonly SubTexture[] StarTex = new SubTexture[4];
+        readonly SubTexture[] StarTex;
         Texture2D StarTexture;
 
         SubTexture CloudTex;
@@ -51,10 +53,8 @@ namespace Ship_Game
             CloudTex = ResourceManager.Texture("clouds");
             CloudEffect = screen.TransientContent.Load<Effect>("Effects/Clouds");
             CloudEffectPos = CloudEffect.Parameters["Position"];
-            StarTex[0] = ResourceManager.Texture("Suns/star_binary");
-            StarTex[1] = ResourceManager.Texture("Suns/star_yellow");
-            StarTex[2] = ResourceManager.Texture("Suns/star_red");
-            StarTex[3] = ResourceManager.Texture("Suns/star_neutron");
+
+            StarTex = SunType.GetLoResTextures();
             StarTexture = new Texture2D(screen.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
             StarTexture.SetData(new[] { Color.White });
 

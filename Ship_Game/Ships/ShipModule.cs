@@ -577,9 +577,13 @@ namespace Ship_Game.Ships
 
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            float damageModifier = ShieldPower >= 1f
-                                 ? source.DamageMod.GetShieldDamageMod(this)
-                                 : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
+            float damageModifier = 1f;
+            if (source != null)
+            {
+                damageModifier = ShieldPower >= 1f
+                    ? source.DamageMod.GetShieldDamageMod(this)
+                    : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
+            }
 
             float healthBefore = Health + ShieldPower;
             if (!TryDamageModule(source, damageAmount * damageModifier)) 
@@ -767,8 +771,9 @@ namespace Ship_Game.Ships
                     GameplayObject damageCauser = Parent.LastDamagedBy;
                     if (damageCauser == null)
                         Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
-                    UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
-                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
+                    else
+                        UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
+                            ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }            
             }
             if (ActualPowerFlowMax > 0 || PowerRadius > 0)

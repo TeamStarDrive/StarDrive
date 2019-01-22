@@ -85,20 +85,14 @@ namespace Ship_Game.Data
 
         public StarDataParser(string file)
         {
-            Reader = new StreamReader(file, Encoding.UTF8);
+            FileInfo f = ResourceManager.GetModOrVanillaFile(file);
+            if (f == null || !f.Exists)
+                throw new FileNotFoundException($"Required StarData file not found! {file}");
+
+            Reader = f.OpenText();
             Root = new SDNode
             {
-                Name = Path.GetFileNameWithoutExtension(file),
-                Value = "",
-            };
-            Parse();
-        }
-        public StarDataParser(FileInfo file)
-        {
-            Reader = new StreamReader(file.OpenRead(), Encoding.UTF8);
-            Root = new SDNode
-            {
-                Name = file.NameNoExt(),
+                Name = f.NameNoExt(),
                 Value = "",
             };
             Parse();
@@ -177,9 +171,9 @@ namespace Ship_Game.Data
         {
             value = value.Trim();
             if (value.Length == 0) return null;
+            if (value == "null")   return null;
             if (value == "true")   return true;
             if (value == "false")  return false;
-
             char c = value[0];
             if (c == '[')
             {
@@ -245,8 +239,8 @@ namespace Ship_Game.Data
             public SimpleSerializer(Type type)
             {
                 Type shouldSerialize = typeof(StarDataAttribute);
-                PropertyInfo[] props = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-                FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+                PropertyInfo[] props = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 foreach (PropertyInfo p in props)
                 {
                     if (p.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
