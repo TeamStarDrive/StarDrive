@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.SpriteSystem;
@@ -12,7 +13,7 @@ namespace Ship_Game
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 11; // changing this will force all caches to regenerate
+        const int Version = 14; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -20,7 +21,7 @@ namespace Ship_Game
         static bool ExportPng = true;  // DEBUG: IF exporting, use PNG
         static bool ExportDds = false; // also use DDS?
 
-        int Hash;
+        ulong Hash;
         int NumPacked; // number of packed textures (not all textures are packed)
 
         public string Name { get; private set; }
@@ -75,19 +76,32 @@ namespace Ship_Game
             return uniqueTextures.Values.ToArray();
         }
 
-        static int CreateHash(FileInfo[] textures)
+        static ulong Fnv1AHash(byte[] bytes)
         {
-            // @note This is very fast, looks like FileInfo is cached somehow.
-            int hash = 5381;
-            void Combine(int hashCode) => hash = ((hash << 5) + hash) ^ hashCode;
-            Combine(textures.Length.GetHashCode());
-            Combine(Version);
-            foreach (FileInfo info in textures)
+            ulong hash = 0xcbf29ce484222325;
+            foreach (byte b in bytes)
             {
-                Combine(info.LastWriteTimeUtc.GetHashCode());
-                Combine(info.Name.GetHashCode());
+                hash = hash ^ b;
+                hash = hash * 0x100000001b3;
             }
             return hash;
+        }
+
+        static ulong CreateHash(FileInfo[] textures)
+        {
+            // @note Had to roll back to a custom Fnv1AHash over text,
+            //       since typical int hash-combine gave bad results.
+            var ms = new MemoryStream(4096);
+            var bw = new BinaryWriter(ms);
+            bw.Write(textures.Length);
+            bw.Write(Version);
+            foreach (FileInfo info in textures)
+            {
+                bw.Write(info.Name);
+                bw.Write(info.Length);
+                bw.Write(info.LastWriteTimeUtc.Ticks);
+            }
+            return Fnv1AHash(ms.ToArray());
         }
 
         void SaveAtlasTexture(GameContentManager content, Color[] color, string texturePath)
@@ -177,7 +191,7 @@ namespace Ship_Game
                 foreach (TextureInfo t in textures)
                 {
                     string pack = t.NoPack ? "nopack" : "atlas";
-                    fs.WriteLine($"{pack} {t.X} {t.Y} {t.Width} {t.Height} {t.Name}");
+                    fs.WriteLine($"{pack} {t.Type} {t.X} {t.Y} {t.Width} {t.Height} {t.Name}");
                 }
             }
         }
@@ -189,8 +203,8 @@ namespace Ship_Game
 
             using (var fs = new StreamReader(path.Descriptor))
             {
-                int.TryParse(fs.ReadLine(), out int hash);
-                if (hash != Hash)
+                ulong.TryParse(fs.ReadLine(), out ulong oldHash);
+                if (oldHash != Hash)
                 {
                     Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED");
                     return false; // hash mismatch, we need to regenerate cache
@@ -216,13 +230,14 @@ namespace Ship_Game
                 while ((line = fs.ReadLine()) != null)
                 {
                     var t = new TextureInfo();
-                    string[] entry = line.Split(separator, 6);
+                    string[] entry = line.Split(separator, 7);
                     t.NoPack = (entry[0] == "nopack");
-                    int.TryParse(entry[1], out t.X);
-                    int.TryParse(entry[2], out t.Y);
-                    int.TryParse(entry[3], out t.Width);
-                    int.TryParse(entry[4], out t.Height);
-                    t.Name = entry[5];
+                    t.Type   = (entry[1]);
+                    int.TryParse(entry[2], out t.X);
+                    int.TryParse(entry[3], out t.Y);
+                    int.TryParse(entry[4], out t.Width);
+                    int.TryParse(entry[5], out t.Height);
+                    t.Name = entry[6];
                     t.Texture = Atlas;
                     textures.Add(t);
                 }
@@ -243,7 +258,7 @@ namespace Ship_Game
                 for (int i = start; i < end; ++i)
                 {
                     TextureInfo t = noPack[i];
-                    t.Texture = content.LoadUncached<Texture2D>($"{Name}/{t.Name}");
+                    t.Texture = content.LoadUncachedTexture(t, Name);
                 }
             });
 
@@ -271,13 +286,14 @@ namespace Ship_Game
             for (int i = 0; i < textureFiles.Length; ++i)
             {
                 FileInfo info = textureFiles[i];
-                string assetName = info.CleanResPath(false);
                 string texName = info.NameNoExt();
-                var tex = content.LoadUncached<Texture2D>(assetName);
+                string ext = info.Extension.Substring(1);
+                Texture2D tex = content.LoadUncachedTexture(info, ext);
                 bool noPack = noPackAll || ignore.Contains(texName);
                 textures[i] = new TextureInfo
                 {
                     Name    = texName,
+                    Type    = ext,
                     Width   = tex.Width,
                     Height  = tex.Height,
                     Texture = tex,
@@ -295,7 +311,6 @@ namespace Ship_Game
             public readonly string Name;
             public AtlasPath(string name)
             {
-                if (name.StartsWith("Textures/")) name = name.Substring("Textures/".Length);
                 Name = name.Replace('/', '_');
                 CacheDir = Dir.StarDriveAppData + "/TextureCache";
                 Directory.CreateDirectory(CacheDir);
