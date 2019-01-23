@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
@@ -64,8 +65,23 @@ namespace Ship_Game
                 // and add to Build list
                 ScrollList.Entry entry = buildSL.AddItem(category.Header);
                 foreach (Ship ship in category.Ships)
-                    entry.AddSubItem(ship, addAndEdit:true);
+                    entry.AddSubItem(ship, addAndEdit: true);
             }
+        }
+
+        bool IsOutOfOrbitalsLimit(Ship ship)
+        {
+            int numOrbitals = P.OrbitalStations.Count + P.NumOrbitalsInTheWorks;
+            int numShipyards = P.OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + P.NumShipYardsInTheWorks;
+            if (numOrbitals >= ShipBuilder.OrbitalsLimit &&
+                (ship.shipData.HullRole == ShipData.RoleName.platform ||
+                 ship.shipData.HullRole == ShipData.RoleName.station))
+                return true;
+
+            if (numShipyards >= ShipBuilder.ShipYardsLimit && ship.shipData.IsShipyard)
+                return true;
+
+            return false;
         }
 
         void PopulateRecruitableTroops()
@@ -390,9 +406,18 @@ namespace Ship_Game
 
         void Build(Ship ship)
         {
+            if (IsOutOfOrbitalsLimit(ship))
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
+            bool isNewOrbital = ship.shipData.HullRole == ShipData.RoleName.platform ||
+                                ship.shipData.HullRole == ShipData.RoleName.station;
+
             P.ConstructionQueue.Add(new QueueItem(P)
             {
-                isShip = true, sData = ship.shipData, Cost = ship.GetCost(P.Owner), ProductionSpent = 0f
+                isShip = true, isOrbital = isNewOrbital, sData = ship.shipData, Cost = ship.GetCost(P.Owner), ProductionSpent = 0f
             });
             GameAudio.AcceptClick();
         }
