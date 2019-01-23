@@ -17,7 +17,7 @@ namespace Ship_Game
     /// </summary>
     public class RawContentLoader
     {
-        private readonly GameContentManager Content;
+        readonly GameContentManager Content;
 
         // This must be lazy init, because content manager is instantianted before
         // graphics device is initialized
@@ -44,7 +44,7 @@ namespace Ship_Game
             return IsSupportedMeshExtension(Path.GetExtension(modelNameWithExtension));
         }
 
-        private static string GetContentPath(string contentName)
+        static string GetContentPath(string contentName)
         {
             if (contentName.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase))
             {
@@ -73,12 +73,12 @@ namespace Ship_Game
             return LoadImageAsTexture(fileNameWithExt);
         }
 
-        private static bool IsPowerOf2(int value)
+        static bool IsPowerOf2(int value)
         {
             return value > 0 && (value & (value - 1)) == 0;
         }
 
-        private Texture2D LoadImageAsTexture(string fileNameWithExt)
+        Texture2D LoadImageAsTexture(string fileNameWithExt)
         {
             string contentPath = GetContentPath(fileNameWithExt);
             using (var fs = new FileStream(contentPath, FileMode.Open))
@@ -99,7 +99,7 @@ namespace Ship_Game
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private struct SDMesh
+        struct SDMesh
         {
             public readonly CStrView Name;
             public readonly int NumGroups;
@@ -107,7 +107,7 @@ namespace Ship_Game
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private struct SDMaterial
+        struct SDMaterial
         {
             public readonly CStrView Name; // name of the material instance
             public readonly CStrView MaterialFile;
@@ -125,7 +125,7 @@ namespace Ship_Game
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private struct SDVertex
+        struct SDVertex
         {
             public Vector3 Position;
             public Vector3 Normal;
@@ -135,7 +135,7 @@ namespace Ship_Game
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private unsafe struct SDMeshGroup
+        unsafe struct SDMeshGroup
         {
             public readonly int GroupId;
             public readonly CStrView Name;
@@ -212,21 +212,21 @@ namespace Ship_Game
             }
         }
 
-        [DllImport("SDNative.dll")] private static extern unsafe SDMesh* SDMeshOpen([MarshalAs(UnmanagedType.LPWStr)] string filename);
-        [DllImport("SDNative.dll")] private static extern unsafe void SDMeshClose(SDMesh* mesh);
-        [DllImport("SDNative.dll")] private static extern unsafe SDMeshGroup* SDMeshGetGroup(SDMesh* mesh, int groupId);
+        [DllImport("SDNative.dll")] static extern unsafe SDMesh* SDMeshOpen([MarshalAs(UnmanagedType.LPWStr)] string filename);
+        [DllImport("SDNative.dll")] static extern unsafe void SDMeshClose(SDMesh* mesh);
+        [DllImport("SDNative.dll")] static extern unsafe SDMeshGroup* SDMeshGetGroup(SDMesh* mesh, int groupId);
 
-        [DllImport("SDNative.dll")] private static extern unsafe SDMesh* SDMeshCreateEmpty([MarshalAs(UnmanagedType.LPWStr)] string meshname);
-        [DllImport("SDNative.dll")] private static extern unsafe bool SDMeshSave(SDMesh* mesh, [MarshalAs(UnmanagedType.LPWStr)] string filename);
-        [DllImport("SDNative.dll")] private static extern unsafe SDMeshGroup* SDMeshNewGroup(SDMesh* mesh,
+        [DllImport("SDNative.dll")] static extern unsafe SDMesh* SDMeshCreateEmpty([MarshalAs(UnmanagedType.LPWStr)] string meshname);
+        [DllImport("SDNative.dll")] static extern unsafe bool SDMeshSave(SDMesh* mesh, [MarshalAs(UnmanagedType.LPWStr)] string filename);
+        [DllImport("SDNative.dll")] static extern unsafe SDMeshGroup* SDMeshNewGroup(SDMesh* mesh,
                                                             [MarshalAs(UnmanagedType.LPWStr)] string groupname,
                                                             Matrix* transform);
 
-        [DllImport("SDNative.dll")] private static extern unsafe void SDMeshGroupSetData(SDMeshGroup* group, 
+        [DllImport("SDNative.dll")] static extern unsafe void SDMeshGroupSetData(SDMeshGroup* group, 
                                                             Vector3* verts, Vector3* normals, Vector2* coords, int numVertices,
                                                             ushort* indices, int numIndices);
 
-        [DllImport("SDNative.dll")] private static extern unsafe void SDMeshGroupSetMaterial(SDMeshGroup* group, 
+        [DllImport("SDNative.dll")] static extern unsafe void SDMeshGroupSetMaterial(SDMeshGroup* group, 
                                                             [MarshalAs(UnmanagedType.LPWStr)] string name,
                                                             [MarshalAs(UnmanagedType.LPWStr)] string materialFile,
                                                             [MarshalAs(UnmanagedType.LPWStr)] string diffusePath,
@@ -241,8 +241,9 @@ namespace Ship_Game
                                                             float specular,
                                                             float alpha);
 
-        private static VertexDeclaration Layout;
-        private static VertexDeclaration VertexLayout(GraphicsDevice device)
+        static VertexDeclaration Layout;
+
+        static VertexDeclaration VertexLayout(GraphicsDevice device)
         {
             if (Layout == null)
             {
@@ -259,7 +260,7 @@ namespace Ship_Game
         }
 
 
-        private unsafe StaticMesh StaticMeshFromFile(string modelName)
+        unsafe StaticMesh StaticMeshFromFile(string modelName)
         {
             SDMesh* sdmesh = null;
             try
@@ -314,7 +315,7 @@ namespace Ship_Game
             }
         }
 
-        private static T[] VertexData<T>(VertexBuffer vbo, VertexElement[] vde, int numVerts, int stride, VertexElementUsage usage) where T : struct
+        static T[] VertexData<T>(VertexBuffer vbo, VertexElement[] vde, int numVerts, int stride, VertexElementUsage usage) where T : struct
         {
             for (int i = 0; i < vde.Length; ++i)
             {
@@ -386,7 +387,7 @@ namespace Ship_Game
             return success;
         }
 
-        private static string TrySaveTexture(string modelExportDir, string textureName, Texture2D texture)
+        static string TrySaveTexture(string modelExportDir, string textureName, Texture2D texture)
         {
             if (textureName.IsEmpty() || texture == null)
                 return "";
@@ -405,7 +406,7 @@ namespace Ship_Game
             return name;
         }
 
-        private static unsafe void SaveMaterial(SDMeshGroup* group, BaseMaterialEffect fx, string name, string modelExportDir)
+        static unsafe void SaveMaterial(SDMeshGroup* group, BaseMaterialEffect fx, string name, string modelExportDir)
         {
             string diffusePath  = TrySaveTexture(modelExportDir, fx.DiffuseMapFile,       fx.DiffuseMapTexture);
             string specularPath = TrySaveTexture(modelExportDir, fx.SpecularColorMapFile, fx.SpecularColorMapTexture);
@@ -428,7 +429,7 @@ namespace Ship_Game
                 fx.Transparency);
         }
 
-        private static unsafe void SaveMaterial(SDMeshGroup* group, BasicEffect fx, string name, string modelExportDir)
+        static unsafe void SaveMaterial(SDMeshGroup* group, BasicEffect fx, string name, string modelExportDir)
         {
             string diffusePath, specularPath = "", normalPath = "", emissivePath = "";
             if (fx.Texture == null)
@@ -461,8 +462,8 @@ namespace Ship_Game
                 fx.SpecularPower, 
                 fx.Alpha);
         }
-        
-        private SkinnedModel SkinnedMeshFromFile(string modelName)
+
+        SkinnedModel SkinnedMeshFromFile(string modelName)
         {
             return null;
         }

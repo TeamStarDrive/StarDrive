@@ -1,5 +1,5 @@
 #pragma once
-#include "NanoMesh/Nano/Mesh.h"
+#include <Nano/Mesh.h>
 
 namespace SDNative
 {
@@ -58,6 +58,8 @@ namespace SDNative
         }
     };
 
+	struct SDMesh;
+
     struct SDMeshGroup
     {
         // publicly visible in C#
@@ -73,17 +75,18 @@ namespace SDNative
         Matrix4 Transform = Matrix4::Identity();
 
         // not mapped to C#
-        Mesh& Owner;
-        MeshGroup& Data;
+		SDMesh& TheMesh;
         vector<SDVertex> VertexData;
         vector<ushort>   IndexData;
 
-        explicit SDMeshGroup(Mesh& mesh, MeshGroup& group);
-        explicit SDMeshGroup(Mesh& mesh, int groupId);
-        void InitVerts();
+        explicit SDMeshGroup(SDMesh& mesh, int groupId);
+        void InitVertices();
 
-        void SetData(Vector3* verts, Vector3* normals, Vector2* coords, int numVertices,
-                     ushort* indices, int numIndices);
+        void SetData(Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
+                     const ushort* indices, int numIndices);
+
+		Nano::Mesh& GetMesh() const;
+		MeshGroup& GetGroup() const;
     };
 
     struct SDMesh
@@ -100,23 +103,25 @@ namespace SDNative
         SDMesh();
         explicit SDMesh(strview path);
         SDMeshGroup* GetGroup(int groupId);
-        SDMeshGroup* AddGroup(string groupname);
+        SDMeshGroup* AddGroup(string groupName);
+
+		void SyncStats();
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
 
     #define DLLAPI(returnType) extern "C" __declspec(dllexport) returnType __stdcall
 
-    DLLAPI(SDMesh*) SDMeshOpen(const wchar_t* filename);
+    DLLAPI(SDMesh*) SDMeshOpen(const wchar_t* fileName);
     DLLAPI(void)    SDMeshClose(SDMesh* mesh);
     DLLAPI(SDMeshGroup*) SDMeshGetGroup(SDMesh* mesh, int groupId);
 
-    DLLAPI(SDMesh*) SDMeshCreateEmpty(const wchar_t* meshname);
+    DLLAPI(SDMesh*) SDMeshCreateEmpty(const wchar_t* meshName);
     DLLAPI(bool)    SDMeshSave(SDMesh* mesh, const wchar_t* filename);
-    DLLAPI(SDMeshGroup*) SDMeshNewGroup(SDMesh* mesh, const wchar_t* groupname, Matrix4* transform);
+    DLLAPI(SDMeshGroup*) SDMeshNewGroup(SDMesh* mesh, const wchar_t* groupName, Matrix4* transform);
 
     DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group,
-                    Vector3* verts, Vector3* normals, Vector2* coords, int numVertices,
+                    Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
                     ushort* indices, int numIndices);
 
     DLLAPI(void) SDMeshGroupSetMaterial(

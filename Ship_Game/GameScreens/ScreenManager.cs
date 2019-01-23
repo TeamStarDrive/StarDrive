@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
@@ -29,19 +30,11 @@ namespace Ship_Game
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
 
-        
-
         public float exitScreenTimer
         {
             get => input.ExitScreenTimer;
             set => input.ExitScreenTimer = value;
         }
-
-
-        //public float exitScreenTimer
-        //{
-            
-        //} input.ExitScreenTimer;
 
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => Screens.Count;
@@ -314,8 +307,51 @@ namespace Ship_Game
             exitScreenTimer = 0.25f;
         }
 
+        float HotloadTimer;
+        const float HotloadInterval = 1.0f;
+
+        class Hotloadable
+        {
+            public string File;
+            public DateTime LastModified;
+            public Action<FileInfo> OnModified;
+        }
+        readonly Array<Hotloadable> HotLoadTargets = new Array<Hotloadable>();
+
+        public void ResetHotLoadTargets()
+        {
+            HotLoadTargets.Clear();
+        }
+        public void AddHotLoadTarget(string file, Action<FileInfo> onModified)
+        {
+            HotLoadTargets.Add(new Hotloadable {
+                File = file, LastModified = File.GetLastWriteTimeUtc(file), OnModified = onModified
+            });
+        }
+
+        void PerformHotLoadTasks()
+        {
+            HotloadTimer += GameInstance.DeltaTime;
+            if (HotloadTimer < HotloadInterval) return;
+
+            HotloadTimer = 0f;
+            foreach (Hotloadable hot in HotLoadTargets)
+            {
+                var info = new FileInfo(hot.File);
+                if (info.LastWriteTimeUtc != hot.LastModified)
+                {
+                    Log.Write(ConsoleColor.Magenta, $"HotLoading content: {info.Name}...");
+                    hot.LastModified = info.LastWriteTimeUtc; // update
+                    hot.OnModified(info);
+                    return;
+                }
+            }
+        }
+
         public void Update(GameTime gameTime)
         {
+            PerformHotLoadTasks();
+
             input.Update(gameTime);
 
             bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;

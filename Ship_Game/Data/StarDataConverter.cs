@@ -8,51 +8,37 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data
 {
-    public static class StarDataConverter
+    public abstract class TypeConverter
     {
-        public static object Convert(object value, Type targetT)
+        public abstract object Convert(object value, Type source);
+    }
+
+    public class EnumConverter : TypeConverter
+    {
+        readonly Type ToEnum;
+        public EnumConverter(Type enumType)
         {
-            if (value == null)
-                return null;
-
-            Type sourceT = value.GetType();
-            if (sourceT == targetT)
-                return value;
-
-            if (targetT.IsEnum)
-                return ToEnum(value, targetT);
-
-            if (targetT == RangeType)
-                return ToRange(value);
-
-            if (targetT == LocTextType)
-                return ToLocText(value);
-
-            if (targetT == ColorType)
-                return ToColor(value);
-
-            return System.Convert.ChangeType(value, targetT);
+            ToEnum = enumType;
         }
-
-        static object ToEnum(object value, Type targetT)
+        public override object Convert(object value, Type source)
         {
             if (value is string s)
-                return Enum.Parse(targetT, s, ignoreCase:true);
+                return Enum.Parse(ToEnum, s, ignoreCase:true);
             if (value is int i)
-                return Enum.ToObject(targetT, i);
-            throw new Exception($"StarDataConverter could not convert '{value}' to Enum '{targetT.Name}'");
+                return Enum.ToObject(ToEnum, i);
+            throw new Exception($"StarDataConverter could not convert '{value}' to Enum '{ToEnum.Name}'");
         }
+    }
 
+    public class RangeConverter : TypeConverter
+    {
         static float Number(object value)
         {
             if (value is float f) return f;
             if (value is int i) return i;
             return float.Parse((string)value, CultureInfo.InvariantCulture);
         }
-
-        static readonly Type RangeType = typeof(Range);
-
-        static object ToRange(object value)
+        public override object Convert(object value, Type source)
         {
             if (value is int i)   return new Range(i);
             if (value is float f) return new Range(f);
@@ -60,19 +46,21 @@ namespace Ship_Game.Data
                 throw new Exception($"StarDataConverter could not convert '{value}' to Range");
             return new Range(Number(objects[0]), Number(objects[1]));
         }
+    }
 
-        static readonly Type LocTextType = typeof(LocText);
-
-        static object ToLocText(object value)
+    public class LocTextConverter : TypeConverter
+    {
+        public override object Convert(object value, Type source)
         {
             if (!(value is int id))
                 throw new Exception($"StarDataConverter could not convert '{value}' to LocText");
             return new LocText(id);
         }
+    }
 
-        static readonly Type ColorType = typeof(Color);
-
-        static object ToColor(object value)
+    public class ColorConverter : TypeConverter
+    {
+        public override object Convert(object value, Type source)
         {
             if (!(value is object[] objects))
                 throw new Exception($"StarDataConverter could not convert '{value}' to Color");
@@ -95,6 +83,82 @@ namespace Ship_Game.Data
                 if (objects.Length >= 4) a = (float)objects[3];
                 return new Color(r, g, b, a);
             }
+        }
+    }
+
+    public class IntConverter : TypeConverter
+    {
+        public override object Convert(object value, Type source)
+        {
+            if (value is string s)
+            {
+                int.TryParse(s, out int i);
+                return i;
+            }
+
+            if (value is float f)
+                return (int)f;
+
+            throw new Exception($"StarDataConverter could not convert '{value}' to Int");
+        }
+    }
+
+    public class FloatConverter : TypeConverter
+    {
+        public override object Convert(object value, Type source)
+        {
+            if (value is string s)
+            {
+                float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float f);
+                return f;
+            }
+
+            if (value is int i)
+                return (float)i;
+
+            throw new Exception($"StarDataConverter could not convert '{value}' to Float");
+        }
+    }
+
+    public class BoolConverter : TypeConverter
+    {
+        public override object Convert(object value, Type source)
+        {
+            if (value is string s)
+            {
+                return s == "true" || s == "True";
+            }
+
+            throw new Exception($"StarDataConverter could not convert '{value}' to Bool");
+        }
+    }
+
+    public class StringConverter : TypeConverter
+    {
+        public override object Convert(object value, Type source)
+        {
+            return value.ToString();
+        }
+    }
+
+    public class DefaultConverter : TypeConverter
+    {
+        readonly Type ToType;
+        public DefaultConverter(Type toType)
+        {
+            ToType = toType;
+        }
+        public override object Convert(object value, Type source)
+        {
+            return System.Convert.ChangeType(value, ToType);
+        }
+    }
+
+    public static class StarDataConverter
+    {
+        public static object Convert(object value, Type targetT)
+        {
+            return System.Convert.ChangeType(value, targetT);
         }
     }
 }
