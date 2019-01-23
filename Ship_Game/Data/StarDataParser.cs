@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data
 {
@@ -97,6 +98,19 @@ namespace Ship_Game.Data
             };
             Parse();
         }
+        public StarDataParser(FileInfo f)
+        {
+            if (f == null || !f.Exists)
+                throw new FileNotFoundException($"Required StarData file not found! {f?.FullName}");
+
+            Reader = f.OpenText();
+            Root = new SDNode
+            {
+                Name = f.NameNoExt(),
+                Value = "",
+            };
+            Parse();
+        }
         public void Dispose()
         {
             Reader?.Close(); Reader = null;
@@ -153,6 +167,15 @@ namespace Ship_Game.Data
         static SDNode ParseLineAsNode(string line)
         {
             string[] parts = line.Split(Colon, 2, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 1) // no value
+            {
+                return new SDNode
+                {
+                    Name  = parts[0].Trim(),
+                    Value = null
+                };
+            }
+
             string value = parts[1];
             int comment = value.IndexOf('#');
             if (comment != -1)
@@ -209,35 +232,64 @@ namespace Ship_Game.Data
             return depth;
         }
 
-        class SimpleSerializer
+        class SimpleSerializer : TypeConverter
         {
-            struct Info
+            class Info
             {
-                public FieldInfo Field;
-                public PropertyInfo Property;
-
+                public readonly Type Type;
+                public readonly PropertyInfo Prop;
+                public readonly FieldInfo Field;
+                public TypeConverter Converter;
+                public Type ListType; // this is an Array<ListType>
+                public Info(PropertyInfo prop, FieldInfo field)
+                {
+                    Prop = prop;
+                    Field = field;
+                    Type = prop != null ? prop.PropertyType : field.FieldType;
+                    Converter = null;
+                }
+                void Set(object instance, object value)
+                {
+                    if (Field != null) Field.SetValue(instance, value);
+                    else               Prop.SetValue(instance, value);
+                }
+                object Get(object instance)
+                {
+                    return Field != null ? Field.GetValue(instance) : Prop.GetValue(instance);
+                }
                 public void SetValue(object instance, object value)
                 {
-                    value = ConvertType(value);
-                    if (Field != null) Field.SetValue(instance, value);
-                    else Property.SetValue(instance, value);
-                }
-
-                object ConvertType(object value)
-                {
-                    if (value == null)
-                        return null;
-                    Type targetT = Property != null ? Property.PropertyType : Field.FieldType;
-                    return StarDataConverter.Convert(value, targetT);
+                    if (ListType != null)
+                    {
+                        if (!(Get(instance) is IList list))
+                        {
+                            list = ArrayHelper.NewArrayOfT(ListType);
+                            Set(instance, list);
+                        }
+                        list.Add(value);
+                        return;
+                    }
+                    
+                    if (value != null)
+                    {
+                        Type sourceT = value.GetType();
+                        if (Type != sourceT)
+                            value = Converter.Convert(value, sourceT);
+                    }
+                    Set(instance, value); // allow setting null, sometimes it's an override
                 }
             }
 
             readonly Map<string, Info> Mapping = new Map<string, Info>();
+            readonly Map<Type, TypeConverter> Types;
             string PrimaryName;
             Info PrimaryInfo;
+            Type TheType;
 
-            public SimpleSerializer(Type type)
+            public SimpleSerializer(Type type, Map<Type, TypeConverter> types = null)
             {
+                TheType = type;
+                Types = types ?? CreateBaseTypes();
                 Type shouldSerialize = typeof(StarDataAttribute);
                 PropertyInfo[] props = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -247,19 +299,64 @@ namespace Ship_Game.Data
                     {
                         MethodInfo setter = p.GetSetMethod(nonPublic: true);
                         if (setter == null) throw new Exception($"Property {p.Name} has no setter!");
-                        AddMapping(p.Name, a, p, null);
+                        AddMapping(p.Name, a, new Info(p, null));
                     }
                 }
                 foreach (FieldInfo f in fields)
                 {
                     if (f.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
-                        AddMapping(f.Name, a, null, f);
+                        AddMapping(f.Name, a, new Info(null, f));
                 }
             }
 
-            void AddMapping(string name, StarDataAttribute a, PropertyInfo p, FieldInfo f)
+            Map<Type, TypeConverter> CreateBaseTypes()
             {
-                var info = new Info{ Property = p, Field = f };
+                return new Map<Type, TypeConverter>
+                {
+                    (typeof(Range),   new RangeConverter()),
+                    (typeof(LocText), new LocTextConverter()),
+                    (typeof(Color),   new ColorConverter()),
+                    (typeof(int),     new IntConverter()),
+                    (typeof(float),   new FloatConverter()),
+                    (typeof(bool),    new BoolConverter()),
+                    (typeof(string),  new StringConverter())
+                };
+            }
+
+            Type GetListType(Type type)
+            {
+                //if (toType.IsArray) // @todo Figure out how to array append :|
+                    //    converter = new SimpleSerializer(toType.GetElementType(), Types);
+                if (type.IsGenericType)
+                {
+                    if (type.GetGenericTypeDefinition() == typeof(Array<>))
+                        return type.GenericTypeArguments[0];
+                    if (type.GetInterfaces().Contains(typeof(IList)))
+                        return type.GenericTypeArguments[0];
+                }
+                return null;
+            }
+
+            void SetConverter(Info info)
+            {
+                Type toType = info.Type;
+                info.ListType = GetListType(toType);
+                if (Types.TryGetValue(toType, out info.Converter))
+                    return;
+
+                if (info.ListType != null)
+                    info.Converter = new SimpleSerializer(toType.GenericTypeArguments[0]);
+                else if (toType.IsEnum)
+                    info.Converter = new EnumConverter(toType);
+                else
+                    throw new InvalidDataException($"Unsupported type {toType}!");
+
+                Types[toType] = info.Converter;
+            }
+
+            void AddMapping(string name, StarDataAttribute a, Info info)
+            {
+                SetConverter(info);
                 if (a.IsPrimaryKey)
                 {
                     PrimaryName = name;
@@ -271,21 +368,40 @@ namespace Ship_Game.Data
                 }
             }
 
-            public T Deserialize<T>(SDNode node) where T : new()
+            public override object Convert(object value, Type source)
             {
-                var item = new T();
+                return null;
+            }
+
+            public object Deserialize(SDNode node)
+            {
+                object item = Activator.CreateInstance(TheType);
                 if (node.Value != null && PrimaryName != null)
                 {
                     PrimaryInfo.SetValue(item, node.Value);
                 }
                 if (node.Items == null)
                     return item;
+
                 foreach (SDNode leaf in node.Items)
                 {
-                    object value = leaf.Value;
-                    if (value == null || !Mapping.TryGetValue(leaf.Name, out Info info))
+                    if (leaf.HasItems) // it appears to be an array M'Lord
+                    {
+                        if (Mapping.TryGetValue(leaf.Name, out Info inf) && inf.Converter is SimpleSerializer s)
+                        {
+                            object subItem = s.Deserialize(leaf);
+                            inf.SetValue(item, subItem);
+                        }
                         continue;
-                    info.SetValue(item, value);
+                    }
+                    else
+                    {
+                        object value = leaf.Value;
+                        if (value == null || !Mapping.TryGetValue(leaf.Name, out Info info))
+                            continue;
+
+                        info.SetValue(item, value);
+                    }
                 }
                 return item;
             }
@@ -297,7 +413,7 @@ namespace Ship_Game.Data
             var ser = new SimpleSerializer(typeof(T));
             foreach (SDNode child in Root)
             {
-                items.Add(ser.Deserialize<T>(child));
+                items.Add((T)ser.Deserialize(child));
             }
             return items;
         }

@@ -1868,25 +1868,39 @@ namespace Ship_Game
             float num = UnprojectToWorldPosition(new Vector2(p.BackBufferWidth, p.BackBufferHeight)).X - spaceFromScreenSpace1.X;
             input.Repeat = true;
 
-            if (input.CursorPosition.X <= 1f || input.Left && !ViewingShip)
+            float x = input.CursorX, y = input.CursorY;
+
+            float outer = -50f;
+            float inner = +5.0f;
+            float minLeft = outer, maxLeft = inner;
+            float minTop  = outer, maxTop  = inner;
+            float minRight  = p.BackBufferWidth  - inner, maxRight  = p.BackBufferWidth  - outer;
+            float minBottom = p.BackBufferHeight - inner, maxBottom = p.BackBufferHeight - outer;
+
+            bool InRange(float pos, float min, float max)
+            {
+                return min <= pos && pos <= max;
+            }
+
+            if (InRange(x, minLeft, maxLeft) || input.Left && !ViewingShip)
             {
                 CamDestination.X -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (input.CursorPosition.X >= p.BackBufferWidth - 1 || input.Right && !ViewingShip)
+            if (InRange(x, minRight, maxRight) || input.Right && !ViewingShip)
             {
                 CamDestination.X += 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (input.CursorPosition.Y <= 0.0f || input.Up && !ViewingShip)
+            if (InRange(y, minTop, maxTop) || input.Up && !ViewingShip)
             {
                 CamDestination.Y -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (input.CursorPosition.Y >= p.BackBufferHeight - 1 || input.Down && !ViewingShip)
+            if (InRange(y, minBottom, maxBottom) || input.Down && !ViewingShip)
             {
                 CamDestination.Y += 0.008f * num;
                 snappingToShip = false;
