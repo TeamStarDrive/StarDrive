@@ -10,10 +10,10 @@ namespace Ship_Game
         public string CustomMenuMusic        = "";
         public string ModDescription         = "";
         public bool DisableDefaultRaces;
-        public string PortraitPath           = "";
-        public string ModImagePath_1920x1280 = "";
-        public string URL                    = "";
-        public string Author                 = "";
+        public string PortraitPath = "";
+        public string ModImagePath = "";
+        public string URL          = "";
+        public string Author       = "";
 
         //added by Gremlin
         public string Version;
