@@ -305,11 +305,11 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void CauseEmpDamage(float empDamage) => EMPDamage += empDamage;
+        public bool IsPlatformOrStation => shipData.Role == ShipData.RoleName.platform || shipData.Role == ShipData.RoleName.station;
 
+        public void CauseEmpDamage(float empDamage)     => EMPDamage += empDamage;
         public void CausePowerDamage(float powerDamage) => PowerCurrent = (PowerCurrent - powerDamage).Clamped(0, PowerStoreMax);
-
-        public void AddPower(float powerAcquired) => PowerCurrent = (PowerCurrent + powerAcquired).Clamped(0, PowerStoreMax);
+        public void AddPower(float powerAcquired)       => PowerCurrent = (PowerCurrent + powerAcquired).Clamped(0, PowerStoreMax);
 
         public void CauseTroopDamage(float troopDamageChance)
         {
@@ -2808,10 +2808,9 @@ namespace Ship_Game.Ships
 
         public bool ShipGoodToBuild(Empire empire)
         {
-            if (shipData.HullRole == ShipData.RoleName.station ||
-                shipData.HullRole == ShipData.RoleName.platform ||
-                shipData.CarrierShip)
+            if (IsPlatformOrStation || shipData.CarrierShip)
                 return true;
+
             return ShipIsGoodForGoals(float.MinValue, empire);
         }
 

@@ -144,8 +144,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (ship.shipData.Role == ShipData.RoleName.station
-                || ship.shipData.Role == ShipData.RoleName.platform
+            if (ship.IsPlatformOrStation
                 || !ship.ShipIsGoodForGoals()
                 || ship.InCombat
                 || ship.fleet != null

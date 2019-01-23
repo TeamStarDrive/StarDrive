@@ -80,14 +80,12 @@ namespace Ship_Game
                 PieMenuNode newChild6 = new PieMenuNode(Localizer.Token(1417),
                     ResourceManager.Texture("UI/FollowIcon"), null);
                 shipMenu.Add(newChild6);
-                if (SelectedShip != null && SelectedShip.shipData.Role != ShipData.RoleName.station &&
-                    SelectedShip.shipData.Role != ShipData.RoleName.platform)
+                if (SelectedShip != null && !SelectedShip.IsPlatformOrStation)
                 {
                     newChild6.Add(new PieMenuNode(Localizer.Token(1418), ResourceManager.Texture("UI/FollowIcon"),
                         RefitTo));
                 }
-                if (SelectedShip != null && (SelectedShip.shipData.Role == ShipData.RoleName.station ||
-                                             SelectedShip.shipData.Role == ShipData.RoleName.platform))
+                if (SelectedShip != null && SelectedShip.IsPlatformOrStation)
                 {
                     newChild6.Add(new PieMenuNode("Scuttle", ResourceManager.Texture("UI/HoldPositionIcon"),
                         OrderScuttle));
