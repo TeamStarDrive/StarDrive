@@ -10,8 +10,8 @@
     BlendMode: AlphaBlend # AlphaBlend or Additive or None
     RotationSpeed: 0.03 # rotation speed and direction, default is 0.03
     PulsePeriod: 5.0 # period of pulses in seconds; 0 if disabled
-    PulseScale: [0.96,1.04] # if pulse enabled, what is the scale variation; [1.0,1.0] to disable
-    PulseColor: [1.0,1.20] # if pulse enabled, what is the color intensity variation; [1.0,1.0] to disable
+    PulseScale: [0.96,1.04] # if pulse enabled, controls the scale variation; [1.0,1.0] to disable
+    PulseColor: [1.0,1.20] # if pulse enabled, controls the layer color intensity; [1.0,1.0] do disable; I don't recommend < 1.0
   Layers:
     TexturePath: Suns/star_red
     BlendMode: AlphaBlend # AlphaBlend or Additive or None
@@ -26,7 +26,7 @@ Sun: star_yellow
   LightColor: [255,255,224] # LightYellow
   Habitable: true
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_yellow
     TextureColor: [255,255,255,255]
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
@@ -34,7 +34,7 @@ Sun: star_yellow
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_yellow
     BlendMode: AlphaBlend
     RotationSpeed: -0.015
     PulsePeriod: 5.0
@@ -47,7 +47,7 @@ Sun: star_green
   LightColor: [144,238,144] # LightGreen
   Habitable: true
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_green
     TextureColor: [255,255,255,255]
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
@@ -55,7 +55,7 @@ Sun: star_green
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_green
     BlendMode: AlphaBlend
     RotationSpeed: -0.015
     PulsePeriod: 5.0
@@ -68,7 +68,7 @@ Sun: star_blue
   LightColor: [173,216,230] # LightBlue
   Habitable: true
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_blue
     TextureColor: [255,255,255,255]
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
@@ -76,7 +76,7 @@ Sun: star_blue
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_blue
     BlendMode: AlphaBlend
     RotationSpeed: -0.015
     PulsePeriod: 5.0
@@ -89,7 +89,7 @@ Sun: star_yellow2
   LightColor: [255,255,255] # White
   Habitable: true
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_yellow2
     TextureColor: [255,255,255,255]
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
@@ -97,7 +97,7 @@ Sun: star_yellow2
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_yellow2
     BlendMode: AlphaBlend
     RotationSpeed: -0.015
     PulsePeriod: 5.0
@@ -110,17 +110,10 @@ Sun: star_binary
   LightColor: [255,255,255] # White
   Habitable: true
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_binary
     TextureColor: [255,255,255,255]
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
-  Layers:
-    TexturePath: Suns/star_red
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.015
     PulsePeriod: 5.0
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
@@ -133,7 +126,7 @@ Sun: star_neutron
   RadiationDamage: 100 # per second, falls off depending on RadiationRadius
   RadiationRadius: 50000
   Layers:
-    TexturePath: Suns/star_red
+    TexturePath: Suns/star_neutron
     TextureColor: [255,255,255,255]
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
