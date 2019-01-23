@@ -564,7 +564,7 @@ namespace Ship_Game
 
         static float CalcDefenseShipScore(Building b)
         {
-            if (b.DefenseShipsCapacity <= 0 || b.DefenseShipsRole == (ShipData.RoleName) 0)
+            if (b.DefenseShipsCapacity <= 0 || b.DefenseShipsRole == 0)
                 return 0;
 
             float defenseShipScore;
@@ -579,7 +579,7 @@ namespace Ship_Game
             return defenseShipScore * b.DefenseShipsCapacity;
         }
 
-        Building ChooseBestBuilding(Array<Building> buildings, float budget, float popRatio, out float value)
+        Building ChooseBestBuilding(Array<Building> buildings, float budget, out float value)
         {
             if (buildings.Count == 0) 
             {
@@ -655,12 +655,12 @@ namespace Ship_Game
             return worst;
         }
 
-        bool SimpleBuild(float budget, float popRatio) // build a building with a positive value
+        bool SimpleBuild(float budget) // build a building with a positive value
         {
             if (BuildingInTheWorks)
                 return false;
 
-            Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget, popRatio, out float bestValue);
+            Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget, out float bestValue);
             if (bestBuilding != null && bestValue > 0)
                 Construction.AddBuilding(bestBuilding);
 
@@ -691,12 +691,12 @@ namespace Ship_Game
             return true;
         }
 
-        bool ReplaceBuilding(float budget, float popRatio)
+        bool ReplaceBuilding(float budget)
         {
             if (BuildingInTheWorks)
                 return false;
 
-            Building bestBuilding  = ChooseBestBuilding(BuildingsCanBuild, budget, popRatio, out float bestValue);
+            Building bestBuilding  = ChooseBestBuilding(BuildingsCanBuild, budget, out float bestValue);
             Building worstBuilding = ChooseWorstBuilding(BuildingList, budget, out float worstValue, float.MaxValue);
             if (bestBuilding == null || worstBuilding == null || bestValue.LessOrEqual(worstValue))
                 return false;
@@ -725,15 +725,12 @@ namespace Ship_Game
             return false; //Military won't replace it's buildings with civilian ones
         }
 
+        //New Build Logic by Gretman, modified by FB
         void BuildAndScrapBuildings(float budget)
         {
             int totalBuildings       = TotalBuildings;
             float popRatio           = PopulationRatio;
             bool lotsInQueueToBuild  = ConstructionQueue.Count >= 4;
-
-            //New Build Logic by Gretman, modified by FB
-            //if (!lotsInQueueToBuild) BuildShipyardIfAble(); //If we can build a shipyard but dont have one, build it
-            // FB the above functio is buggy i think, need to check
 
             if (budget < 0)
             {
@@ -744,12 +741,12 @@ namespace Ship_Game
             ScrapBuilding(budget,  scoreThreshold: 0); // scap a negative value building
             if (OpenTiles > 0)
             {
-                SimpleBuild(budget, popRatio); // lets try to build something within our debt tolerance
+                SimpleBuild(budget); // lets try to build something within our debt tolerance
                 return;
             }
 
             BuildBiospheres(budget, totalBuildings); // lets build biospheres if we can, since we have no open tiles
-            ReplaceBuilding(budget, popRatio); // we dont have room for expansion. Let's see if we can replace to a better value building
+            ReplaceBuilding(budget); // we dont have room for expansion. Let's see if we can replace to a better value building
         }
 
         float BuildingBudget()
@@ -779,7 +776,7 @@ namespace Ship_Game
                 return;
 
             // Build it!
-            Construction.AddBuilding(ResourceManager.CreateBuilding(Building.OutpostId), playerAdded: false);
+            Construction.AddBuilding(ResourceManager.CreateBuilding(Building.OutpostId));
 
             // Move Outpost to the top of the list, and rush production
             for (int i = 0; i < ConstructionQueue.Count; ++i)
