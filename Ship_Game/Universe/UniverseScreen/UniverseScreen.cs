@@ -303,7 +303,7 @@ namespace Ship_Game
 
             foreach (SolarSystem system in SolarSystemList)
             {
-                Color color     = system.Sun.Color;
+                Color color     = system.Sun.LightColor;
                 float intensity = system.Sun.LightIntensity;
                 float radius    = system.Sun.Radius;
                 AddLight("Key",               system, intensity,         radius,         color, -5500);
@@ -634,13 +634,13 @@ namespace Ship_Game
 
             anomalyManager = new AnomalyManager();
             Listener       = new AudioListener();
-            xnaPlanetModel                  = content.Load<Model>("Model/SpaceObjects/planet");
-            atmoModel                       = content.Load<Model>("Model/sphere");
-            AtmoEffect                      = content.Load<Effect>("Effects/PlanetHalo");
-            cloudTex                        = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
-            RingTexture                     = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
-            SunModel                        = content.Load<Model>("Model/SpaceObjects/star_plane");
-            NebModel                        = content.Load<Model>("Model/SpaceObjects/star_plane");
+            xnaPlanetModel = content.Load<Model>("Model/SpaceObjects/planet");
+            atmoModel      = content.Load<Model>("Model/sphere");
+            AtmoEffect     = content.Load<Effect>("Effects/PlanetHalo");
+            cloudTex       = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
+            RingTexture    = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
+            SunModel       = content.Load<Model>("Model/SpaceObjects/star_plane");
+            NebModel       = content.Load<Model>("Model/SpaceObjects/star_plane");
             FTLManager.LoadContent(content);
             MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);

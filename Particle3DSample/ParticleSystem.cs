@@ -257,21 +257,19 @@ namespace Particle3DSample
             EffectProjectionParameter.SetValue(projection);
         }
 
-        private void SetParticleRenderStates(RenderState renderState)
+        private void SetParticleRenderStates(RenderState rs)
         {
-            renderState.PointSpriteEnable      = true;
-            renderState.PointSizeMax           = 256f;
-            renderState.AlphaBlendEnable       = true;
-            renderState.AlphaBlendOperation    = BlendFunction.Add;
-            renderState.SourceBlend            = Settings.SourceBlend;
-            renderState.DestinationBlend       = Settings.DestinationBlend;
-            renderState.AlphaTestEnable        = true;
-            renderState.AlphaFunction          = CompareFunction.Greater;
-            renderState.ReferenceAlpha         = 0;
-            renderState.DepthBufferEnable      = true;
-            renderState.DepthBufferWriteEnable = false;
-
-            
+            rs.PointSpriteEnable      = true;
+            rs.PointSizeMax           = 256f;
+            rs.AlphaBlendEnable       = true;
+            rs.AlphaBlendOperation    = BlendFunction.Add;
+            rs.SourceBlend            = Settings.SourceBlend;
+            rs.DestinationBlend       = Settings.DestinationBlend;
+            rs.AlphaTestEnable        = true;
+            rs.AlphaFunction          = CompareFunction.Greater;
+            rs.ReferenceAlpha         = 0;
+            rs.DepthBufferEnable      = true;
+            rs.DepthBufferWriteEnable = false;
         }
 
         public void UnloadContent()
