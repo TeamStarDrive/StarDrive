@@ -10,8 +10,9 @@ namespace Ship_Game
 		public ModInformation mi;
 		public string MainMenuMusic;
         public string Version;        
-        Texture2D PortraitTex;
-        Texture2D BackgroundTex;
+        SubTexture PortraitTex;
+        SubTexture BackgroundTex;
+        Vector2 BackgroundSize;
 
         public ModEntry(ModInformation modInfo) : base(null, Vector2.Zero)
 		{
@@ -23,14 +24,21 @@ namespace Ship_Game
 
         public void LoadContent(GameScreen screen)
         {
-            BackgroundTex = ResourceManager.LoadModTexture(screen.ContentManager, ModName, mi.ModImagePath_1920x1280);
-            PortraitTex   = ResourceManager.LoadModTexture(screen.ContentManager, ModName, mi.PortraitPath);
+            Size = screen.Size;
+            var content = screen.ContentManager;
+            PortraitTex = content.LoadModTexture(ModName, mi.PortraitPath);
 
-            // fill the width of the screen
-            // and place logo to the top
-            float aspectRatio = (float)BackgroundTex.Height / BackgroundTex.Width;
-            Size = new Vector2(screen.ScreenWidth, screen.ScreenWidth * aspectRatio);
-            Pos = new Vector2(0f, 0f);
+            if (mi.Layout.ShowModImage)
+            {
+                BackgroundTex = content.LoadModTexture(ModName, mi.ModImagePath);
+                BackgroundSize = BackgroundTex.SizeF;
+                if (mi.Layout.ModImageFillScreen)
+                {
+                    // fill the width of the screen
+                    float aspectRatio = (float)BackgroundTex.Height / BackgroundTex.Width;
+                    BackgroundSize = new Vector2(screen.ScreenWidth, screen.ScreenWidth * aspectRatio);
+                }
+            }
         }
 
         public void DrawListElement(SpriteBatch batch, Rectangle clickRect)
@@ -65,7 +73,8 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            batch.Draw(BackgroundTex, Rect, Color.White);
+            if (BackgroundTex != null)
+                batch.Draw(BackgroundTex, mi.Layout.ModImagePos, BackgroundSize);
         }
 
         public override bool HandleInput(InputState input)

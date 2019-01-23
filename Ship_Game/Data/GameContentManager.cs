@@ -390,6 +390,16 @@ namespace Ship_Game
             return DefaultTexture();
         }
 
+        // Load texture for a specific mod, such as modName="Overdrive"
+        public SubTexture LoadModTexture(string modName, string textureName)
+        {
+            string modTexPath = $"Mods/{modName}/Textures/{textureName}";
+            if (!File.Exists(modTexPath) && !File.Exists(modTexPath+".xnb"))
+                return DefaultTexture();
+            var texture = Load<Texture2D>(modTexPath);
+            return new SubTexture(texture.Name, texture);
+        }
+
         public StaticMesh LoadStaticMesh(string modelName)
         {
             return Load<StaticMesh>(modelName);
