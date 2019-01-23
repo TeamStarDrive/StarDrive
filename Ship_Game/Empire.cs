@@ -1346,7 +1346,7 @@ namespace Ship_Game
 
             BuildingAndShipMaint = TotalBuildingMaintenance + TotalShipMaintenance;
 
-            Money += NetIncome();
+            Money += NetIncome;
         }
 
         public void UpdateNetPlanetIncomes()
@@ -1429,20 +1429,13 @@ namespace Ship_Game
         public float EstimateNetIncomeAtTaxRate(float rate)
         {
             float plusNetIncome = (rate-data.TaxRate) * NetPlanetIncomes;
-            return GrossIncome() + plusNetIncome - TotalShipMaintenance;
+            return GrossIncome + plusNetIncome - BuildingAndShipMaint;
         }
 
         // Income this turn before deducting ship maintenance
-        public float GrossIncome()
-        {
-            return NetPlanetIncomes + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
-        }
-
-        // Building maintenance is already calculated per planet
-        // So all we need to do is pay for ship maintenance
-        // NetIncome = GrossIncome this turn - Ship maintenance
-        public float NetIncome() => GrossIncome() - TotalShipMaintenance;
-
+        public float GrossPlanetIncome => NetPlanetIncomes + TotalBuildingMaintenance; // FB - building maint is calculated in net income.
+        public float GrossIncome       => GrossPlanetIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
+        public float NetIncome         => GrossIncome - BuildingAndShipMaint;
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;
 
