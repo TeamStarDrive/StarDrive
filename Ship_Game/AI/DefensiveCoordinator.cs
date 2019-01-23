@@ -289,12 +289,13 @@ namespace Ship_Game.AI
         public SolarSystem GetNearestSystemNeedingTroops(Vector2 fromPos)
         {
             float width = Empire.Universe.UniverseSize;
-            return DefenseDict.MaxKeyByValuesFiltered(
-                com => (1f - ((float)com.TroopCount / com.IdealTroopCount))
-                       * com.ValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width),
+            return DefenseDict.FindMaxKeyByValuesFiltered(
                 com => com.TroopStrengthNeeded > 0
                        && com.System.PlanetList.Count > 0
-                       && com.System.PlanetList.Sum(p => p.GetGroundLandingSpots()) > 0
+                       && com.System.PlanetList.Sum(p => p.GetGroundLandingSpots()) > 0,
+                com => (1f - ((float)com.TroopCount / com.IdealTroopCount))
+                       * com.ValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width)
+
             );
         }
 

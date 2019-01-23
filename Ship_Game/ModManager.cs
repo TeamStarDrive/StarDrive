@@ -173,21 +173,20 @@ namespace Ship_Game
             ModsSL = new ScrollList(AllSaves, 140);
 
             var ser = new XmlSerializer(typeof(ModInformation));
-            foreach (FileInfo info in Dir.GetFilesNoSub("Mods"))
+            foreach (DirectoryInfo info in Dir.GetDirs("Mods", SearchOption.TopDirectoryOnly))
             {
-                if (!info.Name.EndsWith(".xml"))
-                    continue;
+                string modFile = $"Mods/{info.Name}/{info.Name}.xml";
                 try
                 {                    
-                    var modInfo = new FileInfo($"Mods\\{info.NameNoExt()}\\{info.Name}");
-                    var e = new ModEntry(ser.Deserialize<ModInformation>(modInfo.Exists ? modInfo : info));
+                    var modInfo = new FileInfo(modFile);
+                    var e = new ModEntry(ser.Deserialize<ModInformation>(modInfo));
                     e.LoadContent(mmscreen);
                     ModsSL.AddItem(e);
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning($"Load error in file {info.Name}");
-                    ex.Data.Add("Load Error in file", info.Name);
+                    Log.Warning($"Load error in file {modFile}");
+                    ex.Data.Add("Load Error in file", modFile);
                 }
             }
 

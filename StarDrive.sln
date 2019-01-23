@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Xna.Framework.Gam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDSunBurn", "SynapseGaming-SunBurn-Pro\SDSunBurn.csproj", "{BB003976-4764-4F4E-9A98-DDFB8449ECCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{4112FFA8-1BF3-4966-818F-0935695D48F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDUnitTests", "UnitTests\SDUnitTests.csproj", "{4112FFA8-1BF3-4966-818F-0935695D48F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
