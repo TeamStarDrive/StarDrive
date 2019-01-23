@@ -42,7 +42,7 @@ namespace Ship_Game
         static readonly Array<ExplosionState> ActiveExplosions = new Array<ExplosionState>();
         static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
-        static SubTexture LowResExplode;
+        static SubTexture ExplosionPixel;
         static readonly Map<ExplosionType, Array<Explosion>> Types = new Map<ExplosionType, Array<Explosion>>(new []
         {
             (ExplosionType.Ship,       new Array<Explosion>()),
@@ -56,7 +56,7 @@ namespace Ship_Game
             foreach (var kv in Types)
                 kv.Value.Clear();
 
-            LowResExplode = ResourceManager.Texture("UI/icon_injury");
+            ExplosionPixel = ResourceManager.Texture("blank");
             if (ResourceManager.IsLoadCancelRequested) return;
 
             using (var parser = new StarDataParser("Explosions.yaml"))
@@ -133,6 +133,9 @@ namespace Ship_Game
                 AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Projectile);
                 AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Photon);
                 AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Warp);
+
+                for (int i = 0; i < 15; ++i) // some fireworks!
+                    AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 200.0f, 5.0f, ExplosionType.Projectile);
             }
 
             using (Lock.AcquireReadLock())
@@ -181,18 +184,23 @@ namespace Ship_Game
             // edge of the explosion in screen coords
             Vector3 edgeOnScreen = vp.Project(e.Pos.PointOnCircle(90f, e.Radius).ToVec3(), projection, view, Matrix.Identity);
 
-            int screen = (int)Math.Abs(edgeOnScreen.X - expOnScreen.X);
+            float size = edgeOnScreen.X - expOnScreen.X;
+            if (size < 0.5f) return; // don't draw sub-pixel explosion
+
+            int screen = (int)size;
             var r = new Rectangle((int)expOnScreen.X, (int)expOnScreen.Y, screen, screen);
-
             float relTime = e.Time / e.Duration;
-            var color = new Color(255f, 255f, 255f, 255f * (1f - relTime));
 
-            if (screen <= 16) // Low-res explosion marker
+            // y = cos(x * PI/2)  gives a nice curvy falloff
+            // from 1.0 to 0.0
+            float a = (float)Math.Cos(relTime * Math.PI*0.5f);
+            if (screen < 2) // Low-res explosion marker
             {
-                r.Width = r.Height = 12;
-                batch.Draw(LowResExplode, r, color, 0f, LowResExplode.CenterF, SpriteEffects.None, 1f);
+                r.Width = r.Height = 1;
+                batch.Draw(ExplosionPixel, r, new Color(Color.LightYellow, a));
                 return;
             }
+            
 
             int last = e.Animation.Count-1;
             int frame = (int)(last * (e.Time / e.Duration));
@@ -211,7 +219,7 @@ namespace Ship_Game
                 r.Width = (int) (screen * (tex.Width / (float) tex.Height));
             }
 
-            batch.Draw(tex, r, color, e.Rotation, tex.CenterF, SpriteEffects.None, 1f);
+            batch.Draw(tex, r, new Color(1f, 1f, 1f, a), e.Rotation, tex.CenterF, SpriteEffects.None, 1f);
         }
     }
 }

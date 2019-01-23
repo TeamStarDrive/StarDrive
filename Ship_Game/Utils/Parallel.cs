@@ -99,8 +99,6 @@ namespace Ship_Game
         volatile bool Killed;
         readonly string Name;
 
-        public int ThreadId => Thread.ManagedThreadId;
-
         public ParallelTask(int index)
         {
             Name = "ParallelTask_"+(index+1);
@@ -252,19 +250,12 @@ namespace Ship_Game
 
         static readonly Array<ParallelTask> Pool = new Array<ParallelTask>(32);
         static readonly bool Initialized = InitThreadPool();
-        static readonly Map<int, bool> PForProtected = new Map<int, bool>();
 
         static bool InitThreadPool()
         {
             AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
             return true;
         }
-
-        /// <summary>TRUE if another Parallel.For loop is already running on THIS thread </summary>
-        public static bool ShouldNotLaunchPFor 
-            => PForProtected.TryGetValue(Thread.CurrentThread.ManagedThreadId, out bool running) && running;
-
-        static void MarkProtected(int threadId, bool @protected) => PForProtected[threadId] = @protected;
 
         public static int PoolSize => Pool.Count;
 
@@ -351,15 +342,6 @@ namespace Ship_Game
             }
 
             var tasks = new ParallelTask[cores];
-            lock (PForProtected)
-            {
-                // Rationale: if you nest parallel for loops, you will spawn a huge number of threads
-                // and thus killing off any performance gains. For example on a 6-core cpu it would spawn
-                // 6*6 = 36 threads !!. Adjust your algorithms to prevent parallel loop nesting.
-                if (ShouldNotLaunchPFor)
-                    throw new ThreadStateException("Another Parallel.For loop is already running. Nested Parallel.For loops are forbidden");
-                MarkProtected(Thread.CurrentThread.ManagedThreadId, true);
-            }
 
             int poolIndex = 0;
             int start = rangeStart;
@@ -370,7 +352,6 @@ namespace Ship_Game
                 ParallelTask task = NextTask(ref poolIndex);
                 tasks[i] = task;
                 task.Start(start, end, body);
-                MarkProtected(task.ThreadId, true); // mark PFor sub-tasks as protected
             }
 
             Exception ex = null; // only store a single exception
@@ -378,10 +359,8 @@ namespace Ship_Game
             {
                 ParallelTask task = tasks[i];
                 Exception e = task.Wait();
-                lock (PForProtected) MarkProtected(task.ThreadId, false);
                 if (e != null && ex == null) ex = e;
             }
-            lock (PForProtected) MarkProtected(Thread.CurrentThread.ManagedThreadId, false);
 
             // from the first ParallelTask that threw an exception:
             if (ex != null)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
@@ -29,26 +30,22 @@ namespace Ship_Game
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
 
-        
-
         public float exitScreenTimer
         {
             get => input.ExitScreenTimer;
             set => input.ExitScreenTimer = value;
         }
 
-
-        //public float exitScreenTimer
-        //{
-            
-        //} input.ExitScreenTimer;
-
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => Screens.Count;
-        public GameScreen CurrentScreen => Screens[Screens.Count-1];
+        public GameScreen Current => Screens[Screens.Count-1];
+
+        public static ScreenManager Instance { get; private set; }
+        public static GameScreen CurrentScreen => Instance.Current;
 
         public ScreenManager(StarDriveGame game, GraphicsDeviceManager graphics)
         {
+            Instance = this;
             GameInstance = game;
             GraphicsDevice = graphics.GraphicsDevice;
             GraphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
@@ -314,8 +311,60 @@ namespace Ship_Game
             exitScreenTimer = 0.25f;
         }
 
+        float HotloadTimer;
+        const float HotloadInterval = 1.0f;
+
+        class Hotloadable
+        {
+            public string File;
+            public DateTime LastModified;
+            public Action<FileInfo> OnModified;
+        }
+        readonly Map<string, Hotloadable> HotLoadTargets = new Map<string, Hotloadable>();
+
+        public void ResetHotLoadTargets()
+        {
+            HotLoadTargets.Clear();
+        }
+
+        // HotLoading allows for modifying game content while the game is running
+        // Different content managers are triggered through `OnModified`
+        // which will reload appropriate subsystems
+        // @param key Unique key to categorize the hot load target
+        // @param file File to check
+        // @param onModified Event to trigger if File was changed
+        public void AddHotLoadTarget(string key, string file, Action<FileInfo> onModified)
+        {
+            HotLoadTargets[key] = new Hotloadable {
+                File = file,
+                LastModified = File.GetLastWriteTimeUtc(file), 
+                OnModified = onModified
+            };
+        }
+
+        void PerformHotLoadTasks()
+        {
+            HotloadTimer += GameInstance.DeltaTime;
+            if (HotloadTimer < HotloadInterval) return;
+
+            HotloadTimer = 0f;
+            foreach (Hotloadable hot in HotLoadTargets.Values)
+            {
+                var info = new FileInfo(hot.File);
+                if (info.LastWriteTimeUtc != hot.LastModified)
+                {
+                    Log.Write(ConsoleColor.Magenta, $"HotLoading content: {info.Name}...");
+                    hot.LastModified = info.LastWriteTimeUtc; // update
+                    hot.OnModified(info);
+                    return;
+                }
+            }
+        }
+
         public void Update(GameTime gameTime)
         {
+            PerformHotLoadTasks();
+
             input.Update(gameTime);
 
             bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;

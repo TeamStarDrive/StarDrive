@@ -28,11 +28,12 @@ namespace Ship_Game
     [DebuggerDisplay("Count = {Count}  Capacity = {Capacity}")]
     [Serializable]
     [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
-    public class Array<T> : IList<T>, IReadOnlyList<T>, ICollection
+    public class Array<T> : IList<T>, IReadOnlyList<T>, ICollection, IList
     {
         protected T[] Items;
         public int Count { get; protected set; }
         public bool IsReadOnly => false;
+        public bool IsFixedSize => false;
         public bool IsEmpty    => Count == 0;
         public bool NotEmpty   => Count != 0;
         public object SyncRoot       => this;  // ICollection
@@ -278,7 +279,7 @@ namespace Ship_Game
             Array.Clear(Items, 0, count); 
             Count = 0;
         }
-
+        
         public void ClearAndDispose()
         {
             int count = Count;
@@ -723,6 +724,32 @@ namespace Ship_Game
         public Array<T> ToArrayList()
         {
             throw new InvalidOperationException("You are trying to convert Array<T> to Array<T>. Are you trying to Clone() the Array<T>?");
+        }
+
+        // IList interface
+        
+        object IList.this[int index]  { get => this[index]; set => this[index] = (T)value; }
+
+        int IList.Add(object value)
+        {
+            int insertedAt = Count;
+            Add((T)value);
+            return insertedAt;
+        }
+
+        bool IList.Contains(object value) { return Contains((T)value); }
+        int IList.IndexOf(object value) { return IndexOf((T)value); }
+        void IList.Insert(int index, object value) { Insert(index, (T)value); }
+        void IList.Remove(object value) { Remove((T)value); }
+    }
+
+    public static class ArrayHelper
+    {
+        public static IList NewArrayOfT(Type type)
+        {
+            var arrayType = typeof(Array<>);
+            var genericArray = arrayType.MakeGenericType(type);
+            return Activator.CreateInstance(genericArray) as IList;
         }
     }
 

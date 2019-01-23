@@ -271,10 +271,8 @@ namespace Ship_Game
                     CamDestination.X = ShipToView.Center.X;
                     CamDestination.Y = ShipToView.Center.Y;
                     transitionElapsedTime += elapsedTime;
-                    float amount = (float) Math.Pow(transitionElapsedTime / (double) transDuration,
-                        0.699999988079071);
-                    camTransitionPosition.X =
-                        MathHelper.SmoothStep(CamPos.X, CamDestination.X, amount);
+                    float amount = (float) Math.Pow(transitionElapsedTime / (double) transDuration, 0.699999988079071);
+                    camTransitionPosition.X = MathHelper.SmoothStep(CamPos.X, CamDestination.X, amount);
                     float num1 = MathHelper.SmoothStep(CamPos.Y, CamDestination.Y, amount);
                     float num2 = MathHelper.SmoothStep(CamHeight, CamDestination.Z, amount);
                     camTransitionPosition.Y = num1;
@@ -291,10 +289,8 @@ namespace Ship_Game
                 else
                 {
                     transitionElapsedTime += elapsedTime;
-                    float amount = (float) Math.Pow(transitionElapsedTime / (double) transDuration,
-                        0.699999988079071);
-                    camTransitionPosition.X =
-                        MathHelper.SmoothStep(CamPos.X, CamDestination.X, amount);
+                    float amount = (float) Math.Pow(transitionElapsedTime / (double) transDuration, 0.699999988079071);
+                    camTransitionPosition.X = MathHelper.SmoothStep(CamPos.X, CamDestination.X, amount);
                     float num1 = MathHelper.SmoothStep(CamPos.Y, CamDestination.Y, amount);
                     float num2 = MathHelper.SmoothStep(CamHeight, CamDestination.Z, amount);
                     camTransitionPosition.Y = num1;
@@ -332,18 +328,10 @@ namespace Ship_Game
                 CamPos = camTransitionPosition;
             }
 
-            if (CamPos.X > UniverseSize)
-                CamPos.X = UniverseSize;
-            if (CamPos.X < -UniverseSize) //So the camera can pan out into the new negative map coordinates -Gretman
-                CamPos.X = -UniverseSize;
-            if (CamPos.Y > (double) UniverseSize)
-                CamPos.Y = UniverseSize;
-            if ((double) CamPos.Y < -UniverseSize)
-                CamPos.Y = -UniverseSize;
-            if (CamHeight > MaxCamHeight * (double) GameScale)
-                CamHeight = MaxCamHeight * GameScale;
-            else if (CamHeight < minCamHeight)
-                CamHeight = minCamHeight;
+            CamPos.X = CamPos.X.Clamped(-UniverseSize, +UniverseSize);
+            CamPos.Y = CamPos.Y.Clamped(-UniverseSize, +UniverseSize);
+            CamHeight = CamHeight.Clamped(minCamHeight, MaxCamHeight * GameScale);
+
             foreach (UnivScreenState screenHeight in Enum.GetValues(typeof(UnivScreenState)))
             {
                 if (CamHeight <= GetZfromScreenState(screenHeight))
