@@ -4950,11 +4950,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2036</Index>
-      <Text>Dedicated orbital shipbuilding facilities will allow us to streamline our production process and provide large efficiency bonuses to our efforts. When built at a colony, a station will be placed in geosynchronous orbit. Stations may also be built in deep space. See the help menu for details.</Text>
+      <Text>Dedicated orbital shipbuilding facilities will allow us to streamline our production process and provide large efficiency bonuses to our efforts. When built at a colony, a station will be placed in geosynchronous orbit (limited to 27 per colony). Stations may also be built in deep space. See the help menu for details.</Text>
     </Token>
     <Token>
       <Index>2037</Index>
-      <Text>This technology unlocks a unique "Shipyard" space station that boosts ship production by 25% at the planet where it is constructed. Building more than 4 shipyards at the same colony will yield very high upkeep.</Text>
+      <Text>This technology unlocks a unique "Shipyard" space station that boosts ship production by 25% at the planet where it is constructed. Each colony can support up to 2 Shipyards</Text>
     </Token>
     <Token>
       <Index>2038</Index>
