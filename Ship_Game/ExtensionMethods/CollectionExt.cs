@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 
@@ -21,227 +22,45 @@ namespace Ship_Game
     /// </summary>
     public static class CollectionExt
     {
-        public static TValue ConsumeValue<TKey,TValue>(this Dictionary<TKey, TValue> dict, TKey key)
-        {
-            if (!dict.TryGetValue(key, out TValue value)) return default(TValue);
-            dict[key] = default(TValue);
-            return value;
-        }
-
         public static int IndexOf<T>(this IReadOnlyList<T> list, T item) where T : class
         {
-            // ReSharper disable once CollectionNeverUpdated.Local
-            if (list is IList<T> ilist)
-                return ilist.IndexOf(item);
+            if (list is IList<T> aList)
+                return aList.IndexOf(item);
 
             for (int i = 0, n = list.Count; i < n; ++i)
                 if (item == list[i])
                     return i;
             return -1;
         }
-        // Return Any Item Found
-        public static T Find<T>(this T[] items, Predicate<T> filter) where T : class
+
+        // @return First item found or NULL if nothing passes the predicate
+        public static T Find<T>(this T[] items, Predicate<T> predicate) where T : class
         {
-            T found = null;            
             for (int i = 0; i < items.Length; ++i)
             {
                 T item = items[i];
-                if (filter(item)) found = item;
+                if (predicate(item))
+                    return item;
             }
-            return found;
+            return null;
         }
 
-        // Return the element with the greatest selector value, or null if empty
-        public static T FindMax<T>(this T[] items, int count, Func<T, float> selector) where T : class
+        // @return Find with index of next element
+        public static T FindFirstValid<T>(this T[] items, int count, Predicate<T> predicate, out int nextIndex)
+            where T : class
         {
-            T found = null;
-            float max = -999999999999.999f;
-            for (int i = 0; i < count; ++i)
+            int i = 0;
+            for (; i < count; ++i)
             {
                 T item = items[i];
-                float value = selector(item);
-                if (value <= max) continue;
-                max = value;
-                found = item;
+                if (predicate(item))
+                {
+                    nextIndex = i+1;
+                    return item;
+                }
             }
-            return found;
-        }
-
-        public static T FindMax<T>(this IReadOnlyList<T> list, Func<T, float> selector) where T : class
-        {
-            int count = list.Count;
-            T found = null;
-            float max = -999999999999.999f;
-            for (int i = 0; i < count; ++i)
-            {
-                T item = list[i];
-                float value = selector(item);
-                if (value <= max) continue;
-                max = value;
-                found = item;
-            }
-            return found;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindMax<T>(this T[] items, Func<T, float> selector) where T : class
-            => items.FindMax(items.Length, selector);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindMax<T>(this Array<T> list, Func<T, float> selector) where T : class
-            => list.GetInternalArrayItems().FindMax(list.Count, selector);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool FindMax<T>(this Array<T> list, out T elem, Func<T, float> selector) where T : class
-            => (elem = FindMax(list, selector)) != null;
-
-        public static T FindMaxFiltered<T>(this T[] items, int count, Predicate<T> filter, Func<T, float> selector) where T : class
-        {
-            T found = null;
-            float max = -999999999999.999f;
-            for (int i = 0; i < count; ++i)
-            {
-                T item = items[i];
-                if (!filter(item)) continue;
-                float value = selector(item);
-                if (value <= max) continue;
-                max   = value;
-                found = item;
-            }
-            return found;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindMaxFiltered<T>(this T[] items, Predicate<T> filter, Func<T, float> selector) where T : class
-            => items.FindMaxFiltered(items.Length, filter, selector);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindMaxFiltered<T>(this Array<T> list, Predicate<T> filter, Func<T, float> selector) where T : class
-            => list.GetInternalArrayItems().FindMaxFiltered(list.Count, filter, selector);
-
-        // Return the element with the smallest selector value, or null if empty
-        public static T FindMin<T>(this T[] items, int count, Func<T, float> selector) where T : class
-        {
-            T found = null;
-            float min = +999999999999.999f;
-            for (int i = 0; i < count; ++i)
-            {
-                T item = items[i];
-                if (item == null) continue;
-                float value = selector(item);
-                if (value > min) continue;
-                min = value;
-                found = item;
-            }
-            return found;
-        }
-
-        public static T FindMin<T>(this IReadOnlyList<T> list, Func<T, float> selector) where T : class
-        {
-            int count = list.Count;
-            T found = null;
-            float min = +999999999999.999f;
-            for (int i = 0; i < count; ++i)
-            {
-                T item = list[i];
-                float value = selector(item);
-                if (value > min) continue;
-                min = value;
-                found = item;
-            }
-            return found;
-        }
-
-        public static TKey FindMinKey<TKey, TValue>(this Map<TKey, TValue> map, Func<TKey, float> selector) where TKey : class
-        {
-            TKey found = null;
-            float min = +999999999999.999f;
-            foreach (KeyValuePair<TKey, TValue> kv in map)
-            {
-                TKey item = kv.Key;
-                float value = selector(item);
-                if (value > min) continue;
-                min = value;
-                found = item;
-            }
-            return found;
-        }
-
-        public static TValue FindMinValue<TKey, TValue>(this Map<TKey, TValue> map, Func<TValue, float> selector) where TValue : class
-        {
-            TValue found = null;
-            float min = +999999999999.999f;
-            foreach (KeyValuePair<TKey, TValue> kv in map)
-            {
-                TValue item = kv.Value;
-                float value = selector(item);
-                if (value > min) continue;
-                min = value;
-                found = item;
-            }
-            return found;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindMin<T>(this T[] items, Func<T, float> selector) where T : class
-            => items.FindMin(items.Length, selector);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindMin<T>(this Array<T> list, Func<T, float> selector) where T : class
-            => list.GetInternalArrayItems().FindMin(list.Count, selector);
-
-        public static T FindMinFiltered<T>(this Array<T> list, Predicate<T> filter, Func<T, float> selector) where T : class
-        {
-            T found = null;
-            int n = list.Count;
-            float min = +999999999999.999f;
-            T[] items = list.GetInternalArrayItems();
-            for (int i = 0; i < n; ++i)
-            {
-                T item = items[i];
-                if (!filter(item)) continue;     
-                
-                float value = selector(item);
-                if (value > min) continue;
-                min   = value;
-                found = item;
-            }
-            return found;
-        }
-        public static T FindMinFiltered<T>(this IReadOnlyList<T> list, Predicate<T> filter, Func<T, float> selector) where T : class
-        {
-            T found = null;
-            int n = list.Count;
-            float min = +999999999999.999f;
-            T[] items = list.ToArray();
-            for (int i = 0; i < n; ++i)
-            {
-                T item = items[i];
-                if (!filter(item)) continue;
-
-                float value = selector(item);
-                if (value > min) continue;
-                min = value;
-                found = item;
-            }
-            return found;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool FindMinFiltered<T>(this Array<T> list, out T elem, Predicate<T> filter, Func<T, float> selector) where T : class
-        {
-            return (elem = FindMinFiltered(list, filter, selector)) != null;
-        }
-
-        public static Array<T> FindMinItemsFiltered<T>(this Array<T> list, int maxCount, Predicate<T> filter, Func<T, float> selector) where T : class
-        {
-            T[] filtered = list.Filter(filter);
-            filtered.Sort(selector);
-
-            var found = new Array<T>();
-            for (int i = 0; i < filtered.Length && found.Count < maxCount; ++i)
-                found.Add(filtered[i]);
-            return found;
+            nextIndex = i;
+            return null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -558,101 +377,6 @@ namespace Ship_Game
             result[newLength] = item;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] Filter<T>(this T[] items, Predicate<T> predicate) => items.Filter(items.Length, predicate);
-
-        // A quite memory efficient filtering function to replace Where clauses
-        public static unsafe T[] Filter<T>(this T[] items, int count, Predicate<T> predicate)
-        {
-            byte* map = stackalloc byte[count];
-
-            int resultCount = 0;
-            for (int i = 0; i < count; ++i)
-            {
-                bool keep = predicate(items[i]);
-                if (keep) ++resultCount;
-                map[i] = keep ? (byte)1 : (byte)0;
-            }
-
-            var results = new T[resultCount];
-            resultCount = 0;
-            for (int i = 0; i < count; ++i)
-                if (map[i] > 0) results[resultCount++] = items[i];
-
-            return results;
-        }
-
-        // Copy paste from above. Purely because I don't want to ruin T[] access optimizations
-        public static unsafe T[] Filter<T>(this IReadOnlyList<T> items, Predicate<T> predicate)
-        {
-            int count = items.Count;
-            byte* map = stackalloc byte[count];
-
-            int resultCount = 0;
-            for (int i = 0; i < count; ++i)
-            {
-                bool keep = predicate(items[i]);
-                if (keep) ++resultCount;
-                map[i] = keep ? (byte)1 : (byte)0;
-            }
-
-            var results = new T[resultCount];
-            resultCount = 0;
-            for (int i = 0; i < count; ++i)
-                if (map[i] > 0) results[resultCount++] = items[i];
-
-            return results;
-        }
-
-        public static unsafe TValue[] FilterValues<TKey,TValue>(this Map<TKey,TValue> dict, Predicate<TValue> predicate)
-        {
-            var items = new TValue[dict.Count];
-            dict.Values.CopyTo(items, 0);
-
-            int count = items.Length;
-            byte* map = stackalloc byte[count];
-
-            int resultCount = 0;
-            for (int i = 0; i < items.Length; ++i)
-            {
-                bool keep = predicate(items[i]);
-                if (keep) ++resultCount;
-                map[i] = keep ? (byte)1 : (byte)0;
-            }
-
-            var results = new TValue[resultCount];
-            resultCount = 0;
-            for (int i = 0; i < count; ++i)
-                if (map[i] > 0) results[resultCount++] = items[i];
-
-            return results;
-        }
-
-        // performs a combined and optimized:
-        // list.Filter(x => x.Condition).Select(x => x.Value).ToArray();
-        // concrete example:
-        // string[] names = ships.FilterSelect(s => s.IsPlatform, s => s.Name);
-        public static unsafe U[] FilterSelect<T,U>(this IReadOnlyList<T> items, 
-                                                   Predicate<T> filter, Func<T,U> select)
-        {
-            int count = items.Count;
-            byte* map = stackalloc byte[count];
-
-            int resultCount = 0;
-            for (int i = 0; i < count; ++i)
-            {
-                bool keep = filter(items[i]);
-                if (keep) ++resultCount;
-                map[i] = keep ? (byte)1 : (byte)0;
-            }
-
-            var results = new U[resultCount];
-            resultCount = 0;
-            for (int i = 0; i < count; ++i)
-                if (map[i] > 0) results[resultCount++] = select(items[i]);
-
-            return results;
-        }
 
 
         public static U[] Select<T, U>(this T[] items, Func<T, U> selector)
