@@ -60,7 +60,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile("Suns.yaml");
             LoadSuns(file);
-            StarDriveGame.Instance.ScreenManager.AddFileToMonitor(file.FullName, OnSunsFileModified);
+            StarDriveGame.Instance.ScreenManager.AddHotLoadTarget(file.FullName, OnSunsFileModified);
         }
 
         static void LoadSuns(FileInfo file)
@@ -72,8 +72,15 @@ namespace Ship_Game.Universe.SolarBodies
             Map.Clear();
             foreach (SunType sun in all)
             {
-                var loRes = ResourceManager.RootContent.Load<Texture2D>("Textures/"+sun.IconPath);
-                sun.Icon = new SubTexture(sun.IconPath, loRes);
+                try
+                {
+                    var loRes = ResourceManager.RootContent.Load<Texture2D>("Textures/"+sun.IconPath);
+                    sun.Icon = new SubTexture(sun.IconPath, loRes);
+                }
+                catch
+                {
+                    sun.Icon = ResourceManager.RootContent.DefaultTexture();
+                }
                 Map[sun.Id] = sun;
             }
 
@@ -181,7 +188,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 // this is a nice sine-wave pulse effect that varies our intensity
                 PulseTimer += deltaTime;
-                float progress = PulseTimer / (Info.PulsePeriod*(float)Math.PI*0.5f);
+                float progress = (PulseTimer/Info.PulsePeriod)*(float)Math.PI*2; // tick every second
                 Intensity = (1.0f + (float)Math.Sin(progress))*0.5f; // convert to positive [0.0-1.0] scale
 
                 ScaleIntensity = Info.PulseScale.Min.LerpTo(Info.PulseScale.Max, Intensity);
