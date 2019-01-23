@@ -1,4 +1,6 @@
 using System;
+using Microsoft.Xna.Framework;
+using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game
 {
@@ -73,7 +75,7 @@ namespace Ship_Game
         public int SwampHab  = 67;
         public int TerranHab = 75;
         
-        public bool HideMainMenuMoon; // some mods need to hide the moon+glare on main menu
+        public MainMenuScreen.MainMenuLayout Layout = new MainMenuScreen.MainMenuLayout();
 
         public int ChanceForCategory(PlanetCategory category)
         {

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -45,6 +46,39 @@ namespace Ship_Game.GameScreens.MainMenu
             base.Destroy();
         }
         
+        public class MainMenuLayout
+        {
+            public bool ShowMoon = true;
+            public Vector2 MoonText1 = new Vector2(-220, -130);
+            public Vector2 MoonText2 = new Vector2(-250, +60);
+            public Vector2 MoonText3 = new Vector2(+60, +80);
+            public bool ShowSDLogo = true;
+            public bool FreezeSDLogo = true;
+            public Vector2 SDLogoPosition = new Vector2(-600, 128);
+            public bool ShowPlanet = true;
+            public bool ShowPlanetGrid = true;
+            public bool ShowPlanetFlare = true;
+            public Vector2 PlanetPosition = new Vector2(0, -680);
+            public Vector2 PlanetGrid = new Vector2(0, -640);
+            public Vector2 PlanetHex1 = new Vector2(277, -592);
+            public Vector2 PlanetHex2 = new Vector2(392, -418);
+            public Vector2 PlanetHex3 = new Vector2(682, -295);
+            public Vector2 PlanetSolarFlare = new Vector2(0, -784);
+            public Vector2 CornerTL = new Vector2(31, 30);
+            public Vector2 CornerBR = new Vector2(-551, -562);
+            public Vector2 ButtonsStart = new Vector2(-200, 0.4f);
+        }
+
+        static void OnModChanged(FileInfo info)
+        {
+            if (!GlobalStats.HasMod) return;
+            GlobalStats.LoadModInfo(GlobalStats.ModName);
+            if (ScreenManager.CurrentScreen is MainMenuScreen mainMenu)
+            {
+                mainMenu.LoadContent();
+            }
+        }
+
         public override void LoadContent()
         {
             base.LoadContent();
@@ -53,24 +87,25 @@ namespace Ship_Game.GameScreens.MainMenu
             GameAudio.ConfigureAudioSettings();
             ResetMusic();
 
-            int w = ScreenWidth, h = ScreenHeight;
+            MainMenuLayout layout = GlobalStats.HasMod ? GlobalStats.ActiveModInfo.Layout : new MainMenuLayout();
+            if (GlobalStats.HasMod)
+                ScreenManager.AddHotLoadTarget("Mod", GlobalStats.ModFile, OnModChanged);
 
             // Confusing: Main menu background is in `Content/MainMenu` not `Content/Textures/MainMenu`
-            SubTexture nebula = TransientContent.LoadSubTexture(h <= 1080
-                              ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg");
+            SubTexture nebula = TransientContent.LoadSubTexture("MainMenu/HR_nebula_stars_bg");
             Panel(nebula, ScreenRect).InBackground(); // fill background
-            Panel("MainMenu/planet", new Rectangle(0, h-680, 1016, 680)).InBackground(); // big planet at left side
 
-            bool showMoon = true;
+            if (layout.ShowPlanet)
+                Panel("MainMenu/planet", layout.PlanetPosition).InBackground(); // big planet background
+
             if (GlobalStats.HasMod)
             {
-                showMoon = GlobalStats.ActiveModInfo.HideMainMenuMoon == false;
                 GlobalStats.ActiveMod.LoadContent(this);
                 Add(GlobalStats.ActiveMod).InBackground();
             }
-            Panel("MainMenu/vignette", ScreenRect); // vignette goes on top of everything
 
-            BeginVLayout(w - 200, h / 2 - 100, UIButton.StyleSize().Y + 15);
+            Panel("MainMenu/vignette", ScreenRect); // vignette goes on top of everything
+            BeginVLayout(layout.ButtonsStart, UIButton.StyleSize().Y + 15);
                 Button(titleId: 1,      click: NewGame_Clicked);
                 Button(titleId: 3,      click: Tutorials_Clicked);
                 Button(titleId: 2,      click: LoadGame_Clicked);
@@ -85,12 +120,15 @@ namespace Ship_Game.GameScreens.MainMenu
             // Animate the buttons in and out
             StartTransition<UIButton>(512f, -1f);
             OnExit += () => StartTransition<UIButton>(512f, +1f);
-                        
+            
             SDLogoAnim = Add(new UISpriteElement(this, "MainMenu/Stardrive logo"));
-            SDLogoAnim.Animation.FreezeAtLastFrame = true;
-            SDLogoAnim.SetAbsPos(w-600, 128);
-            MoonPosition = new Vector3(+w / 2f - 300, SDLogoAnim.Y + 70 - h / 2f, 0f);
-            ShipPosition = new Vector3(-w / 4f, SDLogoAnim.Y + 400 - h / 2f, 0f);
+            SDLogoAnim.Animation.FreezeAtLastFrame = layout.FreezeSDLogo;
+            SDLogoAnim.Animation.Looping = !layout.FreezeSDLogo;
+            SDLogoAnim.SetAbsPos(layout.SDLogoPosition);
+            SDLogoAnim.Visible = layout.ShowSDLogo;
+            
+            MoonPosition = new Vector3(+ScreenWidth / 2f - 300, 198 - ScreenHeight / 2f, 0f);
+            ShipPosition = new Vector3(-ScreenWidth / 4f, 528 - ScreenHeight / 2f, 0f);
 
             PlanetType planetType = ResourceManager.RandomPlanet();
             string planet = planetType.MeshPath;
@@ -108,11 +146,11 @@ namespace Ship_Game.GameScreens.MainMenu
                 * Matrix.CreateRotationY(180f.ToRadians())
                 * Matrix.CreateRotationX(0f.ToRadians())
                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-            Projection = Matrix.CreateOrthographic(w, h, 1f, 80000f);
+            Projection = Matrix.CreateOrthographic(ScreenWidth, ScreenHeight, 1f, 80000f);
 
             Vector2 moonCenter = Viewport.Project(MoonObj.WorldBoundingSphere.Center, Projection, View, Matrix.Identity).ToVec2();
 
-            if (showMoon)
+            if (layout.ShowMoon)
             {
                 // @todo place automatically depending on planet size?
                 UIPanel flare = Panel("MainMenu/moon_flare").InForeAdditive();
@@ -124,36 +162,38 @@ namespace Ship_Game.GameScreens.MainMenu
                 MoonObj.Visibility = ObjectVisibility.None;
             }
 
-            CreateAnimatedOverlays(moonCenter);
+            CreateAnimatedOverlays(moonCenter, layout);
             CreateVersionArea();
 
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
         }
 
-        void CreateAnimatedOverlays(Vector2 moonCenter)
+        void CreateAnimatedOverlays(Vector2 moon, MainMenuLayout layout)
         {
-            int h = ScreenHeight;
             // alien text markers flashing on top of right hand side moon
-            int mx = (int) moonCenter.X, my = (int) moonCenter.Y;
-            
             const float moonLoop = 12.0f; // total animation loop sync time
-            Panel("MainMenu/moon_1", mx - 220, my - 130).Anim(1.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
-            Panel("MainMenu/moon_2", mx - 250, my + 60).Anim(5.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
-            Panel("MainMenu/moon_3", mx + 60,  my + 80).Anim(7.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
+            Panel("MainMenu/moon_1", moon+layout.MoonText1).Anim(1.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
+            Panel("MainMenu/moon_2", moon+layout.MoonText2).Anim(5.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
+            Panel("MainMenu/moon_3", moon+layout.MoonText3).Anim(7.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
 
             // flashing planet hex grid overlays
             const float hexLoop = 10.0f;
-            Panel("MainMenu/planet_grid",         0, h-640).InBackground().Anim(4.0f, 3.0f, 0.6f, 1.2f).Alpha().Loop(hexLoop);
-            Panel("MainMenu/planet_grid_hex_1", 277, h-592).InBackground().Anim(4.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
-            Panel("MainMenu/planet_grid_hex_2", 392, h-418).InBackground().Anim(5.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
-            Panel("MainMenu/planet_grid_hex_3", 682, h-295).InBackground().Anim(5.2f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
+            if (layout.ShowPlanetGrid)
+            {
+                Panel("MainMenu/planet_grid",       layout.PlanetGrid).InBackground().Anim(4.0f, 3.0f, 0.6f, 1.2f).Alpha().Loop(hexLoop);
+                Panel("MainMenu/planet_grid_hex_1", layout.PlanetHex1).InBackground().Anim(4.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
+                Panel("MainMenu/planet_grid_hex_2", layout.PlanetHex2).InBackground().Anim(5.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
+                Panel("MainMenu/planet_grid_hex_3", layout.PlanetHex3).InBackground().Anim(5.2f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
+            }
+            if (layout.ShowPlanetFlare)
+            {
+                Panel("MainMenu/planet_solarflare", layout.PlanetSolarFlare)
+                    .InBackAdditive() // behind 3d objects
+                    .Anim().Loop(4.0f, 1.5f, 1.5f).Color(Color.White.MultiplyRgb(0.85f), Color.White);
+            }
 
-            Panel("MainMenu/planet_solarflare", 0, h - 784)
-                .InBackAdditive() // behind 3d objects
-                .Anim().Loop(4.0f, 1.5f, 1.5f).Color(Color.White.MultiplyRgb(0.85f), Color.White);
-
-            Panel("MainMenu/corner_TL", 31, 30).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
-            Panel("MainMenu/corner_BR", ScreenWidth-551, h-562).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
+            Panel("MainMenu/corner_TL", layout.CornerTL).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
+            Panel("MainMenu/corner_BR", layout.CornerBR).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
         }
 
         void CreateVersionArea()
