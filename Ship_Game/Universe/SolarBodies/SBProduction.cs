@@ -199,7 +199,8 @@ namespace Ship_Game.Universe.SolarBodies
 
         Vector2 FindNewStationLocation()
         {
-            for (int ring = 0; ring < 3; ring++) // up to 3 rings , 9 orbital per rings  - 27 total is enough
+            int ringLimit = Owner.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
+            for (int ring = 0; ring < ringLimit; ring++) 
             {
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
                 {
@@ -208,7 +209,7 @@ namespace Ship_Game.Universe.SolarBodies
                         return pos;
                 }
             }
-            return P.Center; // we passed the limit - what now? probalby should limit orbital construction to 27 by a const.
+            return P.Center; // There is a limit on orbitals number
         }
         // Applies available production to production queue
         public void AutoApplyProduction(float surplusFromPlanet)
