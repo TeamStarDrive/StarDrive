@@ -130,9 +130,6 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsCybernetic  => data.Traits.Cybernetic != 0;
         [XmlIgnore][JsonIgnore] public bool NonCybernetic => data.Traits.Cybernetic == 0;
 
-        [XmlIgnore] [JsonIgnore] public readonly int OrbitalsLimit = 27; // FB - Maximum of 27 stations or platforms (or shipyards)
-        [XmlIgnore] [JsonIgnore] public readonly int ShipYardsLimit = 2; // FB - Maximum of 2 shipyards
-
         public void AddMoney(float moneyDiff)
         {
             Money += moneyDiff;

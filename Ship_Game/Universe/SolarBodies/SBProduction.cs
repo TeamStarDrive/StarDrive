@@ -199,7 +199,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         Vector2 FindNewStationLocation()
         {
-            int ringLimit = Owner.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
+            const int ringLimit = ShipBuilder.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
             for (int ring = 0; ring < ringLimit; ring++) 
             {
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
@@ -301,9 +301,12 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void AddShip(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
         {
+            bool isNewOrbital = ship.shipData.HullRole == ShipData.RoleName.platform ||
+                                ship.shipData.HullRole == ShipData.RoleName.station;
             var qi = new QueueItem(P)
             {
                 isShip = true,
+                isOrbital = isNewOrbital,
                 Goal   = goal,
                 sData  = ship.shipData,
                 Cost   = ship.GetCost(Owner),
