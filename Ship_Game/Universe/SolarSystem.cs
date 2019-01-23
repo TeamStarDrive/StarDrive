@@ -33,12 +33,18 @@ namespace Ship_Game
 
         Empire[] FullyExplored = Empty<Empire>.Array;
 
-        public SunType Sun;
-        public float Zrotate;
-        public float DamageIntensity = 1f; // animated current intensity of the sun
-        public float ScaleIntensity = 1f;
-        public float ColorIntensity = 1f;
-        float PulseTime = 0f;
+        SunType TheSunType;
+        public SunLayerState[] SunLayers;
+
+        public SunType Sun
+        {
+            get => TheSunType;
+            set
+            {
+                TheSunType = value;
+                SunLayers = value.CreateLayers();
+            }
+        }
 
         public Array<Ring> RingList = new Array<Ring>();
         private int NumberOfRings;
@@ -67,15 +73,9 @@ namespace Ship_Game
 
             combatTimer -= realTime;
 
-            Zrotate += Sun.RotationSpeed * elapsedTime;
+            foreach (SunLayerState layer in SunLayers)
+                layer.Update(elapsedTime);
 
-            // this is a nice sine-wave pulse effect that varies our intensity
-            PulseTime += elapsedTime;
-            float progress = PulseTime / (Sun.PulsePeriod*0.33f);
-            DamageIntensity = (1.0f + (float)Math.Sin(progress))*0.5f; // convert to positive [0.0-1.0] scale
-            ScaleIntensity = Sun.PulseScale.Min.LerpTo(Sun.PulseScale.Max, DamageIntensity);
-            ColorIntensity = Sun.PulseColor.Min.LerpTo(Sun.PulseColor.Max, DamageIntensity);
-            
             if (combatTimer <= 0.0)
                 CombatInSystem = false;
             bool viewing = false;
@@ -184,7 +184,8 @@ namespace Ship_Game
             float distance = ship.Center.Distance(Position);
             if (distance < Sun.RadiationRadius)
             {
-                float damage = DamageIntensity * Sun.DamageMultiplier(distance) * Sun.RadiationDamage;
+                float damage = SunLayers[0].Intensity * Sun.DamageMultiplier(distance)
+                                                      * Sun.RadiationDamage;
                 ship.CauseRadiationDamage(damage);
             }
         }

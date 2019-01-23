@@ -1,75 +1,142 @@
 ﻿Sun: star_red
-  LoResPath: Suns/star_red # lo res icon is used in background star field
-  HiResPath: Suns/star_red # hi res texture is used for solar system suns
+  IconPath: Suns/star_red # lo res icon is used in background star field
   LightIntensity: 1.4 # intensity of the light source
   Radius: 100000 # radius of the light source
-  Color: [255,160,122] # LightSalmon, light source color
-  PulsePeriod: 5.0
-  PulseScale: [0.96,1.04]
-  PulseColor: [0.90,1.20]
+  LightColor: [255,160,122] # LightSalmon, light source color
   Habitable: true
+  Layers:
+    TexturePath: Suns/star_red # path to texture, please use .png suffix when loading non-xnb files
+    TextureColor: [255,255,255,255] # Overrides existing texture color tint
+    BlendMode: AlphaBlend # AlphaBlend or Additive or None
+    RotationSpeed: 0.03 # rotation speed and direction, default is 0.03
+    PulsePeriod: 5.0 # period of pulses in seconds; 0 if disabled
+    PulseScale: [0.96,1.04] # if pulse enabled, what is the scale variation; [1.0,1.0] to disable
+    PulseColor: [1.0,1.20] # if pulse enabled, what is the color intensity variation; [1.0,1.0] to disable
+  Layers:
+    TexturePath: Suns/star_red
+    BlendMode: AlphaBlend # AlphaBlend or Additive or None
+    RotationSpeed: -0.015
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
 Sun: star_yellow
-  LoResPath: Suns/star_yellow
-  HiResPath: Suns/star_yellow
+  IconPath: Suns/star_yellow
   LightIntensity: 1.5
   Radius: 150000
-  Color: [255,255,224] # LightYellow
-  PulsePeriod: 5.0
-  PulseScale: [0.96,1.04]
-  PulseColor: [0.90,1.20]
+  LightColor: [255,255,224] # LightYellow
   Habitable: true
+  Layers:
+    TexturePath: Suns/star_red
+    TextureColor: [255,255,255,255]
+    BlendMode: AlphaBlend
+    RotationSpeed: 0.03
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
+  Layers:
+    TexturePath: Suns/star_red
+    BlendMode: AlphaBlend
+    RotationSpeed: -0.015
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
 Sun: star_green
-  LoResPath: Suns/star_green
-  HiResPath: Suns/star_green
+  IconPath: Suns/star_green
   LightIntensity: 1.5
   Radius: 150000
-  Color: [144,238,144] # LightGreen
-  PulsePeriod: 5.0
-  PulseScale: [0.97,1.03]
-  PulseColor: [0.90,1.20]
+  LightColor: [144,238,144] # LightGreen
   Habitable: true
+  Layers:
+    TexturePath: Suns/star_red
+    TextureColor: [255,255,255,255]
+    BlendMode: AlphaBlend
+    RotationSpeed: 0.03
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
+  Layers:
+    TexturePath: Suns/star_red
+    BlendMode: AlphaBlend
+    RotationSpeed: -0.015
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
 Sun: star_blue
-  LoResPath: Suns/star_blue
-  HiResPath: Suns/star_blue
+  IconPath: Suns/star_blue
   LightIntensity: 1.5
   Radius: 150000
-  Color: [173,216,230] # LightBlue
-  PulsePeriod: 5.0
-  PulseScale: [0.96,1.04]
-  PulseColor: [0.90,1.20]
+  LightColor: [173,216,230] # LightBlue
   Habitable: true
+  Layers:
+    TexturePath: Suns/star_red
+    TextureColor: [255,255,255,255]
+    BlendMode: AlphaBlend
+    RotationSpeed: 0.03
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
+  Layers:
+    TexturePath: Suns/star_red
+    BlendMode: AlphaBlend
+    RotationSpeed: -0.015
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
 Sun: star_yellow2
-  LoResPath: Suns/star_yellow2
-  HiResPath: Suns/star_yellow2
+  IconPath: Suns/star_yellow2
   LightIntensity: 1.5
   Radius: 150000
-  Color: [255,255,255] # White
-  PulsePeriod: 5.0
-  PulseScale: [0.96,1.04]
-  PulseColor: [0.90,1.20]
+  LightColor: [255,255,255] # White
   Habitable: true
+  Layers:
+    TexturePath: Suns/star_red
+    TextureColor: [255,255,255,255]
+    BlendMode: AlphaBlend
+    RotationSpeed: 0.03
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
+  Layers:
+    TexturePath: Suns/star_red
+    BlendMode: AlphaBlend
+    RotationSpeed: -0.015
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
 Sun: star_binary
-  LoResPath: Suns/star_binary
-  HiResPath: Suns/star_binary
+  IconPath: Suns/star_binary
   LightIntensity: 1.7
   Radius: 100000
-  Color: [255,255,255] # White
-  PulsePeriod: 5.0
-  PulseScale: [0.96,1.04]
-  PulseColor: [0.90,1.20]
+  LightColor: [255,255,255] # White
   Habitable: true
-  DoubleLayered: false # don't render hi-res twice
+  Layers:
+    TexturePath: Suns/star_red
+    TextureColor: [255,255,255,255]
+    BlendMode: AlphaBlend
+    RotationSpeed: 0.03
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
+  Layers:
+    TexturePath: Suns/star_red
+    BlendMode: AlphaBlend
+    RotationSpeed: -0.015
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.04]
+    PulseColor: [1.0,1.20]
 Sun: star_neutron
-  LoResPath: Suns/star_neutron
-  HiResPath: Suns/star_neutron
+  IconPath: Suns/star_neutron
   LightIntensity: 1.4
   Radius: 150000
-  Color: [225,235,255] # Blueish tint
+  LightColor: [225,235,255] # Blueish tint
   Habitable: false # this star is dangerous and leaves all planets barren
-  DoubleLayered: false # don't render neutron cloud twice
-  PulsePeriod: 5.0
-  PulseScale: [0.98,1.03]
-  PulseColor: [0.8,1.6]
   RadiationDamage: 100 # per second, falls off depending on RadiationRadius
   RadiationRadius: 50000
-  RotationSpeed: 0.005 # default is 0.03
+  Layers:
+    TexturePath: Suns/star_red
+    TextureColor: [255,255,255,255]
+    BlendMode: AlphaBlend
+    RotationSpeed: 0.03
+    PulsePeriod: 5.0
+    PulseScale: [0.98,1.03]
+    PulseColor: [1.0,1.60]

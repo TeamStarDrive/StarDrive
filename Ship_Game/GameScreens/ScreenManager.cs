@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
@@ -29,19 +30,11 @@ namespace Ship_Game
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
 
-        
-
         public float exitScreenTimer
         {
             get => input.ExitScreenTimer;
             set => input.ExitScreenTimer = value;
         }
-
-
-        //public float exitScreenTimer
-        //{
-            
-        //} input.ExitScreenTimer;
 
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => Screens.Count;
@@ -314,8 +307,48 @@ namespace Ship_Game
             exitScreenTimer = 0.25f;
         }
 
+        float FileMonitorTimer;
+        const float FileMonitorInterval = 2.0f;
+        struct Monitor
+        {
+            public string File;
+            public DateTime LastModified;
+            public Action<FileInfo> OnModified;
+        }
+        readonly Array<Monitor> FilesToMonitor = new Array<Monitor>();
+
+        public void ResetFileMonitor()
+        {
+            FilesToMonitor.Clear();
+        }
+        public void AddFileToMonitor(string file, Action<FileInfo> onModified)
+        {
+            FilesToMonitor.Add(new Monitor {
+                File = file, LastModified = File.GetLastWriteTimeUtc(file), OnModified = onModified
+            });
+        }
+
+        void CheckForModifiedContent()
+        {
+            FileMonitorTimer += GameInstance.DeltaTime;
+            if (FileMonitorTimer < FileMonitorInterval) return;
+
+            FileMonitorTimer = 0f;
+            foreach (Monitor m in FilesToMonitor)
+            {
+                var info = new FileInfo(m.File);
+                if (info.LastWriteTimeUtc != m.LastModified) {
+                    Log.Write(ConsoleColor.Magenta, $"Detected resource modification: {info.Name}  Reloading content...");
+                    m.OnModified(info);
+                    return;
+                }
+            }
+        }
+
         public void Update(GameTime gameTime)
         {
+            CheckForModifiedContent();
+
             input.Update(gameTime);
 
             bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;

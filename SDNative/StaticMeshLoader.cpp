@@ -5,26 +5,20 @@ namespace SDNative
 {
     ////////////////////////////////////////////////////////////////////////////////////
 
-    SDMeshGroup::SDMeshGroup(Mesh& mesh, MeshGroup& group)
-        : GroupId(group.GroupId), Mat{ group.Mat }, Owner{ mesh }, Data{ group }
+    SDMeshGroup::SDMeshGroup(SDMesh& mesh, int groupId)
+		: GroupId{ groupId }, Mat{ mesh.Data[groupId].Mat }, TheMesh{ mesh }
     {
-        Name = Data.Name;
-    }
-
-    SDMeshGroup::SDMeshGroup(Mesh& mesh, int groupId)
-        : GroupId(groupId), Mat{ mesh[groupId].Mat }, Owner{ mesh }, Data{ mesh[groupId] }
-    {
-        Name = Data.Name;
-        InitVerts();
+        Name = mesh.Data[groupId].Name;
+        InitVertices();
     }
 
     static void ComputeTangentBasis(
         const Vector3& p0, const Vector3& p1, const Vector3& p2,
         const Vector2& uv0, const Vector2& uv1, const Vector2& uv2,
-        Vector3& tangent, Vector3& binormal)
+        Vector3& tangent, Vector3& biNormal)
     {
         // using Eric Lengyel's approach with a few modifications
-        // from Mathematics for 3D Game Programmming and Computer Graphics
+        // from Mathematics for 3D Game Programming and Computer Graphics
         float s1 = uv1.x - uv0.x;
         float t1 = uv1.y - uv0.y;
         float s2 = uv2.x - uv0.x;
@@ -36,35 +30,32 @@ namespace SDNative
         Vector3 P = p1 - p0;
         Vector3 Q = p2 - p0;
         tangent = (t2*P - t1*Q) * tmp;
-        binormal = (s1*Q - s2*P) * tmp;
+        biNormal = (s1*Q - s2*P) * tmp;
         //tangent  = (Q*t1 - P*t2) * tmp; // ver2
-        //binormal = (Q*s1 - P*s2) * tmp;
+        //biNormal = (Q*s1 - P*s2) * tmp;
         tangent.normalize();
-        binormal.normalize();
+        biNormal.normalize();
     }
 
-    void SDMeshGroup::InitVerts()
+    void SDMeshGroup::InitVertices()
     {
-        if (Data.IsEmpty())
+		Nano::MeshGroup& group = GetGroup();
+        if (group.IsEmpty())
             return;
 
         // Sunburn expects ClockWise
-        if (Data.Winding == FaceWindCounterClockWise)
-        {
-            Data.InvertFaceWindingOrder();
-            //Data.RecalculateNormals(false);
-        }
+		group.SetFaceWinding(FaceWinding::CW);
 
         vector<int> indices;
-        Data.OptimizedFlatten(); // force numVerts == numCoords == numNormals
-        Data.CreateIndexArray(indices);
+        group.OptimizedFlatten(); // force numVertices == numCoords == numNormals
+        group.CreateIndexArray(indices);
 
-        NumTriangles = Data.NumFaces();
-        int numVertices = NumVertices = (int)Data.Verts.size();
+        NumTriangles = group.NumTris();
+        int numVertices = NumVertices = (int)group.Verts.size();
         int numIndices  = NumIndices  = (int)indices.size();
-        auto* pVertices = Data.Verts.data();
-        auto* pCoords   = Data.Coords.data();
-        auto* pNormals  = Data.Normals.data();
+        auto* pVertices = group.Verts.data();
+        auto* pCoords   = group.Coords.data();
+        auto* pNormals  = group.Normals.data();
         auto* pIndices = indices.data();
 
         if (numVertices == 0 || numIndices == 0) {
@@ -90,34 +81,35 @@ namespace SDNative
             sdv.Normal = pNormals[i];
         }
 
-        Vector3 tangent, binormal;
+		Vector3 tangent{}, biNormal{};
         for (int i = 0; i < numIndices; i += 3)
         {
             SDVertex& v0 = outVertices[outIndices[i]];
             SDVertex& v1 = outVertices[outIndices[i + 1]];
             SDVertex& v2 = outVertices[outIndices[i + 2]];
             ComputeTangentBasis(v0.Position, v1.Position, v2.Position,
-                v0.Coords, v1.Coords, v2.Coords, tangent, binormal);
+                v0.Coords, v1.Coords, v2.Coords, tangent, biNormal);
             v0.Tangent  = tangent;
-            v0.Binormal = binormal;
+            v0.Binormal = biNormal;
             v1.Tangent  = tangent;
-            v1.Binormal = binormal;
+            v1.Binormal = biNormal;
             v2.Tangent  = tangent;
-            v2.Binormal = binormal;
+            v2.Binormal = biNormal;
         }
     }
 
-    void SDMeshGroup::SetData(Vector3* verts, Vector3* normals, Vector2* coords, int numVertices,
-                              rpp::ushort* indices, int numIndices)
+    void SDMeshGroup::SetData(Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
+                              const rpp::ushort* indices, int numIndices)
     {
+		Nano::MeshGroup& group = GetGroup();
         Matrix4 transform = Transform.inverse();
-        if (verts)
+        if (vertices)
         {
-            Data.Verts.resize(numVertices);
-            auto* dst = Data.Verts.data();
+            group.Verts.resize(numVertices);
+            auto* dst = group.Verts.data();
 
             for (int i = 0; i < numVertices; ++i) {
-                Vector3 pos = transform * verts[i];
+                Vector3 pos = transform * vertices[i];
                 //dst[i] = pos;
                 dst[i] = {pos.x, -pos.z, -pos.y};
             }
@@ -126,19 +118,20 @@ namespace SDNative
 
         if (coords)
         {
-            Data.Coords.resize(numVertices);
-            auto* dst = Data.Coords.data();
+            group.Coords.resize(numVertices);
+            auto* dst = group.Coords.data();
 
             for (int i = 0; i < numVertices; ++i) {
                 Vector2 uv = coords[i];
                 dst[i] = { uv.x, 1.0f - uv.y };
             }
         }
+		group.CoordsMapping = coords ? MapPerVertex : MapNone;
 
         if (normals)
         {
-            Data.Normals.resize(numVertices);
-            auto* dst = Data.Normals.data();
+            group.Normals.resize(numVertices);
+            auto* dst = group.Normals.data();
 
             for (int i = 0; i < numVertices; ++i) {
                 Vector3 normal = transform * normals[i];
@@ -146,13 +139,14 @@ namespace SDNative
                 dst[i] = {normal.x, -normal.z, -normal.y};
             }
         }
+		group.NormalsMapping = coords ? MapPerVertex : MapNone;
 
-        const bool hasCoords  = !Data.Coords.empty();
-        const bool hasNormals = !Data.Normals.empty();
+        const bool hasCoords  = !group.Coords.empty();
+        const bool hasNormals = !group.Normals.empty();
 
         int numTriangles = numIndices / 3;
-        Data.Faces.resize(numTriangles);
-        auto* destFaces = Data.Faces.data();
+		group.Tris.resize(numTriangles);
+        auto* destFaces = group.Tris.data();
 
         for (int i = 0, faceId = 0; i < numIndices; i += 3, ++faceId)
         {
@@ -164,23 +158,29 @@ namespace SDNative
             tri.b = { v1, hasCoords?v1:-1, hasNormals?v1:-1 };
             tri.c = { v2, hasCoords?v2:-1, hasNormals?v2:-1 };
         }
+
+		TheMesh.SyncStats();
+    }
+
+    Mesh& SDMeshGroup::GetMesh() const
+    {
+		return TheMesh.Data;
+    }
+
+    MeshGroup& SDMeshGroup::GetGroup() const
+    {
+		return GetMesh()[GroupId];
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
 
-    SDMesh::SDMesh()
-    {
-    }
+    SDMesh::SDMesh() = default;
 
     SDMesh::SDMesh(strview path) : Data{ path }
     {
         Groups.resize(Data.NumGroups());
-        Name      = Data.Name;
-        NumGroups = Data.NumGroups();
-        NumFaces  = Data.NumFaces;
-
-        string copy = path_combine(folder_path(path), file_name(path) + "_copy.obj");
-        Data.SaveAsOBJ(copy);
+        Name = Data.Name;
+		SyncStats();
     }
 
     SDMeshGroup* SDMesh::GetGroup(int groupId)
@@ -191,27 +191,34 @@ namespace SDNative
         if (auto* groupMesh = Groups[groupId].get())
             return groupMesh;
 
-        Groups[groupId] = std::make_unique<SDMeshGroup>(Data, groupId);
+        Groups[groupId] = std::make_unique<SDMeshGroup>(*this, groupId);
         return Groups[groupId].get();
     }
 
-    SDMeshGroup* SDMesh::AddGroup(string groupname)
+    SDMeshGroup* SDMesh::AddGroup(string groupName)
     {
-        MeshGroup& group = Data.CreateGroup(groupname);
-        Groups.emplace_back(std::make_unique<SDMeshGroup>(Data, group));
-        return Groups.back().get();
+        MeshGroup& group = Data.CreateGroup(move(groupName));
+        auto* g = Groups.emplace_back(std::make_unique<SDMeshGroup>(*this, group.GroupId)).get();
+		SyncStats();
+		return g;
+    }
+
+    void SDMesh::SyncStats()
+    {
+		NumGroups = Data.NumGroups();
+        NumFaces  = Data.TotalTris();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
 
-    static string to_string(const wchar_t* wstr)
+    static string to_string(const wchar_t* wideStr)
     {
-        return { wstr, wstr + wcslen(wstr) };
+        return { wideStr, wideStr + wcslen(wideStr) };
     }
 
-    DLLAPI(SDMesh*) SDMeshOpen(const wchar_t* filename)
+    DLLAPI(SDMesh*) SDMeshOpen(const wchar_t* fileName)
     {
-        auto sdm = new SDMesh{ to_string(filename) };
+        auto sdm = new SDMesh{ to_string(fileName) };
         if (!sdm->Data) {
             SDMeshClose(sdm);
             return nullptr;
@@ -231,10 +238,10 @@ namespace SDNative
 
     ////////////////////////////////////////////////////////////////////////////////////
 
-    DLLAPI(SDMesh*) SDMeshCreateEmpty(const wchar_t* meshname)
+    DLLAPI(SDMesh*) SDMeshCreateEmpty(const wchar_t* meshName)
     {
-        SDMesh* mesh = new SDMesh{};
-        mesh->Data.Name = to_string(meshname);
+        auto* mesh = new SDMesh{};
+        mesh->Data.Name = to_string(meshName);
         mesh->Name = mesh->Data.Name;
         return mesh;
     }
@@ -244,18 +251,18 @@ namespace SDNative
         return mesh->Data.SaveAs(to_string(filename));
     }
 
-    DLLAPI(SDMeshGroup*) SDMeshNewGroup(SDMesh* mesh, const wchar_t* groupname, Matrix4* transform)
+    DLLAPI(SDMeshGroup*) SDMeshNewGroup(SDMesh* mesh, const wchar_t* groupName, Matrix4* transform)
     {
-        SDMeshGroup* group = mesh->AddGroup(to_string(groupname));
+        SDMeshGroup* group = mesh->AddGroup(to_string(groupName));
         if (transform) group->Transform = *transform;
         return group;
     }
 
     DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group,
-                                    Vector3* verts, Vector3* normals, Vector2* coords, int numVertices,
+                                    Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
                                     ushort* indices, int numIndices)
     {
-        group->SetData(verts, normals, coords, numVertices, indices, numIndices);
+        group->SetData(vertices, normals, coords, numVertices, indices, numIndices);
     }
 
     DLLAPI(void) SDMeshGroupSetMaterial(
@@ -274,7 +281,7 @@ namespace SDNative
                     float specular, 
                     float alpha)
     {
-        Material& mat = group->Data.CreateMaterial(to_string(name));
+        Material& mat = group->GetGroup().CreateMaterial(to_string(name));
         mat.MaterialFile  = to_string(materialFile);
         mat.DiffusePath   = to_string(diffusePath);
         mat.AlphaPath     = to_string(alphaPath);
