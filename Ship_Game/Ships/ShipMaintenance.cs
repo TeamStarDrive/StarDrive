@@ -43,7 +43,7 @@ namespace Ship_Game.Ships
                         maint *= numShipYards - 3;
                 }
             }
-            float repairMaintModifier =  ship.HealthMax > 0 ? (2 - ship.HealthPercent).Clamped(0,1.5f) : 1;
+            float repairMaintModifier =  ship.HealthMax > 0 ? (2 - ship.HealthPercent).Clamped(1,1.5f) : 1;
             maint *= repairMaintModifier;
             return maint;
         }

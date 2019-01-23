@@ -372,7 +372,8 @@ namespace Ship_Game.Ships
         {
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
 
-            bool worldInit = loadingFromSavegame || Empire.Universe == null;
+            //bool worldInit = loadingFromSavegame || Empire.Universe == null;
+            bool worldInit = true; // FB - temp fix - this is not setting ship radius currectly
             if (worldInit)
                 CreateSceneObject();
             else
