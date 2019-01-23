@@ -60,7 +60,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile("Suns.yaml");
             LoadSuns(file);
-            StarDriveGame.Instance.ScreenManager.AddHotLoadTarget(file.FullName, OnSunsFileModified);
+            StarDriveGame.Instance.ScreenManager.AddHotLoadTarget("Suns", file.FullName, OnSunsFileModified);
         }
 
         static void LoadSuns(FileInfo file)

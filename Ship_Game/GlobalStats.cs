@@ -67,10 +67,11 @@ namespace Ship_Game
         public static bool AltArcControl; // "Keyboard Fire Arc Locking"
         public static int TimesPlayed                 = 0;
         public static ModEntry ActiveMod;
-        public static bool HasMod                     => ActiveMod != null;
+        public static bool HasMod => ActiveMod != null;
         public static ModInformation ActiveModInfo;
-        public static string ModName                  = "";
-        public static string ModPath                  = ""; // "Mods/MyMod/"
+        public static string ModName = "";
+        public static string ModPath = ""; // "Mods/MyMod/"
+        public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/MyMod/MyMod.xml"
         public static string ResearchRootUIDToDisplay = "Colonization";
         public static int RemnantKills;
         public static int RemnantActivation;
@@ -235,12 +236,12 @@ namespace Ship_Game
                 return;
             }
 
-            var info = new FileInfo($"Mods/{modName}.xml");
-            if (info.Exists)
+            var modInfo = new FileInfo($"Mods/{modName}/{modName}.xml");
+            if (modInfo.Exists)
             {
                 ModPath = "Mods/" + ModName + "/";
-                var modInfo = new FileInfo($"{ModPath}/{modName}.xml");
-                ActiveModInfo = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(modInfo.Exists ? modInfo : info);
+                ActiveModInfo = new XmlSerializer(typeof(ModInformation))
+                              .Deserialize<ModInformation>(modInfo);
                 ActiveMod     = new ModEntry(ActiveModInfo);
             }
             else

@@ -38,10 +38,14 @@ namespace Ship_Game
 
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => Screens.Count;
-        public GameScreen CurrentScreen => Screens[Screens.Count-1];
+        public GameScreen Current => Screens[Screens.Count-1];
+
+        public static ScreenManager Instance { get; private set; }
+        public static GameScreen CurrentScreen => Instance.Current;
 
         public ScreenManager(StarDriveGame game, GraphicsDeviceManager graphics)
         {
+            Instance = this;
             GameInstance = game;
             GraphicsDevice = graphics.GraphicsDevice;
             GraphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
@@ -316,17 +320,26 @@ namespace Ship_Game
             public DateTime LastModified;
             public Action<FileInfo> OnModified;
         }
-        readonly Array<Hotloadable> HotLoadTargets = new Array<Hotloadable>();
+        readonly Map<string, Hotloadable> HotLoadTargets = new Map<string, Hotloadable>();
 
         public void ResetHotLoadTargets()
         {
             HotLoadTargets.Clear();
         }
-        public void AddHotLoadTarget(string file, Action<FileInfo> onModified)
+
+        // HotLoading allows for modifying game content while the game is running
+        // Different content managers are triggered through `OnModified`
+        // which will reload appropriate subsystems
+        // @param key Unique key to categorize the hot load target
+        // @param file File to check
+        // @param onModified Event to trigger if File was changed
+        public void AddHotLoadTarget(string key, string file, Action<FileInfo> onModified)
         {
-            HotLoadTargets.Add(new Hotloadable {
-                File = file, LastModified = File.GetLastWriteTimeUtc(file), OnModified = onModified
-            });
+            HotLoadTargets[key] = new Hotloadable {
+                File = file,
+                LastModified = File.GetLastWriteTimeUtc(file), 
+                OnModified = onModified
+            };
         }
 
         void PerformHotLoadTasks()
@@ -335,7 +348,7 @@ namespace Ship_Game
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;
-            foreach (Hotloadable hot in HotLoadTargets)
+            foreach (Hotloadable hot in HotLoadTargets.Values)
             {
                 var info = new FileInfo(hot.File);
                 if (info.LastWriteTimeUtc != hot.LastModified)

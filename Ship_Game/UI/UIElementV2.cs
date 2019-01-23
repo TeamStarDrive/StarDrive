@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
@@ -76,10 +77,25 @@ namespace Ship_Game
         public float Width  { get => Size.X; set => Size.X = value; }
         public float Height { get => Size.Y; set => Size.Y = value; }
 
+        protected Vector2 RelativePos(float x, float y)
+        {
+            UIElementV2 container = Parent ?? this;
+            if      (x < 0f) x += container.Size.X;
+            else if (x <=1f) x *= container.Size.X;
+            if      (y < 0f) y += container.Size.Y;
+            else if (y <=1f) y *= container.Size.Y;
+            return new Vector2(x, y);
+        }
 
+        // This has a special behaviour,
+        // if x < 0 or y < 0, then it will be evaluated as Parent.Size.X - x
         public void SetAbsPos(float x, float y)
         {
-            Pos = new Vector2(x, y);
+            Pos = RelativePos(x, y);
+        }
+        public void SetAbsPos(Vector2 pos)
+        {
+            Pos = RelativePos(pos.X, pos.Y);
         }
         public void SetSize(float width, float height)
         {
@@ -150,20 +166,20 @@ namespace Ship_Game
         protected UIElementV2(UIElementV2 parent, Vector2 pos)
         {
             Parent = parent;
-            Pos = pos;
+            SetAbsPos(pos.X, pos.Y);
         }
 
         protected UIElementV2(UIElementV2 parent, Vector2 pos, Vector2 size)
         {
             Parent = parent;
-            Pos = pos;
+            SetAbsPos(pos.X, pos.Y);
             Size = size;
         }
 
         protected UIElementV2(UIElementV2 parent, Rectangle rect)
         {
             Parent = parent;
-            Pos  = new Vector2(rect.X, rect.Y);
+            SetAbsPos(rect.X, rect.Y);
             Size = new Vector2(rect.Width, rect.Height);
         }
 
