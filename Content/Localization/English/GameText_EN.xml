@@ -1136,7 +1136,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>312</Index>
-      <Text>Incomes</Text>
+      <Text>Income</Text>
     </Token>
     <Token>
       <Index>313</Index>
@@ -1148,7 +1148,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>315</Index>
-      <Text>Costs</Text>
+      <Text>Expenditure</Text>
     </Token>
     <Token>
       <Index>316</Index>
