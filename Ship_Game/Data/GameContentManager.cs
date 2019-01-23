@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SgMotion;
+using Ship_Game.SpriteSystem;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Processors;
 
@@ -347,6 +348,28 @@ namespace Ship_Game
                         DisposableAssets.Add(disposable);
                 }
             }
+        }
+
+        public Texture2D LoadUncachedTexture(FileInfo file, string ext)
+        {
+            if (EnableLoadInfoLog)
+                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Texture2D).Name}> {file.CleanResPath(false)}");
+
+            if (ext != "xnb")
+                return RawContent.LoadImageAsTexture(file);
+
+            return ReadAsset<Texture2D>(file.CleanResPath(), DoNothingWithDisposable);
+        }
+
+        public Texture2D LoadUncachedTexture(TextureInfo t, string folder)
+        {
+            if (EnableLoadInfoLog)
+                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Texture2D).Name}> {folder}/{t.Name}.{t.Type}");
+
+            if (t.Type != "xnb")
+                return RawContent.LoadImageAsTexture(folder+"/"+t.Name+"."+t.Type);
+
+            return ReadAsset<Texture2D>(folder+"/"+t.Name, DoNothingWithDisposable);
         }
 
         // @note Guaranteed to load an atlas with at least 1 texture
