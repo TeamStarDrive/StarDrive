@@ -301,12 +301,10 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void AddShip(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
         {
-            bool isNewOrbital = ship.shipData.HullRole == ShipData.RoleName.platform ||
-                                ship.shipData.HullRole == ShipData.RoleName.station;
             var qi = new QueueItem(P)
             {
                 isShip = true,
-                isOrbital = isNewOrbital,
+                isOrbital = ship.IsPlatformOrStation,
                 Goal   = goal,
                 sData  = ship.shipData,
                 Cost   = ship.GetCost(Owner),
