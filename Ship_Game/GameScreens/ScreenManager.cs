@@ -307,39 +307,42 @@ namespace Ship_Game
             exitScreenTimer = 0.25f;
         }
 
-        float FileMonitorTimer;
-        const float FileMonitorInterval = 2.0f;
-        struct Monitor
+        float HotloadTimer;
+        const float HotloadInterval = 1.0f;
+
+        class Hotloadable
         {
             public string File;
             public DateTime LastModified;
             public Action<FileInfo> OnModified;
         }
-        readonly Array<Monitor> FilesToMonitor = new Array<Monitor>();
+        readonly Array<Hotloadable> HotLoadTargets = new Array<Hotloadable>();
 
-        public void ResetFileMonitor()
+        public void ResetHotLoadTargets()
         {
-            FilesToMonitor.Clear();
+            HotLoadTargets.Clear();
         }
-        public void AddFileToMonitor(string file, Action<FileInfo> onModified)
+        public void AddHotLoadTarget(string file, Action<FileInfo> onModified)
         {
-            FilesToMonitor.Add(new Monitor {
+            HotLoadTargets.Add(new Hotloadable {
                 File = file, LastModified = File.GetLastWriteTimeUtc(file), OnModified = onModified
             });
         }
 
-        void CheckForModifiedContent()
+        void PerformHotLoadTasks()
         {
-            FileMonitorTimer += GameInstance.DeltaTime;
-            if (FileMonitorTimer < FileMonitorInterval) return;
+            HotloadTimer += GameInstance.DeltaTime;
+            if (HotloadTimer < HotloadInterval) return;
 
-            FileMonitorTimer = 0f;
-            foreach (Monitor m in FilesToMonitor)
+            HotloadTimer = 0f;
+            foreach (Hotloadable hot in HotLoadTargets)
             {
-                var info = new FileInfo(m.File);
-                if (info.LastWriteTimeUtc != m.LastModified) {
-                    Log.Write(ConsoleColor.Magenta, $"Detected resource modification: {info.Name}  Reloading content...");
-                    m.OnModified(info);
+                var info = new FileInfo(hot.File);
+                if (info.LastWriteTimeUtc != hot.LastModified)
+                {
+                    Log.Write(ConsoleColor.Magenta, $"HotLoading content: {info.Name}...");
+                    hot.LastModified = info.LastWriteTimeUtc; // update
+                    hot.OnModified(info);
                     return;
                 }
             }
@@ -347,7 +350,7 @@ namespace Ship_Game
 
         public void Update(GameTime gameTime)
         {
-            CheckForModifiedContent();
+            PerformHotLoadTasks();
 
             input.Update(gameTime);
 

@@ -212,7 +212,7 @@ namespace Ship_Game
 
         public static void Reset(ScreenManager manager)
         {
-            manager.ResetFileMonitor();
+            manager.ResetHotLoadTargets();
             WeaponsDict.Clear();
             TroopsDict.Clear();
             TroopsDictKeys.Clear();
