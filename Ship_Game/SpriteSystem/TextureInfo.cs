@@ -7,16 +7,17 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.SpriteSystem
 {
-    class TextureInfo
+    public class TextureInfo
     {
         public string Name;
+        public string Type; // xnb, png, dds, ...
         public int X, Y;
         public int Width;
         public int Height;
         public Texture2D Texture;
         public bool NoPack; // This texture should not be packed
 
-        public override string ToString() => $"X:{X} Y:{Y} W:{Width} H:{Height} Name:{Name}";
+        public override string ToString() => $"X:{X} Y:{Y} W:{Width} H:{Height} Name:{Name} Type:{Type}";
 
         public Color[] GetColorData()
         {

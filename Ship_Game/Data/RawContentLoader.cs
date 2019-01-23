@@ -78,10 +78,29 @@ namespace Ship_Game
             return value > 0 && (value & (value - 1)) == 0;
         }
 
-        Texture2D LoadImageAsTexture(string fileNameWithExt)
+        public Texture2D LoadImageAsTexture(string fileNameWithExt)
         {
             string contentPath = GetContentPath(fileNameWithExt);
             using (var fs = new FileStream(contentPath, FileMode.Open))
+            {
+                TextureCreationParameters parameters = Texture.GetCreationParameters(Device, fs);
+
+                // mipmap gen... not really needed
+                //parameters.TextureUsage |= TextureUsage.AutoGenerateMipMap;
+
+                // this will add runtime DXT5 compression, which is incredibly slow
+                //if (IsPowerOf2(parameters.Width) && IsPowerOf2(parameters.Height))
+                //    parameters.Format = SurfaceFormat.Dxt5;
+
+                fs.Seek(0, SeekOrigin.Begin);
+                var texture = Texture2D.FromFile(Device, fs, parameters);
+                return texture;
+            }
+        }
+
+        public Texture2D LoadImageAsTexture(FileInfo file)
+        {
+            using (FileStream fs = file.OpenRead())
             {
                 TextureCreationParameters parameters = Texture.GetCreationParameters(Device, fs);
 
