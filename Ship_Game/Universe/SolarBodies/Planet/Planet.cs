@@ -92,7 +92,7 @@ namespace Ship_Game
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
         {
             CreateManagers();
-
+            
             Name = name;
             OrbitalAngle = randomAngle;
             ParentSystem = system;

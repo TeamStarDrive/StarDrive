@@ -58,6 +58,11 @@ namespace Ship_Game
             }
         }
 
+        public void Add(ValueTuple<TKey, TValue> pair)
+        {
+            base.Add(pair.Item1, pair.Item2);
+        }
+
         public override string ToString()
         {
             return GetType().GenericName();
@@ -87,36 +92,6 @@ namespace Ship_Game
         public TValue[] AtomicValuesArray()
         {
             lock (this) return Values.ToArray();
-        }
-
-        public TKey MaxKeyByValues(Func<TValue, float> selector)
-        {            
-            TKey found = default;
-            float max = float.MinValue;
-            foreach(var kv in this)
-            {
-                float value = selector(kv.Value);
-                if (value <= max) continue;
-                max = value;
-                found = kv.Key;
-            }
-            return found;
-        }
-
-        public TKey MaxKeyByValuesFiltered(Func<TValue, float> selector, Predicate<TValue> filter)
-        {
-            TKey found = default;
-            float max = float.MinValue;
-            foreach (var kv in this)
-            {
-                if (!filter(kv.Value))
-                    continue;
-                float value = selector(kv.Value);
-                if (value <= max) continue;
-                max = value;
-                found = kv.Key;
-            }
-            return found;
-        }        
+        }    
     }
 }
