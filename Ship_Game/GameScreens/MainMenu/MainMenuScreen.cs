@@ -48,6 +48,9 @@ namespace Ship_Game.GameScreens.MainMenu
         
         public class MainMenuLayout
         {
+            public bool ShowModImage = true;
+            public bool ModImageFillScreen = true;
+            public Vector2 ModImagePos = new Vector2(0,0);
             public bool ShowMoon = true;
             public Vector2 MoonText1 = new Vector2(-220, -130);
             public Vector2 MoonText2 = new Vector2(-250, +60);
@@ -75,6 +78,7 @@ namespace Ship_Game.GameScreens.MainMenu
             GlobalStats.LoadModInfo(GlobalStats.ModName);
             if (ScreenManager.CurrentScreen is MainMenuScreen mainMenu)
             {
+                mainMenu.UnloadContent();
                 mainMenu.LoadContent();
             }
         }

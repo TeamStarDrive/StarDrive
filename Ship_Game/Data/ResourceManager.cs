@@ -802,14 +802,6 @@ namespace Ship_Game
             return errorTexture;
         }
 
-
-        // Load texture for a specific mod, such as modName="Overdrive"
-        public static Texture2D LoadModTexture(GameContentManager content, string modName, string textureName)
-        {
-            string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
-            return content.Load<Texture2D>(modTexPath);
-        }
-
         public static Texture2D Texture2D(string textureNamePath)
         {
             return RootContent.Load<Texture2D>("Textures/" + textureNamePath);
