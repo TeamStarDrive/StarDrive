@@ -39,17 +39,12 @@ namespace Ship_Game.Universe.SolarBodies
         public float DamageMultiplier(float distFromSun)
         {
             // this is a custom non-linear falloff
-            // enter this into https://www.desmos.com/calculator
-            // with y-axis [0,1] and x-axis [0,100000]
-            // formula: 1 - (sqrt(x/d) - 0.01*(d/x)^2)
-            // 
-            // about linear 18% we have full power thanks to 0.01*(d/x)^2
-            // then we have a nice smooth falloff thanks to sqrt(x/d)
-            float linear  = distFromSun/RadiationRadius;
-            float inverse = RadiationRadius/distFromSun;
-            float damage = 1.0f - ((float)Math.Sqrt(linear) - 0.01f*inverse*inverse);
-            damage = damage.Clamped(0f, 1f);
-            return damage;
+            // https://www.desmos.com/calculator/lc2u7qxmhj
+            // it's very similar to inverse square law
+            // but there's a 20% radius where intensity is 1.0
+            float linear = distFromSun / RadiationRadius;
+            float intensity = (0.2f / linear) - 0.2f;
+            return intensity.Clamped(0f, 1f);
         }
 
         public void DrawIcon(SpriteBatch batch, Rectangle rect)
