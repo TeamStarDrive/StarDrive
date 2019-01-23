@@ -186,7 +186,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadPlanetEdicts();
             LoadPlanetTypes();
-            SunType.LoadAll(RootContent);
+            SunType.LoadAll();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
             ShieldManager.LoadContent(RootContent);
@@ -212,6 +212,7 @@ namespace Ship_Game
 
         public static void Reset(ScreenManager manager)
         {
+            manager.ResetHotLoadTargets();
             WeaponsDict.Clear();
             TroopsDict.Clear();
             TroopsDictKeys.Clear();
@@ -749,14 +750,14 @@ namespace Ship_Game
                     {
                         FileInfo file = files[i];
                         string relativePath = file.RelPath().Replace("Content\\", "");
-                        var model = RootContent.Load<Model>(relativePath);
-
-                        string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
-                        string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "obj");
+                        string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "fbx");
 
                         if (!File.Exists(savePath))
                         {
-                            Log.Warning($"ExportMesh: {savePath}");
+                            var model = RootContent.Load<Model>(relativePath); // @note This may throw if it's not a mesh
+                            Log.Info($"ExportMesh: {savePath}");
+
+                            string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
                             RawContentLoader.SaveModel(model, nameNoExt, savePath);
                         }
                     }
@@ -766,8 +767,8 @@ namespace Ship_Game
                     }
                 }
             }
-            Parallel.For(files.Length, ExportXnbMesh, Parallel.NumPhysicalCores * 2);
-            //ExportXnbMesh(0, files.Length);
+            //Parallel.For(files.Length, ExportXnbMesh, Parallel.NumPhysicalCores * 2);
+            ExportXnbMesh(0, files.Length);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -799,14 +800,6 @@ namespace Ship_Game
             SubTexture errorTexture = TextureOrNull("NewUI/x_red");
             Textures[textureName] = errorTexture; // so we don't get this error again
             return errorTexture;
-        }
-
-
-        // Load texture for a specific mod, such as modName="Overdrive"
-        public static Texture2D LoadModTexture(GameContentManager content, string modName, string textureName)
-        {
-            string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
-            return content.Load<Texture2D>(modTexPath);
         }
 
         public static Texture2D Texture2D(string textureNamePath)

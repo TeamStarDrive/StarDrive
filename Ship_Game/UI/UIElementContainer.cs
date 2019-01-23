@@ -227,7 +227,7 @@ namespace Ship_Game
         public void BeginLayout(float x, float y)
         {
             LayoutStarted = true;
-            LayoutCursor  = new Vector2(x, y);
+            LayoutCursor  = RelativePos(x, y);
             LayoutStep    = new Vector2(15f, 15f);
         }
 
@@ -242,14 +242,14 @@ namespace Ship_Game
         public void BeginVLayout(Vector2 pos, float ystep = 15f)
         {
             LayoutStarted = true;
-            LayoutCursor  = pos;
+            LayoutCursor  = RelativePos(pos.X, pos.Y);
             LayoutStep    = new Vector2(0f, ystep);
         }
 
         public void BeginHLayout(Vector2 pos, float xstep = 50f)
         {
             LayoutStarted = true;
-            LayoutCursor  = pos;
+            LayoutCursor  = RelativePos(pos.X, pos.Y);
             LayoutStep    = new Vector2(xstep, 0f);
         }
 

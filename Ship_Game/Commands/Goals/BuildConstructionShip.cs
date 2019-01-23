@@ -36,6 +36,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
+            // ShipToBuild will be the constructor ship -- usually a freighter
+            // once the freighter is deployed, it will mutate into ToBuildUID
             string constructorId = empire.data.ConstructorShip;
             if (!ResourceManager.GetShipTemplate(constructorId, out ShipToBuild))
             {
@@ -46,8 +48,8 @@ namespace Ship_Game.Commands.Goals
             if (!empire.FindClosestPlanetToBuildAt(BuildPosition, out Planet planet))
                 return GoalStep.TryAgain;
 
+            // toBuild is only used for cost calculation
             planet.Construction.AddPlatform(toBuild, ShipToBuild, this);
-            PlanetBuildingAt = planet;
             return GoalStep.GoToNextStep;
         }
 

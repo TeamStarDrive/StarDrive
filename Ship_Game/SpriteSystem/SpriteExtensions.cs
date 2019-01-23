@@ -11,6 +11,11 @@ namespace Ship_Game
 {
     public static class SpriteExtensions
     {
+        [Conditional("DEBUG")] static void CheckTextureDisposed(Texture2D texture)
+        {
+            if (texture.IsDisposed)
+                throw new ObjectDisposedException($"Texture2D '{texture.Name}'");
+        }
         [Conditional("DEBUG")] static void CheckSubTextureDisposed(SubTexture texture)
         {
             if (texture.Texture.IsDisposed)
@@ -47,6 +52,20 @@ namespace Ship_Game
             CheckSubTextureDisposed(texture);
             batch.Draw(texture.Texture, position, texture.Rect, color, 
                        rotation, origin, scale, effects, layerDepth);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture texture, Vector2 position, Vector2 size)
+        {
+            CheckSubTextureDisposed(texture);
+            var r = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+            batch.Draw(texture.Texture, r, texture.Rect, Color.White);
+        }
+
+        public static void Draw(this SpriteBatch batch, Texture2D texture, Vector2 position, Vector2 size)
+        {
+            CheckTextureDisposed(texture);
+            var r = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+            batch.Draw(texture, r, Color.White);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, in Rectangle rect, 
