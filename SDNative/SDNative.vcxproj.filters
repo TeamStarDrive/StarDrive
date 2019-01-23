@@ -103,13 +103,19 @@
     <ClCompile Include="3rdparty\libsquish\squish.cpp">
       <Filter>3rdparty\libsquish</Filter>
     </ClCompile>
-    <ClCompile Include="NanoMesh\Nano\Mesh.cpp">
+    <ClCompile Include="NanoMesh\src\Mesh.cpp">
       <Filter>3rdparty\nano</Filter>
     </ClCompile>
-    <ClCompile Include="NanoMesh\Nano\Mesh_Fbx.cpp">
+    <ClCompile Include="NanoMesh\src\Mesh_Fbx.cpp">
       <Filter>3rdparty\nano</Filter>
     </ClCompile>
-    <ClCompile Include="NanoMesh\Nano\Mesh_Obj.cpp">
+    <ClCompile Include="NanoMesh\src\Mesh_Obj.cpp">
+      <Filter>3rdparty\nano</Filter>
+    </ClCompile>
+    <ClCompile Include="NanoMesh\src\Mesh_Txt.cpp">
+      <Filter>3rdparty\nano</Filter>
+    </ClCompile>
+    <ClCompile Include="NanoMesh\src\MeshLoader.cpp">
       <Filter>3rdparty\nano</Filter>
     </ClCompile>
   </ItemGroup>
@@ -213,8 +219,14 @@
     <ClInclude Include="3rdparty\rapidxml\rapidxml.hpp">
       <Filter>3rdparty\rapidxml</Filter>
     </ClInclude>
-    <ClInclude Include="NanoMesh\Nano\Mesh.h">
+    <ClInclude Include="NanoMesh\include\Nano\Mesh.h">
       <Filter>3rdparty\nano</Filter>
+    </ClInclude>
+    <ClInclude Include="NanoMesh\include\Nano\MeshLoader.h">
+      <Filter>3rdparty\nano</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\config.h">
+      <Filter>rpp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +238,9 @@
     </Natvis>
     <Natvis Include="ReCpp\rpp\vec.natvis">
       <Filter>rpp</Filter>
+    </Natvis>
+    <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis">
+      <Filter>3rdparty\nano</Filter>
     </Natvis>
   </ItemGroup>
   <ItemGroup>
