@@ -49,7 +49,7 @@ namespace Ship_Game
             float score = 0;
             if (b.PlusFlatFoodAmount.AlmostZero())
                 return 0;
-            if (!IsCybernetic)
+            if (NonCybernetic)
             {
                 if (b.PlusFlatFoodAmount < 0)
                     score = b.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
@@ -85,7 +85,7 @@ namespace Ship_Game
                 return 0;
 
             float score = 0;
-            if (!IsCybernetic)
+            if (NonCybernetic)
             {
                 float gain = b.PlusFoodPerColonist * Fertility * MaxPopulationBillion;
                 score += gain * (Food.NetYieldPerColonist < 1 ? 2 : 1); // if we have low yield, let's add some
