@@ -73,9 +73,7 @@ namespace Ship_Game
         {
             int numOrbitals = P.OrbitalStations.Count + P.NumOrbitalsInTheWorks;
             int numShipyards = P.OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + P.NumShipYardsInTheWorks;
-            if (numOrbitals >= ShipBuilder.OrbitalsLimit &&
-                (ship.shipData.HullRole == ShipData.RoleName.platform ||
-                 ship.shipData.HullRole == ShipData.RoleName.station))
+            if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
                 return true;
 
             if (numShipyards >= ShipBuilder.ShipYardsLimit && ship.shipData.IsShipyard)
@@ -201,7 +199,7 @@ namespace Ship_Game
                     batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
                     var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
                     batch.DrawString(Font12,
-                        ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
+                        ship.IsPlatformOrStation
                             ? ship.Name + " " + Localizer.Token(2041)
                             : ship.Name, position, Color.White);
                     position.Y += Font12.LineSpacing;
@@ -254,7 +252,7 @@ namespace Ship_Game
                     batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
                     Vector2 position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
                     batch.DrawString(Font12,
-                        ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
+                        ship.IsPlatformOrStation
                             ? ship.Name + " " + Localizer.Token(2041)
                             : ship.Name, position, Color.White);
                     position.Y += Font12.LineSpacing;
@@ -412,12 +410,9 @@ namespace Ship_Game
                 return;
             }
 
-            bool isNewOrbital = ship.shipData.HullRole == ShipData.RoleName.platform ||
-                                ship.shipData.HullRole == ShipData.RoleName.station;
-
             P.ConstructionQueue.Add(new QueueItem(P)
             {
-                isShip = true, isOrbital = isNewOrbital, sData = ship.shipData, Cost = ship.GetCost(P.Owner), ProductionSpent = 0f
+                isShip = true, isOrbital = ship.IsPlatformOrStation, sData = ship.shipData, Cost = ship.GetCost(P.Owner), ProductionSpent = 0f
             });
             GameAudio.AcceptClick();
         }

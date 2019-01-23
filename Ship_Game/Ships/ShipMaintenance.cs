@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
             //added by gremlin shipyard exploit fix
             if (ship.IsTethered)
             {
-                if (role == ShipData.RoleName.platform || role == ShipData.RoleName.station)
+                if (ship.IsPlatformOrStation)
                     return maint * 0.5f;
                 if (ship.shipData.IsShipyard)
                 {
@@ -60,54 +60,5 @@ namespace Ship_Game.Ships
 
             return maint;
         }
-
-        /*
-         FB: below is the old code taken from ship.cs for maint cost. We might use some of these as ideas to expand the ShipMaintenance class
-
-        public float GetMaintCost(Empire empire)
-        {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                return GetMaintCostRealism(empire);
-
-            ShipData.RoleName role = shipData.HullRole;
-
-            if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
-            {
-                Log.Error("ShipRole {0} not found!", role);
-                return 0f;
-            }
-
-            // Maintenance fluctuator
-            float maintModReduction = GlobalStats.ShipMaintenanceMulti;
-            if (maintModReduction > 1)
-            {
-                if (IsInFriendlySpace || inborders)
-                {
-                    maintModReduction *= .25f;
-                    if (inborders) maintModReduction *= .75f;
-                }
-                if (IsInNeutralSpace && !IsInFriendlySpace)
-                {
-                    maintModReduction *= .5f;
-                }
-
-                if (IsIndangerousSpace)
-                {
-                    maintModReduction *= 2f;
-                }
-                if (ActiveInternalSlotCount >0 && ActiveInternalSlotCount < InternalSlotCount)
-                {
-                    float damRepair = 2 - InternalSlotCount / ActiveInternalSlotCount;
-                    if (damRepair > 1.5f) damRepair = 1.5f;
-                    if (damRepair < 1) damRepair = 1;
-                    maintModReduction *= damRepair;
-
-                }
-                if (maintModReduction < 1) maintModReduction = 1;
-                maint *= maintModReduction;
-            }
-            return maint;
-        }
-        */
     }
 }
