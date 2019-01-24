@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Ship_Game.Audio;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

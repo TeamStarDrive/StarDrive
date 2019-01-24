@@ -1,136 +1,46 @@
 using System;
 using System.Threading;
 using Microsoft.Xna.Framework.Audio;
+using Cue = Microsoft.Xna.Framework.Audio.Cue;
 
-namespace Ship_Game
+namespace Ship_Game.Audio
 {
-    public class AudioHandleState
-    {
-        private Cue CueInst;
-        private SoundEffectInstance SfxInst;
-        private bool Loading;
-        public AudioHandleState(Cue cue, SoundEffectInstance sfx)
-        {
-            CueInst = cue;
-            SfxInst = sfx;
-        }
-        public bool IsPlaying =>  Loading || (CueInst?.IsPlaying ?? SfxInst?.State == SoundState.Playing);
-        public bool IsPaused  => !Loading && (CueInst?.IsPaused  ?? SfxInst?.State == SoundState.Paused);
-        public bool IsStopped
-        {
-            get
-            {
-                if (Loading) return false; // we consider loading playing, thus IsStopped is false
-                if (CueInst != null) return CueInst.IsStopped;
-                if (SfxInst != null) return SfxInst.State == SoundState.Stopped;
-                return true;
-            }
-        }
-        public void Pause()
-        {
-            SfxInst?.Pause();
-            CueInst?.Pause();
-        }
-        public void Resume()
-        {
-            SfxInst?.Resume();
-            CueInst?.Resume();
-        }
-        public void Stop()
-        {
-            SfxInst?.Stop(immediate: true);
-            CueInst?.Stop(AudioStopOptions.Immediate);
-            SfxInst = null;
-            CueInst = null;
-            Loading = false;
-        }
-        public void Destroy()
-        {
-            SfxInst?.Dispose();
-            CueInst?.Dispose();
-            SfxInst = null;
-            CueInst = null;
-            Loading = false;
-        }
-        public void Completed(Cue cue, SoundEffectInstance sfx)
-        {
-            CueInst = cue;
-            SfxInst = sfx;
-            Loading = false;
-        }
-        public void PlaySfxAsync(string cueName, AudioEmitter emitter = null)
-        {
-            if (Loading) return;
-            Loading = true;
-            GameAudio.PlaySfxAsync(cueName, emitter, this);
-        }
-    }
-
-    public struct AudioHandle
-    {
-        private AudioHandleState State;
-
-        public AudioHandle(Cue cue, SoundEffectInstance sfx) => State = new AudioHandleState(cue, sfx);
-        public bool IsPlaying => State != null && State.IsPlaying;
-        public bool IsPaused  => State != null && State.IsPaused;
-        public bool IsStopped => State == null || State.IsStopped;
-        public void Pause()   => State?.Pause();
-        public void Resume()  => State?.Resume();
-        public void Stop()
-        {
-            if (State != null) { State.Stop(); State = null; }
-        }
-        public void Destroy()
-        {
-            if (State != null) { State.Destroy(); State = null; }
-        }
-        public void PlaySfxAsync(string cueName, AudioEmitter emitter = null)
-        {
-            if (GameAudio.CantPlaySfx(cueName))
-                return;
-
-            if (State == null)
-                State = new AudioHandleState(null, null);
-            State.PlaySfxAsync(cueName, emitter);
-        }
-    }
-
     // Whole StarDrive game audio state is managed here
     public static class GameAudio
     {
-        private static AudioEngine AudioEngine;
-        private static SoundBank SoundBank;
-        private static WaveBank WaveBank;
+        static AudioEngine AudioEngine;
+        static SoundBank SoundBank;
+        static WaveBank WaveBank;
 
-        private static bool AudioDisabled;
-        private static bool EffectsDisabled;
-        private static bool MusicDisabled;
+        static bool AudioDisabled;
+        static bool EffectsDisabled;
+        static bool MusicDisabled;
 
-        private static AudioCategory Global;
-        private static AudioCategory Default;
-        private static AudioCategory Weapons;
-        private static AudioCategory Music;
-        private static AudioCategory RacialMusic;
-        private static AudioCategory CombatMusic;
+        static AudioCategory Global;
+        static AudioCategory Default;
+        static AudioCategory Weapons;
+        static AudioCategory Music;
+        static AudioCategory RacialMusic;
+        static AudioCategory CombatMusic;
 
-        private static Array<AudioHandleState> AudioHandles;
-        private static int ThisFrameSfxCount; // Limit the number of Cues that can be loaded per frame. 
+        static Array<IAudioInstance> TrackedInstances;
+        static int ThisFrameSfxCount; // Limit the number of Cues that can be loaded per frame. 
 
-        private struct EnqueuedSfx
+        struct QueuedSfx
         {
             public string CueName;
             public AudioEmitter Emitter;
-            public AudioHandleState State;
+            public IAudioHandle Handle;
         }
 
-        private static Array<EnqueuedSfx> SfxQueue;
-        private static Thread SfxThread;
+        static Array<QueuedSfx> SfxQueue;
+        static Thread SfxThread;
 
         public static void Initialize(string settingsFile, string waveBankFile, string soundBankFile)
         {
             try
             {
-                AudioHandles = new Array<AudioHandleState>();
+                TrackedInstances = new Array<IAudioInstance>();
                 AudioEngine  = new AudioEngine(settingsFile);
                 WaveBank     = new WaveBank(AudioEngine, waveBankFile, 0, 16);
                 SoundBank    = new SoundBank(AudioEngine, soundBankFile);
@@ -146,7 +56,7 @@ namespace Ship_Game
                 RacialMusic = AudioEngine.GetCategory("RacialMusic");
                 CombatMusic = AudioEngine.GetCategory("CombatMusic");
 
-                SfxQueue  = new Array<EnqueuedSfx>(16);
+                SfxQueue  = new Array<QueuedSfx>(16);
                 SfxThread = new Thread(SfxEnqueueThread) {Name = "GameAudioSfx"};
                 SfxThread.Start();
             }
@@ -169,11 +79,11 @@ namespace Ship_Game
                 SfxQueue = null;
             }
 
-            if (AudioHandles != null) lock (AudioHandles)
+            if (TrackedInstances != null) lock (TrackedInstances)
             {
-                for (int i = 0; i < AudioHandles.Count; ++i)
-                    AudioHandles[i].Destroy();
-                AudioHandles.Clear();
+                for (int i = 0; i < TrackedInstances.Count; ++i)
+                    TrackedInstances[i].Dispose();
+                TrackedInstances.Clear();
             }
             SoundBank?.Dispose(ref SoundBank);
             WaveBank?.Dispose(ref WaveBank);
@@ -185,7 +95,7 @@ namespace Ship_Game
         public static void Update()
         {
             ThisFrameSfxCount = 0;
-            DisposeStoppedHandles();
+            DisposeStoppedInstances();
 
             AudioEngine?.Update();
         }
@@ -216,9 +126,9 @@ namespace Ship_Game
         public static void PauseGenericMusic()  => Music.Pause();
         public static void ResumeGenericMusic() => Music.Resume();
         public static void MuteGenericMusic()   => Music.SetVolume(0f);
-        public static void UnmuteGenericMusic() => Music.SetVolume(GlobalStats.MusicVolume);
+        public static void UnMuteGenericMusic() => Music.SetVolume(GlobalStats.MusicVolume);
         public static void MuteRacialMusic()    => RacialMusic.SetVolume(0f);
-        public static void UnmuteRacialMusic()  => RacialMusic.SetVolume(GlobalStats.MusicVolume);
+        public static void UnMuteRacialMusic()  => RacialMusic.SetVolume(GlobalStats.MusicVolume);
 
         public static void NegativeClick()    => PlaySfxAsync("UI_Misc20"); // "eek-eek"
         public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1"); // soft "bubble" affirm
@@ -245,24 +155,22 @@ namespace Ship_Game
         public static void TroopLand()     => PlaySfxAsync("sd_troop_land");
         public static void SmallServo()    => PlaySfxAsync("smallservo"); // module placement sound
 
-
-
         // this is used for the DiplomacyScreen
         public static void SwitchToRacialMusic()
         {
             Music.Stop(AudioStopOptions.Immediate);
             MuteGenericMusic();
-            UnmuteRacialMusic();
+            UnMuteRacialMusic();
         }
 
         public static void SwitchBackToGenericMusic()
         {
-            UnmuteGenericMusic();
+            UnMuteGenericMusic();
             Music.Resume();
             RacialMusic.Stop(AudioStopOptions.Immediate);
         }
 
-        private static void SfxEnqueueThread()
+        static void SfxEnqueueThread()
         {
             for (;;)
             {
@@ -272,7 +180,7 @@ namespace Ship_Game
                 if (SfxQueue.IsEmpty)
                     continue;
 
-                EnqueuedSfx[] items;
+                QueuedSfx[] items;
                 lock (SfxQueue)
                 {
                     items = SfxQueue.ToArray();
@@ -280,34 +188,32 @@ namespace Ship_Game
                 }
                 for (int i = 0; i < items.Length; ++i)
                 {
-                    PlaySfx(items[i].CueName, items[i].Emitter, items[i].State);
+                    PlaySfx(items[i].CueName, items[i].Emitter, items[i].Handle);
                 }
             }
         }
 
-        private static void PlaySfx(string cueName, AudioEmitter emitter, AudioHandleState state)
+        static void PlaySfx(string cueName, AudioEmitter emitter, IAudioHandle handle)
         {
+            IAudioInstance instance;
             if (ResourceManager.GetModSoundEffect(cueName, out SoundEffect sfx))
             {
-                SoundEffectInstance sfxi = sfx.CreateInstance();
+                SoundEffectInstance inst = sfx.CreateInstance();
                 if (emitter != null)
-                    sfxi.Apply3D(Empire.Universe.Listener, emitter);
-                sfxi.Volume = GlobalStats.EffectsVolume;
-                sfxi.Play();
-
-                state?.Completed(null, sfxi);
-                lock (AudioHandles) AudioHandles.Add(state ?? new AudioHandleState(null, sfxi));
+                    inst.Apply3D(Empire.Universe.Listener, emitter);
+                inst.Volume = GlobalStats.EffectsVolume;
+                instance = new SfxInstance(inst);
             }
             else
             {
                 Cue cue = SoundBank.GetCue(cueName);
                 if (emitter != null)
                     cue.Apply3D(Empire.Universe.Listener, emitter);
-                cue.Play();
-
-                state?.Completed(cue, null);
-                lock (AudioHandles) AudioHandles.Add(state ?? new AudioHandleState(cue, null));
+                instance = new CueInstance(cue);
             }
+
+            handle?.OnLoaded(instance);
+            lock (TrackedInstances) TrackedInstances.Add(instance);
         }
 
         public static bool CantPlaySfx(string cueName)
@@ -323,7 +229,7 @@ namespace Ship_Game
             ++ThisFrameSfxCount;
             lock (SfxQueue)
             {
-                SfxQueue.Add(new EnqueuedSfx
+                SfxQueue.Add(new QueuedSfx
                 {
                     CueName = cueName,
                     Emitter = emitter
@@ -331,45 +237,50 @@ namespace Ship_Game
             }
         }
 
-        public static void PlaySfxAsync(string cueName, AudioEmitter emitter, AudioHandleState state)
+        internal static void PlaySfxAsync(string cueName, AudioEmitter emitter, IAudioHandle handle)
         {
-            if (CantPlaySfx(cueName))
-                return;
             ++ThisFrameSfxCount;
             lock (SfxQueue)
             {
-                SfxQueue.Add(new EnqueuedSfx
+                SfxQueue.Add(new QueuedSfx
                 {
                     CueName = cueName,
                     Emitter = emitter,
-                    State = state
+                    Handle = handle
                 });
             }
         }
 
-        public static AudioHandle PlayMusic(string cueName)
+        public static bool CantPlayMusic(string music)
         {
-            if (AudioDisabled || MusicDisabled || cueName.IsEmpty())
-                return default(AudioHandle);
-
-            Cue cue = SoundBank.GetCue(cueName);
-            cue.Play();
-            return new AudioHandle(cue, null);
+            return AudioDisabled || MusicDisabled || music.IsEmpty();
         }
 
-        
-
-        private static void DisposeStoppedHandles()
+        public static AudioHandle PlayMusic(string cueName)
         {
-            lock (AudioHandles)
+            if (CantPlayMusic(cueName))
+                return AudioHandle.Dummy;
+            return new AudioHandle(new CueInstance(SoundBank.GetCue(cueName)));
+        }
+
+        public static AudioHandle PlayMp3(string mp3File)
+        {
+            if (CantPlayMusic(mp3File))
+                return AudioHandle.Dummy;
+            return new AudioHandle(new Mp3Instance(mp3File));
+        }
+
+        static void DisposeStoppedInstances()
+        {
+            lock (TrackedInstances)
             {
-                for (int i = 0; i < AudioHandles.Count; i++)
+                for (int i = 0; i < TrackedInstances.Count; i++)
                 {
-                    AudioHandleState handle = AudioHandles[i];
-                    if (handle.IsStopped)
+                    IAudioInstance audio = TrackedInstances[i];
+                    if (audio.IsStopped)
                     {
-                        handle.Destroy();
-                        AudioHandles.RemoveAtSwapLast(i--);
+                        audio.Dispose();
+                        TrackedInstances.RemoveAtSwapLast(i--);
                     }
                 }
             }

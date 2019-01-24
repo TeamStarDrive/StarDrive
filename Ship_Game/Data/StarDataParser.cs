@@ -87,7 +87,7 @@ namespace Ship_Game.Data
         public StarDataParser(string file)
         {
             FileInfo f = ResourceManager.GetModOrVanillaFile(file);
-            if (f == null || !f.Exists)
+            if (f == null)
                 throw new FileNotFoundException($"Required StarData file not found! {file}");
 
             Reader = f.OpenText();

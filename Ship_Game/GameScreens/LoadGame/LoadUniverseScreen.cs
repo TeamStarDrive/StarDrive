@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Ship_Game.Audio;
 using Ship_Game.GameScreens.NewGame;
 
 namespace Ship_Game

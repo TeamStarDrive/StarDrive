@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game
@@ -31,8 +32,8 @@ namespace Ship_Game
 
 		private bool LowRes;
 
-		private AudioHandle Music;
-		private AudioHandle Ambience;
+		AudioHandle Music = new AudioHandle();
+		AudioHandle Ambient = new AudioHandle();
 
 		private Vector2 Origin = new Vector2(960f, 540f);
 
@@ -82,7 +83,7 @@ namespace Ship_Game
 		{
             ScreenManager.ExitAllExcept(this);
 			Music.Stop();
-			Ambience.Stop();
+			Ambient.Stop();
 			ScreenManager.AddScreen(new MainMenuScreen());
 			base.ExitScreen();
 		}
@@ -140,7 +141,7 @@ namespace Ship_Game
 			}
             GameAudio.SwitchToRacialMusic();
 			Music    = GameAudio.PlayMusic("Female_02_loop");
-			Ambience = GameAudio.PlayMusic("sd_battle_ambient");
+			Ambient = GameAudio.PlayMusic("sd_battle_ambient");
 			base.LoadContent();
 		}
 
