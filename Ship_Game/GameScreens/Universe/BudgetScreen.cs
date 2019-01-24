@@ -75,40 +75,40 @@ namespace Ship_Game.GameScreens
             void MoneyLabel(Func<float> value) => Label(DynamicText(value, f=>f.MoneyString()), alignRight:true);
 
             // Incomes tab
-            BeginVLayout(IncomesRect.X + 10, IncomesRect.Y + 8, lineSpacing);
-                Title(312);       // "Incomes"
+            BeginVLayout(IncomesRect.X + 5, IncomesRect.Y + 8, lineSpacing);
+                Title(312);       // "Income"
                 LabelT(313);      // "Planetary Taxes"
                 Label("Other: "); // Flat money bonus
                 SkipLayoutStep(); //  ------
                 LabelT(320);      // "Total"
             EndLayout();
             BeginVLayout(IncomesRect.Right - 5, IncomesRect.Y + 26, lineSpacing);
-                MoneyLabel(() => Player.NetPlanetIncomes);
+                MoneyLabel(() => Player.GrossPlanetIncome);
                 MoneyLabel(() => Player.data.FlatMoneyBonus);
                 SkipLayoutStep();
-                MoneyLabel(() => Player.GrossIncome());
+                MoneyLabel(() => Player.GrossIncome);
             EndLayout();
 
             // Costs tab
-            BeginVLayout(CostRect.X + 10, CostRect.Y + 8, lineSpacing);
-                Title(315);  // "Costs"
+            BeginVLayout(CostRect.X + 5, CostRect.Y + 8, lineSpacing);
+                Title(315);  // "Expenditure"
                 LabelT(316); // "Building Maint."
                 LabelT(317); // "Ship Maint."
                 SkipLayoutStep(); //  ------
                 LabelT(320); // "Total"
             EndLayout();
             BeginVLayout(CostRect.Right - 5, CostRect.Y + 26, lineSpacing);
-                MoneyLabel(() => Player.TotalBuildingMaintenance);
-                MoneyLabel(() => Player.TotalShipMaintenance);
+                MoneyLabel(() => -Player.TotalBuildingMaintenance);
+                MoneyLabel(() => -Player.TotalShipMaintenance);
                 SkipLayoutStep();
-                MoneyLabel(() => Player.BuildingAndShipMaint);
+                MoneyLabel(() => -Player.BuildingAndShipMaint);
             EndLayout();
 
             var traders = Player.AllRelations.Where(kv => kv.Value.Treaty_Trade)
                                              .Select(kv => (Empire:kv.Key, Relation:kv.Value))
                                              .ToArray();
             // Trade tab
-            BeginVLayout(TradeRect.X + 10, TradeRect.Y + 8, lineSpacing);
+            BeginVLayout(TradeRect.X + 5, TradeRect.Y + 8, lineSpacing);
                 Title(321);  // "Trade"
                 LabelT(322); // "Mercantilism (Avg)"
                 LabelT(323); // "Trade Treaties"
@@ -116,7 +116,7 @@ namespace Ship_Game.GameScreens
                     Label($"   {e.data.Traits.Plural}: ", e.EmpireColor);
                 LabelT(320); // "Total"
             EndLayout();
-            BeginVLayout(TradeRect.Right - 5, TradeRect.Y + 26, lineSpacing);
+            BeginVLayout(TradeRect.Right - 5, TradeRect.Y + 8, lineSpacing);
                 MoneyLabel(() => Player.GetAverageTradeIncome()); // Mercantilism
                 MoneyLabel(() => Player.GetTotalTradeIncome());   // Trade Treaties
                 foreach ((Empire e, Relationship r) in traders)
@@ -124,10 +124,10 @@ namespace Ship_Game.GameScreens
                 MoneyLabel(() => Player.TotalAvgTradeIncome); // Total
             EndLayout();
 
-            EmpireNetIncome = Label(Window.Menu.Right - 170, Window.Menu.Bottom - 47, titleId:324, Fonts.Arial20Bold);
+            EmpireNetIncome = Label(Window.Menu.Right - 200, Window.Menu.Bottom - 47, titleId:324, Fonts.Arial20Bold);
             EmpireNetIncome.DropShadow = true;
             EmpireNetIncome.DynamicText = DynamicText(
-                () => Player.NetIncome(),
+                () => Player.NetIncome,
                 (f) => $"{Localizer.Token(f >= 0f ? 324 : 325)} : {f.MoneyString()}");
 
             base.LoadContent();
@@ -141,7 +141,7 @@ namespace Ship_Game.GameScreens
             {
                 float f = getValue(); // update money color based on value:
                 label.Color = f > 0f ? Color.ForestGreen : 
-                              f < 0f ? Color.DarkOrange : Color.White;
+                              f < 0f ? Color.Red : Color.Gray;
                 return stringify(f);
             };
         }

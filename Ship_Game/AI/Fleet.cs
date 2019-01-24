@@ -81,7 +81,7 @@ namespace Ship_Game.AI
             }
             using (Ships.AcquireWriteLock())
             {
-                if (InvalidFleetShip(shiptoadd)) return;
+                if (shiptoadd.IsPlatformOrStation) return;
 
                 FleetShipAddsRepair(shiptoadd);
                 FleetShipAddsOrdnanceSupplyShuttles(shiptoadd);
@@ -112,8 +112,6 @@ namespace Ship_Game.AI
         {
             HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles || (ship.Carrier.HasSupplyBays && ship.Ordinance >= 100);
         }
-
-        private bool InvalidFleetShip(Ship ship) => ship.shipData.Role == ShipData.RoleName.station || ship.IsPlatform;
 
         public void AddExistingShip(Ship ship) => AddShipToNodes(ship);
 

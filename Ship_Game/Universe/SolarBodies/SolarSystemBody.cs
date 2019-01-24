@@ -80,7 +80,7 @@ namespace Ship_Game
         public BatchRemovalCollection<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
         public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
-        public Map<Guid, Ship> Shipyards = new Map<Guid, Ship>();
+        public Map<Guid, Ship> OrbitalStations = new Map<Guid, Ship>();
         public Matrix RingWorld;
         public SceneObject SO;
         public Guid guid = Guid.NewGuid();
@@ -434,7 +434,7 @@ namespace Ship_Game
             if (newOwner.isFaction)
                 return;
 
-            foreach (var kv in Shipyards)
+            foreach (var kv in OrbitalStations)
             {
                 if (kv.Value.loyalty != newOwner && kv.Value.TroopList.Any(loyalty => loyalty.GetOwner() != newOwner))
                     continue;

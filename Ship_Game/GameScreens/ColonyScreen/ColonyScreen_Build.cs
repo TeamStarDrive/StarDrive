@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
@@ -65,8 +66,21 @@ namespace Ship_Game
                 // and add to Build list
                 ScrollList.Entry entry = buildSL.AddItem(category.Header);
                 foreach (Ship ship in category.Ships)
-                    entry.AddSubItem(ship, addAndEdit:true);
+                    entry.AddSubItem(ship, addAndEdit: true);
             }
+        }
+
+        bool IsOutOfOrbitalsLimit(Ship ship)
+        {
+            int numOrbitals = P.OrbitalStations.Count + P.NumOrbitalsInTheWorks;
+            int numShipyards = P.OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + P.NumShipYardsInTheWorks;
+            if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
+                return true;
+
+            if (numShipyards >= ShipBuilder.ShipYardsLimit && ship.shipData.IsShipyard)
+                return true;
+
+            return false;
         }
 
         void PopulateRecruitableTroops()
@@ -186,7 +200,7 @@ namespace Ship_Game
                     batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
                     var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
                     batch.DrawString(Font12,
-                        ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
+                        ship.IsPlatformOrStation
                             ? ship.Name + " " + Localizer.Token(2041)
                             : ship.Name, position, Color.White);
                     position.Y += Font12.LineSpacing;
@@ -239,7 +253,7 @@ namespace Ship_Game
                     batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
                     Vector2 position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
                     batch.DrawString(Font12,
-                        ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
+                        ship.IsPlatformOrStation
                             ? ship.Name + " " + Localizer.Token(2041)
                             : ship.Name, position, Color.White);
                     position.Y += Font12.LineSpacing;
@@ -391,9 +405,15 @@ namespace Ship_Game
 
         void Build(Ship ship)
         {
+            if (IsOutOfOrbitalsLimit(ship))
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
             P.ConstructionQueue.Add(new QueueItem(P)
             {
-                isShip = true, sData = ship.shipData, Cost = ship.GetCost(P.Owner), ProductionSpent = 0f
+                isShip = true, isOrbital = ship.IsPlatformOrStation, sData = ship.shipData, Cost = ship.GetCost(P.Owner), ProductionSpent = 0f
             });
             GameAudio.AcceptClick();
         }

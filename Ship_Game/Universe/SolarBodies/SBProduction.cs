@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Debug;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Universe.SolarBodies
@@ -44,7 +47,7 @@ namespace Ship_Game.Universe.SolarBodies
             // inject artificial surplus to instantly rush & finish production
             if (Empire.Universe.Debug || System.Diagnostics.Debugger.IsAttached)
             {
-                amount = SurplusThisTurn = maxAmount;
+                amount = SurplusThisTurn = 1000;
             }
 
             return ApplyProductionToQueue(maxAmount: amount, itemIndex);
@@ -170,11 +173,10 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (q.sData.Role == ShipData.RoleName.station || q.sData.Role == ShipData.RoleName.platform)
             {
-                int num = P.Shipyards.Count / 9;
-                shipAt.Position = P.Center + MathExt.PointOnCircle(P.Shipyards.Count * 40, 2000 + 2000 * num * P.Scale);
+                shipAt.Position = FindNewStationLocation();
                 shipAt.Center = shipAt.Position;
                 shipAt.TetherToPlanet(P);
-                P.Shipyards.Add(shipAt.guid, shipAt);
+                P.OrbitalStations.Add(shipAt.guid, shipAt);
             }
 
             q.Goal?.ReportShipComplete(shipAt);
@@ -183,6 +185,32 @@ namespace Ship_Game.Universe.SolarBodies
             return true;
         }
 
+        bool IsStationAlreadyPresentAt(Vector2 position)
+        {
+            foreach (Ship orbital in P.OrbitalStations.Values)
+            {
+                Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
+                    orbital.Position, orbital.Radius, Color.LightCyan, 10.0f);
+                if (position.InRadius(orbital.Position, orbital.Radius))
+                    return true;
+            }
+            return false;
+        }
+
+        Vector2 FindNewStationLocation()
+        {
+            const int ringLimit = ShipBuilder.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
+            for (int ring = 0; ring < ringLimit; ring++) 
+            {
+                for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
+                {
+                    Vector2 pos = P.Center + MathExt.PointOnCircle(i * 40, 2000 + 2000 * ring * P.Scale);
+                    if (!IsStationAlreadyPresentAt(pos))
+                        return pos;
+                }
+            }
+            return P.Center; // There is a limit on orbitals number
+        }
         // Applies available production to production queue
         public void AutoApplyProduction(float surplusFromPlanet)
         {
@@ -276,6 +304,7 @@ namespace Ship_Game.Universe.SolarBodies
             var qi = new QueueItem(P)
             {
                 isShip = true,
+                isOrbital = ship.IsPlatformOrStation,
                 Goal   = goal,
                 sData  = ship.shipData,
                 Cost   = ship.GetCost(Owner),

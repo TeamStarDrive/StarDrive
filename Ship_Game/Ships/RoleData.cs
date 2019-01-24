@@ -50,10 +50,10 @@ namespace Ship_Game.Ships
 
                 switch (Ship.shipData.Role)
                 {
-                    case ShipData.RoleName.troop:    return ShipData.RoleName.troop;
                     case ShipData.RoleName.station:
                     case ShipData.RoleName.platform: return Ship.shipData.Role;
                     case ShipData.RoleName.scout:    return ShipData.RoleName.scout;
+                    case ShipData.RoleName.troop:    return ShipData.RoleName.troop;
                 }
 
                 if (Ship.IsSupplyShip && Ship.Weapons.Count == 0)
