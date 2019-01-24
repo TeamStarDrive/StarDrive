@@ -6,6 +6,9 @@ namespace Ship_Game.AI
 {
     public static class ShipBuilder
     {
+        public const int OrbitalsLimit  = 27; // FB - Maximum of 27 stations or platforms (or shipyards)
+        public const int ShipYardsLimit = 2; // FB - Maximum of 2 shipyards
+
         public static void PickRoles(ref float numShips, float desiredShips, ShipData.RoleName role, Map<ShipData.RoleName, float>
             rolesPicked)
         {
@@ -172,8 +175,21 @@ namespace Ship_Game.AI
 
             return false;
         }
+
+        public static Ship BestShipWeCanBuild(ShipData.RoleName role, Empire empire)
+        {
+            string shipName = PickFromCandidates(role, empire);
+            if (shipName.IsEmpty())
+                return null;
+
+            ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship);
+            if (ship == null || ship.shipData.IsShipyard || ship.Name == "Subspace Projector") 
+                return null;
+
+            return ship;
+        }
     }
-    
+   
     public enum DynamicHangarOptions
     {
         Static,

@@ -521,7 +521,6 @@ namespace Ship_Game.AI
                         switch (hullData.HullRole)
                         {
                             case ShipData.RoleName.station:
-                                return true;
                             case ShipData.RoleName.platform:
                                 return true;
                         }

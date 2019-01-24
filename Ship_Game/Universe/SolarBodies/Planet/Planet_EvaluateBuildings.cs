@@ -47,42 +47,52 @@ namespace Ship_Game
         float EvalFlatFood(Building b)
         {
             float score = 0;
-            if (b.PlusFlatFoodAmount.AlmostZero() || IsCybernetic)
+            if (b.PlusFlatFoodAmount.AlmostZero())
                 return 0;
-            if (b.PlusFlatFoodAmount < 0)
-                score = b.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
-            else
+            if (NonCybernetic)
             {
-                float farmers = Food.WorkersNeededForEquilibrium();
-                score += ((b.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
-                score += 1.5f - (Food.YieldPerColonist/2);//Bonus for low Effective Fertility
-                if (farmers.AlmostZero())
-                    score += b.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
-                if (farmers > 0.5f)
-                    score += farmers - 0.5f;            //Bonus if planet is spending a lot of labor feeding itself
-                if (score < b.PlusFlatFoodAmount * 0.1f)
-                    score = b.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
-                if (b.PlusFlatFoodAmount + Food.FlatBonus - 0.5f > MaxPopulationBillion)
-                    score = 0;   //Dont want this if a lot would go to waste
+                if (b.PlusFlatFoodAmount < 0)
+                    score = b.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
+                else
+                {
+                    float farmers = Food.WorkersNeededForEquilibrium();
+                    score += ((b.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
+                    score += 1.5f - (Food.YieldPerColonist / 2);//Bonus for low Effective Fertility
+                    if (farmers.AlmostZero())
+                        score += b.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
+                    if (farmers > 0.5f)
+                        score += farmers - 0.5f;            //Bonus if planet is spending a lot of labor feeding itself
+                    if (score < b.PlusFlatFoodAmount * 0.1f)
+                        score = b.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
+                    if (b.PlusFlatFoodAmount + Food.FlatBonus - 0.5f > MaxPopulationBillion)
+                        score = 0;   //Dont want this if a lot would go to waste
 
-                float jumpStart = 10 * (1 - PopulationRatio)  - Food.NetMaxPotential * Food.Percent; // FB - jump start a new colony
-                jumpStart = Math.Max(jumpStart, 0);
+                    float jumpStart = 10 * (1 - PopulationRatio) - Food.NetMaxPotential * Food.Percent; // FB - jump start a new colony
+                    jumpStart = Math.Max(jumpStart, 0);
 
-                score += jumpStart; // FB - jump start a new colony, as the colony grows, it will get negative and scrapped
+                    score += jumpStart; // FB - jump start a new colony, as the colony grows, it will get negative and scrapped
+                }
             }
+            else score += -10; // FB - Filthy Opteris do not need this crap. Let's even scrap this shit.
+
             DebugEvalBuild(b, "FlatFood", score);
             return score;
         }
 
         float EvalFoodPerCol(Building b)
         {
-            if (IsCybernetic)
-                return -10; // FB - Filthy Opteris do not need this crap. Let's even scrap this shit.
             if (b.PlusFoodPerColonist.AlmostZero() || Fertility.AlmostZero())
                 return 0;
 
-            float gain  = b.PlusFoodPerColonist * Fertility * MaxPopulationBillion;
-            float score = gain * (Food.NetYieldPerColonist < 1 ? 2 : 1); // if we have low yield, let's add some
+            float score = 0;
+            if (NonCybernetic)
+            {
+                float gain = b.PlusFoodPerColonist * Fertility * MaxPopulationBillion;
+                score += gain * (Food.NetYieldPerColonist < 1 ? 2 : 1); // if we have low yield, let's add some
+            }
+            else
+                score += -10; // FB - Filthy Opteris do not need this crap. Let's even scrap this shit.
+
             DebugEvalBuild(b, "FoodPerCol", score);
             return score;
         }
@@ -554,7 +564,7 @@ namespace Ship_Game
 
         static float CalcDefenseShipScore(Building b)
         {
-            if (b.DefenseShipsCapacity <= 0 || b.DefenseShipsRole == (ShipData.RoleName) 0)
+            if (b.DefenseShipsCapacity <= 0 || b.DefenseShipsRole == 0)
                 return 0;
 
             float defenseShipScore;
@@ -569,7 +579,7 @@ namespace Ship_Game
             return defenseShipScore * b.DefenseShipsCapacity;
         }
 
-        Building ChooseBestBuilding(Array<Building> buildings, float budget, float popRatio, out float value)
+        Building ChooseBestBuilding(Array<Building> buildings, float budget, out float value)
         {
             if (buildings.Count == 0) 
             {
@@ -597,7 +607,8 @@ namespace Ship_Game
                 }
             }
             if (best != null && IsPlanetExtraDebugTarget())
-                Log.Info($"-- Planet {Name}: Best Buidling is {best.Name} with score of {bestValue} Budget: {budget} -- ");
+                Log.Info(ConsoleColor.Green,$"-- Planet {Name}: Best Buidling is {best.Name} " +
+                                            $"with score of {bestValue} Budget: {budget} -- ");
 
             value = bestValue;
             return best;
@@ -636,7 +647,7 @@ namespace Ship_Game
                 }
             }
             if (IsPlanetExtraDebugTarget())
-                Log.Info(worst == null
+                Log.Info(ConsoleColor.Magenta, worst == null
                     ? $"-- Planet {Name}: No Worst Buidling was found --"
                     : $"-- Planet {Name}: Worst Buidling is  {worst.Name} with score of {worstValue} -- ");
 
@@ -644,12 +655,12 @@ namespace Ship_Game
             return worst;
         }
 
-        bool SimpleBuild(float budget, float popRatio) // build a building with a positive value
+        bool SimpleBuild(float budget) // build a building with a positive value
         {
             if (BuildingInTheWorks)
                 return false;
 
-            Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget, popRatio, out float bestValue);
+            Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget, out float bestValue);
             if (bestBuilding != null && bestValue > 0)
                 Construction.AddBuilding(bestBuilding);
 
@@ -680,12 +691,12 @@ namespace Ship_Game
             return true;
         }
 
-        bool ReplaceBuilding(float budget, float popRatio)
+        bool ReplaceBuilding(float budget)
         {
             if (BuildingInTheWorks)
                 return false;
 
-            Building bestBuilding  = ChooseBestBuilding(BuildingsCanBuild, budget, popRatio, out float bestValue);
+            Building bestBuilding  = ChooseBestBuilding(BuildingsCanBuild, budget, out float bestValue);
             Building worstBuilding = ChooseWorstBuilding(BuildingList, budget, out float worstValue, float.MaxValue);
             if (bestBuilding == null || worstBuilding == null || bestValue.LessOrEqual(worstValue))
                 return false;
@@ -714,15 +725,12 @@ namespace Ship_Game
             return false; //Military won't replace it's buildings with civilian ones
         }
 
+        //New Build Logic by Gretman, modified by FB
         void BuildAndScrapBuildings(float budget)
         {
             int totalBuildings       = TotalBuildings;
             float popRatio           = PopulationRatio;
             bool lotsInQueueToBuild  = ConstructionQueue.Count >= 4;
-
-            //New Build Logic by Gretman, modified by FB
-            if (!lotsInQueueToBuild) BuildShipyardIfAble(); //If we can build a shipyard but dont have one, build it
-            // FB the above functio is buggy i think, need to check
 
             if (budget < 0)
             {
@@ -733,33 +741,12 @@ namespace Ship_Game
             ScrapBuilding(budget,  scoreThreshold: 0); // scap a negative value building
             if (OpenTiles > 0)
             {
-                SimpleBuild(budget, popRatio); // lets try to build something within our debt tolerance
+                SimpleBuild(budget); // lets try to build something within our debt tolerance
                 return;
             }
 
             BuildBiospheres(budget, totalBuildings); // lets build biospheres if we can, since we have no open tiles
-            ReplaceBuilding(budget, popRatio); // we dont have room for expansion. Let's see if we can replace to a better value building
-        }
-
-        void BuildShipyardIfAble()
-        {
-            if (RecentCombat || !HasSpacePort) return;
-            if (Owner == Empire.Universe.PlayerEmpire
-                || Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
-                || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
-                return;
-
-            bool hasShipyard = ConstructionQueue.Any(q => q.isShip && q.sData.IsShipyard);
-
-            if (!hasShipyard && IsVibrant)
-            {
-                ConstructionQueue.Add(new QueueItem(this)
-                {
-                    isShip = true,
-                    sData  = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
-                    Cost   = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) 
-                });
-            }
+            ReplaceBuilding(budget); // we dont have room for expansion. Let's see if we can replace to a better value building
         }
 
         float BuildingBudget()
@@ -767,7 +754,7 @@ namespace Ship_Game
             // FB this will give the budget the colony will have for building selection
             float colonyIncome  = Money.NetRevenue;
             colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
-            float debtTolerance = (5 - PopulationBillion).Clamped(-5,5); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+            float debtTolerance = (5 - PopulationBillion).Clamped(-2,5); // the bigger the colony, the less debt tolerance it has, it should be earning money 
             debtTolerance += Owner.Money / 1000; // FB this will ensure AI wont get stuck with no colony budget
             return colonyIncome + debtTolerance;
         }
@@ -789,7 +776,7 @@ namespace Ship_Game
                 return;
 
             // Build it!
-            Construction.AddBuilding(ResourceManager.CreateBuilding(Building.OutpostId), playerAdded: false);
+            Construction.AddBuilding(ResourceManager.CreateBuilding(Building.OutpostId));
 
             // Move Outpost to the top of the list, and rush production
             for (int i = 0; i < ConstructionQueue.Count; ++i)

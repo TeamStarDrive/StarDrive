@@ -13,6 +13,7 @@ namespace Ship_Game
         public Planet Planet;
         public bool isBuilding;
         public bool isShip;
+        public bool isOrbital;
         public bool isTroop;
         public ShipData sData;
         public Building Building;
@@ -73,7 +74,7 @@ namespace Ship_Game
             {
                 if (isBuilding)
                     return Localizer.Token(Building.NameTranslationIndex);
-                if (isShip)
+                if (isShip || isOrbital)
                     return DisplayName ?? sData.Name;
                 if (isTroop)
                     return TroopType;

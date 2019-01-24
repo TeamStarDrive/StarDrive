@@ -648,7 +648,7 @@ namespace Ship_Game.Debug
                     DrawString(e.data.DiplomaticPersonality.Name);
                     DrawString(e.data.EconomicPersonality.Name);
                 }
-                DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome().String()})");
+                DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
                 DrawString("Ship Maint:    "+e.TotalShipMaintenance);

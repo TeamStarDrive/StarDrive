@@ -62,7 +62,8 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
         public float AvgPopulationGrowth { get; private set; }
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
-
+        public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
+        public float ColonyValue { get; private set;}
 
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
         
@@ -182,25 +183,25 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            if (Shipyards.Count != 0)
+            if (OrbitalStations.Count != 0)
             {
-                Guid[] keys = Shipyards.Keys.ToArray();
+                Guid[] keys = OrbitalStations.Keys.ToArray();
                 for (int i = 0; i < keys.Length; i++)
                 {
                     Guid key = keys[i];
-                    Ship shipyard = Shipyards[key];
+                    Ship shipyard = OrbitalStations[key];
                     if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
-                        Shipyards.Remove(key);
+                        OrbitalStations.Remove(key);
                 }
             }
             if (Habitable)
             {
                 TroopManager.Update(elapsedTime);
                 GeodeticManager.Update(elapsedTime);
+                UpdateColonyValue();
                 ScanForEnemy();
                 if (ParentSystem.CombatInSystem)
                         UpdateSpaceCombatBuildings(elapsedTime);
-
 
                 UpdatePlanetaryProjectiles(elapsedTime);
             }
@@ -307,13 +308,8 @@ namespace Ship_Game
             {
                 defenseShip.Level = 3;
                 defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.Speed;
-                empire.AddMoney(-defenseShip.BaseCost);
+                empire.AddMoney(-defenseShip.GetCost(Owner));
             }
-        }
-
-        static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire)
-        {
-            return ShipBuilder.PickFromCandidates(roleName, empire);
         }
 
         public void LandDefenseShip(ShipData.RoleName roleName, float shipCost, float shipHealthPercent)
@@ -474,6 +470,18 @@ namespace Ship_Game
             CalculateIncomingTrade();
         }
 
+        private void UpdateColonyValue()
+        {
+            ColonyValue = 0;
+            if (Owner == null)
+                return;
+
+            ColonyValue  = BuildingList.Any(b => b.IsCapital) ? 100 : 0;
+            ColonyValue += BuildingList.Sum(b => b.ActualCost) / 10;
+            ColonyValue += (PopulationBillion + MaxPopulationBillion) * 5;
+            ColonyValue += IsCybernetic ? MineralRichness * 20 : MineralRichness * 10 + Fertility * 10;
+        }
+
         // these are intentionally duplicated so we don't easily modify them...
         float MaxPopBaseVal, MaxPopVal, MaxPopBillionVal;
         public float MaxPopBase // planetary base max population value
@@ -631,7 +639,7 @@ namespace Ship_Game
             {
                 var deadShipyards = new Array<Guid>();
                 float shipyards   = 1;
-                foreach (KeyValuePair<Guid, Ship> keyValuePair in Shipyards)
+                foreach (KeyValuePair<Guid, Ship> keyValuePair in OrbitalStations)
                 {
                     if (keyValuePair.Value == null)
                         deadShipyards.Add(keyValuePair.Key);
@@ -649,7 +657,7 @@ namespace Ship_Game
                         deadShipyards.Add(keyValuePair.Key);
                 }
                 foreach (Guid key in deadShipyards)
-                    Shipyards.Remove(key);
+                    OrbitalStations.Remove(key);
                 ShipBuildingModifier = shipBuildingModifier;
             }
 
@@ -719,7 +727,6 @@ namespace Ship_Game
             Construction.AutoApplyProduction(prodSurplus);
         }
 
-
         void GrowPopulation()
         {
             if (Owner == null) return;
@@ -739,7 +746,6 @@ namespace Ship_Game
             Population = Population.Clamped(100f, MaxPopulation);
             AvgPopulationGrowth = (AvgPopulationGrowth + repRate) / 2;
         }
-
 
         public bool EventsOnBuildings()
         {

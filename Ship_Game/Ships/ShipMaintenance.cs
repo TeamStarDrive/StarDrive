@@ -27,7 +27,7 @@ namespace Ship_Game.Ships
             if (IsFreeUpkeepShip(role, empire, ship))
                 return 0;
 
-            float maint = GetBaseMainCost(role, ship.shipData.FixedCost > 0 ? ship.shipData.FixedCost : ship.BaseCost, empire);
+            float maint = GetBaseMainCost(role, ship.GetCost(empire), empire);
 
             // Subspace Projectors do not get any more modifiers
             if (ship.Name == "Subspace Projector")
@@ -35,15 +35,13 @@ namespace Ship_Game.Ships
             //added by gremlin shipyard exploit fix
             if (ship.IsTethered)
             {
-                if (role == ShipData.RoleName.platform)
-                    return maint * 0.5f;
                 if (ship.shipData.IsShipyard)
                 {
                     if (numShipYards > 3)
                         maint *= numShipYards - 3;
                 }
             }
-            float repairMaintModifier =  ship.HealthMax > 0 ?  2 - ship.Health / ship.HealthMax : 1;
+            float repairMaintModifier =  ship.HealthMax > 0 ? (2 - ship.HealthPercent).Clamped(1,1.5f) : 1;
             maint *= repairMaintModifier;
             return maint;
         }
@@ -51,6 +49,9 @@ namespace Ship_Game.Ships
         private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, Empire empire)
         {
             float maint = shipCost * BaseMaintModifier;
+            if (role == ShipData.RoleName.platform || role == ShipData.RoleName.station)
+                maint *= 0.25f;
+
             if (role != ShipData.RoleName.freighter && role != ShipData.RoleName.platform)
                 return maint;
 
@@ -60,54 +61,5 @@ namespace Ship_Game.Ships
 
             return maint;
         }
-
-        /*
-         FB: below is the old code taken from ship.cs for maint cost. We might use some of these as ideas to expand the ShipMaintenance class
-
-        public float GetMaintCost(Empire empire)
-        {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                return GetMaintCostRealism(empire);
-
-            ShipData.RoleName role = shipData.HullRole;
-
-            if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
-            {
-                Log.Error("ShipRole {0} not found!", role);
-                return 0f;
-            }
-
-            // Maintenance fluctuator
-            float maintModReduction = GlobalStats.ShipMaintenanceMulti;
-            if (maintModReduction > 1)
-            {
-                if (IsInFriendlySpace || inborders)
-                {
-                    maintModReduction *= .25f;
-                    if (inborders) maintModReduction *= .75f;
-                }
-                if (IsInNeutralSpace && !IsInFriendlySpace)
-                {
-                    maintModReduction *= .5f;
-                }
-
-                if (IsIndangerousSpace)
-                {
-                    maintModReduction *= 2f;
-                }
-                if (ActiveInternalSlotCount >0 && ActiveInternalSlotCount < InternalSlotCount)
-                {
-                    float damRepair = 2 - InternalSlotCount / ActiveInternalSlotCount;
-                    if (damRepair > 1.5f) damRepair = 1.5f;
-                    if (damRepair < 1) damRepair = 1;
-                    maintModReduction *= damRepair;
-
-                }
-                if (maintModReduction < 1) maintModReduction = 1;
-                maint *= maintModReduction;
-            }
-            return maint;
-        }
-        */
     }
 }
