@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
+using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.NewGame;
 
@@ -750,7 +751,7 @@ namespace Ship_Game
 
             Log.Info("CreatingNewGameScreen.UpdateAllSystems(0.01)");
             us.UpdateAllSystems(0.01f);
-            MainMenu.OnPlaybackStopped(null, null);
+            ScreenManager.Music.Stop();
             ScreenManager.RemoveScreen(MainMenu);
  
             ExitScreen();
