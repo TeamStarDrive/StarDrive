@@ -238,24 +238,24 @@ namespace Ship_Game
             {
                 switch (rank)
                 {
-                    case 1:  Platforms = 1; Stations = 0; break;
-                    case 2:  Platforms = 3; Stations = 0; break;
-                    case 3:  Platforms = 5; Stations = 0; break;
-                    case 4:  Platforms = 7; Stations = 1; break;
-                    case 5:  Platforms = 9; Stations = 1; break;
-                    case 6:  Platforms = 7; Stations = 2; break;
-                    case 7:  Platforms = 5; Stations = 2; break;
-                    case 8:  Platforms = 3; Stations = 3; break;
-                    case 9:  Platforms = 1; Stations = 3; break;
-                    case 10: Platforms = 0; Stations = 4; break;
-                    case 11: Platforms = 0; Stations = 4; break;
-                    case 12: Platforms = 0; Stations = 5; break;
-                    case 13: Platforms = 0; Stations = 6; break;
-                    case 14: Platforms = 0; Stations = 7; break;
-                    case 15: Platforms = 0; Stations = 8; break;
+                    case 1:  Platforms = 0; Stations = 0; break;
+                    case 2:  Platforms = 0; Stations = 0; break;
+                    case 3:  Platforms = 3; Stations = 0; break;
+                    case 4:  Platforms = 4; Stations = 0; break;
+                    case 5:  Platforms = 5; Stations = 0; break;
+                    case 6:  Platforms = 3; Stations = 1; break;
+                    case 7:  Platforms = 4; Stations = 1; break;
+                    case 8:  Platforms = 5; Stations = 1; break;
+                    case 9:  Platforms = 3; Stations = 2; break;
+                    case 10: Platforms = 4; Stations = 2; break;
+                    case 11: Platforms = 5; Stations = 3; break;
+                    case 12: Platforms = 7; Stations = 5; break;
+                    case 13: Platforms = 3; Stations = 6; break;
+                    case 14: Platforms = 3; Stations = 7; break;
+                    case 15: Platforms = 3; Stations = 8; break;
                     default: Platforms = 0; Stations = 0; break;
                 }
-                Shipyard = rank > 2;
+                Shipyard = rank > 4;
                 // Fb - this will replace stations with temp platforms until proper stations are built
                 int existingStations = stationList.Count;
                 if (existingStations < Stations)

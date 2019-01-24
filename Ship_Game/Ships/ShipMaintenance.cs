@@ -35,8 +35,6 @@ namespace Ship_Game.Ships
             //added by gremlin shipyard exploit fix
             if (ship.IsTethered)
             {
-                if (ship.IsPlatformOrStation)
-                    return maint * 0.5f;
                 if (ship.shipData.IsShipyard)
                 {
                     if (numShipYards > 3)
@@ -51,6 +49,9 @@ namespace Ship_Game.Ships
         private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, Empire empire)
         {
             float maint = shipCost * BaseMaintModifier;
+            if (role == ShipData.RoleName.platform || role == ShipData.RoleName.station)
+                maint *= 0.25f;
+
             if (role != ShipData.RoleName.freighter && role != ShipData.RoleName.platform)
                 return maint;
 
