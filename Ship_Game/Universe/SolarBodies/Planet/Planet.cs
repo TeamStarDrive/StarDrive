@@ -722,9 +722,27 @@ namespace Ship_Game
             // special buildings generate ReactorFuel,Fissionables,etc.
             Storage.DistributeSpecialBuildingResources();
 
+            // Empire Tax on remainders
+            if (NonCybernetic)
+            {
+                float foodRemainderTax = TaxRemainder(ref foodRemainder);
+                Owner.AddMoney(foodRemainderTax);
+            }
+            float prodRemainderTax = TaxRemainder(ref prodRemainder);
+            Owner.AddMoney(prodRemainderTax);
+
             // production surplus is sent to auto-construction
             float prodSurplus = Math.Max(prodRemainder, 0f);
             Construction.AutoApplyProduction(prodSurplus);
+        }
+
+        // returns the amount of tax to add to empire from remainder and also updates the remainder
+        float TaxRemainder(ref float remainder)
+        {
+            if (remainder.Less(0)) return 0; // dont tax negatives
+            float taxedRemainder  = remainder * Owner.data.TaxRate;
+            remainder -= taxedRemainder;
+            return taxedRemainder;
         }
 
         void GrowPopulation()
