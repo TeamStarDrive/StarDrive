@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game
@@ -33,9 +34,7 @@ namespace Ship_Game
 
 		private bool LowRes;
 
-		private AudioHandle Music;
-
-		//private Cue Ambience;
+		AudioHandle Music = new AudioHandle();
 
 		private Vector2 Origin = new Vector2(960f, 540f);
 

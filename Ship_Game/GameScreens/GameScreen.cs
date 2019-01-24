@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using Ship_Game.Audio;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -55,7 +56,7 @@ namespace Ship_Game
         public float DeltaTime { get; protected set; }
 
         //video player
-        protected AudioHandle MusicPlaying;
+        protected AudioHandle MusicPlaying = new AudioHandle();
         protected Video VideoFile;
         protected VideoPlayer VideoPlaying;
         protected Texture2D VideoTexture;

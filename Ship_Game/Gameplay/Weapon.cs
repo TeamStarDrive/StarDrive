@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Ship_Game.Audio;
 
 namespace Ship_Game.Gameplay
 {
@@ -103,8 +104,7 @@ namespace Ship_Game.Gameplay
         public ExplosionType ExplosionType = ExplosionType.Projectile;
         public string dieCue;
         public string ToggleSoundName = "";
-        [XmlIgnore][JsonIgnore]
-        private AudioHandle ToggleCue;
+        [XmlIgnore][JsonIgnore] readonly AudioHandle ToggleCue = new AudioHandle();
         public string Light;
         public bool isTurret;
         public bool isMainGun;

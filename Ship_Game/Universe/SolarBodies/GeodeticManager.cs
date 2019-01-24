@@ -2,6 +2,7 @@
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
+using Ship_Game.Audio;
 
 namespace Ship_Game.Universe.SolarBodies
 {

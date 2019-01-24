@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using NAudio.Wave;
 using SgMotion;
 using SgMotion.Controllers;
+using Ship_Game.Audio;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -14,8 +15,6 @@ namespace Ship_Game.GameScreens.MainMenu
 {
     public sealed class MainMenuScreen : GameScreen
     {
-        IWavePlayer WaveOut;
-        Mp3FileReader Mp3FileReader;
         UISpriteElement SDLogoAnim;
 
         SceneObject MoonObj;
@@ -37,13 +36,6 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             TransitionOnTime  = TimeSpan.FromSeconds(1);
             TransitionOffTime = TimeSpan.FromSeconds(0.5);
-        }
-
-        protected override void Destroy()
-        {
-            WaveOut?.Dispose(ref WaveOut);
-            Mp3FileReader?.Dispose(ref Mp3FileReader);
-            base.Destroy();
         }
         
         public class MainMenuLayout
@@ -88,7 +80,7 @@ namespace Ship_Game.GameScreens.MainMenu
             base.LoadContent();
             RemoveAll();
             ScreenManager.ClearScene();
-            GameAudio.ConfigureAudioSettings();
+
             ResetMusic();
 
             MainMenuLayout layout = GlobalStats.HasMod ? GlobalStats.ActiveModInfo.Layout : new MainMenuLayout();
@@ -298,39 +290,15 @@ namespace Ship_Game.GameScreens.MainMenu
             return false;
         }
 
-        public void OnPlaybackStopped(object sender, EventArgs e)
-        {
-            if (WaveOut == null) return;
-            WaveOut?.Dispose(ref WaveOut);
-            Mp3FileReader?.Dispose(ref Mp3FileReader);
-        }
-
-        void PlayMp3(string fileName)
-        {
-            WaveOut = new WaveOut();
-            Mp3FileReader = new Mp3FileReader(fileName);
-            try
-            {
-                WaveOut.Init(Mp3FileReader);
-                #pragma warning disable CS0618 // Type or member is obsolete
-                WaveOut.Volume = GlobalStats.MusicVolume;
-                #pragma warning restore CS0618 // Type or member is obsolete
-                WaveOut.Play();
-                WaveOut.PlaybackStopped += OnPlaybackStopped;
-            }
-            catch
-            {
-            }
-        }
-
         public void ResetMusic()
         {
-            OnPlaybackStopped(null, null);
+            GameAudio.ConfigureAudioSettings();
+            GameAudio.StopGenericMusic();
+            ScreenManager.Music.Stop();
 
             if (GlobalStats.HasMod && GlobalStats.ActiveMod.MainMenuMusic.NotEmpty())
             {
-                PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
-                GameAudio.StopGenericMusic();
+                ScreenManager.Music = GameAudio.PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
             }
             else if (ScreenManager.Music.IsStopped)
             {

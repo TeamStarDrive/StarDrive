@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
