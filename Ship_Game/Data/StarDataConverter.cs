@@ -62,27 +62,38 @@ namespace Ship_Game.Data
     {
         public override object Convert(object value, Type source)
         {
-            if (!(value is object[] objects))
-                throw new Exception($"StarDataConverter could not convert '{value}' to Color");
-
-            if (objects[0] is int)
+            if (value is object[] objects)
             {
-                byte r = 255, g = 255, b = 255, a = 255;
-                if (objects.Length >= 1) r = (byte)(int)objects[0];
-                if (objects.Length >= 2) g = (byte)(int)objects[1];
-                if (objects.Length >= 3) b = (byte)(int)objects[2];
-                if (objects.Length >= 4) a = (byte)(int)objects[3];
-                return new Color(r, g, b, a);
+                if (objects[0] is int)
+                {
+                    byte r = 255, g = 255, b = 255, a = 255;
+                    if (objects.Length >= 1) r = (byte)(int)objects[0];
+                    if (objects.Length >= 2) g = (byte)(int)objects[1];
+                    if (objects.Length >= 3) b = (byte)(int)objects[2];
+                    if (objects.Length >= 4) a = (byte)(int)objects[3];
+                    return new Color(r, g, b, a);
+                }
+                else
+                {
+                    float r = 1f, g = 1f, b = 1f, a = 1f;
+                    if (objects.Length >= 1) r = (float)objects[0];
+                    if (objects.Length >= 2) g = (float)objects[1];
+                    if (objects.Length >= 3) b = (float)objects[2];
+                    if (objects.Length >= 4) a = (float)objects[3];
+                    return new Color(r, g, b, a);
+                }
             }
-            else
+            if (value is int i) // short hand to get [i,i,i,i]
             {
-                float r = 1f, g = 1f, b = 1f, a = 1f;
-                if (objects.Length >= 1) r = (float)objects[0];
-                if (objects.Length >= 2) g = (float)objects[1];
-                if (objects.Length >= 3) b = (float)objects[2];
-                if (objects.Length >= 4) a = (float)objects[3];
-                return new Color(r, g, b, a);
+                i = i.Clamped(0, 255);
+                return new Color((byte)i, (byte)i, (byte)i, (byte)i);
             }
+            if (value is float f) // short hand to get [f,f,f,f]
+            {
+                f = f.Clamped(0f, 1f);
+                return new Color(f, f, f, f);
+            }
+            throw new Exception($"StarDataConverter could not convert '{value}' to Color");
         }
     }
 
