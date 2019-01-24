@@ -16,11 +16,12 @@ namespace Ship_Game.Universe.SolarBodies
     {
         [StarData] public readonly string TexturePath;
         [StarData] public readonly Color TextureColor = Color.White;
+        [StarData] public readonly float LayerScale = 1.0f; // extra visual scale factor for this layer
         [StarData] public readonly SpriteBlendMode BlendMode = SpriteBlendMode.AlphaBlend;
         [StarData] public readonly float RotationSpeed = 0.03f;
         [StarData] public readonly float PulsePeriod = 5f; // period of animated pulse
-        [StarData] public readonly Range PulseScale = new Range(0.95f, 1.05f); 
-        [StarData] public readonly Range PulseColor = new Range(0.95f, 1.05f); 
+        [StarData] public readonly Range PulseScale = new Range(0.95f, 1.05f);
+        [StarData] public readonly Range PulseColor = new Range(0.95f, 1.05f);
     }
 
     public class SunType
@@ -200,7 +201,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             batch.Begin(Info.BlendMode, SpriteSortMode.Deferred, SaveStateMode.None);
 
-            float scale = ScaleIntensity * sizeScaleOnScreen;
+            float scale = ScaleIntensity * sizeScaleOnScreen * Info.LayerScale;
             Color color = Info.TextureColor;
 
             // draw this layer multiple times to increase the intensity
