@@ -5,13 +5,13 @@ Explosion: Ship
 
 #  triggered when a projectile explodes
 Explosion: Projectile
-  Path: Textures/sd_explosion_07a_cc
+  Path: Textures/sd_explosion_07a_bb
   Scale: 1.0
 Explosion: Projectile
-  Path: Textures/sd_explosion_12a_cc
+  Path: Textures/sd_explosion_12a_bb
   Scale: 1.0
 Explosion: Projectile
-  Path: Textures/sd_explosion_14a_cc
+  Path: Textures/sd_explosion_14a_bb
   Scale: 1.0
 
 # this is a big blue photon explosion,
