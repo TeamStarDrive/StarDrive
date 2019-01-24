@@ -1358,6 +1358,7 @@ namespace Ship_Game
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
                 {
+                    planet.UpdateOwnedPlanet();
                     planet.UpdateIncomes(false);
                     NetPlanetIncomes += planet.Money.NetRevenue;
                     GrossPlanetIncome += planet.Money.GrossRevenue;
