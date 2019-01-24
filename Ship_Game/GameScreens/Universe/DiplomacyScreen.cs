@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
