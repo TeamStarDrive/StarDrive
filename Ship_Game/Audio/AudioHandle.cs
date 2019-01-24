@@ -35,7 +35,7 @@ namespace Ship_Game.Audio
         }
         public void PlaySfxAsync(string cueName, AudioEmitter emitter)
         {
-            if (GameAudio.CantPlaySfx(cueName))
+            if (GameAudio.CantPlaySfx(cueName) || this == Dummy)
                 return;
             if (!Loading)
             {
@@ -43,5 +43,7 @@ namespace Ship_Game.Audio
                 GameAudio.PlaySfxAsync(cueName, emitter, this);
             }
         }
+
+        public static readonly AudioHandle Dummy = new AudioHandle();
     }
 }

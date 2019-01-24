@@ -56,7 +56,7 @@ namespace Ship_Game
         public float DeltaTime { get; protected set; }
 
         //video player
-        protected AudioHandle MusicPlaying = new AudioHandle();
+        protected AudioHandle MusicPlaying = AudioHandle.Dummy;
         protected Video VideoFile;
         protected VideoPlayer VideoPlaying;
         protected Texture2D VideoTexture;
