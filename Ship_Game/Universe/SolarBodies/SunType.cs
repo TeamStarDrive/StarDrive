@@ -14,7 +14,9 @@ namespace Ship_Game.Universe.SolarBodies
 {
     public class SunLayerInfo
     {
-        [StarData] public readonly string TexturePath;
+        [StarData] public readonly string TexturePath; // REQUIRED
+        [StarData] public readonly string AnimationPath; // OPTIONAL
+        [StarData] public readonly float AnimationSpeed = 1f;
         [StarData] public readonly Color TextureColor = Color.White;
         [StarData] public readonly float LayerScale = 1.0f; // extra visual scale factor for this layer
         [StarData] public readonly SpriteBlendMode BlendMode = SpriteBlendMode.AlphaBlend;
@@ -171,14 +173,27 @@ namespace Ship_Game.Universe.SolarBodies
         public float Intensity { get; private set; } = 1f; // current sun intensity
         float ScaleIntensity = 1f;
         float ColorIntensity = 1f;
+
+        readonly SpriteAnimation Animation;
         readonly SubTexture Texture;
 
         public SunLayerState(GameContentManager content, SunLayerInfo info)
         {
             Info = info;
             Rotation = info.RotationSpeed * RandomMath.RandomBetween(-20f, 20f); // start at a random rotation
-            var tex = content.Load<Texture2D>("Textures/"+info.TexturePath);
-            Texture = new SubTexture(info.TexturePath, tex);
+            
+            if (info.AnimationPath.NotEmpty())
+            {
+                Animation = new SpriteAnimation(content, "Textures/" + info.AnimationPath)
+                {
+                    Looping = true
+                };
+            }
+            else
+            {
+                var tex = content.Load<Texture2D>("Textures/"+info.TexturePath);
+                Texture = new SubTexture(info.TexturePath, tex);
+            }
         }
 
         public void Update(float deltaTime)
@@ -195,6 +210,8 @@ namespace Ship_Game.Universe.SolarBodies
                 ScaleIntensity = Info.PulseScale.Min.LerpTo(Info.PulseScale.Max, Intensity);
                 ColorIntensity = Info.PulseColor.Min.LerpTo(Info.PulseColor.Max, Intensity);
             }
+
+            Animation?.Update(deltaTime * Info.AnimationSpeed);
         }
 
         public void Draw(SpriteBatch batch, Vector2 screenPos, float sizeScaleOnScreen)
@@ -205,11 +222,18 @@ namespace Ship_Game.Universe.SolarBodies
             Color color = Info.TextureColor;
 
             // draw this layer multiple times to increase the intensity
-            for (float intensity = ColorIntensity; intensity > 0f; intensity -= 1f)
+            for (float intensity = ColorIntensity; intensity.Greater(0f); intensity -= 1f)
             {
                 Color c = intensity > 1f ? color : new Color(color, intensity);
-                batch.Draw(Texture, screenPos, c, Rotation, 
-                    Texture.CenterF, scale, SpriteEffects.FlipVertically, 0.9f);
+                if (Animation != null)
+                {
+                    Animation.Draw(batch, screenPos, c, Rotation, scale, SpriteEffects.FlipVertically);
+                }
+                else
+                {
+                    batch.Draw(Texture, screenPos, c, Rotation, 
+                        Texture.CenterF, scale, SpriteEffects.FlipVertically, 0.9f);
+                }
             }
 
             batch.End();
