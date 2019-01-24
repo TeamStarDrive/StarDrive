@@ -82,7 +82,11 @@ namespace Ship_Game
                 width = width + 1f;
             }
 
-            if (ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null && ship.shipData.Role != ShipData.RoleName.platform && ship.shipData.Role != ShipData.RoleName.troop && ship.AI.State != AIState.Colonize && ship.shipData.Role != ShipData.RoleName.freighter && ship.shipData.ShipCategory != ShipData.Category.Civilian)
+            if (!ship.IsPlatformOrStation && ship.Mothership == null 
+                                          && ship.shipData.Role != ShipData.RoleName.troop 
+                                          && ship.AI.State != AIState.Colonize 
+                                          && ship.shipData.Role != ShipData.RoleName.freighter 
+                                          && ship.shipData.ShipCategory != ShipData.Category.Civilian)
                 isCombat = true;
 
             Rectangle refit = new Rectangle(RefitRect.X + RefitRect.Width / 2 - 5 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height);
@@ -95,7 +99,7 @@ namespace Ship_Game
             RefitButton = new TexturedButton(refit, "NewUI/icon_queue_rushconstruction", "NewUI/icon_queue_rushconstruction_hover1", "NewUI/icon_queue_rushconstruction_hover2");			
             ScrapButton = new TexturedButton(refit, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
 
-            if (ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform || ship.Thrust <= 0f)
+            if (ship.IsPlatformOrStation || ship.Thrust <= 0f)
             {
                 isScuttle = true;
             }

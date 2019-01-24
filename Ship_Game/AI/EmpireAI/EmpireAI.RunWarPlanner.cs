@@ -314,8 +314,7 @@ namespace Ship_Game.AI
                         bool foundhome = false;
                         foreach (Ship ship in OwnerEmpire.GetShips())
                         {
-                            if (ship.shipData.Role != ShipData.RoleName.station &&
-                                ship.shipData.Role != ShipData.RoleName.platform)
+                            if (!ship.IsPlatformOrStation)
                             {
                                 continue;
                             }

@@ -70,11 +70,10 @@ namespace Ship_Game
         private float UpdateTimer;
         public bool isPlayer;
         public float TotalShipMaintenance { get; private set; }
-        public float TotalBuildingMaintenance { get; private set; }
         public float updateContactsTimer;
         private bool InitialziedHostilesDict;
-        public float BuildingAndShipMaint { get; private set; } // This is for info display
-        public float NetPlanetIncomes { get; private set; } // = foreach Planet: p.GrossIncome - p.Maintenance
+        public float NetPlanetIncomes { get; private set; }
+        public float GrossPlanetIncome { get; private set; }
         public float TradeMoneyAddedThisTurn { get; private set; }
         public float MoneyLastTurn;
         public int AllTimeTradeIncome;
@@ -105,6 +104,9 @@ namespace Ship_Game
         public float freighterBudget;
         public float cargoNeed = 0;
         public float MaxResearchPotential = 10;
+        public float MaxColonyValue { get; private set; }
+        public Ship BestPlatformWeCanBuild { get; private set; }
+        public Ship BestStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         private float leftoverResearch;
@@ -126,6 +128,13 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public bool IsCybernetic  => data.Traits.Cybernetic != 0;
         [XmlIgnore][JsonIgnore] public bool NonCybernetic => data.Traits.Cybernetic == 0;
+
+
+        // Income this turn before deducting ship maintenance
+        public float GrossIncome              => GrossPlanetIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
+        public float NetIncome                => GrossIncome - BuildingAndShipMaint;
+        public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
+        public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
 
         public void AddMoney(float moneyDiff)
         {
@@ -1263,6 +1272,19 @@ namespace Ship_Game
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
 
+        private void UpdateMaxColonyValue()
+        {
+            if (OwnedPlanets.Count > 0)
+                MaxColonyValue = OwnedPlanets.Max(p => p.ColonyValue);
+        }
+
+        private void UpdateBestOrbitals()
+        {
+            // FB - this is done here for more performance. having set values here prevents calling shipbuilder by every planet every turn
+            BestPlatformWeCanBuild = BestShipWeCanBuild(ShipData.RoleName.platform, this);
+            BestStationWeCanBuild  = BestShipWeCanBuild(ShipData.RoleName.station, this);
+        }
+
         public DebugTextBlock DebugEmpireTradeInfo()
         {
             var incomingData = new DebugTextBlock();
@@ -1326,21 +1348,19 @@ namespace Ship_Game
             UpdateNetPlanetIncomes();
             UpdateTradeIncome();
             UpdateShipMaintenance();
-            UpdateBuildingMaintenance();
-
-            BuildingAndShipMaint = TotalBuildingMaintenance + TotalShipMaintenance;
-
-            Money += NetIncome();
+            Money += NetIncome;
         }
 
         public void UpdateNetPlanetIncomes()
         {
             NetPlanetIncomes = 0f;
+            GrossPlanetIncome = 0;
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
                 {
                     planet.UpdateIncomes(false);
                     NetPlanetIncomes += planet.Money.NetRevenue;
+                    GrossPlanetIncome += planet.Money.GrossRevenue;
                 }
         }
 
@@ -1364,20 +1384,6 @@ namespace Ship_Game
             TradeMoneyAddedThisTurn = GetTotalTradeIncome();
         }
 
-        void UpdateBuildingMaintenance()
-        {
-            using (OwnedPlanets.AcquireReadLock())
-            {
-                float newBuildM = 0f;
-                foreach (Planet planet in OwnedPlanets)
-                {
-                    planet.UpdateOwnedPlanet();
-                    newBuildM += planet.Money.Maintenance;
-                }
-                TotalBuildingMaintenance = newBuildM;
-            }
-        }
-
         private void UpdateShipMaintenance()
         {
             TotalShipMaintenance = 0.0f;
@@ -1392,7 +1398,6 @@ namespace Ship_Game
                                                        (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                     {
                         data.DefenseBudget -= maintenance;
-                        continue;
                     }
                     TotalShipMaintenance += maintenance;
                 }
@@ -1414,22 +1419,10 @@ namespace Ship_Game
         public float EstimateNetIncomeAtTaxRate(float rate)
         {
             float plusNetIncome = (rate-data.TaxRate) * NetPlanetIncomes;
-            return GrossIncome() + plusNetIncome - TotalShipMaintenance;
+            return GrossIncome + plusNetIncome - BuildingAndShipMaint;
         }
 
-        // Income this turn before deducting ship maintenance
-        public float GrossIncome()
-        {
-            return NetPlanetIncomes + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
-        }
-
-        // Building maintenance is already calculated per planet
-        // So all we need to do is pay for ship maintenance
-        // NetIncome = GrossIncome this turn - Ship maintenance
-        public float NetIncome() => GrossIncome() - TotalShipMaintenance;
-
-
-        public float GetActualNetLastTurn() => Money - MoneyLastTurn;
+        public float GetActualNetLastTurn() => Money - MoneyLastTurn; 
 
         public void FactionShipsWeCanBuild()
         {
@@ -2033,7 +2026,11 @@ namespace Ship_Game
             if (isFaction)
                 EmpireAI.FactionUpdate();
             else if (!data.Defeated)
+            {
                 EmpireAI.Update();
+                UpdateMaxColonyValue();
+                UpdateBestOrbitals();
+            }
             if (Money > data.CounterIntelligenceBudget)
             {
                 Money -= data.CounterIntelligenceBudget;

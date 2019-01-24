@@ -57,16 +57,18 @@ namespace Ship_Game
             return TilesList.All(tile => tile.Habitable);
         }
 
-        
-        public bool CanBuildInfantry        => BuildingList.Any(b => b.AllowInfantry);
-        public bool BuildingInTheWorks      => ConstructionQueue.Any(b => b.isBuilding);
-        public bool BiosphereInTheWorks     => BuildingInQueue(Building.BiospheresId);
-        public int TotalTurnsInConstruction => ConstructionQueue.Count > 0 ? NumberOfTurnsUntilCompleted(ConstructionQueue.Last) : 0;
-
+        public bool CanBuildInfantry         => BuildingList.Any(b => b.AllowInfantry);
+        public bool BuildingInTheWorks       => ConstructionQueue.Any(b => b.isBuilding);
+        public bool OrbitalsInTheWorks       => ConstructionQueue.Any(b => b.isOrbital || b.sData != null && b.sData.IsShipyard);
+        public int NumOrbitalsInTheWorks     => ConstructionQueue.Count(b => b.isOrbital);
+        public int NumShipYardsInTheWorks    => ConstructionQueue.Count(s => s.sData != null && s.sData.IsShipyard);
+        public bool BiosphereInTheWorks      => BuildingInQueue(Building.BiospheresId);
+        public int TotalTurnsInConstruction  => ConstructionQueue.Count > 0 ? NumberOfTurnsUntilCompleted(ConstructionQueue.Last) : 0;
+        public bool BuildingBuilt(int bid)   => BuildingList.Any(existing => existing.BID == bid);
         public bool BuildingInQueue(int bid) => ConstructionQueue
                                                .Any(q => q.isBuilding && q.Building.BID == bid);
 
-        public bool BuildingBuilt(int bid) => BuildingList.Any(existing => existing.BID == bid);
+
                                             
         // exists on planet OR in queue
         public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);

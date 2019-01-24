@@ -306,11 +306,11 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void CauseEmpDamage(float empDamage) => EMPDamage += empDamage;
+        public bool IsPlatformOrStation => shipData.Role == ShipData.RoleName.platform || shipData.Role == ShipData.RoleName.station;
 
+        public void CauseEmpDamage(float empDamage)     => EMPDamage += empDamage;
         public void CausePowerDamage(float powerDamage) => PowerCurrent = (PowerCurrent - powerDamage).Clamped(0, PowerStoreMax);
-
-        public void AddPower(float powerAcquired) => PowerCurrent = (PowerCurrent + powerAcquired).Clamped(0, PowerStoreMax);
+        public void AddPower(float powerAcquired)       => PowerCurrent = (PowerCurrent + powerAcquired).Clamped(0, PowerStoreMax);
 
         public void CauseTroopDamage(float troopDamageChance)
         {
@@ -786,16 +786,14 @@ namespace Ship_Game.Ships
             if (shipData.HasFixedCost)
                 return shipData.FixedCost * CurrentGame.Pace;
 
-            float cost = 0.0f;
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-                cost += ModuleSlotList[i].ActualCost;
+            float cost = BaseCost;
 
-            if (empire != null)
-            {
-                cost += shipData.Bonuses.StartingCost;
-                cost += cost * empire.data.Traits.ShipCostMod;
-                cost *= 1f - shipData.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
-            }
+            if (empire == null)
+                return (int) cost;
+
+            cost += shipData.Bonuses.StartingCost;
+            cost += cost * empire.data.Traits.ShipCostMod;
+            cost *= 1f - shipData.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
             return (int)cost;
         }
 
@@ -1318,7 +1316,7 @@ namespace Ship_Game.Ships
 
         public float GetMaintCost(Empire empire)
         {
-            int numShipYards = IsTethered ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
+            int numShipYards = IsTethered ? GetTether().OrbitalStations.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
             return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 
@@ -2811,10 +2809,9 @@ namespace Ship_Game.Ships
 
         public bool ShipGoodToBuild(Empire empire)
         {
-            if (shipData.HullRole == ShipData.RoleName.station ||
-                shipData.HullRole == ShipData.RoleName.platform ||
-                shipData.CarrierShip)
+            if (IsPlatformOrStation || shipData.CarrierShip)
                 return true;
+
             return ShipIsGoodForGoals(float.MinValue, empire);
         }
 
