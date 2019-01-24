@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Debug;
@@ -66,22 +67,6 @@ namespace Ship_Game.AI
             return strength;
         }
 
-        public float GetDefensiveThreatFromPlanets(Planet[] planets)
-        {
-            if (DefenseDict.Count == 0) return 0;
-            int count = 0;
-            float str = 0;
-            for (int index = 0; index < planets.Length; index++)
-            {
-                Planet planet = planets[index];
-                if (!DefenseDict.TryGetValue(planet.ParentSystem, out SystemCommander scom)) continue;
-                count++;
-                str += scom.RankImportance;
-            }
-
-            return str / count;
-        }
-
         public Planet AssignIdleShips(Ship ship)
         {
             return DefenseDict.TryGetValue(ship.AI.SystemToDefend, out SystemCommander systemCommander)
@@ -91,19 +76,22 @@ namespace Ship_Game.AI
 
         public void Remove(Ship ship)
         {
-            SolarSystem systoDefend = ship.AI.SystemToDefend;
-            if (!DefensiveForcePool.Remove(ship))
+            SolarSystem sysToDefend = ship.AI.SystemToDefend;
+            if (DefensiveForcePool.Remove(ship))
             {
-                if (ship.Active && systoDefend != null)
+                if (ship.Active && sysToDefend == null)
+                    DebugInfoScreen.DefenseCoLogsSystemNull();
+            }
+            else
+            {
+                if (ship.Active && sysToDefend != null)
                     DebugInfoScreen.DefenseCoLogsNotInPool();
             }
-            else if (ship.Active && systoDefend == null)
-                DebugInfoScreen.DefenseCoLogsSystemNull();
-
 
             bool found = false;
-            if (systoDefend != null && DefenseDict.TryGetValue(systoDefend, out SystemCommander sysCom))
-                //check for specific system commander
+
+            // check for specific system commander
+            if (sysToDefend != null && DefenseDict.TryGetValue(sysToDefend, out SystemCommander sysCom))
             {
                 if (!sysCom.RemoveShip(ship))
                 {
@@ -111,25 +99,20 @@ namespace Ship_Game.AI
                         DebugInfoScreen.DefenseCoLogsNotInSystem();
                 }
                 else found = true;
-
-                // return; // when sysdefense is safe enable. 
             }
 
-            foreach (var kv in DefenseDict) //double check for ship in any other sys commanders
+            // double check for ship in any other sys commanders
+            foreach (SystemCommander com in DefenseDict.Values)
             {
-                if (!kv.Value.RemoveShip(ship)) continue;
-                if (!found)
+                if (com.RemoveShip(ship))
+                {
                     found = true;
-                else DebugInfoScreen.DefenseCoLogsMultipleSystems();
+                    DebugInfoScreen.DefenseCoLogsMultipleSystems(ship);
+                    break;
+                }
             }
 
-            DebugInfoScreen.DefenseCoLogsNull(found, ship, systoDefend);
-        }
-
-        public void RemoveFleet(ShipGroup shipGroup)
-        {
-            foreach (Ship ship in shipGroup.GetShips)
-                Remove(ship);
+            DebugInfoScreen.DefenseCoLogsNull(found, ship, sysToDefend);
         }
 
         public void RemoveShipList(Array<Ship> ships)
@@ -202,7 +185,7 @@ namespace Ship_Game.AI
             {
                 com.RankImportance = (int) (10 * (com.RankImportance / ranker));
                 TotalValue += (int) com.ValueToUs;
-                com.CalculateShipneeds();
+                com.CalculateShipNeeds();
                 com.CalculateTroopNeeds();
             }
         }

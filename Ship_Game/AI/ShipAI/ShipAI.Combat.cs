@@ -19,7 +19,7 @@ namespace Ship_Game.AI
         private float RunTimer;
         private float ScanForThreatTimer;
         public Planet ExterminationTarget;
-        public bool Intercepting;
+        public bool Intercepting { get; private set; }
         public Guid TargetGuid;
         public bool IgnoreCombat;
         public bool BadGuysNear;
@@ -32,9 +32,10 @@ namespace Ship_Game.AI
         public bool HasPriorityTarget;
         private float TriggerDelay;
 
-        public void SetIntercepting()
+        public void CancelIntercept()
         {
-            Intercepting = true;
+            HasPriorityTarget = false;
+            Intercepting = false;
         }
 
         public void FireOnTarget()

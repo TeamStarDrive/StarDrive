@@ -475,15 +475,12 @@ namespace Ship_Game.AI
                         TaskStep = 3;
                     break;
                 case 5:
-                    for (int x = 0; x < Ships.Count; x++)
+                    for (int i = 0; i < Ships.Count; i++)
                     {
-                        Ship ship = Ships[x];
-                        ship.AI.SetIntercepting();
-                        ship.AI.OrderLandAllTroops(task.TargetPlanet);
+                        Ships[i].AI.OrderLandAllTroops(task.TargetPlanet);
                     }
-
                     Position = task.TargetPlanet.Center;
-                    AssembleFleet(Facing, Vector2.Normalize(Position - FindAveragePosition()));
+                    AssembleFleet(Facing, FindAveragePosition().DirectionToTarget(Position));
                     break;
             }
         }
@@ -1174,36 +1171,33 @@ namespace Ship_Game.AI
 
         private void InvadeTactics(Array<Ship> flankShips, string type, Vector2 moveTo)
         {
-            foreach (var ship in flankShips)
+            foreach (Ship ship in flankShips)
             {
-                ship.AI.CombatState = ship.shipData.CombatState;
-                if (ship.Center.OutsideRadius(FleetTask.TargetPlanet.Center, FleetTask.AORadius))
-                    ship.AI.HasPriorityTarget = false;
-                else  continue;
+                ShipAI ai = ship.AI;
+                ai.CombatState = ship.shipData.CombatState;
+                if (!ship.Center.OutsideRadius(FleetTask.TargetPlanet.Center, FleetTask.AORadius))
+                    continue;
 
-                ship.AI.Intercepting = false;
-                ship.AI.FleetNode.AssistWeight = 1f;
-                ship.AI.FleetNode.DefenderWeight = 1f;
-                ship.AI.FleetNode.OrdersRadius = ship.maxWeaponsRange;
+                ai.CancelIntercept();
+                ai.FleetNode.AssistWeight = 1f;
+                ai.FleetNode.DefenderWeight = 1f;
+                ai.FleetNode.OrdersRadius = ship.maxWeaponsRange;
                 switch (type) {
                     case "screen":
                         if (!ship.InCombat)
-                            ship.AI.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, 1, false);
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, 1, false);
                         break;
                     case "rear":
-                        if (!ship.AI.HasPriorityOrder)
-                            ship.AI.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Facing, Vector2.Zero, false, Speed * .75f);
+                        if (!ai.HasPriorityOrder)
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Facing, Vector2.Zero, false, Speed * 0.75f);
                         break;
                     case "center":
-                        if (ship.AI.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber)
-                            ship.AI.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, 1, false);
-                        else if (!ship.InCombat)
-                            ship.AI.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, 1, false);
+                        if (!ship.InCombat || (ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber))
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, 1, false);
                         break;
                     case "side":
-                        if (ship.InCombat) continue;
-
-                        ship.AI.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, 1, false);
+                        if (!ship.InCombat)
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, 1, false);
                         break;
                 }
             }
@@ -1340,8 +1334,7 @@ namespace Ship_Game.AI
                     if (!IsCoreFleet) return;
                     foreach (Ship ship in Ships)
                     {
-                        ship.AI.HasPriorityTarget = false;
-                        ship.AI.Intercepting = false;
+                        ship.AI.CancelIntercept();
                     }
                     return;
                 }
