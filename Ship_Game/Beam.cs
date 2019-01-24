@@ -2,6 +2,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Ship_Game.Audio;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -28,7 +29,6 @@ namespace Ship_Game
         private float JitterRadius;
         private readonly Vector2 Jitter;
         private Vector2 WanderPath = Vector2.Zero;
-        private AudioHandle DamageToggleSound = default(AudioHandle);
 
         [XmlIgnore][JsonIgnore]
         public GameplayObject Target { get; }
@@ -117,8 +117,6 @@ namespace Ship_Game
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            DamageToggleSound.Stop();
-
             if (Owner != null)
             {
                 Owner.RemoveBeam(this);

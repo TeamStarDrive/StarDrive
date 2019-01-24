@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 using System;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
+using Ship_Game.Audio;
 
 namespace Ship_Game
 {
@@ -31,7 +32,7 @@ namespace Ship_Game
          */
 
         [XmlIgnore][JsonIgnore] public bool Active = true;
-        [XmlIgnore][JsonIgnore] protected AudioHandle DeathSfx;
+        [XmlIgnore][JsonIgnore] protected AudioHandle DeathSfx = new AudioHandle();
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
 
         [Serialize(0)] public Vector2 Position;

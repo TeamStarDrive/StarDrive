@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 
 namespace Ship_Game.Gameplay
 {
@@ -55,7 +56,7 @@ namespace Ship_Game.Gameplay
 
         public bool DieNextFrame { get; private set; }
         public bool DieSound;
-        private AudioHandle InFlightSfx = default(AudioHandle);
+        readonly AudioHandle InFlightSfx = new AudioHandle();
         public string DieCueName = "";
         private bool LightWasAddedToSceneGraph;
         private bool UsesVisibleMesh;
