@@ -2,6 +2,7 @@ using System;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace Ship_Game
