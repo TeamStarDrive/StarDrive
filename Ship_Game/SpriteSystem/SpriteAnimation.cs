@@ -87,7 +87,6 @@ namespace Ship_Game
         public void Draw(SpriteBatch batch, Rectangle rect)
         {
             if (!IsAnimating) return;
-
             SubTexture frame = Atlas[CurrentFrameId];
             batch.Draw(frame, rect, Color.White);
         }
@@ -96,7 +95,6 @@ namespace Ship_Game
                          float rotation, float scale, float z = 0f)
         {
             if (!IsAnimating) return;
-            
             SubTexture frame = Atlas[CurrentFrameId];
             batch.Draw(frame, rect, rotation, scale, z);
         }
@@ -105,10 +103,16 @@ namespace Ship_Game
                          float rotation, float scale, float z = 0f)
         {
             if (!IsAnimating) return;
-            
             var r = new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
             SubTexture frame = Atlas[CurrentFrameId];
             batch.Draw(frame, r, rotation, scale, z);
+        }
+
+        public void Draw(SpriteBatch batch, Vector2 pos, Color c, float rotation, float scale, SpriteEffects effects = SpriteEffects.None)
+        {
+            if (!IsAnimating) return;
+            SubTexture frame = Atlas[CurrentFrameId];
+            batch.Draw(frame, pos, c, rotation, frame.CenterF, scale, effects, 0.9f);
         }
     }
 
