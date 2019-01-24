@@ -126,9 +126,9 @@ namespace Ship_Game.Audio
         public static void PauseGenericMusic()  => Music.Pause();
         public static void ResumeGenericMusic() => Music.Resume();
         public static void MuteGenericMusic()   => Music.SetVolume(0f);
-        public static void UnmuteGenericMusic() => Music.SetVolume(GlobalStats.MusicVolume);
+        public static void UnMuteGenericMusic() => Music.SetVolume(GlobalStats.MusicVolume);
         public static void MuteRacialMusic()    => RacialMusic.SetVolume(0f);
-        public static void UnmuteRacialMusic()  => RacialMusic.SetVolume(GlobalStats.MusicVolume);
+        public static void UnMuteRacialMusic()  => RacialMusic.SetVolume(GlobalStats.MusicVolume);
 
         public static void NegativeClick()    => PlaySfxAsync("UI_Misc20"); // "eek-eek"
         public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1"); // soft "bubble" affirm
@@ -160,12 +160,12 @@ namespace Ship_Game.Audio
         {
             Music.Stop(AudioStopOptions.Immediate);
             MuteGenericMusic();
-            UnmuteRacialMusic();
+            UnMuteRacialMusic();
         }
 
         public static void SwitchBackToGenericMusic()
         {
-            UnmuteGenericMusic();
+            UnMuteGenericMusic();
             Music.Resume();
             RacialMusic.Stop(AudioStopOptions.Immediate);
         }
@@ -259,14 +259,14 @@ namespace Ship_Game.Audio
         public static AudioHandle PlayMusic(string cueName)
         {
             if (CantPlayMusic(cueName))
-                return new AudioHandle(); // dummy handle
+                return AudioHandle.Dummy;
             return new AudioHandle(new CueInstance(SoundBank.GetCue(cueName)));
         }
 
         public static AudioHandle PlayMp3(string mp3File)
         {
             if (CantPlayMusic(mp3File))
-                return new AudioHandle(); // dummy handle
+                return AudioHandle.Dummy;
             return new AudioHandle(new Mp3Instance(mp3File));
         }
 

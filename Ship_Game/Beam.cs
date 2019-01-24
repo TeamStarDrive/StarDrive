@@ -29,7 +29,6 @@ namespace Ship_Game
         private float JitterRadius;
         private readonly Vector2 Jitter;
         private Vector2 WanderPath = Vector2.Zero;
-        readonly AudioHandle DamageToggleSound = new AudioHandle();
 
         [XmlIgnore][JsonIgnore]
         public GameplayObject Target { get; }
@@ -118,8 +117,6 @@ namespace Ship_Game
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            DamageToggleSound.Stop();
-
             if (Owner != null)
             {
                 Owner.RemoveBeam(this);
