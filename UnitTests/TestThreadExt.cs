@@ -108,29 +108,6 @@ namespace SDUnitTests
         }
 
         [TestMethod]
-        public void TestForbidNestedPFor()
-        {
-            int activations = 0;
-            void Action()
-            {
-                var items = new int[1337];
-                Parallel.For(0, items.Length, (start, end) =>
-                {
-                    Parallel.For(start, end, (start1, end1) =>
-                    {
-                        // inner parallel for loop, will cause spawning NCores * NCores of ParallelTask threads
-                        // for me, this would spawn 144 threads :)
-
-                        // So, this must be forbidden to ensure optimal usage
-                        ++activations;
-                    });
-                });
-            }
-            Assert.AreEqual(activations, 0, "No inner nested PFor loop should be invoked");
-            Assert.ThrowsException<ThreadStateException>((Action) Action);
-        }
-
-        [TestMethod]
         public void TestAllowConcurrentPForLoops()
         {
             // These PFor loops are unrelated to one another, thus they should

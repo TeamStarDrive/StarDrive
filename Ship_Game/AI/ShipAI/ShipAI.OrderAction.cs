@@ -195,12 +195,14 @@ namespace Ship_Game.AI
 
         public void OrderLandAllTroops(Planet target)
         {
-            if (!Owner.Carrier.AnyPlanetAssaultAvailable) return;
-            SetPriorityOrderWithClear();
-            ClearWayPoints();
-            State = AIState.AssaultPlanet;
-            OrbitTarget = target;;
-            AddToOrderQueue(ShipGoal.CreateLandTroopGoal(target));
+            if (Owner.Carrier.AnyPlanetAssaultAvailable)
+            {
+                SetPriorityOrderWithClear();
+                ClearWayPoints();
+                State = AIState.AssaultPlanet;
+                OrbitTarget = target;
+                AddToOrderQueue(ShipGoal.CreateLandTroopGoal(target));
+            }
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing,

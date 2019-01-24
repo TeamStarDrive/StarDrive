@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Ship_Game.Audio;
 
 namespace Ship_Game.Ships
 {
@@ -120,12 +121,12 @@ namespace Ship_Game.Ships
         public float rotationRadiansPerSecond;
         public bool FromSave;
         public bool HasRepairModule;
-        private AudioHandle Afterburner;
+        readonly AudioHandle Afterburner = new AudioHandle();
         public bool isSpooling;
         //protected SolarSystem JumpTarget;   //Not referenced in code, removing to save memory
         //protected Cue hyperspace;           //Removed to save space, because this is set to null in ship initilizer, and never reassigned. -Gretman
         //protected Cue hyperspace_return;    //Not referenced in code, removing to save memory
-        private AudioHandle JumpSfx;
+        readonly AudioHandle JumpSfx = new AudioHandle();
         public float InhibitedTimer;
         public int Level;
         public bool PlayerShip;
@@ -135,7 +136,7 @@ namespace Ship_Game.Ships
         public int TroopCapacity;
         public float OrdAddedPerSecond;
         //public bool WeaponCentered;    //Not referenced in code, removing to save memory
-        private AudioHandle DroneSfx;
+        public AudioHandle DroneSfx = new AudioHandle();
         public float ShieldRechargeTimer;
         public bool InCombat;
         public float xRotation;

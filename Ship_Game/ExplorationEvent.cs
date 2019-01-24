@@ -1,3 +1,5 @@
+using Ship_Game.Audio;
+
 namespace Ship_Game
 {
     public sealed class ExplorationEvent

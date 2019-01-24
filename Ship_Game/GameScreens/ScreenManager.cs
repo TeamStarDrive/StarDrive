@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Lights;
@@ -12,21 +13,18 @@ namespace Ship_Game
 {
     public sealed class ScreenManager : IDisposable
     {
-        private readonly Array<GameScreen> Screens = new Array<GameScreen>();
-        public InputState input = new InputState();
-        private readonly IGraphicsDeviceService GraphicsDeviceService;
-        private SubTexture BlankTexture;
+        readonly Array<GameScreen> Screens = new Array<GameScreen>();
+        readonly IGraphicsDeviceService GraphicsDeviceService;
+        SubTexture BlankTexture;
+        readonly SceneState GameSceneState;
+        readonly SceneInterface SceneInter;
+        readonly object InterfaceLock = new object();
+        readonly StarDriveGame GameInstance;
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
-        private readonly SceneState GameSceneState;
         public SceneEnvironment environment;
-        private readonly SceneInterface SceneInter;
-        private readonly object InterfaceLock = new object();
-        private StarDriveGame GameInstance;
-        //public SceneInterface buffer1;
-        //public SceneInterface buffer2;
-        //public SceneInterface renderBuffer;
-        public AudioHandle Music;
+        public InputState input = new InputState();
+        public AudioHandle Music = new AudioHandle();
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
 
@@ -406,7 +404,7 @@ namespace Ship_Game
 
         ~ScreenManager() { Dispose(false); }
 
-        private void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             SpriteBatch?.Dispose(ref SpriteBatch);
         }
