@@ -20,10 +20,15 @@ namespace UnitTests
         {
             Directory.SetCurrentDirectory("/Projects/BlackBox");
 
-            using (var parser = new StarDataParser("Content/PlanetTypes.yaml"))
+            using (var parser = new StarDataParser("PlanetTypes.yaml"))
             {
-                var items = parser.DeserializeArray<TestData>();
-                Log.Info(parser.Root.SerializedText());
+                Array<PlanetType> planets = parser.DeserializeArray<PlanetType>();
+                planets.Sort(p => p.Id);
+                foreach (PlanetType type in planets)
+                {
+                    Console.WriteLine(type.ToString());
+                }
+                Console.WriteLine(parser.Root.SerializedText());
             }
         }
     }

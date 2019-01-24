@@ -852,24 +852,22 @@ namespace Ship_Game.Debug
             return false;
         }
 
-        public static void DefenseCoLogsNull(bool found, Ship ship, SolarSystem systoDefend)
+        public static void DefenseCoLogsNull(bool found, Ship ship, SolarSystem systemToDefend)
         {
             if (Mode != DebugModes.DefenseCo)
                 return;
             if (!found && ship.Active)
             {
-                Log.Info(color: ConsoleColor.Yellow,
-                    text:
-                    systoDefend == null
-                        ? "SystemCommander: Remove : SystemToDefend Was Null"
-                        : "SystemCommander: Remove : Ship Not Found in Any");
+                Log.Info(ConsoleColor.Yellow, systemToDefend == null
+                                    ? "SystemCommander: Remove : SystemToDefend Was Null"
+                                    : "SystemCommander: Remove : Ship Not Found in Any");
             }
         }
-        public static void DefenseCoLogsMultipleSystems()
+        public static void DefenseCoLogsMultipleSystems(Ship ship)
         {
             if (Mode != DebugModes.DefenseCo)
                 return;
-            Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Ship Was in Multiple SystemCommanders");
+            Log.Info(color: ConsoleColor.Yellow, text: $"SystemCommander: Remove : Ship Was in Multiple SystemCommanders: {ship}");
         }
         public static void DefenseCoLogsNotInSystem()
         {

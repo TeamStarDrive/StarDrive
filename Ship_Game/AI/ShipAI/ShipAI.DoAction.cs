@@ -7,6 +7,7 @@ using Ship_Game.Ships;
 using System;
 using System.Linq;
 using System.Text;
+using Ship_Game.Audio;
 
 namespace Ship_Game.AI
 {
