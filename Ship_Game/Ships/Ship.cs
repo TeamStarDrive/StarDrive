@@ -349,24 +349,31 @@ namespace Ship_Game.Ships
 
         public void CauseRadiationDamage(float damage)
         {
+            if (engineState == MoveState.Warp)
+                damage *= 0.5f; // some protection while in warp
+
             GameplayObject damageCauser = this; // @todo We need a way to do environmental damage
             var damagedShields = new HashSet<ShipModule>();
+
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
+                if (!module.isExternal) // only apply radiation to outer modules
+                    continue;
                 if (IsCoveredByShield(module, out ShipModule shield))
                 {
                     // only damage shields once, depending on their radius
                     if (!damagedShields.Contains(shield))
                     {
-                        float damageAbsorb = 0.01f; // @todo Radiation Resistance
+                        float damageAbsorb = 0.5f; // @todo Radiation Resistance
                         shield.Damage(damageCauser, damage * damageAbsorb * shield.ShieldHitRadius); 
                         damagedShields.Add(shield);
                     }
                 }
                 else
                 {
-                    module.Damage(damageCauser, damage);
+                    // again, damage also depends on module radius
+                    module.Damage(damageCauser, damage * module.Radius);
                 }
             }
         }
