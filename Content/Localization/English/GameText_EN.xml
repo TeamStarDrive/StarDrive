@@ -2201,7 +2201,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>612</Index>
-      <Text>Earn 1 credit for every unit of Food or Production moved via transport within your empire</Text>
+      <Text>Every unit of Food or Production moved via transport within your empire is taxed by current tax rate and this tax is added to our empire money.</Text>
     </Token>
     <Token>
       <Index>613</Index>
