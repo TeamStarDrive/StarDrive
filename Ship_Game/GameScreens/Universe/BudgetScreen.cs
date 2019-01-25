@@ -79,13 +79,13 @@ namespace Ship_Game.GameScreens
                 Title(312);       // "Income"
                 LabelT(313);      // "Planetary Taxes"
                 Label("Other: "); // Flat money bonus
-                SkipLayoutStep(); //  ------
+                Label("Excess Goods: "); // from planets with full storage
                 LabelT(320);      // "Total"
             EndLayout();
             BeginVLayout(IncomesRect.Right - 5, IncomesRect.Y + 26, lineSpacing);
                 MoneyLabel(() => Player.GrossPlanetIncome);
                 MoneyLabel(() => Player.data.FlatMoneyBonus);
-                SkipLayoutStep();
+                MoneyLabel(() => Player.ExcessGoodsMoneyAddedThisTurn);
                 MoneyLabel(() => Player.GrossIncome);
             EndLayout();
 
