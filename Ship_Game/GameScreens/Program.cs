@@ -56,6 +56,7 @@ namespace Ship_Game
             finally
             {
                 Parallel.ClearPool();
+                Log.FlushAllLogs();
                 Environment.Exit(0);
             }
         }
