@@ -44,8 +44,8 @@ namespace Ship_Game.AI
         {
             if (end != null)
             {
-                if (Owner.loyalty.data.Traits.Mercantile > 0f)
-                    Owner.loyalty.AddTradeMoney(Owner.CargoSpaceUsed * Owner.loyalty.data.Traits.Mercantile);
+                if (Owner.loyalty.data.Traits.Mercantile > 0f) //  Tax the goods based on Marcantile bonus
+                    Owner.loyalty.AddTradeMoney(Owner.CargoSpaceUsed * Owner.loyalty.data.Traits.Mercantile * Owner.loyalty.data.TaxRate);
 
                 end.FoodHere += Owner.UnloadFood(end.Storage.Max - end.FoodHere);
                 end.ProdHere += Owner.UnloadProduction(end.Storage.Max - end.ProdHere);
