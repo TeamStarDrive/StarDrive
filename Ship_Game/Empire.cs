@@ -590,15 +590,14 @@ namespace Ship_Game
             OwnedSolarSystems.AddUniqueRef(planet.ParentSystem);
         }
 
-        public void AddTradeMoney(float howMuch)
+        public void TaxGoodsIfMercantile(float goods)
         {
-            TradeMoneyAddedThisTurn += howMuch;
-            AllTimeTradeIncome        += (int)howMuch;
-        }
+            if (data.Traits.Mercantile.LessOrEqual(0))
+                return;
 
-        public void AddExcessGoodsMoney(float howMuch)
-        {
-            ExcessGoodsMoneyAddedThisTurn += howMuch;
+            float taxedGoods         = goods * data.Traits.Mercantile * data.TaxRate;
+            TradeMoneyAddedThisTurn += taxedGoods;
+            AllTimeTradeIncome      += (int)taxedGoods;
         }
 
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
@@ -1360,20 +1359,21 @@ namespace Ship_Game
 
         public void UpdateNetPlanetIncomes()
         {
-            NetPlanetIncomes = 0f;
-            GrossPlanetIncome = 0;
+            NetPlanetIncomes              = 0;
+            GrossPlanetIncome             = 0;
+            ExcessGoodsMoneyAddedThisTurn = 0;
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
                 {
                     planet.UpdateIncomes(false);
-                    NetPlanetIncomes += planet.Money.NetRevenue;
-                    GrossPlanetIncome += planet.Money.GrossRevenue;
+                    NetPlanetIncomes              += planet.Money.NetRevenue;
+                    GrossPlanetIncome             += planet.Money.GrossRevenue;
+                    ExcessGoodsMoneyAddedThisTurn += planet.ExcessGoodsIncome;
                 }
         }
 
         public void UpdateEmpirePlanets()
         {
-            ExcessGoodsMoneyAddedThisTurn = 0;
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
                     planet.UpdateOwnedPlanet();
