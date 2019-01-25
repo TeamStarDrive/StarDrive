@@ -726,22 +726,13 @@ namespace Ship_Game
             // Empire Tax on remainders
             ExcessGoodsIncome = 0;
             if (NonCybernetic)
-                ExcessGoodsIncome += MathExt.Consume(ref foodRemainder, Owner.data.TaxRate); // tax excess food
+                ExcessGoodsIncome += MathExt.ConsumePercent(ref foodRemainder, Owner.data.TaxRate); // tax excess food
 
-            ExcessGoodsIncome += MathExt.Consume(ref prodRemainder, Owner.data.TaxRate); // tax excess production
+            ExcessGoodsIncome += MathExt.ConsumePercent(ref prodRemainder, Owner.data.TaxRate); // tax excess production
 
             // production surplus is sent to auto-construction
             float prodSurplus = Math.Max(prodRemainder, 0f);
             Construction.AutoApplyProduction(prodSurplus);
-        }
-
-        // returns the amount of tax to add to empire from remainder and also updates the remainder
-        float TaxRemainder(ref float remainder)
-        {
-            if (remainder.LessOrEqual(0)) return 0; // dont tax negatives 
-            float taxedRemainder  = remainder * Owner.data.TaxRate;
-            remainder            -= taxedRemainder;
-            return taxedRemainder;
         }
 
         void GrowPopulation()
