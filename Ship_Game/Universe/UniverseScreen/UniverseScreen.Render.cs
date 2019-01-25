@@ -624,7 +624,7 @@ namespace Ship_Game
 
         private void DrawWarpFlash()
         {
-            FTLManager.DrawFTLModels(this);
+            FTLManager.DrawFTLModels(this, ScreenManager.SpriteBatch);
             MuzzleFlashManager.Draw(this);
         }
 
