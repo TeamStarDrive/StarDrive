@@ -208,7 +208,6 @@ namespace Ship_Game
         public bool SkipRightOnce;
         public bool NoEliminationVictory;
         private bool UseRealLights = true;
-        public bool showdebugwindow;
         private bool NeedARelease;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;

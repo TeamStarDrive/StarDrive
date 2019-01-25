@@ -313,8 +313,8 @@ namespace Ship_Game.Ships
 
         public static Ship CreateTroopShipAtPoint(string shipName, Empire owner, Vector2 point, Troop troop)
         {
-            Ship ship                      = CreateShipAtPoint(shipName, owner, point);
-            ship.VanityName                = troop.DisplayName;
+            Ship ship       = CreateShipAtPoint(shipName, owner, point);
+            ship.VanityName = troop.DisplayName;
             ship.TroopList.Add(ResourceManager.CopyTroop(troop));
             if (ship.shipData.Role == ShipData.RoleName.troop)
                 ship.shipData.ShipCategory = ShipData.Category.Conservative;

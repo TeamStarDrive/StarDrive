@@ -370,7 +370,7 @@ namespace Ship_Game
                 slotFactor = ModuleGrid.SlotsCount / 2;
             
             float camLimit = slotFactor + ((3 - Camera.Zoom) * slotFactor);
-            Vector2 tempPos = Camera.WASDCamMovement(input, ScreenManager, camLimit); //This moves the grid
+            Vector2 tempPos = Camera.WASDCamMovement(input, this, camLimit); //This moves the grid
             CameraPosition.X = tempPos.X; //This moves the model
             CameraPosition.Y = tempPos.Y;
             //Log.Info("CamPosX: {0}  CamPosY: {1}  Camera.PosX: {2}  Camera.PosY: {3}  Zoom: {4}  Limit: {5}",
@@ -569,7 +569,7 @@ namespace Ship_Game
         private void HandleInputDebug(InputState input)
         {
             if (!Debug) return;
-            if (input.WasKeyPressed(Keys.Enter))
+            if (input.KeyPressed(Keys.Enter))
             {
                 foreach (ModuleSlotData moduleSlotData in ActiveHull.ModuleSlots)
                     moduleSlotData.InstalledModuleUID = null;

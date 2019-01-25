@@ -591,8 +591,8 @@ namespace Ship_Game
             if (!LookingAtPlanet)
                 NotificationManager.Draw(batch);
 
-            if (Debug && showdebugwindow)
-                DebugWin.Draw(gameTime);
+            if (Debug)
+                DebugWin?.Draw(gameTime);
 
             if (aw.IsOpen && !LookingAtPlanet)
                 aw.Draw(batch);

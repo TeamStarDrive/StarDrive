@@ -9,7 +9,7 @@ namespace Ship_Game
         sealed class FTL
         {
             public Matrix WorldMatrix;
-            public Vector2 Center;
+            public Vector2 WorldPos;
             public float Life  = 0.9f;
             public float Scale = 0.1f;
             public float Rotation;
@@ -23,14 +23,14 @@ namespace Ship_Game
             FTLTexture = content.Load<SubTexture>("Textures/Ships/FTL");
         }
 
-        public static void AddFTL(Vector2 center)
+        public static void AddFTL(Vector2 worldPos)
         {
-            var f = new FTL { Center = center };
+            var f = new FTL { WorldPos = worldPos };
             using (Lock.AcquireWriteLock())
                 Effects.Add(f);
         }
 
-        public static void DrawFTLModels(UniverseScreen us)
+        public static void DrawFTLModels(UniverseScreen us, SpriteBatch batch)
         {
             using (Lock.AcquireReadLock())
             {
@@ -70,7 +70,7 @@ namespace Ship_Game
 			            f.Rotation += 0.09817477f;
 
 			        f.WorldMatrix = Matrix.CreateRotationZ(f.Rotation)
-			                      * Matrix.CreateTranslation(new Vector3(f.Center, 0f));
+			                      * Matrix.CreateTranslation(new Vector3(f.WorldPos, 0f));
 			    }
             }
 		}
