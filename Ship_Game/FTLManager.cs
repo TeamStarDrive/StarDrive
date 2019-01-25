@@ -8,7 +8,6 @@ namespace Ship_Game
 	{
         sealed class FTL
         {
-            public Matrix WorldMatrix;
             public Vector2 WorldPos;
             public float Life  = 0.9f;
             public float Scale = 0.1f;
@@ -30,15 +29,30 @@ namespace Ship_Game
                 Effects.Add(f);
         }
 
+        static Vector2 ScreenPosition(Vector2 worldPos, in Matrix view, in Matrix projection)
+        {
+            return StarDriveGame.Instance.Viewport.Project(worldPos.ToVec3(), 
+                                 projection, view, Matrix.Identity).ToVec2();
+        }
+
         public static void DrawFTLModels(UniverseScreen us, SpriteBatch batch)
         {
+            batch.Begin();
             using (Lock.AcquireReadLock())
             {
-                foreach (FTL item in Effects)
+                foreach (FTL f in Effects)
                 {
-                    us.DrawSunModel(item.WorldMatrix, FTLTexture, item.Scale * (1.0f / 50.0f));
+                    Vector2 pos  = ScreenPosition(f.WorldPos, us.view, us.projection);
+                    Vector2 edge = ScreenPosition(f.WorldPos+new Vector2(100f,0f), us.view, us.projection);
+
+                    float relSizeOnScreen = (edge.X - pos.X) / StarDriveGame.Instance.ScreenWidth;
+                    float sizeScaleOnScreen = f.Scale * 1.25f * relSizeOnScreen;
+                    
+                    batch.Draw(FTLTexture, pos, Color.White, f.Rotation, 
+                        FTLTexture.CenterF, sizeScaleOnScreen, SpriteEffects.FlipVertically, 0.9f);
                 }
             }
+            batch.End();
         }
 
 		public static void Update(float elapsedTime)
@@ -68,9 +82,6 @@ namespace Ship_Game
 
 			        if (elapsedTime > 0f)
 			            f.Rotation += 0.09817477f;
-
-			        f.WorldMatrix = Matrix.CreateRotationZ(f.Rotation)
-			                      * Matrix.CreateTranslation(new Vector3(f.WorldPos, 0f));
 			    }
             }
 		}
