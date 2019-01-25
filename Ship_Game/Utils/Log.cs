@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using SharpRaven;
 using SharpRaven.Data;
@@ -13,6 +14,8 @@ namespace Ship_Game
     public static class Log
     {
         static readonly StreamWriter LogFile;
+        static Thread LogThread;
+        static readonly SafeQueue<string> LogQueue = new SafeQueue<string>(64);
         public static readonly bool HasDebugger = Debugger.IsAttached;
 
         // sentry.io automatic crash reporting
@@ -41,6 +44,9 @@ namespace Ship_Game
 
             LogFile = new StreamWriter("blackbox.log", false, Encoding.ASCII, 32*1024);
             LogFile.Write(init);
+            LogThread = new Thread(LogAsyncWriter) {Name = "AsyncLogWriter"};
+            LogThread.Start();
+
             Raven.Release = GlobalStats.ExtendedVersion;
             if (HasDebugger)
             {
@@ -67,13 +73,32 @@ namespace Ship_Game
             }
         }
 
+
+        public static void FlushAllLogs()
+        {
+            LogThread = null;
+            foreach (string line in LogQueue.TakeAll())
+                LogFile.WriteLine(line);
+            LogFile.Flush();
+        }
+
+        static void LogAsyncWriter()
+        {
+            while (LogThread != null)
+            {
+                if (LogQueue.WaitDequeue(out string line, 15))
+                {
+                    LogFile.WriteLine(line);
+                    while (LogQueue.WaitDequeue(out line, 15))
+                        LogFile.WriteLine(line);
+                    LogFile.Flush();
+                }
+            }
+        }
+
         static void WriteToLog(string text)
         {
-            if (LogFile.BaseStream.CanWrite)
-            {
-                LogFile.WriteLine(text);
-                LogFile.Flush();
-            }
+            LogQueue.Enqueue(text);
         }
 
         static void WriteToConsole(ConsoleColor color, string text)
