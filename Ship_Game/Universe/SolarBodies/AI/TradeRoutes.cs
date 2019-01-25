@@ -10,8 +10,6 @@ namespace Ship_Game.Universe.SolarBodies.AI
 {
     public class TradeAI
     {
-
-
         public override string ToString()
         {
             return $"{TradePlanet.Name} - IF:{IncomingFreight.Count} OF:{OutGoingFreight.Count}";

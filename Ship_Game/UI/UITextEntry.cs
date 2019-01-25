@@ -142,7 +142,7 @@ namespace Ship_Game
         {
             if (key == InputKeys.Back && boop == 0)
                 return input.IsKeyDown(key);
-            return input.WasKeyPressed(key);
+            return input.KeyPressed(key);
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)

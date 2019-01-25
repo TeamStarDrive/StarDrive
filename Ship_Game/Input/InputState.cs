@@ -13,7 +13,6 @@ namespace Ship_Game
         public MouseState MouseCurr;
         public MouseState MousePrev;
         public int ScrollWheelPrev;
-        public bool Repeat;
         public float ExitScreenTimer;
         // MouseDrag variables
         public Vector2 StartRighthold { get; private set; }
@@ -117,11 +116,8 @@ namespace Ship_Game
         
         public bool IsKeyDown(Keys key) => KeysCurr.IsKeyDown(key);
 
-        private bool KeyPressed(Keys key)
-        {
-            return Repeat ? KeysCurr.IsKeyDown(key) : WasKeyPressed(key);
-        }
-        public bool WasKeyPressed(Keys key)
+        // key was pressed down (previous state was up)
+        public bool KeyPressed(Keys key)
         {
             return KeysCurr.IsKeyDown(key) && KeysPrev.IsKeyUp(key);
         }
@@ -171,7 +167,7 @@ namespace Ship_Game
         public bool ReplaceFleet         => IsCtrlKeyDown && IsShiftKeyDown;
         public bool QueueAction          => IsShiftKeyDown;
         public bool OrderOption          => IsAltKeyDown;
-        public bool ShipPieMenu          => WasKeyPressed(Keys.Q);
+        public bool ShipPieMenu          => KeyPressed(Keys.Q);
         
         //input.KeysCurr.IsKeyDown(Keys.LeftAlt)
         //IngameWiki
@@ -245,10 +241,15 @@ namespace Ship_Game
         public bool Left  => KeyPressed(Keys.Left)  || KeyPressed(Keys.A) || GamepadClicked(Buttons.DPadLeft);
         public bool Right => KeyPressed(Keys.Right) || KeyPressed(Keys.D) || GamepadClicked(Buttons.DPadRight);
 
-        public bool WASDUp    => KeyPressed(Keys.W);
-        public bool WASDDown  => KeyPressed(Keys.S);
-        public bool WASDLeft  => KeyPressed(Keys.A);
-        public bool WASDRight => KeyPressed(Keys.D);
+        public bool KeysUpHeld(bool arrowKeys = true)    => (arrowKeys && IsKeyDown(Keys.Up))    || IsKeyDown(Keys.W) || GamepadHeld(Buttons.DPadUp);
+        public bool KeysDownHeld(bool arrowKeys = true)  => (arrowKeys && IsKeyDown(Keys.Down))  || IsKeyDown(Keys.S) || GamepadHeld(Buttons.DPadDown);
+        public bool KeysLeftHeld(bool arrowKeys = true)  => (arrowKeys && IsKeyDown(Keys.Left))  || IsKeyDown(Keys.A) || GamepadHeld(Buttons.DPadLeft);
+        public bool KeysRightHeld(bool arrowKeys = true) => (arrowKeys && IsKeyDown(Keys.Right)) || IsKeyDown(Keys.D) || GamepadHeld(Buttons.DPadRight);
+
+        public bool WASDUp    => IsKeyDown(Keys.W);
+        public bool WASDDown  => IsKeyDown(Keys.S);
+        public bool WASDLeft  => IsKeyDown(Keys.A);
+        public bool WASDRight => IsKeyDown(Keys.D);
 
         public bool ArrowRight => KeyPressed(Keys.Right) || KeyPressed(Keys.NumPad6);
         public bool ArrowUp    => KeyPressed(Keys.Up) || KeyPressed(Keys.NumPad8);

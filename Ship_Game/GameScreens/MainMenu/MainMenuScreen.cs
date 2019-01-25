@@ -249,7 +249,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 if (input.ScrollOut) ShipScale -= 0.1f;
 
                 // if new keypress, spawn random ship
-                if (input.WasKeyPressed(Keys.Space))
+                if (input.KeyPressed(Keys.Space))
                     InitRandomShip();
 
                 if (input.WasAnyKeyPressed)
