@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
@@ -150,6 +151,8 @@ namespace Ship_Game
                     planet.Station.Update(elapsedTime);
             }
 
+            bool radiation = ShouldApplyRadiationDamage(elapsedTime);
+
             for (int i = ShipList.Count - 1; i >= 0; --i)
             {
                 Ship ship = ShipList[i];
@@ -164,22 +167,60 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+                    if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
                     {
                         ship.Inhibited = true;
                         ship.InhibitedTimer = 10f;
                     }
-                    ApplySolarRadiationDamage(ship);
+                    if (radiation)
+                    {
+                        ApplySolarRadiationDamage(ship);
+                    }
+
                     ship.Update(elapsedTime);
                     if (ship.PlayerShip)
+                    {
                         ship.ProcessInput(elapsedTime);
+                    }
                 }
             }
         }
 
+        float RadiationTimer;
+        const float RadiationInterval = 0.5f;
+
+        bool ShouldApplyRadiationDamage(float elapsedTime)
+        {
+            if (Sun.RadiationDamage > 0f)
+            {
+                RadiationTimer += elapsedTime;
+                if (RadiationTimer >= RadiationInterval)
+                {
+                    RadiationTimer -= RadiationInterval;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         void ApplySolarRadiationDamage(Ship ship)
         {
-            if (Sun.RadiationDamage <= 0f) return;
+            if (Sun.RadiationDamage <= 0f)
+                return;
+
+            // some debugging for us developers
+            if (Empire.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.Pathing)
+            {
+                for (float r = 0.03f; r < 0.5f; r += 0.03f)
+                {
+                    float dist = Sun.RadiationRadius*r;
+                    var color = new Color(Color.Red, Sun.DamageMultiplier(dist));
+                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Pathing, 
+                        Position, dist, color, RadiationInterval);
+                }
+                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Pathing, 
+                    Position, Sun.RadiationRadius, Color.Brown, RadiationInterval);
+            }
 
             float distance = ship.Center.Distance(Position);
             if (distance < Sun.RadiationRadius)
