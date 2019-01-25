@@ -643,11 +643,11 @@ namespace Ship_Game
                     {
                         if (p.Type.EarthLike)
                         {
-                            DrawClouds(xnaPlanetModel, p.CloudMatrix, view, projection, p);
-                            DrawAtmo(xnaPlanetModel, p.CloudMatrix, view, projection, p);
+                            DrawClouds(xnaPlanetModel, p.CloudMatrix, p);
+                            DrawAtmo(xnaPlanetModel, p.CloudMatrix, p);
                         }
                         if (p.HasRings)
-                            DrawRings(p.RingWorld, view, projection, p.Scale);
+                            DrawRings(p.RingWorld, p.Scale);
                     }
                 }
             }
