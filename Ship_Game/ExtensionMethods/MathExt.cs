@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -39,7 +40,7 @@ namespace Ship_Game
         {
             Min = min; Max = max;
         }
-        public float Generate()
+        [Pure] public float Generate()
         {
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             return Min == Max ? Min : RandomMath.RandomBetween(Min, Max);
