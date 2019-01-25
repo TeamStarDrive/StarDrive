@@ -92,7 +92,7 @@ namespace Ship_Game
         }
 
         // We wish to subtract percentage of a value and return that while updating the value as well
-        public static float Consume(ref float fromAmount, float percent)
+        public static float ConsumePercent(ref float fromAmount, float percent)
         {
             if (fromAmount.LessOrEqual(0)) return 0; // nothing to consume
             float consumed = fromAmount * percent;
