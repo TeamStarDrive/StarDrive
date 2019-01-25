@@ -18,12 +18,13 @@ namespace Ship_Game
     [Serializable]
     public sealed class SafeQueue<T> : IDisposable, IReadOnlyCollection<T>
     {
-        private T[] Items;
-        private int Head; // index of the First element
+        T[] Items;
+        int Head; // index of the First element
         public int Count { get; private set; }
-        private ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        AutoResetEvent ItemAdded = new AutoResetEvent(false);
 
-        private static readonly T[] Empty = Empty<T>.Array;
+        static readonly T[] Empty = Empty<T>.Array;
 
         // This is relatively atomic, no reason to lock on this
         // as it wouldn't provide any benefits or thread safety
@@ -103,6 +104,7 @@ namespace Ship_Game
                 }
                 Items[(Head + Count) % Items.Length] = item;
                 ++Count;
+                ItemAdded.Set();
             }
             ThisLock.ExitWriteLock();
         }
@@ -136,6 +138,7 @@ namespace Ship_Game
                 }
                 Items[Head] = item;
                 ++Count;
+                ItemAdded.Set();
             }
             ThisLock.ExitWriteLock();
         }
@@ -153,6 +156,24 @@ namespace Ship_Game
                 --Count;
                 ThisLock.ExitWriteLock();
                 return item;
+            }
+        }
+
+        // block until an item is available or timeout was reached
+        public bool WaitDequeue(out T item, int millisecondTimeout = -1)
+        {
+            unchecked {
+                if (ItemAdded.WaitOne(millisecondTimeout) && Count > 0)
+                {
+                    ThisLock.EnterWriteLock();
+                    item = Items[Head];
+                    if (++Head == Items.Length) Head = 0;
+                    --Count;
+                    ThisLock.ExitWriteLock();
+                    return true;
+                }
+                item = default;
+                return false;
             }
         }
 
@@ -265,6 +286,26 @@ namespace Ship_Game
             }
         }
 
+        
+        public T[] TakeAll()
+        {
+            unchecked {
+                ThisLock.EnterReadLock();
+                int count = Count;
+                var arr = new T[count];
+                for (int j = 0, i = Head; j < count;)
+                {
+                    arr[j++] = Items[i++];
+                    if (i == Items.Length) i = 0;
+                }
+                Array.Clear(Items, 0, Items.Length);
+                Head  = 0;
+                Count = 0;
+                ThisLock.ExitReadLock();
+                return arr;
+            }
+        }
+
         public override string ToString()
         {
             return GetType().GenericName();
@@ -280,6 +321,9 @@ namespace Ship_Game
 
         private void Destroy()
         {
+            Count = 0;
+            ItemAdded?.Set();
+            ItemAdded?.Dispose(ref ItemAdded);
             ThisLock?.Dispose(ref ThisLock);
         }
 
