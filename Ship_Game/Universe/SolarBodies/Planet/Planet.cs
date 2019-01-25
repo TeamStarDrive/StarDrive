@@ -64,6 +64,7 @@ namespace Ship_Game
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set;}
+        public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
 
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
         
@@ -723,13 +724,11 @@ namespace Ship_Game
             Storage.DistributeSpecialBuildingResources();
 
             // Empire Tax on remainders
+            ExcessGoodsIncome = 0;
             if (NonCybernetic)
-            {
-                float foodRemainderTax = TaxRemainder(ref foodRemainder);
-                Owner.AddExcessGoodsMoney(foodRemainderTax);
-            }
-            float prodRemainderTax = TaxRemainder(ref prodRemainder);
-            Owner.AddExcessGoodsMoney(prodRemainderTax);
+                ExcessGoodsIncome += MathExt.Consume(ref foodRemainder, Owner.data.TaxRate); // tax excess food
+
+            ExcessGoodsIncome += MathExt.Consume(ref prodRemainder, Owner.data.TaxRate); // tax excess production
 
             // production surplus is sent to auto-construction
             float prodSurplus = Math.Max(prodRemainder, 0f);
