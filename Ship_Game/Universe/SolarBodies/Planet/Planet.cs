@@ -726,10 +726,10 @@ namespace Ship_Game
             if (NonCybernetic)
             {
                 float foodRemainderTax = TaxRemainder(ref foodRemainder);
-                Owner.AddMoney(foodRemainderTax);
+                Owner.AddExcessGoodsMoney(foodRemainderTax);
             }
             float prodRemainderTax = TaxRemainder(ref prodRemainder);
-            Owner.AddMoney(prodRemainderTax);
+            Owner.AddExcessGoodsMoney(prodRemainderTax);
 
             // production surplus is sent to auto-construction
             float prodSurplus = Math.Max(prodRemainder, 0f);
@@ -739,9 +739,9 @@ namespace Ship_Game
         // returns the amount of tax to add to empire from remainder and also updates the remainder
         float TaxRemainder(ref float remainder)
         {
-            if (remainder.Less(0)) return 0; // dont tax negatives
+            if (remainder.LessOrEqual(0)) return 0; // dont tax negatives 
             float taxedRemainder  = remainder * Owner.data.TaxRate;
-            remainder -= taxedRemainder;
+            remainder            -= taxedRemainder;
             return taxedRemainder;
         }
 

@@ -75,6 +75,7 @@ namespace Ship_Game
         public float NetPlanetIncomes { get; private set; }
         public float GrossPlanetIncome { get; private set; }
         public float TradeMoneyAddedThisTurn { get; private set; }
+        public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
         public float MoneyLastTurn;
         public int AllTimeTradeIncome;
         public bool AutoBuild;
@@ -131,7 +132,7 @@ namespace Ship_Game
 
 
         // Income this turn before deducting ship maintenance
-        public float GrossIncome              => GrossPlanetIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
+        public float GrossIncome              => GrossPlanetIncome + TradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
         public float NetIncome                => GrossIncome - BuildingAndShipMaint;
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
@@ -593,6 +594,11 @@ namespace Ship_Game
         {
             TradeMoneyAddedThisTurn += howMuch;
             AllTimeTradeIncome        += (int)howMuch;
+        }
+
+        public void AddExcessGoodsMoney(float howMuch)
+        {
+            ExcessGoodsMoneyAddedThisTurn += howMuch;
         }
 
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
@@ -1345,8 +1351,9 @@ namespace Ship_Game
             MoneyLastTurn = Money;
             ++TurnCount;
 
-            UpdateNetPlanetIncomes();
+            UpdateEmpirePlanets();
             UpdateTradeIncome();
+            UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             Money += NetIncome;
         }
@@ -1358,11 +1365,18 @@ namespace Ship_Game
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
                 {
-                    planet.UpdateOwnedPlanet();
                     planet.UpdateIncomes(false);
                     NetPlanetIncomes += planet.Money.NetRevenue;
                     GrossPlanetIncome += planet.Money.GrossRevenue;
                 }
+        }
+
+        public void UpdateEmpirePlanets()
+        {
+            ExcessGoodsMoneyAddedThisTurn = 0;
+            using (OwnedPlanets.AcquireReadLock())
+                foreach (Planet planet in OwnedPlanets)
+                    planet.UpdateOwnedPlanet();
         }
 
         public float TotalAvgTradeIncome => GetTotalTradeIncome() + GetAverageTradeIncome();
