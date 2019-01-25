@@ -21,6 +21,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float LayerScale = 1.0f; // extra visual scale factor for this layer
         [StarData] public readonly SpriteBlendMode BlendMode = SpriteBlendMode.AlphaBlend;
         [StarData] public readonly float RotationSpeed = 0.03f;
+        [StarData] public readonly Range RotationStart = new Range(-1f, 1f);
         [StarData] public readonly float PulsePeriod = 5f; // period of animated pulse
         [StarData] public readonly Range PulseScale = new Range(0.95f, 1.05f);
         [StarData] public readonly Range PulseColor = new Range(0.95f, 1.05f);
@@ -105,12 +106,15 @@ namespace Ship_Game.Universe.SolarBodies
         
         public float DamageMultiplier(float distFromSun)
         {
-            // this is a custom non-linear falloff
             // https://www.desmos.com/calculator/lc2u7qxmhj
-            // it's very similar to inverse square law
-            // but there's a 20% radius where intensity is 1.0
-            float linear = distFromSun / RadiationRadius;
-            float intensity = (0.2f / linear) - 0.2f;
+            // this is the inverse square law with a min multiplier
+            // to create a dead zone where damage is 1.0
+
+            float intensity = ((200f * RadiationRadius) / (distFromSun * distFromSun)) - 0.002f;
+
+            // it's very similar to inverse square law, but the curve is less forgiving
+            // there's a % radius where intensity is 1.0
+            //float intensity = (0.03f / (distFromSun / RadiationRadius)) - 0.031f;
             return intensity.Clamped(0f, 1f);
         }
 
@@ -180,7 +184,7 @@ namespace Ship_Game.Universe.SolarBodies
         public SunLayerState(GameContentManager content, SunLayerInfo info)
         {
             Info = info;
-            Rotation = info.RotationSpeed * RandomMath.RandomBetween(-20f, 20f); // start at a random rotation
+            Rotation = info.RotationStart.Generate(); // start at a random rotation
             
             if (info.AnimationPath.NotEmpty())
             {
