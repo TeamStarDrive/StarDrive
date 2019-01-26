@@ -513,42 +513,42 @@ namespace Ship_Game
 			Vector2 MousePos = new Vector2(currentMouse.X, currentMouse.Y);
             if (!GlobalStats.TakingInput)
             {
-                if (input.WasKeyPressed(Keys.R))
+                if (input.KeyPressed(Keys.R))
 			    {
 				    GameAudio.EchoAffirmative();
                     Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
 			    }
-                if (input.WasKeyPressed(Keys.T))
+                if (input.KeyPressed(Keys.T))
 			    {
 				    GameAudio.EchoAffirmative();
                     Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
 			    }
-                if (input.WasKeyPressed(Keys.Y))
+                if (input.KeyPressed(Keys.Y))
 			    {
 				    GameAudio.EchoAffirmative();
                     Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
 			    }
-                if (input.WasKeyPressed(Keys.U))
+                if (input.KeyPressed(Keys.U))
 			    {
 				    GameAudio.EchoAffirmative();
                     Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
 			    }
-                if (input.WasKeyPressed(Keys.I))
+                if (input.KeyPressed(Keys.I))
 			    {
 				    GameAudio.EchoAffirmative();
                     Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
 			    }
-                if (input.WasKeyPressed(Keys.O))
+                if (input.KeyPressed(Keys.O))
 			    {
 				    GameAudio.EchoAffirmative();
                     Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
 			    }
-                if (input.WasKeyPressed(Keys.E))
+                if (input.KeyPressed(Keys.E))
                 {
                     GameAudio.EchoAffirmative();
                     Empire.Universe.ScreenManager.AddScreen(new EspionageScreen(Empire.Universe));
                 }
-			    if (input.WasKeyPressed(Keys.P))
+			    if (input.KeyPressed(Keys.P))
 			    {
 				    GameAudio.TacticalPause();
                     Empire.Universe.ScreenManager.AddScreen(new InGameWiki(Empire.Universe));

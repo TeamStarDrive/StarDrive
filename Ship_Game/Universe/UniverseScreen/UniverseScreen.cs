@@ -127,8 +127,6 @@ namespace Ship_Game
         public Empire PlayerEmpire;
         public string PlayerLoyalty;
         public string loadFogPath;
-        private Model SunModel;
-        private Model NebModel;
         public Model xnaPlanetModel;
         public Texture2D RingTexture;
         public AudioListener Listener;
@@ -208,7 +206,6 @@ namespace Ship_Game
         public bool SkipRightOnce;
         public bool NoEliminationVictory;
         private bool UseRealLights = true;
-        public bool showdebugwindow;
         private bool NeedARelease;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
@@ -640,8 +637,7 @@ namespace Ship_Game
             AtmoEffect     = content.Load<Effect>("Effects/PlanetHalo");
             cloudTex       = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
             RingTexture    = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
-            SunModel       = content.Load<Model>("Model/SpaceObjects/star_plane");
-            NebModel       = content.Load<Model>("Model/SpaceObjects/star_plane");
+            
             FTLManager.LoadContent(content);
             MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);

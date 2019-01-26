@@ -80,32 +80,23 @@ namespace Ship_Game
             return worldPos;
         }
 
-        public void Move(Vector2 amount)
-        {
-            CamPos += amount;            
-        }
-        
         public void Move(float dx, float dy)
         {
             CamPos.X += dx;
             CamPos.Y += dy;            
         }
 
-        public Vector2 WASDCamMovement(InputState input, ScreenManager screenRes, float limit)
+        public Vector2 WASDCamMovement(InputState input, GameScreen screen, float limit)
         {
             Vector2 adjustCam = Vector2.Zero;
-            int ScreensizeX = screenRes.GraphicsDevice.PresentationParameters.BackBufferWidth / 2;
-            int ScreensizeY = screenRes.GraphicsDevice.PresentationParameters.BackBufferHeight / 2;
-            input.Repeat = true;
-            if (input.WASDLeft && CamPos.X - ScreensizeX > -limit)  adjustCam.X -= GlobalStats.CameraPanSpeed * (5 - Zoom);
-            if (input.WASDRight && CamPos.X - ScreensizeX < limit)  adjustCam.X += GlobalStats.CameraPanSpeed * (5 - Zoom);
-            if (input.WASDUp && CamPos.Y - ScreensizeY > -limit)    adjustCam.Y -= GlobalStats.CameraPanSpeed * (5 - Zoom);
-            if (input.WASDDown && CamPos.Y - ScreensizeY < limit)   adjustCam.Y += GlobalStats.CameraPanSpeed * (5 - Zoom);
-            input.Repeat = false;
+            Vector2 c = screen.ScreenCenter;
+            if (input.WASDLeft  && CamPos.X - c.X  > -limit) adjustCam.X -= GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.WASDRight && CamPos.X - c.X  <  limit) adjustCam.X += GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.WASDUp    && CamPos.Y - c.Y > -limit)  adjustCam.Y -= GlobalStats.CameraPanSpeed * (5 - Zoom);
+            if (input.WASDDown  && CamPos.Y - c.Y <  limit)  adjustCam.Y += GlobalStats.CameraPanSpeed * (5 - Zoom);
             
-
-            Move(adjustCam);
-            return new Vector2(CamPos.X - ScreensizeX, CamPos.Y - ScreensizeY);
+            CamPos += adjustCam; 
+            return CamPos - c;
         }
 
         private Vector2 CameraVelocity = Vector2.Zero;
@@ -127,7 +118,7 @@ namespace Ship_Game
             if (CameraVelocity.Length() > 150f)
                 CameraVelocity = CameraVelocity.Normalized() * 150f;
 
-            Move(CameraVelocity);
+            CamPos += CameraVelocity; 
         }
     }
 }
