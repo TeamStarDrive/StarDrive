@@ -156,7 +156,7 @@ namespace Ship_Game.GameScreens
 
         public override bool HandleInput(InputState input)
         {
-            if (input.WasKeyPressed(Keys.T) && !GlobalStats.TakingInput)
+            if (input.KeyPressed(Keys.T) && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();

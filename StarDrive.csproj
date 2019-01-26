@@ -230,7 +230,14 @@
     <Compile Include="Ship_Game\Data\StarDataConverter.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
     <Compile Include="Ship_Game\Data\StarDataParser.cs" />
-    <Compile Include="Ship_Game\Debug\DebugScreens.cs" />
+    <Compile Include="Ship_Game\Debug\DebugInfoScreen_DebugText.cs" />
+    <Compile Include="Ship_Game\Debug\DebugInfoScreen_DrawPrimitives.cs" />
+    <Compile Include="Ship_Game\Debug\DebugTextBlock.cs" />
+    <Compile Include="Ship_Game\Debug\Page\DebugPage.cs" />
+    <Compile Include="Ship_Game\Debug\Page\PathDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\SolarDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\TradeDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\PlanetDebug.cs" />
     <Compile Include="Ship_Game\Empires\SubSpaceProjectors.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFilter.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindMax.cs" />
@@ -366,6 +373,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.InputActions.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Menus.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Render.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.StressTestShipLoading.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.UpdateGame.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Utils\ReadRestAPI.cs" />
@@ -1288,7 +1296,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\DebugPrimitives.cs">
+    <Compile Include="Ship_Game\Debug\DebugPrimitives.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

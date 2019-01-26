@@ -662,7 +662,7 @@ namespace Ship_Game
             return nearby;
         }
 
-        private static bool ShouldStoreDebugInfo => Empire.Universe.Debug && Empire.Universe.showdebugwindow;
+        private static bool ShouldStoreDebugInfo => Empire.Universe.Debug && Empire.Universe.DebugWin != null;
         private static void AddNearbyDebug(GameplayObject obj, float radius, GameplayObject[] nearby)
         {
             var debug = new FindNearbyDebug { Obj = obj, Radius = radius, Nearby = nearby, Timer = 2f };

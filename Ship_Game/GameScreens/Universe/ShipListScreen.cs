@@ -373,7 +373,7 @@ namespace Ship_Game
             if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenEntry.GetStatusText(sl.ship));
             if (SortSystem.HandleInput(input)) SortAndReset(SortOrder, sl => sl.ship.SystemName);
 
-            if (input.WasKeyPressed(Keys.K) && !GlobalStats.TakingInput)
+            if (input.KeyPressed(Keys.K) && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();

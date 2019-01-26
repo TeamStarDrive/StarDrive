@@ -208,6 +208,8 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 // this is a nice sine-wave pulse effect that varies our intensity
                 PulseTimer += deltaTime;
+
+                // sine-wave pattern
                 float progress = (PulseTimer/Info.PulsePeriod)*(float)Math.PI*2; // tick every second
                 Intensity = (1.0f + (float)Math.Sin(progress))*0.5f; // convert to positive [0.0-1.0] scale
 

@@ -10,7 +10,7 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        private void DrawRings(Matrix world, Matrix view, Matrix projection, float scale)
+        private void DrawRings(in Matrix world, float scale)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU          = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV          = TextureAddressMode.Wrap;
@@ -33,7 +33,7 @@ namespace Ship_Game
             ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
         }
 
-        private void DrawAtmo(Model model, Matrix world, Matrix view, Matrix projection, Planet planet)
+        private void DrawAtmo(Model model, in Matrix world, Planet planet)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -46,14 +46,14 @@ namespace Ship_Game
             renderState.CullMode = CullMode.CullClockwiseFace;
 
             ModelMesh modelMesh = model.Meshes[0];
-            SubTexture atmos = ResourceManager.Texture("Atmos");
+            SubTexture atmosphere = ResourceManager.Texture("Atmos");
 
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
                 basicEffect.World = Matrix.CreateScale(4.1f) * world;
                 basicEffect.View = view;
                 // @todo 3D Texture Atlas support?
-                basicEffect.Texture = atmos.Texture;
+                basicEffect.Texture = atmosphere.Texture;
                 basicEffect.TextureEnabled = true;
                 basicEffect.Projection = projection;
                 basicEffect.LightingEnabled = true;
@@ -67,32 +67,32 @@ namespace Ship_Game
                 basicEffect.DirectionalLight1.Direction = new Vector3(0.98f, -0.025f, 0.2f);
             }
             modelMesh.Draw();
-            DrawAtmo1(world, view, projection);
+            DrawAtmo1(world);
             renderState.DepthBufferWriteEnable = true;
             renderState.CullMode = CullMode.CullCounterClockwiseFace;
             renderState.AlphaBlendEnable = false;
         }
 
-        private void DrawAtmo1(Matrix world, Matrix view, Matrix projection)
+        private void DrawAtmo1(in Matrix world)
         {
             AtmoEffect.Parameters["World"].SetValue(Matrix.CreateScale(3.83f) * world);
             AtmoEffect.Parameters["Projection"].SetValue(projection);
             AtmoEffect.Parameters["View"].SetValue(view);
             AtmoEffect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f, 0.0f, 1500f));
             AtmoEffect.Parameters["DiffuseLightDirection"].SetValue(new Vector3(-0.98f, 0.425f, -0.4f));
-            for (int index1 = 0; index1 < AtmoEffect.CurrentTechnique.Passes.Count; ++index1)
+            for (int pass = 0; pass < AtmoEffect.CurrentTechnique.Passes.Count; ++pass)
             {
-                for (int index2 = 0; index2 < atmoModel.Meshes.Count; ++index2)
+                for (int mesh = 0; mesh < atmoModel.Meshes.Count; ++mesh)
                 {
-                    ModelMesh modelMesh = atmoModel.Meshes[index2];
-                    for (int index3 = 0; index3 < modelMesh.MeshParts.Count; ++index3)
-                        modelMesh.MeshParts[index3].Effect = AtmoEffect;
+                    ModelMesh modelMesh = atmoModel.Meshes[mesh];
+                    for (int part = 0; part < modelMesh.MeshParts.Count; ++part)
+                        modelMesh.MeshParts[part].Effect = AtmoEffect;
                     modelMesh.Draw();
                 }
             }
         }
 
-        private void DrawClouds(Model model, Matrix world, Matrix view, Matrix projection, Planet p)
+        private void DrawClouds(Model model, in Matrix world, Planet p)
         {
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -144,8 +144,6 @@ namespace Ship_Game
                 float Radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), Position);
                 if (Radius < 5.0)
                     Radius = 5f;
-                Rectangle rectangle = new Rectangle((int) Position.X - (int) Radius, (int) Position.Y - (int) Radius,
-                    (int) Radius * 2, (int) Radius * 2);
                 ScreenManager.SpriteBatch.BracketRectangle(Position, Radius, Color.White);
             }
             if (SelectedPlanet == null || LookingAtPlanet ||
@@ -161,11 +159,8 @@ namespace Ship_Game
             float Radius1 = Vector2.Distance(new Vector2(vector3_4.X, vector3_4.Y), Position1);
             if (Radius1 < 8.0)
                 Radius1 = 8f;
-            Vector2 vector2 = new Vector2(vector3_3.X, vector3_3.Y - Radius1);
-            Rectangle rectangle1 = new Rectangle((int) Position1.X - (int) Radius1, (int) Position1.Y - (int) Radius1,
-                (int) Radius1 * 2, (int) Radius1 * 2);
             ScreenManager.SpriteBatch.BracketRectangle(Position1, Radius1,
-                SelectedPlanet.Owner != null ? SelectedPlanet.Owner.EmpireColor : Color.Gray);
+                SelectedPlanet.Owner?.EmpireColor ?? Color.Gray);
         }
 
         private void DrawFogNodes()
@@ -591,8 +586,8 @@ namespace Ship_Game
             if (!LookingAtPlanet)
                 NotificationManager.Draw(batch);
 
-            if (Debug && showdebugwindow)
-                DebugWin.Draw(gameTime);
+            if (Debug)
+                DebugWin?.Draw(gameTime);
 
             if (aw.IsOpen && !LookingAtPlanet)
                 aw.Draw(batch);
@@ -1252,9 +1247,6 @@ namespace Ship_Game
             HelperFunctions.ClampVectorToInt(ref posOffSet);
             ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
         }
-
-        public void DrawSunModel(in Matrix world, SubTexture texture, float scale)
-            => DrawTransparentModel(SunModel, world, texture, scale);
 
         public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)
         {
