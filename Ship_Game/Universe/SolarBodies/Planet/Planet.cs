@@ -825,23 +825,22 @@ namespace Ship_Game
             TroopsHere?.Dispose(ref TroopsHere);
         }
 
-        public Array<DebugTextBlock> DebugPlanetInfo()
+        public DebugTextBlock DebugPlanetInfo()
         {
-            var incomingData = new DebugTextBlock();
-            var blocks = new Array<DebugTextBlock>();
+            var debug = new DebugTextBlock();
             var lines = new Array<string>();
             var totals = DebugSummarizePlanetStats(lines);
             string food = $"{(int)FoodHere}(%{100*Storage.FoodRatio:00.0}) {FS}";
             string prod = $"{(int)ProdHere}(%{100*Storage.ProdRatio:00.0}) {PS}";
 
-            incomingData.AddLine($"{ParentSystem.Name} : {Name} : IN Cargo: {totals.Total}", Color.Yellow);
-            incomingData.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
-            incomingData.AddLine($"ProdHere: {prod} IN: {totals.Prod}");
-            incomingData.AddLine($"IN Colonists: {totals.Colonists}");
-            incomingData.AddLine($"");
-            blocks.Add(incomingData);
-            return blocks;
+            debug.AddLine($"{ParentSystem.Name} : {Name} : IN Cargo: {totals.Total}", Color.Yellow);
+            debug.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
+            debug.AddLine($"ProdHere: {prod} IN: {totals.Prod}");
+            debug.AddLine($"IN Colonists: {totals.Colonists}");
+            debug.AddLine("");
+            return debug;
         }
+
         public TradeAI.DebugSummaryTotal DebugSummarizePlanetStats(Array<string> lines)
         {
             lines.Add($"Money: {Money.NetRevenue}");
