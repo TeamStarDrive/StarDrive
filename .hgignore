@@ -23,7 +23,6 @@ packages/MSTest.TestFramework.1.0.5-preview/
 x64/
 packages/MsgPack.Cli.0.9.0-beta1/lib/
 *.diagsession
-Debug/
 .idea/
 dupReport.html
 dupReport.xml

@@ -26,20 +26,14 @@ namespace Ship_Game
         private readonly PerfTimer perfavg4          = new PerfTimer();
         private readonly PerfTimer perfavg5          = new PerfTimer();
 
-        public static bool ShipWindowOpen       = false;
-        public static bool ColonizeWindowOpen   = false;
-        public static bool PlanetViewWindowOpen = false;
         public static readonly SpatialManager SpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
-        public static bool DisableClicks = false;
-        //private static string fmt = "00000.##";
         public float GamePace = 1f;
         public float GameScale = 1f;
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
         public string StarDateString => StarDate.StarDateString();
-        public float StarDateTimer = 5f;
         public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
         public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
@@ -70,7 +64,6 @@ namespace Ship_Game
         private float sTooltipTimer = 0.5f;
         private float TimerDelay = 0.25f;
         private GameTime SimulationTime = new GameTime();
-        public Array<ShipModule> ModulesNeedingReset = new Array<ShipModule>();
         private bool TurnFlip = true;
         private float TurnFlipCounter;
         private int Auto = 1;
@@ -95,14 +88,12 @@ namespace Ship_Game
         private Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug;
-        public bool GridOn;
         public Planet SelectedPlanet;
         public Ship SelectedShip;
         public ClickableItemUnderConstruction SelectedItem;
         private PieMenu pieMenu;
         private PieMenuNode planetMenu;
         private PieMenuNode shipMenu;
-        private float PieMenuTimer;
         public Matrix view;
         public Matrix projection;
         public ParticleSystem beamflashes;
@@ -151,8 +142,6 @@ namespace Ship_Game
         public Rectangle GalaxyMap;
         public Rectangle SelectedStuffRect;
         public NotificationManager NotificationManager;
-        public Selector minimapSelector;
-        public Selector stuffSelector;
         public Rectangle MinimapDisplayRect;
         public Rectangle mmShowBorders;
         public Rectangle mmDSBW;
@@ -173,7 +162,6 @@ namespace Ship_Game
         private MiniMap minimap;
         private bool loading;
         public Thread ProcessTurnsThread;
-        public bool WorkerUpdateGameWorld;
         public Ship playerShip;
         public float transitionElapsedTime;
         public BoundingFrustum Frustum;
@@ -181,7 +169,6 @@ namespace Ship_Game
         private ClickableSystem tippedSystem;
         private bool ShowingSysTooltip;
         private bool ShowingPlanetToolTip;
-        private float zTime;
         private float MusicCheckTimer;
         private int ArmageddonCounter;
         private float shiptimer;
@@ -684,7 +671,6 @@ namespace Ship_Game
             EmpireUI.Update(deltaTime);
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-            zTime += deltaTime;
         }
 
         public void DoAutoSave()
