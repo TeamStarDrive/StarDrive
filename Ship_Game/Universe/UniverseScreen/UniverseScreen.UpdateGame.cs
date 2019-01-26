@@ -25,7 +25,6 @@ namespace Ship_Game
                         return; // this thread is aborting
 
                     float deltaTime = (float)SimulationTime.ElapsedGameTime.TotalSeconds;
-                    PieMenuTimer += deltaTime;
                     pieMenu.Update(SimulationTime);
 
                     if (Paused)
@@ -391,7 +390,6 @@ namespace Ship_Game
         private bool ProcessTurnEmpires(float elapsedTime)
         {
             PreEmpirePerf.Start();
-            zTime = elapsedTime;
 
             if (!IsActive)
             {
