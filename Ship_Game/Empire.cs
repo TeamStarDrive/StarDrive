@@ -1292,7 +1292,7 @@ namespace Ship_Game
 
         public DebugTextBlock DebugEmpireTradeInfo()
         {
-            var incomingData = new DebugTextBlock();
+            var debug = new DebugTextBlock();
             foreach (Planet p in OwnedPlanets)
             {
                 if (p.TradeAI == null) continue;
@@ -1303,32 +1303,35 @@ namespace Ship_Game
                 string prod = $"{(int)p.ProdHere}(%{100 * p.Storage.ProdRatio:00.0}) {p.PS}";
                 string colonists = $"{(int)p.PopulationBillion}B(%{100 * p.Storage.PopRatio:00.0}) {p.GetGoodState(Goods.Colonists)}";
 
-                incomingData.AddLine($"{p.ParentSystem.Name} : {p.Name} : IN Cargo: {totals.Total}", Color.Yellow);
-                incomingData.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
-                incomingData.AddLine($"ProdHere: {prod} IN: {totals.Prod}" );
-                incomingData.AddLine($"Colonists: {colonists } IN {totals.Colonists}");
-                incomingData.AddLine($"");
+                debug.AddLine($"{p.ParentSystem.Name} : {p.Name} : IN Cargo: {totals.Total}", Color.Yellow);
+                debug.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
+                debug.AddLine($"ProdHere: {prod} IN: {totals.Prod}" );
+                debug.AddLine($"Colonists: {colonists } IN {totals.Colonists}");
+                debug.AddLine("");
 
             }
-            return incomingData;
+            debug.Header = Name;
+            debug.HeaderColor = EmpireColor;
+            return debug;
         }
+
         public DebugTextBlock DebugEmpirePlanetInfo()
         {
-
-            var incomingData = new DebugTextBlock();
+            var debug = new DebugTextBlock();
             foreach (Planet p in OwnedPlanets)
             {
                 var lines = new Array<string>();
                 string food = $"{(int)p.FoodHere}(%{100*p.Storage.FoodRatio:00.0}) {p.FS}";
                 string prod = $"{(int)p.ProdHere}(%{100*p.Storage.ProdRatio:00.0}) {p.PS}";
-                incomingData.AddLine($"{p.ParentSystem.Name} : {p.Name} ", Color.Yellow);
-                incomingData.AddLine($"FoodHere: {food} ", Color.White);
-                incomingData.AddLine($"ProdHere: {prod} ");
-                incomingData.AddRange(lines);
-                incomingData.AddLine($"");
-
+                debug.AddLine($"{p.ParentSystem.Name} : {p.Name} ", Color.Yellow);
+                debug.AddLine($"FoodHere: {food} ", Color.White);
+                debug.AddLine($"ProdHere: {prod} ");
+                debug.AddRange(lines);
+                debug.AddLine("");
             }
-            return incomingData;
+            debug.Header = Name;
+            debug.HeaderColor = EmpireColor;
+            return debug;
         }
 
         public void UpdateFleets(float elapsedTime)
