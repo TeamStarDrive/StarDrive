@@ -251,7 +251,7 @@ namespace Ship_Game
                     case 12: Platforms = 2; Stations = 6; break;
                     case 13: Platforms = 1; Stations = 7; break;
                     case 14: Platforms = 0; Stations = 8; break;
-                    case 15: Platforms = 9; Stations = 9; break;
+                    case 15: Platforms = 8; Stations = 9; break;
                     default: Platforms = 0; Stations = 0; break;
                 }
                 Shipyard = rank > 4;
