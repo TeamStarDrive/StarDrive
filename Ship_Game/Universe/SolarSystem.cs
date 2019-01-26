@@ -79,15 +79,13 @@ namespace Ship_Game
 
             if (combatTimer <= 0.0)
                 CombatInSystem = false;
-            bool viewing = false;
-            Vector3 v3SystemPosition = Position.ToVec3();
-            universe.Viewport.Project(v3SystemPosition, universe.projection, universe.view, Matrix.Identity);
-            if (universe.Frustum.Contains(new BoundingSphere(v3SystemPosition, Radius)) !=
-                ContainmentType.Disjoint)
-                viewing = true;
 
-            //WTF is this doing?
-            else if (universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            bool viewing = false;
+            if (universe.Frustum.Contains(Position, Radius))
+            {
+                viewing = true;
+            }
+            else if (universe.viewState <= UniverseScreen.UnivScreenState.ShipView) // WTF is this doing?
             {
                 var rect = new Rectangle((int) Position.X - (int)Radius,
                                          (int) Position.Y - (int)Radius, (int)Radius*2, (int)Radius*2);
@@ -106,7 +104,7 @@ namespace Ship_Game
 
             if (IsExploredBy(player) && viewing)
             {
-                isVisible = universe.viewState <= UniverseScreen.UnivScreenState.SectorView;
+                isVisible = (universe.viewState <= UniverseScreen.UnivScreenState.SectorView);
             }
 
             if (isVisible && universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
