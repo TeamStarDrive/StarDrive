@@ -114,7 +114,7 @@ namespace Ship_Game
                 // Now, generate system for our empire:
                 var system = new SolarSystem();
                 system.Position = GenerateRandomSysPos(10000, claimedSpots, sandbox);
-                system.GenerateStartingSystem(data.Traits.HomeSystemName, sandbox, 1f, e);
+                system.GenerateStartingSystem(e.data.Traits.HomeSystemName, sandbox, 1f, e);
                 system.OwnerList.Add(e);
                 sandbox.SolarSystemsList.Add(system);
 
