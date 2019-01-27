@@ -91,17 +91,17 @@ namespace Ship_Game
             CurrentGame.StartNew(sandbox, pace:1f);
             var claimedSpots = new Array<Vector2>();
 
-            EmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(
+            IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(
                                             d => d.IsCybernetic == PlayerIsCybernetic));
 
-            EmpireData[] opponents = ResourceManager.MajorRaces.Filter(data => data != player);
+            IEmpireData[] opponents = ResourceManager.MajorRaces.Filter(data => data.Name != player.Name);
 
-            var races = new Array<EmpireData>(opponents);
+            var races = new Array<IEmpireData>(opponents);
             races.Shuffle();
             races.Resize(Math.Min(races.Count, NumOpponents)); // truncate
             races.Insert(0, player);
 
-            foreach (EmpireData data in races)
+            foreach (IEmpireData data in races)
             {
                 Empire e = sandbox.CreateEmpire(data);
                 if (data == player) e.isPlayer = true;

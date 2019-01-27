@@ -315,7 +315,7 @@ namespace Ship_Game.Ships
         {
             Ship ship       = CreateShipAtPoint(shipName, owner, point);
             ship.VanityName = troop.DisplayName;
-            ship.TroopList.Add(ResourceManager.CopyTroop(troop));
+            ship.TroopList.Add(ResourceManager.CreateTroop(troop.Name, owner));
             if (ship.shipData.Role == ShipData.RoleName.troop)
                 ship.shipData.ShipCategory = ShipData.Category.Conservative;
             return ship;
