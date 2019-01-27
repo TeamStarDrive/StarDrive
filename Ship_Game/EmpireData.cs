@@ -45,7 +45,7 @@ namespace Ship_Game
     /// This class looks pretty useless. I think we need another class for "mood" or find the mood of the empire buried in the code.
     /// mostly only the name or type is used. the logic is a little confusing. 
     /// This has an effect on diplomacy but all that code is in the diplomacy code. i feel it should be pulled out and placed here.
-    /// in the diplomacy code there is a lot of this "TrustCost = (Them.data.EconomicPersonality.Name == "Technologists"
+    /// in the diplomacy code there is a lot of this "TrustCost = (Them.EconomicPersonality.Name == "Technologists"
     /// this makes new econmic personality files basically... Useless. 
     /// except that it contains the econ strat which has useful values.
     /// 
@@ -59,7 +59,17 @@ namespace Ship_Game
         [Serialize(4)] public int ShipGoalsPlus;
     }
 
-    public sealed class EmpireData
+    // Read-Only interface of EmpireData
+    public interface IEmpireData
+    {
+        string Name { get; }
+        bool IsCybernetic { get; }
+        bool IsFactionOrMinorRace { get; }
+        RacialTrait Traits { get; }
+        EmpireData CreateInstance();
+    }
+
+    public sealed class EmpireData : IEmpireData
     {
         public WeaponTagModifier GetWeaponTag(string weaponTag)
         {
@@ -74,6 +84,7 @@ namespace Ship_Game
             Log.Warning("Selected Module Weapon had no weapon type defined.");
             return tag;
         }
+
         [Serialize(0)] public SerializableDictionary<string, WeaponTagModifier> WeaponTags = new SerializableDictionary<string, WeaponTagModifier>();
         [Serialize(1)] public string WarpStart;
         [Serialize(2)] public string WarpEnd;
@@ -115,15 +126,15 @@ namespace Ship_Game
         [Serialize(38)] public int TroopDescriptionIndex;
         [Serialize(39)] public string RebelName;
         [Serialize(40)] public bool IsRebelFaction;
-        [Serialize(41)] public RacialTrait Traits;
+        [Serialize(41)] public RacialTrait Traits { get; set; }
         [Serialize(42)] public byte Faction;
-        [Serialize(43)] public bool MinorRace; // @todo This is depracated
+        [Serialize(43)] public bool MinorRace; // @todo This is deprecated
         [Serialize(44)] public short TurnsBelowZero;
         [Serialize(45)] public bool Privatization;
         [Serialize(46)] public float CivMaintMod = 1f;
         [Serialize(47)] public float FuelCellModifier;
         [Serialize(48)] public float FlatMoneyBonus;
-        [Serialize(49)] public float EmpireWideProductionPercentageModifier = 1f;
+        [Serialize(49)] public float EmpireWideProductionPercentageModifier = 1f; // @todo wtf??
         [Serialize(50)] public float FTLModifier        = 35f;
         [Serialize(51)] public float MassModifier       = 1f;
         [Serialize(52)] public float ArmourMassModifier = 1f;
@@ -160,7 +171,7 @@ namespace Ship_Game
 
         //unlock at start
         [Serialize(79)] public Array<string> unlockBuilding = new Array<string>();
-        [Serialize(80)] public Array<string> unlockShips = new Array<string>();
+        [Serialize(80)] public Array<string> unlockShips    = new Array<string>();
 
         //designsWeHave our techTree has techs for.
         //sortsaves
@@ -181,6 +192,8 @@ namespace Ship_Game
         //FB: default assault and supply shuttles - it is not mandatory since we have a default boarding / supply shuttles in the game
         [Serialize(92)] public string DefaultAssaultShuttle;
         [Serialize(93)] public string DefaultSupplyShuttle;
+
+        [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
 
         [XmlIgnore][JsonIgnore]
         public string ScoutShip => CurrentAutoScout.NotEmpty() ? CurrentAutoScout
@@ -241,6 +254,31 @@ namespace Ship_Game
         public EmpireData GetClone()
         {
             return (EmpireData)MemberwiseClone();
+        }
+
+        EmpireData IEmpireData.CreateInstance()
+        {
+            var data = (EmpireData)MemberwiseClone();
+            data.Traits = Traits.GetClone();
+
+            // @todo This is so borked, I don't even...
+            //       Reset stuff to defaults:
+            data.OwnedArtifacts.Clear();
+            data.MoleList.Clear();
+            data.ResearchQueue.Clear();
+            data.AgentList.Clear();
+
+            data.CounterIntelligenceBudget = 0.0f;
+            data.FlatMoneyBonus  = 0.0f;
+            data.TaxRate = 0.25f;
+            data.TurnsBelowZero = 0;
+
+            if (data.DefaultTroopShip.IsEmpty())
+            {
+                data.DefaultTroopShip = data.PortraitName + " " + "Troop";
+            }
+
+            return data;
         }
     }
 } 

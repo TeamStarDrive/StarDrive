@@ -35,11 +35,11 @@ namespace Ship_Game
             Brutal
         }
 
-        public Empire CreateEmpire(EmpireData data)
+        public Empire CreateEmpire(IEmpireData readOnlyData)
         {
-            if (EmpireManager.GetEmpireByName(data.Traits.Name) != null)
-                throw new InvalidOperationException($"BUG: Empire already created! {data.Traits.Name}");
-            Empire e = EmpireManager.CreateEmpireFromEmpireData(data);
+            if (EmpireManager.GetEmpireByName(readOnlyData.Traits.Name) != null)
+                throw new InvalidOperationException($"BUG: Empire already created! {readOnlyData.Traits.Name}");
+            Empire e = EmpireManager.CreateEmpireFromEmpireData(readOnlyData);
             EmpireList.Add(e);
             EmpireManager.Add(e);
             return e;
