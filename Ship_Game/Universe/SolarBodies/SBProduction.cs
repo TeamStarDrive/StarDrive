@@ -202,9 +202,15 @@ namespace Ship_Game.Universe.SolarBodies
             const int ringLimit = ShipBuilder.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
             for (int ring = 0; ring < ringLimit; ring++) 
             {
+                int degrees    = (int)RandomMath.RandomBetween(0f, 9f);
+                float distance = 2000 + 1000 * ring * P.Scale;
+                Vector2 pos    = P.Center + MathExt.PointOnCircle(degrees * 40, distance);
+                if (!IsStationAlreadyPresentAt(pos))
+                    return pos;
+
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
                 {
-                    Vector2 pos = P.Center + MathExt.PointOnCircle(i * 40, 2000 + 1000 * ring * P.Scale);
+                    pos = P.Center + MathExt.PointOnCircle(i * 40, distance);
                     if (!IsStationAlreadyPresentAt(pos))
                         return pos;
                 }
