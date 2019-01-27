@@ -531,22 +531,19 @@ namespace Ship_Game
         }
         public static Array<Troop> GetTroopTemplates() => new Array<Troop>(TroopsDict.Values);
 
-        public static Troop CopyTroop(Troop t)
-        {
-            Troop troop = t.Clone();
-            troop.StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength;
-            troop.WhichFrame = (int) RandomMath.RandomBetween(1, t.num_idle_frames - 1);
-            troop.SetOwner(t.GetOwner());
-            return troop;
-        }
-
         public static Troop CreateTroop(string troopType, Empire forOwner)
         {
-            Troop troop = CopyTroop(TroopsDict[troopType]);
-            troop.SetOwner(forOwner);
-            if (forOwner != null)
-                troop.Strength = troop.ActualStrengthMax;
+            Troop troop = TroopsDict[troopType].Clone();
+            if (troop.StrengthMax <= 0)
+                troop.StrengthMax = troop.Strength;
 
+            troop.WhichFrame = (int)RandomMath.RandomBetween(1, troop.num_idle_frames - 1);
+
+            if (forOwner != null)
+            {
+                troop.SetOwner(forOwner);
+                troop.Strength = troop.ActualStrengthMax;
+            }
             return troop;
         }
 
@@ -1019,12 +1016,12 @@ namespace Ship_Game
             }
         }
 
-        public static Array<EmpireData> Empires = new Array<EmpireData>();
-        static readonly Array<EmpireData> MajorEmpires = new Array<EmpireData>();
-        static readonly Array<EmpireData> MinorEmpires = new Array<EmpireData>(); // IsFactionOrMinorRace
+        public static Array<IEmpireData> Empires = new Array<IEmpireData>();
+        static readonly Array<IEmpireData> MajorEmpires = new Array<IEmpireData>();
+        static readonly Array<IEmpireData> MinorEmpires = new Array<IEmpireData>(); // IsFactionOrMinorRace
 
-        public static IReadOnlyList<EmpireData> MajorRaces => MajorEmpires;
-        public static IReadOnlyList<EmpireData> MinorRaces => MinorEmpires;
+        public static IReadOnlyList<IEmpireData> MajorRaces => MajorEmpires;
+        public static IReadOnlyList<IEmpireData> MinorRaces => MinorEmpires;
 
         static void LoadEmpires() // Refactored by RedFox
         {
@@ -1037,7 +1034,7 @@ namespace Ship_Game
             else
                 Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires"));
 
-            foreach (EmpireData e in Empires)
+            foreach (IEmpireData e in Empires)
             {
                 if (e.IsFactionOrMinorRace) MinorEmpires.Add(e);
                 else                        MajorEmpires.Add(e);

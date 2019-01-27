@@ -6,16 +6,16 @@ namespace Ship_Game
 {
     public class EmpireManager
     {
-        private static readonly Array<Empire> EmpireList = new Array<Empire>();
-        private static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>(); 
+        static readonly Array<Empire> EmpireList = new Array<Empire>();
+        static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>();
 
-        private static Empire PlayerEmpire;
-        private static Empire CordrazineEmpire;
+        static Empire PlayerEmpire;
+        static Empire CordrazineEmpire;
 
-        private static Empire RemnantsFaction;
-        private static Empire UnknownFaction;
-        private static Empire CorsairsFaction;
-        private static Empire DummyEmpire;
+        static Empire RemnantsFaction;
+        static Empire UnknownFaction;
+        static Empire CorsairsFaction;
+        static Empire DummyEmpire;
 
         public static IReadOnlyList<Empire> Empires => EmpireList;
         public static int NumEmpires => EmpireList.Count;
@@ -31,7 +31,7 @@ namespace Ship_Game
 
         // @note This is used as a placeholder empire for entities that have no logical allegiance
         //       withing the known universe. They belong to the mythical `Void` -- pure Chaos of nothingness
-        public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateDummyEmpire());
+        public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateVoidEmpire());
 
         public static Empire[] AIEmpires =>
             EmpireList.Filter(empire => !empire.isFaction && !empire.data.Defeated && !empire.isPlayer);
@@ -73,20 +73,20 @@ namespace Ship_Game
 
         public static Empire GetEmpireByName(string name)
         {
-            if (name == null)
-                return null;
             if (EmpireDict.TryGetValue(name, out Empire e))
-                return e;                        
+                return e;
             foreach (Empire empire in EmpireList)
             {
-                if (empire.data.Traits.Name != name) continue;
-                EmpireDict.Add(name, empire);
-                return empire;
+                if (empire.data.Traits.Name == name)
+                {
+                    EmpireDict.Add(name, empire);
+                    return empire;
+                }
             }
             return null;
         }
 
-        private static Empire FindPlayerEmpire()
+        static Empire FindPlayerEmpire()
         {
             foreach (Empire empire in EmpireList)
                 if (empire.isPlayer)
@@ -118,7 +118,7 @@ namespace Ship_Game
             return allies;
         }
 
-        private static Empire CreateDummyEmpire()
+        static Empire CreateVoidEmpire()
         {
             var empire = new Empire
             {
@@ -126,50 +126,6 @@ namespace Ship_Game
                 Id = -1
             };
             empire.data.Traits = new RacialTrait {Name = "Void"};
-            return empire;
-        }
-
-        public static Empire CreateRebelsFromEmpireData(EmpireData data, Empire parent)
-        {
-            var rebelEmpire = GetEmpireByName(data.RebelName);
-            if (rebelEmpire != null) return rebelEmpire;
-
-
-            var empire = new Empire(parent)
-            {
-                isFaction = true,
-                data = CreatingNewGameScreen.CopyEmpireData(data)
-                
-            };
-            //Added by McShooterz: mod folder support
-            DiplomaticTraits diplomaticTraits = ResourceManager.DiplomaticTraits;
-            int index1                        = RandomMath.InRange(diplomaticTraits.DiplomaticTraitsList.Count);
-            int index2                        = RandomMath.InRange(diplomaticTraits.DiplomaticTraitsList.Count);
-            int index3                        = RandomMath.InRange(diplomaticTraits.EconomicTraitsList.Count);
-            int index4                        = RandomMath.InRange(diplomaticTraits.EconomicTraitsList.Count);
-            empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index1];
-            empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index2];
-            empire.data.EconomicPersonality   = diplomaticTraits.EconomicTraitsList[index3];
-            empire.data.EconomicPersonality   = diplomaticTraits.EconomicTraitsList[index4];
-            empire.data.SpyModifier           = data.Traits.SpyMultiplier;
-            empire.PortraitName               = data.PortraitName;
-            empire.EmpireColor                = new Color(128, 128, 128, 255);
-
-            empire.InitializeFromSave();
-            
-            empire.data.IsRebelFaction = true;
-            empire.data.Traits.Name = data.RebelName;
-            empire.data.Traits.Singular = data.RebelSing;
-            empire.data.Traits.Plural = data.RebelPlur;
-            empire.isFaction = true;
-            Add(empire);
-            foreach (Empire key in Empires)
-            {
-                key.AddRelation(empire);
-                empire.AddRelation(key);
-            }
-            data.RebellionLaunched = true;
-         
             return empire;
         }
 
@@ -186,64 +142,92 @@ namespace Ship_Game
             }
             return null;
         }
-        public static Empire CreateEmpireFromEmpireData(EmpireData data)
-        {
-            DiplomaticTraits traits = ResourceManager.DiplomaticTraits;
-            var empire = new Empire();
 
-            if (data.IsFaction)
-                Log.Info($"Creating Faction {data.Traits.Name}");
-            else if (data.MinorRace)
-                Log.Info($"Creating MinorRace {data.Traits.Name}");
-            else 
-                Log.Info($"Creating MajorEmpire {data.Traits.Name}");
+        public static Empire CreateEmpireFromEmpireData(IEmpireData readOnlyData)
+        {
+            EmpireData data = readOnlyData.CreateInstance();
+            DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
+            var empire = new Empire { data = data };
+
+            if      (data.IsFaction) Log.Info($"Creating Faction {data.Traits.Name}");
+            else if (data.MinorRace) Log.Info($"Creating MinorRace {data.Traits.Name}");
+            else                     Log.Info($"Creating MajorEmpire {data.Traits.Name}");
 
             if (data.IsFaction)
                 empire.isFaction = true;
-            do
-            {
-                int diplomaticTraitIndex = (int)RandomMath.RandomBetween(0.0f, traits.DiplomaticTraitsList.Count);
-                data.DiplomaticPersonality = traits.DiplomaticTraitsList[diplomaticTraitIndex];
-            }
-            while (!CheckPersonality(data));
 
-            do
-            {
-                int economicTraitIndex = (int)RandomMath.RandomBetween(0.0f, traits.EconomicTraitsList.Count);
-                data.EconomicPersonality = traits.EconomicTraitsList[economicTraitIndex];
-            }
-            while (!CheckEPersonality(data));
+            DTrait[] dipTraits = dt.DiplomaticTraitsList.Filter(
+                dip => !data.ExcludedDTraits.Any(trait => trait == dip.Name));
+            data.DiplomaticPersonality = RandomMath.RandItem(dipTraits);
 
-            empire.data = data;
-            //Added by McShooterz: set values for alternate race file structure
+            ETrait[] ecoTraits = dt.EconomicTraitsList.Filter(
+                eco => !data.ExcludedETraits.Any(trait => trait == eco.Name));
+            data.EconomicPersonality = RandomMath.RandItem(ecoTraits);
+
+            // Added by McShooterz: set values for alternate race file structure
             data.Traits.LoadTraitConstraints();
             empire.dd = ResourceManager.DDDict[data.DiplomacyDialogPath];
-            empire.data.SpyModifier = data.Traits.SpyMultiplier;
-            empire.data.Traits.Spiritual = data.Traits.Spiritual;
-            empire.data.Traits.PassengerModifier += data.Traits.PassengerBonus;
+            data.SpyModifier = data.Traits.SpyMultiplier;
+            data.Traits = data.Traits;
+            data.Traits.Spiritual = data.Traits.Spiritual;
+            data.Traits.PassengerModifier += data.Traits.PassengerBonus;
             empire.PortraitName = data.PortraitName;
-            empire.data.Traits = data.Traits;
             empire.EmpireColor = new Color((byte)data.Traits.R, (byte)data.Traits.G, (byte)data.Traits.B);
             empire.Initialize();
             return empire;
         }
-        private static bool CheckPersonality(EmpireData data)
+        
+        public static Empire CreateRebelsFromEmpireData(IEmpireData readOnlyData, Empire parent)
         {
-            foreach (string str in data.ExcludedDTraits)
+            EmpireData data = readOnlyData.CreateInstance();
+            Empire rebelEmpire = GetEmpireByName(data.RebelName);
+            if (rebelEmpire != null) return rebelEmpire;
+
+            var empire = new Empire(parent)
             {
-                if (str == data.DiplomaticPersonality.Name)
-                    return false;
+                isFaction = true,
+                data = data
+            };
+
+            // Added by McShooterz: mod folder support
+            DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
+            data.DiplomaticPersonality = RandomMath.RandItem(dt.DiplomaticTraitsList);
+            data.DiplomaticPersonality = RandomMath.RandItem(dt.DiplomaticTraitsList);
+            data.EconomicPersonality   = RandomMath.RandItem(dt.EconomicTraitsList);
+            data.EconomicPersonality   = RandomMath.RandItem(dt.EconomicTraitsList);
+            data.SpyModifier           = data.Traits.SpyMultiplier;
+            empire.PortraitName        = data.PortraitName;
+            empire.EmpireColor         = new Color(128, 128, 128, 255);
+
+            empire.InitializeFromSave();
+            
+            data.IsRebelFaction  = true;
+            data.Traits.Name     = data.RebelName;
+            data.Traits.Singular = data.RebelSing;
+            data.Traits.Plural   = data.RebelPlur;
+            empire.isFaction = true;
+            Add(empire);
+            foreach (Empire key in Empires)
+            {
+                key.AddRelation(empire);
+                empire.AddRelation(key);
             }
-            return true;
+            data.RebellionLaunched = true;
+         
+            return empire;
         }
-        private static bool CheckEPersonality(EmpireData data)
+
+        public static Empire FindRebellion(string rebelName)
         {
-            foreach (string str in data.ExcludedETraits)
+            foreach (Empire e in Empires)
             {
-                if (str == data.EconomicPersonality.Name)
-                    return false;
+                if (e.data.PortraitName == rebelName)
+                {
+                    Log.Info($"Found Existing Rebel: {e.data.PortraitName}");
+                    return e;
+                }
             }
-            return true;
+            return null;
         }
     }
 }

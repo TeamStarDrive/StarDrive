@@ -321,18 +321,18 @@ namespace Ship_Game
 
         void CreateOpponents(ProgressCounter step)
         {
-            EmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(data => data != Player.data);
+            IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(data => data.Name != Player.data.Name);
 
             // create a randomly shuffled list of opponents
-            var opponents = new Array<EmpireData>(majorRaces);
+            var opponents = new Array<IEmpireData>(majorRaces);
             opponents.Shuffle();
             opponents.Resize(Math.Min(opponents.Count, NumOpponents)); // truncate
 
             step.Start(opponents.Count + ResourceManager.MinorRaces.Count);
 
-            foreach (EmpireData data in opponents)
+            foreach (IEmpireData readOnlyData in opponents)
             {
-                Empire e = Data.CreateEmpire(data);
+                Empire e = Data.CreateEmpire(readOnlyData);
                 RacialTrait t = e.data.Traits;
                 switch (Difficulty)
                 {
@@ -360,9 +360,9 @@ namespace Ship_Game
                 step.Advance();
             }
             
-            foreach (EmpireData data in ResourceManager.MinorRaces)
+            foreach (EmpireData readOnlyData in ResourceManager.MinorRaces)
             {
-                Data.CreateEmpire(data);
+                Data.CreateEmpire(readOnlyData);
                 step.Advance();
             }
         }
@@ -632,102 +632,6 @@ namespace Ship_Game
                     return false;
             }
             return true;
-        }
-
-        public static EmpireData CopyEmpireData(EmpireData data)
-        {
-            EmpireData empireData = new EmpireData
-            {
-                ArmorPiercingBonus        = data.ArmorPiercingBonus,
-                BaseReproductiveRate      = data.BaseReproductiveRate,
-                BonusFighterLevels        = data.BonusFighterLevels,
-                CounterIntelligenceBudget = 0.0f,
-                DefaultColonyShip         = data.DefaultColonyShip,
-                DefaultSmallTransport     = data.DefaultSmallTransport,
-                DefaultTroopShip          = data.DefaultTroopShip
-            };
-            if (string.IsNullOrEmpty(empireData.DefaultTroopShip))
-            {
-                empireData.DefaultTroopShip = empireData.PortraitName + " " + "Troop";
-            }
-            empireData.DefaultConstructor                     = data.DefaultConstructor;
-            empireData.DefaultShipyard                        = data.DefaultShipyard;
-            empireData.DiplomacyDialogPath                    = data.DiplomacyDialogPath;
-            empireData.DiplomaticPersonality                  = data.DiplomaticPersonality;
-            empireData.EconomicPersonality                    = data.EconomicPersonality;
-            empireData.EmpireFertilityBonus                   = data.EmpireFertilityBonus;
-            empireData.EmpireWideProductionPercentageModifier = data.EmpireWideProductionPercentageModifier;
-            empireData.ExcludedDTraits                        = data.ExcludedDTraits;
-            empireData.ExcludedETraits                        = data.ExcludedETraits;
-            empireData.ExplosiveRadiusReduction               = data.ExplosiveRadiusReduction;
-            empireData.FlatMoneyBonus                         = 0.0f;
-            empireData.FTLModifier                            = data.FTLModifier;
-            empireData.FTLPowerDrainModifier                  = data.FTLPowerDrainModifier;
-            empireData.FuelCellModifier                       = data.FuelCellModifier;
-            empireData.Inhibitors                             = data.Inhibitors;
-            empireData.MassModifier                           = data.MassModifier;
-            //Doctor: Armour Mass Mod
-            empireData.ArmourMassModifier         = data.ArmourMassModifier;
-            empireData.MissileDodgeChance         = data.MissileDodgeChance;
-            empireData.MissileHPModifier          = data.MissileHPModifier;
-            empireData.OrdnanceEffectivenessBonus = data.OrdnanceEffectivenessBonus;
-            empireData.Privatization              = data.Privatization;
-            empireData.SensorModifier             = data.SensorModifier;
-            empireData.SpyModifier                = data.SpyModifier;
-            empireData.SpoolTimeModifier          = data.SpoolTimeModifier;
-            empireData.StartingScout              = data.StartingScout;
-            empireData.StartingShip               = data.StartingShip;
-            empireData.SubLightModifier           = data.SubLightModifier;
-            empireData.TaxRate                    = data.TaxRate;
-            empireData.TroopDescriptionIndex      = data.TroopDescriptionIndex;
-            empireData.TroopNameIndex             = data.TroopNameIndex;
-            empireData.PowerFlowMod               = data.PowerFlowMod;
-            empireData.ShieldPowerMod             = data.ShieldPowerMod;
-            //Doctor: Civilian Maint Mod
-            empireData.CivMaintMod = data.CivMaintMod;
-
-            empireData.Traits = new RacialTrait
-            {
-                Aquatic              = data.Traits.Aquatic,
-                Assimilators         = data.Traits.Assimilators,
-                B                    = 128f,
-                Blind                = data.Traits.Blind,
-                BonusExplored        = data.Traits.BonusExplored,
-                Burrowers            = data.Traits.Burrowers,
-                ConsumptionModifier  = data.Traits.ConsumptionModifier,
-                Cybernetic           = data.Traits.Cybernetic,
-                DiplomacyMod         = data.Traits.DiplomacyMod,
-                DodgeMod             = data.Traits.DodgeMod,
-                EnergyDamageMod      = data.Traits.EnergyDamageMod,
-                FlagIndex            = data.Traits.FlagIndex,
-                G                    = 128f,
-                GenericMaxPopMod     = data.Traits.GenericMaxPopMod,
-                GroundCombatModifier = data.Traits.GroundCombatModifier,
-                InBordersSpeedBonus  = data.Traits.InBordersSpeedBonus,
-                MaintMod             = data.Traits.MaintMod,
-                Mercantile           = data.Traits.Mercantile,
-                Militaristic         = data.Traits.Militaristic,
-                Miners               = data.Traits.Miners,
-                ModHpModifier        = data.Traits.ModHpModifier,
-                PassengerModifier    = data.Traits.PassengerModifier,
-                ProductionMod        = data.Traits.ProductionMod,
-                R                    = 128f,
-                RepairMod            = data.Traits.RepairMod,
-                ReproductionMod      = data.Traits.ReproductionMod,
-                PopGrowthMax         = data.Traits.PopGrowthMax,
-                PopGrowthMin         = data.Traits.PopGrowthMin,
-                ResearchMod          = data.Traits.ResearchMod,
-                ShipCostMod          = data.Traits.ShipCostMod,
-                ShipType             = data.Traits.ShipType,
-                Singular             = data.RebelSing,
-                Plural               = data.RebelPlur,
-                Spiritual            = data.Traits.Spiritual,
-                SpyMultiplier        = data.Traits.SpyMultiplier,
-                SpyModifier          = data.Traits.SpyModifier,
-                TaxMod               = data.Traits.TaxMod
-            };
-            empireData.TurnsBelowZero = 0;
-            return empireData;
         }
 
         public override bool HandleInput(InputState input)
