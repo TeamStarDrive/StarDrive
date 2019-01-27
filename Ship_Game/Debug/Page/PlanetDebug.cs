@@ -20,14 +20,13 @@ namespace Ship_Game.Debug.Page
                 var text = new Array<DebugTextBlock>();
                 foreach (Empire empire in EmpireManager.Empires)
                 {
-                    if (!empire.isFaction)
+                    if (!empire.isFaction && !empire.data.Defeated)
                         text.Add(empire.DebugEmpirePlanetInfo());
                 }
                 SetTextColumns(text);
             }
             else
             {
-                HideAllDebugText();
                 SetTextColumns(new Array<DebugTextBlock>{ planet.DebugPlanetInfo() });
             }
             base.Update(deltaTime);
