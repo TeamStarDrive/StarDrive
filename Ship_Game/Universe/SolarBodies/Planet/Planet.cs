@@ -829,25 +829,19 @@ namespace Ship_Game
         {
             var debug = new DebugTextBlock();
             var lines = new Array<string>();
-            var totals = DebugSummarizePlanetStats(lines);
-            string food = $"{(int)FoodHere}(%{100*Storage.FoodRatio:00.0}) {FS}";
-            string prod = $"{(int)ProdHere}(%{100*Storage.ProdRatio:00.0}) {PS}";
+            var incoming = TradeAI.DebugSummarizeIncomingFreight(lines);
+            string food = $"{(int)FoodHere}({100*Storage.FoodRatio:00.0}%) workers:{Food.Percent} {FS}";
+            string prod = $"{(int)ProdHere}({100*Storage.ProdRatio:00.0}%) workers:{Prod.Percent} {PS}";
 
-            debug.AddLine($"{ParentSystem.Name} : {Name} : IN Cargo: {totals.Total}", Color.Yellow);
-            debug.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
-            debug.AddLine($"ProdHere: {prod} IN: {totals.Prod}");
-            debug.AddLine($"IN Colonists: {totals.Colonists}");
+            debug.AddLine($"{ParentSystem.Name} : {Name} : IN Cargo: {incoming.Total}", Color.Yellow);
+            debug.AddLine($"FoodHere: {food} IN: {incoming.Food}", Color.White);
+            debug.AddLine($"ProdHere: {prod} IN: {incoming.Prod}");
+            debug.AddLine($"IN Colonists: {incoming.Colonists}");
+            debug.AddLine($"Money: {Money.NetRevenue}");
+            string eatsWhat = NonCybernetic ? "Food" : "Prod";
+            debug.AddLine($"Eats: {Consumption} {eatsWhat}");
             debug.AddLine("");
             return debug;
-        }
-
-        public TradeAI.DebugSummaryTotal DebugSummarizePlanetStats(Array<string> lines)
-        {
-            lines.Add($"Money: {Money.NetRevenue}");
-            lines.Add($"Eats: {Consumption}");
-            lines.Add($"FoodWkrs: {Food.Percent}");
-            lines.Add($"ProdWkrs: {Prod.Percent}  ");
-            return new TradeAI.DebugSummaryTotal();
         }
     }
 }
