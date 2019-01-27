@@ -13,10 +13,6 @@ namespace Ship_Game.GameScreens
     {
         readonly Empire Player;
         Menu2 Window;
-        Rectangle TaxRateRect;
-        Rectangle CostRect;
-        Rectangle IncomesRect;
-        Rectangle TradeRect;
 
         FloatSlider TaxSlider;
         FloatSlider TreasuryGoal;
@@ -30,99 +26,116 @@ namespace Ship_Game.GameScreens
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
+        class SummaryItem : UIElementV2
+        {
+            readonly UILabel Key, Value;
+            public SummaryItem(UIElementV2 parent, string keyText, Color keyColor, Func<float> getValue) : base(parent)
+            {
+                Key   = new UILabel(this, Vector2.Zero, $"{keyText}:", keyColor);
+                Value = new UILabel(this, Vector2.Zero, "")
+                {
+                    DynamicText = DynamicText(getValue, f => f.MoneyString())
+                };
+                Width  = Key.Width + Value.Width;
+                Height = Math.Max(Key.Height, Value.Height);
+            }
+            public override void PerformLayout()
+            {
+                Key.Pos = Pos;
+                Value.Pos.X = (Pos.X + Width) - Value.Width;
+                Value.Pos.Y = Pos.Y;
+            }
+            public override void Draw(SpriteBatch batch)
+            {
+                Key.Draw(batch);
+                Value.Draw(batch);
+            }
+            public override bool HandleInput(InputState input)
+                => Key.HandleInput(input) || Value.HandleInput(input);
+        }
+
+        class SummaryPanel : UIList
+        {
+            public SummaryPanel(UIElementV2 parent, int title, in Rectangle rect, Color c) : base(parent, rect, c)
+            {
+                if (title != 0)
+                {
+                    var label = new UILabel(this, Vector2.Zero, title, Fonts.Arial14Bold);
+                    Title = label;
+                    label.DropShadow = true;
+                }
+                Padding = new Vector2(4f, 2f);
+            }
+            public void AddItem(int textId,  Func<float> getValue) => AddItem(Localizer.Token(textId), getValue, Color.White);
+            public void AddItem(string text, Func<float> getValue) => AddItem(text, getValue, Color.White);
+            public void AddItem(string text, Func<float> getValue, Color keyColor)
+            {
+                Add(new SummaryItem(this, text, keyColor, getValue));
+            }
+            public void SetTotalFooter(Func<float> getValue)
+            {
+                Footer = new SummaryItem(this, $"{Localizer.Token(320)}", Color.White, getValue);
+            }
+            public FloatSlider AddSlider(string title, float value)
+            {
+                return Add(new FloatSlider(this, SliderStyle.Percent, new Rectangle(0,0,312,32), title, 0f, 1f, value));
+            }
+        }
+
         public override void LoadContent()
         {
             Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 197, ScreenHeight / 2 - 225, 394, 450)));
             CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
 
-            TaxRateRect = new Rectangle(Window.Menu.X + 20, Window.Menu.Y + 37, 350, 84); // top area for tax rate slider
-            IncomesRect = new Rectangle(TaxRateRect.X, TaxRateRect.Bottom + 6, 168, 104); // Middle-Left
-            CostRect    = new Rectangle(IncomesRect.Right + 12, IncomesRect.Y, 168, 104); // Middle-Right
-            TradeRect   = new Rectangle(TaxRateRect.X, IncomesRect.Bottom + 6, 168, 188); // Bottom left
-
-            // background panels for TaxRate, incomes, cost, trade:
-            Panel(TaxRateRect, new Color(17, 21, 28));
-            Panel(IncomesRect, new Color(18, 29, 29));
-            Panel(TradeRect,   new Color(30, 26, 19));
-            Panel(CostRect,    new Color(27, 22, 25));
+            var taxRect = new Rectangle(Window.Menu.X + 20, Window.Menu.Y + 37, 350, 84); // top area for tax rate slider
+            var incomeRect = new Rectangle(taxRect.X, taxRect.Bottom + 6, 168, 104); // Middle-Left
+            var costRect    = new Rectangle(incomeRect.Right + 12, incomeRect.Y, 168, 104); // Middle-Right
+            var tradeRect   = new Rectangle(taxRect.X, incomeRect.Bottom + 6, 168, 188); // Bottom left
 
             string title = Localizer.Token(310);
             Label(Window.Menu.CenterTextX(title), Window.Menu.Y + 20, title);
 
-            BeginVLayout(TaxRateRect.X + 10, TaxRateRect.Y + 5, ystep: 40);
-                TaxSlider    = SliderPercent(312, 32, Localizer.Token(311), 0f, 1f, 0.25f);
-                TreasuryGoal = SliderPercent(312, 32, "Auto Tax Desired Treasury", 0f, 1f, 0.20f);
-                TaxSlider.TooltipId    = 66;
-                TreasuryGoal.TooltipId = 66;
-                TreasuryGoal.OnChange = (s) =>
-                {
-                    Player.data.treasuryGoal = s.RelativeValue;
-                    int goal = (int) (100 * Player.NetPlanetIncomes * s.RelativeValue);
-                    s.Text = $"Auto Tax Desired Treasury : {goal}";
-                };
-                TaxSlider.OnChange = (s) => {
-                    Player.data.TaxRate = s.RelativeValue;
-                    Player.UpdateNetPlanetIncomes();
-                };
-                TreasuryGoal.RelativeValue = Player.data.treasuryGoal; // trigger updates:
-                TaxSlider.RelativeValue    = Player.data.TaxRate;
-            EndLayout();
-
-            float lineSpacing = Fonts.Arial12Bold.LineSpacing + 4; // = 18
-
-            void Title(int titleId)        => Label(titleId).DropShadow = true;
-            void LabelT(int token)         => Label($"{Localizer.Token(token)}: ");
-            void MoneyLabel(Func<float> value) => Label(DynamicText(value, f=>f.MoneyString()), alignRight:true);
+            // background panels for TaxRate, incomes, cost, trade:
+            SummaryPanel tax = Add(new SummaryPanel(this, 0, taxRect, new Color(17, 21, 28)));
+            TaxSlider = tax.AddSlider(Localizer.Token(311), 0.25f);
+            TreasuryGoal = tax.AddSlider("Auto Tax Desired Treasury", 0.20f);
+            TaxSlider.TooltipId    = 66;
+            TreasuryGoal.TooltipId = 66;
+            TreasuryGoal.OnChange = (s) =>
+            {
+                Player.data.treasuryGoal = s.RelativeValue;
+                int goal = (int) (100 * Player.NetPlanetIncomes * s.RelativeValue);
+                s.Text = $"Auto Tax Desired Treasury : {goal}";
+            };
+            TaxSlider.OnChange = (s) => {
+                Player.data.TaxRate = s.RelativeValue;
+                Player.UpdateNetPlanetIncomes();
+            };
+            TreasuryGoal.RelativeValue = Player.data.treasuryGoal; // trigger updates
+            TaxSlider.RelativeValue    = Player.data.TaxRate;
 
             // Incomes tab
-            BeginVLayout(IncomesRect.X + 5, IncomesRect.Y + 8, lineSpacing);
-                Title(312);       // "Income"
-                LabelT(313);      // "Planetary Taxes"
-                Label("Other: "); // Flat money bonus
-                Label("Excess Goods: "); // from planets with full storage
-                LabelT(320);      // "Total"
-            EndLayout();
-            BeginVLayout(IncomesRect.Right - 5, IncomesRect.Y + 26, lineSpacing);
-                MoneyLabel(() => Player.GrossPlanetIncome);
-                MoneyLabel(() => Player.data.FlatMoneyBonus);
-                MoneyLabel(() => Player.ExcessGoodsMoneyAddedThisTurn);
-                MoneyLabel(() => Player.GrossIncome);
-            EndLayout();
+            SummaryPanel income = Add(new SummaryPanel(this, 312, incomeRect, new Color(18, 29, 29)));
+            income.AddItem(313,            () => Player.GrossPlanetIncome); // "Planetary Taxes"
+            income.AddItem("Other",        () => Player.data.FlatMoneyBonus);
+            income.AddItem("Excess Goods", () => Player.ExcessGoodsMoneyAddedThisTurn);
+            income.SetTotalFooter(() => Player.GrossIncome); // "Total"
 
             // Costs tab
-            BeginVLayout(CostRect.X + 5, CostRect.Y + 8, lineSpacing);
-                Title(315);  // "Expenditure"
-                LabelT(316); // "Building Maint."
-                LabelT(317); // "Ship Maint."
-                SkipLayoutStep(); //  ------
-                LabelT(320); // "Total"
-            EndLayout();
-            BeginVLayout(CostRect.Right - 5, CostRect.Y + 26, lineSpacing);
-                MoneyLabel(() => -Player.TotalBuildingMaintenance);
-                MoneyLabel(() => -Player.TotalShipMaintenance);
-                SkipLayoutStep();
-                MoneyLabel(() => -Player.BuildingAndShipMaint);
-            EndLayout();
+            SummaryPanel costs  = Add(new SummaryPanel(this, 321, costRect,    new Color(27, 22, 25)));
+            costs.AddItem(316, () => -Player.TotalBuildingMaintenance); // "Building Maint."
+            costs.AddItem(317, () => -Player.TotalShipMaintenance);     // "Ship Maint."
+            costs.SetTotalFooter(() => -Player.BuildingAndShipMaint);   // "Total"
 
-            var traders = Player.AllRelations.Where(kv => kv.Value.Treaty_Trade)
-                                             .Select(kv => (Empire:kv.Key, Relation:kv.Value))
-                                             .ToArray();
             // Trade tab
-            BeginVLayout(TradeRect.X + 5, TradeRect.Y + 8, lineSpacing);
-                Title(321);  // "Trade"
-                LabelT(322); // "Mercantilism (Avg)"
-                LabelT(323); // "Trade Treaties"
-                foreach ((Empire e, Relationship r) in traders)
-                    Label($"   {e.data.Traits.Plural}: ", e.EmpireColor);
-                LabelT(320); // "Total"
-            EndLayout();
-            BeginVLayout(TradeRect.Right - 5, TradeRect.Y + 8, lineSpacing);
-                MoneyLabel(() => Player.GetAverageTradeIncome()); // Mercantilism
-                MoneyLabel(() => Player.GetTotalTradeIncome());   // Trade Treaties
-                foreach ((Empire e, Relationship r) in traders)
-                    MoneyLabel(() => r.TradeIncome());
-                MoneyLabel(() => Player.TotalAvgTradeIncome); // Total
-            EndLayout();
+            SummaryPanel trade  = Add(new SummaryPanel(this, 315, tradeRect,   new Color(30, 26, 19)));
+            trade.AddItem(322, () => Player.GetAverageTradeIncome()); // "Mercantilism (Avg)"
+            trade.AddItem(323, () => Player.GetTotalTradeIncome());   // "Trade Treaties"
+            var traders = Player.AllRelations.Where(kv => kv.Value.Treaty_Trade)
+                                            .Select(kv => (Empire:kv.Key, Relation:kv.Value));
+            foreach ((Empire e, Relationship r) in traders)
+                trade.AddItem($"   {e.data.Traits.Plural}", () => r.TradeIncome(), e.EmpireColor);
+            trade.SetTotalFooter(() => Player.TotalAvgTradeIncome); // "Total"
 
             EmpireNetIncome = Label(Window.Menu.Right - 200, Window.Menu.Bottom - 47, titleId:324, Fonts.Arial20Bold);
             EmpireNetIncome.DropShadow = true;
@@ -135,7 +148,7 @@ namespace Ship_Game.GameScreens
 
         // Dynamic Text label; this is invoked every time MoneyLabels are drawn
         static Func<UILabel, string> DynamicText(Func<float> getValue, 
-                                                      Func<float, string> stringify)
+                                                 Func<float, string> stringify)
         {
             return (label) =>
             {

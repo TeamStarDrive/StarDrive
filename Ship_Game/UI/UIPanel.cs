@@ -48,13 +48,6 @@ namespace Ship_Game
             Color = Color.White;
         }
 
-        public UIPanel(UIElementV2 parent, string tex, Vector2 pos) : base(parent, pos)
-        {
-            Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
-            Size = Texture.SizeF;
-            Color = Color.White;
-        }
-
         public UIPanel(UIElementV2 parent, string tex) : base(parent, Vector2.Zero)
         {
             Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
