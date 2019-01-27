@@ -141,10 +141,10 @@ namespace Ship_Game
         private void ScrapOrbital(Ship orbital)
         {
             float expectedStorage = Storage.Prod + orbital.GetCost(Owner) / 2;
-            if (expectedStorage > Storage.Max) // excess cost will go to empire treasury
+            if (expectedStorage > Storage.Max) // taxed excess cost will go to empire treasury
             {
                 Storage.Prod = Storage.Max;
-                Owner.AddMoney(expectedStorage - Storage.Max);
+                Owner.AddMoney((expectedStorage - Storage.Max) * Owner.data.TaxRate);
             }
             else
                 Storage.Prod = expectedStorage;
@@ -237,22 +237,22 @@ namespace Ship_Game
             {
                 switch (rank)
                 {
-                    case 1:  Platforms = 0; Stations = 0; break;
-                    case 2:  Platforms = 0; Stations = 0; break;
-                    case 3:  Platforms = 3; Stations = 0; break;
-                    case 4:  Platforms = 6; Stations = 0; break;
-                    case 5:  Platforms = 8; Stations = 0; break;
-                    case 6:  Platforms = 7; Stations = 1; break;
-                    case 7:  Platforms = 7; Stations = 1; break;
-                    case 8:  Platforms = 6; Stations = 2; break;
-                    case 9:  Platforms = 5; Stations = 3; break;
-                    case 10: Platforms = 4; Stations = 4; break;
-                    case 11: Platforms = 3; Stations = 5; break;
-                    case 12: Platforms = 2; Stations = 6; break;
-                    case 13: Platforms = 1; Stations = 7; break;
-                    case 14: Platforms = 0; Stations = 8; break;
-                    case 15: Platforms = 8; Stations = 9; break;
-                    default: Platforms = 0; Stations = 0; break;
+                    case 1:  Platforms = 0;  Stations = 0;  break;
+                    case 2:  Platforms = 0;  Stations = 0;  break;
+                    case 3:  Platforms = 3;  Stations = 0;  break;
+                    case 4:  Platforms = 6;  Stations = 0;  break;
+                    case 5:  Platforms = 8;  Stations = 0;  break;
+                    case 6:  Platforms = 6;  Stations = 1;  break;
+                    case 7:  Platforms = 6;  Stations = 1;  break;
+                    case 8:  Platforms = 5;  Stations = 2;  break;
+                    case 9:  Platforms = 4;  Stations = 3;  break;
+                    case 10: Platforms = 3;  Stations = 4;  break;
+                    case 11: Platforms = 2;  Stations = 5;  break;
+                    case 12: Platforms = 1;  Stations = 6;  break;
+                    case 13: Platforms = 0;  Stations = 7;  break;
+                    case 14: Platforms = 9;  Stations = 8;  break;
+                    case 15: Platforms = 16; Stations = 10; break;
+                    default: Platforms = 0;  Stations = 0;  break;
                 }
                 Shipyard = rank > 4;
                 // Fb - this will replace stations with temp platforms until proper stations are built
