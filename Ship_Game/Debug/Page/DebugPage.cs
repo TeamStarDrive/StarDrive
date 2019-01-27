@@ -2,35 +2,28 @@
 {
     public class DebugPage : UIElementContainer
     {
+        public DebugModes Mode { get; }
+        protected Array<UILabel> TextColumns = new Array<UILabel>();
+
         public DebugPage(GameScreen parent, DebugModes mode) : base(parent, parent.Rect)
         {
-            DebugMode = mode;
+            Mode = mode;
         }
-
-        protected Array<UILabel> DebugText = new Array<UILabel>();
         
-        public void HideAllDebugText()
+        void ShowDebugGameInfo(int column, DebugTextBlock block, float x, float y)
         {
-            for (int i = 0; i < DebugText.Count; i++)
-            {
-                DebugText[i].Hide();
-            }
-        }
+            if (TextColumns.Count <= column)
+                TextColumns.Add(Label(x, y, ""));
 
-        public DebugModes DebugMode { get; }
-
-        public void ShowDebugGameInfo(int column, DebugTextBlock lines, float x, float y)
-        {
-            if (DebugText.Count <= column)
-                DebugText.Add(Label(x, y, ""));
-
-            DebugText[column].Show();
-            DebugText[column].MultilineText = lines.GetFormattedLines();
-
+            TextColumns[column].Show();
+            TextColumns[column].MultilineText = block.GetFormattedLines();
         }
 
         protected void SetTextColumns(Array<DebugTextBlock> text)
         {
+            for (int i = 0; i < TextColumns.Count; i++)
+                TextColumns[i].Hide();
+
             if (text == null || text.IsEmpty)
                 return;
             for (int i = 0; i < text.Count; i++)

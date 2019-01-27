@@ -22,18 +22,13 @@ namespace Ship_Game.Debug.Page
                 var text = new Array<DebugTextBlock>();
                 foreach (Empire empire in EmpireManager.Empires)
                 {
-                    if (empire.isFaction || empire.data.Defeated)
-                        continue;
-
-                    var block = empire.DebugEmpireTradeInfo();
-
-                    text.Add(block);
+                    if (!empire.isFaction && !empire.data.Defeated)
+                        text.Add(empire.DebugEmpireTradeInfo());
                 }
                 SetTextColumns(text);
             }
             else
             {
-                HideAllDebugText();
                 SetTextColumns(planet.TradeAI?.DebugText());
             }
             base.Update(deltaTime);
