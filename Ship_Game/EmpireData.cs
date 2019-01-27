@@ -66,7 +66,17 @@ namespace Ship_Game
         bool IsCybernetic { get; }
         bool IsFactionOrMinorRace { get; }
         RacialTrait Traits { get; }
-        EmpireData CreateInstance();
+        EmpireData CreateInstance(bool copyTraits = true);
+
+        // RaceDesignScreen:
+        string ShipType { get; }
+        string VideoPath { get; }
+        string Singular { get; }
+        string Plural { get; }
+        string HomeSystemName { get; }
+        string HomeWorldName { get; }
+        string Adj1 { get; }
+        string Adj2 { get; }
     }
 
     public sealed class EmpireData : IEmpireData
@@ -223,6 +233,15 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public bool IsFactionOrMinorRace => Faction > 0 || MinorRace;
 
+        public string ShipType  => Traits.ShipType;
+        public string VideoPath => Traits.VideoPath;
+        public string Singular => Traits.Singular;
+        public string Plural   => Traits.Plural;
+        public string HomeSystemName => Traits.HomeSystemName;
+        public string HomeWorldName  => Traits.HomeworldName;
+        public string Adj1 => Traits.Adj1;
+        public string Adj2 => Traits.Adj2;
+
         public EmpireData()
         {
             // @todo Mapping these by string is a bad idea. Consider using an Enum
@@ -256,10 +275,13 @@ namespace Ship_Game
             return (EmpireData)MemberwiseClone();
         }
 
-        EmpireData IEmpireData.CreateInstance()
+        EmpireData IEmpireData.CreateInstance(bool copyTraits)
         {
             var data = (EmpireData)MemberwiseClone();
-            data.Traits = Traits.GetClone();
+            if (copyTraits)
+            {
+                data.Traits = Traits.GetClone();
+            }
 
             // @todo This is so borked, I don't even...
             //       Reset stuff to defaults:

@@ -16,10 +16,8 @@ namespace Ship_Game
 
         int GameScale = 1;
         GameMode Mode;
-
         StarNum StarEnum = StarNum.Normal;
         GalSize GalaxySize = GalSize.Medium;
-
         
         protected Rectangle FlagLeft;
         protected Rectangle FlagRight;
@@ -88,8 +86,9 @@ namespace Ship_Game
         protected string HomeWorldName = "Earth";
         protected string HomeSystemName = "Sol";
 
-        Rectangle ExtraRemnantRect; //Added by Gretman
+        Rectangle ExtraRemnantRect; // Added by Gretman
         ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
+
 
         public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu)
         {
@@ -102,34 +101,22 @@ namespace Ship_Game
                 AllTraits.Add(new TraitEntry { trait = t });
             }
             GlobalStats.Statreset();
-            numOpponents = GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
+            numOpponents = GlobalStats.ActiveMod?.mi?.MaxOpponents ?? ResourceManager.MajorRaces.Count-1;
         }
 
         protected void DoRaceDescription()
         {
             UpdateSummary();
-            RaceDescr = "";
-            RaceDesignScreen raceDesignScreen = this;
-            string str = raceDesignScreen.RaceDescr;
-            string[] text = { str, RaceName.Text, Localizer.Token(1300), Plural, ". " };
-            raceDesignScreen.RaceDescr = string.Concat(text);
-            if (RaceSummary.Cybernetic <= 0)
-            {
-                RaceDesignScreen raceDesignScreen1 = this;
-                raceDesignScreen1.RaceDescr = string.Concat(raceDesignScreen1.RaceDescr, Plural, Localizer.Token(1302));
-            }
-            else
-            {
-                RaceDesignScreen raceDesignScreen2 = this;
-                raceDesignScreen2.RaceDescr = string.Concat(raceDesignScreen2.RaceDescr, Plural, Localizer.Token(1301));
-            }
+            RaceDescr = string.Concat(RaceName.Text, Localizer.Token(1300), Plural, ". ");
+
+            RaceDescr = string.Concat(RaceDescr, Plural, RaceSummary.Cybernetic <= 0 ? Localizer.Token(1302) : Localizer.Token(1301));
             if (RaceSummary.Aquatic <= 0)
             {
-                RaceDescr = RaceDescr + Localizer.Token(1304);
+                RaceDescr += Localizer.Token(1304);
             }
             else
             {
-                RaceDescr = RaceDescr + Localizer.Token(1303);
+                RaceDescr += Localizer.Token(1303);
             }
             if (RaceSummary.Cybernetic <= 0)
             {
@@ -137,7 +124,7 @@ namespace Ship_Game
                 {
                     RaceDescr += Localizer.Token(1305);
                 }
-                else if (RaceSummary.PopGrowthMin ==0 && RaceSummary.PopGrowthMax==0)
+                else if (RaceSummary.PopGrowthMin == 0 && RaceSummary.PopGrowthMax == 0)
                 {
                     RaceDescr += Localizer.Token(1307);
                 }
@@ -185,24 +172,22 @@ namespace Ship_Game
             {
                 RaceDescr += Localizer.Token(1315);
             }
+
             if (RaceSummary.Cybernetic <= 0)
             {
                 if (RaceSummary.GroundCombatModifier > 0f)
                 {
                     if (RaceSummary.DiplomacyMod > 0f)
                     {
-                        RaceDesignScreen raceDesignScreen17 = this;
-                        raceDesignScreen17.RaceDescr = string.Concat(raceDesignScreen17.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1318));
+                        RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1318));
                     }
                     else if (RaceSummary.DiplomacyMod >= 0f)
                     {
-                        RaceDesignScreen raceDesignScreen18 = this;
-                        raceDesignScreen18.RaceDescr = string.Concat(raceDesignScreen18.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1320));
+                        RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1320));
                     }
                     else
                     {
-                        RaceDesignScreen raceDesignScreen19 = this;
-                        raceDesignScreen19.RaceDescr = string.Concat(raceDesignScreen19.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1319));
+                        RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1319));
                     }
                 }
                 else if (RaceSummary.GroundCombatModifier >= 0f)
@@ -211,53 +196,44 @@ namespace Ship_Game
                     {
                         if (RaceSummary.DiplomacyMod > 0f)
                         {
-                            RaceDesignScreen raceDesignScreen20 = this;
-                            raceDesignScreen20.RaceDescr = string.Concat(raceDesignScreen20.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1324));
+                            RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1324));
                         }
                         else if (RaceSummary.DiplomacyMod >= 0f)
                         {
-                            RaceDesignScreen raceDesignScreen21 = this;
-                            raceDesignScreen21.RaceDescr = string.Concat(raceDesignScreen21.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1326));
+                            RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1326));
                         }
                         else
                         {
-                            RaceDesignScreen raceDesignScreen22 = this;
-                            raceDesignScreen22.RaceDescr = string.Concat(raceDesignScreen22.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1325));
+                            RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1325));
                         }
                     }
                 }
                 else if (RaceSummary.DiplomacyMod > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen23 = this;
-                    raceDesignScreen23.RaceDescr = string.Concat(raceDesignScreen23.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1321));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1321));
                 }
                 else if (RaceSummary.DiplomacyMod >= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen24 = this;
-                    raceDesignScreen24.RaceDescr = string.Concat(raceDesignScreen24.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1323));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1323));
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen25 = this;
-                    raceDesignScreen25.RaceDescr = string.Concat(raceDesignScreen25.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1322));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1322));
                 }
             }
             else if (RaceSummary.GroundCombatModifier > 0f)
             {
                 if (RaceSummary.DiplomacyMod > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen26 = this;
-                    raceDesignScreen26.RaceDescr = string.Concat(raceDesignScreen26.RaceDescr, Localizer.Token(1327), Plural, Localizer.Token(1328));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1327), Plural, Localizer.Token(1328));
                 }
                 else if (RaceSummary.DiplomacyMod >= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen27 = this;
-                    raceDesignScreen27.RaceDescr = string.Concat(raceDesignScreen27.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1330));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1330));
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen28 = this;
-                    raceDesignScreen28.RaceDescr = string.Concat(raceDesignScreen28.RaceDescr, Localizer.Token(1327), Plural, Localizer.Token(1329));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1327), Plural, Localizer.Token(1329));
                 }
             }
             else if (RaceSummary.GroundCombatModifier >= 0f)
@@ -266,97 +242,80 @@ namespace Ship_Game
                 {
                     if (RaceSummary.DiplomacyMod > 0f)
                     {
-                        RaceDesignScreen raceDesignScreen29 = this;
-                        raceDesignScreen29.RaceDescr = string.Concat(raceDesignScreen29.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1334));
+                        RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1334));
                     }
                     else if (RaceSummary.DiplomacyMod >= 0f)
                     {
-                        RaceDesignScreen raceDesignScreen30 = this;
-                        raceDesignScreen30.RaceDescr = string.Concat(raceDesignScreen30.RaceDescr, Localizer.Token(1336), Plural, Localizer.Token(1337));
+                        RaceDescr = string.Concat(RaceDescr, Localizer.Token(1336), Plural, Localizer.Token(1337));
                     }
                     else
                     {
-                        RaceDesignScreen raceDesignScreen31 = this;
-                        raceDesignScreen31.RaceDescr = string.Concat(raceDesignScreen31.RaceDescr, Localizer.Token(1327), Plural, Localizer.Token(1335));
+                        RaceDescr = string.Concat(RaceDescr, Localizer.Token(1327), Plural, Localizer.Token(1335));
                     }
                 }
             }
             else if (RaceSummary.DiplomacyMod > 0f)
             {
-                RaceDesignScreen raceDesignScreen32 = this;
-                raceDesignScreen32.RaceDescr = string.Concat(raceDesignScreen32.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1331));
+                RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1331));
             }
             else if (RaceSummary.DiplomacyMod >= 0f)
             {
-                RaceDesignScreen raceDesignScreen33 = this;
-                raceDesignScreen33.RaceDescr = string.Concat(raceDesignScreen33.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1333));
+                RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1333));
             }
             else
             {
-                RaceDesignScreen raceDesignScreen34 = this;
-                raceDesignScreen34.RaceDescr = string.Concat(raceDesignScreen34.RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1332));
+                RaceDescr = string.Concat(RaceDescr, Localizer.Token(1317), Plural, Localizer.Token(1332));
             }
             if (RaceSummary.GroundCombatModifier < 0f || RaceSummary.DiplomacyMod <= 0f)
             {
                 if (RaceSummary.ResearchMod > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen35 = this;
-                    raceDesignScreen35.RaceDescr = string.Concat(raceDesignScreen35.RaceDescr, Localizer.Token(1338), Plural, Localizer.Token(1339));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1338), Plural, Localizer.Token(1339));
                 }
                 else if (RaceSummary.ResearchMod >= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen36 = this;
-                    raceDesignScreen36.RaceDescr = string.Concat(raceDesignScreen36.RaceDescr, Plural, Localizer.Token(1342));
+                    RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1342));
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen37 = this;
-                    raceDesignScreen37.RaceDescr = string.Concat(raceDesignScreen37.RaceDescr, Localizer.Token(1340), Plural, Localizer.Token(1341));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1340), Plural, Localizer.Token(1341));
                 }
             }
             else if (RaceSummary.GroundCombatModifier <= 0f && RaceSummary.DiplomacyMod <= 0f)
             {
                 if (RaceSummary.ResearchMod > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen38 = this;
-                    raceDesignScreen38.RaceDescr = string.Concat(raceDesignScreen38.RaceDescr, Plural, Localizer.Token(1344));
+                    RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1344));
                 }
                 else if (RaceSummary.ResearchMod >= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen39 = this;
-                    raceDesignScreen39.RaceDescr = string.Concat(raceDesignScreen39.RaceDescr, Plural, Localizer.Token(1342));
+                    RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1342));
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen40 = this;
-                    raceDesignScreen40.RaceDescr = string.Concat(raceDesignScreen40.RaceDescr, Plural, Localizer.Token(1341));
+                    RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1341));
                 }
             }
             else if (RaceSummary.ResearchMod > 0f)
             {
-                RaceDesignScreen raceDesignScreen41 = this;
-                raceDesignScreen41.RaceDescr = string.Concat(raceDesignScreen41.RaceDescr, Localizer.Token(1343), Plural, Localizer.Token(1344));
+                RaceDescr = string.Concat(RaceDescr, Localizer.Token(1343), Plural, Localizer.Token(1344));
             }
             else if (RaceSummary.ResearchMod >= 0f)
             {
-                RaceDesignScreen raceDesignScreen42 = this;
-                raceDesignScreen42.RaceDescr = string.Concat(raceDesignScreen42.RaceDescr, Plural, Localizer.Token(1342));
+                RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1342));
             }
             else
             {
-                RaceDesignScreen raceDesignScreen43 = this;
-                raceDesignScreen43.RaceDescr = string.Concat(raceDesignScreen43.RaceDescr, Plural, Localizer.Token(1341));
+                RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1341));
             }
             RaceDesignScreen raceDesignScreen44 = this;
             raceDesignScreen44.RaceDescr = string.Concat(raceDesignScreen44.RaceDescr, "\n \n");
             if (RaceSummary.TaxMod > 0f)
             {
-                RaceDesignScreen raceDesignScreen45 = this;
-                raceDesignScreen45.RaceDescr = string.Concat(raceDesignScreen45.RaceDescr, Singular, Localizer.Token(1345));
+                RaceDescr = string.Concat(RaceDescr, Singular, Localizer.Token(1345));
                 if (RaceSummary.MaintMod < 0f)
                 {
-                    RaceDesignScreen raceDesignScreen46 = this;
-                    raceDesignScreen46.RaceDescr = string.Concat(raceDesignScreen46.RaceDescr, Localizer.Token(1346), Plural, ". ");
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1346), Plural, ". ");
                 }
                 else if (RaceSummary.MaintMod <= 0f)
                 {
@@ -369,31 +328,26 @@ namespace Ship_Game
             }
             else if (RaceSummary.TaxMod >= 0f)
             {
-                RaceDesignScreen raceDesignScreen49 = this;
-                raceDesignScreen49.RaceDescr = string.Concat(raceDesignScreen49.RaceDescr, Singular, Localizer.Token(1354));
+                RaceDescr = string.Concat(RaceDescr, Singular, Localizer.Token(1354));
                 if (RaceSummary.MaintMod < 0f)
                 {
-                    RaceDesignScreen raceDesignScreen50 = this;
-                    raceDesignScreen50.RaceDescr = string.Concat(raceDesignScreen50.RaceDescr, Localizer.Token(1355), Singular, Localizer.Token(1356));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1355), Singular, Localizer.Token(1356));
                 }
                 else if (RaceSummary.MaintMod > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen51 = this;
-                    raceDesignScreen51.RaceDescr = string.Concat(raceDesignScreen51.RaceDescr, Plural, Localizer.Token(1357));
+                    RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1357));
                 }
             }
             else
             {
-                RaceDesignScreen raceDesignScreen52 = this;
-                raceDesignScreen52.RaceDescr = string.Concat(raceDesignScreen52.RaceDescr, Localizer.Token(1349), Singular, Localizer.Token(1350));
+                RaceDescr = string.Concat(RaceDescr, Localizer.Token(1349), Singular, Localizer.Token(1350));
                 if (RaceSummary.MaintMod < 0f)
                 {
                     RaceDescr += Localizer.Token(1351);
                 }
                 else if (RaceSummary.MaintMod <= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen54 = this;
-                    raceDesignScreen54.RaceDescr = string.Concat(raceDesignScreen54.RaceDescr, ", ", Plural, Localizer.Token(1353));
+                    RaceDescr = string.Concat(RaceDescr, ", ", Plural, Localizer.Token(1353));
                 }
                 else
                 {
@@ -402,8 +356,7 @@ namespace Ship_Game
             }
             if (RaceSummary.ProductionMod > 0f)
             {
-                RaceDesignScreen raceDesignScreen56 = this;
-                raceDesignScreen56.RaceDescr = string.Concat(raceDesignScreen56.RaceDescr, Singular, Localizer.Token(1358));
+                RaceDescr = string.Concat(RaceDescr, Singular, Localizer.Token(1358));
                 if (RaceSummary.ModHpModifier > 0f)
                 {
                     RaceDescr += Localizer.Token(1359);
@@ -419,8 +372,7 @@ namespace Ship_Game
             }
             else if (RaceSummary.ProductionMod >= 0f)
             {
-                RaceDesignScreen raceDesignScreen60 = this;
-                raceDesignScreen60.RaceDescr = string.Concat(raceDesignScreen60.RaceDescr, Plural, Localizer.Token(1366));
+                RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1366));
                 if (RaceSummary.ModHpModifier > 0f)
                 {
                     RaceDescr += Localizer.Token(1367);
@@ -436,8 +388,7 @@ namespace Ship_Game
             }
             else
             {
-                RaceDesignScreen raceDesignScreen64 = this;
-                raceDesignScreen64.RaceDescr = string.Concat(raceDesignScreen64.RaceDescr, Plural, Localizer.Token(1362));
+                RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1362));
                 if (RaceSummary.ModHpModifier > 0f)
                 {
                     RaceDescr += Localizer.Token(1363);
@@ -453,26 +404,20 @@ namespace Ship_Game
             }
             if (RaceSummary.SpyMultiplier > 0f)
             {
-                RaceDesignScreen raceDesignScreen68 = this;
-                raceDesignScreen68.RaceDescr = string.Concat(raceDesignScreen68.RaceDescr, Plural, Localizer.Token(1381));
+                RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1381));
             }
             else if (RaceSummary.SpyMultiplier < 0f)
             {
-                RaceDesignScreen raceDesignScreen69 = this;
-                raceDesignScreen69.RaceDescr = string.Concat(raceDesignScreen69.RaceDescr, Plural, Localizer.Token(1382));
+                RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1382));
             }
             if (RaceSummary.Spiritual > 0f)
             {
                 RaceDescr += Localizer.Token(1383);
             }
-            RaceDesignScreen raceDesignScreen71 = this;
-            raceDesignScreen71.RaceDescr = string.Concat(raceDesignScreen71.RaceDescr, "\n \n");
+            RaceDescr = string.Concat(RaceDescr, "\n \n");
             if (RaceSummary.HomeworldSizeMod > 0f)
             {
-                RaceDesignScreen raceDesignScreen72 = this;
-                string str1 = raceDesignScreen72.RaceDescr;
-                string[] strArrays = { str1, Localizer.Token(1370), Singular, Localizer.Token(1371), HomeWorldName, Localizer.Token(1372) };
-                raceDesignScreen72.RaceDescr = string.Concat(strArrays);
+                RaceDescr = string.Concat(RaceDescr, Localizer.Token(1370), Singular, Localizer.Token(1371), HomeWorldName, Localizer.Token(1372));
                 if (RaceSummary.HomeworldFertMod < 0f)
                 {
                     RaceDescr += Localizer.Token(1373);
@@ -480,10 +425,7 @@ namespace Ship_Game
             }
             else if (RaceSummary.HomeworldSizeMod >= 0f)
             {
-                RaceDesignScreen raceDesignScreen74 = this;
-                string str2 = raceDesignScreen74.RaceDescr;
-                string[] strArrays1 = { str2, Localizer.Token(1370), Singular, Localizer.Token(1371), HomeWorldName, Localizer.Token(1375) };
-                raceDesignScreen74.RaceDescr = string.Concat(strArrays1);
+                RaceDescr = string.Concat(RaceDescr, Localizer.Token(1370), Singular, Localizer.Token(1371), HomeWorldName, Localizer.Token(1375));
                 if (RaceSummary.HomeworldFertMod < 0f)
                 {
                     RaceDescr += Localizer.Token(1373);
@@ -491,10 +433,7 @@ namespace Ship_Game
             }
             else
             {
-                RaceDesignScreen raceDesignScreen76 = this;
-                string str3 = raceDesignScreen76.RaceDescr;
-                string[] strArrays2 = { str3, Localizer.Token(1370), Singular, Localizer.Token(1371), HomeWorldName, Localizer.Token(1374) };
-                raceDesignScreen76.RaceDescr = string.Concat(strArrays2);
+                RaceDescr = string.Concat(RaceDescr, Localizer.Token(1370), Singular, Localizer.Token(1371), HomeWorldName, Localizer.Token(1374));
                 if (RaceSummary.HomeworldFertMod < 0f)
                 {
                     RaceDescr += Localizer.Token(1373);
@@ -509,15 +448,14 @@ namespace Ship_Game
                 RaceDescr += Localizer.Token(1377);
                 if (RaceSummary.ShipCostMod < 0f)
                 {
-                    RaceDesignScreen raceDesignScreen80 = this;
-                    raceDesignScreen80.RaceDescr = string.Concat(raceDesignScreen80.RaceDescr, Localizer.Token(1378), Singular, Localizer.Token(1379));
+                    RaceDescr = string.Concat(RaceDescr, Localizer.Token(1378), Singular, Localizer.Token(1379));
                 }
             }
             else if (RaceSummary.ShipCostMod < 0f)
             {
-                RaceDesignScreen raceDesignScreen81 = this;
-                raceDesignScreen81.RaceDescr = string.Concat(raceDesignScreen81.RaceDescr, Plural, Localizer.Token(1380));
+                RaceDescr = string.Concat(RaceDescr, Plural, Localizer.Token(1380));
             }
+
             DescriptionSL.Reset();
             HelperFunctions.parseTextToSL(RaceDescr, Description.Menu.Width - 50, Fonts.Arial12, ref DescriptionSL);
         }
@@ -544,7 +482,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            ScreenManager.SpriteBatch.Begin();
+            batch.Begin();
             float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
             Rectangle r = ChooseRaceMenu.Menu;
             if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
@@ -555,7 +493,7 @@ namespace Ship_Game
             ChooseRaceMenu.subMenu = null;
             ChooseRaceMenu.Draw();
             RaceArchetypeSL.TransitionUpdate(r);
-            RaceArchetypeSL.Draw(ScreenManager.SpriteBatch);
+            RaceArchetypeSL.Draw(batch);
             r = dslrect;
             if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
             {
@@ -573,19 +511,19 @@ namespace Ship_Game
                     if (LowRes)
                     {
                         var portrait = new Rectangle(e.CenterX - 128, (int)raceCursor.Y, 256, 128);
-                        ScreenManager.SpriteBatch.Draw(TextureDict[data], portrait, Color.White);
+                        batch.Draw(TextureDict[data], portrait, Color.White);
                         if (SelectedData == data)
                         {
-                            ScreenManager.SpriteBatch.DrawRectangle(portrait, Color.BurlyWood);
+                            batch.DrawRectangle(portrait, Color.BurlyWood);
                         }
                     }
                     else
                     {
                         var portrait = new Rectangle(e.CenterX - 176, (int)raceCursor.Y, 352, 128);
-                        ScreenManager.SpriteBatch.Draw(TextureDict[data], portrait, Color.White);
+                        batch.Draw(TextureDict[data], portrait, Color.White);
                         if (SelectedData == data)
                         {
-                            ScreenManager.SpriteBatch.DrawRectangle(portrait, Color.BurlyWood);
+                            batch.DrawRectangle(portrait, Color.BurlyWood);
                         }
                     }
                 }
@@ -594,18 +532,18 @@ namespace Ship_Game
             GameTime gameTime = StarDriveGame.Instance.GameTime;
 
             Name.Draw();
-            Color c = new Color(255, 239, 208);
+            var c = new Color(255, 239, 208);
             NameSub.Draw(batch);
             batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), RaceNamePos, Color.BurlyWood);
             Vector2 rpos = RaceNamePos;
             rpos.X = rpos.X + 205f;
             if (!RaceName.HandlingInput)
             {
-                RaceName.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, (RaceName.Hover ? Color.White : c));
+                RaceName.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (RaceName.Hover ? Color.White : c));
             }
             else
             {
-                RaceName.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
+                RaceName.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
             }
             RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
@@ -614,46 +552,46 @@ namespace Ship_Game
             rpos.X = rpos.X + 205f;
             if (!SingEntry.HandlingInput)
             {
-                SingEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, (SingEntry.Hover ? Color.White : c));
+                SingEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (SingEntry.Hover ? Color.White : c));
             }
             else
             {
-                SingEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
+                SingEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
             }
             SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
             rpos.Y = rpos.Y + (Fonts.Arial14Bold.LineSpacing + 2);
-            ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
+            batch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
             rpos.X = rpos.X + 205f;
             if (!PlurEntry.HandlingInput)
             {
-                PlurEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, (PlurEntry.Hover ? Color.White : c));
+                PlurEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (PlurEntry.Hover ? Color.White : c));
             }
             else
             {
-                PlurEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
+                PlurEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
             }
             PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
             rpos.Y = rpos.Y + (Fonts.Arial14Bold.LineSpacing + 2);
-            ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
+            batch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
             rpos.X = rpos.X + 205f;
             if (!HomeSystemEntry.HandlingInput)
             {
-                HomeSystemEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, (HomeSystemEntry.Hover ? Color.White : c));
+                HomeSystemEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (HomeSystemEntry.Hover ? Color.White : c));
             }
             else
             {
-                HomeSystemEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
+                HomeSystemEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
             }
             HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
+            batch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
             FlagRect = new Rectangle((int)FlagPos.X + 16, (int)FlagPos.Y + 15, 80, 80);
             batch.Draw(ResourceManager.Flag(FlagIndex), FlagRect, currentObjectColor);
             FlagLeft = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
+            batch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
+            batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
             r = Description.Menu;
             if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
             {
@@ -663,13 +601,13 @@ namespace Ship_Game
             Description.subMenu = null;
             Description.Draw();
             rpos = new Vector2((r.X + 20), (Description.Menu.Y + 20));
-            DescriptionSL.Draw(ScreenManager.SpriteBatch);
+            DescriptionSL.Draw(batch);
             Vector2 drawCurs = rpos;
             foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
             {
                 if (!e.Hovered)
                 {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, e.item as string, drawCurs, Color.White);
+                    batch.DrawString(Fonts.Arial12, e.item as string, drawCurs, Color.White);
                     drawCurs.Y += Fonts.Arial12.LineSpacing;
                 }
             }
@@ -729,14 +667,14 @@ namespace Ship_Game
                         {
                             drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.MediumSeaGreen : Color.LightCoral);
                         }
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
+                        batch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
                         Vector2 curs = bCursor;
                         curs.X = curs.X + (Traits.Menu.Width - 45 - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
+                        batch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
                         tCursor.Y = tCursor.Y + Fonts.Arial14Bold.LineSpacing;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Menu.Width - 45), tCursor, drawColor);
+                        batch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Menu.Width - 45), tCursor, drawColor);
                         
-                        e.DrawPlus(ScreenManager.SpriteBatch);
+                        e.DrawPlus(batch);
                     }
                     else
                     {
@@ -760,53 +698,42 @@ namespace Ship_Game
                         {
                             drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.MediumSeaGreen : Color.LightCoral);
                         }
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
+                        batch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
                         Vector2 curs = bCursor;
                         curs.X = curs.X + (Traits.Menu.Width - 45 - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
+                        batch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
                         tCursor.Y = tCursor.Y + Fonts.Arial14Bold.LineSpacing;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Menu.Width - 45), tCursor, drawColor);
-                        e.DrawPlus(ScreenManager.SpriteBatch);
+                        batch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Menu.Width - 45), tCursor, drawColor);
+                        e.DrawPlus(batch);
                     }
 
                     e.CheckHover(Input.CursorPosition);
                 }
             }
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2(GalaxySizeRect.X, GalaxySizeRect.Y), Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, GalaxySize.ToString(), new Vector2(GalaxySizeRect.X + 190 - Fonts.Arial12.MeasureString(GalaxySize.ToString()).X, GalaxySizeRect.Y), Color.BurlyWood);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(25), " : "), new Vector2(NumberStarsRect.X, NumberStarsRect.Y), Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, StarEnum.ToString(), new Vector2(NumberStarsRect.X + 190 - Fonts.Arial12.MeasureString(StarEnum.ToString()).X, NumberStarsRect.Y), Color.BurlyWood);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2102), " : "), new Vector2(NumOpponentsRect.X, NumOpponentsRect.Y), Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, numOpponents.ToString(), new Vector2(NumOpponentsRect.X + 190 - Fonts.Arial12.MeasureString(numOpponents.ToString()).X, NumOpponentsRect.Y), Color.BurlyWood);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2105), " : "), new Vector2(GameModeRect.X, GameModeRect.Y), Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2133), " : "), new Vector2(PacingRect.X, PacingRect.Y), Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Pacing.ToString(), "%"), new Vector2(PacingRect.X + 190 - Fonts.Arial12.MeasureString(string.Concat(Pacing.ToString(), "%")).X, PacingRect.Y), Color.BurlyWood);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2139), " : "), new Vector2(DifficultyRect.X, DifficultyRect.Y), Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, SelectedDifficulty.ToString(), new Vector2(DifficultyRect.X + 190 - Fonts.Arial12.MeasureString(SelectedDifficulty.ToString()).X, DifficultyRect.Y), Color.BurlyWood);
+            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2(GalaxySizeRect.X, GalaxySizeRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, GalaxySize.ToString(), new Vector2(GalaxySizeRect.X + 190 - Fonts.Arial12.MeasureString(GalaxySize.ToString()).X, GalaxySizeRect.Y), Color.BurlyWood);
+            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(25), " : "), new Vector2(NumberStarsRect.X, NumberStarsRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, StarEnum.ToString(), new Vector2(NumberStarsRect.X + 190 - Fonts.Arial12.MeasureString(StarEnum.ToString()).X, NumberStarsRect.Y), Color.BurlyWood);
+            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2102), " : "), new Vector2(NumOpponentsRect.X, NumOpponentsRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, numOpponents.ToString(), new Vector2(NumOpponentsRect.X + 190 - Fonts.Arial12.MeasureString(numOpponents.ToString()).X, NumOpponentsRect.Y), Color.BurlyWood);
+            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2105), " : "), new Vector2(GameModeRect.X, GameModeRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2133), " : "), new Vector2(PacingRect.X, PacingRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, string.Concat(Pacing.ToString(), "%"), new Vector2(PacingRect.X + 190 - Fonts.Arial12.MeasureString(string.Concat(Pacing.ToString(), "%")).X, PacingRect.Y), Color.BurlyWood);
+            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2139), " : "), new Vector2(DifficultyRect.X, DifficultyRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, SelectedDifficulty.ToString(), new Vector2(DifficultyRect.X + 190 - Fonts.Arial12.MeasureString(SelectedDifficulty.ToString()).X, DifficultyRect.Y), Color.BurlyWood);
 
             //Added by Gretman
             string ExtraRemnantString = string.Concat(Localizer.Token(4101), " : ");
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, ExtraRemnantString, new Vector2(ExtraRemnantRect.X, ExtraRemnantRect.Y), Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, ExtraRemnant.ToString(), new Vector2(ExtraRemnantRect.X + 190 - Fonts.Arial12.MeasureString(ExtraRemnant.ToString()).X, ExtraRemnantRect.Y), Color.BurlyWood);
+            batch.DrawString(Fonts.Arial12, ExtraRemnantString, new Vector2(ExtraRemnantRect.X, ExtraRemnantRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, ExtraRemnant.ToString(), new Vector2(ExtraRemnantRect.X + 190 - Fonts.Arial12.MeasureString(ExtraRemnant.ToString()).X, ExtraRemnantRect.Y), Color.BurlyWood);
 
             string txt = "";
             int tip = 0;
-            //if (this.mode == RaceDesignScreen.GameMode.PreWarp)
-            //{
-            //    txt = "Pre-Warp";
-            //    tip = 111;
-            //    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-            //    if (MathExt.HitTest(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-            //    {
-            //        ToolTip.CreateTooltip("Play with a new, hardcore ruleset that makes radical changes to the StarDrive FTL systems", base.ScreenManager);
-            //    }
-            //}
-            //else 
-                if (Mode == GameMode.Sandbox)
+            if (Mode == GameMode.Sandbox)
             {
                 txt = Localizer.Token(2103);
                 tip = 112;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2(GameModeRect.X + 190 - Fonts.Arial12.MeasureString(txt).X, GameModeRect.Y), Color.BurlyWood);
+                batch.DrawString(Fonts.Arial12, txt, new Vector2(GameModeRect.X + 190 - Fonts.Arial12.MeasureString(txt).X, GameModeRect.Y), Color.BurlyWood);
                 if (GameModeRect.HitTest(Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(tip);
@@ -816,7 +743,7 @@ namespace Ship_Game
             {
                 txt = Localizer.Token(6093);
                 tip = 165;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2(GameModeRect.X + 190 - Fonts.Arial12.MeasureString(txt).X, GameModeRect.Y), Color.BurlyWood);
+                batch.DrawString(Fonts.Arial12, txt, new Vector2(GameModeRect.X + 190 - Fonts.Arial12.MeasureString(txt).X, GameModeRect.Y), Color.BurlyWood);
                 if (GameModeRect.HitTest(Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(tip);
@@ -826,7 +753,7 @@ namespace Ship_Game
             {
                 txt = Localizer.Token(4102);
                 tip = 229;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2(GameModeRect.X + 190 - Fonts.Arial12.MeasureString(txt).X, GameModeRect.Y), Color.BurlyWood);
+                batch.DrawString(Fonts.Arial12, txt, new Vector2(GameModeRect.X + 190 - Fonts.Arial12.MeasureString(txt).X, GameModeRect.Y), Color.BurlyWood);
                 if (GameModeRect.HitTest(Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(tip);
@@ -940,7 +867,7 @@ namespace Ship_Game
                     {
                         SelectedData = e.item as EmpireData;
                         GameAudio.EchoAffirmative();
-                        SetEmpireData(SelectedData.Traits);
+                        SetRacialTraits(SelectedData.Traits);
                     }
                 }
                 RaceArchetypeSL.HandleInput(input);
@@ -1204,7 +1131,7 @@ namespace Ship_Game
                 {
                     for (int j = 0; j <= 255; j++)
                     {
-                        var thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), currentObjectColor.B);
+                        var thisColor = new Color((byte)i, (byte)j, RaceSummary.B);
                         var colorRect = new Rectangle(2 * j + xPositionStart - 4, yPosition - 4, 8, 8);
                         if (colorRect.HitTest(input.CursorPosition))
                         {
@@ -1246,8 +1173,8 @@ namespace Ship_Game
             t.FlagIndex = FlagIndex;
             t.HomeworldName = HomeWorldName;
             t.Name = RaceName.Text;
-            t.ShipType = SelectedData.Traits.ShipType;
-            t.VideoPath = SelectedData.Traits.VideoPath;
+            t.ShipType  = SelectedData.ShipType;
+            t.VideoPath = SelectedData.VideoPath;
             return t;
         }
 
@@ -1283,24 +1210,19 @@ namespace Ship_Game
             arch = new Submenu(smaller);
             RaceArchetypeSL = new ScrollList(arch, 135);
 
-            foreach (IEmpireData e in ResourceManager.Empires)
+            foreach (IEmpireData e in ResourceManager.MajorRaces)
             {
-                if (!e.IsFactionOrMinorRace)
-                {
-                    RaceArchetypeSL.AddItem(e);
-                    if (e.Traits.VideoPath.NotEmpty())
-                        TextureDict.Add(e, ResourceManager.Texture("Races/" + e.Traits.VideoPath));
-                }
+                RaceArchetypeSL.AddItem(e);
+                if (e.VideoPath.NotEmpty())
+                    TextureDict.Add(e, ResourceManager.Texture("Races/" + e.VideoPath));
+                if (e.Singular == "Human")
+                    SelectedData = e;
             }
-            foreach (IEmpireData e in ResourceManager.Empires)
-            {
-                if (e.Traits.Singular == "Human") SelectedData = e;
-            }
-            RaceName.Text = SelectedData.Traits.Name;
-            SingEntry.Text = SelectedData.Traits.Singular;
-            PlurEntry.Text = SelectedData.Traits.Plural;
-            HomeSystemEntry.Text = SelectedData.Traits.HomeSystemName;
-            HomeWorldName = SelectedData.Traits.HomeworldName;
+            RaceName.Text = SelectedData.Name;
+            SingEntry.Text = SelectedData.Singular;
+            PlurEntry.Text = SelectedData.Plural;
+            HomeSystemEntry.Text = SelectedData.HomeSystemName;
+            HomeWorldName = SelectedData.HomeWorldName;
             GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y - 15, (int)Fonts.Arial12.MeasureString("Galaxy UniverseRadius                                   ").X, Fonts.Arial12.LineSpacing);
             NumberStarsRect = new Rectangle(GalaxySizeRect.X, GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, GalaxySizeRect.Width, GalaxySizeRect.Height);
             NumOpponentsRect = new Rectangle(NumberStarsRect.X, NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, NumberStarsRect.Width, NumberStarsRect.Height);
@@ -1343,7 +1265,7 @@ namespace Ship_Game
                             Description.Menu.Y + Description.Menu.Height - 40, "Clear Traits", OnClearClicked);
 
             DoRaceDescription();
-            SetEmpireData(SelectedData.Traits);
+            SetRacialTraits(SelectedData.Traits);
 
             ButtonMedium(smaller.X + (smaller.Width / 2) - 142, smaller.Y - 20, "Load Race", OnLoadRaceClicked);
             ButtonMedium(smaller.X + (smaller.Width / 2) + 10, smaller.Y - 20, "Save Race", OnSaveRaceClicked);
@@ -1375,19 +1297,18 @@ namespace Ship_Game
             RaceSummary.HomeworldName  = HomeWorldName;
             RaceSummary.Name           = RaceName.Text;
             RaceSummary.FlagIndex      = FlagIndex;
-            RaceSummary.ShipType       = SelectedData.Traits.ShipType;
-            RaceSummary.VideoPath      = SelectedData.Traits.VideoPath;
+            RaceSummary.ShipType       = SelectedData.ShipType;
+            RaceSummary.VideoPath      = SelectedData.VideoPath;
+            RaceSummary.Adj1 = SelectedData.Adj1;
+            RaceSummary.Adj2 = SelectedData.Adj2;
+
             var player = new Empire
             {
                 EmpireColor = currentObjectColor,
-                data = SelectedData.CreateInstance()
+                data = SelectedData.CreateInstance(copyTraits: false)
             };
             player.data.SpyModifier = RaceSummary.SpyMultiplier;
-            player.data.Traits.Spiritual = RaceSummary.Spiritual;
-            RaceSummary.Adj1 = SelectedData.Traits.Adj1;
-            RaceSummary.Adj2 = SelectedData.Traits.Adj2;
             player.data.Traits = RaceSummary;
-            player.EmpireColor = currentObjectColor;
 
             float modifier = 1f;
             switch (StarEnum)
@@ -1460,7 +1381,9 @@ namespace Ship_Game
                     if (traits.FlagIndex == origRace.Traits.FlagIndex)
                         traits.FlagIndex = FlagIndex;
 
-                    if (traits.R == origRace.Traits.R && traits.G == origRace.Traits.G && traits.B == origRace.Traits.B)
+                    if (traits.R == origRace.Traits.R && 
+                        traits.G == origRace.Traits.G &&
+                        traits.B == origRace.Traits.B)
                     {
                         traits.R = currentObjectColor.R;
                         traits.G = currentObjectColor.G;
@@ -1469,10 +1392,10 @@ namespace Ship_Game
                     break;
                 }
             }
-            SetEmpireData(traits);
+            SetRacialTraits(traits);
         }
 
-        void SetEmpireData(RacialTrait traits)
+        void SetRacialTraits(RacialTrait traits)
         {
             RaceSummary.ShipType = traits.ShipType;
             FlagIndex = traits.FlagIndex;
@@ -1579,42 +1502,44 @@ namespace Ship_Game
             Plural = PlurEntry.Text;
             HomeSystemName = HomeSystemEntry.Text;
             RaceSummary = new RacialTrait();
-            foreach (TraitEntry t in AllTraits)
-            {
-                if (!t.Selected)
-                    continue;
-                //Added by McShooterz: code cleaning
-                RaceSummary.ConsumptionModifier    += t.trait.ConsumptionModifier;
-                RaceSummary.DiplomacyMod           += t.trait.DiplomacyMod;
-                RaceSummary.EnergyDamageMod        += t.trait.EnergyDamageMod;
-                RaceSummary.MaintMod               += t.trait.MaintMod;
-                RaceSummary.ReproductionMod        += t.trait.ReproductionMod;
-                RaceSummary.PopGrowthMax           += t.trait.PopGrowthMax;
-                RaceSummary.PopGrowthMin           += t.trait.PopGrowthMin;
-                RaceSummary.ResearchMod            += t.trait.ResearchMod;
-                RaceSummary.ShipCostMod            += t.trait.ShipCostMod;
-                RaceSummary.TaxMod                 += t.trait.TaxMod;
-                RaceSummary.ProductionMod          += t.trait.ProductionMod;
-                RaceSummary.ModHpModifier          += t.trait.ModHpModifier;
-                RaceSummary.Mercantile             += t.trait.Mercantile;
-                RaceSummary.GroundCombatModifier   += t.trait.GroundCombatModifier;
-                RaceSummary.Cybernetic             += t.trait.Cybernetic;
-                RaceSummary.Blind                  += t.trait.Blind;
-                RaceSummary.DodgeMod               += t.trait.DodgeMod;
-                RaceSummary.HomeworldFertMod       += t.trait.HomeworldFertMod;
-                RaceSummary.HomeworldRichMod       += t.trait.HomeworldRichMod;
-                RaceSummary.HomeworldSizeMod       += t.trait.HomeworldSizeMod;
-                RaceSummary.Militaristic           += t.trait.Militaristic;
-                RaceSummary.BonusExplored          += t.trait.BonusExplored;
-                RaceSummary.Prototype              += t.trait.Prototype;
-                RaceSummary.Spiritual              += t.trait.Spiritual;
-                RaceSummary.SpyMultiplier          += t.trait.SpyMultiplier;
-                RaceSummary.RepairMod              += t.trait.RepairMod;
-                RaceSummary.PassengerModifier      += t.trait.PassengerBonus;
 
-                if (t.trait.Pack)
-                    RaceSummary.Pack = t.trait.Pack;
-            }
+            TraitEntry entry = AllTraits.Find(t => t.Selected);
+            if (entry == null)
+                return;
+            
+            RacialTrait trait = entry.trait;
+
+            // Added by McShooterz: code cleaning @todo Are you sure...? :)
+            RaceSummary.ConsumptionModifier    += trait.ConsumptionModifier;
+            RaceSummary.DiplomacyMod           += trait.DiplomacyMod;
+            RaceSummary.EnergyDamageMod        += trait.EnergyDamageMod;
+            RaceSummary.MaintMod               += trait.MaintMod;
+            RaceSummary.ReproductionMod        += trait.ReproductionMod;
+            RaceSummary.PopGrowthMax           += trait.PopGrowthMax;
+            RaceSummary.PopGrowthMin           += trait.PopGrowthMin;
+            RaceSummary.ResearchMod            += trait.ResearchMod;
+            RaceSummary.ShipCostMod            += trait.ShipCostMod;
+            RaceSummary.TaxMod                 += trait.TaxMod;
+            RaceSummary.ProductionMod          += trait.ProductionMod;
+            RaceSummary.ModHpModifier          += trait.ModHpModifier;
+            RaceSummary.Mercantile             += trait.Mercantile;
+            RaceSummary.GroundCombatModifier   += trait.GroundCombatModifier;
+            RaceSummary.Cybernetic             += trait.Cybernetic;
+            RaceSummary.Blind                  += trait.Blind;
+            RaceSummary.DodgeMod               += trait.DodgeMod;
+            RaceSummary.HomeworldFertMod       += trait.HomeworldFertMod;
+            RaceSummary.HomeworldRichMod       += trait.HomeworldRichMod;
+            RaceSummary.HomeworldSizeMod       += trait.HomeworldSizeMod;
+            RaceSummary.Militaristic           += trait.Militaristic;
+            RaceSummary.BonusExplored          += trait.BonusExplored;
+            RaceSummary.Prototype              += trait.Prototype;
+            RaceSummary.Spiritual              += trait.Spiritual;
+            RaceSummary.SpyMultiplier          += trait.SpyMultiplier;
+            RaceSummary.RepairMod              += trait.RepairMod;
+            RaceSummary.PassengerModifier      += trait.PassengerBonus;
+
+            if (trait.Pack)
+                RaceSummary.Pack = trait.Pack;
         }
         
         public enum Difficulty

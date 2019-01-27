@@ -37,8 +37,8 @@ namespace Ship_Game
 
         public Empire CreateEmpire(IEmpireData readOnlyData)
         {
-            if (EmpireManager.GetEmpireByName(readOnlyData.Traits.Name) != null)
-                throw new InvalidOperationException($"BUG: Empire already created! {readOnlyData.Traits.Name}");
+            if (EmpireManager.GetEmpireByName(readOnlyData.Name) != null)
+                throw new InvalidOperationException($"BUG: Empire already created! {readOnlyData.Name}");
             Empire e = EmpireManager.CreateEmpireFromEmpireData(readOnlyData);
             EmpireList.Add(e);
             EmpireManager.Add(e);
