@@ -204,7 +204,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
                 {
-                    Vector2 pos = P.Center + MathExt.PointOnCircle(i * 40, 2000 + 2000 * ring * P.Scale);
+                    Vector2 pos = P.Center + MathExt.PointOnCircle(i * 40, 2000 + 1000 * ring * P.Scale);
                     if (!IsStationAlreadyPresentAt(pos))
                         return pos;
                 }
