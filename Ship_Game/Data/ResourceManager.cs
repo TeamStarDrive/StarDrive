@@ -901,7 +901,6 @@ namespace Ship_Game
         public static bool ModuleExists(string uid) => ModuleTemplates.ContainsKey(uid);
         public static IReadOnlyDictionary<string, ShipModule> ShipModules => ModuleTemplates;
         public static ICollection<ShipModule> ShipModuleTemplates => ModuleTemplates.Values;
-        public static bool TryGetModule(string uid, out ShipModule mod) => ModuleTemplates.TryGetValue(uid, out mod);
 
         public static RacialTraits RaceTraits
             => RacialTraits ?? (RacialTraits = TryDeserialize<RacialTraits>("RacialTraits/RacialTraits.xml"));
@@ -1016,7 +1015,7 @@ namespace Ship_Game
             }
         }
 
-        public static Array<IEmpireData> Empires = new Array<IEmpireData>();
+        static readonly Array<IEmpireData> Empires = new Array<IEmpireData>();
         static readonly Array<IEmpireData> MajorEmpires = new Array<IEmpireData>();
         static readonly Array<IEmpireData> MinorEmpires = new Array<IEmpireData>(); // IsFactionOrMinorRace
 
@@ -1038,11 +1037,13 @@ namespace Ship_Game
             {
                 if (e.IsFactionOrMinorRace) MinorEmpires.Add(e);
                 else                        MajorEmpires.Add(e);
-                RacialTrait t = e.Traits;
-                if (t.ShipType.IsEmpty()) // Fix empires with invalid ShipType
+
+                // HACK: Fix empires with invalid ShipType
+                RacialTrait t = ((EmpireData) e).Traits;
+                if (t.ShipType.IsEmpty())
                 {
-                    t.ShipType = t.Name;
-                    Log.Warning($"Empire {t.Name} invalid ShipType ''. Using '{t.Name}' instead.");
+                    t.ShipType = e.Name;
+                    Log.Warning($"Empire {e.Name} invalid ShipType ''. Using '{e.Name}' instead.");
                 }
             }
         }
