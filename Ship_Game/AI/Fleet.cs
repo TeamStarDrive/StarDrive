@@ -41,7 +41,6 @@ namespace Ship_Game.AI
 
 
         public int FleetIconIndex;
-        public static UniverseScreen Screen;
         public int TaskStep;
         public bool IsCoreFleet;
 

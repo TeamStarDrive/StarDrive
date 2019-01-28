@@ -39,7 +39,6 @@ namespace Ship_Game
             public TextureAtlas Atlas;
         }
 
-        public static UniverseScreen Universe;
         static readonly Array<ExplosionState> ActiveExplosions = new Array<ExplosionState>();
         static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
@@ -77,7 +76,7 @@ namespace Ship_Game
 
         static void AddLight(ExplosionState newExp, Vector3 position, float intensity)
         {
-            if (Universe.viewState > UniverseScreen.UnivScreenState.SectorView)
+            if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.SectorView)
                 return;
 
             newExp.Light = new PointLight
@@ -90,7 +89,7 @@ namespace Ship_Game
                 Intensity    = intensity,
                 Enabled      = true
             };
-            Universe.AddLight(newExp.Light);
+            Empire.Universe.AddLight(newExp.Light);
         }
 
         public static void AddExplosion(Vector3 position, float radius, float intensity, ExplosionType type)
@@ -125,21 +124,21 @@ namespace Ship_Game
 
         static bool DebugExplosions = false;
 
-        public static void Update(float elapsedTime)
+        public static void Update(UniverseScreen us, float elapsedTime)
         {
-            if (DebugExplosions && Universe.Input.IsCtrlKeyDown && Universe.Input.LeftMouseClick)
+            if (DebugExplosions && us.Input.IsCtrlKeyDown && us.Input.LeftMouseClick)
             {
                 GameAudio.PlaySfxAsync("sd_explosion_ship_det_large");
-                AddExplosion(Universe.CursorWorldPosition, 500.0f, 5.0f, ExplosionType.Ship);
-                AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Projectile);
-                AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Photon);
-                AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Warp);
+                AddExplosion(us.CursorWorldPosition, 500.0f, 5.0f, ExplosionType.Ship);
+                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Projectile);
+                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Photon);
+                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Warp);
 
                 for (int i = 0; i < 15; ++i) // some fireworks!
-                    AddExplosion(Universe.CursorWorldPosition+RandomMath.Vector3D(500f), 200.0f, 5.0f, ExplosionType.Projectile);
+                    AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), 200.0f, 5.0f, ExplosionType.Projectile);
             }
 
-            using (Lock.AcquireReadLock())
+            using (Lock.AcquireWriteLock())
             {
                 for (int i = 0; i < ActiveExplosions.Count; ++i)
                 {
@@ -147,7 +146,7 @@ namespace Ship_Game
                     if (e.Time > e.Duration)
                     {
                         ActiveExplosions.RemoveAtSwapLast(i--);
-                        Universe.RemoveLight(e.Light);
+                        us.RemoveLight(e.Light);
                         continue;
                     }
 
@@ -168,8 +167,9 @@ namespace Ship_Game
             Viewport vp = StarDriveGame.Instance.Viewport;
             using (Lock.AcquireReadLock())
             {
-                foreach (ExplosionState e in ActiveExplosions)
+                for (int i = 0; i < ActiveExplosions.Count; ++i)
                 {
+                    ExplosionState e = ActiveExplosions[i];
                     if (float.IsNaN(e.Radius) || e.Radius.AlmostZero() || e.Animation == null)
                         continue;
                     DrawExplosion(batch, vp, view, projection, e);

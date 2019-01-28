@@ -356,11 +356,12 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
+            RemoveAll();
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";
             SystemInfoUIElement.SysFont  = Fonts.Arial12Bold;
             SystemInfoUIElement.DataFont = Fonts.Arial10;
             NotificationManager = new NotificationManager(ScreenManager, this);
-            aw = new AutomationWindow(this);
+            aw = Add(new AutomationWindow(this));
             for (int i = 0; i < UniverseSize / 5000.0f; ++i)
             {
                 var nebulousOverlay = new NebulousOverlay
@@ -562,16 +563,7 @@ namespace Ship_Game
             int width   = device.PresentationParameters.BackBufferWidth;
             int height  = device.PresentationParameters.BackBufferHeight;
 
-            DroneAI.UniverseScreen                = this;
-            ExplosionManager.Universe             = this;
-            Fleet.Screen                          = this;
-            Bomb.Screen                           = this;
-            //MinimapButtons.screen                 = this;
-            Empire.Universe                       = this;
-            ResourceManager.UniverseScreen        = this;
-            Empire.Universe                   = this;
-            ShipAI.UniverseScreen = this;
-            FleetDesignScreen.Screen              = this;
+            Empire.Universe = this;
 
             CreateProjectionMatrix();
             Frustum            = new BoundingFrustum(view * projection);
@@ -596,7 +588,6 @@ namespace Ship_Game
             EmpireUI           = new EmpireUIOverlay(player, device);
             bloomComponent     = new BloomComponent(ScreenManager);
             bloomComponent.LoadContent();
-            aw = new AutomationWindow(this);
             SurfaceFormat backBufferFormat = device.PresentationParameters.BackBufferFormat;
             sceneMap      = new ResolveTexture2D(device, width, height, 1, backBufferFormat);
             MainTarget    = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
@@ -650,14 +641,15 @@ namespace Ship_Game
                 foreach (NebulousOverlay nebulousOverlay in NebulousShit)
                     engineTrailParticles.AddParticleThreadA(nebulousOverlay.Position, Vector3.Zero);
             }
+
             SimulationTime = gameTime;
-            float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            SelectedSomethingTimer -= num;
-            if (SelectorFrame < 299)
-                ++SelectorFrame;
-            else
-                SelectorFrame = 0;
-            MusicCheckTimer -= num;
+
+            float gameTimeDelta = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            SelectedSomethingTimer -= gameTimeDelta;
+
+            if (++SelectorFrame > 299) SelectorFrame = 0;
+
+            MusicCheckTimer -= gameTimeDelta;
             if (MusicCheckTimer <= 0.0f)
             {
                 MusicCheckTimer = 2f;
@@ -782,15 +774,7 @@ namespace Ship_Game
             star_particles.UnloadContent();
             neb_particles.UnloadContent();
             SolarSystemDict.Clear();
-            Fleet.Screen                          = null;
-            Bomb.Screen                           = null;
-            Empire.Universe                       = null;
-            ResourceManager.UniverseScreen        = null;
-            Empire.Universe                       = null;
-            ShipAI.UniverseScreen                 = null;
-            FleetDesignScreen.Screen              = null;
-            ExplosionManager.Universe             = null;
-            DroneAI.UniverseScreen                = null;
+            Empire.Universe = null;
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();
             HelperFunctions.CollectMemory();
