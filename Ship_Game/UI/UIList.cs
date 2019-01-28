@@ -117,6 +117,8 @@ namespace Ship_Game
             if (updated)
             {
                 item.PerformLayout();
+                item.Pos = pos;
+                item.PerformLayout(); // @todo This is a hack. Slider PerformLayout resets stuff
             }
         }
 

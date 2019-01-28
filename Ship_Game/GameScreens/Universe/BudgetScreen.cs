@@ -78,7 +78,7 @@ namespace Ship_Game.GameScreens
             }
             public FloatSlider AddSlider(string title, float value)
             {
-                return Add(new FloatSlider(this, SliderStyle.Percent, new Rectangle(0,0,300,32), title, 0f, 1f, value));
+                return Add(new FloatSlider(this, SliderStyle.Percent, new Vector2(100,32), title, 0f, 1f, value));
             }
         }
 

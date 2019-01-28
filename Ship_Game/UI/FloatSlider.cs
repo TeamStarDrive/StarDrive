@@ -96,6 +96,12 @@ namespace Ship_Game
             Style = style;
         }
 
+        public FloatSlider(UIElementV2 parent, SliderStyle style, Vector2 size, string text, float min, float max, float value)
+            : this(parent, new Rectangle(0, 0,(int)size.X, (int)size.Y), text, min, max, value)
+        {
+            Style = style;
+        }
+
         void UpdateSliderRect()
         {
             SliderRect = new Rectangle((int)Pos.X, (int)Pos.Y + (int)Height/2 + 3, (int)Width - 32, 6);
