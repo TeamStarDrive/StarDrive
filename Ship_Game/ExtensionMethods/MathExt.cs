@@ -867,6 +867,20 @@ namespace Ship_Game
             float delta = a - b;
             return -tolerance <= delta && delta <= tolerance;
         }
+        public static bool NotEqual(this float a, float b)
+        {
+            float delta = a - b;
+            return delta < -0.000001f || +0.000001f <= delta;
+        }
+
+        public static bool AlmostEqual(this Vector2 a, in Vector2 b)
+        {
+            return AlmostEqual(a.X, b.X) && AlmostEqual(a.Y, b.Y);
+        }
+        public static bool NotEqual(this Vector2 a, in Vector2 b)
+        {
+            return NotEqual(a.X, b.X) || NotEqual(a.Y, b.Y);
+        }
 
         public static bool AlmostZero(this float a)
         {
