@@ -216,7 +216,7 @@ namespace Ship_Game
             if (LogicalBuiltTimecVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
                 return orbital;
 
-            // we cannot build the best in the empire, lest try building something cheaper for now
+            // we cannot build the best in the empire, lets try building something cheaper for now
             float maxCost = Prod.NetMaxPotential * (50 + colonyRank);
             orbital       = GetBestOrbital(role, maxCost);
             return orbital;
@@ -229,7 +229,7 @@ namespace Ship_Game
             switch (role)
             {
                 case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
-                case ShipData.RoleName.station:  orbital = Owner.BestStationWeCanBuild; break;
+                case ShipData.RoleName.station:  orbital = Owner.BestStationWeCanBuild;  break;
             }
             return orbital;
         }
