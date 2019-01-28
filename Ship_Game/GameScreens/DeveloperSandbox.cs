@@ -24,7 +24,6 @@ namespace Ship_Game
         public override void LoadContent()
         {
             Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
-
             CreateTask = Parallel.Run(CreateSandboxUniverse);
         }
         

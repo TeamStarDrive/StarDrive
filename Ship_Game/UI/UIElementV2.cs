@@ -37,7 +37,7 @@ namespace Ship_Game
     {
         public readonly UIElementV2 Parent;
 
-        public Vector2 Pos;    // absolute position
+        public Vector2 Pos;    // absolute position in the UI
         public Vector2 Size;   // absolute size in the UI
 
         protected Vector2 AxisOffset = Vector2.Zero;
@@ -76,26 +76,37 @@ namespace Ship_Game
         public float Y { get => Pos.Y; set => Pos.Y = value; }
         public float Width  { get => Size.X; set => Size.X = value; }
         public float Height { get => Size.Y; set => Size.Y = value; }
+        public float Right  { get => Pos.X + Size.X; set => Size.X = (value - Pos.X); }
+        public float Bottom { get => Pos.Y + Size.Y; set => Size.Y = (value - Pos.Y); }
 
-        protected Vector2 RelativePos(float x, float y)
+        static Vector2 RelativeToAbsolute(UIElementV2 parent, float x, float y)
         {
-            UIElementV2 container = Parent ?? this;
-            if      (x < 0f) x += container.Size.X;
-            else if (x <=1f) x *= container.Size.X;
-            if      (y < 0f) y += container.Size.Y;
-            else if (y <=1f) y *= container.Size.Y;
+            if      (x < 0f) x += parent.Size.X;
+            else if (x <=1f) x *= parent.Size.X;
+            if      (y < 0f) y += parent.Size.Y;
+            else if (y <=1f) y *= parent.Size.Y;
             return new Vector2(x, y);
+        }
+
+        public Vector2 RelativeToAbsolute(Vector2 pos)
+        {
+            return RelativeToAbsolute(Parent ?? this, pos.X, pos.Y);
+        }
+
+        public Vector2 RelativeToAbsolute(float x, float y)
+        {
+            return RelativeToAbsolute(Parent ?? this, x, y);
         }
 
         // This has a special behaviour,
         // if x < 0 or y < 0, then it will be evaluated as Parent.Size.X - x
         public void SetAbsPos(float x, float y)
         {
-            Pos = RelativePos(x, y);
+            Pos = new Vector2(x, y);
         }
-        public void SetAbsPos(Vector2 pos)
+        public void SetRelPos(Vector2 pos)
         {
-            Pos = RelativePos(pos.X, pos.Y);
+            Pos = RelativeToAbsolute(pos);
         }
         public void SetSize(float width, float height)
         {
@@ -163,25 +174,31 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected UIElementV2(UIElementV2 parent, Vector2 pos)
+        protected UIElementV2(UIElementV2 parent)
         {
             Parent = parent;
-            SetAbsPos(pos.X, pos.Y);
+            if (parent != null)
+                ZOrder = parent.NextZOrder();
         }
 
-        protected UIElementV2(UIElementV2 parent, Vector2 pos, Vector2 size)
+        protected UIElementV2(UIElementV2 parent, Vector2 pos) : this(parent)
         {
-            Parent = parent;
-            SetAbsPos(pos.X, pos.Y);
+            Pos = pos;
+        }
+
+        protected UIElementV2(UIElementV2 parent, Vector2 pos, Vector2 size) : this(parent)
+        {
+            Pos = pos;
             Size = size;
         }
 
-        protected UIElementV2(UIElementV2 parent, Rectangle rect)
+        protected UIElementV2(UIElementV2 parent, in Rectangle rect) : this(parent)
         {
-            Parent = parent;
             SetAbsPos(rect.X, rect.Y);
             Size = new Vector2(rect.Width, rect.Height);
         }
+
+        protected virtual int NextZOrder() { return ZOrder + 1; }
 
         public abstract void Draw(SpriteBatch batch);
         public abstract bool HandleInput(InputState input);
