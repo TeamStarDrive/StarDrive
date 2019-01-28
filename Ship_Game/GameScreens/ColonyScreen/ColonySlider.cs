@@ -193,10 +193,11 @@ namespace Ship_Game
                 batch.Draw(SliderHover ? CrosshairHover : Crosshair, CursorRect(), sliderTint);
 
             SubTexture minute = SliderHover ? MinuteHover : Minute;
+            var tickPos = new Vector2(Rect.X, Rect.Bottom + 1);
             for (int i = 0; i < 11; ++i)
             {
-                var position1 = new Vector2(Rect.X + Rect.Width / 10 * i, Rect.Bottom + 2);
-                batch.Draw(minute, position1, sliderTint);
+                tickPos.X = Rect.X + (int)(((Rect.Width-1) / 10f)*i); // @note Yeah, cast is important
+                batch.Draw(minute, tickPos, sliderTint);
             }
 
             DrawLock(batch);

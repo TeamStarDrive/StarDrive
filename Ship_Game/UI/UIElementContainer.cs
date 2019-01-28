@@ -230,20 +230,15 @@ namespace Ship_Game
         public void BeginVLayout(Vector2 pos, float ystep = 15f)
         {
             LayoutStarted = true;
-            LayoutCursor  = Pos + pos;
+            LayoutCursor  = pos;
             LayoutStep    = new Vector2(0f, ystep);
         }
 
         public void BeginHLayout(Vector2 pos, float xstep = 50f)
         {
             LayoutStarted = true;
-            LayoutCursor  = Pos + pos;
+            LayoutCursor  = pos;
             LayoutStep    = new Vector2(xstep, 0f);
-        }
-
-        public void SkipLayoutStep() // skips a single layout step during V and H layout
-        {
-            LayoutCursor += LayoutStep;
         }
 
         protected override int NextZOrder()
@@ -292,7 +287,7 @@ namespace Ship_Game
             => Add(new UIButton(this, pos, text));
 
         protected UIButton ButtonMediumMenu(float x, float y, string text)
-            => Add(new UIButton(this, ButtonStyle.MediumMenu, x, y, text));
+            => Add(new UIButton(this, ButtonStyle.MediumMenu, new Vector2(x, y), text));
 
         // @note CloseButton automatically calls ExitScreen() on this screen
         protected CloseButton CloseButton(float x, float y)
@@ -478,6 +473,10 @@ namespace Ship_Game
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public UIList List(Vector2 pos, Vector2 size) => Add(new UIList(this, pos, size));
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         
         public UIBasicAnimEffect Anim() => AddEffect(new UIBasicAnimEffect(this));
 
@@ -493,7 +492,7 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public void StartTransition<T>(float distance, float direction) where T : UIElementV2
+        public void StartTransition<T>(float distance, float direction, float time = 1f) where T : UIElementV2
         {
             var candidates = new Array<UIElementV2>();
             for (int i = 0; i < Elements.Count; ++i)
@@ -505,8 +504,8 @@ namespace Ship_Game
             for (int i = candidates.Count - 1; i >= 0; --i)
             {
                 UIElementV2 e = candidates[i];
-                float modifier = i / (float)candidates.Count;
-                e.AddEffect(new UITransitionEffect(e, distance, modifier, direction));
+                float modifier = time * (i / (float)candidates.Count);
+                e.AddEffect(new UITransitionEffect(e, distance, modifier, direction, time));
             }
         }
 

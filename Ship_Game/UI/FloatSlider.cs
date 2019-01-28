@@ -44,7 +44,7 @@ namespace Ship_Game
             {
                 RelativeValue = (value.Clamped(Min, Max) - Min) / Range;
                 RequiresLayout = true;
-                PerformLegacyLayout(Pos);
+                UpdateSliderRect();
             }
         }
         public float RelativeValue
@@ -54,7 +54,7 @@ namespace Ship_Game
             {
                 Value = value.Clamped(0f, 1f);
                 RequiresLayout = true;
-                PerformLegacyLayout(Pos);
+                UpdateSliderRect();
                 OnChange?.Invoke(this);
             }
         }
@@ -87,7 +87,7 @@ namespace Ship_Game
             Min   = min;
             Max   = max;
             Value = (value.Clamped(Min, Max) - Min) / Range;
-            PerformLegacyLayout(Pos);
+            UpdateSliderRect();
         }
 
         public FloatSlider(UIElementV2 parent, SliderStyle style, Rectangle r, string text, float min, float max, float value)
@@ -96,9 +96,9 @@ namespace Ship_Game
             Style = style;
         }
 
-        void PerformLegacyLayout(Vector2 pos)
+        void UpdateSliderRect()
         {
-            SliderRect = new Rectangle((int)pos.X, (int)pos.Y + (int)Height/2 + 3, (int)Width - 20, 6);
+            SliderRect = new Rectangle((int)Pos.X, (int)Pos.Y + (int)Height/2 + 3, (int)Width - 32, 6);
             KnobRect = new Rectangle(SliderRect.X + (int)(SliderRect.Width * Value), 
                                      SliderRect.Y + SliderRect.Height / 2 - SliderKnob.Height / 2, 
                                      SliderKnob.Width, SliderKnob.Height);
@@ -110,7 +110,7 @@ namespace Ship_Game
                 return;
 
             base.PerformLayout();
-            PerformLegacyLayout(Pos);
+            UpdateSliderRect();
         }
 
         public string StyledValue
@@ -136,10 +136,11 @@ namespace Ship_Game
             batch.Draw(SliderGradient, gradient, Color.White);
             batch.DrawRectangle(SliderRect, Hover ? HoverColor : NormalColor);
 
+            var tickPos = new Vector2(SliderRect.X, SliderRect.Bottom + 1);
             for (int i = 0; i < 11; i++)
             {
-                var tickCursor = new Vector2(SliderRect.X + SliderRect.Width / 10 * i, SliderRect.Y + SliderRect.Height + 2);
-                batch.Draw(Hover ? SliderMinuteHover : SliderMinute, tickCursor, Color.White);
+                tickPos.X = SliderRect.X + (int)(((SliderRect.Width-1) / 10f)*i); // @note Yeah, cast is important
+                batch.Draw(Hover ? SliderMinuteHover : SliderMinute, tickPos, Color.White);
             }
 
             Rectangle knobRect = KnobRect;

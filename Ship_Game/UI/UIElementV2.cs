@@ -76,8 +76,8 @@ namespace Ship_Game
         public float Y { get => Pos.Y; set => Pos.Y = value; }
         public float Width  { get => Size.X; set => Size.X = value; }
         public float Height { get => Size.Y; set => Size.Y = value; }
-        public float Right  => Pos.X + Size.X;
-        public float Bottom => Pos.Y + Size.Y;
+        public float Right  { get => Pos.X + Size.X; set => Size.X = (value - Pos.X); }
+        public float Bottom { get => Pos.Y + Size.Y; set => Size.Y = (value - Pos.Y); }
 
         static Vector2 RelativeToAbsolute(UIElementV2 parent, float x, float y)
         {
