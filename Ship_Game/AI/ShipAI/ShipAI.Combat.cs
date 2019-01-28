@@ -149,7 +149,7 @@ namespace Ship_Game.AI
                 else if (!Intercepting && target.engineState == Ship.MoveState.Warp)
                 {
                     Target = null;
-                    if (!HasPriorityOrder && Owner.loyalty != UniverseScreen.player)
+                    if (!HasPriorityOrder && Owner.loyalty != Empire.Universe.player)
                         State = AIState.AwaitingOrders;
                     return null;
                 }
@@ -539,7 +539,7 @@ namespace Ship_Game.AI
                     {
                         Owner.ChangeOrdnance(-wepTemplate.OrdinanceRequiredToFire);
                         bomb.SetTarget(goal.TargetPlanet);
-                        UniverseScreen.BombList.Add(bomb);
+                        Empire.Universe.BombList.Add(bomb);
                         bombBay.BombTimer = wepTemplate.fireDelay;
                     }
                 }

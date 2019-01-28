@@ -7,20 +7,9 @@ using Ship_Game.UI.Effects;
 
 namespace Ship_Game
 {
-    public enum LayoutStyle
-    {
-        HorizontalEven,   // elements are spaced evenly
-        HorizontalPacked, // elements are packed tightly
-        VerticalEven,     // 
-        VerticalPacked   //
-    }
-
     public abstract class UIElementContainer : UIElementV2
     {
         /////////////////////////////////////////////////////////////////////////////////////////////////
-
-        protected Vector2     Margin        = new Vector2(15f, 15f);
-        protected LayoutStyle CurrentLayout = LayoutStyle.HorizontalEven;
 
         protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
         public IReadOnlyList<UIElementV2> Children => Elements;
@@ -36,21 +25,6 @@ namespace Ship_Game
         int DebugDrawIndex;
         float DebugDrawTimer;
         const float DebugDrawInterval = 0.5f;
-
-        public LayoutStyle Layout
-        {
-            get => CurrentLayout;
-            set
-            {
-                if (CurrentLayout == value)
-                    return;
-                CurrentLayout = value;
-                RequiresLayout = true;
-            }
-        }
-
-        public bool IsEvenLayout => CurrentLayout == LayoutStyle.HorizontalEven
-                                 || CurrentLayout == LayoutStyle.VerticalEven;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -81,7 +55,7 @@ namespace Ship_Game
             }
             else
             {
-                for (int i = 0; i <= DebugDrawIndex && i < Elements.Count; ++i)
+                for (int i = DebugDrawIndex; i < Elements.Count; ++i)
                 {
                     UIElementV2 e = Elements[i];
                     if (!e.Visible) continue;
@@ -141,59 +115,11 @@ namespace Ship_Game
             }
         }
 
-        private Vector2 LayoutDirection()
-        {
-            switch (CurrentLayout)
-            {
-                default:
-                case LayoutStyle.HorizontalEven:
-                case LayoutStyle.HorizontalPacked: return new Vector2(1f, 0f);
-                case LayoutStyle.VerticalEven:
-                case LayoutStyle.VerticalPacked:   return new Vector2(0f, 1f);
-            }
-        }
-
         public override void PerformLayout()
         {
-            if (!Visible)
+            if (!RequiresLayout || !Visible)
                 return;
-
-            base.PerformLayout(); // layout self first
-            LayoutChildElements(Pos);
-        }
-
-        private void LayoutChildElements(Vector2 pos)
-        {
-            if (Elements.IsEmpty)
-                return;
-
-            Vector2 direction = LayoutDirection();
-            Vector2 cursor = pos;
-
-            if (IsEvenLayout)
-            {
-                Vector2 adjustedSize = Size - Margin * Elements.Count;
-                Vector2 evenSpacing = (adjustedSize / Elements.Count) + Margin;
-                for (int i = 0; i < Elements.Count; ++i)
-                {
-                    UIElementV2 e = Elements[i];
-                    if (!e.Visible) continue;
-                    e.Pos = cursor;
-                    e.PerformLayout();
-                    cursor += evenSpacing * direction;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < Elements.Count; ++i)
-                {
-                    UIElementV2 e = Elements[i];
-                    if (!e.Visible) continue;
-                    e.Pos = cursor;
-                    e.PerformLayout();
-                    cursor += (e.Size + Margin) * direction;
-                }
-            }
+            RequiresLayout = false;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -475,6 +401,14 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         public UIList List(Vector2 pos, Vector2 size) => Add(new UIList(this, pos, size));
+
+        public UIList List(Vector2 pos)
+        {
+            UIList list = Add(new UIList(this, pos, new Vector2(100f, 100f)));
+            list.LayoutStyle = ListLayoutStyle.Resize;
+            return list;
+        }
+
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         

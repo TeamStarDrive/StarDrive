@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
@@ -69,7 +70,7 @@ namespace Ship_Game
         {
         }
 
-        public new T Add<T>(T element) where T : UIElementV2
+        public T AddItem<T>(T element) where T : UIElementV2
         {
             RequiresLayout = true;
             Items.Add(element);
@@ -78,7 +79,10 @@ namespace Ship_Game
 
         public void RemoveAt(int index)
         {
-            Remove(Items[index]); // go through the virtual call hierarchy for removing items
+            RequiresLayout = true;
+            UIElementV2 e = Items[index];
+            Items.RemoveAt(index);
+            base.Remove(e);
         }
 
         public override void Remove(UIElementV2 element)
@@ -117,8 +121,6 @@ namespace Ship_Game
             if (updated)
             {
                 item.PerformLayout();
-                item.Pos = pos;
-                item.PerformLayout(); // @todo This is a hack. Slider PerformLayout resets stuff
             }
         }
 
@@ -180,6 +182,16 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
+        public void ReverseZOrder()
+        {
+            if (Elements.IsEmpty)
+                return;
+            int max = Elements.Last.ZOrder;
+            Elements.Reverse();
+            foreach (UIElementV2 e in Elements)
+                e.ZOrder = max--;
+        }
+
         /////////////////////////////////////////////////////////////////////////////
         
         public UIButton AddButton(int titleId, UIButton.ClickHandler click)
@@ -189,7 +201,7 @@ namespace Ship_Game
 
         public UIButton AddButton(string text, UIButton.ClickHandler click)
         {
-            UIButton button = Add(new UIButton(this, Vector2.Zero, text));
+            UIButton button = AddItem(new UIButton(this, Vector2.Zero, text));
             button.OnClick += click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;

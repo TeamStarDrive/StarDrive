@@ -9,7 +9,6 @@ namespace Ship_Game.AI
     {
         public readonly Projectile Drone;
         private Ship DroneTarget;
-        public static UniverseScreen UniverseScreen;
         private float ThinkTimer;
         public Weapon DroneWeapon;
         private float OrbitalAngle;

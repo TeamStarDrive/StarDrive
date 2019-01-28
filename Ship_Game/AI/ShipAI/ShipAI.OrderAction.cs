@@ -146,7 +146,7 @@ namespace Ship_Game.AI
             if (ExterminationTarget == null || ExterminationTarget.Owner == null)
             {
                 var plist = new Array<Planet>();
-                foreach (var planetsDict in UniverseScreen.PlanetsDict)
+                foreach (var planetsDict in Empire.Universe.PlanetsDict)
                 {
                     if (planetsDict.Value.Owner == null)
                         continue;
@@ -388,7 +388,7 @@ namespace Ship_Game.AI
             if (clearOrders)
                 WayPoints.Clear();
 
-            if (UniverseScreen != null && Owner.loyalty == EmpireManager.Player)
+            if (Empire.Universe != null && Owner.loyalty == EmpireManager.Player)
                 HasPriorityOrder = true;
             State = AIState.MoveTo;
             MovePosition = position;

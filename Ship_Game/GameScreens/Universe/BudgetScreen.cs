@@ -70,7 +70,7 @@ namespace Ship_Game.GameScreens
             public void AddItem(string text, Func<float> getValue) => AddItem(text, getValue, Color.White);
             public void AddItem(string text, Func<float> getValue, Color keyColor)
             {
-                Add(new SummaryItem(this, text, keyColor, getValue));
+                AddItem(new SummaryItem(this, text, keyColor, getValue));
             }
             public void SetTotalFooter(Func<float> getValue)
             {
@@ -78,7 +78,7 @@ namespace Ship_Game.GameScreens
             }
             public FloatSlider AddSlider(string title, float value)
             {
-                return Add(new FloatSlider(this, SliderStyle.Percent, new Vector2(100,32), title, 0f, 1f, value));
+                return AddItem(new FloatSlider(this, SliderStyle.Percent, new Vector2(100,32), title, 0f, 1f, value));
             }
         }
 
