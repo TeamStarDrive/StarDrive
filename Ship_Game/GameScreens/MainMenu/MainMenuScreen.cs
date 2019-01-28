@@ -92,7 +92,7 @@ namespace Ship_Game.GameScreens.MainMenu
             Panel(nebula, ScreenRect).InBackground(); // fill background
 
             if (layout.ShowPlanet)
-                Panel("MainMenu/planet", layout.PlanetPosition).InBackground(); // big planet background
+                PanelRel("MainMenu/planet", layout.PlanetPosition).InBackground(); // big planet background
 
             if (GlobalStats.HasMod)
             {
@@ -101,26 +101,29 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             Panel("MainMenu/vignette", ScreenRect); // vignette goes on top of everything
-            BeginVLayout(layout.ButtonsStart, UIButton.StyleSize().Y + 15);
-                Button(titleId: 1,      click: NewGame_Clicked);
-                Button(titleId: 3,      click: Tutorials_Clicked);
-                Button(titleId: 2,      click: LoadGame_Clicked);
-                Button(titleId: 4,      click: Options_Clicked);
-                Button("Mods",          click: Mods_Clicked);
-                Button("Dev Sandbox",   click: DevSandbox_Clicked);
-                Button("BlackBox Info", click: Info_Clicked);
-                Button("Version Check", click: VerCheck_Clicked);
-                Button(titleId: 5,      click: Exit_Clicked);
-            EndLayout();
+
+            UIList list = List(RelativeToAbsolute(layout.ButtonsStart), new Vector2(600f, 200f));
+            list.Padding = new Vector2(5f, 15f);
+            list.LayoutStyle = ListLayoutStyle.Resize;
+            list.AddButton(titleId: 1,      click: NewGame_Clicked);
+            list.AddButton(titleId: 3,      click: Tutorials_Clicked);
+            list.AddButton(titleId: 2,      click: LoadGame_Clicked);
+            list.AddButton(titleId: 4,      click: Options_Clicked);
+            list.AddButton("Mods",          click: Mods_Clicked);
+            list.AddButton("Dev Sandbox",   click: DevSandbox_Clicked);
+            list.AddButton("BlackBox Info", click: Info_Clicked);
+            list.AddButton("Version Check", click: VerCheck_Clicked);
+            list.AddButton(titleId: 5,      click: Exit_Clicked);
+            list.PerformLayout();
 
             // Animate the buttons in and out
-            StartTransition<UIButton>(512f, -1f);
-            OnExit += () => StartTransition<UIButton>(512f, +1f);
+            list.StartTransition<UIButton>(512f, -1f, 1.1f);
+            OnExit += () => list.StartTransition<UIButton>(512f, +1f, 1.0f);
             
             SDLogoAnim = Add(new UISpriteElement(this, "MainMenu/Stardrive logo"));
             SDLogoAnim.Animation.FreezeAtLastFrame = layout.FreezeSDLogo;
             SDLogoAnim.Animation.Looping = !layout.FreezeSDLogo;
-            SDLogoAnim.SetAbsPos(layout.SDLogoPosition);
+            SDLogoAnim.SetRelPos(layout.SDLogoPosition);
             SDLogoAnim.Visible = layout.ShowSDLogo;
             
             MoonPosition = new Vector3(+ScreenWidth / 2f - 300, 198 - ScreenHeight / 2f, 0f);
@@ -168,28 +171,28 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             // alien text markers flashing on top of right hand side moon
             const float moonLoop = 12.0f; // total animation loop sync time
-            Panel("MainMenu/moon_1", moon+layout.MoonText1).Anim(1.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
-            Panel("MainMenu/moon_2", moon+layout.MoonText2).Anim(5.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
-            Panel("MainMenu/moon_3", moon+layout.MoonText3).Anim(7.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
+            PanelRel("MainMenu/moon_1", moon+layout.MoonText1).Anim(1.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
+            PanelRel("MainMenu/moon_2", moon+layout.MoonText2).Anim(5.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
+            PanelRel("MainMenu/moon_3", moon+layout.MoonText3).Anim(7.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
 
             // flashing planet hex grid overlays
             const float hexLoop = 10.0f;
             if (layout.ShowPlanetGrid)
             {
-                Panel("MainMenu/planet_grid",       layout.PlanetGrid).InBackground().Anim(4.0f, 3.0f, 0.6f, 1.2f).Alpha().Loop(hexLoop);
-                Panel("MainMenu/planet_grid_hex_1", layout.PlanetHex1).InBackground().Anim(4.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
-                Panel("MainMenu/planet_grid_hex_2", layout.PlanetHex2).InBackground().Anim(5.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
-                Panel("MainMenu/planet_grid_hex_3", layout.PlanetHex3).InBackground().Anim(5.2f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
+                PanelRel("MainMenu/planet_grid",       layout.PlanetGrid).InBackground().Anim(4.0f, 3.0f, 0.6f, 1.2f).Alpha().Loop(hexLoop);
+                PanelRel("MainMenu/planet_grid_hex_1", layout.PlanetHex1).InBackground().Anim(4.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
+                PanelRel("MainMenu/planet_grid_hex_2", layout.PlanetHex2).InBackground().Anim(5.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
+                PanelRel("MainMenu/planet_grid_hex_3", layout.PlanetHex3).InBackground().Anim(5.2f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
             }
             if (layout.ShowPlanetFlare)
             {
-                Panel("MainMenu/planet_solarflare", layout.PlanetSolarFlare)
+                PanelRel("MainMenu/planet_solarflare", layout.PlanetSolarFlare)
                     .InBackAdditive() // behind 3d objects
                     .Anim().Loop(4.0f, 1.5f, 1.5f).Color(Color.White.MultiplyRgb(0.85f), Color.White);
             }
 
-            Panel("MainMenu/corner_TL", layout.CornerTL).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
-            Panel("MainMenu/corner_BR", layout.CornerBR).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
+            PanelRel("MainMenu/corner_TL", layout.CornerTL).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
+            PanelRel("MainMenu/corner_BR", layout.CornerBR).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
         }
 
         void CreateVersionArea()
@@ -217,7 +220,7 @@ namespace Ship_Game.GameScreens.MainMenu
         void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
         void VerCheck_Clicked(UIButton button)  => ScreenManager.AddScreen(new VersionChecking(this));
         void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
-        void DevSandbox_Clicked(UIButton button)=> ScreenManager.GoToScreen(new DeveloperSandbox(), clear3DObjects:true);
+        void DevSandbox_Clicked(UIButton button)=> ScreenManager.GoToScreen(new DeveloperSandbox(), clear3DObjects: true);
         void Exit_Clicked(UIButton button)      => ExitScreen();
 
         public override void Draw(SpriteBatch batch)
