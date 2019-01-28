@@ -20,7 +20,9 @@ namespace Ship_Game
 
         void CalculateIncomingTrade()
         {
-            if (Owner == null || Owner.isFaction) return;
+            if (Owner == null || Owner.isFaction)
+                return;
+
             IncomingProduction = 0;
             IncomingFood = 0;
             TradeAI.ClearHistory();
@@ -31,7 +33,6 @@ namespace Ship_Game
                     if (ship.DesignRole != ShipData.RoleName.freighter) continue;
                     if (ship.AI.State != AIState.SystemTrader && ship.AI.State != AIState.PassengerTransport) continue;
                     if (ship.AI.OrderQueue.IsEmpty) continue;
-
                     TradeAI.AddTrade(ship);
                 }
             }
@@ -42,16 +43,14 @@ namespace Ship_Game
         }
 
         
-        public bool NeedsFood()
+        public bool ShortOnFood()
         {
-            if (Owner?.isFaction ?? true) return false;
-            Goods foodType = IsCybernetic ? Goods.Production : Goods.Food;
-            float food = GetGoodHere(foodType);
-            //bool badProduction = cyber ? NetProductionPerTurn <= 0 && WorkerPercentage > .75f :
-            //    (NetFoodPerTurn <= 0 && FarmerPercentage > .75f);
-            return (food + TradeAI.GetAverageTradeFor(foodType)) / Storage.Max < .10f;//|| badProduction;
+            if (Owner?.isFaction ?? true)
+                return false;
+            float incoming = IsCybernetic ? IncomingProduction : IncomingFood;
+            float food = Storage.RaceFood + incoming;
+            return (food / Storage.Max) < 0.1f;
         }
-
 
         void DebugImportFood(float predictedFood, string text) =>
             Empire.Universe?.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", DebugModes.Trade);
@@ -66,8 +65,9 @@ namespace Ship_Game
             if (ImportProd && ExportFood) return Goods.Production;
 
             const int lookahead = 30; // 1 turn ~~ 5 second, 12 turns ~~ 1min, 60 turns ~~ 5min
-            float predictedFood = ProjectedFood(lookahead);
 
+            // only calc food for organic races
+            float predictedFood = NonCybernetic ? ProjectedFood(lookahead) : 0f;
             if (predictedFood < 0f) // we will starve!
             {
                 if (!FindConstructionBuilding(Goods.Food, out QueueItem item))
@@ -98,9 +98,6 @@ namespace Ship_Game
                 return Goods.Food;
             }
 
-            // we have enough food incoming, so focus on production instead
-            float predictedProduction = ProjectedProduction(lookahead);
-
             // We are not starving and we're constructing stuff
             if (ConstructionQueue.Count > 0)
             {
@@ -120,6 +117,9 @@ namespace Ship_Game
                     return Goods.Production;
                 }
             }
+            
+            // we have enough food incoming, so focus on production instead
+            float predictedProduction = ProjectedProduction(lookahead);
 
             // we are not starving and we are not constructing anything
             // just pick which stockpile is smaller
@@ -128,35 +128,35 @@ namespace Ship_Game
 
         const int NEVER = 10000;
 
-        float AvgIncomingFood => IncomingFood; // @todo Estimate this better
-        float AvgIncomingProd => IncomingProduction;
-
-        float AvgFoodPerTurn => Food.NetIncome + AvgIncomingFood;
-        float AvgProdPerTurn => Prod.NetIncome + AvgIncomingProd;
-
         int TurnsUntilOutOfFood()
         {
             if (IsCybernetic)
                 return NEVER;
 
-            float avg = AvgFoodPerTurn;
+            float avg = Food.NetIncome + IncomingFood;
             if (avg > 0f) return NEVER;
             return (int)Math.Floor(FoodHere / Math.Abs(avg));
         }
 
         float ProjectedFood(int turns)
         {
-            float incomingAvg = IncomingFood;
-            float netFood = Food.NetIncome;
-            return FoodHere + incomingAvg + netFood * turns;
+            float incomingAvg = Food.NetIncome + IncomingFood;
+            return FoodHere + incomingAvg * turns;
         }
 
         float ProjectedProduction(int turns)
         {
-            float incomingAvg = IncomingProduction;
-            float netProd = Prod.NetIncome;
-            netProd = ConstructionQueue.Count > 0 ? Math.Min(0,netProd) : netProd;
-            return ProdHere + incomingAvg + netProd * turns;
+            float incomingAvg = Prod.NetIncome + IncomingProduction;
+
+            int totalTurns = NumberOfTurnsUntilCompleted(ConstructionQueue.Last);
+            int turnsOfIdleProd = turns - totalTurns;
+            
+            float total = ProdHere + incomingAvg * turns;
+            if (turnsOfIdleProd > 0)
+            {
+                total += incomingAvg * turnsOfIdleProd;
+            }
+            return total;
         }
     }
 }
