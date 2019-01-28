@@ -633,18 +633,6 @@ namespace Ship_Game
             UpdateScrollBar();
         }
 
-        private bool HandleItemInput(InputState input)
-        {
-            int end = ExpandedEntriesEnd;
-            for (int i = FirstVisibleIndex; i < end; ++i)
-            {
-                Entry e = ExpandedEntries[i];
-                if (e.item is UIElement element && element.HandleInput(input))
-                    return true;
-            }
-            return false;
-        }
-
         public class Entry
         {
             // entries with subitems can be expanded or collapsed via category title

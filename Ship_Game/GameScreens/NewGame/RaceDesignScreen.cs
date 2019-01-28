@@ -871,7 +871,9 @@ namespace Ship_Game
                     }
                 }
                 RaceArchetypeSL.HandleInput(input);
-                Traits.HandleInput(input);
+                if (Traits.HandleInput(input))
+                    ResetLists();
+
                 if (!RaceName.ClickableArea.HitTest(input.CursorPosition))
                 {
                     RaceName.Hover = false;
@@ -936,6 +938,7 @@ namespace Ship_Game
                 {
                     HomeSystemEntry.HandleTextInput(ref HomeSystemEntry.Text, input);
                 }
+
                 traitsSL.HandleInput(input);
                 foreach (ScrollList.Entry f in traitsSL.VisibleEntries)
                 {
@@ -983,6 +986,7 @@ namespace Ship_Game
                         DoRaceDescription();
                     }
                 }
+
                 if (GalaxySizeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.BlipClick();
