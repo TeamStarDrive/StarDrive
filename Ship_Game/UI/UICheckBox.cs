@@ -10,13 +10,15 @@ namespace Ship_Game
 
     public sealed class UICheckBox : UIElementV2
     {
-        private readonly SpriteFont Font;
-        private readonly string Text;
-        private readonly string TipText;
-        private readonly Ref<bool> Binding;
+        readonly SpriteFont Font;
+        readonly string Text;
+        readonly string TipText;
+        readonly Ref<bool> Binding;
 
-        private Vector2 TextPos;
-        private Vector2 CheckPos;
+        Vector2 TextPos;
+        Vector2 CheckPos;
+
+        public bool Checked => Binding.Value;
 
         public UICheckBox(UIElementV2 parent, float x, float y, Ref<bool> binding, SpriteFont font, string title, string tooltip)
             : base(parent, new Vector2(x,y))
@@ -75,7 +77,7 @@ namespace Ship_Game
             return true;
         }
 
-        private void PerformLegacyLayout(Vector2 pos)
+        void PerformLegacyLayout(Vector2 pos)
         {
             int offset = (Font.LineSpacing + 6) / 2 - 5;
             Rect = new Rectangle((int)pos.X, (int)pos.Y + offset, 10, 10);
@@ -94,6 +96,6 @@ namespace Ship_Game
                                    Rect.Y + 4 - Font.LineSpacing / 2);
         }
 
-        public override string ToString() => $"Checkbox '{Text}' value:{Binding.Value}";
+        public override string ToString() => $"Checkbox Pos:{Pos} Text=\"{Text}\" Value:{Binding.Value}";
     }
 }

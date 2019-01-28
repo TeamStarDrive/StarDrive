@@ -40,8 +40,8 @@ namespace Ship_Game
         public Vector2 Pos;    // absolute position in the UI
         public Vector2 Size;   // absolute size in the UI
 
-        protected Vector2 AxisOffset = Vector2.Zero;
-        protected Vector2 ParentOffset = Vector2.Zero;
+        //protected Vector2 AxisOffset = Vector2.Zero;
+        //protected Vector2 ParentOffset = Vector2.Zero;
         protected bool RequiresLayout;
 
         // Elements are sorted by ZOrder during EndLayout()
@@ -114,63 +114,63 @@ namespace Ship_Game
             RequiresLayout = true;
         }
 
-        /**
-         * Sets the auto-layout axis of the UIElement. Default is [0,0]
-         * Changing the axis will change the position and rotation axis of the object.
-         * @example [0.5,0.5] will set the axis to the center of the object (depends on size!)
-         */
-        public Align Axis
-        {
-            set
-            {
-                AxisOffset = AlignValue(value);
-                RequiresLayout = true;
-            }
-        }
+        ///**
+        // * Sets the auto-layout axis of the UIElement. Default is [0,0]
+        // * Changing the axis will change the position and rotation axis of the object.
+        // * @example [0.5,0.5] will set the axis to the center of the object (depends on size!)
+        // */
+        //public Align Axis
+        //{
+        //    set
+        //    {
+        //        AxisOffset = AlignValue(value);
+        //        RequiresLayout = true;
+        //    }
+        //}
 
-        /**
-         * Sets the auto-layout alignment to parent container bounds. Default is [0,0]
-         * By changing this value, you can make components default position different
-         * @example [1,0] will align the component to parent right
-         */
-        public Align ParentAlign
-        {
-            set
-            {
-                ParentOffset = AlignValue(value);
-                RequiresLayout = true;
-            }
-        }
+        ///**
+        // * Sets the auto-layout alignment to parent container bounds. Default is [0,0]
+        // * By changing this value, you can make components default position different
+        // * @example [1,0] will align the component to parent right
+        // */
+        //public Align ParentAlign
+        //{
+        //    set
+        //    {
+        //        ParentOffset = AlignValue(value);
+        //        RequiresLayout = true;
+        //    }
+        //}
 
-        /**
-         * Sets both Axis and ParentAlign to the provided Align value
-         * @example Align.Center will perfectly center to parent center
-         */
-        public Align AxisAlign
-        {
-            set
-            {
-                AxisOffset = ParentOffset = AlignValue(value);
-                RequiresLayout = true;
-            }
-        }
+        ///**
+        // * Sets both Axis and ParentAlign to the provided Align value
+        // * @example Align.Center will perfectly center to parent center
+        // */
+        //public Align AxisAlign
+        //{
+        //    set
+        //    {
+        //        AxisOffset = ParentOffset = AlignValue(value);
+        //        RequiresLayout = true;
+        //    }
+        //}
 
-        static Vector2 AlignValue(Align align)
-        {
-            switch (align)
-            {
-                default:
-                case Align.TopLeft:      return new Vector2(0.0f, 0.0f);
-                case Align.TopCenter:    return new Vector2(0.5f, 0.0f);
-                case Align.TopRight:     return new Vector2(1.0f, 0.0f);
-                case Align.CenterLeft:   return new Vector2(0.0f, 0.5f);
-                case Align.Center:       return new Vector2(0.5f, 0.5f);
-                case Align.CenterRight:  return new Vector2(1.0f, 0.5f);
-                case Align.BottomLeft:   return new Vector2(0.0f, 1.0f);
-                case Align.BottomCenter: return new Vector2(0.5f, 1.0f);
-                case Align.BottomRight:  return new Vector2(1.0f, 1.0f);
-            }
-        }
+        //static Vector2 AlignValue(Align align)
+        //{
+        //    switch (align)
+        //    {
+        //        default:
+        //        case Align.TopLeft:      return new Vector2(0.0f, 0.0f);
+        //        case Align.TopCenter:    return new Vector2(0.5f, 0.0f);
+        //        case Align.TopRight:     return new Vector2(1.0f, 0.0f);
+        //        case Align.CenterLeft:   return new Vector2(0.0f, 0.5f);
+        //        case Align.Center:       return new Vector2(0.5f, 0.5f);
+        //        case Align.CenterRight:  return new Vector2(1.0f, 0.5f);
+        //        case Align.BottomLeft:   return new Vector2(0.0f, 1.0f);
+        //        case Align.BottomCenter: return new Vector2(0.5f, 1.0f);
+        //        case Align.BottomRight:  return new Vector2(1.0f, 1.0f);
+        //    }
+        //}
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -245,17 +245,6 @@ namespace Ship_Game
             if (!RequiresLayout || !Visible)
                 return;
             RequiresLayout = false;
-
-            Vector2 pos = Size * -AxisOffset;
-            if (Parent != null)
-            {
-                pos += Parent.Pos;
-                if (ParentOffset != Vector2.Zero)
-                {
-                    pos += Parent.Size * ParentOffset;
-                }
-            }
-            Pos = pos;
         }
 
         public bool HitTest(Vector2 pos)
