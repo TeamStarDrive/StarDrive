@@ -5,7 +5,20 @@ namespace Ship_Game.Universe.SolarBodies
     public abstract class ColonyResource
     {
         protected readonly Planet Planet;
-        public float Percent; // Percentage workers allocated [0.0-1.0]
+        public bool Initialized { get; private set; }
+
+        float PercentValue;
+        public float Percent // Percentage workers allocated [0.0-1.0]
+        {
+            get => PercentValue;
+            set
+            {
+                if (float.IsNaN(value) || float.IsInfinity(value))
+                    Log.Error($"Resource.Percent invalid value: {value}");
+                PercentValue = value;
+            }
+        }
+        //public float Percent; // Percentage workers allocated [0.0-1.0]
         public bool PercentLock; // Percentage slider locked by user
 
         // Per Turn: Raw value produced before we apply any taxes or consume stuff
@@ -44,6 +57,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public virtual void Update(float consumption)
         {
+            Initialized = true;
             FlatBonus = 0f;
             RecalculateModifiers();
             
@@ -78,7 +92,9 @@ namespace Ship_Game.Universe.SolarBodies
             float netFlat = AfterTax(grossFlat);
 
             float needed = AvgResourceConsumption() - netFlat;
-            float minWorkers = needed / netColo;
+            float minWorkers = netColo.AlmostZero() ? 0f : (needed / netColo);
+            if (float.IsNaN(minWorkers) || float.IsInfinity(minWorkers))
+                Log.Error($"WorkersNeededForEquilibrium invalid result: {minWorkers}");
             return minWorkers.Clamped(0.0f, 0.9f);
         }
 
