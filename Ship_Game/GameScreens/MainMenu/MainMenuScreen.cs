@@ -101,21 +101,24 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             Panel("MainMenu/vignette", ScreenRect); // vignette goes on top of everything
-            BeginVLayout(RelativeToAbsolute(layout.ButtonsStart), UIButton.StyleSize().Y + 15);
-                Button(titleId: 1,      click: NewGame_Clicked);
-                Button(titleId: 3,      click: Tutorials_Clicked);
-                Button(titleId: 2,      click: LoadGame_Clicked);
-                Button(titleId: 4,      click: Options_Clicked);
-                Button("Mods",          click: Mods_Clicked);
-                Button("Dev Sandbox",   click: DevSandbox_Clicked);
-                Button("BlackBox Info", click: Info_Clicked);
-                Button("Version Check", click: VerCheck_Clicked);
-                Button(titleId: 5,      click: Exit_Clicked);
-            EndLayout();
+
+            UIList list = List(RelativeToAbsolute(layout.ButtonsStart), new Vector2(600f, 200f));
+            list.Padding = new Vector2(5f, 15f);
+            list.LayoutStyle = ListLayoutStyle.Resize;
+            list.AddButton(titleId: 1,      click: NewGame_Clicked);
+            list.AddButton(titleId: 3,      click: Tutorials_Clicked);
+            list.AddButton(titleId: 2,      click: LoadGame_Clicked);
+            list.AddButton(titleId: 4,      click: Options_Clicked);
+            list.AddButton("Mods",          click: Mods_Clicked);
+            list.AddButton("Dev Sandbox",   click: DevSandbox_Clicked);
+            list.AddButton("BlackBox Info", click: Info_Clicked);
+            list.AddButton("Version Check", click: VerCheck_Clicked);
+            list.AddButton(titleId: 5,      click: Exit_Clicked);
+            list.PerformLayout();
 
             // Animate the buttons in and out
-            StartTransition<UIButton>(512f, -1f);
-            OnExit += () => StartTransition<UIButton>(512f, +1f);
+            list.StartTransition<UIButton>(512f, -1f, 1.1f);
+            OnExit += () => list.StartTransition<UIButton>(512f, +1f, 1.0f);
             
             SDLogoAnim = Add(new UISpriteElement(this, "MainMenu/Stardrive logo"));
             SDLogoAnim.Animation.FreezeAtLastFrame = layout.FreezeSDLogo;
@@ -217,7 +220,7 @@ namespace Ship_Game.GameScreens.MainMenu
         void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
         void VerCheck_Clicked(UIButton button)  => ScreenManager.AddScreen(new VersionChecking(this));
         void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
-        void DevSandbox_Clicked(UIButton button)=> ScreenManager.AddScreen(new DeveloperSandbox());
+        void DevSandbox_Clicked(UIButton button)=> ScreenManager.GoToScreen(new DeveloperSandbox(), clear3DObjects: true);
         void Exit_Clicked(UIButton button)      => ExitScreen();
 
         public override void Draw(SpriteBatch batch)

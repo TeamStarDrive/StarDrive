@@ -61,7 +61,7 @@ namespace Ship_Game.GameScreens
                 if (title != 0)
                 {
                     var label = new UILabel(this, Vector2.Zero, title, Fonts.Arial14Bold);
-                    Title = label;
+                    Header = label;
                     label.DropShadow = true;
                 }
                 Padding = new Vector2(4f, 2f);
@@ -74,11 +74,11 @@ namespace Ship_Game.GameScreens
             }
             public void SetTotalFooter(Func<float> getValue)
             {
-                Footer = new SummaryItem(this, $"{Localizer.Token(320)}", Color.White, getValue);
+                Footer = new SummaryItem(this, Localizer.Token(320), Color.White, getValue);
             }
             public FloatSlider AddSlider(string title, float value)
             {
-                return Add(new FloatSlider(this, SliderStyle.Percent, new Rectangle(0,0,312,32), title, 0f, 1f, value));
+                return Add(new FloatSlider(this, SliderStyle.Percent, new Rectangle(0,0,300,32), title, 0f, 1f, value));
             }
         }
 
