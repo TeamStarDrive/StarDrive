@@ -208,5 +208,14 @@ namespace Ship_Game
         }
 
         /////////////////////////////////////////////////////////////////////////////
+
+        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, int title, int tooltip)
+            => AddItem(new UICheckBox(this, 0f, 0f, binding, Fonts.Arial12Bold, title, tooltip));
+        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, string tooltip)
+            => AddItem(new UICheckBox(this, 0f, 0f, binding, Fonts.Arial12Bold, title, tooltip));
+        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, int tooltip)
+            => AddItem(new UICheckBox(this, 0f, 0f, binding, Fonts.Arial12Bold, title, tooltip));
+
+        /////////////////////////////////////////////////////////////////////////////
     }
 }

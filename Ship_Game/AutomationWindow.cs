@@ -73,8 +73,8 @@ namespace Ship_Game
             ConstructionSubMenu = new Submenu(win);
             ConstructionSubMenu.AddTab(Localizer.Token(304));
 
-            UIList ticks = List(new Vector2(win.X + 10f, win.Y + 25f));
-            ticks.Padding = new Vector2(2f, 8f);
+            UIList ticks = List(new Vector2(win.X + 10f, win.Y + 26f));
+            ticks.Padding = new Vector2(2f, 10f);
 
             ScoutDropDown = ticks.AddItem(new CheckedDropdown(this))
                 .Create(() => EmpireManager.Player.AutoExplore, title:305, tooltip:2226);
@@ -91,25 +91,12 @@ namespace Ship_Game
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
 
-            //BeginVLayout(win.X + 12, win.Y + 25, ystep: 45);
-            //ticks.AddCheckbox(() => EmpireManager.Player.AutoExplore,    title:305, tooltip:2226);
-            //ticks.AddCheckbox(() => EmpireManager.Player.AutoColonize,   title:306, tooltip:2227);
-            //ticks.AddCheckbox(() => EmpireManager.Player.AutoFreighters, title:308, tooltip:2229);
-            //ticks.AddCheckbox(() => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
-            //EndLayout();
+            UIList rest = List(new Vector2(win.X + 10f, win.Y + 220f));
+            rest.Padding = new Vector2(2f, 10f);
+            rest.AddCheckbox(() => GlobalStats.AutoCombat,              title:2207, tooltip:2230);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,   title:6136, tooltip:7039);
+            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes, title:6138, tooltip:7040);
 
-            BeginVLayout(win.X + 12, win.Y + 220, ystep: Fonts.Arial12Bold.LineSpacing + 3);
-            Checkbox(() => GlobalStats.AutoCombat,              title:2207, tooltip:2230);
-            Checkbox(() => EmpireManager.Player.AutoResearch,   title:6136, tooltip:7039);
-            Checkbox(() => EmpireManager.Player.data.AutoTaxes, title:6138, tooltip:7040);
-            EndLayout();
-
-            //BeginVLayout(win.X + 12, win.Y + 48, ystep: 45);
-            //    ScoutDropDown       = DropOptions<int>(190, 18, zorder:4);
-            //    ColonyShipDropDown  = DropOptions<int>(190, 18, zorder:3);
-            //    FreighterDropDown   = DropOptions<int>(190, 18, zorder:2);
-            //    ConstructorDropDown = DropOptions<int>(190, 18, zorder:1);
-            //EndLayout();
 
             UpdateDropDowns();
         }
