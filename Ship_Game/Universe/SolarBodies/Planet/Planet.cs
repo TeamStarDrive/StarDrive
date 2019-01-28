@@ -85,6 +85,14 @@ namespace Ship_Game
             Money = new ColonyMoney(this);
         }
 
+        void InitResources()
+        {
+            if (Food.Initialized) return;
+            Food.Update(0f);
+            Prod.Update(0f);
+            Res.Update(0f);
+        }
+
         public Planet()
         {
             CreateManagers();
@@ -429,6 +437,8 @@ namespace Ship_Game
             GeodeticManager.AffectNearbyShips();
             DoTerraforming();
             UpdateFertility();
+
+            InitResources(); // must be done before Governing
             DoGoverning();
             UpdateIncomes(false);  
 
