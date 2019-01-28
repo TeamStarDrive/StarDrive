@@ -23,6 +23,11 @@ namespace Ship_Game
             Color = color;
         }
 
+        public UIPanel(UIElementV2 parent, Vector2 pos, Vector2 size, Color color) : base(parent, pos, size)
+        {
+            Color = color;
+        }
+
         public UIPanel(UIElementV2 parent, SubTexture tex, in Rectangle rect) : base(parent, rect)
         {
             Texture = tex;
@@ -45,13 +50,6 @@ namespace Ship_Game
         public UIPanel(UIElementV2 parent, string tex, in Rectangle r) : base(parent, r)
         {
             Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
-            Color = Color.White;
-        }
-
-        public UIPanel(UIElementV2 parent, string tex, Vector2 pos) : base(parent, pos)
-        {
-            Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
-            Size = Texture.SizeF;
             Color = Color.White;
         }
 

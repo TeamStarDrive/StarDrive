@@ -120,7 +120,7 @@ namespace Ship_Game
                 if (e.Visible)
                 {
                     e.Update(deltaTime);
-                    if (e.DeferredRemove) { Elements.RemoveAtSwapLast(i--); }
+                    if (e.DeferredRemove) { Remove(e); }
                     // Update directly modified Elements array?
                     else if (Elements[i] != e) { --i; }
                 }
@@ -204,35 +204,23 @@ namespace Ship_Game
             return element;
         }
 
-        public void Remove<T>(T element) where T : UIElementV2
+        public virtual void Remove(UIElementV2 element)
         {
             if (element == null)
                 return;
             Elements.RemoveRef(element);
         }
 
-        public void Remove<T>(params T[] elements) where T : UIElementV2
-        {
-            foreach (T element in elements)
-                Remove(element);
-        }
-
-        public void RemoveAll()
+        public virtual void RemoveAll()
         {
             Elements.Clear();
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void BeginLayout(float x, float y)
-        {
-            LayoutStarted = true;
-            LayoutCursor  = RelativePos(x, y);
-            LayoutStep    = new Vector2(15f, 15f);
-        }
-
         // Begin vertical layout of elements;
         // you can now call specific Button(), Checkbox(), etc. to create UI elements
+        // @note Coordinates are relative to parent TopLeft X,Y
         public void BeginVLayout(float x, float y, float ystep = 15f)
             => BeginVLayout(new Vector2(x,y), ystep);
 
@@ -242,20 +230,22 @@ namespace Ship_Game
         public void BeginVLayout(Vector2 pos, float ystep = 15f)
         {
             LayoutStarted = true;
-            LayoutCursor  = RelativePos(pos.X, pos.Y);
+            LayoutCursor  = pos;
             LayoutStep    = new Vector2(0f, ystep);
         }
 
         public void BeginHLayout(Vector2 pos, float xstep = 50f)
         {
             LayoutStarted = true;
-            LayoutCursor  = RelativePos(pos.X, pos.Y);
+            LayoutCursor  = pos;
             LayoutStep    = new Vector2(xstep, 0f);
         }
 
-        public void SkipLayoutStep() // skips a single layout step during V and H layout
+        protected override int NextZOrder()
         {
-            LayoutCursor += LayoutStep;
+            if (Elements.NotEmpty)
+                return Elements.Last.ZOrder + 1;
+            return ZOrder + 1;
         }
 
         static int ElementSorter(UIElementV2 a, UIElementV2 b)
@@ -275,7 +265,7 @@ namespace Ship_Game
         protected Vector2 LayoutNext()
         {
             if (!LayoutStarted)
-                throw new InvalidOperationException("You must call BeginLayout befor calling auto-layout methods");
+                throw new InvalidOperationException("You must call BeginLayout before calling auto-layout methods");
             
             Vector2 result = LayoutCursor;
             LayoutCursor += LayoutStep;            
@@ -297,7 +287,7 @@ namespace Ship_Game
             => Add(new UIButton(this, pos, text));
 
         protected UIButton ButtonMediumMenu(float x, float y, string text)
-            => Add(new UIButton(this, ButtonStyle.MediumMenu, x, y, text));
+            => Add(new UIButton(this, ButtonStyle.MediumMenu, new Vector2(x, y), text));
 
         // @note CloseButton automatically calls ExitScreen() on this screen
         protected CloseButton CloseButton(float x, float y)
@@ -396,22 +386,22 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        protected FloatSlider Slider(Rectangle rect, string text, float min, float max, float value)
+        public FloatSlider Slider(Rectangle rect, string text, float min, float max, float value)
             => Add(new FloatSlider(this, rect, text, min, max, value));
 
-        protected FloatSlider SliderPercent(Rectangle rect, string text, float min, float max, float value)
+        public FloatSlider SliderPercent(Rectangle rect, string text, float min, float max, float value)
             => Add(new FloatSlider(this, SliderStyle.Percent, rect, text, min, max, value));
 
-        protected FloatSlider Slider(int x, int y, int w, int h, string text, float min, float max, float value)
+        public FloatSlider Slider(int x, int y, int w, int h, string text, float min, float max, float value)
             => Slider(new Rectangle(x, y, w, h), text, min, max, value);
 
-        protected FloatSlider Slider(Vector2 pos, int w, int h, string text, float min, float max, float value)
+        public FloatSlider Slider(Vector2 pos, int w, int h, string text, float min, float max, float value)
             => Slider(new Rectangle((int)pos.X, (int)pos.Y, w, h), text, min, max, value);
 
-        protected FloatSlider Slider(int w, int h, string text, float min, float max, float value)
+        public FloatSlider Slider(int w, int h, string text, float min, float max, float value)
             => Slider(LayoutNextRect(w, h), text, min, max, value);
 
-        protected FloatSlider SliderPercent(int w, int h, string text, float min, float max, float value)
+        public FloatSlider SliderPercent(int w, int h, string text, float min, float max, float value)
             => SliderPercent(LayoutNextRect(w, h), text, min, max, value);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -428,36 +418,36 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
 
-        protected UILabel Label(Vector2 pos, string text) => Add(new UILabel(this, pos, text));
-        protected UILabel Label(Vector2 pos, int titleId) => Add(new UILabel(this, pos, titleId));
-        protected UILabel Label(Vector2 pos, string text, SpriteFont font) => Add(new UILabel(this, pos, text, font));
-        protected UILabel Label(Vector2 pos, int titleId, SpriteFont font) => Add(new UILabel(this, pos, titleId, font));
-        protected UILabel Label(Vector2 pos, string text, SpriteFont font, Color color) => Add(new UILabel(this, pos, text, font,color));
-        protected UILabel Label(Vector2 pos, int titleId, SpriteFont font, Color color) => Add(new UILabel(this, pos, titleId, font, color));
+        public UILabel Label(Vector2 pos, string text) => Add(new UILabel(this, pos, text));
+        public UILabel Label(Vector2 pos, int titleId) => Add(new UILabel(this, pos, titleId));
+        public UILabel Label(Vector2 pos, string text, SpriteFont font) => Add(new UILabel(this, pos, text, font));
+        public UILabel Label(Vector2 pos, int titleId, SpriteFont font) => Add(new UILabel(this, pos, titleId, font));
+        public UILabel Label(Vector2 pos, string text, SpriteFont font, Color color) => Add(new UILabel(this, pos, text, font,color));
+        public UILabel Label(Vector2 pos, int titleId, SpriteFont font, Color color) => Add(new UILabel(this, pos, titleId, font, color));
 
-        protected UILabel Label(float x, float y, string text) => Label(new Vector2(x, y), text);
-        protected UILabel Label(float x, float y, int titleId) => Label(new Vector2(x, y), titleId);
-        protected UILabel Label(float x, float y, string text, SpriteFont font) => Label(new Vector2(x, y), text, font);
-        protected UILabel Label(float x, float y, int titleId, SpriteFont font) => Label(new Vector2(x, y), titleId, font);
+        public UILabel Label(float x, float y, string text) => Label(new Vector2(x, y), text);
+        public UILabel Label(float x, float y, int titleId) => Label(new Vector2(x, y), titleId);
+        public UILabel Label(float x, float y, string text, SpriteFont font) => Label(new Vector2(x, y), text, font);
+        public UILabel Label(float x, float y, int titleId, SpriteFont font) => Label(new Vector2(x, y), titleId, font);
 
 
-        protected UILabel Label(string text) => Add(new UILabel(this, LayoutNext(), text));
-        protected UILabel Label(int titleId) => Add(new UILabel(this, LayoutNext(), titleId));
-        protected UILabel Label(string text, Color color) => Add(new UILabel(this, LayoutNext(), text, color));
-        protected UILabel Label(int titleId, Color color) => Add(new UILabel(this, LayoutNext(), titleId, color));
-        protected UILabel Label(string text, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), text, font, color));
-        protected UILabel Label(int titleId, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), titleId, font, color));
-        protected UILabel Label(int titleId, UILabel.ClickHandler click)
+        public UILabel Label(string text) => Add(new UILabel(this, LayoutNext(), text));
+        public UILabel Label(int titleId) => Add(new UILabel(this, LayoutNext(), titleId));
+        public UILabel Label(string text, Color color) => Add(new UILabel(this, LayoutNext(), text, color));
+        public UILabel Label(int titleId, Color color) => Add(new UILabel(this, LayoutNext(), titleId, color));
+        public UILabel Label(string text, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), text, font, color));
+        public UILabel Label(int titleId, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), titleId, font, color));
+        public UILabel Label(int titleId, UILabel.ClickHandler click)
         {
             return Label(Localizer.Token(titleId), click);
         }
-        protected UILabel Label(string text, UILabel.ClickHandler click)
+        public UILabel Label(string text, UILabel.ClickHandler click)
         {
             UILabel label = Add(new UILabel(this, LayoutNext(), text));
             label.OnClick += click;
             return label;
         }
-        protected UILabel Label(Func<UILabel, string> dynamicText, bool alignRight = false)
+        public UILabel Label(Func<UILabel, string> dynamicText, bool alignRight = false)
         {
             UILabel label = Add(new UILabel(this, LayoutNext(), ""));
             label.DynamicText = dynamicText;
@@ -472,8 +462,19 @@ namespace Ship_Game
         public UIPanel Panel(SubTexture t, in Rectangle r, Color c) => Add(new UIPanel(this, t, r, c));
         public UIPanel Panel(string t, int x, int y)   => Add(new UIPanel(this, t, x, y));
         public UIPanel Panel(string t, in Rectangle r) => Add(new UIPanel(this, t, r));
-        public UIPanel Panel(string t, Vector2 pos)    => Add(new UIPanel(this, t, pos));
         public UIPanel Panel(string t)                 => Add(new UIPanel(this, t));
+
+        // special Panel overload, parse relative position instead of absolute pos
+        public UIPanel PanelRel(string t, Vector2 relPos)
+        {
+            UIPanel p = Add(new UIPanel(this, t));
+            p.SetRelPos(relPos);
+            return p;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public UIList List(Vector2 pos, Vector2 size) => Add(new UIList(this, pos, size));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
@@ -491,7 +492,7 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public void StartTransition<T>(float distance, float direction) where T : UIElementV2
+        public void StartTransition<T>(float distance, float direction, float time = 1f) where T : UIElementV2
         {
             var candidates = new Array<UIElementV2>();
             for (int i = 0; i < Elements.Count; ++i)
@@ -503,8 +504,8 @@ namespace Ship_Game
             for (int i = candidates.Count - 1; i >= 0; --i)
             {
                 UIElementV2 e = candidates[i];
-                float modifier = i / (float)candidates.Count;
-                e.AddEffect(new UITransitionEffect(e, distance, modifier, direction));
+                float modifier = time * (i / (float)candidates.Count);
+                e.AddEffect(new UITransitionEffect(e, distance, modifier, direction, time));
             }
         }
 
