@@ -140,7 +140,7 @@ namespace Ship_Game.Debug
 
         public override void Update(float deltaTime)
         {
-            if (Page != null && Page.DebugMode != Mode) // destroy page if it's no longer needed
+            if (Page != null && Page.Mode != Mode) // destroy page if it's no longer needed
             {
                 Page.RemoveFromParent();
                 Page = null;

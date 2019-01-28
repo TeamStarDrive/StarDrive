@@ -2077,37 +2077,27 @@ namespace Ship_Game
             }
         }
 
-        private void Bankruptcy()
+        void Bankruptcy()
         {
             if (data.TurnsBelowZero >= 25)
             {
-                Empire rebelsFromEmpireData = EmpireManager.GetEmpireByName(data.RebelName);
-                Log.Info("Rebellion for: " + data.Traits.Name);
-                if (rebelsFromEmpireData == null)
-                    foreach (Empire rebel in EmpireManager.Empires)
-                    {
-                        if (rebel.data.PortraitName == data.RebelName)
-                        {
-                            Log.Info("Found Existing Rebel: " + rebel.data.PortraitName);
-                            rebelsFromEmpireData = rebel;
-                            break;
-                        }
-                    }
+                Log.Info($"Rebellion for: {data.Traits.Name}");
 
-                if (rebelsFromEmpireData == null)
-                    rebelsFromEmpireData = EmpireManager.CreateRebelsFromEmpireData(data, this);
+                Empire rebels = EmpireManager.GetEmpireByName(data.RebelName)
+                             ?? EmpireManager.FindRebellion(data.RebelName)
+                             ?? EmpireManager.CreateRebelsFromEmpireData(data, this);
 
-                if (rebelsFromEmpireData != null)
+                if (rebels != null)
                 {
                     Vector2 weightedCenter = GetWeightedCenter();
                     if (OwnedPlanets.FindMax(out Planet planet, p => weightedCenter.SqDist(p.Center)))
                     {
                         if (isPlayer)
                             Universe.NotificationManager.AddRebellionNotification(planet,
-                                rebelsFromEmpireData);
+                                rebels);
                         for (int index = 0; index < planet.PopulationBillion; ++index)
                         {
-                            Troop troop = EmpireManager.CreateRebelTroop(rebelsFromEmpireData);
+                            Troop troop = EmpireManager.CreateRebelTroop(rebels);
                             troop.AssignTroopToTile(
                                 planet);
                         }
@@ -2123,9 +2113,9 @@ namespace Ship_Game
                             break;
                         }
 
-                    pirate?.ChangeLoyalty(rebelsFromEmpireData);
+                    pirate?.ChangeLoyalty(rebels);
                 }
-                else Log.Info($"Rebellion Failure: {data.RebelName}");
+                else Log.Error($"Rebellion failed: {data.RebelName}");
 
                 data.TurnsBelowZero = 0;
             }
