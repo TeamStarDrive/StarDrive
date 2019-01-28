@@ -382,7 +382,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             if (!b.IsBiospheres)
                 return false;
-            if (qi.isBuilding == false && P.NeedsFood())
+            if (qi.isBuilding == false && P.ShortOnFood())
                 return false;
 
             PlanetGridSquare[] list = P.TilesList.Filter(

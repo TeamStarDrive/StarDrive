@@ -11,13 +11,8 @@ namespace Ship_Game.Debug.Page
         public PathDebug(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Pathing)
         {
             Screen = screen;
-            if (DebugText.Count <= 1)
-                DebugText.Add(Label(Rect.X, Rect.Y + 300, ""));
-        }
-
-        public override void Update(float deltaTime)
-        {
-            base.Update(deltaTime);
+            if (TextColumns.Count <= 1)
+                TextColumns.Add(Label(Rect.X, Rect.Y + 300, ""));
         }
 
         public override void Draw(SpriteBatch batch)
@@ -43,8 +38,8 @@ namespace Ship_Game.Debug.Page
             if (EmpireID < 1) EmpireID = EmpireManager.NumEmpires;
 
             Empire e = EmpireManager.GetEmpireById(EmpireID);
-            DebugText[0].Text = $"Empire: {e.Name}";
-            DebugText[0].Color = e.EmpireColor;
+            TextColumns[0].Text = $"Empire: {e.Name}";
+            TextColumns[0].Color = e.EmpireColor;
         }
 
         void DrawPathInfo()
