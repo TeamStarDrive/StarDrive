@@ -147,9 +147,7 @@ namespace Ship_Game
         float ProjectedProduction(int turns)
         {
             float incomingAvg = Prod.NetIncome + IncomingProduction;
-
-            int totalTurns = NumberOfTurnsUntilCompleted(ConstructionQueue.Last);
-            int turnsOfIdleProd = turns - totalTurns;
+            int turnsOfIdleProd = turns - NumberOfTurnsUntilCompleted();
             
             float total = ProdHere + incomingAvg * turns;
             if (turnsOfIdleProd > 0)
