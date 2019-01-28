@@ -37,6 +37,7 @@ namespace Ship_Game
         public delegate void ClickHandler(UIButton button);
         public event ClickHandler OnClick;
 
+        public override string ToString() => $"Button '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
         
         public UIButton(UIElementV2 parent, Vector2 pos, string text) : base(parent, pos)
         {
@@ -51,17 +52,7 @@ namespace Ship_Game
             Size  = ButtonTexture().SizeF;
         }
 
-        public UIButton(UIElementV2 parent, float x, float y, string text)
-            : this(parent, new Vector2(x, y), text)
-        {
-        }
-
-        public UIButton(UIElementV2 parent, ButtonStyle style, float x, float y, string text)
-            : this(parent, style, new Vector2(x, y), text)
-        {
-        }
-
-        private class StyleTextures
+        class StyleTextures
         {
             public readonly SubTexture Normal;
             public readonly SubTexture Hover;
@@ -83,7 +74,7 @@ namespace Ship_Game
         static int ContentId;
         static StyleTextures[] Styling;
         
-         static StyleTextures[] GetStyles()
+        static StyleTextures[] GetStyles()
         {
             if (Styling != null && ContentId == ResourceManager.ContentId)
                 return Styling;
@@ -108,7 +99,7 @@ namespace Ship_Game
             return GetStyles()[(int)style].Normal.SizeF;
         }
 
-        private SubTexture ButtonTexture()
+        SubTexture ButtonTexture()
         {
             StyleTextures styling = GetStyles()[(int)Style];
             switch (State)
@@ -119,7 +110,7 @@ namespace Ship_Game
             }
         }
 
-        private Color TextColor()
+        Color TextColor()
         {
             switch (State)
             {
@@ -197,6 +188,5 @@ namespace Ship_Game
             return false;
         }
 
-        public override string ToString() => $"Button '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
     }
 }

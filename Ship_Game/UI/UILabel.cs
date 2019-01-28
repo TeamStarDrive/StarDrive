@@ -64,6 +64,10 @@ namespace Ship_Game
             }
         }
 
+        public override string ToString()
+        {
+            return $"Label {Pos} Visible:{Visible} Text=\"{Text}\"";
+        }
 
         public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font) : base(parent, pos, font.MeasureString(text))
         {
@@ -117,14 +121,16 @@ namespace Ship_Game
                 for (int i = 0; i < Lines.Count; ++i)
                 {
                     string line = Lines[i];
-                    DrawLine(batch, line, cursor, color);
+                    if (line.NotEmpty())
+                        DrawLine(batch, line, cursor, color);
                     cursor.Y += LabelFont.LineSpacing + 2;
                 }
             }
             else if (GetText != null)
             {
                 string text = GetText(this); // GetText is allowed to modify [this]
-                DrawLine(batch, text, Pos, CurrentColor);
+                if (text.NotEmpty())
+                    DrawLine(batch, text, Pos, CurrentColor);
             }
             else if (LabelText.NotEmpty())
             {

@@ -5,19 +5,20 @@ namespace Ship_Game
 {
     public class UITransitionEffect : UIEffect
     {
-        private const float TransitionSpeed = 1.5f;
-        private readonly float Offset; // offset multiplier
-        private readonly float Direction;
+        readonly float TransitionTime = 1.0f;
+        readonly float Offset; // offset multiplier
+        readonly float Direction;
 
-        private readonly Rectangle AnimStart;
-        private readonly Rectangle AnimEnd;
+        readonly Rectangle AnimStart;
+        readonly Rectangle AnimEnd;
 
         public UITransitionEffect(UIElementV2 e, 
-            float distance, float animOffset, float direction) : base(e)
+            float distance, float animOffset, float direction, float transitionTime = 1.0f) : base(e)
         {
             Offset = animOffset;
             Direction  = direction;
             Animation = direction < 0 ? +1f : 0f;
+            TransitionTime = transitionTime;
             AnimStart = e.Rect;
             AnimEnd = AnimStart;
             AnimEnd.X += (int)distance;
@@ -25,7 +26,7 @@ namespace Ship_Game
 
         public override bool Update(float deltaTime)
         {
-            Animation += Direction * deltaTime * TransitionSpeed;
+            Animation += (Direction * deltaTime) / TransitionTime;
             float animWithOffset = ((Animation - 0.5f * Offset) / 0.5f).Clamped(0f, 1f);
 
             int dx = (AnimEnd.X - AnimStart.X);
