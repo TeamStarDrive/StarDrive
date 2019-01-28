@@ -341,6 +341,7 @@
     <Compile Include="Ship_Game\UI\Effects\UIEffect.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIFadeInEffect.cs" />
     <Compile Include="Ship_Game\UI\Effects\UITransitionEffect.cs" />
+    <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
