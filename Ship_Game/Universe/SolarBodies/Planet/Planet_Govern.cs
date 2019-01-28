@@ -217,7 +217,7 @@ namespace Ship_Game
                 return orbital;
 
             // we cannot build the best in the empire, lets try building something cheaper for now
-            float maxCost = Prod.NetMaxPotential * (50 + colonyRank);
+            float maxCost = Prod.NetMaxPotential / 2 * (50 + colonyRank) + Storage.Prod;
             orbital       = GetBestOrbital(role, maxCost);
             return orbital;
         }
