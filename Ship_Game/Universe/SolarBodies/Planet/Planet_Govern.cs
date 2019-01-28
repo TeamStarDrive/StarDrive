@@ -98,7 +98,7 @@ namespace Ship_Game
             int rank                  = FindColonyRank();
             var wantedOrbitals        = new WantedOrbitals(rank, currentStations);
 
-            BuildShipyardIfAble(wantedOrbitals.Shipyard);
+            BuildShipyardIfAble(wantedOrbitals.Shipyards);
             BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank);
             BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank);
         }
@@ -200,7 +200,7 @@ namespace Ship_Game
             if (!LogicalBuiltTimecVsCost(bestWeCanBuild.GetCost(Owner), 50))
                 return;
 
-            ScrapOrbital(weakestWeHave);
+            // scrap code will deal with excess orbital after they are built
             AddOrbital(bestWeCanBuild); 
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"REPLACING Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
@@ -217,7 +217,7 @@ namespace Ship_Game
                 return orbital;
 
             // we cannot build the best in the empire, lets try building something cheaper for now
-            float maxCost = Prod.NetMaxPotential / 2 * (50 + colonyRank) + Storage.Prod;
+            float maxCost = (Prod.NetMaxPotential / 2 * (50 + colonyRank) + Storage.Prod) / ShipBuildingModifier;
             orbital       = GetBestOrbital(role, maxCost);
             return orbital;
         }
@@ -253,7 +253,7 @@ namespace Ship_Game
 
         private bool LogicalBuiltTimecVsCost(float cost, int threshold)
         {
-            float netCost = Math.Max(cost - Storage.Prod, 0);
+            float netCost = (Math.Max(cost - Storage.Prod, 0)) * ShipBuildingModifier;
             float ratio   = netCost / Prod.NetMaxPotential;
             return ratio < threshold;
         }
@@ -262,30 +262,30 @@ namespace Ship_Game
         {
             public readonly int Platforms;
             public readonly int Stations;
-            public readonly bool Shipyard;
+            public readonly int Shipyards;
 
             public WantedOrbitals(int rank, Array<Ship> stationList)
             {
                 switch (rank)
                 {
-                    case 1:  Platforms = 0;  Stations = 0;  break;
-                    case 2:  Platforms = 0;  Stations = 0;  break;
-                    case 3:  Platforms = 3;  Stations = 0;  break;
-                    case 4:  Platforms = 6;  Stations = 0;  break;
-                    case 5:  Platforms = 8;  Stations = 0;  break;
-                    case 6:  Platforms = 6;  Stations = 1;  break;
-                    case 7:  Platforms = 6;  Stations = 1;  break;
-                    case 8:  Platforms = 5;  Stations = 2;  break;
-                    case 9:  Platforms = 4;  Stations = 3;  break;
-                    case 10: Platforms = 3;  Stations = 4;  break;
-                    case 11: Platforms = 2;  Stations = 5;  break;
-                    case 12: Platforms = 1;  Stations = 6;  break;
-                    case 13: Platforms = 0;  Stations = 7;  break;
-                    case 14: Platforms = 9;  Stations = 8;  break;
-                    case 15: Platforms = 16; Stations = 10; break;
-                    default: Platforms = 0;  Stations = 0;  break;
+                    case 1:  Platforms = 0;  Stations = 0;  Shipyards = 0; break;
+                    case 2:  Platforms = 0;  Stations = 0;  Shipyards = 0; break;
+                    case 3:  Platforms = 3;  Stations = 0;  Shipyards = 0; break;
+                    case 4:  Platforms = 6;  Stations = 1;  Shipyards = 0; break;
+                    case 5:  Platforms = 6;  Stations = 1;  Shipyards = 1; break;
+                    case 6:  Platforms = 5;  Stations = 2;  Shipyards = 1; break;
+                    case 7:  Platforms = 5;  Stations = 2;  Shipyards = 1; break;
+                    case 8:  Platforms = 4;  Stations = 3;  Shipyards = 1; break;
+                    case 9:  Platforms = 6;  Stations = 3;  Shipyards = 1; break;
+                    case 10: Platforms = 8;  Stations = 4;  Shipyards = 2; break;
+                    case 11: Platforms = 8;  Stations = 5;  Shipyards = 2; break;
+                    case 12: Platforms = 9;  Stations = 6;  Shipyards = 2; break;
+                    case 13: Platforms = 9;  Stations = 7;  Shipyards = 2; break;
+                    case 14: Platforms = 12; Stations = 8;  Shipyards = 2; break;
+                    case 15: Platforms = 15; Stations = 10; Shipyards = 2; break;
+                    default: Platforms = 0;  Stations = 0;  Shipyards = 0; break;
                 }
-                Shipyard = rank > 4;
+
                 // Fb - this will replace stations with temp platforms until proper stations are built
                 int existingStations = stationList.Count;
                 if (existingStations < Stations)
@@ -316,29 +316,33 @@ namespace Ship_Game
 
             if (RecentCombat)
                 rank += 1;
+
+            if (MaxPopulationBillion.LessOrEqual(1))
+                rank -= 2;
+
             switch (colonyType)
             {
                 case ColonyType.Core    : rank += 1; break;
-                case ColonyType.Military: rank += 2; break;
+                case ColonyType.Military: rank += 3; break;
             }
             return rank.Clamped(0, 15);
         }
 
-        public void BuildShipyardIfAble(bool wantShipyard)
+        public void BuildShipyardIfAble(int numWantedShipyards)
         {
-            if (!wantShipyard || RecentCombat || !HasSpacePort)
+            if (numWantedShipyards == 0 || RecentCombat || !HasSpacePort)
                 return;
 
-            if (OrbitalStations.Any(ship => ship.Value.shipData.IsShipyard)
+            if (NumShipyards >= numWantedShipyards
                 || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
                 return;
 
-            bool hasShipyard = ConstructionQueue.Any(q => q.isShip && q.sData.IsShipyard);
+            int shipyardsInQ = ConstructionQueue.Count(q => q.isShip && q.sData.IsShipyard);
             float cost       = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner);
             if (!LogicalBuiltTimecVsCost(cost, 30))
                 return;
 
-            if (!hasShipyard && IsVibrant && LogicalBuiltTimecVsCost(cost, 30))
+            if (NumShipyards + shipyardsInQ < numWantedShipyards)
             {
                 ConstructionQueue.Add(new QueueItem(this)
                 {

@@ -42,6 +42,7 @@ namespace Ship_Game
         
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
+        public int NumShipyards { get; private set; }
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         float Unfed;
         public bool IsStarving => Unfed < 0f;
@@ -642,6 +643,7 @@ namespace Ship_Game
             ShieldStrengthMax          = 0;
             float totalStorage         = 0;
             ShipBuildingModifier       = 0;
+            NumShipyards               = 0;
             TotalDefensiveStrength     = 0;
             PlusFlatPopulationPerTurn  = 0;
             float shipBuildingModifier = 1;
@@ -663,6 +665,7 @@ namespace Ship_Game
                             shipBuildingModifier *= (1-(.25f/shipyards));
 
                         shipyards += 0.2f;
+                        NumShipyards++;
                     }
                     else if (!keyValuePair.Value.Active)
                         deadShipyards.Add(keyValuePair.Key);
