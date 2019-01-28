@@ -101,6 +101,14 @@ namespace Ship_Game
             return turns;
         }
 
+        int NumberOfTurnsUntilCompleted()
+        {
+            int turns = 0;
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+                turns += ConstructionQueue[i].TurnsUntilComplete;
+            return turns;
+        }
+
         public float TotalCostOfTroopsInQueue()
         {
             return ConstructionQueue.Filter(qi => qi.isTroop).Sum(qi => qi.Cost);
