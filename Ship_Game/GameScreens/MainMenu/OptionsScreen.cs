@@ -147,7 +147,6 @@ namespace Ship_Game
             return (uint)parameter <= 3 ? new[]{ "High", "Normal", "Low", "Ultra-Low" }[parameter] : "None";
         }
 
-
         void AntiAliasing_OnClick(UILabel label)
         {
             New.AntiAlias = New.AntiAlias == 0 ? 2 : New.AntiAlias * 2;
@@ -191,36 +190,6 @@ namespace Ship_Game
         void EffectsQuality_OnClick(UILabel label)
         {
             New.EffectDetail = New.EffectDetail == 3 ? 0 : New.EffectDetail + 1;
-        }
-
-
-        class KeyValueElement : UIElementV2
-        {
-            UILabel Key, Value;
-            public KeyValueElement(UIElementV2 parent) : base(parent) {}
-
-            public void Create(string title, Func<UILabel, string> getText)
-            {
-                Key = new UILabel(this, Vector2.Zero, $"{title}:");
-                Value = new UILabel(this, Vector2.Zero, "");
-                Value.DynamicText = getText;
-            }
-
-            public override void PerformLayout()
-            {
-                Key.Pos = Pos;
-                Value.Pos = new Vector2(CenterX, Pos.Y);
-            }
-
-            public override bool HandleInput(InputState input)
-            {
-                return Key.HandleInput(input) || Value.HandleInput(input);
-            }
-            public override void Draw(SpriteBatch batch)
-            {
-                Key.Draw(batch);
-                Value.Draw(batch);
-            }
         }
 
         void Add(UIList graphics, string title, Func<UILabel, string> getText, Action<UILabel> onClick)
