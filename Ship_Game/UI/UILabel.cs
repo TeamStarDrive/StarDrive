@@ -12,8 +12,7 @@ namespace Ship_Game
         Func<UILabel, string> GetText; // Dynamic Text Binding
         SpriteFont LabelFont;
 
-        public delegate void ClickHandler(UILabel label);
-        public event ClickHandler OnClick;
+        public Action<UILabel> OnClick;
 
         public Color Color { get; set; } = Color.White;
         public Color Highlight = UIColors.LightBeige;
@@ -100,6 +99,33 @@ namespace Ship_Game
         {
             Color = color;
         }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public UILabel(string text) : this(text, Fonts.Arial12Bold)
+        {
+        }
+        public UILabel(string text, SpriteFont font)
+        {
+            LabelFont = font;
+            Text = text;
+        }
+
+        public UILabel(Func<UILabel, string> getText) : this(getText, Fonts.Arial12Bold)
+        {
+        }
+        public UILabel(Func<UILabel, string> getText, SpriteFont font)
+        {
+            LabelFont = font;
+            DynamicText = getText;
+        }
+        
+        public UILabel(Func<UILabel, string> getText, Action<UILabel> onClick) : this(getText, Fonts.Arial12Bold)
+        {
+            OnClick = onClick;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
 
         void DrawLine(SpriteBatch batch, string text, Vector2 pos, Color color)
         {

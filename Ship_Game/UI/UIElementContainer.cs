@@ -55,7 +55,7 @@ namespace Ship_Game
             }
             else
             {
-                for (int i = DebugDrawIndex; i < Elements.Count; ++i)
+                for (int i = 0; i <= DebugDrawIndex && i < Elements.Count; ++i)
                 {
                     UIElementV2 e = Elements[i];
                     if (!e.Visible) continue;
@@ -127,6 +127,8 @@ namespace Ship_Game
         public T Add<T>(T element) where T : UIElementV2
         {
             Elements.Add(element);
+            element.Parent = this;
+            element.ZOrder = NextZOrder();
             return element;
         }
 
@@ -363,14 +365,14 @@ namespace Ship_Game
         public UILabel Label(int titleId, Color color) => Add(new UILabel(this, LayoutNext(), titleId, color));
         public UILabel Label(string text, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), text, font, color));
         public UILabel Label(int titleId, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), titleId, font, color));
-        public UILabel Label(int titleId, UILabel.ClickHandler click)
+        public UILabel Label(int titleId, Action<UILabel> click)
         {
             return Label(Localizer.Token(titleId), click);
         }
-        public UILabel Label(string text, UILabel.ClickHandler click)
+        public UILabel Label(string text, Action<UILabel> click)
         {
             UILabel label = Add(new UILabel(this, LayoutNext(), text));
-            label.OnClick += click;
+            label.OnClick = click;
             return label;
         }
         public UILabel Label(Func<UILabel, string> dynamicText, bool alignRight = false)
