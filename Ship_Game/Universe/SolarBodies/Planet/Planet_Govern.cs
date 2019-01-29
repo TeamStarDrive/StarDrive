@@ -98,9 +98,9 @@ namespace Ship_Game
             int rank                  = FindColonyRank();
             var wantedOrbitals        = new WantedOrbitals(rank, currentStations);
 
-            BuildShipyardIfAble(wantedOrbitals.Shipyard);
-            BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform);
-            BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station);
+            BuildShipyardIfAble(wantedOrbitals.Shipyards);
+            BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank);
+            BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank);
         }
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
@@ -115,7 +115,7 @@ namespace Ship_Game
             return orbitalList;
         }
 
-        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role)
+        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, int colonyRank)
         {
             int orbitalsWeHave = orbitalList.Count;
 
@@ -131,20 +131,20 @@ namespace Ship_Game
 
             if (orbitalsWeHave < orbitalsWeWant) // lets build an orbital
             {
-                BuildOrbital(role);
+                BuildOrbital(role, colonyRank);
                 return;
             }
             if (orbitalsWeHave > 0)
-                ReplaceOrbital(orbitalList, role);  // check if we can replace an orbital with a better one
+                ReplaceOrbital(orbitalList, role, colonyRank);  // check if we can replace an orbital with a better one
         }
 
         private void ScrapOrbital(Ship orbital)
         {
             float expectedStorage = Storage.Prod + orbital.GetCost(Owner) / 2;
-            if (expectedStorage > Storage.Max) // excess cost will go to empire treasury
+            if (expectedStorage > Storage.Max) // taxed excess cost will go to empire treasury
             {
                 Storage.Prod = Storage.Max;
-                Owner.AddMoney(expectedStorage - Storage.Max);
+                Owner.AddMoney((expectedStorage - Storage.Max) * Owner.data.TaxRate);
             }
             else
                 Storage.Prod = expectedStorage;
@@ -154,16 +154,13 @@ namespace Ship_Game
             orbital.QueueTotalRemoval();
         }
 
-        private void BuildOrbital(ShipData.RoleName role)
+        private void BuildOrbital(ShipData.RoleName role, int colonyRank)
         {
             if (OrbitalsInTheWorks)
                 return;
 
-            Ship orbital = GetBestOrbital(role);
+            Ship orbital = PickOrbitalToBuild(role, colonyRank);
             if (orbital == null)
-                return;
-
-            if (!LogicalBuiltTimecVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
                 return;
 
             AddOrbital(orbital);
@@ -171,7 +168,8 @@ namespace Ship_Game
 
         private int TimeVsCostThreshold => 50 + (int)(Owner.Money / 1000);
 
-        private void AddOrbital(Ship orbital) // add Orbital to ConstructionQueue
+        // Adds an Orbital to ConstructionQueue
+        private void AddOrbital(Ship orbital) 
         {
             float cost = orbital.GetCost(Owner);
             if (IsPlanetExtraDebugTarget())
@@ -185,13 +183,13 @@ namespace Ship_Game
             });
         }
 
-        private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role)
+        private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role, int rank)
         {
             if (OrbitalsInTheWorks)
                 return;
 
             Ship weakestWeHave  = orbitalList.FindMin(s => s.BaseStrength);
-            Ship bestWeCanBuild = GetBestOrbital(role);
+            Ship bestWeCanBuild = PickOrbitalToBuild(role, rank);
 
             if (bestWeCanBuild == null)
                 return;
@@ -202,28 +200,56 @@ namespace Ship_Game
             if (!LogicalBuiltTimecVsCost(bestWeCanBuild.GetCost(Owner), 50))
                 return;
 
-            // FB - we are building without scraping, since when that orbital is built, the scrap code will remove the weakest we have
-            // since we would have more orbitals than what we want. This will keep our orbitals at full capacity. We are clever!
+            ScrapOrbital(weakestWeHave);
             AddOrbital(bestWeCanBuild); 
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"REPLACED Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
+                Log.Info($"REPLACING Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
                          $"STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
         }
 
+        private Ship PickOrbitalToBuild(ShipData.RoleName role, int colonyRank)
+        {
+            Ship orbital = GetBestOrbital(role);
+            if (orbital == null)
+                return null;
+
+            if (LogicalBuiltTimecVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
+                return orbital;
+
+            // we cannot build the best in the empire, lets try building something cheaper for now
+            float maxCost = (Prod.NetMaxPotential / 2 * (50 + colonyRank) + Storage.Prod) / ShipBuildingModifier;
+            orbital       = GetBestOrbital(role, maxCost);
+            return orbital;
+        }
+
+        // This returns the best orbital the empire can build
         private Ship GetBestOrbital(ShipData.RoleName role)
         {
             Ship orbital =  null;
             switch (role)
             {
                 case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
-                case ShipData.RoleName.station:  orbital = Owner.BestStationWeCanBuild; break;
+                case ShipData.RoleName.station:  orbital = Owner.BestStationWeCanBuild;  break;
             }
+            return orbital;
+        }
+
+        //This returns the best orbital the Planet can build based on cost
+        private Ship GetBestOrbital(ShipData.RoleName role, float maxCost)
+        {
+            Ship orbital = null;
+            switch (role)
+            {
+                case ShipData.RoleName.platform: orbital =  ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost); break;
+                case ShipData.RoleName.station:  orbital =  ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost); break;
+            }
+
             return orbital;
         }
 
         private bool LogicalBuiltTimecVsCost(float cost, int threshold)
         {
-            float netCost = Math.Max(cost - Storage.Prod, 0);
+            float netCost = (Math.Max(cost - Storage.Prod, 0)) * ShipBuildingModifier;
             float ratio   = netCost / Prod.NetMaxPotential;
             return ratio < threshold;
         }
@@ -232,30 +258,30 @@ namespace Ship_Game
         {
             public readonly int Platforms;
             public readonly int Stations;
-            public readonly bool Shipyard;
+            public readonly int Shipyards;
 
             public WantedOrbitals(int rank, Array<Ship> stationList)
             {
                 switch (rank)
                 {
-                    case 1:  Platforms = 0; Stations = 0; break;
-                    case 2:  Platforms = 0; Stations = 0; break;
-                    case 3:  Platforms = 3; Stations = 0; break;
-                    case 4:  Platforms = 4; Stations = 0; break;
-                    case 5:  Platforms = 5; Stations = 0; break;
-                    case 6:  Platforms = 3; Stations = 1; break;
-                    case 7:  Platforms = 4; Stations = 1; break;
-                    case 8:  Platforms = 5; Stations = 1; break;
-                    case 9:  Platforms = 3; Stations = 2; break;
-                    case 10: Platforms = 4; Stations = 2; break;
-                    case 11: Platforms = 5; Stations = 3; break;
-                    case 12: Platforms = 7; Stations = 5; break;
-                    case 13: Platforms = 3; Stations = 6; break;
-                    case 14: Platforms = 3; Stations = 7; break;
-                    case 15: Platforms = 3; Stations = 8; break;
-                    default: Platforms = 0; Stations = 0; break;
+                    case 1:  Platforms = 0;  Stations = 0;  Shipyards = 0; break;
+                    case 2:  Platforms = 0;  Stations = 0;  Shipyards = 0; break;
+                    case 3:  Platforms = 3;  Stations = 0;  Shipyards = 0; break;
+                    case 4:  Platforms = 6;  Stations = 1;  Shipyards = 0; break;
+                    case 5:  Platforms = 6;  Stations = 1;  Shipyards = 1; break;
+                    case 6:  Platforms = 5;  Stations = 2;  Shipyards = 1; break;
+                    case 7:  Platforms = 5;  Stations = 2;  Shipyards = 1; break;
+                    case 8:  Platforms = 4;  Stations = 3;  Shipyards = 1; break;
+                    case 9:  Platforms = 6;  Stations = 3;  Shipyards = 1; break;
+                    case 10: Platforms = 8;  Stations = 4;  Shipyards = 2; break;
+                    case 11: Platforms = 8;  Stations = 5;  Shipyards = 2; break;
+                    case 12: Platforms = 9;  Stations = 6;  Shipyards = 2; break;
+                    case 13: Platforms = 9;  Stations = 7;  Shipyards = 2; break;
+                    case 14: Platforms = 12; Stations = 8;  Shipyards = 2; break;
+                    case 15: Platforms = 15; Stations = 10; Shipyards = 2; break;
+                    default: Platforms = 0;  Stations = 0;  Shipyards = 0; break;
                 }
-                Shipyard = rank > 4;
+
                 // Fb - this will replace stations with temp platforms until proper stations are built
                 int existingStations = stationList.Count;
                 if (existingStations < Stations)
@@ -286,29 +312,33 @@ namespace Ship_Game
 
             if (RecentCombat)
                 rank += 1;
+
+            if (MaxPopulationBillion.LessOrEqual(1))
+                rank -= 2;
+
             switch (colonyType)
             {
                 case ColonyType.Core    : rank += 1; break;
-                case ColonyType.Military: rank += 2; break;
+                case ColonyType.Military: rank += 3; break;
             }
             return rank.Clamped(0, 15);
         }
 
-        public void BuildShipyardIfAble(bool wantShipyard)
+        public void BuildShipyardIfAble(int numWantedShipyards)
         {
-            if (!wantShipyard || RecentCombat || !HasSpacePort)
+            if (numWantedShipyards == 0 || RecentCombat || !HasSpacePort)
                 return;
 
-            if (OrbitalStations.Any(ship => ship.Value.shipData.IsShipyard)
+            if (NumShipyards >= numWantedShipyards
                 || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
                 return;
 
-            bool hasShipyard = ConstructionQueue.Any(q => q.isShip && q.sData.IsShipyard);
+            int shipyardsInQ = ConstructionQueue.Count(q => q.isShip && q.sData.IsShipyard);
             float cost       = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner);
             if (!LogicalBuiltTimecVsCost(cost, 30))
                 return;
 
-            if (!hasShipyard && IsVibrant && LogicalBuiltTimecVsCost(cost, 30))
+            if (NumShipyards + shipyardsInQ < numWantedShipyards)
             {
                 ConstructionQueue.Add(new QueueItem(this)
                 {
