@@ -301,30 +301,30 @@ namespace Ship_Game
                 throw new ObjectDisposedException(ToString());
 
             if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {asset.NoExt}");
+                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetName}");
 
             Type assetType = typeof(T);
-            if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(asset.NoExt);
-            if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(asset.NoExt, useCache);
+            if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(assetName);
+            if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(assetName, useCache);
 
-            if (useCache && TryGetAsset(asset.NoExt, out T existing))
+            if (useCache && TryGetAsset(assetName, out T existing))
                 return existing;
 
             T loaded;
             if (asset.NonXnaAsset)
-                loaded = (T)RawContent.LoadAsset(asset.OriginalName, asset.Extension);
+                loaded = (T)RawContent.LoadAsset(assetName, asset.Extension);
             else
                 loaded = ReadAsset<T>(asset.NoExt, DoNothingWithDisposable);
 
             // detect possible resource leaks -- this is very slow, so only enable on demand
             #if false
-                SlowCheckForResourceLeaks(asset.NoExt);
+                SlowCheckForResourceLeaks(assetName);
             #endif
             if (useCache)
             {
-                RecordCacheObject(asset.NoExt, loaded);
+                RecordCacheObject(assetName, loaded);
                 if (loaded is Texture2D texture)
-                    texture.Name = asset.NoExt;
+                    texture.Name = assetName;
             }
             return loaded;
         }
@@ -397,7 +397,7 @@ namespace Ship_Game
             if (atlas == null)
                 return null;
 
-            string name = Path.GetFileName(textureName);
+            string name = Path.GetFileNameWithoutExtension(textureName);
             atlas.TryGetTexture(name, out SubTexture texture);
             return texture;
         }
