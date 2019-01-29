@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -28,6 +30,8 @@ namespace Ship_Game
         public Vector2 Padding = new Vector2(2f, 2f);
 
         public ListLayoutStyle LayoutStyle = ListLayoutStyle.Fill;
+
+        public Vector2 Direction = new Vector2(0f, 1f);
 
         UIElementV2 HeaderElement, FooterElement;
 
@@ -69,7 +73,7 @@ namespace Ship_Game
         {
         }
 
-        public new T Add<T>(T element) where T : UIElementV2
+        public override T Add<T>(T element)
         {
             RequiresLayout = true;
             Items.Add(element);
@@ -78,7 +82,10 @@ namespace Ship_Game
 
         public void RemoveAt(int index)
         {
-            Remove(Items[index]); // go through the virtual call hierarchy for removing items
+            RequiresLayout = true;
+            UIElementV2 e = Items[index];
+            Items.RemoveAt(index);
+            base.Remove(e);
         }
 
         public override void Remove(UIElementV2 element)
@@ -95,7 +102,7 @@ namespace Ship_Game
             base.RemoveAll();
         }
 
-        void LayoutItem(UIElementV2 item, Vector2 pos, float width)
+        void LayoutItem(UIElementV2 item, Vector2 pos, Vector2 size)
         {
             bool updated = false;
             if (item.Pos.NotEqual(pos))
@@ -106,54 +113,71 @@ namespace Ship_Game
 
             if (LayoutStyle == ListLayoutStyle.Clip ||
                 LayoutStyle == ListLayoutStyle.Resize)
-                width = Math.Min(width, item.Width);
-
-            if (item.Width.NotEqual(width))
             {
-                item.Width = width;
+                size.X = Math.Min(size.X, item.Width);
+                size.Y = Math.Min(size.Y, item.Height);
+            }
+
+            if (size.X.NotZero() && item.Width.NotEqual(size.X))
+            {
+                item.Width = size.X;
+                updated = true;
+            }
+            if (size.Y.NotZero() && item.Height.NotEqual(size.Y))
+            {
+                item.Height = size.Y;
                 updated = true;
             }
 
             if (updated)
             {
                 item.PerformLayout();
-                item.Pos = pos;
-                item.PerformLayout(); // @todo This is a hack. Slider PerformLayout resets stuff
             }
         }
 
-        void LayoutItem(UIElementV2 item, ref Vector2 pos, float width, float padY)
+        void LayoutItem(UIElementV2 item, ref Vector2 pos, Vector2 size, Vector2 padding)
         {
-            LayoutItem(item, pos, width);
-            pos.Y += item.Height + padY;
+            LayoutItem(item, pos, size);
+            pos += Direction * (item.Size + padding);
         }
 
-        float MaxWidth()
+        Vector2 MaxDimensions()
         {
-            float width = Width;
+            var d = new Vector2(Width, Height);
             if (LayoutStyle == ListLayoutStyle.Resize)
             {
                 for (int i = 0; i < Items.Count; ++i)
-                    width = Math.Max(width, Items[i].Width);
-                width += Padding.X*2f;
+                {
+                    d.X = Math.Max(d.X, Items[i].Width);
+                    d.Y = Math.Max(d.Y, Items[i].Height);
+                }
+                d += Padding*2f;
             }
-            return width;
+            return d;
         }
 
         public override void PerformLayout()
         {
             Vector2 pos = Pos + Padding;
 
-            Width = MaxWidth(); // update width if needed
-            float elemWidth = Width - Padding.X*2f;
+            Vector2 dim = MaxDimensions();
+            Vector2 elemSize = Direction * (dim - Padding*2f);
+            elemSize.X = Math.Abs(elemSize.X);
+            elemSize.Y = Math.Abs(elemSize.Y);
+
+            if (Direction.X.NotZero()) // horizontal list
+                Height = dim.Y;
+
+            if (Direction.Y.NotZero()) // Vertical list
+                Width = dim.X;
 
             if (HeaderElement != null)
-                LayoutItem(HeaderElement, ref pos, elemWidth, Padding.Y+2f);
+                LayoutItem(HeaderElement, ref pos, elemSize, Padding + new Vector2(2f));
 
             for (int i = 0; i < Items.Count; ++i)
             {
                 UIElementV2 item = Items[i];
-                if (item.Visible) LayoutItem(item, ref pos, elemWidth, Padding.Y);
+                if (item.Visible) LayoutItem(item, ref pos, elemSize, Padding);
             }
 
             if (LayoutStyle == ListLayoutStyle.Resize)
@@ -164,8 +188,8 @@ namespace Ship_Game
 
             if (FooterElement != null)
             {
-                pos.Y = Bottom - (FooterElement.Height + Padding.Y + 2f);
-                LayoutItem(FooterElement, pos, elemWidth);
+                pos = BotRight - Direction*(FooterElement.Size + Padding + new Vector2(2f));
+                LayoutItem(FooterElement, pos, elemSize);
             }
             RequiresLayout = false;
         }
@@ -180,20 +204,54 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
+        public void ReverseZOrder()
+        {
+            if (Elements.IsEmpty)
+                return;
+            int max = Elements.Last.ZOrder;
+            Elements.Reverse();
+            foreach (UIElementV2 e in Elements)
+                e.ZOrder = max--;
+        }
+
         /////////////////////////////////////////////////////////////////////////////
         
-        public UIButton AddButton(int titleId, UIButton.ClickHandler click)
+        public UIButton AddButton(int titleId, Action<UIButton> click)
         {
             return AddButton(Localizer.Token(titleId), click);
         }
 
-        public UIButton AddButton(string text, UIButton.ClickHandler click)
+        public UIButton AddButton(string text, Action<UIButton> click)
         {
             UIButton button = Add(new UIButton(this, Vector2.Zero, text));
-            button.OnClick += click;
+            button.OnClick  = click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;
         }
+
+        public UIButton Add(ButtonStyle style, int titleId, Action<UIButton> click)
+        {
+            return Add(style, Localizer.Token(titleId), click);
+        }
+
+        public UIButton Add(ButtonStyle style, string text, Action<UIButton> click)
+        {
+            UIButton button = Add(new UIButton(this, style, Vector2.Zero, text));
+            button.OnClick  = click;
+            button.ClickSfx = "sd_ui_tactical_pause";
+            return button;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, int title, int tooltip)
+            => Add(new UICheckBox(binding, Fonts.Arial12Bold, Localizer.Token(title), Localizer.Token(tooltip)));
+        
+        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, string tooltip)
+            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title, tooltip));
+        
+        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, int tooltip)
+            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title, Localizer.Token(tooltip)));
 
         /////////////////////////////////////////////////////////////////////////////
     }

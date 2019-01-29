@@ -109,8 +109,6 @@ namespace Ship_Game
 
         private Rectangle SelectionBox;
 
-        public static UniverseScreen Screen;
-
         private readonly Array<FleetDataNode> SelectedNodeList = new Array<FleetDataNode>();
 
         private readonly Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
@@ -221,7 +219,8 @@ namespace Ship_Game
             ScreenManager.BeginFrameRendering(StarDriveGame.Instance.GameTime, ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
-            Screen.bg.Draw(Screen, Screen.StarField);
+            UniverseScreen us = Empire.Universe;
+            us.bg.Draw(us, us.StarField);
             batch.Begin();
             DrawGrid();
             if (SelectedNodeList.Count == 1)

@@ -672,6 +672,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
+            RemoveAll();
             AssignLightRig("example/ShipyardLightrig");
             if (ScreenWidth  <= 1280 || ScreenHeight <= 768)
             {
@@ -771,11 +772,12 @@ namespace Ship_Game
             ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
             AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", 159);
             AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", 160);
- 
- 
-            BeginHLayout(ScreenWidth - 150f, ScreenHeight - 47f, -142);
-
-            ButtonMedium(titleId:105, click: b =>
+            
+            UIList bottomList = List(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
+            bottomList.LayoutStyle = ListLayoutStyle.Resize;
+            bottomList.Direction = new Vector2(-1, 0);
+            bottomList.Padding = new Vector2(16f, 2f);
+            bottomList.Add(ButtonStyle.Medium, titleId:105, click: b =>
             {
                 if (!CheckDesign()) {
                     GameAudio.NegativeClick();
@@ -784,30 +786,53 @@ namespace Ship_Game
                 }
                 ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
             });
-
-            ButtonMedium(titleId:8, click: b =>
+            bottomList.Add(ButtonStyle.Medium, titleId:8, click: b =>
             {
                 ScreenManager.AddScreen(new LoadDesigns(this));
             });
-
-            ButtonMedium(titleId:106, clickSfx:"blip_click", click: b =>
+            bottomList.Add(ButtonStyle.Medium, titleId:106, click: b =>
             {
                 ToggleOverlay = !ToggleOverlay;
-            });
-
-            BtnSymmetricDesign = ButtonMedium(titleId: 1985, clickSfx: "blip_click", click: b =>
+            }).ClickSfx = "blip_click";
+            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, titleId: 1985, click: b =>
             {
                 OnSymmetricDesignToggle();
             });
+            BtnSymmetricDesign.ClickSfx = "blip_click";
             BtnSymmetricDesign.Tooltip = Localizer.Token(1984);
 
-            Vector2 layoutEndV = EndLayout();
-            SearchBar = new Rectangle((int)layoutEndV.X -142, (int)layoutEndV.Y, 210, 25);
+
+            //BeginHLayout(ScreenWidth - 150f, ScreenHeight - 47f, -142);
+            //ButtonMedium(titleId:105, click: b =>
+            //{
+            //    if (!CheckDesign()) {
+            //        GameAudio.NegativeClick();
+            //        ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
+            //        return;
+            //    }
+            //    ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
+            //});
+            //ButtonMedium(titleId:8, click: b =>
+            //{
+            //    ScreenManager.AddScreen(new LoadDesigns(this));
+            //});
+            //ButtonMedium(titleId:106, clickSfx:"blip_click", click: b =>
+            //{
+            //    ToggleOverlay = !ToggleOverlay;
+            //});
+            //BtnSymmetricDesign = ButtonMedium(titleId: 1985, clickSfx: "blip_click", click: b =>
+            //{
+            //    OnSymmetricDesignToggle();
+            //});
+            //BtnSymmetricDesign.Tooltip = Localizer.Token(1984);
+            //Vector2 layoutEndV = EndLayout();
+
+            SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomList.Y, 210, 25);
             LoadContentFinish();
             BindListsToActiveHull();
         }
 
-        private void LoadContentFinish()
+        void LoadContentFinish()
         {
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
             HullSelectionRect = new Rectangle(ScreenWidth - 285, (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));

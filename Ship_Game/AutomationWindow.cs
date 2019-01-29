@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,41 +11,92 @@ namespace Ship_Game
     public sealed class AutomationWindow : GameScreen
     {
         public bool IsOpen { get; private set; }
-        private readonly Submenu ConstructionSubMenu;
-        private readonly UniverseScreen Universe;
-        private readonly DropOptions<int> FreighterDropDown;
-        private readonly DropOptions<int> ColonyShipDropDown;
-        private readonly DropOptions<int> ScoutDropDown;
-        private readonly DropOptions<int> ConstructorDropDown;
+        readonly UniverseScreen Universe;
+        Submenu ConstructionSubMenu;
+        DropOptions<int> FreighterDropDown;
+        DropOptions<int> ColonyShipDropDown;
+        DropOptions<int> ScoutDropDown;
+        DropOptions<int> ConstructorDropDown;
 
         public AutomationWindow(UniverseScreen universe) : base(universe, pause:false)
         {
             Universe = universe;
             const int windowWidth = 210;
             Rect = new Rectangle(ScreenWidth - 115 - windowWidth, 490, windowWidth, 300);
+
+        }
+
+        class CheckedDropdown : UIElementV2
+        {
+            UICheckBox Check;
+            DropOptions<int> Options;
+            public CheckedDropdown(UIElementV2 parent) : base(parent) { }
+            public DropOptions<int> Create(Expression<Func<bool>> binding, int title, int tooltip)
+                => Create(binding, Localizer.Token(title), tooltip);
+            public DropOptions<int> Create(Expression<Func<bool>> binding, string title, int tooltip)
+            {
+                Check = new UICheckBox(Parent, 0f, 0f, binding, Fonts.Arial12Bold, title, tooltip);
+                Options = new DropOptions<int>(Parent, new Vector2(0f, 25f), 190, 18);
+                return Options;
+            }
+            public override void PerformLayout()
+            {
+                Check.Pos = Pos;
+                Check.PerformLayout();
+                Options.Pos = new Vector2(Pos.X, Pos.Y + 16f);
+                Options.PerformLayout();
+                Height = Options.Bottom - Pos.Y;
+            }
+            public override void Update(float deltaTime)
+            {
+                // @todo Gray out Options drop-down
+                //Options.Enabled = Check.Checked;
+                base.Update(deltaTime);
+            }
+            public override bool HandleInput(InputState input)
+            {
+                return Check.HandleInput(input) || Options.HandleInput(input);
+            }
+            public override void Draw(SpriteBatch batch)
+            {
+                Check.Draw(batch);
+                Options.Draw(batch);
+            }
+        }
+
+        public override void LoadContent()
+        {
+            base.LoadContent();
+            RemoveAll();
+
             Rectangle win = Rect;
             ConstructionSubMenu = new Submenu(win);
             ConstructionSubMenu.AddTab(Localizer.Token(304));
 
-            BeginVLayout(win.X + 12, win.Y + 25, ystep: 45);
-                Checkbox(() => EmpireManager.Player.AutoExplore,    title:305, tooltip:2226);
-                Checkbox(() => EmpireManager.Player.AutoColonize,   title:306, tooltip:2227);
-                Checkbox(() => EmpireManager.Player.AutoFreighters, title:308, tooltip:2229);
-                Checkbox(() => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
-            EndLayout();
+            UIList ticks = List(new Vector2(win.X + 10f, win.Y + 26f));
+            ticks.Padding = new Vector2(2f, 10f);
 
-            BeginVLayout(win.X + 12, win.Y + 220, ystep: Fonts.Arial12Bold.LineSpacing + 3);
-                Checkbox(() => GlobalStats.AutoCombat,              title:2207, tooltip:2230);
-                Checkbox(() => EmpireManager.Player.AutoResearch,   title:6136, tooltip:7039);
-                Checkbox(() => EmpireManager.Player.data.AutoTaxes, title:6138, tooltip:7040);
-            EndLayout();
+            ScoutDropDown = ticks.Add(new CheckedDropdown(this))
+                .Create(() => EmpireManager.Player.AutoExplore, title:305, tooltip:2226);
 
-            BeginVLayout(win.X + 12, win.Y + 48, ystep: 45);
-                ScoutDropDown       = DropOptions<int>(190, 18, zorder:4);
-                ColonyShipDropDown  = DropOptions<int>(190, 18, zorder:3);
-                FreighterDropDown   = DropOptions<int>(190, 18, zorder:2);
-                ConstructorDropDown = DropOptions<int>(190, 18, zorder:1);
-            EndLayout();
+            ColonyShipDropDown = ticks.Add(new CheckedDropdown(this))
+                .Create(() => EmpireManager.Player.AutoColonize, title:306, tooltip:2227);
+
+            FreighterDropDown = ticks.Add(new CheckedDropdown(this))
+                .Create(() => EmpireManager.Player.AutoFreighters, title:308, tooltip:2229);
+
+            ConstructorDropDown = ticks.Add(new CheckedDropdown(this))
+                .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
+
+            // draw ordering is still imperfect, this is a hack
+            ticks.ReverseZOrder();
+
+            UIList rest = List(new Vector2(win.X + 10f, win.Y + 220f));
+            rest.Padding = new Vector2(2f, 10f);
+            rest.AddCheckbox(() => GlobalStats.AutoCombat,              title:2207, tooltip:2230);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,   title:6136, tooltip:7039);
+            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes, title:6138, tooltip:7040);
+
 
             UpdateDropDowns();
         }
@@ -53,6 +105,8 @@ namespace Ship_Game
         {
             GameAudio.AcceptClick();
             IsOpen = !IsOpen;
+            if (IsOpen)
+                LoadContent();
         }
 
         public override void Draw(SpriteBatch batch)
@@ -90,7 +144,7 @@ namespace Ship_Game
             return false;
         }
 
-        private static void WarnBuildableShips()
+        static void WarnBuildableShips()
         {
             var sb = new StringBuilder("Player.ShipsWeCanBuild = {\n");
 
@@ -101,8 +155,10 @@ namespace Ship_Game
             Log.Warning(sb.ToString());
         }
 
-        private static void InitDropOptions(DropOptions<int> options, ref string automationShip, string defaultShip, Func<Ship, bool> predicate)
+        static void InitDropOptions(DropOptions<int> options, ref string automationShip, string defaultShip, Func<Ship, bool> predicate)
         {
+            if (options == null)
+                return;
             options.Clear();
 
             foreach (string ship in EmpireManager.Player.ShipsWeCanBuild)

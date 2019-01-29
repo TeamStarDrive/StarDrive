@@ -6,7 +6,6 @@ namespace Ship_Game
 {
     public sealed class Bomb
     {
-        public static UniverseScreen Screen;
         public Vector3 Position;
         public Vector3 Velocity;
         private Planet TargetPlanet;
@@ -38,7 +37,7 @@ namespace Ship_Game
         public void DoImpact()
         {
             TargetPlanet.DropBomb(this);
-            Screen.BombList.QueuePendingRemoval(this);
+            Empire.Universe.BombList.QueuePendingRemoval(this);
         }
 
         public void SetTarget(Planet p)
@@ -72,8 +71,8 @@ namespace Ship_Game
             if (TrailEmitter == null)
             {
                 Velocity *= 0.65f;
-                TrailEmitter     = Screen.projectileTrailParticles.NewEmitter(500f, Position);
-                FiretrailEmitter = Screen.fireTrailParticles.NewEmitter(500f, Position);
+                TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Position);
+                FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Position);
             }
             TrailEmitter.Update(deltaTime, Position);
             FiretrailEmitter.Update(deltaTime, Position);

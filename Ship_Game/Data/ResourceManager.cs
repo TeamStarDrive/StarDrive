@@ -84,7 +84,6 @@ namespace Ship_Game
         private static DiplomaticTraits DiplomacyTraits;
 
         // @todo These are all hacks caused by bad design and tight coupling
-        public static UniverseScreen UniverseScreen;
         public static ScreenManager ScreenManager;
 
         // All references to Game1.Instance.Content were replaced by this property
@@ -992,7 +991,7 @@ namespace Ship_Game
                 if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
                 {
                     // @todo NullReference bug here!
-                    newB.ProjectorRange = UniverseScreen?.SubSpaceProjectors.Radius ?? 0f;
+                    newB.ProjectorRange = Empire.Universe?.SubSpaceProjectors.Radius ?? 0f;
                     newB.IsProjector = true;
                 }
                 if (!newB.IsSensor && !(newB.SensorRange > 0.0f))

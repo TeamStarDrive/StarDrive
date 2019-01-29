@@ -21,8 +21,7 @@ namespace Ship_Game.AI
         private readonly Array<Planet> PatrolRoute = new Array<Planet>();
         private int StopNumber;
         public FleetDataNode FleetNode { get;  set; }
-
-        public static UniverseScreen UniverseScreen;
+        
         public Ship Owner;
         public AIState State;// = AIState.AwaitingOrders;
         public Guid OrbitTargetGuid;
@@ -81,7 +80,7 @@ namespace Ship_Game.AI
 
             ColonizeTarget.TerraformPoints += Owner.loyalty.data.EmpireFertilityBonus;
             ColonizeTarget.CrippledTurns = 0;
-            StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, UniverseScreen);
+            StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, Empire.Universe);
 
             foreach (Goal g in Owner.loyalty.GetEmpireAI().Goals)
             {
@@ -123,9 +122,9 @@ namespace Ship_Game.AI
             toLaunch.Clear();
             if (troopsRemoved)
                 if (playerTroopsRemoved)
-                    UniverseScreen.NotificationManager.AddTroopsRemovedNotification(ColonizeTarget);
+                    Empire.Universe.NotificationManager.AddTroopsRemovedNotification(ColonizeTarget);
                 else if (ColonizeTarget.Owner.isPlayer)
-                    UniverseScreen.NotificationManager.AddForeignTroopsRemovedNotification(ColonizeTarget);
+                    Empire.Universe.NotificationManager.AddForeignTroopsRemovedNotification(ColonizeTarget);
             Owner.QueueTotalRemoval();
         }
 
@@ -432,7 +431,7 @@ namespace Ship_Game.AI
                     Owner.Weapons[x].ClearFireTarget();
 
 
-                if (Owner.Carrier.HasHangars && Owner.loyalty != UniverseScreen.player)
+                if (Owner.Carrier.HasHangars && Owner.loyalty != Empire.Universe.player)
                 {
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
@@ -910,7 +909,7 @@ namespace Ship_Game.AI
 
         private void PrioritizePlayerCommands()
         {
-            if (Owner.loyalty == UniverseScreen.player &&
+            if (Owner.loyalty == Empire.Universe.player &&
                 (State == AIState.MoveTo && Vector2.Distance(Owner.Center, MovePosition) > 100f || State == AIState.Orbit ||
                  State == AIState.Bombard || State == AIState.AssaultPlanet || State == AIState.BombardTroops ||
                  State == AIState.Rebase || State == AIState.Scrap || State == AIState.Resupply || State == AIState.Refit ||
@@ -1000,7 +999,7 @@ namespace Ship_Game.AI
 
         private void AIStateAwaitingOrders(float elapsedTime)
         {
-            if (Owner.loyalty != UniverseScreen.player)
+            if (Owner.loyalty != Empire.Universe.player)
                 AwaitOrders(elapsedTime);
             else
                 AwaitOrdersPlayer(elapsedTime);

@@ -589,9 +589,6 @@ namespace Ship_Game
             if (Debug)
                 DebugWin?.Draw(gameTime);
 
-            if (aw.IsOpen && !LookingAtPlanet)
-                aw.Draw(batch);
-
             if (Paused)
             {
                 batch.DrawString(Fonts.Pirulen16, Localizer.Token(4005),
@@ -631,6 +628,8 @@ namespace Ship_Game
 
             if (IsActive)
                 ToolTip.Draw(batch);
+
+            aw.Visible = aw.IsOpen && !LookingAtPlanet;
 
             base.Draw(batch);  // UIElementV2 Draw
 

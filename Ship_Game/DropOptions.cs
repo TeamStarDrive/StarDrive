@@ -12,12 +12,12 @@ namespace Ship_Game
     [DebuggerDisplay("Count = {Count}")]
     public class DropOptions<T> : UIElementV2
     {
-        private readonly RecTexPair[] Border = new RecTexPair[16];
-        private int BorderCount;
+        readonly RecTexPair[] Border = new RecTexPair[16];
+        int BorderCount;
 
-        private Rectangle OpenRect;
-        private Rectangle ClickAbleOpenRect;
-        private readonly Array<Entry> Options = new Array<Entry>();
+        Rectangle OpenRect;
+        Rectangle ClickAbleOpenRect;
+        readonly Array<Entry> Options = new Array<Entry>();
         public bool Open;
 
         public int ActiveIndex;
@@ -29,7 +29,7 @@ namespace Ship_Game
 
         public Action<T> OnValueChange;
 
-        private Ref<T> PropertyRef;
+        Ref<T> PropertyRef;
         public Expression<Func<T>> PropertyBinding
         {
             set => PropertyRef = new Ref<T>(value);
@@ -55,13 +55,18 @@ namespace Ship_Game
         }
 
 
-        public DropOptions(UIElementV2 parent, Rectangle rect) : base(parent, rect)
+        public DropOptions(UIElementV2 parent, in Rectangle rect) : base(parent, rect)
         {
             Reset();
         }
         public DropOptions(UIElementV2 parent, Vector2 pos, int width, int height)
             : base(parent, pos, new Vector2(width, height))
         {
+            Reset();
+        }
+        public DropOptions(int width, int height)
+        {
+            Size = new Vector2(width, height);
             Reset();
         }
 
@@ -90,7 +95,7 @@ namespace Ship_Game
             return true;
         }
 
-        private int IndexOfValue(T value)
+        int IndexOfValue(T value)
         {
             for (int i = 0; i < Options.Count; ++i)
                 if (Options[i].Value.Equals(value))
@@ -122,12 +127,12 @@ namespace Ship_Game
             return false;
         }
 
-        private static bool IsMouseHoveringOver(Rectangle rect)
+        static bool IsMouseHoveringOver(in Rectangle rect)
         {
             return rect.HitTest(StarDriveGame.Instance.ScreenManager.input.CursorPosition);
         }
 
-        private string WrappedString(string text)
+        string WrappedString(string text)
         {
             float maxWidth = Width - 22;
             if (Fonts.Arial12Bold.MeasureString(text).X <= maxWidth)
@@ -142,7 +147,7 @@ namespace Ship_Game
             return sb.ToString();
         }
 
-        private static Vector2 TextPosition(Rectangle rect)
+        static Vector2 TextPosition(Rectangle rect)
         {
             return new Vector2(rect.X + 10, rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
         }
@@ -171,9 +176,9 @@ namespace Ship_Game
             }
         }
 
-        private void DrawOpenOptions(SpriteBatch spriteBatch)
+        void DrawOpenOptions(SpriteBatch batch)
         {
-            spriteBatch.FillRectangle(OpenRect, new Color(22, 22, 23));
+            batch.FillRectangle(OpenRect, new Color(22, 22, 23));
 
             int drawOffset = 1;
             for (int i = 0; i < Options.Count; ++i)
@@ -188,11 +193,11 @@ namespace Ship_Game
                     var hoverLeft   = new Rectangle(e.Rect.X + 5,  e.Rect.Y + 1, 6, 15);
                     var hoverMiddle = new Rectangle(e.Rect.X + 11, e.Rect.Y + 1, e.Rect.Width - 22, 15);
                     var hoverRight  = new Rectangle(hoverMiddle.X + hoverMiddle.Width, hoverMiddle.Y, 6, 15);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_left"), hoverLeft, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_middle"), hoverMiddle, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_right"), hoverRight, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_left"), hoverLeft, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_middle"), hoverMiddle, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_right"), hoverRight, Color.White);
                 }
-                spriteBatch.DrawString(Fonts.Arial12Bold, WrappedString(e.Name), TextPosition(e.Rect), Color.White);
+                batch.DrawString(Fonts.Arial12Bold, WrappedString(e.Name), TextPosition(e.Rect), Color.White);
                 ++drawOffset;
             }
         }
@@ -209,15 +214,16 @@ namespace Ship_Game
                 if (!bindingValue.Equals(ActiveValue))
                     SetActiveValue(bindingValue);
             }
+
+            Reset();
         }
 
         public override bool HandleInput(InputState input)
         {
-            bool selectPressed = input.InGameSelect;
-            if (!selectPressed)
-                return false;
+            bool overTitle = HitTest(input.CursorPosition);
+            bool overExpanded = Open && ClickAbleOpenRect.HitTest(input.CursorPosition);
 
-            if (HitTest(input.CursorPosition))
+            if (overTitle && input.InGameSelect)
             {
                 Open = !Open;
                 if (Open && Options.Count == 1)
@@ -225,9 +231,9 @@ namespace Ship_Game
 
                 if (Open) GameAudio.AcceptClick();
                 Reset();
-                return true;
+                return true; // click: input was definitely captured
             }
-            if (Open && ClickAbleOpenRect.HitTest(input.CursorPosition))
+            if (overExpanded && input.InGameSelect)
             {
                 for (int i = 0; i < Options.Count; ++i)
                 {
@@ -246,12 +252,12 @@ namespace Ship_Game
                     GameAudio.AcceptClick();
                     Open = false;
                     Reset();
-                    return true;
+                    return true; // click: input was definitely captured
                 }
                 Open = false;
                 Reset();
             }
-            return false;
+            return overTitle || overExpanded; // input was captured?
         }
 
         public void Reset()
@@ -295,10 +301,10 @@ namespace Ship_Game
             }
         }
 
-        private struct RecTexPair
+        struct RecTexPair
         {
-            private readonly Rectangle Rect;
-            private readonly SubTexture Tex;
+            readonly Rectangle Rect;
+            readonly SubTexture Tex;
             public int Y => Rect.Y;
             public int W => Rect.Width;
 
@@ -326,7 +332,7 @@ namespace Ship_Game
 
     internal sealed class DropOptionsDebugView<T>
     {
-        private readonly DropOptions<T> Collection;
+        readonly DropOptions<T> Collection;
 
         public DropOptionsDebugView(DropOptions<T> collection)
         {
