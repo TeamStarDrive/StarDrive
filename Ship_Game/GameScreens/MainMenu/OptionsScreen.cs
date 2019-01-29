@@ -254,37 +254,16 @@ namespace Ship_Game
             graphics.AddCheckbox(() => New.RenderBloom, "Bloom", 
                 "Disabling bloom effect will increase performance on low-end devices");
 
-            //BeginVLayout(LeftArea.X, LeftArea.Y, spacing);
-            //    Label($"{Localizer.Token(9)}: ");
-            //    Label($"{Localizer.Token(10)}: ");
-            //    Label("Anti Aliasing: ");
-            //    Label("Texture Quality: ");
-            //    Label("Texture Filtering: ");
-            //    Label("Shadow Quality: ");
-            //    Label("Effects Quality: ");
-            //EndLayout();
-
-            //BeginVLayout(LeftArea.Center.X, LeftArea.Y, spacing);
-            //    ResolutionDropDown = DropOptions<DisplayMode>(105, 18, zorder:10);
-            //    Label(New.Mode.ToString(),               Fullscreen_OnClick);
-            //    Label(AntiAliasString(),                 AntiAliasing_OnClick);
-            //    Label(QualityString(New.TextureQuality), TextureQuality_OnClick);
-            //    Label(TextureFilterString(),             TextureFiltering_OnClick);
-            //    Label(QualityString(New.ShadowDetail),   ShadowQuality_OnClick);
-            //    Label(QualityString(New.EffectDetail),   EffectsQuality_OnClick);
-            //    Checkbox(() => New.RenderBloom, "Bloom", 
-            //        "Disabling bloom effect will increase performance on low-end devices");
-            //EndLayout();
-
             float spacing = Fonts.Arial12Bold.LineSpacing * 1.6f;
 
-            BeginVLayout(LeftArea.X, LeftArea.Y + 190, 60);
-                MusicVolumeSlider   = SliderPercent(270, 50, "Music Volume", 0f, 1f, GlobalStats.MusicVolume);
-                EffectsVolumeSlider = SliderPercent(270, 50, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume);
-                IconSize            = Slider(270, 50, "Icon Sizes", 0, 30, GlobalStats.IconSize);
-                AutoSaveFreq        = Slider(270, 50, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);
-                AutoSaveFreq.LocalizeTooltipId = 4100;
-            EndLayout();
+            UIList left = List(new Vector2(LeftArea.X, LeftArea.Y + 180), LeftArea.Size());
+            left.Padding = new Vector2(2f, 8f);
+            MusicVolumeSlider   = left.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Music Volume",   0f, 1f, GlobalStats.MusicVolume));
+            EffectsVolumeSlider = left.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume));
+            IconSize            = left.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "Icon Sizes",     0f,30f, GlobalStats.IconSize));
+            AutoSaveFreq        = left.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "AutoSave Frequency", 60, 540, GlobalStats.AutoSaveFreq));
+            AutoSaveFreq.LocalizeTooltipId = 4100;
+
 
             BeginVLayout(RightArea.X, RightArea.Y + 190, 60);
                 FreighterLimiter = Slider(225, 50, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit);

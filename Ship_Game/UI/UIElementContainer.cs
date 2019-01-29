@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.UI;
 using Ship_Game.UI.Effects;
 
 namespace Ship_Game
@@ -124,12 +125,25 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public T Add<T>(T element) where T : UIElementV2
+        public virtual T Add<T>(T element) where T : UIElementV2
         {
             Elements.Add(element);
             element.Parent = this;
             element.ZOrder = NextZOrder();
             return element;
+        }
+
+        public T Add<T>() where T : UIElementV2, new()
+        {
+            return Add(new T());
+        }
+
+        public SplitElement AddSplit(UIElementV2 a, UIElementV2 b)
+        {
+            var split = new SplitElement(a, b);
+            a.Parent = split;
+            b.Parent = split;
+            return Add(split);
         }
 
         public virtual void Remove(UIElementV2 element)
