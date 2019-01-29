@@ -237,17 +237,13 @@ namespace Ship_Game
         //This returns the best orbital the Planet can build based on cost
         private Ship GetBestOrbital(ShipData.RoleName role, float maxCost)
         {
-            string orbitalName ="";
+            Ship orbital = null;
             switch (role)
             {
-                case ShipData.RoleName.platform: orbitalName =  ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost); break;
-                case ShipData.RoleName.station:  orbitalName =  ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost); break;
+                case ShipData.RoleName.platform: orbital =  ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost); break;
+                case ShipData.RoleName.station:  orbital =  ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost); break;
             }
 
-            if (orbitalName.IsEmpty())
-                return null;
-
-            ResourceManager.ShipsDict.TryGetValue(orbitalName, out Ship orbital);
             return orbital;
         }
 
