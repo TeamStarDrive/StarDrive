@@ -102,6 +102,27 @@ namespace Ship_Game
             Style = style;
         }
 
+        public FloatSlider(SliderStyle style, float w, float h, string text, float min, float max, float value)
+        {
+            if (SliderKnob == null || ContentId != ResourceManager.ContentId)
+            {
+                ContentId = ResourceManager.ContentId;
+                SliderKnob        = ResourceManager.Texture("NewUI/slider_crosshair");
+                SliderKnobHover   = ResourceManager.Texture("NewUI/slider_crosshair_hover");
+                SliderMinute      = ResourceManager.Texture("NewUI/slider_minute");
+                SliderMinuteHover = ResourceManager.Texture("NewUI/slider_minute_hover");
+                SliderGradient    = ResourceManager.Texture("NewUI/slider_grd_green");
+            }
+
+            Size = new Vector2(w, h);
+            Text  = text;
+            Min   = min;
+            Max   = max;
+            Value = (value.Clamped(Min, Max) - Min) / Range;
+            Style = style;
+            UpdateSliderRect();
+        }
+
         void UpdateSliderRect()
         {
             SliderRect = new Rectangle((int)Pos.X, (int)Pos.Y + (int)Height/2 + 3, (int)Width - 32, 6);
