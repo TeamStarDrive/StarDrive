@@ -271,24 +271,24 @@ namespace Ship_Game
             ShipLimiter      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 225, 50, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
                                           500, 3500, GlobalStats.ShipCountLimit));
 
-            float spacing = Fonts.Arial12Bold.LineSpacing * 1.6f;
-            BeginVLayout(RightArea.X, RightArea.Y, spacing);
-                Checkbox(() => GlobalStats.ForceFullSim, "Force Full Simulation", tooltip: 5086);
-                Checkbox(() => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
-                Checkbox(() => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
-                Checkbox(() => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
-                Checkbox(() => GlobalStats.AutoErrorReport, "Automatic Error Report", 
-                                "Send automatic error reports to Blackbox developers");
-                Checkbox(() => GlobalStats.DisableAsteroids, "Disable Asteroids",           //Added by Gretman
-                                "This will prevent asteroids from being generated in new games, offering performance improvements in mid to late game. This will not affect current games or existing saves.");
+            UIList right = List(RightArea.PosVec(), RightArea.Size());
+            right.Padding = new Vector2(2f, 4f);
+            right.AddCheckbox(() => GlobalStats.ForceFullSim, "Force Full Simulation", tooltip: 5086);
+            right.AddCheckbox(() => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
+            right.AddCheckbox(() => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
+            right.AddCheckbox(() => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
+            right.AddCheckbox(() => GlobalStats.AutoErrorReport, "Automatic Error Report", 
+                                    "Send automatic error reports to Blackbox developers");
+            right.AddCheckbox(() => GlobalStats.DisableAsteroids, "Disable Asteroids", // Added by Gretman
+                                    "This will prevent asteroids from being generated in new games, "+
+                                    "offering performance improvements in mid to late game. "+
+                                    "This will not affect current games or existing saves.");
             if (Debugger.IsAttached)
-                    Checkbox(() => GlobalStats.WarpBehaviorsSetting, "Warp Behaviors (experimental)",
-                        "Experimental and untested feature for complex Shield behaviors during Warp");
-            EndLayout();
+                right.AddCheckbox(() => GlobalStats.WarpBehaviorsSetting, "Warp Behaviors (experimental)",
+                                    "Experimental and untested feature for complex Shield behaviors during Warp");
 
-            BeginVLayout(RightArea.X, RightArea.Bottom + 60);
-                Button(titleId:13, click: button => ApplyGraphicsSettings());
-            EndLayout();
+            Add(new UIButton(this, new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
+                .OnClick = button => ApplyGraphicsSettings();
 
             this.RefreshZOrder();
             CreateResolutionDropOptions();

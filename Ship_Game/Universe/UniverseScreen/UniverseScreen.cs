@@ -569,7 +569,7 @@ namespace Ship_Game
             Frustum            = new BoundingFrustum(view * projection);
             mmHousing          = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
-            minimap            = new MiniMap(mmHousing);
+            minimap            = Add(new MiniMap(mmHousing));
             //mmButtons          = new MinimapButtons(mmHousing, EmpireUI);
             mmShowBorders      = new Rectangle(MinimapDisplayRect.X, MinimapDisplayRect.Y - 25, 32, 32);
             mmDSBW             = new Rectangle(mmShowBorders.X + 32, mmShowBorders.Y, 64, 32);

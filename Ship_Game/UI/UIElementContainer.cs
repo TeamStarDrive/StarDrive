@@ -242,20 +242,20 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected UIButton Button(int titleId, UIButton.ClickHandler click)
+        protected UIButton Button(int titleId, Action<UIButton> click)
         {
             return Button(Localizer.Token(titleId), click);
         }
 
-        protected UIButton Button(string text, UIButton.ClickHandler click)
+        protected UIButton Button(string text, Action<UIButton> click)
         {
             UIButton button = Add(new UIButton(this, LayoutNext(), text));
-            button.OnClick += click;
+            button.OnClick = click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;
         }
 
-        protected UIButton Button(ButtonStyle style, Vector2 pos, string text, UIButton.ClickHandler click, string clickSfx = null)
+        protected UIButton Button(ButtonStyle style, Vector2 pos, string text, Action<UIButton> click, string clickSfx = null)
         {
             var button = new UIButton(this, style, pos, text);
             if (click != null)       button.OnClick += click;
@@ -263,37 +263,37 @@ namespace Ship_Game
             return Add(button);
         }
 
-        protected UIButton Button(ButtonStyle style, float x, float y, string text, UIButton.ClickHandler click, string clickSfx = null)
+        protected UIButton Button(ButtonStyle style, float x, float y, string text, Action<UIButton> click, string clickSfx = null)
             => Button(style, new Vector2(x, y), text, click, clickSfx);
 
 
-        protected UIButton Button(float x, float y, string text, UIButton.ClickHandler click)
+        protected UIButton Button(float x, float y, string text, Action<UIButton> click)
             => Button(ButtonStyle.Default, new Vector2(x, y), text, click);
-        protected UIButton Button(float x, float y, int titleId, UIButton.ClickHandler click)
+        protected UIButton Button(float x, float y, int titleId, Action<UIButton> click)
             => Button(ButtonStyle.Default, new Vector2(x, y), Localizer.Token(titleId), click);
 
 
-        protected UIButton ButtonLow(float x, float y, string text, UIButton.ClickHandler click)
+        protected UIButton ButtonLow(float x, float y, string text, Action<UIButton> click)
             => Button(ButtonStyle.Low80, new Vector2(x, y), text, click);
-        protected UIButton ButtonLow(float x, float y, int titleId, UIButton.ClickHandler click)
+        protected UIButton ButtonLow(float x, float y, int titleId, Action<UIButton> click)
             => Button(ButtonStyle.Low80, new Vector2(x, y), Localizer.Token(titleId), click);
 
 
-        protected UIButton ButtonSmall(float x, float y, string text, UIButton.ClickHandler click)
+        protected UIButton ButtonSmall(float x, float y, string text, Action<UIButton> click)
             => Button(ButtonStyle.Small, new Vector2(x, y), text, click);
-        protected UIButton ButtonSmall(float x, float y, int titleId, UIButton.ClickHandler click)
+        protected UIButton ButtonSmall(float x, float y, int titleId, Action<UIButton> click)
             => Button(ButtonStyle.Small, new Vector2(x, y), Localizer.Token(titleId), click);
 
 
-        protected UIButton ButtonMedium(int titleId, UIButton.ClickHandler click)
+        protected UIButton ButtonMedium(int titleId, Action<UIButton> click)
             => Button(ButtonStyle.Medium, LayoutNext(), Localizer.Token(titleId), click);
-        protected UIButton ButtonMedium(int titleId, string clickSfx, UIButton.ClickHandler click)
+        protected UIButton ButtonMedium(int titleId, string clickSfx, Action<UIButton> click)
             => Button(ButtonStyle.Medium, LayoutNext(), Localizer.Token(titleId), click, clickSfx);
 
 
-        protected UIButton ButtonMedium(float x, float y, int titleId, UIButton.ClickHandler click)
+        protected UIButton ButtonMedium(float x, float y, int titleId, Action<UIButton> click)
             => Button(ButtonStyle.Medium, new Vector2(x, y), Localizer.Token(titleId), click);
-        protected UIButton ButtonMedium(float x, float y, string title, UIButton.ClickHandler click)
+        protected UIButton ButtonMedium(float x, float y, string title, Action<UIButton> click)
             => Button(ButtonStyle.Medium, new Vector2(x, y), title, click);
 
 
