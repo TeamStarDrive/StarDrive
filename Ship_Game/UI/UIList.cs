@@ -195,12 +195,12 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////
         
-        public UIButton AddButton(int titleId, UIButton.ClickHandler click)
+        public UIButton AddButton(int titleId, Action<UIButton> click)
         {
             return AddButton(Localizer.Token(titleId), click);
         }
 
-        public UIButton AddButton(string text, UIButton.ClickHandler click)
+        public UIButton AddButton(string text, Action<UIButton> click)
         {
             UIButton button = Add(new UIButton(this, Vector2.Zero, text));
             button.OnClick += click;

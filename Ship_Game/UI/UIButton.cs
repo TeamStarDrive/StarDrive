@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -34,8 +35,7 @@ namespace Ship_Game
 
         public string ClickSfx = "echo_affirm";
 
-        public delegate void ClickHandler(UIButton button);
-        public event ClickHandler OnClick;
+        public Action<UIButton> OnClick;
 
         public override string ToString() => $"Button '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
         

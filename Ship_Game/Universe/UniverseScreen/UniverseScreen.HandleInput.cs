@@ -35,18 +35,24 @@ namespace Ship_Game
             }
 
             // @note Make sure HandleInputs are called here
-            flag |= SelectedShip != null && ShipInfoUIElement.HandleInput(input) && !LookingAtPlanet;
-            flag |= SelectedPlanet != null && pInfoUI.HandleInput(input) && !LookingAtPlanet;
-            flag |= SelectedShipList != null && shipListInfoUI.HandleInput(input) && !LookingAtPlanet;
+            if (!LookingAtPlanet)
+            {
+                flag |= SelectedShip != null && ShipInfoUIElement.HandleInput(input);
+                flag |= SelectedPlanet != null && pInfoUI.HandleInput(input);
+                flag |= SelectedShipList != null && shipListInfoUI.HandleInput(input);
+            }
 
-            if (SelectedSystem != null)
+            if (SelectedSystem == null)
+            {
+                sInfoUI.SelectionTimer = 0.0f;
+            }
+            else
             {
                 flag |= sInfoUI.HandleInput(input) && !LookingAtPlanet;
             }
-            else sInfoUI.SelectionTimer = 0.0f;
 
-            flag |= minimap.HandleInput(input, this);
-            flag |= NotificationManager.HandleInput(input);
+            if (minimap.HandleInput(input, this)) return true;
+            if (NotificationManager.HandleInput(input)) return true;
 
             // @todo Why are these needed??
             flag |= ShipsInCombat.Rect.HitTest(input.CursorPosition);
