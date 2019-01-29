@@ -200,7 +200,7 @@ namespace Ship_Game
             if (!LogicalBuiltTimecVsCost(bestWeCanBuild.GetCost(Owner), 50))
                 return;
 
-            // scrap code will deal with excess orbital after they are built
+            ScrapOrbital(weakestWeHave);
             AddOrbital(bestWeCanBuild); 
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"REPLACING Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
