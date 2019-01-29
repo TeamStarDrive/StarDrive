@@ -158,6 +158,11 @@ namespace Ship_Game
             Elements.Clear();
         }
 
+        public void RefreshZOrder()
+        {
+            Elements.Sort(ZOrderSorter);
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Begin vertical layout of elements;
@@ -190,7 +195,7 @@ namespace Ship_Game
             return ZOrder + 1;
         }
 
-        static int ElementSorter(UIElementV2 a, UIElementV2 b)
+        static int ZOrderSorter(UIElementV2 a, UIElementV2 b)
         {
             return a.ZOrder - b.ZOrder;
         }
@@ -200,7 +205,7 @@ namespace Ship_Game
         public Vector2 EndLayout()
         {
             LayoutStarted = false;
-            Elements.Sort(ElementSorter);
+            Elements.Sort(ZOrderSorter);
             return LayoutCursor;
         }
 
@@ -345,16 +350,6 @@ namespace Ship_Game
 
         public FloatSlider SliderPercent(int w, int h, string text, float min, float max, float value)
             => SliderPercent(LayoutNextRect(w, h), text, min, max, value);
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-        protected DropOptions<T> DropOptions<T>(int width, int height, int zorder = 0)
-        {
-            DropOptions<T> option = Add(new DropOptions<T>(this, LayoutNext(), width, height));
-            option.ZOrder = zorder;
-            return option;
-        }
 
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
