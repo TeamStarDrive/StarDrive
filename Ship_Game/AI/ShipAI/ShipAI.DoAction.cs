@@ -289,7 +289,7 @@ namespace Ship_Game.AI
             Planet target = shipgoal.TargetPlanet;
             if (target == null && shipgoal.goal.TetherTarget != Guid.Empty)
             {
-                UniverseScreen.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
+                Empire.Universe.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
             }
             if (target != null && (target.Center + shipgoal.goal.TetherOffset).Distance(Owner.Center) > 200f)
             {
@@ -318,7 +318,7 @@ namespace Ship_Game.AI
             }
             if (shipgoal.goal.TetherTarget != Guid.Empty)
             {
-                platform.TetherToPlanet(UniverseScreen.PlanetsDict[shipgoal.goal.TetherTarget]);
+                platform.TetherToPlanet(Empire.Universe.PlanetsDict[shipgoal.goal.TetherTarget]);
                 platform.TetherOffset = shipgoal.goal.TetherOffset;
             }
             Owner.loyalty.GetEmpireAI().Goals.Remove(shipgoal.goal);

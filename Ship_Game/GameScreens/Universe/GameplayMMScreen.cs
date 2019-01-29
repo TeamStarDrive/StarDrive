@@ -13,11 +13,6 @@ namespace Ship_Game
         private GameScreen caller;
         private Menu2 window;
         private UIButton Save;
-        private UIButton Load;
-        private UIButton Options;
-        private UIButton Return;
-        private UIButton Exit;
-        private UIButton ExitToMain;
 
         private GameplayMMScreen(GameScreen parent) : base(parent, pause: true)
         {
@@ -129,14 +124,16 @@ namespace Ship_Game
             Vector2 c = ScreenCenter;
             window = new Menu2(new Rectangle((int)c.X - 100, (int)c.Y - 150, 200, 330));
 
-            BeginVLayout(c.X - 84, c.Y - 100, UIButton.StyleSize().Y + 15);
-                Save       = Button(titleId: 300, click: Save_OnClick);
-                Load       = Button(titleId: 2,   click: Load_OnClick);
-                Options    = Button(titleId: 4,   click: Options_OnClick);
-                Return     = Button(titleId: 301, click: Return_OnClick);
-                ExitToMain = Button(titleId: 302, click: ExitToMain_OnClick);
-                Exit       = Button(titleId: 303, click: Exit_OnClick);
-            EndLayout();
+            UIList list = List(new Vector2(c.X - 84, c.Y - 100));
+            list.Padding = new Vector2(2f, 12f);
+            list.LayoutStyle = ListLayoutStyle.Resize;
+
+            Save = list.AddButton(300, Save_OnClick);
+            list.AddButton(titleId: 2,   Load_OnClick);
+            list.AddButton(titleId: 4,   Options_OnClick);
+            list.AddButton(titleId: 301, Return_OnClick);
+            list.AddButton(titleId: 302, ExitToMain_OnClick);
+            list.AddButton(titleId: 303, Exit_OnClick);
         }  
     }
 }

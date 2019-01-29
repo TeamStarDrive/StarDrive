@@ -10,8 +10,8 @@ namespace Ship_Game
     public sealed class EspionageScreen : GameScreen
     {
         public Empire SelectedEmpire;
-        private AgentComponent Agents;
-        private static readonly Color PanelBackground = new Color(23, 20, 14);
+        AgentComponent Agents;
+        static readonly Color PanelBackground = new Color(23, 20, 14);
 
         public EspionageScreen(GameScreen parent) : base(parent)
         {
@@ -72,7 +72,7 @@ namespace Ship_Game
             batch.End();
         }
 
-        private static float GetEspionageDefense(Empire e)
+        static float GetEspionageDefense(Empire e)
         {
             float espionageDefense = 0f;
             foreach (Agent agent in e.data.AgentList)
@@ -100,10 +100,10 @@ namespace Ship_Game
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        private class EmpiresPanel : UIElementContainer
+        class EmpiresPanel : UIElementContainer
         {
-            private readonly EspionageScreen Screen;
-            private readonly ScrollList OperationsSL;
+            readonly EspionageScreen Screen;
+            readonly ScrollList OperationsSL;
 
             public EmpiresPanel(EspionageScreen screen, Rectangle rect, Rectangle operationsRect) : base(screen, rect)
             {
@@ -119,20 +119,20 @@ namespace Ship_Game
 
                 float x = Screen.ScreenWidth / 2f - (148f * empires.Count) / 2f;
                 Pos = new Vector2(x, rect.Y + 10);
-                BeginHLayout(Pos.X + 10, rect.Y + 40, 148);
-                foreach (Empire e in empires)
-                {
-                    Vector2 pos = LayoutNext();
-                    var r = new Rectangle((int)pos.X, (int)pos.Y, 134, 148);
-                    Add(new EmpireButton(screen, e, r, OnEmpireSelected));
-                }
-                Vector2 end = EndLayout();
 
-                Size = new Vector2(end.X, 188);
+                UIList list = List(new Vector2(Pos.X + 10, rect.Y + 40));
+                list.Padding = new Vector2(10f, 10f);
+                list.LayoutStyle = ListLayoutStyle.Resize;
+                list.Direction = new Vector2(1f, 0f);
+
+                foreach (Empire e in empires)
+                    list.Add(new EmpireButton(screen, e, new Rectangle(0, 0, 134, 148), OnEmpireSelected));
+
+                Size = new Vector2(list.Width, 188);
                 Screen.SelectedEmpire = EmpireManager.Player;
             }
 
-            private void OnEmpireSelected(EmpireButton button)
+            void OnEmpireSelected(EmpireButton button)
             {
                 if (EmpireManager.Player == button.Empire || EmpireManager.Player.GetRelations(button.Empire).Known)
                 {
@@ -148,11 +148,11 @@ namespace Ship_Game
         }
 
 
-        private class EmpireButton : UIElementV2
+        class EmpireButton : UIElementV2
         {
             public readonly Empire Empire;
-            private readonly EspionageScreen Screen;
-            private readonly Action<EmpireButton> OnClick;
+            readonly EspionageScreen Screen;
+            readonly Action<EmpireButton> OnClick;
 
             public EmpireButton(EspionageScreen screen, Empire e, Rectangle rect, Action<EmpireButton> onClick) : base(null, rect)
             {
@@ -235,7 +235,7 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private class AgentsPanel : UIPanel
+        class AgentsPanel : UIPanel
         {
             public AgentsPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
             {
@@ -245,9 +245,9 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private class DossierPanel : UIPanel
+        class DossierPanel : UIPanel
         {
-            private readonly EspionageScreen Screen;
+            readonly EspionageScreen Screen;
             public DossierPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
             {
                 Screen = screen;
@@ -297,11 +297,11 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private class OperationsPanel : UIPanel
+        class OperationsPanel : UIPanel
         {
-            private readonly EspionageScreen Screen;
-            private readonly UILabel AgentName;
-            private readonly UILabel AgentLevel;
+            readonly EspionageScreen Screen;
+            readonly UILabel AgentName;
+            readonly UILabel AgentLevel;
             public OperationsPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
             {
                 Screen = screen;

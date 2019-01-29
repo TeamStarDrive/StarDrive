@@ -272,7 +272,7 @@ namespace Ship_Game
 
             if (elapsedTime > 0)
             {
-                ExplosionManager.Update(elapsedTime);
+                ExplosionManager.Update(this, elapsedTime);
                 MuzzleFlashManager.Update(elapsedTime);
             }
 
