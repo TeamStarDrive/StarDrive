@@ -165,29 +165,6 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Begin vertical layout of elements;
-        // you can now call specific Button(), Checkbox(), etc. to create UI elements
-        // @note Coordinates are relative to parent TopLeft X,Y
-        public void BeginVLayout(float x, float y, float ystep = 15f)
-            => BeginVLayout(new Vector2(x,y), ystep);
-
-        public void BeginHLayout(float x, float y, float xstep = 50f)
-            => BeginHLayout(new Vector2(x,y), xstep);
-
-        public void BeginVLayout(Vector2 pos, float ystep = 15f)
-        {
-            LayoutStarted = true;
-            LayoutCursor  = pos;
-            LayoutStep    = new Vector2(0f, ystep);
-        }
-
-        public void BeginHLayout(Vector2 pos, float xstep = 50f)
-        {
-            LayoutStarted = true;
-            LayoutCursor  = pos;
-            LayoutStep    = new Vector2(xstep, 0f);
-        }
-
         protected override int NextZOrder()
         {
             if (Elements.NotEmpty)
@@ -198,31 +175,6 @@ namespace Ship_Game
         static int ZOrderSorter(UIElementV2 a, UIElementV2 b)
         {
             return a.ZOrder - b.ZOrder;
-        }
-
-        // ends the layout process and sorts all elements by their ZOrder values
-        // In case the end of the layout position needs to be tracked return it on layout end. 
-        public Vector2 EndLayout()
-        {
-            LayoutStarted = false;
-            Elements.Sort(ZOrderSorter);
-            return LayoutCursor;
-        }
-
-        protected Vector2 LayoutNext()
-        {
-            if (!LayoutStarted)
-                throw new InvalidOperationException("You must call BeginLayout before calling auto-layout methods");
-            
-            Vector2 result = LayoutCursor;
-            LayoutCursor += LayoutStep;            
-            return result;
-        }
-
-        Rectangle LayoutNextRect(int width, int height)
-        {
-            Vector2 next = LayoutNext();
-            return new Rectangle((int)next.X, (int)next.Y, width, height);
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,19 +193,6 @@ namespace Ship_Game
             => Add(new CloseButton(this, new Rectangle((int)x, (int)y, 20, 20)));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
-
-        protected UIButton Button(int titleId, Action<UIButton> click)
-        {
-            return Button(Localizer.Token(titleId), click);
-        }
-
-        protected UIButton Button(string text, Action<UIButton> click)
-        {
-            UIButton button = Add(new UIButton(this, LayoutNext(), text));
-            button.OnClick = click;
-            button.ClickSfx = "sd_ui_tactical_pause";
-            return button;
-        }
 
         protected UIButton Button(ButtonStyle style, Vector2 pos, string text, Action<UIButton> click, string clickSfx = null)
         {
@@ -285,35 +224,15 @@ namespace Ship_Game
             => Button(ButtonStyle.Small, new Vector2(x, y), Localizer.Token(titleId), click);
 
 
-        protected UIButton ButtonMedium(int titleId, Action<UIButton> click)
-            => Button(ButtonStyle.Medium, LayoutNext(), Localizer.Token(titleId), click);
-        protected UIButton ButtonMedium(int titleId, string clickSfx, Action<UIButton> click)
-            => Button(ButtonStyle.Medium, LayoutNext(), Localizer.Token(titleId), click, clickSfx);
-
 
         protected UIButton ButtonMedium(float x, float y, int titleId, Action<UIButton> click)
             => Button(ButtonStyle.Medium, new Vector2(x, y), Localizer.Token(titleId), click);
         protected UIButton ButtonMedium(float x, float y, string title, Action<UIButton> click)
             => Button(ButtonStyle.Medium, new Vector2(x, y), title, click);
 
-
-        protected ToggleButton ToggleButton(ToggleButtonStyle style, string icon)
-            => Add(new ToggleButton(LayoutNext(), style, icon, this));
-
-        protected ToggleButton ToggleButton(ToggleButtonStyle style, string icon, ToggleButton.ClickHandler onClick)
-        {
-            var button = new ToggleButton(LayoutNext(), style, icon, this);
-            button.OnClick += onClick;
-            return Add(button);
-        }
-        
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, int title, int tooltip)
-            => Add(new UICheckBox(this, pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
-        protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, string title, string tooltip)
-            => Add(new UICheckBox(this, pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
         protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, string title, int tooltip)
             => Add(new UICheckBox(this, pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
 
@@ -321,14 +240,6 @@ namespace Ship_Game
             => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
         protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
             => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
-
-        protected UICheckBox Checkbox(Expression<Func<bool>> binding, int title, int tooltip)
-            => Checkbox(LayoutNext(), binding, title, tooltip);
-        protected UICheckBox Checkbox(Expression<Func<bool>> binding, string title, string tooltip)
-            => Checkbox(LayoutNext(), binding, title, tooltip);
-        protected UICheckBox Checkbox(Expression<Func<bool>> binding, string title, int tooltip)
-            => Checkbox(LayoutNext(), binding, title, tooltip);
-
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -345,15 +256,8 @@ namespace Ship_Game
         public FloatSlider Slider(Vector2 pos, int w, int h, string text, float min, float max, float value)
             => Slider(new Rectangle((int)pos.X, (int)pos.Y, w, h), text, min, max, value);
 
-        public FloatSlider Slider(int w, int h, string text, float min, float max, float value)
-            => Slider(LayoutNextRect(w, h), text, min, max, value);
-
-        public FloatSlider SliderPercent(int w, int h, string text, float min, float max, float value)
-            => SliderPercent(LayoutNextRect(w, h), text, min, max, value);
-
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
-        
 
         public UILabel Label(Vector2 pos, string text) => Add(new UILabel(this, pos, text));
         public UILabel Label(Vector2 pos, int titleId) => Add(new UILabel(this, pos, titleId));
@@ -366,31 +270,6 @@ namespace Ship_Game
         public UILabel Label(float x, float y, int titleId) => Label(new Vector2(x, y), titleId);
         public UILabel Label(float x, float y, string text, SpriteFont font) => Label(new Vector2(x, y), text, font);
         public UILabel Label(float x, float y, int titleId, SpriteFont font) => Label(new Vector2(x, y), titleId, font);
-
-
-        public UILabel Label(string text) => Add(new UILabel(this, LayoutNext(), text));
-        public UILabel Label(int titleId) => Add(new UILabel(this, LayoutNext(), titleId));
-        public UILabel Label(string text, Color color) => Add(new UILabel(this, LayoutNext(), text, color));
-        public UILabel Label(int titleId, Color color) => Add(new UILabel(this, LayoutNext(), titleId, color));
-        public UILabel Label(string text, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), text, font, color));
-        public UILabel Label(int titleId, SpriteFont font, Color color) => Add(new UILabel(this, LayoutNext(), titleId, font, color));
-        public UILabel Label(int titleId, Action<UILabel> click)
-        {
-            return Label(Localizer.Token(titleId), click);
-        }
-        public UILabel Label(string text, Action<UILabel> click)
-        {
-            UILabel label = Add(new UILabel(this, LayoutNext(), text));
-            label.OnClick = click;
-            return label;
-        }
-        public UILabel Label(Func<UILabel, string> dynamicText, bool alignRight = false)
-        {
-            UILabel label = Add(new UILabel(this, LayoutNext(), ""));
-            label.DynamicText = dynamicText;
-            label.AlignRight = alignRight;
-            return label;
-        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
