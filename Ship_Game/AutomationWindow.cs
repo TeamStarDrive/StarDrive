@@ -76,16 +76,16 @@ namespace Ship_Game
             UIList ticks = List(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);
 
-            ScoutDropDown = ticks.AddItem(new CheckedDropdown(this))
+            ScoutDropDown = ticks.Add(new CheckedDropdown(this))
                 .Create(() => EmpireManager.Player.AutoExplore, title:305, tooltip:2226);
 
-            ColonyShipDropDown = ticks.AddItem(new CheckedDropdown(this))
+            ColonyShipDropDown = ticks.Add(new CheckedDropdown(this))
                 .Create(() => EmpireManager.Player.AutoColonize, title:306, tooltip:2227);
 
-            FreighterDropDown = ticks.AddItem(new CheckedDropdown(this))
+            FreighterDropDown = ticks.Add(new CheckedDropdown(this))
                 .Create(() => EmpireManager.Player.AutoFreighters, title:308, tooltip:2229);
 
-            ConstructorDropDown = ticks.AddItem(new CheckedDropdown(this))
+            ConstructorDropDown = ticks.Add(new CheckedDropdown(this))
                 .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
 
             // draw ordering is still imperfect, this is a hack

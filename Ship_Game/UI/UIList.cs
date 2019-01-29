@@ -71,24 +71,11 @@ namespace Ship_Game
         {
         }
 
-        public T AddItem<T>(T element) where T : UIElementV2
+        public override T Add<T>(T element)
         {
             RequiresLayout = true;
             Items.Add(element);
             return base.Add(element);
-        }
-
-        public T AddItem<T>() where T : UIElementV2, new()
-        {
-            return AddItem(new T());
-        }
-
-        public SplitElement AddSplit(UIElementV2 a, UIElementV2 b)
-        {
-            var split = new SplitElement(a, b);
-            a.Parent = split;
-            b.Parent = split;
-            return AddItem(split);
         }
 
         public void RemoveAt(int index)
@@ -215,7 +202,7 @@ namespace Ship_Game
 
         public UIButton AddButton(string text, UIButton.ClickHandler click)
         {
-            UIButton button = AddItem(new UIButton(this, Vector2.Zero, text));
+            UIButton button = Add(new UIButton(this, Vector2.Zero, text));
             button.OnClick += click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;
@@ -224,13 +211,13 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////
 
         public UICheckBox AddCheckbox(Expression<Func<bool>> binding, int title, int tooltip)
-            => AddItem(new UICheckBox(binding, Fonts.Arial12Bold, Localizer.Token(title), Localizer.Token(tooltip)));
+            => Add(new UICheckBox(binding, Fonts.Arial12Bold, Localizer.Token(title), Localizer.Token(tooltip)));
         
         public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, string tooltip)
-            => AddItem(new UICheckBox(binding, Fonts.Arial12Bold, title, tooltip));
+            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title, tooltip));
         
         public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, int tooltip)
-            => AddItem(new UICheckBox(binding, Fonts.Arial12Bold, title, Localizer.Token(tooltip)));
+            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title, Localizer.Token(tooltip)));
 
         /////////////////////////////////////////////////////////////////////////////
     }
