@@ -17,8 +17,8 @@ namespace Ship_Game
 
         Vector2 TextPos;
         Vector2 CheckPos;
-
         public bool Checked => Binding.Value;
+        public override string ToString() => $"Checkbox {Rect} Text=\"{Text}\" Checked:{Checked}";
 
         public UICheckBox(UIElementV2 parent, float x, float y, Ref<bool> binding, SpriteFont font, string title, string tooltip)
             : base(parent, new Vector2(x,y))
@@ -27,7 +27,16 @@ namespace Ship_Game
             Font    = font;
             Text    = title;
             TipText = tooltip;
-            PerformLegacyLayout(Pos);
+            PerformLayout();
+        }
+
+        public UICheckBox(BoolExpression binding, SpriteFont font, string title, string tooltip)
+        {
+            Binding = new Ref<bool>(binding);
+            Font    = font;
+            Text    = title;
+            TipText = tooltip;
+            PerformLayout();
         }
 
         public UICheckBox(UIElementV2 parent, float x, float y, BoolExpression binding, SpriteFont font, string title, string tooltip)
@@ -53,11 +62,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            if (Rect.HitTest(Mouse.GetState().Pos()) && !TipText.IsEmpty())
-            {
-                ToolTip.CreateTooltip(TipText);
-            }
-            batch.DrawRectangle(Rect, new Color(96, 81, 49));
+            var checkRect = new Rectangle((int)CheckPos.X, (int)CenterY - 6, 10, 12);
+            batch.DrawRectangle(checkRect, new Color(96, 81, 49));
+            //batch.DrawRectangle(Rect, Color.Red); // DEBUG
             batch.DrawString(Font, Text, TextPos, Color.White);
             if (Binding.Value)
             {
@@ -70,6 +77,9 @@ namespace Ship_Game
             if (!Rect.HitTest(input.CursorPosition))
                 return false;
 
+            if (!TipText.IsEmpty())
+                ToolTip.CreateTooltip(TipText);
+
             if (input.LeftMouseClick)
                 Binding.Value = !Binding.Value;
 
@@ -77,25 +87,17 @@ namespace Ship_Game
             return true;
         }
 
-        void PerformLegacyLayout(Vector2 pos)
-        {
-            int offset = (Font.LineSpacing + 6) / 2 - 5;
-            Rect = new Rectangle((int)pos.X, (int)pos.Y + offset, 10, 10);
-            RequiresLayout = false;
-            PerformLayout();
-        }
-
         public override void PerformLayout()
         {
-            if (!Visible)
-                return;
-
-            base.PerformLayout();
-            TextPos  = new Vector2(Rect.X + 15, Rect.Y + Rect.Height / 2 - Font.LineSpacing / 2);
-            CheckPos = new Vector2(Rect.X + 5 - Font.MeasureString("x").X / 2f, 
-                                   Rect.Y + 4 - Font.LineSpacing / 2);
+            RequiresLayout = false;
+            Pos.X = (int)Pos.X;
+            Pos.Y = (int)Pos.Y;
+            int h = Math.Max(10, Font.LineSpacing);
+            int th = Font.LineSpacing / 2;
+            Size = new Vector2(h + Font.TextWidth(Text), h+1);
+            TextPos  = new Vector2(Pos.X + 15, (int)CenterY - th);
+            CheckPos = new Vector2(Pos.X + 6 - Font.TextWidth("x") * 0.5f, 
+                                   Pos.Y + 5 - th);
         }
-
-        public override string ToString() => $"Checkbox Pos:{Pos} Text=\"{Text}\" Value:{Binding.Value}";
     }
 }

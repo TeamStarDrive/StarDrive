@@ -35,7 +35,7 @@ namespace Ship_Game
 
     public abstract class UIElementV2 : IInputHandler
     {
-        public readonly UIElementV2 Parent;
+        public UIElementV2 Parent;
 
         public Vector2 Pos;    // absolute position in the UI
         public Vector2 Size;   // absolute size in the UI
@@ -78,6 +78,8 @@ namespace Ship_Game
         public float Height { get => Size.Y; set => Size.Y = value; }
         public float Right  { get => Pos.X + Size.X; set => Size.X = (value - Pos.X); }
         public float Bottom { get => Pos.Y + Size.Y; set => Size.Y = (value - Pos.Y); }
+        public float CenterX => Pos.X + Size.X*0.5f;
+        public float CenterY => Pos.Y + Size.Y*0.5f;
 
         static Vector2 RelativeToAbsolute(UIElementV2 parent, float x, float y)
         {
@@ -174,6 +176,10 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
+        protected UIElementV2()
+        {
+        }
+
         protected UIElementV2(UIElementV2 parent)
         {
             Parent = parent;
@@ -200,13 +206,18 @@ namespace Ship_Game
 
         protected virtual int NextZOrder() { return ZOrder + 1; }
 
-        public abstract void Draw(SpriteBatch batch);
+        // 1. we handle input
         public abstract bool HandleInput(InputState input);
 
+        // 2. then we update
         public virtual void Update(float deltaTime)
         {
             UpdateEffects(deltaTime);
         }
+
+        // 3. finally we draw
+        public abstract void Draw(SpriteBatch batch);
+
 
         public void RemoveFromParent(bool deferred = false)
         {

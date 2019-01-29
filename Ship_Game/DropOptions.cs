@@ -64,6 +64,11 @@ namespace Ship_Game
         {
             Reset();
         }
+        public DropOptions(int width, int height)
+        {
+            Size = new Vector2(width, height);
+            Reset();
+        }
 
         public void Clear()
         {
