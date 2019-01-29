@@ -8,7 +8,7 @@ namespace Ship_Game
             : base(parent, ButtonStyle.Close, new Vector2(r.X, r.Y), "")
 		{
             Tooltip = "Exit Screen";
-            OnClick += CloseButton_OnClick;
+            OnClick = CloseButton_OnClick;
 		}
 
         private void CloseButton_OnClick(UIButton button)

@@ -139,7 +139,7 @@ namespace Ship_Game
 
         public bool Active;
         public bool Hover;
-        private bool Pressed;
+        bool Pressed;
 
         public int WhichToolTip;
         public bool HasToolTip;
@@ -148,9 +148,9 @@ namespace Ship_Game
         readonly ToggleButtonStyle Style;
         SubTexture IconTexture, IconActive;
 
-        readonly Vector2 WordPos;
-        readonly string IconPath;
-        readonly Rectangle IconRect;
+        Vector2 WordPos;
+        string IconPath;
+        Rectangle IconRect;
 
         public delegate void ClickHandler(ToggleButton button);
         public event ClickHandler OnClick;
@@ -158,15 +158,33 @@ namespace Ship_Game
         public override string ToString() => $"ToggleButton Icon:{IconPath} Action:{Action}";
 
         public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "", UIElementV2 container = null)
-            : base(container, new Rectangle((int)pos.X, (int)pos.Y, style.Width, style.Height))
         {
-            Style = style;    
-            UpdateStyle(iconPath);
+            Parent = container;
+            Pos = pos;
+            Size = new Vector2(style.Width, style.Height);
+            Style = style;
+            IconPath = iconPath;
+            UpdateStyle();
+            this.PerformLayout();
+        }
 
+        public ToggleButton(ToggleButtonStyle style, string iconPath, ClickHandler onClick)
+        {
+            Size = new Vector2(style.Width, style.Height);
+            Style = style;
+            IconPath = iconPath;
+            UpdateStyle();
+            this.PerformLayout();
+
+            if (onClick != null)
+                OnClick += onClick;
+        }
+
+        public override void PerformLayout()
+        {
             if (IconTexture == null)
             {
-                IconPath = iconPath;
-                WordPos = new Vector2(Rect.X + 12 - Fonts.Arial12Bold.MeasureString(IconPath).X / 2f,
+                WordPos = new Vector2(Pos.X + 12 - Fonts.Arial12Bold.MeasureString(IconPath).X / 2f,
                     Rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);             
             }
             else
@@ -178,24 +196,25 @@ namespace Ship_Game
         }
 
         //hack... until this is all straightend out to allow override of base draw.
-        public void Draw(ScreenManager screenManager) => Draw(screenManager.SpriteBatch);
+        public void Draw(ScreenManager screenManager)
+            => Draw(screenManager.SpriteBatch);
         
-        void UpdateStyle(string iconPath)
+        void UpdateStyle()
         {
             if (Style.ContentId != ResourceManager.ContentId)
             {
                 Style.Reload();
             }
-            if (iconPath.NotEmpty())
+            if (IconPath.NotEmpty())
             {
-                IconTexture = ResourceManager.TextureOrNull(iconPath);
-                IconActive  = ResourceManager.TextureOrNull(iconPath+"_active");
+                IconTexture = ResourceManager.TextureOrNull(IconPath);
+                IconActive  = ResourceManager.TextureOrNull(IconPath+"_active");
             }
         }
 
         public override void Draw(SpriteBatch batch)
         {
-            UpdateStyle(IconPath);
+            UpdateStyle();
 
             if (Pressed)
             {
