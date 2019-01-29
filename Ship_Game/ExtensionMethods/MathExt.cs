@@ -82,6 +82,9 @@ namespace Ship_Game
                                Max(min.Y, Min(v.Y, max.Y)));
         }
 
+        public static Vector2 Floored(this Vector2 v) => new Vector2((int)v.X, (int)v.Y);
+        public static Vector2 Rounded(this Vector2 v) => new Vector2((float)Round(v.X), (float)Round(v.Y));
+
         // This is a common pattern in the codebase, there is some amount
         // and we wish to subtract another value from it, but not beyond 0
         public static void Consume(ref float fromAmount, ref float toConsume)
