@@ -520,12 +520,8 @@ namespace Ship_Game
 
             DrawRequirement(ref cursorReq, Localizer.Token(121), emptySlots, 1982);
 
-            // Local methods
-
             void DrawHullBonuses()
             {
-                BeginVLayout(cursor, Fonts.Arial12Bold.LineSpacing + 2);
-
                 if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
                 {
                     if (bonus.ArmoredBonus     != 0 || bonus.ShieldBonus != 0
@@ -534,9 +530,16 @@ namespace Ship_Game
                         || bonus.FireRateBonus != 0 || bonus.RepairBonus != 0
                         || bonus.CostBonus != 0)
                     {
-                        Label(Localizer.Token(6015), Fonts.Verdana14Bold, Color.Orange);
+                        DrawString(cursor, Color.Orange, Localizer.Token(6015), Fonts.Verdana14Bold);
+                        cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
                     }
 
+                    void HullBonus(float stat, string text)
+                    {
+                        if (stat > 0 || stat < 0) return;
+                        DrawString(cursor, Color.Orange, $"{stat * 100f}%  {text}", Fonts.Verdana12);
+                        cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                    }
                     HullBonus(bonus.ArmoredBonus, Localizer.HullArmorBonus);
                     HullBonus(bonus.ShieldBonus, Localizer.HullShieldBonus);
                     HullBonus(bonus.SensorBonus, Localizer.HullSensorBonus);
@@ -547,16 +550,9 @@ namespace Ship_Game
                     HullBonus(bonus.RepairBonus, Localizer.HullRepairBonus);
                     HullBonus(bonus.CostBonus, Localizer.HullCostBonus);
                 }
-                cursor = EndLayout();
                 cost += bonus.StartingCost * CurrentGame.Pace; // apply flat discount or extra price
                 cost *= (1f - bonus.CostBonus); // now apply % discount
                 DrawStatColor(ref cursor, TintedValue(109, cost, 99, Color.White));  
-            }
-
-            void HullBonus(float stat, string text)
-            {
-                if (stat > 0 || stat < 0) return;
-                Label($"{stat * 100f}%  {text}", Fonts.Verdana12, Color.Orange);
             }
 
             void DrawOrdnance()
@@ -636,7 +632,6 @@ namespace Ship_Game
                 }
                 else
                     DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", 163);
-
             }
 
             void DrawPeakPowerStats()
