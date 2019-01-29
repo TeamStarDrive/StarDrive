@@ -183,8 +183,8 @@ namespace Ship_Game
         protected UIElementV2(UIElementV2 parent)
         {
             Parent = parent;
-            if (parent != null)
-                ZOrder = parent.NextZOrder();
+            //if (parent != null)
+            //    ZOrder = parent.NextZOrder();
         }
 
         protected UIElementV2(UIElementV2 parent, Vector2 pos) : this(parent)
