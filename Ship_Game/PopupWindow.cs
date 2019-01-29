@@ -42,7 +42,8 @@ namespace Ship_Game
                                  StarDriveGame.Instance.ScreenHeight / 2 - height / 2, width, height);
         }
 
-        protected PopupWindow(GameScreen parent, int width, int height) : base(parent, CenterScreen(width, height))
+        protected PopupWindow(GameScreen parent, int width, int height)
+            : base(parent, CenterScreen(width, height))
         {
         }
 
@@ -145,7 +146,7 @@ namespace Ship_Game
             if (TitleText != null)
             {
                 var pos = new Vector2(TitleRect.X, TitleRect.Y + TitleRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2);
-                TitleLabel = Label(pos, TitleText, Fonts.Arial20Bold);
+                TitleLabel = Label(pos.Rounded(), TitleText, Fonts.Arial20Bold);
             }
             if (MiddleText != null)
             {
@@ -154,7 +155,7 @@ namespace Ship_Game
                 var textSize = Fonts.Arial12Bold.MeasureString(MiddleText);
                 var pos = new Vector2(MidContainer.X + MidContainer.Width  / 2 - textSize.X / 2f, 
                                       MidContainer.Y + MidContainer.Height / 2 - textSize.Y / 2f);
-                MiddleLabel = Label(pos, MiddleText, Fonts.Arial12Bold);
+                MiddleLabel = Label(pos.Rounded(), MiddleText, Fonts.Arial12Bold);
             }
             BodyTextStart = new Vector2(BottomBigFill.Left +12, BottomBigFill.Top + 12);
 
