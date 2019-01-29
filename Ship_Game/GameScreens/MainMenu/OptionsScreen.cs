@@ -254,23 +254,24 @@ namespace Ship_Game
             graphics.AddCheckbox(() => New.RenderBloom, "Bloom", 
                 "Disabling bloom effect will increase performance on low-end devices");
 
-            float spacing = Fonts.Arial12Bold.LineSpacing * 1.6f;
+            graphics.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
+            graphics.ZOrder = 10;
 
-            UIList left = List(new Vector2(LeftArea.X, LeftArea.Y + 180), LeftArea.Size());
-            left.Padding = new Vector2(2f, 8f);
-            MusicVolumeSlider   = left.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Music Volume",   0f, 1f, GlobalStats.MusicVolume));
-            EffectsVolumeSlider = left.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume));
-            IconSize            = left.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "Icon Sizes",     0f,30f, GlobalStats.IconSize));
-            AutoSaveFreq        = left.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "AutoSave Frequency", 60, 540, GlobalStats.AutoSaveFreq));
+            UIList botLeft = List(new Vector2(LeftArea.X, LeftArea.Y + 180), LeftArea.Size());
+            botLeft.Padding = new Vector2(2f, 8f);
+            MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Music Volume",   0f, 1f, GlobalStats.MusicVolume));
+            EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume));
+            IconSize            = botLeft.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "Icon Sizes",     0f,30f, GlobalStats.IconSize));
+            AutoSaveFreq        = botLeft.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "AutoSave Frequency", 60, 540, GlobalStats.AutoSaveFreq));
             AutoSaveFreq.LocalizeTooltipId = 4100;
 
+            UIList botRight = List(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
+            botRight.Padding = new Vector2(2f, 8f);
+            FreighterLimiter = botRight.Add(new FloatSlider(SliderStyle.Decimal, 225, 50, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit));
+            ShipLimiter      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 225, 50, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
+                                          500, 3500, GlobalStats.ShipCountLimit));
 
-            BeginVLayout(RightArea.X, RightArea.Y + 190, 60);
-                FreighterLimiter = Slider(225, 50, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit);
-                ShipLimiter      = Slider(225, 50, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
-                                          500, 3500, GlobalStats.ShipCountLimit);
-            EndLayout();
-
+            float spacing = Fonts.Arial12Bold.LineSpacing * 1.6f;
             BeginVLayout(RightArea.X, RightArea.Y, spacing);
                 Checkbox(() => GlobalStats.ForceFullSim, "Force Full Simulation", tooltip: 5086);
                 Checkbox(() => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
@@ -289,6 +290,7 @@ namespace Ship_Game
                 Button(titleId:13, click: button => ApplyGraphicsSettings());
             EndLayout();
 
+            this.RefreshZOrder();
             CreateResolutionDropOptions();
         }
 

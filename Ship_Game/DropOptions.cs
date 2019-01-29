@@ -176,9 +176,9 @@ namespace Ship_Game
             }
         }
 
-        void DrawOpenOptions(SpriteBatch spriteBatch)
+        void DrawOpenOptions(SpriteBatch batch)
         {
-            spriteBatch.FillRectangle(OpenRect, new Color(22, 22, 23));
+            batch.FillRectangle(OpenRect, new Color(22, 22, 23));
 
             int drawOffset = 1;
             for (int i = 0; i < Options.Count; ++i)
@@ -193,11 +193,11 @@ namespace Ship_Game
                     var hoverLeft   = new Rectangle(e.Rect.X + 5,  e.Rect.Y + 1, 6, 15);
                     var hoverMiddle = new Rectangle(e.Rect.X + 11, e.Rect.Y + 1, e.Rect.Width - 22, 15);
                     var hoverRight  = new Rectangle(hoverMiddle.X + hoverMiddle.Width, hoverMiddle.Y, 6, 15);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_left"), hoverLeft, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_middle"), hoverMiddle, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_right"), hoverRight, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_left"), hoverLeft, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_middle"), hoverMiddle, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_right"), hoverRight, Color.White);
                 }
-                spriteBatch.DrawString(Fonts.Arial12Bold, WrappedString(e.Name), TextPosition(e.Rect), Color.White);
+                batch.DrawString(Fonts.Arial12Bold, WrappedString(e.Name), TextPosition(e.Rect), Color.White);
                 ++drawOffset;
             }
         }
@@ -220,10 +220,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            bool selectPressed = input.InGameSelect;
-            if (!selectPressed)
-                return false;
-
             bool overTitle = HitTest(input.CursorPosition);
             bool overExpanded = Open && ClickAbleOpenRect.HitTest(input.CursorPosition);
 
