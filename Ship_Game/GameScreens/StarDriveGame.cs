@@ -81,7 +81,7 @@ namespace Ship_Game
                 settings.Height = currentMode.Height;
             }
 
-            ApplyGraphics(ref settings);
+            ApplyGraphics(settings);
 
             var cursor = new Bitmap("Content/Cursors/Cursor.png", true);
             System.Drawing.Graphics.FromImage(cursor);
@@ -207,7 +207,7 @@ namespace Ship_Game
             e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
         }
 
-        public void ApplyGraphics(ref GraphicsSettings settings)
+        public void ApplyGraphics(GraphicsSettings settings)
         {
             if (settings.Width <= 0 || settings.Height <= 0)
             {

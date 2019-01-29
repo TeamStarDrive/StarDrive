@@ -35,13 +35,13 @@ namespace Ship_Game
 
     public abstract class UIElementV2 : IInputHandler
     {
-        public readonly UIElementV2 Parent;
+        public UIElementV2 Parent;
 
         public Vector2 Pos;    // absolute position in the UI
         public Vector2 Size;   // absolute size in the UI
 
-        protected Vector2 AxisOffset = Vector2.Zero;
-        protected Vector2 ParentOffset = Vector2.Zero;
+        //protected Vector2 AxisOffset = Vector2.Zero;
+        //protected Vector2 ParentOffset = Vector2.Zero;
         protected bool RequiresLayout;
 
         // Elements are sorted by ZOrder during EndLayout()
@@ -78,6 +78,9 @@ namespace Ship_Game
         public float Height { get => Size.Y; set => Size.Y = value; }
         public float Right  { get => Pos.X + Size.X; set => Size.X = (value - Pos.X); }
         public float Bottom { get => Pos.Y + Size.Y; set => Size.Y = (value - Pos.Y); }
+        public Vector2 BotRight => new Vector2(Pos.X + Size.X, Pos.Y + Size.Y);
+        public float CenterX => Pos.X + Size.X*0.5f;
+        public float CenterY => Pos.Y + Size.Y*0.5f;
 
         static Vector2 RelativeToAbsolute(UIElementV2 parent, float x, float y)
         {
@@ -114,71 +117,75 @@ namespace Ship_Game
             RequiresLayout = true;
         }
 
-        /**
-         * Sets the auto-layout axis of the UIElement. Default is [0,0]
-         * Changing the axis will change the position and rotation axis of the object.
-         * @example [0.5,0.5] will set the axis to the center of the object (depends on size!)
-         */
-        public Align Axis
-        {
-            set
-            {
-                AxisOffset = AlignValue(value);
-                RequiresLayout = true;
-            }
-        }
+        ///**
+        // * Sets the auto-layout axis of the UIElement. Default is [0,0]
+        // * Changing the axis will change the position and rotation axis of the object.
+        // * @example [0.5,0.5] will set the axis to the center of the object (depends on size!)
+        // */
+        //public Align Axis
+        //{
+        //    set
+        //    {
+        //        AxisOffset = AlignValue(value);
+        //        RequiresLayout = true;
+        //    }
+        //}
 
-        /**
-         * Sets the auto-layout alignment to parent container bounds. Default is [0,0]
-         * By changing this value, you can make components default position different
-         * @example [1,0] will align the component to parent right
-         */
-        public Align ParentAlign
-        {
-            set
-            {
-                ParentOffset = AlignValue(value);
-                RequiresLayout = true;
-            }
-        }
+        ///**
+        // * Sets the auto-layout alignment to parent container bounds. Default is [0,0]
+        // * By changing this value, you can make components default position different
+        // * @example [1,0] will align the component to parent right
+        // */
+        //public Align ParentAlign
+        //{
+        //    set
+        //    {
+        //        ParentOffset = AlignValue(value);
+        //        RequiresLayout = true;
+        //    }
+        //}
 
-        /**
-         * Sets both Axis and ParentAlign to the provided Align value
-         * @example Align.Center will perfectly center to parent center
-         */
-        public Align AxisAlign
-        {
-            set
-            {
-                AxisOffset = ParentOffset = AlignValue(value);
-                RequiresLayout = true;
-            }
-        }
+        ///**
+        // * Sets both Axis and ParentAlign to the provided Align value
+        // * @example Align.Center will perfectly center to parent center
+        // */
+        //public Align AxisAlign
+        //{
+        //    set
+        //    {
+        //        AxisOffset = ParentOffset = AlignValue(value);
+        //        RequiresLayout = true;
+        //    }
+        //}
 
-        static Vector2 AlignValue(Align align)
-        {
-            switch (align)
-            {
-                default:
-                case Align.TopLeft:      return new Vector2(0.0f, 0.0f);
-                case Align.TopCenter:    return new Vector2(0.5f, 0.0f);
-                case Align.TopRight:     return new Vector2(1.0f, 0.0f);
-                case Align.CenterLeft:   return new Vector2(0.0f, 0.5f);
-                case Align.Center:       return new Vector2(0.5f, 0.5f);
-                case Align.CenterRight:  return new Vector2(1.0f, 0.5f);
-                case Align.BottomLeft:   return new Vector2(0.0f, 1.0f);
-                case Align.BottomCenter: return new Vector2(0.5f, 1.0f);
-                case Align.BottomRight:  return new Vector2(1.0f, 1.0f);
-            }
-        }
+        //static Vector2 AlignValue(Align align)
+        //{
+        //    switch (align)
+        //    {
+        //        default:
+        //        case Align.TopLeft:      return new Vector2(0.0f, 0.0f);
+        //        case Align.TopCenter:    return new Vector2(0.5f, 0.0f);
+        //        case Align.TopRight:     return new Vector2(1.0f, 0.0f);
+        //        case Align.CenterLeft:   return new Vector2(0.0f, 0.5f);
+        //        case Align.Center:       return new Vector2(0.5f, 0.5f);
+        //        case Align.CenterRight:  return new Vector2(1.0f, 0.5f);
+        //        case Align.BottomLeft:   return new Vector2(0.0f, 1.0f);
+        //        case Align.BottomCenter: return new Vector2(0.5f, 1.0f);
+        //        case Align.BottomRight:  return new Vector2(1.0f, 1.0f);
+        //    }
+        //}
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
+
+        protected UIElementV2()
+        {
+        }
 
         protected UIElementV2(UIElementV2 parent)
         {
             Parent = parent;
-            if (parent != null)
-                ZOrder = parent.NextZOrder();
+            //if (parent != null)
+            //    ZOrder = parent.NextZOrder();
         }
 
         protected UIElementV2(UIElementV2 parent, Vector2 pos) : this(parent)
@@ -200,13 +207,18 @@ namespace Ship_Game
 
         protected virtual int NextZOrder() { return ZOrder + 1; }
 
-        public abstract void Draw(SpriteBatch batch);
+        // 1. we handle input
         public abstract bool HandleInput(InputState input);
 
+        // 2. then we update
         public virtual void Update(float deltaTime)
         {
             UpdateEffects(deltaTime);
         }
+
+        // 3. finally we draw
+        public abstract void Draw(SpriteBatch batch);
+
 
         public void RemoveFromParent(bool deferred = false)
         {
@@ -245,17 +257,6 @@ namespace Ship_Game
             if (!RequiresLayout || !Visible)
                 return;
             RequiresLayout = false;
-
-            Vector2 pos = Size * -AxisOffset;
-            if (Parent != null)
-            {
-                pos += Parent.Pos;
-                if (ParentOffset != Vector2.Zero)
-                {
-                    pos += Parent.Size * ParentOffset;
-                }
-            }
-            Pos = pos;
         }
 
         public bool HitTest(Vector2 pos)

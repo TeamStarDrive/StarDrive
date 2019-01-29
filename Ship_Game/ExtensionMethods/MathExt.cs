@@ -82,6 +82,9 @@ namespace Ship_Game
                                Max(min.Y, Min(v.Y, max.Y)));
         }
 
+        public static Vector2 Floored(this Vector2 v) => new Vector2((int)v.X, (int)v.Y);
+        public static Vector2 Rounded(this Vector2 v) => new Vector2((float)Round(v.X), (float)Round(v.Y));
+
         // This is a common pattern in the codebase, there is some amount
         // and we wish to subtract another value from it, but not beyond 0
         public static void Consume(ref float fromAmount, ref float toConsume)
@@ -293,6 +296,7 @@ namespace Ship_Game
 
         public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
         public static Vector2 PosVec(this Rectangle r) => new Vector2(r.X, r.Y);
+        public static Vector2 Size(this Rectangle r) => new Vector2(r.Width, r.Height);
         public static Vector2 Center(this Rectangle r) => new Vector2(r.X + r.Width*0.5f, r.Y + r.Height*0.5f);
         public static int CenterX(this Rectangle r) => r.X + r.Width/2;
         public static int CenterY(this Rectangle r) => r.Y + r.Height/2;
