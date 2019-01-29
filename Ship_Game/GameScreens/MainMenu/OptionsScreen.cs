@@ -4,10 +4,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
-    public struct GraphicsSettings
+    public class GraphicsSettings
     {
         public WindowMode Mode;
         public int Width, Height;
@@ -25,8 +26,9 @@ namespace Ship_Game
             var settings = new GraphicsSettings();
             settings.LoadGlobalStats();
             return settings;
-
         }
+
+        public GraphicsSettings GetClone() => (GraphicsSettings)MemberwiseClone();
 
         public void LoadGlobalStats()
         {
@@ -62,11 +64,12 @@ namespace Ship_Game
         public void ApplyGraphicSettings()
         {
             SaveGlobalStats();
-            StarDriveGame.Instance.ApplyGraphics(ref this);
+            StarDriveGame.Instance.ApplyGraphics(this);
         }
 
-        public bool Equals(ref GraphicsSettings other)
+        public bool Equals(GraphicsSettings other)
         {
+            if (this == other) return true;
             return Mode            == other.Mode 
                 && Width           == other.Width 
                 && Height          == other.Height 
@@ -85,23 +88,23 @@ namespace Ship_Game
     {
         public bool Fade = true;
         public bool FromGame;
-        private readonly MainMenuScreen MainMenu;
-        private readonly UniverseScreen Universe;
-        private readonly GameplayMMScreen UniverseMainMenu; // the little menu in universe view
-        private DropOptions<DisplayMode> ResolutionDropDown;
-        private Rectangle LeftArea;
-        private Rectangle RightArea;
+        readonly MainMenuScreen MainMenu;
+        readonly UniverseScreen Universe;
+        readonly GameplayMMScreen UniverseMainMenu; // the little menu in universe view
+        DropOptions<DisplayMode> ResolutionDropDown;
+        Rectangle LeftArea;
+        Rectangle RightArea;
 
-        private GraphicsSettings Original; // default starting options and those we have applied with success
-        private GraphicsSettings New;
+        GraphicsSettings Original; // default starting options and those we have applied with success
+        GraphicsSettings New;
 
-        private FloatSlider MusicVolumeSlider;
-        private FloatSlider EffectsVolumeSlider;
+        FloatSlider MusicVolumeSlider;
+        FloatSlider EffectsVolumeSlider;
 
-        private FloatSlider IconSize;
-        private FloatSlider ShipLimiter;
-        private FloatSlider FreighterLimiter;
-        private FloatSlider AutoSaveFreq;     // Added by Gretman
+        FloatSlider IconSize;
+        FloatSlider ShipLimiter;
+        FloatSlider FreighterLimiter;
+        FloatSlider AutoSaveFreq;     // Added by Gretman
 
         public OptionsScreen(MainMenuScreen s) : base(s, 600, 600)
         {
@@ -125,42 +128,39 @@ namespace Ship_Game
         }
 
 
-
-        private string AntiAliasString()
+        string AntiAliasString()
         {
             if (New.AntiAlias == 0)
                 return "No AA";
             return New.AntiAlias + "x MSAA";
         }
 
-        private string TextureFilterString()
+        string TextureFilterString()
         {
             if (New.MaxAnisotropy == 0)
                 return new[]{"Bilinear", "Trilinear"}[New.TextureSampling];
             return "Anisotropic x" + New.MaxAnisotropy;
         }
 
-        private static string QualityString(int parameter)
+        static string QualityString(int parameter)
         {
             return (uint)parameter <= 3 ? new[]{ "High", "Normal", "Low", "Ultra-Low" }[parameter] : "None";
         }
 
-        
-        private void AntiAliasing_OnClick(UILabel label)
+
+        void AntiAliasing_OnClick(UILabel label)
         {
             New.AntiAlias = New.AntiAlias == 0 ? 2 : New.AntiAlias * 2;
             if (New.AntiAlias > 8)
                 New.AntiAlias = 0;
-            label.Text = AntiAliasString();
         }
 
-        private void TextureQuality_OnClick(UILabel label)
+        void TextureQuality_OnClick(UILabel label)
         {
             New.TextureQuality = New.TextureQuality == 3 ? 0 : New.TextureQuality + 1;
-            label.Text = QualityString(New.TextureQuality);
         }
 
-        private void TextureFiltering_OnClick(UILabel label)
+        void TextureFiltering_OnClick(UILabel label)
         {
             New.TextureSampling += 1;
             if (New.TextureSampling >= 2)
@@ -173,59 +173,110 @@ namespace Ship_Game
                 New.MaxAnisotropy   = 0;
                 New.TextureSampling = 0;
             }
-            label.Text = TextureFilterString();
         }
 
-        private void ShadowQuality_OnClick(UILabel label)
+        void ShadowQuality_OnClick(UILabel label)
         {
             New.ShadowDetail = New.ShadowDetail == 3 ? 0 : New.ShadowDetail + 1;
             New.ShadowQuality = 1.0f - (0.33f * New.ShadowDetail);
-            label.Text = QualityString(New.ShadowDetail);
         }
 
-        private void Fullscreen_OnClick(UILabel label)
+        void Fullscreen_OnClick(UILabel label)
         {
             ++New.Mode;
             if (New.Mode > WindowMode.Borderless)
                 New.Mode = WindowMode.Fullscreen;
-            label.Text = New.Mode.ToString();
         }
 
-        private void EffectsQuality_OnClick(UILabel label)
+        void EffectsQuality_OnClick(UILabel label)
         {
             New.EffectDetail = New.EffectDetail == 3 ? 0 : New.EffectDetail + 1;
-            label.Text = QualityString(New.EffectDetail);
         }
 
 
-        private void InitScreen()
+        class KeyValueElement : UIElementV2
+        {
+            UILabel Key, Value;
+            public KeyValueElement(UIElementV2 parent) : base(parent) {}
+
+            public void Create(string title, Func<UILabel, string> getText)
+            {
+                Key = new UILabel(this, Vector2.Zero, $"{title}:");
+                Value = new UILabel(this, Vector2.Zero, "");
+                Value.DynamicText = getText;
+            }
+
+            public override void PerformLayout()
+            {
+                Key.Pos = Pos;
+                Value.Pos = new Vector2(CenterX, Pos.Y);
+            }
+
+            public override bool HandleInput(InputState input)
+            {
+                return Key.HandleInput(input) || Value.HandleInput(input);
+            }
+            public override void Draw(SpriteBatch batch)
+            {
+                Key.Draw(batch);
+                Value.Draw(batch);
+            }
+        }
+
+        void Add(UIList graphics, string title, Func<UILabel, string> getText, Action<UILabel> onClick)
+        {
+            graphics.AddSplit(new UILabel($"{title}:"), new UILabel(getText, onClick))
+                .Split = graphics.Width*0.5f;
+        }
+
+        void Add(UIList graphics, string title, UIElementV2 second)
+        {
+            graphics.AddSplit(new UILabel($"{title}:"), second)
+                .Split = graphics.Width*0.5f;
+        }
+
+        void InitScreen()
         {
             LeftArea  = new Rectangle(Rect.X + 20, Rect.Y + 150, 300, 375);
             RightArea = new Rectangle(LeftArea.Right + 10, LeftArea.Y, 210, 330);
 
+            UIList graphics = List(LeftArea.PosVec(), LeftArea.Size());
+            graphics.Padding = new Vector2(2f, 4f);
+            ResolutionDropDown = new DropOptions<DisplayMode>(105, 18);
+
+            Add(graphics, Localizer.Token(9), ResolutionDropDown);
+            Add(graphics, Localizer.Token(10), l => New.Mode.ToString(),               Fullscreen_OnClick);
+            Add(graphics, "Anti Aliasing",     l => AntiAliasString(),                 AntiAliasing_OnClick);
+            Add(graphics, "Texture Quality",   l => QualityString(New.TextureQuality), TextureQuality_OnClick);
+            Add(graphics, "Texture Filtering", l => TextureFilterString(),             TextureFiltering_OnClick);
+            Add(graphics, "Shadow Quality",    l => QualityString(New.ShadowDetail),   ShadowQuality_OnClick);
+            Add(graphics, "Effects Quality",   l => QualityString(New.EffectDetail),   EffectsQuality_OnClick);
+            graphics.AddCheckbox(() => New.RenderBloom, "Bloom", 
+                "Disabling bloom effect will increase performance on low-end devices");
+
+            //BeginVLayout(LeftArea.X, LeftArea.Y, spacing);
+            //    Label($"{Localizer.Token(9)}: ");
+            //    Label($"{Localizer.Token(10)}: ");
+            //    Label("Anti Aliasing: ");
+            //    Label("Texture Quality: ");
+            //    Label("Texture Filtering: ");
+            //    Label("Shadow Quality: ");
+            //    Label("Effects Quality: ");
+            //EndLayout();
+
+            //BeginVLayout(LeftArea.Center.X, LeftArea.Y, spacing);
+            //    ResolutionDropDown = DropOptions<DisplayMode>(105, 18, zorder:10);
+            //    Label(New.Mode.ToString(),               Fullscreen_OnClick);
+            //    Label(AntiAliasString(),                 AntiAliasing_OnClick);
+            //    Label(QualityString(New.TextureQuality), TextureQuality_OnClick);
+            //    Label(TextureFilterString(),             TextureFiltering_OnClick);
+            //    Label(QualityString(New.ShadowDetail),   ShadowQuality_OnClick);
+            //    Label(QualityString(New.EffectDetail),   EffectsQuality_OnClick);
+            //    Checkbox(() => New.RenderBloom, "Bloom", 
+            //        "Disabling bloom effect will increase performance on low-end devices");
+            //EndLayout();
+
             float spacing = Fonts.Arial12Bold.LineSpacing * 1.6f;
-
-            BeginVLayout(LeftArea.X, LeftArea.Y, spacing);
-                Label($"{Localizer.Token(9)}: ");
-                Label($"{Localizer.Token(10)}: ");
-                Label("Anti Aliasing: ");
-                Label("Texture Quality: ");
-                Label("Texture Filtering: ");
-                Label("Shadow Quality: ");
-                Label("Effects Quality: ");
-            EndLayout();
-
-            BeginVLayout(LeftArea.Center.X, LeftArea.Y, spacing);
-                ResolutionDropDown = DropOptions<DisplayMode>(105, 18, zorder:10);
-                Label(New.Mode.ToString(),               Fullscreen_OnClick);
-                Label(AntiAliasString(),                 AntiAliasing_OnClick);
-                Label(QualityString(New.TextureQuality), TextureQuality_OnClick);
-                Label(TextureFilterString(),             TextureFiltering_OnClick);
-                Label(QualityString(New.ShadowDetail),   ShadowQuality_OnClick);
-                Label(QualityString(New.EffectDetail),   EffectsQuality_OnClick);
-                Checkbox(() => New.RenderBloom, "Bloom", 
-                    "Disabling bloom effect will increase performance on low-end devices");
-            EndLayout();
 
             BeginVLayout(LeftArea.X, LeftArea.Y + 190, 60);
                 MusicVolumeSlider   = SliderPercent(270, 50, "Music Volume", 0f, 1f, GlobalStats.MusicVolume);
@@ -262,7 +313,7 @@ namespace Ship_Game
             CreateResolutionDropOptions();
         }
 
-        private void CreateResolutionDropOptions()
+        void CreateResolutionDropOptions()
         {
             int screenWidth  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             int screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
@@ -282,7 +333,7 @@ namespace Ship_Game
             }
         }
 
-        private void ReloadGameContent()
+        void ReloadGameContent()
         {
             if (FromGame)
             {
@@ -301,12 +352,13 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            New = Original = GraphicsSettings.FromGlobalStats();
+            Original = GraphicsSettings.FromGlobalStats();
+            New = Original.GetClone(); // fresh copy!
             base.LoadContent();
             InitScreen();
         }
 
-        private void ApplyGraphicsSettings()
+        void ApplyGraphicsSettings()
         {
             try
             {
@@ -334,19 +386,19 @@ namespace Ship_Game
             }
         }
 
-        private void AcceptChanges(object sender, EventArgs e)
+        void AcceptChanges(object sender, EventArgs e)
         {
             New.ApplyGraphicSettings();
-            Original = New; // accepted!
+            Original = New.GetClone(); // accepted!
 
             EffectsVolumeSlider.RelativeValue = GlobalStats.EffectsVolume;
             MusicVolumeSlider.RelativeValue   = GlobalStats.MusicVolume;
         }
 
-        private void CancelChanges(object sender, EventArgs e1)
+        void CancelChanges(object sender, EventArgs e1)
         {
             Original.ApplyGraphicSettings();
-            New = Original; // back to default!
+            New = Original.GetClone(); // back to default!
             ReloadGameContent();
         }
 

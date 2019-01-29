@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -75,6 +76,19 @@ namespace Ship_Game
             RequiresLayout = true;
             Items.Add(element);
             return base.Add(element);
+        }
+
+        public T AddItem<T>() where T : UIElementV2, new()
+        {
+            return AddItem(new T());
+        }
+
+        public SplitElement AddSplit(UIElementV2 a, UIElementV2 b)
+        {
+            var split = new SplitElement(a, b);
+            a.Parent = split;
+            b.Parent = split;
+            return AddItem(split);
         }
 
         public void RemoveAt(int index)
@@ -210,11 +224,13 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////
 
         public UICheckBox AddCheckbox(Expression<Func<bool>> binding, int title, int tooltip)
-            => AddItem(new UICheckBox(this, 0f, 0f, binding, Fonts.Arial12Bold, title, tooltip));
+            => AddItem(new UICheckBox(binding, Fonts.Arial12Bold, Localizer.Token(title), Localizer.Token(tooltip)));
+        
         public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, string tooltip)
-            => AddItem(new UICheckBox(this, 0f, 0f, binding, Fonts.Arial12Bold, title, tooltip));
+            => AddItem(new UICheckBox(binding, Fonts.Arial12Bold, title, tooltip));
+        
         public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, int tooltip)
-            => AddItem(new UICheckBox(this, 0f, 0f, binding, Fonts.Arial12Bold, title, tooltip));
+            => AddItem(new UICheckBox(binding, Fonts.Arial12Bold, title, Localizer.Token(tooltip)));
 
         /////////////////////////////////////////////////////////////////////////////
     }
