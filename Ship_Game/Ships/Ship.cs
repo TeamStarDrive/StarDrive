@@ -2298,29 +2298,28 @@ namespace Ship_Game.Ships
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
             shield_percent = Math.Max(100.0 * shield_power / shield_max, 0);
-
-            //if (this.shipStatusChanged)
+            SensorRange += sensorBonus;
+            //Apply modifiers to stats
+            if (loyalty != null)
             {
-                SensorRange += sensorBonus;
-                //Apply modifiers to stats
-                if (loyalty != null)
-                {
-                    Mass          *= loyalty.data.MassModifier;
-                    RepairRate    += (float)(RepairRate * Level * 0.05);
-                    //PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
-                    //PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
-                    SensorRange   *= loyalty.data.SensorModifier;
-                }
-                if (FTLSpoolTime <= 0)
-                    FTLSpoolTime = 3f;
-                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
-                    ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
-                {
-                    CargoSpaceMax  += CargoSpaceMax * mod.CargoBonus;
-                    SensorRange    += SensorRange * mod.SensorBonus;
-                    WarpThrust     += WarpThrust * mod.SpeedBonus;
-                    Thrust         += Thrust * mod.SpeedBonus;
-                }
+                Mass          *= loyalty.data.MassModifier;
+                RepairRate    += (float)(RepairRate * Level * 0.05);
+                //PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
+                //PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
+                if (IsPlatform)
+                    SensorRange = Math.Max(SensorRange, 10000);
+
+                SensorRange   *= loyalty.data.SensorModifier;
+            }
+            if (FTLSpoolTime <= 0)
+                FTLSpoolTime = 3f;
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
+                ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
+            {
+                CargoSpaceMax  += CargoSpaceMax * mod.CargoBonus;
+                SensorRange    += SensorRange * mod.SensorBonus;
+                WarpThrust     += WarpThrust * mod.SpeedBonus;
+                Thrust         += Thrust * mod.SpeedBonus;
             }
             CurrentStrength = CalculateShipStrength();
             maxWeaponsRange = CalculatMaxWeaponsRange();
