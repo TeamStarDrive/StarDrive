@@ -45,6 +45,16 @@ namespace Ship_Game
             return e;
         }
 
+        public SolarSystem FindSolarSystemAt(Vector2 point)
+        {
+            foreach (SolarSystem s in SolarSystemsList)
+            {
+                if (point.InRadius(s.Position, s.Radius*2))
+                    return s;
+            }
+            return null;
+        }
+
         public Planet FindPlanet(Guid planetGuid)
         {
             foreach (SolarSystem s in SolarSystemsList)
