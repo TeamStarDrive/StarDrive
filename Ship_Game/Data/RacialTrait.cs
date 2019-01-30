@@ -1,4 +1,6 @@
 using System;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -112,6 +114,9 @@ namespace Ship_Game
         {
             return (RacialTrait)MemberwiseClone();
         }
+
+        [XmlIgnore][JsonIgnore] public bool IsCybernetic => Cybernetic > 0;
+        [XmlIgnore][JsonIgnore] public bool IsOrganic    => Cybernetic < 1;
 
         public bool TechTypeRestrictions(TechnologyType techType)
         {
