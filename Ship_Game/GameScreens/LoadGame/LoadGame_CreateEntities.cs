@@ -200,12 +200,7 @@ namespace Ship_Game
                     {
                         if (!b.IsSpacePort)
                             continue;
-                        p.Station = new SpaceStation
-                        {
-                            planet       = p,
-                            Position     = p.Center,
-                            ParentSystem = p.ParentSystem
-                        };
+                        p.Station = new SpaceStation(p);
                         p.Station.LoadContent(ScreenManager);
                         p.HasSpacePort = true;
                     }
