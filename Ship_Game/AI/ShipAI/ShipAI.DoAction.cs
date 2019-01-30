@@ -13,9 +13,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-
-
-        private void DeRotate()
+        void DeRotate()
         {
             if (Owner.yRotation > 0f)
             {
@@ -33,7 +31,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoAssaultShipCombat(float elapsedTime)
+        void DoAssaultShipCombat(float elapsedTime)
         {
             if (Owner.isSpooling || !Owner.Carrier.HasTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;
@@ -78,7 +76,7 @@ namespace Ship_Game.AI
                 Owner.Carrier.AssaultPlanet(invadeThis);
         }
 
-        private void DrawDebugTarget(Vector2 pip, float radius)
+        void DrawDebugTarget(Vector2 pip, float radius)
         {
             if (DebugInfoScreen.Mode == DebugModes.Targeting && Empire.Universe?.DebugWin?.IgnoreThisShip(Owner) == true)
             {
@@ -88,7 +86,7 @@ namespace Ship_Game.AI
         }
 
 
-        private void DoAttackRun(float elapsedTime)
+        void DoAttackRun(float elapsedTime)
         {
             float spacerdistance = Owner.Radius + Target.Radius;
             float adjustedWeaponRange = Owner.maxWeaponsRange * 0.35f;
@@ -151,7 +149,7 @@ namespace Ship_Game.AI
 
         }
 
-        private void DoBoardShip(float elapsedTime)
+        void DoBoardShip(float elapsedTime)
         {
             HasPriorityTarget = true;
             State = AIState.Boarding;
@@ -183,7 +181,7 @@ namespace Ship_Game.AI
                      && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip) OrderReturnToHangar();
         }
 
-        private void DoCombat(float elapsedTime)
+        void DoCombat(float elapsedTime)
         {
             var ctarget = Target as Ship;
             if (Target?.Active != true || ctarget?.engineState != Ship.MoveState.Sublight || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), ctarget))
@@ -282,7 +280,7 @@ namespace Ship_Game.AI
             Owner.InCombat = false;
         }
 
-        private void DoDeploy(ShipGoal shipgoal)
+        void DoDeploy(ShipGoal shipgoal)
         {
             if (shipgoal.goal == null)
                 return;
@@ -325,7 +323,7 @@ namespace Ship_Game.AI
             Owner.QueueTotalRemoval();
         }
 
-        private void DoEvadeCombat(float elapsedTime)
+        void DoEvadeCombat(float elapsedTime)
         {
             var AverageDirection = new Vector2();
             var count = 0;
@@ -407,7 +405,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private bool DoExploreSystem(float elapsedTime)
+        bool DoExploreSystem(float elapsedTime)
         {
             SystemToPatrol = ExplorationTarget;
             if (PatrolRoute.Count == 0)
@@ -468,7 +466,7 @@ namespace Ship_Game.AI
             return false;
         }
 
-        private void DoHoldPositionCombat(float elapsedTime)
+        void DoHoldPositionCombat(float elapsedTime)
         {
             if (Owner.Velocity.Length() > 0f)
             {
@@ -493,7 +491,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoLandTroop(float elapsedTime, ShipGoal goal)
+        void DoLandTroop(float elapsedTime, ShipGoal goal)
         {
             if (Owner.shipData.Role != ShipData.RoleName.troop || Owner.TroopList.Count == 0)
                 DoOrbit(goal.TargetPlanet, elapsedTime); //added by gremlin.
@@ -536,7 +534,7 @@ namespace Ship_Game.AI
                 Owner.Carrier.AssaultPlanetWithTransporters(goal.TargetPlanet);
         }
 
-        private void DoNonFleetArtillery(float elapsedTime)
+        void DoNonFleetArtillery(float elapsedTime)
         {
             //Heavily modified by Gretman
             Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Owner.PredictImpact(Target));
@@ -585,7 +583,7 @@ namespace Ship_Game.AI
             RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(right));
         }
 
-        private void DoNonFleetBroadsideRight(float elapsedTime)
+        void DoNonFleetBroadsideRight(float elapsedTime)
         {
             float distanceToTarget = Owner.Center.Distance(Target.Center);
             if (distanceToTarget > Owner.maxWeaponsRange)
@@ -608,7 +606,7 @@ namespace Ship_Game.AI
             RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(right));
         }
 
-        private void DoNonFleetBroadsideLeft(float elapsedTime)
+        void DoNonFleetBroadsideLeft(float elapsedTime)
         {
             var forward = new Vector2((float) Math.Sin(Owner.Rotation), -(float) Math.Cos(Owner.Rotation));
             var left = new Vector2(forward.Y, -forward.X);
@@ -631,11 +629,12 @@ namespace Ship_Game.AI
             RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(forward));
         }
 
-        private const float OrbitalSpeedLimit = 500f;
-        private enum Orbit { Left, Right }
+        const float OrbitalSpeedLimit = 500f;
+
+        enum Orbit { Left, Right }
 
         // Orbit drones around a ship
-        private void OrbitShip(Ship ship, float elapsedTime, Orbit direction)
+        void OrbitShip(Ship ship, float elapsedTime, Orbit direction)
         {
             OrbitPos = ship.Center.PointOnCircle(OrbitalAngle, 1500f);
             if (OrbitPos.Distance(Owner.Center) < 1500f)
@@ -647,7 +646,7 @@ namespace Ship_Game.AI
             ThrustTowardsPosition(OrbitPos, elapsedTime, OrbitalSpeedLimit);
         }
 
-        private void DoOrbit(Planet orbitTarget, float elapsedTime) //fbedard: my version of DoOrbit, fastest possible?
+        void DoOrbit(Planet orbitTarget, float elapsedTime) //fbedard: my version of DoOrbit, fastest possible?
         {
             if (Owner.velocityMaximum < 1)
                 return;
@@ -689,7 +688,7 @@ namespace Ship_Game.AI
                 ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed);
         }
 
-        private void DoRebase(ShipGoal Goal)
+        void DoRebase(ShipGoal Goal)
         {
             if (Owner.TroopList.Count == 0)
             {
@@ -707,7 +706,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoRefit(float elapsedTime, ShipGoal goal)
+        void DoRefit(float elapsedTime, ShipGoal goal)
         {
             QueueItem qi = new BuildShip(goal, OrbitTarget);
             if (qi.sData == null)
@@ -738,7 +737,7 @@ namespace Ship_Game.AI
             Owner.QueueTotalRemoval();
         }
 
-        private void DoRepairDroneLogic(Weapon w)
+        void DoRepairDroneLogic(Weapon w)
         {
             using (FriendliesNearby.AcquireReadLock())
             {
@@ -753,7 +752,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoRepairBeamLogic(Weapon w)
+        void DoRepairBeamLogic(Weapon w)
         {
             Ship repairMe = FriendliesNearby.FindMinFiltered(
                     filter: ship => ShipNeedsRepair(ship, w.Range + 500f, Owner),
@@ -761,13 +760,15 @@ namespace Ship_Game.AI
 
             if (repairMe != null) w.FireTargetedBeam(repairMe);
         }
-        private bool ShipNeedsRepair(Ship target, float maxDistance, Ship dontHealSelf = null)
+
+        bool ShipNeedsRepair(Ship target, float maxDistance, Ship dontHealSelf = null)
         {
             return target.Active && target != dontHealSelf
                     && target.HealthPercent < ShipResupply.RepairDroneThreshold
                     && Owner.Center.Distance(target.Center) <= maxDistance;
         }
-        private void DoOrdinanceTransporterLogic(ShipModule module)
+
+        void DoOrdinanceTransporterLogic(ShipModule module)
         {
             Ship repairMe = module.GetParent()
                     .loyalty.GetShips()
@@ -790,7 +791,7 @@ namespace Ship_Game.AI
                 GameAudio.PlaySfxAsync("transporter", module.GetParent().SoundEmitter);
         }
 
-        private void DoAssaultTransporterLogic(ShipModule module)
+        void DoAssaultTransporterLogic(ShipModule module)
         {
             ShipWeight ship = NearByShips.Where(
                     s => s.Ship.loyalty != null && s.Ship.loyalty != Owner.loyalty && s.Ship.shield_power <= 0
@@ -822,7 +823,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoReturnToHangar(float elapsedTime)
+        void DoReturnToHangar(float elapsedTime)
         {
             if (Owner.Mothership == null || !Owner.Mothership.Active)
             {
@@ -877,7 +878,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoReturnHome(float elapsedTime)
+        void DoReturnHome(float elapsedTime)
         {
             if (Owner.HomePlanet.Owner != Owner.loyalty)
             {
@@ -904,7 +905,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoSupplyShip(float elapsedTime, ShipGoal goal)
+        void DoSupplyShip(float elapsedTime, ShipGoal goal)
         {
             if (EscortTarget == null || !EscortTarget.Active
                                      || EscortTarget.AI.State == AIState.Resupply
@@ -924,7 +925,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoResupplyEscort(float elapsedTime, ShipGoal goal)
+        void DoResupplyEscort(float elapsedTime, ShipGoal goal)
         {
             if (EscortTarget == null || !EscortTarget.Active
                                      || EscortTarget.AI.State == AIState.Resupply
@@ -959,7 +960,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoSystemDefense(float elapsedTime)
+        void DoSystemDefense(float elapsedTime)
         {
             SystemToDefend = SystemToDefend ?? Owner.System;
             if (SystemToDefend == null || AwaitClosest?.Owner == Owner.loyalty)
@@ -968,7 +969,7 @@ namespace Ship_Game.AI
                 OrderSystemDefense(SystemToDefend);
         }
 
-        private void DoTroopToShip(float elapsedTime)
+        void DoTroopToShip(float elapsedTime)
         {
             if (EscortTarget == null || !EscortTarget.Active)
             {
