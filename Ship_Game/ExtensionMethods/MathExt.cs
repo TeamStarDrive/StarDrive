@@ -84,6 +84,9 @@ namespace Ship_Game
 
         public static Vector2 Floored(this Vector2 v) => new Vector2((int)v.X, (int)v.Y);
         public static Vector2 Rounded(this Vector2 v) => new Vector2((float)Round(v.X), (float)Round(v.Y));
+        public static Vector2 AbsVec(this Vector2 v)  => new Vector2(Abs(v.X), Abs(v.Y));
+        public static Vector2 Swapped(this Vector2 v) => new Vector2(v.Y, v.X);
+
 
         // This is a common pattern in the codebase, there is some amount
         // and we wish to subtract another value from it, but not beyond 0
@@ -893,7 +896,7 @@ namespace Ship_Game
 
         public static bool NotZero(this float a)
         {
-            return a < -0.000001f && +0.000001f <= a;
+            return a < -0.000001f || +0.000001f < a;
         }
 
         /// <summary>Returns true if a less than b or almost equal</summary>

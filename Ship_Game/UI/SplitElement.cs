@@ -16,6 +16,8 @@ namespace Ship_Game.UI
         // else: Pos.X + Split
         public float Split = 0f;
 
+        public override string ToString() => $"Split {ElementDescr} Split={Split} \nFirst={First} \nSecond={Second}";
+        
         public SplitElement()
         {
         }

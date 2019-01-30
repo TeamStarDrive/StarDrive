@@ -155,7 +155,7 @@ namespace Ship_Game
         public delegate void ClickHandler(ToggleButton button);
         public event ClickHandler OnClick;
 
-        public override string ToString() => $"ToggleButton Icon:{IconPath} Action:{Action}";
+        public override string ToString() => $"ToggleButton {ElementDescr} Icon:{IconPath} Action:{Action}";
 
         public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "", UIElementV2 container = null)
         {
