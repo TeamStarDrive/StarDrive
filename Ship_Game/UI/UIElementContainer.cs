@@ -14,9 +14,6 @@ namespace Ship_Game
 
         protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
         public IReadOnlyList<UIElementV2> Children => Elements;
-        protected bool LayoutStarted;
-        protected Vector2 LayoutCursor = Vector2.Zero;
-        protected Vector2 LayoutStep   = Vector2.Zero;
 
         /// <summary>
         /// If enabled, UI elements will be drawn with a fixed delay
@@ -26,6 +23,8 @@ namespace Ship_Game
         int DebugDrawIndex;
         float DebugDrawTimer;
         const float DebugDrawInterval = 0.5f;
+
+        public override string ToString() => $"Element {ElementDescr} Elements={Elements.Count}";
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 

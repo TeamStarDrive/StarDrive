@@ -17,6 +17,13 @@ namespace Ship_Game
         public Color Color { get; set; }
         public bool DebugBorder;
 
+        public override string ToString()
+        {
+            return Texture == null
+                ? $"Panel {ElementDescr} Color={Color}"
+                : $"Panel {ElementDescr} Name={Texture.Name}";
+        }
+
         // Hint: use Color.TransparentBlack to create Panels with no fill
         public UIPanel(UIElementV2 parent, in Rectangle rect, Color color) : base(parent, rect)
         {
@@ -58,13 +65,6 @@ namespace Ship_Game
             Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
             Size = Texture.SizeF;
             Color = Color.White;
-        }
-
-        public override string ToString()
-        {
-            return Texture == null
-                ? $"Panel Color:{Color} Pos:{X},{Y} {Width}x{Height}"
-                : $"Panel Name:{Texture.Name} Pos:{X},{Y} {Width}x{Height}";
         }
 
         public override void Draw(SpriteBatch batch)
