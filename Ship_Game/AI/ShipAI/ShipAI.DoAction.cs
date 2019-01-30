@@ -646,7 +646,8 @@ namespace Ship_Game.AI
             ThrustTowardsPosition(OrbitPos, elapsedTime, OrbitalSpeedLimit);
         }
 
-        void DoOrbit(Planet orbitTarget, float elapsedTime) //fbedard: my version of DoOrbit, fastest possible?
+        // orbit around a planet
+        void DoOrbit(Planet orbitTarget, float elapsedTime)
         {
             if (Owner.velocityMaximum < 1)
                 return;
@@ -658,6 +659,7 @@ namespace Ship_Game.AI
                 OrbitPos = orbitTarget.Center;
                 return;
             }
+
             FindNewPosTimer -= elapsedTime;
             if (FindNewPosTimer <= 0f)
             {
@@ -672,20 +674,24 @@ namespace Ship_Game.AI
                 OrbitPos = orbitTarget.Center.PointOnCircle(OrbitalAngle, radius);
             }
 
-            if (distance < 7500f)
-            {
-                if (Owner.engineState == Ship.MoveState.Warp)
-                    Owner.HyperspaceReturn();
-            }
-            if (distance < 1500f + orbitTarget.ObjectRadius)
+            if (Owner.engineState == Ship.MoveState.Warp && distance < 7500f) // exit warp if we're getting close
+                Owner.HyperspaceReturn();
+
+            // precision move, this fixes uneven thrusting while orbiting
+            float precisionSpeed = Owner.velocityMaximum * 0.5f;
+
+            // We are within orbit radius, so do actual orbiting:
+            if (distance < (1500f + orbitTarget.ObjectRadius))
             {
                 var direction = Owner.Center.DirectionToTarget(OrbitPos);
-                MoveInDirection(direction, elapsedTime);
+                MoveInDirection(direction, elapsedTime, precisionSpeed);
                 if (State != AIState.Bombard)
                     HasPriorityOrder = false;
             }
-            else
-                ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed);
+            else // we are still not there yet, so find a meaningful orbit position
+            {
+                ThrustTowardsPosition(OrbitPos, elapsedTime, precisionSpeed);
+            }
         }
 
         void DoRebase(ShipGoal Goal)

@@ -296,7 +296,6 @@ namespace Ship_Game.AI
             State = AIState.MoveTo;
             MovePosition = position;
             WayPoints.Enqueue(position);
-            FinalFacingVector = fVec;
             DesiredFacing = desiredFacing;
 
             var waypoints = WayPoints.ToArray();
@@ -338,43 +337,6 @@ namespace Ship_Game.AI
             }
         }
 
-        public void OrderMoveToFleetPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool ClearOrders,
-            float SpeedLimit, Fleet fleet)
-        {
-            SpeedLimit = Owner.Speed;
-            if (ClearOrders)
-            {
-                OrderQueue.Clear();
-                WayPoints.Clear();
-            }
-            State             = AIState.MoveTo;
-            MovePosition      = position;
-            FinalFacingVector = fVec;
-            DesiredFacing     = desiredFacing;
-
-            AddShipGoal(Plan.RotateToFaceMovePosition, MovePosition, 0f);
-            var to1k          = new ShipGoal(Plan.MoveToWithin1000, MovePosition, desiredFacing)
-            {
-                SpeedLimit = SpeedLimit,
-                fleet = fleet
-            };
-            OrderQueue.Enqueue(to1k);
-            var finalApproach = new ShipGoal(Plan.MakeFinalApproachFleet, MovePosition, desiredFacing)
-            {
-                SpeedLimit = SpeedLimit,
-                fleet = fleet
-            };
-            OrderQueue.Enqueue(finalApproach);
-            AddShipGoal(Plan.RotateInlineWithVelocity, Vector2.Zero, 0f);
-            var slow = new ShipGoal(Plan.StopWithBackThrust, position, 0f)
-            {
-                SpeedLimit = Owner.Speed,
-                fleet = fleet
-            };
-            OrderQueue.Enqueue(slow);
-            AddShipGoal(Plan.RotateToDesiredFacing, MovePosition, desiredFacing);
-        }
-
         public void OrderMoveTowardsPosition(Vector2 position, float desiredFacing, bool clearOrders, Planet targetPlanet)
             => OrderMoveTowardsPosition(position, desiredFacing, Vector2.Zero, clearOrders, targetPlanet);
 
@@ -394,84 +356,67 @@ namespace Ship_Game.AI
             MovePosition = position;
 
             PlotCourseToNew(position, WayPoints.Count() > 0 ? WayPoints.Last() : Owner.Center);
-
             DesiredFacing = desiredFacing;
-
             CreateFullMovementGoals(desiredFacing, targetPlanet);
         }
 
-        private void CreateFullMovementGoals(float desiredFacing, Planet targetPlanet)
+        void CreateFullMovementGoals(float desiredFacing, Planet targetPlanet)
         {
             var waypoints = WayPoints.ToArray();
 
             for (int i = 0; i < waypoints.Count; ++i)
             {
-                Vector2 waypoint = waypoints[i];
+                Vector2 wp = waypoints[i];
                 bool isLast = waypoints.Count - 1 == i;
                 Planet p = isLast ? targetPlanet : null;
 
                 if (i != 0)
                 {
-                    AddShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing, p, Owner.Speed);
+                    AddShipGoal(Plan.MoveToWithin1000, wp, desiredFacing, p, Owner.Speed);
                 }
                 else
                 {
-                    AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
-                    AddShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing, p, Owner.Speed);
+                    AddShipGoal(Plan.RotateToFaceMovePosition, wp, 0f);
+                    AddShipGoal(Plan.MoveToWithin1000, wp, desiredFacing, p, Owner.Speed);
                 }
 
                 if (isLast)
                 {
-                    AddShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing, p, Owner.Speed);
-                    AddShipGoal(Plan.StopWithBackThrust, waypoint, 0f, targetPlanet, Owner.Speed);
-                    AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
+                    AddShipGoal(Plan.MakeFinalApproach, wp, desiredFacing, p, Owner.Speed);
+                    AddShipGoal(Plan.StopWithBackThrust, wp, 0f, targetPlanet, Owner.Speed);
+                    AddShipGoal(Plan.RotateToDesiredFacing, wp, desiredFacing);
                 }
             }
         }
 
-        public void OrderOrbitNearest(bool ClearOrders)
+        public void OrderOrbitNearest(bool clearOrders)
         {
             WayPoints.Clear();
 
             Target = null;
             Intercepting = false;
             Owner.HyperspaceReturn();
-            if (ClearOrders)
+            if (clearOrders)
                 OrderQueue.Clear();
-            var sortedList =
-                from toOrbit in Owner.loyalty.GetPlanets()
-                orderby Vector2.Distance(Owner.Center, toOrbit.Center)
-                select toOrbit;
-            if (sortedList.Any())
+
+            Planet closest = Owner.loyalty.GetPlanets().FindMin(p => p.Center.SqDist(Owner.Center));
+            if (closest != null)
             {
-                var planet = sortedList.First();
-                OrbitTarget = planet;
-                var orbit = new ShipGoal(Plan.Orbit, Vector2.Zero, 0f)
-                {
-                    TargetPlanet = planet
-                };
-                ResupplyTarget = planet;
-                OrderQueue.Enqueue(orbit);
+                ResupplyTarget = OrbitTarget = closest;
                 State = AIState.Orbit;
+                OrderQueue.Enqueue(new ShipGoal(Plan.Orbit, Vector2.Zero, 0f) { TargetPlanet = OrbitTarget });
                 return;
             }
 
-            if (Owner.loyalty.GetOwnedSystems().Any())
+            SolarSystem closestSystem = Owner.loyalty.GetOwnedSystems().FindMin(s => s.Position.SqDist(Owner.Center));
+            if (closestSystem != null)
             {
-                var systemList = from solarsystem in Owner.loyalty.GetOwnedSystems()
-                    orderby Owner.Center.SqDist(solarsystem.Position)
-                    select solarsystem;
-                Planet item = systemList.First().PlanetList[0];
-                OrbitTarget = item;
-                var orbit = new ShipGoal(Plan.Orbit, Vector2.Zero, 0f)
-                {
-                    TargetPlanet = item
-                };
-                ResupplyTarget = item;
-                OrderQueue.Enqueue(orbit);
+                ResupplyTarget = OrbitTarget = closestSystem.PlanetList[0];
                 State = AIState.Orbit;
+                OrderQueue.Enqueue(new ShipGoal(Plan.Orbit, Vector2.Zero, 0f) { TargetPlanet = OrbitTarget });
                 return;
             }
+
             var emergencyPlanet = Empire.Universe.PlanetsDict.Values.ToArray().Filter(p => p.Owner == null);
             emergencyPlanet.Sort(p => p.Center.SqDist(Owner.Center));
             OrbitTarget = emergencyPlanet[0];
@@ -824,7 +769,6 @@ namespace Ship_Game.AI
                 OrderQueue.Clear();
                 WayPoints.Clear();
             }
-            FinalFacingVector = fVec;
             DesiredFacing = desiredFacing;
             OrderMoveTowardsPosition(position, desiredFacing, true, null);
         }
@@ -849,7 +793,7 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(orbit);
         }
 
-        private void AwaitOrders(float elapsedTime)
+        void AwaitOrders(float elapsedTime)
         {
             if (State != AIState.Resupply)
                 HasPriorityOrder = false;
@@ -918,7 +862,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void AwaitOrdersPlayer(float elapsedTime)
+        void AwaitOrdersPlayer(float elapsedTime)
         {
             HasPriorityOrder = false;
             if (Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
