@@ -8,86 +8,69 @@ namespace Ship_Game
 	public sealed class SpaceStation
 	{
 		public SceneObject InnerSO;
-
 		public SceneObject OuterSO;
+		public Planet Planet;
 
-		public Vector2 Position;
+        float ZRotation;
+        float RadiansPerSecond = 0.1f;
 
-		public Planet planet;
-
-		public SolarSystem ParentSystem;
-
-		public string Name;
-
-		private float Zrotate;
-
-		private float rotAmount = 0.1f;
-
-		public SpaceStation(Vector2 Position)
+		public SpaceStation(Planet p)
 		{
-			this.Position = Position;
-			Name = "Random Station";
+            Planet = p;
 		}
 
-		public SpaceStation()
+		public void LoadContent(ScreenManager manager)
 		{
+			var innerModel = manager.Current.TransientContent.Load<Model>("Model/Stations/spacestation01_inner");
+            var outerModel = manager.Current.TransientContent.Load<Model>("Model/Stations/spacestation01_outer");
+
+			InnerSO = new SceneObject(innerModel.Meshes[0])
+			{
+				ObjectType = ObjectType.Dynamic
+			};
+			OuterSO = new SceneObject(outerModel.Meshes[0])
+			{
+				ObjectType = ObjectType.Dynamic
+			};
+
+            UpdateTransforms();
+
+            manager.AddObject(InnerSO);
+            manager.AddObject(OuterSO);
 		}
 
-		public void LoadContent(ScreenManager screenManager)
-		{
-			Model innerModel = StarDriveGame.Instance.Content.Load<Model>("Model/Stations/spacestation01_inner");
-			Model outerModel = StarDriveGame.Instance.Content.Load<Model>("Model/Stations/spacestation01_outer");
-
-			ModelMesh mesh = innerModel.Meshes[0];
-			InnerSO = new SceneObject(mesh)
-			{
-				ObjectType = ObjectType.Dynamic,
-				World = Matrix.Identity
-			};
-
-			ModelMesh mesh1 = outerModel.Meshes[0];
-			OuterSO = new SceneObject(mesh1)
-			{
-				ObjectType = ObjectType.Dynamic,
-				World = Matrix.Identity
-			};
-
-
-			Position = planet.Center;
-
-            //The Doctor: Mod definable spaceport 'station' art scaling
+        void UpdateTransforms()
+        {
             float scale = 0.8f;
-            if (GlobalStats.HasMod)
-            {
+            if (GlobalStats.HasMod) // The Doctor: Mod defined spaceport 'station' art scaling
                 scale = GlobalStats.ActiveModInfo.Spaceportscale;
-            }
 
-			if (InnerSO != null && OuterSO != null)
-			{
-				InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) *
-                    Matrix.CreateRotationZ(1.57079637f)) 
-                    * Matrix.CreateRotationX(20f.ToRadians())) 
-                    * Matrix.CreateRotationY(65f.ToRadians())) 
-                    * Matrix.CreateRotationZ(1.57079637f)) 
-                    * Matrix.CreateTranslation(Position.X, Position.Y, 600f);
-				OuterSO.World = (((((Matrix.Identity 
-                    * Matrix.CreateScale(scale)) 
-                    * Matrix.CreateRotationZ(1.57079637f)) 
-                    * Matrix.CreateRotationX(20f.ToRadians())) 
-                    * Matrix.CreateRotationY(65f.ToRadians())) 
-                    * Matrix.CreateRotationZ(1.57079637f)) 
-                    * Matrix.CreateTranslation(Position.X, Position.Y, 600f);
-			}
-            screenManager.AddObject(InnerSO);
-            screenManager.AddObject(OuterSO);
-		}
+            Vector2 position = Planet.Center;
 
-		public void SetVisibility(bool vis, ScreenManager screenManager, Planet p)
+            InnerSO.World = Matrix.CreateScale(scale)
+                            * Matrix.CreateRotationZ(90f.ToRadians() + ZRotation)
+                            * Matrix.CreateRotationX(20f.ToRadians())
+                            * Matrix.CreateRotationY(65f.ToRadians())
+                            * Matrix.CreateRotationZ(90f.ToRadians())
+                            * Matrix.CreateTranslation(position.X, position.Y, 600f);
+				
+            OuterSO.World = Matrix.CreateScale(scale)
+                            * Matrix.CreateRotationZ(90f.ToRadians() - ZRotation)
+                            * Matrix.CreateRotationX(20f.ToRadians())
+                            * Matrix.CreateRotationY(65f.ToRadians())
+                            * Matrix.CreateRotationZ(90f.ToRadians())
+                            * Matrix.CreateTranslation(position.X, position.Y, 600f);
+        }
+
+		public void SetVisibility(bool vis, ScreenManager manager, Planet p)
 		{
-			planet = p;
+			Planet = p;
+            if (p == null)
+                Log.Error("SpaceStation.SetVisibility Planet cannot be null!");
+
 			if (InnerSO == null || OuterSO == null)
 			{
-				LoadContent(screenManager);
+				LoadContent(manager);
 			}
 			if (vis)
 			{
@@ -101,21 +84,11 @@ namespace Ship_Game
 
 		public void Update(float elapsedTime)
 		{
-			Position = planet.Center;
-			SpaceStation zrotate = this;
-			zrotate.Zrotate = zrotate.Zrotate + rotAmount * elapsedTime;
+			ZRotation += RadiansPerSecond * elapsedTime;
 
-            //The Doctor: Mod definable spaceport 'station' art scaling
-            float scale = 0.8f;
-            if (GlobalStats.HasMod)
-            {
-                scale = GlobalStats.ActiveModInfo.Spaceportscale;
-            }
-
-			if (InnerSO != null && OuterSO != null && planet.SO.Visibility == ObjectVisibility.Rendered)
+			if (InnerSO != null && OuterSO != null && Planet.SO.Visibility == ObjectVisibility.Rendered)
 			{
-				InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f + Zrotate)) * Matrix.CreateRotationX(20f.ToRadians())) * Matrix.CreateRotationY(65f.ToRadians())) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(Position.X, Position.Y, 600f);
-				OuterSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f - Zrotate)) * Matrix.CreateRotationX(20f.ToRadians())) * Matrix.CreateRotationY(65f.ToRadians())) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(Position.X, Position.Y, 600f);
+                UpdateTransforms();
 			}
 		}
 	}
