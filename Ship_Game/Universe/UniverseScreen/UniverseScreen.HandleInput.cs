@@ -838,14 +838,19 @@ namespace Ship_Game
 
         void SelectedShipsRightMouseHeld()
         {
-            if (!Input.RightMouseHeld(0.3f))
+            if (!Input.RightMouseHeld(0.1f))
                 return;
+
+            if (Input.StartRighthold.AlmostEqual(Input.CursorPosition))
+                return; // not dragging yet
 
             ProjectingPosition = true;
             Vector2 endDragWorld      = UnprojectToWorldPosition(Input.EndRightHold);
             Vector2 startDragWorld    = UnprojectToWorldPosition(Input.StartRighthold);
             float facing = Input.StartRighthold.RadiansToTarget(Input.CursorPosition);
             Vector2 facingVector = Input.StartRighthold.DirectionToTarget(Input.CursorPosition);
+
+            Log.Info($"ProjectingPos  screenStart:{Input.StartRighthold} current:{Input.CursorPosition}  D:{facingVector}");
 
             if (SelectedFleet != null && SelectedFleet.Owner == EmpireManager.Player)
             {
