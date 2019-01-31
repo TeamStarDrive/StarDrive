@@ -151,10 +151,13 @@ namespace Ship_Game.AI
         }
 
         public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,
-            ShipData.RoleName role, float rotationSpeed)
+            ShipData.RoleName role, float rotationSpeed, bool isPlatformOrStation)
         {
             float weaponRatio = (float)numWeaponSlots / shipSize;
             float modifiedStrength;
+            if (isPlatformOrStation)
+                offense /= 2;
+
             if (defense > offense && weaponRatio < 0.2f)
                 modifiedStrength = offense * 2;
             else
