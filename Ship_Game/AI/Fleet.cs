@@ -392,7 +392,7 @@ namespace Ship_Game.AI
             }
         }
 
-        public void AssembleFleet(float facing, Vector2 facingVec) => AssembleFleet(facing, facingVec, IsCoreFleet);
+        public void AssembleFleet2(Vector2 facingVec) => AssembleFleet(facingVec, IsCoreFleet);
 
         public void Reset()
         {
@@ -477,7 +477,7 @@ namespace Ship_Game.AI
                         Ships[i].AI.OrderLandAllTroops(task.TargetPlanet);
                     }
                     Position = task.TargetPlanet.Center;
-                    AssembleFleet(Facing, FindAveragePosition().DirectionToTarget(Position));
+                    AssembleFleet2(FindAveragePosition().DirectionToTarget(Position));
                     break;
             }
         }
@@ -511,7 +511,7 @@ namespace Ship_Game.AI
                     }
                     if (Ships.Any(ship => ship.InCombat))
                         break;
-                    AssembleFleet(1, Vector2.Zero);
+                    AssembleFleet2(Vector2.Zero);
                     break;
             }
         }
@@ -568,7 +568,7 @@ namespace Ship_Game.AI
                     TaskStep = 3;
 
                     Position = task.TargetPlanet.Center;
-                    AssembleFleet(Facing, Vector2.Normalize(Position - FindAveragePosition()));
+                    AssembleFleet2(Vector2.Normalize(Position - FindAveragePosition()));
                     break;
                 case 3:
                     EscortingToPlanet(task);
@@ -602,9 +602,9 @@ namespace Ship_Game.AI
             }
             if (EndInvalidTask(station == null)) return;
 
-            AssembleFleet(0.0f, Vector2.One);
+            AssembleFleet2(Vector2.One);
             // ReSharper disable once PossibleNullReferenceException station should never be null here
-            FormationWarpTo(station.Position, 0.0f, Vector2.One);
+            FormationWarpTo(station.Position, Vector2.One);
             FleetTask.EndTaskWithMove();
         }
         private void DoDefendSystem(MilitaryTask task)
@@ -795,7 +795,7 @@ namespace Ship_Game.AI
                             break;
                         Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Center);
                         Vector2 vector2 = orderedEnumerable1.First().Center;
-                        MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);
+                        MoveToNow(vector2, fVec);
                         TaskStep = 1;
                         break;
                     case 1:
@@ -887,7 +887,7 @@ namespace Ship_Game.AI
                     TaskStep = 3;
 
                     Position = task.AO;
-                    AssembleFleet(Facing, Vector2.Normalize(Position - FindAveragePosition()));
+                    AssembleFleet2(Vector2.Normalize(Position - FindAveragePosition()));
                     break;
                 case 3:
                     if (!AttackEnemyStrengthClumpsInAO(task))
@@ -962,12 +962,12 @@ namespace Ship_Game.AI
 
         private void FleetTaskGatherAtRally(MilitaryTask task)
         {
-            Planet planet           = Owner.FindNearestRallyPoint(task.AO);
-            Vector2 movePoint       = planet.Center;
-            Vector2 finalFacing     = movePoint.DirectionToTarget(task.AO);
+            Planet planet       = Owner.FindNearestRallyPoint(task.AO);
+            Vector2 movePoint   = planet.Center;
+            Vector2 finalFacing = movePoint.DirectionToTarget(task.AO);
 
             SetAllShipsPriorityOrder();
-            MoveToNow(movePoint, movePoint.RadiansToTarget(task.AO), finalFacing);
+            MoveToNow(movePoint, finalFacing);
         }
 
         private bool HasArrivedAtRallySafely(float distanceFromPosition)
@@ -987,10 +987,9 @@ namespace Ship_Game.AI
         {
             Vector2 movePosition = task.AO.OffSetTo(FindAveragePosition(), distanceFromAO);
             Position             = movePosition;
-            float facing         = FindAveragePosition().RadiansToTarget(task.AO);
             Vector2 fleetFacing  = FindAveragePosition().DirectionToTarget(task.AO);
 
-            FormationWarpTo(movePosition, facing, fleetFacing);
+            FormationWarpTo(movePosition, fleetFacing);
         }
 
         private void HoldFleetPosition()
@@ -1186,7 +1185,7 @@ namespace Ship_Game.AI
                         break;
                     case "rear":
                         if (!ai.HasPriorityOrder)
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Facing, Vector2.Zero, false, Speed * 0.75f);
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Facing.RadiansToDirection(), false, Speed * 0.75f);
                         break;
                     case "center":
                         if (!ship.InCombat || (ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber))
@@ -1311,8 +1310,7 @@ namespace Ship_Game.AI
             {
                 Vector2 movePosition = position + Vector2.Normalize(FindAveragePosition() - position) * moveToWithin;
                 Position = movePosition;
-                FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(position),
-                    Vector2.Normalize(position - FindAveragePosition()));
+                FormationWarpTo(movePosition, (position - FindAveragePosition()).Normalized());
                 return 1;
             }
             return 0;

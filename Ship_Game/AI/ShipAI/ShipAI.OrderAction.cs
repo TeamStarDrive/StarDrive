@@ -168,17 +168,17 @@ namespace Ship_Game.AI
             }
         }
 
-        public void OrderFormationWarp(Vector2 destination, float facing, Vector2 fvec)
+        public void OrderFormationWarp(Vector2 destination, Vector2 fvec)
         {
             WayPoints.Clear();
             OrderQueue.Clear();
-            OrderMoveDirectlyTowardsPosition(destination, facing, fvec, true, Owner.fleet.Speed);
+            OrderMoveDirectlyTowardsPosition(destination, fvec, true, Owner.fleet.Speed);
             State = AIState.FormationWarp;
         }
 
-        public void OrderFormationWarpQ(Vector2 destination, float facing, Vector2 fvec)
+        public void OrderFormationWarpQ(Vector2 destination, Vector2 fvec)
         {
-            OrderMoveDirectlyTowardsPosition(destination, facing, fvec, false, Owner.fleet.Speed);
+            OrderMoveDirectlyTowardsPosition(destination, fvec, false, Owner.fleet.Speed);
             State = AIState.FormationWarp;
         }
 
@@ -206,10 +206,9 @@ namespace Ship_Game.AI
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing,
-            bool clearOrders) => OrderMoveDirectlyTowardsPosition(position, desiredFacing, Vector2.Zero, clearOrders);
+            bool clearOrders) => OrderMoveDirectlyTowardsPosition(position, desiredFacing.RadiansToDirection(), clearOrders);
 
-        public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec,
-            bool clearOrders)
+        public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 fVec, bool clearOrders)
         {
             Target = null;
             HasPriorityTarget = false;
@@ -229,8 +228,7 @@ namespace Ship_Game.AI
             State = AIState.MoveTo;
             MovePosition = position;
             WayPoints.Enqueue(position);
-            //FinalFacingVector = fVec;
-            DesiredFacing = desiredFacing;
+            DesiredFacing = fVec.ToRadians();
             lock (WayPoints.WayPointLocker)
             {
                 IReadOnlyList<Vector2> waypoints = WayPoints.ToArray();
@@ -240,7 +238,7 @@ namespace Ship_Game.AI
 
                     if (i != 0)
                     {
-                        var to1k = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
+                        var to1k = new ShipGoal(Plan.MoveToWithin1000, waypoint, DesiredFacing)
                         {
                             SpeedLimit = Owner.Speed
                         };
@@ -249,7 +247,7 @@ namespace Ship_Game.AI
                     else
                     {
                         AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
-                        var to1k = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
+                        var to1k = new ShipGoal(Plan.MoveToWithin1000, waypoint, DesiredFacing)
                         {
                             SpeedLimit = Owner.Speed
                         };
@@ -258,7 +256,7 @@ namespace Ship_Game.AI
 
                     if (i == WayPoints.Count() - 1)
                     {
-                        var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
+                        var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, DesiredFacing)
                         {
                             SpeedLimit = Owner.Speed
                         };
@@ -268,14 +266,13 @@ namespace Ship_Game.AI
                             SpeedLimit = Owner.Speed
                         };
                         OrderQueue.Enqueue(slow);
-                        AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
+                        AddShipGoal(Plan.RotateToDesiredFacing, waypoint, DesiredFacing);
                     }
                 }
             }
         }
 
-        public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec,
-            bool clearOrders, float speedLimit)
+        public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 fVec, bool clearOrders, float speedLimit)
         {
             Target = null;
             HasPriorityTarget = false;
@@ -296,7 +293,7 @@ namespace Ship_Game.AI
             State = AIState.MoveTo;
             MovePosition = position;
             WayPoints.Enqueue(position);
-            DesiredFacing = desiredFacing;
+            DesiredFacing = fVec.ToRadians();
 
             var waypoints = WayPoints.ToArray();
 
@@ -305,7 +302,7 @@ namespace Ship_Game.AI
                 Vector2 waypoint = waypoints[i];
                 if (i != 0)
                 {
-                    var to1K = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
+                    var to1K = new ShipGoal(Plan.MoveToWithin1000, waypoint, DesiredFacing)
                     {
                         SpeedLimit = speedLimit
                     };
@@ -314,7 +311,7 @@ namespace Ship_Game.AI
                 else
                 {
                     AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
-                    var to1K = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
+                    var to1K = new ShipGoal(Plan.MoveToWithin1000, waypoint, DesiredFacing)
                     {
                         SpeedLimit = speedLimit
                     };
@@ -323,17 +320,17 @@ namespace Ship_Game.AI
 
                 if (i != waypoints.Count - 1) continue;
 
-                var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
+                var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, DesiredFacing)
                 {
                     SpeedLimit = speedLimit
                 };
                 OrderQueue.Enqueue(finalApproach);
-                ShipGoal slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
+                var slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
                 {
                     SpeedLimit = speedLimit
                 };
                 OrderQueue.Enqueue(slow);
-                AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
+                AddShipGoal(Plan.RotateToDesiredFacing, waypoint, DesiredFacing);
             }
         }
 

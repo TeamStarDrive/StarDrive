@@ -276,7 +276,7 @@ namespace Ship_Game.AI
                 
                 CoreFleet.Position = CoreWorld.Center;
                 CoreFleet.AutoArrange();
-                CoreFleet.MoveToNow(Center, 0f, new Vector2(0f, -1f));
+                CoreFleet.MoveToNow(Center, new Vector2(0f, -1f));
             
                 TurnsToRelax +=  1;
             }
