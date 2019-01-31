@@ -21,8 +21,8 @@ namespace Ship_Game
 
 		public void LoadContent(ScreenManager manager)
 		{
-			var innerModel = manager.Current.TransientContent.Load<Model>("Model/Stations/spacestation01_inner");
-            var outerModel = manager.Current.TransientContent.Load<Model>("Model/Stations/spacestation01_outer");
+			var innerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_inner");
+            var outerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_outer");
 
 			InnerSO = new SceneObject(innerModel.Meshes[0])
 			{
