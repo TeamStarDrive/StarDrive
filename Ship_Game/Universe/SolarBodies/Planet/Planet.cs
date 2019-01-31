@@ -31,7 +31,7 @@ namespace Ship_Game
 
         public GeodeticManager GeodeticManager;
         public TroopManager TroopManager;
-        public SpaceStation Station = new SpaceStation();
+        public SpaceStation Station = new SpaceStation(null);
 
         public bool GovBuildings = true;
         public bool GovSliders = true;
@@ -132,7 +132,7 @@ namespace Ship_Game
             float planetRadius = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
             ObjectRadius = planetRadius;
             OrbitalRadius = ringRadius + planetRadius;
-            Center = MathExt.PointOnCircle(randomAngle, ringRadius);
+            Center = system.Position + MathExt.PointOnCircle(randomAngle, ringRadius);
             Scale = scale;
             PlanetTilt = RandomMath.RandomBetween(45f, 135f);
 
@@ -636,16 +636,16 @@ namespace Ship_Game
             if (Owner == null)
                 return;
 
-            RepairPerTurn              = 0;
-            TerraformToAdd             = 0;
-            bool shipyard              = false;
-            AllowInfantry              = false;
-            ShieldStrengthMax          = 0;
-            float totalStorage         = 0;
-            ShipBuildingModifier       = 0;
-            NumShipyards               = 0;
+            bool shipyard = false;
+            AllowInfantry = false;
+            RepairPerTurn        = 0;
+            TerraformToAdd       = 0;
+            ShieldStrengthMax    = 0;
+            ShipBuildingModifier = 0;
+            NumShipyards         = 0;
             TotalDefensiveStrength     = 0;
             PlusFlatPopulationPerTurn  = 0;
+            float totalStorage         = 0;
             float shipBuildingModifier = 1;
 
             if (!loadUniverse)
@@ -705,7 +705,7 @@ namespace Ship_Game
             Res.Update(0f);
             Money.Update();
 
-            if (Station != null && !loadUniverse)
+            if (!loadUniverse)
                 Station.SetVisibility(HasSpacePort, Empire.Universe.ScreenManager, this);
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
