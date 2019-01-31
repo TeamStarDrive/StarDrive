@@ -88,7 +88,6 @@ namespace Ship_Game
 
             var sandbox = new UniverseData { Size = new Vector2(500000f) };
             CurrentGame.StartNew(sandbox, pace:1f);
-            var claimedSpots = new Array<Vector2>();
 
             IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(
                                             d => d.IsCybernetic == PlayerIsCybernetic));
@@ -112,7 +111,7 @@ namespace Ship_Game
 
                 // Now, generate system for our empire:
                 var system = new SolarSystem();
-                system.Position = GenerateRandomSysPos(10000, claimedSpots, sandbox);
+                system.Position = GenerateRandomSysPos(10000, sandbox);
                 system.GenerateStartingSystem(e.data.Traits.HomeSystemName, sandbox, 1f, e);
                 system.OwnerList.Add(e);
                 sandbox.SolarSystemsList.Add(system);
@@ -125,7 +124,7 @@ namespace Ship_Game
                 }
             }
 
-            foreach (EmpireData data in ResourceManager.MinorRaces) // init minor races
+            foreach (IEmpireData data in ResourceManager.MinorRaces) // init minor races
             {
                 sandbox.CreateEmpire(data);
             }
@@ -143,7 +142,9 @@ namespace Ship_Game
                                             select => select.Position.SqDist(system.Position));
             }
 
-            sandbox.playerShip = Ship.CreateShipAtPoint("Unarmed Scout", sandbox.EmpireList.First, claimedSpots[0]);
+            Empire playerEmpire = sandbox.EmpireList.First;
+            sandbox.playerShip = Ship.CreateShipAtPoint("Unarmed Scout", playerEmpire, playerEmpire.GetPlanets()[0].Center);
+            sandbox.playerShip.VanityName = "Developer's Scout";
             sandbox.MasterShipList.Add(sandbox.playerShip);
 
             foreach (SolarSystem system in sandbox.SolarSystemsList)
@@ -153,31 +154,16 @@ namespace Ship_Game
             return sandbox;
         }
 
-        public Vector2 GenerateRandomSysPos(float spacing, Array<Vector2> claimedSpots, UniverseData data)
+        public Vector2 GenerateRandomSysPos(float spacing, UniverseData data)
         {
-            float safetyBreak = 1;
-            Vector2 sysPos;
-            do
+            Vector2 sysPos = Vector2.Zero;
+            for (int i = 0; i < 20; ++i) // max 20 tries
             {
-                spacing *= safetyBreak;
                 sysPos = RandomMath.Vector2D(data.Size.X - 100000f);
-                safetyBreak *= 0.97f;
-            } while (!SystemPosOK(sysPos, spacing, claimedSpots, data));
-
-            claimedSpots.Add(sysPos);
-            return sysPos;
-        }
-
-        static bool SystemPosOK(Vector2 sysPos, float spacing, Array<Vector2> claimedSpots, UniverseData data)
-        {
-            foreach (Vector2 vector2 in claimedSpots)
-            {
-                if (Vector2.Distance(vector2, sysPos) < spacing
-                    || sysPos.X > data.Size.X || sysPos.Y > data.Size.Y
-                    || sysPos.X < -data.Size.X || sysPos.Y < -data.Size.Y)
-                    return false;
+                if (data.FindSolarSystemAt(sysPos) == null)
+                    return sysPos; // we got it!
             }
-            return true;
+            return sysPos;
         }
 
         void SubmitSceneObjectsForRendering(SolarSystem wipSystem)

@@ -523,11 +523,9 @@ namespace Ship_Game
             if (!LookingAtPlanet)
                 DrawShipUI(gameTime);
 
-            if (!LookingAtPlanet || LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
-                LookingAtPlanet && workersPanel is UnownedPlanetScreen)
-            {
-                minimap.Draw(ScreenManager, this);
-            }
+            minimap.Visible = !LookingAtPlanet || LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
+                              LookingAtPlanet && workersPanel is UnownedPlanetScreen;
+
             if (SelectedShipList.Count == 0)
                 shipListInfoUI.ClearShipList();
             if (SelectedSystem != null && !LookingAtPlanet)

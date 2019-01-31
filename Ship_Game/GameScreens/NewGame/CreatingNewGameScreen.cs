@@ -133,10 +133,8 @@ namespace Ship_Game
 
                     if (planet.HasSpacePort)
                     {
-                        var spaceStation = new SpaceStation {planet = planet};
-                        planet.Station = spaceStation;
-                        spaceStation.ParentSystem = planet.ParentSystem;
-                        spaceStation.LoadContent(ScreenManager);
+                        planet.Station = new SpaceStation(planet);
+                        planet.Station.LoadContent(ScreenManager);
                     }
 
                     string colonyShip = empire.data.DefaultColonyShip;
@@ -360,7 +358,7 @@ namespace Ship_Game
                 step.Advance();
             }
             
-            foreach (EmpireData readOnlyData in ResourceManager.MinorRaces)
+            foreach (IEmpireData readOnlyData in ResourceManager.MinorRaces)
             {
                 Data.CreateEmpire(readOnlyData);
                 step.Advance();

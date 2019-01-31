@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game;
+using Ship_Game.SpriteSystem;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -22,15 +23,17 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly SpriteBlendMode BlendMode = SpriteBlendMode.AlphaBlend;
         [StarData] public readonly float RotationSpeed = 0.03f;
         [StarData] public readonly Range RotationStart = new Range(-1f, 1f);
-        [StarData] public readonly float PulsePeriod = 5f; // period of animated pulse
-        [StarData] public readonly Range PulseScale = new Range(0.95f, 1.05f);
-        [StarData] public readonly Range PulseColor = new Range(0.95f, 1.05f);
+        [StarData] public readonly float PulsePeriod = 0f; // period of animated pulse
+        [StarData] public readonly Range PulseScale = new Range(1.0f);
+        [StarData] public readonly Range PulseColor = new Range(1.0f);
     }
 
     public class SunType
     {
         [StarDataKey] public string Id;
         [StarData] public readonly string IconPath;
+        [StarData] public readonly int IconLayer = 0; // which layer for icon?
+        [StarData] public readonly float IconScale = 1.0f; // icon scale in low-res draw
         [StarData] public readonly float LightIntensity = 1.5f;
         [StarData] public readonly float Radius = 150000f;
         [StarData] public readonly Color LightColor = Color.White;
@@ -53,7 +56,7 @@ namespace Ship_Game.Universe.SolarBodies
         }
         public static SunType RandomBarrenSun()
         {
-            return RandomMath.RandItem(BarrenSuns);
+            return RandomMath.RandItem(BarrenSuns.Length != 0 ? BarrenSuns : HabitableSuns);
         }
         public static SubTexture[] GetLoResTextures()
         {
@@ -131,15 +134,21 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void DrawLowResSun(SpriteBatch batch, SolarSystem sys, in Matrix view, in Matrix projection)
         {
-            const float constantScaleOnScreen = 0.05f;
+            if (sys.SunLayers.Length == 0)
+                return;
+
+            // which layer should we pick?
+            int whichLayer = sys.Sun.IconLayer;
+            if (whichLayer < 0 || whichLayer >= sys.SunLayers.Length)
+            {
+                Log.Warning($"{sys.Sun} Invalid IconLayer: {whichLayer}. Using layer 0. Please fix this!");
+                whichLayer = 0;
+            }
+            
+            float scale = 0.07f * sys.Sun.IconScale;
             Vector2 pos = ScreenPosition(sys.Position, view, projection);
 
-            SubTexture sunTex = sys.Sun.Icon;
-            foreach (SunLayerState layer in sys.SunLayers)
-            {
-                batch.Draw(sunTex, pos, layer.Info.TextureColor, 
-                    layer.Rotation, sunTex.CenterF, constantScaleOnScreen, SpriteEffects.None, 0.9f);
-            }
+            sys.SunLayers[whichLayer].DrawLoRes(batch, sys.Sun.Icon, pos, scale);
         }
 
         public SunLayerState[] CreateLayers()
@@ -172,37 +181,30 @@ namespace Ship_Game.Universe.SolarBodies
     public class SunLayerState
     {
         public readonly SunLayerInfo Info;
-        public float Rotation { get; private set; }
+        readonly DrawableSprite Sprite;
         float PulseTimer;
         public float Intensity { get; private set; } = 1f; // current sun intensity
         float ScaleIntensity = 1f;
         float ColorIntensity = 1f;
 
-        readonly SpriteAnimation Animation;
-        readonly SubTexture Texture;
 
         public SunLayerState(GameContentManager content, SunLayerInfo info)
         {
             Info = info;
-            Rotation = info.RotationStart.Generate(); // start at a random rotation
+
+            Sprite = new DrawableSprite(SpriteEffects.FlipVertically);
+            Sprite.Rotation = info.RotationStart.Generate(); // start at a random rotation
             
             if (info.AnimationPath.NotEmpty())
-            {
-                Animation = new SpriteAnimation(content, "Textures/" + info.AnimationPath)
-                {
-                    Looping = true
-                };
-            }
+                Sprite.Animation(content, info.AnimationPath, looping: true);
             else
-            {
-                var tex = content.Load<Texture2D>("Textures/"+info.TexturePath);
-                Texture = new SubTexture(info.TexturePath, tex);
-            }
+                Sprite.Texture2D(content, info.TexturePath);
         }
 
         public void Update(float deltaTime)
         {
-            Rotation += Info.RotationSpeed * deltaTime;
+            Sprite.Rotation += Info.RotationSpeed * deltaTime;
+            Sprite.Update(Info.AnimationSpeed * deltaTime);
 
             if (Info.PulsePeriod > 0f)
             {
@@ -216,8 +218,6 @@ namespace Ship_Game.Universe.SolarBodies
                 ScaleIntensity = Info.PulseScale.Min.LerpTo(Info.PulseScale.Max, Intensity);
                 ColorIntensity = Info.PulseColor.Min.LerpTo(Info.PulseColor.Max, Intensity);
             }
-
-            Animation?.Update(deltaTime * Info.AnimationSpeed);
         }
 
         public void Draw(SpriteBatch batch, Vector2 screenPos, float sizeScaleOnScreen)
@@ -231,19 +231,19 @@ namespace Ship_Game.Universe.SolarBodies
             for (float intensity = ColorIntensity; intensity.Greater(0f); intensity -= 1f)
             {
                 Color c = intensity > 1f ? color : new Color(color, intensity);
-                if (Animation != null)
-                {
-                    Animation.Draw(batch, screenPos, c, Rotation, scale, SpriteEffects.FlipVertically);
-                }
-                else
-                {
-                    batch.Draw(Texture, screenPos, c, Rotation, 
-                        Texture.CenterF, scale, SpriteEffects.FlipVertically, 0.9f);
-                }
+                Sprite.Draw(batch, screenPos, scale, c);
             }
 
             batch.End();
         }
+
+        public void DrawLoRes(SpriteBatch batch, SubTexture icon, Vector2 screenPos, float sizeScaleOnScreen)
+        {
+            float scale = ScaleIntensity * sizeScaleOnScreen;
+            batch.Draw(icon, screenPos, Info.TextureColor, Sprite.Rotation, 
+                       icon.CenterF, scale, SpriteEffects.FlipVertically, 0.9f);
+        }
+
     }
 
 }

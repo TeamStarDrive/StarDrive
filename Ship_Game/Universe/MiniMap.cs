@@ -61,9 +61,12 @@ namespace Ship_Game
             return rscale;
         }
 
-        public void Draw(ScreenManager manager, UniverseScreen screen)
+        public override void Draw(SpriteBatch batch)
         {
-            SpriteBatch batch = manager.SpriteBatch;
+            if (!Visible)
+                return;
+
+            UniverseScreen screen = Empire.Universe;
             Rectangle inflateMap = ActualMap;
             inflateMap.Inflate(10, 10);
             screen.DrawRectangle(inflateMap, Color.Black, Color.Black);
@@ -75,7 +78,7 @@ namespace Ship_Game
                 var star = new Rectangle((int)miniSystemPos.X, (int)miniSystemPos.Y, 2, 2);
                 batch.FillRectangle(star, Color.Gray);
             }
-            DrawInfluenceNodes(manager);
+            DrawInfluenceNodes(batch);
             
             Vector2 upperLeftView = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
             upperLeftView = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 1), HelperFunctions.RoundTo(upperLeftView.Y, 1));
@@ -123,7 +126,7 @@ namespace Ship_Game
             base.Draw(batch);
         }
 
-        void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list, ScreenManager screenManager)
+        void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list, SpriteBatch batch)
         {
             using (list.AcquireReadLock())
                 for (int i = 0; i < list.Count; i++)
@@ -144,16 +147,14 @@ namespace Ship_Game
                     }
                     float radius = nodeRad;
                     Vector2 nodePos = WorldToMiniPos(node.Position);
-                    Color ec = new Color(empire.EmpireColor, 200);
+                    var ec = new Color(empire.EmpireColor, 200);
 
-                    screenManager.SpriteBatch.Draw(Node1, nodePos, ec, 0f, Node.CenterF, radius,
-                        SpriteEffects.None, 1f);
-                    screenManager.SpriteBatch.Draw(Node1, nodePos, new Color(Color.Black, 40), 0f, Node.CenterF, radius,
-                        SpriteEffects.None, 1f);
+                    batch.Draw(Node1, nodePos, ec, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
+                    batch.Draw(Node1, nodePos, new Color(Color.Black, 40), 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 }
         }
 
-        void DrawInfluenceNodes(ScreenManager screenManager)
+        void DrawInfluenceNodes(SpriteBatch batch)
         {
 
             foreach (Empire e in EmpireManager.Empires)
@@ -161,8 +162,8 @@ namespace Ship_Game
                 Relationship rel = EmpireManager.Player.GetRelations(e);
                 if (!Screen.Debug && e != EmpireManager.Player && !rel.Known)
                     continue;
-                DrawNode(e, e.BorderNodes, screenManager);
-                DrawNode(e, e.SensorNodes, screenManager);
+                DrawNode(e, e.BorderNodes, batch);
+                DrawNode(e, e.SensorNodes, batch);
             }
         }
 
@@ -170,15 +171,14 @@ namespace Ship_Game
         {
             Empire.Universe.InputZoomToShip();
             GameAudio.AcceptClick();
-
         }
 
         void ZoomOut_OnClick(ToggleButton toggleButton)
         {
             Empire.Universe.InputZoomOut();
             GameAudio.AcceptClick();
-
         }
+
         public void DeepSpaceBuild_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
@@ -192,25 +192,29 @@ namespace Ship_Game
                 Screen.showingDSBW = true;
             }
         }
+
         public void PlanetScreen_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
             Screen.ScreenManager.AddScreen(new PlanetListScreen(Screen, Screen.EmpireUI));
-
         }
+
         public void ShipScreen_OnClick(ToggleButton toggleButton)
         {
-
             GameAudio.AcceptClick();
             Screen.showingFTLOverlay = !Screen.showingFTLOverlay;
-            
         }
+
         public void Fleets_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
             Screen.showingRangeOverlay = !Screen.showingRangeOverlay;            
         }
-        public void AIScreen_OnClick(ToggleButton toggleButton) => Screen.aw.ToggleVisibility();
+
+        public void AIScreen_OnClick(ToggleButton toggleButton)
+        {
+            Screen.aw.ToggleVisibility();
+        }
         
         public bool HandleInput(InputState input, UniverseScreen screen)
         {
@@ -237,7 +241,6 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(59, "H");
 
             return HandleInput(input);
-            
         }
     }
 }

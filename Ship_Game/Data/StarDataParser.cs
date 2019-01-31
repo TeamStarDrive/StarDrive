@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data
@@ -89,8 +90,7 @@ namespace Ship_Game.Data
             FileInfo f = ResourceManager.GetModOrVanillaFile(file);
             if (f == null)
                 throw new FileNotFoundException($"Required StarData file not found! {file}");
-
-            Reader = f.OpenText();
+            Reader = OpenStream(f);
             Root = new SDNode
             {
                 Name = f.NameNoExt(),
@@ -102,8 +102,7 @@ namespace Ship_Game.Data
         {
             if (f == null || !f.Exists)
                 throw new FileNotFoundException($"Required StarData file not found! {f?.FullName}");
-
-            Reader = f.OpenText();
+            Reader = OpenStream(f);
             Root = new SDNode
             {
                 Name = f.NameNoExt(),
@@ -111,6 +110,21 @@ namespace Ship_Game.Data
             };
             Parse();
         }
+        
+        static StreamReader OpenStream(FileInfo f)
+        {
+            try
+            {
+                return new StreamReader(f.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Encoding.UTF8);
+            }
+            catch (UnauthorizedAccessException e) // file is still open?
+            {
+                Log.Warning($"Open failed: {e.Message}");
+                Thread.Sleep(1); // wait a bit
+            }
+            return new StreamReader(f.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Encoding.UTF8);
+        }
+
         public void Dispose()
         {
             Reader?.Close(); Reader = null;

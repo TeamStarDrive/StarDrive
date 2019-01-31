@@ -68,7 +68,7 @@ namespace Ship_Game.Debug
         public override bool Update(float gameDeltaTime)
         {
             if (!Obj.Active || !Obj.IsInFrustum)
-                return false;
+                return true; // REMOVE
             return base.Update(gameDeltaTime);
         }
         public override void Draw(UniverseScreen screen)
