@@ -15,7 +15,7 @@ namespace Ship_Game
         private ScrollList ShipSL;
         private UIButton RefitOne;
         private UIButton RefitAll;
-        private string RefitTo;
+        private Ship RefitTo;
         private DanButton ConfirmRefit;
         private Selector selector;
 
@@ -127,7 +127,7 @@ namespace Ship_Game
                     if (input.InGameSelect)
                     {
                         GameAudio.AcceptClick();
-                        RefitTo = e.Get<string>();
+                        RefitTo = e.Get<Ship>();
                     }
                 }
             }

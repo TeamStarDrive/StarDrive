@@ -137,17 +137,17 @@ namespace Ship_Game.AI
             return pickedShip.Name;
         }
 
-        public static string PickShipToRefit(Ship oldShip, Empire empire)
+        public static Ship PickShipToRefit(Ship oldShip, Empire empire)
         {
             Ship[] ships = ShipsWeCanBuild(empire).Filter(s => s.shipData.Hull == oldShip.shipData.Hull
-                                                              && s.BaseStrength.Greater(oldShip.BaseStrength)
+                                                              && s.BaseStrength.Greater(oldShip.BaseStrength * 1.3f)
                                                               && s.Name != oldShip.Name);
             if (ships.Length == 0)
-                return "";
+                return null;
 
             Ship picked = RandomMath.RandItem(ships);
             Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Stength: {oldShip.BaseStrength} refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
-            return picked.Name;
+            return picked;
         }
 
         public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,

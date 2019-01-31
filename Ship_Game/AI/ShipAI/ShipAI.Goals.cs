@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI {
     public sealed partial class ShipAI
@@ -23,38 +24,39 @@ namespace Ship_Game.AI {
         public class ShipGoal
         {
             public Plan Plan;
-
             public Goal goal;
-
             public float VariableNumber;
-
             public string VariableString;
-
             public Fleet fleet;
-
             public Vector2 MovePosition;
-
             public float DesiredFacing;
-
             public float FacingVector;
-
             public Planet TargetPlanet;
-
             public float SpeedLimit = 1f;
+            public Ship TargetShip;
 
             public ShipGoal(Plan p, Vector2 pos, float facing)
             {
-                Plan = p;
-                MovePosition = pos;
+                Plan          = p;
+                MovePosition  = pos;
                 DesiredFacing = facing;
             }
 
             public ShipGoal(Plan p, Vector2 pos, float facing, Planet targetPlanet)
             {
-                Plan = p;
-                MovePosition = pos;
+                Plan          = p;
+                MovePosition  = pos;
                 DesiredFacing = facing;
-                TargetPlanet = targetPlanet;
+                TargetPlanet  = targetPlanet;
+            }
+
+            public ShipGoal(Plan p, Vector2 pos, float facing, Planet targetPlanet, Ship targetShip)
+            {
+                Plan = p;
+                MovePosition  = pos;
+                DesiredFacing = facing;
+                TargetPlanet  = targetPlanet;
+                TargetShip    = targetShip;
             }
 
             public static ShipGoal CreateLandTroopGoal(Planet targetPlanet)

@@ -584,18 +584,13 @@ namespace Ship_Game.AI
             HasPriorityOrder = true;
         }
 
-        public void OrderRefitTo(string toRefit)
+        public void OrderRefitTo(Ship toRefit)
         {
-
             WayPoints.Clear();
-
-            HasPriorityOrder = true;
-            IgnoreCombat = true;
-
             OrderQueue.Clear();
-
-
-            OrbitTarget = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+            HasPriorityOrder = true;
+            IgnoreCombat     = true;
+            OrbitTarget      = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
 
             if (OrbitTarget == null)
             {
@@ -606,7 +601,7 @@ namespace Ship_Game.AI
             var refit = new ShipGoal(Plan.Refit, Vector2.Zero, 0f)
             {
                 TargetPlanet = OrbitTarget,
-                VariableString = toRefit
+                TargetShip   = toRefit
             };
             OrderQueue.Enqueue(refit);
             State = AIState.Refit;
