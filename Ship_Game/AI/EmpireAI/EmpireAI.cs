@@ -413,65 +413,6 @@ namespace Ship_Game.AI
 
         public void TriggerRefit()
         {
-            // Refit by strength
-            TriggerRefitByStrength();
-            // Refit by Tech Score
-            //TriggerRefitByTechScore();
-        }
-
-        private void TriggerRefitByTechScore()
-        {
-
-            bool TechCompare(int[] original, int[] newTech)
-            {
-                bool Compare(int o, int n) => o > 0 && o > n;
-                
-                for (int x = 0; x < 4; x++)                
-                    if (Compare(original[x], newTech[x])) return false;
-                
-                return true;
-            }
-            
-            var offPool =OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
-            for (int i = offPool.Count - 1; i >= 0; i--)
-            {
-                Ship ship = offPool[i];
-                if (ship.AI.BadGuysNear) continue;
-                if (ship.AI.HasPriorityOrder || ship.AI.HasPriorityTarget) continue;
-
-
-                int techScore = ship.GetTechScore(out int[] origTechs);
-                string name = "";
-                float newStr = 0;
-                foreach (string shipName in OwnerEmpire.ShipsWeCanBuild)
-                {
-                    Ship newTemplate = ResourceManager.GetShipTemplate(shipName);
-                    if (newTemplate.shipData.Hull != ship.shipData.Hull && newTemplate.DesignRole != ship.DesignRole)
-                        continue;
-                    if (newTemplate.DesignRole != ship.DesignRole) continue;
-                    if (newTemplate.GetStrength() <= newStr) continue;
-                    if (ship.shipData.TechsNeeded.Except(newTemplate.shipData.TechsNeeded).Any()) continue;
-
-                    int newScore = newTemplate.GetTechScore(out int[] newTech);
-
-
-                    var newTechs = newTemplate.shipData.TechsNeeded.Except(ship.shipData.TechsNeeded).ToArray();
-
-                    if (newTechs.Length == 0 && (newScore <= techScore || !TechCompare(origTechs, newTech)))
-                        continue;
-
-                    name = shipName;
-                    newStr = newTemplate.GetStrength();
-                    techScore = newScore;
-                    origTechs = newTech;
-                }
-                if (string.IsNullOrEmpty(name)) continue;
-                ship.AI.OrderRefitTo(name);
-            }
-        }
-
-        private void TriggerRefitByStrength()
-        {
             var offPool = OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
@@ -479,10 +420,10 @@ namespace Ship_Game.AI
                 if (ship.AI.BadGuysNear || ship.AI.HasPriorityOrder || ship.AI.HasPriorityTarget)
                     continue;
 
-                string name = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
+                Ship newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
 
-                if (string.IsNullOrEmpty(name)) continue;
-                ship.AI.OrderRefitTo(name);
+                if (newShip == null) continue;
+                ship.AI.OrderRefitTo(newShip);
             }
         }
 
