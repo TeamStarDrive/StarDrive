@@ -28,7 +28,7 @@ namespace Ship_Game
 
         public Stack<Fleet.FleetGoal> GetStack() => GoalStack;
 
-        public Fleet.FleetGoal PopGoalStack => GoalStack.Pop();
+        public Fleet.FleetGoal PopGoalStack() => GoalStack.Pop();
 
         public ShipGroup()
         {
@@ -42,25 +42,22 @@ namespace Ship_Game
             GoalMovePosition = new Vector2();
         }
 
-        public void ProjectPos(Vector2 projectedPosition, float facing)
+        public void ProjectPos(Vector2 pos, Vector2 direction)
         {
-            ProjectedFacing = facing;
+            ProjectedFacing = direction.ToRadians();
             foreach (Ship ship in Ships)
             {
-                float angle = ship.RelativeFleetOffset.ToRadians() + facing;
-                float distance = ship.RelativeFleetOffset.Length();
-                ship.projectedPosition = projectedPosition + Vector2.Zero.PointFromRadians(angle, distance);
+                Vector2 dir = (ship.RelativeFleetOffset + direction).Normalized();
+                ship.projectedPosition = pos + dir * ship.RelativeFleetOffset.Length();
             }
         }
 
-        public void ProjectPosNoOffset(Vector2 projectedPosition, float facing)
+        public void ProjectPosNoOffset(Vector2 projectedPosition, Vector2 direction)
         {
-            ProjectedFacing = facing;
+            ProjectedFacing = direction.ToRadians();
             foreach (Ship ship in Ships)
             {
-                //float angle = ship.RelativeFleetOffset.ToRadians() + facing;
-                //float distance = ship.RelativeFleetOffset.Length();
-                ship.projectedPosition = projectedPosition + Vector2.Zero.PointFromRadians(facing, 1);
+                ship.projectedPosition = projectedPosition + direction;
             }
         }
 
@@ -94,19 +91,20 @@ namespace Ship_Game
             }
         }
 
-        public void AssembleFleet(float facing, Vector2 facingVec, bool forceAssembly = false)
+        public void AssembleFleet(Vector2 facingVec, bool forceAssembly = false)
         {
-            Facing = facing;
+            Facing = facingVec.ToRadians();
             foreach (Ship ship in Ships)
             {
                 if (ship.AI.State != AIState.AwaitingOrders && !forceAssembly)
                     continue;
-                float angle = ship.RelativeFleetOffset.ToRadians() + facing;
+                float angle = ship.RelativeFleetOffset.ToRadians() + Facing;
                 float distance = ship.RelativeFleetOffset.Length();
                 ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
             }
         }
-        public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 fleetRightCorner, Vector2 fleetLeftCorner,  float facingRadians, Vector2 fVec,  Empire owner)
+
+        public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 fleetRightCorner, Vector2 fleetLeftCorner, Vector2 direction, Empire owner)
         {
             float clickDistance = Vector2.Distance(fleetLeftCorner, fleetRightCorner);
             int row = 0;
@@ -137,14 +135,13 @@ namespace Ship_Game
                     Ships[i].RelativeFleetOffset = new Vector2(num7 * i, 0.0f);
                 }
             }
-            ProjectPos(fleetLeftCorner, facingRadians - 1.570796f);
+            ProjectPos(fleetLeftCorner, direction.LeftVector());
         }
+
         public Vector2 FindAveragePosition()
         {
             if (StoredFleetPosition == Vector2.Zero)
                 StoredFleetPosition = FindAveragePositionset();
-            //else if (Ships.Count != 0)
-            //    StoredFleetPosition = Ships[0].Center;
             return StoredFleetPosition;
         }
 
@@ -152,14 +149,13 @@ namespace Ship_Game
         {
             if (Ships.Count == 0)
                 return Vector2.Zero;
-
-            Vector2 center = Vector2.Zero;
             using (Ships.AcquireReadLock())
             {
-                foreach (var ship in Ships) center += ship.Position;
+                Vector2 center = Ships[0].Position;
+                for (int i = 1; i < Ships.Count; ++i)
+                    center += Ships[i].Position;
+                return center / Ships.Count;
             }
-            center /= Ships.Count;
-            return center;
         }
 
         public void Setavgtodestination()
@@ -212,14 +208,14 @@ namespace Ship_Game
         {
             Position = movePosition;
             Facing = facing;
-            AssembleFleet(facing, fVec);
+            AssembleFleet(fVec);
             foreach (Ship ship in Ships)
             {
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
                 if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
                 {
                     ship.AI.SetPriorityOrder(true);
-                    ship.AI.OrderMoveDirectlyTowardsPosition(movePosition + ship.FleetOffset, facing, fVec, true);
+                    ship.AI.OrderMoveDirectlyTowardsPosition(movePosition + ship.FleetOffset, fVec, true);
                 }
             }
         }
@@ -227,18 +223,20 @@ namespace Ship_Game
 
 
 
-        public virtual void FormationWarpTo(Vector2 movePosition, float facing, Vector2 fvec, bool queueOrder = false)
+        public virtual void FormationWarpTo(Vector2 movePosition, Vector2 fvec, bool queueOrder = false)
         {
             GoalStack?.Clear();
             Position = movePosition;
-            Facing = facing;
-            AssembleFleet(facing, fvec, !queueOrder);
+            Facing = fvec.ToRadians();
+            AssembleFleet(fvec, !queueOrder);
             using(Ships.AcquireReadLock())
             foreach (Ship ship in Ships)
             {
                 ship.AI.SetPriorityOrder(!queueOrder);
-                if (queueOrder) ship.AI.OrderFormationWarpQ(movePosition + ship.FleetOffset, facing, fvec);
-                else ship.AI.OrderFormationWarp(movePosition + ship.FleetOffset, facing, fvec);
+                if (queueOrder)
+                    ship.AI.OrderFormationWarpQ(movePosition + ship.FleetOffset, fvec);
+                else
+                    ship.AI.OrderFormationWarp(movePosition + ship.FleetOffset, fvec);
             }
         }
 
@@ -251,24 +249,16 @@ namespace Ship_Game
         }
 
 
-        public void MoveToNow(Vector2 movePosition, float facing, Vector2 fVec)
+        public void MoveToNow(Vector2 movePosition, Vector2 fVec)
         {
             Position = movePosition;
-            Facing = facing;
-            AssembleFleet(facing, fVec, true);
+            Facing = fVec.ToRadians();
+            AssembleFleet(fVec, true);
             foreach (Ship ship in Ships)
             {
                 ship.AI.SetPriorityOrder(false);
-                ship.AI.OrderMoveTowardsPosition(movePosition + ship.FleetOffset, facing, fVec, true, null);
+                ship.AI.OrderMoveTowardsPosition(movePosition + ship.FleetOffset, Facing, fVec, true, null);
             }
-        }
-
-        public void AttackMoveTo(Vector2 movePosition)
-        {
-            GoalStack.Clear();
-            Vector2 fVec = FindAveragePosition().DirectionToTarget(movePosition);
-            Position = FindAveragePosition() + fVec * 3500f;
-            GoalStack.Push(new Fleet.FleetGoal(this, movePosition, FindAveragePosition().RadiansToTarget(movePosition), fVec, Fleet.FleetGoalType.AttackMoveTo));
         }
 
         public float GetStrength()
@@ -281,11 +271,6 @@ namespace Ship_Game
                     num += ship.GetStrength();
             }
             return num;
-        }
-
-        public bool AnyShipWithShipWithStrength()
-        {
-            return CountShipsWithStrength(true) == 1;
         }
 
         public int CountShipsWithStrength(bool any = false)

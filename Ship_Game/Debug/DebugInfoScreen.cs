@@ -538,11 +538,17 @@ namespace Ship_Game.Debug
 
         void InputDebug()
         {
-            DrawString($"RightMouseHeld {Screen.Input.RightMouseHeld()}");
             DrawString($"Mouse Moved {Screen.Input.MouseMoved}");
-            DrawString($"RightMouseWasHeld {Screen.Input.RightMouseWasHeld}");
-            DrawString($"RightMouseTimer {Screen.Input.ReadRightMouseDownTime}");
-            DrawString($"RightMouseHoldStartLocation {Screen.Input.StartRighthold}");
+
+            DrawString($"RightHold Held  {Screen.Input.RightHold.Holding}");
+            DrawString($"RightHold Time  {Screen.Input.RightHold.Time}");
+            DrawString($"RightHold Start {Screen.Input.RightHold.StartPos}");
+            DrawString($"RightHold End   {Screen.Input.RightHold.EndPos}");
+
+            DrawString($"LeftHold Held   {Screen.Input.LeftHold.Holding}");
+            DrawString($"LeftHold Time   {Screen.Input.LeftHold.Time}");
+            DrawString($"LeftHold Start  {Screen.Input.LeftHold.StartPos}");
+            DrawString($"LeftHold End    {Screen.Input.LeftHold.EndPos}");
         }
 
 
