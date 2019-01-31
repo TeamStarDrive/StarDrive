@@ -13,8 +13,8 @@ using Ship_Game.Audio;
 namespace Ship_Game
 {
     public partial class UniverseScreen
-    {   
-        private bool HandleGUIClicks(InputState input)
+    {
+        bool HandleGUIClicks(InputState input)
         {
             bool flag = dsbw != null && showingDSBW && dsbw.HandleInput(input);
             if (aw.IsOpen && aw.HandleInput(input))
@@ -61,7 +61,7 @@ namespace Ship_Game
             return flag;
         }
 
-        private void HandleInputNotLookingAtPlanet(InputState input)
+        void HandleInputNotLookingAtPlanet(InputState input)
         {
             mouseWorldPos = UnprojectToWorldPosition(input.CursorPosition);
             if (input.DeepSpaceBuildWindow) InputOpenDeepSpaceBuildWindow();
@@ -95,7 +95,7 @@ namespace Ship_Game
             HandleScrolls(input);
         }
 
-        private void HandleDebugEvents(InputState input)
+        void HandleDebugEvents(InputState input)
         {
             Empire empire = EmpireManager.Player;
             if (input.EmpireToggle)
@@ -135,7 +135,7 @@ namespace Ship_Game
                 StressTestShipLoading();
         }
 
-        private void HandleInputLookingAtPlanet(InputState input)
+        void HandleInputLookingAtPlanet(InputState input)
         {
             if (input.Tab)
                 ShowShipNames = !ShowShipNames;
@@ -177,7 +177,7 @@ namespace Ship_Game
             }
         }
 
-        private void HandleFleetButtonClick(InputState input)
+        void HandleFleetButtonClick(InputState input)
         {
             InputCheckPreviousShip();
             SelectedShip = null;
@@ -394,7 +394,7 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        private static int InputFleetSelection(InputState input)
+        static int InputFleetSelection(InputState input)
         {
             if (input.Fleet1) return 1;
             if (input.Fleet2) return 2;
@@ -408,7 +408,7 @@ namespace Ship_Game
             return -1;
         }
 
-        private void HandleFleetSelections(InputState input)
+        void HandleFleetSelections(InputState input)
         {
             int index = InputFleetSelection(input);
             if (index == -1) return;
@@ -500,9 +500,9 @@ namespace Ship_Game
                 }
             }
         }
-        
 
-        private Ship CheckShipClick(InputState input)
+
+        Ship CheckShipClick(InputState input)
         {
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {
@@ -512,7 +512,7 @@ namespace Ship_Game
             return null;
         }
 
-        private Planet CheckPlanetClick()
+        Planet CheckPlanetClick()
         {
             lock (GlobalStats.ClickableSystemsLock)
                 foreach (ClickablePlanets clickablePlanets in ClickPlanetList)
@@ -523,7 +523,7 @@ namespace Ship_Game
             return null;
         }
 
-        private SolarSystem CheckSolarSystemClick()
+        SolarSystem CheckSolarSystemClick()
         {
             lock (GlobalStats.ClickableSystemsLock)            
                 for (int x = 0; x < ClickableSystems.Count; ++x)
@@ -536,7 +536,7 @@ namespace Ship_Game
             return null;
         }
 
-        private Fleet CheckFleetClicked()
+        Fleet CheckFleetClicked()
         {
             foreach(ClickableFleet clickableFleet in ClickableFleetsList)
             {
@@ -546,7 +546,7 @@ namespace Ship_Game
             return null;
         }
 
-        private ClickableItemUnderConstruction CheckBuildItemClicked()
+        ClickableItemUnderConstruction CheckBuildItemClicked()
         {
             lock (GlobalStats.ClickableItemLocker)            
                 for (int x = 0; x < ItemsToBuild.Count; ++x)
@@ -559,7 +559,8 @@ namespace Ship_Game
             
             return null;
         }
-        private bool AttackSpecifcShip(Ship ship, Ship target)
+
+        bool AttackSpecifcShip(Ship ship, Ship target)
         {
 
             if (ship.isConstructor ||
@@ -596,7 +597,7 @@ namespace Ship_Game
             return true;
         }
 
-        private void MoveShipGroupToLocation(ShipGroup shipGroup, Array<Ship> selectedShips)
+        void MoveShipGroupToLocation(ShipGroup shipGroup, Array<Ship> selectedShips)
         {
             foreach (Ship groupShip in shipGroup.GetShips)
             {
@@ -610,7 +611,7 @@ namespace Ship_Game
             }
         }
 
-        private bool MoveFleetToPlanet(Planet planetClicked, ShipGroup fleet)
+        bool MoveFleetToPlanet(Planet planetClicked, ShipGroup fleet)
         {
             if (planetClicked == null || fleet == null) return false;
             fleet.Position = planetClicked.Center; //fbedard: center fleet on planet
@@ -620,7 +621,7 @@ namespace Ship_Game
             return true;
         }
 
-        private bool MoveFleetToShip(Ship shipClicked, ShipGroup fleet)
+        bool MoveFleetToShip(Ship shipClicked, ShipGroup fleet)
         {
             if (shipClicked == null || shipClicked.loyalty == player) return false;
             
@@ -632,7 +633,7 @@ namespace Ship_Game
             
         }
 
-        private bool QueueFleetMovement(Vector2 movePosition, float facing, ShipGroup fleet)
+        bool QueueFleetMovement(Vector2 movePosition, float facing, ShipGroup fleet)
         {
             if (!Input.QueueAction || fleet.Ships[0].AI.WayPoints.Count() == 0) return false;
 
@@ -646,7 +647,7 @@ namespace Ship_Game
             return true; 
         }
 
-        private void MoveFleetToLocation(Ship shipClicked, Planet planetClicked, Vector2 movePosition, float  facing, Vector2 fvec, ShipGroup fleet = null)
+        void MoveFleetToLocation(Ship shipClicked, Planet planetClicked, Vector2 movePosition, float  facing, Vector2 fvec, ShipGroup fleet = null)
         {            
             fleet = fleet ?? SelectedFleet;            
             fleet?.FleetTargetList.Clear();
@@ -680,7 +681,7 @@ namespace Ship_Game
                 fleet.FormationWarpTo(movePosition, facing, vectorToTarget, Input.QueueAction);
         }
 
-        private void MoveShipToLocation(Vector2 targetVector, float facingToTargetR, Ship ship = null)
+        void MoveShipToLocation(Vector2 targetVector, float facingToTargetR, Ship ship = null)
         {
             ship = ship ?? SelectedShip;
             GameAudio.AffirmativeClick();
@@ -705,7 +706,7 @@ namespace Ship_Game
                 ship.AI.OrderMoveTowardsPosition(targetVector, facingToTargetR, true, null);
         }
 
-        private bool ShipPieMenu(Ship ship)
+        bool ShipPieMenu(Ship ship)
         {
             if (ship == null || ship != SelectedShip || SelectedShip.Mothership != null ||
                 SelectedShip.isConstructor) return false;
@@ -721,7 +722,7 @@ namespace Ship_Game
             return true;
         }
 
-        private bool ShipPieMenuClear()
+        bool ShipPieMenuClear()
         {
             if (SelectedShip != null || SelectedShipList.Count != 0 || SelectedPlanet == null || !Input.ShipPieMenu)
                 return false;
@@ -738,14 +739,8 @@ namespace Ship_Game
                 pieMenu.ChangeTo(null);
             return true;
         }
-        //private void UnprojectMouse()
-        //{
-        //    startDrag = Input.CursorPosition;
-        //    startDragWorld = UnprojectToWorldPosition(startDrag);
-        //    ProjectedPosition = startDragWorld;
-        //}
 
-        private Vector2 UnprojectMouseWithFacing(out float factingToTargetR, out Vector2 unitVectorToTarget)
+        Vector2 UnprojectMouseWithFacing(out float facingToTargetR, out Vector2 unitVectorToTarget)
         {
             Vector2 worldStartPos  = SelectedFleet?.Position ?? SelectedShip?.Position ?? projectedGroup.FindAveragePosition() ;
             Vector2 worldEndPos = UnprojectToWorldPosition(Input.RightMouseWasHeld ? Input.StartRighthold: Input.CursorPosition);
@@ -756,16 +751,16 @@ namespace Ship_Game
             Ray ray           = new Ray(facingPos.ToVec3(1), facingDir.ToVec3(1));
             float num1        = -ray.Position.Z / ray.Direction.Z;
             Vector3 vector3   = new Vector3(ray.Position.X + num1 * ray.Direction.X,
-                ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
+                                            ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
             
 
-            factingToTargetR = (Input.RightMouseWasHeld ? worldEndPos : worldStartPos).RadiansToTarget(facingPos);
+            facingToTargetR = (Input.RightMouseWasHeld ? worldEndPos : worldStartPos).RadiansToTarget(facingPos);
             
             unitVectorToTarget = Vector2.Normalize(facingDir);
             return worldEndPos;// vector3.ToVec2();
         }
 
-        private bool UnselectableShip(Ship ship = null)
+        bool UnselectableShip(Ship ship = null)
         {
             ship = ship ?? SelectedShip;
             if (!ship.isConstructor && ship.shipData.Role != ShipData.RoleName.supply) return false;
@@ -773,20 +768,19 @@ namespace Ship_Game
             return true;
         }
 
-        private void MoveFleetToMouse(Planet planet, Ship ship)
+        void MoveFleetToMouse(Planet planet, Ship ship)
         {            
-            Vector2 targetVector = UnprojectMouseWithFacing(out float facingToTargetR,
-                out Vector2 unitVectorToTarget);
+            Vector2 targetVector = UnprojectMouseWithFacing(out float facingToTargetR, out Vector2 unitVectorToTarget);
             MoveFleetToLocation(ship, planet, targetVector, facingToTargetR, unitVectorToTarget);
         }
-        private void MoveShipToMouse()
+
+        void MoveShipToMouse()
         {
-            Vector2 targetVector = UnprojectMouseWithFacing(out float facingToTargetR,
-                out Vector2 unitVectorToTarget);
+            Vector2 targetVector = UnprojectMouseWithFacing(out float facingToTargetR, out Vector2 unitVectorToTarget);
             MoveShipToLocation(targetVector, facingToTargetR);
         }
 
-        private void MoveShipGroupToMouse()
+        void MoveShipGroupToMouse()
         {
             if (Input.RightMouseWasHeld)
             {
@@ -818,27 +812,34 @@ namespace Ship_Game
 
         }
 
-        private void SelectedShipsHandleRightMouse()
+        void SelectedShipsHandleRightMouse()
         {
-            if (Input.RightMouseHeldUp || NotificationManager.HitTest) return;
+            if (Input.RightMouseHeldUp || NotificationManager.HitTest)
+                return;
+
             if (Input.RightMouseClick)            
                 SelectedSomethingTimer = 3f;
             
             if (SelectedShip != null && SelectedShip.AI.State == AIState.ManualControl &&
                 Input.StartRighthold.InRadius(SelectedShip.Center, 5000f))
+            {
+                Log.Info($"Input.StartRighthold.InRadius(SelectedShip.Center, 5000f)");
+                return;
+            }
+
+            if (SelectedShipsRightMouseClick())
                 return;
 
-            if (SelectedShipsRightMouseClick()) return;
-
-            if (SelectedShipsRightMouseWasHeld()) return;
-
+            if (SelectedShipsRightMouseWasHeld())
+                return;
 
             SelectedShipsRightMouseHeld();
         }
 
-        private void SelectedShipsRightMouseHeld()
+        void SelectedShipsRightMouseHeld()
         {
-            if (!Input.RightMouseHeld(.3f)) return;
+            if (!Input.RightMouseHeld(0.3f))
+                return;
 
             ProjectingPosition = true;
             Vector2 endDragWorld      = UnprojectToWorldPosition(Input.EndRightHold);
@@ -846,13 +847,13 @@ namespace Ship_Game
             float facing = Input.StartRighthold.RadiansToTarget(Input.CursorPosition);
             Vector2 facingVector = Input.StartRighthold.DirectionToTarget(Input.CursorPosition);
 
-            if (SelectedFleet?.Owner == EmpireManager.Player)
+            if (SelectedFleet != null && SelectedFleet.Owner == EmpireManager.Player)
             {
                 ProjectingPosition = true;
                 SelectedFleet.ProjectPos(startDragWorld, facing);
                 projectedGroup = SelectedFleet;
             }
-            else if (SelectedShip?.loyalty == player)
+            else if (SelectedShip != null && SelectedShip.loyalty == player)
             {
                 if (SelectedShip.isConstructor || SelectedShip.shipData.Role == ShipData.RoleName.supply)
                 {
@@ -877,19 +878,18 @@ namespace Ship_Game
                         return;
                 }
 
-       
-                Vector2 fVec2  = new Vector2(-facingVector.Y, facingVector.X);
-
+                var fVec2  = new Vector2(-facingVector.Y, facingVector.X);
                 var fleet = new ShipGroup();
                 fleet.AssembleAdhocGroup(SelectedShipList, endDragWorld, startDragWorld, facing, fVec2, player);
-
                 projectedGroup = fleet;
             }
         }
 
-        private bool SelectedShipsRightMouseWasHeld()
+        bool SelectedShipsRightMouseWasHeld()
         {
-            if (!Input.RightMouseWasHeld) return false;
+            if (!Input.RightMouseWasHeld)
+                return false;
+
             ProjectingPosition = false;
             if (SelectedFleet != null && SelectedFleet.Owner == player)
             {
@@ -926,7 +926,7 @@ namespace Ship_Game
 
         }
 
-        private bool SelectedShipsRightMouseClick()
+        bool SelectedShipsRightMouseClick()
         {
             Ship shipClicked = CheckShipClick(Input);
             Planet planetClicked = CheckPlanetClick();
@@ -1004,7 +1004,7 @@ namespace Ship_Game
             return false;
         }
 
-        private bool SelectShipClicks(InputState input)
+        bool SelectShipClicks(InputState input)
         {
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {
@@ -1036,7 +1036,7 @@ namespace Ship_Game
             return false;
         }
 
-        private void LeftClickOnClickableItem(InputState input)
+        void LeftClickOnClickableItem(InputState input)
         {
             if (input.ShipPieMenu)
             {
@@ -1116,7 +1116,8 @@ namespace Ship_Game
             if ((SelectedItem = CheckBuildItemClicked()) != null)
                 GameAudio.BuildItemClicked();
         }
-        private void HandleSelectionBox(InputState input)
+
+        void HandleSelectionBox(InputState input)
         {
             if (input.LeftMouseClick)
                 SelectionBox = new Rectangle(input.MouseCurr.X, input.MouseCurr.Y, 0, 0);
@@ -1223,14 +1224,14 @@ namespace Ship_Game
             SelectionBox = new Rectangle(0, 0, -1, -1);
         }
 
-        private bool NonCombatShip(Ship ship)
+        bool NonCombatShip(Ship ship)
         {
             return ship != null && (ship.shipData.Role <= ShipData.RoleName.freighter ||
                 ship.shipData.ShipCategory == ShipData.Category.Civilian ||
                 ship.AI.State == AIState.Colonize);
         }
 
-        private bool GetAllShipsInArea(Rectangle screenArea, out Array<Ship> ships, out bool purgeLoyalty, out bool purgeType, out Fleet fleet)
+        bool GetAllShipsInArea(Rectangle screenArea, out Array<Ship> ships, out bool purgeLoyalty, out bool purgeType, out Fleet fleet)
         {
             ships              = new Array<Ship>();
             int playerShips    = 0;
@@ -1261,8 +1262,8 @@ namespace Ship_Game
             return ships.Count > 0;
 
         }
-        
-        private bool RightClickOnShip(Ship selectedShip, Ship targetShip)
+
+        bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
             if (targetShip == null || selectedShip == targetShip) return false;
 
@@ -1286,8 +1287,8 @@ namespace Ship_Game
                 selectedShip.AI.OrderAttackSpecificTarget(targetShip);
             return true;
         }
-    
-        private void RightClickOnPlanet(Ship ship, Planet planet, bool audio = false)
+
+        void RightClickOnPlanet(Ship ship, Planet planet, bool audio = false)
         {
             if (planet == null) return;
 
@@ -1388,7 +1389,7 @@ namespace Ship_Game
             }
         }
 
-        private void DefineAO(InputState input)
+        void DefineAO(InputState input)
         {
             HandleScrolls(input);
             if (SelectedShip == null)
@@ -1442,7 +1443,7 @@ namespace Ship_Game
             SelectedShip.AreaOfOperation.Add(AORect);            
         }
 
-        private void InputClickableItems(InputState input)
+        void InputClickableItems(InputState input)
         {
             SelectedShipList.Clear();
             if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
@@ -1500,7 +1501,7 @@ namespace Ship_Game
             }
         }
 
-        private void PreviousTargetSelection(InputState input)
+        void PreviousTargetSelection(InputState input)
         {
             if (previousSelection.Active)
             {
@@ -1521,7 +1522,7 @@ namespace Ship_Game
                 previousSelection = null;  //fbedard: remove inactive ship
         }
 
-        private void CycleShipsInCombat(InputState input)
+        void CycleShipsInCombat(InputState input)
         {
             ShipsInCombat.State = UIButton.PressState.Hover;
             ToolTip.CreateTooltip("Cycle through ships not in fleet that are in combat");
@@ -1558,7 +1559,7 @@ namespace Ship_Game
             }
         }
 
-        private void CyclePlanetsInCombat(InputState input)
+        void CyclePlanetsInCombat(InputState input)
         {
             PlanetsInCombat.State = UIButton.PressState.Hover;
             ToolTip.CreateTooltip("Cycle through planets that are in combat");
@@ -1632,19 +1633,19 @@ namespace Ship_Game
             }
         }
 
-        private void ResetToolTipTimer(ref bool toolTipToReset, float timer = 0.5f)
+        void ResetToolTipTimer(ref bool toolTipToReset, float timer = 0.5f)
         {
             toolTipToReset = false;
             TooltipTimer = 0.5f;
         }
 
-        private void InputCheckPreviousShip(Ship ship = null)
+        void InputCheckPreviousShip(Ship ship = null)
         {
             if (SelectedShip != null  && previousSelection != SelectedShip && SelectedShip != ship) //fbedard
                 previousSelection = SelectedShip;
         }
 
-        private void HandleInputScrap(InputState input)
+        void HandleInputScrap(InputState input)
         {
             player.GetEmpireAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
             bool flag = false;
@@ -1694,7 +1695,7 @@ namespace Ship_Game
             SelectedItem = null;
         }
 
-        private void AddSelectedShipsToFleet(Fleet fleet)
+        void AddSelectedShipsToFleet(Fleet fleet)
         {
             using (fleet.Ships.AcquireWriteLock())
             {
