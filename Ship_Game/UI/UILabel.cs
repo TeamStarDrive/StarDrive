@@ -65,7 +65,7 @@ namespace Ship_Game
 
         public override string ToString()
         {
-            return $"Label {Pos} Visible:{Visible} Text=\"{Text}\"";
+            return $"Label {ElementDescr} Text=\"{Text}\"";
         }
 
         public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font) : base(parent, pos, font.MeasureString(text))
@@ -104,6 +104,10 @@ namespace Ship_Game
 
         public UILabel(string text) : this(text, Fonts.Arial12Bold)
         {
+        }
+        public UILabel(string text, Color color) : this(text, Fonts.Arial12Bold)
+        {
+            Color = color;
         }
         public UILabel(string text, SpriteFont font)
         {

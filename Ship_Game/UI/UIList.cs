@@ -59,7 +59,7 @@ namespace Ship_Game
             }
         }
 
-        public override string ToString() => $"List {Pos} Items:{Items.Count} Header:{Header!=null} Footer:{Footer!=null}";
+        public override string ToString() => $"List {ElementDescr} Items={Items.Count} Header={Header!=null} Footer={Footer!=null}";
 
         public UIList(UIElementV2 parent, in Rectangle rect) : base(parent, in rect, Color.TransparentBlack)
         {
@@ -69,7 +69,7 @@ namespace Ship_Game
         {
         }
 
-        public UIList(UIElementV2 parent, in Rectangle rect, Color color) : base(parent, in rect, color)
+        public UIList(in Rectangle rect, Color color) : base(null, in rect, color)
         {
         }
 
@@ -161,15 +161,14 @@ namespace Ship_Game
             Vector2 pos = Pos + Padding;
 
             Vector2 dim = MaxDimensions();
-            Vector2 elemSize = Direction * (dim - Padding*2f);
-            elemSize.X = Math.Abs(elemSize.X);
-            elemSize.Y = Math.Abs(elemSize.Y);
+            // swap will enforce Width during Vertical and Height during Horizontal
+            Vector2 elemSize = Direction.Swapped() * (dim - Padding*2f);
+            elemSize = elemSize.AbsVec(); // make sure size is absolute
 
-            if (Direction.X.NotZero()) // horizontal list
-                Height = dim.Y;
-
-            if (Direction.Y.NotZero()) // Vertical list
+            if (elemSize.X.NotZero()) // Vertical list
                 Width = dim.X;
+            if (elemSize.Y.NotZero()) // horizontal list
+                Height = dim.Y;
 
             if (HeaderElement != null)
                 LayoutItem(HeaderElement, ref pos, elemSize, Padding + new Vector2(2f));
@@ -188,7 +187,8 @@ namespace Ship_Game
 
             if (FooterElement != null)
             {
-                pos = BotRight - Direction*(FooterElement.Size + Padding + new Vector2(2f));
+                pos = (BotLeft + Padding*Direction.Swapped())
+                    - Direction * (FooterElement.Size + Padding);
                 LayoutItem(FooterElement, pos, elemSize);
             }
             RequiresLayout = false;

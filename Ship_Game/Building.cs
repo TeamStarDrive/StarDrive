@@ -266,8 +266,7 @@ namespace Ship_Game
 
             if (IsSpacePort)
             {
-                p.Station.planet = p;
-                p.Station.ParentSystem = p.ParentSystem;
+                p.Station.Planet = p;
                 p.Station.LoadContent(Empire.Universe.ScreenManager);
             }
             p.HasSpacePort |= IsSpacePort || AllowShipBuilding;

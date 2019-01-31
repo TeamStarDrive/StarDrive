@@ -79,8 +79,13 @@ namespace Ship_Game
         public float Right  { get => Pos.X + Size.X; set => Size.X = (value - Pos.X); }
         public float Bottom { get => Pos.Y + Size.Y; set => Size.Y = (value - Pos.Y); }
         public Vector2 BotRight => new Vector2(Pos.X + Size.X, Pos.Y + Size.Y);
+        public Vector2 BotLeft  => new Vector2(Pos.X,          Pos.Y + Size.Y);
         public float CenterX => Pos.X + Size.X*0.5f;
         public float CenterY => Pos.Y + Size.Y*0.5f;
+
+        public string ElementDescr => $"{{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
+
+        public override string ToString() => $"Element {ElementDescr}";
 
         static Vector2 RelativeToAbsolute(UIElementV2 parent, float x, float y)
         {
