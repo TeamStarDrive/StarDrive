@@ -23,15 +23,15 @@ namespace Ship_Game
         public bool WasAnyKeyPressed => KeysCurr.GetPressedKeys().Length > 0;
 
         // Mouse Timers
-        private float RightMouseDownTime;
-        private float LeftMouseDownTime;
-        private bool RightMouseWasHeldInteral;
-        private bool LeftMouseWasHeldInteral;
+        float RightMouseDownTime;
+        float LeftMouseDownTime;
+        bool RightMouseWasHeldInteral;
+        bool LeftMouseWasHeldInteral;
         public bool RightMouseWasHeld         => RightMouseWasHeldInteral;
         public bool LeftMouseWasHeld          => LeftMouseWasHeldInteral;
         public float ReadRightMouseDownTime   => RightMouseDownTime;
-        private bool RightHeld;
-        private bool LeftHeld;
+        bool RightHeld;
+        bool LeftHeld;
         public bool RightMouseDoubleClick { get; private set; }
         public bool LeftMouseDoubleClick  { get; private set; }
         public bool MouseMoved            { get; private set; }
@@ -60,18 +60,19 @@ namespace Ship_Game
         public int MouseX { get; private set; }
         public int MouseY { get; private set; }
 
-        private Vector2 MouseRightClickPos = Vector2.Zero;
-        private Vector2 MouseLeftClickPos  = Vector2.Zero;
+        Vector2 MouseRightClickPos = Vector2.Zero;
+        Vector2 MouseLeftClickPos  = Vector2.Zero;
         public bool MouseDrag => StartLeftHold != Vector2.Zero || StartRighthold != Vector2.Zero;
-        private bool MouseLeftDrag;
-        private bool MouseRightDrag;
-        private void SetMouseDrag()
+        bool MouseLeftDrag;
+        bool MouseRightDrag;
+
+        void SetMouseDrag()
         {
             MouseLeftDrag =  MouseCursorDragCheck(MouseLeftDrag, ref MouseLeftClickPos, MouseCurr.LeftButton);
             MouseRightDrag = MouseCursorDragCheck(MouseRightDrag, ref MouseRightClickPos, MouseCurr.RightButton);
         }
 
-        private bool MouseCursorDragCheck(bool set, ref Vector2 cursorPos, ButtonState pressed)
+        bool MouseCursorDragCheck(bool set, ref Vector2 cursorPos, ButtonState pressed)
         {
             if (pressed != ButtonState.Pressed)
             {
@@ -83,11 +84,10 @@ namespace Ship_Game
                 cursorPos = CursorPosition;
                 return false;
             }
+            if (set) return true;
 
-            if (set || cursorPos.SqDist(CursorPosition) > 10)
-                return true;
-            return false;
-
+            float dist = cursorPos.Distance(CursorPosition);
+            return dist >= 1;
         }
 
         public bool LeftMouseHeld(float heldForSeconds = 0.15f)
@@ -100,16 +100,18 @@ namespace Ship_Game
             RightHeld = MouseRightDrag && MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, heldForSeconds, RightMouseDownTime);            
             return RightHeld;
         }
-        private static bool MouseButtonHeld(ButtonState current, ButtonState prev, float heldForSeconds, float heldTime)
+
+        static bool MouseButtonHeld(ButtonState current, ButtonState prev, float heldForSeconds, float heldTime)
         {
             return current == ButtonState.Pressed && prev == ButtonState.Pressed && heldTime >= heldForSeconds;            
         }
-        
-        private static bool MouseButtonClicked(ButtonState current, ButtonState prev)
+
+        static bool MouseButtonClicked(ButtonState current, ButtonState prev)
         {
             return current == ButtonState.Pressed && prev == ButtonState.Released;
         }
-        private static bool MouseButtonReleased(ButtonState current, ButtonState prev)
+
+        static bool MouseButtonReleased(ButtonState current, ButtonState prev)
         {
             return current == ButtonState.Released && prev == ButtonState.Pressed;
         }
@@ -270,11 +272,12 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
-        private struct DoubleClickTimer
+        struct DoubleClickTimer
         {
-            private const float TooSlowThreshold = 0.5f;
-            private bool FirstClick;
-            private float Timer;
+            const float TooSlowThreshold = 0.5f;
+            bool FirstClick;
+
+            float Timer;
             // @return TRUE if double click happened this frame
             public bool Update(float deltaTime, bool wasClicked, bool mouseMoved)
             {
@@ -301,10 +304,10 @@ namespace Ship_Game
             }
         }
 
-        private DoubleClickTimer LeftDoubleClicker  = new DoubleClickTimer();
-        private DoubleClickTimer RightDoubleClicker = new DoubleClickTimer();
+        DoubleClickTimer LeftDoubleClicker  = new DoubleClickTimer();
+        DoubleClickTimer RightDoubleClicker = new DoubleClickTimer();
 
-        private void UpdateTimers(float time)
+        void UpdateTimers(float time)
         {
             TimerUpdate(time, LeftMouseDown,  ref LeftMouseDownTime,  ref LeftMouseWasHeldInteral,  ref LeftHeld);
             TimerUpdate(time, RightMouseDown, ref RightMouseDownTime, ref RightMouseWasHeldInteral, ref RightHeld);
@@ -313,7 +316,8 @@ namespace Ship_Game
             LeftMouseDoubleClick  = LeftDoubleClicker.Update(time, LeftMouseClick, MouseMoved);
             RightMouseDoubleClick = RightDoubleClicker.Update(time, RightMouseClick, MouseMoved);
         }
-        private static void TimerUpdate(float time, bool mouseDown, ref float timer, ref bool wasHeld, ref bool held)
+
+        static void TimerUpdate(float time, bool mouseDown, ref float timer, ref bool wasHeld, ref bool held)
         {
             if (mouseDown)
             {
@@ -326,23 +330,26 @@ namespace Ship_Game
                 timer = 0f;
             }
         }
-        private Vector2 UpdateHoldStartPosistion(bool held, bool wasHeld, Vector2 holdPosistion, bool drag)
+
+        Vector2 UpdateHoldStartPosition(bool held, bool wasHeld, Vector2 holdPosition, bool drag)
         {
             if (!held && !wasHeld) return Vector2.Zero;
-            return held && drag && holdPosistion == Vector2.Zero ? CursorPosition : holdPosistion;            
+            return held && drag && holdPosition == Vector2.Zero ? CursorPosition : holdPosition;            
         }
-        private Vector2 UpdateHoldEndPosistion(bool held, bool wasHeld, Vector2 holdPosistion, bool drag)
+
+        Vector2 UpdateHoldEndPosition(bool held, bool wasHeld, bool drag)
         {
             if (!(held && drag) && !wasHeld) return Vector2.Zero;
             return CursorPosition;
         }
+
         public void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            KeysPrev = KeysCurr;
+            KeysPrev    = KeysCurr;
             GamepadPrev = GamepadCurr;
-            MousePrev = MouseCurr;
+            MousePrev   = MouseCurr;
             ScrollWheelPrev = MouseCurr.ScrollWheelValue;
             MouseCurr = Mouse.GetState();
             CursorPosition = new Vector2(MouseCurr.X, MouseCurr.Y);
@@ -350,19 +357,20 @@ namespace Ship_Game
             MouseY = MouseCurr.Y;
             KeysCurr = Keyboard.GetState();
             MouseMoved = CursorPosition.Distance(MousePrev.Pos()) > 1;
+
             if (ExitScreenTimer >= 0)
             {
                 ExitScreenTimer -= elapsedTime;
                 return;
             }
-            SetMouseDrag();
 
+            SetMouseDrag();
             UpdateTimers(elapsedTime);
 
-            StartRighthold = UpdateHoldStartPosistion(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
-            EndRightHold = UpdateHoldEndPosistion(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
-            StartLeftHold = UpdateHoldStartPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
-            EndLeftHold = UpdateHoldEndPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
+            StartRighthold = UpdateHoldStartPosition(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
+            EndRightHold   = UpdateHoldEndPosition  (RightHeld, RightMouseWasHeld, MouseRightDrag);
+            StartLeftHold  = UpdateHoldStartPosition(LeftHeld,  LeftMouseWasHeld,  StartLeftHold,  MouseLeftDrag);
+            EndLeftHold    = UpdateHoldEndPosition  (LeftHeld,  LeftMouseWasHeld,  MouseLeftDrag);
         }
     }
 }
