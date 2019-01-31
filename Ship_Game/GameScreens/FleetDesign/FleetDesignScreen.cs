@@ -1173,11 +1173,11 @@ namespace Ship_Game
             }
 
             if (Input.RightMouseHeld())
-                if (Input.StartRighthold.OutsideRadius(Input.CursorPosition, 10f))
+                if (Input.StartRightHold.OutsideRadius(Input.CursorPosition, 10f))
                 {
-                    CamVelocity = Input.CursorPosition.DirectionToTarget(Input.StartRighthold);
+                    CamVelocity = Input.CursorPosition.DirectionToTarget(Input.StartRightHold);
                     CamVelocity = Vector2.Normalize(CamVelocity) *
-                              Vector2.Distance(Input.StartRighthold, Input.CursorPosition);
+                              Vector2.Distance(Input.StartRightHold, Input.CursorPosition);
                 }
                 else
                 {
@@ -1490,7 +1490,7 @@ namespace Ship_Game
                 {
                     SelectionBox = new Rectangle(input.MouseCurr.X, input.MouseCurr.Y, 0, 0);                    
                 }
-                if (Input.LeftMouseWasHeld)
+                if (Input.LeftMouseHeldDown)
                 {
                     if (input.MouseCurr.X < SelectionBox.X)
                     {
@@ -1824,7 +1824,7 @@ namespace Ship_Game
             }
             Vector2 p = SelectedFleet.Position.PointFromRadians(SelectedFleet.Facing, 1f);
             Vector2 fvec = SelectedFleet.Position.DirectionToTarget(p);
-            SelectedFleet.AssembleFleet(SelectedFleet.Facing, fvec);
+            SelectedFleet.AssembleFleet2(fvec);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 

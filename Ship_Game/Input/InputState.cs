@@ -3,38 +3,19 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
-    public sealed class InputState
+    public sealed partial class InputState
     {
-        //public bool CancelInput = ExitScreenTimer >0;
         public KeyboardState KeysCurr;
         public KeyboardState KeysPrev;
         public GamePadState GamepadCurr;
         public GamePadState GamepadPrev;
         public MouseState MouseCurr;
         public MouseState MousePrev;
+
         public int ScrollWheelPrev;
         public float ExitScreenTimer;
-        // MouseDrag variables
-        public Vector2 StartRighthold { get; private set; }
-        public Vector2 EndRightHold   { get; private set; }
-        public Vector2 StartLeftHold  { get; private set; }
-        public Vector2 EndLeftHold    { get; private set; }
        
         public bool WasAnyKeyPressed => KeysCurr.GetPressedKeys().Length > 0;
-
-        // Mouse Timers
-        float RightMouseDownTime;
-        float LeftMouseDownTime;
-        bool RightMouseWasHeldInteral;
-        bool LeftMouseWasHeldInteral;
-        public bool RightMouseWasHeld         => RightMouseWasHeldInteral;
-        public bool LeftMouseWasHeld          => LeftMouseWasHeldInteral;
-        public float ReadRightMouseDownTime   => RightMouseDownTime;
-        bool RightHeld;
-        bool LeftHeld;
-        public bool RightMouseDoubleClick { get; private set; }
-        public bool LeftMouseDoubleClick  { get; private set; }
-        public bool MouseMoved            { get; private set; }
 
         // Mouse Clicks
         public bool RightMouseClick    => MouseButtonClicked(MouseCurr.RightButton, MousePrev.RightButton);
@@ -48,10 +29,13 @@ namespace Ship_Game
         public bool RightMouseDown     => MouseCurr.RightButton == ButtonState.Pressed;
         public bool LeftMouseUp        => MouseCurr.LeftButton  != ButtonState.Pressed;
         public bool RightMouseUp       => MouseCurr.RightButton != ButtonState.Pressed;
-        public bool LeftMouseHeldDown  => MouseCurr.LeftButton  == ButtonState.Pressed && MousePrev.LeftButton  == ButtonState.Pressed;
-        public bool RightMouseHeldDown => MouseCurr.RightButton == ButtonState.Pressed && MousePrev.RightButton == ButtonState.Pressed;
-        public bool RightMouseHeldUp   => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed && !LeftMouseWasHeld;
-        public bool LeftMouseHeldUp    => MouseCurr.LeftButton  != ButtonState.Pressed && MousePrev.LeftButton  != ButtonState.Pressed;
+
+        static bool MouseButtonClicked(ButtonState current, ButtonState prev)
+            => current == ButtonState.Pressed && prev == ButtonState.Released;
+
+        static bool MouseButtonReleased(ButtonState current, ButtonState prev)
+            => current == ButtonState.Released && prev == ButtonState.Pressed;
+
 
         // Mouse position
         public Vector2 CursorPosition { get; private set; }
@@ -59,70 +43,14 @@ namespace Ship_Game
         public float CursorY => CursorPosition.Y;
         public int MouseX { get; private set; }
         public int MouseY { get; private set; }
+        public bool MouseMoved { get; private set; }
 
-        Vector2 MouseRightClickPos = Vector2.Zero;
-        Vector2 MouseLeftClickPos  = Vector2.Zero;
-        public bool MouseDrag => StartLeftHold != Vector2.Zero || StartRighthold != Vector2.Zero;
-        bool MouseLeftDrag;
-        bool MouseRightDrag;
 
-        void SetMouseDrag()
-        {
-            MouseLeftDrag =  MouseCursorDragCheck(MouseLeftDrag, ref MouseLeftClickPos, MouseCurr.LeftButton);
-            MouseRightDrag = MouseCursorDragCheck(MouseRightDrag, ref MouseRightClickPos, MouseCurr.RightButton);
-        }
-
-        bool MouseCursorDragCheck(bool set, ref Vector2 cursorPos, ButtonState pressed)
-        {
-            if (pressed != ButtonState.Pressed)
-            {
-                cursorPos = Vector2.Zero;
-                return false;
-            }
-            if (cursorPos == Vector2.Zero)
-            {
-                cursorPos = CursorPosition;
-                return false;
-            }
-            if (set) return true;
-
-            float dist = cursorPos.Distance(CursorPosition);
-            return dist >= 1;
-        }
-
-        public bool LeftMouseHeld(float heldForSeconds = 0.15f)
-        {
-            LeftHeld = MouseLeftDrag && MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, heldForSeconds, LeftMouseDownTime);            
-            return LeftHeld;
-        }
-        public bool RightMouseHeld(float heldForSeconds = 0.15f)
-        {
-            RightHeld = MouseRightDrag && MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, heldForSeconds, RightMouseDownTime);            
-            return RightHeld;
-        }
-
-        static bool MouseButtonHeld(ButtonState current, ButtonState prev, float heldForSeconds, float heldTime)
-        {
-            return current == ButtonState.Pressed && prev == ButtonState.Pressed && heldTime >= heldForSeconds;            
-        }
-
-        static bool MouseButtonClicked(ButtonState current, ButtonState prev)
-        {
-            return current == ButtonState.Pressed && prev == ButtonState.Released;
-        }
-
-        static bool MouseButtonReleased(ButtonState current, ButtonState prev)
-        {
-            return current == ButtonState.Released && prev == ButtonState.Pressed;
-        }
         
         public bool IsKeyDown(Keys key) => KeysCurr.IsKeyDown(key);
 
         // key was pressed down (previous state was up)
-        public bool KeyPressed(Keys key)
-        {
-            return KeysCurr.IsKeyDown(key) && KeysPrev.IsKeyUp(key);
-        }
+        public bool KeyPressed(Keys key) => KeysCurr.IsKeyDown(key) && KeysPrev.IsKeyUp(key);
 
         public bool GamepadClicked(Buttons button)
         {
@@ -133,8 +61,6 @@ namespace Ship_Game
 
         public bool LeftStickFlickDown => GamepadCurr.ThumbSticks.Left.Y < 0f && GamepadPrev.ThumbSticks.Left.Y >= 0f;
         public bool LeftStickFlickUp   => GamepadCurr.ThumbSticks.Left.Y > 0f && GamepadPrev.ThumbSticks.Left.Y <= 0f;
-
-
 
 
         //Ingame 
@@ -171,65 +97,62 @@ namespace Ship_Game
         public bool OrderOption          => IsAltKeyDown;
         public bool ShipPieMenu          => KeyPressed(Keys.Q);
         
-        //input.KeysCurr.IsKeyDown(Keys.LeftAlt)
-        //IngameWiki
+        // IngameWiki
         public bool ExitWiki => KeyPressed(Keys.P) && !GlobalStats.TakingInput;
 
-        //FleetDesignScreen
+        // FleetDesignScreen
         public bool FleetRemoveSquad => KeyPressed(Keys.Back) || KeyPressed(Keys.Delete);
         public bool FleetExitScreen => KeyPressed(Keys.J) || KeyPressed(Keys.Escape);
 
-        //debug
-        public bool DebugMode            => LeftCtrlShift && (KeyPressed(Keys.OemTilde) || KeyPressed(Keys.Tab));
-        public bool GetMemory            => KeyPressed(Keys.G);
-        public bool ShowDebugWindow      => KeyPressed(Keys.H);  
-        public bool EmpireToggle         => IsKeyDown(Keys.LeftShift);
-        public bool SpawnShip            => KeyPressed(Keys.C);
-        public bool SpawnFleet1          => KeyPressed(Keys.Z) && !IsKeyDown(Keys.LeftControl);
-        public bool SpawnFleet2          => IsKeyDown(Keys.LeftControl) && KeyPressed(Keys.Z);
-        public bool KillThis             => KeyPressed(Keys.X);
-        public bool SpawnRemnantShip     => KeyPressed(Keys.V);
-        //Ingame controls
-        public bool PreviousTarget       => BackMouseClick;
-        public bool ChaseCam             => MiddleMouseClick;
-        public bool TacticalIcons        => IsKeyDown(Keys.LeftAlt);
+        // debug
+        public bool DebugMode        => LeftCtrlShift && (KeyPressed(Keys.OemTilde) || KeyPressed(Keys.Tab));
+        public bool GetMemory        => KeyPressed(Keys.G);
+        public bool ShowDebugWindow  => KeyPressed(Keys.H);  
+        public bool EmpireToggle     => IsKeyDown(Keys.LeftShift);
+        public bool SpawnShip        => KeyPressed(Keys.C);
+        public bool SpawnFleet1      => KeyPressed(Keys.Z) && !IsKeyDown(Keys.LeftControl);
+        public bool SpawnFleet2      => IsKeyDown(Keys.LeftControl) && KeyPressed(Keys.Z);
+        public bool KillThis         => KeyPressed(Keys.X);
+        public bool SpawnRemnantShip => KeyPressed(Keys.V);
+        // Ingame controls
+        public bool PreviousTarget  => BackMouseClick;
+        public bool ChaseCam        => MiddleMouseClick;
+        public bool TacticalIcons   => IsKeyDown(Keys.LeftAlt);
 
         public bool IsAltKeyDown    => IsKeyDown(Keys.LeftAlt)     || IsKeyDown(Keys.RightAlt);
         public bool IsCtrlKeyDown   => IsKeyDown(Keys.LeftControl) || IsKeyDown(Keys.RightControl);
         public bool IsShiftKeyDown  => IsKeyDown(Keys.LeftShift)   || IsKeyDown(Keys.RightShift);
         public bool IsEnterOrEscape => IsKeyDown(Keys.Enter)       || IsKeyDown(Keys.Escape);
 
-        //researchScreen
+        // researchScreen
         public bool ResearchExitScreen => KeyPressed(Keys.R);
 
         public bool ShipDesignExit => KeyPressed(Keys.Y) && !IsCtrlKeyDown;
         public bool ShipYardArcMove()
         {
             if (GlobalStats.AltArcControl)
-            {
                 return LeftMouseDown && IsAltKeyDown;
-            }
             return LeftMouseHeld();
         }
 
-        public bool Undo              => IsCtrlKeyDown && KeyPressed(Keys.Z); // Ctrl+Z
-        public bool Redo              => IsCtrlKeyDown && (KeyPressed(Keys.Y) || (IsShiftKeyDown && KeyPressed(Keys.Z))); // Ctrl+Y or Ctrl+Shift+Z
-        public bool LeftCtrlShift     => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
+        public bool Undo => IsCtrlKeyDown && KeyPressed(Keys.Z); // Ctrl+Z
+        public bool Redo => IsCtrlKeyDown && (KeyPressed(Keys.Y) || (IsShiftKeyDown && KeyPressed(Keys.Z))); // Ctrl+Y or Ctrl+Shift+Z
+        public bool LeftCtrlShift => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
 
-        public bool AButtonDown       => GamepadClicked(Buttons.A);
-        public bool BButtonDown       => GamepadClicked(Buttons.B);
-        public bool BButtonHeld       => GamepadHeld(Buttons.B);
-        public bool C                 => KeyPressed(Keys.C);
+        public bool AButtonDown   => GamepadClicked(Buttons.A);
+        public bool BButtonDown   => GamepadClicked(Buttons.B);
+        public bool BButtonHeld   => GamepadHeld(Buttons.B);
+        public bool C             => KeyPressed(Keys.C);
 
-        public bool OpenInventory     => KeyPressed(Keys.I) || GamepadClicked(Buttons.DPadDown);
-        public bool Escaped           => KeyPressed(Keys.Escape);
+        public bool OpenInventory => KeyPressed(Keys.I) || GamepadClicked(Buttons.DPadDown);
+        public bool Escaped       => KeyPressed(Keys.Escape);
 
-        public bool ExitScreen        => GamepadClicked(Buttons.Back);
+        public bool ExitScreen    => GamepadClicked(Buttons.Back);
 
-        public bool InGameSelect      => LeftMouseClick || GamepadClicked(Buttons.A);
-        public bool Land              => KeyPressed(Keys.L);
+        public bool InGameSelect  => LeftMouseClick || GamepadClicked(Buttons.A);
+        public bool Land          => KeyPressed(Keys.L);
 
-        public bool LeftShoulderDown  => GamepadClicked(Buttons.LeftShoulder);
+        public bool LeftShoulderDown => GamepadClicked(Buttons.LeftShoulder);
 
         public bool MenuCancel => KeyPressed(Keys.Escape) || GamepadClicked(Buttons.B) || GamepadClicked(Buttons.Back);
         public bool MenuSelect => KeyPressed(Keys.Space)  || KeyPressed(Keys.Enter)    || GamepadClicked(Buttons.A) || GamepadClicked(Buttons.Start);
@@ -272,77 +195,6 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
-        struct DoubleClickTimer
-        {
-            const float TooSlowThreshold = 0.5f;
-            bool FirstClick;
-
-            float Timer;
-            // @return TRUE if double click happened this frame
-            public bool Update(float deltaTime, bool wasClicked, bool mouseMoved)
-            {
-                if (mouseMoved)
-                {
-                    FirstClick = false;
-                    return false;
-                }
-                if (!FirstClick) // wait for first click to happen
-                {
-                    Timer = 0f;
-                    if (wasClicked)
-                        FirstClick = true;
-                    return false; // no double click yet
-                }
-                // if too much time elapsed, reset everything
-                Timer += deltaTime;
-                if (Timer > TooSlowThreshold || wasClicked)
-                {
-                    FirstClick = false;
-                    return wasClicked; // if we did a last minute doubleclick then return it
-                }
-                return false;
-            }
-        }
-
-        DoubleClickTimer LeftDoubleClicker  = new DoubleClickTimer();
-        DoubleClickTimer RightDoubleClicker = new DoubleClickTimer();
-
-        void UpdateTimers(float time)
-        {
-            TimerUpdate(time, LeftMouseDown,  ref LeftMouseDownTime,  ref LeftMouseWasHeldInteral,  ref LeftHeld);
-            TimerUpdate(time, RightMouseDown, ref RightMouseDownTime, ref RightMouseWasHeldInteral, ref RightHeld);
-            EndLeftHold  = Vector2.Zero;
-            EndRightHold = Vector2.Zero;
-            LeftMouseDoubleClick  = LeftDoubleClicker.Update(time, LeftMouseClick, MouseMoved);
-            RightMouseDoubleClick = RightDoubleClicker.Update(time, RightMouseClick, MouseMoved);
-        }
-
-        static void TimerUpdate(float time, bool mouseDown, ref float timer, ref bool wasHeld, ref bool held)
-        {
-            if (mouseDown)
-            {
-                timer += time;
-            }
-            else
-            {
-                wasHeld = held && timer > 0f;
-                held = false;
-                timer = 0f;
-            }
-        }
-
-        Vector2 UpdateHoldStartPosition(bool held, bool wasHeld, Vector2 holdPosition, bool drag)
-        {
-            if (!held && !wasHeld) return Vector2.Zero;
-            return held && drag && holdPosition == Vector2.Zero ? CursorPosition : holdPosition;            
-        }
-
-        Vector2 UpdateHoldEndPosition(bool held, bool wasHeld, bool drag)
-        {
-            if (!(held && drag) && !wasHeld) return Vector2.Zero;
-            return CursorPosition;
-        }
-
         public void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -364,13 +216,8 @@ namespace Ship_Game
                 return;
             }
 
-            SetMouseDrag();
-            UpdateTimers(elapsedTime);
-
-            StartRighthold = UpdateHoldStartPosition(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
-            EndRightHold   = UpdateHoldEndPosition  (RightHeld, RightMouseWasHeld, MouseRightDrag);
-            StartLeftHold  = UpdateHoldStartPosition(LeftHeld,  LeftMouseWasHeld,  StartLeftHold,  MouseLeftDrag);
-            EndLeftHold    = UpdateHoldEndPosition  (LeftHeld,  LeftMouseWasHeld,  MouseLeftDrag);
+            UpdateDoubleClick(elapsedTime);
+            UpdateHolding(elapsedTime);
         }
     }
 }
