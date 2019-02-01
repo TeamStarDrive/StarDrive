@@ -414,52 +414,46 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Vector2 ownerDir = Owner.Velocity.Normalized();
+            Vector2 currentForward = Owner.Velocity.Normalized();
             Vector2 forward = Owner.Rotation.RadiansToDirection();
             Vector2 right = forward.RightVector();
-            float angleDiff = (float)Math.Acos(ownerDir.Dot(forward));
-            float facing = ownerDir.Dot(right) > 0f ? 1f : -1f;
-            if (angleDiff <= 0.2f)
-            {
-                OrderQueue.RemoveFirst();
-                return;
-            }
-            RotateToFacing(elapsedTime, angleDiff, facing);
-        }
-
-        void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
-        {
-            Vector2 wantedForward = goal.DesiredDirection;
-            Vector2 forward = Owner.Rotation.RadiansToDirection();
-            Vector2 right = forward.RightVector();
-            float angleDiff = (float) Math.Acos(wantedForward.Dot(forward));
-            float facing = wantedForward.Dot(right) > 0f ? 1f : -1f;
-            if (angleDiff <= 0.02f)
-            {
-                OrderQueue.RemoveFirst();
-                return;
-            }
-            RotateToFacing(elapsedTime, angleDiff, facing);
-        }
-
-        bool RotateToFaceMovePosition(float elapsedTime, ShipGoal goal)
-        {
-            bool turned = false;
-            Vector2 forward = Owner.Rotation.RadiansToDirection();
-            Vector2 right = forward.RightVector();
-            Vector2 dir = Owner.Center.DirectionToTarget(goal.MovePosition);
-            float angleDiff = (float)Math.Acos(dir.Dot(forward));
+            float angleDiff = (float)Math.Acos(currentForward.Dot(forward));
+            float facing = currentForward.Dot(right) > 0f ? 1f : -1f;
             if (angleDiff > 0.2f)
             {
-                Owner.HyperspaceReturn();
-                RotateToFacing(elapsedTime, angleDiff, dir.Dot(right) > 0f ? 1f : -1f);
-                turned = true;
+                RotateToFacing(elapsedTime, angleDiff, facing);
             }
             else if (OrderQueue.NotEmpty)
             {
                 OrderQueue.RemoveFirst();
             }
-            return turned;
+        }
+
+        void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
+        {
+            if (Owner.RotationNeededForDirection(goal.DesiredDirection, 0.02f, 
+                out float angleDiff, out float rotationDir))
+            {
+                RotateToFacing(elapsedTime, angleDiff, rotationDir);
+            }
+            else if (OrderQueue.NotEmpty)
+            {
+                OrderQueue.RemoveFirst();
+            }
+        }
+
+        void RotateToFaceMovePosition(float elapsedTime, ShipGoal goal)
+        {
+            if (Owner.RotationNeededForTarget(goal.MovePosition, 0.2f, 
+                out float angleDiff, out float rotationDir))
+            {
+                Owner.HyperspaceReturn();
+                RotateToFacing(elapsedTime, angleDiff, rotationDir);
+            }
+            else if (OrderQueue.NotEmpty)
+            {
+                OrderQueue.RemoveFirst();
+            }
         }
 
         void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
@@ -493,7 +487,7 @@ namespace Ship_Game.AI
         bool Stop(float elapsedTime)
         {
             Owner.HyperspaceReturn();
-            if (Owner.Velocity == Vector2.Zero)
+            if (Owner.Velocity.AlmostZero())
                 return true;
 
             Vector2 oldVelocity = Owner.Velocity;
@@ -518,79 +512,57 @@ namespace Ship_Game.AI
             if (Owner.loyalty == EmpireManager.Player)
                 HadPO = true;
             HasPriorityOrder = false;
-            float distance = Vector2.Distance(Owner.Center, Goal.MovePosition);
-            if (distance < 200f) //fbedard
+            float distance = Owner.Center.Distance(Goal.MovePosition);
+            if (distance < 200f) // fbedard
             {
                 WayPoints.Clear();
-                
                 Owner.Velocity = Vector2.Zero;
-                if (Owner.loyalty == EmpireManager.Player)
-                    HadPO = true;
-                HasPriorityOrder = false;
             }
             Owner.HyperspaceReturn();
-            //Vector2 forward2 = Quaternion
-            //Quaternion.AngleAxis(_angle, Vector3.forward) * normalizedDirection1
-            var forward = new Vector2((float) Math.Sin(Owner.Rotation),
-                -(float) Math.Cos(Owner.Rotation));
-            if (Owner.Velocity == Vector2.Zero ||
-                Vector2.Distance(Owner.Center + Owner.Velocity * elapsedTime, Goal.MovePosition) >
-                Vector2.Distance(Owner.Center, Goal.MovePosition))
+            
+            Vector2 forward = Owner.Direction;
+
+            if (Owner.Velocity.AlmostEqual(Vector2.Zero) ||
+                (Owner.Center + Owner.Velocity*elapsedTime).Distance(Goal.MovePosition)
+                > Owner.Center.Distance(Goal.MovePosition))
             {
                 Owner.Velocity = Vector2.Zero;
                 OrderQueue.RemoveFirst();
                 if (WayPoints.Count > 0)
                     WayPoints.Dequeue();
-                    
                 return;
             }
-            Vector2 velocity = Owner.Velocity;
-            float timetostop = velocity.Length() / Goal.SpeedLimit;
-            //added by gremlin devekmod timetostopfix
-            if (Vector2.Distance(Owner.Center, Goal.MovePosition) / Goal.SpeedLimit <= timetostop + .005)
-                //if (Vector2.Distance(this.Owner.Center, Goal.MovePosition) / (this.Owner.Velocity.Length() + 0.001f) <= timetostop)
-            {
-                Ship owner = Owner;
-                owner.Velocity = owner.Velocity + Vector2.Normalize(forward) * (elapsedTime * Goal.SpeedLimit);
-                if (Owner.Velocity.Length() > Goal.SpeedLimit)
-                    Owner.Velocity = Vector2.Normalize(Owner.Velocity) * Goal.SpeedLimit;
-            }
-            else
-            {
-                Ship ship = Owner;
-                ship.Velocity = ship.Velocity + Vector2.Normalize(forward) * (elapsedTime * Goal.SpeedLimit);
-                if (Owner.Velocity.Length() > Goal.SpeedLimit)
-                {
-                    Owner.Velocity = Vector2.Normalize(Owner.Velocity) * Goal.SpeedLimit;
-                }
-            }
+
+            Owner.Velocity += forward * (elapsedTime * Goal.SpeedLimit);
+            if (Owner.Velocity.Length() > Goal.SpeedLimit)
+                Owner.Velocity = Owner.Velocity.Normalized() * Goal.SpeedLimit;
         }
 
-        void ThrustTowardsPosition(Vector2 Position, float elapsedTime, float speedLimit) //Gretman's Version
+        void ThrustTowardsPosition(Vector2 position, float elapsedTime, float speedLimit) // Gretman's Version
         {
             if (speedLimit.AlmostEqual(0f))
                 speedLimit = Owner.velocityMaximum;
-            float distance = Position.Distance(Owner.Center);
-            if (Owner.engineState != Ship.MoveState.Warp) Position = Position - Owner.Velocity;
-            if (Owner.EnginesKnockedOut) return;
+
+            float distance = position.Distance(Owner.Center);
+            if (Owner.engineState != Ship.MoveState.Warp)
+                position -= Owner.Velocity;
+
+            if (Owner.EnginesKnockedOut)
+                return;
 
             Owner.isThrusting = true;
-            Vector2 wantedForward = Owner.Center.DirectionToTarget(Position);
-            Vector2 forward = Owner.Rotation.RadiansToDirection();
-            Vector2 right = new Vector2(-forward.Y, forward.X);
-            float angleDiff = (float) Math.Acos(Vector2.Dot(wantedForward, forward));
-            float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
+            Owner.RotationNeededForTarget(position, 0f, out float angleDiff, out float rotationDir);
 
             float turnRate = Owner.TurnThrust / Owner.Mass / 700f;
 
             #region Warp
 
             if (angleDiff * 1.25f > turnRate && distance > 2500f &&
-                Owner.engineState == Ship.MoveState.Warp) //Might be a turning issue
+                Owner.engineState == Ship.MoveState.Warp) // Might be a turning issue
             {
                 if (angleDiff > 1.0f)
                 {
-                    Owner.HyperspaceReturn(); //Too sharp of a turn. Drop out of warp
+                    Owner.HyperspaceReturn(); // Too sharp of a turn. Drop out of warp
                 }
                 else
                 {
@@ -598,21 +570,13 @@ namespace Ship_Game.AI
                     if (Owner.inborders && Owner.loyalty.data.Traits.InBordersSpeedBonus > 0)
                         warpSpeed *= 1 + Owner.loyalty.data.Traits.InBordersSpeedBonus;
 
-                    //if (Owner.VanityName == "MerCraft")
-                    //    Log.Info("AngleDiff: " + angleDiff + "     TurnRate = " + turnRate + "     WarpSpeed = " +
-                    //             warpSpeed + "     Distance = " + distance);
-                    //AngleDiff: 1.500662     TurnRate = 0.2491764     WarpSpeed = 26286.67     Distance = 138328.4
-
                     if (WayPoints.Count >= 2 && distance > Owner.loyalty.ProjectorRadius / 2 &&
-                        Vector2.Distance(Owner.Center, WayPoints.ElementAt(1)) < Owner.loyalty.ProjectorRadius * 5)
-
+                        Owner.Center.Distance(WayPoints.ElementAt(1)) < Owner.loyalty.ProjectorRadius * 5f)
                     {
 
-                        Vector2 wantedForwardNext = Owner.Center.DirectionToTarget(WayPoints.ElementAt(1));
-                        float angleDiffNext = (float) Math.Acos(Vector2.Dot(wantedForwardNext, forward));
+                        float angleDiffNext = Owner.AngleDifferenceToPosition(WayPoints.ElementAt(1));
                         if (angleDiff > angleDiffNext || angleDiffNext < turnRate * 0.5)
-                            //Angle to next waypoint is better than angle to this one, just cut the corner.
-
+                            // Angle to next waypoint is better than angle to this one, just cut the corner.
                         {
                             WayPoints.Dequeue();
                             if (OrderQueue.NotEmpty) OrderQueue.RemoveFirst();
@@ -621,22 +585,20 @@ namespace Ship_Game.AI
                     }
                     //                      Turn per tick         ticks left          Speed per tic
                     else if (angleDiff > turnRate / elapsedTime * (distance / (warpSpeed / elapsedTime)))
-                        //Can we make the turn in the distance we have remaining?
+                        // Can we make the turn in the distance we have remaining?
                     {
-                        Owner.WarpThrust -= Owner.NormalWarpThrust *
-                            0.02f; //Reduce warpthrust by 2 percent every frame until this is an acheivable turn
+                        Owner.WarpThrust -= Owner.NormalWarpThrust * 0.02f; // Reduce warpthrust by 2 percent every frame until this is an achievable turn
                     }
                     else if (Owner.WarpThrust < Owner.NormalWarpThrust)
                     {
-                        Owner.WarpThrust +=
-                            Owner.NormalWarpThrust * 0.01f; //Increase warpthrust back to normal 1 percent at a time
+                        Owner.WarpThrust += Owner.NormalWarpThrust * 0.01f; // Increase warpthrust back to normal 1 percent at a time
                         if (Owner.WarpThrust > Owner.NormalWarpThrust)
-                            Owner.WarpThrust = Owner.NormalWarpThrust; //Make sure we dont accidentally go over
+                            Owner.WarpThrust = Owner.NormalWarpThrust; // Make sure we dont accidentally go over
                     }
                 }
             }
             else if (Owner.WarpThrust < Owner.NormalWarpThrust && angleDiff < turnRate)
-                //Intentional allowance of the 25% added to angle diff in main if, so it wont accelerate too soon
+                // Intentional allowance of the 25% added to angle diff in main if, so it wont accelerate too soon
             {
                 Owner.WarpThrust += Owner.NormalWarpThrust * 0.01f; //Increase warpthrust back to normal 1 percent at a time
                 if (Owner.WarpThrust > Owner.NormalWarpThrust)
@@ -645,27 +607,26 @@ namespace Ship_Game.AI
 
             #endregion
 
+            // If chasing something, and within weapons range
             if (HasPriorityTarget && distance < Owner.maxWeaponsRange * 0.85f)
-                // If chasing something, and within weapons range
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
             }
-            else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1000f && WayPoints.Count <= 1 &&
-
-                     Owner.engineState == Ship.MoveState.Warp)
+            else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1000f &&
+                     WayPoints.Count <= 1 && Owner.engineState == Ship.MoveState.Warp)
             {
                 Owner.HyperspaceReturn();
             }
 
             if (angleDiff > 0.025f) //Stuff for the ship visually banking on the Y axis when turning
             {
-                float rotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
+                float rotAmount = rotationDir * Math.Min(angleDiff, elapsedTime * Owner.rotationRadiansPerSecond);
                 if      (rotAmount > 0f && Owner.yRotation > -Owner.MaxBank) Owner.yRotation -= Owner.yBankAmount;
                 else if (rotAmount < 0f && Owner.yRotation <  Owner.MaxBank) Owner.yRotation += Owner.yBankAmount;
                 Owner.isTurning = true;
                 Owner.Rotation += (rotAmount > angleDiff ? angleDiff : rotAmount);
-                //return; //I'm not sure about the return statement here. -Gretman
+                return; //I'm not sure about the return statement here. -Gretman
             }
 
             if (State != AIState.FormationWarp || Owner.fleet == null) //not in a fleet
@@ -673,11 +634,10 @@ namespace Ship_Game.AI
                 if      (distance > 7500f && !Owner.InCombat && angleDiff < 0.25f) Owner.EngageStarDrive();
                 else if (distance > 15000f && Owner.InCombat && angleDiff < 0.25f) Owner.EngageStarDrive();
             }
-            else //In a fleet
+            else // In a fleet
             {
                 speedLimit = FleetGrouping(distance);
             }
-
 
             speedLimit = speedLimit.Clamped(0, Owner.velocityMaximum);
 
@@ -685,7 +645,7 @@ namespace Ship_Game.AI
             //       Thrust to weight ratio or something?
             float acceleration = (speedLimit * 0.5f);
             float brakeWhenTurning = Owner.isTurning ? 0.75f : 1f;
-            Owner.Velocity += forward * (elapsedTime * acceleration) * brakeWhenTurning;
+            Owner.Velocity += Owner.Direction * (elapsedTime * acceleration) * brakeWhenTurning;
             if (Owner.Velocity.Length() > speedLimit)
                 Owner.Velocity = Owner.Velocity.Normalized() * speedLimit;
         }
@@ -694,49 +654,40 @@ namespace Ship_Game.AI
         {
             float speedLimit = Owner.fleet.Speed;
             float distance = (Owner.Center + Owner.FleetOffset).Distance(Owner.fleet.Position + Owner.FleetOffset);
-            if (distance > 7500) //Not near destination
+            if (distance > 7500f) // Not near destination
             {
                 float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove - Owner.fleet.Position.Distance(Owner.fleet.Position + Owner.FleetOffset);
                 speedLimit = Owner.fleet.Speed;
 
-                #region FleetGrouping
-
-#if true
                 if (distance <= distanceFleetCenterToDistance)
                 {
-                    float speedreduction = distanceFleetCenterToDistance - Distance;
-                    speedLimit = Owner.fleet.Speed - speedreduction;
-
-                    if (speedLimit > Owner.fleet.Speed) speedLimit = Owner.fleet.Speed;
+                    float reduction = distanceFleetCenterToDistance - Distance;
+                    speedLimit = Owner.fleet.Speed - reduction;
+                    if (speedLimit > Owner.fleet.Speed)
+                        speedLimit = Owner.fleet.Speed;
                 }
-                else if (distance > distanceFleetCenterToDistance)// && distance > 1000 )
+                else if (distance > distanceFleetCenterToDistance)
                 {
                     float speedIncrease = distance - distanceFleetCenterToDistance;
                     speedLimit = Owner.fleet.Speed + speedIncrease;
                 }
-#endif
 
-                #endregion
-
-                if (Owner.fleet.ReadyForWarp) Owner.EngageStarDrive(); //Fleet is ready to Go into warp
+                if (Owner.fleet.ReadyForWarp)
+                {
+                    Owner.EngageStarDrive(); //Fleet is ready to Go into warp
+                }
                 else if (Owner.engineState == Ship.MoveState.Warp)
+                {
                     Owner.HyperspaceReturn(); //Fleet is not ready for warp
+                }
             }
             else if (Owner.engineState == Ship.MoveState.Warp)
             {
-                Owner.HyperspaceReturn(); //Near Destination
+                Owner.HyperspaceReturn(); // Near Destination
                 HasPriorityOrder = false;
             }
-
             return speedLimit;
         }
 
-
-        //public class WayPoints
-        //{
-        //    public Planet planet { get; set; }
-        //    public Ship ship { get; set; }
-        //    public Vector2 location { get; set; }
-        //}
     }
 }

@@ -1224,7 +1224,9 @@ namespace Ship_Game.AI
                     ship.AI.OrderBombardPlanet(task.TargetPlanet);
                 }
                 else if (ship.AI.State == AIState.Bombard)
+                {
                     ship.AI.ClearOrdersNext = true;
+                }
             }
             return bombers.Length > 0;
         }

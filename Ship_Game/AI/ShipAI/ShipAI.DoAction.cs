@@ -13,15 +13,13 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        void DeRotate()
+        void RestoreYBankRotation()
         {
             if (Owner.yRotation > 0f)
             {
                 Owner.yRotation -= Owner.yBankAmount;
                 if (Owner.yRotation < 0f)
-                {
                     Owner.yRotation = 0f;
-                }
             }
             else if (Owner.yRotation < 0f)
             {
@@ -576,7 +574,7 @@ namespace Ship_Game.AI
 
             if (angleDiff <= 0.02f)
             {
-                DeRotate();
+                RestoreYBankRotation();
                 return;
             }
             RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(right));
@@ -605,7 +603,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                DeRotate();
+                RestoreYBankRotation();
             }
         }
 
@@ -637,7 +635,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                DeRotate();
+                RestoreYBankRotation();
             }
         }
 
