@@ -40,38 +40,39 @@ namespace Ship_Game.AI
         {
             Owner = owner;
             State = AIState.AwaitingOrders;
-            WayPoints = new WayPoints(Owner);
+            WayPoints = new WayPoints();
         }
 
-        private void Colonize(Planet TargetPlanet)
+        private void Colonize(Planet targetPlanet)
         {
-            if (Owner.Center.OutsideRadius(TargetPlanet.Center, 2000f))
+            if (Owner.Center.OutsideRadius(targetPlanet.Center, 2000f))
             {
                 OrderQueue.RemoveFirst();
-                OrderColonization(TargetPlanet);
+                OrderColonization(targetPlanet);
                 State = AIState.Colonize;
                 return;
             }
-            if (TargetPlanet.Owner != null || !TargetPlanet.Habitable)
+            if (targetPlanet.Owner != null || !targetPlanet.Habitable)
             {
                 ColonizeGoal?.NotifyMainGoalCompleted();
                 State = AIState.AwaitingOrders;
                 OrderQueue.Clear();
                 return;
             }
-            ColonizeTarget = TargetPlanet;
+            ColonizeTarget = targetPlanet;
             ColonizeTarget.Owner = Owner.loyalty;
             ColonizeTarget.ParentSystem.OwnerList.Add(Owner.loyalty);
             if (Owner.loyalty.isPlayer)
             {
-                if (!Owner.loyalty.AutoColonize)
-                {
-                    ColonizeTarget.colonyType = Planet.ColonyType.Colony;
-                }
-                else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
+                ColonizeTarget.colonyType = Owner.loyalty.AutoColonize
+                    ? Owner.loyalty.AssessColonyNeeds(ColonizeTarget)
+                    : Planet.ColonyType.Colony;
                 Empire.Universe.NotificationManager.AddColonizedNotification(ColonizeTarget, EmpireManager.Player);
             }
-            else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
+            else
+            {
+                ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
+            }
             Owner.loyalty.AddPlanet(ColonizeTarget);
             ColonizeTarget.InitializeWorkerDistribution(Owner.loyalty);
             ColonizeTarget.SetExploredBy(Owner.loyalty);
@@ -105,7 +106,7 @@ namespace Ship_Game.AI
             var playerTroopsRemoved = false;
 
             var toLaunch = new Array<Troop>();
-            foreach (Troop t in TargetPlanet.TroopsHere)
+            foreach (Troop t in targetPlanet.TroopsHere)
             {
                 Empire owner = t?.GetOwner();
                 if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != ColonizeTarget.Owner &&
@@ -579,7 +580,8 @@ namespace Ship_Game.AI
                         HoldPosition();
                         break;
                     case Plan.Stop:
-                        Stop(elapsedTime, toEvaluate);
+                        if (Stop(elapsedTime))
+                            OrderQueue.RemoveFirst();
                         break;
                     case Plan.Scrap:
                     {
@@ -744,13 +746,8 @@ namespace Ship_Game.AI
             if (nearFleetOffSet)
             {
                 Owner.Velocity = Vector2.Zero; // SUPER STOP. Wtf? @todo Fix this.
-                Vector2 wantedForward = Owner.fleet.Direction;
-                Vector2 forward = Owner.Rotation.RadiansToDirection();
-                var right = new Vector2(-forward.Y, forward.X);
-                var angleDiff = (float) Math.Acos(Vector2.Dot(wantedForward, forward));
-                float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
-                if (angleDiff > 0.02f)
-                    RotateToFacing(elapsedTime, angleDiff, facing);
+                if (Owner.RotationNeededForDirection(Owner.fleet.Direction, 0.02f, out float angleDiff, out float rotationDir))
+                    RotateToFacing(elapsedTime, angleDiff, rotationDir);
             }
             else 
             if (State == AIState.FormationWarp || State == AIState.Orbit || State == AIState.AwaitingOrders ||

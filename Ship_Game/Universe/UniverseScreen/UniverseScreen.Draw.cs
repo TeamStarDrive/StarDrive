@@ -1117,7 +1117,7 @@ namespace Ship_Game
 
         public void DrawWayPointLines(Ship ship, Color color)
         {
-            if (ship.AI.WayPoints.Count() < 1)
+            if (ship.AI.WayPoints.Count < 1)
                 return;
 
             Vector2[] wayPoints = ship.AI.WayPoints.ToArray();

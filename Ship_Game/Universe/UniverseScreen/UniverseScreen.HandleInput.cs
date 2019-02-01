@@ -634,7 +634,7 @@ namespace Ship_Game
 
         bool QueueFleetMovement(Vector2 movePosition, Vector2 direction, ShipGroup fleet)
         {
-            if (!Input.QueueAction || fleet.Ships[0].AI.WayPoints.Count() == 0)
+            if (!Input.QueueAction || fleet.Ships[0].AI.WayPoints.Count == 0)
                 return false;
 
             using (fleet.Ships.AcquireReadLock())
