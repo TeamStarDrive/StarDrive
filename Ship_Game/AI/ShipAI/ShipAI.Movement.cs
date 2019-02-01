@@ -44,7 +44,7 @@ namespace Ship_Game.AI
             float distance = Owner.Center.Distance(Goal.MovePosition);
             if (distance / (Goal.SpeedLimit + 0.001f) <= timetostop)
             {
-                OrderQueue.RemoveFirst();
+                DequeueCurrentOrder();
             }
             else
             {
@@ -60,62 +60,82 @@ namespace Ship_Game.AI
         {
             float distance = Owner.Center.Distance(Goal.fleet.Position + Owner.FleetOffset);
             if (distance < 100f || DistanceLast > distance)
-                OrderQueue.RemoveFirst();
+                DequeueCurrentOrder();
             else
                 MoveTowardsPosition(Goal.fleet.Position + Owner.FleetOffset, elapsedTime, Goal.fleet.Speed);
             DistanceLast = distance;
         }
 
-        void MoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
+
+
+
+        void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
         {
-            if (Owner.EnginesKnockedOut) return;
+            Owner.isTurning = true;
+            float rotAmount = rotationDir * elapsedTime * Owner.rotationRadiansPerSecond;
+            if (float.IsNaN(rotAmount))
+            {
+                Log.Error($"RotateToFacing: NaN! rotAmount:{rotAmount} angleDiff:{angleDiff}");
+                rotAmount = rotationDir * 0.01f; // recover from critical failure
+            }
+
+            if (Math.Abs(rotAmount) > angleDiff)
+                rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
+
+            if (rotAmount > 0f)
+            {
+                if (Owner.yRotation > -Owner.MaxBank)
+                    Owner.yRotation -= Owner.yBankAmount;
+            }
+            else if (rotAmount < 0f)
+            {
+                if (Owner.yRotation <  Owner.MaxBank)
+                    Owner.yRotation += Owner.yBankAmount;
+            }
+
+            Owner.Rotation += rotAmount;
+        }
+
+        void RestoreYBankRotation()
+        {
+            if (Owner.yRotation > 0f)
+            {
+                Owner.yRotation -= Owner.yBankAmount;
+                if (Owner.yRotation < 0f)
+                    Owner.yRotation = 0f;
+            }
+            else if (Owner.yRotation < 0f)
+            {
+                Owner.yRotation += Owner.yBankAmount;
+                if (Owner.yRotation > 0f)
+                    Owner.yRotation = 0f;
+            }
+        }
+
+        void Accelerate(Vector2 accelerationDir, float elapsedTime, float speedLimit = 0f)
+        {
             Owner.isThrusting = true;
 
-            var angleDiff = Owner.AngleDiffTo(direction, out Vector2 right, out Vector2 forward);
-            if (angleDiff > 0.22f) // start turning?
-            {
-                float facing = direction.Facing(right);
-                Owner.isTurning = true;
+            if (speedLimit <= 0f)
+                speedLimit = Owner.velocityMaximum;
 
-                float rotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
-                if (Math.Abs(rotAmount) > angleDiff)
-                    rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
-                Owner.Rotation += rotAmount;
-
-                if (rotAmount > 0f)
-                {
-                    if (Owner.yRotation > -Owner.MaxBank)
-                        Owner.yRotation -= Owner.yBankAmount;
-                }
-                else if (rotAmount < 0f)
-                {
-                    if (Owner.yRotation < Owner.MaxBank)
-                        Owner.yRotation += Owner.yBankAmount;
-                }
-            }
-            else // not turning, slowly reset yRotation
-            {
-                if (Owner.yRotation > 0f)
-                {
-                    Owner.yRotation -= Owner.yBankAmount;
-                    if (Owner.yRotation < 0f)
-                        Owner.yRotation = 0f;
-                }
-                else if (Owner.yRotation < 0f)
-                {
-                    Owner.yRotation += Owner.yBankAmount;
-                    if (Owner.yRotation > 0f)
-                        Owner.yRotation = 0f;
-                }
-            }
-
-            if (speedLimit <= 0f) speedLimit = Owner.velocityMaximum;
-
-            //var angleReduction = Owner.isTurning  ? .25f : 1;
-            //Owner.Velocity *= !Owner.isTurning ? 1 : 0.75f;
-            Owner.Velocity += forward.Normalized() * (elapsedTime * Owner.Speed);
+            Owner.Velocity += accelerationDir.Normalized() * (elapsedTime * Owner.Speed);
             if (Owner.Velocity.Length() > speedLimit)
                 Owner.Velocity = Owner.Velocity.Normalized() * speedLimit;
+        }
+
+        void MoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
+        {
+            if (Owner.EnginesKnockedOut)
+                return;
+
+            float angleDiff = Owner.AngleDiffTo(direction, out Vector2 right, out Vector2 forward);
+            if (angleDiff > 0.22f)
+                RotateToFacing(elapsedTime, angleDiff, direction.Facing(right));
+            else
+                RestoreYBankRotation();
+
+            Accelerate(forward, elapsedTime, speedLimit);
         }
 
         void MoveTowardsPosition(Vector2 position, float elapsedTime)
@@ -125,83 +145,42 @@ namespace Ship_Game.AI
                 Owner.Velocity = Vector2.Zero; // whoaaaaa, super-brakes
                 return;
             }
-            position -= Owner.Velocity;
+            if (Owner.EnginesKnockedOut)
+                return;
+
+            Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
+            float angleDiff = Owner.AngleDiffTo(wantedForward, out Vector2 right, out Vector2 forward);
+            float distance = position.Distance(Owner.Center);
+
+            if (angleDiff > 0.02f)
+                RotateToFacing(elapsedTime, angleDiff, wantedForward.Facing(right));
+
+            float speedLimit = Owner.Speed;
+            if      (Owner.isSpooling)      speedLimit *= Owner.loyalty.data.FTLModifier;
+            else if (distance < speedLimit) speedLimit  = distance * 0.75f;
+
+            Accelerate(forward, elapsedTime, speedLimit);
+        }
+
+        // @note Used for fleets?
+        void MoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit)
+        {
+            if (speedLimit < 1f) // @todo this is probably a hack to prevent fleets standing still; find out the real bug
+                speedLimit = 300f;
+
             if (Owner.EnginesKnockedOut)
                 return;
 
             Owner.isThrusting = true;
             Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
-            var angleDiff = Owner.AngleDiffTo(wantedForward, out Vector2 right, out Vector2 forward);
-            float facing = wantedForward.Facing(right);
-            float distance = Vector2.Distance(position, Owner.Center);
-
+            float angleDiff = Owner.AngleDiffTo(wantedForward, out Vector2 right, out Vector2 forward);
             if (angleDiff > 0.02f)
-            {
-                float rotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
-                if (rotAmount > 0f)
-                {
-                    if (Owner.yRotation > -Owner.MaxBank)
-                    {
-                        Owner.yRotation -= Owner.yBankAmount;
-                    }
-                }
-                else if (rotAmount < 0f && Owner.yRotation < Owner.MaxBank)
-                {
-                    Owner.yRotation += Owner.yBankAmount;
-                }
-                Owner.isTurning = true;
-                Owner.Rotation += rotAmount;
-            }
-            float speedLimit = Owner.Speed;
+                RotateToFacing(elapsedTime, angleDiff, wantedForward.Facing(right));
+
             if (Owner.isSpooling)
                 speedLimit *= Owner.loyalty.data.FTLModifier;
-            else if (distance < speedLimit)
-                speedLimit = distance * 0.75f;
-
-            Owner.Velocity += forward * (elapsedTime * speedLimit);
-            if (Owner.Velocity.Length() > speedLimit)
-                Owner.Velocity = Owner.Velocity.Normalized() * speedLimit;
-        }
-
-        void MoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit)
-        {
-            if (speedLimit < 1f)
-                speedLimit = 200f;
-            position = position - Owner.Velocity;
-            if (!Owner.EnginesKnockedOut)
-            {
-                Owner.isThrusting = true;
-                Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
-                var angleDiff = Owner.AngleDiffTo(wantedForward, out Vector2 right, out Vector2 forward);
-                float facing = wantedForward.Facing(right);
-                if (angleDiff > 0.02f)
-                {
-                    float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
-                    if (RotAmount > 0f)
-                    {
-                        if (Owner.yRotation > -Owner.MaxBank)
-                        {
-                            Ship owner = Owner;
-                            owner.yRotation = owner.yRotation - Owner.yBankAmount;
-                        }
-                    }
-                    else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
-                    {
-                        Ship ship = Owner;
-                        ship.yRotation = ship.yRotation + Owner.yBankAmount;
-                    }
-                    Owner.isTurning = true;
-                    Ship rotation = Owner;
-                    rotation.Rotation = rotation.Rotation + RotAmount;
-                }
-                if (Owner.isSpooling)
-                    speedLimit = speedLimit * Owner.loyalty.data.FTLModifier;
-                Owner.Velocity *= !Owner.isTurning ? 1 : .95f;
-                Ship velocity = Owner;
-                velocity.Velocity = velocity.Velocity + Vector2.Normalize(forward) * (elapsedTime * speedLimit);
-                if (Owner.Velocity.Length() > speedLimit)
-                    Owner.Velocity = Vector2.Normalize(Owner.Velocity) * speedLimit;
-            }
+            
+            Accelerate(forward, elapsedTime, speedLimit);
         }
 
         void MoveToWithin1000(float elapsedTime, ShipGoal goal)
@@ -226,26 +205,17 @@ namespace Ship_Game.AI
 
             if (WayPoints.Count <= 1)
             {
-                if (distance > 1500f) return;
-
-                if (WayPoints.Count > 1)
-                    WayPoints.Dequeue();
-                if (OrderQueue.NotEmpty)
-                    OrderQueue.RemoveFirst();
+                if (distance <= 1500f)
+                    DequeueWayPointAndOrder();
             }
             else if (Owner.engineState == Ship.MoveState.Warp)
             {
-                if (distance > distWaypt) return;
-
-                WayPoints.Dequeue();
-                if (OrderQueue.NotEmpty)
-                    OrderQueue.RemoveFirst();
+                if (distance <= distWaypt)
+                    DequeueWayPointAndOrder();
             }
             else if (distance <= 1500f)
             {
-                WayPoints.Dequeue();
-                if (OrderQueue.NotEmpty)
-                    OrderQueue.RemoveFirst();
+                DequeueWayPointAndOrder();
             }
         }
 
@@ -263,7 +233,7 @@ namespace Ship_Game.AI
             else if (Distance < 1000f)
             {
                 Owner.HyperspaceReturn();
-                OrderQueue.RemoveFirst();
+                DequeueCurrentOrder();
                 return;
             }
             MoveTowardsPosition(goal.fleet.Position + Owner.FleetOffset, elapsedTime, speedLimit);
@@ -410,7 +380,7 @@ namespace Ship_Game.AI
         {
             if (Owner.Velocity == Vector2.Zero)
             {
-                OrderQueue.RemoveFirst();
+                DequeueCurrentOrder();
                 return;
             }
 
@@ -423,9 +393,9 @@ namespace Ship_Game.AI
             {
                 RotateToFacing(elapsedTime, angleDiff, facing);
             }
-            else if (OrderQueue.NotEmpty)
+            else
             {
-                OrderQueue.RemoveFirst();
+                DequeueCurrentOrder();
             }
         }
 
@@ -436,9 +406,9 @@ namespace Ship_Game.AI
             {
                 RotateToFacing(elapsedTime, angleDiff, rotationDir);
             }
-            else if (OrderQueue.NotEmpty)
+            else
             {
-                OrderQueue.RemoveFirst();
+                DequeueCurrentOrder();
             }
         }
 
@@ -450,37 +420,10 @@ namespace Ship_Game.AI
                 Owner.HyperspaceReturn();
                 RotateToFacing(elapsedTime, angleDiff, rotationDir);
             }
-            else if (OrderQueue.NotEmpty)
+            else
             {
-                OrderQueue.RemoveFirst();
+                DequeueCurrentOrder();
             }
-        }
-
-        void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
-        {
-            Owner.isTurning = true;
-            float rotAmount = rotationDir * elapsedTime * Owner.rotationRadiansPerSecond;
-            if (float.IsNaN(rotAmount))
-            {
-                Log.Error($"RotateToFacing: NaN! rotAmount:{rotAmount} angleDiff:{angleDiff}");
-                rotAmount = rotationDir * 0.01f; // recover from critical failure
-            }
-
-            if (Math.Abs(rotAmount) > angleDiff)
-                rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
-
-            if (rotAmount > 0f)
-            {
-                if (Owner.yRotation > -Owner.MaxBank)
-                    Owner.yRotation -= Owner.yBankAmount;
-            }
-            else if (rotAmount < 0f)
-            {
-                if (Owner.yRotation <  Owner.MaxBank)
-                    Owner.yRotation += Owner.yBankAmount;
-            }
-
-            Owner.Rotation += rotAmount;
         }
 
         // @return TRUE if fully stopped
@@ -527,9 +470,7 @@ namespace Ship_Game.AI
                 > Owner.Center.Distance(Goal.MovePosition))
             {
                 Owner.Velocity = Vector2.Zero;
-                OrderQueue.RemoveFirst();
-                if (WayPoints.Count > 0)
-                    WayPoints.Dequeue();
+                DequeueWayPointAndOrder();
                 return;
             }
 
@@ -578,8 +519,7 @@ namespace Ship_Game.AI
                         if (angleDiff > angleDiffNext || angleDiffNext < turnRate * 0.5)
                             // Angle to next waypoint is better than angle to this one, just cut the corner.
                         {
-                            WayPoints.Dequeue();
-                            if (OrderQueue.NotEmpty) OrderQueue.RemoveFirst();
+                            DequeueWayPointAndOrder();
                             return;
                         }
                     }

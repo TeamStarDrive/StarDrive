@@ -50,7 +50,7 @@ namespace Ship_Game.AI
                 end = null;
             }
             start = null;
-            OrderQueue.RemoveFirst();
+            DequeueCurrentOrder();
             OrderTrade(5f);
         }
 
@@ -58,14 +58,14 @@ namespace Ship_Game.AI
         {
             if (end == null)
             {
-                OrderQueue.RemoveFirst();
+                DequeueCurrentOrder();
                 OrderTransportPassengers(0.1f);
                 return;
             }
 
             end.Population += Owner.UnloadColonists(end.MaxPopulation - end.Population);
-
-            OrderQueue.RemoveFirst();
+            
+            DequeueCurrentOrder();
             start = null;
             end = null;
             OrderTransportPassengers(5f);
@@ -350,8 +350,8 @@ namespace Ship_Game.AI
 
                 float maxFoodLoad = start.FoodHere.Clamped(0f, start.Storage.Max * 0.10f);
                 start.FoodHere   -= Owner.LoadFood(maxFoodLoad);
-
-                OrderQueue.RemoveFirst();
+                
+                DequeueCurrentOrder();
                 OrderMoveTowardsPosition(end.Center + UniverseRandom.RandomDirection() * 500f, Vectors.Up, true, end);
                 AddShipGoal(Plan.DropOffGoods);
             }
@@ -362,8 +362,8 @@ namespace Ship_Game.AI
 
                 float maxProdLoad = start.ProdHere.Clamped(0f, start.Storage.Max * 10f);
                 start.ProdHere -= Owner.LoadProduction(maxProdLoad);
-
-                OrderQueue.RemoveFirst();
+                
+                DequeueCurrentOrder();
                 OrderMoveTowardsPosition(end.Center + UniverseRandom.RandomDirection() * 500f, Vectors.Up, true, end);
                 AddShipGoal(Plan.DropOffGoods);
             }
@@ -381,8 +381,8 @@ namespace Ship_Game.AI
 
             // load everyone we can :P
             start.Population -= Owner.LoadColonists(start.Population * 0.2f);
-
-            OrderQueue.RemoveFirst();
+            
+            DequeueCurrentOrder();
             OrderMoveTowardsPosition(end.Center, Vectors.Up, true, end);
             AddShipGoal(Plan.DropoffPassengers);
             State = AIState.PassengerTransport;
