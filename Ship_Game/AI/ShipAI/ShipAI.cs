@@ -47,11 +47,12 @@ namespace Ship_Game.AI
         {
             if (Owner.Center.OutsideRadius(targetPlanet.Center, 2000f))
             {
-                OrderQueue.RemoveFirst();
+                DequeueCurrentOrder();
                 OrderColonization(targetPlanet);
                 State = AIState.Colonize;
                 return;
             }
+
             if (targetPlanet.Owner != null || !targetPlanet.Habitable)
             {
                 ColonizeGoal?.NotifyMainGoalCompleted();
@@ -59,6 +60,7 @@ namespace Ship_Game.AI
                 OrderQueue.Clear();
                 return;
             }
+
             ColonizeTarget = targetPlanet;
             ColonizeTarget.Owner = Owner.loyalty;
             ColonizeTarget.ParentSystem.OwnerList.Add(Owner.loyalty);
@@ -73,6 +75,7 @@ namespace Ship_Game.AI
             {
                 ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
             }
+
             Owner.loyalty.AddPlanet(ColonizeTarget);
             ColonizeTarget.InitializeWorkerDistribution(Owner.loyalty);
             ColonizeTarget.SetExploredBy(Owner.loyalty);
@@ -83,15 +86,10 @@ namespace Ship_Game.AI
             ColonizeTarget.CrippledTurns = 0;
             StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, Empire.Universe);
 
-            foreach (Goal g in Owner.loyalty.GetEmpireAI().Goals)
-            {
-                if (g.type != GoalType.Colonize || g.ColonizationTarget != ColonizeTarget)
-                    continue;
-                Owner.loyalty.GetEmpireAI().Goals.QueuePendingRemoval(g);
-                break;
-            }
-            Owner.loyalty.GetEmpireAI().Goals.ApplyPendingRemovals();
+            Owner.loyalty.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == ColonizeTarget);
+
             if (ColonizeTarget.ParentSystem.OwnerList.Count > 1)
+            {
                 foreach (Planet p in ColonizeTarget.ParentSystem.PlanetList)
                 {
                     if (p.Owner == ColonizeTarget.Owner || p.Owner == null)
@@ -99,34 +97,41 @@ namespace Ship_Game.AI
                     if (p.Owner.TryGetRelations(Owner.loyalty, out Relationship rel) && !rel.Treaty_OpenBorders)
                         p.Owner.DamageRelationship(Owner.loyalty, "Colonized Owned System", 20f, p);
                 }
+            }
 
             Owner.UnloadColonizationResourcesAt(ColonizeTarget);
 
-            var troopsRemoved = false;
-            var playerTroopsRemoved = false;
+            bool troopsRemoved = false;
+            bool playerTroopsRemoved = false;
 
-            var toLaunch = new Array<Troop>();
             foreach (Troop t in targetPlanet.TroopsHere)
             {
                 Empire owner = t?.GetOwner();
                 if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != ColonizeTarget.Owner &&
                     ColonizeTarget.Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
-                    toLaunch.Add(t);
+                {
+                    t.Launch();
+                    troopsRemoved = true;
+                    playerTroopsRemoved |= t.GetOwner().isPlayer;
+                }
             }
-            foreach (Troop t in toLaunch)
-            {
-                t.Launch();
-                troopsRemoved = true;
-                if (t.GetOwner().isPlayer)
-                    playerTroopsRemoved = true;
-            }
-            toLaunch.Clear();
-            if (troopsRemoved)
-                if (playerTroopsRemoved)
-                    Empire.Universe.NotificationManager.AddTroopsRemovedNotification(ColonizeTarget);
-                else if (ColonizeTarget.Owner.isPlayer)
-                    Empire.Universe.NotificationManager.AddForeignTroopsRemovedNotification(ColonizeTarget);
+
             Owner.QueueTotalRemoval();
+
+            if (troopsRemoved)
+                OnTroopsRemoved(playerTroopsRemoved);
+        }
+
+        void OnTroopsRemoved(bool playerTroopsRemoved)
+        {
+            if (playerTroopsRemoved)
+            {
+                Empire.Universe.NotificationManager.AddTroopsRemovedNotification(ColonizeTarget);
+            }
+            else if (ColonizeTarget.Owner.isPlayer)
+            {
+                Empire.Universe.NotificationManager.AddForeignTroopsRemovedNotification(ColonizeTarget);
+            }
         }
 
         bool ExploreEmptySystem(float elapsedTime, SolarSystem system)
@@ -141,35 +146,6 @@ namespace Ship_Game.AI
             }
             ThrustTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
             return false;
-        }
-
-        //go colonize
-        public void GoColonize(Planet p)
-        {
-            State = AIState.Colonize;
-            ColonizeTarget = p;
-            GotoStep = 0;
-        }
-        //go colonize
-        public void GoColonize(Planet p, Goal g)
-        {
-            State = AIState.Colonize;
-            ColonizeTarget = p;
-            ColonizeGoal = g;
-            GotoStep = 0;
-            OrderColonization(p);
-        }
-        //go rebase
-        public void GoRebase(Planet p)
-        {
-            HasPriorityOrder = true;
-            State = AIState.Rebase;
-            OrbitTarget = p;
-            FindNewPosTimer = 0f;
-            GotoStep = 0;
-            HasPriorityOrder = true;
-            MovePosition.X = p.Center.X;
-            MovePosition.Y = p.Center.Y;
         }
 
         public float TimeToTarget(Planet target)
@@ -189,32 +165,6 @@ namespace Ship_Game.AI
             return false;
         }
 
-        static float RelativePlanetFertility(Planet p)
-        {
-            return p.Owner.data.Traits.Cybernetic > 0 ? p.MineralRichness : p.Fertility;
-        }
-
-        bool SelectPlanetByFilter(Planet[] safePlanets, out Planet targetPlanet, Func<Planet, bool> predicate)
-        {
-            float minSqDist = float.MaxValue;
-            targetPlanet = null;
-
-            for (int i = 0; i < safePlanets.Length; ++i)
-            {
-                Planet p = safePlanets[i];
-                if (!predicate(p) || !InsideAreaOfOperation(p))
-                    continue;
-
-                float dist = Owner.Center.SqDist(p.Center);
-                if (dist >= minSqDist)
-                    continue;
-
-                minSqDist = dist;
-                targetPlanet = p;
-            }
-            return targetPlanet != null;
-        }
-
         void ScrapShip(float elapsedTime, ShipGoal goal)
         {
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius * 3)
@@ -229,8 +179,7 @@ namespace Ship_Game.AI
                 return;
             }
             OrderQueue.Clear();
-            Planet targetPlanet = goal.TargetPlanet;
-            targetPlanet.ProdHere = targetPlanet.ProdHere + Owner.GetCost(Owner.loyalty) / 2f;
+            goal.TargetPlanet.ProdHere += Owner.GetCost(Owner.loyalty) / 2f;
             Owner.QueueTotalRemoval();
             Owner.loyalty.GetEmpireAI().Recyclepool++;
         }
@@ -251,6 +200,7 @@ namespace Ship_Game.AI
             PrioritizePlayerCommands();
             if (HadPO && State != AIState.AwaitingOrders)
                 HadPO = false;
+
             if (State == AIState.Resupply)
             {
                 HasPriorityOrder = true;
@@ -385,9 +335,7 @@ namespace Ship_Game.AI
                 return;
 
             Owner.AI.HasPriorityOrder = false;
-            if (OrderQueue.NotEmpty)
-                OrderQueue.RemoveFirst();
-
+            DequeueCurrentOrder();
             Owner.AI.State = AIState.AwaitingOrders;
             Owner.AI.IgnoreCombat = false;
         }
@@ -491,7 +439,7 @@ namespace Ship_Game.AI
             {
                 case Plan.HoldPosition: HoldPosition(); break;
                 case Plan.Stop:
-                    if (Stop(elapsedTime)) { OrderQueue.RemoveFirst(); }
+                    if (Stop(elapsedTime)) { DequeueCurrentOrder(); }
                     break;
                 case Plan.Scrap: ScrapShip(elapsedTime, toEvaluate); break;
                 case Plan.Bombard: //Modified by Gretman
