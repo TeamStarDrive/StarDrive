@@ -585,7 +585,7 @@ namespace Ship_Game.AI
         }
 
         public void OrderRefitTo(Ship toRefit)
-        {
+         {
             WayPoints.Clear();
             OrderQueue.Clear();
             HasPriorityOrder = true;

@@ -486,6 +486,7 @@ namespace Ship_Game
                              + b.MaxPopIncrease / 1000
                              + b.PlusFlatResearchAmount * 10
                              + b.PlusFlatPopulation / 10
+                             + b.PlusFlatFoodAmount
                              - b.MinusFertilityOnBuild * 10;
                     break;
                 case ColonyType.Military:

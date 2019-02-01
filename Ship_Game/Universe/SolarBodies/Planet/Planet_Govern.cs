@@ -99,8 +99,8 @@ namespace Ship_Game
             var wantedOrbitals        = new WantedOrbitals(rank, currentStations);
 
             BuildShipyardIfAble(wantedOrbitals.Shipyards);
-            BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank);
             BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank);
+            BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank);
         }
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
@@ -207,6 +207,9 @@ namespace Ship_Game
         {
             float orbitalsBudget = Money.NetRevenue + colonyRank - OrbitalsMaintenance;
             Ship orbital         = GetBestOrbital(role, orbitalsBudget);
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"Orbitals Budget: {orbitalsBudget}");
+
             if (orbital == null)
                 return null;
 
@@ -216,7 +219,7 @@ namespace Ship_Game
             // we cannot build the best in the empire, lets try building something cheaper for now
             float maxCost = (Prod.NetMaxPotential / 2 * (50 + colonyRank) + Storage.Prod) / ShipBuildingModifier;
             orbital       = GetBestOrbital(role, orbitalsBudget, maxCost);
-            return orbital;
+            return orbital == null || orbital.Name == "Subspace Projector" ? null : orbital;
         }
 
         // This returns the best orbital the empire can build
@@ -320,6 +323,7 @@ namespace Ship_Game
                 case ColonyType.Core    : rank += 1; break;
                 case ColonyType.Military: rank += 3; break;
             }
+            rank += Owner.ColonyRankModifier;
             return rank.Clamped(0, 15);
         }
 
