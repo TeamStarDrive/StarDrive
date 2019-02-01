@@ -357,9 +357,9 @@ namespace Ship_Game.AI
         {
             EscortTarget       = supplyShip;
             float minDistance  = Owner.Radius + supplyShip.Radius;
-            var goal           = new ShipGoal(Plan.ResupplyEscort, Vector2.Zero, 0f)
+            var goal           = new ShipGoal(Plan.ResupplyEscort)
             {
-                FacingVector   = UniverseRandom.RandomBetween(0, 360),
+                Direction      = UniverseRandom.RandomDirection(),
                 VariableNumber = minDistance + UniverseRandom.RandomBetween(200, 1000),
                 VariableString = supplyType
             };
@@ -415,7 +415,7 @@ namespace Ship_Game.AI
                              firstgoal != null && firstgoal.Plan != Plan.DoCombat && firstgoal.Plan != Plan.Bombard &&
                              firstgoal.Plan != Plan.BoardShip))
                         {
-                            OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f));
+                            OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat));
                         }
                         if (TriggerDelay < 0)
                         {
@@ -555,7 +555,7 @@ namespace Ship_Game.AI
                     else if (state != AIState.Intercept)
                     {
                         if (state == AIState.Exterminate)
-                            OrderFindExterminationTarget(true);
+                            OrderFindExterminationTarget();
                     }
                     else if (Target != null)
                     {
@@ -601,16 +601,10 @@ namespace Ship_Game.AI
 
                             OrderQueue.Clear();
                             State = AIState.AwaitingOrders;
-                            var orbit = new ShipGoal(Plan.Orbit, Vector2.Zero, 0f)
-                            {
-                                TargetPlanet = toEvaluate.TargetPlanet
-                            };
-
-                            OrderQueue.Enqueue(orbit); //Stay in Orbit
+                            AddShipGoal(Plan.Orbit, toEvaluate.TargetPlanet); //Stay in Orbit
 
                             HasPriorityOrder = false;
-                            //Log.Info("Bombardment info! " + target.GetGroundStrengthOther(this.Owner.loyalty) + " : " + target.GetGroundStrength(this.Owner.loyalty));
-                        } //Done -Gretman
+                        }
 
                         DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
                         float radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
@@ -628,7 +622,7 @@ namespace Ship_Game.AI
                         if (targetPlanet.Owner == Owner.loyalty || targetPlanet.Owner == null)
                         {
                             OrderQueue.Clear();
-                            OrderFindExterminationTarget(true);
+                            OrderFindExterminationTarget();
                             return true;
                         }
                         DropBombsAtGoal(toEvaluate, radius);
@@ -742,51 +736,40 @@ namespace Ship_Game.AI
             return false;
         }
 
-        private void IdleFleetAI(float elapsedTime)
+        void IdleFleetAI(float elapsedTime)
         {
             if (!OrderQueue.IsEmpty)
                 return;
             bool nearFleetOffSet = Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75);
             if (nearFleetOffSet)
             {
-                Owner.Velocity = Vector2.Zero;
-                Vector2 vector2 = Vector2.Zero.PointFromRadians(Owner.fleet.Facing, 1f);
-                Vector2 fvec = Vector2.Zero.DirectionToTarget(vector2);
-                Vector2 wantedForward = Vector2.Normalize(fvec);
-                var forward = new Vector2((float) Math.Sin(Owner.Rotation),
-                    -(float) Math.Cos(Owner.Rotation));
+                Owner.Velocity = Vector2.Zero; // SUPER STOP. Wtf? @todo Fix this.
+                Vector2 wantedForward = Owner.fleet.Direction;
+                Vector2 forward = Owner.Rotation.RadiansToDirection();
                 var right = new Vector2(-forward.Y, forward.X);
                 var angleDiff = (float) Math.Acos(Vector2.Dot(wantedForward, forward));
                 float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
                 if (angleDiff > 0.02f)
                     RotateToFacing(elapsedTime, angleDiff, facing);
             }
-            else if (State == AIState.FormationWarp || State == AIState.Orbit || State == AIState.AwaitingOrders
-                     || !HasPriorityOrder && !HadPO
-                                          && State != AIState.HoldPosition)
+            else 
+            if (State == AIState.FormationWarp || State == AIState.Orbit || State == AIState.AwaitingOrders ||
+                    (!HasPriorityOrder && !HadPO && State != AIState.HoldPosition))
             {
-                //if (State == AIState.FormationWarp)
-                //{
-                //    //OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
-                //    Log.Warning($"Fleet formation warp should not be possible with nothing in order queue.");
-                //    ClearOrdersNext = true;
-                //}
-
-                    if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
-                        ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
-                    else
-                    {
-                        WayPoints.Clear();
-                        WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
-                        //fbedard: set new order for ship returning to fleet
-                        State = AIState.AwaitingOrders;
+                if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
+                {
+                    ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
+                }
+                else
+                {
+                    WayPoints.Clear();
+                    WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
+                    State = AIState.AwaitingOrders;
                     if (Owner.fleet?.GetStack().Count > 0)
                         WayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
                     else
-                        OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, DesiredFacing, true, null);
-                        //(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true,
-                          //      Owner.velocityMaximum, Owner.fleet);
-                    }
+                        OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, DesiredDirection, true, null);
+                }
             }
         }
 

@@ -560,9 +560,8 @@ namespace Ship_Game
             return null;
         }
 
-        bool AttackSpecifcShip(Ship ship, Ship target)
+        bool AttackSpecificShip(Ship ship, Ship target)
         {
-
             if (ship.isConstructor ||
                 ship.shipData.Role == ShipData.RoleName.supply)
             {
@@ -621,16 +620,16 @@ namespace Ship_Game
             return true;
         }
 
-        bool MoveFleetToShip(Ship shipClicked, ShipGroup fleet)
+        bool TryFleetAttackShip(ShipGroup fleet, Ship shipToAttack)
         {
-            if (shipClicked == null || shipClicked.loyalty == player) return false;
+            if (shipToAttack == null || shipToAttack.loyalty == player)
+                return false;
             
-                fleet.Position = shipClicked.Center;
-                fleet.AssignPositions(0.0f);
-                foreach (Ship fleetShip in fleet.Ships)
-                    AttackSpecifcShip(fleetShip, shipClicked);
+            fleet.Position = shipToAttack.Center;
+            fleet.AssignPositions(Vectors.Up);
+            foreach (Ship fleetShip in fleet.Ships)
+                AttackSpecificShip(fleetShip, shipToAttack);
             return true;
-            
         }
 
         bool QueueFleetMovement(Vector2 movePosition, Vector2 direction, ShipGroup fleet)
@@ -660,7 +659,7 @@ namespace Ship_Game
                 }
             PlayerEmpire.GetEmpireAI().DefensiveCoordinator.RemoveShipList(SelectedShipList);
 
-            if (MoveFleetToShip(shipClicked, fleet))
+            if (TryFleetAttackShip(fleet, shipClicked))
                 return;
 
             if (MoveFleetToPlanet(planetClicked, fleet))
@@ -687,9 +686,9 @@ namespace Ship_Game
             if (Input.QueueAction)
             {
                 if (Input.OrderOption)
-                    ship.AI.OrderMoveDirectlyTowardsPosition(pos, facing, false);
+                    ship.AI.OrderMoveDirectlyTowardsPosition(pos, direction, false);
                 else
-                    ship.AI.OrderMoveTowardsPosition(pos, facing, false, null);
+                    ship.AI.OrderMoveTowardsPosition(pos, direction, false, null);
             }
             else if (Input.OrderOption)
             {
@@ -697,15 +696,14 @@ namespace Ship_Game
             }
             else if (Input.KeysCurr.IsKeyDown(Keys.LeftControl))
             {
-                ship.AI.OrderMoveTowardsPosition(pos, facing, true, null);
-                ship.AI.OrderQueue.Enqueue(new ShipAI.ShipGoal(ShipAI.Plan.HoldPosition,
-                    pos, facing));
+                ship.AI.OrderMoveTowardsPosition(pos, direction, true, null);
+                ship.AI.AddShipGoal(ShipAI.Plan.HoldPosition, pos, direction);
                 ship.AI.HasPriorityOrder = true;
                 ship.AI.IgnoreCombat = true;
             }
             else
             {
-                ship.AI.OrderMoveTowardsPosition(pos, facing, true, null);
+                ship.AI.OrderMoveTowardsPosition(pos, direction, true, null);
             }
         }
 
@@ -789,7 +787,7 @@ namespace Ship_Game
             if (!projectedGroup?.GetShips.SequenceEqual(SelectedShipList) ?? true) 
             {
                 projectedGroup = new ShipGroup();
-                projectedGroup.AssembleAdhocGroup(SelectedShipList, Vector2.Zero, Vector2.Zero, Vector2.UnitX, player);
+                projectedGroup.AssembleAdhocGroup(SelectedShipList, Vector2.Zero, Vector2.Zero, new Vector2(0,-1), player);
 
                 Vector2 pos = UnProjectToWorld(out Vector2 direction);
                 projectedGroup.ProjectPos(pos, direction);
@@ -836,15 +834,15 @@ namespace Ship_Game
 
         void ProjectSelectedShipsToFleetPositions()
         {
-            if (Input.StartRightHold.AlmostEqual(Input.CursorPosition))
+            if (Input.StartRightHold.AlmostEqual(Input.EndRightHold))
                 return; // not dragging yet
 
             ProjectingPosition = true;
             Vector2 endDragWorld      = UnprojectToWorldPosition(Input.EndRightHold);
             Vector2 startDragWorld    = UnprojectToWorldPosition(Input.StartRightHold);
-            Vector2 direction = Input.StartRightHold.DirectionToTarget(Input.CursorPosition);
+            Vector2 direction = startDragWorld.DirectionToTarget(endDragWorld).LeftVector();
 
-            Log.Info($"ProjectingPos  screenStart:{Input.StartRightHold} current:{Input.CursorPosition}  D:{direction}");
+            Log.Info($"ProjectingPos  screenStart:{Input.StartRightHold} current:{Input.EndRightHold}  D:{direction}");
 
             if (SelectedFleet != null && SelectedFleet.Owner == EmpireManager.Player)
             {
@@ -878,7 +876,7 @@ namespace Ship_Game
                 }
 
                 var fleet = new ShipGroup();
-                fleet.AssembleAdhocGroup(SelectedShipList, endDragWorld, startDragWorld, direction.RightVector(), player);
+                fleet.AssembleAdhocGroup(SelectedShipList, endDragWorld, startDragWorld, direction, player);
                 projectedGroup = fleet;
             }
         }
@@ -944,7 +942,7 @@ namespace Ship_Game
                         return;
 
                     GameAudio.AffirmativeClick();
-                    AttackSpecifcShip(SelectedShip, shipClicked);
+                    AttackSpecificShip(SelectedShip, shipClicked);
                 }
                 else if (ShipPieMenu(shipClicked)) { } //i think i fd this up. come back to it later. 
                 else if (planetClicked != null) RightClickOnPlanet(SelectedShip, planetClicked, true);

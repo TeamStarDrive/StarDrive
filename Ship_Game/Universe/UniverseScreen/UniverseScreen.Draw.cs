@@ -1120,13 +1120,13 @@ namespace Ship_Game
             if (ship.AI.WayPoints.Count() < 1)
                 return;
 
-            var waypoints = ship.AI.WayPoints.ToArray();
+            Vector2[] wayPoints = ship.AI.WayPoints.ToArray();
 
-            DrawLineProjected(ship.Center, waypoints[0], color);
+            DrawLineProjected(ship.Center, wayPoints[0], color);
 
-            for (int i = 1; i < waypoints.Count; ++i)
+            for (int i = 1; i < wayPoints.Length; ++i)
             {
-                DrawLineProjected(waypoints[i - 1], waypoints[i], color);
+                DrawLineProjected(wayPoints[i - 1], wayPoints[i], color);
             }
         }
 

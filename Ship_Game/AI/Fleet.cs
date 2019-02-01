@@ -97,7 +97,7 @@ namespace Ship_Game.AI
                 }
 
                 AddShipToNodes(shiptoadd);
-                AssignPositions(Facing);
+                AssignPositions(Direction);
             }
 
         }
@@ -263,7 +263,7 @@ namespace Ship_Game.AI
                 s.AI.WayPoints.Clear();
                 s.AI.State = AIState.AwaitingOrders;
                 s.AI.OrderAllStop();
-                s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Facing, new Vector2(0.0f, -1f), false);
+                s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Direction, false);
             }
         }
 
@@ -1047,8 +1047,7 @@ namespace Ship_Game.AI
                         continue;
                     }
                     Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
-                    float facing    = ship.Center.RadiansToTarget(kv.Key);
-                    ship.AI.OrderMoveTowardsPosition(kv.Key, facing, true, null);
+                    ship.AI.OrderMoveTowardsPosition(kv.Key, vFacing, true, null);
                     ship.ForceCombatTimer();
 
                     availableShips.RemoveAtSwapLast(x);
@@ -1185,7 +1184,7 @@ namespace Ship_Game.AI
                         break;
                     case "rear":
                         if (!ai.HasPriorityOrder)
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Facing.RadiansToDirection(), false, Speed * 0.75f);
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, false, Speed * 0.75f);
                         break;
                     case "center":
                         if (!ship.InCombat || (ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber))
@@ -1292,7 +1291,7 @@ namespace Ship_Game.AI
             {
 
                 if (ship.Center.SqDist(FleetTask.AO) > ship.AI.FleetNode.OrdersRadius)
-                    ship.AI.OrderThrustTowardsPosition(FleetTask.AO + ship.FleetOffset, 1f, Vector2.Zero, true);
+                    ship.AI.OrderThrustTowardsPosition(FleetTask.AO + ship.FleetOffset, 60f.AngleToDirection(), true);
             }
         }
 
