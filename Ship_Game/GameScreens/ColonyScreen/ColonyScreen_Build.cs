@@ -58,9 +58,9 @@ namespace Ship_Game
                 category.Ships.Sort((a, b) =>
                 {
                     // rank better ships as first:
-                    int diff = a.GetTechScore(out int[] _) - b.GetTechScore(out int[] _);
-                    if (diff != 0) return diff;
-                    return string.CompareOrdinal(a.Name, b.Name);
+                    float diff = b.BaseStrength - a.BaseStrength;
+                    if (diff.NotEqual(0)) return (int)diff;
+                    return string.CompareOrdinal(b.Name, a.Name);
                 });
 
                 // and add to Build list
@@ -206,11 +206,10 @@ namespace Ship_Game
                     position.Y += Font12.LineSpacing;
 
                     var role = ship.BaseHull.Name;
-                    batch.DrawString(Font8, role, position, Color.Orange);
+                    batch.DrawString(Font8, role + ": ", position, Color.DarkGray);
                     position.X = position.X + Font8.MeasureString(role).X + 8;
-                    ship.GetTechScore(out int[] scores);
                     batch.DrawString(Font8,
-                        $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
+                        $"Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
 
 
                     //Forgive my hacks this code of nightmare must GO!
@@ -255,16 +254,15 @@ namespace Ship_Game
                     batch.DrawString(Font12,
                         ship.IsPlatformOrStation
                             ? ship.Name + " " + Localizer.Token(2041)
-                            : ship.Name, position, Color.White);
+                            : ship.Name, position, Color.Green);
                     position.Y += Font12.LineSpacing;
 
                     //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
                     var role = ship.BaseHull.Name;
-                    batch.DrawString(Font8, role, position, Color.Orange);
+                    batch.DrawString(Font8, role + ": ", position, Color.DarkGray);
                     position.X = position.X + Font8.MeasureString(role).X + 8;
-                    ship.GetTechScore(out int[] scores);
                     batch.DrawString(Font8,
-                        $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
+                        $"Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
 
                     position.X = (entry.Right - 120);
                     SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
