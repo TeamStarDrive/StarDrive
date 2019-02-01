@@ -42,6 +42,20 @@ namespace Ship_Game
         public static Vector2 Swapped(this Vector2 v) => new Vector2(v.Y, v.X);
 
 
+        
+        public static bool AlmostEqual(this Vector2 a, in Vector2 b)
+        {
+            return a.X.AlmostEqual(b.X) && a.Y.AlmostEqual(b.Y);
+        }
+        public static bool NotEqual(this Vector2 a, in Vector2 b)
+        {
+            return a.X.NotEqual(b.X) || a.Y.NotEqual(b.Y);
+        }
+        public static bool AlmostZero(this Vector2 v)
+        {
+            return v.X.AlmostZero() && v.Y.AlmostZero();
+        }
+
 
         // assuming this is a direction vector, gives the right side perpendicular vector
         // @note This assumes that +Y is DOWNWARDS on the screen
@@ -265,10 +279,9 @@ namespace Ship_Game
             return (float)Acos(wantedForward.Dot(currentForward));
         }
 
-        public static bool RotationNeededForDirection(this GameplayObject origin, Vector2 wantedForward, float minDiff, 
-                                                      out float angleDiff, out float rotationDir)
+        public static bool RotationNeeded(this Vector2 currentForward, Vector2 wantedForward, float minDiff,
+                                          out float angleDiff, out float rotationDir)
         {
-            Vector2 currentForward = origin.Rotation.RadiansToDirection();
             float dot = wantedForward.Dot(currentForward);
             angleDiff = (float)Acos(dot);
             if (angleDiff > minDiff)
@@ -278,6 +291,13 @@ namespace Ship_Game
             }
             rotationDir = 0f;
             return false;
+        }
+
+        public static bool RotationNeededForDirection(this GameplayObject origin, Vector2 wantedForward, float minDiff, 
+                                                      out float angleDiff, out float rotationDir)
+        {
+            Vector2 currentForward = origin.Rotation.RadiansToDirection();
+            return currentForward.RotationNeeded(wantedForward, minDiff, out angleDiff, out rotationDir);
         }
 
         public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff)
