@@ -9,24 +9,13 @@ namespace Ship_Game.AI
     public sealed partial class ShipAI
     {
         public Vector2 MovePosition;
-        float DesiredFacing;
+        Vector2 DesiredDirection;
         
         public Planet OrbitTarget;
         float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
         public WayPoints WayPoints;
         public void ClearWayPoints() => WayPoints.Clear();
     
-
-        public void GoTo(Vector2 movePos, Vector2 facing)
-        {
-            GotoStep = 0;
-            if (Owner.loyalty == EmpireManager.Player)
-                HasPriorityOrder = true;
-            MovePosition.X = movePos.X;
-            MovePosition.Y = movePos.Y;
-            State = AIState.MoveTo;
-        }
-
         public void HoldPosition()
         {
             if (Owner.isSpooling || Owner.engineState == Ship.MoveState.Warp)
@@ -455,9 +444,7 @@ namespace Ship_Game.AI
 
         void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
         {
-            Vector2 p = Vector2.Zero.PointFromRadians(goal.DesiredFacing, 1f);
-            Vector2 wantedForward = Vector2.Zero.DirectionToTarget(p);
-
+            Vector2 wantedForward = goal.DesiredDirection;
             Vector2 forward = Owner.Rotation.RadiansToDirection();
             Vector2 right = forward.RightVector();
             float angleDiff = (float) Math.Acos(wantedForward.Dot(forward));
