@@ -183,12 +183,12 @@ namespace Ship_Game.AI
         {
             Target = null;
             HasPriorityTarget = false;
-            Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
-            var forward = new Vector2((float) Math.Sin(Owner.Rotation),
-                -(float) Math.Cos(Owner.Rotation));
-            var angleDiff = (float) Math.Acos(Vector2.Dot(wantedForward, forward));
-            if (angleDiff > 0.2f)
+
+            if (Owner.RotationNeededForTarget(position, 0.2f))
+            {
                 Owner.HyperspaceReturn();
+            }
+
             OrderQueue.Clear();
             if (clearOrders)
                 WayPoints.Clear();
@@ -196,34 +196,25 @@ namespace Ship_Game.AI
                 HasPriorityOrder = true;
             State = AIState.MoveTo;
             MovePosition = position;
-            WayPoints.Enqueue(position);
             DesiredDirection = fVec;
-            lock (WayPoints.WayPointLocker)
+            WayPoints.Enqueue(position);
+
+            Vector2[] wayPoints = WayPoints.ToArray();
+            for (int i = 0; i < wayPoints.Length; i++)
             {
-                IReadOnlyList<Vector2> waypoints = WayPoints.ToArray();
-                for (var i = 0; i < WayPoints.Count(); i++)
+                Vector2 wp = wayPoints[i];
+                if (i == 0)
                 {
-                    var waypoint = waypoints[i];
-                    if (i == 0)
-                        AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, Vectors.Up);
+                    AddShipGoal(Plan.RotateToFaceMovePosition, wp, Vectors.Up);
+                }
 
-                    OrderQueue.Enqueue(new ShipGoal(Plan.MoveToWithin1000, waypoint, fVec)
-                    {
-                        SpeedLimit = Owner.Speed
-                    });
+                AddShipGoal(Plan.MoveToWithin1000, wp, fVec, null, Owner.Speed);
 
-                    if (i == WayPoints.Count() - 1)
-                    {
-                        OrderQueue.Enqueue(new ShipGoal(Plan.MakeFinalApproach, waypoint, fVec)
-                        {
-                            SpeedLimit = Owner.Speed
-                        });
-                        OrderQueue.Enqueue(new ShipGoal(Plan.StopWithBackThrust, waypoint, fVec)
-                        {
-                            SpeedLimit = Owner.Speed
-                        });
-                        AddShipGoal(Plan.RotateToDesiredFacing, waypoint, fVec);
-                    }
+                if (i == WayPoints.Count - 1)
+                {
+                    AddShipGoal(Plan.MakeFinalApproach, wp, fVec, null, Owner.Speed);
+                    AddShipGoal(Plan.StopWithBackThrust, wp, fVec, null, Owner.Speed);
+                    AddShipGoal(Plan.RotateToDesiredFacing, wp, fVec);
                 }
             }
         }
@@ -233,10 +224,7 @@ namespace Ship_Game.AI
         {
             Target = null;
             HasPriorityTarget = false;
-            Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
-
-            Vector2 forward = Owner.Rotation.RadiansToDirection();
-            float angleDiff = (float)Math.Acos(Vector2.Dot(wantedForward, forward));
+            float angleDiff = Owner.AngleDifferenceToPosition(position);
             if (angleDiff > 0.2f)
                 Owner.HyperspaceReturn();
 
@@ -284,7 +272,7 @@ namespace Ship_Game.AI
             State = AIState.MoveTo;
             MovePosition = position;
 
-            PlotCourseToNew(position, WayPoints.Count() > 0 ? WayPoints.Last() : Owner.Center);
+            PlotCourseToNew(position, WayPoints.Count > 0 ? WayPoints.PeekLast : Owner.Center);
             DesiredDirection = finalDirection;
             CreateFullMovementGoals(finalDirection, targetPlanet);
         }
@@ -771,11 +759,8 @@ namespace Ship_Game.AI
                     DoOrbit(AwaitClosest, elapsedTime);
                     return;
                 }
-                AwaitClosest =
-                    Owner.loyalty.GetEmpireAI()
-                        .GetKnownPlanets()
-                        .FindMin(
-                            planet => planet.Center.SqDist(Owner.Center) + (Owner.loyalty != planet.Owner ? 300000 : 0));
+                AwaitClosest = Owner.loyalty.GetEmpireAI().GetKnownPlanets()
+                    .FindMin(p => p.Center.SqDist(Owner.Center) + (Owner.loyalty != p.Owner ? 300000 : 0));
                 return;
             }
             if (Owner.System?.OwnerList.Contains(Owner.loyalty) ?? false)
