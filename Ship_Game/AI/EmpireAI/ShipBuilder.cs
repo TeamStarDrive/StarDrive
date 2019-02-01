@@ -85,10 +85,11 @@ namespace Ship_Game.AI
         }
 
         // Pick the stongest ship to build with a cost limit and a role
-        public static Ship PickCostEffectiveShipToBuild(ShipData.RoleName role, Empire empire, float maxCost)
+        public static Ship PickCostEffectiveShipToBuild(ShipData.RoleName role, Empire empire, float maxCost, float maintBudget)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
-                ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost));
+                ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost) 
+                                                && ship.GetMaintCost(empire).LessOrEqual(maintBudget));
 
             if (potentialShips.Length == 0)
                 return null;
