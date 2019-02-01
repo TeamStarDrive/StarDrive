@@ -243,7 +243,75 @@ namespace Ship_Game
             return (float)((PI - n) * s);
         }
 
+        /// @todo Refactor AngleDiff methods
 
+        
+        // @todo AngleDiffTo to ?What? 
+        public static float AngleDiffTo(this GameplayObject origin, Vector2 wantedForward, 
+                                        out Vector2 right, out Vector2 forward)
+        {
+            forward = origin.Rotation.RadiansToDirection();
+            right = forward.RightVector();
+            return (float)Acos(wantedForward.Dot(forward));
+        }
+
+
+        // how many radian difference from our current direction
+        // versus when looking towards position
+        public static float AngleDifferenceToPosition(this GameplayObject origin, Vector2 targetPos)
+        {
+            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
+            Vector2 currentForward = origin.Rotation.RadiansToDirection();
+            return (float)Acos(wantedForward.Dot(currentForward));
+        }
+
+        public static bool RotationNeededForDirection(this GameplayObject origin, Vector2 wantedForward, float minDiff, 
+                                                      out float angleDiff, out float rotationDir)
+        {
+            Vector2 currentForward = origin.Rotation.RadiansToDirection();
+            float dot = wantedForward.Dot(currentForward);
+            angleDiff = (float)Acos(dot);
+            if (angleDiff > minDiff)
+            {
+                rotationDir = dot > 0f ? 1f : -1f;
+                return true;
+            }
+            rotationDir = 0f;
+            return false;
+        }
+
+        public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff)
+        {
+            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
+            Vector2 currentForward = origin.Rotation.RadiansToDirection();
+            float angleDiff = (float)Acos(wantedForward.Dot(currentForward));
+            return angleDiff > minDiff;
+        }
+
+        public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff, 
+                                                   out float angleDiff, out float rotationDir)
+        {
+            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
+            return RotationNeededForDirection(origin, wantedForward, minDiff, out angleDiff, out rotationDir);
+        }
+
+        public static float Facing(this Vector2 facingTo, Vector2 right)
+        {
+            return facingTo.Normalized().Dot(right) > 0f ? 1f : -1f;
+        }
+
+
+        // @return TRUE if Vector A is pointing at reverse/opposite direction of Vector B
+        // @note Tolerance can be used to control strictness of "is reverse"
+        //       Ex: 1.0 means it vectors must be PERFECTLY reversed, a == -b
+        public static bool IsOppositeOf(this Vector2 a, Vector2 b, float tolerance = 0.75f)
+        {
+            float dot = a.Normalized().Dot(b.Normalized());
+            // if dot product of 2 unit vectors is -1, they are pointing
+            // at opposite directions
+            // @note LessOrEqual is needed here, due to float imprecision
+            return dot < 0f && dot.LessOrEqual(-tolerance);
+        }
 
     }
 }

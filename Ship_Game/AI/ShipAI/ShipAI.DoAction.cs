@@ -473,8 +473,7 @@ namespace Ship_Game.AI
                 Vector2 interceptPoint = Owner.PredictImpact(Target);
 
                 Stop(elapsedTime);
-                if (Owner.engineState == Ship.MoveState.Warp)
-                    Owner.HyperspaceReturn();
+
                 float angleDiff = Owner.AngleDiffTo(interceptPoint, out Vector2 right, out Vector2 forward);
                 float facing = Owner.Velocity.Facing(right);
                 if (angleDiff <= 0.2f)
@@ -591,42 +590,55 @@ namespace Ship_Game.AI
                 ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                 return;
             }
+
             if (distanceToTarget < Owner.maxWeaponsRange * 0.70f &&
-                Vector2.Distance(Owner.Center + Owner.Velocity * elapsedTime, Target.Center) < distanceToTarget)
+                (Owner.Center + Owner.Velocity*elapsedTime).InRadius(Target.Center, distanceToTarget))
             {
                 Owner.Velocity = Vector2.Zero;
             }
-            Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Target.Center);
-            var angleDiff = Owner.AngleDiffTo(vectorToTarget, out Vector2 right, out Vector2 forward);
-            if (angleDiff <= 0.02f)
+
+            Vector2 direction = Owner.Center.DirectionToTarget(Target.Center);
+            float angleDiff = Owner.AngleDiffTo(direction, out Vector2 right, out Vector2 forward);
+            if (angleDiff > 0.02f)
+            {
+                RotateToFacing(elapsedTime, angleDiff, direction.Facing(right));
+            }
+            else
             {
                 DeRotate();
-                return;
             }
-            RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(right));
         }
 
         void DoNonFleetBroadsideLeft(float elapsedTime)
         {
-            var forward = new Vector2((float) Math.Sin(Owner.Rotation), -(float) Math.Cos(Owner.Rotation));
-            var left = new Vector2(forward.Y, -forward.X);
-            Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Target.Center);
-            var angleDiff = (float) Math.Acos(Vector2.Dot(vectorToTarget, left));
             float distanceToTarget = Owner.Center.Distance(Target.Center);
             if (distanceToTarget > Owner.maxWeaponsRange)
             {
                 ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                 return;
             }
+
             if (distanceToTarget < Owner.maxWeaponsRange * 0.70f &&
-                (Owner.Center + Owner.Velocity * elapsedTime).InRadius(Target.Center, distanceToTarget))
-                Owner.Velocity = Vector2.Zero;
-            if (angleDiff <= 0.02f)
+                (Owner.Center + Owner.Velocity*elapsedTime).InRadius(Target.Center, distanceToTarget))
+            {
+                Owner.Velocity = Vector2.Zero; // @todo This stopping ability is insane
+            }
+
+            
+            var forward = new Vector2((float) Math.Sin(Owner.Rotation), 
+                                     -(float) Math.Cos(Owner.Rotation));
+            var left = new Vector2(forward.Y, -forward.X);
+            Vector2 direction = Owner.Center.DirectionToTarget(Target.Center);
+            float angleDiff = (float) Math.Acos(Vector2.Dot(direction, left));
+
+            if (angleDiff > 0.02f)
+            {
+                RotateToFacing(elapsedTime, angleDiff, direction.Facing(forward));
+            }
+            else
             {
                 DeRotate();
-                return;
             }
-            RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(forward));
         }
 
         const float OrbitalSpeedLimit = 500f;

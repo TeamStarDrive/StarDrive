@@ -566,18 +566,6 @@ namespace Ship_Game
             return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
         }
 
-        // @todo AngleDiffTo to ?What? 
-        public static float AngleDiffTo(this GameplayObject origin, Vector2 target, out Vector2 right, out Vector2 forward)
-        {
-            forward = new Vector2((float)Sin(origin.Rotation), -(float)Cos(origin.Rotation));
-            right = new Vector2(-forward.Y, forward.X);
-            return (float)Acos(target.Dot(forward));
-        }
-
-        public static float Facing(this Vector2 facingTo, Vector2 right)
-        {
-            return Vector2.Normalize(facingTo).Dot(right) > 0f ? 1f : -1f;
-        }
 
         // takes self and rotates it around the center pivot by some radians
         public static Vector2 RotateAroundPoint(this Vector2 self, Vector2 center, float radians)
