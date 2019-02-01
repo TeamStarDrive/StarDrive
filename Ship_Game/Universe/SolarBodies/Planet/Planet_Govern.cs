@@ -194,7 +194,7 @@ namespace Ship_Game
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.BaseStrength.LessOrEqual(weakestWeHave.BaseStrength))
+            if (bestWeCanBuild.BaseStrength.LessOrEqual(weakestWeHave.BaseStrength * 1.25f))
                 return;
 
             if (!LogicalBuiltTimecVsCost(bestWeCanBuild.GetCost(Owner), 50))
