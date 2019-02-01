@@ -255,7 +255,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\Vector.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
     <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />

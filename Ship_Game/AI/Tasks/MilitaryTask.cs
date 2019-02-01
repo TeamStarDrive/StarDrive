@@ -275,7 +275,7 @@ namespace Ship_Game.AI.Tasks
                 if (IsCoreFleetTask)
                 {
                     Owner.GetFleet(WhichFleet).FleetTask = null;
-                    Owner.GetFleet(WhichFleet).MoveToDirectly(closestAO.Center, 0f, new Vector2(0f, -1f));
+                    Owner.GetFleet(WhichFleet).MoveToDirectly(closestAO.Center, Vectors.Up);
                 }
                 else
                 {
@@ -291,7 +291,6 @@ namespace Ship_Game.AI.Tasks
                     Owner.GetFleet(WhichFleet).Reset();
                 }
             }
-            
         }
 
         public void Evaluate(Empire e)

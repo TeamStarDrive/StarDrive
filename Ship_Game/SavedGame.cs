@@ -287,7 +287,7 @@ namespace Ship_Game
                         IsCoreFleet = fleet.Value.IsCoreFleet,
                         TaskStep    = fleet.Value.TaskStep,
                         Key         = fleet.Key,
-                        facing      = fleet.Value.Facing,
+                        facing      = fleet.Value.Direction.ToRadians(), // @note Save game compatibility uses radians
                         FleetGuid   = fleet.Value.Guid,
                         Position    = fleet.Value.Position,
                         ShipsInFleet = new Array<FleetShipSave>()
@@ -467,13 +467,13 @@ namespace Ship_Game
                     {
                         var gsave = new ShipGoalSave
                         {
-                            DesiredFacing = sgoal.DesiredFacing
+                            DesiredFacing = sgoal.DesiredDirection.ToRadians()
                         };
                         if (sgoal.fleet != null)
                         {
                             gsave.fleetGuid = sgoal.fleet.Guid;
                         }
-                        gsave.FacingVector = sgoal.FacingVector;
+                        gsave.FacingVector = sgoal.Direction.ToRadians();
                         if (sgoal.goal != null)
                         {
                             gsave.goalGuid = sgoal.goal.guid;

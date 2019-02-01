@@ -944,7 +944,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, (int)goal.FacingVector);
+            var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, (int)goal.Direction.ToDegrees());
             DrawDebugTarget(escortVector, Owner.Radius);
             float distanceToEscortSpot = Owner.Center.Distance(escortVector);
             float supplyShipVelocity   = EscortTarget.Velocity.Length();

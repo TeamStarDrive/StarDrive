@@ -1822,9 +1822,7 @@ namespace Ship_Game
                     ClickableSquads.Add(cs);
                 }
             }
-            Vector2 p = SelectedFleet.Position.PointFromRadians(SelectedFleet.Facing, 1f);
-            Vector2 fvec = SelectedFleet.Position.DirectionToTarget(p);
-            SelectedFleet.AssembleFleet2(fvec);
+            SelectedFleet.AssembleFleet2(SelectedFleet.Direction);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
