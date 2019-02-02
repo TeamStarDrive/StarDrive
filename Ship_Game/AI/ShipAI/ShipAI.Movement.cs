@@ -87,7 +87,7 @@ namespace Ship_Game.AI
             }
 
             Owner.Rotation += rotAmount;
-            Log.Info($"RotateToFacing diff:{angleDiff} amount:{rotAmount} rotation:{Owner.Rotation}");
+            //Log.Info($"RotateToFacing diff:{angleDiff} amount:{rotAmount} rotation:{Owner.Rotation}");
             if (Owner.Rotation > (float)Math.PI*2f)
                 Owner.Rotation -= (float)Math.PI*2f;
         }
@@ -112,6 +112,7 @@ namespace Ship_Game.AI
         {
             if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
                 Log.Warning($"RotateToDirection {wantedForward} not a unit vector!");
+
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();
             float angleDiff = (float)Math.Acos(wantedForward.Dot(currentForward));
             if (angleDiff > minDiff)
@@ -120,12 +121,14 @@ namespace Ship_Game.AI
                 RotateToFacing(elapsedTime, angleDiff, rotationDir);
                 return true;
             }
-            RestoreYBankRotation();
             return false;
         }
 
         bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
         {
+            if (lookAt.AlmostZero())
+                Log.Warning($"RotateTowardsPosition {lookAt} was zero, is this a bug?");
+
             Vector2 wantedForward = Owner.Position.DirectionToTarget(lookAt);
             return RotateToDirection(wantedForward, elapsedTime, minDiff);
         }
@@ -170,7 +173,7 @@ namespace Ship_Game.AI
         {
             if (Owner.Center.Distance(position) < 50f)
             {
-                Break(elapsedTime);
+                ReverseThrustUntilStopped(elapsedTime);
                 return;
             }
             if (Owner.EnginesKnockedOut)
@@ -416,7 +419,7 @@ namespace Ship_Game.AI
         }
 
         // @return TRUE if fully stopped
-        bool Break(float elapsedTime)
+        bool ReverseThrustUntilStopped(float elapsedTime)
         {
             Owner.HyperspaceReturn();
             if (Owner.Velocity.AlmostZero())
@@ -434,6 +437,7 @@ namespace Ship_Game.AI
             return false; // keep braking next update
         }
 
+        // attempt to stop exactly at goal.MovePosition
         void StopWithBackwardsThrust(float elapsedTime, ShipGoal goal)
         {
             if (goal.TargetPlanet != null && WayPoints.LastPointEquals(goal.TargetPlanet.Center))
@@ -443,24 +447,23 @@ namespace Ship_Game.AI
                 HadPO = true;
 
             HasPriorityOrder = false;
-            float distance = Owner.Center.Distance(goal.MovePosition);
-            if (distance < 200f) // fbedard
-            {
-                ClearWayPoints();
-                Owner.Velocity = Vector2.Zero;
-            }
-            Owner.HyperspaceReturn();
-            
-            if (Owner.Velocity.AlmostEqual(Vector2.Zero) ||
-                (Owner.Center + Owner.Velocity*elapsedTime).Distance(goal.MovePosition)
-                > Owner.Center.Distance(goal.MovePosition))
-            {
-                Owner.Velocity = Vector2.Zero;
-                DequeueWayPointAndOrder();
-                return;
-            }
 
-            Accelerate(elapsedTime, goal.SpeedLimit);
+            Owner.HyperspaceReturn();
+            float distance = Owner.Center.Distance(goal.MovePosition);
+
+            // precision move, continuously reduce max velocity until we are close enough
+            // for full reverse thrust
+            if (distance > 30f)
+            {
+                float breakingTime = distance / Owner.velocityMaximum;
+                float precisionSpeed = breakingTime * Owner.velocityMaximum;
+                ThrustTowardsPosition(goal.MovePosition, elapsedTime, precisionSpeed);
+            }
+            else // we are close enough come to full stop
+            {
+                if (ReverseThrustUntilStopped(elapsedTime)) // continuous braking
+                    DequeueWayPointAndOrder(); // done!
+            }
         }
 
         void ThrustTowardsPosition(Vector2 position, float elapsedTime, float speedLimit)

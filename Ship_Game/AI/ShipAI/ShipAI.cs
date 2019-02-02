@@ -431,7 +431,7 @@ namespace Ship_Game.AI
             {
                 case Plan.HoldPosition: HoldPosition(); break;
                 case Plan.Stop:
-                    if (Break(elapsedTime)) { DequeueCurrentOrder(); }
+                    if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }
                     break;
                 case Plan.Scrap: ScrapShip(elapsedTime, toEvaluate); break;
                 case Plan.Bombard: //Modified by Gretman
@@ -559,7 +559,7 @@ namespace Ship_Game.AI
             bool nearFleetOffSet = Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75);
             if (nearFleetOffSet)
             {
-                Break(elapsedTime);
+                ReverseThrustUntilStopped(elapsedTime);
                 RotateToDirection(Owner.fleet.Direction, elapsedTime, 0.02f);
             }
             else 

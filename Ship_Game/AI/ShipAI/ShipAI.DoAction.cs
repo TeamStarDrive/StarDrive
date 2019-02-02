@@ -463,7 +463,7 @@ namespace Ship_Game.AI
             if (Owner.Velocity.Length() > 0f)
             {
                 Vector2 interceptPoint = Owner.PredictImpact(Target);
-                Break(elapsedTime);
+                ReverseThrustUntilStopped(elapsedTime);
                 RotateTowardsPosition(interceptPoint, elapsedTime, 0.2f);
             }
             else
@@ -557,7 +557,7 @@ namespace Ship_Game.AI
             {
                 Vector2 ourPosNextFrame = Owner.Center + Owner.Velocity*elapsedTime;
                 if (ourPosNextFrame.InRadius(Target.Center, distance))
-                    Break(elapsedTime); // stop for stability?? hmm, maybe we should orbit target?
+                    ReverseThrustUntilStopped(elapsedTime); // stop for stability?? hmm, maybe we should orbit target?
             }
 
             Vector2 dir = Owner.Center.DirectionToTarget(Target.Center);
