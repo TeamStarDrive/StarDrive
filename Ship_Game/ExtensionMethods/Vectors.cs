@@ -257,18 +257,6 @@ namespace Ship_Game
             return (float)((PI - n) * s);
         }
 
-        /// @todo Refactor AngleDiff methods
-
-        
-        // @todo AngleDiffTo to ?What? 
-        public static float AngleDiffTo(this GameplayObject origin, Vector2 wantedForward, 
-                                        out Vector2 right, out Vector2 forward)
-        {
-            forward = origin.Rotation.RadiansToDirection();
-            right = forward.RightVector();
-            return (float)Acos(wantedForward.Dot(forward));
-        }
-
 
         // how many radian difference from our current direction
         // versus when looking towards position
@@ -279,9 +267,20 @@ namespace Ship_Game
             return (float)Acos(wantedForward.Dot(currentForward));
         }
 
-        public static bool RotationNeeded(this Vector2 currentForward, Vector2 wantedForward, float minDiff,
-                                          out float angleDiff, out float rotationDir)
+        public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff)
         {
+            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
+            Vector2 currentForward = origin.Rotation.RadiansToDirection();
+            float angleDiff = (float)Acos(wantedForward.Dot(currentForward));
+            return angleDiff > minDiff;
+        }
+
+        // used for Projectiles 
+        public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff, 
+                                                   out float angleDiff, out float rotationDir)
+        {
+            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
+            Vector2 currentForward = origin.Rotation.RadiansToDirection();
             float dot = wantedForward.Dot(currentForward);
             angleDiff = (float)Acos(dot);
             if (angleDiff > minDiff)
@@ -291,28 +290,6 @@ namespace Ship_Game
             }
             rotationDir = 0f;
             return false;
-        }
-
-        public static bool RotationNeededForDirection(this GameplayObject origin, Vector2 wantedForward, float minDiff, 
-                                                      out float angleDiff, out float rotationDir)
-        {
-            Vector2 currentForward = origin.Rotation.RadiansToDirection();
-            return currentForward.RotationNeeded(wantedForward, minDiff, out angleDiff, out rotationDir);
-        }
-
-        public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff)
-        {
-            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
-            Vector2 currentForward = origin.Rotation.RadiansToDirection();
-            float angleDiff = (float)Acos(wantedForward.Dot(currentForward));
-            return angleDiff > minDiff;
-        }
-
-        public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff, 
-                                                   out float angleDiff, out float rotationDir)
-        {
-            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
-            return RotationNeededForDirection(origin, wantedForward, minDiff, out angleDiff, out rotationDir);
         }
 
         public static float Facing(this Vector2 facingTo, Vector2 right)
