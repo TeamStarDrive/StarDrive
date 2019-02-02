@@ -11,7 +11,7 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        const int NumOpponents = 3;
+        const int NumOpponents = 0;
         const bool PlayerIsCybernetic = false;
         MicroUniverse Universe;
         TaskResult<UniverseData> CreateTask;
