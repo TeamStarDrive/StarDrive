@@ -1329,7 +1329,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>360</Index>
-      <Text>Fertility Lost on Build</Text>
+      <Text>Max Fertility Change on Build</Text>
     </Token>
     <Token>
       <Index>361</Index>
@@ -1703,7 +1703,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>462</Index>
-      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere.</Text>
+      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Due to the environmental change, the planet's Max Fertility will be reset to 0 and slowly climb to the Fertility target which can be achieved.</Text>
     </Token>
     <Token>
       <Index>463</Index>
@@ -4693,6 +4693,35 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>1860</Index>
       <Text>Expansionists</Text>
+    </Token>
+    <!-- Data added in Venus -->
+    <Token>
+      <Index>1967</Index>
+      <Text>due to buildings which have negative environmental effects. You may remove them to reach Terraformer's full potential.</Text>
+    </Token>
+    <Token>
+      <Index>1968</Index>
+      <Text>Maximum Fertility that the Terraformer can reach:</Text>
+    </Token>
+    <Token>
+      <Index>1969</Index>
+      <Text>This planet contains buildings which affect the environment so badly that it cannot be Terraformed. You need to remove the offending buildings first.</Text>
+    </Token>
+    <Token>
+      <Index>1970</Index>
+      <Text>This Planet's Fertility is higher than anything a Terraformer can reach. It is not recommended to build a Terraformer Here.</Text>
+    </Token>
+    <Token>
+      <Index>1971</Index>
+      <Text>Terraforming completed and Terraformers were scrapped.</Text>
+    </Token>
+    <Token>
+      <Index>1972</Index>
+      <Text>environment was improved due to Terraforming.</Text>
+    </Token>
+    <Token>
+      <Index>1973</Index>
+      <Text>environment has suffered due to continuous bombing.</Text>
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>

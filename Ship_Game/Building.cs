@@ -36,7 +36,7 @@ namespace Ship_Game
         [Serialize(23)] public float PlusProdPerRichness;
         [Serialize(24)] public float PlanetaryShieldStrengthAdded;
         [Serialize(25)] public float PlusFlatPopulation;
-        [Serialize(26)] public float MinusFertilityOnBuild;
+        [Serialize(26)] public float MaxFertilityOnBuild;
         [Serialize(27)] public string Icon;
         [Serialize(28)] public bool Scrappable = true;
         [Serialize(29)] public bool Unique = true;
@@ -245,8 +245,8 @@ namespace Ship_Game
 
         public void ScrapBuilding(Planet planet)
         {
-            if (MinusFertilityOnBuild < 0)
-                planet.AddMaxFertility(MinusFertilityOnBuild);
+            if (MaxFertilityOnBuild > 0)
+                planet.AddMaxFertility(-MaxFertilityOnBuild); // FB - we are reversing positive MaxFertility On build when scraping
 
             planet.BuildingList.Remove(this);
             planet.ProdHere += ActualCost / 2f;
@@ -261,9 +261,11 @@ namespace Ship_Game
         // Event when a building is built at planet p
         public void OnBuildingBuiltAt(Planet p)
         {
-            p.AddMaxFertility(-MinusFertilityOnBuild);
-            p.BuildingList.Add(this);
+            p.AddMaxFertility(MaxFertilityOnBuild); 
+            if (IsTerraformer)
+                p.AddMaxFertility(-p.MaxFertility);  // FB - terraformers rebuild the environment
 
+            p.BuildingList.Add(this);
             if (IsSpacePort)
             {
                 p.Station.Planet = p;
