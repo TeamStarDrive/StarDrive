@@ -286,8 +286,7 @@ namespace Ship_Game
         {
             Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
             Vector2 currentForward = origin.Rotation.RadiansToDirection();
-            float dot = wantedForward.Dot(currentForward);
-            angleDiff = (float)Acos(dot);
+            angleDiff = (float)Acos(wantedForward.Dot(currentForward));
             if (angleDiff > minDiff)
             {
                 rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
@@ -295,11 +294,6 @@ namespace Ship_Game
             }
             rotationDir = 0f;
             return false;
-        }
-
-        public static float Facing(this Vector2 facingTo, Vector2 right)
-        {
-            return facingTo.Normalized().Dot(right) > 0f ? 1f : -1f;
         }
 
 

@@ -358,7 +358,7 @@ namespace Ship_Game.AI
                 Ship shuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
                 shuttle.Velocity = UniverseRandom.RandomDirection() * shuttle.Speed + Owner.Velocity;
                 if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
-                    shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.Speed;
+                    shuttle.Velocity = shuttle.Velocity.Normalized() * shuttle.Speed;
 
                 Owner.ChangeOrdnance(-shuttle.ShipOrdLaunchCost);
                 Owner.ChangeOrdnance(-shuttle.OrdinanceMax);
