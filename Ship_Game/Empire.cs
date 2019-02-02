@@ -451,8 +451,7 @@ namespace Ship_Game
             }
             foreach (Ship ship in OwnedShips)
             {
-                ship.AI.OrderQueue.Clear();
-                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.ClearOrders();
             }
             EmpireAI.Goals.Clear();
             EmpireAI.TaskList.Clear();
@@ -493,8 +492,7 @@ namespace Ship_Game
 
             foreach (Ship ship in OwnedShips)
             {
-                ship.AI.OrderQueue.Clear();
-                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.ClearOrders();
             }
 
             EmpireAI.Goals.Clear();
@@ -2267,16 +2265,14 @@ namespace Ship_Game
                 OwnedShips.Add(ship);
                 ship.loyalty = this;
                 ship.fleet?.RemoveShip(ship);
-                ship.AI.State = AIState.AwaitingOrders;
-                ship.AI.OrderQueue.Clear();
+                ship.AI.ClearOrders();
             }
             foreach (Ship ship in target.GetProjectors())
             {
                 OwnedProjectors.Add(ship);
                 ship.loyalty = this;
                 ship.fleet?.RemoveShip(ship);
-                ship.AI.State = AIState.AwaitingOrders;
-                ship.AI.OrderQueue.Clear();
+                ship.AI.ClearOrders();
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
@@ -2326,9 +2322,8 @@ namespace Ship_Game
                 ForcePool.Clear();
                 foreach (Ship s in OwnedShips)
                 {
-                    //added by gremlin Do not include 0 strength ships in defensive force pool
-                    s.AI.OrderQueue.Clear();
-                    s.AI.State = AIState.AwaitingOrders;
+                    // added by gremlin Do not include 0 strength ships in defensive force pool
+                    s.AI.ClearOrders();
                 }
 
                 if (IsCybernetic)
@@ -2413,8 +2408,7 @@ namespace Ship_Game
                 {
                     if (ship.AI.State == AIState.PassengerTransport || ship.AI.State == AIState.SystemTrader)
                     {
-                        ship.AI.OrderQueue.Clear();
-                        ship.AI.State = AIState.AwaitingOrders;
+                        ship.AI.ClearOrders();
                     }
                     continue;
                 }
@@ -2698,9 +2692,7 @@ namespace Ship_Game
             }
             GetEmpireAI().DefensiveCoordinator.Remove(ship);
 
-            ship.AI.OrderQueue.Clear();
-
-            ship.AI.State = AIState.AwaitingOrders;
+            ship.AI.ClearOrders();
             ship.ClearFleet();
         }
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
