@@ -358,7 +358,7 @@ namespace Ship_Game
             else            DegradePlanetType();
         }
 
-        public void ImprovePlanetType() // Refactored by Fat Bastard
+        public bool ImprovePlanetType() // Refactored by Fat Bastard
         {
             var improve = new []
             {
@@ -378,13 +378,13 @@ namespace Ship_Game
                 if (MaxFertility > aboveFertility && Category == from)
                 {
                     Terraform(to);
-                    break;
+                    return true;
                 }
             }
-            MaxFertility = Math.Max(0, MaxFertility);
+            return false;
         }
 
-        public void DegradePlanetType() // Added by Fat Bastard
+        public bool DegradePlanetType() // Added by Fat Bastard
         {
             var degrade = new []
             {
@@ -404,27 +404,35 @@ namespace Ship_Game
                 if (MaxFertility < belowFertility && Category == from)
                 {
                     Terraform(to);
-                    break;
+                    return true;
                 }
             }
-            MaxFertility = Math.Max(0, MaxFertility);
+            return false;
         }
 
-        void DoTerraforming() // Added by Fat Bastard
+        private void DoTerraforming() // Added by Fat Bastard
         {
-            TerraformPoints += TerraformToAdd;
-            if (TerraformPoints > 0.0f && Fertility < 1f)
+            TerraformPoints += TerraformToAdd; // should be removed. Terraform is tracked differently now
+            if (TerraformPoints.LessOrEqual(0))
+                return;
+
+            AddMaxFertility(TerraformToAdd);
+            MaxFertility  = MaxFertility.Clamped(0f, TerraformTargetFertility);
+            bool improved = ImprovePlanetType();
+            if (MaxFertility.AlmostEqual(TerraformTargetFertility)) // scrap Terraformers - their job is done
             {
-                AddMaxFertility(TerraformToAdd);
-                MaxFertility = MaxFertility.Clamped(0f, 1f);
-                ImprovePlanetType();
-                if (MaxFertility.AlmostEqual(1f)) // remove Terraformers - their job is done
-                    foreach (PlanetGridSquare planetGridSquare in TilesList)
-                    {
-                        if (planetGridSquare.building?.PlusTerraformPoints > 0)
-                            planetGridSquare.building.ScrapBuilding(this);
-                    }
+                foreach (PlanetGridSquare planetGridSquare in TilesList)
+                {
+                    if (planetGridSquare.building?.PlusTerraformPoints > 0)
+                        planetGridSquare.building.ScrapBuilding(this);
+                }
+                if (Owner.isPlayer) // FB - notify player terraformers were scrapped.
+                    Empire.Universe.NotificationManager.AddRandomEventNotification(
+                        Name + " " + Localizer.Token(1971), Type.IconPath, "SnapToPlanet", this);
             }
+            if (improved && Owner.isPlayer) // FB - notify player that planet was improved
+                Empire.Universe.NotificationManager.AddRandomEventNotification(
+                    Name + " " + Localizer.Token(1972), Type.IconPath, "SnapToPlanet", this);
         }
 
         private void UpdateOrbitalsMaint()
@@ -802,7 +810,8 @@ namespace Ship_Game
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
         public float BuiltCoverage     => TotalBuildings / (float)MaxBuildings;
 
-        public int ExistingMilitaryBuildings => BuildingList.Count(b => b.IsMilitary);
+        public int ExistingMilitaryBuildings  => BuildingList.Count(b => b.IsMilitary);
+        public float TerraformTargetFertility => BuildingList.Sum(b => b.MaxFertilityOnBuild) + 1;
 
         public int DesiredMilitaryBuildings
         {
