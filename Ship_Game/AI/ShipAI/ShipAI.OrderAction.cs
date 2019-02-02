@@ -666,7 +666,7 @@ namespace Ship_Game.AI
                 HadPO = false;
                 return;
             }
-            Break(elapsedTime);
+            ReverseThrustUntilStopped(elapsedTime);
         }
 
 

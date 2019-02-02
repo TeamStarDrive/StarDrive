@@ -289,7 +289,7 @@ namespace Ship_Game.Debug
         {
             if (Screen.SelectedFleet != null)
             {
-                SetTextCursor(Win.X + 10, 600f, Color.White);
+                SetTextCursor(Win.X + 10, 500f, Color.White);
                 if (Screen.SelectedFleet.FleetTask != null)
                 {
                     DrawString(Screen.SelectedFleet.FleetTask.type.ToString());
@@ -314,21 +314,22 @@ namespace Ship_Game.Debug
             if (Screen.SelectedShip != null)
             {
                 Ship ship = Screen.SelectedShip;
-                SetTextCursor(Win.X + 10, 600f, Color.White);
+                SetTextCursor(Win.X + 10, 500f, Color.White);
 
-                DrawString(Screen.SelectedShip.Name);
-                DrawString(ship.Center.ToString());
-                DrawString("On Defense: "+ship.DoingSystemDefense);
+                DrawString($"Ship {Screen.SelectedShip.ShipName}  {(int)ship.Center.X}x{(int)ship.Center.Y}");
+                DrawString($"Ship velocity: {ship.Velocity.Length()}");
+                if (ship.AI.OrderQueue.NotEmpty)
+                    DrawString($"Ship distance from target: {ship.AI.OrderQueue.PeekFirst.MovePosition.Distance(ship.Position)}");
+                DrawString($"On Defense: {ship.DoingSystemDefense}");
                 if (ship.fleet != null)
                 {
-                    DrawString(ship.fleet.Name);
-                    DrawString("Fleet pos: "+ship.fleet.Position);
-                    DrawString("Fleet speed: "+ship.fleet.Speed);
+                    DrawString($"Fleet {ship.fleet.Name}  {(int)ship.fleet.Position.X}x{(int)ship.fleet.Position.Y}");
+                    DrawString($"Fleet speed: {ship.fleet.Speed}");
                 }
-                DrawString("Ship speed: "+ship.Velocity.Length());
                 DrawString(!Screen.SelectedShip.loyalty.GetForcePool().Contains(Screen.SelectedShip)
                     ? "NOT In Force Pool"
                     : "In Force Pool");
+
                 if (Screen.SelectedShip.AI.State == AIState.SystemDefender)
                 {
                     SolarSystem systemToDefend = Screen.SelectedShip.AI.SystemToDefend;
