@@ -174,7 +174,7 @@ namespace Ship_Game.AI
             HasPriorityTarget = false;
 
             if (Owner.RotationNeededForTarget(position, 0.2f))
-                Owner.HyperspaceReturn();
+                Owner.HyperspaceReturn(); // return from hyperspace if rotation needed
 
             if (clearOrders)
                 ClearWayPoints();
@@ -209,14 +209,14 @@ namespace Ship_Game.AI
         {
             Target = null;
             HasPriorityTarget = false;
-            float angleDiff = Owner.AngleDifferenceToPosition(position);
-            if (angleDiff > 0.2f)
-                Owner.HyperspaceReturn();
+
+            if (Owner.RotationNeededForTarget(position, 0.2f))
+                Owner.HyperspaceReturn(); // return from hyperspace if rotation needed
 
             if (clearOrders)
                 ClearWayPoints();
-            ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
 
+            ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
             MovePosition = position;
             WayPoints.Enqueue(position);
             DesiredDirection = fVec;
@@ -669,7 +669,7 @@ namespace Ship_Game.AI
                 HadPO = false;
                 return;
             }
-            Stop(elapsedTime);
+            Break(elapsedTime);
         }
 
 
