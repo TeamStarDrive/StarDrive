@@ -24,12 +24,11 @@ namespace Ship_Game.AI
         {
             if (OrderQueue.NotEmpty)
                 OrderQueue.RemoveFirst();
-            if (OrderQueue.IsEmpty)
-                State = AIState.AwaitingOrders;
         }
 
         public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
+            Log.Info($"ClearOrders new_state:{newState} priority:{priority}");
             OrderQueue.Clear();
             State = newState;
             HasPriorityOrder = priority;
@@ -589,6 +588,8 @@ namespace Ship_Game.AI
         // orbit around a planet
         void DoOrbit(Planet orbitTarget, float elapsedTime)
         {
+            //State = AIState.Orbit;
+
             if (Owner.velocityMaximum < 1)
                 return;
 
@@ -623,7 +624,7 @@ namespace Ship_Game.AI
             // We are within orbit radius, so do actual orbiting:
             if (distance < (1500f + orbitTarget.ObjectRadius))
             {
-                var direction = Owner.Center.DirectionToTarget(OrbitPos);
+                Vector2 direction = Owner.Center.DirectionToTarget(OrbitPos);
                 MoveInDirection(direction, elapsedTime, precisionSpeed);
                 if (State != AIState.Bombard)
                     HasPriorityOrder = false;

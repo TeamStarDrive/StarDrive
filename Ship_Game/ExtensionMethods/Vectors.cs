@@ -57,6 +57,11 @@ namespace Ship_Game
         }
 
 
+        public static bool IsUnitVector(this Vector2 v)
+        {
+            return v.Length().AlmostEqual(1f);
+        }
+
         // assuming this is a direction vector, gives the right side perpendicular vector
         // @note This assumes that +Y is DOWNWARDS on the screen
 
@@ -285,7 +290,7 @@ namespace Ship_Game
             angleDiff = (float)Acos(dot);
             if (angleDiff > minDiff)
             {
-                rotationDir = dot > 0f ? 1f : -1f;
+                rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
                 return true;
             }
             rotationDir = 0f;

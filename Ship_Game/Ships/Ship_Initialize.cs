@@ -327,7 +327,7 @@ namespace Ship_Game.Ships
 
         public void InitializeAI()
         {
-            AI             = new ShipAI(this) { State = AIState.AwaitingOrders };
+            AI = new ShipAI(this);
             if (shipData == null)
                 return;
             AI.CombatState = shipData.CombatState;
