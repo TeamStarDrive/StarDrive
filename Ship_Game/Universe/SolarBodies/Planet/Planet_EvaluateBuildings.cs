@@ -342,27 +342,27 @@ namespace Ship_Game
 
         float EvalFertilityLoss(Building b)
         {
-            if (b.MinusFertilityOnBuild.AlmostZero() || IsCybernetic) return 0;
+            if (b.MaxFertilityOnBuild.AlmostZero() || IsCybernetic) return 0;
 
             float score = 0;
-            if (b.MinusFertilityOnBuild < 0)
-                score = b.MinusFertilityOnBuild * 2;    //Negative loss means positive gain!!
+            if (b.MaxFertilityOnBuild > 0)
+                score = b.MaxFertilityOnBuild * 2; 
             else
             {   
                 // How much fertility will actually be lost
                 // @todo food calculation is a bit dodgy
-                float fertLost = Math.Min(Fertility, b.MinusFertilityOnBuild);
+                float fertLost = Math.Min(Fertility, -b.MaxFertilityOnBuild);
                 float foodFromLabor = MaxPopulationBillion * ((Fertility - fertLost));
                 float foodFromFlat = Food.FlatBonus + b.PlusFlatFoodAmount;
                 // Will we still be able to feed ourselves?
                 if (foodFromFlat + foodFromLabor < MaxConsumption)
-                    score += fertLost * 20;
+                    score -= fertLost * 20;
                 else 
-                    score += fertLost * 4;
+                    score -= fertLost * 4;
             }
 
-            DebugEvalBuild(b, "FertLossOnBuild", -score);
-            return -score; // FB - this is actually negative
+            DebugEvalBuild(b, "FertLossOnBuild", score);
+            return score; // FB - this might be negative
         }
 
         float ConstructionCostModifier(float score, float cost, float highestCost)
@@ -461,7 +461,7 @@ namespace Ship_Game
                              + b.MaxPopIncrease / 1000 * 0.5f
                              + b.PlusFlatProductionAmount // some flat production as most people will be farming
                              + b.PlusFlatPopulation / 5
-                             - b.MinusFertilityOnBuild * 20; // we dont want reducing fertility and we really want improving it
+                             + b.MaxFertilityOnBuild * 20; // we dont want reducing fertility and we really want improving it
                     break;
                 case ColonyType.Core:
                     score += 1; // Core governors are open to different building functions
@@ -471,7 +471,7 @@ namespace Ship_Game
                              + b.PlusFlatPopulation / 5
                              + b.PlusFlatResearchAmount / 2
                              + b.PlusResearchPerColonist
-                             - b.MinusFertilityOnBuild * 12;
+                             + b.MaxFertilityOnBuild * 12;
                     break;
                 case ColonyType.Industrial:
                      if (b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0)
@@ -487,7 +487,7 @@ namespace Ship_Game
                              + b.PlusFlatResearchAmount * 10
                              + b.PlusFlatPopulation / 10
                              + b.PlusFlatFoodAmount
-                             - b.MinusFertilityOnBuild * 10;
+                             + b.MaxFertilityOnBuild * 10;
                     break;
                 case ColonyType.Military:
                     score += (b.IsMilitary ? 2f : 0f) // yes, more military buildings!
