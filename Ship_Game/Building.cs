@@ -262,8 +262,8 @@ namespace Ship_Game
         public void OnBuildingBuiltAt(Planet p)
         {
             p.AddMaxFertility(MaxFertilityOnBuild); 
-            if (IsTerraformer)
-                p.AddMaxFertility(-p.MaxFertility);  // FB - terraformers rebuild the environment
+            if (IsTerraformer && !p.TerraformingHere) 
+                p.AddMaxFertility(-p.MaxFertility);  // FB - new terraformers rebuild the environment
 
             p.BuildingList.Add(this);
             if (IsSpacePort)
