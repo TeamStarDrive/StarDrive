@@ -62,7 +62,6 @@ namespace Ship_Game
                     if (diff.NotEqual(0)) return (int)diff;
                     return string.CompareOrdinal(b.Name, a.Name);
                 });
-
                 // and add to Build list
                 ScrollList.Entry entry = buildSL.AddItem(category.Header);
                 foreach (Ship ship in category.Ships)
@@ -107,7 +106,10 @@ namespace Ship_Game
         void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
             if (ShouldResetBuildList<Building>() || buildSL.NumEntries != P.GetBuildingsCanBuild().Count)
+            {
                 buildSL.SetItems(P.GetBuildingsCanBuild());
+                buildSL.Sort<Building, string>(b => b.Name);
+            }
 
             foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
             {
