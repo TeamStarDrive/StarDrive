@@ -431,7 +431,7 @@ namespace Ship_Game.AI
             {
                 case Plan.HoldPosition: HoldPosition(); break;
                 case Plan.Stop:
-                    if (Stop(elapsedTime)) { DequeueCurrentOrder(); }
+                    if (Break(elapsedTime)) { DequeueCurrentOrder(); }
                     break;
                 case Plan.Scrap: ScrapShip(elapsedTime, toEvaluate); break;
                 case Plan.Bombard: //Modified by Gretman
@@ -488,15 +488,15 @@ namespace Ship_Game.AI
                     }
                     State = AIState.AwaitingOrders;
                     break;
-                case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, toEvaluate); break;
-                case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime, toEvaluate); break;
+                case Plan.MakeFinalApproach:         MakeFinalApproach(elapsedTime, toEvaluate);       break;
+                case Plan.RotateInlineWithVelocity:  RotateInLineWithVelocity(elapsedTime);            break;
                 case Plan.StopWithBackThrust:        StopWithBackwardsThrust(elapsedTime, toEvaluate); break;
                 case Plan.Orbit:        DoOrbit(planet, elapsedTime); break;
-                case Plan.Colonize:     Colonize(planet); break;
-                case Plan.Explore:      DoExplore(elapsedTime); break;
-                case Plan.Rebase:       DoRebase(toEvaluate);   break;
+                case Plan.Colonize:     Colonize(planet);             break;
+                case Plan.Explore:      DoExplore(elapsedTime);       break;
+                case Plan.Rebase:       DoRebase(toEvaluate);         break;
                 case Plan.DefendSystem: DoSystemDefense(elapsedTime); break;
-                case Plan.DoCombat:     DoCombat(elapsedTime);  break;
+                case Plan.DoCombat:     DoCombat(elapsedTime);        break;
                 case Plan.MoveTowards:  MoveTowardsPosition(MovePosition, elapsedTime); break;
                 case Plan.PickupPassengers:
                     if (start != null) PickupPassengers();
@@ -504,8 +504,8 @@ namespace Ship_Game.AI
                     break;
                 case Plan.DropoffPassengers: DropoffPassengers();  break;
                 case Plan.DeployStructure:   DoDeploy(toEvaluate); break;
-                case Plan.PickupGoods:    PickupGoods();  break;
-                case Plan.DropOffGoods:   DropOffGoods(); break;
+                case Plan.PickupGoods:       PickupGoods();        break;
+                case Plan.DropOffGoods:      DropOffGoods();       break;
                 case Plan.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
                 case Plan.TroopToShip:    DoTroopToShip(elapsedTime);    break;
                 case Plan.BoardShip:      DoBoardShip(elapsedTime);      break;
@@ -579,9 +579,8 @@ namespace Ship_Game.AI
             bool nearFleetOffSet = Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75);
             if (nearFleetOffSet)
             {
-                Owner.Velocity = Vector2.Zero; // SUPER STOP. Wtf? @todo Fix this.
-                if (Owner.RotationNeededForDirection(Owner.fleet.Direction, 0.02f, out float angleDiff, out float rotationDir))
-                    RotateToFacing(elapsedTime, angleDiff, rotationDir);
+                Break(elapsedTime);
+                RotateToDirection(Owner.fleet.Direction, elapsedTime, 0.02f);
             }
             else 
             if (State == AIState.FormationWarp || State == AIState.Orbit || State == AIState.AwaitingOrders ||

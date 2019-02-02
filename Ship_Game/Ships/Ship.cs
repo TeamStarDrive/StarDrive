@@ -1448,6 +1448,7 @@ namespace Ship_Game.Ships
         {
             if (Empire.Universe == null || engineState == MoveState.Sublight)
                 return;
+
             if (JumpSfx.IsPlaying)
                 JumpSfx.Stop();
 
@@ -1457,6 +1458,7 @@ namespace Ship_Game.Ships
                 GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
                 FTLManager.AddFTL(Center);
             }
+
             engineState = MoveState.Sublight;
             ResetJumpTimer();
             isSpooling = false;

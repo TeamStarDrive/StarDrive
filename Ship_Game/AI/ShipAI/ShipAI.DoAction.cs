@@ -267,8 +267,8 @@ namespace Ship_Game.AI
                 case CombatState.Artillery:      DoNonFleetArtillery(elapsedTime); break;
                 case CombatState.OrbitLeft:      OrbitShip((Ship)Target, elapsedTime, Orbit.Left);  break;
                 case CombatState.OrbitRight:     OrbitShip((Ship)Target, elapsedTime, Orbit.Right); break;
-                case CombatState.BroadsideLeft:  DoNonFleetBroadsideLeft(elapsedTime);  break;
-                case CombatState.BroadsideRight: DoNonFleetBroadsideRight(elapsedTime); break;
+                case CombatState.BroadsideLeft:  DoNonFleetBroadside(elapsedTime, Orbit.Left);  break;
+                case CombatState.BroadsideRight: DoNonFleetBroadside(elapsedTime, Orbit.Left); break;
                 case CombatState.AttackRuns:     DoAttackRun(elapsedTime);          break;
                 case CombatState.HoldPosition:   DoHoldPositionCombat(elapsedTime); break;
                 case CombatState.Evade:          DoEvadeCombat(elapsedTime);        break;
@@ -280,23 +280,23 @@ namespace Ship_Game.AI
             Owner.InCombat = Target != null;
         }
 
-        void DoDeploy(ShipGoal shipgoal)
+        void DoDeploy(ShipGoal sg)
         {
-            if (shipgoal.goal == null)
+            if (sg.goal == null)
                 return;
-            Planet target = shipgoal.TargetPlanet;
-            if (target == null && shipgoal.goal.TetherTarget != Guid.Empty)
+            Planet target = sg.TargetPlanet;
+            if (target == null && sg.goal.TetherTarget != Guid.Empty)
             {
-                Empire.Universe.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
+                Empire.Universe.PlanetsDict.TryGetValue(sg.goal.TetherTarget, out target);
             }
-            if (target != null && (target.Center + shipgoal.goal.TetherOffset).Distance(Owner.Center) > 200f)
+            if (target != null && (target.Center + sg.goal.TetherOffset).Distance(Owner.Center) > 200f)
             {
-                shipgoal.goal.BuildPosition = target.Center + shipgoal.goal.TetherOffset;
-                OrderDeepSpaceBuild(shipgoal.goal);
+                sg.goal.BuildPosition = target.Center + sg.goal.TetherOffset;
+                OrderDeepSpaceBuild(sg.goal);
                 return;
             }
-            Ship platform = Ship.CreateShipAtPoint(shipgoal.goal.ToBuildUID, Owner.loyalty,
-                shipgoal.goal.BuildPosition);
+            Ship platform = Ship.CreateShipAtPoint(sg.goal.ToBuildUID, Owner.loyalty,
+                sg.goal.BuildPosition);
             if (platform == null)
                 return;
 
@@ -305,7 +305,7 @@ namespace Ship_Game.AI
                 bool found = false;
                 foreach (RoadNode node in road.RoadNodesList)
                 {
-                    if (node.Position != shipgoal.goal.BuildPosition)
+                    if (node.Position != sg.goal.BuildPosition)
                         continue;
                     node.Platform = platform;
                     StatTracker.StatAddRoad(node, Owner.loyalty);
@@ -314,12 +314,12 @@ namespace Ship_Game.AI
                 }
                 if (found) break;
             }
-            if (shipgoal.goal.TetherTarget != Guid.Empty)
+            if (sg.goal.TetherTarget != Guid.Empty)
             {
-                platform.TetherToPlanet(Empire.Universe.PlanetsDict[shipgoal.goal.TetherTarget]);
-                platform.TetherOffset = shipgoal.goal.TetherOffset;
+                platform.TetherToPlanet(Empire.Universe.PlanetsDict[sg.goal.TetherTarget]);
+                platform.TetherOffset = sg.goal.TetherOffset;
             }
-            Owner.loyalty.GetEmpireAI().Goals.Remove(shipgoal.goal);
+            Owner.loyalty.GetEmpireAI().Goals.Remove(sg.goal);
             Owner.QueueTotalRemoval();
         }
 
@@ -464,23 +464,14 @@ namespace Ship_Game.AI
             if (Owner.Velocity.Length() > 0f)
             {
                 Vector2 interceptPoint = Owner.PredictImpact(Target);
-
-                Stop(elapsedTime);
-
-                float angleDiff = Owner.AngleDiffTo(interceptPoint, out Vector2 right, out Vector2 forward);
-                float facing = Owner.Velocity.Facing(right);
-                if (angleDiff <= 0.2f)
-                    return;
-                RotateToFacing(elapsedTime, angleDiff, facing);
+                Break(elapsedTime);
+                RotateTowardsPosition(interceptPoint, elapsedTime, 0.2f);
             }
             else
             {
-                Vector2 dir = Owner.Center.DirectionToTarget(Target.Center);
-                float angleDiff = Owner.AngleDiffTo(dir, out Vector2 right, out Vector2 forward);
-                if (angleDiff <= 0.02f)
-                    return;
-                RotateToFacing(elapsedTime, angleDiff, dir.Facing(right));
+                RotateTowardsPosition(Target.Center, elapsedTime, 0.2f);
             }
+
         }
 
         void DoLandTroop(float elapsedTime, ShipGoal goal)
@@ -527,110 +518,55 @@ namespace Ship_Game.AI
 
         void DoNonFleetArtillery(float elapsedTime)
         {
-            //Heavily modified by Gretman
-            Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Owner.PredictImpact(Target));
-            var angleDiff = Owner.AngleDiffTo(vectorToTarget, out Vector2 right, out Vector2 forward);
+            Vector2 predictedImpact = Owner.PredictImpact(Target);
+            Vector2 wantedDirection = Owner.Center.DirectionToTarget(predictedImpact);
+
             float distanceToTarget = Owner.Center.Distance(Target.Center);
-            float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius);// * 0.85f;
-            float minDistance = Math.Max(adjustedRange * .25f + Target.Radius, adjustedRange *.5f);
+            float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius);
 
             if (distanceToTarget > adjustedRange)
             {
-                if (distanceToTarget > 7500)
-                {
+                if (distanceToTarget > 7500f)
                     ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
-                    return;
-                }
-                //if (angleDiff > .22f)
-                //{
-                //    Owner.Velocity *= angleDiff / .44f;
-
-                //    //var rnd = RandomMath.IntBetween(1, 100);
-                //    //if (rnd < 10)
-                //    //{
-                //    //    RotateToFaceMovePosition(elapsedTime, Target.Center);
-                //    //    return;
-                //    //}
-
-                //}
-                MoveInDirection(vectorToTarget, elapsedTime );
-                return;
-            }
-            if (distanceToTarget < minDistance)
-            {
-                float aceel = elapsedTime * Owner.GetSTLSpeed();
-                Owner.Velocity -= Vector2.Normalize(forward) * aceel;
+                else
+                    MoveInDirection(wantedDirection, elapsedTime);
             }
             else
             {
-                Owner.Velocity *= 0.95f; //Small propensity to not drift
-            }
+                float minDistance = Math.Max(adjustedRange * 0.25f + Target.Radius, adjustedRange * 0.5f);
+                
+                // slow down
+                if (distanceToTarget < minDistance)
+                    Owner.Velocity -= Owner.Direction * elapsedTime * Owner.GetSTLSpeed();
+                else
+                    Owner.Velocity *= 0.95f; // Small propensity to not drift
 
-            if (angleDiff <= 0.02f)
-            {
-                RestoreYBankRotation();
-                return;
-            }
-            RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(right));
-        }
-
-        void DoNonFleetBroadsideRight(float elapsedTime)
-        {
-            float distanceToTarget = Owner.Center.Distance(Target.Center);
-            if (distanceToTarget > Owner.maxWeaponsRange)
-            {
-                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
-                return;
-            }
-
-            if (distanceToTarget < Owner.maxWeaponsRange * 0.70f &&
-                (Owner.Center + Owner.Velocity*elapsedTime).InRadius(Target.Center, distanceToTarget))
-            {
-                Owner.Velocity = Vector2.Zero;
-            }
-
-            Vector2 direction = Owner.Center.DirectionToTarget(Target.Center);
-            float angleDiff = Owner.AngleDiffTo(direction, out Vector2 right, out Vector2 forward);
-            if (angleDiff > 0.02f)
-            {
-                RotateToFacing(elapsedTime, angleDiff, direction.Facing(right));
-            }
-            else
-            {
-                RestoreYBankRotation();
+                RotateToDirection(wantedDirection, elapsedTime, 0.02f);
             }
         }
 
-        void DoNonFleetBroadsideLeft(float elapsedTime)
+        void DoNonFleetBroadside(float elapsedTime, Orbit orbit)
         {
-            float distanceToTarget = Owner.Center.Distance(Target.Center);
-            if (distanceToTarget > Owner.maxWeaponsRange)
+            float distance = Owner.Center.Distance(Target.Center);
+            if (distance > Owner.maxWeaponsRange)
             {
                 ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
-                return;
+                return; // we're still way far away from target
             }
 
-            if (distanceToTarget < Owner.maxWeaponsRange * 0.70f &&
-                (Owner.Center + Owner.Velocity*elapsedTime).InRadius(Target.Center, distanceToTarget))
+            if (distance < (Owner.maxWeaponsRange * 0.70f)) // within suitable range
             {
-                Owner.Velocity = Vector2.Zero; // @todo This stopping ability is insane
+                Vector2 ourPosNextFrame = Owner.Center + Owner.Velocity*elapsedTime;
+                if (ourPosNextFrame.InRadius(Target.Center, distance))
+                    Break(elapsedTime); // stop for stability?? hmm, maybe we should orbit target?
             }
 
-            
-            var forward = new Vector2((float) Math.Sin(Owner.Rotation), 
-                                     -(float) Math.Cos(Owner.Rotation));
-            var left = new Vector2(forward.Y, -forward.X);
-            Vector2 direction = Owner.Center.DirectionToTarget(Target.Center);
-            float angleDiff = (float) Math.Acos(Vector2.Dot(direction, left));
+            Vector2 dir = Owner.Center.DirectionToTarget(Target.Center);
+            // when doing broadside to Right, wanted forward dir is 90 degrees left
+            // when doing broadside to Left, wanted forward dir is 90 degrees right
+            dir = (orbit == Orbit.Right) ? dir.LeftVector() : dir.RightVector();
 
-            if (angleDiff > 0.02f)
-            {
-                RotateToFacing(elapsedTime, angleDiff, direction.Facing(forward));
-            }
-            else
-            {
-                RestoreYBankRotation();
-            }
+            RotateToDirection(dir, elapsedTime, 0.02f);
         }
 
         const float OrbitalSpeedLimit = 500f;

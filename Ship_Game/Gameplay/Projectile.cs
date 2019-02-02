@@ -385,19 +385,15 @@ namespace Ship_Game.Gameplay
 
         public void GuidedMoveTowards(float elapsedTime, Vector2 targetPos)
         {
-            if (this.RotationNeededForTarget(targetPos, minDiff:0.1f, out float angleDiff, out float rotationDir))
+            if (this.RotationNeededForTarget(targetPos, 0.1f, out float angleDiff, out float rotationDir))
             {
                 float rotationRadsPerSec = RotationRadsPerSecond;
                 if (rotationRadsPerSec <= 0f)
                     rotationRadsPerSec = Speed / 350f;
-
-                Log.Assert(rotationRadsPerSec > 0f, "Invalid RotationRadsPerSecond");
-
-                Rotation += Math.Min(angleDiff, rotationDir * elapsedTime * rotationRadsPerSec);
+                Rotation += rotationDir * Math.Min(angleDiff, elapsedTime*rotationRadsPerSec);
             }
 
-            float acceleration = Speed;
-            Velocity += Rotation.RadiansToDirection() * acceleration;
+            Velocity += Rotation.RadiansToDirection() * Speed * elapsedTime;
             if (Velocity.Length() > VelocityMax)
                 Velocity = Velocity.Normalized() * VelocityMax;            
         }
