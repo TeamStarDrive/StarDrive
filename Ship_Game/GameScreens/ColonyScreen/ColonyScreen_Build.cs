@@ -106,10 +106,7 @@ namespace Ship_Game
         void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
             if (ShouldResetBuildList<Building>() || buildSL.NumEntries != P.GetBuildingsCanBuild().Count)
-            {
-                buildSL.SetItems(P.GetBuildingsCanBuild());
-                buildSL.Sort<Building, string>(b => b.Name);
-            }
+                buildSL.SetItems(P.GetBuildingsCanBuild().Sorted(b => b.Name));
 
             foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
             {
