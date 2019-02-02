@@ -54,6 +54,7 @@ namespace Ship_Game
 
             ResourceManager.LoadEncounters();
             Player = player;
+            player.isPlayer = true;
             player.Initialize();
             player.data.CurrentAutoScout     = player.data.ScoutShip;
             player.data.CurrentAutoColony    = player.data.ColonyShip;

@@ -447,58 +447,53 @@ namespace Ship_Game
         public void UpdateOwnedPlanet()
         {
             ++TurnsSinceTurnover;
-            if (CrippledTurns > 0) CrippledTurns--;
-            else CrippledTurns = 0;
-
+            CrippledTurns = Math.Max(0, CrippledTurns - 1);
             ConstructionQueue.ApplyPendingRemovals();
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
             DoTerraforming();
             UpdateFertility();
-
             InitResources(); // must be done before Governing
-            DoGoverning();
+            UpdateIncomes(false);
             UpdateOrbitalsMaint();
-            UpdateIncomes(false);  
-
-            // notification about empty queue
-            if (GlobalStats.ExtraNotifications && Owner != null && Owner.isPlayer)
-            {
-                if (ConstructionQueue.Count == 0 && !QueueEmptySent)
-                {
-                    if (colonyType == ColonyType.Colony)
-                    {
-                        QueueEmptySent = true;
-                        Empire.Universe.NotificationManager.AddEmptyQueueNotification(this);
-                    }
-                }
-                else if (ConstructionQueue.Count > 0)
-                {
-                    QueueEmptySent = false;
-                }
-            }
-
-            if (ShieldStrengthCurrent < ShieldStrengthMax)
-            {
-                if (!RecentCombat)
-                {
-                    if (ShieldStrengthCurrent > ShieldStrengthMax / 10)
-                        ShieldStrengthCurrent += ShieldStrengthMax / 10;
-                    else
-                        ++ShieldStrengthCurrent;
-                }
-                if (ShieldStrengthCurrent > ShieldStrengthMax)
-                    ShieldStrengthCurrent = ShieldStrengthMax;
-            }
-
-            //this.UpdateTimer = 10f;
+            DoGoverning();
+            NotifyEmptyQueue();
+            RechargePlanetaryShields();
             ApplyResources();
             GrowPopulation();
             TroopManager.HealTroops(2);
             RepairBuildings(1);
-
             CalculateIncomingTrade();
+        }
+
+        private void NotifyEmptyQueue()
+        {
+            if (!GlobalStats.ExtraNotifications || Owner == null || !Owner.isPlayer)
+                return;
+
+            if (ConstructionQueue.Count == 0 && !QueueEmptySent)
+            {
+                if (colonyType != ColonyType.Colony)
+                    return;
+
+                QueueEmptySent = true;
+                Empire.Universe.NotificationManager.AddEmptyQueueNotification(this);
+            }
+            else if (ConstructionQueue.Count > 0)
+            {
+                QueueEmptySent = false;
+            }
+        }
+
+        private void RechargePlanetaryShields()
+        {
+            if (ShieldStrengthMax.LessOrEqual(0) || ShieldStrengthCurrent.GreaterOrEqual(ShieldStrengthMax) || RecentCombat)
+                return; // fully recharged or in combat
+
+            float maxRechargeRate = ShieldStrengthMax / 50;
+            float rechargeRate    = (ShieldStrengthCurrent * 100 / ShieldStrengthMax).Clamped(1, maxRechargeRate);
+            ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate).Clamped(0, ShieldStrengthMax);
         }
 
         private void UpdateColonyValue()
@@ -812,6 +807,7 @@ namespace Ship_Game
 
         public int ExistingMilitaryBuildings  => BuildingList.Count(b => b.IsMilitary);
         public float TerraformTargetFertility => BuildingList.Sum(b => b.MaxFertilityOnBuild) + 1;
+        public bool TerraformingHere          => BuildingList.Any(b => b.IsTerraformer);
 
         public int DesiredMilitaryBuildings
         {
