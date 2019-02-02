@@ -197,8 +197,7 @@ namespace Ship_Game.AI.Tasks
             for (int index = Fleet.Ships.Count - 1; index >= 0; index--)
             {
                 Ship ship = Fleet.Ships[index];
-                ship.AI.OrderQueue.Clear();
-                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.ClearOrders();
                 ship.AI.CombatState = ship.shipData.CombatState;
                 Fleet.RemoveShip(ship);
                 ship.HyperspaceReturn();
@@ -562,8 +561,7 @@ namespace Ship_Game.AI.Tasks
 
                     foreach (Ship ship in Owner.GetFleet(WhichFleet).Ships)
                     {
-                        ship.AI.OrderQueue.Clear();
-                        ship.AI.State = AIState.AwaitingOrders;
+                        ship.AI.ClearOrders();
                         Owner.GetFleetsDict()[WhichFleet].RemoveShip(ship);
                         ship.HyperspaceReturn();
                         ship.isSpooling = false;

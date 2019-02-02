@@ -148,8 +148,7 @@ namespace Ship_Game.Ships
                     InCombat = false;
                 if (AI.State == AIState.Combat && loyalty != EmpireManager.Player)
                 {
-                    AI.State = AIState.AwaitingOrders;
-                    AI.OrderQueue.Clear();
+                    AI.ClearOrders();
                 }
             }
 

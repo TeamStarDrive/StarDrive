@@ -670,7 +670,7 @@ namespace Ship_Game
 
             using (fleet.Ships.AcquireReadLock())
                 foreach (var ship in fleet.Ships)
-                    ship.AI.OrderQueue.Clear();
+                    ship.AI.ClearOrders();
 
             if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))            
                 fleet.MoveToNow(movePosition, facingDir);            
@@ -1281,7 +1281,7 @@ namespace Ship_Game
                 if (planet.Owner == null && planet.Habitable)
                     ship.AI.OrderColonization(planet);
                 else
-                    ship.AI.OrderToOrbit(planet, true);
+                    ship.AI.OrderToOrbit(planet);
             }
             else if (ship.DesignRole == ShipData.RoleName.troop ||
                      (ship.TroopList.Count > 0 && ship.DesignRole == ShipData.RoleName.troopShip))
@@ -1289,7 +1289,7 @@ namespace Ship_Game
                 if (planet.Owner != null && planet.Owner == player && (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters))
                 {
                     if (Input.IsShiftKeyDown)
-                        ship.AI.OrderToOrbit(planet, true);
+                        ship.AI.OrderToOrbit(planet);
                     else
                         ship.AI.OrderRebase(planet, true);
                 }
@@ -1297,7 +1297,7 @@ namespace Ship_Game
                 {
                     //add new right click troop and troop ship options on planets
                     if (Input.IsShiftKeyDown)
-                        ship.AI.OrderToOrbit(planet, true);
+                        ship.AI.OrderToOrbit(planet);
                     else
                     {
                         ship.AI.State = AIState.AssaultPlanet;
@@ -1320,20 +1320,20 @@ namespace Ship_Game
                         else if (enemies > friendlies || planet.Population > 0f)
                             ship.AI.OrderBombardPlanet(planet);
                         else
-                            ship.AI.OrderToOrbit(planet, true);
+                            ship.AI.OrderToOrbit(planet);
                     }
                     else
-                        ship.AI.OrderToOrbit(planet, true);
+                        ship.AI.OrderToOrbit(planet);
                 }
                 else if (enemies > friendlies && Input.IsShiftKeyDown)
                     ship.AI.OrderBombardPlanet(planet);
                 else
-                    ship.AI.OrderToOrbit(planet, true);
+                    ship.AI.OrderToOrbit(planet);
             }
             else if (Input.IsShiftKeyDown)
-                ship.AI.OrderToOrbit(planet, true);
+                ship.AI.OrderToOrbit(planet);
             else
-                ship.AI.OrderToOrbit(planet, true);
+                ship.AI.OrderToOrbit(planet);
         }
 
         public void UpdateClickableItems()
@@ -1677,7 +1677,7 @@ namespace Ship_Game
                     ship.ClearFleet();
                     if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
                     {                        
-                        ship.AI.OrderQueue.Clear();
+                        ship.AI.ClearOrders();
                         ship.AI.ClearWayPoints();
                         ship.AI.ClearPriorityOrder();
                         fleet.Ships.Add(ship);

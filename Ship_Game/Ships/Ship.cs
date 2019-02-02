@@ -618,10 +618,7 @@ namespace Ship_Game.Ships
                 if (EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
                 {
                     EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Remove(this);
-                    AI.OrderQueue.Clear();
-                    AI.HasPriorityOrder = false;
-                    AI.State = AIState.AwaitingOrders;
-
+                    AI.ClearOrders();
                     return;
                 }
                 EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.AddShip(this);
@@ -1354,7 +1351,7 @@ namespace Ship_Game.Ships
 
         public void DoEscort(Ship escortTarget)
         {
-            AI.OrderQueue.Clear();
+            AI.ClearOrders();
             AI.State        = AIState.Escort;
             AI.EscortTarget = escortTarget;
         }
@@ -1378,7 +1375,7 @@ namespace Ship_Game.Ships
 
         public void DoOrbit(Planet orbit)
         {
-            AI.OrderToOrbit(orbit, true);
+            AI.OrderToOrbit(orbit);
         }
 
         public void DoExplore()

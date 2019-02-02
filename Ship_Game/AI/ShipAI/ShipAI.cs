@@ -56,8 +56,7 @@ namespace Ship_Game.AI
             if (targetPlanet.Owner != null || !targetPlanet.Habitable)
             {
                 ColonizeGoal?.NotifyMainGoalCompleted();
-                State = AIState.AwaitingOrders;
-                OrderQueue.Clear();
+                ClearOrders();
                 return;
             }
 
@@ -178,7 +177,7 @@ namespace Ship_Game.AI
                 ThrustTowardsPosition(goal.TargetPlanet.Center, elapsedTime, 200);
                 return;
             }
-            OrderQueue.Clear();
+            ClearOrders(State);
             goal.TargetPlanet.ProdHere += Owner.GetCost(Owner.loyalty) / 2f;
             Owner.QueueTotalRemoval();
             Owner.loyalty.GetEmpireAI().Recyclepool++;
@@ -190,10 +189,8 @@ namespace Ship_Game.AI
                 State = AIState.Exterminate;
             if (ClearOrdersNext)
             {
-                OrderQueue.Clear();
-                ClearOrdersNext = false;
+                ClearOrders();
                 AwaitClosest = null;
-                State = AIState.AwaitingOrders;
             }
             CheckTargetQueue();
 
@@ -297,19 +294,15 @@ namespace Ship_Game.AI
 
         void SetUpSupplyEscort(Ship supplyShip, string supplyType = "All")
         {
-            EscortTarget  = supplyShip;
-            float minDist = Owner.Radius + supplyShip.Radius;
-            var goal      = new ShipGoal(Plan.ResupplyEscort)
+            EscortTarget = supplyShip;
+            IgnoreCombat = true;
+            ClearOrders(AIState.ResupplyEscort);
+            OrderQueue.Enqueue(new ShipGoal(Plan.ResupplyEscort)
             {
                 Direction      = UniverseRandom.RandomDirection(),
-                VariableNumber = minDist + UniverseRandom.RandomBetween(200, 1000),
+                VariableNumber = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000),
                 VariableString = supplyType
-            };
-
-            State = AIState.ResupplyEscort;
-            IgnoreCombat = true;
-            OrderQueue.Clear();
-            OrderQueue.Enqueue(goal);
+            });
         }
 
         void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
@@ -415,8 +408,7 @@ namespace Ship_Game.AI
                 ShipGoal goal = OrderQueue[x];
                 if (goal.Plan != Plan.Rebase || goal.TargetPlanet == null || goal.TargetPlanet.Owner == Owner.loyalty)
                     continue;
-                OrderQueue.Clear();
-                State = AIState.AwaitingOrders;
+                ClearOrders();
                 return;
             }
         }
@@ -453,8 +445,7 @@ namespace Ship_Game.AI
                         //meaning that the planet could not be bombed since that part of the if statement would always be true (0 * 1.5 <= 0)
                         //Adding +1 to the result of GetGroundStrengthOther tilts the scale just enough so a planet with no troops at all can still be bombed
                         //but having even 1 allied troop will cause the bombine action to abort.
-                        OrderQueue.Clear();
-                        State = AIState.AwaitingOrders;
+                        ClearOrders();
                         AddShipGoal(Plan.Orbit, toEvaluate.TargetPlanet); //Stay in Orbit
                         HasPriorityOrder = false;
                     }
@@ -462,7 +453,7 @@ namespace Ship_Game.AI
                     float radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
                     if (toEvaluate.TargetPlanet.Owner == Owner.loyalty)
                     {
-                        OrderQueue.Clear();
+                        ClearOrders();
                         return true;
                     }
                     DropBombsAtGoal(toEvaluate, radius);
@@ -472,7 +463,7 @@ namespace Ship_Game.AI
                     radius = planet.ObjectRadius + Owner.Radius + 1500;
                     if (planet.Owner == Owner.loyalty || planet.Owner == null)
                     {
-                        OrderQueue.Clear();
+                        ClearOrders();
                         OrderFindExterminationTarget();
                         return true;
                     }
@@ -532,7 +523,7 @@ namespace Ship_Game.AI
         {
             if (Owner.fleet == null)
             {
-                WayPoints.Clear();
+                ClearWayPoints();
 
                 AIState state = State;
                 if (state <= AIState.MoveTo)
@@ -602,7 +593,7 @@ namespace Ship_Game.AI
                 }
                 else
                 {
-                    WayPoints.Clear();
+                    ClearWayPoints();
                     WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
                     State = AIState.AwaitingOrders;
                     if (Owner.fleet?.GetStack().Count > 0)
@@ -638,18 +629,16 @@ namespace Ship_Game.AI
         public bool ClearOrdersConditional(Plan plan)
         {
             bool clearOrders = false;
-
-                foreach (var order in OrderQueue)
+            foreach (ShipGoal order in OrderQueue)
+            {
+                if (order.Plan == plan)
                 {
-                    if (order.Plan != plan)
-                        continue;
                     clearOrders = true;
                     break;
-
-
                 }
+            }
             if (clearOrders)
-                OrderQueue.Clear();
+                ClearOrders();
             return clearOrders;
         }
 
@@ -780,8 +769,7 @@ namespace Ship_Game.AI
             if (EscortTarget == null || !EscortTarget.Active)
             {
                 EscortTarget = null;
-                OrderQueue.Clear();
-                ClearOrdersNext = false;
+                ClearOrders();
                 if (Owner.Mothership != null && Owner.Mothership.Active)
                 {
                     OrderReturnToHangar();

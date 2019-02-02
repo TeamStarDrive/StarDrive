@@ -13,7 +13,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-
         void DequeueWayPointAndOrder()
         {
             if (WayPoints.Count > 0)
@@ -25,11 +24,42 @@ namespace Ship_Game.AI
         {
             if (OrderQueue.NotEmpty)
                 OrderQueue.RemoveFirst();
+            if (OrderQueue.IsEmpty)
+                State = AIState.AwaitingOrders;
         }
 
-        void ClearOrders()
+        public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
             OrderQueue.Clear();
+            State = newState;
+            HasPriorityOrder = priority;
+            ClearOrdersNext = false;
+        }
+
+        public bool ClearOrdersNext;
+        public bool HasPriorityOrder;
+        public bool HadPO;
+
+        public void ClearPriorityOrder()
+        {
+            HasPriorityOrder = false;
+            Intercepting = false;
+            HasPriorityTarget = false;
+        }
+
+        public void SetPriorityOrderWithClear()
+        {
+            SetPriorityOrder(true);
+            ClearWayPoints();
+        }
+
+        public void SetPriorityOrder(bool clearOrders)
+        {
+            if (clearOrders)
+                OrderQueue.Clear();
+            HasPriorityOrder = true;
+            Intercepting = false;
+            HasPriorityTarget = false;
         }
 
         void DoAssaultShipCombat(float elapsedTime)
@@ -148,7 +178,7 @@ namespace Ship_Game.AI
             if ((!EscortTarget?.Active ?? true)
                 || EscortTarget.loyalty == Owner.loyalty)
             {
-                OrderQueue.Clear();
+                ClearOrders(State);
                 if (Owner.Mothership != null)
                 {
                     if (Owner.Mothership.TroopsOut)
@@ -324,8 +354,7 @@ namespace Ship_Game.AI
                 ExplorationTarget = Owner.loyalty.GetEmpireAI().AssignExplorationTarget(Owner);
                 if (ExplorationTarget == null)
                 {
-                    OrderQueue.Clear();
-                    State = AIState.AwaitingOrders;
+                    ClearOrders();
                 }
             }
             else if (DoExploreSystem(elapsedTime)) //@Notification
@@ -481,9 +510,8 @@ namespace Ship_Game.AI
             {
                 if (Owner.loyalty.isPlayer)
                     HadPO = true;
-                HasPriorityOrder = false;
-                State = DefaultAIState;
-                OrderQueue.Clear();
+                
+                ClearOrders(DefaultAIState);
                 Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
             }
             else if (!Owner.Carrier.HasTransporters) // FB: use regular invade
@@ -683,8 +711,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                OrderQueue.Clear();
-                State = AIState.AwaitingOrders;
+                ClearOrders();
             }
         }
 
@@ -693,8 +720,7 @@ namespace Ship_Game.AI
             QueueItem qi = new BuildShip(goal, OrbitTarget);
             if (qi.sData == null)
             {
-                OrderQueue.Clear();
-                State = AIState.AwaitingOrders;
+                ClearOrders();
             }
             int cost = (int) (ResourceManager.ShipsDict[goal.VariableString].GetCost(Owner.loyalty) -
                               Owner.GetCost(Owner.loyalty));
@@ -809,7 +835,7 @@ namespace Ship_Game.AI
         {
             if (Owner.Mothership == null || !Owner.Mothership.Active)
             {
-                OrderQueue.Clear();
+                ClearOrders(State);
                 if (Owner.shipData.Role == ShipData.RoleName.supply)
                     OrderScrapShip();
                 else
@@ -881,9 +907,7 @@ namespace Ship_Game.AI
             }
             if (Owner.InCombat)
             {
-                OrderQueue.Clear();
-                HasPriorityOrder = false;
-                State = AIState.AwaitingOrders;
+                ClearOrders();
             }
         }
 
@@ -955,7 +979,7 @@ namespace Ship_Game.AI
         {
             if (EscortTarget == null || !EscortTarget.Active)
             {
-                OrderQueue.Clear();
+                ClearOrders();
                 return;
             }
             MoveTowardsPosition(EscortTarget.Center, elapsedTime);

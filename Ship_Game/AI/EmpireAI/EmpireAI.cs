@@ -107,7 +107,7 @@ namespace Ship_Game.AI
                 select system;
             if (!sortedList.Any())
             {
-                queryingShip.AI.OrderQueue.Clear();
+                queryingShip.AI.ClearOrders();
                 return null;
             }
             SolarSystem nearesttoHome = sortedList.OrderBy(furthest => Vector2.Distance(OwnerEmpire.GetWeightedCenter(), furthest.Position)).FirstOrDefault();
