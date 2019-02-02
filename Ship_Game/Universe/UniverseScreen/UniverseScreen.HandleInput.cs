@@ -747,7 +747,7 @@ namespace Ship_Game
             Vector2 worldEndPos = UnprojectToWorldPosition(Input.StartRightHold);
 
             Vector2 facingPos = UnprojectToWorldPosition(Input.EndRightHold);
-            Vector2 facingDir = facingPos.DirectionToTarget(worldEndPos);
+            Vector2 facingDir = worldStartPos.DirectionToTarget(worldEndPos);
             
             directionToTarget = facingDir;
             return worldEndPos;

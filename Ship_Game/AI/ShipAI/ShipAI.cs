@@ -524,45 +524,25 @@ namespace Ship_Game.AI
             if (Owner.fleet == null)
             {
                 ClearWayPoints();
-
-                AIState state = State;
-                if (state <= AIState.MoveTo)
+                switch (State)
                 {
-                    if (state <= AIState.SystemTrader)
-                    {
-                        if (state == AIState.DoNothing)
-                            AwaitOrders(elapsedTime);
-                        else
-                            switch (state)
-                            {
-                                case AIState.AwaitingOrders: AIStateAwaitingOrders(elapsedTime); break;
-                                case AIState.Escort:         AIStateEscort(elapsedTime);         break;
-                                case AIState.SystemTrader:   AIStateOrderTrade(elapsedTime);     break;
-                            }
-                    }
-                    else if (state == AIState.PassengerTransport)
-                    {
-                        AIStatePassengersTransport(elapsedTime);
-                    }
-                }
-                else if (state <= AIState.ReturnToHangar)
-                {
-                    switch (state)
-                    {
-                        case AIState.SystemDefender: AwaitOrders(elapsedTime); break;
-                        case AIState.Resupply:       AwaitOrders(elapsedTime); break;
-                        case AIState.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
-                        case AIState.AwaitingOffenseOrders: break;
-                    }
-                }
-                else if (state != AIState.Intercept)
-                {
-                    if (state == AIState.Exterminate)
-                        OrderFindExterminationTarget();
-                }
-                else if (Target != null)
-                {
-                    OrbitShip(Target as Ship, elapsedTime, Orbit.Right);
+                    case AIState.DoNothing:      AwaitOrders(elapsedTime);           break;
+                    case AIState.AwaitingOrders: AIStateAwaitingOrders(elapsedTime); break;
+                    case AIState.Escort:         AIStateEscort(elapsedTime);         break;
+                    case AIState.SystemTrader:   AIStateOrderTrade(elapsedTime);     break;
+                    case AIState.PassengerTransport: AIStatePassengersTransport(elapsedTime); break;
+                    case AIState.SystemDefender: AwaitOrders(elapsedTime); break;
+                    case AIState.Resupply:       AwaitOrders(elapsedTime); break;
+                    case AIState.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
+                    case AIState.AwaitingOffenseOrders: break;
+                    case AIState.Exterminate: 
+                        OrderFindExterminationTarget(); break;
+                    default:
+                        if (Target != null)
+                        {
+                            OrbitShip(Target as Ship, elapsedTime, Orbit.Right);
+                        }
+                        break;
                 }
             }
             else

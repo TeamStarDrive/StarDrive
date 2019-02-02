@@ -29,24 +29,12 @@ namespace Ship_Game.AI
         {    
             Owner.HyperspaceReturn();
 
-            if (WayPoints.Count <= 0)
-            {
-                Log.Error("MakeFinalApproach: no active way points!");
-                ClearOrdersNext = true;
-                return;
-            }
-            if (goal.TargetPlanet == null)
-            {
-                Log.Error("MakeFinalApproach: goal.TargetPlanet was null!");
-                return;
-            }
+            if (goal.TargetPlanet != null)
+                goal.MovePosition = goal.TargetPlanet.Center;
 
-            goal.MovePosition = goal.TargetPlanet.Center;
-
-            Vector2 velocity = Owner.Velocity + goal.TargetPlanet.Center;
-
-            float timeToStop = velocity.Length() / goal.SpeedLimit;
             float distance = Owner.Center.Distance(goal.MovePosition);
+
+            float timeToStop = distance / goal.SpeedLimit;
             if (distance / (goal.SpeedLimit + 0.001f) <= timeToStop)
             {
                 DequeueCurrentOrder();
@@ -99,6 +87,9 @@ namespace Ship_Game.AI
             }
 
             Owner.Rotation += rotAmount;
+            Log.Info($"RotateToFacing diff:{angleDiff} amount:{rotAmount} rotation:{Owner.Rotation}");
+            if (Owner.Rotation > (float)Math.PI*2f)
+                Owner.Rotation -= (float)Math.PI*2f;
         }
 
         void RestoreYBankRotation()
@@ -119,11 +110,13 @@ namespace Ship_Game.AI
 
         bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
+            if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
+                Log.Warning($"RotateToDirection {wantedForward} not a unit vector!");
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();
             float angleDiff = (float)Math.Acos(wantedForward.Dot(currentForward));
             if (angleDiff > minDiff)
             {
-                float rotationDir = wantedForward.Dot(currentForward) > 0f ? 1f : -1f;
+                float rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
                 RotateToFacing(elapsedTime, angleDiff, rotationDir);
                 return true;
             }
@@ -415,7 +408,8 @@ namespace Ship_Game.AI
 
         void RotateToFaceMovePosition(float elapsedTime, ShipGoal goal)
         {
-            if (RotateToDirection(goal.DesiredDirection, elapsedTime, 0.2f))
+            Vector2 dir = Owner.Position.DirectionToTarget(goal.MovePosition);
+            if (RotateToDirection(dir, elapsedTime, 0.2f))
                 Owner.HyperspaceReturn();
             else
                 DequeueCurrentOrder(); // rotation complete

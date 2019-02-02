@@ -549,10 +549,7 @@ namespace Ship_Game.AI
                     else
                         GoOrbitNearestPlanetAndResupply(true);
                 }
-                //this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DefendSystem, Vector2.Zero, 0f));
             }
-
-            //this.State = AIState.SystemDefender;
         }
 
         public void GoOrbitNearestPlanetAndResupply(bool cancelOrders)
