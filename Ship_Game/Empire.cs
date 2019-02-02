@@ -630,7 +630,7 @@ namespace Ship_Game
 
         public void AddShipNextFrame(Ship s) => ShipsToAdd.Add(s);
 
-        private void InitColonyRankModifier()
+        private void InitColonyRankModifier() // controls amount of orbital defense by difficuly
         {
             if (isPlayer) return;
             switch (CurrentGame.Difficulty)
