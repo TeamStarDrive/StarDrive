@@ -25,7 +25,7 @@ namespace Ship_Game.AI
             Owner.isThrusting = false;
         }
 
-        void MakeFinalApproach(float elapsedTime, ShipGoal Goal)
+        void MakeFinalApproach(float elapsedTime, ShipGoal goal)
         {            
             if (WayPoints.Count <= 0)
             {
@@ -33,24 +33,24 @@ namespace Ship_Game.AI
                 ClearOrdersNext = true;
                 return;
             }
-            if (Goal.TargetPlanet != null)
-                Goal.MovePosition = Goal.TargetPlanet.Center;
+            if (goal.TargetPlanet != null)
+                goal.MovePosition = goal.TargetPlanet.Center;
 
             Owner.HyperspaceReturn();
             Vector2 velocity = Owner.Velocity;
-            if (Goal.TargetPlanet != null)
-                velocity += Goal.TargetPlanet.Center;
-            float timetostop = velocity.Length() / Goal.SpeedLimit;
-            float distance = Owner.Center.Distance(Goal.MovePosition);
-            if (distance / (Goal.SpeedLimit + 0.001f) <= timetostop)
+            if (goal.TargetPlanet != null)
+                velocity += goal.TargetPlanet.Center;
+            float timeToStop = velocity.Length() / goal.SpeedLimit;
+            float distance = Owner.Center.Distance(goal.MovePosition);
+            if (distance / (goal.SpeedLimit + 0.001f) <= timeToStop)
             {
                 DequeueCurrentOrder();
             }
             else
             {
                 if (DistanceLast.AlmostEqual(distance))
-                    Goal.SpeedLimit++;
-                ThrustTowardsPosition(Goal.MovePosition, elapsedTime, Goal.SpeedLimit);
+                    goal.SpeedLimit++;
+                ThrustTowardsPosition(goal.MovePosition, elapsedTime, goal.SpeedLimit);
             }
             DistanceLast = distance;
         }
@@ -458,7 +458,7 @@ namespace Ship_Game.AI
             float distance = Owner.Center.Distance(Goal.MovePosition);
             if (distance < 200f) // fbedard
             {
-                WayPoints.Clear();
+                ClearWayPoints();
                 Owner.Velocity = Vector2.Zero;
             }
             Owner.HyperspaceReturn();

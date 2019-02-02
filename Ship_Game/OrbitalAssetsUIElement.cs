@@ -76,25 +76,19 @@ namespace Ship_Game
 				if (!BombardButton.Toggled)
 				{
 					foreach (Ship ship in p.ParentSystem.ShipList)
-					{
-						if (ship.loyalty != EmpireManager.Player || ship.AI.State != AIState.Bombard)
-						{
-							continue;
-						}
-						ship.AI.OrderQueue.Clear();
-						ship.AI.State = AIState.AwaitingOrders;
-					}
+                    {
+                        if (ship.loyalty == EmpireManager.Player && ship.AI.State == AIState.Bombard)
+                            ship.AI.ClearOrders();
+                    }
 				}
 				else
 				{
 					foreach (Ship ship in p.ParentSystem.ShipList)
-					{
-						if (ship.loyalty != EmpireManager.Player || ship.BombBays.Count <= 0 || Vector2.Distance(ship.Center, p.Center) >= 15000f)
-						{
-							continue;
-						}
-						ship.AI.OrderBombardPlanet(p);
-					}
+                    {
+                        if (ship.loyalty == EmpireManager.Player && ship.BombBays.Count > 0 &&
+                            ship.Center.InRadius(p.Center, 15000f))
+                            ship.AI.OrderBombardPlanet(p);
+                    }
 				}
 			}
 			LandTroops.HandleInput(input);

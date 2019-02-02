@@ -378,7 +378,7 @@ namespace Ship_Game.AI
             {
                 ship.AI.EscortTarget = sortedList[skipShip];
                 ship.AI.IgnoreCombat = true;
-                ship.AI.OrderQueue.Clear();
+                ship.AI.ClearOrders();
                 ship.AI.AddShipGoal(Plan.SupplyShip);
             }
 

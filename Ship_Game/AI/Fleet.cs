@@ -259,9 +259,8 @@ namespace Ship_Game.AI
                 Ship s = Ships[x];
                 if (s.InCombat)
                     continue;
-                s.AI.OrderQueue.Clear();
-                s.AI.WayPoints.Clear();
-                s.AI.State = AIState.AwaitingOrders;
+                s.AI.ClearOrders();
+                s.AI.ClearWayPoints();
                 s.AI.OrderAllStop();
                 s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Direction, false);
             }
@@ -1340,8 +1339,7 @@ namespace Ship_Game.AI
                     Ship s = Ships[i];
                     RemoveShipAt(s, i--);
 
-                    s.AI.OrderQueue.Clear();
-                    s.AI.State = AIState.AwaitingOrders;
+                    s.AI.ClearOrders();
                     s.HyperspaceReturn();
                     s.isSpooling = false;
                     if (s.shipData.Role == ShipData.RoleName.troop)

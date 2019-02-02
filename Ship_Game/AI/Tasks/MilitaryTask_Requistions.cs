@@ -164,9 +164,7 @@ namespace Ship_Game.AI.Tasks
             foreach (Ship ship in elTaskForce)
             {
                 newFleet.AddShip(ship);
-                ship.AI.OrderQueue.Clear();
-                ship.AI.State = AIState.AwaitingOrders;
-
+                ship.AI.ClearOrders();
                 Owner.GetEmpireAI().RemoveShipFromForce(ship, closestAO);
             }
             newFleet.AutoArrange();
@@ -192,9 +190,7 @@ namespace Ship_Game.AI.Tasks
             foreach (Ship ship in ships)
             {
                 newFleet.AddShip(ship);
-                ship.AI.OrderQueue.Clear();
-                ship.AI.State = AIState.AwaitingOrders;
-
+                ship.AI.ClearOrders();
                 Owner.GetEmpireAI().RemoveShipFromForce(ship);
             }
             
@@ -431,11 +427,8 @@ namespace Ship_Game.AI.Tasks
                 foreach (Ship ship in ships)
                 {
                     ship.fleet?.RemoveShip(ship);
-
-                    ship.AI.OrderQueue.Clear();
+                    ship.AI.ClearOrders();
                     Owner.GetEmpireAI().DefensiveCoordinator.Remove(ship);
-
-
                     closestAO.GetCoreFleet().AddShip(ship);
                 }
 
@@ -473,7 +466,7 @@ namespace Ship_Game.AI.Tasks
 
                     foreach (Ship ship in bombTaskForce)
                     {
-                        ship.AI.OrderQueue.Clear();
+                        ship.AI.ClearOrders();
                         Owner.GetEmpireAI().DefensiveCoordinator.Remove(ship);
                         ship.fleet?.RemoveShip(ship);
 

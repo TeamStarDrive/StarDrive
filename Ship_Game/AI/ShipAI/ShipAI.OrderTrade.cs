@@ -139,7 +139,7 @@ namespace Ship_Game.AI
             }
             else if(end == null || Owner.GetCargo().Good != trading)
             {
-                OrderQueue.Clear();
+                ClearOrders();
                 FoodOrProd        = Goods.None;
                 Owner.TradingFood = false;
                 Owner.TradingProd = false;
@@ -149,7 +149,7 @@ namespace Ship_Game.AI
                 if (Owner.CargoSpaceUsed > 0)
                     Owner.ClearCargo();
             }
-            State            = AIState.SystemTrader;
+            State = AIState.SystemTrader;
             Owner.TradeTimer = 5f;
             end?.TradeAI.AddTrade(Owner);
             start?.TradeAI.AddTrade(Owner);
@@ -203,8 +203,6 @@ namespace Ship_Game.AI
             if (Owner.GetCargo(good) <= 0)
                 start = route.Start;
 
-            WayPoints.Clear();
-            OrderQueue.Clear();
             OrderMoveTowardsPosition(end.Center, Vectors.Up, true, end);
             AddShipGoal(GoodToPlan.DropOff(good));
             State = AIState.SystemTrader;
@@ -309,29 +307,28 @@ namespace Ship_Game.AI
                 start        = null;
                 end          = null;
                 FoodOrProd   = Goods.None;
-                OrderQueue.Clear();
+                ClearOrders();
                 if (Owner.CargoSpaceUsed > 0)
                     Owner.ClearCargo();
             }
             Owner.TradeTimer = 5f;
-            State            = AIState.PassengerTransport;
-            FoodOrProd       = Goods.Colonists;
+            State      = AIState.PassengerTransport;
+            FoodOrProd = Goods.Colonists;
             end?.TradeAI.AddTrade(Owner);
             start?.TradeAI.AddTrade(Owner);
         }
 
         public void OrderTroopToBoardShip(Ship s)
         {
-            HasPriorityOrder = true;
-            EscortTarget     = s;
-            OrderQueue.Clear();
+            EscortTarget = s;
+            ClearOrders(State, priority: true);
             AddShipGoal(Plan.BoardShip);
         }
 
         public void OrderTroopToShip(Ship s)
         {
             EscortTarget = s;
-            OrderQueue.Clear();
+            ClearOrders(State);
             AddShipGoal(Plan.TroopToShip);
         }
 
