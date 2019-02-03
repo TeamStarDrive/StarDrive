@@ -382,16 +382,16 @@ namespace Ship_Game.Debug
                 Vector2 thrustTgt = ship.AI.ThrustTarget;
                 if (!thrustTgt.AlmostZero())
                 {
-                    DrawLineImmediate(movePos, thrustTgt, Color.Orange, 1f);
-                    DrawLineImmediate(ship.Position, thrustTgt, Color.Orange, 1f);
-                    DrawCircleImmediate(thrustTgt, 25f, Color.MediumVioletRed, 3f);
+                    DrawLineImmediate(movePos, thrustTgt, Color.Orange);
+                    DrawLineImmediate(ship.Position, thrustTgt, Color.Orange);
+                    DrawCircleImmediate(thrustTgt, 25f, Color.MediumVioletRed);
                 }
 
                 // direction indicator
                 DrawArrowImm(movePos, movePos + goals[0].DesiredDirection * 50f, Color.Wheat);
 
                 // velocity indicator
-                DrawArrowImm(ship.Position, ship.Position+ship.Velocity, Color.OrangeRed, 3);
+                DrawArrowImm(ship.Position, ship.Position+ship.Velocity, Color.OrangeRed);
 
                 DrawString($"AI State: {ship.AI.State}");
                 DrawString($"Combat State: {ship.AI.CombatState}");
