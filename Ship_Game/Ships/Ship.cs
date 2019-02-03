@@ -1428,7 +1428,7 @@ namespace Ship_Game.Ships
             if (Empire.Universe == null || engineState == MoveState.Sublight)
                 return;
 
-            Log.Info($"HyperspaceReturn {this}");
+            //Log.Info($"HyperspaceReturn {this}");
 
             if (JumpSfx.IsPlaying)
                 JumpSfx.Stop();
