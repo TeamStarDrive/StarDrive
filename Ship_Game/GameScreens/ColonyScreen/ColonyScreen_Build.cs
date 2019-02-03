@@ -44,15 +44,8 @@ namespace Ship_Game
             }
 
             // first sort the categories by name:
-            ShipCategory[] categories = categoryMap.Values.ToArray();
-            Array.Sort(categories, (a, b) =>
-            {
-                int d = a.Size - b.Size; // rank by smaller size categories first
-                if (d != 0) return d;
-                return string.CompareOrdinal(a.Name, b.Name);
-            });
-
-            // and then sort each ship category individually:
+            ShipCategory[] categories = categoryMap.Values.ToArray().Sorted(c => c.Name);
+            // and then sort each ship category individually by Strength
             foreach (ShipCategory category in categories)
             {
                 category.Ships.Sort((a, b) =>
@@ -261,7 +254,7 @@ namespace Ship_Game
                     batch.DrawString(Font8, role + ": ", position, Color.DarkGray);
                     position.X = position.X + Font8.MeasureString(role).X + 8;
                     batch.DrawString(Font8,
-                        $"Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
+                        $"Base Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
 
                     position.X = (entry.Right - 120);
                     SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
