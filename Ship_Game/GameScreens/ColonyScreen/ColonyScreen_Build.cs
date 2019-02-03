@@ -208,7 +208,7 @@ namespace Ship_Game
                     batch.DrawString(Font8, role + ": ", position, Color.DarkGray);
                     position.X = position.X + Font8.MeasureString(role).X + 8;
                     batch.DrawString(Font8,
-                        $"Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
+                        $"Base Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
 
 
                     //Forgive my hacks this code of nightmare must GO!
