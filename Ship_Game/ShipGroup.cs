@@ -143,6 +143,29 @@ namespace Ship_Game
             ProjectPos(fleetLeftCorner, direction);
         }
 
+        public bool IsShipListEqual(Array<Ship> ships)
+        {
+            using (Ships.AcquireReadLock())
+            {
+                if (Ships.Count != ships.Count)
+                    return false;
+                foreach (Ship ship in Ships)
+                    if (!ships.Contains(ship))
+                        return false;
+                return true;
+            }
+        }
+
+        public static Vector2 AveragePosition(Array<Ship> ships)
+        {
+            if (ships.Count == 0)
+                return Vector2.Zero;
+            Vector2 pos = ships[0].Position;
+            for (int i = 1; i < ships.Count; ++i)
+                pos = (ships[i].Position + pos) * 0.5f;
+            return pos;
+        }
+
         public Vector2 FindAveragePosition()
         {
             if (StoredFleetPosition == Vector2.Zero)
@@ -152,26 +175,19 @@ namespace Ship_Game
 
         public Vector2 FindAveragePositionset()
         {
-            if (Ships.Count == 0)
-                return Vector2.Zero;
             using (Ships.AcquireReadLock())
-            {
-                Vector2 center = Ships[0].Position;
-                for (int i = 1; i < Ships.Count; ++i)
-                    center += Ships[i].Position;
-                return center / Ships.Count;
-            }
+                return AveragePosition(Ships);
         }
 
         public void Setavgtodestination()
         {
-            Array<float> distances = new Array<float>();
+            var distances = new Array<float>();
             using (Ships.AcquireReadLock())
                 foreach (Ship distance in Ships)
                 {
                     if (distance.EnginesKnockedOut || !distance.Active || distance.InCombat)
                         continue;
-                    distances.Add(Vector2.Distance(distance.Center, Position + distance.FleetOffset) - 100);
+                    distances.Add(distance.Center.Distance(Position + distance.FleetOffset) - 100);
                 }
 
             if (distances.Count <= 2)
@@ -224,9 +240,6 @@ namespace Ship_Game
                 }
             }
         }
-
-
-
 
         public virtual void FormationWarpTo(Vector2 movePosition, Vector2 facingDir, bool queueOrder = false)
         {
@@ -297,9 +310,9 @@ namespace Ship_Game
             Assembled
         }
 
-        public MoveStatus IsFleetAssembled(float radius, Vector2 position = default(Vector2))
+        public MoveStatus IsFleetAssembled(float radius, Vector2 position = default)
         {
-            if (position == default(Vector2))
+            if (position == default)
                 position = Position;
             MoveStatus moveStatus = MoveStatus.Assembled;
             bool inCombat = false;

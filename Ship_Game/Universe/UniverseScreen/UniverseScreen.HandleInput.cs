@@ -772,42 +772,39 @@ namespace Ship_Game
             MoveShipToLocation(start, direction);
         }
 
-        void MoveShipGroupToMouse()
+        void MoveShipGroupToMouse(bool wasProjecting)
         {
-            if (Input.RightMouseHeldDown) // dragging right mouse
+            if (wasProjecting) // dragging right mouse
             {
                 if (projectedGroup == null)
+                {
+                    Log.Warning("MoveShipGroupToMouse (projectedGroup was NULL)");
                     return; // projection is not valid YET, come back next update
+                }
+                Log.Info("MoveShipGroupToMouse (projectedGroup)");
                 MoveShipGroupToLocation(projectedGroup, SelectedShipList);                
                 return;
-            }
-
-            Vector2 AveragePos(Array<Ship> ships)
-            {
-                Vector2 pos = ships[0].Position;
-                for (int i = 1; i < ships.Count; ++i)
-                    pos = (ships[i].Position + pos) * 0.5f;
-                return pos;
             }
 
             Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
             Vector2 end   = UnprojectToWorldPosition(Input.EndRightHold);
             Vector2 center = (start + end) * 0.5f;
-            Vector2 fleetCenter = AveragePos(SelectedShipList);
+            Vector2 fleetCenter = ShipGroup.AveragePosition(SelectedShipList);
             Vector2 direction = fleetCenter.DirectionToTarget(center);
 
             // right mouse was clicked
-            if (!projectedGroup?.GetShips.SequenceEqual(SelectedShipList) ?? true) 
+            if (projectedGroup == null || !projectedGroup.IsShipListEqual(SelectedShipList)) 
             {
+                Log.Info("MoveShipGroupToMouse (NEW)");
                 // assemble brand new group
                 projectedGroup = new ShipGroup();
                 projectedGroup.AssembleAdhocGroup(SelectedShipList, Vector2.Zero, Vector2.Zero, Vectors.Up, player);
-
                 projectedGroup.ProjectPos(start, direction);
                 MoveShipGroupToLocation(projectedGroup, SelectedShipList);
             }
             else // use existing group direction
             {
+                Log.Info("MoveShipGroupToMouse (existing)");
                 projectedGroup.ProjectPos(start, direction);
                 projectedGroup.MoveToNow(start, direction);
             }
@@ -925,13 +922,13 @@ namespace Ship_Game
                 }
 
                 GameAudio.AffirmativeClick();
-                MoveShipGroupToMouse();
+                MoveShipGroupToMouse(wasProjecting:true);
             }
         }
 
         void MoveSelectedShipsToMouse()
         {
-            Log.Info("MoveSelectedShipsToMouse ");
+            Log.Info($"MoveSelectedShipsToMouse {Input.CursorPosition}");
             Ship shipClicked = CheckShipClick(Input);
             Planet planetClicked = CheckPlanetClick();
 
@@ -980,7 +977,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    MoveShipGroupToMouse();
+                    MoveShipGroupToMouse(wasProjecting: false);
                 }
             }
 
