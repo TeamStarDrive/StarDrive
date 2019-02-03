@@ -250,12 +250,12 @@ namespace Ship_Game.AI
             ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
             
             MovePosition = position;
-            PlotCourseToNew(position, WayPoints.Count > 0 ? WayPoints.PeekLast : Owner.Center);
+            PlotCourseAsWayPoints(startPos: (WayPoints.Count > 0 ? WayPoints.PeekLast : Owner.Center), endPos: position);
             DesiredDirection = finalDirection;
-            CreateFullMovementGoals(finalDirection, targetPlanet);
+            GenerateOrdersFromWayPoints(finalDirection, targetPlanet);
         }
 
-        void CreateFullMovementGoals(Vector2 finalDirection, Planet targetPlanet)
+        void GenerateOrdersFromWayPoints(Vector2 finalDirection, Planet targetPlanet)
         {
             Vector2[] wayPoints = WayPoints.ToArray();
 

@@ -293,7 +293,7 @@ namespace Ship_Game.Ships
                 ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
         }
 
-        private float GetyBankAmount(float yBank)
+        float GetyBankAmount(float yBank)
         {
             switch (shipData.Role)
             {
@@ -833,26 +833,22 @@ namespace Ship_Game.Ships
                 return;
             if (Empire.Universe.Input != null)
                 currentKeyBoardState = Empire.Universe.Input.KeysCurr;
-            if (currentKeyBoardState.IsKeyDown(Keys.D))
-                AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.A))
-                AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.W))
-                AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.S))
-                AI.State = AIState.ManualControl;
+
+            if (currentKeyBoardState.IsKeyDown(Keys.D)) AI.State = AIState.ManualControl;
+            if (currentKeyBoardState.IsKeyDown(Keys.A)) AI.State = AIState.ManualControl;
+            if (currentKeyBoardState.IsKeyDown(Keys.W)) AI.State = AIState.ManualControl;
+            if (currentKeyBoardState.IsKeyDown(Keys.S)) AI.State = AIState.ManualControl;
+
             if (AI.State == AIState.ManualControl)
             {
                 if (Active && !currentKeyBoardState.IsKeyDown(Keys.LeftControl))
                 {
                     isThrusting = false;
-                    Vector2 vector2_1 = new Vector2((float)Math.Sin(Rotation), -(float)Math.Cos(Rotation));
-                    Vector2 vector2_2 = new Vector2(-vector2_1.Y, vector2_1.X);
                     if (currentKeyBoardState.IsKeyDown(Keys.D))
                     {
+                        isTurning = true;
                         isThrusting = true;
                         RotationalVelocity += rotationRadiansPerSecond * elapsedTime;
-                        isTurning = true;
                         if (RotationalVelocity > rotationRadiansPerSecond)
                             RotationalVelocity = rotationRadiansPerSecond;
                         if (yRotation > -MaxBank)
@@ -860,9 +856,9 @@ namespace Ship_Game.Ships
                     }
                     else if (currentKeyBoardState.IsKeyDown(Keys.A))
                     {
+                        isTurning = true;
                         isThrusting = true;
                         RotationalVelocity -= rotationRadiansPerSecond * elapsedTime;
-                        isTurning = true;
                         if (Math.Abs(RotationalVelocity) > rotationRadiansPerSecond)
                             RotationalVelocity = -rotationRadiansPerSecond;
                         if (yRotation < MaxBank)
@@ -872,19 +868,13 @@ namespace Ship_Game.Ships
                     {
                         isSpooling = true;
                         isTurning = false;
-                        isThrusting = true;
-                        Vector2.Normalize(vector2_1);
-                        Ship ship1 = this;
-                        Vector2 vector2_3 = ship1.Velocity + vector2_1 * (elapsedTime * Speed);
-                        ship1.Velocity = vector2_3;
-                        if (Velocity.Length() > velocityMaximum)
-                            Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
-                        if (Velocity.LengthSquared() <= 0.0)
-                            Velocity = Vector2.Zero;
+                        ThrustForward(elapsedTime, Speed, velocityMaximum);
+
                         if (yRotation > 0.0)
                             yRotation -= yBankAmount;
                         else if (yRotation < 0.0)
                             yRotation += yBankAmount;
+
                         if (RotationalVelocity > 0.0)
                         {
                             isTurning = true;
@@ -931,8 +921,7 @@ namespace Ship_Game.Ships
                         }
                         isThrusting = false;
                     }
-                    if (Velocity.Length() > velocityMaximum)
-                        Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
+
                     if (currentKeyBoardState.IsKeyDown(Keys.F) && !lastKBState.IsKeyDown(Keys.F))
                     {
                         if (!isSpooling)
@@ -942,21 +931,11 @@ namespace Ship_Game.Ships
                     }
                     if (currentKeyBoardState.IsKeyDown(Keys.W))
                     {
-                        isThrusting = true;
-                        Ship ship = this;
-                        Vector2 vector2_3 = ship.Velocity + vector2_1 * (elapsedTime * Speed);
-                        ship.Velocity = vector2_3;
-                        if (Velocity.Length() > velocityMaximum)
-                            Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
+                        ThrustForward(elapsedTime, Speed, velocityMaximum);
                     }
                     else if (currentKeyBoardState.IsKeyDown(Keys.S))
                     {
-                        isThrusting = true;
-                        Ship ship = this;
-                        Vector2 vector2_3 = ship.Velocity - vector2_1 * (elapsedTime * Speed);
-                        ship.Velocity = vector2_3;
-                        if (Velocity.Length() > velocityMaximum)
-                            Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
+                        ThrustForward(elapsedTime, -Speed, velocityMaximum);
                     }
                     MouseState state = Mouse.GetState();
                     if (state.RightButton == ButtonState.Pressed)
@@ -966,7 +945,10 @@ namespace Ship_Game.Ships
                             w.MouseFireAtTarget(pickedPos);
                     }
                 }
-                else GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
+                else
+                {
+                    GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
+                }
             }
             lastKBState = currentKeyBoardState;
         }
@@ -1467,13 +1449,14 @@ namespace Ship_Game.Ships
             Speed = velocityMaximum;
         }
 
-        public void AccelerateForward(float elapsedTime, float speedLimit = 0f)
+        public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f)
         {
-            EngageStarDrive();
             isThrusting = true;
+            //if (engineState == MoveState.Warp)
+            //    return; // Warp speed is updated in UpdateEnginesAndVelocity
 
             speedLimit = speedLimit <= 0f ? velocityMaximum
-                : speedLimit.Clamped(0, velocityMaximum);
+                                          : speedLimit.Clamped(0, velocityMaximum);
 
             if (isSpooling)
                 speedLimit *= loyalty.data.FTLModifier;
@@ -1482,12 +1465,86 @@ namespace Ship_Game.Ships
             //       Thrust to weight ratio or something?
             float slowDownWhenTurning = isTurning ? 0.75f : 1f;
             float acceleration = Speed * slowDownWhenTurning;
+            ThrustForward(elapsedTime, acceleration, speedLimit);
+        }
 
-            Log.Info($"velocity: {(int)Velocity.Length()}u/s  accelerate: {(int)acceleration}u/s");
-
+        void ThrustForward(float elapsedTime, float acceleration, float speedLimit)
+        {
+            isThrusting = true;
             Velocity += Direction * (elapsedTime * acceleration);
             if (Velocity.Length() > speedLimit)
                 Velocity = Velocity.Normalized() * speedLimit;
+            Log.Info($"velocity: {(int)Velocity.Length()}u/s  accelerate: {(int)acceleration}u/s");
+        }
+
+        // called from Ship.Update
+        void UpdateEnginesAndVelocity(float deltaTime)
+        {
+            SetmaxFTLSpeed();
+
+            switch (engineState)
+            {
+                case MoveState.Sublight: velocityMaximum = GetSTLSpeed(); break;
+                case MoveState.Warp:     velocityMaximum = GetmaxFTLSpeed; break;
+            }
+
+            Speed = velocityMaximum;
+            rotationRadiansPerSecond = TurnThrust / Mass / 700f;
+            rotationRadiansPerSecond += rotationRadiansPerSecond * Level * 0.05f;
+            yBankAmount = GetyBankAmount(rotationRadiansPerSecond * deltaTime);
+
+            Vector2 oldVelocity = Velocity;
+            if (engineState == MoveState.Warp)
+            {
+                float slowDownWhenTurning = isTurning ? 0.75f : 1f;
+                float acceleration = 1.0f * slowDownWhenTurning;
+                ThrustForward(deltaTime, acceleration, velocityMaximum);
+            }
+            if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered)
+            {
+                EnginesKnockedOut = true;
+                velocityMaximum = Velocity.Length();
+                Velocity -= Velocity * (deltaTime * 0.1f);
+                if (engineState == MoveState.Warp)
+                    HyperspaceReturn();
+            }
+            else
+            {
+                EnginesKnockedOut = false;
+            }
+
+            if (Velocity.Length() > velocityMaximum)
+                Velocity = Velocity.Normalized() * velocityMaximum;
+
+            Acceleration = oldVelocity.Acceleration(Velocity, deltaTime);
+
+            if (isSpooling && !Inhibited && GetmaxFTLSpeed > 2500f)
+            {
+                JumpTimer -= deltaTime;
+
+                if (JumpTimer <= 4.0f) // let's see if we can sync audio to behaviour with new timers
+                {
+                    if (Empire.Universe.CamHeight < 250000f && Empire.Universe.CamPos.InRadius(Center, 100000f)
+                                                            && JumpSfx.IsStopped)
+                    {
+                        JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter);
+                    }
+                }
+                if (JumpTimer <= 0.1f)
+                {
+                    if (engineState == MoveState.Sublight)
+                    {
+                        FTLManager.AddFTL(Center);
+                        engineState = MoveState.Warp;
+                    }
+                    else
+                    {
+                        engineState = MoveState.Sublight;
+                    }
+                    isSpooling = false;
+                    ResetJumpTimer();
+                }
+            }
         }
 
         public ShipData ToShipData()
@@ -1705,8 +1762,7 @@ namespace Ship_Game.Ships
         {
             if (!Empire.Universe.Paused && velocityMaximum <= 0f
                 && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)
-                Rotation += 0.003f + RandomMath.AvgRandomBetween(.0001f,.0005f);
-
+                Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
 
             MoveModulesTimer -= deltaTime;
             updateTimer -= deltaTime;
@@ -1740,11 +1796,7 @@ namespace Ship_Game.Ships
 
                 if ((InCombat && !EMPdisabled && hasCommand || PlayerShip) && Weapons.Count > 0)
                 {
-
                     AI.CombatAI.UpdateCombatAI(this);
-
-                    float direction = AI.CombatState == CombatState.ShortRange ? 1f : -1f; // ascending : descending
-                    //Weapon[] sortedByRange = Weapons.Sorted(weapon => direction*weapon.GetModifiedRange());
 
                     foreach (Weapon weapon in Weapons)
                     {
@@ -1913,7 +1965,6 @@ namespace Ship_Game.Ships
             if (TroopsLaunched)
                 Carrier.ScrambleAllAssaultShips(); // FB: if the troops out button is on, launch every availble assualt shuttle
 
-            SetmaxFTLSpeed();
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
@@ -1935,42 +1986,7 @@ namespace Ship_Game.Ships
 
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
 
-
-            switch (engineState)
-            {
-                case MoveState.Sublight:
-                    velocityMaximum = GetSTLSpeed();
-                    break;
-                case MoveState.Warp:
-                    velocityMaximum = GetmaxFTLSpeed;
-                    break;
-            }
-
-            Speed = velocityMaximum;
-            rotationRadiansPerSecond = TurnThrust / Mass / 700f;
-            rotationRadiansPerSecond += (float)(rotationRadiansPerSecond * Level * 0.0500000007450581);
-            yBankAmount =  GetyBankAmount(rotationRadiansPerSecond * deltaTime);// 50f;
-
-            Vector2 oldVelocity = Velocity;
-            if (engineState == MoveState.Warp)
-            {
-                Velocity = Rotation.RadiansToDirection() * velocityMaximum;
-            }
-            if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered)
-            {
-                EnginesKnockedOut = true;
-                velocityMaximum = Velocity.Length();
-                Velocity -= Velocity * (deltaTime * 0.1f);
-                if (engineState == MoveState.Warp)
-                    HyperspaceReturn();
-            }
-            else
-                EnginesKnockedOut = false;
-
-            if (Velocity.Length() > velocityMaximum)
-                Velocity = Velocity.Normalized() * velocityMaximum;
-
-            Acceleration = oldVelocity.Acceleration(Velocity, deltaTime);
+            UpdateEnginesAndVelocity(deltaTime);
         }
 
         private void SetShipsVisibleByPlayer()
