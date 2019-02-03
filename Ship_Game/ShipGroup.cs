@@ -13,7 +13,7 @@ namespace Ship_Game
     public class ShipGroup : IDisposable
     {
         public BatchRemovalCollection<Ship> Ships;
-        public float ProjectedFacing;
+        public Vector2 ProjectedDirection;
         public float Speed;
         public Empire Owner;
         public Vector2 Position;  // center of the ship group
@@ -44,17 +44,19 @@ namespace Ship_Game
 
         public void ProjectPos(Vector2 pos, Vector2 direction)
         {
-            ProjectedFacing = direction.ToRadians();
+            ProjectedDirection = direction;
+            float facing = direction.ToRadians();
             foreach (Ship ship in Ships)
             {
-                Vector2 dir = (ship.RelativeFleetOffset + direction).Normalized();
-                ship.projectedPosition = pos + dir * ship.RelativeFleetOffset.Length();
+                float angle = ship.RelativeFleetOffset.ToRadians() + facing;
+                float distance = ship.RelativeFleetOffset.Length();
+                ship.projectedPosition = pos + Vector2.Zero.PointFromRadians(angle, distance);
             }
         }
 
         public void ProjectPosNoOffset(Vector2 projectedPosition, Vector2 direction)
         {
-            ProjectedFacing = direction.ToRadians();
+            ProjectedDirection = direction;
             foreach (Ship ship in Ships)
             {
                 ship.projectedPosition = projectedPosition + direction;
@@ -108,7 +110,7 @@ namespace Ship_Game
 
         public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 fleetRightCorner, Vector2 fleetLeftCorner, Vector2 direction, Empire owner)
         {
-            float clickDistance = Vector2.Distance(fleetLeftCorner, fleetRightCorner);
+            float clickDistance = fleetRightCorner.Distance(fleetLeftCorner);
             int row = 0;
             int column = 0;
             float maxRadius = 0.0f;
@@ -131,11 +133,11 @@ namespace Ship_Game
             }
             else
             {
-                float num7 = clickDistance / shipList.Count;
+                float spread = clickDistance / shipList.Count;
                 for (int i = 0; i < shipList.Count; ++i)
                 {
                     AddShip(shipList[i]);
-                    Ships[i].RelativeFleetOffset = new Vector2(num7 * i, 0.0f);
+                    Ships[i].RelativeFleetOffset = new Vector2(spread * i, 0.0f);
                 }
             }
             ProjectPos(fleetLeftCorner, direction);
