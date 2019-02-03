@@ -266,13 +266,13 @@ namespace Ship_Game.AI
                 Planet p = isLast ? targetPlanet : null;
 
                 if (i == 0)
-                    AddShipGoal(Plan.RotateToFaceMovePosition, wp, Vector2.Zero);
+                    AddShipGoal(Plan.RotateToFaceMovePosition, wp, finalDirection);
                 AddShipGoal(Plan.MoveToWithin1000, wp, finalDirection, p, Owner.Speed);
 
                 if (isLast)
                 {
                     AddShipGoal(Plan.MakeFinalApproach, wp, finalDirection, p, Owner.Speed);
-                    AddShipGoal(Plan.StopWithBackThrust, wp, Vector2.Zero, targetPlanet, Owner.Speed);
+                    AddShipGoal(Plan.StopWithBackThrust, wp, finalDirection, targetPlanet, Owner.Speed);
                     AddShipGoal(Plan.RotateToDesiredFacing, wp, finalDirection);
                 }
             }
