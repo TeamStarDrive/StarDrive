@@ -171,7 +171,7 @@ namespace Ship_Game
             }
 
             if (p.ShieldStrengthMax > 0f)
-                DrawPlanetStats(ShieldRect, p.ShieldStrengthCurrent.String(1), "NewUI/icon_planetshield", Color.White, Color.Green);
+                DrawPlanetStats(ShieldRect, p.ShieldStrengthCurrent.String(0), "NewUI/icon_planetshield", Color.White, Color.Green);
 
             // Added by Fat Bastard - display total defense ships stationed on this planet
             int maxDefenseShips = p.MaxDefenseShips;
