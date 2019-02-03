@@ -1449,7 +1449,7 @@ namespace Ship_Game.Ships
             Speed = velocityMaximum;
         }
 
-        public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f)
+        public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f, float direction = +1f)
         {
             isThrusting = true;
             //if (engineState == MoveState.Warp)
@@ -1464,7 +1464,7 @@ namespace Ship_Game.Ships
             // @todo Need to figure out actual acceleration rates for ships
             //       Thrust to weight ratio or something?
             float slowDownWhenTurning = isTurning ? 0.75f : 1f;
-            float acceleration = Speed * slowDownWhenTurning;
+            float acceleration = direction * Speed * slowDownWhenTurning;
             ThrustForward(elapsedTime, acceleration, speedLimit);
         }
 

@@ -59,6 +59,24 @@ namespace Ship_Game.AI
             DistanceLast = distance;
         }
 
+        void SlowDown(Vector2 currentForward, float elapsedTime)
+        {
+            // compare ship velocity vector against where it is pointing
+            // if -1, then ship is drifting reverse
+            // if +1 then ship is drifting forward
+            // if 0, then sideways (perpendicular
+            float travel = Owner.Velocity.Normalized().Dot(currentForward);
+            if (Math.Abs(travel) > 0.33f)
+            {
+                // only if enough velocity, otherwise we'll end up as sitting ducks
+                if (Owner.Velocity.Length() > Owner.velocityMaximum*0.33f)
+                {
+                    // accelerate in reverse direction of travel;
+                    float acceleration = travel > 0f ? -1f : 1f;
+                    Owner.SubLightAccelerate(elapsedTime, 0f, acceleration);
+                }
+            }
+        }
 
         bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
@@ -69,6 +87,11 @@ namespace Ship_Game.AI
             float angleDiff = (float)Math.Acos(wantedForward.Dot(currentForward));
             if (angleDiff > minDiff)
             {
+                if (angleDiff > 0.8f) // really steep angle, how about we slow down a bit?
+                {
+                    SlowDown(currentForward, elapsedTime);
+                }
+
                 float rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
                 Owner.RotateToFacing(elapsedTime, angleDiff, rotationDir);
                 return true;
@@ -96,13 +119,14 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
 
-            RotateToDirection(direction, elapsedTime, 0.22f);
+            RotateToDirection(direction, elapsedTime, 0.15f);
             Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
         void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime)
         {
-            if (Owner.Center.Distance(position) < 50f)
+            float distance = position.Distance(Owner.Center);
+            if (distance < 50f)
             {
                 ReverseThrustUntilStopped(elapsedTime);
                 return;
@@ -110,9 +134,10 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
 
-            RotateTowardsPosition(position, elapsedTime, 0.02f);
+            // prediction to enhance movement precision
+            Vector2 predictedPoint = PredictThrustPosition(position, distance);
+            RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f);
 
-            float distance = position.Distance(Owner.Center);
             float speedLimit = Owner.Speed;
             if      (Owner.isSpooling)      speedLimit *= Owner.loyalty.data.FTLModifier;
             else if (distance < speedLimit) speedLimit  = distance * 0.75f;
@@ -128,7 +153,11 @@ namespace Ship_Game.AI
             if (speedLimit < 1f) // @todo this is probably a hack to prevent fleets standing still; find out the real bug
                 speedLimit = 300f;
 
-            RotateTowardsPosition(position, elapsedTime, 0.02f);
+            // prediction to enhance movement precision
+            float distance = Owner.Center.Distance(position);
+            Vector2 predictedPoint = PredictThrustPosition(position, distance);
+
+            RotateTowardsPosition(predictedPoint, elapsedTime, 0.05f);
             Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
@@ -359,7 +388,8 @@ namespace Ship_Game.AI
 
             Vector2 oldVelocity = Owner.Velocity;
             
-            Owner.Velocity -= Owner.Direction * (elapsedTime * Owner.velocityMaximum); // slowly break
+            float deceleration = Owner.velocityMaximum * elapsedTime;
+            Owner.Velocity -= Owner.Direction * deceleration; // slowly break
 
             if (oldVelocity.IsOppositeOf(Owner.Velocity)) // we have negated our velocity? full stop.
             {
@@ -401,6 +431,16 @@ namespace Ship_Game.AI
         // thrust offset used by ThrustOrWarpTowardsPosition
         public Vector2 ThrustTarget { get; private set; }
 
+        Vector2 PredictThrustPosition(Vector2 targetPos, float distanceToTarget)
+        {
+            // because or ship is actively moving, it needs to correct its thrusting direction
+            // this reduces drift and prevents stupidly missing targets with naive "thrust toward target"
+            Vector2 prediction = new ImpactPredictor(Owner.Center, Owner.Velocity, 
+                                        Owner.velocityMaximum, distanceToTarget, targetPos).Predict();
+            ThrustTarget = prediction;
+            return prediction;
+        }
+
         // thrusts towards a position and engages StarDrive if needed
         // speedLimit can control the max movement speed (it even caps FTL speed)
         // if speedLimit == 0f, then Ship.velocityMaximum is used
@@ -409,14 +449,10 @@ namespace Ship_Game.AI
         {
             if (Owner.EnginesKnockedOut)
                 return;
-
+            
+            // prediction to enhance movement precision
             float distance = position.Distance(Owner.Center);
-
-            // because or ship is actively moving, it needs to correct its thrusting direction
-            // this reduces drift and prevents stupidly missing targets with naive "thrust toward target"
-            Vector2 predictedPoint = new ImpactPredictor(Owner.Center, Owner.Velocity, 
-                                                         Owner.velocityMaximum, distance, position).Predict();
-            ThrustTarget = predictedPoint;
+            Vector2 predictedPoint = PredictThrustPosition(position, distance);
 
             Owner.RotationNeededForTarget(predictedPoint, 0f, out float angleDiff, out float rotationDir);
             
