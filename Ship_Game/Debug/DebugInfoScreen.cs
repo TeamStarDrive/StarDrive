@@ -318,63 +318,43 @@ namespace Ship_Game.Debug
 
                 DrawString($"Ship {Screen.SelectedShip.ShipName}  {(int)ship.Center.X}x{(int)ship.Center.Y}");
                 DrawString($"Ship velocity: {ship.Velocity.Length()}");
-                if (ship.AI.OrderQueue.NotEmpty)
-                    DrawString($"Ship distance from target: {ship.AI.OrderQueue.PeekFirst.MovePosition.Distance(ship.Position)}");
+                VisualizeShipOrderQueue(ship);
+
                 DrawString($"On Defense: {ship.DoingSystemDefense}");
                 if (ship.fleet != null)
                 {
                     DrawString($"Fleet {ship.fleet.Name}  {(int)ship.fleet.Position.X}x{(int)ship.fleet.Position.Y}");
                     DrawString($"Fleet speed: {ship.fleet.Speed}");
                 }
+
                 DrawString(!Screen.SelectedShip.loyalty.GetForcePool().Contains(Screen.SelectedShip)
-                    ? "NOT In Force Pool"
-                    : "In Force Pool");
+                           ? "NOT In Force Pool" : "In Force Pool");
 
                 if (Screen.SelectedShip.AI.State == AIState.SystemDefender)
                 {
                     SolarSystem systemToDefend = Screen.SelectedShip.AI.SystemToDefend;
-                    if (systemToDefend != null)
-                        DrawString("Defending "+systemToDefend.Name);
-                    else
-                        DrawString("Defending Awaiting Order");
+                    DrawString($"Defending {systemToDefend?.Name ?? "Awaiting Order"}");
                 }
-                if (ship.System == null)
-                {
-                    DrawString("Deep Space");
-                }
-                else
-                {
-                    DrawString(ship.System.Name + " system");
-                }
+
+                DrawString(ship.System == null ? "Deep Space" : $"{ship.System.Name} system");
+
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
-                    ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
+                           ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
                 DrawString(ship.AI.HasPriorityTarget ? "Priority Target" : "No Priority Target");
                 DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
-                DrawString("AI State: "+ship.AI.State);
-                DrawString("Combat State: " + ship.AI.CombatState);
 
                 if (ship.AI.State == AIState.SystemTrader)
                     DrawString($"Trading Prod:{ship.TradingProd} food:{ship.TradingFood} Goods:{ship.AI.FoodOrProd}");
-                if (ship.AI.OrderQueue.IsEmpty)
-                {
-                    DrawString("Nothing in the Order queue");
-                }
-                else
-                {
-                    foreach (ShipGoal order in ship.AI.OrderQueue)
-                    {
-                        DrawString("Executing Order: "+order.Plan);
-                    }
-                }
+
                 if (ship.AI.Target is Ship shipTarget)
                 {
                     SetTextCursor(Win.X + 150, 600f, Color.White);
                     DrawString("Target: "+ shipTarget.Name);
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
-                DrawString("Strength: " + ship.BaseStrength);
-                DrawString("Max Velocity " + ship.velocityMaximum);
-                DrawString("HP: " + ship.Health + " / " + ship.HealthMax);
+                DrawString($"Strength: {ship.BaseStrength}");
+                DrawString($"Max Velocity {ship.velocityMaximum}");
+                DrawString($"HP: {ship.Health} / {ship.HealthMax}");
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
@@ -384,6 +364,44 @@ namespace Ship_Game.Debug
                         if (defender.Key == ship.guid)
                             DrawString(entry.Value.System.Name);
                     }
+            }
+        }
+
+        void VisualizeShipOrderQueue(Ship ship)
+        {
+            if (ship.AI.OrderQueue.NotEmpty)
+            {
+                ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
+                Vector2 movePos = goals[0].MovePosition;
+                DrawString($"Ship distance from goal: {movePos.Distance(ship.Position)}");
+
+                DrawCircleImmediate(movePos, 1000f, Color.Yellow);
+                DrawCircleImmediate(movePos, 25f, Color.Maroon);
+                DrawLineImmediate(ship.Position, movePos, Color.YellowGreen);
+                DrawLineImmediate(movePos, movePos + goals[0].DesiredDirection * 50f, Color.Wheat);
+
+                DrawString($"AI State: {ship.AI.State}");
+                DrawString($"Combat State: {ship.AI.CombatState}");
+                DrawString($"OrderQueue ({goals.Length}):");
+                for (int i = 0; i < goals.Length; ++i)
+                    DrawString($"  {i}: {goals[i].Plan}");
+            }
+            else
+            {
+                DrawString($"AI State: {ship.AI.State}");
+                DrawString($"Combat State: {ship.AI.CombatState}");
+                DrawString("OrderQueue is EMPTY");
+            }
+
+            if (ship.AI.WayPoints.Count > 0)
+            {
+                Vector2[] wayPoints = ship.AI.WayPoints.ToArray();
+                DrawString($"WayPoints ({wayPoints.Length}):");
+                for (int i = 0; i < wayPoints.Length; ++i)
+                    DrawString($"  {i}:  {wayPoints[i]}");
+
+                for (int i = 1; i < wayPoints.Length; ++i) // draw waypoints chain
+                    DrawLineImmediate(wayPoints[i-1], wayPoints[i], Color.ForestGreen);
             }
         }
 

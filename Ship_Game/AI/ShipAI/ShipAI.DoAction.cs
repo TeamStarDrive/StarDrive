@@ -133,12 +133,12 @@ namespace Ship_Game.AI
 
                 if (distanceToTarget > 7500 ) //|| distanceToTarget < Owner.maxWeaponsRange)
                 {
-                    ThrustTowardsPosition(interceptPoint, elapsedTime, Owner.Speed);
+                    ThrustOrWarpTowardsPosition(interceptPoint, elapsedTime, Owner.Speed);
                     return;
 
                 }
                 Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
-                MoveInDirection(direction, elapsedTime);
+                SubLightMoveInDirection(direction, elapsedTime);
                 DrawDebugTarget(interceptPoint, spacerdistance);
                 return;
             }
@@ -149,7 +149,7 @@ namespace Ship_Game.AI
                 if (distanceToTarget > spacerdistance)
                 {
                     Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
-                    MoveInDirection(direction, elapsedTime);
+                    SubLightMoveInDirection(direction, elapsedTime);
                     DrawDebugTarget(interceptPoint, Owner.Radius);
                     return;
                 }
@@ -164,7 +164,7 @@ namespace Ship_Game.AI
                 var strafeVector = Target.FindStrafeVectorFromTarget(Owner.maxWeaponsRange, 180);
                 AttackVector     = strafeVector.PointFromAngle(AttackRunAngle, spacerdistance);
                 var attackSetup  = Owner.Center.DirectionToTarget(AttackVector);
-                MoveInDirection(attackSetup, elapsedTime);
+                SubLightMoveInDirection(attackSetup, elapsedTime);
                 return;
             }
             RunTimer = 0;
@@ -187,7 +187,7 @@ namespace Ship_Game.AI
                 }
                 return;
             }
-            ThrustTowardsPosition(EscortTarget.Center, elapsedTime, Owner.Speed);
+            ThrustOrWarpTowardsPosition(EscortTarget.Center, elapsedTime, Owner.Speed);
             float distance = Owner.Center.Distance(EscortTarget.Center);
             if (distance < EscortTarget.Radius + 300f)
             {
@@ -243,7 +243,7 @@ namespace Ship_Game.AI
                 {
                     if (Owner.Center.OutsideRadius(fleetPositon,1000))
                     {
-                        ThrustTowardsPosition(fleetPositon, elapsedTime, Owner.Speed);
+                        ThrustOrWarpTowardsPosition(fleetPositon, elapsedTime, Owner.Speed);
                         return;
                     }
                     DoHoldPositionCombat(elapsedTime);
@@ -252,13 +252,13 @@ namespace Ship_Game.AI
             }
             else if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
             {
-                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
+                ThrustOrWarpTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                 return;
             }
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
                 && Owner.Center.OutsideRadius(Target.Center, Owner.maxWeaponsRange))
             {
-                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
+                ThrustOrWarpTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                 return;
             }
             switch (CombatState)
@@ -340,7 +340,7 @@ namespace Ship_Game.AI
                 AverageDirection = Vector2.Normalize(AverageDirection);
                 AverageDirection = Vector2.Negate(AverageDirection);
                 AverageDirection = AverageDirection * 7500f; //@WHY 7500?
-                ThrustTowardsPosition(AverageDirection + Owner.Center, elapsedTime, Owner.Speed);
+                ThrustOrWarpTowardsPosition(AverageDirection + Owner.Center, elapsedTime, Owner.Speed);
             }
         }
 
@@ -436,11 +436,11 @@ namespace Ship_Game.AI
                     {
                         if (Owner.velocityMaximum > distanceToTarget && Owner.Speed >= Owner.velocityMaximum)
                             Owner.Speed = distanceToTarget;
-                        ThrustTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
+                        ThrustOrWarpTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
                     }
                     else
                     {
-                        ThrustTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
+                        ThrustOrWarpTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
                         if (distanceToTarget < 500f)
                         {
                             PatrolTarget.SetExploredBy(Owner.loyalty);
@@ -486,10 +486,10 @@ namespace Ship_Game.AI
                 if (Owner.engineState == Ship.MoveState.Warp && distCenter < 7500f)
                     Owner.HyperspaceReturn();
                 if (distCenter < radius)
-                    ThrustTowardsPosition(goal.TargetPlanet.Center, elapsedTime,
+                    ThrustOrWarpTowardsPosition(goal.TargetPlanet.Center, elapsedTime,
                         Owner.Speed > 200 ? Owner.Speed * .90f : Owner.velocityMaximum);
                 else
-                    ThrustTowardsPosition(goal.TargetPlanet.Center, elapsedTime, Owner.Speed);
+                    ThrustOrWarpTowardsPosition(goal.TargetPlanet.Center, elapsedTime, Owner.Speed);
                 if (distCenter < goal.TargetPlanet.ObjectRadius &&
                     Owner.TroopList[0].AssignTroopToTile(goal.TargetPlanet))
                     Owner.QueueTotalRemoval();
@@ -526,9 +526,9 @@ namespace Ship_Game.AI
             if (distanceToTarget > adjustedRange)
             {
                 if (distanceToTarget > 7500f)
-                    ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
+                    ThrustOrWarpTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                 else
-                    MoveInDirection(wantedDirection, elapsedTime);
+                    SubLightMoveInDirection(wantedDirection, elapsedTime);
             }
             else
             {
@@ -549,7 +549,7 @@ namespace Ship_Game.AI
             float distance = Owner.Center.Distance(Target.Center);
             if (distance > Owner.maxWeaponsRange)
             {
-                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
+                ThrustOrWarpTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                 return; // we're still way far away from target
             }
 
@@ -582,7 +582,7 @@ namespace Ship_Game.AI
                 OrbitalAngle = (OrbitalAngle + deltaAngle).NormalizedAngle();
                 OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
             }
-            ThrustTowardsPosition(OrbitPos, elapsedTime, OrbitalSpeedLimit);
+            ThrustOrWarpTowardsPosition(OrbitPos, elapsedTime, OrbitalSpeedLimit);
         }
 
         // orbit around a planet
@@ -596,7 +596,7 @@ namespace Ship_Game.AI
             float distance = orbitTarget.Center.Distance(Owner.Center);
             if (distance > 15000f)
             {
-                ThrustTowardsPosition(orbitTarget.Center, elapsedTime, Owner.velocityMaximum);
+                ThrustOrWarpTowardsPosition(orbitTarget.Center, elapsedTime, Owner.velocityMaximum);
                 OrbitPos = orbitTarget.Center;
                 return;
             }
@@ -625,13 +625,13 @@ namespace Ship_Game.AI
             if (distance < (1500f + orbitTarget.ObjectRadius))
             {
                 Vector2 direction = Owner.Center.DirectionToTarget(OrbitPos);
-                MoveInDirection(direction, elapsedTime, precisionSpeed);
+                SubLightMoveInDirection(direction, elapsedTime, precisionSpeed);
                 if (State != AIState.Bombard)
                     HasPriorityOrder = false;
             }
             else // we are still not there yet, so find a meaningful orbit position
             {
-                ThrustTowardsPosition(OrbitPos, elapsedTime, precisionSpeed);
+                ThrustOrWarpTowardsPosition(OrbitPos, elapsedTime, precisionSpeed);
             }
         }
 
@@ -779,7 +779,7 @@ namespace Ship_Game.AI
                     GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
-            ThrustTowardsPosition(Owner.Mothership.Center, elapsedTime, Owner.Speed);
+            ThrustOrWarpTowardsPosition(Owner.Mothership.Center, elapsedTime, Owner.Speed);
             //this looks to need refactor. some of these formulas are... weird
             if (Owner.Center.InRadius(Owner.Mothership.Center, Owner.Mothership.Radius + 300f))
             {
@@ -836,7 +836,7 @@ namespace Ship_Game.AI
                     return;
                 }
             }
-            ThrustTowardsPosition(Owner.HomePlanet.Center, elapsedTime, Owner.Speed);
+            ThrustOrWarpTowardsPosition(Owner.HomePlanet.Center, elapsedTime, Owner.Speed);
             if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.HomePlanet.ObjectRadius + 150f))
             {
                 Owner.HomePlanet.LandDefenseShip(Owner.DesignRole, Owner.GetCost(Owner.loyalty), Owner.HealthPercent);
@@ -859,7 +859,7 @@ namespace Ship_Game.AI
                 OrderReturnToHangar();
                 return;
             }
-            ThrustTowardsPosition(EscortTarget.Center, elapsedTime, Owner.Speed);
+            ThrustOrWarpTowardsPosition(EscortTarget.Center, elapsedTime, Owner.Speed);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 Owner.ChangeOrdnance(EscortTarget.ChangeOrdnance(Owner.Ordinance) - Owner.Ordinance);
@@ -887,10 +887,10 @@ namespace Ship_Game.AI
             float supplyShipVelocity   = EscortTarget.Velocity.Length();
             float escortVelocity       = Owner.velocityMaximum;
             if (distanceToEscortSpot < 2000) // ease up thrust on approach to escort spot
-                escortVelocity  = distanceToEscortSpot / 2000 * Owner.velocityMaximum + supplyShipVelocity + 25;
+                escortVelocity = distanceToEscortSpot / 2000 * Owner.velocityMaximum + supplyShipVelocity + 25;
 
             if (distanceToEscortSpot > 50)
-                ThrustTowardsPosition(escortVector, elapsedTime, escortVelocity.Clamped(0, Owner.velocityMaximum));
+                ThrustOrWarpTowardsPosition(escortVector, elapsedTime, escortVelocity);
             else
                 Owner.Velocity = Vector2.Zero;
 
@@ -919,7 +919,7 @@ namespace Ship_Game.AI
                 ClearOrders();
                 return;
             }
-            MoveTowardsPosition(EscortTarget.Center, elapsedTime);
+            SubLightMoveTowardsPosition(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 if (EscortTarget.TroopCapacity > EscortTarget.TroopList.Count)
