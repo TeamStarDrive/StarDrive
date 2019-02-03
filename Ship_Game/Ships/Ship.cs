@@ -1474,7 +1474,7 @@ namespace Ship_Game.Ships
             Velocity += Direction * (elapsedTime * acceleration);
             if (Velocity.Length() > speedLimit)
                 Velocity = Velocity.Normalized() * speedLimit;
-            Log.Info($"velocity: {(int)Velocity.Length()}u/s  accelerate: {(int)acceleration}u/s");
+            //Log.Info($"velocity: {(int)Velocity.Length()}u/s  accelerate: {(int)acceleration}u/s");
         }
 
         // called from Ship.Update
