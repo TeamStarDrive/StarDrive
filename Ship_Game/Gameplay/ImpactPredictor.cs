@@ -13,17 +13,17 @@ namespace Ship_Game.Gameplay
 
     public struct ImpactPredictor
     {
-        private readonly Vector2 Pos; // Our Position
-        private readonly Vector2 Vel; // Our Velocity
-        private readonly float Speed; // interception speed (projectile speed)
-        private readonly Vector2 TargetPos; // Target position
-        private readonly Vector2 TargetVel; // Target velocity
-        private readonly Vector2 TargetAcc; // Target acceleration
+        readonly Vector2 Pos; // Our Position
+        readonly Vector2 Vel; // Our Velocity
+        readonly float Speed; // interception speed (projectile speed)
+        readonly Vector2 TargetPos; // Target position
+        readonly Vector2 TargetVel; // Target velocity
+        readonly Vector2 TargetAcc; // Target acceleration
 
         // This sets the maximum lookahead time in seconds
         // Any impact time predictions beyond this are clamped
         // @note This should be == max projectile health
-        private readonly float MaxPredictionTime; 
+        readonly float MaxPredictionTime; 
 
         // For weapon arc prediction
         public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, float range, GameplayObject target)
@@ -35,6 +35,21 @@ namespace Ship_Game.Gameplay
             TargetPos = info.Pos;
             TargetVel = info.Vel;
             TargetAcc = info.Acc;
+
+            // this will limit the pip from moving further than would be possible
+            float approxLifetime = range / speed;
+            MaxPredictionTime = approxLifetime * 1.1f;
+        }
+
+        // For generic ship movement prediction
+        public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, float range, Vector2 targetPos)
+        {
+            Pos = pos;
+            Vel = vel;
+            Speed = speed;
+            TargetPos = targetPos;
+            TargetVel = Vector2.Zero;
+            TargetAcc = Vector2.Zero;
 
             // this will limit the pip from moving further than would be possible
             float approxLifetime = range / speed;
@@ -71,7 +86,7 @@ namespace Ship_Game.Gameplay
             MaxPredictionTime = Max(0.1f, proj.Duration);
         }
 
-        private static TargetInfo GetTargetInfo(GameplayObject target)
+        static TargetInfo GetTargetInfo(GameplayObject target)
         {
             if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
             {
@@ -80,7 +95,7 @@ namespace Ship_Game.Gameplay
             return new TargetInfo { Pos = target.Center, Vel = target.Velocity };
         }
 
-        private Vector2 PredictImpactOld()
+        Vector2 PredictImpactOld()
         {
             Vector2 vectorToTarget = TargetPos - Pos;
             Vector2 projectileVelocity = Vel + Vel.Normalized() * Speed;
@@ -92,7 +107,7 @@ namespace Ship_Game.Gameplay
         // assume we have a relative reference frame and weaponPos is stationary
         // use additional calculations to set up correct interceptSpeed and deltaVel
         // https://stackoverflow.com/a/2249237
-        private float PredictImpactTime(Vector2 deltaV)
+        float PredictImpactTime(Vector2 deltaV)
         {
             Vector2 distance = TargetPos - Pos;
 
@@ -126,20 +141,21 @@ namespace Ship_Game.Gameplay
         }
 
         // http://www.dummies.com/education/science/physics/finding-distance-using-initial-velocity-time-and-acceleration/
-        private static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, Vector2 accel, float time)
+        static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, Vector2 accel, float time)
         {
             // s = v0*t + (a*t^2)/2
             Vector2 dist = vel * time + accel * (time * time * 0.5f);
             return pos + dist;
         }
-        private static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, float time)
+
+        static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, float time)
         {
             return pos + vel * time;
         }
 
-        private float TimeToTarget(Vector2 target) => Pos.Distance(target) / Speed;
+        float TimeToTarget(Vector2 target) => Pos.Distance(target) / Speed;
 
-        private float PredictImpactTimeAdjusted(Vector2 deltaV)
+        float PredictImpactTimeAdjusted(Vector2 deltaV)
         {
             float impactTime = PredictImpactTime(deltaV);
             if (impactTime > MaxPredictionTime)
@@ -149,7 +165,7 @@ namespace Ship_Game.Gameplay
             return impactTime;
         }
 
-        private Vector2 PredictImpactQuad()
+        Vector2 PredictImpactQuad()
         {
             if (Speed.AlmostEqual(0f, 0.01f))
                 return TargetPos;
@@ -159,7 +175,7 @@ namespace Ship_Game.Gameplay
             return ProjectPosition(TargetPos, deltaV, impactTime);
         }
 
-        private Vector2 PredictImpactQuad(Vector2 targetAccel)
+        Vector2 PredictImpactQuad(Vector2 targetAccel)
         {
             if (Speed.AlmostEqual(0f, 0.01f))
                 return TargetPos;
@@ -179,7 +195,7 @@ namespace Ship_Game.Gameplay
             return pip2;
         }
 
-        private Vector2 PredictImpactIter(Vector2 targetAccel)
+        Vector2 PredictImpactIter(Vector2 targetAccel)
         {
             if (Speed.AlmostEqual(0f, 0.01f))
                 return TargetPos;
@@ -205,7 +221,7 @@ namespace Ship_Game.Gameplay
             return predictedPos;
         }
 
-        private Vector2 PredictImpactIter()
+        Vector2 PredictImpactIter()
         {
             if (Speed.AlmostEqual(0f, 0.01f))
                 return TargetPos;
