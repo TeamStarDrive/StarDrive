@@ -491,7 +491,7 @@ namespace Ship_Game
             if (ShieldStrengthMax.LessOrEqual(0) || ShieldStrengthCurrent.GreaterOrEqual(ShieldStrengthMax) || RecentCombat)
                 return; // fully recharged or in combat
 
-            float maxRechargeRate = ShieldStrengthMax / 50;
+            float maxRechargeRate = ShieldStrengthMax / 25;
             float rechargeRate    = (ShieldStrengthCurrent * 100 / ShieldStrengthMax).Clamped(1, maxRechargeRate);
             ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate).Clamped(0, ShieldStrengthMax);
         }
