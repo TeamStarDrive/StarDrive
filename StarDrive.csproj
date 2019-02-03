@@ -303,6 +303,7 @@
     <Compile Include="Ship_Game\Ships\Ship_Cargo.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Initialize.cs" />
     <Compile Include="Ship_Game\Ships\Ship_ModuleGrid.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_Movement.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Rendering.cs" />
     <Compile Include="Ship_Game\GameScreens\Colors.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\GameLoadingScreen.cs" />
