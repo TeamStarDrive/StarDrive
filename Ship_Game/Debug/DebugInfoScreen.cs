@@ -372,23 +372,23 @@ namespace Ship_Game.Debug
             if (ship.AI.OrderQueue.NotEmpty)
             {
                 ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
-                Vector2 movePos = goals[0].MovePosition;
-                DrawString($"Ship distance from goal: {movePos.Distance(ship.Position)}");
+                Vector2 pos = goals[0].TargetPlanet?.Center ?? goals[0].MovePosition;
+                DrawString($"Ship distance from goal: {pos.Distance(ship.Position)}");
 
-                DrawLineImmediate(ship.Position, movePos, Color.YellowGreen);
-                DrawCircleImmediate(movePos, 1000f, Color.Yellow);
-                DrawCircleImmediate(movePos, 25f, Color.Maroon);
+                DrawLineImmediate(ship.Position, pos, Color.YellowGreen);
+                DrawCircleImmediate(pos, 1000f, Color.Yellow);
+                DrawCircleImmediate(pos, 25f, Color.Maroon);
 
                 Vector2 thrustTgt = ship.AI.ThrustTarget;
                 if (!thrustTgt.AlmostZero())
                 {
-                    DrawLineImmediate(movePos, thrustTgt, Color.Orange);
+                    DrawLineImmediate(pos, thrustTgt, Color.Orange);
                     DrawLineImmediate(ship.Position, thrustTgt, Color.Orange);
                     DrawCircleImmediate(thrustTgt, 25f, Color.MediumVioletRed);
                 }
 
                 // direction indicator
-                DrawArrowImm(movePos, movePos + goals[0].DesiredDirection * 50f, Color.Wheat);
+                DrawArrowImm(pos, pos + goals[0].DesiredDirection * 50f, Color.Wheat);
 
                 // velocity indicator
                 DrawArrowImm(ship.Position, ship.Position+ship.Velocity, Color.OrangeRed);

@@ -956,7 +956,7 @@ namespace Ship_Game
                         ? 0.15f
                         : 0.08f;
 
-                DrawTextureProjected(symbol, ship.projectedPosition, scale, projectedGroup.ProjectedFacing,
+                DrawTextureProjected(symbol, ship.projectedPosition, scale, projectedGroup.ProjectedDirection.ToRadians(),
                     new Color(0, 255, 0, 100));
             }
         }
