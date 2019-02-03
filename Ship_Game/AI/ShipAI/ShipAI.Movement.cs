@@ -178,7 +178,7 @@ namespace Ship_Game.AI
             // during warp, we need to bail out way earlier
             if (Owner.engineState == Ship.MoveState.Warp)
             {
-                float warpOutDistance = 1000f + Owner.GetSTLSpeed();
+                float warpOutDistance = 1000f + Owner.GetSTLSpeed()*2f;
                 if (distance <= warpOutDistance)
                     DequeueWayPointAndOrder();
             }
