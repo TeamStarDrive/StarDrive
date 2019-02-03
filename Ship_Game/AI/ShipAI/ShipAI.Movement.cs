@@ -60,54 +60,6 @@ namespace Ship_Game.AI
         }
 
 
-
-
-        void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
-        {
-            Owner.isTurning = true;
-            float rotAmount = rotationDir * elapsedTime * Owner.rotationRadiansPerSecond;
-            if (float.IsNaN(rotAmount))
-            {
-                Log.Error($"RotateToFacing: NaN! rotAmount:{rotAmount} angleDiff:{angleDiff}");
-                rotAmount = rotationDir * 0.01f; // recover from critical failure
-            }
-
-            if (Math.Abs(rotAmount) > angleDiff)
-                rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
-
-            if (rotAmount > 0f)
-            {
-                if (Owner.yRotation > -Owner.MaxBank)
-                    Owner.yRotation -= Owner.yBankAmount;
-            }
-            else if (rotAmount < 0f)
-            {
-                if (Owner.yRotation <  Owner.MaxBank)
-                    Owner.yRotation += Owner.yBankAmount;
-            }
-
-            Owner.Rotation += rotAmount;
-            //Log.Info($"RotateToFacing diff:{angleDiff} amount:{rotAmount} rotation:{Owner.Rotation}");
-            if (Owner.Rotation > (float)Math.PI*2f)
-                Owner.Rotation -= (float)Math.PI*2f;
-        }
-
-        void RestoreYBankRotation()
-        {
-            if (Owner.yRotation > 0f)
-            {
-                Owner.yRotation -= Owner.yBankAmount;
-                if (Owner.yRotation < 0f)
-                    Owner.yRotation = 0f;
-            }
-            else if (Owner.yRotation < 0f)
-            {
-                Owner.yRotation += Owner.yBankAmount;
-                if (Owner.yRotation > 0f)
-                    Owner.yRotation = 0f;
-            }
-        }
-
         bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
             if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
@@ -118,7 +70,7 @@ namespace Ship_Game.AI
             if (angleDiff > minDiff)
             {
                 float rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
-                RotateToFacing(elapsedTime, angleDiff, rotationDir);
+                Owner.RotateToFacing(elapsedTime, angleDiff, rotationDir);
                 return true;
             }
             return false;
@@ -145,7 +97,7 @@ namespace Ship_Game.AI
                 return;
 
             RotateToDirection(direction, elapsedTime, 0.22f);
-            Owner.AccelerateForward(elapsedTime, speedLimit);
+            Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
         void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime)
@@ -165,7 +117,7 @@ namespace Ship_Game.AI
             if      (Owner.isSpooling)      speedLimit *= Owner.loyalty.data.FTLModifier;
             else if (distance < speedLimit) speedLimit  = distance * 0.75f;
             
-            Owner.AccelerateForward(elapsedTime, speedLimit);
+            Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
         // @note Used for fleets?
@@ -177,7 +129,7 @@ namespace Ship_Game.AI
                 speedLimit = 300f;
 
             RotateTowardsPosition(position, elapsedTime, 0.02f);
-            Owner.AccelerateForward(elapsedTime, speedLimit);
+            Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
         void MoveToWithin1000(float elapsedTime, ShipGoal goal)
@@ -264,8 +216,13 @@ namespace Ship_Game.AI
             return true;
         }
 
-        void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
+        // @todo Disabled because current path finding is complete shite
+        void PlotCourseAsWayPoints(Vector2 startPos, Vector2 endPos)
         {
+            // @todo Write a new pathfinder
+            WayPoints.Enqueue(endPos);
+            return;
+
             if (Owner.loyalty.grid != null && Vector2.Distance(startPos, endPos) > Owner.loyalty.ProjectorRadius * 2)
             {
                 int reducer = Empire.Universe.PathMapReducer;
@@ -373,16 +330,19 @@ namespace Ship_Game.AI
                 DequeueCurrentOrder(); // rotation complete
         }
 
+        // this is used when we arrive at final position
         void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
         {
             if (!RotateToDirection(goal.DesiredDirection, elapsedTime, 0.02f))
                 DequeueCurrentOrder(); // rotation complete
         }
 
+        // @note This is done just before thrusting and warping to targets
         void RotateToFaceMovePosition(float elapsedTime, ShipGoal goal)
         {
             Vector2 dir = Owner.Position.DirectionToTarget(goal.MovePosition);
-            if (RotateToDirection(dir, elapsedTime, 0.2f))
+            // we need high precision here, otherwise our jumps are inaccurate
+            if (RotateToDirection(dir, elapsedTime, 0.02f))
                 Owner.HyperspaceReturn();
             else
                 DequeueCurrentOrder(); // rotation complete
@@ -465,7 +425,7 @@ namespace Ship_Game.AI
 
             if (angleDiff > 0.025f)
             {
-                RotateToFacing(elapsedTime, angleDiff, rotationDir);
+                Owner.RotateToFacing(elapsedTime, angleDiff, rotationDir);
                 return; // I'm not sure about the return statement here. -Gretman
             }
 
@@ -483,7 +443,7 @@ namespace Ship_Game.AI
                 speedLimit = FleetGrouping(distance);
             }
             
-            Owner.AccelerateForward(elapsedTime, speedLimit);
+            Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
         bool TurnWhileWarping(float elapsedTime, float angleDiff, float distance)

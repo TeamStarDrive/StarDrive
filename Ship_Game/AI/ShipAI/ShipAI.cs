@@ -229,7 +229,7 @@ namespace Ship_Game.AI
             UpdateResupplyAI();
 
             if (!Owner.isTurning)
-                RestoreYBankRotation();
+                Owner.RestoreYBankRotation();
         }
 
         void UpdateResupplyAI()
