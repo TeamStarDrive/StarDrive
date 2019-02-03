@@ -218,6 +218,7 @@ namespace Ship_Game.AI
 
             Owner.isThrusting = false;
             Owner.isTurning = false;
+            ThrustTarget = Vector2.Zero;
 
             if (UpdateFreightAI())
                 return;
