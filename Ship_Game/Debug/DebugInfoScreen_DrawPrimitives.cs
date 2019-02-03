@@ -62,5 +62,19 @@ namespace Ship_Game.Debug
                 }
             }
         }
+
+        // This will draw immediately using the current SpriteBatch
+        public void DrawCircleImmediate(Vector2 worldPos, float radius, Color color, float thickness = 2f)
+        {
+            Empire.Universe.DrawCircleProjected(worldPos, radius, color, thickness);
+        }
+
+        public void DrawLineImmediate(Vector2 worldA, Vector2 worldB, Color color, float thickness = 2f)
+        {
+            Vector2 screenA = Empire.Universe.ProjectToScreenPosition(worldA);
+            Vector2 screenB = Empire.Universe.ProjectToScreenPosition(worldB);
+            DrawLine(screenA, screenB, color, thickness);
+        }
+
     }
 }

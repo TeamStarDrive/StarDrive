@@ -143,7 +143,7 @@ namespace Ship_Game.AI
                 system.SetExploredBy(Owner.loyalty);
                 return true;
             }
-            ThrustTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
+            ThrustOrWarpTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
             return false;
         }
 
@@ -174,7 +174,7 @@ namespace Ship_Game.AI
 
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
             {
-                ThrustTowardsPosition(goal.TargetPlanet.Center, elapsedTime, 200);
+                ThrustOrWarpTowardsPosition(goal.TargetPlanet.Center, elapsedTime, 200);
                 return;
             }
             ClearOrders(State);
@@ -497,7 +497,7 @@ namespace Ship_Game.AI
                 case Plan.Rebase:       DoRebase(toEvaluate);         break;
                 case Plan.DefendSystem: DoSystemDefense(elapsedTime); break;
                 case Plan.DoCombat:     DoCombat(elapsedTime);        break;
-                case Plan.MoveTowards:  MoveTowardsPosition(MovePosition, elapsedTime); break;
+                case Plan.MoveTowards:  SubLightMoveTowardsPosition(MovePosition, elapsedTime); break;
                 case Plan.PickupPassengers:
                     if (start != null) PickupPassengers();
                     else State = AIState.AwaitingOrders;
@@ -568,7 +568,7 @@ namespace Ship_Game.AI
             {
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                 {
-                    ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
+                    ThrustOrWarpTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
                 }
                 else
                 {

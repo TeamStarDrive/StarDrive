@@ -755,11 +755,9 @@ namespace Ship_Game.Ships
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= ftlmodtemp;
             maxFTLSpeed = (WarpThrust / Mass + WarpThrust / Mass * (loyalty?.data?.FTLModifier ?? 35)) * FTLModifier;
-
-
         }
-        public float GetmaxFTLSpeed => maxFTLSpeed;
 
+        public float GetmaxFTLSpeed => maxFTLSpeed;
 
         public float GetSTLSpeed()
         {
@@ -1398,7 +1396,24 @@ namespace Ship_Game.Ships
             JumpTimer = FTLSpoolTime * loyalty.data.SpoolTimeModifier;
         }
 
+        string GetStartWarpCue()
+        {
+            if (loyalty.data.WarpStart != null)
+                return loyalty.data.WarpStart;
+            if (SurfaceArea < 60)
+                return "sd_warp_start_small";
+            return SurfaceArea > 350 ? "sd_warp_start_large" : "sd_warp_start_02";
+        }
 
+        string GetEndWarpCue()
+        {
+            if (loyalty.data.WarpStart != null)
+                return loyalty.data.WarpEnd;
+            if (SurfaceArea < 60)
+                return "sd_warp_stop_small";
+            return SurfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
+        }
+        
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
             if (isSpooling || engineState == MoveState.Warp || GetmaxFTLSpeed <= 2500 )
@@ -1426,24 +1441,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        private string GetStartWarpCue()
-        {
-            if (loyalty.data.WarpStart != null)
-                return loyalty.data.WarpStart;
-            if (SurfaceArea < 60)
-                return "sd_warp_start_small";
-            return SurfaceArea > 350 ? "sd_warp_start_large" : "sd_warp_start_02";
-        }
-
-        private string GetEndWarpCue()
-        {
-            if (loyalty.data.WarpStart != null)
-                return loyalty.data.WarpEnd;
-            if (SurfaceArea < 60)
-                return "sd_warp_stop_small";
-            return SurfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
-        }
-
         public void HyperspaceReturn()
         {
             if (Empire.Universe == null || engineState == MoveState.Sublight)
@@ -1465,9 +1462,32 @@ namespace Ship_Game.Ships
             ResetJumpTimer();
             isSpooling = false;
             velocityMaximum = GetSTLSpeed();
-            if (Velocity != Vector2.Zero)
+            if (Velocity != Vector2.Zero) // return from warp with max STL speed
                 Velocity = Velocity.Normalized() * velocityMaximum;
             Speed = velocityMaximum;
+        }
+
+        public void AccelerateForward(float elapsedTime, float speedLimit = 0f)
+        {
+            EngageStarDrive();
+            isThrusting = true;
+
+            speedLimit = speedLimit <= 0f ? velocityMaximum
+                : speedLimit.Clamped(0, velocityMaximum);
+
+            if (isSpooling)
+                speedLimit *= loyalty.data.FTLModifier;
+
+            // @todo Need to figure out actual acceleration rates for ships
+            //       Thrust to weight ratio or something?
+            float slowDownWhenTurning = isTurning ? 0.75f : 1f;
+            float acceleration = Speed * slowDownWhenTurning;
+
+            Log.Info($"velocity: {(int)Velocity.Length()}u/s  accelerate: {(int)acceleration}u/s");
+
+            Velocity += Direction * (elapsedTime * acceleration);
+            if (Velocity.Length() > speedLimit)
+                Velocity = Velocity.Normalized() * speedLimit;
         }
 
         public ShipData ToShipData()

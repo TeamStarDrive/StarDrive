@@ -46,9 +46,11 @@ namespace Ship_Game.AI
             public Fleet fleet;
             public Vector2 MovePosition;
             public Vector2 DesiredDirection;
-            public Vector2 Direction;
+            public Vector2 Direction; // @note Escort Direction?
             public Planet TargetPlanet;
             public float SpeedLimit = 1f;
+
+            public override string ToString() => $"{Plan} pos:{MovePosition} dir:{DesiredDirection}";
 
             public ShipGoal(Plan p)
             {
