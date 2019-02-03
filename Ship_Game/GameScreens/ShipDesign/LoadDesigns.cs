@@ -97,7 +97,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     var role = ship.BaseHull.Name;
                     batch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.DarkGray);
                     tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
-                    batch.DrawString(Fonts.Arial8Bold, $"Strength: {ship.BaseStrength.String(0)}", tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, $"Base Strength: {ship.BaseStrength.String(0)}", tCursor, Color.Orange);
                     
                     if (!ship.IsReadonlyDesign && !ship.FromSave)
                     {

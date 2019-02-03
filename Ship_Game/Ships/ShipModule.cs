@@ -1146,7 +1146,7 @@ namespace Ship_Game.Ships
             float shieldsMax = ActualShieldPowerMax;
             if (shieldsMax > 0)
             {
-                def                 += shieldsMax / 100; 
+                def                 += shieldsMax / 50; 
                 float shieldcoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
                 shieldcoverage       = shieldcoverage > 1 ? 1f : shieldcoverage;
                 // normalizing for small ships
@@ -1204,7 +1204,7 @@ namespace Ship_Game.Ships
             def += (TurnThrust + WarpThrust + thrust) / 15000f;
 
             // FB: Reactors should also have some value
-            def += ActualPowerFlowMax / 100;
+            def += ActualPowerFlowMax / 50;
 
             def += TroopCapacity * 50;
 
