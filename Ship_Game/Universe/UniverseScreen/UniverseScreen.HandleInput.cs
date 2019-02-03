@@ -752,7 +752,7 @@ namespace Ship_Game
         void MoveFleetToMouse(Fleet fleet, Planet targetPlanet, Ship targetShip, bool wasProjecting)
         {
             Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-            Log.Info($"MoveShipToMouse  {start}  projecting:{wasProjecting}");
+            //Log.Info($"MoveShipToMouse  {start}  projecting:{wasProjecting}");
             if (wasProjecting)
             {
                 Vector2 end = UnprojectToWorldPosition(Input.EndRightHold);
@@ -769,7 +769,7 @@ namespace Ship_Game
         void MoveShipToMouse(Ship selectedShip, bool wasProjecting)
         {
             Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-            Log.Info($"MoveShipToMouse  {start}  projecting:{wasProjecting}");
+            //Log.Info($"MoveShipToMouse  {start}  projecting:{wasProjecting}");
             if (wasProjecting)
             {
                 Vector2 end = UnprojectToWorldPosition(Input.EndRightHold);
@@ -800,24 +800,20 @@ namespace Ship_Game
 
             // right mouse was clicked
             Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-            Vector2 end   = UnprojectToWorldPosition(Input.EndRightHold);
-            Vector2 center = (start + end) * 0.5f;
             Vector2 fleetCenter = ShipGroup.AveragePosition(SelectedShipList);
-            Vector2 direction = fleetCenter.DirectionToTarget(center);
+            Vector2 direction = fleetCenter.DirectionToTarget(start);
 
             if (ProjectedGroup == null || !ProjectedGroup.IsShipListEqual(SelectedShipList)) 
             {
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 // assemble brand new group
-                ProjectedGroup = new ShipGroup();
-                ProjectedGroup.AssembleAdhocGroup(SelectedShipList, start, start, direction, player);
+                ProjectedGroup = new ShipGroup(SelectedShipList, start, start, direction, player);
                 foreach (Ship selectedShip in SelectedShipList)
                     MoveShipToLocation(selectedShip.projectedPosition, direction, selectedShip);
             }
             else // move existing group
             {
                 Log.Info("MoveShipGroupToMouse (existing)");
-                ProjectedGroup.ProjectPos(start, direction);
                 ProjectedGroup.MoveToNow(start, direction);
             }
         }
@@ -861,7 +857,7 @@ namespace Ship_Game
             Vector2 end   = UnprojectToWorldPosition(Input.EndRightHold);
             Vector2 direction = start.DirectionToTarget(end).LeftVector();
 
-            Log.Info($"ProjectingPos  screenStart:{Input.StartRightHold} current:{Input.EndRightHold}  D:{direction}");
+            //Log.Info($"ProjectingPos  screenStart:{Input.StartRightHold} current:{Input.EndRightHold}  D:{direction}");
 
             if (SelectedFleet != null && SelectedFleet.Owner == EmpireManager.Player)
             {
@@ -894,8 +890,7 @@ namespace Ship_Game
                         return;
                 }
 
-                ProjectedGroup = new ShipGroup();
-                ProjectedGroup.AssembleAdhocGroup(SelectedShipList, start, end, direction, player);
+                ProjectedGroup = new ShipGroup(SelectedShipList, start, end, direction, player);
             }
         }
 
