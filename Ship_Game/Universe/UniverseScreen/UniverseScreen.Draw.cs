@@ -938,10 +938,10 @@ namespace Ship_Game
 
         private void DrawProjectedGroup()
         {
-            if (projectedGroup == null)
+            if (ProjectedGroup == null)
                 return;
 
-            foreach (Ship ship in projectedGroup.Ships)
+            foreach (Ship ship in ProjectedGroup.Ships)
             {
                 if (!ship.Active)
                     continue;
@@ -956,7 +956,7 @@ namespace Ship_Game
                         ? 0.15f
                         : 0.08f;
 
-                DrawTextureProjected(symbol, ship.projectedPosition, scale, projectedGroup.ProjectedDirection.ToRadians(),
+                DrawTextureProjected(symbol, ship.projectedPosition, scale, ProjectedGroup.ProjectedDirection.ToRadians(),
                     new Color(0, 255, 0, 100));
             }
         }

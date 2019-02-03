@@ -1458,9 +1458,6 @@ namespace Ship_Game.Ships
             speedLimit = speedLimit <= 0f ? velocityMaximum
                                           : speedLimit.Clamped(0, velocityMaximum);
 
-            if (isSpooling)
-                speedLimit *= loyalty.data.FTLModifier;
-
             // @todo Need to figure out actual acceleration rates for ships
             //       Thrust to weight ratio or something?
             float slowDownWhenTurning = isTurning ? 0.75f : 1f;

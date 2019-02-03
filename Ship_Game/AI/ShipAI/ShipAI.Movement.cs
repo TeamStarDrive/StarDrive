@@ -139,8 +139,7 @@ namespace Ship_Game.AI
             RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f);
 
             float speedLimit = Owner.Speed;
-            if      (Owner.isSpooling)      speedLimit *= Owner.loyalty.data.FTLModifier;
-            else if (distance < speedLimit) speedLimit  = distance * 0.75f;
+            if (distance < speedLimit) speedLimit = distance * 0.75f;
             
             Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
@@ -488,7 +487,7 @@ namespace Ship_Game.AI
             }
             else // In a fleet
             {
-                speedLimit = FleetGrouping(distance);
+                speedLimit = Math.Min(speedLimit, FleetGrouping(distance));
             }
             
             Owner.SubLightAccelerate(elapsedTime, speedLimit);

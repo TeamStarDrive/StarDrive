@@ -216,12 +216,16 @@ namespace Ship_Game
         // Converts a direction vector to radians
         public static float ToRadians(this Vector2 direction)
         {
+            if (direction.X == 0f && direction.Y == 0f)
+                return 0f; // Up
             return (float)(PI - Atan2(direction.X, direction.Y));
         }
 
         // Converts a direction vector to degrees
         public static float ToDegrees(this Vector2 direction)
         {
+            if (direction.X == 0f && direction.Y == 0f)
+                return 0f; // Up
             return (float)(180 - Atan2(direction.X, direction.Y) * 180.0 / PI);
         }
 

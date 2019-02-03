@@ -163,11 +163,6 @@ namespace Ship_Game.AI
             }
         }
 
-        public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, bool clearOrders)
-        {
-            OrderMoveDirectlyTowardsPosition(position, desiredFacing.RadiansToDirection(), clearOrders);
-        }
-
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 fVec, bool clearOrders)
         {
             Target = null;
