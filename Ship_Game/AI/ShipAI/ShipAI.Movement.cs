@@ -484,13 +484,12 @@ namespace Ship_Game.AI
                     if      (distance > 7500f && !Owner.InCombat) Owner.EngageStarDrive();
                     else if (distance > 15000f && Owner.InCombat) Owner.EngageStarDrive();
                 }
+                Owner.SubLightAccelerate(elapsedTime, speedLimit);
             }
             else // In a fleet
             {
-                speedLimit = Math.Min(speedLimit, FleetGrouping(distance));
+                FleetGroupMove(elapsedTime, distance, speedLimit);
             }
-            
-            Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
         bool TurnWhileWarping(float elapsedTime, float angleDiff, float distance)
@@ -502,6 +501,7 @@ namespace Ship_Game.AI
             {
                 if (angleDiff > 1.0f) // 1.0 rad == ~57 degrees
                 {
+                    Log.Info($"TurnWhileWarping too sharp: {angleDiff}  Stopping Warp.");
                     Owner.HyperspaceReturn(); // Too sharp of a turn. Drop out of warp
                 }
                 else
@@ -543,35 +543,34 @@ namespace Ship_Game.AI
             return false;
         }
 
-        float FleetGrouping(float Distance)
+        void FleetGroupMove(float elapsedTime, float distance, float speedLimit)
         {
-            float speedLimit = Owner.fleet.Speed;
-            float distance = (Owner.Center + Owner.FleetOffset).Distance(Owner.fleet.Position + Owner.FleetOffset);
+            float fleetSpeed = Owner.fleet.Speed;
             if (distance > 7500f) // Not near destination
             {
-                float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove - Owner.fleet.Position.Distance(Owner.fleet.Position + Owner.FleetOffset);
-                speedLimit = Owner.fleet.Speed;
+                float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove
+                    - Owner.fleet.Position.Distance(Owner.fleet.Position + Owner.FleetOffset);
 
                 if (distance <= distanceFleetCenterToDistance)
                 {
-                    float reduction = distanceFleetCenterToDistance - Distance;
-                    speedLimit = Owner.fleet.Speed - reduction;
-                    if (speedLimit > Owner.fleet.Speed)
-                        speedLimit = Owner.fleet.Speed;
+                    float reduction = distanceFleetCenterToDistance - distance;
+                    fleetSpeed = Owner.fleet.Speed - reduction;
+                    if (fleetSpeed > Owner.fleet.Speed)
+                        fleetSpeed = Owner.fleet.Speed;
                 }
                 else if (distance > distanceFleetCenterToDistance)
                 {
                     float speedIncrease = distance - distanceFleetCenterToDistance;
-                    speedLimit = Owner.fleet.Speed + speedIncrease;
+                    fleetSpeed = Owner.fleet.Speed + speedIncrease;
                 }
 
                 if (Owner.fleet.ReadyForWarp)
                 {
-                    Owner.EngageStarDrive(); //Fleet is ready to Go into warp
+                    Owner.EngageStarDrive(); // Fleet is ready to Go into warp
                 }
                 else if (Owner.engineState == Ship.MoveState.Warp)
                 {
-                    Owner.HyperspaceReturn(); //Fleet is not ready for warp
+                    Owner.HyperspaceReturn(); // Fleet is not ready for warp
                 }
             }
             else if (Owner.engineState == Ship.MoveState.Warp)
@@ -579,7 +578,9 @@ namespace Ship_Game.AI
                 Owner.HyperspaceReturn(); // Near Destination
                 HasPriorityOrder = false;
             }
-            return speedLimit;
+
+            speedLimit = Math.Min(fleetSpeed, speedLimit);
+            Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
     }

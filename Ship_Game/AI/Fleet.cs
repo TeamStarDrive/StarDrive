@@ -44,12 +44,10 @@ namespace Ship_Game.AI
         public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
         public bool ReadyForWarp { get; private set; }
         public override string ToString() => $"Fleet {Name} size={Ships.Count} pos={Position} guid={Guid}";
-        //This file refactored by Gretman
 
         public Fleet()
         {
             FleetIconIndex = RandomMath.IntBetween(1, 10);
-            InitializeGoalStack();
         }
 
         public void SetNameByFleetIndex(int index)
@@ -264,24 +262,23 @@ namespace Ship_Game.AI
 
         void AddShipToDataNode(Ship ship)
         {
-            FleetDataNode fleetDataNode = DataNodes.Find(newship => newship.Ship == ship) ??
-                                          DataNodes.Find(newship => newship.Ship == null && newship.ShipName == ship.Name);
-            if (fleetDataNode == null)
+            FleetDataNode node = DataNodes.Find(s => s.Ship == ship) ??
+                                 DataNodes.Find(s => s.ShipName == ship.Name);
+            if (node == null)
             {
-                fleetDataNode = new FleetDataNode
+                node = new FleetDataNode
                 {
                     FleetOffset  = ship.RelativeFleetOffset,
                     OrdersOffset = ship.RelativeFleetOffset
                 };
-
-                DataNodes.Add(fleetDataNode);
+                DataNodes.Add(node);
             }
-            ship.RelativeFleetOffset = fleetDataNode.FleetOffset;
+            ship.RelativeFleetOffset = node.FleetOffset;
 
-            fleetDataNode.Ship         = ship;
-            fleetDataNode.ShipName     = ship.Name;
-            fleetDataNode.OrdersRadius = fleetDataNode.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : fleetDataNode.OrdersRadius;
-            ship.AI.FleetNode          = fleetDataNode;
+            node.Ship         = ship;
+            node.ShipName     = ship.Name;
+            node.OrdersRadius = node.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : node.OrdersRadius;
+            ship.AI.FleetNode = node;
         }
 
         enum SquadSortType
@@ -301,12 +298,9 @@ namespace Ship_Game.AI
             {
                 switch (sort)
                 {
-                    case SquadSortType.Size:
-                        return -ship.SurfaceArea;
-                    case SquadSortType.Speed:
-                        return -ship.Speed;
-                    default:
-                        return 0;
+                    case SquadSortType.Size:  return -ship.SurfaceArea;
+                    case SquadSortType.Speed: return -ship.Speed;
+                    default:                  return 0;
                 }
             });
 
@@ -348,40 +342,27 @@ namespace Ship_Game.AI
 
         void AutoAssembleFleet(float facing)
         {
-            for (int i = 0; i < AllFlanks.Count; i++)
+            for (int flank = 0; flank < AllFlanks.Count; flank++)
             {
-                Array<Squad> list = AllFlanks[i];
-                foreach (Squad squad in list)
+                Array<Squad> squads = AllFlanks[flank];
+                foreach (Squad squad in squads)
                 {
                     for (int index = 0; index < squad.Ships.Count; ++index)
                     {
+                        Ship ship = squad.Ships[index];
                         float radiansAngle;
                         switch (index)
                         {
-                            case 0:
-                                radiansAngle = new Vector2(0.0f, -500f).ToRadians();
-                                break;
-                            case 1:
-                                radiansAngle = new Vector2(-500f, 0.0f).ToRadians();
-                                break;
-                            case 2:
-                                radiansAngle = new Vector2(500f, 0.0f).ToRadians();
-                                break;
-                            case 3:
-                                radiansAngle = new Vector2(0.0f, 500f).ToRadians();
-                                break;
-                            default:
-                                radiansAngle = new Vector2(0.0f, 0.0f).ToRadians();
-                                break;
+                            case 0: radiansAngle = new Vector2(0.0f, -500f).ToRadians(); break;
+                            case 1: radiansAngle = new Vector2(-500f, 0.0f).ToRadians(); break;
+                            case 2: radiansAngle = new Vector2(500f, 0.0f).ToRadians(); break;
+                            case 3: radiansAngle = new Vector2(0.0f, 500f).ToRadians(); break;
+                            default: radiansAngle = new Vector2(0.0f, 0.0f).ToRadians(); break;
                         }
 
-                        Vector2 distanceUsingRadians =
-                            Vector2.Zero.PointFromRadians((squad.Offset.ToRadians() + facing), squad.Offset.Length());
-                        squad.Ships[index].FleetOffset =
-                            distanceUsingRadians + Vector2.Zero.PointFromRadians(radiansAngle + facing, 500f);
-
-                        distanceUsingRadians                   = Vector2.Zero.PointFromRadians(radiansAngle, 500f);
-                        squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians;
+                        Vector2 offset = Vector2.Zero.PointFromRadians((squad.Offset.ToRadians() + facing), squad.Offset.Length());
+                        ship.FleetOffset = offset + Vector2.Zero.PointFromRadians(radiansAngle + facing, 500f);
+                        ship.RelativeFleetOffset = squad.Offset + Vector2.Zero.PointFromRadians(radiansAngle, 500f);
                     }
                 }
             }
@@ -487,13 +468,10 @@ namespace Ship_Game.AI
                 case 0:
                     if (EndInvalidTask(FleetTask.TargetPlanet == null))
                         break;
-
                     SetPostInvasionFleetCombat();
-
                     TaskStep = 1;
                     break;
                 case 1:
-
                     if (EndInvalidTask(!IsFleetSupplied()))
                         break;
                     PostInvasionStayInAO();
@@ -528,7 +506,6 @@ namespace Ship_Game.AI
                         if (ship.Carrier.AnyPlanetAssaultAvailable)
                             RemoveShip(ship);
                     }
-
                 }
                 else
                 {
