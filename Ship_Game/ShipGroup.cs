@@ -80,6 +80,13 @@ namespace Ship_Game
                 Ships.Add(ship);
             }
         }
+
+        void AddShips(IReadOnlyList<Ship> ships)
+        {
+            using (Ships.AcquireWriteLock())
+                Ships.AddRange(ships);
+        }
+
         public int CountShips => Ships.Count;
 
         public void AssignPositions(Vector2 newDirection)
@@ -108,39 +115,93 @@ namespace Ship_Game
             }
         }
 
-        public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 fleetRightCorner, Vector2 fleetLeftCorner, Vector2 direction, Empire owner)
+        static float GetMaxRadius(IReadOnlyList<Ship> shipList)
         {
-            float clickDistance = fleetRightCorner.Distance(fleetLeftCorner);
-            int row = 0;
-            int column = 0;
             float maxRadius = 0.0f;
             for (int i = 0; i < shipList.Count; ++i)
                 maxRadius = Math.Max(maxRadius, shipList[i].GetSO().WorldBoundingSphere.Radius);
+            return maxRadius;
+        }
 
-            if (shipList.Count * maxRadius > clickDistance)
+        static int GetShipOrder(Ship ship)
+        {
+            switch (ship.DesignRole)
             {
-                for (int i = 0; i < shipList.Count; ++i)
+                case ShipData.RoleName.fighter:   return 1;
+                case ShipData.RoleName.gunboat:   return 1;
+                case ShipData.RoleName.corvette:  return 1;
+                case ShipData.RoleName.bomber:    return 2; // bombers behind fighters
+                case ShipData.RoleName.frigate:   return 3;
+                case ShipData.RoleName.destroyer: return 3;
+                case ShipData.RoleName.cruiser:   return 3;
+                case ShipData.RoleName.prototype: return 3;
+                case ShipData.RoleName.carrier:   return 4; // carriers behind cruisers
+                case ShipData.RoleName.capital:   return 4;
+                default: return 5; // everything else to the back
+            }
+        }
+
+        // this performs a consistent sort of input ships so that they are always ordered to same
+        // fleet offsets even if ship groups are recreated
+        static Ship[] ConsistentSort(Array<Ship> ships)
+        {
+            return ships.Sorted((a,b) =>
+            {
+                int order = GetShipOrder(a) - GetShipOrder(b);
+                if (order != 0) return order;
+                return a.guid.CompareTo(b.guid); // otherwise sort by ship GUID which never changes
+            });
+        }
+
+        public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 leftCorner, Vector2 rightCorner, Vector2 direction, Empire owner)
+        {
+            Ship[] ships = ConsistentSort(shipList);
+            AddShips(ships);
+
+            float shipSpacing = GetMaxRadius(ships) + 200f;
+            float fleetWidth = rightCorner.Distance(leftCorner);
+
+            int w = ships.Length, h = 1; // virtual layout grid
+
+            if (fleetWidth.AlmostZero()) // no width provided, probably RIGHT CLICK
+            {
+                // SO, we perform automatic layout to rows and columns
+                // until w/h ratio is <= 2 resulting in: 2x1 3x1 4x2 5x2 6x3 7x4 8x4...
+                while (w / (float)h > 2.0f)
                 {
-                    AddShip(shipList[i]);
-                    Ships[i].RelativeFleetOffset = new Vector2((maxRadius + 200f) * column, row * (maxRadius + 200f));
-                    ++column;
-                    if (Ships[i].RelativeFleetOffset.X + maxRadius > clickDistance)
-                    {
-                        column = 0;
-                        ++row;
-                    }
+                    w -= w / 2;
+                    h = (int)Math.Ceiling(ships.Length / (double)w);
                 }
             }
-            else
+            else // automatically calculate layout depth based on provided fleetWidth
             {
-                float spread = clickDistance / shipList.Count;
-                for (int i = 0; i < shipList.Count; ++i)
+                fleetWidth = Math.Max(1000f, fleetWidth); // fleets cannot be smaller than this
+                w = Math.Min((int)(fleetWidth / shipSpacing), ships.Length);
+                h = (int)Math.Ceiling(ships.Length / (double)w);
+            }
+
+            fleetWidth = w * shipSpacing; // set the actual fleetWidth that we selected
+
+            int i = 0;
+            for (int y = 0; y < h; ++y)
+            {
+                bool lastLine = (y == h-1);
+                if (!lastLine) // fill front lines:
                 {
-                    AddShip(shipList[i]);
-                    Ships[i].RelativeFleetOffset = new Vector2(spread * i, 0.0f);
+                    for (int x = 0; x < w; ++x)
+                        Ships[i++].RelativeFleetOffset = new Vector2(x, y) * shipSpacing;
+                }
+                else // last line is centered
+                {
+                    int remaining = ships.Length - i;
+                    float lastLineCenter = (shipSpacing * remaining) * 0.5f;
+                    var startOffset = new Vector2(fleetWidth*0.5f - lastLineCenter, 0f);
+                    for (int x = 0; x < remaining; ++x)
+                        Ships[i++].RelativeFleetOffset = startOffset + new Vector2(x, y)*shipSpacing;
                 }
             }
-            ProjectPos(fleetLeftCorner, direction);
+            Log.Assert(i == ships.Length, "Some ships were not assigned virtual fleet positions!");
+            ProjectPos(leftCorner, direction);
         }
 
         public bool IsShipListEqual(Array<Ship> ships)

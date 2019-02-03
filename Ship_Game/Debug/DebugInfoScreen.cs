@@ -290,6 +290,9 @@ namespace Ship_Game.Debug
             if (Screen.SelectedFleet != null)
             {
                 SetTextCursor(Win.X + 10, 500f, Color.White);
+                foreach (Ship ship in Screen.SelectedFleet.GetShips)
+                    VisualizeShipGoal(ship, false);
+
                 if (Screen.SelectedFleet.FleetTask != null)
                 {
                     DrawString(Screen.SelectedFleet.FleetTask.type.ToString());
@@ -302,7 +305,7 @@ namespace Ship_Game.Debug
                 else
                 {
                     // @todo DrawLines similar to UniverseScreen.DrawLines. This code should be refactored
-                    DrawString("core fleet :" + Screen.SelectedFleet.IsCoreFleet);
+                    DrawString("Core fleet :" + Screen.SelectedFleet.IsCoreFleet);
                     DrawString(Screen.SelectedFleet.Name);
                     DrawString("Ships: " + Screen.SelectedFleet.Ships.Count);
                     DrawString("Strength: " + Screen.SelectedFleet.GetStrength());
@@ -311,12 +314,27 @@ namespace Ship_Game.Debug
                     DrawString("Ship State: " + shipAI);
                 }
             }
-            if (Screen.SelectedShip != null)
+            else if (Screen.ProjectedGroup != null)
+            {
+                ShipGroup group = Screen.ProjectedGroup;
+                SetTextCursor(Win.X + 10, 500f, Color.White);
+                foreach (Ship ship in group.GetShips)
+                    VisualizeShipGoal(ship, false);
+
+                DrawString($"ShipGroup ({group.CountShips})  x {(int)group.Position.X} y {(int)group.Position.Y}");
+
+                DrawArrowImm(group.Position, group.Position+group.Direction*100f, Color.OrangeRed);
+                if (group.GoalMovePosition.NotZero())
+                {
+                    DrawLineImm(group.Position, group.GoalMovePosition, Color.YellowGreen);
+                }
+            }
+            else if (Screen.SelectedShip != null)
             {
                 Ship ship = Screen.SelectedShip;
                 SetTextCursor(Win.X + 10, 500f, Color.White);
 
-                DrawString($"Ship {Screen.SelectedShip.ShipName}  {(int)ship.Center.X}x{(int)ship.Center.Y}");
+                DrawString($"Ship {Screen.SelectedShip.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
                 DrawString($"Ship velocity: {ship.Velocity.Length()}");
                 VisualizeShipOrderQueue(ship);
 
@@ -367,32 +385,49 @@ namespace Ship_Game.Debug
             }
         }
 
+        void VisualizeShipGoal(Ship ship, bool detailed = true)
+        {
+            if (ship.AI.OrderQueue.NotEmpty)
+            {
+                ShipGoal goal = ship.AI.OrderQueue[0];
+                Vector2 pos = goal.TargetPlanet?.Center ?? goal.MovePosition;
+
+                DrawLineImm(ship.Position, pos, Color.YellowGreen);
+                if (detailed) DrawCircleImm(pos, 1000f, Color.Yellow);
+                DrawCircleImm(pos, 25f, Color.Maroon);
+
+                Vector2 thrustTgt = ship.AI.ThrustTarget;
+                if (detailed && thrustTgt.NotZero())
+                {
+                    DrawLineImm(pos, thrustTgt, Color.Orange);
+                    DrawLineImm(ship.Position, thrustTgt, Color.Orange);
+                    DrawCircleImm(thrustTgt, 25f, Color.MediumVioletRed);
+                }
+
+                // direction indicator
+                DrawArrowImm(pos, pos + goal.DesiredDirection * 50f, Color.Wheat);
+
+                // velocity indicator
+                if (detailed)
+                    DrawArrowImm(ship.Position, ship.Position+ship.Velocity, Color.OrangeRed);
+            }
+            if (ship.AI.WayPoints.Count > 0)
+            {
+                Vector2[] wayPoints = ship.AI.WayPoints.ToArray();
+                for (int i = 1; i < wayPoints.Length; ++i) // draw waypoints chain
+                    DrawLineImm(wayPoints[i-1], wayPoints[i], Color.ForestGreen);
+            }
+        }
+
         void VisualizeShipOrderQueue(Ship ship)
         {
+            VisualizeShipGoal(ship);
+
             if (ship.AI.OrderQueue.NotEmpty)
             {
                 ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
                 Vector2 pos = goals[0].TargetPlanet?.Center ?? goals[0].MovePosition;
                 DrawString($"Ship distance from goal: {pos.Distance(ship.Position)}");
-
-                DrawLineImmediate(ship.Position, pos, Color.YellowGreen);
-                DrawCircleImmediate(pos, 1000f, Color.Yellow);
-                DrawCircleImmediate(pos, 25f, Color.Maroon);
-
-                Vector2 thrustTgt = ship.AI.ThrustTarget;
-                if (!thrustTgt.AlmostZero())
-                {
-                    DrawLineImmediate(pos, thrustTgt, Color.Orange);
-                    DrawLineImmediate(ship.Position, thrustTgt, Color.Orange);
-                    DrawCircleImmediate(thrustTgt, 25f, Color.MediumVioletRed);
-                }
-
-                // direction indicator
-                DrawArrowImm(pos, pos + goals[0].DesiredDirection * 50f, Color.Wheat);
-
-                // velocity indicator
-                DrawArrowImm(ship.Position, ship.Position+ship.Velocity, Color.OrangeRed);
-
                 DrawString($"AI State: {ship.AI.State}");
                 DrawString($"Combat State: {ship.AI.CombatState}");
                 DrawString($"OrderQueue ({goals.Length}):");
@@ -405,16 +440,12 @@ namespace Ship_Game.Debug
                 DrawString($"Combat State: {ship.AI.CombatState}");
                 DrawString("OrderQueue is EMPTY");
             }
-
             if (ship.AI.WayPoints.Count > 0)
             {
                 Vector2[] wayPoints = ship.AI.WayPoints.ToArray();
                 DrawString($"WayPoints ({wayPoints.Length}):");
                 for (int i = 0; i < wayPoints.Length; ++i)
                     DrawString($"  {i}:  {wayPoints[i]}");
-
-                for (int i = 1; i < wayPoints.Length; ++i) // draw waypoints chain
-                    DrawLineImmediate(wayPoints[i-1], wayPoints[i], Color.ForestGreen);
             }
         }
 

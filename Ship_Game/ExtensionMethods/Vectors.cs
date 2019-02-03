@@ -51,9 +51,14 @@ namespace Ship_Game
         {
             return a.X.NotEqual(b.X) || a.Y.NotEqual(b.Y);
         }
+
         public static bool AlmostZero(this Vector2 v)
         {
             return v.X.AlmostZero() && v.Y.AlmostZero();
+        }
+        public static bool NotZero(this Vector2 v)
+        {
+            return v.X.NotZero() || v.Y.NotZero();
         }
 
 
