@@ -835,7 +835,7 @@ namespace Ship_Game
         });
         public static readonly HashSet<string> AtlasExcludeFolder = new HashSet<string>(new []
         {
-            "Suns", "Beams", "Ships"
+            "Beams", "Ships"
         });
 
         static void LoadAtlas(string folder)

@@ -22,10 +22,10 @@
     PulseScale: [1,1]
     PulseColor: [1.0,1.20]
 
-Sun: star_red2
-  IconPath: Suns/star_red2.png
+Sun: star_red2 # Yellowish Giant?
+  IconPath: Suns/star_red2_icon.png
   IconLayer: 2 # Layer "star_red2.png"
-  IconScale: 0.3
+  IconScale: 2.5
   LightIntensity: 1.4
   Radius: 100000
   LightColor: [255,160,122] # LightSalmon
@@ -34,7 +34,7 @@ Sun: star_red2
     TexturePath: Suns/star_yellow
     TextureColor: [1.0,0.8,0.8,0.5]
     BlendMode: Additive
-    LayerScale: 1.5
+    LayerScale: 2.5
     RotationSpeed: -0.015
     PulsePeriod: 5.0
     PulseScale: [0.96,1.08]
@@ -51,22 +51,68 @@ Sun: star_red2
     PulseColor: [0.5,0.9]
   Layers:
     TexturePath: Suns/star_red2.png
-    LayerScale: 0.3
+    LayerScale: 0.6
     BlendMode: AlphaBlend
-    RotationSpeed: 0.03
+    RotationSpeed: 0.01
     RotationStart: 0
-    PulsePeriod: 5.0
+    PulsePeriod: 15.0
     PulseScale: [1.0,1.0]
-    PulseColor: [1.0,1.20]
+    PulseColor: [1.0,1.80]
   Layers:
     TexturePath: Suns/star_red2.png
+    LayerScale: 0.6
+    BlendMode: Additive
+    RotationSpeed: 0.01
+    RotationStart: 0
+    PulsePeriod: 15.0
+    PulseScale: [1.0,1.0]
+    PulseColor: [0.2,0.5]
+
+Sun: star_red3
+  IconPath: Suns/red_giant_icon.png
+  IconLayer: 2 # Layer "red_giant.png"
+  IconScale: 3.5
+  LightIntensity: 1.4
+  Radius: 100000
+  LightColor: [255,160,122] # LightSalmon
+  Habitable: true
+  Layers:
+    TexturePath: Suns/star_yellow
+    TextureColor: [1.0,0.6,0.6,1.0]
+    BlendMode: AlphaBlend
+    LayerScale: 3.5
+    RotationSpeed: -0.015
+    PulsePeriod: 5.0
+    PulseScale: [0.96,1.08]
+    PulseColor: [1.1,1.1]
+  Layers:
+    AnimationPath: sd_explosion_12a_bb
+    AnimationSpeed: 0.1
+    LayerScale: 2
+    TextureColor: 0.5
+    BlendMode: Additive
+    RotationSpeed: 0.05
+    PulsePeriod: 5
+    PulseScale: [0.96,1.04]
+    PulseColor: [0.5,0.9]
+  Layers:
+    TexturePath: Suns/red_giant.png
+    LayerScale: 0.3
+    BlendMode: AlphaBlend
+    RotationSpeed: 0.01
+    RotationStart: 0
+    PulsePeriod: 15.0
+    PulseScale: [1.0,1.0]
+    PulseColor: [1.0,1.80]
+  Layers:
+    TexturePath: Suns/red_giant.png
     LayerScale: 0.3
     BlendMode: Additive
-    RotationSpeed: 0.03
+    RotationSpeed: 0.01
     RotationStart: 0
-    PulsePeriod: 5.0
-    PulseScale: [1.0,1.03]
-    PulseColor: [0.4,0.8]
+    PulsePeriod: 15.0
+    PulseScale: [1.0,1.0]
+    PulseColor: [0.1,0.4]
 
 # default yellowish-orange star
 Sun: star_yellow
