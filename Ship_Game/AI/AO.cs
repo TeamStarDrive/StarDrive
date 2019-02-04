@@ -56,8 +56,7 @@ namespace Ship_Game.AI
 
         private void CoreFleetAddShip(Ship ship)
         {
-            ship.AI.OrderQueue.Clear();
-            ship.AI.HasPriorityOrder = false;
+            ship.AI.ClearOrders();
             CoreFleet.AddShip(ship);
         }
         public AO(Planet p, float radius)
@@ -276,7 +275,7 @@ namespace Ship_Game.AI
                 
                 CoreFleet.Position = CoreWorld.Center;
                 CoreFleet.AutoArrange();
-                CoreFleet.MoveToNow(Center, 0f, new Vector2(0f, -1f));
+                CoreFleet.MoveToNow(Center, new Vector2(0f, -1f));
             
                 TurnsToRelax +=  1;
             }

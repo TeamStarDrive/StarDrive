@@ -149,7 +149,6 @@ namespace Ship_Game
             Point topLeft = WorldToPathMap(new Vector2 (worldPosition.X - worldRadius , worldPosition.Y - worldRadius), universeOffset);
             Point bottomRight = WorldToPathMap(new Vector2(worldPosition.X + worldRadius, worldPosition.Y + worldRadius), universeOffset);
 
-
             for (int x = topLeft.X; x <= bottomRight.X  ; x++)
                 for (int y = topLeft.Y  ; y <= bottomRight.Y ; y++)
                 {
@@ -470,7 +469,6 @@ namespace Ship_Game
                     if (empire.BorderNodes.Count != check)
                     {
                         rebuildPathingMap = true;
-                        empire.PathCache.Clear();
                     }
                     foreach (Ship ship in MasterShipList)
                         ship.BorderCheck.Remove(empire); // added by gremlin reset border stats.

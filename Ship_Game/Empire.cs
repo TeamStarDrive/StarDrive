@@ -112,9 +112,6 @@ namespace Ship_Game
         public int ColonyRankModifier { get; private set; }
         //added by gremlin
         private float leftoverResearch;
-        [XmlIgnore][JsonIgnore] public Map<Point, Map<Point, PatchCacheEntry>> PathCache = new Map<Point, Map<Point, PatchCacheEntry>>();
-        [XmlIgnore][JsonIgnore] public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
-        [XmlIgnore][JsonIgnore] public int pathcacheMiss = 0;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
         [XmlIgnore][JsonIgnore] public int granularity = 0;
         [XmlIgnore][JsonIgnore] public int AtWarCount;
@@ -230,13 +227,6 @@ namespace Ship_Game
         }
 
         public Empire(Empire parentEmpire) => TechnologyDict = parentEmpire.TechnologyDict;
-
-        public class PatchCacheEntry
-        {
-            public readonly Array<Vector2> Path;
-            public int CacheHits;
-            public PatchCacheEntry(Array<Vector2> path) { Path = path; }
-        }
 
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
 
@@ -452,8 +442,7 @@ namespace Ship_Game
             }
             foreach (Ship ship in OwnedShips)
             {
-                ship.AI.OrderQueue.Clear();
-                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.ClearOrders();
             }
             EmpireAI.Goals.Clear();
             EmpireAI.TaskList.Clear();
@@ -494,8 +483,7 @@ namespace Ship_Game
 
             foreach (Ship ship in OwnedShips)
             {
-                ship.AI.OrderQueue.Clear();
-                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.ClearOrders();
             }
 
             EmpireAI.Goals.Clear();
@@ -2281,16 +2269,14 @@ namespace Ship_Game
                 OwnedShips.Add(ship);
                 ship.loyalty = this;
                 ship.fleet?.RemoveShip(ship);
-                ship.AI.State = AIState.AwaitingOrders;
-                ship.AI.OrderQueue.Clear();
+                ship.AI.ClearOrders();
             }
             foreach (Ship ship in target.GetProjectors())
             {
                 OwnedProjectors.Add(ship);
                 ship.loyalty = this;
                 ship.fleet?.RemoveShip(ship);
-                ship.AI.State = AIState.AwaitingOrders;
-                ship.AI.OrderQueue.Clear();
+                ship.AI.ClearOrders();
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
@@ -2340,9 +2326,8 @@ namespace Ship_Game
                 ForcePool.Clear();
                 foreach (Ship s in OwnedShips)
                 {
-                    //added by gremlin Do not include 0 strength ships in defensive force pool
-                    s.AI.OrderQueue.Clear();
-                    s.AI.State = AIState.AwaitingOrders;
+                    // added by gremlin Do not include 0 strength ships in defensive force pool
+                    s.AI.ClearOrders();
                 }
 
                 if (IsCybernetic)
@@ -2427,8 +2412,7 @@ namespace Ship_Game
                 {
                     if (ship.AI.State == AIState.PassengerTransport || ship.AI.State == AIState.SystemTrader)
                     {
-                        ship.AI.OrderQueue.Clear();
-                        ship.AI.State = AIState.AwaitingOrders;
+                        ship.AI.ClearOrders();
                     }
                     continue;
                 }
@@ -2712,9 +2696,7 @@ namespace Ship_Game
             }
             GetEmpireAI().DefensiveCoordinator.Remove(ship);
 
-            ship.AI.OrderQueue.Clear();
-
-            ship.AI.State = AIState.AwaitingOrders;
+            ship.AI.ClearOrders();
             ship.ClearFleet();
         }
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
@@ -2781,7 +2763,6 @@ namespace Ship_Game
                 data.AgentList = new BatchRemovalCollection<Agent>();
                 data.MoleList = new BatchRemovalCollection<Mole>();
             }
-            LockPatchCache?.Dispose(ref LockPatchCache);
             OwnedPlanets?.Dispose(ref OwnedPlanets);
             OwnedProjectors?.Dispose(ref OwnedProjectors);
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);

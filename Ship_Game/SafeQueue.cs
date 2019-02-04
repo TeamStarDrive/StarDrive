@@ -79,21 +79,43 @@ namespace Ship_Game
             }
         }
 
+        // This is a thread-safe accessor
+        public T ElementAt(int index)
+        {
+            unchecked
+            {
+                if ((uint)index >= (uint)Count)
+                    throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
+                try
+                {
+                    ThisLock.EnterWriteLock();
+                    return Items[(Head + index) % Items.Length];
+                }
+                finally
+                {
+                    ThisLock.ExitWriteLock();
+                }
+            }
+        }
+
         // Adds an item to the end of the queue
         // Could by also named PushToEnd. This Enqueued item will be
         // the last item you get when calling Dequeue()
         public void Enqueue(T item)
         {
             ThisLock.EnterWriteLock();
-            unchecked {
+            unchecked
+            {
                 int length = Items.Length;
-                if (Count == length) { // heavily optimized:
+                if (Count == length)
+                { // heavily optimized:
                     int cap = length < 4 ? 4 : length * 3 / 2;
                     int rem = cap % 4;
                     if (rem != 0) cap += 4 - rem;
 
                     var newArray = new T[cap];
-                    if (length > 0) { // reorder the ringbuffer to a clean layout
+                    if (length > 0)
+                    { // reorder the ringbuffer to a clean layout
                         for (int j = 0, i = Head; j < length;) {
                             newArray[j++] = Items[i++];
                             if (i == length) i = 0;
@@ -116,16 +138,20 @@ namespace Ship_Game
         public void PushToFront(T item)
         {
             ThisLock.EnterWriteLock();
-            unchecked {
+            unchecked
+            {
                 int length = Items.Length;
-                if (Count == length) { // heavily optimized:
+                if (Count == length)
+                { // heavily optimized:
                     int cap = length < 4 ? 4 : length * 3 / 2;
                     int rem = cap % 4;
                     if (rem != 0) cap += 4 - rem;
 
                     var newArray = new T[cap];
-                    if (length > 0) { // reorder the ringbuffer to a clean layout
-                        for (int j = 1, i = Head, n = length+1; j < n;) {
+                    if (length > 0)
+                    { // reorder the ringbuffer to a clean layout
+                        for (int j = 1, i = Head, n = length+1; j < n;)
+                        {
                             newArray[j++] = Items[i++];
                             if (i == length) i = 0;
                         }
@@ -133,7 +159,8 @@ namespace Ship_Game
                     }
                     Items = newArray;
                 }
-                else {
+                else
+                {
                     if (--Head < 0) Head = length - 1;
                 }
                 Items[Head] = item;
@@ -147,7 +174,8 @@ namespace Ship_Game
         // Will dequeue the FIRST item from the queue, which is the first item that was Enqueued
         public T Dequeue()
         {
-            unchecked {
+            unchecked
+            {
                 if (Count == 0)
                     return default(T);
                 ThisLock.EnterWriteLock();
@@ -162,7 +190,8 @@ namespace Ship_Game
         // block until an item is available or timeout was reached
         public bool WaitDequeue(out T item, int millisecondTimeout = -1)
         {
-            unchecked {
+            unchecked
+            {
                 if (ItemAdded.WaitOne(millisecondTimeout) && Count > 0)
                 {
                     ThisLock.EnterWriteLock();
@@ -180,7 +209,8 @@ namespace Ship_Game
         // Same as Dequeue, but doesn't return any value
         public void RemoveFirst()
         {
-            unchecked {
+            unchecked
+            {
                 if (Count == 0)
                     return;
                 ThisLock.EnterWriteLock();
@@ -246,19 +276,25 @@ namespace Ship_Game
                 ThisLock.EnterReadLock();
                 int length = Items.Length;
                 int count  = Count;
-                if (item == null) {
-                    for (int j = 0, i = Head; j < count; ++j) {
-                        if (Items[i] == null) {
+                if (item == null)
+                {
+                    for (int j = 0, i = Head; j < count; ++j)
+                    {
+                        if (Items[i] == null)
+                        {
                             ThisLock.ExitReadLock();
                             return true;
                         }
                         if (++i == length) i = 0;
                     }
                 }
-                else {
+                else
+                {
                     var c = EqualityComparer<T>.Default;
-                    for (int j = 0, i = Head; j < count; ++j) {
-                        if (c.Equals(Items[i], item)) {
+                    for (int j = 0, i = Head; j < count; ++j)
+                    {
+                        if (c.Equals(Items[i], item))
+                        {
                             ThisLock.ExitReadLock();
                             return true;
                         }
@@ -272,7 +308,8 @@ namespace Ship_Game
 
         public T[] ToArray()
         {
-            unchecked {
+            unchecked
+            {
                 ThisLock.EnterReadLock();
                 int count = Count;
                 var arr = new T[count];
@@ -289,7 +326,8 @@ namespace Ship_Game
         
         public T[] TakeAll()
         {
-            unchecked {
+            unchecked
+            {
                 ThisLock.EnterReadLock();
                 int count = Count;
                 var arr = new T[count];
@@ -319,7 +357,7 @@ namespace Ship_Game
 
         ~SafeQueue() { Destroy(); }
 
-        private void Destroy()
+        void Destroy()
         {
             Count = 0;
             ItemAdded?.Set();
@@ -332,10 +370,10 @@ namespace Ship_Game
 
         public struct Enumerator : IEnumerator<T>
         {
-            private int Head;
-            private int Index;
-            private readonly int Count;
-            private readonly T[] Items;
+            int Head;
+            int Index;
+            readonly int Count;
+            readonly T[] Items;
             public T Current { get; private set; }
             object IEnumerator.Current => Current;
 
@@ -370,7 +408,7 @@ namespace Ship_Game
 
     internal sealed class ReadOnlyCollectionDebugView<T>
     {
-        private readonly IReadOnlyCollection<T> Collection;
+        readonly IReadOnlyCollection<T> Collection;
 
         public ReadOnlyCollectionDebugView(IReadOnlyCollection<T> collection)
         {
@@ -383,7 +421,7 @@ namespace Ship_Game
 
     internal sealed class SafeQueueDebugView<T>
     {
-        private readonly SafeQueue<T> Queue;
+        readonly SafeQueue<T> Queue;
 
         public SafeQueueDebugView(SafeQueue<T> queue)
         {

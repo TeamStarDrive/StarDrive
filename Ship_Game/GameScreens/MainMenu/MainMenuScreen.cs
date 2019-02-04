@@ -77,6 +77,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override void LoadContent()
         {
+            Size = new Vector2(ScreenWidth, ScreenHeight);
             base.LoadContent();
             RemoveAll();
             ScreenManager.ClearScene();

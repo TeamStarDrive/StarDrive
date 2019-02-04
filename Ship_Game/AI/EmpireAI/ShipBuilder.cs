@@ -124,7 +124,7 @@ namespace Ship_Game.AI
 
             Ship pickedShip = RandomMath.RandItem(bestShips);
 
-            if (Empire.Universe?.Debug == true)
+            if (false && Empire.Universe?.Debug == true)
             {
                 Debug($"    Sorted Ship List ({bestShips.Length})");
                 foreach (Ship loggedShip in bestShips)

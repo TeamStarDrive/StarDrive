@@ -36,8 +36,8 @@ namespace Ship_Game
 
 		public static Vector2 RandomDirection()
 		{
-			float angle = RandomBetween(0f, 6.28318548f);
-			return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+			float angle = RandomBetween(0f, (float)Math.PI * 2f);
+            return angle.RadiansToDirection();
 		}
 
 		public static Vector2 RandomDirection(float minimumAngle, float maximumAngle)

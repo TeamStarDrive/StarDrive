@@ -37,7 +37,7 @@ namespace Ship_Game
             if (SelectedShip == null || player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(SelectedShip))
                 return;
             player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(SelectedShip);
-            SelectedShip.AI.OrderQueue.Clear();
+            SelectedShip.AI.ClearOrders();
             SelectedShip.AI.HasPriorityOrder = false;
             SelectedShip.AI.SystemToDefend = null;
             SelectedShip.AI.SystemToDefendGuid = Guid.Empty;

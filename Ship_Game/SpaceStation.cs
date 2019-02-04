@@ -24,15 +24,10 @@ namespace Ship_Game
 			var innerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_inner");
             var outerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_outer");
 
-			InnerSO = new SceneObject(innerModel.Meshes[0])
-			{
-				ObjectType = ObjectType.Dynamic
-			};
-			OuterSO = new SceneObject(outerModel.Meshes[0])
-			{
-				ObjectType = ObjectType.Dynamic
-			};
-
+			InnerSO = new SceneObject(innerModel.Meshes[0]) { ObjectType = ObjectType.Dynamic };
+			OuterSO = new SceneObject(outerModel.Meshes[0]) { ObjectType = ObjectType.Dynamic };
+            InnerSO.Name = "spacestation01_inner";
+            OuterSO.Name = "spacestation01_outer";
             UpdateTransforms();
 
             manager.AddObject(InnerSO);

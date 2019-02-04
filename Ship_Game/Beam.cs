@@ -111,7 +111,10 @@ namespace Ship_Game
                 TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
             }
             else
+            {
                 TargetPosistion = destination;
+            }
+             
             Destination = Source + deltaVec.Normalized() * range;
         }
 

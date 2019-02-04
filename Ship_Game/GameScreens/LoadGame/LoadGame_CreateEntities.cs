@@ -374,7 +374,7 @@ namespace Ship_Game
                     {
                         Guid = fleetsave.FleetGuid,
                         IsCoreFleet = fleetsave.IsCoreFleet,
-                        Facing = fleetsave.facing
+                        Direction = fleetsave.facing.RadiansToDirection() // @note savegame compatibility uses facing in radians
                     };
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
@@ -415,7 +415,7 @@ namespace Ship_Game
                         }
                     }
 
-                    fleet.AssignPositions(fleet.Facing);
+                    fleet.AssignPositions(fleet.Direction);
                     fleet.Name = fleetsave.Name;
                     fleet.TaskStep = fleetsave.TaskStep;
                     fleet.Owner = e;
@@ -531,7 +531,8 @@ namespace Ship_Game
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
-                    var g = new ShipAI.ShipGoal(sg.Plan, sg.MovePosition, sg.FacingVector);
+                    // @note savegame compatibility uses facing in radians
+                    var g = new ShipAI.ShipGoal(sg.Plan, sg.MovePosition, sg.FacingVector.RadiansToDirection());
                     foreach (SolarSystem s in data.SolarSystemsList)
                     {
                         foreach (Planet p in s.PlanetList)
@@ -543,7 +544,7 @@ namespace Ship_Game
                             }
 
                             if (p.guid == shipData.AISave.startGuid) ship.AI.start = p;
-                            if (p.guid == shipData.AISave.endGuid) ship.AI.end = p;
+                            if (p.guid == shipData.AISave.endGuid)   ship.AI.end = p;
                         }
                     }
 
@@ -557,7 +558,7 @@ namespace Ship_Game
                     }
 
                     g.VariableString = sg.VariableString;
-                    g.DesiredFacing = sg.DesiredFacing;
+                    g.DesiredDirection = sg.DesiredFacing.RadiansToDirection(); // @note savegame compatibility uses facing in radians
                     g.SpeedLimit = sg.SpeedLimit;
                     foreach (Goal goal in ship.loyalty.GetEmpireAI().Goals)
                     {
