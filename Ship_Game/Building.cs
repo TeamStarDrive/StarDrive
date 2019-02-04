@@ -243,28 +243,27 @@ namespace Ship_Game
             return where != null;
         }
 
-        public void ScrapBuilding(Planet planet)
+        public void ScrapBuilding(Planet p)
         {
             if (MaxFertilityOnBuild > 0)
-                planet.AddMaxFertility(-MaxFertilityOnBuild); // FB - we are reversing positive MaxFertility On build when scraping
+                p.AddMaxFertility(-MaxFertilityOnBuild); // FB - we are reversing positive MaxFertilityOnbuild when scraping
 
-            planet.BuildingList.Remove(this);
-            planet.ProdHere += ActualCost / 2f;
-            foreach (PlanetGridSquare pgs in planet.TilesList)
+            p.BuildingList.Remove(this);
+            p.ProdHere += ActualCost / 2f;
+            foreach (PlanetGridSquare pgs in p.TilesList)
             {
                 if (pgs.building != this) continue;
                 pgs.building = null;
                 break;
             }
+            if (IsTerraformer && !p.TerraformingHere)
+                p.UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
         }
 
         // Event when a building is built at planet p
         public void OnBuildingBuiltAt(Planet p)
         {
             p.AddMaxFertility(MaxFertilityOnBuild); 
-            if (IsTerraformer && !p.TerraformingHere) 
-                p.AddMaxFertility(-p.MaxFertility);  // FB - new terraformers rebuild the environment
-
             p.BuildingList.Add(this);
             if (IsSpacePort)
             {

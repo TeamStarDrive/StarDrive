@@ -59,7 +59,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             SolarSystemBody.AddMaxFertility(-0.02f);
-            bool degraded = SolarSystemBody.DegradePlanetType();
+            bool degraded = SolarSystemBody.DegradePlanetType(SolarSystemBody.MaxFertility);
             if (!degraded)
                 return;
 

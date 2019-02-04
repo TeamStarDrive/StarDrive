@@ -168,12 +168,9 @@ namespace Ship_Game
                     batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
                     entry.DrawPlus(batch);
                 }
-
                 entry.CheckHover(Input.CursorPosition);
             }
         }
-
-
 
         void DrawBuildableShipsList(SpriteBatch batch)
         {
