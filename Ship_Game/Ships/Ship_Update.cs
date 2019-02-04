@@ -148,8 +148,7 @@ namespace Ship_Game.Ships
                     InCombat = false;
                 if (AI.State == AIState.Combat && loyalty != EmpireManager.Player)
                 {
-                    AI.State = AIState.AwaitingOrders;
-                    AI.OrderQueue.Clear();
+                    AI.ClearOrders();
                 }
             }
 
@@ -171,31 +170,6 @@ namespace Ship_Game.Ships
                 UpdateThrusters();
             }
 
-            if (isSpooling && !Inhibited && GetmaxFTLSpeed > 2500)
-            {
-                JumpTimer -= elapsedTime;
-                //task gremlin move fighter recall here.
-
-                if (JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
-                {
-                    if (Empire.Universe.CamHeight < 250000 && Empire.Universe.CamPos.InRadius(Center, 100000f)
-                                                           && JumpSfx.IsStopped)
-                    {
-                        JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter);
-                    }
-                }
-                if (JumpTimer <= 0.1)
-                {
-                    if (engineState == MoveState.Sublight)
-                    {
-                        FTLManager.AddFTL(Center);
-                        engineState = MoveState.Warp;
-                    }
-                    else engineState = MoveState.Sublight;
-                    isSpooling = false;
-                    ResetJumpTimer();
-                }
-            }
             if (PlayerShip)
             {
                 if ((!isSpooling || !Active) && Afterburner.IsPlaying)

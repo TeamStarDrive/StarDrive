@@ -105,8 +105,8 @@ namespace Ship_Game
         {            
             if (input.RightMouseHeld())
             {
-                if (input.StartRighthold.OutsideRadius(input.CursorPosition, 10f))
-                    CameraVelocity = input.StartRighthold - input.CursorPosition;
+                if (input.StartRightHold.OutsideRadius(input.CursorPosition, 10f))
+                    CameraVelocity = input.StartRightHold - input.CursorPosition;
                 else
                     CameraVelocity = Vector2.Zero;
             }

@@ -60,7 +60,7 @@ namespace Ship_Game.Debug
         readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
         DebugPage Page;
 
-        public DebugInfoScreen(UniverseScreen screen) : base(screen)
+        public DebugInfoScreen(UniverseScreen screen) : base(screen, pause:false)
         {
             Screen = screen;
             
@@ -289,91 +289,92 @@ namespace Ship_Game.Debug
         {
             if (Screen.SelectedFleet != null)
             {
-                SetTextCursor(Win.X + 10, 600f, Color.White);
-                if (Screen.SelectedFleet.FleetTask != null)
+                Fleet fleet = Screen.SelectedFleet;
+                SetTextCursor(Win.X + 10, 500f, Color.White);
+                DrawArrowImm(fleet.Position, fleet.Position+fleet.Direction*200f, Color.OrangeRed);
+                foreach (Ship ship in fleet.GetShips)
+                    VisualizeShipGoal(ship, false);
+
+                if (fleet.FleetTask != null)
                 {
-                    DrawString(Screen.SelectedFleet.FleetTask.type.ToString());
+                    DrawString(fleet.FleetTask.type.ToString());
 
-                    if (Screen.SelectedFleet.FleetTask.TargetPlanet != null)
-                        DrawString(Screen.SelectedFleet.FleetTask.TargetPlanet.Name);
+                    if (fleet.FleetTask.TargetPlanet != null)
+                        DrawString(fleet.FleetTask.TargetPlanet.Name);
 
-                    DrawString("Step: "+Screen.SelectedFleet.TaskStep);
+                    DrawString("Step: "+fleet.TaskStep);
                 }
                 else
                 {
                     // @todo DrawLines similar to UniverseScreen.DrawLines. This code should be refactored
-                    DrawString("core fleet :" + Screen.SelectedFleet.IsCoreFleet);
-                    DrawString(Screen.SelectedFleet.Name);
-                    DrawString("Ships: " + Screen.SelectedFleet.Ships.Count);
-                    DrawString("Strength: " + Screen.SelectedFleet.GetStrength());
+                    DrawString("Core fleet :" + fleet.IsCoreFleet);
+                    DrawString(fleet.Name);
+                    DrawString("Ships: " + fleet.Ships.Count);
+                    DrawString("Strength: " + fleet.GetStrength());
 
-                    string shipAI = Screen.SelectedFleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
+                    string shipAI = fleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
                     DrawString("Ship State: " + shipAI);
                 }
             }
-            if (Screen.SelectedShip != null)
+            else if (Screen.ProjectedGroup != null)
+            {
+                ShipGroup group = Screen.ProjectedGroup;
+                SetTextCursor(Win.X + 10, 500f, Color.White);
+                DrawArrowImm(group.Position, group.Position+group.Direction*200f, Color.OrangeRed);
+                foreach (Ship ship in group.GetShips)
+                    VisualizeShipGoal(ship, false);
+
+                DrawString($"ShipGroup ({group.CountShips})  x {(int)group.Position.X} y {(int)group.Position.Y}");
+
+                if (group.GoalMovePosition.NotZero())
+                {
+                    DrawLineImm(group.Position, group.GoalMovePosition, Color.YellowGreen);
+                }
+            }
+            else if (Screen.SelectedShip != null)
             {
                 Ship ship = Screen.SelectedShip;
-                SetTextCursor(Win.X + 10, 600f, Color.White);
+                SetTextCursor(Win.X + 10, 500f, Color.White);
 
-                DrawString(Screen.SelectedShip.Name);
-                DrawString(ship.Center.ToString());
-                DrawString("On Defense: "+ship.DoingSystemDefense);
+                DrawString($"Ship {Screen.SelectedShip.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
+                DrawString($"Ship velocity: {ship.Velocity.Length()}");
+                VisualizeShipOrderQueue(ship);
+
+                DrawString($"On Defense: {ship.DoingSystemDefense}");
                 if (ship.fleet != null)
                 {
-                    DrawString(ship.fleet.Name);
-                    DrawString("Fleet pos: "+ship.fleet.Position);
-                    DrawString("Fleet speed: "+ship.fleet.Speed);
+                    DrawString($"Fleet {ship.fleet.Name}  {(int)ship.fleet.Position.X}x{(int)ship.fleet.Position.Y}");
+                    DrawString($"Fleet speed: {ship.fleet.Speed}");
                 }
-                DrawString("Ship speed: "+ship.Velocity.Length());
+
                 DrawString(!Screen.SelectedShip.loyalty.GetForcePool().Contains(Screen.SelectedShip)
-                    ? "NOT In Force Pool"
-                    : "In Force Pool");
+                           ? "NOT In Force Pool" : "In Force Pool");
+
                 if (Screen.SelectedShip.AI.State == AIState.SystemDefender)
                 {
                     SolarSystem systemToDefend = Screen.SelectedShip.AI.SystemToDefend;
-                    if (systemToDefend != null)
-                        DrawString("Defending "+systemToDefend.Name);
-                    else
-                        DrawString("Defending Awaiting Order");
+                    DrawString($"Defending {systemToDefend?.Name ?? "Awaiting Order"}");
                 }
-                if (ship.System == null)
-                {
-                    DrawString("Deep Space");
-                }
-                else
-                {
-                    DrawString(ship.System.Name + " system");
-                }
+
+                DrawString(ship.System == null ? "Deep Space" : $"{ship.System.Name} system");
+
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
-                    ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
+                           ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
                 DrawString(ship.AI.HasPriorityTarget ? "Priority Target" : "No Priority Target");
                 DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
-                DrawString("AI State: "+ship.AI.State);
-                DrawString("Combat State: " + ship.AI.CombatState);
 
                 if (ship.AI.State == AIState.SystemTrader)
                     DrawString($"Trading Prod:{ship.TradingProd} food:{ship.TradingFood} Goods:{ship.AI.FoodOrProd}");
-                if (ship.AI.OrderQueue.IsEmpty)
-                {
-                    DrawString("Nothing in the Order queue");
-                }
-                else
-                {
-                    foreach (ShipGoal order in ship.AI.OrderQueue)
-                    {
-                        DrawString("Executing Order: "+order.Plan);
-                    }
-                }
+
                 if (ship.AI.Target is Ship shipTarget)
                 {
                     SetTextCursor(Win.X + 150, 600f, Color.White);
                     DrawString("Target: "+ shipTarget.Name);
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
-                DrawString("Strength: " + ship.BaseStrength);
-                DrawString("Max Velocity " + ship.velocityMaximum);
-                DrawString("HP: " + ship.Health + " / " + ship.HealthMax);
+                DrawString($"Strength: {ship.BaseStrength}");
+                DrawString($"Max Velocity {ship.velocityMaximum}");
+                DrawString($"HP: {ship.Health} / {ship.HealthMax}");
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
@@ -383,6 +384,87 @@ namespace Ship_Game.Debug
                         if (defender.Key == ship.guid)
                             DrawString(entry.Value.System.Name);
                     }
+            }
+            else if (Screen.SelectedShipList.NotEmpty)
+            {
+                IReadOnlyList<Ship> ships = Screen.SelectedShipList;
+                SetTextCursor(Win.X + 10, 500f, Color.White);
+                foreach (Ship ship in ships)
+                    VisualizeShipGoal(ship, false);
+
+                DrawString($"SelectedShips ({ships.Count}) ");
+
+            }
+        }
+
+        void VisualizeShipGoal(Ship ship, bool detailed = true)
+        {
+            if (ship.AI.OrderQueue.NotEmpty)
+            {
+                ShipGoal goal = ship.AI.OrderQueue[0];
+                Vector2 pos = goal.TargetPlanet?.Center ?? goal.MovePosition;
+                if (goal.Plan == Plan.DoCombat)
+                {
+                    pos = ship.AI.Target?.Position ?? pos;
+                }
+
+                DrawLineImm(ship.Position, pos, Color.YellowGreen);
+                if (detailed) DrawCircleImm(pos, 1000f, Color.Yellow);
+                DrawCircleImm(pos, 75f, Color.Maroon);
+
+                Vector2 thrustTgt = ship.AI.ThrustTarget;
+                if (detailed && thrustTgt.NotZero())
+                {
+                    DrawLineImm(pos, thrustTgt, Color.Orange);
+                    DrawLineImm(ship.Position, thrustTgt, Color.Orange);
+                    DrawCircleImm(thrustTgt, 75f, Color.MediumVioletRed);
+                }
+
+                // goal direction arrow
+                DrawArrowImm(pos, pos + goal.DesiredDirection * 50f, Color.Wheat);
+
+                // velocity arrow
+                if (detailed)
+                    DrawArrowImm(ship.Position, ship.Position+ship.Velocity, Color.OrangeRed);
+
+                // ship direction arrow
+                DrawArrowImm(ship.Position, ship.Position+ship.Direction*200f, Color.GhostWhite);
+            }
+            if (ship.AI.WayPoints.Count > 0)
+            {
+                Vector2[] wayPoints = ship.AI.WayPoints.ToArray();
+                for (int i = 1; i < wayPoints.Length; ++i) // draw waypoints chain
+                    DrawLineImm(wayPoints[i-1], wayPoints[i], Color.ForestGreen);
+            }
+        }
+
+        void VisualizeShipOrderQueue(Ship ship)
+        {
+            VisualizeShipGoal(ship);
+
+            if (ship.AI.OrderQueue.NotEmpty)
+            {
+                ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
+                Vector2 pos = goals[0].TargetPlanet?.Center ?? goals[0].MovePosition;
+                DrawString($"Ship distance from goal: {pos.Distance(ship.Position)}");
+                DrawString($"AI State: {ship.AI.State}");
+                DrawString($"Combat State: {ship.AI.CombatState}");
+                DrawString($"OrderQueue ({goals.Length}):");
+                for (int i = 0; i < goals.Length; ++i)
+                    DrawString($"  {i}: {goals[i].Plan}");
+            }
+            else
+            {
+                DrawString($"AI State: {ship.AI.State}");
+                DrawString($"Combat State: {ship.AI.CombatState}");
+                DrawString("OrderQueue is EMPTY");
+            }
+            if (ship.AI.WayPoints.Count > 0)
+            {
+                Vector2[] wayPoints = ship.AI.WayPoints.ToArray();
+                DrawString($"WayPoints ({wayPoints.Length}):");
+                for (int i = 0; i < wayPoints.Length; ++i)
+                    DrawString($"  {i}:  {wayPoints[i]}");
             }
         }
 
@@ -538,11 +620,17 @@ namespace Ship_Game.Debug
 
         void InputDebug()
         {
-            DrawString($"RightMouseHeld {Screen.Input.RightMouseHeld()}");
             DrawString($"Mouse Moved {Screen.Input.MouseMoved}");
-            DrawString($"RightMouseWasHeld {Screen.Input.RightMouseWasHeld}");
-            DrawString($"RightMouseTimer {Screen.Input.ReadRightMouseDownTime}");
-            DrawString($"RightMouseHoldStartLocation {Screen.Input.StartRighthold}");
+
+            DrawString($"RightHold Held  {Screen.Input.RightHold.Holding}");
+            DrawString($"RightHold Time  {Screen.Input.RightHold.Time}");
+            DrawString($"RightHold Start {Screen.Input.RightHold.StartPos}");
+            DrawString($"RightHold End   {Screen.Input.RightHold.EndPos}");
+
+            DrawString($"LeftHold Held   {Screen.Input.LeftHold.Holding}");
+            DrawString($"LeftHold Time   {Screen.Input.LeftHold.Time}");
+            DrawString($"LeftHold Start  {Screen.Input.LeftHold.StartPos}");
+            DrawString($"LeftHold End    {Screen.Input.LeftHold.EndPos}");
         }
 
 

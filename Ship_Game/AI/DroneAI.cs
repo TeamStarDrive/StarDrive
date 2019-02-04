@@ -36,27 +36,7 @@ namespace Ship_Game.AI
                     return weight;
                 });
             
-            DroneTarget                  = target;
-        }
-
-        private void MoveTowardsPosition(float elapsedTime, Vector2 targetPos)
-        {
-            Vector2 droneForward  = Drone.Rotation.RadiansToDirection();
-            Vector2 wantedForward = Drone.Center.DirectionToTarget(targetPos);
-
-            float angleDiff = (float)Math.Acos(wantedForward.Dot(droneForward));
-            if (angleDiff > 0.2f)
-            {
-                Vector2 droneRight = droneForward.RightVector();
-                float rotationDir = wantedForward.Dot(droneRight) > 0f ? 1f : -1f;
-                Drone.Rotation += Math.Min(angleDiff, rotationDir * elapsedTime * Drone.Speed / 350f);
-            }
-
-            Drone.Velocity = Drone.Rotation.RadiansToDirection() * (elapsedTime * Drone.Speed);
-            if (Drone.Velocity.Length() > Drone.VelocityMax)
-            {
-                Drone.Velocity = Drone.Velocity.Normalized() * Drone.VelocityMax;
-            }
+            DroneTarget = target;
         }
 
         // the drone will orbit around the ship it's healing

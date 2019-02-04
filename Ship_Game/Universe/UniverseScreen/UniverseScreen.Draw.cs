@@ -938,10 +938,10 @@ namespace Ship_Game
 
         private void DrawProjectedGroup()
         {
-            if (projectedGroup == null)
+            if (ProjectedGroup == null)
                 return;
 
-            foreach (Ship ship in projectedGroup.Ships)
+            foreach (Ship ship in ProjectedGroup.Ships)
             {
                 if (!ship.Active)
                     continue;
@@ -956,7 +956,7 @@ namespace Ship_Game
                         ? 0.15f
                         : 0.08f;
 
-                DrawTextureProjected(symbol, ship.projectedPosition, scale, projectedGroup.ProjectedFacing,
+                DrawTextureProjected(symbol, ship.projectedPosition, scale, ProjectedGroup.ProjectedDirection.ToRadians(),
                     new Color(0, 255, 0, 100));
             }
         }
@@ -1117,16 +1117,16 @@ namespace Ship_Game
 
         public void DrawWayPointLines(Ship ship, Color color)
         {
-            if (ship.AI.WayPoints.Count() < 1)
+            if (ship.AI.WayPoints.Count < 1)
                 return;
 
-            var waypoints = ship.AI.WayPoints.ToArray();
+            Vector2[] wayPoints = ship.AI.WayPoints.ToArray();
 
-            DrawLineProjected(ship.Center, waypoints[0], color);
+            DrawLineProjected(ship.Center, wayPoints[0], color);
 
-            for (int i = 1; i < waypoints.Count; ++i)
+            for (int i = 1; i < wayPoints.Length; ++i)
             {
-                DrawLineProjected(waypoints[i - 1], waypoints[i], color);
+                DrawLineProjected(wayPoints[i - 1], wayPoints[i], color);
             }
         }
 
