@@ -85,11 +85,7 @@ namespace Ship_Game.AI
 
             // prediction to enhance movement precision
             Vector2 predictedPoint = PredictThrustPosition(position);
-            if (RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
-            {
-                Owner.RemoveDrift(elapsedTime, speedLimit);
-            }
-            else
+            if (!RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
             {
                 Owner.SubLightAccelerate(elapsedTime, speedLimit);
             }
@@ -147,11 +143,7 @@ namespace Ship_Game.AI
                 direction = Owner.Center.DirectionToTarget(predictedPoint);
             }
 
-            if (RotateToDirection(direction, elapsedTime, 0.05f))
-            {
-                Owner.RemoveDrift(elapsedTime, speedLimit);
-            }
-            else
+            if (!RotateToDirection(direction, elapsedTime, 0.05f))
             {
                 Owner.SubLightAccelerate(elapsedTime, speedLimit);
             }
@@ -165,11 +157,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (RotateToDirection(Owner.Velocity.Normalized(), elapsedTime, 0.1f))
-            {
-                Owner.RemoveDrift(elapsedTime, Owner.Speed);
-            }
-            else
+            if (!RotateToDirection(Owner.Velocity.Normalized(), elapsedTime, 0.1f))
             {
                 DequeueCurrentOrder(); // rotation complete
             }
@@ -178,11 +166,7 @@ namespace Ship_Game.AI
         // this is used when we arrive at final position
         void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
         {
-            if (RotateToDirection(goal.DesiredDirection, elapsedTime, 0.02f))
-            {
-                Owner.RemoveDrift(elapsedTime, Owner.Speed);
-            }
-            else
+            if (!RotateToDirection(goal.DesiredDirection, elapsedTime, 0.02f))
             {
                 DequeueCurrentOrder(); // rotation complete
             }
@@ -195,7 +179,6 @@ namespace Ship_Game.AI
             // we need high precision here, otherwise our jumps are inaccurate
             if (RotateToDirection(dir, elapsedTime, 0.05f))
             {
-                Owner.RemoveDrift(elapsedTime, Owner.Speed);
                 Owner.HyperspaceReturn();
             }
             else
@@ -219,7 +202,6 @@ namespace Ship_Game.AI
             }
 
             // continue breaking velocity
-            Owner.RemoveDrift(elapsedTime, Owner.velocityMaximum);
             Owner.Velocity -= Owner.Velocity.Normalized() * deceleration;
             return false;
         }
@@ -247,8 +229,6 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
             
-            Owner.RemoveDrift(elapsedTime, Owner.Speed);
-
             // this just checks if warp thrust is good
             float actualDiff = Owner.AngleDifferenceToPosition(position);
             float distance = position.Distance(Owner.Center);

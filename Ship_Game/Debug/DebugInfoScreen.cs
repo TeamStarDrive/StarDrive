@@ -289,28 +289,30 @@ namespace Ship_Game.Debug
         {
             if (Screen.SelectedFleet != null)
             {
+                Fleet fleet = Screen.SelectedFleet;
                 SetTextCursor(Win.X + 10, 500f, Color.White);
-                foreach (Ship ship in Screen.SelectedFleet.GetShips)
+                DrawArrowImm(fleet.Position, fleet.Position+fleet.Direction*200f, Color.OrangeRed);
+                foreach (Ship ship in fleet.GetShips)
                     VisualizeShipGoal(ship, false);
 
-                if (Screen.SelectedFleet.FleetTask != null)
+                if (fleet.FleetTask != null)
                 {
-                    DrawString(Screen.SelectedFleet.FleetTask.type.ToString());
+                    DrawString(fleet.FleetTask.type.ToString());
 
-                    if (Screen.SelectedFleet.FleetTask.TargetPlanet != null)
-                        DrawString(Screen.SelectedFleet.FleetTask.TargetPlanet.Name);
+                    if (fleet.FleetTask.TargetPlanet != null)
+                        DrawString(fleet.FleetTask.TargetPlanet.Name);
 
-                    DrawString("Step: "+Screen.SelectedFleet.TaskStep);
+                    DrawString("Step: "+fleet.TaskStep);
                 }
                 else
                 {
                     // @todo DrawLines similar to UniverseScreen.DrawLines. This code should be refactored
-                    DrawString("Core fleet :" + Screen.SelectedFleet.IsCoreFleet);
-                    DrawString(Screen.SelectedFleet.Name);
-                    DrawString("Ships: " + Screen.SelectedFleet.Ships.Count);
-                    DrawString("Strength: " + Screen.SelectedFleet.GetStrength());
+                    DrawString("Core fleet :" + fleet.IsCoreFleet);
+                    DrawString(fleet.Name);
+                    DrawString("Ships: " + fleet.Ships.Count);
+                    DrawString("Strength: " + fleet.GetStrength());
 
-                    string shipAI = Screen.SelectedFleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
+                    string shipAI = fleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
                     DrawString("Ship State: " + shipAI);
                 }
             }
@@ -318,12 +320,12 @@ namespace Ship_Game.Debug
             {
                 ShipGroup group = Screen.ProjectedGroup;
                 SetTextCursor(Win.X + 10, 500f, Color.White);
+                DrawArrowImm(group.Position, group.Position+group.Direction*200f, Color.OrangeRed);
                 foreach (Ship ship in group.GetShips)
                     VisualizeShipGoal(ship, false);
 
                 DrawString($"ShipGroup ({group.CountShips})  x {(int)group.Position.X} y {(int)group.Position.Y}");
 
-                DrawArrowImm(group.Position, group.Position+group.Direction*100f, Color.OrangeRed);
                 if (group.GoalMovePosition.NotZero())
                 {
                     DrawLineImm(group.Position, group.GoalMovePosition, Color.YellowGreen);
@@ -383,6 +385,16 @@ namespace Ship_Game.Debug
                             DrawString(entry.Value.System.Name);
                     }
             }
+            else if (Screen.SelectedShipList.NotEmpty)
+            {
+                IReadOnlyList<Ship> ships = Screen.SelectedShipList;
+                SetTextCursor(Win.X + 10, 500f, Color.White);
+                foreach (Ship ship in ships)
+                    VisualizeShipGoal(ship, false);
+
+                DrawString($"SelectedShips ({ships.Count}) ");
+
+            }
         }
 
         void VisualizeShipGoal(Ship ship, bool detailed = true)
@@ -391,6 +403,10 @@ namespace Ship_Game.Debug
             {
                 ShipGoal goal = ship.AI.OrderQueue[0];
                 Vector2 pos = goal.TargetPlanet?.Center ?? goal.MovePosition;
+                if (goal.Plan == Plan.DoCombat)
+                {
+                    pos = ship.AI.Target?.Position ?? pos;
+                }
 
                 DrawLineImm(ship.Position, pos, Color.YellowGreen);
                 if (detailed) DrawCircleImm(pos, 1000f, Color.Yellow);
