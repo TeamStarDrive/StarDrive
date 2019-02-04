@@ -2800,10 +2800,10 @@ namespace Ship_Game.Ships
             }
             DPS = (int)offense;
             float rotationSpeed = (turnThrust / mass / 700).ToDegrees();
-
+            if (IsPlatformOrStation) offense  /= 2;
             if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea, numWeaponSlots, offense, defense, shipData.Role, rotationSpeed, IsPlatformOrStation);
+            return ShipBuilder.GetModifiedStrength(SurfaceArea, numWeaponSlots, offense, defense, shipData.Role, rotationSpeed);
         }
 
         private void ApplyRepairToShields(float repairPool)
