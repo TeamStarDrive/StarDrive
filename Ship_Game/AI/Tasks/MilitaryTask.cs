@@ -197,8 +197,7 @@ namespace Ship_Game.AI.Tasks
             for (int index = Fleet.Ships.Count - 1; index >= 0; index--)
             {
                 Ship ship = Fleet.Ships[index];
-                ship.AI.OrderQueue.Clear();
-                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.ClearOrders();
                 ship.AI.CombatState = ship.shipData.CombatState;
                 Fleet.RemoveShip(ship);
                 ship.HyperspaceReturn();
@@ -275,7 +274,7 @@ namespace Ship_Game.AI.Tasks
                 if (IsCoreFleetTask)
                 {
                     Owner.GetFleet(WhichFleet).FleetTask = null;
-                    Owner.GetFleet(WhichFleet).MoveToDirectly(closestAO.Center, 0f, new Vector2(0f, -1f));
+                    Owner.GetFleet(WhichFleet).MoveToDirectly(closestAO.Center, Vectors.Up);
                 }
                 else
                 {
@@ -291,7 +290,6 @@ namespace Ship_Game.AI.Tasks
                     Owner.GetFleet(WhichFleet).Reset();
                 }
             }
-            
         }
 
         public void Evaluate(Empire e)
@@ -348,7 +346,7 @@ namespace Ship_Game.AI.Tasks
                         Owner.GetFleetsDict()[1].FleetTask = this;
                         WhichFleet = 1;
                         Step = 1;
-                        Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, 0.0f, Vector2.Zero);
+                        Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, new Vector2(0f, -1));
                         break;
                     }
                 case TaskType.CohesiveClearAreaOfEnemies:
@@ -563,8 +561,7 @@ namespace Ship_Game.AI.Tasks
 
                     foreach (Ship ship in Owner.GetFleet(WhichFleet).Ships)
                     {
-                        ship.AI.OrderQueue.Clear();
-                        ship.AI.State = AIState.AwaitingOrders;
+                        ship.AI.ClearOrders();
                         Owner.GetFleetsDict()[WhichFleet].RemoveShip(ship);
                         ship.HyperspaceReturn();
                         ship.isSpooling = false;

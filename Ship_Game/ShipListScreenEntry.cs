@@ -547,8 +547,7 @@ namespace Ship_Game
                 {
                     if (ship.AI.State == AIState.Explore)
                     {
-                        ship.AI.State = AIState.AwaitingOrders;
-                        ship.AI.OrderQueue.Clear();
+                        ship.AI.ClearOrders();
                     }
                     else
                     {
@@ -563,8 +562,7 @@ namespace Ship_Game
                     if (ship.AI.State == AIState.SystemDefender || ship.DoingSystemDefense)
                     {
                         ship.DoingSystemDefense = false;
-                        ship.AI.State = AIState.AwaitingOrders;
-                        ship.AI.OrderQueue.Clear();
+                        ship.AI.ClearOrders();
                     }
                     else
                     {
@@ -594,8 +592,7 @@ namespace Ship_Game
                 {
                     if (ship.AI.State == AIState.Scrap)
                     {
-                        ship.AI.State = AIState.AwaitingOrders;
-                        ship.AI.OrderQueue.Clear();
+                        ship.AI.ClearOrders();
                     }
                     else
                     {
@@ -608,16 +605,12 @@ namespace Ship_Game
                     if (ship.ScuttleTimer != -1f)
                     {
                         ship.ScuttleTimer = -1f;
-                        ship.AI.State = AIState.AwaitingOrders;
-                        ship.AI.HasPriorityOrder = false;
-                        ship.AI.OrderQueue.Clear();
+                        ship.AI.ClearOrders();
                     }
                     else
                     {
                         ship.ScuttleTimer = 10f;
-                        ship.AI.State = AIState.Scuttle;
-                        ship.AI.HasPriorityOrder = true;
-                        ship.AI.OrderQueue.Clear();
+                        ship.AI.ClearOrders(AIState.Scuttle, priority:true);
                     }
                     Status_Text = GetStatusText(ship);
                 }

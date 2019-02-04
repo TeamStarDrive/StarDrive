@@ -72,6 +72,7 @@
     <Compile Include="TestTextureAtlas.cs" />
     <Compile Include="TestStarDataParser.cs" />
     <Compile Include="TestProgressCounter.cs" />
+    <Compile Include="TestVectorMath.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

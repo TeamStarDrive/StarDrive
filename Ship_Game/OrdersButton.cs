@@ -345,20 +345,16 @@ namespace Ship_Game
                                     if (!EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
                                     {
                                         EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
-                                        ship.AI.OrderQueue.Clear();
-                                        ship.AI.HasPriorityOrder = false;
+                                        ship.AI.ClearOrders();
                                         ship.AI.SystemToDefend = null;
                                         ship.AI.SystemToDefendGuid = Guid.Empty;
-                                        ship.AI.State = AIState.SystemDefender;
                                     }
                                     else
                                     {
                                         EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Remove(ship);
-                                        ship.AI.OrderQueue.Clear();
-                                        ship.AI.HasPriorityOrder = false;
+                                        ship.AI.ClearOrders();
                                         ship.AI.SystemToDefend = null;
                                         ship.AI.SystemToDefendGuid = Guid.Empty;
-                                        ship.AI.State = AIState.AwaitingOrders;
                                     }
                                 }
                             }

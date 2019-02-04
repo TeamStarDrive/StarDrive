@@ -358,7 +358,7 @@ namespace Ship_Game.AI
                 Ship shuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
                 shuttle.Velocity = UniverseRandom.RandomDirection() * shuttle.Speed + Owner.Velocity;
                 if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
-                    shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.Speed;
+                    shuttle.Velocity = shuttle.Velocity.Normalized() * shuttle.Speed;
 
                 Owner.ChangeOrdnance(-shuttle.ShipOrdLaunchCost);
                 Owner.ChangeOrdnance(-shuttle.OrdinanceMax);
@@ -376,11 +376,10 @@ namespace Ship_Game.AI
 
             void SetSupplyTarget(Ship ship)
             {
-                var goal = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
                 ship.AI.EscortTarget = sortedList[skipShip];
                 ship.AI.IgnoreCombat = true;
-                ship.AI.OrderQueue.Clear();
-                ship.AI.OrderQueue.Enqueue(goal);
+                ship.AI.ClearOrders();
+                ship.AI.AddShipGoal(Plan.SupplyShip);
             }
 
             bool SupplyShipIdle(Ship supplyShip)
@@ -472,9 +471,8 @@ namespace Ship_Game.AI
 
         private void EnterCombat()
         {
-            var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
             State = AIState.Combat;
-            OrderQueue.PushToFront(combat);
+            AddShipGoal(Plan.DoCombat);
         }
 
         public float GetSensorRadius() => GetSensorRadius(out Ship sensorShip);

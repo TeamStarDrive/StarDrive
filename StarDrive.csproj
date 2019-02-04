@@ -255,7 +255,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\Vector.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
     <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />
@@ -285,6 +285,8 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenInput.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\WeaponScrollList.cs" />
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
+    <Compile Include="Ship_Game\Input\InputState_DoubleClick.cs" />
+    <Compile Include="Ship_Game\Input\InputState_Holding.cs" />
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
@@ -301,6 +303,7 @@
     <Compile Include="Ship_Game\Ships\Ship_Cargo.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Initialize.cs" />
     <Compile Include="Ship_Game\Ships\Ship_ModuleGrid.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_Movement.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Rendering.cs" />
     <Compile Include="Ship_Game\GameScreens\Colors.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\GameLoadingScreen.cs" />

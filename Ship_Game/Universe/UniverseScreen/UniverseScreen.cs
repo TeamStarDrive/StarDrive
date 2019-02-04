@@ -20,11 +20,11 @@ namespace Ship_Game
 {
     public partial class UniverseScreen : GameScreen
     {
-        private readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
-        private readonly PerfTimer Perfavg2          = new PerfTimer();
-        private readonly PerfTimer PreEmpirePerf     = new PerfTimer();
-        private readonly PerfTimer perfavg4          = new PerfTimer();
-        private readonly PerfTimer perfavg5          = new PerfTimer();
+        readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
+        readonly PerfTimer Perfavg2          = new PerfTimer();
+        readonly PerfTimer PreEmpirePerf     = new PerfTimer();
+        readonly PerfTimer perfavg4          = new PerfTimer();
+        readonly PerfTimer perfavg5          = new PerfTimer();
 
         public static readonly SpatialManager SpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
@@ -38,10 +38,10 @@ namespace Ship_Game
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
         public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
         public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
-        private Array<ClickableSystem> ClickableSystems    = new Array<ClickableSystem>();
+        Array<ClickableSystem> ClickableSystems    = new Array<ClickableSystem>();
         public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
-        private Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
-        private Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
+        Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
+        Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
         public Background bg            = new Background();
         public float UniverseSize       = 5000000f; // universe width and height in world units
@@ -52,48 +52,46 @@ namespace Ship_Game
         public Vector3 camTransitionPosition;
         public Array<NebulousOverlay> Stars        = new Array<NebulousOverlay>();
         public Array<NebulousOverlay> NebulousShit = new Array<NebulousOverlay>();
-        private Rectangle ScreenRectangle;
+        Rectangle ScreenRectangle;
         public Map<Guid, Planet> PlanetsDict            = new Map<Guid, Planet>();
         public Map<Guid, SolarSystem> SolarSystemDict   = new Map<Guid, SolarSystem>();
         public BatchRemovalCollection<Bomb> BombList    = new BatchRemovalCollection<Bomb>();
-        private AutoResetEvent DrawCompletedEvt         = new AutoResetEvent(false);
-        private AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
+        AutoResetEvent DrawCompletedEvt         = new AutoResetEvent(false);
+        AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
         public float CamHeight = 2550f;
         public Vector3 CamPos = Vector3.Zero;
-        private float TooltipTimer = 0.5f;
-        private float sTooltipTimer = 0.5f;
-        private float TimerDelay = 0.25f;
-        private GameTime SimulationTime = new GameTime();
-        private bool TurnFlip = true;
-        private float TurnFlipCounter;
-        private int Auto = 1;
-        private AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
-        private ManualResetEvent SystemThreadGateKeeper = new ManualResetEvent(false);
-        private AutoResetEvent   DeepSpaceGateKeeper    = new AutoResetEvent(false);
-        private ManualResetEvent DeepSpaceDone          = new ManualResetEvent(false);
-        private AutoResetEvent   EmpireGateKeeper       = new AutoResetEvent(false);
-        private ManualResetEvent EmpireDone             = new ManualResetEvent(false);
-        private Array<Ship> DeepSpaceShips  = new Array<Ship>();
+        float TooltipTimer = 0.5f;
+        float sTooltipTimer = 0.5f;
+        float TimerDelay = 0.25f;
+        GameTime SimulationTime = new GameTime();
+        bool TurnFlip = true;
+        float TurnFlipCounter;
+        int Auto = 1;
+        AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
+        ManualResetEvent SystemThreadGateKeeper = new ManualResetEvent(false);
+        AutoResetEvent   DeepSpaceGateKeeper    = new AutoResetEvent(false);
+        ManualResetEvent DeepSpaceDone          = new ManualResetEvent(false);
+        AutoResetEvent   EmpireGateKeeper       = new AutoResetEvent(false);
+        ManualResetEvent EmpireDone             = new ManualResetEvent(false);
+        Array<Ship> DeepSpaceShips  = new Array<Ship>();
         public bool ViewingShip             = false;
         public float transDuration          = 3f;
-        private float SectorMiniMapHeight = 20000f;
+        float SectorMiniMapHeight = 20000f;
         public Vector2 mouseWorldPos;
         public float SelectedSomethingTimer = 3f;
-        private Array<FleetButton> FleetButtons = new Array<FleetButton>();
-        //private Vector2 startDrag;
-        //private Vector2 ProjectedPosition;
-        private float desiredSectorZ = 20000f;
+        Array<FleetButton> FleetButtons = new Array<FleetButton>();
+        float desiredSectorZ = 20000f;
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
-        private bool drawBloom = GlobalStats.RenderBloom; //true
-        private Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
+        bool drawBloom = GlobalStats.RenderBloom; //true
+        Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug;
         public Planet SelectedPlanet;
         public Ship SelectedShip;
         public ClickableItemUnderConstruction SelectedItem;
-        private PieMenu pieMenu;
-        private PieMenuNode planetMenu;
-        private PieMenuNode shipMenu;
+        PieMenu pieMenu;
+        PieMenuNode planetMenu;
+        PieMenuNode shipMenu;
         public Matrix view;
         public Matrix projection;
         public ParticleSystem beamflashes;
@@ -130,12 +128,12 @@ namespace Ship_Game
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
         public Texture2D FogMap;
-        private RenderTarget2D FogMapTarget;
+        RenderTarget2D FogMapTarget;
         public RenderTarget2D MainTarget;
         public RenderTarget2D MiniMapSector;
         public RenderTarget2D BorderRT;
         public RenderTarget2D StencilRT;
-        private RenderTarget2D LightsTarget;
+        RenderTarget2D LightsTarget;
         public Effect basicFogOfWarEffect;
         public Rectangle SectorMap;
         public Rectangle SectorSourceRect;
@@ -147,7 +145,6 @@ namespace Ship_Game
         public Rectangle mmDSBW;
         public Rectangle mmShipView;
         public Rectangle mmAutomation;
-        //public MinimapButtons mmButtons;
         public Rectangle mmGalaxyView;
         public Rectangle mmHousing;
         protected float MaxCamHeight;
@@ -157,21 +154,21 @@ namespace Ship_Game
         public SystemInfoUIElement sInfoUI;
         public ShipListInfoUIElement shipListInfoUI;
         public VariableUIElement vuiElement;
-        private float ArmageddonTimer;
+        float ArmageddonTimer;
         public Empire player;
-        private MiniMap minimap;
-        private bool loading;
+        MiniMap minimap;
+        bool loading;
         public Thread ProcessTurnsThread;
         public Ship playerShip;
         public float transitionElapsedTime;
         public BoundingFrustum Frustum;
-        private ClickablePlanets tippedPlanet;
-        private ClickableSystem tippedSystem;
-        private bool ShowingSysTooltip;
-        private bool ShowingPlanetToolTip;
-        private float MusicCheckTimer;
-        private int ArmageddonCounter;
-        private float shiptimer;
+        ClickablePlanets tippedPlanet;
+        ClickableSystem tippedSystem;
+        bool ShowingSysTooltip;
+        bool ShowingPlanetToolTip;
+        float MusicCheckTimer;
+        int ArmageddonCounter;
+        float shiptimer;
         public Ship ShipToView;
         public float HeightOnSnap;
         public float AdjustCamTimer;
@@ -187,36 +184,30 @@ namespace Ship_Game
         public DeepSpaceBuildingWindow dsbw;
         public DebugInfoScreen DebugWin;
         public bool ShowShipNames;
-        //public InputState Input;
-        private float Memory;
+        float Memory;
         public bool Paused = true; // always start paused
         public bool SkipRightOnce;
         public bool NoEliminationVictory;
-        private bool UseRealLights = true;
-        private bool NeedARelease;
+        bool UseRealLights = true;
+        bool NeedARelease;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
-        //private Array<Fleet.Squad> SelectedFlank;
-        private int FBTimer;
-        private bool pickedSomethingThisFrame;
-        //private Vector2 startDragWorld;
-        //private Vector2 endDragWorld;
-        private ShipGroup projectedGroup;
-        private bool ProjectingPosition;
-        private bool SelectingWithBox;
-        private Effect AtmoEffect;
-        private Model atmoModel;
+        int FBTimer;
+        bool pickedSomethingThisFrame;
+        public ShipGroup ProjectedGroup { get; private set; }
+        bool ProjectingPosition;
+        bool SelectingWithBox;
+        Effect AtmoEffect;
+        Model atmoModel;
         public PlanetScreen workersPanel;
-        private ResolveTexture2D sceneMap;
-        private CursorState cState;
-        private float radlast;
-        private int SelectorFrame;
+        ResolveTexture2D sceneMap;
+        CursorState cState;
+        float radlast;
+        int SelectorFrame;
         public int globalshipCount;
         public int empireShipCountReserve;
-        //private float ztimeSnapShot;          //Not referenced in code, removing to save memory
-        //public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
-        private Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
-        private Array<Ship> ShipsToAddToWorld = new Array<Ship>();
+        Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
+        Array<Ship> ShipsToAddToWorld = new Array<Ship>();
         public float Lag = 0;
         public Ship previousSelection;
 
@@ -273,7 +264,7 @@ namespace Ship_Game
 
         public void ResetLighting() => SetLighting(UseRealLights);
 
-        private void SetLighting(bool useRealLights)
+        void SetLighting(bool useRealLights)
         {
             if (!useRealLights)
             {
@@ -298,13 +289,13 @@ namespace Ship_Game
             }
         }
 
-        private void AddLight(string name, SolarSystem system, float intensity, float radius, Color color, float zpos, float fallOff = 1f, bool fillLight = false)
+        void AddLight(string name, SolarSystem system, float intensity, float radius, Color color, float zpos, float fallOff = 1f, bool fillLight = false)
         {
             AddLight($"{system.Name} - {system.Sun.Id} - {name}", system.Position, intensity, radius, color,
                 zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
         }
 
-        private void AddLight(string name, Vector2 source, float intensity, float radius, Color color,
+        void AddLight(string name, Vector2 source, float intensity, float radius, Color color,
                               float zpos, bool fillLight, float fallOff = 0, float shadowQuality = 1)
         {
             var light = new PointLight
@@ -348,7 +339,7 @@ namespace Ship_Game
                 ScreenManager.AddScreen(new DiplomacyScreen(this, SelectedShip.loyalty, player, "Greeting"));
         }
 
-        private void CreateProjectionMatrix()
+        void CreateProjectionMatrix()
         {
             float aspect = (float)Viewport.Width / Viewport.Height;
             projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f);
@@ -532,7 +523,7 @@ namespace Ship_Game
             militaryTask.Step = 2;
         }
 
-        private void DoParticleLoad()
+        void DoParticleLoad()
         {
             var content              = TransientContent;
             var device               = ScreenManager.GraphicsDevice;
@@ -671,7 +662,7 @@ namespace Ship_Game
             if (++Auto > 3) Auto = 1;
         }
 
-        private void ProjectPieMenu(Vector2 position, float z)
+        void ProjectPieMenu(Vector2 position, float z)
         {
             var proj = Viewport.Project(position.ToVec3(z), projection, view, Matrix.Identity);
             pieMenu.Position    = proj.ToVec2();
@@ -783,7 +774,7 @@ namespace Ship_Game
 
         }
 
-        private void ClearParticles()
+        void ClearParticles()
         {
             beamflashes.UnloadContent();
             explosionParticles.UnloadContent();
@@ -802,7 +793,7 @@ namespace Ship_Game
             neb_particles.UnloadContent();
         }
 
-        private MultiShipData ComputeMultiShipCircle()
+        MultiShipData ComputeMultiShipCircle()
         {
             float num1 = 0.0f;
             float num2 = 0.0f;
@@ -835,14 +826,14 @@ namespace Ship_Game
         // this draws the colored empire borders
         // the borders are drawn into a separate framebuffer texture and later blended with final visual
 
-        private SubTexture Arc15  = ResourceManager.Texture("Arcs/Arc15");
-        private SubTexture Arc20  = ResourceManager.Texture("Arcs/Arc20");
-        private SubTexture Arc45  = ResourceManager.Texture("Arcs/Arc45");
-        private SubTexture Arc60  = ResourceManager.Texture("Arcs/Arc60");
-        private SubTexture Arc90  = ResourceManager.Texture("Arcs/Arc90");
-        private SubTexture Arc120 = ResourceManager.Texture("Arcs/Arc120");
-        private SubTexture Arc180 = ResourceManager.Texture("Arcs/Arc180");
-        private SubTexture Arc360 = ResourceManager.Texture("Arcs/Arc360");
+        SubTexture Arc15  = ResourceManager.Texture("Arcs/Arc15");
+        SubTexture Arc20  = ResourceManager.Texture("Arcs/Arc20");
+        SubTexture Arc45  = ResourceManager.Texture("Arcs/Arc45");
+        SubTexture Arc60  = ResourceManager.Texture("Arcs/Arc60");
+        SubTexture Arc90  = ResourceManager.Texture("Arcs/Arc90");
+        SubTexture Arc120 = ResourceManager.Texture("Arcs/Arc120");
+        SubTexture Arc180 = ResourceManager.Texture("Arcs/Arc180");
+        SubTexture Arc360 = ResourceManager.Texture("Arcs/Arc360");
 
         public SubTexture GetArcTexture(float weaponArc)
         {
@@ -891,7 +882,8 @@ namespace Ship_Game
         {
             ShipsToAddToWorld.Add(ship);
         }
-        private void AddShipSceneObjectsFromQueue()
+
+        void AddShipSceneObjectsFromQueue()
         {
             while (!ShipsToAddToWorld.IsEmpty)
             {
@@ -963,7 +955,7 @@ namespace Ship_Game
             public Ship shipToClick;
         }
 
-        private struct ClickableSystem
+        struct ClickableSystem
         {
             public Vector2 ScreenPos;
             public float Radius;
@@ -986,7 +978,7 @@ namespace Ship_Game
             public Goal AssociatedGoal;
         }
 
-        private struct ClickableFleet
+        struct ClickableFleet
         {
             public Fleet fleet;
             public Vector2 ScreenPos;
@@ -1008,14 +1000,14 @@ namespace Ship_Game
             return (float)screenState;
         }
 
-        private struct FleetButton
+        struct FleetButton
         {
             public Rectangle ClickRect;
             public Fleet Fleet;
             public int Key;
         }
 
-        private struct MultiShipData
+        struct MultiShipData
         {
             public float status;
             public Vector2 weightedCenter;
@@ -1030,7 +1022,7 @@ namespace Ship_Game
         }
 
 
-        private enum CursorState
+        enum CursorState
         {
             Normal,
             Move,
