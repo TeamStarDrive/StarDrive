@@ -316,53 +316,50 @@ namespace Ship_Game
             return score;
         }
 
-        float EvalTerraformer(Building b)
+        float EvalTerraformer(Building b) // FB - note that Terraformers are automatically scraped when they finish their job in DoTerraform()
         {
-            if (b.PlusTerraformPoints.AlmostZero() || Category == PlanetCategory.Terran
-                                                   || Category == PlanetCategory.Oceanic
-                                                   || Fertility.GreaterOrEqual(1)) 
-                return 0; // FB - note that Terafformers are automatically scraped when they finish their job (not here)
+            if (b.PlusTerraformPoints.AlmostZero() 
+                || IsCybernetic
+                || MaxFertility.GreaterOrEqual(TerraformTargetFertility) 
+                || Owner.Money < 0) 
+                return 0; 
 
-            float score = 0;
-            if (Owner.Money < 0)
-                return score; // lets not commit to stuff which can overthrow our empire
-
-            switch (Category)
+            float score = (TerraformTargetFertility - MaxFertility) * 100;
+            switch (colonyType)
             {
-                case PlanetCategory.Volcanic:
-                case PlanetCategory.Barren: score += 20; break;
-                case PlanetCategory.Swamp:  score += 5;  break;
-                case PlanetCategory.Steppe: score += 2;  break;
-                default:                    score += 10; break;
+                case ColonyType.Military:
+                case ColonyType.Research:     score *= 0.5f;  break;
+                case ColonyType.Core:         score *= 0.9f;  break;
+                case ColonyType.Industrial:   score *= 0.2f;  break;
+                case ColonyType.Agricultural: score *= 1.25f; break;
             }
-
             DebugEvalBuild(b, "Terraformer", score);
             return score;
         }
 
         float EvalFertilityLoss(Building b)
         {
-            if (b.MinusFertilityOnBuild.AlmostZero() || IsCybernetic) return 0;
+            if (b.MaxFertilityOnBuild.AlmostZero() || IsCybernetic) return 0;
 
             float score = 0;
-            if (b.MinusFertilityOnBuild < 0)
-                score = b.MinusFertilityOnBuild * 2;    //Negative loss means positive gain!!
+            if (b.MaxFertilityOnBuild > 0)
+                score = b.MaxFertilityOnBuild * 2; 
             else
             {   
                 // How much fertility will actually be lost
                 // @todo food calculation is a bit dodgy
-                float fertLost = Math.Min(Fertility, b.MinusFertilityOnBuild);
+                float fertLost = Math.Min(Fertility, -b.MaxFertilityOnBuild);
                 float foodFromLabor = MaxPopulationBillion * ((Fertility - fertLost));
                 float foodFromFlat = Food.FlatBonus + b.PlusFlatFoodAmount;
                 // Will we still be able to feed ourselves?
                 if (foodFromFlat + foodFromLabor < MaxConsumption)
-                    score += fertLost * 20;
+                    score -= fertLost * 20;
                 else 
-                    score += fertLost * 4;
+                    score -= fertLost * 4;
             }
 
-            DebugEvalBuild(b, "FertLossOnBuild", -score);
-            return -score; // FB - this is actually negative
+            DebugEvalBuild(b, "FertLossOnBuild", score);
+            return score; // FB - this might be negative
         }
 
         float ConstructionCostModifier(float score, float cost, float highestCost)
@@ -461,7 +458,7 @@ namespace Ship_Game
                              + b.MaxPopIncrease / 1000 * 0.5f
                              + b.PlusFlatProductionAmount // some flat production as most people will be farming
                              + b.PlusFlatPopulation / 5
-                             - b.MinusFertilityOnBuild * 20; // we dont want reducing fertility and we really want improving it
+                             + b.MaxFertilityOnBuild * 20; // we dont want reducing fertility and we really want improving it
                     break;
                 case ColonyType.Core:
                     score += 1; // Core governors are open to different building functions
@@ -471,7 +468,7 @@ namespace Ship_Game
                              + b.PlusFlatPopulation / 5
                              + b.PlusFlatResearchAmount / 2
                              + b.PlusResearchPerColonist
-                             - b.MinusFertilityOnBuild * 12;
+                             + b.MaxFertilityOnBuild * 12;
                     break;
                 case ColonyType.Industrial:
                      if (b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0)
@@ -486,7 +483,8 @@ namespace Ship_Game
                              + b.MaxPopIncrease / 1000
                              + b.PlusFlatResearchAmount * 10
                              + b.PlusFlatPopulation / 10
-                             - b.MinusFertilityOnBuild * 10;
+                             + b.PlusFlatFoodAmount
+                             + b.MaxFertilityOnBuild * 10;
                     break;
                 case ColonyType.Military:
                     score += (b.IsMilitary ? 2f : 0f) // yes, more military buildings!
@@ -730,7 +728,6 @@ namespace Ship_Game
         {
             int totalBuildings       = TotalBuildings;
             float popRatio           = PopulationRatio;
-            bool lotsInQueueToBuild  = ConstructionQueue.Count >= 4;
 
             if (budget < 0)
             {
@@ -738,7 +735,7 @@ namespace Ship_Game
                 return; 
             }
 
-            ScrapBuilding(budget,  scoreThreshold: 0); // scap a negative value building
+            ScrapBuilding(budget,  scoreThreshold: 0); // scrap a negative value building
             if (OpenTiles > 0)
             {
                 SimpleBuild(budget); // lets try to build something within our debt tolerance
@@ -754,8 +751,8 @@ namespace Ship_Game
             // FB this will give the budget the colony will have for building selection
             float colonyIncome  = Money.NetRevenue;
             colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
-            float debtTolerance = (5 - PopulationBillion).Clamped(-2,5); // the bigger the colony, the less debt tolerance it has, it should be earning money 
-            debtTolerance += Owner.Money / 1000; // FB this will ensure AI wont get stuck with no colony budget
+            float debtTolerance = (5 - PopulationBillion).Clamped(-3,5); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+            debtTolerance      += Owner.Money / 1000; // FB this will ensure AI wont get stuck with no colony budget
             return colonyIncome + debtTolerance;
         }
 

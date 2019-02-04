@@ -659,7 +659,7 @@ namespace Ship_Game.AI
             {
                 ClearOrders();
             }
-            int cost = (int) (ResourceManager.ShipsDict[goal.VariableString].GetCost(Owner.loyalty) -
+            int cost = (int) (ResourceManager.ShipsDict[goal.TargetShip.Name].GetCost(Owner.loyalty) -
                               Owner.GetCost(Owner.loyalty));
             if (cost < 0)
                 cost = 0;

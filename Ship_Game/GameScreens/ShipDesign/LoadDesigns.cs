@@ -94,11 +94,10 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
-                    batch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.Orange);
+                    var role = ship.BaseHull.Name;
+                    batch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.DarkGray);
                     tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
-                    ship.GetTechScore(out int[] scores);
-                    batch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, $"Base Strength: {ship.BaseStrength.String(0)}", tCursor, Color.Orange);
                     
                     if (!ship.IsReadonlyDesign && !ship.FromSave)
                     {
@@ -263,7 +262,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     .OrderBy(kv => !kv.Value.IsPlayerDesign)
                     .ThenBy(kv => kv.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
                     .ThenBy(kv => kv.Value.BaseHull.ShipStyle)
-                    .ThenByDescending(kv => kv.Value.GetTechScore(out int[] _))
+                    .ThenByDescending(kv => kv.Value.BaseStrength)
                     .ThenBy(kv => kv.Value.Name)
                     .ToArray();
 

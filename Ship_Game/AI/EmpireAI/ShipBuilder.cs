@@ -85,10 +85,11 @@ namespace Ship_Game.AI
         }
 
         // Pick the stongest ship to build with a cost limit and a role
-        public static Ship PickCostEffectiveShipToBuild(ShipData.RoleName role, Empire empire, float maxCost)
+        public static Ship PickCostEffectiveShipToBuild(ShipData.RoleName role, Empire empire, float maxCost, float maintBudget)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
-                ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost));
+                ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost) 
+                                                && ship.GetMaintCost(empire).LessOrEqual(maintBudget));
 
             if (potentialShips.Length == 0)
                 return null;
@@ -137,17 +138,17 @@ namespace Ship_Game.AI
             return pickedShip.Name;
         }
 
-        public static string PickShipToRefit(Ship oldShip, Empire empire)
+        public static Ship PickShipToRefit(Ship oldShip, Empire empire)
         {
             Ship[] ships = ShipsWeCanBuild(empire).Filter(s => s.shipData.Hull == oldShip.shipData.Hull
-                                                              && s.BaseStrength.Greater(oldShip.BaseStrength)
+                                                              && s.BaseStrength.Greater(oldShip.BaseStrength * 1.3f)
                                                               && s.Name != oldShip.Name);
             if (ships.Length == 0)
-                return "";
+                return null;
 
             Ship picked = RandomMath.RandItem(ships);
             Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Stength: {oldShip.BaseStrength} refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
-            return picked.Name;
+            return picked;
         }
 
         public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,
@@ -155,6 +156,7 @@ namespace Ship_Game.AI
         {
             float weaponRatio = (float)numWeaponSlots / shipSize;
             float modifiedStrength;
+
             if (defense > offense && weaponRatio < 0.2f)
                 modifiedStrength = offense * 2;
             else

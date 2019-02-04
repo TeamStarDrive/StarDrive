@@ -330,13 +330,17 @@ namespace Ship_Game
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(386) + ":", vector2_2, Color.Orange);
             if (P.Fertility.AlmostEqual(P.MaxFertility))
-                batch.DrawString(Font12, P.Fertility.String(), position3, color);
+                batch.DrawString(Font12, P.Fertility.String(2), position3, color);
             else
             {
                 Color fertColor = P.Fertility < P.MaxFertility ? Color.LightGreen : Color.Pink;
-                batch.DrawString(Font12, $"{P.Fertility.String()} / {P.MaxFertility.String()}", position3, fertColor);
+                batch.DrawString(Font12, $"{P.Fertility.String(2)} / {P.MaxFertility.String(2)}", position3, fertColor);
             }
-
+            if (P.TerraformPoints > 0)
+            {
+                Vector2 terraformPos = new Vector2(vector2_2.X + num5 * 4.4f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
+                batch.DrawString(Font12, $"Terraforming - {(P.TerraformPoints * 100).String(0)}%", terraformPos, Color.White);
+            }
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20);
@@ -654,7 +658,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatResearchAmount, "NewUI/icon_science", Localizer.Token(357));
             DrawBuildingInfo(ref bCursor, batch, b.PlusResearchPerColonist, "NewUI/icon_science", Localizer.Token(358));
             DrawBuildingInfo(ref bCursor, batch, b.PlusTaxPercentage * 100, "NewUI/icon_money", Localizer.Token(359), percent: true);
-            DrawBuildingInfo(ref bCursor, batch, -b.MinusFertilityOnBuild, "NewUI/icon_food", Localizer.Token(360));
+            DrawBuildingInfo(ref bCursor, batch, b.MaxFertilityOnBuild, "NewUI/icon_food", Localizer.Token(360));
             DrawBuildingInfo(ref bCursor, batch, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", Localizer.Token(361));
             DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", Localizer.Token(362));
             DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", Localizer.Token(363));
@@ -672,6 +676,32 @@ namespace Ship_Game
 
             if (b.DefenseShipsCapacity > 0)
                 DrawBuildingInfo(ref bCursor, batch, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
+            if (b.PlusTerraformPoints > 0)
+            {
+                string terraformStats = MultiLineFormat(TerraformPotential(out Color terraformColor));
+                bCursor.Y += Font12.LineSpacing * 2;
+                batch.DrawString(Font12, terraformStats, bCursor, terraformColor);
+                bCursor.Y += Font12.LineSpacing;
+            }
+        }
+
+        string TerraformPotential(out Color color)
+        {
+            color = Color.Red;
+            float targetFertility = P.TerraformTargetFertility;
+            if (P.MaxFertility.GreaterOrEqual(targetFertility)) // planet is fertile enough
+                return Localizer.Token(1970);
+
+            if (targetFertility.LessOrEqual(0)) // too many bad env affecting buildings
+                return Localizer.Token(1969);
+
+            if (targetFertility.Less(1)) // not full potential due to bad env buildings
+            {
+                color = Color.Yellow;
+                return Localizer.Token(1968) + " " + targetFertility.String(2) + ", " + Localizer.Token(1967);
+            }
+            color = Color.LightGreen;
+            return Localizer.Token(1968) + " " + targetFertility.String(2) + ".";
         }
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture, 

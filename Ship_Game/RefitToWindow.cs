@@ -15,7 +15,7 @@ namespace Ship_Game
         private ScrollList ShipSL;
         private UIButton RefitOne;
         private UIButton RefitAll;
-        private string RefitTo;
+        private Ship RefitTo;
         private DanButton ConfirmRefit;
         private Selector selector;
 
@@ -75,7 +75,7 @@ namespace Ship_Game
             if (RefitTo != null)
             {
                 var cursor = new Vector2(ConfirmRefit.r.X, (ConfirmRefit.r.Y + 30));
-                string text = Fonts.Arial12Bold.ParseText($"Refit {Shiptorefit.Name} to {RefitTo}", 270f);
+                string text = Fonts.Arial12Bold.ParseText($"Refit {Shiptorefit.Name} to {RefitTo.Name}", 270f);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
             }
             if (IsActive)
@@ -127,7 +127,8 @@ namespace Ship_Game
                     if (input.InGameSelect)
                     {
                         GameAudio.AcceptClick();
-                        RefitTo = e.Get<string>();
+                        ResourceManager.ShipsDict.TryGetValue(e.Get<string>(), out Ship template);
+                        RefitTo = template;
                     }
                 }
             }

@@ -109,6 +109,7 @@ namespace Ship_Game
         public Ship BestPlatformWeCanBuild { get; private set; }
         public Ship BestStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
+        public int ColonyRankModifier { get; private set; }
         //added by gremlin
         private float leftoverResearch;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
@@ -617,6 +618,18 @@ namespace Ship_Game
 
         public void AddShipNextFrame(Ship s) => ShipsToAdd.Add(s);
 
+        private void InitColonyRankModifier() // controls amount of orbital defense by difficuly
+        {
+            if (isPlayer) return;
+            switch (CurrentGame.Difficulty)
+            {
+                case UniverseData.GameDifficulty.Easy:   ColonyRankModifier = -2; break;
+                case UniverseData.GameDifficulty.Normal: ColonyRankModifier = 0;  break;
+                case UniverseData.GameDifficulty.Hard:   ColonyRankModifier = 1;  break;
+                case UniverseData.GameDifficulty.Brutal: ColonyRankModifier = 2; break;
+            }
+        }
+
         public void Initialize()
         {
             EmpireAI = new EmpireAI(this);
@@ -672,6 +685,7 @@ namespace Ship_Game
             data.TechDelayTime = 4;
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
+            InitColonyRankModifier();
         }
 
         private void ResetTechsUsableByShips(Array<Ship> ourShips, bool unlockBonuses)
@@ -824,7 +838,7 @@ namespace Ship_Game
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
-
+            InitColonyRankModifier();
         }
         private bool WeCanUseThisLater(TechEntry tech)
         {

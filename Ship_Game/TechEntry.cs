@@ -54,7 +54,7 @@ namespace Ship_Game
                             if (building.PlusFlatFoodAmount > 0
                                 || building.PlusFoodPerColonist > 0
                                 || building.PlusTerraformPoints > 0
-                                || building.MinusFertilityOnBuild < 0)
+                                || building.MaxFertilityOnBuild > 0)
                                 return true;
 
                             break;
