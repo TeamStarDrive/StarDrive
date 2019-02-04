@@ -503,7 +503,7 @@ namespace Ship_Game.Ships
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
             Speed                    = velocityMaximum;
-            rotationRadiansPerSecond = TurnThrust / Mass / 700f; ;
+            rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             ShipMass                 = Mass;
             BaseStrength             = CalculateShipStrength();
             CurrentStrength          = BaseStrength;
