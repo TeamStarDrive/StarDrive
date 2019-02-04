@@ -473,32 +473,14 @@ namespace Ship_Game.AI
                 case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, toEvaluate); break;
                 case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, toEvaluate); break;
                 case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, toEvaluate);      break;
-                case Plan.MakeFinalApproachFleet:
-                    if (Owner.fleet != null)
-                    {
-                        MakeFinalApproachFleet(elapsedTime, toEvaluate);
-                        break;
-                    }
-                    State = AIState.AwaitingOrders;
-                    break;
-                case Plan.MoveToWithin1000Fleet:
-                    if (Owner.fleet != null)
-                    {
-                        MoveToWithin1000Fleet(elapsedTime, toEvaluate);
-                        break;
-                    }
-                    State = AIState.AwaitingOrders;
-                    break;
                 case Plan.MakeFinalApproach:         MakeFinalApproach(elapsedTime, toEvaluate);       break;
                 case Plan.RotateInlineWithVelocity:  RotateInLineWithVelocity(elapsedTime);            break;
-                case Plan.StopWithBackThrust:        StopWithBackwardsThrust(elapsedTime, toEvaluate); break;
                 case Plan.Orbit:        DoOrbit(planet, elapsedTime); break;
                 case Plan.Colonize:     Colonize(planet);             break;
                 case Plan.Explore:      DoExplore(elapsedTime);       break;
                 case Plan.Rebase:       DoRebase(toEvaluate);         break;
                 case Plan.DefendSystem: DoSystemDefense(elapsedTime); break;
                 case Plan.DoCombat:     DoCombat(elapsedTime);        break;
-                case Plan.MoveTowards:  SubLightMoveTowardsPosition(MovePosition, elapsedTime); break;
                 case Plan.PickupPassengers:
                     if (start != null) PickupPassengers();
                     else State = AIState.AwaitingOrders;
@@ -508,7 +490,7 @@ namespace Ship_Game.AI
                 case Plan.PickupGoods:       PickupGoods();        break;
                 case Plan.DropOffGoods:      DropOffGoods();       break;
                 case Plan.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
-                case Plan.TroopToShip:    DoTroopToShip(elapsedTime);    break;
+                case Plan.TroopToShip:    DoTroopToShip(elapsedTime, toEvaluate);    break;
                 case Plan.BoardShip:      DoBoardShip(elapsedTime);      break;
                 case Plan.SupplyShip:     DoSupplyShip(elapsedTime, toEvaluate);     break;
                 case Plan.Refit:          DoRefit(elapsedTime, toEvaluate);          break;

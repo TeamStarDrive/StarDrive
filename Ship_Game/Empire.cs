@@ -111,9 +111,6 @@ namespace Ship_Game
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         private float leftoverResearch;
-        [XmlIgnore][JsonIgnore] public Map<Point, Map<Point, PatchCacheEntry>> PathCache = new Map<Point, Map<Point, PatchCacheEntry>>();
-        [XmlIgnore][JsonIgnore] public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
-        [XmlIgnore][JsonIgnore] public int pathcacheMiss = 0;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
         [XmlIgnore][JsonIgnore] public int granularity = 0;
         [XmlIgnore][JsonIgnore] public int AtWarCount;
@@ -229,13 +226,6 @@ namespace Ship_Game
         }
 
         public Empire(Empire parentEmpire) => TechnologyDict = parentEmpire.TechnologyDict;
-
-        public class PatchCacheEntry
-        {
-            public readonly Array<Vector2> Path;
-            public int CacheHits;
-            public PatchCacheEntry(Array<Vector2> path) { Path = path; }
-        }
 
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
 
@@ -2759,7 +2749,6 @@ namespace Ship_Game
                 data.AgentList = new BatchRemovalCollection<Agent>();
                 data.MoleList = new BatchRemovalCollection<Mole>();
             }
-            LockPatchCache?.Dispose(ref LockPatchCache);
             OwnedPlanets?.Dispose(ref OwnedPlanets);
             OwnedProjectors?.Dispose(ref OwnedProjectors);
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);

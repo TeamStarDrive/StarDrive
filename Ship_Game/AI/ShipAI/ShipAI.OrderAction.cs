@@ -112,16 +112,12 @@ namespace Ship_Game.AI
                 var plist = new Array<Planet>();
                 foreach (var planetsDict in Empire.Universe.PlanetsDict)
                 {
-                    if (planetsDict.Value.Owner == null)
-                        continue;
-                    plist.Add(planetsDict.Value);
+                    if (planetsDict.Value.Owner != null) plist.Add(planetsDict.Value);
                 }
 
                 Planet closest = plist.FindMin(p => Owner.Center.SqDist(p.Center));
                 if (closest != null)
-                {
                     OrderExterminatePlanet(closest);
-                }
             }
             else if (ExterminationTarget != null && OrderQueue.IsEmpty)
             {
@@ -166,94 +162,37 @@ namespace Ship_Game.AI
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 fVec, bool clearOrders)
         {
             Target = null;
-            HasPriorityTarget = false;
-
-            if (Owner.RotationNeededForTarget(position, 0.2f))
-                Owner.HyperspaceReturn(); // return from hyperspace if rotation needed
-
-            if (clearOrders)
-                ClearWayPoints();
-
+            if (clearOrders) ClearWayPoints();
             ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
-            MovePosition = position;
-            DesiredDirection = fVec;
-            WayPoints.Enqueue(position);
 
-            Vector2[] wayPoints = WayPoints.ToArray();
-            for (int i = 0; i < wayPoints.Length; i++)
-            {
-                Vector2 wp = wayPoints[i];
-                if (i == 0)
-                {
-                    AddShipGoal(Plan.RotateToFaceMovePosition, wp, Vectors.Up);
-                }
-
-                AddShipGoal(Plan.MoveToWithin1000, wp, fVec, null, Owner.Speed);
-
-                if (i == WayPoints.Count - 1)
-                {
-                    AddShipGoal(Plan.MakeFinalApproach, wp, fVec, null, Owner.Speed);
-                    AddShipGoal(Plan.StopWithBackThrust, wp, fVec, null, Owner.Speed);
-                    AddShipGoal(Plan.RotateToDesiredFacing, wp, fVec);
-                }
-            }
+            GenerateOrdersFromWayPoints(position, fVec, null, Owner.Speed);
         }
 
-        // @todo Completely refactor this
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 fVec, bool clearOrders, float speedLimit)
         {
             Target = null;
-            HasPriorityTarget = false;
-
-            if (Owner.RotationNeededForTarget(position, 0.2f))
-                Owner.HyperspaceReturn(); // return from hyperspace if rotation needed
-
-            if (clearOrders)
-                ClearWayPoints();
-
+            if (clearOrders) ClearWayPoints();
             ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
-            MovePosition = position;
-            WayPoints.Enqueue(position);
-            DesiredDirection = fVec;
 
-            Vector2[] wayPoints = WayPoints.ToArray();
-
-            for (int i = 0; i < wayPoints.Length; i++)
-            {
-                Vector2 pos = wayPoints[i];
-                if (i == 0)
-                    AddShipGoal(Plan.RotateToFaceMovePosition, pos, Vectors.Up);
-                AddShipGoal(Plan.MoveToWithin1000, pos, fVec, null, speedLimit);
-
-                if (i == wayPoints.Length - 1)
-                {
-                    AddShipGoal(Plan.MakeFinalApproach, pos, fVec, null, speedLimit);
-                    AddShipGoal(Plan.StopWithBackThrust, pos, fVec, null, speedLimit);
-                    AddShipGoal(Plan.RotateToDesiredFacing, pos, fVec);
-                }
-            }
+            GenerateOrdersFromWayPoints(position, fVec, null, speedLimit);
         }
 
         public void OrderMoveTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders, Planet targetPlanet)
         {
             DistanceLast = 0f;
             Target = null;
-            HasPriorityTarget = false;
-
-            if (clearOrders)
-                ClearWayPoints();
+            if (clearOrders) ClearWayPoints();
             ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
-            
-            MovePosition = position;
-            PlotCourseAsWayPoints(startPos: (WayPoints.Count > 0 ? WayPoints.PeekLast : Owner.Center), endPos: position);
-            DesiredDirection = finalDirection;
-            GenerateOrdersFromWayPoints(finalDirection, targetPlanet);
+
+            GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, Owner.Speed);
         }
 
-        void GenerateOrdersFromWayPoints(Vector2 finalDirection, Planet targetPlanet)
+        void GenerateOrdersFromWayPoints(Vector2 position, Vector2 finalDirection, Planet targetPlanet, float speedLimit)
         {
+            WayPoints.Enqueue(position);
+            MovePosition = position;
+            DesiredDirection = finalDirection;
             Vector2[] wayPoints = WayPoints.ToArray();
-
             for (int i = 0; i < wayPoints.Length; ++i)
             {
                 Vector2 wp = wayPoints[i];
@@ -262,12 +201,11 @@ namespace Ship_Game.AI
 
                 if (i == 0)
                     AddShipGoal(Plan.RotateToFaceMovePosition, wp, finalDirection);
-                AddShipGoal(Plan.MoveToWithin1000, wp, finalDirection, p, Owner.Speed);
+                AddShipGoal(Plan.MoveToWithin1000, wp, finalDirection, p, speedLimit);
 
                 if (isLast)
                 {
-                    AddShipGoal(Plan.MakeFinalApproach, wp, finalDirection, p, Owner.Speed);
-                    AddShipGoal(Plan.StopWithBackThrust, wp, finalDirection, targetPlanet, Owner.Speed);
+                    AddShipGoal(Plan.MakeFinalApproach, wp, finalDirection, p, speedLimit);
                     AddShipGoal(Plan.RotateToDesiredFacing, wp, finalDirection);
                 }
             }
@@ -359,7 +297,8 @@ namespace Ship_Game.AI
             }
             if (toAttack == null)
                 return;
-            //targetting relation
+
+            // targeting relation
             if (Owner.loyalty.TryGetRelations(toAttack.loyalty, out Relationship relations))
             {
                 if (!relations.Treaty_Peace)
@@ -663,7 +602,5 @@ namespace Ship_Game.AI
             }
             ReverseThrustUntilStopped(elapsedTime);
         }
-
-
     }
 }

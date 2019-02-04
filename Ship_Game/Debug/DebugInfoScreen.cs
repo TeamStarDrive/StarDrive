@@ -60,7 +60,7 @@ namespace Ship_Game.Debug
         readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
         DebugPage Page;
 
-        public DebugInfoScreen(UniverseScreen screen) : base(screen)
+        public DebugInfoScreen(UniverseScreen screen) : base(screen, pause:false)
         {
             Screen = screen;
             
@@ -394,22 +394,25 @@ namespace Ship_Game.Debug
 
                 DrawLineImm(ship.Position, pos, Color.YellowGreen);
                 if (detailed) DrawCircleImm(pos, 1000f, Color.Yellow);
-                DrawCircleImm(pos, 25f, Color.Maroon);
+                DrawCircleImm(pos, 75f, Color.Maroon);
 
                 Vector2 thrustTgt = ship.AI.ThrustTarget;
                 if (detailed && thrustTgt.NotZero())
                 {
                     DrawLineImm(pos, thrustTgt, Color.Orange);
                     DrawLineImm(ship.Position, thrustTgt, Color.Orange);
-                    DrawCircleImm(thrustTgt, 25f, Color.MediumVioletRed);
+                    DrawCircleImm(thrustTgt, 75f, Color.MediumVioletRed);
                 }
 
-                // direction indicator
+                // goal direction arrow
                 DrawArrowImm(pos, pos + goal.DesiredDirection * 50f, Color.Wheat);
 
-                // velocity indicator
+                // velocity arrow
                 if (detailed)
                     DrawArrowImm(ship.Position, ship.Position+ship.Velocity, Color.OrangeRed);
+
+                // ship direction arrow
+                DrawArrowImm(ship.Position, ship.Position+ship.Direction*200f, Color.GhostWhite);
             }
             if (ship.AI.WayPoints.Count > 0)
             {

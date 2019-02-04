@@ -103,9 +103,9 @@ namespace Ship_Game.Ships
         public float OrdinanceMax;
         //public float scale;    //Not referenced in code, removing to save memory
         public ShipAI AI { get; private set; }
-        public float Speed;
+        public float Speed; // current speed limit
         public float Thrust;
-        public float velocityMaximum;
+        public float velocityMaximum; // maximum speed
         //public double armor_percent;    //Not referenced in code, removing to save memory
         public double shield_percent;
         public float armor_max;
@@ -725,43 +725,38 @@ namespace Ship_Game.Ships
             }
         }
 
-        //added by gremlin The Generals GetFTL speed
         public void SetmaxFTLSpeed()
         {
-            //Added by McShooterz: hull bonus speed
             if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
             {
                 if (IsWithinPlanetaryGravityWell) InhibitedTimer = 0.3f;
                 else if (InhibitedTimer < 0.0f)   InhibitedTimer = 0.0f;
             }
-            //Apply in borders bonus through ftl modifier
-            float ftlmodtemp = 1;
 
-            //Change FTL modifier for ship based on solar system
+            float projectorBonus = 1f;
+
+            // Change FTL modifier for ship based on solar system
+            if (System != null)
             {
-                if (System != null) // && ( || ))
-                {
-                    if (IsInFriendlySpace) // && Empire.Universe.FTLModifier < 1)
-                        ftlmodtemp = Empire.Universe.FTLModifier;
-                    else if (IsIndangerousSpace || !Empire.Universe.FTLInNuetralSystems) // && Empire.Universe.EnemyFTLModifier < 1)
-                    {
-                        ftlmodtemp = Empire.Universe.EnemyFTLModifier;
-                    }
-
-                }
+                if (IsInFriendlySpace)
+                    projectorBonus = Empire.Universe.FTLModifier;
+                else if (IsIndangerousSpace || !Empire.Universe.FTLInNuetralSystems)
+                    projectorBonus = Empire.Universe.EnemyFTLModifier;
             }
-            FTLModifier = 1;
+
+            FTLModifier = 1f;
             if (inborders && loyalty.data.Traits.InBordersSpeedBonus > 0)
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
-            FTLModifier *= ftlmodtemp;
-            maxFTLSpeed = (WarpThrust / Mass + WarpThrust / Mass * (loyalty?.data?.FTLModifier ?? 35)) * FTLModifier;
+            FTLModifier *= projectorBonus;
+
+            float thrust = (WarpThrust / Mass) * (loyalty?.data?.FTLModifier ?? 35);
+            maxFTLSpeed = thrust * FTLModifier;
         }
 
         public float GetmaxFTLSpeed => maxFTLSpeed;
 
         public float GetSTLSpeed()
         {
-            //Added by McShooterz: hull bonus speed
             float thrustWeightRatio = Thrust / Mass;
             float speed = thrustWeightRatio + thrustWeightRatio * loyalty.data.SubLightModifier;
             return Math.Min(speed, 2500);
@@ -1396,6 +1391,9 @@ namespace Ship_Game.Ships
             return SurfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
         }
         
+        // safe Warp out distance so the ship still has time to slow down
+        public float WarpOutDistance => 1000f + GetSTLSpeed() * 3f;
+
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
             if (isSpooling || engineState == MoveState.Warp || GetmaxFTLSpeed <= 2500 )
@@ -1449,19 +1447,25 @@ namespace Ship_Game.Ships
             Speed = velocityMaximum;
         }
 
+        float GetThrust(ref float speedLimit)
+        {
+            // make sure speedLimit is valid:
+            if (speedLimit <= 0f || speedLimit > Speed)
+                speedLimit = Speed;
+
+            // and validate that we don't go over velocityMax:
+            speedLimit = Math.Min(speedLimit, velocityMaximum);
+
+            float thrust = (Thrust / Mass);
+            return thrust;
+        }
+
         public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f, float direction = +1f)
         {
-            isThrusting = true;
-            //if (engineState == MoveState.Warp)
-            //    return; // Warp speed is updated in UpdateEnginesAndVelocity
+            if (engineState == MoveState.Warp)
+                return; // Warp speed is updated in UpdateEnginesAndVelocity
 
-            speedLimit = speedLimit <= 0f ? velocityMaximum
-                                          : speedLimit.Clamped(0, velocityMaximum);
-
-            // @todo Need to figure out actual acceleration rates for ships
-            //       Thrust to weight ratio or something?
-            float slowDownWhenTurning = isTurning ? 0.75f : 1f;
-            float acceleration = direction * Speed * slowDownWhenTurning;
+            float acceleration = direction * GetThrust(ref speedLimit);
             ThrustForward(elapsedTime, acceleration, speedLimit);
         }
 
@@ -1471,11 +1475,67 @@ namespace Ship_Game.Ships
             Velocity += Direction * (elapsedTime * acceleration);
             if (Velocity.Length() > speedLimit)
                 Velocity = Velocity.Normalized() * speedLimit;
-            //Log.Info($"velocity: {(int)Velocity.Length()}u/s  accelerate: {(int)acceleration}u/s");
+        }
+
+        // simulates navigational thrusting to remove sideways or reverse travel 
+        public void RemoveDrift(float elapsedTime, float speedLimit)
+        {
+            // compare ship velocity vector against where it is pointing
+            // if +1 then ship is going forward as intended
+            // if  0 then ship is drifting sideways
+            // if -1 then ship is drifting reverse
+            float velocity = Velocity.Length();
+            if (velocity.AlmostZero())
+            {
+                Velocity = Vector2.Zero;
+                return;
+            }
+
+            Vector2 forward = Direction;
+            Vector2 velocityDir = Velocity.Normalized();
+            float travel = velocityDir.Dot(forward);
+            if (travel > 0.99f)
+                return;
+
+            float acceleration = elapsedTime * GetThrust(ref speedLimit);
+
+            // remove sideways drift
+            Vector2 left = forward.LeftVector();
+            float drift = velocityDir.Dot(left);
+            if (drift > 0f) // leftwards drift
+            {
+                Velocity -= left * (acceleration * 0.5f);
+            }
+            else if (drift < 0f) // rightward drift
+            {
+                Velocity += left * (acceleration * 0.5f);
+            }
+
+            if (engineState != MoveState.Warp)
+            {
+                if (travel < -0.5f) // we are drifting reverse
+                {
+                    // accelerate forward!
+                    isThrusting = true;
+                    Velocity += forward * acceleration;
+                }
+            }
+
+            if (Velocity.Length() > speedLimit)
+                Velocity = Velocity.Normalized() * speedLimit;
+        }
+
+        void ThrustWhileWarping(float elapsedTime)
+        {
+            // warp turns are nasty, so we need to slow down
+            float speedLimit = maxFTLSpeed;
+            float accelerationTime = 2f;
+            float acceleration = (maxFTLSpeed / accelerationTime);
+            ThrustForward(elapsedTime, acceleration, speedLimit);
         }
 
         // called from Ship.Update
-        void UpdateEnginesAndVelocity(float deltaTime)
+        void UpdateEnginesAndVelocity(float elapsedTime)
         {
             SetmaxFTLSpeed();
 
@@ -1488,20 +1548,19 @@ namespace Ship_Game.Ships
             Speed = velocityMaximum;
             rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             rotationRadiansPerSecond += rotationRadiansPerSecond * Level * 0.05f;
-            yBankAmount = GetyBankAmount(rotationRadiansPerSecond * deltaTime);
+            yBankAmount = GetyBankAmount(rotationRadiansPerSecond * elapsedTime);
 
             Vector2 oldVelocity = Velocity;
             if (engineState == MoveState.Warp)
             {
-                float slowDownWhenTurning = isTurning ? 0.75f : 1f;
-                float acceleration = 1.0f * slowDownWhenTurning;
-                ThrustForward(deltaTime, acceleration, velocityMaximum);
+                ThrustWhileWarping(elapsedTime);
             }
+
             if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered)
             {
                 EnginesKnockedOut = true;
                 velocityMaximum = Velocity.Length();
-                Velocity -= Velocity * (deltaTime * 0.1f);
+                Velocity -= Velocity * (elapsedTime * 0.1f);
                 if (engineState == MoveState.Warp)
                     HyperspaceReturn();
             }
@@ -1513,11 +1572,11 @@ namespace Ship_Game.Ships
             if (Velocity.Length() > velocityMaximum)
                 Velocity = Velocity.Normalized() * velocityMaximum;
 
-            Acceleration = oldVelocity.Acceleration(Velocity, deltaTime);
+            Acceleration = oldVelocity.Acceleration(Velocity, elapsedTime);
 
             if (isSpooling && !Inhibited && GetmaxFTLSpeed > 2500f)
             {
-                JumpTimer -= deltaTime;
+                JumpTimer -= elapsedTime;
 
                 if (JumpTimer <= 4.0f) // let's see if we can sync audio to behaviour with new timers
                 {
