@@ -28,7 +28,8 @@ namespace Ship_Game.AI
 
         public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
-            Log.Info(ConsoleColor.Blue, $"ClearOrders new_state:{newState} priority:{priority}");
+            if (Empire.Universe is DeveloperSandbox.DeveloperUniverse)
+                Log.Info(ConsoleColor.Blue, $"ClearOrders new_state:{newState} priority:{priority}");
             OrderQueue.Clear();
             State = newState;
             HasPriorityOrder = priority;
