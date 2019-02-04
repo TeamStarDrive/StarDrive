@@ -99,8 +99,8 @@ namespace Ship_Game
             var wantedOrbitals        = new WantedOrbitals(rank, currentStations);
 
             BuildShipyardIfAble(wantedOrbitals.Shipyards);
-            BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank);
             BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank);
+            BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank);
         }
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
@@ -118,7 +118,6 @@ namespace Ship_Game
         private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, int colonyRank)
         {
             int orbitalsWeHave = orbitalList.Count;
-
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
 
@@ -194,10 +193,7 @@ namespace Ship_Game
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.BaseStrength.LessOrEqual(weakestWeHave.BaseStrength))
-                return;
-
-            if (!LogicalBuiltTimecVsCost(bestWeCanBuild.GetCost(Owner), 50))
+            if (bestWeCanBuild.BaseStrength.LessOrEqual(weakestWeHave.BaseStrength * 1.25f))
                 return;
 
             ScrapOrbital(weakestWeHave);
@@ -209,7 +205,11 @@ namespace Ship_Game
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, int colonyRank)
         {
-            Ship orbital = GetBestOrbital(role);
+            float orbitalsBudget = Money.NetRevenue + colonyRank - OrbitalsMaintenance;
+            Ship orbital         = GetBestOrbital(role, orbitalsBudget);
+            if (IsPlanetExtraDebugTarget())
+                Log.Info($"Orbitals Budget: {orbitalsBudget}");
+
             if (orbital == null)
                 return null;
 
@@ -218,12 +218,12 @@ namespace Ship_Game
 
             // we cannot build the best in the empire, lets try building something cheaper for now
             float maxCost = (Prod.NetMaxPotential / 2 * (50 + colonyRank) + Storage.Prod) / ShipBuildingModifier;
-            orbital       = GetBestOrbital(role, maxCost);
-            return orbital;
+            orbital       = GetBestOrbital(role, orbitalsBudget, maxCost);
+            return orbital == null || orbital.Name == "Subspace Projector" ? null : orbital;
         }
 
         // This returns the best orbital the empire can build
-        private Ship GetBestOrbital(ShipData.RoleName role)
+        private Ship GetBestOrbital(ShipData.RoleName role, float orbitalsBudget)
         {
             Ship orbital =  null;
             switch (role)
@@ -231,19 +231,21 @@ namespace Ship_Game
                 case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
                 case ShipData.RoleName.station:  orbital = Owner.BestStationWeCanBuild;  break;
             }
+            if (orbital != null && orbitalsBudget - orbital.GetMaintCost(Owner) < 0)
+                return null;
+
             return orbital;
         }
 
         //This returns the best orbital the Planet can build based on cost
-        private Ship GetBestOrbital(ShipData.RoleName role, float maxCost)
+        private Ship GetBestOrbital(ShipData.RoleName role, float orbitalsBudget, float maxCost)
         {
             Ship orbital = null;
             switch (role)
             {
-                case ShipData.RoleName.platform: orbital =  ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost); break;
-                case ShipData.RoleName.station:  orbital =  ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost); break;
+                case ShipData.RoleName.station:
+                case ShipData.RoleName.platform: orbital = ShipBuilder.PickCostEffectiveShipToBuild(role, Owner, maxCost, orbitalsBudget); break;
             }
-
             return orbital;
         }
 
@@ -321,6 +323,7 @@ namespace Ship_Game
                 case ColonyType.Core    : rank += 1; break;
                 case ColonyType.Military: rank += 3; break;
             }
+            rank += Owner.ColonyRankModifier;
             return rank.Clamped(0, 15);
         }
 

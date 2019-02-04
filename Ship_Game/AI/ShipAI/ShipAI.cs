@@ -81,7 +81,7 @@ namespace Ship_Game.AI
 
             Owner.CreateColonizationBuildingFor(ColonizeTarget);
 
-            ColonizeTarget.TerraformPoints += Owner.loyalty.data.EmpireFertilityBonus;
+            ColonizeTarget.AddMaxFertility(Owner.loyalty.data.EmpireFertilityBonus);
             ColonizeTarget.CrippledTurns = 0;
             StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, Empire.Universe);
 

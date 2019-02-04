@@ -131,7 +131,7 @@ namespace Ship_Game
         {
             if (b.AllowShipBuilding && Prod.NetMaxPotential > 20)
                 return true;
-            if (Fertility > 0 && b.MinusFertilityOnBuild > 0 && NonCybernetic)
+            if (Fertility > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
                 return true;
             if (a.HighPri)
             {
@@ -165,7 +165,7 @@ namespace Ship_Game
         
         bool CanAffordCore(in Afford a, Building b)
         {
-            if (Fertility > 0 && b.MinusFertilityOnBuild > 0 && NonCybernetic)
+            if (Fertility > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
                 return false;
             if (a.HighPri)
             {
@@ -227,7 +227,7 @@ namespace Ship_Game
 
         bool CanAffordMilitary(in Afford a, Building b)
         {
-            if (Fertility > 0 && b.MinusFertilityOnBuild > 0 && NonCybernetic)
+            if (Fertility > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
                 return false;
             if (a.HighPri)
             {
@@ -265,7 +265,7 @@ namespace Ship_Game
             if (b.AllowShipBuilding && Prod.NetMaxPotential > 20)
                 return true;
 
-            if (Fertility > 0 && b.MinusFertilityOnBuild > 0 && NonCybernetic)
+            if (Fertility > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
                 return true;
 
             if (a.HighPri)

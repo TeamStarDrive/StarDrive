@@ -379,10 +379,8 @@ namespace Ship_Game.AI
             HasPriorityOrder = true;
         }
 
-        public void OrderRefitTo(string toRefit)
+        public void OrderRefitTo(Ship toRefit)
         {
-            ClearWayPoints();
-            IgnoreCombat = true;
             OrbitTarget = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
             if (OrbitTarget == null)
             {
@@ -391,12 +389,15 @@ namespace Ship_Game.AI
             }
 
             OrderMoveTowardsPosition(OrbitTarget.Center, Vectors.Up, true, OrbitTarget);
-            OrderQueue.Enqueue(new ShipGoal(Plan.Refit)
+            AddToOrderQueue(new ShipGoal(Plan.Refit)
             {
                 TargetPlanet = OrbitTarget,
-                VariableString = toRefit
+                TargetShip   = toRefit
             });
+
+            IgnoreCombat = true;
             State = AIState.Refit;
+            SetPriorityOrder(clearOrders: false);
         }
 
         public void OrderResupply(Planet toOrbit, bool clearOrders)

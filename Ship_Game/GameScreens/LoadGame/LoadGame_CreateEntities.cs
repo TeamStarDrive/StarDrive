@@ -113,13 +113,13 @@ namespace Ship_Game
             p.SetFertility(psdata.Fertility, psdata.MaxFertility);
 
             p.MineralRichness       = psdata.Richness;
-            p.TerraformPoints       = psdata.TerraformPoints;
             p.HasRings              = psdata.HasRings;
             p.RestorePlanetTypeFromSave(psdata.WhichPlanet);
             p.ShieldStrengthCurrent = psdata.ShieldStrength;
             p.CrippledTurns         = psdata.Crippled_Turns;
             p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
+            p.UpdateTerraformPoints(psdata.TerraformPoints);
             foreach (Guid guid in psdata.StationsList)
                 p.OrbitalStations[guid]   = null; // reserve orbital stations (and platforms)
             p.Food.Percent = psdata.farmerPercentage;

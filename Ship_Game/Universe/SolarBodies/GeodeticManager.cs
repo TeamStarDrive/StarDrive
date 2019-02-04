@@ -59,7 +59,17 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             SolarSystemBody.AddMaxFertility(-0.02f);
-            SolarSystemBody.DegradePlanetType();
+            bool degraded = SolarSystemBody.DegradePlanetType(SolarSystemBody.MaxFertility);
+            if (!degraded)
+                return;
+
+            if (!Owner.isPlayer)
+                return;
+
+            // Notify player that planet was degraded
+            string notificationText = SolarSystemBody.Name + " " + Localizer.Token(1973);
+            Empire.Universe.NotificationManager.AddRandomEventNotification(
+                notificationText, SolarSystemBody.Type.IconPath, "SnapToPlanet", SolarSystemBody);
         }
 
         public void DropBomb(Bomb bomb)
