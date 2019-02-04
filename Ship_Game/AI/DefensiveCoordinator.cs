@@ -44,11 +44,10 @@ namespace Ship_Game.AI
 
         public void AddShip(Ship ship)
         {
-            ship.AI.OrderQueue.Clear();
+            ship.AI.ClearOrders(AIState.SystemDefender);
             ship.AI.SystemToDefend = null;
             ship.AI.SystemToDefendGuid = Guid.Empty;
             ship.AI.HasPriorityOrder = false;
-            ship.AI.State = AIState.SystemDefender;
             DefenseDeficit -= ship.GetStrength();
             DefensiveForcePool.Add(ship);
         }

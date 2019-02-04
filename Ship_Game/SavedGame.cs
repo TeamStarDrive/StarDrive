@@ -287,7 +287,7 @@ namespace Ship_Game
                         IsCoreFleet = fleet.Value.IsCoreFleet,
                         TaskStep    = fleet.Value.TaskStep,
                         Key         = fleet.Key,
-                        facing      = fleet.Value.Facing,
+                        facing      = fleet.Value.Direction.ToRadians(), // @note Save game compatibility uses radians
                         FleetGuid   = fleet.Value.Guid,
                         Position    = fleet.Value.Position,
                         ShipsInFleet = new Array<FleetShipSave>()
@@ -458,22 +458,22 @@ namespace Ship_Game
                     sdata.AISave.GoToStep = ship.AI.GotoStep;
                     sdata.AISave.MovePosition = ship.AI.MovePosition;
                     sdata.AISave.ActiveWayPoints = new Array<Vector2>();
-                    foreach (Vector2 waypoint in ship.AI.WayPoints.GetWayPoints())
+                    foreach (Vector2 wp in ship.AI.WayPoints.ToArray())
                     {
-                        sdata.AISave.ActiveWayPoints.Add(waypoint);
+                        sdata.AISave.ActiveWayPoints.Add(wp);
                     }
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
                     foreach (ShipAI.ShipGoal sgoal in ship.AI.OrderQueue)
                     {
                         var gsave = new ShipGoalSave
                         {
-                            DesiredFacing = sgoal.DesiredFacing
+                            DesiredFacing = sgoal.DesiredDirection.ToRadians()
                         };
                         if (sgoal.fleet != null)
                         {
                             gsave.fleetGuid = sgoal.fleet.Guid;
                         }
-                        gsave.FacingVector = sgoal.FacingVector;
+                        gsave.FacingVector = sgoal.Direction.ToRadians();
                         if (sgoal.goal != null)
                         {
                             gsave.goalGuid = sgoal.goal.guid;

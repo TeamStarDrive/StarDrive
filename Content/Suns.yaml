@@ -94,8 +94,6 @@ Sun: star_yellow3
   Radius: 150000
   LightColor: [255,255,224] # LightYellow
   Habitable: true
-  RadiationDamage: 10 # per second, falls off depending on RadiationRadius
-  RadiationRadius: 50000
   Layers:
     TexturePath: Suns/star_yellow
     RotationSpeed: 0.03

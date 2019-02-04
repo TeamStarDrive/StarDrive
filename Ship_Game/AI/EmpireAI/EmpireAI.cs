@@ -13,11 +13,9 @@ namespace Ship_Game.AI
     [Guid("2CC355DF-EA7A-49C8-8940-00AA0713EFE3")]
     public sealed partial class EmpireAI : IDisposable
     {
-
         private int NumberOfShipGoals  = 6;
         private int NumberTroopGoals   = 2;
         private float BuildCapacity;
-        private readonly float MinimumWarpRange = GlobalStats.MinimumWarpRange;
         
         private readonly Empire OwnerEmpire;
         private readonly BatchRemovalCollection<SolarSystem> MarkedForExploration = new BatchRemovalCollection<SolarSystem>();
@@ -31,9 +29,6 @@ namespace Ship_Game.AI
         public Array<int> UsedFleets                         = new Array<int>();
         public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
         public Array<MilitaryTask> TasksToAdd                = new Array<MilitaryTask>();        
-        public float FreighterUpkeep                         = 0f;
-        public float PlatformUpkeep                          = 0f;
-        public float StationUpkeep                           = 0f;
         public float Toughnuts                               = 0;                
         public int Recyclepool                               = 0;
         public float DefStr;        
@@ -56,19 +51,8 @@ namespace Ship_Game.AI
                 Log.Error("Attempting to Remove null task from Empire TaskList");
             TaskList.Remove(task);            
         }
-        public bool HasGoal(GoalType type)
-        {
-            for (int i = 0; i < Goals.Count; ++i)
-                if (Goals[i].type == type) return true;
-            return false;
-        }
 
-        public void AddGoal(Goal goal)
-        {
-            Goals.Add(goal);
-        }
-
-        private void RunManagers()
+        void RunManagers()
         {
             if (OwnerEmpire.data.IsRebelFaction || OwnerEmpire.data.Defeated)            
                 return;
@@ -78,7 +62,6 @@ namespace Ship_Game.AI
                 OffensiveForcePoolManager.ManageAOs();
                 foreach (AO ao in AreasOfOperations)                
                     ao.Update();
-                
             }
             if (!OwnerEmpire.isFaction)
             {
@@ -124,7 +107,7 @@ namespace Ship_Game.AI
                 select system;
             if (!sortedList.Any())
             {
-                queryingShip.AI.OrderQueue.Clear();
+                queryingShip.AI.ClearOrders();
                 return null;
             }
             SolarSystem nearesttoHome = sortedList.OrderBy(furthest => Vector2.Distance(OwnerEmpire.GetWeightedCenter(), furthest.Position)).FirstOrDefault();
@@ -144,6 +127,7 @@ namespace Ship_Game.AI
             MarkedForExploration.Add(nearesttoHome);
             return nearesttoHome;
         }
+
         public void RemoveShipFromForce(Ship ship) => RemoveShipFromForce(ship, null);
         public void RemoveShipFromForce(Ship ship, AO ao)
         {
@@ -156,7 +140,6 @@ namespace Ship_Game.AI
                 ao.RemoveShip(ship);
 
             DefensiveCoordinator.Remove(ship);
-
         }
 
 
@@ -167,7 +150,6 @@ namespace Ship_Game.AI
             {
                 //@TODO fix the cause of having ships already in forcepool when a ship is being added to the force pool
                 OwnerEmpire.ForcePoolRemove(toAdd);
-                         
             }
 
             int numWars = OwnerEmpire.AtWarCount;
@@ -200,52 +182,18 @@ namespace Ship_Game.AI
 
         private Vector2 FindAveragePosition(Empire e)
         {
-            Vector2 avgPos = new Vector2();
-            foreach (Planet p in e.GetPlanets())            
-                avgPos = avgPos + p.Center;
-            
-            if (e.GetPlanets().Count <= 0)            
+            IReadOnlyList<Planet> planets = e.GetPlanets();
+            if (planets.Count <= 0)            
                 return Vector2.Zero;
-            
-            Vector2 count = avgPos / e.GetPlanets().Count;
-            return count;
+
+            var avgPos = Vector2.Zero;
+            foreach (Planet p in planets)            
+                avgPos += p.Center;
+
+            avgPos /= planets.Count;
+            return avgPos;
         }
 
-        //Added by McShooterz: used for AI to get defensive structures to build around planets
-        public string GetDefenceSatellite()
-        {
-            Array<Ship> potentialSatellites = new Array<Ship>();
-            foreach (string platform in OwnerEmpire.structuresWeCanBuild)
-            {
-                Ship orbitalDefense = ResourceManager.ShipsDict[platform];
-                if (platform != "Subspace Projector" && orbitalDefense.shipData.Role == ShipData.RoleName.platform 
-                    && orbitalDefense.GetStrength() > 0)
-                    potentialSatellites.Add(orbitalDefense);
-            }
-            if (!potentialSatellites.Any())
-                return "";
-            int index = RandomMath.InRange(potentialSatellites.Count);
-            return potentialSatellites[index].Name;
-        }
-
-        public string GetStarBase()
-        {
-            var potentialSatellites = new Array<Ship>();
-            foreach (string platform in OwnerEmpire.structuresWeCanBuild)
-            {
-                Ship orbitalDefense = ResourceManager.GetShipTemplate(platform);
-                if (orbitalDefense.shipData.HullRole == ShipData.RoleName.station && !orbitalDefense.shipData.IsShipyard
-                                                                                  && orbitalDefense.GetStrength() > 0)
-                    //&& (orbitalDefense.shipData.IsOrbitalDefense))                
-                    potentialSatellites.Add(orbitalDefense);                
-            }
-            if (!potentialSatellites.Any())
-                return "";
-            int index = RandomMath.InRange((int)(potentialSatellites.Count*.5f));
-            return potentialSatellites.OrderByDescending(tech=> tech.shipData.TechScore)
-                .ThenByDescending(stre => stre.shipData.BaseStrength).Skip(index).FirstOrDefault()?.Name;
-        }
-        
         public float GetDistanceFromOurAO(Planet p)
         {
             IOrderedEnumerable<AO> sortedList = 
@@ -257,10 +205,12 @@ namespace Ship_Game.AI
             
             return Vector2.Distance(p.Center, sortedList.First().Center);
         }
+
         public AO InOurAOs(Vector2 location)
         {
             return AreasOfOperations.Find(ao => location.InRadius(ao.Center, ao.Radius));
         }
+
         public bool IsInOurAOs(Vector2 location) => InOurAOs(location) != null;
         
         public void InitialzeAOsFromSave(UniverseData data)
@@ -269,94 +219,13 @@ namespace Ship_Game.AI
                 area.InitFromSave(data, OwnerEmpire);                
         }
         
-        public void ManageAOs()
-        {
-            Array<AO> aOs = new Array<AO>();
-            foreach (AO areasOfOperation in AreasOfOperations)
-            {
-                
-                if (areasOfOperation.GetPlanet().Owner != OwnerEmpire)
-                {
-                    aOs.Add(areasOfOperation);
-                    continue;
-                }                
-                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Center, areasOfOperation.Radius, OwnerEmpire);
-
-                int taskStrNeeded = (int)(TaskList.FindMax(t => t.InitialEnemyStrength).EnemyStrength * 1.5f);
-
-                int min = (int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) *.5f);
-                areasOfOperation.ThreatLevel = (int)MathExt.Max3(areasOfOperation.ThreatLevel, min, taskStrNeeded);                      
-            }
-            foreach (AO aO1 in aOs)
-            {
-                AreasOfOperations.Remove(aO1);
-            }
-            Array<Planet> planets = new Array<Planet>();
-            foreach (Planet planet1 in OwnerEmpire.GetPlanets())
-            {
-                if (planet1.Prod.NetMaxPotential <= 5f || !planet1.HasSpacePort)                
-                    continue;
-                
-                bool flag = false;
-                foreach (AO areasOfOperation1 in AreasOfOperations)
-                {
-                    if (areasOfOperation1.GetPlanet() != planet1)                    
-                        continue;
-                    
-                    flag = true;
-                    break;
-                }
-                if (flag)                
-                    continue;
-                
-                planets.Add(planet1);
-            }
-            if (planets.Count == 0)
-            {
-                return;
-            }
-            IOrderedEnumerable<Planet> maxProductionPotential =
-                from planet in planets
-                orderby planet.Prod.NetMaxPotential descending
-                select planet;
-            
-            foreach (Planet planet2 in maxProductionPotential)
-            {
-                float aoSize = 0;
-                foreach (SolarSystem system in planet2.ParentSystem.FiveClosestSystems)
-                {
-                    if (aoSize < Vector2.Distance(planet2.Center, system.Position))
-                        aoSize = Vector2.Distance(planet2.Center, system.Position);
-                }
-                float aomax = Empire.Universe.UniverseSize * .2f;
-                if (aoSize > aomax)
-                    aoSize = aomax;
-                bool flag1 = true;
-                foreach (AO areasOfOperation2 in AreasOfOperations)
-                {
-
-                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Center, planet2.Center) >= aoSize)
-                        continue;
-                    flag1 = false;
-                    break;
-                }
-                if (!flag1)
-                {
-                    continue;
-                }
-
-                AO aO2 = new AO(planet2, aoSize);
-                AreasOfOperations.Add(aO2);
-            }
-        }
-
         public void RunEventChecker(KeyValuePair<Empire, Relationship> them)
         {
             if (OwnerEmpire == Empire.Universe.PlayerEmpire || OwnerEmpire.isFaction || !them.Value.Known)
                 return;
 
-            Array<Planet> ourTargetPlanets = new Array<Planet>();
-            Array<Planet> theirTargetPlanets = new Array<Planet>();
+            var ourTargetPlanets = new Array<Planet>();
+            var theirTargetPlanets = new Array<Planet>();
             foreach (Goal g in Goals)
             {
                 if (g.type == GoalType.Colonize)
@@ -415,74 +284,20 @@ namespace Ship_Game.AI
         {
             // Refit by strength
             TriggerRefitByStrength();
-            // Refit by Tech Score
-            //TriggerRefitByTechScore();
-        }
-
-        private void TriggerRefitByTechScore()
-        {
-
-            bool TechCompare(int[] original, int[] newTech)
-            {
-                bool Compare(int o, int n) => o > 0 && o > n;
-                
-                for (int x = 0; x < 4; x++)                
-                    if (Compare(original[x], newTech[x])) return false;
-                
-                return true;
-            }
-            
-            var offPool =OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
-            for (int i = offPool.Count - 1; i >= 0; i--)
-            {
-                Ship ship = offPool[i];
-                if (ship.AI.BadGuysNear) continue;
-                if (ship.AI.HasPriorityOrder || ship.AI.HasPriorityTarget) continue;
-
-
-                int techScore = ship.GetTechScore(out int[] origTechs);
-                string name = "";
-                float newStr = 0;
-                foreach (string shipName in OwnerEmpire.ShipsWeCanBuild)
-                {
-                    Ship newTemplate = ResourceManager.GetShipTemplate(shipName);
-                    if (newTemplate.shipData.Hull != ship.shipData.Hull && newTemplate.DesignRole != ship.DesignRole)
-                        continue;
-                    if (newTemplate.DesignRole != ship.DesignRole) continue;
-                    if (newTemplate.GetStrength() <= newStr) continue;
-                    if (ship.shipData.TechsNeeded.Except(newTemplate.shipData.TechsNeeded).Any()) continue;
-
-                    int newScore = newTemplate.GetTechScore(out int[] newTech);
-
-
-                    var newTechs = newTemplate.shipData.TechsNeeded.Except(ship.shipData.TechsNeeded).ToArray();
-
-                    if (newTechs.Length == 0 && (newScore <= techScore || !TechCompare(origTechs, newTech)))
-                        continue;
-
-                    name = shipName;
-                    newStr = newTemplate.GetStrength();
-                    techScore = newScore;
-                    origTechs = newTech;
-                }
-                if (string.IsNullOrEmpty(name)) continue;
-                ship.AI.OrderRefitTo(name);
-            }
         }
 
         private void TriggerRefitByStrength()
         {
-            var offPool = OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
+            Array<Ship> offPool = OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];
-                if (ship.AI.BadGuysNear || ship.AI.HasPriorityOrder || ship.AI.HasPriorityTarget)
-                    continue;
-
-                string name = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
-
-                if (string.IsNullOrEmpty(name)) continue;
-                ship.AI.OrderRefitTo(name);
+                if (!ship.AI.BadGuysNear && !ship.AI.HasPriorityOrder && !ship.AI.HasPriorityTarget)
+                {
+                    string name = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
+                    if (name.NotEmpty())
+                        ship.AI.OrderRefitTo(name);
+                }
             }
         }
 
@@ -499,16 +314,42 @@ namespace Ship_Game.AI
 
             Goals.ApplyPendingRemovals();
         }
+
+        public bool HasGoal(GoalType type)
+        {
+            for (int i = 0; i < Goals.Count; ++i)
+                if (Goals[i].type == type) return true;
+            return false;
+        }
+
+        public void AddGoal(Goal goal)
+        {
+            Goals.Add(goal);
+        }
+
+        public void RemoveGoal(GoalType type, Predicate<Goal> removeIf)
+        {
+            for (int i = 0; i < Goals.Count; ++i)
+            {
+                Goal g = Goals[i];
+                if (g.type == type && removeIf(g))
+                {
+                    Goals.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
         
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        ~EmpireAI() { Dispose(false); }
+        ~EmpireAI() { Destroy(); }
 
-        private void Dispose(bool disposing)
+        void Destroy()
         {
             TaskList?.Dispose(ref TaskList);
             DefensiveCoordinator?.Dispose(ref DefensiveCoordinator);
