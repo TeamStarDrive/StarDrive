@@ -72,14 +72,14 @@ namespace Ship_Game
                     playerShip.PlayerShip = false;
                     playerShip.AI.State = AIState.AwaitingOrders;
                     playerShip = SelectedShip;
-                    playerShip.PlayerShip = true;
-                    playerShip.AI.State = AIState.ManualControl;
+                    SelectedShip.PlayerShip = true;
+                    SelectedShip.AI.State = AIState.ManualControl;
                 }
                 else
                 {
                     playerShip = SelectedShip;
-                    playerShip.PlayerShip = true;
-                    playerShip.AI.State = AIState.ManualControl;
+                    SelectedShip.PlayerShip = true;
+                    SelectedShip.AI.State = AIState.ManualControl;
                 }
                 AdjustCamTimer = 1.5f;
                 transitionElapsedTime = 0.0f;

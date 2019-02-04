@@ -66,26 +66,6 @@ namespace Ship_Game
         {
             return Max(min, Min(value, max));
         }
-        public static Vector2 Clamped(this Vector2 v, float minXy, float maxXy)
-        {
-            return new Vector2(Max(minXy, Min(v.X, maxXy)), 
-                               Max(minXy, Min(v.Y, maxXy)));
-        }
-        public static Vector2 Clamped(this Vector2 v, float minX, float minY, float maxX, float maxY)
-        {
-            return new Vector2(Max(minX, Min(v.X, maxX)), 
-                               Max(minY, Min(v.Y, maxY)));
-        }
-        public static Vector2 Clamped(this Vector2 v, Vector2 min, Vector2 max)
-        {
-            return new Vector2(Max(min.X, Min(v.X, max.X)),
-                               Max(min.Y, Min(v.Y, max.Y)));
-        }
-
-        public static Vector2 Floored(this Vector2 v) => new Vector2((int)v.X, (int)v.Y);
-        public static Vector2 Rounded(this Vector2 v) => new Vector2((float)Round(v.X), (float)Round(v.Y));
-        public static Vector2 AbsVec(this Vector2 v)  => new Vector2(Abs(v.X), Abs(v.Y));
-        public static Vector2 Swapped(this Vector2 v) => new Vector2(v.Y, v.X);
 
 
         // This is a common pattern in the codebase, there is some amount
@@ -161,88 +141,6 @@ namespace Ship_Game
             return fromValue;
         }
 
-        // Gets the Squared distance from source point a to destination b
-        // This is faster than Vector2.Distance()
-        public static float SqDist(this Vector2 a, Vector2 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            return dx*dx + dy*dy;
-        }
-
-        // Squared distance between two Vector3's
-        public static float SqDist(this Vector3 a, Vector3 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            float dz = a.Z - b.Z;
-            return dx*dx + dy*dy + dz*dz;
-        }
-
-
-        // Gets the accurate distance from source point a to destination b
-        // This is slower than Vector2.SqDist()
-        public static float Distance(this Vector2 a, Vector2 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            return (float)Sqrt(dx*dx + dy*dy);
-        }
-
-        public static float Distance(this Vector2 a, ref Vector2 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            return (float)Sqrt(dx * dx + dy * dy);
-        }
-
-        // Gets the accurate distance from source point a to destination b
-        // This is slower than Vector3.SqDist()
-        public static float Distance(this Vector3 a, Vector3 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            float dz = a.Z - b.Z;
-            return (float)Sqrt(dx*dx + dy*dy + dz*dz);
-        }
-
-
-        public static float Dot(this Vector2 a, Vector2 b) => a.X*b.X + a.Y*b.Y;
-        public static float Dot(this Vector3 a, Vector3 b) => a.X*b.X + a.Y*b.Y + a.Z*b.Z;
-
-
-        public static Vector2 Normalized(this Vector2 v)
-        {
-            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y);
-            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
-        }
-
-        public static Vector2 Normalized(this Vector2 v, float newMagnitude)
-        {
-            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y) / newMagnitude;
-            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
-        }
-
-        public static Vector3 Normalized(this Vector3 v)
-        {
-            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z);
-            return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : new Vector3();
-        }
-
-        // True if this given position is within the radius of Circle [center,radius]
-        public static bool InRadius(this Vector2 position, Vector2 center, float radius)
-            => position.SqDist(center) <= radius*radius;
-        public static bool InRadius(this Vector3 position, Vector3 center, float radius)
-            => position.SqDist(center) <= radius*radius;
-        public static bool InRadius(this Vector3 position, Vector2 center, float radius)
-            => position.SqDist(center.ToVec3()) <= radius*radius;
-
-        // Reverse of WithinRadius, returns true if position is outside of Circle [center,radius]
-        public static bool OutsideRadius(this Vector2 position, Vector2 center, float radius)
-            => position.SqDist(center) > radius*radius;
-        public static bool OutsideRadius(this Vector3 position, Vector3 center, float radius)
-            => position.SqDist(center) > radius*radius;
-
 
         // Returns true if Frustum either partially or fully contains this 2D circle
         public static bool Contains(this BoundingFrustum frustum, Vector2 center, float radius)
@@ -256,35 +154,6 @@ namespace Ship_Game
                 != ContainmentType.Disjoint; // Disjoint: no intersection at all
         }
 
-        // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f
-        public static Vector3 ToVec3(this Vector2 a) => new Vector3(a.X, a.Y, 0f);
-
-        // Widens this Vector2 to a Vector3, the new Z component is provided as argument
-        public static Vector3 ToVec3(this Vector2 a, float z) => new Vector3(a.X, a.Y, z);
-
-        // Narrows this Vector3 to a Vector2, the Z component is truncated
-        public static Vector2 ToVec2(this Vector3 a) => new Vector2(a.X, a.Y);
-
-        // Creates a new Rectangle from this Vector2, where Rectangle X, Y are the Vector2 X, Y
-        public static Rectangle ToRect(this Vector2 a, int width, int height)
-            => new Rectangle((int)a.X, (int)a.Y, width, height);
-
-        // Negates this Vector2's components
-        public static Vector2 Neg(this Vector2 a) => new Vector2(-a.X, -a.Y);
-
-        // Center of a Texture2D. Not rounded! So 121x121 --> {60.5;60.5}
-        public static Vector2 Center(this Texture2D texture)   => new Vector2(texture.Width / 2f, texture.Height / 2f);
-        public static Vector2 Position(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
-        public static Vector2 Pos(this MouseState ms) => new Vector2(ms.X, ms.Y);
-
-        // Center of the screen
-        public static Vector2 Center(this ScreenManager screenMgr)
-        {
-            var p = screenMgr.GraphicsDevice.PresentationParameters;
-            return new Vector2(p.BackBufferWidth / 2f, p.BackBufferHeight / 2f);
-        }
-
-        public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
 
         public static Color Alpha(this Color color, float newAlpha) => new Color(color, newAlpha);
 
@@ -331,33 +200,6 @@ namespace Ship_Game
 
         public static bool IsDiagonalTo(this Point a, Point b) => Abs(b.X - a.X) > 0 && Abs(b.Y - a.Y) > 0;
 
-        // Angle degrees from origin to tgt; result between [0, 360)
-        public static float AngleToTarget(this Vector2 origin, Vector2 target)
-        {
-            return (float)(180 - Atan2(target.X - origin.X, target.Y - origin.Y) * 180.0 / PI);
-        }
-
-        // result from [0, +180, -181, -359]  it's kind of weird, but this is the essential logic from SD source code 
-        public static float AngleToTargetSigned(this Vector2 origin, Vector2 target)
-        {
-            double n = Atan2(target.X - origin.X, target.Y - origin.Y) * 180 / PI;
-            double s = n >= 0.0 ? 1.0 : -1.0;
-            return (float)((180 - n) * s);
-        }
-
-        // result between [0, 2rad)
-        public static float RadiansToTarget(this Vector2 origin, Vector2 target)
-        {
-            return (float)(PI - Atan2(target.X - origin.X, target.Y - origin.Y));
-        }
-
-        // result between [0, 1rad, -1rad, -2rad)  this kinda weird logic again, seems to be used for module overlay rendering
-        public static float RadiansToTargetSigned(this Vector2 origin, Vector2 target)
-        {
-            double n = Atan2(target.X - origin.X, target.Y - origin.Y);
-            double s = n >= 0.0 ? 1.0 : -1.0;
-            return (float)((PI - n) * s);
-        }
 
         // Converts a radian float to degrees
         public static float ToDegrees(this float radians)
@@ -374,12 +216,16 @@ namespace Ship_Game
         // Converts a direction vector to radians
         public static float ToRadians(this Vector2 direction)
         {
+            if (direction.X == 0f && direction.Y == 0f)
+                return 0f; // Up
             return (float)(PI - Atan2(direction.X, direction.Y));
         }
 
         // Converts a direction vector to degrees
         public static float ToDegrees(this Vector2 direction)
         {
+            if (direction.X == 0f && direction.Y == 0f)
+                return 0f; // Up
             return (float)(180 - Atan2(direction.X, direction.Y) * 180.0 / PI);
         }
 
@@ -387,40 +233,6 @@ namespace Ship_Game
         public static Vector3 DegsToRad(this Vector3 degrees)
         {
             return degrees * ((float)PI / 180.0f);
-        }
-
-        // assuming this is a direction vector, gives the right side perpendicular vector
-        // @note This assumes that +Y is DOWNWARDS on the screen
-        public static Vector2 LeftVector(this Vector2 direction)
-        {
-            return new Vector2(direction.Y, -direction.X);
-        }
-        // Same as Vector2.LeftVector; Z axis is not modified
-        public static Vector3 LeftVector(this Vector3 direction)
-        {
-            return new Vector3(direction.Y, -direction.X, direction.Z);
-        }
-        // Same as Vector3.LeftVector; but Z axis is set manually
-        public static Vector3 LeftVector(this Vector3 direction, float z)
-        {
-            return new Vector3(direction.Y, -direction.X, z);
-        }
-
-        // assuming this is a direction vector, gives the left side perpendicular vector
-        // @note This assumes that +Y is DOWNWARDS on the screen
-        public static Vector2 RightVector(this Vector2 direction)
-        {
-            return new Vector2(-direction.Y, direction.X);
-        }
-        // Same as Vector2.RightVector; Z axis is not modified
-        public static Vector3 RightVector(this Vector3 direction)
-        {
-            return new Vector3(-direction.Y, direction.X, direction.Z);
-        }
-        // Same as Vector3.RightVector; but Z axis is set manually
-        public static Vector3 RightVector(this Vector3 direction, float z)
-        {
-            return new Vector3(-direction.Y, direction.X, z);
         }
 
         // Converts rotation radians into a 2D direction vector
@@ -449,17 +261,15 @@ namespace Ship_Game
 
         public static Vector2 FindVectorBehindTarget(this GameplayObject ship, float distance)
         {
-            Vector2 forward = new Vector2((float)Sin(ship.Rotation), -(float)Cos(ship.Rotation));
-            forward = Vector2.Normalize(forward);
+            Vector2 forward = ship.Rotation.RadiansToDirection();
             return ship.Position - (forward * distance);
         }
 
-        public static Vector2 FindStrafeVectorFromTarget(this GameplayObject ship, float distance, int degrees)
+        public static Vector2 FindStrafeVectorFromTarget(this GameplayObject ship, float distance, float degrees)
         {
-            float rads = ToRadians(degrees);
-            Vector2 strafeVector = new Vector2((float)Sin(ship.Rotation + rads), -(float)Cos(ship.Rotation + rads));
-            strafeVector = Vector2.Normalize(strafeVector);
-            return ship.Position + (strafeVector * distance);
+            Vector2 strafe = ship.Rotation.RadiansToDirection() + degrees.AngleToDirection();
+            strafe = strafe.Normalized();
+            return ship.Position + (strafe * distance);
         }
 
         public static Vector3 DirectionToTarget(this Vector3 origin, Vector3 target)
@@ -468,6 +278,8 @@ namespace Ship_Game
             float dy = target.Y - origin.Y;
             float dz = target.Z - origin.Z;
             float len = (float)Sqrt(dx*dx + dy*dy + dz*dz);
+            if (len.AlmostZero())
+                return new Vector3(0f, -1f, 0f); // UP
             return new Vector3(dx / len, dy / len, dz / len);
         }
 
@@ -476,6 +288,8 @@ namespace Ship_Game
             float dx = target.X - origin.X;
             float dy = target.Y - origin.Y;
             float len = (float)Sqrt(dx*dx + dy*dy);
+            if (len.AlmostZero())
+                return Vectors.Up; // UP
             return new Vector2(dx / len, dy / len);
         }
 
@@ -756,18 +570,6 @@ namespace Ship_Game
             return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
         }
 
-        // @todo AngleDiffTo to ?What? 
-        public static float AngleDiffTo(this GameplayObject origin, Vector2 target, out Vector2 right, out Vector2 forward)
-        {
-            forward = new Vector2((float)Sin(origin.Rotation), -(float)Cos(origin.Rotation));
-            right = new Vector2(-forward.Y, forward.X);
-            return (float)Acos(target.Dot(forward));
-        }
-
-        public static float Facing(this Vector2 facingTo, Vector2 right)
-        {
-            return Vector2.Normalize(facingTo).Dot(right) > 0f ? 1f : -1f;
-        }
 
         // takes self and rotates it around the center pivot by some radians
         public static Vector2 RotateAroundPoint(this Vector2 self, Vector2 center, float radians)
@@ -880,14 +682,6 @@ namespace Ship_Game
             return delta < -0.000001f || +0.000001f <= delta;
         }
 
-        public static bool AlmostEqual(this Vector2 a, in Vector2 b)
-        {
-            return AlmostEqual(a.X, b.X) && AlmostEqual(a.Y, b.Y);
-        }
-        public static bool NotEqual(this Vector2 a, in Vector2 b)
-        {
-            return NotEqual(a.X, b.X) || NotEqual(a.Y, b.Y);
-        }
 
         public static bool AlmostZero(this float a)
         {
@@ -936,7 +730,7 @@ namespace Ship_Game
             float len = source.X*viewProjection.M14 + source.Y*viewProjection.M24 + source.Z*viewProjection.M34 + viewProjection.M44;
             if (!len.AlmostEqual(1f)) // normalize
                 clipSpacePoint /= len;
-            return new Vector2((clipSpacePoint.X + 1.0f)  * 0.5f * viewport.Width  + viewport.X,
+            return new Vector2(( clipSpacePoint.X + 1.0f) * 0.5f * viewport.Width  + viewport.X,
                                (-clipSpacePoint.Y + 1.0f) * 0.5f * viewport.Height + viewport.Y);
         }
 

@@ -443,7 +443,7 @@ namespace Ship_Game
             else if (HighlightedModule != null)
                 HoveredModule = HighlightedModule;
 
-            if (input.LeftMouseReleased && !input.LeftMouseWasHeld)
+            if (input.LeftMouseReleased && !input.LeftMouseHeldDown)
             {
                 GameAudio.PlaySfxAsync("simple_beep");
                 if (Debug)

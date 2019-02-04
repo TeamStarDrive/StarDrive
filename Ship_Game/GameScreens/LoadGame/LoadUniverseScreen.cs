@@ -301,7 +301,7 @@ namespace Ship_Game
                     ship.AI.OrbitTarget = p;
                     if (ship.AI.State != AIState.Orbit)
                         continue;
-                    ship.AI.OrderToOrbit(p, true);
+                    ship.AI.OrderToOrbit(p);
                 }
             }
 

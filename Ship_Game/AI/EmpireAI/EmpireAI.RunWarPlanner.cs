@@ -321,7 +321,7 @@ namespace Ship_Game.AI
                             foundhome = true;
                             foreach (Ship fship in OwnerEmpire.GetFleetsDict()[task.WhichFleet].Ships)
                             {
-                                fship.AI.OrderQueue.Clear();
+                                fship.AI.ClearOrders();
                                 fship.DoEscort(ship);
                             }
                             break;
@@ -330,8 +330,7 @@ namespace Ship_Game.AI
                         {
                             foreach (Ship ship in OwnerEmpire.GetFleetsDict()[task.WhichFleet].Ships)
                             {
-                                ship.AI.OrderQueue.Clear();
-                                ship.AI.State = AIState.AwaitingOrders;
+                                ship.AI.ClearOrders();
                             }
                         }
                     }
