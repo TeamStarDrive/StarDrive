@@ -316,11 +316,11 @@ namespace Ship_Game
             return score;
         }
 
-        float EvalTerraformer(Building b) // FB - note that Terafformers are automatically scraped when they finish their job in DoTerraform()
+        float EvalTerraformer(Building b) // FB - note that Terraformers are automatically scraped when they finish their job in DoTerraform()
         {
             if (b.PlusTerraformPoints.AlmostZero() 
-                || MaxFertility.GreaterOrEqual(1) 
-                || TerraformTargetFertility.AlmostEqual(MaxFertility)
+                || IsCybernetic
+                || MaxFertility.GreaterOrEqual(TerraformTargetFertility) 
                 || Owner.Money < 0) 
                 return 0; 
 

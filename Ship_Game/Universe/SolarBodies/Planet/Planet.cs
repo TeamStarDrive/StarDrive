@@ -354,11 +354,11 @@ namespace Ship_Game
         public void TerraformExternal(float amount)
         {
             AddMaxFertility(amount);
-            if (amount > 0) ImprovePlanetType();
-            else            DegradePlanetType();
+            if (amount > 0) ImprovePlanetType(MaxFertility);
+            else            DegradePlanetType(MaxFertility);
         }
 
-        public bool ImprovePlanetType() // Refactored by Fat Bastard
+        public bool ImprovePlanetType(float value) // Refactored by Fat Bastard
         {
             var improve = new []
             {
@@ -375,7 +375,7 @@ namespace Ship_Game
             };
             foreach ((float aboveFertility, PlanetCategory from, PlanetCategory to) in improve)
             {
-                if (MaxFertility > aboveFertility && Category == from)
+                if (value > aboveFertility && Category == from)
                 {
                     Terraform(to);
                     return true;
@@ -384,7 +384,7 @@ namespace Ship_Game
             return false;
         }
 
-        public bool DegradePlanetType() // Added by Fat Bastard
+        public bool DegradePlanetType(float value) // Added by Fat Bastard
         {
             var degrade = new []
             {
@@ -401,7 +401,7 @@ namespace Ship_Game
             };
             foreach ((float belowFertility, PlanetCategory from, PlanetCategory to) in degrade)
             {
-                if (MaxFertility < belowFertility && Category == from)
+                if (value < belowFertility && Category == from)
                 {
                     Terraform(to);
                     return true;
@@ -412,27 +412,33 @@ namespace Ship_Game
 
         private void DoTerraforming() // Added by Fat Bastard
         {
-            TerraformPoints += TerraformToAdd; // should be removed. Terraform is tracked differently now
-            if (TerraformPoints.LessOrEqual(0))
+            if (TerraformToAdd.LessOrEqual(0))
                 return;
 
+            TerraformPoints        += TerraformToAdd; 
             AddMaxFertility(TerraformToAdd);
-            MaxFertility  = MaxFertility.Clamped(0f, TerraformTargetFertility);
-            bool improved = ImprovePlanetType();
-            if (MaxFertility.AlmostEqual(TerraformTargetFertility)) // scrap Terraformers - their job is done
+            MaxFertility            = MaxFertility.Clamped(0f, TerraformTargetFertility);
+            bool improved           = ImprovePlanetType(TerraformPoints);
+            if (TerraformPoints.AlmostEqual(1)) // scrap Terraformers - their job is done
             {
                 foreach (PlanetGridSquare planetGridSquare in TilesList)
                 {
                     if (planetGridSquare.building?.PlusTerraformPoints > 0)
                         planetGridSquare.building.ScrapBuilding(this);
                 }
-                if (Owner.isPlayer) // FB - notify player terraformers were scrapped.
+                UpdateTerraformPoints(0);
+                if (Owner.isPlayer) // Notify player terraformers were scrapped.
                     Empire.Universe.NotificationManager.AddRandomEventNotification(
                         Name + " " + Localizer.Token(1971), Type.IconPath, "SnapToPlanet", this);
             }
-            if (improved && Owner.isPlayer) // FB - notify player that planet was improved
+            if (improved && Owner.isPlayer) // Notify player that planet was improved
                 Empire.Universe.NotificationManager.AddRandomEventNotification(
                     Name + " " + Localizer.Token(1972), Type.IconPath, "SnapToPlanet", this);
+        }
+
+        public void UpdateTerraformPoints(float value)
+        {
+            TerraformPoints = value;
         }
 
         private void UpdateOrbitalsMaint()
