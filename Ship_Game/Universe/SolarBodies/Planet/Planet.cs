@@ -72,6 +72,7 @@ namespace Ship_Game
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public const int MaxBuildings = 35; // FB currently this limited by number of tiles, all planets are 7 x 5
+        public float OrbitalsMaintenance;
 
         void CreateManagers()
         {
@@ -353,11 +354,11 @@ namespace Ship_Game
         public void TerraformExternal(float amount)
         {
             AddMaxFertility(amount);
-            if (amount > 0) ImprovePlanetType();
-            else            DegradePlanetType();
+            if (amount > 0) ImprovePlanetType(MaxFertility);
+            else            DegradePlanetType(MaxFertility);
         }
 
-        public void ImprovePlanetType() // Refactored by Fat Bastard
+        public bool ImprovePlanetType(float value) // Refactored by Fat Bastard
         {
             var improve = new []
             {
@@ -374,16 +375,16 @@ namespace Ship_Game
             };
             foreach ((float aboveFertility, PlanetCategory from, PlanetCategory to) in improve)
             {
-                if (MaxFertility > aboveFertility && Category == from)
+                if (value > aboveFertility && Category == from)
                 {
                     Terraform(to);
-                    break;
+                    return true;
                 }
             }
-            MaxFertility = Math.Max(0, MaxFertility);
+            return false;
         }
 
-        public void DegradePlanetType() // Added by Fat Bastard
+        public bool DegradePlanetType(float value) // Added by Fat Bastard
         {
             var degrade = new []
             {
@@ -400,86 +401,105 @@ namespace Ship_Game
             };
             foreach ((float belowFertility, PlanetCategory from, PlanetCategory to) in degrade)
             {
-                if (MaxFertility < belowFertility && Category == from)
+                if (value < belowFertility && Category == from)
                 {
                     Terraform(to);
-                    break;
+                    return true;
                 }
             }
-            MaxFertility = Math.Max(0, MaxFertility);
+            return false;
         }
 
-        void DoTerraforming() // Added by Fat Bastard
+        private void DoTerraforming() // Added by Fat Bastard
         {
-            TerraformPoints += TerraformToAdd;
-            if (TerraformPoints > 0.0f && Fertility < 1f)
+            if (TerraformToAdd.LessOrEqual(0))
+                return;
+
+            TerraformPoints        += TerraformToAdd; 
+            AddMaxFertility(TerraformToAdd);
+            MaxFertility            = MaxFertility.Clamped(0f, TerraformTargetFertility);
+            bool improved           = ImprovePlanetType(TerraformPoints);
+            if (TerraformPoints.AlmostEqual(1)) // scrap Terraformers - their job is done
             {
-                AddMaxFertility(TerraformToAdd);
-                MaxFertility = MaxFertility.Clamped(0f, 1f);
-                ImprovePlanetType();
-                if (MaxFertility.AlmostEqual(1f)) // remove Terraformers - their job is done
-                    foreach (PlanetGridSquare planetGridSquare in TilesList)
-                    {
-                        if (planetGridSquare.building?.PlusTerraformPoints > 0)
-                            planetGridSquare.building.ScrapBuilding(this);
-                    }
+                foreach (PlanetGridSquare planetGridSquare in TilesList)
+                {
+                    if (planetGridSquare.building?.PlusTerraformPoints > 0)
+                        planetGridSquare.building.ScrapBuilding(this);
+                }
+                UpdateTerraformPoints(0);
+                if (Owner.isPlayer) // Notify player terraformers were scrapped.
+                    Empire.Universe.NotificationManager.AddRandomEventNotification(
+                        Name + " " + Localizer.Token(1971), Type.IconPath, "SnapToPlanet", this);
+            }
+            if (improved && Owner.isPlayer) // Notify player that planet was improved
+                Empire.Universe.NotificationManager.AddRandomEventNotification(
+                    Name + " " + Localizer.Token(1972), Type.IconPath, "SnapToPlanet", this);
+        }
+
+        public void UpdateTerraformPoints(float value)
+        {
+            TerraformPoints = value;
+        }
+
+        private void UpdateOrbitalsMaint()
+        {
+            OrbitalsMaintenance = 0;
+            foreach (Ship orbital in OrbitalStations.Values)
+            {
+                OrbitalsMaintenance += orbital.GetMaintCost(Owner);
             }
         }
 
         public void UpdateOwnedPlanet()
         {
             ++TurnsSinceTurnover;
-            if (CrippledTurns > 0) CrippledTurns--;
-            else CrippledTurns = 0;
-
+            CrippledTurns = Math.Max(0, CrippledTurns - 1);
             ConstructionQueue.ApplyPendingRemovals();
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
             DoTerraforming();
             UpdateFertility();
-
             InitResources(); // must be done before Governing
+            UpdateIncomes(false);
+            UpdateOrbitalsMaint();
             DoGoverning();
-            UpdateIncomes(false);  
-
-            // notification about empty queue
-            if (GlobalStats.ExtraNotifications && Owner != null && Owner.isPlayer)
-            {
-                if (ConstructionQueue.Count == 0 && !QueueEmptySent)
-                {
-                    if (colonyType == ColonyType.Colony)
-                    {
-                        QueueEmptySent = true;
-                        Empire.Universe.NotificationManager.AddEmptyQueueNotification(this);
-                    }
-                }
-                else if (ConstructionQueue.Count > 0)
-                {
-                    QueueEmptySent = false;
-                }
-            }
-
-            if (ShieldStrengthCurrent < ShieldStrengthMax)
-            {
-                if (!RecentCombat)
-                {
-                    if (ShieldStrengthCurrent > ShieldStrengthMax / 10)
-                        ShieldStrengthCurrent += ShieldStrengthMax / 10;
-                    else
-                        ++ShieldStrengthCurrent;
-                }
-                if (ShieldStrengthCurrent > ShieldStrengthMax)
-                    ShieldStrengthCurrent = ShieldStrengthMax;
-            }
-
-            //this.UpdateTimer = 10f;
+            NotifyEmptyQueue();
+            RechargePlanetaryShields();
             ApplyResources();
             GrowPopulation();
             TroopManager.HealTroops(2);
             RepairBuildings(1);
-
             CalculateIncomingTrade();
+        }
+
+        private void NotifyEmptyQueue()
+        {
+            if (!GlobalStats.ExtraNotifications || Owner == null || !Owner.isPlayer)
+                return;
+
+            if (ConstructionQueue.Count == 0 && !QueueEmptySent)
+            {
+                if (colonyType != ColonyType.Colony)
+                    return;
+
+                QueueEmptySent = true;
+                Empire.Universe.NotificationManager.AddEmptyQueueNotification(this);
+            }
+            else if (ConstructionQueue.Count > 0)
+            {
+                QueueEmptySent = false;
+            }
+        }
+
+        private void RechargePlanetaryShields()
+        {
+            if (ShieldStrengthMax.LessOrEqual(0) || ShieldStrengthCurrent.GreaterOrEqual(ShieldStrengthMax) || RecentCombat)
+                return; // fully recharged or in combat
+
+            float maxRechargeRate = ShieldStrengthMax / 25;
+            float rechargeRate    = (ShieldStrengthCurrent * 100 / ShieldStrengthMax).Clamped(1, maxRechargeRate);
+            ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate).Clamped(0, ShieldStrengthMax);
         }
 
         private void UpdateColonyValue()
@@ -783,7 +803,7 @@ namespace Ship_Game
         }
 
         public int TotalInvadeInjure   => BuildingList.Sum(b => b.InvadeInjurePoints);
-        public float TotalSpaceOffense => BuildingList.Sum(b => b.Offense);
+        public float TotalSpaceOffense => BuildingList.Sum(b => b.Offense) + OrbitalStations.Values.Sum(o => o.BaseStrength);
         public int MaxDefenseShips     => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s.HomePlanet == this);
 
@@ -791,7 +811,9 @@ namespace Ship_Game
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
         public float BuiltCoverage     => TotalBuildings / (float)MaxBuildings;
 
-        public int ExistingMilitaryBuildings => BuildingList.Count(b => b.IsMilitary);
+        public int ExistingMilitaryBuildings  => BuildingList.Count(b => b.IsMilitary);
+        public float TerraformTargetFertility => BuildingList.Sum(b => b.MaxFertilityOnBuild) + 1;
+        public bool TerraformingHere          => BuildingList.Any(b => b.IsTerraformer);
 
         public int DesiredMilitaryBuildings
         {

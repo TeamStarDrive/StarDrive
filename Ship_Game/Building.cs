@@ -36,7 +36,7 @@ namespace Ship_Game
         [Serialize(23)] public float PlusProdPerRichness;
         [Serialize(24)] public float PlanetaryShieldStrengthAdded;
         [Serialize(25)] public float PlusFlatPopulation;
-        [Serialize(26)] public float MinusFertilityOnBuild;
+        [Serialize(26)] public float MaxFertilityOnBuild;
         [Serialize(27)] public string Icon;
         [Serialize(28)] public bool Scrappable = true;
         [Serialize(29)] public bool Unique = true;
@@ -243,27 +243,28 @@ namespace Ship_Game
             return where != null;
         }
 
-        public void ScrapBuilding(Planet planet)
+        public void ScrapBuilding(Planet p)
         {
-            if (MinusFertilityOnBuild < 0)
-                planet.AddMaxFertility(MinusFertilityOnBuild);
+            if (MaxFertilityOnBuild > 0)
+                p.AddMaxFertility(-MaxFertilityOnBuild); // FB - we are reversing positive MaxFertilityOnbuild when scraping
 
-            planet.BuildingList.Remove(this);
-            planet.ProdHere += ActualCost / 2f;
-            foreach (PlanetGridSquare pgs in planet.TilesList)
+            p.BuildingList.Remove(this);
+            p.ProdHere += ActualCost / 2f;
+            foreach (PlanetGridSquare pgs in p.TilesList)
             {
                 if (pgs.building != this) continue;
                 pgs.building = null;
                 break;
             }
+            if (IsTerraformer && !p.TerraformingHere)
+                p.UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
         }
 
         // Event when a building is built at planet p
         public void OnBuildingBuiltAt(Planet p)
         {
-            p.AddMaxFertility(-MinusFertilityOnBuild);
+            p.AddMaxFertility(MaxFertilityOnBuild); 
             p.BuildingList.Add(this);
-
             if (IsSpacePort)
             {
                 p.Station.Planet = p;

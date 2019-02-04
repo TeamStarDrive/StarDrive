@@ -282,22 +282,17 @@ namespace Ship_Game.AI
 
         public void TriggerRefit()
         {
-            // Refit by strength
-            TriggerRefitByStrength();
-        }
-
-        private void TriggerRefitByStrength()
-        {
-            Array<Ship> offPool = OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
+            var offPool = OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];
-                if (!ship.AI.BadGuysNear && !ship.AI.HasPriorityOrder && !ship.AI.HasPriorityTarget)
-                {
-                    string name = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
-                    if (name.NotEmpty())
-                        ship.AI.OrderRefitTo(name);
-                }
+                if (ship.AI.BadGuysNear || ship.AI.HasPriorityOrder || ship.AI.HasPriorityTarget)
+                    continue;
+
+                Ship newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
+
+                if (newShip == null) continue;
+                ship.AI.OrderRefitTo(newShip);
             }
         }
 

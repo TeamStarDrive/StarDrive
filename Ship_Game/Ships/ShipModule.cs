@@ -1146,9 +1146,8 @@ namespace Ship_Game.Ships
             float shieldsMax = ActualShieldPowerMax;
             if (shieldsMax > 0)
             {
-                def                 += shieldsMax / 100; 
+                def                 += shieldsMax / 50; 
                 float shieldcoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
-                shieldcoverage       = shieldcoverage > 1 ? 1f : shieldcoverage;
                 // normalizing for small ships
                 if (slotCount < 10)
                     shieldcoverage = shieldcoverage * 0.03125f;
@@ -1198,15 +1197,14 @@ namespace Ship_Game.Ships
             def *= ModuleType == ShipModuleType.Armor ? 1 + APResist / 2 : 1f;
 
             def += ECM;
-            def *= 1 + EMP_Protection / slotCount;
+            def *= 1 + EMP_Protection / 500;
 
             // Engines
             def += (TurnThrust + WarpThrust + thrust) / 15000f;
 
-            // FB: Reactors should also have some value
-            def += ActualPowerFlowMax / 100;
-
+            def += ActualPowerFlowMax / 50;
             def += TroopCapacity * 50;
+            def += BonusRepairRate / 2f;
 
             return def;
         }

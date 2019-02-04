@@ -117,10 +117,10 @@ namespace Ship_Game
         public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;        
         private float PosUpdateTimer = 1f;
-        private float ZrotateAmount = 0.03f;
-        public float TerraformPoints;
-        public float TerraformToAdd;
-        public Planet.ColonyType colonyType;        
+        private float ZrotateAmount  = 0.03f;
+        public float TerraformPoints { get; protected set; } // FB - terraform process from 0 to 1. 
+        public float TerraformToAdd { get; protected set; }  //  FB - a sum of all terraformer efforts
+    public Planet.ColonyType colonyType;        
         public void PlayPlanetSfx(string sfx, Vector3 position)
         {
             if (Emitter == null)

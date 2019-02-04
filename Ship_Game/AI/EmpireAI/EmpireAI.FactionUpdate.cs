@@ -14,7 +14,6 @@ namespace Ship_Game.AI {
             switch (name)
             {
                 case "The Remnant":
-                {
                     bool HasPlanets = false; // this.empire.GetPlanets().Count > 0;
                     foreach (Planet planet in OwnerEmpire.GetPlanets())
                     {
@@ -60,12 +59,13 @@ namespace Ship_Game.AI {
                                 }
                                 else
                                 {
-                                    if (assimilate.SurfaceArea < 50)
-                                        assimilate.AI.OrderRefitTo("Heavy Drone");
-                                    else if (assimilate.SurfaceArea < 100)
-                                        assimilate.AI.OrderRefitTo("Remnant Slaver");
-                                    else if (assimilate.SurfaceArea >= 100)
-                                        assimilate.AI.OrderRefitTo("Remnant Exterminator");
+                                    string shipName = "";
+                                    if (assimilate.SurfaceArea < 50)        shipName = "Heavy Drone";
+                                    else if (assimilate.SurfaceArea < 100)  shipName = "Remnant Slaver";
+                                    else if (assimilate.SurfaceArea >= 100) shipName = "Remnant Exterminator";
+                                    ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template);
+                                    if (template != null)
+                                        assimilate.AI.OrderRefitTo(template);
                                 }
                             }
                             else
@@ -95,10 +95,8 @@ namespace Ship_Game.AI {
                             }
                         }
                     }
-                }
                     break;
                 case "Corsairs":
-                {
                     bool alreadyAttacking = false;
                     // @todo Wtf?
                     foreach (MilitaryTask task in TaskList)
@@ -132,8 +130,7 @@ namespace Ship_Game.AI {
                             TaskList.Add(task);
                         }
                     }
-                }
-                break;
+                    break;
             }
 
 
