@@ -247,6 +247,8 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
             
+            Owner.RemoveDrift(elapsedTime, Owner.Speed);
+
             // this just checks if warp thrust is good
             float actualDiff = Owner.AngleDifferenceToPosition(position);
             float distance = position.Distance(Owner.Center);
@@ -269,7 +271,6 @@ namespace Ship_Game.AI
                 Owner.HyperspaceReturn();
             }
 
-            Owner.RemoveDrift(elapsedTime, speedLimit);
             if (predictionDiff > 0.025f)
             {
                 Owner.RotateToFacing(elapsedTime, predictionDiff, rotationDir);
@@ -295,10 +296,11 @@ namespace Ship_Game.AI
 
         float EstimateMaxTurn(float distance)
         {
-            float warpPercent = Owner.WarpThrust / Owner.NormalWarpThrust;
-            float timeToTarget = distance / (Owner.maxFTLSpeed * warpPercent);
+            float timeToTarget = distance / (Owner.maxFTLSpeed);
             float maxTurn = Owner.rotationRadiansPerSecond * timeToTarget;
-            return maxTurn * 0.45f; // ships can't really turn as numbers would predict...
+            maxTurn *= 0.4f; // ships can't really turn as numbers would predict...
+            // and we don't allow over certain degrees either
+            return maxTurn.Clamped(5f.ToRadians(), 60f.ToRadians());
         }
 
         bool UpdateWarpThrust(float elapsedTime, float angleDiff, float distance)
@@ -310,8 +312,8 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            if (angleDiff > 0.1f)
-                AccelerateToWarpPercent(elapsedTime, 0.4f); // SLOW DOWN to % warp speed
+            if (angleDiff > 0.05f)
+                AccelerateToWarpPercent(elapsedTime, 0.05f); // SLOW DOWN to % warp speed
             else if (Owner.WarpThrust < Owner.NormalWarpThrust)
                 AccelerateToWarpPercent(elapsedTime, 1.0f); // back to normal
 
