@@ -1392,7 +1392,7 @@ namespace Ship_Game.Ships
         }
         
         // safe Warp out distance so the ship still has time to slow down
-        public float WarpOutDistance => 1000f + GetSTLSpeed() * 3f;
+        public float WarpOutDistance => 3200f + GetSTLSpeed() * 3f;
 
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
@@ -1478,7 +1478,7 @@ namespace Ship_Game.Ships
         }
 
         // simulates navigational thrusting to remove sideways or reverse travel 
-        public void RemoveDrift(float elapsedTime, float speedLimit)
+        void RemoveDrift(float elapsedTime, float speedLimit)
         {
             // compare ship velocity vector against where it is pointing
             // if +1 then ship is going forward as intended
@@ -1497,32 +1497,25 @@ namespace Ship_Game.Ships
             if (travel > 0.99f)
                 return;
 
-            float acceleration = elapsedTime * GetThrust(ref speedLimit);
+            float acceleration = elapsedTime * GetThrust(ref speedLimit) * 0.33f;
 
             // remove sideways drift
             Vector2 left = forward.LeftVector();
             float drift = velocityDir.Dot(left);
             if (drift > 0f) // leftwards drift
             {
-                Velocity -= left * (acceleration * 0.5f);
+                Velocity -= left * acceleration;
             }
             else if (drift < 0f) // rightward drift
             {
-                Velocity += left * (acceleration * 0.5f);
+                Velocity += left * acceleration;
             }
-
-            if (engineState != MoveState.Warp)
+            else if (travel < -0.5f && engineState != MoveState.Warp)
             {
-                if (travel < -0.5f) // we are drifting reverse
-                {
-                    // accelerate forward!
-                    isThrusting = true;
-                    Velocity += forward * acceleration;
-                }
+                // we are drifting reverse, accelerate forward!
+                isThrusting = true;
+                Velocity += forward * acceleration;
             }
-
-            if (Velocity.Length() > speedLimit)
-                Velocity = Velocity.Normalized() * speedLimit;
         }
 
         void ThrustWhileWarping(float elapsedTime)
@@ -1568,6 +1561,8 @@ namespace Ship_Game.Ships
             {
                 EnginesKnockedOut = false;
             }
+
+            RemoveDrift(elapsedTime, Speed);
 
             if (Velocity.Length() > velocityMaximum)
                 Velocity = Velocity.Normalized() * velocityMaximum;
