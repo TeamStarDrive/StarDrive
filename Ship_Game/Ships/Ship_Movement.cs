@@ -12,14 +12,10 @@ namespace Ship_Game.Ships
         {
             isTurning = true;
             float rotAmount = rotationDir * elapsedTime * rotationRadiansPerSecond;
-            if (float.IsNaN(rotAmount))
-            {
-                Log.Error($"RotateToFacing: NaN! rotAmount:{rotAmount} angleDiff:{angleDiff}");
-                rotAmount = rotationDir * 0.01f; // recover from critical failure
-            }
-
             if (Math.Abs(rotAmount) > angleDiff)
+            {
                 rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
+            }
 
             if (rotAmount > 0f) // Y-bank:
             {

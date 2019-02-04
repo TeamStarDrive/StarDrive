@@ -28,7 +28,7 @@ namespace Ship_Game.AI
 
         public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
-            Log.Info($"ClearOrders new_state:{newState} priority:{priority}");
+            Log.Info(ConsoleColor.Blue, $"ClearOrders new_state:{newState} priority:{priority}");
             OrderQueue.Clear();
             State = newState;
             HasPriorityOrder = priority;
@@ -434,9 +434,8 @@ namespace Ship_Game.AI
 
                     if (distanceToTarget >= 5500f)
                     {
-                        if (Owner.velocityMaximum > distanceToTarget && Owner.Speed >= Owner.velocityMaximum)
-                            Owner.Speed = distanceToTarget;
-                        ThrustOrWarpTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
+                        float speedLimit = Owner.Speed.Clamped(distanceToTarget, Owner.velocityMaximum);
+                        ThrustOrWarpTowardsPosition(MovePosition, elapsedTime, speedLimit);
                     }
                     else
                     {
@@ -462,8 +461,8 @@ namespace Ship_Game.AI
         {
             if (Owner.Velocity.Length() > 0f)
             {
-                Vector2 interceptPoint = Owner.PredictImpact(Target);
                 ReverseThrustUntilStopped(elapsedTime);
+                Vector2 interceptPoint = Owner.PredictImpact(Target);
                 RotateTowardsPosition(interceptPoint, elapsedTime, 0.2f);
             }
             else
@@ -912,7 +911,7 @@ namespace Ship_Game.AI
                 OrderSystemDefense(SystemToDefend);
         }
 
-        void DoTroopToShip(float elapsedTime)
+        void DoTroopToShip(float elapsedTime, ShipGoal goal)
         {
             if (EscortTarget == null || !EscortTarget.Active)
             {

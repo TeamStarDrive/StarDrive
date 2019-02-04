@@ -42,7 +42,7 @@ namespace Ship_Game.Gameplay
         }
 
         // For generic ship movement prediction
-        public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, float range, Vector2 targetPos)
+        public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, Vector2 targetPos)
         {
             Pos = pos;
             Vel = vel;
@@ -50,10 +50,7 @@ namespace Ship_Game.Gameplay
             TargetPos = targetPos;
             TargetVel = Vector2.Zero;
             TargetAcc = Vector2.Zero;
-
-            // this will limit the pip from moving further than would be possible
-            float approxLifetime = range / speed;
-            MaxPredictionTime = approxLifetime * 1.1f;
+            MaxPredictionTime = float.MaxValue;
         }
 
         // This is used during interception / attack runs
@@ -231,10 +228,10 @@ namespace Ship_Game.Gameplay
 
             // objects are separating faster than projectile can catch up, so this means
             // the projectile might never hit?
-            if (deltaV.Length() > Speed)
+            if (deltaV.Length().Greater(Speed+0.1f))
                 return ProjectPosition(TargetPos, deltaV, time);
 
-            Vector2 predictedPos = default(Vector2);
+            Vector2 predictedPos = default;
 
             for (int i = 0; i < 20; ++i)
             {
