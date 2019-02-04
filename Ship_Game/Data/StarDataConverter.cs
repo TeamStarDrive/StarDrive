@@ -26,7 +26,7 @@ namespace Ship_Game.Data
                 return Enum.Parse(ToEnum, s, ignoreCase:true);
             if (value is int i)
                 return Enum.ToObject(ToEnum, i);
-            throw new Exception($"StarDataConverter could not convert '{value}' to Enum '{ToEnum.Name}'");
+            throw new Exception($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to Enum '{ToEnum.Name}'");
         }
     }
 
@@ -43,7 +43,7 @@ namespace Ship_Game.Data
             if (value is int i)   return new Range(i);
             if (value is float f) return new Range(f);
             if (!(value is object[] objects) || objects.Length < 2)
-                throw new Exception($"StarDataConverter could not convert '{value}' to Range");
+                throw new Exception($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to Range");
             return new Range(Number(objects[0]), Number(objects[1]));
         }
     }
@@ -53,13 +53,27 @@ namespace Ship_Game.Data
         public override object Convert(object value, Type source)
         {
             if (!(value is int id))
-                throw new Exception($"StarDataConverter could not convert '{value}' to LocText");
+                throw new Exception($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to LocText");
             return new LocText(id);
         }
     }
 
     public class ColorConverter : TypeConverter
     {
+        static float ToFloat(object value)
+        {
+            if (value is int i)   return (float)i;
+            if (value is float f) return f;
+            throw new Exception($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to Float");
+        }
+
+        static byte ToByte(object value)
+        {
+            if (value is int i)   return (byte)i;
+            if (value is float f) return (byte)(int)f;
+            throw new Exception($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to Float");
+        }
+
         public override object Convert(object value, Type source)
         {
             if (value is object[] objects)
@@ -67,19 +81,19 @@ namespace Ship_Game.Data
                 if (objects[0] is int)
                 {
                     byte r = 255, g = 255, b = 255, a = 255;
-                    if (objects.Length >= 1) r = (byte)(int)objects[0];
-                    if (objects.Length >= 2) g = (byte)(int)objects[1];
-                    if (objects.Length >= 3) b = (byte)(int)objects[2];
-                    if (objects.Length >= 4) a = (byte)(int)objects[3];
+                    if (objects.Length >= 1) r = ToByte(objects[0]);
+                    if (objects.Length >= 2) g = ToByte(objects[1]);
+                    if (objects.Length >= 3) b = ToByte(objects[2]);
+                    if (objects.Length >= 4) a = ToByte(objects[3]);
                     return new Color(r, g, b, a);
                 }
                 else
                 {
                     float r = 1f, g = 1f, b = 1f, a = 1f;
-                    if (objects.Length >= 1) r = (float)objects[0];
-                    if (objects.Length >= 2) g = (float)objects[1];
-                    if (objects.Length >= 3) b = (float)objects[2];
-                    if (objects.Length >= 4) a = (float)objects[3];
+                    if (objects.Length >= 1) r = ToFloat(objects[0]);
+                    if (objects.Length >= 2) g = ToFloat(objects[1]);
+                    if (objects.Length >= 3) b = ToFloat(objects[2]);
+                    if (objects.Length >= 4) a = ToFloat(objects[3]);
                     return new Color(r, g, b, a);
                 }
             }
@@ -93,7 +107,7 @@ namespace Ship_Game.Data
                 f = f.Clamped(0f, 1f);
                 return new Color(f, f, f, f);
             }
-            throw new Exception($"StarDataConverter could not convert '{value}' to Color");
+            throw new Exception($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to Color");
         }
     }
 
@@ -110,7 +124,7 @@ namespace Ship_Game.Data
             if (value is float f)
                 return (int)f;
 
-            throw new Exception($"StarDataConverter could not convert '{value}' to Int");
+            throw new Exception($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to Int");
         }
     }
 
@@ -127,7 +141,7 @@ namespace Ship_Game.Data
             if (value is int i)
                 return (float)i;
 
-            throw new Exception($"StarDataConverter could not convert '{value}' to Float");
+            throw new Exception($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to Float");
         }
     }
 
@@ -140,7 +154,7 @@ namespace Ship_Game.Data
                 return s == "true" || s == "True";
             }
 
-            throw new Exception($"StarDataConverter could not convert '{value}' to Bool");
+            throw new Exception($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to Bool");
         }
     }
 

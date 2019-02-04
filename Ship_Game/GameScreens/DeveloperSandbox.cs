@@ -11,9 +11,9 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        const int NumOpponents = 3;
+        const int NumOpponents = 0;
         const bool PlayerIsCybernetic = false;
-        MicroUniverse Universe;
+        DeveloperUniverse Universe;
         TaskResult<UniverseData> CreateTask;
 
         public DeveloperSandbox() : base(null)
@@ -47,7 +47,7 @@ namespace Ship_Game
                 {
                     UniverseData sandbox = CreateTask.Result;
                     CreateTask = null;
-                    Universe = new MicroUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
+                    Universe = new DeveloperUniverse(sandbox) { PlayerEmpire = sandbox.EmpireList.First };
                     ScreenManager.GoToScreen(Universe, clear3DObjects:false);
                 }
             }
@@ -62,9 +62,9 @@ namespace Ship_Game
             batch.End();
         }
 
-        class MicroUniverse : UniverseScreen
+        public class DeveloperUniverse : UniverseScreen
         {
-            public MicroUniverse(UniverseData sandbox) : base(sandbox)
+            public DeveloperUniverse(UniverseData sandbox) : base(sandbox)
             {
                 player = PlayerEmpire;
                 NoEliminationVictory = true; // SandBox mode doesn't have elimination victory

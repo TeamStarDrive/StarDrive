@@ -107,7 +107,6 @@ namespace Ship_Game.AI
         private void MoveStraight(float elapsedTime)
         {
             Missile.Velocity = Missile.Rotation.RadiansToDirection() * Missile.Speed; 
-            
             Missile.Velocity = Missile.Velocity.Normalized() * Missile.VelocityMax;
         }
 

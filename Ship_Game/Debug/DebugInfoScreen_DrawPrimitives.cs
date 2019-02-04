@@ -62,5 +62,41 @@ namespace Ship_Game.Debug
                 }
             }
         }
+
+        // This will draw immediately using the current SpriteBatch
+        public void DrawCircleImm(Vector2 worldPos, float radius, Color color, float thickness = 1f)
+        {
+            Empire.Universe.DrawCircleProjected(worldPos, radius, color, thickness);
+        }
+
+        public void DrawLineImm(Vector2 worldA, Vector2 worldB, Color color, float thickness = 1f)
+        {
+            Vector2 screenA = Empire.Universe.ProjectToScreenPosition(worldA);
+            Vector2 screenB = Empire.Universe.ProjectToScreenPosition(worldB);
+            DrawLine(screenA, screenB, color, thickness);
+        }
+
+        public void DrawArrowImm(Vector2 worldA, Vector2 worldB, Color color, float thickness = 1f)
+        {
+            Vector2 screenA = Empire.Universe.ProjectToScreenPosition(worldA);
+            Vector2 screenB = Empire.Universe.ProjectToScreenPosition(worldB);
+            DrawLine(screenA, screenB, color, thickness);
+
+            Vector2 screenDir = screenA.DirectionToTarget(screenB);
+            Vector2 rightDir = screenDir.RightVector();
+
+            float arrowSize = screenA.Distance(screenB) * 0.1f;
+            arrowSize = arrowSize.Clamped(5f, ScreenWidth * 0.05f);
+
+            Vector2 thickOffset = rightDir*thickness;
+            Vector2 arrowTip = screenB + thickOffset;
+            Vector2 arrowButt = screenB - screenDir*arrowSize;
+            Vector2 left  = arrowButt + screenDir.LeftVector()*arrowSize;
+            Vector2 right = arrowButt + thickOffset + rightDir*arrowSize;
+
+            DrawLine(arrowTip, left, color, thickness);
+            DrawLine(arrowTip, right, color, thickness);
+        }
+
     }
 }
