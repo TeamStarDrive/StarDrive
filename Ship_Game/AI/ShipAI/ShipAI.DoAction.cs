@@ -131,9 +131,9 @@ namespace Ship_Game.AI
                 RunTimer = 0f;
                 AttackRunStarted = false;
 
-                if (distanceToTarget > 7500 ) //|| distanceToTarget < Owner.maxWeaponsRange)
+                if (distanceToTarget > 7500 )
                 {
-                    ThrustOrWarpTowardsPosition(interceptPoint, elapsedTime, Owner.Speed);
+                    ThrustOrWarpTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
                     return;
 
                 }
@@ -157,7 +157,7 @@ namespace Ship_Game.AI
                 int ran = RandomMath.IntBetween(0, 1);
                 ran = ran == 1 ? 1 : -1;
                 AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();
-                RunTimer = 20; // Owner.Speed * elapsedTime ;
+                RunTimer = 20;
             }
             if (distanceToTarget < Owner.maxWeaponsRange)
             {
