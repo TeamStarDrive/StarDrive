@@ -6,9 +6,9 @@ namespace Ship_Game.Gameplay
 {
     public sealed class SpatialManager : IDisposable
     {
-        private readonly Array<GameplayObject> AllObjects = new Array<GameplayObject>();
-        private readonly Array<GameplayObject> Pending    = new Array<GameplayObject>();
-        private Quadtree QuadTree;
+        readonly Array<GameplayObject> AllObjects = new Array<GameplayObject>();
+        readonly Array<GameplayObject> Pending    = new Array<GameplayObject>();
+        Quadtree QuadTree;
 
         public void Setup(float universeRadius)
         {
@@ -31,7 +31,7 @@ namespace Ship_Game.Gameplay
 
         public void DebugVisualize(UniverseScreen screen) => QuadTree.DebugVisualize(screen);
 
-        private static bool IsSpatialType(GameplayObject obj)
+        static bool IsSpatialType(GameplayObject obj)
             => obj.Is(GameObjectType.Ship) || obj.Is(GameObjectType.Proj)/*also Beam*/;
         
         public void Add(GameplayObject obj)
@@ -51,7 +51,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private void InsertPending()
+        void InsertPending()
         {
             lock (Pending)
             {
@@ -105,10 +105,8 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < AllObjects.Count; ++i)
             {
                 GameplayObject go = AllObjects[i];
-                if (go == null || !go.Active || !go.InDeepSpace || !go.Is(GameObjectType.Ship))
-                    continue;
-
-                copyTo.Add(go as Ship);
+                if (go != null && go.Active && go.InDeepSpace && go.Is(GameObjectType.Ship))
+                    copyTo.Add(go as Ship);
             }
         }
 

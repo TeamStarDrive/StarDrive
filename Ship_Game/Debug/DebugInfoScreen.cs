@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Debug.Page;
+using Ship_Game.GameScreens.Sandbox;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -59,11 +60,15 @@ namespace Ship_Game.Debug
         public static DebugModes Mode { get; private set; }
         readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
         DebugPage Page;
+        readonly FloatSlider SpeedLimitSlider;
+        readonly FloatSlider DebugPlatformSpeed;
 
         public DebugInfoScreen(UniverseScreen screen) : base(screen, pause:false)
         {
             Screen = screen;
-            
+            SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
+            DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
+
             foreach (Empire empire in EmpireManager.Empires)
             {
                 if (empire == Empire.Universe.player || empire.isFaction)
@@ -157,7 +162,28 @@ namespace Ship_Game.Debug
                 }
             }
 
+            UpdateDebugShips(deltaTime);
             base.Update(deltaTime);
+        }
+
+        void UpdateDebugShips(float deltaTime)
+        {
+            float platformSpeed = DebugPlatformSpeed.AbsoluteValue;
+            float speedLimiter = SpeedLimitSlider.RelativeValue;
+
+            if (Screen.SelectedShip != null)
+            {
+                Ship ship = Screen.SelectedShip;
+                ship.Speed = speedLimiter * ship.velocityMaximum;
+            }
+
+            foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
+            {
+                if (platformSpeed.NotZero())
+                {
+                    platform.Velocity.X = platformSpeed;
+                }
+            }
         }
         
         public void Draw(GameTime gameTime)
@@ -287,10 +313,11 @@ namespace Ship_Game.Debug
 
         void ShipInfo()
         {
+            SetTextCursor(Win.X + 10, 500f, Color.White);
+
             if (Screen.SelectedFleet != null)
             {
                 Fleet fleet = Screen.SelectedFleet;
-                SetTextCursor(Win.X + 10, 500f, Color.White);
                 DrawArrowImm(fleet.Position, fleet.Position+fleet.Direction*200f, Color.OrangeRed);
                 foreach (Ship ship in fleet.GetShips)
                     VisualizeShipGoal(ship, false);
@@ -319,7 +346,6 @@ namespace Ship_Game.Debug
             else if (Screen.ProjectedGroup != null)
             {
                 ShipGroup group = Screen.ProjectedGroup;
-                SetTextCursor(Win.X + 10, 500f, Color.White);
                 DrawArrowImm(group.Position, group.Position+group.Direction*200f, Color.OrangeRed);
                 foreach (Ship ship in group.GetShips)
                     VisualizeShipGoal(ship, false);
@@ -334,7 +360,6 @@ namespace Ship_Game.Debug
             else if (Screen.SelectedShip != null)
             {
                 Ship ship = Screen.SelectedShip;
-                SetTextCursor(Win.X + 10, 500f, Color.White);
 
                 DrawString($"Ship {Screen.SelectedShip.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
                 DrawString($"Ship velocity: {ship.Velocity.Length()}");
@@ -388,12 +413,31 @@ namespace Ship_Game.Debug
             else if (Screen.SelectedShipList.NotEmpty)
             {
                 IReadOnlyList<Ship> ships = Screen.SelectedShipList;
-                SetTextCursor(Win.X + 10, 500f, Color.White);
                 foreach (Ship ship in ships)
                     VisualizeShipGoal(ship, false);
 
                 DrawString($"SelectedShips ({ships.Count}) ");
+            }
+            VisualizePredictionDebugger();
+        }
 
+        IEnumerable<PredictionDebugPlatform> GetPredictionDebugPlatforms()
+        {
+            for (int i = 0; i < Screen.MasterShipList.Count; ++i)
+                if (Screen.MasterShipList[i] is PredictionDebugPlatform platform)
+                    yield return platform;
+        }
+
+        void VisualizePredictionDebugger()
+        {
+            foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
+            {
+                DrawString($"Platform Accuracy: {(int)(platform.AccuracyPercent*100)}%");
+                foreach (PredictedLine line in platform.Predictions)
+                {
+                    DrawLineImm(line.Start, line.End, Color.YellowGreen);
+                    //DrawCircleImm(line.End, 75f, Color.Red);
+                }
             }
         }
 

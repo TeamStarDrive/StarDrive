@@ -17,29 +17,25 @@ namespace Ship_Game.Ships
 {
     using static ShipMaintenance;
 
-    public sealed partial class Ship : GameplayObject, IDisposable
+    public partial class Ship : GameplayObject, IDisposable
     {
         public string VanityName                = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Troop> TroopList           = new Array<Troop>();
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         public bool RecallFightersBeforeFTL     = true;
 
-        //public float DefaultFTLSpeed = 1000f;    //Not referenced in code, removing to save memory
         public float RepairRate  = 1f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
         public float MaxBank     = 0.5235988f;
         public Vector2 Acceleration { get; private set; }
+        Vector2 PreviousVelocity; // used for calculating Acceleration
 
         public Vector2 projectedPosition;
         private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
         public bool TradingFood = true;
         public bool TradingProd = true;
         public bool ShieldsUp   = true;
-        //public float AfterBurnerAmount = 20.5f;    //Not referenced in code, removing to save memory
-        //protected Color CloakColor = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);    //Not referenced in code, removing to save memory
-        //public float CloakTime = 5f;    //Not referenced in code, removing to save memory
-        //public Vector2 Origin = new Vector2(256f, 256f);        //Not referenced in code, removing to save memory
         private Array<Projectile> projectiles = new Array<Projectile>();
         private Array<Beam> beams             = new Array<Beam>();
         public Array<Weapon> Weapons          = new Array<Weapon>();
@@ -49,8 +45,6 @@ namespace Ship_Game.Ships
         public float ScuttleTimer             = -1f;
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
-        //public float ClickTimer = 10f;    //Never used
-
         private ShipModule[] Shields;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
@@ -64,13 +58,11 @@ namespace Ship_Game.Ships
         public bool IsReadonlyDesign;
         public bool isColonyShip;
         public bool isConstructor;
-        public string StrategicIconPath;
         private Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
         public float EMPDamage;
         public Fleet fleet;
-        //public string DesignUID;
         public float yRotation;
         public float RotationalVelocity;
         public float MechanicalBoardingDefense;
@@ -80,10 +72,8 @@ namespace Ship_Game.Ships
         public int kills;
         public float experience;
         public bool EnginesKnockedOut;
-        //protected float ThrustLast;    //Not referenced in code, removing to save memory
         public float InCombatTimer;
         public bool isTurning;
-        //public bool PauseUpdate;      //Not used in code, removing to save memory
         public float InhibitionRadius;
         private KeyboardState lastKBState;
         private KeyboardState currentKeyBoardState;
@@ -97,16 +87,12 @@ namespace Ship_Game.Ships
         public float PackDamageModifier { get; private set; }
         public Empire loyalty;
         public int SurfaceArea;
-        //public int CrewRequired;    //Not referenced in code, removing to save memory
-        //public int CrewSupplied;    //Not referenced in code, removing to save memory
         public float Ordinance { get; private set; }
         public float OrdinanceMax;
-        //public float scale;    //Not referenced in code, removing to save memory
         public ShipAI AI { get; private set; }
-        public float Speed; // current speed limit
+        public float Speed; // current speed limit; reset every update
         public float Thrust;
         public float velocityMaximum; // maximum speed
-        //public double armor_percent;    //Not referenced in code, removing to save memory
         public double shield_percent;
         public float armor_max;
         public float shield_max;
@@ -123,9 +109,6 @@ namespace Ship_Game.Ships
         public bool HasRepairModule;
         readonly AudioHandle Afterburner = new AudioHandle();
         public bool isSpooling;
-        //protected SolarSystem JumpTarget;   //Not referenced in code, removing to save memory
-        //protected Cue hyperspace;           //Removed to save space, because this is set to null in ship initilizer, and never reassigned. -Gretman
-        //protected Cue hyperspace_return;    //Not referenced in code, removing to save memory
         readonly AudioHandle JumpSfx = new AudioHandle();
         public float InhibitedTimer;
         public int Level;
@@ -135,18 +118,15 @@ namespace Ship_Game.Ships
         public float ShipMass;
         public int TroopCapacity;
         public float OrdAddedPerSecond;
-        //public bool WeaponCentered;    //Not referenced in code, removing to save memory
         public AudioHandle DroneSfx = new AudioHandle();
         public float ShieldRechargeTimer;
         public bool InCombat;
         public float xRotation;
         public MoveState engineState;
         public float ScreenRadius;
-        //public float ScreenSensorRadius;    //Not referenced in code, removing to save memory
         public bool InFrustum;
         public bool NeedRecalculate;
         public bool Deleted;
-        //public float CargoMass;    //Not referenced in code, removing to save memory
         public bool inborders;
         public bool FightersLaunched { get; private set; }
         public bool TroopsLaunched { get; private set; }
@@ -180,15 +160,11 @@ namespace Ship_Game.Ships
 
         public float RangeForOverlay;
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
-        Array<ShipModule> AttackerTargetting   = new Array<ShipModule>();
         public int TrackingPower;
         public int FixedTrackingPower;
-        public Ship lastAttacker = null;
-        //private bool LowHealth; //fbedard: recalculate strength after repair - FB: commented since its not used.
         public float TradeTimer;
         public bool ShipInitialized;
         public float maxFTLSpeed;
-        public float maxSTLSpeed;
         public float NormalWarpThrust;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
         public Array<Empire> BorderCheck  = new Array<Empire>();
@@ -407,6 +383,9 @@ namespace Ship_Game.Ships
 
             return false;
         }
+
+        // Level 5 crews can use advanced targeting which even predicts acceleration
+        public bool CanUseAdvancedTargeting => Level >= 5;
 
         public override Vector2 TargetErrorPos()
         {
@@ -863,7 +842,6 @@ namespace Ship_Game.Ships
                     {
                         isSpooling = true;
                         isTurning = false;
-                        ThrustForward(elapsedTime, Speed, velocityMaximum);
 
                         if (yRotation > 0.0)
                             yRotation -= yBankAmount;
@@ -926,11 +904,11 @@ namespace Ship_Game.Ships
                     }
                     if (currentKeyBoardState.IsKeyDown(Keys.W))
                     {
-                        ThrustForward(elapsedTime, Speed, velocityMaximum);
+                        ApplyThrust(elapsedTime, velocityMaximum, +1f);
                     }
                     else if (currentKeyBoardState.IsKeyDown(Keys.S))
                     {
-                        ThrustForward(elapsedTime, -Speed, velocityMaximum);
+                        ApplyThrust(elapsedTime, velocityMaximum, -1f);
                     }
                     MouseState state = Mouse.GetState();
                     if (state.RightButton == ButtonState.Pressed)
@@ -1447,30 +1425,42 @@ namespace Ship_Game.Ships
             Speed = velocityMaximum;
         }
 
-        float GetThrust(ref float speedLimit)
+        // validates speed limit
+        public float AdjustedSpeedLimit(float speedLimit = 0f)
         {
-            // make sure speedLimit is valid:
+            // use [Speed], but still cap it to velocityMaximum
             if (speedLimit <= 0f || speedLimit > Speed)
-                speedLimit = Speed;
+                return Math.Min(Speed, velocityMaximum);
+            return Math.Min(speedLimit, velocityMaximum);
+        }
 
-            // and validate that we don't go over velocityMax:
-            speedLimit = Math.Min(speedLimit, velocityMaximum);
-
-            float thrust = (Thrust / Mass);
-            return thrust;
+        float GetThrustAcceleration()
+        {
+            if (engineState == MoveState.Warp)
+            {
+                const float accelerationTime = 2f;
+                return (maxFTLSpeed / accelerationTime);
+            }
+            return Thrust / Mass;
         }
 
         public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f, float direction = +1f)
         {
             if (engineState == MoveState.Warp)
                 return; // Warp speed is updated in UpdateEnginesAndVelocity
-
-            float acceleration = direction * GetThrust(ref speedLimit);
-            ThrustForward(elapsedTime, acceleration, speedLimit);
+            ApplyThrust(elapsedTime, speedLimit, direction);
         }
 
-        void ThrustForward(float elapsedTime, float acceleration, float speedLimit)
+        void WarpAccelerate(float elapsedTime)
         {
+            ApplyThrust(elapsedTime, maxFTLSpeed, +1f);
+        }
+
+        void ApplyThrust(float elapsedTime, float speedLimit, float direction)
+        {
+            speedLimit = AdjustedSpeedLimit(speedLimit);
+            float acceleration = (direction >= 0f ? 1f : -1f) * GetThrustAcceleration();
+
             isThrusting = true;
             Velocity += Direction * (elapsedTime * acceleration);
             if (Velocity.Length() > speedLimit)
@@ -1478,7 +1468,7 @@ namespace Ship_Game.Ships
         }
 
         // simulates navigational thrusting to remove sideways or reverse travel 
-        void RemoveDrift(float elapsedTime, float speedLimit)
+        void RemoveDrift(float elapsedTime)
         {
             // compare ship velocity vector against where it is pointing
             // if +1 then ship is going forward as intended
@@ -1497,7 +1487,7 @@ namespace Ship_Game.Ships
             if (travel > 0.99f)
                 return;
 
-            float acceleration = elapsedTime * GetThrust(ref speedLimit) * 0.33f;
+            float acceleration = elapsedTime * GetThrustAcceleration() * 0.33f;
 
             // remove sideways drift
             Vector2 left = forward.LeftVector();
@@ -1518,15 +1508,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        void ThrustWhileWarping(float elapsedTime)
-        {
-            // warp turns are nasty, so we need to slow down
-            float speedLimit = maxFTLSpeed;
-            float accelerationTime = 2f;
-            float acceleration = (maxFTLSpeed / accelerationTime);
-            ThrustForward(elapsedTime, acceleration, speedLimit);
-        }
-
         // called from Ship.Update
         void UpdateEnginesAndVelocity(float elapsedTime)
         {
@@ -1543,10 +1524,9 @@ namespace Ship_Game.Ships
             rotationRadiansPerSecond += rotationRadiansPerSecond * Level * 0.05f;
             yBankAmount = GetyBankAmount(rotationRadiansPerSecond * elapsedTime);
 
-            Vector2 oldVelocity = Velocity;
             if (engineState == MoveState.Warp)
             {
-                ThrustWhileWarping(elapsedTime);
+                WarpAccelerate(elapsedTime);
             }
 
             if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered)
@@ -1562,12 +1542,13 @@ namespace Ship_Game.Ships
                 EnginesKnockedOut = false;
             }
 
-            RemoveDrift(elapsedTime, Speed);
+            RemoveDrift(elapsedTime);
 
             if (Velocity.Length() > velocityMaximum)
                 Velocity = Velocity.Normalized() * velocityMaximum;
 
-            Acceleration = oldVelocity.Acceleration(Velocity, elapsedTime);
+            Acceleration = PreviousVelocity.Acceleration(Velocity, elapsedTime);
+            PreviousVelocity = Velocity;
 
             if (isSpooling && !Inhibited && GetmaxFTLSpeed > 2500f)
             {
@@ -2536,7 +2517,6 @@ namespace Ship_Game.Ships
             BorderCheck.Clear();
             ThrusterList.Clear();
             AI.PotentialTargets.Clear();
-            AttackerTargetting.Clear();
             Velocity = Vector2.Zero;
             velocityMaximum = 0.0f;
             float size = Radius  * (shipData.EventOnDeath?.NotEmpty() == true? 3 :1);// Math.Max(GridHeight, GridWidth);
@@ -2605,7 +2585,6 @@ namespace Ship_Game.Ships
             AI.NearByShips.Clear();
             AI.FriendliesNearby.Clear();
             Empire.Universe.MasterShipList.QueuePendingRemoval(this);
-            AttackerTargetting.Clear();
             if (Empire.Universe.SelectedShip == this)
                 Empire.Universe.SelectedShip = null;
             Empire.Universe.SelectedShipList.Remove(this);
