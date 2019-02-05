@@ -700,15 +700,15 @@ namespace Ship_Game
             {
                 if (!pgs.ClickRect.HitTest(Input.CursorPosition))
                 {
-                    pgs.highlighted = false;
+                    pgs.Highlighted = false;
                 }
                 else
                 {
-                    if (!pgs.highlighted)
+                    if (!pgs.Highlighted)
                     {
                         GameAudio.ButtonMouseOver();
                     }
-                    pgs.highlighted = true;
+                    pgs.Highlighted = true;
                 }
                 if (pgs.CanAttack)
                 {

@@ -308,7 +308,7 @@ namespace Ship_Game
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count < planetGridSquare.NumAllowedTroops
+                if (planetGridSquare.TroopsHere.Count < planetGridSquare.MaxAllowedTroops
                     && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0)
                     && (Math.Abs(tile.x - planetGridSquare.x) <= 1 && Math.Abs(tile.y - planetGridSquare.y) <= 1))
                     list.Add(planetGridSquare);
@@ -339,7 +339,7 @@ namespace Ship_Game
             var list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count < planetGridSquare.NumAllowedTroops 
+                if (planetGridSquare.TroopsHere.Count < planetGridSquare.MaxAllowedTroops 
                     && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0))
                     list.Add(planetGridSquare);
             }

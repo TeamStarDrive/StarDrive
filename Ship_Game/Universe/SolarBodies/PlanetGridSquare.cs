@@ -10,7 +10,7 @@ namespace Ship_Game
 		public bool CanAttack;
 		public bool CanMoveTo;
 		public bool ShowAttackHover;
-		public int NumAllowedTroops = 1;
+		public int MaxAllowedTroops = 1;
 		public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
 		public bool Biosphere;
 		public Building building;
@@ -18,11 +18,11 @@ namespace Ship_Game
 		public QueueItem QItem;
 		public Rectangle ClickRect      = new Rectangle();
 		public Rectangle TroopClickRect = new Rectangle();
-		public bool highlighted;
+		public bool Highlighted;
 
-        public bool NoTroopsHere       => TroopsHere.Count <= 0;
+        public bool NoTroopsHere       => !TroopsAreHere;
         public bool TroopsAreHere      => TroopsHere.Count > 0;
-        public bool NoBuildingHere     => building == null;
+        public bool NoBuildingHere     => !BuildingIsHere;
         public bool BuildingIsHere     => building != null;
         public bool NothingHere        => NoTroopsHere && NoBuildingHere;
         public bool AllTroopsDead      => TroopsStrength <= 0;
