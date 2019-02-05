@@ -30,18 +30,18 @@ namespace Ship_Game
         [Serialize(18)] public string OwnerString;
         [Serialize(19)] public int BoardingStrength;
         [Serialize(20)] public int MaxStoredActions = 1;
-        [Serialize(21)] public float MoveTimer;
-        [Serialize(22)] public float AttackTimer;
+        [Serialize(21)] public float MoveTimer;   // FB - use UpdateMoveTimer or ResetMoveTimer
+        [Serialize(22)] public float AttackTimer; // FB - use UpdateAttackTimer or ResetAttackTimer
         [Serialize(23)] public float MovingTimer = 1f;
-        [Serialize(24)] public int AvailableMoveActions = 1;
-        [Serialize(25)] public int AvailableAttackActions = 1;
+        [Serialize(24)] public int AvailableMoveActions   = 1; // FB - use UpdateMoveActions 
+        [Serialize(25)] public int AvailableAttackActions = 1; // FB - use UpdateAttackActions
         [Serialize(26)] public string TexturePath;
         [Serialize(27)] public bool Idle = true;
         [Serialize(28)] public int WhichFrame = 1;
-        [Serialize(29)] public float Strength;
-        [Serialize(30)] public float StrengthMax;
-        [Serialize(31)] public int HardAttack;
-        [Serialize(32)] public int SoftAttack;
+        [Serialize(29)] public float Strength; // FB - Do not modify this directly. use DamageTroop and HealTroop
+        [Serialize(30)] public float StrengthMax; 
+        [Serialize(31)] public int HardAttack; // FB - use NetHardAttack
+        [Serialize(32)] public int SoftAttack; // FB - use NetSoftAttack
         [Serialize(33)] public string Class;
         [Serialize(34)] public int Kills;
         [Serialize(35)] public TargetType TargetType;
@@ -49,7 +49,7 @@ namespace Ship_Game
         [Serialize(37)] public float Cost;
         [Serialize(38)] public string sound_attack;
         [Serialize(39)] public float Range;
-        [Serialize(40)] public float Launchtimer = 10f;
+        [Serialize(40)] public float Launchtimer = 10f; // FB - use UpdateLaunchTimer or ResetLaunchTimer
         [Serialize(41)] public string Type;
 
         [XmlIgnore][JsonIgnore] private Planet p;
@@ -58,6 +58,9 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] private Rectangle fromRect;
         [XmlIgnore][JsonIgnore] private float updateTimer;        
         [XmlIgnore][JsonIgnore] public string DisplayName => DisplayNameEmpire(Owner);
+
+        public bool CanMove   => AvailableMoveActions > 0;
+        public bool CanAttack => AvailableAttackActions > 0;
 
         public string DisplayNameEmpire(Empire empire = null)
         {
@@ -79,6 +82,46 @@ namespace Ship_Game
         {
             Idle       = false;
             WhichFrame = first_frame;
+        }
+
+        public void UpdateAttackActions(int amount)
+        {
+            AvailableAttackActions = (AvailableAttackActions + amount).Clamped(0, MaxStoredActions);
+        }
+
+        public void UpdateMoveActions(int amount)
+        {
+            AvailableMoveActions = (AvailableMoveActions + amount).Clamped(0, MaxStoredActions);
+        }
+
+        public void UpdateMoveTimer(float amount)
+        {
+            MoveTimer += amount;
+        }
+
+        public void UpdateAttackTimer(float amount)
+        {
+            AttackTimer += amount;
+        }
+
+        public void UpdateLaunchTimer(float amount)
+        {
+            Launchtimer += amount;
+        }
+
+        public void ResetMoveTimer()
+        {
+            MoveTimer = MoveTimerBase;
+        }
+
+        public void ResetAttackTimer()
+        {
+            AttackTimer = AttackTimerBase;
+        }
+
+        public void ResetLanchTimer()
+        {
+            Launchtimer = MoveTimerBase; // FB -  yup, MoveTimerBase
         }
 
         private string WhichFrameString => WhichFrame.ToString("00");
@@ -286,6 +329,16 @@ namespace Ship_Game
                 return;
             Experience -= 1 + Level;
             Level++;
+        }
+
+        public void DamageTroop(float amount)
+        {
+            Strength = (Strength - amount).Clamped(0, ActualStrengthMax);
+        }
+
+        public void HealTroop(float amount)
+        {
+            DamageTroop(-amount);
         }
 
         public float ActualStrengthMax
