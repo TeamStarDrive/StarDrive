@@ -175,7 +175,7 @@ namespace Ship_Game.Universe.SolarBodies
                         bool flag = od.Target.Biosphere;
                         //Added Code here
                         od.Target.Habitable = false;
-                        od.Target.highlighted = false;
+                        od.Target.Highlighted = false;
                         od.Target.Biosphere = false;
                         if (flag)
                         {
