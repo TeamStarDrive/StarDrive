@@ -728,8 +728,8 @@ namespace Ship_Game
                         }
                         if (Input.LeftMouseClick)
                         {
-                            ActiveTroop.building.AvailableAttackActions -= 1;
-                            ActiveTroop.building.AttackTimer = 10f;
+                            ActiveTroop.building.UpdateAttackActions(-1);
+                            ActiveTroop.building.ResetAttackTimer();
                             StartCombat(ActiveTroop, pgs);
                         }
                         pgs.ShowAttackHover = true;
@@ -905,17 +905,17 @@ namespace Ship_Game
             p.ActiveCombats.Add(c);
         }
 
-        public static void StartCombat(PlanetGridSquare Attacker, PlanetGridSquare Defender, Planet p)
+        public static void StartCombat(PlanetGridSquare attacker, PlanetGridSquare defender, Planet p)
         {
             Combat c = new Combat
             {
-                Attacker = Attacker
+                Attacker = attacker
             };
-            if (Attacker.TroopsHere.Count > 0)
+            if (attacker.TroopsAreOnTile)
             {
-                Attacker.TroopsHere[0].DoAttack();
+                attacker.SingleTroop.DoAttack();
             }
-            c.Defender = Defender;
+            c.Defender = defender;
             p.ActiveCombats.Add(c);
         }
 
