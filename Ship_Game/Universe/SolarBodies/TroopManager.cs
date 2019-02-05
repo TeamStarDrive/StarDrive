@@ -10,18 +10,19 @@ namespace Ship_Game
     {
         private readonly Planet Ground;
 
-        private Empire Owner      => Ground.Owner;
-        public bool RecentCombat  => InCombatTimer > 0.0f;
-        private bool NoTroopsHere => TroopsHere.Count <= 0;
+        private Empire Owner           => Ground.Owner;
+        public bool RecentCombat       => InCombatTimer > 0.0f;
+        private bool NoTroopsOnPlanet  => Ground.TroopsHere.Count <= 0;
+        private bool TroopsAreOnPlanet => Ground.TroopsHere.Count > 0;
 
         private Array<PlanetGridSquare> TilesList => Ground.TilesList;
         private Array<Building> BuildingList      => Ground.BuildingList;
         private SolarSystem ParentSystem          => Ground.ParentSystem;
-        public int NumEmpireTroops(Empire us)     => TroopsHere.Count(t => t.GetOwner() == us);
+        public int NumEmpireTroops(Empire us)     => TroopList.Count(t => t.GetOwner() == us);
         public int NumDefendingTroopCount         => NumEmpireTroops(Owner);
-        public bool WeHaveTroopsHere(Empire us)   => TroopsHere.Any(t => t.GetOwner() == us);
+        public bool WeHaveTroopsHere(Empire us)   => TroopList.Any(t => t.GetOwner() == us);
 
-        private BatchRemovalCollection<Troop> TroopsHere => Ground.TroopsHere;
+        private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
 
         private float DecisionTimer = 0.5f;        
@@ -45,43 +46,39 @@ namespace Ship_Game
             if (Empire.Universe.Paused) return;
             DecisionTimer -= elapsedTime;
             InCombatTimer -= elapsedTime;
-            if (TroopsHere.Count > 0) // FB  - && TroopsHereAreEnemies  maybe?
+            if (TroopsAreOnPlanet) // FB  - && TroopsHereAreEnemies  maybe?
             {
+                ResolvePlanetaryBattle(elapsedTime);
+                if (DecisionTimer <= 0)
                 {
-                    ResolvePlanetaryBattle(elapsedTime);
-                    if (DecisionTimer <= 0)
-                    {
-                        MakeCombatDecisions();
-                        DecisionTimer = 0.5f;
-                    }
+                    MakeCombatDecisions();
+                    DecisionTimer = 0.5f;
                 }
             }
-            if (TroopsHere.Count != 0 || BuildingList.Count != 0)
-                DoTroopTimers(elapsedTime);
+            DoBuildingTimers(elapsedTime);
+            DoTroopTimers(elapsedTime);
         }
 
         void MakeCombatDecisions()
         {
             if (!HostileTargetsPresent())
                 return;
+
             for (int index = 0; index < TilesList.Count; ++index)
             {
                 PlanetGridSquare pgs = TilesList[index];
-                if (pgs.TroopsHere.Count > 0)
-                {
+                if (pgs.TroopsAreOnTile)
                     MoveTroop(pgs);
-                }
+
                 else if (pgs.ShouldBuildingPerformAutoCombat(Ground))
-                {
                     TryAttackWithCombatBuilding(pgs);
-                }
             }
         }
 
         bool HostileTargetsPresent()
         {
             foreach (PlanetGridSquare pgs in TilesList)
-                if ((pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() != Owner) ||
+                if ((pgs.TroopsHere.Count > 0 && pgs.SingleTroop.GetOwner() != Owner) ||
                     (pgs.building != null && pgs.building.EventTriggerUID.NotEmpty()))
                     return true;
             return false;
@@ -101,35 +98,33 @@ namespace Ship_Game
             }
         }
 
-        void MoveTroop(PlanetGridSquare pgs)
+        private void MoveTroop(PlanetGridSquare pgs)
         {
             bool hasAttacked = false;
-            if (pgs.TroopsHere[0].AvailableAttackActions > 0)
+            Troop troop = pgs.SingleTroop;
+            if (troop.CanAttack)
             {
-                if (pgs.TroopsHere[0].GetOwner() != Empire.Universe.PlayerEmpire || !Empire.Universe.LookingAtPlanet ||
+                if (!troop.GetOwner().isPlayer || !Empire.Universe.LookingAtPlanet ||
                     (!(Empire.Universe.workersPanel is CombatScreen) ||
-                     (Empire.Universe.workersPanel as CombatScreen).p != Ground) || GlobalStats.AutoCombat)
+                     ((CombatScreen) Empire.Universe.workersPanel).p != Ground) || GlobalStats.AutoCombat)
                 {
+                    foreach (PlanetGridSquare planetGridSquare in TilesList)
                     {
-                        foreach (PlanetGridSquare planetGridSquare in TilesList)
-                        {
-                            if (CombatScreen.TroopCanAttackSquare(pgs, planetGridSquare, Ground))
-                            {
-                                hasAttacked = true;
-                                if (pgs.TroopsHere[0].AvailableAttackActions > 0)
-                                {
-                                    --pgs.TroopsHere[0].AvailableAttackActions;
-                                    --pgs.TroopsHere[0].AvailableMoveActions;
-                                    if (planetGridSquare.x > pgs.x)
-                                        pgs.TroopsHere[0].facingRight = true;
-                                    else if (planetGridSquare.x < pgs.x)
-                                        pgs.TroopsHere[0].facingRight = false;
-                                    CombatScreen.StartCombat(pgs, planetGridSquare, Ground);
-                                }
+                        if (!CombatScreen.TroopCanAttackSquare(pgs, planetGridSquare, Ground))
+                            continue;
 
-                                break;
-                            }
+                        hasAttacked = true;
+                        if (troop.AvailableAttackActions > 0)
+                        {
+                            troop.UpdateAttackActions(-1);
+                            troop.UpdateMoveActions(-1);
+                            if (planetGridSquare.x > pgs.x)
+                                troop.facingRight = true;
+                            else if (planetGridSquare.x < pgs.x)
+                                troop.facingRight = false;
+                            CombatScreen.StartCombat(pgs, planetGridSquare, Ground);
                         }
+                        break;
                     }
                 }
                 else return;
@@ -137,18 +132,19 @@ namespace Ship_Game
 
             try
             {
-                if (!hasAttacked && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
+                if (!hasAttacked && pgs.TroopsAreOnTile && pgs.SingleTroop.CanMove)
                 {
                     foreach (PlanetGridSquare planetGridSquare in TilesList.OrderBy(tile =>
                         Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y)))
                     {
-                        if (!pgs.TroopsHere.Any())
+                        if (pgs.NoTroopsOnTile)
                             break;
+
                         if (planetGridSquare != pgs)
                         {
-                            if (planetGridSquare.TroopsHere.Any())
+                            if (planetGridSquare.TroopsAreOnTile)
                             {
-                                if (planetGridSquare.TroopsHere[0].GetOwner() != pgs.TroopsHere[0].GetOwner())
+                                if (planetGridSquare.SingleTroop.GetOwner() != pgs.SingleTroop.GetOwner())
                                 {
                                     if (planetGridSquare.x > pgs.x)
                                     {
@@ -349,8 +345,8 @@ namespace Ship_Game
                             troop.facingRight = false;
                         troop.SetFromRect(start.TroopClickRect);
                         troop.MovingTimer = 0.75f;
-                        --troop.AvailableMoveActions;
-                        troop.MoveTimer = troop.MoveTimerBase;
+                        troop.UpdateMoveActions(-1);
+                        troop.ResetMoveTimer();
                         eventLocation.TroopsHere.Add(troop);
                         start.TroopsHere.Clear();
                     }
@@ -363,14 +359,18 @@ namespace Ship_Game
             return false;
         }
 
-        public void DoTroopTimers(float elapsedTime)
+        private void DoBuildingTimers(float elapsedTime)
         {
+            if (BuildingList.Count <= 0)
+                return;
+
             //foreach (Building building in (Planet) Ground.BuildingList)
             for (int x = 0; x < BuildingList.Count; x++)
             {
                 Building building = BuildingList[x];
-                if (building == null)
+                if (building == null) // FB - can this be null here??
                     continue;
+
                 building.AttackTimer -= elapsedTime;
                 if (building.AttackTimer < 0.0)
                 {
@@ -378,11 +378,18 @@ namespace Ship_Game
                     building.AttackTimer = 10f;
                 }
             }
+        }
+
+        private void DoTroopTimers(float elapsedTime)
+        {
+            if (NoTroopsOnPlanet)
+                return;
+
             Array<Troop> list = new Array<Troop>();
             //foreach (Troop troop in (Planet) Ground.TroopsHere)
-            for (int x = 0; x < TroopsHere.Count; x++)
+            for (int x = 0; x < TroopList.Count; x++)
             {
-                Troop troop = TroopsHere[x];
+                Troop troop = TroopList[x];
                 if (troop == null)
                     continue;
                 if (troop.Strength <= 0)
@@ -391,38 +398,34 @@ namespace Ship_Game
                     foreach (PlanetGridSquare planetGridSquare in TilesList)
                         planetGridSquare.TroopsHere.Remove(troop);
                 }
-                troop.Launchtimer -= elapsedTime;
-                troop.MoveTimer -= elapsedTime;
+                troop.UpdateLaunchTimer(-elapsedTime);
+                troop.UpdateMoveTimer(-elapsedTime);
                 troop.MovingTimer -= elapsedTime;
                 if (troop.MoveTimer < 0.0)
                 {
-                    ++troop.AvailableMoveActions;
-                    if (troop.AvailableMoveActions > troop.MaxStoredActions)
-                        troop.AvailableMoveActions = troop.MaxStoredActions;
-                    troop.MoveTimer = troop.MoveTimerBase;
+                    troop.UpdateMoveActions(1);
+                    troop.ResetMoveTimer();
                 }
-                troop.AttackTimer -= elapsedTime;
+                troop.UpdateAttackTimer(-elapsedTime);
                 if (troop.AttackTimer < 0.0)
                 {
-                    ++troop.AvailableAttackActions;
-                    if (troop.AvailableAttackActions > troop.MaxStoredActions)
-                        troop.AvailableAttackActions = troop.MaxStoredActions;
-                    troop.AttackTimer = troop.AttackTimerBase;
+                    troop.UpdateAttackActions(1);
+                    troop.ResetAttackTimer();
                 }
             }
             foreach (Troop troop in list)
-                TroopsHere.Remove(troop);
+                TroopList.Remove(troop);
         }
 
         private bool CombatDone(PlanetGridSquare attacker, PlanetGridSquare defender)
         {
-            return attacker.NothingHere || defender.NothingHere ||
+            return attacker.NothingOnTile || defender.NothingOnTile ||
                     attacker.AllDestroyed || defender.AllDestroyed;
         }
 
         private int RollDamage(PlanetGridSquare attacker, PlanetGridSquare defender)
         {
-            TargetType attackType = defender.NoTroopsHere ? TargetType.Hard : defender.SingleTroop.TargetType;
+            TargetType attackType = defender.NoTroopsOnTile ? TargetType.Hard : defender.SingleTroop.TargetType;
             var attackerStats     = new AttackerStats(attacker);
             float attackValue     = attackType == TargetType.Soft ? attackerStats.SoftAttack : attackerStats.HardAttack;
             int damage = 0;
@@ -450,13 +453,13 @@ namespace Ship_Game
                 ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(defender.TroopClickRect, 1);
             }
 
-            if (defender.TroopsAreHere)
+            if (defender.TroopsAreOnTile)
             {
-                defender.SingleTroop.Strength -= damage;
+                defender.SingleTroop.DamageTroop(damage);
                 if (!defender.AllTroopsDead) // Troops are still alive
                     return;
 
-                TroopsHere.Remove(defender.SingleTroop);
+                TroopList.Remove(defender.SingleTroop);
                 defender.TroopsHere.Clear();
                 ActiveCombats.QueuePendingRemoval(combat);
                 if (isViewing)
@@ -464,12 +467,12 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("Explo1");
                     ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(defender.TroopClickRect, 4);
                 }
-                if (attacker.TroopsAreHere)
+                if (attacker.TroopsAreOnTile)
                     attacker.SingleTroop.AddKill(); // FB - for now multi troops on same tile is not supported
             }
             else
             {
-                defender.building.Strength -= damage;
+                defender.building.Strength       -= damage;
                 defender.building.CombatStrength -= damage;
                 if (!defender.BuildingDestroyed)
                     return; // Building still stands
@@ -545,7 +548,7 @@ namespace Ship_Game
             if (ActiveCombats.Count > 0)
                 InCombatTimer = 10f;
 
-            if (NoTroopsHere || Owner == null)
+            if (NoTroopsOnPlanet || Owner == null)
                 return;
 
             var forces = new Forces(Owner, TilesList);
@@ -564,8 +567,8 @@ namespace Ship_Game
             if (Owner == empire)
                 strength += BuildingList.Sum(offense => offense.CombatStrength);
 
-            using (TroopsHere.AcquireReadLock())
-                strength += TroopsHere.Where(t => t.GetOwner() == empire).Sum(str => str.Strength);
+            using (TroopList.AcquireReadLock())
+                strength += TroopList.Where(t => t.GetOwner() == empire).Sum(str => str.Strength);
             return strength;
         }
 
@@ -582,7 +585,7 @@ namespace Ship_Game
 
         public float GroundStrengthOther(Empire allButThisEmpire)
         {
-            float enemyTroopStrength = TroopsHere.Where(t => t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.Strength);
+            float enemyTroopStrength = TroopList.Where(t => t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.Strength);
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b;
@@ -604,8 +607,8 @@ namespace Ship_Game
         public bool TroopsHereAreEnemies(Empire empire)
         {
             bool enemies = false;
-            using (TroopsHere.AcquireReadLock())
-                foreach (Troop t in TroopsHere)
+            using (TroopList.AcquireReadLock())
+                foreach (Troop t in TroopList)
                 {
                     if (!empire.TryGetRelations(t.GetOwner(), out Relationship trouble) || trouble.AtWar)
                     {
@@ -619,14 +622,14 @@ namespace Ship_Game
         public int NumGroundLandingSpots()
         {            
             int spotCount = TilesList.Sum(spots => spots.MaxAllowedTroops); //.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1)
-            int troops    = TroopsHere.Filter(owner => owner.GetOwner() == Owner).Length;
+            int troops    = TroopList.Filter(owner => owner.GetOwner() == Owner).Length;
             return spotCount - troops;
         }
 
         public Array<Troop> EmpireTroops(Empire empire, int maxToTake)
         {
             var troops = new Array<Troop>();
-            foreach (Troop troop in TroopsHere)
+            foreach (Troop troop in TroopList)
             {
                 if (troop.GetOwner() != empire) continue;
 
@@ -642,9 +645,9 @@ namespace Ship_Game
             if (RecentCombat)
                 return;
 
-            using (TroopsHere.AcquireReadLock())
-                foreach (Troop troop in TroopsHere)
-                    troop.Strength = (troop.Strength + healAmount).Clamped(0, troop.ActualStrengthMax);
+            using (TroopList.AcquireReadLock())
+                foreach (Troop troop in TroopList)
+                    troop.HealTroop(healAmount);
         }
 
         public struct AttackerStats
@@ -655,7 +658,7 @@ namespace Ship_Game
 
             public AttackerStats(PlanetGridSquare attacker)
             {
-                if (attacker.TroopsAreHere)
+                if (attacker.TroopsAreOnTile)
                 {
                     Strength   = attacker.TroopsStrength;
                     HardAttack = attacker.TroopsHardAttack;

@@ -541,7 +541,7 @@ namespace Ship_Game
             if (forOwner != null)
             {
                 troop.SetOwner(forOwner);
-                troop.Strength = troop.ActualStrengthMax;
+                troop.HealTroop(troop.ActualStrengthMax);
             }
             return troop;
         }
