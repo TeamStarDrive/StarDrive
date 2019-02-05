@@ -43,10 +43,10 @@ namespace Ship_Game
             if (Empire.Universe.Paused) return;
             DecisionTimer -= elapsedTime;
             InCombatTimer -= elapsedTime;
-            if (TroopsHere.Count > 0)
+            if (TroopsHere.Count > 0) // FB  - && TroopsHereAreEnemies  maybe?
             {
                 {
-                    DoCombats(elapsedTime);
+                    ResolvePlanetaryBattle(elapsedTime);
                     if (DecisionTimer <= 0)
                     {
                         MakeCombatDecisions();
@@ -412,76 +412,88 @@ namespace Ship_Game
                 TroopsHere.Remove(troop);
         }
 
-        private void DoViewedCombat(float elapsedTime)
+        private bool CombatDone(PlanetGridSquare attacker, PlanetGridSquare defender)
+        {
+            return attacker.NothingHere || defender.NothingHere ||
+                    attacker.AllDestroyed || defender.AllDestroyed;
+        }
+
+        private int RollDamage(PlanetGridSquare attacker, PlanetGridSquare defender)
+        {
+            TargetType attackType = defender.NoTroopsHere ? TargetType.Hard : defender.SingleTroop.TargetType;
+            var attackerStats     = new AttackerStats(attacker);
+            float attackValue     = attackType == TargetType.Soft ? attackerStats.SoftAttack : attackerStats.HardAttack;
+            int damage = 0;
+            for (int index = 0; index < attackerStats.Strength; ++index)
+            {
+                if (RandomMath.RandomBetween(0.0f, 100f) < attackValue)
+                    ++damage;
+            }
+            return damage;
+        }
+
+        private void DealDamage(Combat combat, int damage, bool isViewing = false)
+        {
+            PlanetGridSquare attacker = combat.Attacker;
+            PlanetGridSquare defender = combat.Defender;
+            if (damage == 0)
+            {
+                if (isViewing) GameAudio.PlaySfxAsync("sd_troop_attack_miss");
+                return;
+            }
+
+            if (isViewing)
+            {
+                GameAudio.PlaySfxAsync("sd_troop_attack_hit");
+                ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(defender.TroopClickRect, 1);
+            }
+
+            if (defender.TroopsAreHere)
+            {
+                defender.SingleTroop.Strength -= damage;
+                if (!defender.AllTroopsDead) // Troops are still alive
+                    return;
+
+                TroopsHere.Remove(defender.SingleTroop);
+                defender.TroopsHere.Clear();
+                ActiveCombats.QueuePendingRemoval(combat);
+                if (isViewing)
+                {
+                    GameAudio.PlaySfxAsync("Explo1");
+                    ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(defender.TroopClickRect, 4);
+                }
+                if (attacker.TroopsAreHere)
+                    attacker.SingleTroop.AddKill(); // FB - for now multi troops on same tile is not supported
+            }
+            else
+            {
+                defender.building.Strength -= damage;
+                defender.building.CombatStrength -= damage;
+                if (!defender.BuildingDestroyed)
+                    return; // Building still stands
+
+                BuildingList.Remove(defender.building);
+                defender.building = null; // make pgs building private in the future
+            }
+        }
+
+        private void ResolveTacticalCombats(float elapsedTime, bool isViewing = false)
         {
             using (ActiveCombats.AcquireReadLock())
                 foreach (Combat combat in ActiveCombats)
                 {
-                    if (combat.Attacker.NothingHere || combat.Defender.NothingHere || 
-                        combat.Attacker.AllDestroyed || combat.Defender.AllDestroyed)
+                    if (CombatDone(combat.Attacker, combat.Defender))
                     {
                         ActiveCombats.QueuePendingRemoval(combat);
                         break;
                     }
 
-                    float strength;
-                    int hardAttack;
-                    int softAttack;
-                    if (combat.Attacker.TroopsAreHere)
-                    {
-                        strength   = combat.Attacker.TroopsStrength;
-                        hardAttack = combat.Attacker.TroopsHardAttack;
-                        softAttack = combat.Attacker.TroopsSoftAttack;
-                    }
-                    else // building attacks
-                    {
-                        strength   = combat.Attacker.building.Strength;
-                        hardAttack = combat.Attacker.building.HardAttack;
-                        softAttack = combat.Attacker.building.SoftAttack;
-                    }
-                    TargetType attackType = combat.Defender.NoTroopsHere ? TargetType.Hard : combat.Defender.SingleTroop.TargetType;
-                    combat.Timer         -= elapsedTime;
-                    int damage = 0;
+                    combat.Timer -= elapsedTime;
                     if (combat.Timer < 3.0 && combat.phase == 1)
                     {
-                        float attackValue = attackType == TargetType.Soft ? softAttack : hardAttack;
-                        for (int index = 0; index < strength; ++index)
-                        {
-                            if (RandomMath.RandomBetween(0.0f, 100f) < attackValue)
-                                ++damage;
-                        }
-                        if (damage > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
-                        {
-                            GameAudio.PlaySfxAsync("sd_troop_attack_hit");
-                            ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(combat.Defender.TroopClickRect, 1);
-                            if (combat.Defender.TroopsHere.Count > 0)
-                            {
-                                combat.Defender.TroopsHere[0].Strength -= damage;
-                                if (combat.Defender.TroopsHere[0].Strength <= 0)
-                                {
-                                    TroopsHere.Remove(combat.Defender.TroopsHere[0]);
-                                    combat.Defender.TroopsHere.Clear();
-                                    ActiveCombats.QueuePendingRemoval(combat);
-                                    GameAudio.PlaySfxAsync("Explo1");
-                                    ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(combat.Defender.TroopClickRect, 4);
-                                    if (combat.Attacker.TroopsHere.Count > 0)
-                                    {
-                                        combat.Attacker.TroopsHere[0].AddKill();
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                combat.Defender.building.Strength -= damage;
-                                combat.Defender.building.CombatStrength -= damage;
-                                if (combat.Defender.building.Strength <= 0)
-                                {
-                                    BuildingList.Remove(combat.Defender.building);
-                                    combat.Defender.building = null;
-                                }
-                            }
-                        }
-                        else if (damage == 0)
+                        int damage = RollDamage(combat.Attacker, combat.Defender);
+                        DealDamage(combat, damage, isViewing);
+                        if (damage == 0 && isViewing)
                             GameAudio.PlaySfxAsync("sd_troop_attack_miss");
                         combat.phase = 2;
                     }
@@ -490,142 +502,60 @@ namespace Ship_Game
                 }
         }
 
-        private void DoCombatUnviewed(float elapsedTime)
+        private void ResolveDiplomacy(int invadiveForces, Empire invadingEmpire)
         {
-            using (ActiveCombats.AcquireReadLock())
-                foreach (Combat combat in ActiveCombats)
-                {
-                    if (combat.Attacker.NothingHere || combat.Defender.NothingHere ||
-                        combat.Attacker.AllDestroyed || combat.Defender.AllDestroyed)
-                    {
-                        ActiveCombats.QueuePendingRemoval(combat);
-                        break;
-                    }
+            if (invadiveForces <= NumInvadersLast || NumInvadersLast != 0)
+                return; // FB - nothing to change if no new troops invade
 
-                    float num1;
-                    int num2;
-                    int num3;
-                    if (combat.Attacker.TroopsHere.Count > 0)
-                    {
-                        num1 = combat.Attacker.TroopsHere[0].Strength;
-                        num2 = combat.Attacker.TroopsHere[0].NetHardAttack;
-                        num3 = combat.Attacker.TroopsHere[0].NetSoftAttack;
-                    }
-                    else
-                    {
-                        num1 = combat.Attacker.building.Strength;
-                        num2 = combat.Attacker.building.HardAttack;
-                        num3 = combat.Attacker.building.SoftAttack;
-                    }
-                    TargetType str = combat.Defender.TroopsHere.Count <= 0 ? TargetType.Hard : combat.Defender.TroopsHere[0].TargetType;
-                    combat.Timer -= elapsedTime;
-                    int num4 = 0;
-                    if (combat.Timer < 3.0 && combat.phase == 1)
-                    {
-                        for (int index = 0; index < num1; ++index)
-                        {
-                            if (RandomMath.RandomBetween(0.0f, 100f) < (str == TargetType.Soft ? num3 : (double)num2))
-                                ++num4;
-                        }
-                        if (num4 > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
-                        {
-                            if (combat.Defender.TroopsHere.Count > 0)
-                            {
-                                combat.Defender.TroopsHere[0].Strength -= num4;
-                                if (combat.Defender.TroopsHere[0].Strength <= 0)
-                                {
-                                    TroopsHere.Remove(combat.Defender.TroopsHere[0]);
-                                    combat.Defender.TroopsHere.Clear();
-                                    ActiveCombats.QueuePendingRemoval(combat);
-                                    if (combat.Attacker.TroopsHere.Count > 0)
-                                    {
-                                        combat.Attacker.TroopsHere[0].AddKill();
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                combat.Defender.building.Strength -= num4;
-                                combat.Defender.building.CombatStrength -= num4;
-                                if (combat.Defender.building.Strength <= 0)
-                                {
-                                    BuildingList.Remove(combat.Defender.building);
-                                    combat.Defender.building = null;
-                                }
-                            }
-                        }
-                        combat.phase = 2;
-                    }
-                    else if (combat.phase == 2)
-                        ActiveCombats.QueuePendingRemoval(combat);
+            if (Empire.Universe.PlayerEmpire == Owner)
+                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification((Planet) Ground, invadingEmpire, Owner);
+            else if (invadingEmpire == Empire.Universe.PlayerEmpire && !Owner.isFaction && !Empire.Universe.PlayerEmpire.GetRelations(Owner).AtWar)
+            {
+                if (Empire.Universe.PlayerEmpire.GetRelations(Owner).Treaty_NAPact)
+                {
+                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded NA Pact", ParentSystem));
+                    Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
+                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 50f;
+                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 50f;
                 }
+                else
+                {
+                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded Start War", ParentSystem));
+                    Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
+                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 25f;
+                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 25f;
+                }
+            }
         }
-        
-        public void DoCombats(float elapsedTime)
+
+        private void ResolvePlanetaryBattle(float elapsedTime)
         {
             if (Empire.Universe.LookingAtPlanet 
                 && Empire.Universe.workersPanel is CombatScreen screen 
                 && screen.p == Ground)
             {
-                DoViewedCombat(elapsedTime);
+                ResolveTacticalCombats(elapsedTime, isViewing: true);
             }
             else
             {
-                DoCombatUnviewed(elapsedTime);
+                ResolveTacticalCombats(elapsedTime);
                 ActiveCombats.ApplyPendingRemovals();
             }
 
             if (ActiveCombats.Count > 0)
                 InCombatTimer = 10f;
+
             if (TroopsHere.Count <= 0 || Owner == null)
                 return;
-            int num1 = 0;
-            int num2 = 0;
-            Empire index = null;
 
-            foreach (PlanetGridSquare planetGridSquare in TilesList)
-            {
-                using (planetGridSquare.TroopsHere.AcquireReadLock())
-                    foreach (Troop troop in planetGridSquare.TroopsHere)
-                    {
-                        if (troop.GetOwner() != null && troop.GetOwner() != Owner)
-                        {
-                            ++num2;
-                            index = troop.GetOwner();
-                        }
-                        else
-                            ++num1;
-                    }
-                if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
-                    ++num1;
-            }
+            var forces = new Forces(Owner, TilesList);
+            ResolveDiplomacy(forces.InvadingForces, forces.InvadingEmpire);
+            NumInvadersLast = forces.InvadingForces;
 
-            if (num2 > NumInvadersLast && NumInvadersLast == 0)
-            {
-                if (Empire.Universe.PlayerEmpire == Owner)
-                    Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification((Planet) Ground, index, Owner);
-                else if (index == Empire.Universe.PlayerEmpire && !Owner.isFaction && !Empire.Universe.PlayerEmpire.GetRelations(Owner).AtWar)
-                {
-                    if (Empire.Universe.PlayerEmpire.GetRelations(Owner).Treaty_NAPact)
-                    {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded NA Pact", ParentSystem));
-                        Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
-                        Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 50f;
-                        Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 50f;
-                    }
-                    else
-                    {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded Start War", ParentSystem));
-                        Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
-                        Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 25f;
-                        Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 25f;
-                    }
-                }
-            }
-            NumInvadersLast = num2;
-            if (num2 <= 0 || num1 != 0)//|| (Planet) Ground.Owner == null)
-                return;
-            Ground.ChangeOwnerByInvasion(index);
+            if (forces.InvadingForces <= 0 || forces.DefendingForces != 0)
+                return; // Planet is still fighting or all invading forces are destroyed
+
+            Ground.ChangeOwnerByInvasion(forces.InvadingEmpire);
         }
 
         public float GroundStrength(Empire empire)
@@ -646,7 +576,6 @@ namespace Ship_Game
             foreach (PlanetGridSquare PGS in TilesList)
             {
                 num += PGS.NumAllowedTroops;
-
             }
             return num;
         }
@@ -716,6 +645,59 @@ namespace Ship_Game
             using (TroopsHere.AcquireReadLock())
                 foreach (Troop troop in TroopsHere)
                     troop.Strength = (troop.Strength + healAmount).Clamped(0, troop.ActualStrengthMax);
+        }
+
+        public struct AttackerStats
+        {
+            public readonly float Strength;
+            public readonly int HardAttack;
+            public readonly int SoftAttack;
+
+            public AttackerStats(PlanetGridSquare attacker)
+            {
+                if (attacker.TroopsAreHere)
+                {
+                    Strength   = attacker.TroopsStrength;
+                    HardAttack = attacker.TroopsHardAttack;
+                    SoftAttack = attacker.TroopsSoftAttack;
+                }
+                else // building attacks
+                {
+                    Strength   = attacker.building.Strength;
+                    HardAttack = attacker.building.HardAttack;
+                    SoftAttack = attacker.building.SoftAttack;
+                }
+            }
+        }
+
+        public struct Forces
+        {
+            public int DefendingForces;
+            public int InvadingForces;
+            public Empire InvadingEmpire;
+
+            public Forces(Empire defendingEmpire, Array<PlanetGridSquare> tileList)
+            {
+                DefendingForces = 0;
+                InvadingForces  = 0;
+                InvadingEmpire  = null;
+                foreach (PlanetGridSquare planetGridSquare in tileList)
+                {
+                    using (planetGridSquare.TroopsHere.AcquireReadLock())
+                        foreach (Troop troop in planetGridSquare.TroopsHere)
+                        {
+                            if (troop.GetOwner() != null && troop.GetOwner() != defendingEmpire)
+                            {
+                                ++InvadingForces;
+                                InvadingEmpire = troop.GetOwner();
+                            }
+                            else
+                                ++DefendingForces;
+                        }
+                    if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
+                        ++DefendingForces;
+                }
+            }
         }
     }
 
