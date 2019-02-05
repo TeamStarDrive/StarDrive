@@ -44,7 +44,7 @@ namespace Ship_Game
         [Serialize(32)] public int SoftAttack;
         [Serialize(33)] public string Class;
         [Serialize(34)] public int Kills;
-        [Serialize(35)] public string TargetType;
+        [Serialize(35)] public TargetType TargetType;
         [Serialize(36)] public int Experience;
         [Serialize(37)] public float Cost;
         [Serialize(38)] public string sound_attack;

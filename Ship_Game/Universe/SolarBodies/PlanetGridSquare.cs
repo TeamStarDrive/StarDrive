@@ -25,10 +25,15 @@ namespace Ship_Game
         public bool NoBuildingHere     => building == null;
 	    public bool BuildingIsHere     => building != null;
         public bool NothingHere        => NoTroopsHere && NoBuildingHere;
-	    public float TroopStrengthHere => TroopsHere.Sum(troop => troop.Strength);
-        public bool AllTroopsDead      => TroopStrengthHere <= 0;
+        public bool AllTroopsDead      => TroopsStrength <= 0;
         public bool BuildingDestroyed  => BuildingIsHere && building.Strength <= 0;
         public bool AllDestroyed       => BuildingDestroyed && AllTroopsDead;
+        public Troop SingleTroop       => TroopsHere[0]; //FB -  multiple troops per PGS is not supported yet
+
+        // FB - all these are starting multiple troops per PGS
+	    public float TroopsStrength    => TroopsHere.Sum(troop => troop.Strength);
+        public int TroopsHardAttack    => TroopsHere.Sum(troop => troop.NetHardAttack);
+	    public int TroopsSoftAttack    => TroopsHere.Sum(troop => troop.NetSoftAttack);
 
         public PlanetGridSquare()
 		{
