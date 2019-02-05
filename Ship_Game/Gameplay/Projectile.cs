@@ -241,6 +241,7 @@ namespace Ship_Game.Gameplay
                     break;
             }
         }
+
         public override Vector2 TargetErrorPos()
         {
             Vector2 jitter = Vector2.Zero;
@@ -255,7 +256,6 @@ namespace Ship_Game.Gameplay
                 jitter += RandomMath2.Vector2D((Weapon?.Module.WeaponECM ?? 0) * 80f);
 
             return jitter;
-            
         }
 
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
@@ -402,8 +402,8 @@ namespace Ship_Game.Gameplay
         {
             if (Miss || target == Owner)
                 return false;
-            //
-            switch (target) {
+            switch (target)
+            {
                 case Projectile projectile:
                     if (!Weapon.Tag_PD && !Weapon.TruePD) return false;
                     if (!projectile.Weapon.Tag_Intercept) return false;
@@ -434,6 +434,7 @@ namespace Ship_Game.Gameplay
                     // Non exploding projectiles should go through multiple modules if it has enough damage
                     if (!Explodes && module.Active)
                         ArmourPiercingTouch(module, parent);
+                    // else: it will do radial explode and affect whatever it cant
 
                     Health = 0f;
                     break;

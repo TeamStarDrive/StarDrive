@@ -303,12 +303,14 @@ namespace Ship_Game
 
         public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)
         {
-            return new ImpactPredictor(ourShip, target).Predict();
+            return new ImpactPredictor(ourShip, target)
+                .Predict(ourShip.CanUseAdvancedTargeting);
         }
 
         public static Vector2 PredictImpact(this Projectile proj, GameplayObject target)
         {
-            return new ImpactPredictor(proj, target).Predict();
+            return new ImpactPredictor(proj, target)
+                .Predict(proj.Weapon.CanUseAdvancedTargeting);
         }
 
         // can be used for collision detection

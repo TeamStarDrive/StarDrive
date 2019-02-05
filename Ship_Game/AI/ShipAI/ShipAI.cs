@@ -143,7 +143,7 @@ namespace Ship_Game.AI
                 system.SetExploredBy(Owner.loyalty);
                 return true;
             }
-            ThrustOrWarpTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
+            ThrustOrWarpToPosCorrected(MovePosition, elapsedTime);
             return false;
         }
 
@@ -174,7 +174,7 @@ namespace Ship_Game.AI
 
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
             {
-                ThrustOrWarpTowardsPosition(goal.TargetPlanet.Center, elapsedTime, 200);
+                ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime, 200f);
                 return;
             }
             ClearOrders(State);
@@ -551,7 +551,7 @@ namespace Ship_Game.AI
             {
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                 {
-                    ThrustOrWarpTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
+                    ThrustOrWarpToPosCorrected(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
                 }
                 else
                 {

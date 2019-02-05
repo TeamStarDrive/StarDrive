@@ -7,22 +7,92 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Ships
 {
-    public sealed partial class Ship
+    public partial class Ship
     {
-        // The only way to spawn instances of Ship is to call Ship.CreateShip... overloads
-        private Ship() : base(GameObjectType.Ship)
+        // You can also call Ship.CreateShip... functions to spawn ships
+        protected Ship(Empire empire, ShipData data, bool fromSave, bool isTemplate) : base(GameObjectType.Ship)
         {
+            Position   = new Vector2(200f, 200f);
+            Name       = data.Name;
+            Level      = data.Level;
+            experience = data.experience;
+            loyalty    = empire;
+            SetShipData(data);
+
+            if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate))
+            {
+                Log.Error($"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
+                return;
+            }
+
+            foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
+                ThrusterList.Add(new Thruster(this, t.Scale, t.Position));
+            InitializeStatus(fromSave);
+            InitializeThrusters();
+        }
+
+        protected Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
+        {
+            if (template == null)
+                return; // Aaarghhh!!
+            Position     = position;
+            Name         = template.Name;
+            BaseStrength = template.BaseStrength;
+            BaseCanWarp  = template.BaseCanWarp;
+            loyalty      = owner;
+            SetShipData(template.shipData);
+
+            if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
+            {
+                Log.Error($"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
+                return; // return and crash again...
+            }
+
+            ThrusterList.Capacity = template.ThrusterList.Count;
+            foreach (Thruster t in template.ThrusterList)
+                ThrusterList.Add(new Thruster(this, t.tscale, t.XMLPos));
+
+            // Added by McShooterz: add automatic ship naming
+            if (GlobalStats.HasMod)
+                VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
+
+            if (shipData.Role == ShipData.RoleName.fighter)
+                Level += owner.data.BonusFighterLevels;
+            Level += owner.data.BaseShipLevel;
+            // during new game creation, universeScreen can still be null its not supposed to work on players.
+            if (Empire.Universe != null && CurrentGame.Difficulty > UniverseData.GameDifficulty.Normal &&
+                owner != EmpireManager.Player)
+            {
+                Level += (int)CurrentGame.Difficulty;
+            }
+
+            InitializeShip(loadingFromSavegame: false);
+            owner.AddShip(this);
+            Empire.Universe?.MasterShipList.Add(this);
+        }
+
+        protected Ship(string shipName, Empire owner, Vector2 position)
+                : this(GetShipTemplate(shipName), owner, position)
+        {
+        }
+
+        static Ship GetShipTemplate(string shipName)
+        {
+            if (ResourceManager.GetShipTemplate(shipName, out Ship template))
+                return template;
+            Log.Warning($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs");
+            return ResourceManager.GetShipTemplate("Vulcan Scout", out template) ? template : null;
         }
 
         public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool isTemplate = false)
         {
-            var internalPosistions = new Array<Vector2>();
+            var internalPositions = new Array<Vector2>();
             int count = 0;
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slot = templateSlots[i];
                 if (slot.Restrictions == Restrictions.I)
-                    internalPosistions.Add(slot.Position);
+                    internalPositions.Add(slot.Position);
                 string uid = slot.InstalledModuleUID;
                 if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                     continue;
@@ -56,7 +126,7 @@ namespace Ship_Game.Ships
                 {
                     for (float y = module.XMLPosition.Y; y < module.XMLPosition.Y + module.YSIZE * 16; y += 16)
                     {
-                        if (internalPosistions.Contains(new Vector2(x, y)))
+                        if (internalPositions.Contains(new Vector2(x, y)))
                         {
                             module.Restrictions = Restrictions.I;
                             break;
@@ -75,47 +145,21 @@ namespace Ship_Game.Ships
 
         public static Ship CreateShipFromShipData(Empire empire, ShipData data, bool fromSave, bool isTemplate = false)
         {
-            var ship = new Ship
-            {
-                Position   = new Vector2(200f, 200f),
-                Name       = data.Name,
-                Level      = data.Level,
-                experience = data.experience,
-                shipData   = data,
-                loyalty    = empire
-            };
-
-            ship.SetShipData(data);
-
-            if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate))
-                return null;
-
-            foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
-            {
-                ship.ThrusterList.Add(new Thruster
-                {
-                    Parent = ship,
-                    tscale = t.Scale,
-                    XMLPos = t.Position
-                });
-            }
-
-            ship.InitializeStatus(fromSave);
-            ship.InitializeThrusters();
-            return ship;
+            var ship = new Ship(empire, data, fromSave, isTemplate);
+            return ship.HasModules ? ship : null;
         }
 
         public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
         {
             save.data.Hull = save.Hull; // @todo Why is this modified here?
-            Ship ship = CreateShipFromShipData(empire, save.data, fromSave: true);
-            if (ship == null) // happens if module creation failed
-                return null;
+            var ship = new Ship(empire, save.data, fromSave: true, isTemplate: false);
+            if (!ship.HasModules)
+                return null; // module creation failed
             ship.InitializeFromSaveData(save);
             return ship;
         }
 
-        private void InitializeFromSaveData(SavedGame.ShipSaveData save)
+        void InitializeFromSaveData(SavedGame.ShipSaveData save)
         {
             guid             = save.guid;
             Position         = save.Position;
@@ -171,64 +215,8 @@ namespace Ship_Game.Ships
                 Projectile.Create(this, pdata);
         }
 
-        // Added by RedFox - Debug, Hangar Ship, and Platform creation
-        public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
-        {
-            if (!ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template))
-            {
-                Log.Warning($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs");
-                if (!ResourceManager.ShipsDict.TryGetValue("Vulcan Scout", out template))  // try to spawn Vulcan Scout
-                    return null;
-            }
 
-            var ship = new Ship
-            {
-                shipData     = template.shipData,
-                Name         = template.Name,
-                BaseStrength = template.BaseStrength,
-                BaseCanWarp  = template.BaseCanWarp,
-                loyalty      = owner,
-                Position     = position
-            };
-
-            if (!ship.CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
-            {
-                Log.Error($"Unexpected failure while spawning ship '{shipName}'. Is the module list corrupted??");
-                return null; // return and crash again...
-            }
-
-            ship.ThrusterList.Capacity = template.ThrusterList.Count;
-            foreach (Thruster t in template.ThrusterList)
-            {
-                ship.ThrusterList.Add(new Thruster
-                {
-                    Parent = ship,
-                    tscale = t.tscale,
-                    XMLPos = t.XMLPos
-                });
-            }
-
-            // Added by McShooterz: add automatic ship naming
-            if (GlobalStats.HasMod)
-                ship.VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, ship.shipData.Role);
-
-            if (ship.shipData.Role == ShipData.RoleName.fighter)
-                ship.Level += owner.data.BonusFighterLevels;
-            ship.Level += owner.data.BaseShipLevel;
-            // during new game creation, universeScreen can still be null its not supposed to work on players.
-            if (Empire.Universe != null && CurrentGame.Difficulty > UniverseData.GameDifficulty.Normal &&
-                owner != EmpireManager.Player)
-            {
-                ship.Level += (int)CurrentGame.Difficulty;
-            }
-
-            ship.InitializeShip(loadingFromSavegame: false);
-            owner.AddShip(ship);
-            Empire.Universe?.MasterShipList.Add(ship);
-            return ship;
-        }
-
-        private void InitializeThrusters()
+        void InitializeThrusters()
         {
             if (ThrusterList.IsEmpty || ThrusterList.First.model != null)
                 return;
@@ -241,13 +229,18 @@ namespace Ship_Game.Ships
             }
         }
 
-        // @bug #1002  cant add a ship to a system in readlock.
+        // Added by RedFox - Debug, Hangar Ship, and Platform creation
+        public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
+        {
+            var ship = new Ship(shipName, owner, position);
+            return ship.HasModules ? ship : null;
+        }
+
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
         {
             Ship ship = CreateShipAtPoint(shipName, owner, p.Center + deltaPos);
             if (doOrbit)
                 ship.DoOrbit(p);
-
             //ship.SetSystem(p.ParentSystem);
             return ship;
         }
@@ -274,7 +267,6 @@ namespace Ship_Game.Ships
         public static Ship CreateShipFromHangar(ShipModule hangar, Empire owner, Vector2 p, Ship parent)
         {
             Ship ship = CreateShipAtPoint(hangar.hangarShipUID, owner, p);
-
             if (ship == null)
                 return null;
 
@@ -298,17 +290,16 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        private bool SetSupplyShuttleRole(bool isSupplyBay) => SetSpecialRole(ShipData.RoleName.supply, isSupplyBay, "Supply Shuttle");
-        private bool SetTroopShuttleRole(bool isTroopBay)   => SetSpecialRole(ShipData.RoleName.troop, isTroopBay, "");
+        bool SetSupplyShuttleRole(bool isSupplyBay) => SetSpecialRole(ShipData.RoleName.supply, isSupplyBay, "Supply Shuttle");
+        bool SetTroopShuttleRole(bool isTroopBay)   => SetSpecialRole(ShipData.RoleName.troop, isTroopBay, "");
 
-        private bool SetSpecialRole(ShipData.RoleName roleToset, bool ifTrue, string vanityName)
+        bool SetSpecialRole(ShipData.RoleName roleToset, bool ifTrue, string vanityName)
         {
             if (!ifTrue) return false;
             DesignRole = roleToset;
             if (vanityName.NotEmpty())
                 VanityName = vanityName;
             return true;
-
         }
 
         public static Ship CreateTroopShipAtPoint(string shipName, Empire owner, Vector2 point, Troop troop)
@@ -320,8 +311,6 @@ namespace Ship_Game.Ships
                 ship.shipData.ShipCategory = ShipData.Category.Conservative;
             return ship;
         }
-
-
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -356,13 +345,12 @@ namespace Ship_Game.Ships
             ShipSO.Visibility = ObjectVisibility.Rendered;
             ShipSO.World      = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
-
             // Universe will be null during loading, so we need to grab the Global ScreenManager instance from somewhere else
             ScreenManager manager = Empire.Universe?.ScreenManager ?? ResourceManager.ScreenManager;
             manager.AddObject(ShipSO);
         }
 
-        public void InitiizeShipScene()
+        public void InitializeShipScene()
         {
             CreateSceneObject();
             ShipInitialized = true;

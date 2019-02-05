@@ -84,7 +84,7 @@ namespace Ship_Game.AI
             if (distance < speedLimit) speedLimit = distance * 0.75f;
 
             // prediction to enhance movement precision
-            Vector2 predictedPoint = PredictThrustPosition(position);
+            Vector2 predictedPoint = PredictThrustPosition(position, speedLimit);
             if (!RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
             {
                 Owner.SubLightAccelerate(elapsedTime, speedLimit);
@@ -95,7 +95,7 @@ namespace Ship_Game.AI
         {
             // we cannot give a speed limit here, because thrust will
             // engage warp drive and we would be limiting warp speed (baaaad)
-            ThrustOrWarpTowardsPosition(goal.MovePosition, elapsedTime);
+            ThrustOrWarpToPosCorrected(goal.MovePosition, elapsedTime);
             
             float distance = Owner.Center.Distance(goal.MovePosition);
 
@@ -139,7 +139,7 @@ namespace Ship_Game.AI
             if (distance > Owner.Radius)
             {
                 // prediction to enhance movement precision
-                Vector2 predictedPoint = PredictThrustPosition(targetPos);
+                Vector2 predictedPoint = PredictThrustPosition(targetPos, speedLimit);
                 direction = Owner.Center.DirectionToTarget(predictedPoint);
             }
 
@@ -209,51 +209,67 @@ namespace Ship_Game.AI
         // thrust offset used by ThrustOrWarpTowardsPosition
         public Vector2 ThrustTarget { get; private set; }
 
-        Vector2 PredictThrustPosition(Vector2 targetPos)
+        Vector2 PredictThrustPosition(Vector2 targetPos, float speedLimit)
         {
             // because or ship is actively moving, it needs to correct its thrusting direction
             // this reduces drift and prevents stupidly missing targets with naive "thrust toward target"
-            float speedLimit = Owner.Speed;
-            Vector2 prediction = new ImpactPredictor(Owner.Center, Owner.Velocity, 
-                                                     speedLimit, targetPos).Predict();
+            speedLimit = Owner.AdjustedSpeedLimit(speedLimit);
+            Vector2 prediction = new ImpactPredictor(Owner.Center, Owner.Velocity, targetPos).PredictMovePos();
             ThrustTarget = prediction;
             return prediction;
         }
 
-        // thrusts towards a position and engages StarDrive if needed
-        // speedLimit can control the max movement speed (it even caps FTL speed)
-        // if speedLimit == 0f, then Ship.velocityMaximum is used
-        //     during Warp, velocityMaximum is set to FTLMax
-        void ThrustOrWarpTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f)
+        void ThrustOrWarpToPosCorrected(Vector2 pos, float elapsedTime, float speedLimit = 0f)
+        {
+            ThrustOrWarpToPos(pos, elapsedTime, speedLimit, velocityCorrect: true);
+        }
+
+        void ThrustOrWarpToPosNoCorrections(Vector2 pos, float elapsedTime)
+        {
+            ThrustOrWarpToPos(pos, elapsedTime, 0f, velocityCorrect: false);
+        }
+
+        /**
+         * Thrusts towards a position and engages StarDrive if needed
+         * @param speedLimit Can control the max movement speed (it even caps FTL speed)
+         *                   if speedLimit == 0f, then Ship.velocityMaximum is used
+         *                   during Warp, velocityMaximum is set to FTLMax
+         * @param velocityCorrect If true, thrust direction will be adjusted
+         *                        according to current velocity, towards predicted interception point
+         */
+        void ThrustOrWarpToPos(Vector2 pos, float deltaTime, float speedLimit, bool velocityCorrect)
         {
             if (Owner.EnginesKnockedOut)
                 return;
             
             // this just checks if warp thrust is good
-            float actualDiff = Owner.AngleDifferenceToPosition(position);
-            float distance = position.Distance(Owner.Center);
-            if (UpdateWarpThrust(elapsedTime, actualDiff, distance))
+            // we don't need to use predicted position here, since warp is more linear
+            // and prediction errors can cause warp to disengage due to sharp angle
+            float actualDiff = Owner.AngleDifferenceToPosition(pos);
+            float distance = pos.Distance(Owner.Center);
+            if (UpdateWarpThrust(deltaTime, actualDiff, distance))
                 return; // WayPoint short-cut
 
-            // prediction to enhance movement precision
-            Vector2 predictedPoint = PredictThrustPosition(position);
-            Owner.RotationNeededForTarget(predictedPoint, 0f, out float predictionDiff, out float rotationDir);
-
-            // If chasing something, and within weapons range
+            // if chasing something, and within weapons range
             if (HasPriorityTarget && distance < Owner.maxWeaponsRange * 0.85f)
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
             }
-            else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1000f &&
-                    WayPoints.Count <= 1 && Owner.engineState == Ship.MoveState.Warp)
+            // we are overshooting the target!!
+            else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1500f &&
+                     WayPoints.Count <= 1 && Owner.engineState == Ship.MoveState.Warp)
             {
                 Owner.HyperspaceReturn();
             }
 
-            if (predictionDiff > 0.025f)
+            // prediction to enhance movement precision
+            Vector2 predictedPoint = velocityCorrect ? PredictThrustPosition(pos, speedLimit) : pos;
+            Owner.RotationNeededForTarget(predictedPoint, 0f, out float predictionDiff, out float rotationDir);
+
+            if (predictionDiff > 0.025f) // do we need to rotate ourselves before thrusting?
             {
-                Owner.RotateToFacing(elapsedTime, predictionDiff, rotationDir);
+                Owner.RotateToFacing(deltaTime, predictionDiff, rotationDir);
                 return; // don't accelerate until we're faced correctly
             }
 
@@ -266,11 +282,11 @@ namespace Ship_Game.AI
                     if      (distance > 7500f && !Owner.InCombat) Owner.EngageStarDrive();
                     else if (distance > 15000f && Owner.InCombat) Owner.EngageStarDrive();
                 }
-                Owner.SubLightAccelerate(elapsedTime, speedLimit);
+                Owner.SubLightAccelerate(deltaTime, speedLimit);
             }
             else // In a fleet
             {
-                FleetGroupMove(elapsedTime, distance, speedLimit);
+                FleetGroupMove(deltaTime, distance, speedLimit);
             }
         }
 
@@ -332,6 +348,9 @@ namespace Ship_Game.AI
 
         void FleetGroupMove(float elapsedTime, float distance, float speedLimit)
         {
+            // initialize default speed limit:
+            speedLimit = Owner.AdjustedSpeedLimit(speedLimit);
+
             float fleetSpeed = Owner.fleet.Speed;
             if (distance > 7500f) // Not near destination
             {
@@ -365,7 +384,7 @@ namespace Ship_Game.AI
                 Owner.HyperspaceReturn(); // Near Destination
                 HasPriorityOrder = false;
             }
-
+            
             speedLimit = Math.Min(fleetSpeed, speedLimit);
             Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }

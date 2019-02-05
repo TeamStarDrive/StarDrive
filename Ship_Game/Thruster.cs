@@ -8,58 +8,49 @@ namespace Ship_Game
     public sealed class Thruster
     {
         public Model model;
-
         public Texture3D Noise;
-
         public float tscale;
-
         public Ship Parent;
-
         public Vector2 XMLPos;
-
         public Vector3 WorldPos;
 
         public Effect Effect;
         public EffectTechnique technique;
 
         public EffectParameter shader_matrices;
-
         public EffectParameter thrust_color;
-
         public EffectParameter effect_tick;
-
         public EffectParameter effect_noise;
 
         public Color[] colors = new Color[2];
-
         public Vector4[] v4colors = new Vector4[2];
 
         public float heat = 1f;
-
         public float tick;
 
         public Matrix world_matrix;
-
         public Matrix inverse_scale_transpose;
-
         public Matrix scale;
-
         public Matrix[] matrices_combined = new Matrix[3];
 
         public Vector3 Up;
-
         public Vector3 Right;
-
         public Vector3 dir_to_camera;
 
-        //public float allscale = 1f;          //Not referenced in code, removing to save memory
+        float distanceToParentCenter;
+        float offsetAngle;
+        Vector2 ThrusterCenter;
 
-        private float distanceToParentCenter;
+        public Thruster()
+        {
+        }
 
-        private float offsetAngle;
-
-        private Vector2 ThrusterCenter;
-
+        public Thruster(Ship owner, float scale, Vector2 position)
+        {
+            Parent = owner;
+            tscale = scale;
+            XMLPos = position;
+        }
 
         public void Draw(ref Matrix view, ref Matrix project)
         {
@@ -96,7 +87,7 @@ namespace Ship_Game
         static Effect DefaultEffect;
         static readonly object ThrusterLocker = new object();
 
-        private static void InitializeDefaultEffects(GameContentManager content)
+        static void InitializeDefaultEffects(GameContentManager content)
         {
             lock (ThrusterLocker)
             {
@@ -117,7 +108,7 @@ namespace Ship_Game
             LoadAndAssignEffects(DefaultModel, DefaultNoise, DefaultEffect);
         }
 
-        private void LoadAndAssignEffects(Model thrustCylinder, Texture3D noiseTexture, Effect effect)
+        void LoadAndAssignEffects(Model thrustCylinder, Texture3D noiseTexture, Effect effect)
         {
             model           = thrustCylinder;
             Noise           = noiseTexture;
