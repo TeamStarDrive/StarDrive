@@ -255,7 +255,7 @@ namespace Ship_Game
             }
             foreach (PlanetGridSquare planetGridSquare in P.TilesList)
             {
-                if (planetGridSquare.highlighted)
+                if (planetGridSquare.Highlighted)
                     batch.DrawRectangle(planetGridSquare.ClickRect, Color.White, 2f);
             }
 
@@ -929,16 +929,16 @@ namespace Ship_Game
             {
                 if (!pgs.ClickRect.HitTest(MousePos))
                 {
-                    pgs.highlighted = false;
+                    pgs.Highlighted = false;
                 }
                 else
                 {
-                    if (!pgs.highlighted)
+                    if (!pgs.Highlighted)
                     {
                         GameAudio.ButtonMouseOver();
                     }
 
-                    pgs.highlighted = true;
+                    pgs.Highlighted = true;
                 }
 
                 if (pgs.TroopsHere.Count <= 0 || !pgs.TroopClickRect.HitTest(MousePos))

@@ -10,17 +10,19 @@ namespace Ship_Game
     {
         private readonly Planet Ground;
 
-        private Array<PlanetGridSquare> TilesList            => Ground.TilesList;
-        private Empire Owner                                 => Ground.Owner;
-        private BatchRemovalCollection<Troop> TroopsHere     => Ground.TroopsHere;
-        private Array<Building> BuildingList                 => Ground.BuildingList;
-        private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;       
-        private SolarSystem ParentSystem                     => Ground.ParentSystem;
-        public bool RecentCombat                             => InCombatTimer > 0.0f;
-        public int NumEmpireTroops(Empire us)                => TroopsHere.Count(t => t.GetOwner() == us);
-        public int NumDefendingTroopCount                    => NumEmpireTroops(Owner);
-        public bool WeHaveTroopsHere(Empire us)              => TroopsHere.Any(t => t.GetOwner() == us);
-        private bool NoTroopsHere                            => TroopsHere.Count <= 0;
+        private Empire Owner      => Ground.Owner;
+        public bool RecentCombat  => InCombatTimer > 0.0f;
+        private bool NoTroopsHere => TroopsHere.Count <= 0;
+
+        private Array<PlanetGridSquare> TilesList => Ground.TilesList;
+        private Array<Building> BuildingList      => Ground.BuildingList;
+        private SolarSystem ParentSystem          => Ground.ParentSystem;
+        public int NumEmpireTroops(Empire us)     => TroopsHere.Count(t => t.GetOwner() == us);
+        public int NumDefendingTroopCount         => NumEmpireTroops(Owner);
+        public bool WeHaveTroopsHere(Empire us)   => TroopsHere.Any(t => t.GetOwner() == us);
+
+        private BatchRemovalCollection<Troop> TroopsHere => Ground.TroopsHere;
+        private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
 
         private float DecisionTimer = 0.5f;        
         private float InCombatTimer;
@@ -493,8 +495,6 @@ namespace Ship_Game
                     {
                         int damage = RollDamage(combat.Attacker, combat.Defender);
                         DealDamage(combat, damage, isViewing);
-                        if (damage == 0 && isViewing)
-                            GameAudio.PlaySfxAsync("sd_troop_attack_miss");
                         combat.phase = 2;
                     }
                     else if (combat.phase == 2)
@@ -545,7 +545,7 @@ namespace Ship_Game
             if (ActiveCombats.Count > 0)
                 InCombatTimer = 10f;
 
-            if (TroopsHere.Count <= 0 || Owner == null)
+            if (NoTroopsHere || Owner == null)
                 return;
 
             var forces = new Forces(Owner, TilesList);
@@ -575,7 +575,7 @@ namespace Ship_Game
 
             foreach (PlanetGridSquare PGS in TilesList)
             {
-                num += PGS.NumAllowedTroops;
+                num += PGS.MaxAllowedTroops;
             }
             return num;
         }
@@ -618,7 +618,7 @@ namespace Ship_Game
 
         public int NumGroundLandingSpots()
         {            
-            int spotCount = TilesList.Sum(spots => spots.NumAllowedTroops); //.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1)
+            int spotCount = TilesList.Sum(spots => spots.MaxAllowedTroops); //.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1)
             int troops    = TroopsHere.Filter(owner => owner.GetOwner() == Owner).Length;
             return spotCount - troops;
         }
