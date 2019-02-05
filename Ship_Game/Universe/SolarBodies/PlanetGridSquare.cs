@@ -10,8 +10,8 @@ namespace Ship_Game
 		public bool CanAttack;
 		public bool CanMoveTo;
 		public bool ShowAttackHover;
-		public int MaxAllowedTroops = 1;
-		public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
+		public int MaxAllowedTroops = 1; //FB - multiple troops per PGS is not supported yet
+        public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
 		public bool Biosphere;
 		public Building building;
 		public bool Habitable;
@@ -20,15 +20,15 @@ namespace Ship_Game
 		public Rectangle TroopClickRect = new Rectangle();
 		public bool Highlighted;
 
-        public bool NoTroopsHere       => !TroopsAreHere;
-        public bool TroopsAreHere      => TroopsHere.Count > 0;
-        public bool NoBuildingHere     => !BuildingIsHere;
-        public bool BuildingIsHere     => building != null;
-        public bool NothingHere        => NoTroopsHere && NoBuildingHere;
+        public bool NoTroopsOnTile     => !TroopsAreOnTile;
+        public bool TroopsAreOnTile    => TroopsHere.Count > 0;
+        public bool NoBuildingOnTile   => !BuildingOnTile;
+        public bool BuildingOnTile     => building != null;
+        public bool NothingOnTile      => NoTroopsOnTile && NoBuildingOnTile;
         public bool AllTroopsDead      => TroopsStrength <= 0;
-        public bool BuildingDestroyed  => BuildingIsHere && building.Strength <= 0;
+        public bool BuildingDestroyed  => BuildingOnTile && building.Strength <= 0;
         public bool AllDestroyed       => BuildingDestroyed && AllTroopsDead;
-        public Troop SingleTroop       => TroopsHere[0]; //FB -  multiple troops per PGS is not supported yet
+        public Troop SingleTroop       => TroopsHere[0]; //FB - multiple troops per PGS is not supported yet
 
         // FB - all these are starting multiple troops per PGS support
         public float TroopsStrength    => TroopsHere.Sum(troop => troop.Strength);
