@@ -507,8 +507,8 @@ namespace Ship_Game
             if (invadiveForces <= NumInvadersLast || NumInvadersLast != 0)
                 return; // FB - nothing to change if no new troops invade
 
-            if (Empire.Universe.PlayerEmpire == Owner)
-                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification((Planet) Ground, invadingEmpire, Owner);
+            if (Empire.Universe.PlayerEmpire == Owner) // notify player of invasion
+                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(Ground, invadingEmpire, Owner);
             else if (invadingEmpire == Empire.Universe.PlayerEmpire && !Owner.isFaction && !Empire.Universe.PlayerEmpire.GetRelations(Owner).AtWar)
             {
                 if (Empire.Universe.PlayerEmpire.GetRelations(Owner).Treaty_NAPact)
