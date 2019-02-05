@@ -246,7 +246,7 @@ namespace Ship_Game.Universe.SolarBodies
                         {
                             for (int i = 0; i < TroopsHere.Count; i++)
                             {
-                                if (TroopsHere[i].GetOwner() == EmpireManager.Cordrazine && TroopsHere[i].TargetType == "Soft")
+                                if (TroopsHere[i].GetOwner() == EmpireManager.Cordrazine && TroopsHere[i].TargetType == TargetType.Soft)
                                 {
                                     StarDriveGame.Instance.SetSteamAchievement("Owlwoks_Freed");                                   
                                     TroopsHere[i].SetOwner(bomb.Owner);
