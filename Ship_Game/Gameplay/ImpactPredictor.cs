@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
 using static System.Math;
 
@@ -42,15 +43,15 @@ namespace Ship_Game.Gameplay
         }
 
         // For generic ship movement prediction
-        public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, Vector2 targetPos)
+        public ImpactPredictor(Vector2 pos, Vector2 vel, Vector2 targetPos)
         {
             Pos = pos;
             Vel = vel;
-            Speed = speed;
+            Speed = 0f;
             TargetPos = targetPos;
             TargetVel = Vector2.Zero;
             TargetAcc = Vector2.Zero;
-            MaxPredictionTime = float.MaxValue;
+            MaxPredictionTime = 0f;
         }
 
         // This is used during interception / attack runs
@@ -104,11 +105,11 @@ namespace Ship_Game.Gameplay
         // assume we have a relative reference frame and weaponPos is stationary
         // use additional calculations to set up correct interceptSpeed and deltaVel
         // https://stackoverflow.com/a/2249237
-        float PredictImpactTime(Vector2 deltaV)
+        float PredictImpactTime(Vector2 deltaV, float speed)
         {
             Vector2 distance = TargetPos - Pos;
 
-            float a = deltaV.Dot(deltaV) - (Speed * Speed);
+            float a = deltaV.Dot(deltaV) - (speed * speed);
             float bm = 2f * distance.Dot(deltaV);
             float c = distance.Dot(distance);
 
@@ -154,7 +155,7 @@ namespace Ship_Game.Gameplay
 
         float PredictImpactTimeAdjusted(Vector2 deltaV)
         {
-            float impactTime = PredictImpactTime(deltaV);
+            float impactTime = PredictImpactTime(deltaV, Speed);
             if (impactTime > MaxPredictionTime)
                 impactTime = MaxPredictionTime;
             else if (impactTime <= 0f)
@@ -202,16 +203,16 @@ namespace Ship_Game.Gameplay
 
             // objects are separating faster than projectile can catch up, so this means
             // the projectile might never hit?
-            if (deltaV.Length() > Speed)
+            if (deltaV.Length().Greater(Speed+0.1f))
                 return ProjectPosition(TargetPos, deltaV, targetAccel, time);
 
-            Vector2 predictedPos = default(Vector2);
+            Vector2 predictedPos = default;
 
             for (int i = 0; i < 20; ++i)
             {
                 predictedPos = ProjectPosition(TargetPos, deltaV, targetAccel, time);
                 float newTime = TimeToTarget(predictedPos);
-                if (newTime > 20f || time.AlmostEqual(newTime, 0.1f))
+                if (newTime > 20f || time.AlmostEqual(newTime, 0.01666f))
                     return predictedPos;
                 time = newTime;
             }
@@ -237,24 +238,51 @@ namespace Ship_Game.Gameplay
             {
                 predictedPos = ProjectPosition(TargetPos, deltaV, time);
                 float newTime = TimeToTarget(predictedPos);
-                if (newTime > 20f || time.AlmostEqual(newTime, 0.1f))
+                if (newTime > 20f || time.AlmostEqual(newTime, 0.01666f))
                     return predictedPos;
                 time = newTime;
             }
             return predictedPos;
         }
 
-        public Vector2 Predict()
+        // @param advancedTargeting If TRUE, targeting will account for Acceleration
+        //                          which yields even more accurate target prediction!
+        public Vector2 Predict(bool advancedTargeting)
         {
+            // @note Validated via DeveloperSandbox DebugPlatform simulations
+            // Quad is very accurate if speed is constant
+            // Quad has a tendency to over predict when accelerating
             //Vector2 quad = PredictImpactQuad();
-            Vector2 iter = PredictImpactIter();
-            //Log.Info("PIP quad: {0}", quad);
-            //Log.Info("PIP iter: {0}", iter);
 
-            //Vector2 error = quad-iter;
-            //if (error.Length() > 100000)
-            //    return iter;
-            return iter;
+            Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactQuad(), 50f, Color.Cyan, 0f);
+            Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(), 60f, Color.LawnGreen, 0f);
+            Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(TargetAcc), 70f, Color.HotPink, 0f);
+
+            // Iter is just as accurate when speed is constant
+            // Iter is quite accurate even when accelerating
+            // For this reason, we will favor ITER
+            if (!advancedTargeting)
+                return PredictImpactIter();
+
+            // by using Target acceleration, we get superhuman target prediction
+            // even when ships are accelerating. There is almost no overshooting, even small
+            // fighters get shot out of the sky by PD/Flak
+            return PredictImpactIter(TargetAcc);
+        }
+
+        // @note This is different than weapon prediction
+        //       The move position is always aligned on an axis intersecting
+        //       TargetPos and perpendicular to DirectionToTarget
+        public Vector2 PredictMovePos()
+        {
+            Vector2 forward = Pos.DirectionToTarget(TargetPos);
+            Vector2 left = forward.LeftVector(); // perpendicular to forward vector
+            float dot = -left.Dot(Vel.Normalized()); // get the velocity negation direction
+            float speed = Vel.Length(); // negation magnitude
+
+            // only place movePos on the same axis as left vector
+            Vector2 movePos = TargetPos + left*(dot*speed);
+            return movePos;
         }
     }
 }

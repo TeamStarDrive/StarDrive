@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game.Ships
 {
-    public sealed partial class Ship
+    public partial class Ship
     {
         public void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
         {
