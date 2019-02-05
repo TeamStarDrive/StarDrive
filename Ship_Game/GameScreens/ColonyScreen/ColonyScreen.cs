@@ -543,7 +543,7 @@ namespace Ship_Game
                         : t.ActualStrengthMax.String(1);
 
                     DrawMultiLine(ref bCursor, t.Description);
-                    DrawTitledLine(ref bCursor, 338, t.TargetType);
+                    DrawTitledLine(ref bCursor, 338, t.TargetType.ToString());
                     DrawTitledLine(ref bCursor, 339, strength);
                     DrawTitledLine(ref bCursor, 2218, t.NetHardAttack.ToString());
                     DrawTitledLine(ref bCursor, 2219, t.NetSoftAttack.ToString());

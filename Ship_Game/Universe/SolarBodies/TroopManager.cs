@@ -424,38 +424,39 @@ namespace Ship_Game
                         break;
                     }
 
-                    float num1;
-                    int num2;
-                    int num3;
-                    if (combat.Attacker.TroopsHere.Count > 0)
+                    float strength;
+                    int hardAttack;
+                    int softAttack;
+                    if (combat.Attacker.TroopsAreHere)
                     {
-                        num1 = combat.Attacker.TroopsHere[0].Strength;
-                        num2 = combat.Attacker.TroopsHere[0].NetHardAttack;
-                        num3 = combat.Attacker.TroopsHere[0].NetSoftAttack;
+                        strength   = combat.Attacker.TroopsStrength;
+                        hardAttack = combat.Attacker.TroopsHardAttack;
+                        softAttack = combat.Attacker.TroopsSoftAttack;
                     }
-                    else
+                    else // building attacks
                     {
-                        num1 = combat.Attacker.building.Strength;
-                        num2 = combat.Attacker.building.HardAttack;
-                        num3 = combat.Attacker.building.SoftAttack;
+                        strength   = combat.Attacker.building.Strength;
+                        hardAttack = combat.Attacker.building.HardAttack;
+                        softAttack = combat.Attacker.building.SoftAttack;
                     }
-                    string str = combat.Defender.TroopsHere.Count <= 0 ? "Hard" : combat.Defender.TroopsHere[0].TargetType;
-                    combat.Timer -= elapsedTime;
-                    int num4 = 0;
+                    TargetType attackType = combat.Defender.NoTroopsHere ? TargetType.Hard : combat.Defender.SingleTroop.TargetType;
+                    combat.Timer         -= elapsedTime;
+                    int damage = 0;
                     if (combat.Timer < 3.0 && combat.phase == 1)
                     {
-                        for (int index = 0; index < num1; ++index)
+                        float attackValue = attackType == TargetType.Soft ? softAttack : hardAttack;
+                        for (int index = 0; index < strength; ++index)
                         {
-                            if (RandomMath.RandomBetween(0.0f, 100f) < (str == "Soft" ? num3 : (double)num2))
-                                ++num4;
+                            if (RandomMath.RandomBetween(0.0f, 100f) < attackValue)
+                                ++damage;
                         }
-                        if (num4 > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
+                        if (damage > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
                         {
                             GameAudio.PlaySfxAsync("sd_troop_attack_hit");
                             ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(combat.Defender.TroopClickRect, 1);
                             if (combat.Defender.TroopsHere.Count > 0)
                             {
-                                combat.Defender.TroopsHere[0].Strength -= num4;
+                                combat.Defender.TroopsHere[0].Strength -= damage;
                                 if (combat.Defender.TroopsHere[0].Strength <= 0)
                                 {
                                     TroopsHere.Remove(combat.Defender.TroopsHere[0]);
@@ -471,8 +472,8 @@ namespace Ship_Game
                             }
                             else
                             {
-                                combat.Defender.building.Strength -= num4;
-                                combat.Defender.building.CombatStrength -= num4;
+                                combat.Defender.building.Strength -= damage;
+                                combat.Defender.building.CombatStrength -= damage;
                                 if (combat.Defender.building.Strength <= 0)
                                 {
                                     BuildingList.Remove(combat.Defender.building);
@@ -480,7 +481,7 @@ namespace Ship_Game
                                 }
                             }
                         }
-                        else if (num4 == 0)
+                        else if (damage == 0)
                             GameAudio.PlaySfxAsync("sd_troop_attack_miss");
                         combat.phase = 2;
                     }
@@ -516,14 +517,14 @@ namespace Ship_Game
                         num2 = combat.Attacker.building.HardAttack;
                         num3 = combat.Attacker.building.SoftAttack;
                     }
-                    string str = combat.Defender.TroopsHere.Count <= 0 ? "Hard" : combat.Defender.TroopsHere[0].TargetType;
+                    TargetType str = combat.Defender.TroopsHere.Count <= 0 ? TargetType.Hard : combat.Defender.TroopsHere[0].TargetType;
                     combat.Timer -= elapsedTime;
                     int num4 = 0;
                     if (combat.Timer < 3.0 && combat.phase == 1)
                     {
                         for (int index = 0; index < num1; ++index)
                         {
-                            if (RandomMath.RandomBetween(0.0f, 100f) < (str == "Soft" ? num3 : (double)num2))
+                            if (RandomMath.RandomBetween(0.0f, 100f) < (str == TargetType.Soft ? num3 : (double)num2))
                                 ++num4;
                         }
                         if (num4 > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
@@ -716,5 +717,11 @@ namespace Ship_Game
                 foreach (Troop troop in TroopsHere)
                     troop.Strength = (troop.Strength + healAmount).Clamped(0, troop.ActualStrengthMax);
         }
+    }
+
+    public enum TargetType
+    {
+        Soft,
+        Hard,
     }
 }
