@@ -10,20 +10,23 @@ namespace Ship_Game
     {
         private readonly Planet Ground;
 
-        private Array<PlanetGridSquare> TilesList => Ground.TilesList;
-        private Empire Owner => Ground.Owner;
-        private BatchRemovalCollection<Troop> TroopsHere => Ground.TroopsHere;
-        private Array<Building> BuildingList => Ground.BuildingList;
+        private Array<PlanetGridSquare> TilesList            => Ground.TilesList;
+        private Empire Owner                                 => Ground.Owner;
+        private BatchRemovalCollection<Troop> TroopsHere     => Ground.TroopsHere;
+        private Array<Building> BuildingList                 => Ground.BuildingList;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;       
-        private SolarSystem ParentSystem => Ground.ParentSystem;
-      
+        private SolarSystem ParentSystem                     => Ground.ParentSystem;
+        public bool RecentCombat                             => InCombatTimer > 0.0f;
+        public int NumEmpireTroops(Empire us)                => TroopsHere.Count(t => t.GetOwner() == us);
+        public int NumDefendingTroopCount                    => NumEmpireTroops(Owner);
+        public bool WeHaveTroopsHere(Empire us)              => TroopsHere.Any(t => t.GetOwner() == us);
+        private bool NoTroopsHere                            => TroopsHere.Count <= 0;
+
         private float DecisionTimer = 0.5f;        
         private float InCombatTimer;
         private int NumInvadersLast;
 
-        public bool RecentCombat => InCombatTimer > 0.0f;
-
-        public void SetInCombat( float timer = 10f)
+        public void SetInCombat(float timer = 10f)
         {
             InCombatTimer = timer;
         }
@@ -34,6 +37,7 @@ namespace Ship_Game
         {
             Ground = planet;
         }
+
         public void Update(float elapsedTime)
         {
             if (Empire.Universe.Paused) return;
@@ -49,7 +53,6 @@ namespace Ship_Game
                         DecisionTimer = 0.5f;
                     }
                 }
-
             }
             if (TroopsHere.Count != 0 || BuildingList.Count != 0)
                 DoTroopTimers(elapsedTime);
@@ -414,44 +417,13 @@ namespace Ship_Game
             using (ActiveCombats.AcquireReadLock())
                 foreach (Combat combat in ActiveCombats)
                 {
-                    if (combat.Attacker.TroopsHere.Count == 0 && combat.Attacker.building == null)
+                    if (combat.Attacker.NothingHere || combat.Defender.NothingHere || 
+                        combat.Attacker.AllDestroyed || combat.Defender.AllDestroyed)
                     {
                         ActiveCombats.QueuePendingRemoval(combat);
                         break;
                     }
 
-                    if (combat.Attacker.TroopsHere.Count > 0)
-                    {
-                        if (combat.Attacker.TroopsHere[0].Strength <= 0)
-                        {
-                            ActiveCombats.QueuePendingRemoval(combat);
-                            break;
-                        }
-                    }
-                    else if (combat.Attacker.building != null && combat.Attacker.building.Strength <= 0)
-                    {
-                        ActiveCombats.QueuePendingRemoval(combat);
-                        break;
-                    }
-                    if (combat.Defender.TroopsHere.Count == 0 && combat.Defender.building == null)
-                    {
-                        ActiveCombats.QueuePendingRemoval(combat);
-                        break;
-                    }
-
-                    if (combat.Defender.TroopsHere.Count > 0)
-                    {
-                        if (combat.Defender.TroopsHere[0].Strength <= 0)
-                        {
-                            ActiveCombats.QueuePendingRemoval(combat);
-                            break;
-                        }
-                    }
-                    else if (combat.Defender.building != null && combat.Defender.building.Strength <= 0)
-                    {
-                        ActiveCombats.QueuePendingRemoval(combat);
-                        break;
-                    }
                     float num1;
                     int num2;
                     int num3;
@@ -522,42 +494,13 @@ namespace Ship_Game
             using (ActiveCombats.AcquireReadLock())
                 foreach (Combat combat in ActiveCombats)
                 {
-                    if (combat.Attacker.TroopsHere.Count == 0 && combat.Attacker.building == null)
-                    {
-                        ActiveCombats.QueuePendingRemoval(combat);
-                        continue;
-                    }
-                    if (combat.Attacker.TroopsHere.Count > 0)
-                    {
-                        if (combat.Attacker.TroopsHere[0].Strength <= 0)
-                        {
-                            ActiveCombats.QueuePendingRemoval(combat);
-                            continue;
-                        }
-                    }
-                    else if (combat.Attacker.building != null && combat.Attacker.building.Strength <= 0)
-                    {
-                        ActiveCombats.QueuePendingRemoval(combat);
-                        continue;
-                    }
-                    if (combat.Defender.TroopsHere.Count == 0 && combat.Defender.building == null)
-                    {
-                        ActiveCombats.QueuePendingRemoval(combat);
-                        continue;
-                    }
-                    if (combat.Defender.TroopsHere.Count > 0)
-                    {
-                        if (combat.Defender.TroopsHere[0].Strength <= 0)
-                        {
-                            ActiveCombats.QueuePendingRemoval(combat);
-                            break;
-                        }
-                    }
-                    else if (combat.Defender.building != null && combat.Defender.building.Strength <= 0)
+                    if (combat.Attacker.NothingHere || combat.Defender.NothingHere ||
+                        combat.Attacker.AllDestroyed || combat.Defender.AllDestroyed)
                     {
                         ActiveCombats.QueuePendingRemoval(combat);
                         break;
                     }
+
                     float num1;
                     int num2;
                     int num3;
@@ -616,27 +559,21 @@ namespace Ship_Game
                         ActiveCombats.QueuePendingRemoval(combat);
                 }
         }
-
+        
         public void DoCombats(float elapsedTime)
         {
-            if (Empire.Universe.LookingAtPlanet)
+            if (Empire.Universe.LookingAtPlanet 
+                && Empire.Universe.workersPanel is CombatScreen screen 
+                && screen.p == Ground)
             {
-                if (Empire.Universe.workersPanel is CombatScreen)
-                {
-                    if ((Empire.Universe.workersPanel as CombatScreen).p == (Planet) Ground)
-                        DoViewedCombat(elapsedTime);
-                }
-                else
-                {
-                    DoCombatUnviewed(elapsedTime);
-                    ActiveCombats.ApplyPendingRemovals();
-                }
+                DoViewedCombat(elapsedTime);
             }
             else
             {
                 DoCombatUnviewed(elapsedTime);
                 ActiveCombats.ApplyPendingRemovals();
             }
+
             if (ActiveCombats.Count > 0)
                 InCombatTimer = 10f;
             if (TroopsHere.Count <= 0 || Owner == null)
@@ -690,54 +627,15 @@ namespace Ship_Game
             Ground.ChangeOwnerByInvasion(index);
         }
 
-        public float GetDefendingTroopStrength()
+        public float GroundStrength(Empire empire)
         {
-            float num = 0;
-            for (int index = 0; index < TroopsHere.Count; index++)
-            {
-                Troop troop = TroopsHere[index];
-                if (troop.GetOwner() == Owner)
-                    num += troop.Strength;
-            }
-            return num;
-        }
-
-        public int CountEmpireTroops(Empire us)
-        {
-            int num = 0;
-            for (int index = 0; index < TroopsHere.Count; index++)
-            {
-                Troop troop = TroopsHere[index];
-                if (troop.GetOwner() == us)
-                    num++;
-            }
-            return num;
-        }
-
-        public int GetDefendingTroopCount()
-        {
-            return CountEmpireTroops(Owner);
-        }
-
-        public bool AnyOfOurTroops(Empire us)
-        {
-            for (int index = 0; index < TroopsHere.Count; index++)
-            {
-                Troop troop = TroopsHere[index];
-                if (troop.GetOwner() == us)
-                    return true;
-            }
-            return false;
-        }
-
-        public float GetGroundStrength(Empire empire)
-        {
-            float num = 0;
+            float strength = 0;
             if (Owner == empire)
-                num += BuildingList.Sum(offense => offense.CombatStrength);
+                strength += BuildingList.Sum(offense => offense.CombatStrength);
+
             using (TroopsHere.AcquireReadLock())
-                num += TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
-            return num;
+                strength += TroopsHere.Where(t => t.GetOwner() == empire).Sum(str => str.Strength);
+            return strength;
         }
 
         public int GetPotentialGroundTroops()
@@ -746,30 +644,15 @@ namespace Ship_Game
 
             foreach (PlanetGridSquare PGS in TilesList)
             {
-                num += PGS.number_allowed_troops;
+                num += PGS.NumAllowedTroops;
 
             }
-            return num; //(int)(this.TilesList.Sum(spots => spots.number_allowed_troops));// * (.25f + this.developmentLevel*.2f));
+            return num;
         }
 
-        public float GetGroundStrengthOther(Empire allButThisEmpire)
+        public float GroundStrengthOther(Empire allButThisEmpire)
         {
-            //float num = 0;
-            //if (this.Owner == null || this.Owner != empire)
-            //    num += this.BuildingList.Sum(offense => offense.CombatStrength > 0 ? offense.CombatStrength : 1);
-            //this.TroopsHere.thisLock.EnterReadLock();
-            //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == null || empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
-            //this.TroopsHere.thisLock.ExitReadLock();
-            //return num;
-            float enemyTroopStrength = 0;
-            for (int x = 0; x < TroopsHere.Count; x++)
-            {
-                Troop trooper = TroopsHere[x];
-                if (trooper.OwnerString == allButThisEmpire.data.Traits.Name)
-                    continue;
-                enemyTroopStrength += trooper.Strength;
-            }
-
+            float enemyTroopStrength = TroopsHere.Where(t => t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.Strength);
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b;
@@ -783,7 +666,7 @@ namespace Ship_Game
                 }
 
                 if (b?.CombatStrength > 0)
-                    enemyTroopStrength += b.Strength + b.CombatStrength;
+                    enemyTroopStrength += b.CombatStrength;
             }
             return enemyTroopStrength;            
         }
@@ -792,26 +675,25 @@ namespace Ship_Game
         {
             bool enemies = false;
             using (TroopsHere.AcquireReadLock())
-                foreach (Troop trooper in TroopsHere)
+                foreach (Troop t in TroopsHere)
                 {
-                    if (!empire.TryGetRelations(trooper.GetOwner(), out Relationship trouble) || trouble.AtWar)
+                    if (!empire.TryGetRelations(t.GetOwner(), out Relationship trouble) || trouble.AtWar)
                     {
                         enemies = true;
                         break;
                     }
-
                 }
             return enemies;
         }
 
-        public int GetGroundLandingSpots()
+        public int NumGroundLandingSpots()
         {            
-            int spotCount = TilesList.Sum(spots => spots.number_allowed_troops); //.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1)
+            int spotCount = TilesList.Sum(spots => spots.NumAllowedTroops); //.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1)
             int troops    = TroopsHere.Filter(owner => owner.GetOwner() == Owner).Length;
             return spotCount - troops;
         }
 
-        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake)
+        public Array<Troop> EmpireTroops(Empire empire, int maxToTake)
         {
             var troops = new Array<Troop>();
             foreach (Troop troop in TroopsHere)
@@ -829,6 +711,7 @@ namespace Ship_Game
         {
             if (RecentCombat)
                 return;
+
             using (TroopsHere.AcquireReadLock())
                 foreach (Troop troop in TroopsHere)
                     troop.Strength = (troop.Strength + healAmount).Clamped(0, troop.ActualStrengthMax);
