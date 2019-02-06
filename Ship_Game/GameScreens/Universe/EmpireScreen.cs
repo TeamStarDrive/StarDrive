@@ -438,7 +438,7 @@ namespace Ship_Game
             if (pgs.TroopsHere.Count > 0)
             {
                 pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 36, pgs.ClickRect.Y, 35, 35);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Troops/", pgs.TroopsHere[0].TexturePath)), pgs.TroopClickRect, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Troops/", pgs.SingleTroop.TexturePath)), pgs.TroopClickRect, Color.White);
             }
             float numFood = 0f;
             float numProd = 0f;

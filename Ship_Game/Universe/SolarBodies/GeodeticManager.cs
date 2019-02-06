@@ -151,11 +151,11 @@ namespace Ship_Game.Universe.SolarBodies
                 int buildingDamageMax = ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax;
                 if (od.Target.TroopsHere.Count > 0)
                 {
-                    Troop item = od.Target.TroopsHere[0];
+                    Troop item = od.Target.SingleTroop;
                     item.Strength = item.Strength - (int)RandomMath.RandomBetween(troopDamageMin, troopDamageMax);
-                    if (od.Target.TroopsHere[0].Strength <= 0)
+                    if (od.Target.SingleTroop.Strength <= 0)
                     {
-                        TroopsHere.Remove(od.Target.TroopsHere[0]);
+                        TroopsHere.Remove(od.Target.SingleTroop);
                         od.Target.TroopsHere.Clear();
                     }
                 }
@@ -356,9 +356,9 @@ namespace Ship_Game.Universe.SolarBodies
                         break;
 
                     using (pgs.TroopsHere.AcquireWriteLock())
-                        if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == Owner)
+                        if (pgs.TroopsHere.Count > 0 && pgs.SingleTroop.GetOwner() == Owner)
                         {
-                            Troop troop = pgs.TroopsHere[0];
+                            Troop troop = pgs.SingleTroop;
                             ship.TroopList.Add(troop);
                             pgs.TroopsHere.Clear();
                             TroopsHere.Remove(troop);
