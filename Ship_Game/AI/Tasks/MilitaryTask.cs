@@ -481,7 +481,7 @@ namespace Ship_Game.AI.Tasks
                     if (type == TaskType.Exploration)
                     {
                         Planet p = TargetPlanet;
-                        if (p.BuildingList.Find(relic => !string.IsNullOrEmpty(relic.EventTriggerUID)) != null)
+                        if (p.BuildingList.Find(relic => relic.EventHere) != null)
                             return;
                     }
                     else if (type == TaskType.AssaultPlanet)

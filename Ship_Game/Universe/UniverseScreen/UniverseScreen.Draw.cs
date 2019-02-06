@@ -1214,7 +1214,7 @@ namespace Ship_Game
                     for (int i = 0; i < planet.BuildingList.Count; i++)
                     {
                         Building building = planet.BuildingList[i];
-                        if (string.IsNullOrEmpty(building.EventTriggerUID)) continue;
+                        if (!building.EventHere) continue;
                         posOffSet.X += (18 * drawLocationOffset);
                         string text = Localizer.Token(building.DescriptionIndex);
                         DrawTextureWithToolTip(icon_anomaly_small, Color.White, text, mousePos, (int)posOffSet.X,

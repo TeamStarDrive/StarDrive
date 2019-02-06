@@ -168,11 +168,11 @@ namespace Ship_Game
             UpdateOffense(empire);
         }
 
-        public float ActualMaintenance(Planet p)
-            => Maintenance * p.Owner.data.Traits.MaintMultiplier;
+        public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
 
-        public bool IsAttackable => CombatStrength > 0;
-        public bool CanAttackThisTurn => CombatStrength > 0 || AvailableAttackActions > 0;
+        public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID);
+        public bool IsAttackable       => CombatStrength > 0;
+        public bool CanAttackThisTurn  => CombatStrength > 0 || AvailableAttackActions > 0;
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;
@@ -212,14 +212,14 @@ namespace Ship_Game
             if (AssignBuildingToRandomTile(solarSystemBody, true) != null)
                 return true;
             PlanetGridSquare targetPGS;
-            if (!string.IsNullOrEmpty(EventTriggerUID))
+            if (EventHere)
             {
                 targetPGS = AssignBuildingToRandomTile(solarSystemBody);
                 if (targetPGS != null)                
                     return targetPGS.Habitable = true;                    
                 
             }
-            if (IsOutpost || !string.IsNullOrEmpty(EventTriggerUID))
+            if (IsOutpost || EventHere)
             {
                 targetPGS = AssignBuildingToRandomTile(solarSystemBody);
                 if (targetPGS != null)

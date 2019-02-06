@@ -680,9 +680,9 @@ namespace Ship_Game
                         pgs.SingleTroop.ResetMoveTimer();
                         p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
                         (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
-                        if (!string.IsNullOrEmpty(pgs.building?.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.SingleTroop.GetOwner().isFaction)
+                        if (pgs.EventOnTile && pgs.TroopsAreOnTile && !pgs.SingleTroop.GetOwner().isFaction)
                         {
-                            ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(p, pgs.SingleTroop.GetOwner(), pgs, Empire.Universe);
+                            ResourceManager.EventsDict[pgs.building?.EventTriggerUID].TriggerPlanetEvent(p, pgs.SingleTroop.GetOwner(), pgs, Empire.Universe);
                         }
                         OrbitSL.Remove(draggedTroop);
                         (draggedTroop.item as Ship).QueueTotalRemoval();

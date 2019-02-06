@@ -103,17 +103,95 @@ namespace Ship_Game
 
             // find range
             PlanetGridSquare nearestTargetTile = targetTileList[0]; // because it is sorted by range
-            if (nearestTargetTile.InRangeOf(ourTile, t.Range)) // right now all buildings have range 1
+            if (t.CanAttack && nearestTargetTile.InRangeOf(ourTile, t.Range)) 
             {
                 // start combat
                 t.UpdateAttackActions(-1); // why not when actually resolving combat?
+                t.UpdateMoveActions(-1);
+                t.facingRight = nearestTargetTile.x >= ourTile.x;
                 CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
             }
 
-            // move
+            // move - need support in movement more than 1
+            bool moved = MoveTowardsTarget(t, ourTile, nearestTargetTile);
+            if (!moved || !t.CanAttack)
+                return;  // no need to try to attack again
+
+
             // scan for enemies
+            targetTileList = SpotHostilesByRange(ourTile);
             // find range
-            // attack
+            nearestTargetTile = targetTileList[0]; // because it is sorted by range
+            if (t.CanAttack && nearestTargetTile.InRangeOf(ourTile, t.Range))
+            {
+                // start combat
+                t.UpdateAttackActions(-1); // why not when actually resolving combat?
+                t.UpdateMoveActions(-1);
+                t.facingRight = nearestTargetTile.x >= ourTile.x;
+                CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
+            }
+        }
+
+        private bool MoveTowardsTarget(Troop t, PlanetGridSquare ourTile, PlanetGridSquare targetTile)
+        {
+            if (!t.CanMove)
+                return false;
+
+            TargetDirection direction   = ourTile.GetDirectionTo(targetTile);
+            PlanetGridSquare moveToTile = PickTilesToMoveTo(direction, ourTile);
+            if (moveToTile == null)
+                return false; // no free tile
+            
+            // move to selected direction
+            t.SetFromRect(ourTile.TroopClickRect);
+            t.MovingTimer = 0.75f;
+            t.UpdateMoveActions(-1);
+            t.ResetMoveTimer();
+            moveToTile.TroopsHere.Add(t);
+            ourTile.TroopsHere.Clear();
+            return true;
+        }
+        
+        // try 3 directions to move into, based on general direction to thetarget
+        private PlanetGridSquare PickTilesToMoveTo(TargetDirection direction, PlanetGridSquare ourTile)
+        {
+            switch (direction)
+            {
+                case TargetDirection.North:     return FreeTile(direction, ourTile) ?? 
+                                                       FreeTile(TargetDirection.NorthEast, ourTile) ?? 
+                                                       FreeTile(TargetDirection.NorthWest, ourTile);
+                case TargetDirection.South:     return FreeTile(direction, ourTile) ??
+                                                       FreeTile(TargetDirection.SouthEast, ourTile) ??
+                                                       FreeTile(TargetDirection.SouthWest, ourTile);
+                case TargetDirection.East:      return FreeTile(direction, ourTile) ??
+                                                       FreeTile(TargetDirection.NorthEast, ourTile) ??
+                                                       FreeTile(TargetDirection.SouthEast, ourTile);
+                case TargetDirection.West:      return FreeTile(direction, ourTile) ??
+                                                       FreeTile(TargetDirection.NorthWest, ourTile) ??
+                                                       FreeTile(TargetDirection.SouthWest, ourTile);
+                case TargetDirection.NorthEast: return FreeTile(direction, ourTile) ??
+                                                       FreeTile(TargetDirection.North, ourTile) ??
+                                                       FreeTile(TargetDirection.East, ourTile);
+                case TargetDirection.NorthWest: return FreeTile(direction, ourTile) ??
+                                                       FreeTile(TargetDirection.North, ourTile) ??
+                                                       FreeTile(TargetDirection.West, ourTile);
+                case TargetDirection.SouthEast: return FreeTile(direction, ourTile) ??
+                                                       FreeTile(TargetDirection.South, ourTile) ??
+                                                       FreeTile(TargetDirection.East, ourTile);
+                case TargetDirection.SouthWest: return FreeTile(direction, ourTile) ??
+                                                       FreeTile(TargetDirection.South, ourTile) ??
+                                                       FreeTile(TargetDirection.West, ourTile);
+                default: return null;
+            }
+        }
+
+        private PlanetGridSquare FreeTile(TargetDirection direction, PlanetGridSquare ourTile)
+        {
+            ourTile.ConvertDirectionToCoordinates(direction, out int x, out int y);
+            PlanetGridSquare tile = Ground.GetTileByCoordinates(x, y);
+            if (tile != null && tile.FreeForMovement && tile != ourTile)
+                return tile;
+            return null;
         }
 
         private Array<PlanetGridSquare> SpotHostilesByRange(PlanetGridSquare spotterTile)
@@ -135,7 +213,7 @@ namespace Ship_Game
             {
                 foreach (PlanetGridSquare pgs in TilesList)
                     if ((pgs.TroopsAreOnTile && pgs.SingleTroop.GetOwner() != Owner) ||
-                        (pgs.BuildingOnTile && pgs.building.EventTriggerUID.NotEmpty()))
+                        (pgs.EventOnTile))
                         return true;
                 return false;
             }
@@ -387,9 +465,9 @@ namespace Ship_Game
                 Troop troop = null;
                 using (eventLocation.TroopsHere.AcquireWriteLock())
                 {
-                    if (start.TroopsHere.Count > 0)
+                    if (start.TroopsAreOnTile)
                     {
-                        troop = start.TroopsHere[0];
+                        troop = start.SingleTroop;
                     }
 
                     if (eventLocation.building != null && eventLocation.building.CombatStrength > 0 || eventLocation.TroopsHere.Count > 0)
@@ -407,7 +485,7 @@ namespace Ship_Game
                         eventLocation.TroopsHere.Add(troop);
                         start.TroopsHere.Clear();
                     }
-                    if (string.IsNullOrEmpty(eventLocation.building?.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
+                    if (!eventLocation.EventOnTile || (eventLocation.NoTroopsOnTile || eventLocation.SingleTroop.GetOwner().isFaction))
                         return true;
                 }
 
@@ -719,7 +797,7 @@ namespace Ship_Game
                     HardAttack = attacker.TroopsHardAttack;
                     SoftAttack = attacker.TroopsSoftAttack;
                 }
-                else // building attacks
+                else // building stats
                 {
                     Strength   = attacker.building.Strength;
                     HardAttack = attacker.building.HardAttack;
@@ -730,9 +808,9 @@ namespace Ship_Game
 
         public struct Forces
         {
-            public int DefendingForces;
-            public int InvadingForces;
-            public Empire InvadingEmpire;
+            public readonly int DefendingForces;
+            public readonly int InvadingForces;
+            public readonly Empire InvadingEmpire;
 
             public Forces(Empire defendingEmpire, Array<PlanetGridSquare> tileList)
             {
@@ -762,6 +840,6 @@ namespace Ship_Game
     public enum TargetType
     {
         Soft,
-        Hard,
+        Hard
     }
 }

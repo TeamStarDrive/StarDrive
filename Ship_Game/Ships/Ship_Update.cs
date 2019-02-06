@@ -77,7 +77,7 @@ namespace Ship_Game.Ships
                         for (int index = 0; index < p.BuildingList.Count; index++)
                         {
                             Building building = p.BuildingList[index];
-                            if (!string.IsNullOrEmpty(building.EventTriggerUID))
+                            if (building.EventHere)
                                 Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
                         }
                     }
@@ -86,7 +86,7 @@ namespace Ship_Game.Ships
                     for (int i = 0; i < p.BuildingList.Count; i++)
                     {
                         Building building = p.BuildingList[i];
-                        if (string.IsNullOrEmpty(building.EventTriggerUID) ||
+                        if (!building.EventHere ||
                             loyalty == EmpireManager.Player || p.Owner != null) continue;
 
                         var militaryTask = new MilitaryTask
