@@ -356,7 +356,7 @@ namespace Ship_Game
                     else if (tileToMoveTo.building != null &&
                              (tileToMoveTo.building.CombatStrength > 0 ||
                               !string.IsNullOrEmpty(tileToMoveTo.building.EventTriggerUID)) &&
-                             (Owner != ourTile.TroopsHere[0].GetOwner() ||
+                             (Owner != ourTile.SingleTroop.GetOwner() ||
                               !string.IsNullOrEmpty(tileToMoveTo.building.EventTriggerUID)))
                     {
                         if (tileToMoveTo.x > ourTile.x)
@@ -489,7 +489,7 @@ namespace Ship_Game
                         return true;
                 }
 
-                ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent((Planet) Ground, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe);
+                ResourceManager.EventsDict[eventLocation.building?.EventTriggerUID].TriggerPlanetEvent(Ground, eventLocation.SingleTroop.GetOwner(), eventLocation, Empire.Universe);
             }
             return false;
         }
@@ -638,9 +638,9 @@ namespace Ship_Game
                 }
         }
 
-        private void ResolveDiplomacy(int invadiveForces, Empire invadingEmpire)
+        private void ResolveDiplomacy(int invadingForces, Empire invadingEmpire)
         {
-            if (invadiveForces <= NumInvadersLast || NumInvadersLast != 0)
+            if (invadingForces <= NumInvadersLast || NumInvadersLast != 0)
                 return; // FB - nothing to change if no new troops invade
 
             if (Empire.Universe.PlayerEmpire == Owner) // notify player of invasion

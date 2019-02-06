@@ -412,7 +412,7 @@ namespace Ship_Game
                     SetPlanet(planet);
                     if (!eventLocation.EventOnTile || eventLocation.NoTroopsOnTile || eventLocation.SingleTroop.GetOwner().isFaction)
                         return true;
-                    ResourceManager.Event(eventLocation.building.EventTriggerUID).TriggerPlanetEvent(planet, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe);
+                    ResourceManager.Event(eventLocation.building.EventTriggerUID).TriggerPlanetEvent(planet, eventLocation.SingleTroop.GetOwner(), eventLocation, Empire.Universe);
                 }
             }
             return false;
