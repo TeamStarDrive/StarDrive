@@ -71,7 +71,7 @@ namespace Ship_Game
         
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
-        public const int MaxBuildings = 35; // FB currently this limited by number of tiles, all planets are 7 x 5
+        public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
         public float OrbitalsMaintenance;
 
         void CreateManagers()

@@ -919,76 +919,76 @@ namespace Ship_Game
             p.ActiveCombats.Add(c);
         }
 
-        public static bool TroopCanAttackSquare(PlanetGridSquare ActiveTroop, PlanetGridSquare squareToAttack, Planet p)
+        public static bool TroopCanAttackSquare(PlanetGridSquare ourTile, PlanetGridSquare tileToAttack, Planet p)
         {
-            if (ActiveTroop != null)
+            if (ourTile == null)
+                return false;
+
+            if (ourTile.TroopsHere.Count != 0)
             {
-                if (ActiveTroop.TroopsHere.Count != 0)
+                foreach (PlanetGridSquare planetGridSquare1 in p.TilesList)
                 {
-                    foreach (PlanetGridSquare planetGridSquare1 in p.TilesList)
+                    if (ourTile != planetGridSquare1) continue;
+                    foreach (PlanetGridSquare planetGridSquare2 in p.TilesList)
                     {
-                        if (ActiveTroop != planetGridSquare1) continue;
+                        if (planetGridSquare2 != ourTile && planetGridSquare2 == tileToAttack)
+                        {
+                            //Added by McShooterz: Prevent troops from firing on own buildings
+                            if (planetGridSquare2.TroopsHere.Count == 0 && 
+                                (planetGridSquare2.building == null || 
+                                 (planetGridSquare2.building != null && 
+                                  planetGridSquare2.building.CombatStrength == 0) || 
+                                 p.Owner?.IsEmpireAttackable(ourTile.TroopsHere[0].GetOwner()) == false
+                                ))
+                                return false;
+                            int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
+                            int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
+                            if (planetGridSquare2.TroopsHere.Count > 0)
+                            {
+                                if (planetGridSquare1.TroopsHere.Count != 0 && 
+                                    num1 <= planetGridSquare1.TroopsHere[0].Range && 
+                                    (num2 <= planetGridSquare1.TroopsHere[0].Range &&                                          
+                                     planetGridSquare2.TroopsHere[0].GetOwner().IsEmpireAttackable(ourTile.TroopsHere[0].GetOwner()) 
+                                    ))
+                                    return true;
+                            }
+                            else if (planetGridSquare2.building != null && 
+                                     planetGridSquare2.building.CombatStrength > 0 && 
+                                     (num1 <= planetGridSquare1.TroopsHere[0].Range && 
+                                      num2 <= planetGridSquare1.TroopsHere[0].Range))
+                            {
+                                if (p.Owner == null)
+                                    return false;
+                                if (p.Owner?.IsEmpireAttackable(ourTile.TroopsHere[0].GetOwner()) == true)
+                                    return true;
+                            }
+                        }
+                    }
+                }
+            }
+            else if (ourTile.building != null && ourTile.building.CombatStrength > 0)
+            {
+                foreach (PlanetGridSquare planetGridSquare1 in p.TilesList)
+                {
+                    if (ourTile == planetGridSquare1)
+                    {
                         foreach (PlanetGridSquare planetGridSquare2 in p.TilesList)
                         {
-                            if (planetGridSquare2 != ActiveTroop && planetGridSquare2 == squareToAttack)
+                            if (planetGridSquare2 != ourTile && planetGridSquare2 == tileToAttack)
                             {
-                                //Added by McShooterz: Prevent troops from firing on own buildings
-                                if (planetGridSquare2.TroopsHere.Count == 0 && 
-                                    (planetGridSquare2.building == null || 
-                                     (planetGridSquare2.building != null && 
-                                      planetGridSquare2.building.CombatStrength == 0) || 
-                                      p.Owner?.IsEmpireAttackable(ActiveTroop.TroopsHere[0].GetOwner()) == false
-                                      ))
+                                //Added by McShooterz: Prevent buildings from firing on buildings
+                                if (planetGridSquare2.TroopsHere.Count == 0)
                                     return false;
                                 int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
                                 int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
                                 if (planetGridSquare2.TroopsHere.Count > 0)
                                 {
-                                    if (planetGridSquare1.TroopsHere.Count != 0 && 
-                                        num1 <= planetGridSquare1.TroopsHere[0].Range && 
-                                        (num2 <= planetGridSquare1.TroopsHere[0].Range &&                                          
-                                         planetGridSquare2.TroopsHere[0].GetOwner().IsEmpireAttackable(ActiveTroop.TroopsHere[0].GetOwner()) 
-                                         ))
+                                    if (num1 <= 1 && num2 <= 1 && 
+                                        p.Owner?.IsEmpireAttackable(planetGridSquare2.TroopsHere[0].GetOwner()) == true)
                                         return true;
                                 }
-                                else if (planetGridSquare2.building != null && 
-                                         planetGridSquare2.building.CombatStrength > 0 && 
-                                         (num1 <= planetGridSquare1.TroopsHere[0].Range && 
-                                          num2 <= planetGridSquare1.TroopsHere[0].Range))
-                                {
-                                    if (p.Owner == null)
-                                        return false;
-                                    if (p.Owner?.IsEmpireAttackable(ActiveTroop.TroopsHere[0].GetOwner()) == true)
-                                        return true;
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (ActiveTroop.building != null && ActiveTroop.building.CombatStrength > 0)
-                {
-                    foreach (PlanetGridSquare planetGridSquare1 in p.TilesList)
-                    {
-                        if (ActiveTroop == planetGridSquare1)
-                        {
-                            foreach (PlanetGridSquare planetGridSquare2 in p.TilesList)
-                            {
-                                if (planetGridSquare2 != ActiveTroop && planetGridSquare2 == squareToAttack)
-                                {
-                                    //Added by McShooterz: Prevent buildings from firing on buildings
-                                    if (planetGridSquare2.TroopsHere.Count == 0)
-                                        return false;
-                                    int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
-                                    int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
-                                    if (planetGridSquare2.TroopsHere.Count > 0)
-                                    {
-                                        if (num1 <= 1 && num2 <= 1 && 
-                                            p.Owner?.IsEmpireAttackable(planetGridSquare2.TroopsHere[0].GetOwner()) == true)
-                                            return true;
-                                    }
-                                    else if (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength > 0 && (num1 <= 1 && num2 <= 1))
-                                        return p.Owner != null;
-                                }
+                                else if (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength > 0 && (num1 <= 1 && num2 <= 1))
+                                    return p.Owner != null;
                             }
                         }
                     }
