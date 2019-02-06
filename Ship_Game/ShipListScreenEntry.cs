@@ -425,7 +425,7 @@ namespace Ship_Game
                             break;
                         }
 
-                        text = string.Concat(text, Localizer.Token(188), " ", ResourceManager.ShipsDict[ship.AI.OrderQueue.PeekLast.goal.ToBuildUID].Name);
+                        text = string.Concat(text, Localizer.Token(188), " ", ResourceManager.ShipsDict[ship.AI.OrderQueue.PeekLast.Goal.ToBuildUID].Name);
                         break;
                     }
 

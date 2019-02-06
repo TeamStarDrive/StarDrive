@@ -11,9 +11,8 @@ namespace Ship_Game.AI
     {
         public void OrderAssaultPlanet(Planet planetToAssault)
         {
-            OrbitTarget = planetToAssault;
-            ClearOrders(AIState.AssaultPlanet);
-            AddShipGoal(Plan.LandTroop, planetToAssault);
+            ClearOrders();
+            AddLandTroopGoal(planetToAssault);
         }
 
         public void OrderAllStop()
@@ -60,9 +59,8 @@ namespace Ship_Game.AI
         public void OrderBombardPlanet(Planet toBombard)
         {
             Owner.InCombatTimer = 15f;
-            ClearWayPoints();
-            ClearOrders(AIState.Bombard, priority: true);
-            AddShipGoal(Plan.Bombard, toBombard);
+            ClearOrdersAndWayPoints();
+            AddPlanetGoal(Plan.Bombard, toBombard, AIState.Bombard, priority: true);
         }
 
         public void OrderColonization(Planet toColonize)
@@ -71,7 +69,7 @@ namespace Ship_Game.AI
                 return;
             ColonizeTarget = toColonize;
             OrderMoveTowardsPosition(toColonize.Center, Vectors.Up, true, toColonize);
-            AddShipGoal(Plan.Colonize, toColonize.Center, toColonize);
+            AddShipGoal(Plan.Colonize, toColonize.Center, Vectors.Up, toColonize, 0f);
             State = AIState.Colonize;
         }
 
@@ -81,11 +79,7 @@ namespace Ship_Game.AI
             Vector2 pos = goal.BuildPosition;
             Vector2 dir = Owner.Center.DirectionToTarget(pos);
             OrderMoveTowardsPosition(pos, dir, true, null);
-            AddToOrderQueue(new ShipGoal(Plan.DeployStructure, pos, dir)
-            {
-                goal = goal,
-                VariableString = goal.ToBuildUID
-            });
+            AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f);
         }
 
         public void OrderExplore()
@@ -99,10 +93,8 @@ namespace Ship_Game.AI
 
         public void OrderExterminatePlanet(Planet toBombard)
         {
-            ClearWayPoints();
-            ClearOrders(AIState.Exterminate);
-            AddShipGoal(Plan.Exterminate, toBombard);
-            ExterminationTarget = toBombard;
+            ClearOrdersAndWayPoints();
+            AddPlanetGoal(Plan.Exterminate, toBombard, AIState.Exterminate);
         }
 
         public void OrderFindExterminationTarget()
@@ -176,17 +168,21 @@ namespace Ship_Game.AI
                                          Planet targetPlanet, bool clearOrders, float speedLimit)
         {
             Target = null;
-            if (clearOrders) ClearWayPoints();
+
+            if (clearOrders)
+                ClearWayPoints();
             ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
             WayPoints.Enqueue(position);
+
             MovePosition = position;
             DesiredDirection = finalDirection;
+
             Vector2[] wayPoints = WayPoints.ToArray();
             for (int i = 0; i < wayPoints.Length; ++i)
             {
                 Vector2 wp = wayPoints[i];
                 bool isLast = wayPoints.Length - 1 == i;
-                Planet p = isLast ? targetPlanet : null;
+                Planet p = isLast ? targetPlanet : null; // only set planet for final waypoint
 
                 if (i == 0)
                     AddShipGoal(Plan.RotateToFaceMovePosition, wp, finalDirection);
@@ -325,9 +321,7 @@ namespace Ship_Game.AI
 
             OrderMoveTowardsPosition(p.Center, Vectors.Up, false, p);
             IgnoreCombat = true;
-            AddShipGoal(Plan.Rebase, p);
-            State = AIState.Rebase;
-            HasPriorityOrder = true;
+            AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
         public void OrderRebaseToNearest()
@@ -356,10 +350,7 @@ namespace Ship_Game.AI
             OrderMoveTowardsPosition(p.Center, Vectors.Up, false, p);
             IgnoreCombat = true;
 
-            AddShipGoal(Plan.Rebase, p);
-
-            State = AIState.Rebase;
-            HasPriorityOrder = true;
+            AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
         public void OrderRefitTo(Ship toRefit)
@@ -372,11 +363,7 @@ namespace Ship_Game.AI
             }
 
             OrderMoveTowardsPosition(OrbitTarget.Center, Vectors.Up, true, OrbitTarget);
-            AddToOrderQueue(new ShipGoal(Plan.Refit)
-            {
-                TargetPlanet = OrbitTarget,
-                TargetShip   = toRefit
-            });
+            AddShipGoal(Plan.Refit, OrbitTarget, toRefit.Name);
 
             IgnoreCombat = true;
             State = AIState.Refit;
@@ -393,7 +380,7 @@ namespace Ship_Game.AI
             OrbitTarget  = toOrbit;
             AwaitClosest = toOrbit;
             OrderMoveTowardsPosition(toOrbit.Center, Vectors.Up, clearOrders, toOrbit);
-            State        = AIState.Resupply;
+            State = AIState.Resupply;
         }
 
         public void OrderReturnToHangar()
@@ -433,8 +420,7 @@ namespace Ship_Game.AI
             }
 
             OrderMoveTowardsPosition(OrbitTarget.Center, Vectors.Up, true, OrbitTarget);
-            AddShipGoal(Plan.Scrap, OrbitTarget);
-            State = AIState.Scrap;
+            AddPlanetGoal(Plan.Scrap, OrbitTarget, AIState.Scrap);
         }
 
         public void OrderSystemDefense(SolarSystem system)

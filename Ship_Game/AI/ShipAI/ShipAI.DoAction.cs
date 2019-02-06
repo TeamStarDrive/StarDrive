@@ -289,21 +289,21 @@ namespace Ship_Game.AI
 
         void DoDeploy(ShipGoal sg)
         {
-            if (sg.goal == null)
+            if (sg.Goal == null)
                 return;
             Planet target = sg.TargetPlanet;
-            if (target == null && sg.goal.TetherTarget != Guid.Empty)
+            if (target == null && sg.Goal.TetherTarget != Guid.Empty)
             {
-                Empire.Universe.PlanetsDict.TryGetValue(sg.goal.TetherTarget, out target);
+                Empire.Universe.PlanetsDict.TryGetValue(sg.Goal.TetherTarget, out target);
             }
-            if (target != null && (target.Center + sg.goal.TetherOffset).Distance(Owner.Center) > 200f)
+            if (target != null && (target.Center + sg.Goal.TetherOffset).Distance(Owner.Center) > 200f)
             {
-                sg.goal.BuildPosition = target.Center + sg.goal.TetherOffset;
-                OrderDeepSpaceBuild(sg.goal);
+                sg.Goal.BuildPosition = target.Center + sg.Goal.TetherOffset;
+                OrderDeepSpaceBuild(sg.Goal);
                 return;
             }
-            Ship platform = Ship.CreateShipAtPoint(sg.goal.ToBuildUID, Owner.loyalty,
-                sg.goal.BuildPosition);
+            Ship platform = Ship.CreateShipAtPoint(sg.Goal.ToBuildUID, Owner.loyalty,
+                sg.Goal.BuildPosition);
             if (platform == null)
                 return;
 
@@ -312,7 +312,7 @@ namespace Ship_Game.AI
                 bool found = false;
                 foreach (RoadNode node in road.RoadNodesList)
                 {
-                    if (node.Position != sg.goal.BuildPosition)
+                    if (node.Position != sg.Goal.BuildPosition)
                         continue;
                     node.Platform = platform;
                     StatTracker.StatAddRoad(node, Owner.loyalty);
@@ -321,12 +321,12 @@ namespace Ship_Game.AI
                 }
                 if (found) break;
             }
-            if (sg.goal.TetherTarget != Guid.Empty)
+            if (sg.Goal.TetherTarget != Guid.Empty)
             {
-                platform.TetherToPlanet(Empire.Universe.PlanetsDict[sg.goal.TetherTarget]);
-                platform.TetherOffset = sg.goal.TetherOffset;
+                platform.TetherToPlanet(Empire.Universe.PlanetsDict[sg.Goal.TetherTarget]);
+                platform.TetherOffset = sg.Goal.TetherOffset;
             }
-            Owner.loyalty.GetEmpireAI().Goals.Remove(sg.goal);
+            Owner.loyalty.GetEmpireAI().Goals.Remove(sg.Goal);
             Owner.QueueTotalRemoval();
         }
 
@@ -593,8 +593,6 @@ namespace Ship_Game.AI
         // orbit around a planet
         void DoOrbit(Planet orbitTarget, float elapsedTime)
         {
-            //State = AIState.Orbit;
-
             if (Owner.velocityMaximum < 1)
                 return;
 
@@ -664,7 +662,7 @@ namespace Ship_Game.AI
             {
                 ClearOrders();
             }
-            int cost = (int) (ResourceManager.ShipsDict[goal.TargetShip.Name].GetCost(Owner.loyalty) -
+            int cost = (int) (ResourceManager.ShipsDict[Owner.Name].GetCost(Owner.loyalty) -
                               Owner.GetCost(Owner.loyalty));
             if (cost < 0)
                 cost = 0;
