@@ -1102,8 +1102,8 @@ namespace Ship_Game.AI
         {
             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength   = FleetTask.TargetPlanet.GetGroundStrength(Owner);
-            bool invading             = IsInvading(theirGroundStrength, ourGroundStrength, task);
-            bool bombing              = BombPlanet(ourGroundStrength, task);
+            bool invading = IsInvading(theirGroundStrength, ourGroundStrength, task);
+            bool bombing  = BombPlanet(ourGroundStrength, task);
             if(!bombing && !invading)
                 EndInvalidTask(true);
         }
@@ -1191,31 +1191,37 @@ namespace Ship_Game.AI
             return !task.TargetPlanet.AnyOfOurTroops(Owner) || Ships.Any(bombers => bombers.AI.State == AIState.Bombard);
         }
 
-        bool StartBombPlanet(MilitaryTask task) => StartStopBombing(true, task);
-        bool StopBombPlanet(MilitaryTask task) => StartStopBombing(false, task);
-
-        bool StartStopBombing(bool doBombing, MilitaryTask task)
+        void StopBombPlanet()
         {
-            var bombers = Ships.Filter(ship => ship.BombBays.Count > 0);
-            foreach (var ship in bombers)
+            foreach (Ship ship in Ships.Filter(ship => ship.BombBays.Count > 0))
             {
-                if (doBombing)
-                {
-                    if (ship.AI.HasPriorityOrder || ship.AI.State == AIState.Bombard) continue;
-                    ship.AI.OrderBombardPlanet(task.TargetPlanet);
-                }
-                else if (ship.AI.State == AIState.Bombard)
-                {
-                    ship.AI.ClearOrdersNext = true;
-                }
+                if (ship.AI.State == AIState.Bombard)
+                    ship.AI.ClearOrders();
             }
-            return bombers.Length > 0;
         }
 
+        bool StartBombing(MilitaryTask task)
+        {
+            bool anyShipsBombing = false;
+            foreach (Ship ship in Ships.Filter(ship => ship.BombBays.Count > 0))
+            {
+                if (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Bombard)
+                    ship.AI.OrderBombardPlanet(task.TargetPlanet);
+                anyShipsBombing |= ship.AI.State == AIState.Bombard;
+            }
+            return anyShipsBombing;
+        }
+
+        // @return TRUE if any ships are bombing planet
+        // Bombing is done if we have no ground strength or if 
+        // there are more than provided free spaces (???)
         bool BombPlanet(float ourGroundStrength, MilitaryTask task , int freeSpacesNeeded = 5)
         {
-            bool doBombs = !(ourGroundStrength > 0 && freeSpacesNeeded >= task.TargetPlanet.GetGroundLandingSpots());
-            return StartStopBombing(doBombs, task);
+            bool doBombs = ourGroundStrength <= 0 || task.TargetPlanet.GetGroundLandingSpots() >= freeSpacesNeeded;
+            if (doBombs)
+                return StartBombing(task);
+            StopBombPlanet();
+            return false;
         }
 
         bool IsInvading(float theirGroundStrength, float ourGroundStrength, MilitaryTask task, int LandingspotsNeeded =5)
@@ -1228,22 +1234,22 @@ namespace Ship_Game.AI
                 planetAssaultStrength += ship.Carrier.PlanetAssaultStrength;
 
             planetAssaultStrength += ourGroundStrength;
-            if (planetAssaultStrength < theirGroundStrength *.75f)
+            if (planetAssaultStrength < theirGroundStrength * 0.75f)
             {
-                DebugInfo(task, $"Fail insuffcient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
+                DebugInfo(task, $"Fail insufficient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
                 return false;
             }
             if (freeLandingSpots < LandingspotsNeeded)
             {
-                DebugInfo(task,$"fail insuffcient landing space. planetHas: {freeLandingSpots} Needed: {LandingspotsNeeded}");
+                DebugInfo(task,$"Fail insufficient landing space. planetHas: {freeLandingSpots} Needed: {LandingspotsNeeded}");
                 return false;
             }
 
             if (ourGroundStrength < 1)
-                StopBombPlanet(task);
+                StopBombPlanet();
 
-            if (Ships.Find(ship=> ship.Center.InRadius(task.AO,task.AORadius)) != null)
-            OrderShipsToInvade(RearShips, task);
+            if (Ships.Any(ship => ship.Center.InRadius(task.AO, task.AORadius)))
+                OrderShipsToInvade(RearShips, task);
             return true;
         }
 

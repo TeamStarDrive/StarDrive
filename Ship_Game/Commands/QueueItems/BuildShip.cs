@@ -8,7 +8,7 @@ namespace Ship_Game.Commands
         {
             isShip = true;
             ProductionSpent = 0f;
-            sData = ResourceManager.ShipsDict[goal.TargetShip.Name].shipData;
+            sData = ResourceManager.GetShipTemplate(goal.VariableString).shipData;
         }
     }
 }

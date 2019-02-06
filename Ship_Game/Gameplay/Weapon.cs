@@ -114,8 +114,8 @@ namespace Ship_Game.Gameplay
         public float DamageAmount;
         public float ProjectileSpeed;
         public int ProjectileCount = 1;
-        public int FireArc;
-        public int FireCone;
+        public int FireArc; // misleading; this is the FireDispersionArc for cannons that do salvo fire
+        public int FireCone; // this is the fire imprecision cone, direction spread is randomized [-FireCone,+FireCone]
         public string ProjectileTexturePath;
         public string ModelPath;
         public string WeaponType;
@@ -315,7 +315,7 @@ namespace Ship_Game.Gameplay
                 AltFireWeapon = ResourceManager.CreateWeapon(SecondaryFire);
 
             Weapon  weapon = secondary ? AltFireWeapon : this;
-            Vector2 origin = Module.Center;
+            Vector2 origin = Origin;
             bool playSound = true;
 
             foreach (FireSource fireSource in EnumFireSources(origin, direction))
@@ -399,12 +399,12 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        private void FireAtTarget(Vector2 targetPos, GameplayObject target = null)
+        bool FireAtTarget(Vector2 targetPos, GameplayObject target = null)
         {
             if (!PrepareFirePos(target, targetPos, out Vector2 firePos))
-                return;
+                return false;
 
-            Vector2 direction = (firePos - Module.Center).Normalized();
+            Vector2 direction = Origin.DirectionToTarget(firePos);
 
             SpawnSalvo(direction, target);
 
@@ -415,6 +415,7 @@ namespace Ship_Game.Gameplay
                 SalvoFireTimer = 0f;
                 SalvoTarget    = target;
             }
+            return true;
         }
 
         public void ClearFireTarget()
@@ -423,23 +424,28 @@ namespace Ship_Game.Gameplay
             SalvoTarget = null;
         }
 
-        public Vector2 AdjustTargetting(int level = -1)
+        // > 66% accurate or >= Level 5 crews can use advanced
+        // targeting which even predicts acceleration
+        public bool CanUseAdvancedTargeting =>
+            (Module != null && Module.AccuracyPercent > 0.66f) ||
+            (Owner  != null && Owner.CanUseAdvancedTargeting);
+
+        public Vector2 AdjustTargeting(int level = -1)
         {
             if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
                 return Vector2.Zero; //|| Tag_PD
 
-            //calaculate level.
+            // calculate level.
             int trackingPower = Owner?.TrackingPower ?? 1;
             if(level == -1)
                 level = (Owner?.Level ?? level)
                     + trackingPower //(Owner?.TrackingPower  ?? 0)
                     + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
 
-            //reduce jitter by level cubed. if jitter is less than a module radius stop.
+            // reduce jitter by level cubed. if jitter is less than a module radius stop.
             float baseJitter = 45f + 8 * Module.XSIZE * Module.YSIZE;
             float adjust     = Math.Max(0, baseJitter - level * level * level);
             if (adjust < 8) return Vector2.Zero;
-
 
             //reduce or increase jitter based on weapon and trait characteristics.
 
@@ -466,18 +472,32 @@ namespace Ship_Game.Gameplay
                 adjust = 1 - adjust;
             return adjust;
         }
-        public Vector2 SetDestination(Vector2 target, Vector2 source, float range )
+
+        static Vector2 SetDestination(Vector2 target, Vector2 source, float range)
         {
             Vector2 deltaVec = target - source;
             return source + deltaVec.Normalized() * range;
         }
+
+        public Vector2 Origin => Module?.Center ?? Center;
+
+        public bool ProjectedImpactPointNoError(GameplayObject target, out Vector2 pip)
+        {
+            Vector2 ownerVel = Owner?.Velocity ?? Vector2.Zero;
+            pip = new ImpactPredictor(Origin, ownerVel, ProjectileSpeed, Range, target)
+                .Predict(advancedTargeting: true);
+            return pip != Vector2.Zero;
+        }
+
         public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
-            Vector2 weaponOrigin = Module?.Center ?? Center;
+            Vector2 weaponOrigin = Origin;
             Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
-            Vector2 error = target.TargetErrorPos() + AdjustTargetting();
+            Vector2 error = target.TargetErrorPos() + AdjustTargeting();
 
-            pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, Range, target).Predict();
+            pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, Range, target)
+                .Predict(CanUseAdvancedTargeting);
+
             Vector2 targetError = SetDestination(pip, weaponOrigin, 1000) + error;
             pip = SetDestination(targetError, weaponOrigin, weaponOrigin.Distance(pip));
 
@@ -598,20 +618,21 @@ namespace Ship_Game.Gameplay
             if (Tag_Tractor || isRepairBeam) return destination;
 
             Vector2 targetError = target?.TargetErrorPos() ?? Vector2.Zero;
-            targetError += AdjustTargetting();
+            targetError += AdjustTargeting();
             targetError += SetDestination(destination, Center, 1000);
             targetError = SetDestination(targetError, Center, Center.Distance(destination));
             return targetError;
         }
 
-        private void FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
+        bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
         {
             destination = ProjectedBeamPoint(source, destination, target);
             if (!CheckFireArc(destination) || !PrepareToFire())
-                return;
+                return false;
 
             var beam = new Beam(this, source, destination, target, followMouse);
             Module.GetParent().AddBeam(beam);
+            return true;
         }
 
         public void FireDroneBeam(GameplayObject target, DroneAI droneAI)
@@ -627,12 +648,12 @@ namespace Ship_Game.Gameplay
             FireBeam(Module.Center, target.Center, target);
         }
 
-        public void MouseFireAtTarget(Vector2 targetPos)
+        public bool MouseFireAtTarget(Vector2 targetPos)
         {
             if (!CanFireWeapon())
-                return;
-            if (isBeam) FireBeam(Module.Center, targetPos, null, true);
-            else        FireAtTarget(targetPos, null);
+                return false;
+            if (isBeam) return FireBeam(Module.Center, targetPos, null, true);
+            else        return FireAtTarget(targetPos, null);
         }
 
         public void FireFromPlanet(Planet planet, Ship targetShip)

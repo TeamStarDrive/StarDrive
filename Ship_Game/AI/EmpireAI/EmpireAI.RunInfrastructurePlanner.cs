@@ -170,8 +170,8 @@ namespace Ship_Game.AI {
                                 {
                                     ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
 
-                                    if (goal?.goal == null || goal.goal.type != GoalType.DeepSpaceConstruction ||
-                                        goal.goal.BuildPosition != node.Position)                                    
+                                    if (goal?.Goal == null || goal.Goal.type != GoalType.DeepSpaceConstruction ||
+                                        goal.Goal.BuildPosition != node.Position)                                    
                                         continue;
                                     
                                     ship.AI.OrderScrapShip();

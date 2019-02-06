@@ -23,6 +23,7 @@ namespace Ship_Game
         {
             Difficulty = data.difficulty;
             Pace = pace;
+            RandomEventManager.ActiveEvent = null;
         }
     }
 }

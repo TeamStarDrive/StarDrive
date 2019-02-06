@@ -21,40 +21,31 @@ namespace Ship_Game
         public float Mass;
         public string IconTexturePath;
     }
+
     public sealed class GoodToPlan
     {
         public static ShipAI.Plan Pickup(Goods good)
         {
             switch (good)
             {
-                case Goods.None:
-                    break;
-                case Goods.Food:
-                case Goods.Production:
-                    return ShipAI.Plan.PickupGoods;       
-                case Goods.Colonists:
-                    return ShipAI.Plan.PickupPassengers;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(good), good, null);
+                default:               return ShipAI.Plan.Trade;
+                case Goods.None:       return ShipAI.Plan.Trade;
+                case Goods.Food:       return ShipAI.Plan.PickupGoods;
+                case Goods.Production: return ShipAI.Plan.PickupGoods;       
+                case Goods.Colonists:  return ShipAI.Plan.PickupPassengers;
             }
-            return ShipAI.Plan.Trade;
         }
 
         public static ShipAI.Plan DropOff(Goods good)
         {
             switch (good)
             {
-                case Goods.None:
-                    break;
-                case Goods.Food:
-                case Goods.Production:
-                    return ShipAI.Plan.DropOffGoods;
-                case Goods.Colonists:
-                    return ShipAI.Plan.DropoffPassengers;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(good), good, null);
+                default:               return ShipAI.Plan.Trade;
+                case Goods.None:       return ShipAI.Plan.Trade;
+                case Goods.Food:       return ShipAI.Plan.DropOffGoods;
+                case Goods.Production: return ShipAI.Plan.DropOffGoods;
+                case Goods.Colonists:  return ShipAI.Plan.DropoffPassengers;
             }
-            return ShipAI.Plan.Trade;
         }
     }
 }

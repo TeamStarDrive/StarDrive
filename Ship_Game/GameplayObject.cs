@@ -181,6 +181,10 @@ namespace Ship_Game
             return Vector2.Zero;            
         }
 
+        public virtual void OnDamageInflicted(ShipModule victim, float damage)
+        {
+        }
+
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
     }
 }

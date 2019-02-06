@@ -23,24 +23,22 @@ namespace Ship_Game.AI
         public FleetDataNode FleetNode { get;  set; }
         
         public Ship Owner;
-        public AIState State;// = AIState.AwaitingOrders;
+        public AIState State = AIState.AwaitingOrders;
         public Guid OrbitTargetGuid;
         public Planet ColonizeTarget;
         public Planet ResupplyTarget;
         public Guid SystemToDefendGuid;
         public SolarSystem SystemToDefend;
         public SolarSystem ExplorationTarget;
-        public AIState DefaultAIState                         = AIState.AwaitingOrders;
-        public SafeQueue<ShipGoal> OrderQueue                 = new SafeQueue<ShipGoal>();
-        public Array<ShipWeight> NearByShips = new Array<ShipWeight>();
-        public BatchRemovalCollection<Ship> FriendliesNearby  = new BatchRemovalCollection<Ship>();
+        public AIState DefaultAIState = AIState.AwaitingOrders;
+        public SafeQueue<ShipGoal> OrderQueue = new SafeQueue<ShipGoal>();
+        public Array<ShipWeight> NearByShips  = new Array<ShipWeight>();
+        public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
 
         public ShipAI(Ship owner)
         {
             Owner = owner;
-            State = AIState.AwaitingOrders;
-            WayPoints = new WayPoints();
         }
 
         void Colonize(Planet targetPlanet)
@@ -143,7 +141,7 @@ namespace Ship_Game.AI
                 system.SetExploredBy(Owner.loyalty);
                 return true;
             }
-            ThrustOrWarpTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
+            ThrustOrWarpToPosCorrected(MovePosition, elapsedTime);
             return false;
         }
 
@@ -174,7 +172,7 @@ namespace Ship_Game.AI
 
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
             {
-                ThrustOrWarpTowardsPosition(goal.TargetPlanet.Center, elapsedTime, 200);
+                ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime, 200f);
                 return;
             }
             ClearOrders(State);
@@ -298,12 +296,9 @@ namespace Ship_Game.AI
             EscortTarget = supplyShip;
             IgnoreCombat = true;
             ClearOrders(AIState.ResupplyEscort);
-            OrderQueue.Enqueue(new ShipGoal(Plan.ResupplyEscort)
-            {
-                Direction      = UniverseRandom.RandomDirection(),
-                VariableNumber = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000),
-                VariableString = supplyType
-            });
+
+            float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000);
+            AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection(), null, supplyType, strafeOffset);
         }
 
         void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
@@ -447,8 +442,7 @@ namespace Ship_Game.AI
                         //Adding +1 to the result of GetGroundStrengthOther tilts the scale just enough so a planet with no troops at all can still be bombed
                         //but having even 1 allied troop will cause the bombine action to abort.
                         ClearOrders();
-                        AddShipGoal(Plan.Orbit, toEvaluate.TargetPlanet); //Stay in Orbit
-                        HasPriorityOrder = false;
+                        AddOrbitPlanetGoal(toEvaluate.TargetPlanet); // Stay in Orbit
                     }
                     DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
                     float radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
@@ -530,8 +524,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                if (HasPriorityOrder)
-                    HasPriorityOrder = false;
+                HasPriorityOrder = false;
                 using (Owner.fleet.Ships.AcquireReadLock())
                     IdleFleetAI(elapsedTime);
             }
@@ -551,7 +544,7 @@ namespace Ship_Game.AI
             {
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                 {
-                    ThrustOrWarpTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
+                    ThrustOrWarpToPosCorrected(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
                 }
                 else
                 {

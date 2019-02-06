@@ -17,7 +17,7 @@ namespace Ship_Game.Ships
     }
 
     // Ship_Cargo.cs -- All the data related to Cargo
-    public sealed partial class Ship
+    public partial class Ship
     {
         private CargoContainer Cargo;
 
