@@ -465,7 +465,7 @@ namespace Ship_Game.Debug
                 }
 
                 // goal direction arrow
-                DrawArrowImm(pos, pos + goal.DesiredDirection * 50f, Color.Wheat);
+                DrawArrowImm(pos, pos + goal.Direction * 50f, Color.Wheat);
 
                 // velocity arrow
                 if (detailed)

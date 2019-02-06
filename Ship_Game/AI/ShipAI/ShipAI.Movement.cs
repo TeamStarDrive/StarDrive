@@ -166,7 +166,7 @@ namespace Ship_Game.AI
         // this is used when we arrive at final position
         void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
         {
-            if (!RotateToDirection(goal.DesiredDirection, elapsedTime, 0.02f))
+            if (!RotateToDirection(goal.Direction, elapsedTime, 0.02f))
             {
                 DequeueCurrentOrder(); // rotation complete
             }
