@@ -14,6 +14,7 @@ namespace Ship_Game.AI
         {
             OrderQueue.Enqueue(new ShipGoal(plan));
         }
+
         public void AddShipGoal(Plan plan, Planet target)
         {
             OrderQueue.Enqueue(new ShipGoal(plan){ TargetPlanet = target });
@@ -34,6 +35,30 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet) { SpeedLimit = speedLimit });
         }
 
+        public void AddOrbitPlanetGoal(Planet targetPlanet, AIState newState = AIState.Orbit)
+        {
+            if (targetPlanet == null)
+            {
+                Log.Error("AddOrbitPlanetGoal: targetPlanet was null! Orbit goal discarded.");
+                return;
+            }
+            OrbitTarget = targetPlanet;
+            OrderQueue.Enqueue(new ShipGoal(Plan.Orbit, targetPlanet.Center, Vectors.Up, targetPlanet));
+            State = newState;
+        }
+
+        public void AddLandTroopGoal(Planet targetPlanet, AIState newState = AIState.AssaultPlanet)
+        {
+            if (targetPlanet == null)
+            {
+                Log.Error("AddLandTroopGoal: targetPlanet was null! LandTroop goal discarded.");
+                return;
+            }
+            OrbitTarget = targetPlanet;
+            OrderQueue.Enqueue(new ShipGoal(Plan.LandTroop, targetPlanet.Center, Vectors.Up, targetPlanet));
+            State = newState;
+        }
+
         public int GotoStep;
 
 
@@ -45,13 +70,12 @@ namespace Ship_Game.AI
             public string VariableString;
             public Fleet fleet;
             public Vector2 MovePosition;
-            public Vector2 DesiredDirection;
-            public Vector2 Direction; // @note Escort Direction?
+            public Vector2 Direction; // direction param for this goal, can have multiple meanings
             public Planet TargetPlanet;
             public float SpeedLimit = 1f;
             public Ship TargetShip;
 
-            public override string ToString() => $"{Plan} pos:{MovePosition} dir:{DesiredDirection}";
+            public override string ToString() => $"{Plan} pos:{MovePosition} dir:{Direction}";
 
             public ShipGoal(Plan p)
             {
@@ -62,31 +86,15 @@ namespace Ship_Game.AI
             {
                 Plan             = p;
                 MovePosition     = pos;
-                DesiredDirection = dir;
+                Direction = dir;
             }
 
             public ShipGoal(Plan p, Vector2 pos, Vector2 dir, Planet targetPlanet)
             {
                 Plan             = p;
                 MovePosition     = pos;
-                DesiredDirection = dir;
+                Direction = dir;
                 TargetPlanet     = targetPlanet;
-            }
-
-            public ShipGoal(Plan p, Planet targetPlanet, Ship targetShip)
-            {
-                Plan             = p;
-                TargetPlanet     = targetPlanet;
-                TargetShip       = targetShip;
-            }
-
-            public static ShipGoal CreateLandTroopGoal(Planet targetPlanet)
-            {
-                var goal = new ShipGoal(Plan.LandTroop, Vector2.Zero, Vectors.Up)
-                {
-                    TargetPlanet = targetPlanet
-                };
-                return goal;
             }
         }
 

@@ -125,27 +125,26 @@ namespace Ship_Game.AI
             }
         }
 
-        public void OrderFormationWarp(Vector2 destination, Vector2 fvec)
+        public void OrderFormationWarp(Vector2 destination, Vector2 direction)
         {
             ClearWayPoints();
             ClearOrders();
-            OrderMoveDirectlyTowardsPosition(destination, fvec, true, Owner.fleet.Speed);
+            OrderMoveDirectlyTowardsPosition(destination, direction, true, Owner.fleet.Speed);
             State = AIState.FormationWarp;
         }
 
-        public void OrderFormationWarpQ(Vector2 destination, Vector2 fvec)
+        public void OrderFormationWarpQ(Vector2 destination, Vector2 direction)
         {
-            OrderMoveDirectlyTowardsPosition(destination, fvec, false, Owner.fleet.Speed);
+            OrderMoveDirectlyTowardsPosition(destination, direction, false, Owner.fleet.Speed);
             State = AIState.FormationWarp;
         }
 
         public void OrderInterceptShip(Ship toIntercept)
         {
             ClearWayPoints();
-            ClearOrders(AIState.Intercept);
+            ClearOrders(AIState.Intercept, priority: true);
             Intercepting = true;
             Target = toIntercept;
-            HasPriorityTarget = true;
         }
 
         public void OrderLandAllTroops(Planet target)
@@ -153,42 +152,32 @@ namespace Ship_Game.AI
             if (Owner.Carrier.AnyPlanetAssaultAvailable)
             {
                 SetPriorityOrderWithClear();
-                State = AIState.AssaultPlanet;
-                OrbitTarget = target;
-                AddToOrderQueue(ShipGoal.CreateLandTroopGoal(target));
+                AddLandTroopGoal(target);
             }
         }
 
-        public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 fVec, bool clearOrders)
+        public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders)
         {
-            Target = null;
-            if (clearOrders) ClearWayPoints();
-            ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
-
-            GenerateOrdersFromWayPoints(position, fVec, null, Owner.Speed);
+            GenerateOrdersFromWayPoints(position, finalDirection, null, clearOrders, Owner.Speed);
         }
 
-        public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 fVec, bool clearOrders, float speedLimit)
+        public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders, float speedLimit)
         {
-            Target = null;
-            if (clearOrders) ClearWayPoints();
-            ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
-
-            GenerateOrdersFromWayPoints(position, fVec, null, speedLimit);
+            GenerateOrdersFromWayPoints(position, finalDirection, null, clearOrders, speedLimit);
         }
 
         public void OrderMoveTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders, Planet targetPlanet)
         {
             DistanceLast = 0f;
+            GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, clearOrders, Owner.Speed);
+        }
+
+        void GenerateOrdersFromWayPoints(Vector2 position, Vector2 finalDirection, 
+                                         Planet targetPlanet, bool clearOrders, float speedLimit)
+        {
             Target = null;
             if (clearOrders) ClearWayPoints();
             ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
-
-            GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, Owner.Speed);
-        }
-
-        void GenerateOrdersFromWayPoints(Vector2 position, Vector2 finalDirection, Planet targetPlanet, float speedLimit)
-        {
             WayPoints.Enqueue(position);
             MovePosition = position;
             DesiredDirection = finalDirection;
@@ -224,18 +213,16 @@ namespace Ship_Game.AI
             Planet closest = Owner.loyalty.GetPlanets().FindMin(p => p.Center.SqDist(Owner.Center));
             if (closest != null)
             {
-                ResupplyTarget = OrbitTarget = closest;
-                State = AIState.Orbit;
-                AddShipGoal(Plan.Orbit, OrbitTarget);
+                ResupplyTarget = closest;
+                AddOrbitPlanetGoal(closest);
                 return;
             }
 
             SolarSystem closestSystem = Owner.loyalty.GetOwnedSystems().FindMin(s => s.Position.SqDist(Owner.Center));
             if (closestSystem != null)
             {
-                ResupplyTarget = OrbitTarget = closestSystem.PlanetList[0];
-                State = AIState.Orbit;
-                AddShipGoal(Plan.Orbit, OrbitTarget);
+                ResupplyTarget = closestSystem.PlanetList[0];
+                AddOrbitPlanetGoal(ResupplyTarget);
                 return;
             }
 
@@ -262,11 +249,8 @@ namespace Ship_Game.AI
 
             if (systemList.Length > 0)
             {
-                Planet item = systemList[0].PlanetList[0];
-                OrbitTarget = item;
-                ResupplyTarget = item;
-                AddShipGoal(Plan.Orbit, item);
-                State = AIState.Flee;
+                ResupplyTarget = systemList[0].PlanetList[0];
+                AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee);
             }
         }
 
@@ -277,10 +261,9 @@ namespace Ship_Game.AI
             Target = null;
             Intercepting = false;
             Owner.HyperspaceReturn();
-            OrbitTarget = p;
+            ClearOrders();
             ResupplyTarget = p;
-            ClearOrders(AIState.Orbit);
-            AddShipGoal(Plan.Orbit, p);
+            AddOrbitPlanetGoal(p);
         }
 
         public void OrderQueueSpecificTarget(Ship toAttack)
@@ -507,14 +490,14 @@ namespace Ship_Game.AI
         public void OrderToOrbit(Planet toOrbit)
         {
             ClearWayPoints();
-            ClearOrders(AIState.Orbit, priority:true);
-            OrbitTarget = toOrbit;
+            ClearOrders();
 
             // fbedard: civilian ship will use projectors
             if (Owner.shipData.ShipCategory == ShipData.Category.Civilian)
                 OrderMoveTowardsPosition(toOrbit.Center, Vectors.Up, false, toOrbit);
 
-            AddShipGoal(Plan.Orbit, toOrbit);
+            SetPriorityOrder(clearOrders: false);
+            AddOrbitPlanetGoal(toOrbit);
         }
 
         void AwaitOrders(float elapsedTime)
