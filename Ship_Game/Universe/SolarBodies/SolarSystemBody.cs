@@ -120,7 +120,9 @@ namespace Ship_Game
         private float ZrotateAmount  = 0.03f;
         public float TerraformPoints { get; protected set; } // FB - terraform process from 0 to 1. 
         public float TerraformToAdd { get; protected set; }  //  FB - a sum of all terraformer efforts
-    public Planet.ColonyType colonyType;        
+        public Planet.ColonyType colonyType;
+        public int TileMaxX { get; private set; } = 7; // FB foundations to variable planet tiles
+        public int TileMaxY { get; private set; } = 5; // FB foundations to variable planet tiles
         public void PlayPlanetSfx(string sfx, Vector3 position)
         {
             if (Emitter == null)
@@ -145,9 +147,9 @@ namespace Ship_Game
             {
                 habChance = UniqueHabPercent;
             }
-            for (int x = 0; x < 7; ++x)
+            for (int x = 0; x < TileMaxX; ++x)
             {
-                for (int y = 0; y < 5; ++y)
+                for (int y = 0; y < TileMaxY; ++y)
                 {
                     bool habitable = habChance > 0 && RandomMath.RandomBetween(0, 100) < habChance;
                     TilesList.Add(new PlanetGridSquare(x, y, null, habitable));

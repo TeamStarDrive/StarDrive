@@ -59,14 +59,14 @@ namespace Ship_Game
             DoTroopTimers(elapsedTime);
         }
 
-        void MakeCombatDecisions()
+        private void MakeCombatDecisions()
         {
             if (!HostileTargetsOnPlanet)
                 return;
 
-            for (int index = 0; index < TilesList.Count; ++index)
+            for (int i = 0; i < TilesList.Count; ++i)
             {
-                PlanetGridSquare pgs = TilesList[index];
+                PlanetGridSquare pgs = TilesList[i];
                 if (pgs.TroopsAreOnTile)
                     MoveTroop(pgs);
 
@@ -75,7 +75,7 @@ namespace Ship_Game
             }
         }
 
-        bool HostileTargetsOnPlanet
+        private bool HostileTargetsOnPlanet
         {
             get
             {
@@ -87,7 +87,7 @@ namespace Ship_Game
             }
         }
 
-        void TryAttackWithCombatBuilding(PlanetGridSquare pgs)
+        private void TryAttackWithCombatBuilding(PlanetGridSquare pgs)
         {
             for (int i = 0; i < TilesList.Count; i++)
             {
