@@ -202,340 +202,146 @@ namespace Ship_Game
 
         public static string GetStatusText(Ship ship)
         {
-            string str;
-            string text = string.Empty;
             if (ship.AI == null)  //fbedard: prevent crash ?
-                return text;
+                return "";
             switch (ship.AI.State)
             {
-                case AIState.DoNothing:
-                {
-                    text = Localizer.Token(183);
-                    break;
-                }
-                case AIState.Combat:
-                {
-                    if (ship.AI.Intercepting)
-                    {
-                        if (ship.AI.Target == null)
-                        {
-                            break;
-                        }
-                        text = string.Concat(Localizer.Token(157), " ", (ship.AI.Target as Ship).VanityName);
-                        break;
-                    }
-
-                    if (ship.AI.Target == null)
-                    {
-                        text = Localizer.Token(155);
-                        text = string.Concat(text, "\n", Localizer.Token(156));
-                        break;
-                    }
-
-                    text = string.Concat(Localizer.Token(158), " ", (ship.AI.Target as Ship).loyalty.data.Traits.Name);
-                    break;
-                }
-                case AIState.HoldPosition:
-                {
-                    text = Localizer.Token(180);
-                    break;
-                }
-                case AIState.ManualControl:
-                {
-                    text = Localizer.Token(171);
-                    break;
-                }
-                case AIState.AwaitingOrders:
-                {
-                    return Localizer.Token(153);
-                }
-                case AIState.AttackTarget:
-                {
-                    if (ship.AI.Target == null)
-                    {
-                        text = Localizer.Token(155);
-                        text = string.Concat(text, "\n", Localizer.Token(156));
-                        break;
-                    }
-
-                    text = string.Concat(Localizer.Token(154), " ", (ship.AI.Target as Ship).VanityName);
-                    break;
-                }
-                case AIState.Escort:
-                {
-                    if (ship.AI.EscortTarget == null)
-                    {
-                        break;
-                    }
-                    text = string.Concat(Localizer.Token(179), " ", ship.AI.EscortTarget.Name);
-                    break;
-                }
-                case AIState.SystemTrader:
-                {
-                    if (ship.AI.OrderQueue.IsEmpty)
-                    {
-                        text = string.Concat(Localizer.Token(164), "\n", Localizer.Token(165));
-                        break;
-                    }
-
-                    switch (ship.AI.OrderQueue.PeekLast.Plan)
-                    {
-                        case ShipAI.Plan.PickupGoods:
-                        {
-                            if(ship.AI.start !=null)
-                                text = string.Concat(text, Localizer.Token(159), " ", ship.AI.start.Name);
-                            string pickingup = Localizer.Token(160);
-                            string str1 = text;
-                            string[] strArrays = { str1, "\n", pickingup, " ", null };
-                            strArrays[4] = (ship.AI.IsFood ? Localizer.Token(161) : Localizer.Token(162));
-                            text = string.Concat(strArrays);
-                            break;
-                        }
-                        case ShipAI.Plan.DropOffGoods:
-                        {
-                            if(ship.AI.end != null)
-                                text = string.Concat(text, Localizer.Token(159), " ", ship.AI.end.Name);
-                            string delivering = Localizer.Token(163);
-                            string str2 = text;
-                            string[] strArrays1 = { str2, "\n", delivering, " ", null };
-                            strArrays1[4] = (ship.AI.IsFood ? Localizer.Token(161) : Localizer.Token(162));
-                            text = string.Concat(strArrays1);
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case AIState.AttackRunner:
-                case AIState.PatrolSystem:
-                case AIState.Flee:                
-                {
-                    if (ship.AI.OrbitTarget == null)
-                    {
-                        text = Localizer.Token(182);
-                        break;
-                    }
-
-                    text = string.Concat("Fleeing to", " ", ship.AI.OrbitTarget.Name);
-                    break;
-                }
+                default:
                 case AIState.PirateRaiderCarrier:
                 case AIState.AwaitingOffenseOrders:
                 case AIState.MineAsteroids:
                 case AIState.Intercept:
                 case AIState.AssaultPlanet:
                 case AIState.Exterminate:
-                {
-                    if (ship.AI.OrderQueue.IsEmpty)
+                    if (ship.AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal first))
                     {
-                        text = ship.AI.State.ToString();
-                        break;
+                        if (first.TargetPlanet == null)
+                            return first.Plan.ToString();
+                        return first.Plan + " to " + first.TargetPlanet.Name;
                     }
-                    var first = ship.AI.OrderQueue.PeekFirst;
-                    if (first.TargetPlanet == null)
-                        text = first.Plan.ToString();
-                    else
-                        text = first.Plan + " to " + first.TargetPlanet.Name;
-                    break;
-                }
-                case AIState.Orbit:
+                    return ship.AI.State.ToString();
+
+                case AIState.DoNothing: return Localizer.Token(183);
+                case AIState.Combat:
                 {
-                    if (ship.AI.OrbitTarget == null)
+                    if (ship.AI.Intercepting)
                     {
-                        text = Localizer.Token(182);
-                        break;
+                        if (ship.AI.Target == null)
+                            return "";
+                        return string.Concat(Localizer.Token(157), " ", (ship.AI.Target as Ship).VanityName);
                     }
 
-                    text = string.Concat(Localizer.Token(182), " ", ship.AI.OrbitTarget.Name);
-                    break;
-                }
-                case AIState.PassengerTransport:
-                {
-                    if (ship.AI.OrderQueue.IsEmpty)
-                    {
-                        text = string.Concat(Localizer.Token(168), "\n", Localizer.Token(165));
-                        break;
-                    }
+                    if (ship.AI.Target == null)
+                        return string.Concat(Localizer.Token(155), "\n", Localizer.Token(156));
 
-                    try
+                    return string.Concat(Localizer.Token(158), " ", (ship.AI.Target as Ship).loyalty.data.Traits.Name);
+                }
+                case AIState.HoldPosition:   return Localizer.Token(180);
+                case AIState.ManualControl:  return Localizer.Token(171);
+                case AIState.AwaitingOrders: return Localizer.Token(153);
+                case AIState.AttackTarget:
+                    if (ship.AI.Target == null)
+                        return string.Concat(Localizer.Token(155), "\n", Localizer.Token(156));
+                    return string.Concat(Localizer.Token(154), " ", (ship.AI.Target as Ship).VanityName);
+                case AIState.Escort:
+                    if (ship.AI.EscortTarget == null)
+                        return "";
+                    return string.Concat(Localizer.Token(179), " ", ship.AI.EscortTarget.Name);
+                case AIState.SystemTrader:
+                    if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last2))
                     {
+                        string foodOrProd = (ship.AI.IsFood ? Localizer.Token(161) : Localizer.Token(162));
                         switch (ship.AI.OrderQueue.PeekLast.Plan)
                         {
-                            case ShipAI.Plan.PickupPassengers:
-                            {
-                                text = string.Concat(text, Localizer.Token(159), " ", ship.AI.start.Name);
-                                text = string.Concat(text, "\n", Localizer.Token(166));
-                                break;
-                            }
-                            case ShipAI.Plan.DropoffPassengers:
-                            {
-                                text = string.Concat(text, Localizer.Token(159), " ", ship.AI.end.Name);
-                                text = string.Concat(text, "\n", Localizer.Token(167));
-                                break;
-                            }
+                            case ShipAI.Plan.PickupGoods:
+                                if (ship.AI.start == null)
+                                    return string.Concat(Localizer.Token(160), " ", foodOrProd);
+                                return string.Concat(Localizer.Token(159), " ", ship.AI.start.Name, "\n", Localizer.Token(160), " ", foodOrProd);
+                            case ShipAI.Plan.DropOffGoods:
+                                if (ship.AI.end == null)
+                                    return string.Concat(Localizer.Token(163), " ", foodOrProd);
+                                return string.Concat(Localizer.Token(159), " ", ship.AI.end.Name, "\n", Localizer.Token(163), " ", foodOrProd);
                         }
-                        break;
                     }
-                    catch
+                    return string.Concat(Localizer.Token(164), "\n", Localizer.Token(165));
+                case AIState.AttackRunner:
+                case AIState.PatrolSystem:
+                case AIState.Flee:                
+                    if (ship.AI.OrbitTarget == null)
+                        return Localizer.Token(182);
+                    return string.Concat("Fleeing to", " ", ship.AI.OrbitTarget.Name);
+                case AIState.Orbit:
+                    if (ship.AI.OrbitTarget == null)
+                        return Localizer.Token(182);
+                    return string.Concat(Localizer.Token(182), " ", ship.AI.OrbitTarget.Name);
+                case AIState.PassengerTransport:
+                    if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
                     {
-                        str = "";
+                        switch (last.Plan)
+                        {
+                            case ShipAI.Plan.PickupPassengers:
+                                return string.Concat(Localizer.Token(159), " ", ship.AI.start.Name, "\n", Localizer.Token(166));
+                            case ShipAI.Plan.DropoffPassengers:
+                                return string.Concat(Localizer.Token(159), " ", ship.AI.end.Name, "\n", Localizer.Token(167));
+                        }
+                        return "";
                     }
-                    return str;
-                }
+                    return string.Concat(Localizer.Token(168), "\n", Localizer.Token(165));
                 case AIState.Colonize:
-                {
                     if (ship.AI.ColonizeTarget == null)
-                    {
-                        break;
-                    }
-                    text = string.Concat(Localizer.Token(169), " ", ship.AI.ColonizeTarget.Name);
-                    break;
-                }
+                        return "";
+                    return string.Concat(Localizer.Token(169), " ", ship.AI.ColonizeTarget.Name);
                 case AIState.MoveTo:
-                {
                     if (!(ship.Velocity == Vector2.Zero) || ship.isTurning)
                     {
-                        text = string.Concat(Localizer.Token(187), " ");
+                        string text = string.Concat(Localizer.Token(187), " ");
                         if (ship.AI.OrderQueue.IsEmpty)
                         {
-                            IOrderedEnumerable<SolarSystem> sortedList = 
-                                from system in UniverseScreen.SolarSystemList
-                                orderby Vector2.Distance(ship.AI.MovePosition, system.Position)
-                                select system;
-                            text = string.Concat(text, Localizer.Token(189), " ", sortedList.First().Name);
-                            if (sortedList.First().IsExploredBy(EmpireManager.Player))
-                            {
-                                break;
-                            }
-                            text = Localizer.Token(174);
-                            break;
+                            SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
+                            if (system.IsExploredBy(EmpireManager.Player))
+                                return string.Concat(text, Localizer.Token(189), " ", system.Name);
+                            return Localizer.Token(174);
                         }
-
                         if (ship.AI.OrderQueue.PeekLast.Plan != ShipAI.Plan.DeployStructure)
                         {
-                            IOrderedEnumerable<SolarSystem> sortedList = 
-                                from system in UniverseScreen.SolarSystemList
-                                orderby Vector2.Distance(ship.AI.MovePosition, system.Position)
-                                select system;
-                            text = string.Concat(text, sortedList.First().Name);
-                            if (sortedList.First().IsExploredBy(EmpireManager.Player))
-                            {
-                                break;
-                            }
-                            text = Localizer.Token(174);
-                            break;
+                            SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
+                            if (system.IsExploredBy(EmpireManager.Player))
+                                return text + system.Name;
+                            return Localizer.Token(174);
                         }
-
-                        text = string.Concat(text, Localizer.Token(188), " ", ResourceManager.ShipsDict[ship.AI.OrderQueue.PeekLast.Goal.ToBuildUID].Name);
-                        break;
+                        return string.Concat(text, Localizer.Token(188), " ", ResourceManager.ShipsDict[ship.AI.OrderQueue.PeekLast.Goal.ToBuildUID].Name);
                     }
-
-                    text = Localizer.Token(180);
-                    break;
-                }
-                case AIState.Explore:
-                {
-                    text = Localizer.Token(174);
-                    break;
-                }
-                case AIState.SystemDefender:
-                {
-                    text = Localizer.Token(170);
-                    break;
-                }
+                    return Localizer.Token(180);
+                case AIState.Explore:        return Localizer.Token(174);
+                case AIState.SystemDefender: return Localizer.Token(170);
                 case AIState.Resupply:
-                {
-                    Planet resupplyTarget = ship.AI.ResupplyTarget;
-                    if (resupplyTarget == null)
-                    {                        
-                        text = Localizer.Token(173);
-                        break;
-                    }
-
-                    text = string.Concat(Localizer.Token(172), " ", resupplyTarget.Name);
-                    break;
-                }
+                    if (ship.AI.ResupplyTarget == null)
+                        return Localizer.Token(173);
+                    return string.Concat(Localizer.Token(172), " ", ship.AI.ResupplyTarget.Name);
                 case AIState.Rebase:
-                {
                     var planetName = ship.AI.OrderQueue.PeekLast?.TargetPlanet.Name;                    
-                    text = Localizer.Token(178) + $" to {planetName ?? "ERROR" }";  //fbedard
-                    break;
-                }
+                    return Localizer.Token(178) + $" to {planetName ?? "ERROR" }";  //fbedard
                 case AIState.Bombard:
-                {
                     if (ship.AI.OrderQueue.IsEmpty || ship.AI.OrderQueue.PeekFirst.TargetPlanet == null)
-                    {
-                        break;
-                    }
-                    if (Vector2.Distance(ship.Center, ship.AI.OrderQueue.PeekFirst.TargetPlanet.Center) >= 2500f)
-                    {
-                        text = string.Concat(Localizer.Token(176), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
-                        break;
-                    }
-
-                    text = string.Concat(Localizer.Token(175), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
-                    break;
-                }
+                        return "";
+                    if (ship.Center.Distance(ship.AI.OrderQueue.PeekFirst.TargetPlanet.Center) >= 2500f)
+                        return string.Concat(Localizer.Token(176), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
+                    return string.Concat(Localizer.Token(175), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
                 case AIState.BombardTroops:
-                {
                     if (ship.AI.OrderQueue.IsEmpty || ship.AI.OrderQueue.PeekFirst.TargetPlanet == null)
-                    {
-                        break;
-                    }
+                        return "";
                     if (ship.Center.OutsideRadius(ship.AI.OrderQueue.PeekFirst.TargetPlanet.Center, 2500f))
-                    {
-                        text = "Soften " + ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name;
-                        break;
-                    }
-
-                    text = Localizer.Token(175) + " " + ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name;
-                    break;
-                }
-                case AIState.Boarding:
-                {
-                    text = Localizer.Token(177);
-                    break;
-                }
-                case AIState.ReturnToHangar:
-                {
-                    text = Localizer.Token(181);
-                    break;
-                }
-                case AIState.Ferrying:
-                {
-                    text = Localizer.Token(185);
-                    break;
-                }
-                case AIState.Refit:
-                {
-                    text = Localizer.Token(184);
-                    break;
-                }
-                case AIState.Scrap:
-                {
-                    text = Localizer.Token(186);
-                    break;
-                }
-                case AIState.FormationWarp:
-                {
-                    text = "Moving in Formation";
-                    break;
-                }
-                case AIState.Scuttle:
-                {
-                    text = "Self Destruct: " + ship.ScuttleTimer.ToString("#");
-                    break;
-                }
-                case AIState.ReturnHome:
-                {
-                        text = "Defense Ship Returning Home";
-                        break;
-                }
-                default:
-                {
-                    goto case AIState.Exterminate;
-                }
+                        return "Soften " + ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name;
+                    return Localizer.Token(175) + " " + ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name;
+                case AIState.Boarding:       return Localizer.Token(177);
+                case AIState.ReturnToHangar: return Localizer.Token(181);
+                case AIState.Ferrying:       return Localizer.Token(185);
+                case AIState.Refit:          return Localizer.Token(184);
+                case AIState.Scrap:          return Localizer.Token(186);
+                case AIState.FormationWarp: return "Moving in Formation";
+                case AIState.Scuttle:       return "Self Destruct: " + ship.ScuttleTimer.ToString("#");
+                case AIState.ReturnHome:    return "Defense Ship Returning Home";
             }
-            return text;
         }
 
         public void HandleInput(InputState input)

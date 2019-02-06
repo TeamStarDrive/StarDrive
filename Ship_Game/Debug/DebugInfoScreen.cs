@@ -474,9 +474,9 @@ namespace Ship_Game.Debug
                 // ship direction arrow
                 DrawArrowImm(ship.Position, ship.Position+ship.Direction*200f, Color.GhostWhite);
             }
-            if (ship.AI.WayPoints.Count > 0)
+            if (ship.AI.HasWayPoints)
             {
-                Vector2[] wayPoints = ship.AI.WayPoints.ToArray();
+                Vector2[] wayPoints = ship.AI.CopyWayPoints();
                 for (int i = 1; i < wayPoints.Length; ++i) // draw waypoints chain
                     DrawLineImm(wayPoints[i-1], wayPoints[i], Color.ForestGreen);
             }
@@ -503,9 +503,9 @@ namespace Ship_Game.Debug
                 DrawString($"Combat State: {ship.AI.CombatState}");
                 DrawString("OrderQueue is EMPTY");
             }
-            if (ship.AI.WayPoints.Count > 0)
+            if (ship.AI.HasWayPoints)
             {
-                Vector2[] wayPoints = ship.AI.WayPoints.ToArray();
+                Vector2[] wayPoints = ship.AI.CopyWayPoints();
                 DrawString($"WayPoints ({wayPoints.Length}):");
                 for (int i = 0; i < wayPoints.Length; ++i)
                     DrawString($"  {i}:  {wayPoints[i]}");

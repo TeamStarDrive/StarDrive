@@ -1053,7 +1053,7 @@ namespace Ship_Game
             public SmallExplosion(Rectangle grid, int size)
             {
                 Grid = grid;
-                string anim = size <= 3 ? "Textures/sd_explosion_12a_cc" : "Textures/sd_explosion_07a_cc";
+                string anim = size <= 3 ? "Textures/sd_explosion_12a_bb" : "Textures/sd_explosion_14a_bb";
                 Animation = ResourceManager.RootContent.LoadTextureAtlas(anim);
             }
 
