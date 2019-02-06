@@ -753,7 +753,7 @@ namespace Ship_Game
             }
             if (pgs.TroopsHere.Count > 0)
             {
-                Troop troop        = pgs.TroopsHere[0];
+                Troop troop        = pgs.SingleTroop;
                 pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 48, pgs.ClickRect.Y, 48, 48);
                 troop.DrawIcon(ScreenManager.SpriteBatch, pgs.TroopClickRect);
                 if (troop.Level > 0)
@@ -944,13 +944,13 @@ namespace Ship_Game
                 if (pgs.TroopsHere.Count <= 0 || !pgs.TroopClickRect.HitTest(MousePos))
                     continue;
 
-                DetailInfo = pgs.TroopsHere[0];
-                if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.Player)
+                DetailInfo = pgs.SingleTroop;
+                if (input.RightMouseClick && pgs.SingleTroop.GetOwner() == EmpireManager.Player)
                 {
                     GameAudio.TroopTakeOff();
-                    Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.TroopsHere[0]);
-                    P.TroopsHere.Remove(pgs.TroopsHere[0]);
-                    pgs.TroopsHere[0].SetPlanet(null);
+                    Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.SingleTroop);
+                    P.TroopsHere.Remove(pgs.SingleTroop);
+                    pgs.SingleTroop.SetPlanet(null);
                     pgs.TroopsHere.Clear();
                     ClickedTroop = true;
                     DetailInfo = null;
@@ -1156,13 +1156,13 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
+                if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.GetOwner() != EmpireManager.Player)
                     continue;
 
                 play = true;
-                Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.TroopsHere[0]);
-                P.TroopsHere.Remove(pgs.TroopsHere[0]);
-                pgs.TroopsHere[0].SetPlanet(null);
+                Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.SingleTroop);
+                P.TroopsHere.Remove(pgs.SingleTroop);
+                pgs.SingleTroop.SetPlanet(null);
                 pgs.TroopsHere.Clear();
                 ClickedTroop = true;
                 DetailInfo = null;

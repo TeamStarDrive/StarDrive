@@ -79,7 +79,7 @@ namespace Ship_Game
             float x          = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 mousePos = new Vector2(x, state.Y);
-            string slantText = pgs.TroopsHere.Count > 0 ? pgs.TroopsHere[0].Name : Localizer.Token(pgs.building.NameTranslationIndex);
+            string slantText = pgs.TroopsHere.Count > 0 ? pgs.SingleTroop.Name : Localizer.Token(pgs.building.NameTranslationIndex);
             Header slant     = new Header(new Rectangle(sel.Rect.X, sel.Rect.Y, sel.Rect.Width, 41), slantText);
             Body body        = new Body(new Rectangle(slant.leftRect.X, sel.Rect.Y + 44, sel.Rect.Width, sel.Rect.Height - 44));
             Color color      = Color.White;
@@ -93,7 +93,7 @@ namespace Ship_Game
 
             if (pgs.TroopsHere.Count > 0) // draw troop_stats
             {
-                Troop troop = pgs.TroopsHere[0];
+                Troop troop = pgs.SingleTroop;
                 if (troop.Strength < troop.ActualStrengthMax)
                     DrawinfoData(spriteBatch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), color, 2, 11);
                 else
@@ -191,7 +191,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(67);
                 if (LaunchTroop.HandleInput(input))
                 {
-                    if ((screen.workersPanel as CombatScreen).ActiveTroop.TroopsHere[0].AvailableMoveActions < 1)
+                    if ((screen.workersPanel as CombatScreen).ActiveTroop.SingleTroop.AvailableMoveActions < 1)
                     {
                         GameAudio.NegativeClick();                        
                         return true;
@@ -199,7 +199,7 @@ namespace Ship_Game
                     GameAudio.TroopTakeOff();
                     
                     using (pgs.TroopsHere.AcquireWriteLock())
-                        if (pgs.TroopsHere.Count > 0) pgs.TroopsHere[0].Launch();
+                        if (pgs.TroopsHere.Count > 0) pgs.SingleTroop.Launch();
 
                     (screen.workersPanel as CombatScreen).ActiveTroop = null;
                 }
@@ -217,7 +217,7 @@ namespace Ship_Game
             if (pgs.TroopsHere.Count != 0)
             {
                 DescriptionSL.Reset();
-                HelperFunctions.parseTextToSL(pgs.TroopsHere[0].Description, (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
+                HelperFunctions.parseTextToSL(pgs.SingleTroop.Description, (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
                 return;
             }
             if (pgs.building != null)
