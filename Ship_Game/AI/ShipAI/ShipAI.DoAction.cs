@@ -13,6 +13,10 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
+        public bool ClearOrdersNext;
+        public bool HasPriorityOrder;
+        public bool HadPO;
+
         void DequeueWayPointAndOrder()
         {
             if (WayPoints.Count > 0)
@@ -41,10 +45,6 @@ namespace Ship_Game.AI
             ClearWayPoints();
             ClearOrders(newState, priority);
         }
-
-        public bool ClearOrdersNext;
-        public bool HasPriorityOrder;
-        public bool HadPO;
 
         public void ClearPriorityOrder()
         {
@@ -642,12 +642,12 @@ namespace Ship_Game.AI
         {
             if (Owner.TroopList.Count == 0)
             {
-                Owner.QueueTotalRemoval();
+                Owner.QueueTotalRemoval(); // vanish the ship
             }
             else if (Owner.TroopList[0].AssignTroopToTile(Goal.TargetPlanet))
             {
                 Owner.TroopList.Clear();
-                Owner.QueueTotalRemoval();
+                Owner.QueueTotalRemoval(); // vanish the ship
             }
             else
             {

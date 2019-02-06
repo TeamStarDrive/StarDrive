@@ -524,8 +524,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                if (HasPriorityOrder)
-                    HasPriorityOrder = false;
+                HasPriorityOrder = false;
                 using (Owner.fleet.Ships.AcquireReadLock())
                     IdleFleetAI(elapsedTime);
             }
