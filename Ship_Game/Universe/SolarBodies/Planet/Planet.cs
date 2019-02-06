@@ -803,7 +803,7 @@ namespace Ship_Game
             bool events = false;
             foreach (Building building in BuildingList)
             {
-                if (building.EventTriggerUID != null && !building.EventWasTriggered)
+                if (building.EventHere && !building.EventWasTriggered)
                 {
                     events = true;
                     break;
@@ -854,6 +854,14 @@ namespace Ship_Game
                 b.Strength        = (b.Strength + repairAmount).Clamped(0, t.Strength);
                 UpdateHomeDefenseHangars(b);
             }
+        }
+
+        public PlanetGridSquare GetTileByCoordinates(int x, int y)
+        {
+            if (x < 0 || x >= TileMaxX || y < 0 || y >= TileMaxY) // FB >= because coords start from 0
+                return null;
+
+            return TilesList.Find(pgs => pgs.x == x && pgs.y == y);
         }
 
         ~Planet() { Destroy(); }

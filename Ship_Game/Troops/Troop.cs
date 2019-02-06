@@ -111,12 +111,12 @@ namespace Ship_Game
 
         public void ResetMoveTimer()
         {
-            MoveTimer = MoveTimerBase;
+            MoveTimer = Math.Max(MoveTimerBase - (int)(Level * 0.5), 5);
         }
 
         public void ResetAttackTimer()
         {
-            AttackTimer = AttackTimerBase;
+            AttackTimer = Math.Max(AttackTimerBase - (int)(Level * 0.5), 5);
         }
 
         public void ResetLanchTimer()
@@ -410,8 +410,7 @@ namespace Ship_Game
                         Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, ActualStrengthMax);
 
                     SetPlanet(planet);
-                    if (string.IsNullOrEmpty(eventLocation.building?.EventTriggerUID) 
-                        || eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction)
+                    if (!eventLocation.EventOnTile || eventLocation.NoTroopsOnTile || eventLocation.SingleTroop.GetOwner().isFaction)
                         return true;
                     ResourceManager.Event(eventLocation.building.EventTriggerUID).TriggerPlanetEvent(planet, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe);
                 }
