@@ -252,12 +252,11 @@ namespace Ship_Game.AI
 
         public void OrderOrbitPlanet(Planet p)
         {
-            ClearWayPoints();
+            ClearOrdersAndWayPoints();
 
             Target = null;
             Intercepting = false;
             Owner.HyperspaceReturn();
-            ClearOrders();
             ResupplyTarget = p;
             AddOrbitPlanetGoal(p);
         }
@@ -307,17 +306,14 @@ namespace Ship_Game.AI
 
         public void OrderRebase(Planet p, bool clearOrders)
         {
-            ClearWayPoints();
             if (clearOrders)
-                ClearOrders();
+                ClearWayPoints();
+            ClearOrders();
 
             int troops = Owner.loyalty.GetShips()
                 .Count(ship => ship.TroopList.Count > 0 && ship.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
             if (troops >= p.GetGroundLandingSpots())
-            {
-                ClearOrders();
                 return;
-            }
 
             OrderMoveTowardsPosition(p.Center, Vectors.Up, false, p);
             IgnoreCombat = true;

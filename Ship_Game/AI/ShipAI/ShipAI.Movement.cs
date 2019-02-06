@@ -12,10 +12,13 @@ namespace Ship_Game.AI
     {
         public Vector2 MovePosition;
         Vector2 DesiredDirection;
-        
         public Planet OrbitTarget;
+
         float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
-        public WayPoints WayPoints = new WayPoints();
+        readonly WayPoints WayPoints = new WayPoints();
+
+        public bool HasWayPoints => WayPoints.Count > 0;
+        public Vector2[] CopyWayPoints() => WayPoints.ToArray();
 
         public void ClearWayPoints()
         {
@@ -24,7 +27,7 @@ namespace Ship_Game.AI
 
         public void SetWayPoints(IReadOnlyList<Vector2> wayPoints)
         {
-            WayPoints.Clear();
+            ClearWayPoints();
             foreach (Vector2 wp in wayPoints)
                 WayPoints.Enqueue(wp);
         }
@@ -96,7 +99,7 @@ namespace Ship_Game.AI
             if (distance < speedLimit) speedLimit = distance * 0.75f;
 
             // prediction to enhance movement precision
-            Vector2 predictedPoint = PredictThrustPosition(position, speedLimit);
+            Vector2 predictedPoint = PredictThrustPosition(position);
             if (!RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
             {
                 Owner.SubLightAccelerate(elapsedTime, speedLimit);
@@ -151,7 +154,7 @@ namespace Ship_Game.AI
             if (distance > Owner.Radius)
             {
                 // prediction to enhance movement precision
-                Vector2 predictedPoint = PredictThrustPosition(targetPos, speedLimit);
+                Vector2 predictedPoint = PredictThrustPosition(targetPos);
                 direction = Owner.Center.DirectionToTarget(predictedPoint);
             }
 
@@ -221,11 +224,10 @@ namespace Ship_Game.AI
         // thrust offset used by ThrustOrWarpTowardsPosition
         public Vector2 ThrustTarget { get; private set; }
 
-        Vector2 PredictThrustPosition(Vector2 targetPos, float speedLimit)
+        Vector2 PredictThrustPosition(Vector2 targetPos)
         {
             // because or ship is actively moving, it needs to correct its thrusting direction
             // this reduces drift and prevents stupidly missing targets with naive "thrust toward target"
-            speedLimit = Owner.AdjustedSpeedLimit(speedLimit);
             Vector2 prediction = new ImpactPredictor(Owner.Center, Owner.Velocity, targetPos).PredictMovePos();
             ThrustTarget = prediction;
             return prediction;
@@ -276,7 +278,7 @@ namespace Ship_Game.AI
             }
 
             // prediction to enhance movement precision
-            Vector2 predictedPoint = velocityCorrect ? PredictThrustPosition(pos, speedLimit) : pos;
+            Vector2 predictedPoint = velocityCorrect ? PredictThrustPosition(pos) : pos;
             Owner.RotationNeededForTarget(predictedPoint, 0f, out float predictionDiff, out float rotationDir);
 
             if (predictionDiff > 0.025f) // do we need to rotate ourselves before thrusting?

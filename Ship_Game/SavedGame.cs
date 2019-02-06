@@ -456,11 +456,7 @@ namespace Ship_Game
                         sdata.AISave.endGuid = ship.AI.end.guid;
                     }
                     sdata.AISave.MovePosition = ship.AI.MovePosition;
-                    sdata.AISave.ActiveWayPoints = new Array<Vector2>();
-                    foreach (Vector2 wp in ship.AI.WayPoints.ToArray())
-                    {
-                        sdata.AISave.ActiveWayPoints.Add(wp);
-                    }
+                    sdata.AISave.ActiveWayPoints = new Array<Vector2>(ship.AI.CopyWayPoints());
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
                     foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
                     {

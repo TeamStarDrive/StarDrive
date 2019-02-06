@@ -50,7 +50,7 @@ namespace Ship_Game.AI
 
         public void AddPlanetGoal(Plan plan, Planet planet, AIState newState, bool priority = false)
         {
-            if (AddShipGoal(Plan.Orbit, planet))
+            if (AddShipGoal(plan, planet))
             {
                 State = newState;
                 OrbitTarget = planet;
