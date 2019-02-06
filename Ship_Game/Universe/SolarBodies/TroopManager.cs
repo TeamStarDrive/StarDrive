@@ -68,11 +68,65 @@ namespace Ship_Game
             {
                 PlanetGridSquare pgs = TilesList[i];
                 if (pgs.TroopsAreOnTile)
-                    MoveTroop(pgs);
+                    CourseOfAction(pgs.SingleTroop, pgs);
+                    //MoveTroop(pgs);
 
                 else if (pgs.BuildingPerformesAutoCombat(Ground))
-                    TryAttackWithCombatBuilding(pgs);
+                    CourseOfAction(pgs.building, pgs);
+                    //TryAttackWithCombatBuilding(pgs);
             }
+        }
+
+        private void CourseOfAction(Building b, PlanetGridSquare ourTile)
+        {
+            // scan for enemies
+            Array<PlanetGridSquare> targetTileList = SpotHostilesByRange(ourTile); 
+            if (targetTileList.Count == 0)
+                return; // no targets on planet
+
+            // find range
+            PlanetGridSquare nearestTargetTile = targetTileList[0]; // because it is sorted by range
+            if (!nearestTargetTile.InRangeOf(ourTile, 1)) // right now all buildings have range 1
+                return;
+
+            // start combat
+            b.UpdateAttackActions(-1); // why not when actually resolving combat?
+            CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
+        }
+
+        private void CourseOfAction(Troop t, PlanetGridSquare ourTile)
+        {
+            // scan for enemies
+            Array<PlanetGridSquare> targetTileList = SpotHostilesByRange(ourTile);
+            if (targetTileList.Count == 0)
+                return; // no targets on planet
+
+            // find range
+            PlanetGridSquare nearestTargetTile = targetTileList[0]; // because it is sorted by range
+            if (nearestTargetTile.InRangeOf(ourTile, t.Range)) // right now all buildings have range 1
+            {
+                // start combat
+                t.UpdateAttackActions(-1); // why not when actually resolving combat?
+                CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
+            }
+
+            // move
+            // scan for enemies
+            // find range
+            // attack
+        }
+
+        private Array<PlanetGridSquare> SpotHostilesByRange(PlanetGridSquare spotterTile)
+        {
+            Empire spotterOwner = spotterTile.SingleTroop.GetOwner();
+            Array<PlanetGridSquare> targetTileList = new Array<PlanetGridSquare>();
+            foreach (PlanetGridSquare scannedTile in TilesList.OrderBy(tile =>
+                Math.Abs(tile.x - spotterTile.x) + Math.Abs(tile.y - spotterTile.y)))
+            {
+                if (scannedTile.HostilesTargetsOnTile(spotterOwner, Owner))
+                    targetTileList.Add(scannedTile);
+            }
+            return targetTileList;
         }
 
         private bool HostileTargetsOnPlanet

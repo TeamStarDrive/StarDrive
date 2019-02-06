@@ -48,7 +48,7 @@ namespace Ship_Game
         [Serialize(36)] public int Experience;
         [Serialize(37)] public float Cost;
         [Serialize(38)] public string sound_attack;
-        [Serialize(39)] public float Range;
+        [Serialize(39)] public int Range;
         [Serialize(40)] public float Launchtimer = 10f; // FB - use UpdateLaunchTimer or ResetLaunchTimer
         [Serialize(41)] public string Type;
 

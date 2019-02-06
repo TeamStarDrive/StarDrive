@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 
@@ -34,6 +35,17 @@ namespace Ship_Game
         public float TroopsStrength    => TroopsHere.Sum(troop => troop.Strength);
         public int TroopsHardAttack    => TroopsHere.Sum(troop => troop.NetHardAttack);
         public int TroopsSoftAttack    => TroopsHere.Sum(troop => troop.NetSoftAttack);
+
+        public bool HostilesTargetsOnTile(Empire us, Empire planetOwner)
+        {
+            return (TroopsAreOnTile && SingleTroop.GetOwner() != us) ||
+                   (BuildingOnTile && building.IsAttackable && planetOwner != us);  // also event ID needed
+        }
+
+        public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
+        {
+            return Math.Abs(x - tileToCheck.x) <= range && Math.Abs(y - tileToCheck.y) <= range;
+        }
 
         public PlanetGridSquare()
 		{
