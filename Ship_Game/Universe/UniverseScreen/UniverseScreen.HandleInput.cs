@@ -620,7 +620,7 @@ namespace Ship_Game
 
         bool QueueFleetMovement(Vector2 movePosition, Vector2 direction, ShipGroup fleet)
         {
-            if (!Input.QueueAction || fleet.Ships[0].AI.WayPoints.Count == 0)
+            if (!Input.QueueAction || !fleet.Ships[0].AI.HasWayPoints)
                 return false;
 
             using (fleet.Ships.AcquireReadLock())
@@ -1311,10 +1311,7 @@ namespace Ship_Game
                     if (Input.IsShiftKeyDown)
                         ship.AI.OrderToOrbit(planet);
                     else
-                    {
-                        ship.AI.State = AIState.AssaultPlanet;
                         ship.AI.OrderLandAllTroops(planet);
-                    }
                 }
                 else
                     ship.AI.OrderOrbitPlanet(planet);
@@ -1639,7 +1636,7 @@ namespace Ship_Game
                 {
                     for (int index = 0; index < ship.AI.OrderQueue.Count; ++index)
                     {
-                        if (ship.AI.OrderQueue[index].goal == SelectedItem.AssociatedGoal)
+                        if (ship.AI.OrderQueue[index].Goal == SelectedItem.AssociatedGoal)
                         {
                             flag = true;
                             ship.AI.OrderScrapShip();

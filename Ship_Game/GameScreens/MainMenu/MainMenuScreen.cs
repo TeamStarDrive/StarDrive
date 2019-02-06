@@ -3,7 +3,6 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using NAudio.Wave;
 using SgMotion;
 using SgMotion.Controllers;
 using Ship_Game.Audio;
@@ -19,7 +18,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         SceneObject MoonObj;
         Vector3 MoonPosition;
-        Vector3 MoonRotation = new Vector3(264f, 198, 15f);
+        Vector3 MoonRotation = new Vector3(264, 198, -20); // rotation in degrees
         const float MoonScale = 0.7f;
         SceneObject ShipObj;
 
@@ -366,7 +365,6 @@ namespace Ship_Game.GameScreens.MainMenu
             ScreenManager.UpdateSceneObjects(gameTime);
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            MoonRotation.X -= deltaTime * 0.3f; // degrees/s
             MoonRotation.Y += deltaTime * 1.2f;
             MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
 

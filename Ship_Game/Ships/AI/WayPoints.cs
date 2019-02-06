@@ -16,7 +16,6 @@ namespace Ship_Game.Ships.AI
         }
 
         public int Count => ActiveWayPoints.Count;
-        public Vector2 PeekLast => ActiveWayPoints.PeekLast;
 
         public Vector2 Dequeue()
         {
@@ -25,10 +24,6 @@ namespace Ship_Game.Ships.AI
         public void Enqueue(Vector2 point)
         {
             ActiveWayPoints.Enqueue(point);
-        }
-        public bool LastPointEquals(Vector2 point)
-        {
-            return ActiveWayPoints.PeekLast.AlmostEqual(point);
         }
         public Vector2 ElementAt(int element)
         {

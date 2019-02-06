@@ -274,6 +274,7 @@
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionLabel.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ShipDesignUtils.cs" />
+    <Compile Include="Ship_Game\GameScreens\Sandbox\PredictionDebugPlatform.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HangarDesignationDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShieldsBehaviorDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignModuleGrid.cs" />

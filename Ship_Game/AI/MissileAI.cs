@@ -46,7 +46,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            TargetJitter = missile.Weapon.AdjustTargetting(Level) + target?.TargetErrorPos() ?? Vector2.Zero;
+            TargetJitter = missile.Weapon.AdjustTargeting(Level) + target?.TargetErrorPos() ?? Vector2.Zero;
             LaunchJitter = TargetJitter * 2;
             TargettingTimer = TargetTimerReset;
         }
@@ -183,7 +183,7 @@ namespace Ship_Game.AI
                 if (Target != null)
                 {                    
                     LaunchJitter /= 2;
-                    TargetJitter = Missile.Weapon.AdjustTargetting(Level) + Target.TargetErrorPos();
+                    TargetJitter = Missile.Weapon.AdjustTargeting(Level) + Target.TargetErrorPos();
                 }
                 TargettingTimer = TargetTimerReset;
             }

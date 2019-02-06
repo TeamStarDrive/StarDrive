@@ -241,10 +241,19 @@ namespace Ship_Game
             get
             {
                 ThisLock.EnterReadLock();
-                T result = Count > 0 ? Items[Head] : default(T);
+                T result = Count > 0 ? Items[Head] : default;
                 ThisLock.ExitReadLock();
                 return result;
             }
+        }
+
+        public bool TryPeekFirst(out T result)
+        {
+            ThisLock.EnterReadLock();
+            bool success = Count > 0;
+            result = success ? Items[Head] : default;
+            ThisLock.ExitReadLock();
+            return success;
         }
 
         // Peek the last element in the queue
@@ -254,10 +263,19 @@ namespace Ship_Game
             get
             {
                 ThisLock.EnterReadLock();
-                T result = Count > 0 ? Items[(Head + Count - 1) % Items.Length] : default(T);
+                T result = Count > 0 ? Items[(Head + Count - 1) % Items.Length] : default;
                 ThisLock.ExitReadLock();
                 return result;
             }
+        }
+
+        public bool TryPeekLast(out T result)
+        {
+            ThisLock.EnterReadLock();
+            bool success = Count > 0;
+            result = success ? Items[(Head + Count - 1) % Items.Length] : default;
+            ThisLock.ExitReadLock();
+            return success;
         }
 
         public void Clear()

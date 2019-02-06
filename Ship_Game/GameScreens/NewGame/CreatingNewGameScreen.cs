@@ -42,7 +42,6 @@ namespace Ship_Game
             foreach (Artifact art in ResourceManager.ArtifactsDict.Values)
                 art.Discovered = false;
 
-            RandomEventManager.ActiveEvent = null;
             Difficulty = difficulty;
             if      (scale == 5) Scale = 8;
             else if (scale == 6) Scale = 16;

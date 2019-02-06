@@ -6,7 +6,7 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
 {
-    public sealed partial class Ship
+    public partial class Ship
     {
     #if DEBUG
         //private class TimedDebugLine

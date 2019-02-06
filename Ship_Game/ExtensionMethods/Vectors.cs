@@ -277,14 +277,6 @@ namespace Ship_Game
             return (float)Acos(wantedForward.Dot(currentForward));
         }
 
-        public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff)
-        {
-            Vector2 wantedForward = origin.Center.DirectionToTarget(targetPos);
-            Vector2 currentForward = origin.Rotation.RadiansToDirection();
-            float angleDiff = (float)Acos(wantedForward.Dot(currentForward));
-            return angleDiff > minDiff;
-        }
-
         // used for Projectiles 
         public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff, 
                                                    out float angleDiff, out float rotationDir)

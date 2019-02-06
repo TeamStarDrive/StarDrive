@@ -455,38 +455,22 @@ namespace Ship_Game
                     {
                         sdata.AISave.endGuid = ship.AI.end.guid;
                     }
-                    sdata.AISave.GoToStep = ship.AI.GotoStep;
                     sdata.AISave.MovePosition = ship.AI.MovePosition;
-                    sdata.AISave.ActiveWayPoints = new Array<Vector2>();
-                    foreach (Vector2 wp in ship.AI.WayPoints.ToArray())
-                    {
-                        sdata.AISave.ActiveWayPoints.Add(wp);
-                    }
+                    sdata.AISave.ActiveWayPoints = new Array<Vector2>(ship.AI.CopyWayPoints());
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
-                    foreach (ShipAI.ShipGoal sgoal in ship.AI.OrderQueue)
+                    foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
                     {
-                        var gsave = new ShipGoalSave
+                        sdata.AISave.ShipGoalsList.Add(new ShipGoalSave
                         {
-                            DesiredFacing = sgoal.DesiredDirection.ToRadians()
-                        };
-                        if (sgoal.fleet != null)
-                        {
-                            gsave.fleetGuid = sgoal.fleet.Guid;
-                        }
-                        gsave.FacingVector = sgoal.Direction.ToRadians();
-                        if (sgoal.goal != null)
-                        {
-                            gsave.goalGuid = sgoal.goal.guid;
-                        }
-                        gsave.MovePosition = sgoal.MovePosition;
-                        gsave.Plan = sgoal.Plan;
-                        if (sgoal.TargetPlanet != null)
-                        {
-                            gsave.TargetPlanetGuid = sgoal.TargetPlanet.guid;
-                        }
-                        gsave.VariableString = sgoal.VariableString;
-                        gsave.SpeedLimit = sgoal.SpeedLimit;
-                        sdata.AISave.ShipGoalsList.Add(gsave);
+                            Plan           = sg.Plan,
+                            DesiredFacing  = sg.Direction.ToRadians(),
+                            VariableString = sg.VariableString,
+                            SpeedLimit     = sg.SpeedLimit,
+                            MovePosition   = sg.MovePosition,
+                            fleetGuid      = sg.Fleet?.Guid ?? Guid.Empty,
+                            goalGuid       = sg.Goal?.guid  ?? Guid.Empty,
+                            TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
+                        });
                     }
                     if (ship.AI.OrbitTarget != null)
                     {
@@ -522,7 +506,7 @@ namespace Ship_Game
 
                 foreach (Ship ship in e.GetProjectors())  //fbedard
                 {
-                    var sdata = new ShipSaveData
+                    var sd = new ShipSaveData
                     {
                         guid       = ship.guid,
                         data       = ship.ToShipData(),
@@ -533,33 +517,32 @@ namespace Ship_Game
                     };
                     if (ship.GetTether() != null)
                     {
-                        sdata.TetheredTo = ship.GetTether().guid;
-                        sdata.TetherOffset = ship.TetherOffset;
+                        sd.TetheredTo = ship.GetTether().guid;
+                        sd.TetherOffset = ship.TetherOffset;
                     }
-                    sdata.Name = ship.Name;
-                    sdata.VanityName = ship.VanityName;
+                    sd.Name = ship.Name;
+                    sd.VanityName = ship.VanityName;
                     if (ship.PlayerShip)
                     {
-                        sdata.IsPlayerShip = true;
+                        sd.IsPlayerShip = true;
                     }
-                    sdata.Hull          = ship.shipData.Hull;
-                    sdata.Power         = ship.PowerCurrent;
-                    sdata.Ordnance      = ship.Ordinance;
-                    sdata.yRotation     = ship.yRotation;
-                    sdata.Rotation      = ship.Rotation;
-                    sdata.InCombatTimer = ship.InCombatTimer;
-                    sdata.AISave        = new ShipAISave
+                    sd.Hull          = ship.shipData.Hull;
+                    sd.Power         = ship.PowerCurrent;
+                    sd.Ordnance      = ship.Ordinance;
+                    sd.yRotation     = ship.yRotation;
+                    sd.Rotation      = ship.Rotation;
+                    sd.InCombatTimer = ship.InCombatTimer;
+                    sd.AISave        = new ShipAISave
                     {
                         FoodOrProd      = ship.AI.GetTradeTypeString(),
                         state           = ship.AI.State,
                         defaultstate    = ship.AI.DefaultAIState,
-                        GoToStep        = ship.AI.GotoStep,
                         MovePosition    = ship.AI.MovePosition,
                         ActiveWayPoints = new Array<Vector2>(),
                         ShipGoalsList   = new Array<ShipGoalSave>()
                     };
-                    sdata.Projectiles = new Array<ProjectileSaveData>();
-                    empireToSave.OwnedShips.Add(sdata);
+                    sd.Projectiles = new Array<ProjectileSaveData>();
+                    empireToSave.OwnedShips.Add(sd);
                 }
 
                 SaveData.EmpireDataList.Add(empireToSave);
