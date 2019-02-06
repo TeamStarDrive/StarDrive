@@ -164,7 +164,7 @@ namespace Ship_Game
                 var buildingIds = new Array<int>();
                 foreach (var kv in ResourceManager.BuildingsDict)
                 {
-                    if (!kv.Value.NoRandomSpawn && kv.Value.EventTriggerUID.NotEmpty())
+                    if (!kv.Value.NoRandomSpawn && kv.Value.EventHere)
                         buildingIds.Add(kv.Value.BID);
                 }
 
