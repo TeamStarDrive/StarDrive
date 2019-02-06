@@ -579,7 +579,7 @@ namespace Ship_Game.Ships
         void EvtDamageInflicted(GameplayObject source, float amount)
         {
             if      (source is Ship s)       source = s;
-            else if (source is Projectile p) source = p.Owner;
+            else if (source is Projectile p) source = p.Owner ?? p.Module.Parent;
             source.OnDamageInflicted(this, amount);
         }
 

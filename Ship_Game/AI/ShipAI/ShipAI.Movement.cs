@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Algorithms;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
@@ -14,8 +15,19 @@ namespace Ship_Game.AI
         
         public Planet OrbitTarget;
         float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
-        public WayPoints WayPoints;
-        public void ClearWayPoints() => WayPoints.Clear();
+        public WayPoints WayPoints = new WayPoints();
+
+        public void ClearWayPoints()
+        {
+            WayPoints.Clear();
+        }
+
+        public void SetWayPoints(IReadOnlyList<Vector2> wayPoints)
+        {
+            WayPoints.Clear();
+            foreach (Vector2 wp in wayPoints)
+                WayPoints.Enqueue(wp);
+        }
     
         public void HoldPosition()
         {
@@ -115,7 +127,7 @@ namespace Ship_Game.AI
         {    
             Owner.HyperspaceReturn();
             Vector2 targetPos = goal.MovePosition;
-            if (goal.fleet != null) targetPos = goal.fleet.Position + Owner.FleetOffset;
+            if (goal.Fleet != null) targetPos = goal.Fleet.Position + Owner.FleetOffset;
 
             if (Owner.EnginesKnockedOut)
                 return;

@@ -1639,7 +1639,7 @@ namespace Ship_Game
                 {
                     for (int index = 0; index < ship.AI.OrderQueue.Count; ++index)
                     {
-                        if (ship.AI.OrderQueue[index].goal == SelectedItem.AssociatedGoal)
+                        if (ship.AI.OrderQueue[index].Goal == SelectedItem.AssociatedGoal)
                         {
                             flag = true;
                             ship.AI.OrderScrapShip();

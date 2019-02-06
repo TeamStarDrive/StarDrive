@@ -1234,22 +1234,22 @@ namespace Ship_Game.AI
                 planetAssaultStrength += ship.Carrier.PlanetAssaultStrength;
 
             planetAssaultStrength += ourGroundStrength;
-            if (planetAssaultStrength < theirGroundStrength *.75f)
+            if (planetAssaultStrength < theirGroundStrength * 0.75f)
             {
-                DebugInfo(task, $"Fail insuffcient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
+                DebugInfo(task, $"Fail insufficient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
                 return false;
             }
             if (freeLandingSpots < LandingspotsNeeded)
             {
-                DebugInfo(task,$"fail insuffcient landing space. planetHas: {freeLandingSpots} Needed: {LandingspotsNeeded}");
+                DebugInfo(task,$"Fail insufficient landing space. planetHas: {freeLandingSpots} Needed: {LandingspotsNeeded}");
                 return false;
             }
 
             if (ourGroundStrength < 1)
                 StopBombPlanet();
 
-            if (Ships.Find(ship=> ship.Center.InRadius(task.AO,task.AORadius)) != null)
-            OrderShipsToInvade(RearShips, task);
+            if (Ships.Any(ship => ship.Center.InRadius(task.AO, task.AORadius)))
+                OrderShipsToInvade(RearShips, task);
             return true;
         }
 

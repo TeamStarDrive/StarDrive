@@ -329,7 +329,6 @@ namespace Ship_Game.Ships
             AI.SetTradeType(aiSave.FoodOrProd);
             AI.State              = aiSave.state;
             AI.DefaultAIState     = aiSave.defaultstate;
-            AI.GotoStep           = aiSave.GoToStep;
             AI.MovePosition       = aiSave.MovePosition;
             AI.OrbitTargetGuid    = aiSave.OrbitTarget;
             AI.TargetGuid         = aiSave.AttackTarget;
