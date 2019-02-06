@@ -252,22 +252,10 @@ namespace Ship_Game
             double rads = degrees * (PI / 180.0);
             return new Vector2((float)Sin(rads), -(float)Cos(rads));
         }
-        // Converts an angle value to a 3D direction vector, with Z = 0
-        public static Vector3 AngleToDirection3D(this float degrees)
-        {
-            double rads = degrees * (PI / 180.0);
-            return new Vector3((float)Sin(rads), -(float)Cos(rads), 0f);
-        }
 
-        public static Vector2 FindVectorBehindTarget(this GameplayObject ship, float distance)
+        public static Vector2 FindStrafeVectorFromTarget(this GameplayObject ship, float distance, Vector2 direction)
         {
-            Vector2 forward = ship.Rotation.RadiansToDirection();
-            return ship.Position - (forward * distance);
-        }
-
-        public static Vector2 FindStrafeVectorFromTarget(this GameplayObject ship, float distance, float degrees)
-        {
-            Vector2 strafe = ship.Rotation.RadiansToDirection() + degrees.AngleToDirection();
+            Vector2 strafe = ship.Rotation.RadiansToDirection() + direction;
             strafe = strafe.Normalized();
             return ship.Position + (strafe * distance);
         }
@@ -303,12 +291,14 @@ namespace Ship_Game
 
         public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)
         {
-            return new ImpactPredictor(ourShip, target).Predict();
+            return new ImpactPredictor(ourShip, target)
+                .Predict(ourShip.CanUseAdvancedTargeting);
         }
 
         public static Vector2 PredictImpact(this Projectile proj, GameplayObject target)
         {
-            return new ImpactPredictor(proj, target).Predict();
+            return new ImpactPredictor(proj, target)
+                .Predict(proj.Weapon.CanUseAdvancedTargeting);
         }
 
         // can be used for collision detection

@@ -891,7 +891,7 @@ namespace Ship_Game
                 if (!ship.Active) continue;
                 try
                 {
-                    ship.InitiizeShipScene();
+                    ship.InitializeShipScene();
                 }
                 catch(Exception ex)
                 {

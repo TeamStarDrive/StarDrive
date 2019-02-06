@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
 
         public string UID => Flyweight.UID;
 
-        public float FieldOfFire;
+        public float FieldOfFire; // field of fire arc, in degrees
         public int TargetValue;
         public float TransporterTimer;        
         public const int MaxPriority =6;
@@ -576,6 +576,13 @@ namespace Ship_Game.Ships
             return damageInOut <= 0f;
         }
 
+        void EvtDamageInflicted(GameplayObject source, float amount)
+        {
+            if      (source is Ship s)       source = s;
+            else if (source is Projectile p) source = p.Owner ?? p.Module.Parent;
+            source.OnDamageInflicted(this, amount);
+        }
+
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
             float damageModifier = 1f;
@@ -589,7 +596,8 @@ namespace Ship_Game.Ships
             float healthBefore = Health + ShieldPower;
             if (!TryDamageModule(source, damageAmount * damageModifier)) 
             {
-                damageRemainder = 0;
+                damageRemainder = 0f;
+                if (source != null) EvtDamageInflicted(source, 0f);
                 return; // damage was deflected
             }
 
@@ -599,6 +607,8 @@ namespace Ship_Game.Ships
             if (damageModifier <= 1) // below 1, resistance. above 1, vulnerability.
                 absorbedDamage /= damageModifier; // module absorbed more dam because of good resistance
             // else: extra dam already calculated
+            
+            if (source != null) EvtDamageInflicted(source, absorbedDamage);
 
             damageRemainder = (int)(damageAmount - absorbedDamage); 
         }

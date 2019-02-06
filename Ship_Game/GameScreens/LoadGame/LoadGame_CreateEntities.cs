@@ -524,51 +524,24 @@ namespace Ship_Game
                 if (!data.FindShip(shipData.guid, out Ship ship))
                     continue;
 
-                foreach (Vector2 waypoint in shipData.AISave.ActiveWayPoints)
-                {
-                    ship.AI.WayPoints.Enqueue(waypoint);
-                }
+                ship.AI.SetWayPoints(shipData.AISave.ActiveWayPoints);
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
-                    // @note savegame compatibility uses facing in radians
-                    var g = new ShipAI.ShipGoal(sg.Plan, sg.MovePosition, sg.FacingVector.RadiansToDirection());
                     foreach (SolarSystem s in data.SolarSystemsList)
                     {
                         foreach (Planet p in s.PlanetList)
                         {
-                            if (sg.TargetPlanetGuid == p.guid)
-                            {
-                                g.TargetPlanet = p;
-                                ship.AI.ColonizeTarget = p;
-                            }
-
+                            if (p.guid == sg.TargetPlanetGuid)       ship.AI.ColonizeTarget = p;
                             if (p.guid == shipData.AISave.startGuid) ship.AI.start = p;
                             if (p.guid == shipData.AISave.endGuid)   ship.AI.end = p;
                         }
                     }
 
-                    if (sg.fleetGuid != Guid.Empty)
-                    {
-                        foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
-                        {
-                            if (fleet.Value.Guid == sg.fleetGuid)
-                                g.fleet = fleet.Value;
-                        }
-                    }
-
-                    g.VariableString = sg.VariableString;
-                    g.DesiredDirection = sg.DesiredFacing.RadiansToDirection(); // @note savegame compatibility uses facing in radians
-                    g.SpeedLimit = sg.SpeedLimit;
-                    foreach (Goal goal in ship.loyalty.GetEmpireAI().Goals)
-                    {
-                        if (sg.goalGuid == goal.guid)
-                            g.goal = goal;
-                    }
-
-                    ship.AI.OrderQueue.Enqueue(g);
-                    if (g.Plan == ShipAI.Plan.DeployStructure)
+                    if (sg.Plan == ShipAI.Plan.DeployStructure)
                         ship.isConstructor = true;
+
+                    ship.AI.AddToOrderQueue(new ShipAI.ShipGoal(sg, data, ship));
                 }
             }
         }

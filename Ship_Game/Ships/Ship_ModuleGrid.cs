@@ -6,19 +6,20 @@ using System;
 
 namespace Ship_Game.Ships
 {
-    public sealed partial class Ship
+    public partial class Ship
     {
-        private ShipModule[] ModuleSlotList;
-        private ShipModule[] SparseModuleGrid;   // single dimensional grid, for performance reasons
-        private ShipModule[] ExternalModuleGrid; // only contains external modules
+        ShipModule[] ModuleSlotList;
+        ShipModule[] SparseModuleGrid;   // single dimensional grid, for performance reasons
+        ShipModule[] ExternalModuleGrid; // only contains external modules
         public int NumExternalSlots { get; private set; }
-        private int GridWidth;
-        private int GridHeight;
-        private Vector2 GridOrigin; // local origin, eg -32, -48
+        int GridWidth;
+        int GridHeight;
+        Vector2 GridOrigin; // local origin, eg -32, -48
 
+        public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
         public bool ModuleSlotsDestroyed => ModuleSlotList.Length == 0;
 
-        private void CreateModuleGrid()
+        void CreateModuleGrid()
         {
             float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
 
