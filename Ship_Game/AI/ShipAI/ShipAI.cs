@@ -23,24 +23,22 @@ namespace Ship_Game.AI
         public FleetDataNode FleetNode { get;  set; }
         
         public Ship Owner;
-        public AIState State;// = AIState.AwaitingOrders;
+        public AIState State = AIState.AwaitingOrders;
         public Guid OrbitTargetGuid;
         public Planet ColonizeTarget;
         public Planet ResupplyTarget;
         public Guid SystemToDefendGuid;
         public SolarSystem SystemToDefend;
         public SolarSystem ExplorationTarget;
-        public AIState DefaultAIState                         = AIState.AwaitingOrders;
-        public SafeQueue<ShipGoal> OrderQueue                 = new SafeQueue<ShipGoal>();
-        public Array<ShipWeight> NearByShips = new Array<ShipWeight>();
-        public BatchRemovalCollection<Ship> FriendliesNearby  = new BatchRemovalCollection<Ship>();
+        public AIState DefaultAIState = AIState.AwaitingOrders;
+        public SafeQueue<ShipGoal> OrderQueue = new SafeQueue<ShipGoal>();
+        public Array<ShipWeight> NearByShips  = new Array<ShipWeight>();
+        public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
 
         public ShipAI(Ship owner)
         {
             Owner = owner;
-            State = AIState.AwaitingOrders;
-            WayPoints = new WayPoints();
         }
 
         void Colonize(Planet targetPlanet)
@@ -298,12 +296,9 @@ namespace Ship_Game.AI
             EscortTarget = supplyShip;
             IgnoreCombat = true;
             ClearOrders(AIState.ResupplyEscort);
-            OrderQueue.Enqueue(new ShipGoal(Plan.ResupplyEscort)
-            {
-                Direction = UniverseRandom.RandomDirection(),
-                VariableNumber = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000),
-                VariableString = supplyType
-            });
+
+            float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000);
+            AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection(), null, supplyType, strafeOffset);
         }
 
         void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
