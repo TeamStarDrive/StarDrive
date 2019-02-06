@@ -36,6 +36,12 @@ namespace Ship_Game.AI
             ClearOrdersNext = false;
         }
 
+        public void ClearOrdersAndWayPoints(AIState newState = AIState.AwaitingOrders, bool priority = false)
+        {
+            ClearWayPoints();
+            ClearOrders(newState, priority);
+        }
+
         public bool ClearOrdersNext;
         public bool HasPriorityOrder;
         public bool HadPO;
@@ -56,8 +62,9 @@ namespace Ship_Game.AI
         public void SetPriorityOrder(bool clearOrders)
         {
             if (clearOrders)
-                OrderQueue.Clear();
-            HasPriorityOrder = true;
+                ClearOrders(State, true);
+            else
+                HasPriorityOrder = true;
             Intercepting = false;
             HasPriorityTarget = false;
         }
@@ -161,7 +168,7 @@ namespace Ship_Game.AI
             }
             if (distanceToTarget < Owner.maxWeaponsRange)
             {
-                Vector2 strafeVector    = Target.FindStrafeVectorFromTarget(Owner.maxWeaponsRange, 180);
+                Vector2 strafeVector    = Target.FindStrafeVectorFromTarget(Owner.maxWeaponsRange, Vectors.Down);
                 AttackVector            = strafeVector.PointFromAngle(AttackRunAngle, spacerdistance);
                 Vector2 attackDirection = Owner.Center.DirectionToTarget(AttackVector);
                 SubLightMoveInDirection(attackDirection, elapsedTime);
@@ -879,7 +886,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, (int)goal.Direction.ToDegrees());
+            var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, goal.Direction);
             DrawDebugTarget(escortVector, Owner.Radius);
             float distanceToEscortSpot = Owner.Center.Distance(escortVector);
             float supplyShipVelocity   = EscortTarget.Velocity.Length();

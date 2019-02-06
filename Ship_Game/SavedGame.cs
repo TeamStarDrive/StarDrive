@@ -467,13 +467,12 @@ namespace Ship_Game
                     {
                         var gsave = new ShipGoalSave
                         {
-                            DesiredFacing = sgoal.DesiredDirection.ToRadians()
+                            DesiredFacing = sgoal.Direction.ToRadians()
                         };
                         if (sgoal.fleet != null)
                         {
                             gsave.fleetGuid = sgoal.fleet.Guid;
                         }
-                        gsave.FacingVector = sgoal.Direction.ToRadians();
                         if (sgoal.goal != null)
                         {
                             gsave.goalGuid = sgoal.goal.guid;

@@ -558,7 +558,7 @@ namespace Ship_Game
                     }
 
                     g.VariableString = sg.VariableString;
-                    g.DesiredDirection = sg.DesiredFacing.RadiansToDirection(); // @note savegame compatibility uses facing in radians
+                    g.Direction = sg.DesiredFacing.RadiansToDirection(); // @note savegame compatibility uses facing in radians
                     g.SpeedLimit = sg.SpeedLimit;
                     foreach (Goal goal in ship.loyalty.GetEmpireAI().Goals)
                     {

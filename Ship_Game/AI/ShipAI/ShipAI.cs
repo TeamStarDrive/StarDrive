@@ -300,7 +300,7 @@ namespace Ship_Game.AI
             ClearOrders(AIState.ResupplyEscort);
             OrderQueue.Enqueue(new ShipGoal(Plan.ResupplyEscort)
             {
-                Direction      = UniverseRandom.RandomDirection(),
+                Direction = UniverseRandom.RandomDirection(),
                 VariableNumber = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000),
                 VariableString = supplyType
             });
@@ -447,8 +447,7 @@ namespace Ship_Game.AI
                         //Adding +1 to the result of GetGroundStrengthOther tilts the scale just enough so a planet with no troops at all can still be bombed
                         //but having even 1 allied troop will cause the bombine action to abort.
                         ClearOrders();
-                        AddShipGoal(Plan.Orbit, toEvaluate.TargetPlanet); //Stay in Orbit
-                        HasPriorityOrder = false;
+                        AddOrbitPlanetGoal(toEvaluate.TargetPlanet); // Stay in Orbit
                     }
                     DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
                     float radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
