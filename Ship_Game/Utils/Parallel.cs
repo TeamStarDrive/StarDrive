@@ -146,9 +146,12 @@ namespace Ship_Game
         }
         public Exception Wait()
         {
-            while (HasTasksToExecute())
+            while (HasTasksToExecute() && !Killed)
             {
-                EvtEndTask.WaitOne();
+                if (EvtEndTask.WaitOne(1000))
+                    continue;
+                if (Killed)
+                    Log.Warning("ParallelTask wait timed out after 1000ms but the task was already killed. This is a bug in ParallelTask kill.");
             }
             if (Error == null)
                 return null;
@@ -169,15 +172,22 @@ namespace Ship_Game
             {
                 IdleTimer = Stopwatch.StartNew();
                 EvtNewTask.WaitOne(5000);
-                if (!HasTasksToExecute()) {
-                    lock (KillSync) { // lock before deciding to kill thread
-                        if (IdleTimer.ElapsedMilliseconds > 5000) {
+                if (!HasTasksToExecute())
+                {
+                    lock (KillSync)  // lock before deciding to kill thread
+                    {
+                        if (IdleTimer.ElapsedMilliseconds > 5000)
+                        {
                             Thread = null; // Die!
+                            Killed = true;
+                            EvtEndTask.Set();
+                            Log.Info(ConsoleColor.DarkGray, $"Auto-Kill {Name}");
                             return;
                         }
                     }
                     continue;
                 }
+
                 try
                 {
                     Error = null;
@@ -213,6 +223,7 @@ namespace Ship_Game
                     break;
                 EvtEndTask.Set();
             }
+            Log.Info(ConsoleColor.DarkGray, $"Dispose-Killed {Name}");
         }
         public void Dispose()
         {

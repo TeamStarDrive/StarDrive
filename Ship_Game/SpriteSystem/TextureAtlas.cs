@@ -39,7 +39,7 @@ namespace Ship_Game
         void Destroy()
         {
             Atlas?.Dispose();
-            for (int i = 0; i < NonPacked.Count; ++i) NonPacked[i].Dispose();
+            for (int i = 0; i < NonPacked.Count; ++i) NonPacked[i]?.Dispose();
             NonPacked.Clear();
         }
 
@@ -261,12 +261,21 @@ namespace Ship_Game
                     t.Texture = content.LoadUncachedTexture(t, Name);
                 }
             });
+            CreateTextureLookups(textures);
+        }
 
+        void CreateTextureLookups(Array<TextureInfo> textures)
+        {
             foreach (TextureInfo t in textures)
             {
-                var sub = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, t.Texture);
-                if (t.NoPack) NonPacked.Add(t.Texture);
-                Lookup.Add(t.Name, sub);
+                Lookup[t.Name] = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, (t.NoPack ? t.Texture : Atlas));
+                if (t.NoPack)
+                {
+                    if (t.Texture == null)
+                        Log.Error($"TextureAtlas invalid null texture {t.Name}");
+                    else
+                        NonPacked.Add(t.Texture);
+                }
             }
         }
 

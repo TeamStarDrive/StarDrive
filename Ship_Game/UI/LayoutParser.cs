@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
@@ -10,57 +8,24 @@ using Ship_Game.Data;
 
 namespace Ship_Game.UI
 {
-    internal class ScreenInfo
-    {
-        #pragma warning disable 649
-        [StarDataKey] public readonly string Name;
-        [StarData] public readonly Vector2 VirtualSize;
-        #pragma warning restore 649
-    }
-
-    internal class ElementInfo // generic info for all elements (I'm just lazy)
-    {
-        #pragma warning disable 649
-        [StarDataKey] public readonly string Name;
-        [StarData] public readonly string Texture;
-        [StarData] public readonly DrawDepth DrawDepth = DrawDepth.Foreground;
-        [StarData] public readonly Vector4 Rect;
-        [StarData] public readonly Vector2 Pos;
-        [StarData] public readonly Vector2 Size;
-        /**
-         * Sets the auto-layout axis of the UIElement. Default is Align.TopLeft
-         * Changing the axis will change the position and rotation axis of the object.
-         *
-         * And also sets the auto-layout alignment to parent container bounds.
-         * By changing this value, you can align element Pos:[0,0] to parent BottomLeft
-         * @example Align.Center will perfectly center to parent center
-         */
-        [StarData] public readonly Align AxisAlign; 
-        [StarData] public readonly Color Color = Color.White;
-        [StarData] public readonly LocText Title;
-        [StarData] public readonly LocText Tooltip;
-        #pragma warning restore 649
-
-        // these are initialized after parsing:
-        public Rectangle R;
-        public SubTexture Tex;
-        public string ElementName() => Name ?? Texture ?? "";
-        public override string ToString() => $"{ElementName()} Rect:{Rect}";
-    }
-
-
     public class LayoutParser
     {
+        // Loads GameScreen and registers it for HotLoading
         public static void LoadLayout(GameScreen screen, string layoutFile)
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile(layoutFile);
             Load(screen, screen.ScreenArea, file);
 
             // trigger ReloadContent when layout file is modified
-            ScreenManager.Instance.AddHotLoadTarget(layoutFile, file.FullName, (info) =>
-            {
-                screen.ReloadContent();
-            });
+            ScreenManager.Instance.AddHotLoadTarget(screen, layoutFile, file.FullName);
+        }
+
+        // Loads a generic UI container -- does not register for HotLoading
+        // because container might have been destroyed
+        public static void LoadLayout(UIElementContainer container, Vector2 size, string layoutFile)
+        {
+            FileInfo file = ResourceManager.GetModOrVanillaFile(layoutFile);
+            Load(container, size, file);
         }
 
         static void Load(UIElementContainer main, Vector2 size, FileInfo file)
@@ -75,13 +40,12 @@ namespace Ship_Game.UI
         readonly GameContentManager Content;
         readonly StarDataNode Root;
         readonly string Name;
-        readonly Vector2 ContainerSize; // actual container size
-        readonly Vector2 VirtualSize;   // virtual layout size
-        readonly Vector2 VirtualXForm;  // multiplier to transform virtual coordinates to actual coordinates
+        readonly Vector2 VirtualXForm; // multiplier to transform virtual coordinates to actual coordinates
         readonly StarDataSerializer ElementSerializer = new StarDataSerializer(typeof(ElementInfo));
 
         LayoutParser(UIElementContainer mainContainer, Vector2 size, FileInfo file)
         {
+            Vector2 virtualSize;
             MainContainer = mainContainer;
             Content = mainContainer.ContentManager;
             using (var parser = new StarDataParser(file))
@@ -90,19 +54,18 @@ namespace Ship_Game.UI
             }
 
             MainContainer.Size = size;
-            ContainerSize = size;
             if (Root.FindChild("Screen", out StarDataNode screen))
             {
                 var info = (ScreenInfo)new StarDataSerializer(typeof(ScreenInfo)).Deserialize(screen);
                 Name = info.Name;
-                VirtualSize = info.VirtualSize;
+                virtualSize = info.VirtualSize;
             }
             else
             {
                 Name = Root.Key;
-                VirtualSize = size; // default to current screen size
+                virtualSize = size; // default to current screen size
             }
-            VirtualXForm = ContainerSize / VirtualSize;
+            VirtualXForm = size / virtualSize;
         }
 
         void CreateElements()
@@ -115,13 +78,23 @@ namespace Ship_Game.UI
         {
             if (!node.HasItems)
                 return;
-            foreach (StarDataNode child in node.Items)
-                CreateElement(parent, child);
+            for (int i = 0; i < node.Items.Count; ++i)
+            {
+                CreateElement(parent, node.Items[i]);
+            }
         }
 
         ElementInfo DeserializeElementInfo(StarDataNode node)
         {
-            return (ElementInfo)ElementSerializer.Deserialize(node);
+            try
+            {
+                return (ElementInfo)ElementSerializer.Deserialize(node);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to parse StarData: {e.Message}\n{node}");
+                return null;
+            }
         }
 
         Vector2 AbsoluteSize(ElementInfo info, Vector2 size, Vector2 parentSize)
@@ -289,12 +262,48 @@ namespace Ship_Game.UI
 
             element.Name = info.ElementName();
             element.DrawDepth = info.DrawDepth;
+            element.Visible = info.Visible;
+            ParseAnimation(element, info);
             parent.Add(element);
 
             if (node.FindChild("Children", out StarDataNode children)
                 && element is UIElementContainer container)
             {
                 CreateElements(container, children);
+            }
+        }
+
+        static void ParseAnimation(UIElementV2 element, ElementInfo info)
+        {
+            AnimInfo data = info.Animation;
+            if (data != null)
+            {
+                // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
+                float[] p = data.Params ?? Empty<float>.Array;
+
+                float delay    = p.Length >= 1 ? p[0] : 0f;
+                float duration = p.Length >= 2 ? p[1] : 1f;
+                float loop     = p.Length >= 3 ? p[2] : 0f;
+                float fadeIn   = p.Length >= 4 ? p[3] : 0.25f;
+                float fadeOut  = p.Length >= 5 ? p[4] : 0.25f;
+
+                UIBasicAnimEffect a = element.Anim(delay, duration, fadeIn, fadeOut);
+                
+                if (data.Pattern == AnimPattern.Sine)
+                    a.Sine();
+
+                if (loop.NotZero())
+                    a.Loop(loop);
+
+                if (data.Alpha.Min.NotEqual(1f) && data.Alpha.Max.NotEqual(1f))
+                    a.Alpha(data.Alpha.Min, data.Alpha.Max);
+
+                if (data.MinColor != null || data.MaxColor != null)
+                {
+                    Color min = data.MinColor ?? Color.Black;
+                    Color max = data.MaxColor ?? Color.White;
+                    a.Color(min, max);
+                }
             }
         }
     }

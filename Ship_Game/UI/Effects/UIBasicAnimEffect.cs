@@ -4,6 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
+    enum AnimPattern
+    {
+        None,
+        Sine, // Generates a sine wave pattern on the animation percent
+    }
+
     public class UIBasicAnimEffect : UIEffect
     {
         public float CurrentTime { get; private set; }

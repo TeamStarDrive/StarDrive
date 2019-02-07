@@ -14,7 +14,6 @@ namespace Ship_Game
     public abstract class GameScreen : UIElementContainer, IDisposable
     {
         public InputState Input;
-        public bool IsLoaded;
         bool OtherScreenHasFocus;
 
         public bool IsActive => !OtherScreenHasFocus && !IsExiting
@@ -40,14 +39,14 @@ namespace Ship_Game
         // This is equivalent to PresentationParameters.BackBufferWidth
         public int ScreenWidth      => StarDriveGame.Instance.ScreenWidth;
         public int ScreenHeight     => StarDriveGame.Instance.ScreenHeight;
-        public Rectangle ScreenRect => new Rectangle(0, 0, ScreenWidth, ScreenHeight);
         public Vector2 MousePos     => Input.CursorPosition;
         public Vector2 ScreenArea   => StarDriveGame.Instance.ScreenArea;
         public Vector2 ScreenCenter => StarDriveGame.Instance.ScreenArea * 0.5f;
         public GameTime GameTime    => StarDriveGame.Instance.GameTime;
         protected bool Pauses = true;
 
-        protected Action OnExit;
+        // multi cast exit delegate, called when a game screen is exiting
+        public event Action OnExit;
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -88,8 +87,8 @@ namespace Ship_Game
         public void RemoveObject(ISceneObject so) => ScreenManager.RemoveObject(so);
         public void AddLight(ILight light)        => ScreenManager.AddLight(light);
         public void RemoveLight(ILight light)     => ScreenManager.RemoveLight(light);
-        public void RefreshLight(ILight light)    => ScreenManager.RefreshLight(light);
         public void RemoveAllLights()             => ScreenManager.RemoveAllLights();
+
         public void AssignLightRig(string rigContentPath)
         {
             var lightRig = TransientContent.Load<LightRig>(rigContentPath);
