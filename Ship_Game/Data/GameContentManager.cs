@@ -409,7 +409,7 @@ namespace Ship_Game
         {
             SubTexture texture = LoadSubTexture(texturePath);
             if (texture != null) return texture;
-            Log.Warning($"{Name} failed to load texture {texturePath}");
+            Log.Warning(ConsoleColor.Red, $"{Name} failed to load texture '{texturePath}'");
             return DefaultTexture();
         }
 

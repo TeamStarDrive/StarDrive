@@ -75,6 +75,7 @@ namespace Ship_Game
 
         public void AddScreen(GameScreen screen)
         {
+            // @todo What is this hack doing here?
             foreach (GameScreen gs in Screens)
                 if (gs is DiplomacyScreen)
                     return;
@@ -95,6 +96,7 @@ namespace Ship_Game
 
         public void AddScreenNoLoad(GameScreen screen)
         {
+            // @todo What is this hack doing here?
             foreach (GameScreen gs in Screens)
                 if (gs is DiplomacyScreen)
                     return;
