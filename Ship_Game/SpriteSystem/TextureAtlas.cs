@@ -238,7 +238,7 @@ namespace Ship_Game
                     int.TryParse(entry[4], out t.Width);
                     int.TryParse(entry[5], out t.Height);
                     t.Name = entry[6];
-                    t.Texture = Atlas;
+                    t.Texture = t.NoPack ? null : Atlas;
                     textures.Add(t);
                 }
                 LoadTextures(content, textures);
@@ -259,23 +259,16 @@ namespace Ship_Game
                 {
                     TextureInfo t = noPack[i];
                     t.Texture = content.LoadUncachedTexture(t, Name);
+                    if (t.Texture == null)
+                        Log.Error($"TextureAtlas LoadUncachedTexture null! {t.Name}");
                 }
             });
-            CreateTextureLookups(textures);
-        }
-
-        void CreateTextureLookups(Array<TextureInfo> textures)
-        {
             foreach (TextureInfo t in textures)
             {
-                Lookup[t.Name] = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, (t.NoPack ? t.Texture : Atlas));
-                if (t.NoPack)
-                {
-                    if (t.Texture == null)
-                        Log.Error($"TextureAtlas invalid null texture {t.Name}");
-                    else
-                        NonPacked.Add(t.Texture);
-                }
+                if (t.Texture == null) // useful for catching rare bugs
+                    Log.Error($"TextureAtlas invalid null texture {t.Name}");
+                Lookup[t.Name] = new SubTexture(t.Name, t.X, t.Y, t.Width, t.Height, t.Texture);
+                if (t.NoPack) NonPacked.Add(t.Texture);
             }
         }
 

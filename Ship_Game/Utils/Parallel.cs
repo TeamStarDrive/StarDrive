@@ -96,7 +96,7 @@ namespace Ship_Game
         int LoopStart, LoopEnd;
         Stopwatch IdleTimer;
         Exception Error;
-        volatile bool Killed;
+        volatile bool Disposed;
         readonly string Name;
 
         public ParallelTask(int index)
@@ -146,11 +146,11 @@ namespace Ship_Game
         }
         public Exception Wait()
         {
-            while (HasTasksToExecute() && !Killed)
+            while (HasTasksToExecute() && Thread != null)
             {
                 if (EvtEndTask.WaitOne(1000))
                     continue;
-                if (Killed)
+                if (Thread == null)
                     Log.Warning("ParallelTask wait timed out after 1000ms but the task was already killed. This is a bug in ParallelTask kill.");
             }
             if (Error == null)
@@ -168,7 +168,7 @@ namespace Ship_Game
         }
         void Run()
         {
-            while (!Killed)
+            while (!Disposed)
             {
                 IdleTimer = Stopwatch.StartNew();
                 EvtNewTask.WaitOne(5000);
@@ -179,7 +179,6 @@ namespace Ship_Game
                         if (IdleTimer.ElapsedMilliseconds > 5000)
                         {
                             Thread = null; // Die!
-                            Killed = true;
                             EvtEndTask.Set();
                             Log.Info(ConsoleColor.DarkGray, $"Auto-Kill {Name}");
                             return;
@@ -219,7 +218,7 @@ namespace Ship_Game
                     VoidTask   = null;
                     ResultTask = null;
                 }
-                if (Killed)
+                if (Disposed)
                     break;
                 EvtEndTask.Set();
             }
@@ -234,7 +233,7 @@ namespace Ship_Game
         {
             if (EvtNewTask == null)
                 return;
-            Killed     = true;
+            Disposed   = true;
             RangeTask  = null;
             VoidTask   = null;
             ResultTask = null;
