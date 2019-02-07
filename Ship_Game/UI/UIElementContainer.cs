@@ -157,12 +157,39 @@ namespace Ship_Game
             Elements.Clear();
         }
 
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        public bool Find<T>(string name, out T found) where T : UIElementV2
+        {
+            for (int i = 0; i < Elements.Count; ++i) // first find immediate children
+            {
+                UIElementV2 e = Elements[i];
+                if (e.Name == name && e is T elem)
+                {
+                    found = elem;
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < Elements.Count; ++i) // then perform recursive scan of child containers
+            {
+                UIElementV2 e = Elements[i];
+                if (e is UIElementContainer c && c.Find(name, out found))
+                    return true; // yay
+            }
+
+            found = null;
+            return false;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void RefreshZOrder()
         {
             Elements.Sort(ZOrderSorter);
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////
+        
 
         protected override int NextZOrder()
         {

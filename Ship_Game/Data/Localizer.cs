@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -15,15 +16,87 @@ namespace Ship_Game
         public Token[] TokenList;
     }
 
-    // Localized text integer reference
+    // Localized text reference
     public struct LocText
     {
-        public int Id;
+        public readonly string Text;
+
         public LocText(int id)
         {
-            Id = id;
+            Text = Localizer.Token(id);
         }
-        public string Text => Localizer.Token(Id);
+
+        /**
+         * Parse incoming text as localized text.
+         * Example:
+         * "  {80}: {81}"  -- parsed to '  Astronomers: Races that have extensively studied......'
+         * "\{ {80} \}"    -- parsed to '{ Astronomers }'
+         * "\"{80}\""      -- parsed to '"Astronomers"'
+         * If there are no parentheses, then the text is not parsed!!
+         */
+        public LocText(string text)
+        {
+            if (text.IsEmpty())
+            {
+                Text = "";
+                return;
+            }
+
+            if (text[0] != '"')
+            {
+                Log.Error($"Missing string format BEGIN character '\"' -- LocText not parsed!: {text}");
+                Text = text;
+                return;
+            }
+
+            if (text[text.Length-1] != '"')
+            {
+                Log.Warning($"Missing string format END character '\"' -- LocText may miss some characters!: {text}");
+                Text = text;
+                return;
+            }
+
+            var sb = new StringBuilder(text.Length);
+            for (int i = 1; i < text.Length-1; ++i)
+            {
+                char c = text[i];
+                if (c == '{')
+                {
+                    int j = i+1;
+                    for (; j < text.Length-1; ++j)
+                        if (text[j] == '}')
+                            break;
+                    if (j >= text.Length)
+                    {
+                        Log.Warning($"Missing localization format END character '}}'! -- LocText not parsed correctly!: {text}");
+                        break;
+                    }
+
+                    string idString = text.Substring(i+1, (j - i)-1);
+                    if (!int.TryParse(idString, out int id))
+                    {
+                        Log.Error($"Failed to parse localization id: {idString}! -- LocText not parsed correctly: {text}");
+                        continue;
+                    }
+                    sb.Append(Localizer.Token(id));
+                }
+                else if (c == '\\') // escape character
+                {
+                    c = text[i++];
+                    if      (c == 'n') sb.Append('\n');
+                    else if (c == 't') sb.Append('\t');
+                    else if (c == '{') sb.Append('{');
+                    else if (c == '}') sb.Append('}');
+                    else if (c == '"') sb.Append('"');
+                    else sb.Append('\\').Append(c); // unrecognized
+                }
+                else
+                {
+                    sb.Append(c); // normal char
+                }
+            }
+            Text = sb.ToString();
+        }
 
         public static implicit operator LocText(int id)
         {

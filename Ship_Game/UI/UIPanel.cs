@@ -67,6 +67,12 @@ namespace Ship_Game
             Color = Color.White;
         }
 
+        public UIPanel(in Rectangle rect, SubTexture texture, Color color) : base(null, rect)
+        {
+            Texture = texture;
+            Color = color;
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             if (Texture != null)

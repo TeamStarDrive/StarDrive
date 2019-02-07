@@ -179,7 +179,7 @@ namespace Ship_Game
             string text = "Warning: " + warning;
             WriteToLog(text);
             if (!HasDebugger) return;
-            WriteToConsole(ConsoleColor.Yellow, text);
+            WriteToConsole(color, text);
         }
 
         public static bool TestMessage(string testMessage,
