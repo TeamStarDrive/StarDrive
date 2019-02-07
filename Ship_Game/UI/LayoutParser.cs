@@ -138,10 +138,10 @@ namespace Ship_Game.UI
         {
             // @note parent size is already transformed, so we only need to transform non-relative positions
             Vector2 p = pos;
-            if (pos.X <= 1f) p.X *= absSize.X;
-            else             p.X *= VirtualXForm.X;
-            if (pos.Y <= 1f) p.Y *= absSize.Y;
-            else             p.Y *= VirtualXForm.Y;
+            if (-1f <= pos.X && pos.X <= 1f) p.X *= absSize.X;
+            else                            p.X *= VirtualXForm.X;
+            if (-1f <= pos.Y && pos.Y <= 1f) p.Y *= absSize.Y;
+            else                            p.Y *= VirtualXForm.Y;
 
             Vector2 align = AlignValue(axisAlign);
             p -= align * absSize;
@@ -221,17 +221,21 @@ namespace Ship_Game.UI
             if (node.Key == "Panel")
             {
                 info = ParseInfo(parent, node);
-                element = new UIPanel(info.R, info.Tex, info.Color);
+                element = new UIPanel(info.R, info.Tex, info.Color ?? Color.White);
             }
             else if (node.Key == "List")
             {
                 info = ParseInfo(parent, node);
-                element = new UIList(info.R, info.Color);
+                element = new UIList(info.R, info.Color ?? Color.TransparentBlack)
+                {
+                    Padding = info.Padding,
+                    LayoutStyle = info.ListLayout,
+                };
             }
             else if (node.Key == "Label")
             {
                 info = ParseInfo(parent, node);
-                element = new UILabel(info.Title.Text, info.Color)
+                element = new UILabel(info.Title.Text, info.Color ?? Color.White)
                 {
                     Rect = info.R
                 };
@@ -266,10 +270,22 @@ namespace Ship_Game.UI
             ParseAnimation(element, info);
             parent.Add(element);
 
-            if (node.FindChild("Children", out StarDataNode children)
-                && element is UIElementContainer container)
+            var container = element as UIElementContainer;
+            if (container != null)
             {
-                CreateElements(container, children);
+                container.DebugDraw = info.DebugDraw;
+            }
+
+            if (node.FindChild("Children", out StarDataNode children))
+            {
+                if (container != null)
+                {
+                    CreateElements(container, children);
+                }
+                else
+                {
+                    Log.Warning($"UI {element} cannot contain 'Children': {children}");
+                }
             }
         }
 
@@ -295,7 +311,7 @@ namespace Ship_Game.UI
                 if (loop.NotZero())
                     a.Loop(loop);
 
-                if (data.Alpha.Min.NotEqual(1f) && data.Alpha.Max.NotEqual(1f))
+                if (data.Alpha.Min.NotEqual(1f) || data.Alpha.Max.NotEqual(1f))
                     a.Alpha(data.Alpha.Min, data.Alpha.Max);
 
                 if (data.MinColor != null || data.MaxColor != null)
