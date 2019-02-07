@@ -1,0 +1,52 @@
+﻿# StarDrive - MainMenu UI layout
+# Created 2018.02.06 by RedFox
+#
+# You can add or remove elements here while the game is running
+# to view changes in real time.
+# Some ID-s have hardcoded default behaviours like the buttons
+#
+Screen: main_menu
+  # virtual size sets up the entire screen coordinate system
+  # these coordinates will be translated into actual screen coordinates automatically
+  # even if the game is running at 2560x1440 or 1280x720, all coordinates in this file
+  # are defined by this. Different aspect ratios get automatically repositioned.
+  VirtualSize: [1920,1080]
+  
+Panel: background
+  Texture: MMenu/new_background.png # Textures/MainMenu/xxxx.png
+  Color: [1.0,1.0,1.0] # default color
+  # [x, y, w, h] these are relative coordinates
+  # 
+  # Examples:
+  #   x: 0.5 means axis is at center of parent
+  #   w: 1.0 means fill the parent
+  #   w: 0.5 means half size 
+  #   h: 0.0 means auto-detect height from texture aspect ratio OR set to w if no texture
+  #   w: 0 h: 0 means auto-detect width and height from texture size
+  # 
+  # [0,0,1,1] -- this will aspect fill the entire screen
+  Rect: [0.0, 0.0, 1.0, 0.0]
+  # Draw depth controls when the UI element is being drawn:
+  # Foreground   -- draw 2D on top of 3D objects -- default value
+  # Background   -- draw 2D behind 3D objects
+  # ForeAdditive -- Foreground + Additive alpha blend
+  # BackAdditive -- Background + Additive alpha blend
+  DrawDepth: Background
+
+Panel: planet
+  Texture: MMenu/new_planet.png
+  Size: [1, 0] # fill to width, auto-pick height
+  AxisAlign: BottomLeft # Align our Pos and Axis to BottomLeft
+  DrawDepth: Background
+
+Panel: planet_flare
+  Texture: MMenu/new_flare.png
+  Size: [1, 0]
+  AxisAlign: Center
+  DrawDepth: BackAdditive
+
+Panel: vignette
+  Texture: MainMenu/vignette
+  Rect: [0, 0, 1, 1] # fill entire Screen
+  DrawDepth: Foreground # on top of everything
+

@@ -118,6 +118,12 @@ namespace Ship_Game
             ScreenManager.RemoveScreen(this);
         }
 
+        public virtual void ReloadContent()
+        {
+            UnloadContent();
+            LoadContent();
+        }
+
         public virtual void LoadContent()
         {
         }

@@ -27,7 +27,7 @@ namespace Ship_Game
         protected Menu2 TitleBar;
         protected Vector2 TitlePos;
         protected Menu1 Left;
-        protected Menu1 Name;
+        protected Menu1 NameMenu;
         protected Menu1 Description;
 
         protected bool LowRes;
@@ -332,7 +332,7 @@ namespace Ship_Game
 
             GameTime gameTime = StarDriveGame.Instance.GameTime;
 
-            Name.Draw();
+            NameMenu.Draw();
             var c = new Color(255, 239, 208);
             NameSub.Draw(batch);
             batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), RaceNamePos, Color.BurlyWood);
@@ -988,7 +988,7 @@ namespace Ship_Game
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             Rectangle nameRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - (int)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f) / 2, titleRect.Y + titleRect.Height + 5, (int)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f), 150);
-            Name = new Menu1(nameRect);
+            NameMenu = new Menu1(nameRect);
             Rectangle nsubRect = new Rectangle(nameRect.X + 20, nameRect.Y - 5, nameRect.Width - 40, nameRect.Height - 15);
             NameSub = new Submenu(nsubRect);
             ColorSelector = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 310, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 280, 620, 560);
