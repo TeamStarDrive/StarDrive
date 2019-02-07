@@ -18,7 +18,8 @@ Panel: background
   # [x, y, w, h] these are relative coordinates
   # 
   # Examples:
-  #   x: 0.5 means axis is at center of parent
+  #   x: 0.5 means X is at center of parent
+  #   x: 1.0 means X is at right edge of parent
   #   w: 1.0 means fill the parent
   #   w: 0.5 means half size 
   #   h: 0.0 means auto-detect height from texture aspect ratio OR set to w if no texture
@@ -32,6 +33,12 @@ Panel: background
   # ForeAdditive -- Foreground + Additive alpha blend
   # BackAdditive -- Background + Additive alpha blend
   DrawDepth: Background
+  # Align our Pos and Axis to TopLeft (default)
+  # Possible Values: TopLeft, TopCenter, TopRight, CenterLeft, Center, 
+  #                  CenterRight, BottomLeft, BottomCenter, BottomRight
+  # Examples: Center will perfectly center to parent
+  #           BottomLeft will completely align to bottom left corner
+  AxisAlign: TopLeft
 
 Panel: planet
   Texture: MMenu/new_planet.png
@@ -41,7 +48,7 @@ Panel: planet
 
 Panel: planet_flare
   Texture: MMenu/new_flare.png
-  Size: [1, 0]
+  Pos: [0, -0.72]
   AxisAlign: Center
   DrawDepth: BackAdditive
 
