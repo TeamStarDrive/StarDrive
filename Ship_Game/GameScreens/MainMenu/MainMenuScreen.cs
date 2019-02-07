@@ -119,7 +119,7 @@ namespace Ship_Game.GameScreens.MainMenu
             MoonPosition = new Vector3(+ScreenWidth / 2f - 300, 198 - ScreenHeight / 2f, 0f);
             ShipPosition = new Vector3(-ScreenWidth / 4f, 528 - ScreenHeight / 2f, 0f);
 
-            PlanetType planetType = ResourceManager.RandomPlanet();
+            PlanetType planetType = ResourceManager.RandomPlanet(PlanetCategory.Terran);
             string planetMesh = planetType.MeshPath;
             MoonObj = new SceneObject(TransientContent.Load<Model>(planetMesh).Meshes[0]) { ObjectType = ObjectType.Dynamic };
             MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
@@ -167,7 +167,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
             // flashing planet hex grid overlays
             const float hexLoop = 10.0f;
-            if (layout.ShowPlanetGrid)
+            if (false && layout.ShowPlanetGrid)
             {
                 PanelRel("MainMenu/planet_grid",       layout.PlanetGrid).InBackground().Anim(4.0f, 3.0f, 0.6f, 1.2f).Alpha().Loop(hexLoop);
                 PanelRel("MainMenu/planet_grid_hex_1", layout.PlanetHex1).InBackground().Anim(4.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
@@ -181,6 +181,7 @@ namespace Ship_Game.GameScreens.MainMenu
                     .Anim().Loop(4.0f, 1.5f, 1.5f).Color(Color.White.MultiplyRgb(0.85f), Color.White);
             }
 
+            return;
             PanelRel("MainMenu/corner_TL", layout.CornerTL).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
             PanelRel("MainMenu/corner_BR", layout.CornerBR).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
         }

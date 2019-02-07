@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -33,10 +36,16 @@ namespace Ship_Game.Data
             if (value is float f) return (byte)(int)f;
             throw new StartDataParseError(value, "Byte -- expected float");
         }
+    }
+    
+    // type mapping cache for converters
+    internal class Converters
+    {
+        readonly Map<Type, TypeConverter> Types;
 
-        public static Map<Type, TypeConverter> CreateDefaultConverters()
+        public Converters()
         {
-            return new Map<Type, TypeConverter>
+            Types = new Map<Type, TypeConverter>
             {
                 (typeof(Range),   new RangeConverter()),
                 (typeof(LocText), new LocTextConverter()),
@@ -50,12 +59,95 @@ namespace Ship_Game.Data
                 (typeof(Vector4), new Vector4Converter())
             };
         }
+
+        public bool IsListType(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                if (type.GetGenericTypeDefinition() == typeof(Array<>))
+                    return true;
+                if (type.GetInterfaces().Contains(typeof(IList)))
+                    return true;
+            }
+            return false;
+        }
+
+        public Type GetListType(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                if (type.GetGenericTypeDefinition() == typeof(Array<>))
+                    return type.GenericTypeArguments[0];
+                if (type.GetInterfaces().Contains(typeof(IList)))
+                    return type.GenericTypeArguments[0];
+            }
+            return null;
+        }
+
+        public TypeConverter Get(Type type)
+        {
+            if (Types.TryGetValue(type, out TypeConverter converter))
+                return converter;
+
+            if (type.IsArray)
+            {
+                Type elemType = type.GetElementType();
+                return Add(type, new RawArrayConverter(elemType, Get(elemType)));
+            }
+
+            if (IsListType(type))
+                return Add(type, new StarDataSerializer(type.GenericTypeArguments[0], this));
+            
+            if (type.IsEnum)
+                return Add(type, new EnumConverter(type));
+
+            if (type.GetCustomAttribute<StarDataTypeAttribute>() != null)
+                return Add(type, new StarDataSerializer(type, this));
+
+            // Nullable<T>, ex: `[StarData] Color? MinColor;`
+            Type nullableType = Nullable.GetUnderlyingType(type);
+            if (nullableType != null)
+                return Add(type, Get(nullableType));
+
+            throw new InvalidDataException($"Unsupported type {type} - is it missing [StarDataType] attribute?");
+        }
+
+        TypeConverter Add(Type type, TypeConverter converter)
+        {
+            Types[type] = converter;
+            return converter;
+        }
     }
 
 
     public abstract class TypeConverter
     {
         public abstract object Convert(object value);
+    }
+
+    public class RawArrayConverter : TypeConverter
+    {
+        readonly Type ElemType;
+        readonly TypeConverter Converter;
+        public RawArrayConverter(Type elemType, TypeConverter converter)
+        {
+            ElemType = elemType;
+            Converter = converter;
+        }
+        public override object Convert(object value)
+        {
+            if (value == null)
+                return null;
+            if (!(value is object[] array))
+                throw new StartDataParseError(value, "Array convert failed -- expected a list of values [*, *, *]");
+
+            Array converted = Array.CreateInstance(ElemType, array.Length);
+            for (int i = 0; i < array.Length; ++i)
+            {
+                converted.SetValue(Converter.Convert(array[i]), i);
+            }
+            return converted;
+        }
     }
 
     public class EnumConverter : TypeConverter
@@ -173,8 +265,8 @@ namespace Ship_Game.Data
                 return f;
             }
 
-            if (value is int i)
-                return (float)i;
+            if (value is int i)    return (float)i;
+            if (value is float ff) return ff;
             
             throw new StartDataParseError(value, "Float -- expected string or int");
         }
