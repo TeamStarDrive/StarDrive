@@ -92,9 +92,8 @@ namespace Ship_Game.GameScreens.MainMenu
                 Add(GlobalStats.ActiveMod).InBackground();
             }
 
-            UIList list = List(RelativeToAbsolute(layout.ButtonsStart), new Vector2(600f, 200f));
-            list.Padding = new Vector2(5f, 15f);
-            list.LayoutStyle = ListLayoutStyle.Resize;
+            if (!Find("buttons", out UIList list))
+                list = List(Vector2.Zero);
             list.AddButton(titleId: 1,      click: NewGame_Clicked);
             list.AddButton(titleId: 3,      click: Tutorials_Clicked);
             list.AddButton(titleId: 2,      click: LoadGame_Clicked);
@@ -107,8 +106,8 @@ namespace Ship_Game.GameScreens.MainMenu
             list.PerformLayout();
 
             // Animate the buttons in and out
-            list.StartTransition<UIButton>(512f, -1f, 1.1f);
-            OnExit += () => list.StartTransition<UIButton>(512f, +1f, 1.0f);
+            list.StartTransition<UIButton>(new Vector2(-1280f, 0), -1f, 0.8f);
+            OnExit += () => list.StartTransition<UIButton>(new Vector2(-1280f, 0), +1f, 1.0f);
             
             SDLogoAnim = Add(new UISpriteElement(this, "MainMenu/Stardrive logo"));
             SDLogoAnim.Animation.FreezeAtLastFrame = layout.FreezeSDLogo;
@@ -142,9 +141,11 @@ namespace Ship_Game.GameScreens.MainMenu
             if (layout.ShowMoon)
             {
                 // @todo place automatically depending on planet size?
-                UIPanel flare = Panel("MainMenu/moon_flare").InForeAdditive();
-                flare.Size *= 0.95f;
-                flare.Pos = moonCenter - new Vector2(216f, 193f);
+                if (Find("moon_flare", out UIPanel flare))
+                {
+                    flare.Size *= 0.95f;
+                    flare.Pos = moonCenter - new Vector2(216f, 193f);
+                }
             }
             else
             {
@@ -174,16 +175,6 @@ namespace Ship_Game.GameScreens.MainMenu
                 PanelRel("MainMenu/planet_grid_hex_2", layout.PlanetHex2).InBackground().Anim(5.7f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
                 PanelRel("MainMenu/planet_grid_hex_3", layout.PlanetHex3).InBackground().Anim(5.2f, 0.9f, 0.3f, 0.5f).Alpha().Loop(hexLoop);
             }
-            if (false && layout.ShowPlanetFlare)
-            {
-                PanelRel("MainMenu/planet_solarflare", layout.PlanetSolarFlare)
-                    .InBackAdditive() // behind 3d objects
-                    .Anim().Loop(4.0f, 1.5f, 1.5f).Color(Color.White.MultiplyRgb(0.85f), Color.White);
-            }
-
-            return;
-            PanelRel("MainMenu/corner_TL", layout.CornerTL).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
-            PanelRel("MainMenu/corner_BR", layout.CornerBR).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
         }
 
         void CreateVersionArea()
