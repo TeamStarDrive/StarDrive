@@ -27,6 +27,8 @@ namespace Ship_Game.UI
         [StarData] public readonly Vector4 Rect;
         [StarData] public readonly Vector2 Pos;
         [StarData] public readonly Vector2 Size;
+        [StarData] public readonly Vector2 Padding = new Vector2(5f, 5f);
+        [StarData] public readonly ListLayoutStyle ListLayout = ListLayoutStyle.Resize;
         /**
          * Sets the auto-layout axis of the UIElement. Default is Align.TopLeft
          * Changing the axis will change the position and rotation axis of the object.
@@ -36,10 +38,11 @@ namespace Ship_Game.UI
          * @example Align.Center will perfectly center to parent center
          */
         [StarData] public readonly Align AxisAlign; 
-        [StarData] public readonly Color Color = Color.White;
+        [StarData] public readonly Color? Color;
         [StarData] public readonly LocText Title;
         [StarData] public readonly LocText Tooltip;
         [StarData] public readonly AnimInfo Animation = null;
+        [StarData] public readonly bool DebugDraw;
         #pragma warning restore 649
 
         // these are initialized after parsing:

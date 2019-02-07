@@ -63,6 +63,10 @@ namespace Ship_Game
                     if (i == DebugDrawIndex)
                         batch.DrawRectangle(e.Rect, Color.Orange);
                 }
+
+                Color debugColor = Color.Red.Alpha(0.75f);
+                batch.DrawRectangle(Rect, debugColor);
+                batch.DrawString(Fonts.Arial12Bold, ToString(), Pos, debugColor);
             }
 
             if (ToolTip.Hotkey.IsEmpty())
@@ -325,7 +329,7 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public void StartTransition<T>(float distance, float direction, float time = 1f) where T : UIElementV2
+        public void StartTransition<T>(Vector2 distance, float direction, float time = 1f) where T : UIElementV2
         {
             var candidates = new Array<UIElementV2>();
             for (int i = 0; i < Elements.Count; ++i)
