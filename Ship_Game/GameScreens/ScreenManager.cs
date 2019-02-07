@@ -319,6 +319,7 @@ namespace Ship_Game
             public string File;
             public DateTime LastModified;
             public Action<FileInfo> OnModified;
+            public GameScreen Screen;
         }
         readonly Map<string, Hotloadable> HotLoadTargets = new Map<string, Hotloadable>();
 
@@ -342,6 +343,22 @@ namespace Ship_Game
             };
         }
 
+        // Adds a GameScreen as a HotLoad target
+        // @note HotLoad is removed when screen exits
+        // @note GameScreen.ReloadContent() is called when file is modified
+        public void AddHotLoadTarget(GameScreen screen, string key, string file)
+        {
+            HotLoadTargets[key] = new Hotloadable {
+                File = file,
+                LastModified = File.GetLastWriteTimeUtc(file), 
+                Screen = screen
+            };
+            screen.OnExit += () =>
+            {
+                HotLoadTargets.Remove(key);
+            };
+        }
+
         void PerformHotLoadTasks()
         {
             HotloadTimer += GameInstance.DeltaTime;
@@ -355,7 +372,8 @@ namespace Ship_Game
                 {
                     Log.Write(ConsoleColor.Magenta, $"HotLoading content: {info.Name}...");
                     hot.LastModified = info.LastWriteTimeUtc; // update
-                    hot.OnModified(info);
+                    hot.OnModified?.Invoke(info);
+                    hot.Screen?.ReloadContent();
                     return;
                 }
             }

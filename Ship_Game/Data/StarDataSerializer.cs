@@ -25,10 +25,22 @@ namespace Ship_Game.Data
         }
     }
 
+    // Note: This can be applied to classes, so StarData classes could have nested types
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class StarDataTypeAttribute : Attribute
+    {
+        public StarDataTypeAttribute()
+        {
+        }
+    }
+
+
     // This class has the ability to take parsed StarData tree
     // And turn it into usable game objects
     internal class StarDataSerializer : TypeConverter
     {
+
+
         class Info
         {
             readonly Type Type;
@@ -37,19 +49,13 @@ namespace Ship_Game.Data
             public readonly TypeConverter Converter;
             readonly Type ListType; // this is an Array<ListType>
 
-            public Info(Map<Type, TypeConverter> types, PropertyInfo prop, FieldInfo field)
+            public Info(Converters converters, PropertyInfo prop, FieldInfo field)
             {
                 Prop = prop;
                 Field = field;
                 Type = prop != null ? prop.PropertyType : field.FieldType;
-                ListType = GetListType(Type);
-                if (!types.TryGetValue(Type, out Converter))
-                {
-                    if (ListType != null) Converter = new StarDataSerializer(Type.GenericTypeArguments[0], types);
-                    else if (Type.IsEnum) Converter = new EnumConverter(Type);
-                    else throw new InvalidDataException($"Unsupported type {Type}!");
-                    types[Type] = Converter;
-                }
+                ListType = converters.GetListType(Type);
+                Converter = converters.Get(Type);
             }
 
             void Set(object instance, object value)
@@ -91,10 +97,10 @@ namespace Ship_Game.Data
         Info PrimaryInfo;
         readonly Type TheType;
 
-        public StarDataSerializer(Type type, Map<Type, TypeConverter> types = null)
+        public StarDataSerializer(Type type, Converters types = null)
         {
             TheType = type;
-            types = types ?? ConvertTo.CreateDefaultConverters();
+            types = types ?? new Converters();
 
             Type shouldSerialize = typeof(StarDataAttribute);
             PropertyInfo[] props = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -117,20 +123,6 @@ namespace Ship_Game.Data
                     AddMapping(p.Name, a, new Info(types, p, null));
                 }
             }
-        }
-
-        static Type GetListType(Type type)
-        {
-            //if (toType.IsArray) // @todo Figure out how to array append :|
-            //    converter = new SimpleSerializer(toType.GetElementType(), Types);
-            if (type.IsGenericType)
-            {
-                if (type.GetGenericTypeDefinition() == typeof(Array<>))
-                    return type.GenericTypeArguments[0];
-                if (type.GetInterfaces().Contains(typeof(IList)))
-                    return type.GenericTypeArguments[0];
-            }
-            return null;
         }
 
         void AddMapping(string name, StarDataAttribute a, Info info)

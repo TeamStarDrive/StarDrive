@@ -189,8 +189,6 @@ namespace Ship_Game
             Elements.Sort(ZOrderSorter);
         }
 
-        
-
         protected override int NextZOrder()
         {
             if (Elements.NotEmpty)
@@ -324,21 +322,6 @@ namespace Ship_Game
             list.LayoutStyle = ListLayoutStyle.Resize;
             return list;
         }
-
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-        
-        public UIBasicAnimEffect Anim() => AddEffect(new UIBasicAnimEffect(this));
-
-        /// <param name="delay">Start animation fadeIn/stay/fadeOut after seconds</param>
-        /// <param name="duration">Duration of fadeIn/stay/fadeOut</param>
-        /// <param name="fadeIn">Fade in time</param>
-        /// <param name="fadeOut">Fade out time</param>
-        public UIBasicAnimEffect Anim(
-            float delay, 
-            float duration = 1.0f, 
-            float fadeIn   = 0.25f, 
-            float fadeOut  = 0.25f) => Anim().Time(delay, duration, fadeIn, fadeOut);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
