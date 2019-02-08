@@ -123,7 +123,7 @@ namespace Ship_Game
                     ResourceManager.CreateTroop(troopType, EmpireManager.Remnants).AssignTroopToTile(SelectedPlanet);
             }
 
-            if (input.SpawnRemnantShip)
+            if (input.SpawnRemnant)
             {
                 if (EmpireManager.Remnants == null)
                     Log.Warning("Remnant faction missing!");

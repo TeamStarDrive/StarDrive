@@ -609,7 +609,18 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             bool selectedSomethingThisFrame = false;
-            assetsUI.HandleInput(input);  
+            assetsUI.HandleInput(input);
+            if (Empire.Universe?.Debug == true && input.SpawnRemnant)
+            {
+                if (EmpireManager.Remnants == null)
+                    Log.Warning("Remnant faction missing!");
+                else
+                {
+                    Troop troop = ResourceManager.CreateTroop("Wyvern", EmpireManager.Remnants);
+                    if (!troop.AssignTroopToTile(p))
+                        return false; // eek-eek
+                }
+            }
             if (ActiveTroop != null && tInfo.HandleInput(input))
             {
                 selectedSomethingThisFrame = true;
