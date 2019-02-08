@@ -247,13 +247,33 @@ Sun: star_binary
 # but there is still a gentle additive neutron blast
 Sun: star_neutron
   IconPath: Suns/neutron_blast.png
+  IconLayer: 2 # get rotation from glow flare
   LightIntensity: 1.4
   Radius: 150000
   LightColor: [225,235,255] # Blueish tint
   Habitable: false # this star is dangerous and leaves all planets barren
   RadiationDamage: 10 # per second, falls off depending on RadiationRadius
-  RadiationRadius: 60000
-  Layers: # background glow
+  RadiationRadius: 25000
+  Layers: # huge radiation layer
+    TexturePath: Suns/radiation_purple.png
+    BlendMode: Additive
+    TextureColor: [0.2,0.6,1.0,1.0] # blue tint
+    LayerScale: 0.8
+    RotationSpeed: 0.005
+    PulsePeriod: 10.0
+    PulseScale: [1.0,1.01]
+    PulseColor: [0.4,0.6]
+  Layers: # huge radiation layer
+    TexturePath: Suns/radiation_purple.png
+    BlendMode: Additive
+    TextureColor: [0.2,0.6,1.0,1.0] # blue tint
+    LayerScale: 0.8
+    RotationSpeed: -0.005
+    RotationStart: 1.57
+    PulsePeriod: 10.0
+    PulseScale: [1.0,1.02]
+    PulseColor: [0.4,0.6]
+  Layers: # background glow flare
     TexturePath: Suns/neutron_blast.png
     BlendMode: AlphaBlend
     RotationSpeed: 0.1
@@ -269,7 +289,7 @@ Sun: star_neutron
     LayerScale: 0.15
     PulsePeriod: 5.0
     PulseColor: [1.1,1.5]
-  Layers: # additive glow layer
+  Layers: # additive glow flare
     TexturePath: Suns/neutron_blast.png
     BlendMode: Additive
     RotationSpeed: 0.1
@@ -282,13 +302,32 @@ Sun: star_neutron
 # more intense neutron pulsar, with a massive beam
 Sun: star_pulsar
   IconPath: Suns/star_neutron2.png
-  IconLayer: 4 # Layer "neutron" beam
+  IconLayer: 6 # Layer "neutron" beam
   LightIntensity: 1.4
   Radius: 150000
   LightColor: [225,235,255] # Blueish tint
   Habitable: false # this star is dangerous and leaves all planets barren
   RadiationDamage: 10 # per second, falls off depending on RadiationRadius
-  RadiationRadius: 60000
+  RadiationRadius: 30000
+  Layers: # huge radiation layer
+    TexturePath: Suns/radiation_purple.png
+    BlendMode: Additive
+    TextureColor: [0.2,0.6,1.0,1.0] # blue tint
+    LayerScale: 0.8
+    RotationSpeed: 0.005
+    PulsePeriod: 10.0
+    PulseScale: [1.0,1.01]
+    PulseColor: [0.4,0.6]
+  Layers: # huge radiation layer
+    TexturePath: Suns/radiation_purple.png
+    BlendMode: Additive
+    TextureColor: [0.2,0.6,1.0,1.0] # blue tint
+    LayerScale: 0.8
+    RotationSpeed: -0.005
+    RotationStart: 1.57
+    PulsePeriod: 10.0
+    PulseScale: [1.0,1.02]
+    PulseColor: [0.4,0.6]
   Layers: # big outer disk
     TexturePath: Suns/x3.png
     BlendMode: AlphaBlend
@@ -343,14 +382,14 @@ Sun: star_pulsar
 # a black hole of epic proportions
 Sun: gargantua_black_hole
   IconPath: Suns/gargantua_icon.png
-  IconLayer: 0 # Layer "neutron" beam
+  IconLayer: 0 # rotation from layer 0
   IconScale: 5.0
   LightIntensity: 1.4
   Radius: 150000
   LightColor: [255,245,235] # Beige
   Habitable: false # this star is dangerous and leaves all planets barren
   RadiationDamage: 20 # per second, falls off depending on RadiationRadius
-  RadiationRadius: 60000
+  RadiationRadius: 40000
   Layers: # big outer disk
     TexturePath: Suns/x3.png
     BlendMode: AlphaBlend
@@ -367,6 +406,25 @@ Sun: gargantua_black_hole
     LayerScale: 0.25
     PulsePeriod: 2
     PulseColor: [0.9,1.0]
+  Layers: # huge radiation layer
+    TexturePath: Suns/radiation_purple.png
+    BlendMode: Additive
+    TextureColor: 0.4
+    LayerScale: 0.9
+    RotationSpeed: 0.005
+    PulsePeriod: 10.0
+    PulseScale: [1.0,1.01]
+    PulseColor: [0.8,1.0]
+  Layers: # huge radiation layer
+    TexturePath: Suns/radiation_purple.png
+    BlendMode: Additive
+    TextureColor: 0.4
+    LayerScale: 0.9
+    RotationSpeed: -0.005
+    RotationStart: 1.57
+    PulsePeriod: 10.0
+    PulseScale: [1.0,1.02]
+    PulseColor: [0.8,1.0]
   Layers: # rotating refraction effect
     TexturePath: Suns/gargantua_core.png
     BlendMode: Additive
