@@ -14,9 +14,6 @@ namespace Ship_Game.AI
         public CombatAI CombatAI = new CombatAI();
         public BatchRemovalCollection<Ship> PotentialTargets = new BatchRemovalCollection<Ship>();
         public Ship EscortTarget;
-        private bool AttackRunStarted;
-        private float AttackRunAngle;
-        private float RunTimer;
         private float ScanForThreatTimer;
         public Planet ExterminationTarget;
         public bool Intercepting { get; private set; }
@@ -27,7 +24,6 @@ namespace Ship_Game.AI
         public Array<Projectile> TrackProjectiles = new Array<Projectile>();
         public Guid EscortTargetGuid;
         public GameplayObject Target;
-        private Vector2 AttackVector = Vector2.Zero;
         public Array<Ship> TargetQueue = new Array<Ship>();
         public bool HasPriorityTarget;
         private float TriggerDelay;
@@ -47,7 +43,6 @@ namespace Ship_Game.AI
             if (BadGuysNear) // Determine if there is something to shoot at
             {
                 RefreshTarget();
-                
 
                 for (int i = 0; i < Owner.Weapons.Count; i++)
                 {

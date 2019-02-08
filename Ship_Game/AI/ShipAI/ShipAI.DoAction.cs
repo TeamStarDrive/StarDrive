@@ -116,65 +116,80 @@ namespace Ship_Game.AI
 
         void DrawDebugTarget(Vector2 pip, float radius)
         {
-            if (DebugInfoScreen.Mode == DebugModes.Targeting && Empire.Universe?.DebugWin?.IgnoreThisShip(Owner) == true)
+            if (DebugInfoScreen.Mode == DebugModes.Targeting)
             {
-                Empire.Universe.DebugWin.DrawCircle(DebugModes.Targeting, pip, radius, Owner.loyalty.EmpireColor, 0.033f);
-                Empire.Universe.DebugWin.DrawLine(DebugModes.Targeting, Target.Center, pip, 1f, Owner.loyalty.EmpireColor, 0.033f);
+                Empire.Universe.DebugWin.DrawCircle(DebugModes.Targeting, pip, radius, Owner.loyalty.EmpireColor, 0f);
+                Empire.Universe.DebugWin.DrawLine(DebugModes.Targeting, Target.Center, pip, 1f, Owner.loyalty.EmpireColor, 0f);
             }
         }
 
+        // direction offset from target ship, so our attack runs go over the side of the enemy ship
+        Vector2 AttackRunQuadrant = Vectors.Right;
+        Vector2 AttackRunDisengage;
+        bool Disengaging;
+        float DisengageTimer;
 
+        // CombatState.AttackRuns: fighters / corvettes / frigates performing attack run to target
+        // @note We are guaranteed to be within 2~3x maxWeaponsRange by DoCombat
         void DoAttackRun(float elapsedTime)
         {
-            float spacerdistance = Owner.Radius + Target.Radius;
-            float adjustedWeaponRange = Owner.maxWeaponsRange * 0.35f;
-            if (spacerdistance > adjustedWeaponRange)
-                spacerdistance = adjustedWeaponRange;
+            if (Owner.IsPlatformOrStation) // platforms can't do attack runs
+                return;
 
-            Vector2 interceptPoint = Owner.PredictImpact(Target);
-            float distanceToTarget = Owner.Center.Distance(interceptPoint);
+            float spacerDistance = Owner.Radius + Target.Radius;
+            float adjustedWeaponRange = Owner.maxWeaponsRange * 0.8f;
+            if (spacerDistance > adjustedWeaponRange)
+                spacerDistance = adjustedWeaponRange;
 
-            if (distanceToTarget > Owner.maxWeaponsRange * 2f) //spacerdistance && distanceToTarget > adjustedWeaponRange)
+            float distanceToTarget = Owner.Center.Distance(Target.Center);
+
+            if (Disengaging)
             {
-                RunTimer = 0f;
-                AttackRunStarted = false;
-
-                if (distanceToTarget > 7500)
+                if (distanceToTarget > Owner.maxWeaponsRange)
                 {
-                    ThrustOrWarpToPosNoCorrections(interceptPoint, elapsedTime);
-                    return;
+                    Disengaging = false;
+                    // and pick new attack quadrant on enemy ship:
+                    switch (RandomMath.InRange(2))
+                    {
+                        default:
+                        case 0: AttackRunQuadrant = Vectors.Left;  break;
+                        case 1: AttackRunQuadrant = Vectors.Right; break;
+                    }
                 }
-                Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
-                SubLightMoveInDirection(direction, elapsedTime);
-                DrawDebugTarget(interceptPoint, spacerdistance);
+                // constantly accelerate toward disengage pos:
+                Vector2 disengage = Owner.Center.DirectionToTarget(AttackRunDisengage);
+                SubLightContinuousMoveInDirection(disengage, elapsedTime, Owner.Speed);
+                DrawDebugTarget(AttackRunDisengage, Owner.Radius);
                 return;
             }
-            RunTimer -= elapsedTime;
-            AttackRunStarted |= RunTimer < 0;
-            if (AttackRunStarted)
+
+            Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, Target.Center, spacerDistance, Owner.loyalty.EmpireColor, 0f);
+
+            Vector2 localQuadrant = Target.Direction.RotateDirection(AttackRunQuadrant);
+            Vector2 attackPos = Target.Position + localQuadrant*Target.Radius;
+
+            // we are really close to attackPos?
+            float distanceToAttack = Owner.Center.Distance(attackPos);
+            if (distanceToAttack <= Owner.Radius)
             {
-                if (distanceToTarget > spacerdistance)
-                {
-                    Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
-                    SubLightMoveInDirection(direction, elapsedTime);
-                    DrawDebugTarget(interceptPoint, Owner.Radius);
-                    return;
-                }
-                AttackRunStarted = false;
-                int ran = RandomMath.IntBetween(0, 1);
-                ran = ran == 1 ? 1 : -1;
-                AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();
-                RunTimer = 20;
+                Disengaging = true;
+
+                // pick a new disengage position to make some distance for another run
+                Vector2 disengageDir = (Owner.Rotation + RandomMath.RandomBetween(-1f, +1f)).RadiansToDirection();
+                AttackRunDisengage = Owner.Center + disengageDir * Owner.maxWeaponsRange;
             }
-            if (distanceToTarget < Owner.maxWeaponsRange)
+            else if (distanceToAttack < 500f)
             {
-                Vector2 strafeVector    = Target.FindStrafeVectorFromTarget(Owner.maxWeaponsRange, Vectors.Down);
-                AttackVector            = strafeVector.PointFromAngle(AttackRunAngle, spacerdistance);
-                Vector2 attackDirection = Owner.Center.DirectionToTarget(AttackVector);
-                SubLightMoveInDirection(attackDirection, elapsedTime);
-                return;
+                // stop applying thrust when we get really close, and focus on aiming at Target.Center:
+                RotateTowardsPosition(Target.Center, elapsedTime, 0.05f);
+                DrawDebugTarget(Target.Center, Owner.Radius);
             }
-            RunTimer = 0;
+            else
+            {
+                // fly towards the offset attack position
+                SubLightMoveTowardsPosition(attackPos, elapsedTime, Owner.Speed*0.75f, predictPos: true, autoSlowDown: false);
+                DrawDebugTarget(attackPos, Owner.Radius);
+            }
         }
 
         void DoBoardShip(float elapsedTime)
@@ -264,7 +279,7 @@ namespace Ship_Game.AI
                 return;
             }
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
-                && Owner.Center.OutsideRadius(Target.Center, Owner.maxWeaponsRange))
+                && Owner.Center.OutsideRadius(Target.Center, Owner.maxWeaponsRange*3f))
             {
                 ThrustOrWarpToPosCorrected(Target.Center, elapsedTime);
                 return;
@@ -533,7 +548,7 @@ namespace Ship_Game.AI
                 if (distanceToTarget > 7500f)
                     ThrustOrWarpToPosNoCorrections(predictedImpact, elapsedTime);
                 else
-                    SubLightMoveInDirection(wantedDirection, elapsedTime);
+                    SubLightContinuousMoveInDirection(wantedDirection, elapsedTime);
             }
             else
             {
@@ -628,7 +643,7 @@ namespace Ship_Game.AI
             if (distance < (1500f + orbitTarget.ObjectRadius))
             {
                 Vector2 direction = Owner.Center.DirectionToTarget(OrbitPos);
-                SubLightMoveInDirection(direction, elapsedTime, precisionSpeed);
+                SubLightContinuousMoveInDirection(direction, elapsedTime, precisionSpeed);
                 if (State != AIState.Bombard)
                     HasPriorityOrder = false;
             }
