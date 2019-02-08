@@ -246,7 +246,7 @@ namespace Ship_Game.Universe.SolarBodies
                         {
                             for (int i = 0; i < TroopsHere.Count; i++)
                             {
-                                if (TroopsHere[i].GetOwner() == EmpireManager.Cordrazine && TroopsHere[i].TargetType == TargetType.Soft)
+                                if (TroopsHere[i].Loyalty == EmpireManager.Cordrazine && TroopsHere[i].TargetType == TargetType.Soft)
                                 {
                                     StarDriveGame.Instance.SetSteamAchievement("Owlwoks_Freed");                                   
                                     TroopsHere[i].SetOwner(bomb.Owner);
@@ -348,7 +348,7 @@ namespace Ship_Game.Universe.SolarBodies
             using (TroopsHere.AcquireWriteLock())
             {
                 if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty
-                    || TroopsHere.Any(troop => troop.GetOwner() != Owner))
+                    || TroopsHere.Any(troop => troop.Loyalty != Owner))
                     return;
                 foreach (var pgs in TilesList)
                 {
@@ -356,7 +356,7 @@ namespace Ship_Game.Universe.SolarBodies
                         break;
 
                     using (pgs.TroopsHere.AcquireWriteLock())
-                        if (pgs.TroopsHere.Count > 0 && pgs.SingleTroop.GetOwner() == Owner)
+                        if (pgs.TroopsHere.Count > 0 && pgs.SingleTroop.Loyalty == Owner)
                         {
                             Troop troop = pgs.SingleTroop;
                             ship.TroopList.Add(troop);

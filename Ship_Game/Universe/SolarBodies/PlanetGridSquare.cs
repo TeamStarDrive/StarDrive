@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-	public sealed class PlanetGridSquare
+	public sealed class PlanetGridSquare // Refactored by Fat Bastard, Feb 6, 2019
 	{
 		public int x;
 		public int y;
@@ -87,13 +87,13 @@ namespace Ship_Game
 
         public bool BuildingPerformesAutoCombat(Planet p)
         {
-            return building?.CanAttackThisTurn == true
+            return building?.CanAttack == true
                 && PerformeAutoCombat(p);
         }
 
 	    public bool HostilesTargetsOnTile(Empire us, Empire planetOwner)
 	    {
-	        return (TroopsAreOnTile && SingleTroop.GetOwner() != us) ||
+	        return (TroopsAreOnTile && SingleTroop.Loyalty != us) || EventOnTile || 
 	               (CombatBuildingOnTile && planetOwner != us);  // also event ID needed
 	    }
 

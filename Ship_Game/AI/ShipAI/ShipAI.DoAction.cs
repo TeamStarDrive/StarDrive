@@ -753,7 +753,7 @@ namespace Ship_Game.AI
             {
                 if (Owner.TroopList[i] == null)
                     continue;
-                if (Owner.TroopList[i].GetOwner() == Owner.loyalty)
+                if (Owner.TroopList[i].Loyalty == Owner.loyalty)
                 {
                     ship.Ship.TroopList.Add(Owner.TroopList[i]);
                     Owner.TroopList.Remove(Owner.TroopList[i]);

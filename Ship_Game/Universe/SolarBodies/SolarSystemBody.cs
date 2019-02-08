@@ -438,7 +438,7 @@ namespace Ship_Game
 
             foreach (var kv in OrbitalStations)
             {
-                if (kv.Value.loyalty != newOwner && kv.Value.TroopList.Any(loyalty => loyalty.GetOwner() != newOwner))
+                if (kv.Value.loyalty != newOwner && kv.Value.TroopList.Any(loyalty => loyalty.Loyalty != newOwner))
                     continue;
                 kv.Value.ChangeLoyalty(newOwner);             
                 Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");

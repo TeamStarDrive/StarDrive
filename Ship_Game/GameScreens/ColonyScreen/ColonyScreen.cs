@@ -740,7 +740,7 @@ namespace Ship_Game
                                          (1 + rect.Y + 5 + rect.Height / 2 - font.LineSpacing / 2));
 
             ScreenManager.SpriteBatch.FillRectangle(levelRect, new Color(0, 0, 0, 200));
-            ScreenManager.SpriteBatch.DrawRectangle(levelRect, troop.GetOwner().EmpireColor);
+            ScreenManager.SpriteBatch.DrawRectangle(levelRect, troop.Loyalty.EmpireColor);
             ScreenManager.SpriteBatch.DrawString(font, troop.Level.ToString(), pos, Color.Gold);
         }
 
@@ -945,7 +945,7 @@ namespace Ship_Game
                     continue;
 
                 DetailInfo = pgs.SingleTroop;
-                if (input.RightMouseClick && pgs.SingleTroop.GetOwner() == EmpireManager.Player)
+                if (input.RightMouseClick && pgs.SingleTroop.Loyalty == EmpireManager.Player)
                 {
                     GameAudio.TroopTakeOff();
                     Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.SingleTroop);
@@ -1156,7 +1156,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.GetOwner() != EmpireManager.Player)
+                if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != EmpireManager.Player)
                     continue;
 
                 play = true;

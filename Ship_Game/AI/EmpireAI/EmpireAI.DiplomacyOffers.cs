@@ -307,7 +307,7 @@ namespace Ship_Game.AI
                     }
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.GetOwner() != OwnerEmpire)
+                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != OwnerEmpire)
                         {
                             continue;
                         }
@@ -371,7 +371,7 @@ namespace Ship_Game.AI
                     }
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.GetOwner() != Them)
+                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != Them)
                             continue;
                         pgs.SingleTroop.SetPlanet(p);
                         TroopShips.Add(pgs.SingleTroop.Launch());
@@ -674,7 +674,7 @@ namespace Ship_Game.AI
                     }
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.GetOwner() != OwnerEmpire)
+                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != OwnerEmpire)
                         {
                             continue;
                         }
@@ -732,7 +732,7 @@ namespace Ship_Game.AI
                     }
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.GetOwner() != Them)
+                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != Them)
                             continue;
                         TroopShips.Add(pgs.SingleTroop.Launch());
                     }
