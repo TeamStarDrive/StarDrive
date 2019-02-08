@@ -240,10 +240,19 @@ namespace Ship_Game
         {
             return new Vector2((float)Sin(radians), -(float)Cos(radians));
         }
+
         // Converts rotation radians into a 3D direction vector, with Z = 0
         public static Vector3 RadiansToDirection3D(this float radians)
         {
             return new Vector3((float)Sin(radians), -(float)Cos(radians), 0f);
+        }
+
+        // Rotates an existing direction vector by another direction vector
+        // For this we convert to radians, yielding:
+        // newAngle = angle1 + angle2
+        public static Vector2 RotateDirection(this Vector2 direction, Vector2 relativeDirection)
+        {
+            return (direction.ToRadians() + relativeDirection.ToRadians()).RadiansToDirection();
         }
 
         // Converts an angle value to a 2D direction vector
