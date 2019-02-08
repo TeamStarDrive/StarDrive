@@ -1,0 +1,111 @@
+﻿# StarDrive - MainMenu UI layout
+# Created 2018.02.06 by RedFox
+#
+# You can add or remove elements here while the game is running
+# to view changes in real time.
+# Some ID-s have hardcoded default behaviours like the buttons
+#
+Screen: main_menu
+  # virtual size sets up the entire screen coordinate system
+  # these coordinates will be translated into actual screen coordinates automatically
+  # even if the game is running at 2560x1440 or 1280x720, all coordinates in this file
+  # are defined by this. Different aspect ratios get automatically repositioned.
+  VirtualSize: [1920,1080]
+  
+Panel: background
+  Texture: MMenu/new_background.png # Textures/MainMenu/xxxx.png
+  Color: [1.0,1.0,1.0] # default color
+  # [x, y, w, h] these are relative coordinates
+  # 
+  # Examples:
+  #   x: 0.5 means X is at center of parent
+  #   x: 1.0 means X is at right edge of parent
+  #   w: 1.0 means fill the parent
+  #   w: 0.5 means half size 
+  #   h: 0.0 means auto-detect height from texture aspect ratio OR set to w if no texture
+  #   w: 0 h: 0 means auto-detect width and height from texture size
+  # 
+  # [0,0,1,1] -- this will aspect fill the entire screen
+  Rect: [0.0, 0.0, 1.0, 0.0]
+  # Draw depth controls when the UI element is being drawn:
+  # Foreground   -- draw 2D on top of 3D objects -- default value
+  # Background   -- draw 2D behind 3D objects
+  # ForeAdditive -- Foreground + Additive alpha blend
+  # BackAdditive -- Background + Additive alpha blend
+  DrawDepth: Background
+  # Align our Pos and Axis to TopLeft (default)
+  # Possible Values: TopLeft, TopCenter, TopRight, CenterLeft, Center, 
+  #                  CenterRight, BottomLeft, BottomCenter, BottomRight
+  # Examples: Center will perfectly center to parent
+  #           BottomLeft will completely align to bottom left corner
+  AxisAlign: TopLeft
+
+Panel: planet
+  Texture: MMenu/new_planet.png
+  Size: [1, 0] # fill to width, auto-pick height
+  AxisAlign: BottomLeft # Align our Pos and Axis to BottomLeft
+  DrawDepth: Background
+
+Panel: planet_flare
+  Texture: MMenu/new_flare.png
+  Pos: [0, -0.72]
+  AxisAlign: Center
+  DrawDepth: BackAdditive
+  # Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
+  Animation: [0, 8, 8, 1.25, 1.25]
+    MinColor: [0.85,0.85,0.85,1.0] # vary the color from min
+    MaxColor: [1.0,1.0,1.0,1.0]    # to max
+
+Panel: optical_sun_flare
+  Texture: MMenu/optical_flare.png
+  Size: [1, 0]
+  Visible: true
+  Pos: [0.01, 0.02]
+  AxisAlign: Center
+  DrawDepth: BackAdditive
+  # Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
+  Animation: [0, 8, 8, 1.25, 1.25]
+    #Pattern: Sine
+    MinColor: [0.6,0.6,0.6,1.0] # vary the color from min
+    MaxColor: [1.0,1.0,1.0,1.0]    # to max
+
+
+Panel: vignette
+  Texture: MainMenu/vignette
+  Rect: [0, 0, 1, 1] # fill entire Screen
+  DrawDepth: Foreground # on top of everything
+
+#PanelRel("MainMenu/corner_TL", layout.CornerTL).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
+#PanelRel("MainMenu/corner_BR", layout.CornerBR).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
+
+Panel: corner_TL
+  Texture: MMenu/corner_TL2.png
+  Rect: [16, 16, 0.2, 0]
+  # Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
+  Animation: [2, 6, 8, 1, 1]
+    Alpha: [0.5, 1.0]
+    Pattern: Sine
+
+Panel: corner_BR
+  Texture: MMenu/corner_BR2.png
+  Rect: [-16, -16, 0, 0]
+  AxisAlign: BottomRight
+  # Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
+  Animation: [2, 6, 8, 1, 1]
+    Alpha: [0.5, 1.0]
+    Pattern: Sine
+  
+Panel: moon_flare # this element is automatically placed
+  Texture: MMenu/moon_flare.png
+  DrawDepth: ForeAdditive # on top of 3D objects
+
+List: buttons
+  Rect: [0, 0.3, 170, 600]
+  AxisAlign: Center
+  Padding: [5,15]
+  # Fill -- fill to width of the list
+  # Clip -- clip elements to width of the list
+  # Resize -- auto resize list itself
+  ListLayout: Resize
+
+

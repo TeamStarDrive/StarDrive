@@ -22,7 +22,7 @@ namespace Ship_Game
 
     public enum DrawDepth
     {
-        Foreground, // draw 2D on top of 3D objects -- default behaviour
+        Foreground, // draw 2D on top of 3D objects -- default value
         Background, // draw 2D behind 3D objects
         ForeAdditive, // Foreground + Additive alpha blend
         BackAdditive, // Background + Additive alpha blend
@@ -36,6 +36,7 @@ namespace Ship_Game
     public abstract class UIElementV2 : IInputHandler
     {
         public UIElementV2 Parent;
+        public string Name = string.Empty;
 
         public Vector2 Pos;    // absolute position in the UI
         public Vector2 Size;   // absolute size in the UI
@@ -83,7 +84,7 @@ namespace Ship_Game
         public float CenterX => Pos.X + Size.X*0.5f;
         public float CenterY => Pos.Y + Size.Y*0.5f;
 
-        public string ElementDescr => $"{{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
+        public string ElementDescr => $"{Name} {{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
 
         public override string ToString() => $"Element {ElementDescr}";
 
@@ -233,6 +234,10 @@ namespace Ship_Game
                 container.Remove(this);
         }
 
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+
+            
         public T AddEffect<T>(T effect) where T : UIEffect
         {
             Log.Assert(effect != null, "UIEffect cannot be null");
@@ -256,6 +261,22 @@ namespace Ship_Game
             if (Effects.Count == 0)
                 Effects = null;
         }
+        
+        public UIBasicAnimEffect Anim() => AddEffect(new UIBasicAnimEffect(this));
+
+        /// <param name="delay">Start animation fadeIn/stay/fadeOut after seconds</param>
+        /// <param name="duration">Duration of fadeIn/stay/fadeOut</param>
+        /// <param name="fadeIn">Fade in time</param>
+        /// <param name="fadeOut">Fade out time</param>
+        public UIBasicAnimEffect Anim(
+            float delay, 
+            float duration = 1.0f, 
+            float fadeIn   = 0.25f, 
+            float fadeOut  = 0.25f) => Anim().Time(delay, duration, fadeIn, fadeOut);
+
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         public virtual void PerformLayout()
         {
