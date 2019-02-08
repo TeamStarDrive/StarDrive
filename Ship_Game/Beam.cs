@@ -297,7 +297,7 @@ namespace Ship_Game
 
             BeamCollidedThisFrame = false;
 
-            if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation, skipRangeCheck: true))
+            if (!Owner.IsInsideFiringArc(Weapon, Destination))
             {
                 if (ship != null)
                     Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, Destination, ship.Radius, Color.Yellow);
