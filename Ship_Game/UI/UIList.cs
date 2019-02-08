@@ -69,7 +69,7 @@ namespace Ship_Game
         {
         }
 
-        public UIList(in Rectangle rect, Color color) : base(null, in rect, color)
+        public UIList(in Rectangle rect, Color color) : base(null, rect, color)
         {
         }
 

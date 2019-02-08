@@ -75,7 +75,7 @@ namespace Ship_Game
         public int SwampHab  = 67;
         public int TerranHab = 75;
         
-        public MainMenuScreen.MainMenuLayout Layout = new MainMenuScreen.MainMenuLayout();
+        public MainMenuLayout Layout = new MainMenuLayout();
 
         public int ChanceForCategory(PlanetCategory category)
         {
