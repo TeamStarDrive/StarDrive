@@ -162,7 +162,8 @@ namespace Ship_Game.Gameplay
         public GameplayObject FireTarget { get; private set; }
         private float TargetChangeTimer;
         public bool UseVisibleMesh;
-        public bool PlaySoundOncePerSalvo;
+        public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
+        public int SalvoSoundInterval = 1; // play sound effect every N salvos
         public int SalvoCount = 1;
         public float SalvoTimer;
         [XmlIgnore][JsonIgnore]
@@ -188,6 +189,8 @@ namespace Ship_Game.Gameplay
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
             fireDelay = Math.Max(0.016f, fireDelay);
             SalvoTimer = Math.Max(0, SalvoTimer);
+            if (PlaySoundOncePerSalvo) // @note Backwards compatibility
+                SalvoSoundInterval = 9999;
             if (Tag_Missile)
             {
                 if (WeaponType.IsEmpty()) WeaponType = "Missile";
@@ -254,7 +257,6 @@ namespace Ship_Game.Gameplay
                 return;
 
             AudioEmitter soundEmitter = Owner?.PlayerShip == true ? null : (emitter ?? Owner?.SoundEmitter);
-
             GameAudio.PlaySfxAsync(fireCueName, soundEmitter);
             ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);
         }
@@ -273,7 +275,7 @@ namespace Ship_Game.Gameplay
             return (direction.ToDegrees() + spread).AngleToDirection();
         }
 
-        private struct FireSource
+        struct FireSource
         {
             public readonly Vector2 Origin;
             public readonly Vector2 Direction;
@@ -284,7 +286,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private IEnumerable<FireSource> EnumFireSources(Vector2 origin, Vector2 direction)
+        IEnumerable<FireSource> EnumFireSources(Vector2 origin, Vector2 direction)
         {
             if (FireArc != 0)
             {
@@ -306,7 +308,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private void SpawnSalvo(Vector2 direction, GameplayObject target)
+        void SpawnSalvo(Vector2 direction, GameplayObject target, bool playSound)
         {
             bool secondary = SecondaryFire != null && AltFireTriggerFighter && AltFireMode
                 && target is ShipModule shipModule && shipModule.GetParent().shipData.Role == ShipData.RoleName.fighter;
@@ -316,16 +318,15 @@ namespace Ship_Game.Gameplay
 
             Weapon  weapon = secondary ? AltFireWeapon : this;
             Vector2 origin = Origin;
-            bool playSound = true;
 
             foreach (FireSource fireSource in EnumFireSources(origin, direction))
             {
                 Projectile.Create(weapon, fireSource.Origin, fireSource.Direction, target, playSound);
-                if (PlaySoundOncePerSalvo) playSound = false;
+                playSound = false; // only play sound once per fire cone
             }
         }
 
-        private bool CanFireWeapon()
+        bool CanFireWeapon()
         {
             return Module.Active
                 && Owner.engineState  != Ship.MoveState.Warp
@@ -333,7 +334,7 @@ namespace Ship_Game.Gameplay
                 && Owner.Ordinance    >= OrdinanceRequiredToFire;
         }
 
-        private bool PrepareToFire()
+        bool PrepareToFire()
         {
             if (CooldownTimer > 0f || !CanFireWeapon())
                 return false;
@@ -348,7 +349,7 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        private bool PrepareToFireSalvo()
+        bool PrepareToFireSalvo()
         {
             float timeBetweenShots = SalvoTimer / SalvoCount;
             if (SalvoFireTimer < timeBetweenShots || !CanFireWeapon())
@@ -363,10 +364,12 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        private void ContinueSalvo()
+        void ContinueSalvo()
         {
             if (SalvoTarget != null && !Owner.CheckRangeToTarget(this, SalvoTarget))
                 return;
+
+            int salvoIndex = SalvoCount - SalvosToFire;
             if (!PrepareToFireSalvo())
                 return;
 
@@ -377,10 +380,11 @@ namespace Ship_Game.Gameplay
                     SalvoDirection = (firePos - Module.Center).ToRadians() - Owner.Rotation;
             }
 
-            SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget);
+            bool playSound = salvoIndex % SalvoSoundInterval == 0;
+            SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget, playSound);
         }
 
-        private bool PrepareFirePos(GameplayObject target, Vector2 targetPos, out Vector2 firePos)
+        bool PrepareFirePos(GameplayObject target, Vector2 targetPos, out Vector2 firePos)
         {
             if (target != null)
             {
@@ -406,7 +410,7 @@ namespace Ship_Game.Gameplay
 
             Vector2 direction = Origin.DirectionToTarget(firePos);
 
-            SpawnSalvo(direction, target);
+            SpawnSalvo(direction, target, playSound:true);
 
             if (SalvoCount > 1)  // queue the rest of the salvo to follow later
             {
@@ -457,20 +461,21 @@ namespace Ship_Game.Gameplay
             return RandomMath2.Vector2D(adjust);
         }
 
-        private float CalculateBaseAccuracy()
+        float CalculateBaseAccuracy()
         {
-             float adjust =(Module?.AccuracyPercent ?? 0);
-            if (adjust == -1)
+            float accuracy = (Module?.AccuracyPercent ?? 0f);
+            if (accuracy.AlmostEqual(-1f))
             {
-                adjust = 1;
-                if (isTurret) adjust *= .5f;
-                if (Tag_PD) adjust   *= .5f;
-                if (TruePD) adjust   *= .5f;
-                //if (isBeam) adjust *= 2f;
+                accuracy = 1f;
+                if (isTurret) accuracy *= 0.5f;
+                if (Tag_PD)   accuracy *= 0.5f;
+                if (TruePD)   accuracy *= 0.5f;
             }
             else
-                adjust = 1 - adjust;
-            return adjust;
+            {
+                accuracy = 1f - accuracy;
+            }
+            return accuracy;
         }
 
         static Vector2 SetDestination(Vector2 target, Vector2 source, float range)
@@ -514,7 +519,7 @@ namespace Ship_Game.Gameplay
                 PickShipTarget(prevTarget, enemyShips);
         }
 
-        private bool CanTargetWeapon(GameplayObject prevTarget)
+        bool CanTargetWeapon(GameplayObject prevTarget)
         {
             // Reasons for this weapon not to fire
             if (TargetChangeTimer > 0f
@@ -530,9 +535,9 @@ namespace Ship_Game.Gameplay
 
             // check if weapon target as a gameplay object is still a valid target
             // and if the weapon can still fire on main target.
-            if (FireTarget != null && !Owner.CheckIfInsideFireArc(this, FireTarget)
+            if (FireTarget != null && !Owner.IsTargetInFireArcRange(this, FireTarget)
                 || prevTarget != null && SalvoTimer <= 0f && BeamDuration <= 0f
-                && projTarget == null && Owner.CheckIfInsideFireArc(this, prevTarget)
+                && projTarget == null && Owner.IsTargetInFireArcRange(this, prevTarget)
             )
             {
                 TargetChangeTimer = 0.1f * Module.XSIZE * Module.YSIZE;
@@ -546,7 +551,7 @@ namespace Ship_Game.Gameplay
             return FireTarget != null || TargetChangeTimer <= 0f;
         }
 
-        private bool PickProjectileTarget(Array<Projectile> enemyProjectiles)
+        bool PickProjectileTarget(Array<Projectile> enemyProjectiles)
         {
             if (enemyProjectiles.NotEmpty && Tag_PD)
             {
@@ -554,23 +559,25 @@ namespace Ship_Game.Gameplay
                 for (int i = 0; i < maxTrackable && i < enemyProjectiles.Count; i++)
                 {
                     Projectile proj = enemyProjectiles[i];
-                    if (proj == null || !proj.Active || proj.Health <= 0f ||
-                        !proj.Weapon.Tag_Intercept || !Owner.CheckIfInsideFireArc(this, proj))
-                        continue;
-                    FireTarget = proj;
-                    return true;
+                    if (proj?.Active == true && proj.Health > 0f
+                        && proj.Weapon.Tag_Intercept // projectile is interceptable?
+                        && Owner.IsTargetInFireArcRange(this, proj))
+                    {
+                        FireTarget = proj;
+                        return true;
+                    }
                 }
             }
             return false;
         }
 
-        private void PickShipTarget(GameplayObject prevTarget, Array<Ship> potentialTargets)
+        void PickShipTarget(GameplayObject prevTarget, Array<Ship> potentialTargets)
         {
             if (potentialTargets.IsEmpty || TruePD) // true PD weapons can't target ships
                 return;
 
             // Is prev target still valid?
-            if (Owner.CheckIfInsideFireArc(this, prevTarget))
+            if (Owner.IsTargetInFireArcRange(this, prevTarget))
             {
                 FireTarget = prevTarget; // then continue using primary target
             }
@@ -586,10 +593,11 @@ namespace Ship_Game.Gameplay
                         tracking++;
                         continue;
                     }
-                    if (!Owner.CheckIfInsideFireArc(this, potentialTarget))
-                        continue;
-                    FireTarget = potentialTarget;
-                    break;
+                    if (Owner.IsShipInFireArcRange(this, potentialTarget))
+                    {
+                        FireTarget = potentialTarget;
+                        break;
+                    }
                 }
             }
 
@@ -601,11 +609,11 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private bool CheckFireArc(Vector2 targetPos, GameplayObject maybeTarget = null)
+        bool CheckFireArc(Vector2 targetPos, GameplayObject maybeTarget = null)
         {
             return maybeTarget != null
-                ? Owner.CheckIfInsideFireArc(this, maybeTarget)
-                : Owner.CheckIfInsideFireArc(this, targetPos);
+                ? Owner.IsTargetInFireArcRange(this, maybeTarget)
+                : Owner.IsInsideFiringArc(this, targetPos);
         }
         public Vector2 ProjectedBeamPoint(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
@@ -627,7 +635,7 @@ namespace Ship_Game.Gameplay
         bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
         {
             destination = ProjectedBeamPoint(source, destination, target);
-            if (!CheckFireArc(destination) || !PrepareToFire())
+            if (!Owner.IsInsideFiringArc(this, destination) || !PrepareToFire())
                 return false;
 
             var beam = new Beam(this, source, destination, target, followMouse);
@@ -690,15 +698,17 @@ namespace Ship_Game.Gameplay
             else        FireAtTarget(FireTarget.Center, FireTarget);
         }
 
-        private void FireAtAssignedTargetNonVisible(Ship targetShip)
+        void FireAtAssignedTargetNonVisible(Ship targetShip)
         {
             if (!CanFireWeapon())
                 return;
             CooldownTimer = fireDelay;
             if (IsRepairDrone)
                 return;
-            if (targetShip == null || !targetShip.Active || targetShip.dying //|| !TargetValid(targetShip.shipData.HullRole)
-                || targetShip.engineState == Ship.MoveState.Warp || !Owner.CheckIfInsideFireArc(this, targetShip))
+            if (targetShip?.Active != true
+                || targetShip.dying
+                || targetShip.engineState == Ship.MoveState.Warp
+                || !Owner.IsShipInFireArcRange(this, targetShip))
                 return;
 
             Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
@@ -744,31 +754,31 @@ namespace Ship_Game.Gameplay
             float actualshieldpenchance = 0;
 
             if (Tag_Missile)   AddModifiers("Missile", projectile, ref actualshieldpenchance);
-            if (Tag_Energy)    AddModifiers("Energy", projectile, ref actualshieldpenchance);
+            if (Tag_Energy)    AddModifiers("Energy",  projectile, ref actualshieldpenchance);
             if (Tag_Torpedo)   AddModifiers("Torpedo", projectile, ref actualshieldpenchance);
             if (Tag_Kinetic)   AddModifiers("Kinetic", projectile, ref actualshieldpenchance);
-            if (Tag_Hybrid)    AddModifiers("Hybrid", projectile, ref actualshieldpenchance);
+            if (Tag_Hybrid)    AddModifiers("Hybrid",  projectile, ref actualshieldpenchance);
             if (Tag_Railgun)   AddModifiers("Railgun", projectile, ref actualshieldpenchance);
             if (Tag_Explosive) AddModifiers("Explosive", projectile, ref actualshieldpenchance);
-            if (Tag_Guided)    AddModifiers("Guided", projectile, ref actualshieldpenchance);
+            if (Tag_Guided)    AddModifiers("Guided",    projectile, ref actualshieldpenchance);
             if (Tag_Intercept) AddModifiers("Intercept", projectile, ref actualshieldpenchance);
-            if (Tag_PD)        AddModifiers("PD", projectile, ref actualshieldpenchance);
+            if (Tag_PD)        AddModifiers("PD",        projectile, ref actualshieldpenchance);
             if (Tag_SpaceBomb) AddModifiers("Spacebomb", projectile, ref actualshieldpenchance);
             if (Tag_BioWeapon) AddModifiers("BioWeapon", projectile, ref actualshieldpenchance);
-            if (Tag_Drone)     AddModifiers("Drone", projectile, ref actualshieldpenchance);
-            if (Tag_Subspace)  AddModifiers("Subspace", projectile, ref actualshieldpenchance);
-            if (Tag_Warp)      AddModifiers("Warp", projectile, ref actualshieldpenchance);
-            if (Tag_Cannon)    AddModifiers("Cannon", projectile, ref actualshieldpenchance);
-            if (Tag_Beam)      AddModifiers("Beam", projectile, ref actualshieldpenchance);
-            if (Tag_Bomb)      AddModifiers("Bomb", projectile, ref actualshieldpenchance);
-            if (Tag_Array)     AddModifiers("Array", projectile, ref actualshieldpenchance);
-            if (Tag_Flak)      AddModifiers("Flak", projectile, ref actualshieldpenchance);
+            if (Tag_Drone)     AddModifiers("Drone",     projectile, ref actualshieldpenchance);
+            if (Tag_Subspace)  AddModifiers("Subspace",  projectile, ref actualshieldpenchance);
+            if (Tag_Warp)      AddModifiers("Warp",    projectile, ref actualshieldpenchance);
+            if (Tag_Cannon)    AddModifiers("Cannon",  projectile, ref actualshieldpenchance);
+            if (Tag_Beam)      AddModifiers("Beam",    projectile, ref actualshieldpenchance);
+            if (Tag_Bomb)      AddModifiers("Bomb",    projectile, ref actualshieldpenchance);
+            if (Tag_Array)     AddModifiers("Array",   projectile, ref actualshieldpenchance);
+            if (Tag_Flak)      AddModifiers("Flak",    projectile, ref actualshieldpenchance);
             if (Tag_Tractor)   AddModifiers("Tractor", projectile, ref actualshieldpenchance);
 
             projectile.IgnoresShields = actualshieldpenchance > 0f && RandomMath2.InRange(100) <= actualshieldpenchance;
         }
 
-        private void AddModifiers(string tag, Projectile projectile, ref float actualShieldPenChance)
+        void AddModifiers(string tag, Projectile projectile, ref float actualShieldPenChance)
         {
             SerializableDictionary<string, WeaponTagModifier> wepTags = Owner.loyalty.data.WeaponTags;
             projectile.DamageAmount      += wepTags[tag].Damage * projectile.DamageAmount;
@@ -810,7 +820,7 @@ namespace Ship_Game.Gameplay
             Center = Module.Center;
         }
 
-        private float CachedModifiedRange;
+        float CachedModifiedRange;
         public float GetModifiedRange()
         {
             if (Owner?.loyalty == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
@@ -974,7 +984,7 @@ namespace Ship_Game.Gameplay
 
         ~Weapon() { Destroy(); }
 
-        private void Destroy()
+        void Destroy()
         {
             ToggleCue.Destroy();
             Owner         = null;

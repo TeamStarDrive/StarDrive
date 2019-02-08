@@ -74,36 +74,54 @@ namespace Ship_Game.AI
             Owner.WarpThrust = Owner.WarpThrust.Clamped(0f, Owner.NormalWarpThrust);
         }
 
-        void SubLightMoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
+        // @note This will constantly accelerate by design and
+        //       will only slow down a little while turning too much
+        void SubLightContinuousMoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
         {
             if (Owner.EnginesKnockedOut)
                 return;
 
-            RotateToDirection(direction, elapsedTime, 0.15f);
+            if (RotateToDirection(direction, elapsedTime, 0.15f))
+            {
+                if (speedLimit <= 0) speedLimit = Owner.Speed;
+                speedLimit *= 0.75f; // uh-oh we're going too fast
+            }
             Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
-        void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime)
+        void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
         {
-            float distance = position.Distance(Owner.Center);
-            if (distance < 50f)
-            {
-                ReverseThrustUntilStopped(elapsedTime);
-                return;
-            }
             if (Owner.EnginesKnockedOut)
                 return;
 
-            
-            float speedLimit = Owner.Speed;
-            if (distance < speedLimit) speedLimit = distance * 0.75f;
+            if (speedLimit <= 0f)
+                speedLimit = Owner.Speed;
 
-            // prediction to enhance movement precision
-            Vector2 predictedPoint = PredictThrustPosition(position);
-            if (!RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
+            if (autoSlowDown)
             {
-                Owner.SubLightAccelerate(elapsedTime, speedLimit);
+                float distance = position.Distance(Owner.Center);
+                if (distance < 50f)
+                {
+                    ReverseThrustUntilStopped(elapsedTime);
+                    return;
+                }
+                if (distance < speedLimit)
+                    speedLimit = distance;
             }
+
+            Vector2 predictedPoint;
+            if (predictPos) // prediction to enhance movement precision
+            {
+                predictedPoint = PredictThrustPosition(position);
+            }
+            else
+            {
+                predictedPoint = position;
+                ThrustTarget = position;
+            }
+
+            if (!RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
+                Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
         void MoveToWithin1000(float elapsedTime, ShipGoal goal)

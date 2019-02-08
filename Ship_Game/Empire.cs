@@ -2699,19 +2699,27 @@ namespace Ship_Game
             ship.AI.ClearOrders();
             ship.ClearFleet();
         }
+
+
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {
-            if (targetEmpire == this) return false;
-            if (targetEmpire == null) return false;
-            if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null) return false;
-            if(!rel.Known) return true;
-            if (rel.AtWar) return true;
-            if (rel.Treaty_NAPact) return false;
-            if (isFaction || targetEmpire.isFaction ) return true;
-            if (target == null) return true;
-            if (rel.TotalAnger > 50) return true;
-            return target.IsAttackable(this, rel);
+            if (targetEmpire == this || targetEmpire == null)
+                return false;
 
+            if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null)
+                return false;
+            if(!rel.Known || rel.AtWar)
+                return true;
+            if (rel.Treaty_NAPact)
+                return false;
+            if (isFaction || targetEmpire.isFaction)
+                return true;
+            if (rel.TotalAnger > 50)
+                return true;
+
+            if (target == null)
+                return true; // this is an inanimate check, so it won't cause trouble?
+            return target.IsAttackable(this, rel);
         }
 
         public Planet FindPlanet(Guid planetGuid)

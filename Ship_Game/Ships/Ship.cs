@@ -356,31 +356,29 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
-            if (attackerRelationThis.Treaty_NAPact) return false;
-            if (AI.Target?.GetLoyalty() == attacker)
-            {
-                //if (!InCombat) Log.Info($"{attacker.Name} : Is being attacked by : {loyalty.Name}");
+            if (attacker.isPlayer)
                 return true;
-            }
-
-            if (attacker.isPlayer) return true;
 
             if (attackerRelationThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
                 //if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
                 return true;
             }
-            if (isColonyShip && System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid)) return true;
+
+            if (isColonyShip && System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
+                return true;
+
             if ((DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troop)
-                && System != null && attacker.GetOwnedSystems().Contains(System)) return true;
-            //the below does a search for being inborders so its expensive.
+                && System != null && attacker.GetOwnedSystems().Contains(System))
+                return true;
+
+            // the below does a search for being inborders so its expensive.
             if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
                 && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(this))
             {
                 //if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");
                 return true;
             }
-
             return false;
         }
 
@@ -925,6 +923,7 @@ namespace Ship_Game.Ships
             }
             lastKBState = currentKeyBoardState;
         }
+
         public bool CheckRangeToTarget(Weapon w, GameplayObject target)
         {
             if (target == null || !target.Active || target.Health <= 0)
@@ -950,7 +949,7 @@ namespace Ship_Game.Ships
                     return false;
             }
             float attackRunRange = 50f;
-            if (w.FireTarget != null && !w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
+            if (!w.isBeam && maxWeaponsRange < 2000)
             {
                 attackRunRange = Speed;
                 if (attackRunRange < 50f)
@@ -959,9 +958,39 @@ namespace Ship_Game.Ships
 
             return target.Center.InRadius(w.Module.Center, w.GetModifiedRange() + attackRunRange);
         }
-        //Added by McShooterz
-        public bool CheckIfInsideFireArc(Weapon w, GameplayObject target)
+
+        
+        bool IsPosInsideArc(Weapon w, Vector2 pos)
         {
+            float halfArc = w.Module.FieldOfFire / 2f;
+            Vector2 toTarget = pos - w.Center;
+            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
+            float angleToMouse = 180f - radians.ToDegrees();
+            float facing = w.Module.Facing + Rotation.ToDegrees();
+            if (facing > 360f)
+                facing -= 360f;
+
+            float difference = Math.Abs(angleToMouse - facing);
+            if (difference > halfArc)
+            {
+                if (angleToMouse > 180f)
+                {
+                    angleToMouse = -1f * (360f - angleToMouse);
+                }
+                if (facing > 180f)
+                {
+                    facing = -1f * (360f - facing);
+                }
+                difference = Math.Abs(angleToMouse - facing);
+            }
+            return difference < halfArc;
+        }
+
+        // Added by McShooterz
+        public bool IsTargetInFireArcRange(Weapon w, GameplayObject target)
+        {
+            ++GlobalStats.WeaponArcChecks;
+
             if (!CheckRangeToTarget(w, target))
                 return false;
 
@@ -972,139 +1001,20 @@ namespace Ship_Game.Ships
                     if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
                         return false;
                 }
-                if ((loyalty == targetShip.loyalty || !loyalty.isFaction &&
-                                           loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
+                if ((loyalty == targetShip.loyalty || !loyalty.isFaction 
+                     && loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
                     return false;
             }
 
-            float halfArc = w.Module.FieldOfFire / 2f;
-
-            Vector2 toTarget = target.Center - w.Center;
-            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
-            float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.AngleToTarget(w.Center, target.Center);//
-            float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
-
-
-            if (facing > 360f)
-            {
-                facing = facing - 360f;
-            }
-            float difference = 0f;
-            difference = Math.Abs(angleToMouse - facing);
-            if (difference > halfArc)
-            {
-                if (angleToMouse > 180f)
-                {
-                    angleToMouse = -1f * (360f - angleToMouse);
-                }
-                if (facing > 180f)
-                {
-                    facing = -1f * (360f - facing);
-                }
-                difference = Math.Abs(angleToMouse - facing);
-            }
-
-            if (difference < halfArc)// && Vector2.Distance(base.Position, pos) < w.GetModifiedRange() + modifyRangeAR)
-            {
-                return true;
-            }
-            return false;
-        }
-
-
-        public bool CheckIfInsideFireArc(Weapon w, Vector2 pos)
-        {
-            //added by gremlin attackrun compensator
-
-            if (w.Module.Center.OutsideRadius(pos, w.GetModifiedRange()))
-            {
-                return false;
-            }
-
-            float halfArc = w.Module.FieldOfFire / 2f;
-            Vector2 toTarget = pos - w.Center;
-            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
-            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
-            if (facing > 360f)
-            {
-                facing = facing - 360f;
-            }
-            float difference = Math.Abs(angleToMouse - facing);
-            if (difference > halfArc)
-            {
-                if (angleToMouse > 180f)
-                {
-                    angleToMouse = -1f * (360f - angleToMouse);
-                }
-                if (facing > 180f)
-                {
-                    facing = -1f * (360f - facing);
-                }
-                difference = Math.Abs(angleToMouse - facing);
-            }
-
-            if (difference < halfArc)// && Vector2.Distance(base.Position, pos) < w.GetModifiedRange() + modifyRangeAR)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos)
-        {
-
-            //added by gremlin attackrun compensator
-            float modifyRangeAR = 50f;
-            Vector2 pos = new Vector2(PickedPos.X, PickedPos.Y);
-            if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
-            {
-                modifyRangeAR = Speed;
-                if (modifyRangeAR < 50)
-                    modifyRangeAR = 50;
-            }
-            if (Vector2.Distance(pos, w.Module.Center) > w.GetModifiedRange() + modifyRangeAR)
-            {
-                return false;
-            }
-
-            float halfArc = w.Module.FieldOfFire / 2f;
-            Vector2 toTarget = pos - w.Center;
-            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
-            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
-            if (facing > 360f)
-            {
-                facing = facing - 360f;
-            }
-            float difference = 0f;
-            difference = Math.Abs(angleToMouse - facing);
-            if (difference > halfArc)
-            {
-                if (angleToMouse > 180f)
-                {
-                    angleToMouse = -1f * (360f - angleToMouse);
-                }
-                if (facing > 180f)
-                {
-                    facing = -1f * (360f - facing);
-                }
-                difference = Math.Abs(angleToMouse - facing);
-            }
-
-            if (difference < halfArc)// && Vector2.Distance(base.Position, pos) < w.GetModifiedRange() + modifyRangeAR)
-            {
-                return true;
-            }
-            return false;
+            return IsPosInsideArc(w, target.Center);
         }
 
         // Added by McShooterz
-        public bool CheckIfInsideFireArc(Weapon w, Ship ship)
+        public bool IsShipInFireArcRange(Weapon w, Ship ship)
         {
-            Vector2 pickedPos = ship.Center;
-            float radius = ship.Radius;
             ++GlobalStats.WeaponArcChecks;
+
+            Vector2 pickedPos = ship.Center;
             float modifyRangeAr = 50f;
             float distance = w.Module.Center.Distance(pickedPos);
 
@@ -1114,65 +1024,24 @@ namespace Ship_Game.Ships
                     return false;
             }
 
-            if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.Owner.Speed) //&& this.maxWeaponsRange < 2000
+            if (!w.isBeam && AI.CombatState == CombatState.AttackRuns
+                && w.SalvoTimer > 0
+                && distance / w.SalvoTimer < w.Owner.Speed)
             {
                 modifyRangeAr = Math.Max(Speed * w.SalvoTimer, 50f);
             }
-            if (distance > w.GetModifiedRange() + modifyRangeAr + radius)
+
+            if (distance > w.GetModifiedRange() + modifyRangeAr + ship.Radius)
                 return false;
 
-            float halfArc = w.Module.FieldOfFire / 2f;
-            Vector2 toTarget = pickedPos - w.Center;
-            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
-            float angleToMouse = 180f - radians.ToDegrees();
-            float facing = w.Module.Facing + Rotation.ToDegrees();
-            if (facing > 360f)
-            {
-                facing = facing - 360f;
-            }
-            float difference = Math.Abs(angleToMouse - facing);
-            if (!(difference > halfArc)) return difference < halfArc;
-            if (angleToMouse > 180f)
-            {
-                angleToMouse = -1f * (360f - angleToMouse);
-            }
-            if (facing > 180f)
-            {
-                facing = -1f * (360f - facing);
-            }
-            difference = Math.Abs(angleToMouse - facing);
-            return difference < halfArc;
+            return IsPosInsideArc(w, pickedPos);
         }
 
-        // Added by McShooterz
-        public bool CheckIfInsideFireArc(Weapon w, Vector2 pickedPos, float rotation, bool skipRangeCheck = false)
+        // This is used by Beam weapons
+        public bool IsInsideFiringArc(Weapon w, Vector2 pickedPos)
         {
-            if (!skipRangeCheck && w.Module.Center.OutsideRadius(pickedPos, w.GetModifiedRange() + 50f))
-                return false;
-
-            float halfArc = w.Module.FieldOfFire / 2f + 1; //Gretman - Slight allowance for check (This version of CheckArc seems to only be called by the beam updater)
-            Vector2 toTarget = pickedPos - w.Center;
-            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
-            float angleToMouse = 180f - radians.ToDegrees();
-            float facing = w.Module.Facing + rotation.ToDegrees();
-            if (facing > 360f)
-            {
-                facing = facing - 360f;
-            }
-            float difference = Math.Abs(angleToMouse - facing);
-            if (difference > halfArc)
-            {
-                if (angleToMouse > 180f)
-                {
-                    angleToMouse = -1f * (360f - angleToMouse);
-                }
-                if (facing > 180f)
-                {
-                    facing = -1f * (360f - facing);
-                }
-                difference = Math.Abs(angleToMouse - facing);
-            }
-            return difference < halfArc;
+            ++GlobalStats.WeaponArcChecks;
+            return IsPosInsideArc(w, pickedPos);
         }
 
         public SceneObject GetSO()
