@@ -77,17 +77,20 @@ namespace Ship_Game
 
         private void CourseOfAction(Building b, PlanetGridSquare ourTile)
         {
+            if (!b.CanAttack)
+                return;
+
             // scan for enemies
             PlanetGridSquare nearestTargetTile = SpotClosestHostile(ourTile, Owner); 
             if (nearestTargetTile == null)
                 return; // no targets on planet
 
             // find range
-            if (!nearestTargetTile.InRangeOf(ourTile, 1)) // right now all buildings have range 1
+            if (!nearestTargetTile.InRangeOf(ourTile, 1) || nearestTargetTile.EventOnTile) // right now all buildings have range 1
                 return;
 
             // start combat
-            b.UpdateAttackActions(-1); // why not when actually resolving combat?
+            b.UpdateAttackActions(-1);
             CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
         }
 
@@ -102,22 +105,33 @@ namespace Ship_Game
                 return; // no targets on planet. no need to move or attack
 
             // find range
-            if (t.CanAttack && nearestTargetTile.InRangeOf(ourTile, t.Range)) 
+            if (nearestTargetTile.InRangeOf(ourTile, t.Range) && !nearestTargetTile.EventOnTile) 
             {
                 // start combat
-                t.UpdateAttackActions(-1); // why not when actually resolving combat?
+                t.UpdateAttackActions(-1);
                 t.UpdateMoveActions(-1);
                 t.facingRight = nearestTargetTile.x >= ourTile.x;
                 CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
             }
 
-            // move - need support in movement more than 1
+            // move to targets
             MoveTowardsTarget(t, ourTile, nearestTargetTile);
+
+            // resolve possible events 
+            ResolveEvents(ourTile, nearestTargetTile);
+        }
+
+        private void ResolveEvents(PlanetGridSquare troopTile, PlanetGridSquare eventTile)
+        {
+            if (!eventTile.EventOnTile || troopTile != eventTile)
+                return;
+
+            ResourceManager.EventsDict[eventTile.building.EventTriggerUID].TriggerPlanetEvent(Ground, eventTile.SingleTroop.Loyalty, eventTile, Empire.Universe);
         }
 
         private void MoveTowardsTarget(Troop t, PlanetGridSquare ourTile, PlanetGridSquare targetTile)
         {
-            if (!t.CanMove)
+            if (!t.CanMove || ourTile == targetTile)
                 return;
 
             TargetDirection direction   = ourTile.GetDirectionTo(targetTile);
@@ -137,7 +151,7 @@ namespace Ship_Game
             }
         }
         
-        // try 3 directions to move into, based on general direction to thetarget
+        // try 3 directions to move into, based on general direction to the target
         private PlanetGridSquare PickTileToMoveTo(TargetDirection direction, PlanetGridSquare ourTile)
         {
             switch (direction)
@@ -200,281 +214,6 @@ namespace Ship_Game
                         return true;
                 return false;
             }
-        }
-
-        private void TryAttackWithCombatBuilding(PlanetGridSquare pgs)
-        {
-            for (int i = 0; i < TilesList.Count; i++)
-            {
-                PlanetGridSquare planetGridSquare = TilesList[i];
-                if (CombatScreen.TroopCanAttackSquare(pgs, planetGridSquare, Ground))
-                {
-                    pgs.building.UpdateAttackActions(-1);
-                    CombatScreen.StartCombat(pgs, planetGridSquare, Ground);
-                    break;
-                }
-            }
-        }
-
-        private void MoveTroop(PlanetGridSquare ourTile)
-        {
-            bool hasAttacked = false;
-            Troop troop = ourTile.SingleTroop;
-            if (troop.CanAttack)
-            {
-                if (!troop.Loyalty.isPlayer || !Empire.Universe.LookingAtPlanet ||
-                    (!(Empire.Universe.workersPanel is CombatScreen) ||
-                     ((CombatScreen) Empire.Universe.workersPanel).p != Ground) || GlobalStats.AutoCombat)
-                {
-                    foreach (PlanetGridSquare targetTile in TilesList)
-                    {
-                        if (!CombatScreen.TroopCanAttackSquare(ourTile, targetTile, Ground))
-                            continue;
-
-                        hasAttacked = true;
-                        if (troop.CanAttack)
-                        {
-                            troop.UpdateAttackActions(-1);
-                            troop.UpdateMoveActions(-1);
-                            if (targetTile.x > ourTile.x)
-                                troop.facingRight = true;
-                            else if (targetTile.x < ourTile.x)
-                                troop.facingRight = false;
-                            CombatScreen.StartCombat(ourTile, targetTile, Ground);
-                        }
-                        break;
-                    }
-                }
-                else return;
-            }
-
-            try
-            {
-                if (hasAttacked || ourTile.NoTroopsOnTile || !ourTile.SingleTroop.CanMove)
-                    return;
-
-                foreach (PlanetGridSquare tileToMoveTo in TilesList.OrderBy(tile =>
-                    Math.Abs(tile.x - ourTile.x) + Math.Abs(tile.y - ourTile.y)))
-                {
-                    if (ourTile.NoTroopsOnTile)
-                        break;
-
-                    if (tileToMoveTo == ourTile)
-                        continue; // same tile
-
-                    if (tileToMoveTo.TroopsAreOnTile)
-                    {
-                        if (tileToMoveTo.SingleTroop.Loyalty == ourTile.SingleTroop.Loyalty)
-                            continue; // friendlies
-
-                        if (tileToMoveTo.x > ourTile.x)
-                        {
-                            if (tileToMoveTo.y > ourTile.y)
-                            {
-                                if (TryTroopMove(1, 1, ourTile))
-                                    break;
-                            }
-
-                            if (tileToMoveTo.y < ourTile.y)
-                            {
-                                if (TryTroopMove(1, -1, ourTile))
-                                    break;
-                            }
-
-                            if (!TryTroopMove(1, 0, ourTile))
-                            {
-                                if (!TryTroopMove(1, -1, ourTile))
-                                {
-                                    if (TryTroopMove(1, 1, ourTile))
-                                        break;
-                                }
-                                else
-                                    break;
-                            }
-                            else
-                                break;
-                        }
-                        else if (tileToMoveTo.x < ourTile.x)
-                        {
-                            if (tileToMoveTo.y > ourTile.y)
-                            {
-                                if (TryTroopMove(-1, 1, ourTile))
-                                    break;
-                            }
-
-                            if (tileToMoveTo.y < ourTile.y)
-                            {
-                                if (TryTroopMove(-1, -1, ourTile))
-                                    break;
-                            }
-
-                            if (!TryTroopMove(-1, 0, ourTile))
-                            {
-                                if (!TryTroopMove(-1, -1, ourTile))
-                                {
-                                    if (TryTroopMove(-1, 1, ourTile))
-                                        break;
-                                }
-                                else
-                                    break;
-                            }
-                            else
-                                break;
-                        }
-                        else
-                        {
-                            if (tileToMoveTo.y > ourTile.y)
-                            {
-                                if (TryTroopMove(0, 1, ourTile))
-                                    break;
-                            }
-
-                            if (tileToMoveTo.y < ourTile.y)
-                            {
-                                if (TryTroopMove(0, -1, ourTile))
-                                    break;
-                            }
-                        }
-                    }
-                    else if (tileToMoveTo.building != null &&
-                             (tileToMoveTo.building.CombatStrength > 0 ||
-                              !string.IsNullOrEmpty(tileToMoveTo.building.EventTriggerUID)) &&
-                             (Owner != ourTile.SingleTroop.Loyalty ||
-                              !string.IsNullOrEmpty(tileToMoveTo.building.EventTriggerUID)))
-                    {
-                        if (tileToMoveTo.x > ourTile.x)
-                        {
-                            if (tileToMoveTo.y > ourTile.y)
-                            {
-                                if (TryTroopMove(1, 1, ourTile))
-                                    break;
-                            }
-
-                            if (tileToMoveTo.y < ourTile.y)
-                            {
-                                if (TryTroopMove(1, -1, ourTile))
-                                    break;
-                            }
-
-                            if (!TryTroopMove(1, 0, ourTile))
-                            {
-                                if (!TryTroopMove(1, -1, ourTile))
-                                {
-                                    if (TryTroopMove(1, 1, ourTile))
-                                        break;
-                                }
-                                else
-                                    break;
-                            }
-                            else
-                                break;
-                        }
-                        else if (tileToMoveTo.x < ourTile.x)
-                        {
-                            if (tileToMoveTo.y > ourTile.y)
-                            {
-                                if (TryTroopMove(-1, 1, ourTile))
-                                    break;
-                            }
-
-                            if (tileToMoveTo.y < ourTile.y)
-                            {
-                                if (TryTroopMove(-1, -1, ourTile))
-                                    break;
-                            }
-
-                            if (!TryTroopMove(-1, 0, ourTile))
-                            {
-                                if (!TryTroopMove(-1, -1, ourTile))
-                                {
-                                    if (TryTroopMove(-1, 1, ourTile))
-                                        break;
-                                }
-                                else
-                                    break;
-                            }
-                            else
-                                break;
-                        }
-                        else
-                        {
-                            if (tileToMoveTo.y > ourTile.y)
-                            {
-                                if (!TryTroopMove(0, 1, ourTile))
-                                {
-                                    if (!TryTroopMove(1, 1, ourTile))
-                                    {
-                                        if (TryTroopMove(-1, 1, ourTile))
-                                            break;
-                                    }
-                                    else
-                                        break;
-                                }
-                                else
-                                    break;
-                            }
-
-                            if (tileToMoveTo.y < ourTile.y)
-                            {
-                                if (!TryTroopMove(0, -1, ourTile))
-                                {
-                                    if (!TryTroopMove(1, -1, ourTile))
-                                    {
-                                        if (TryTroopMove(-1, -1, ourTile))
-                                            break;
-                                    }
-                                    else
-                                        break;
-                                }
-                                else
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-            catch
-            {
-            }
-        }
-
-        private bool TryTroopMove(int changex, int changey, PlanetGridSquare start)
-        {
-            foreach (PlanetGridSquare eventLocation in TilesList)
-            {
-                if (eventLocation.x != start.x + changex || eventLocation.y != start.y + changey)
-                    continue;
-
-                Troop troop = null;
-                using (eventLocation.TroopsHere.AcquireWriteLock())
-                {
-                    if (start.TroopsAreOnTile)
-                    {
-                        troop = start.SingleTroop;
-                    }
-
-                    if (eventLocation.building != null && eventLocation.building.CombatStrength > 0 || eventLocation.TroopsHere.Count > 0)
-                        return false;
-                    if (troop != null)
-                    {
-                        if (changex > 0)
-                            troop.facingRight = true;
-                        else if (changex < 0)
-                            troop.facingRight = false;
-                        troop.SetFromRect(start.TroopClickRect);
-                        troop.MovingTimer = 0.75f;
-                        troop.UpdateMoveActions(-1);
-                        troop.ResetMoveTimer();
-                        eventLocation.TroopsHere.Add(troop);
-                        start.TroopsHere.Clear();
-                    }
-                    if (!eventLocation.EventOnTile || (eventLocation.NoTroopsOnTile || eventLocation.SingleTroop.Loyalty.isFaction))
-                        return true;
-                }
-
-                ResourceManager.EventsDict[eventLocation.building?.EventTriggerUID].TriggerPlanetEvent(Ground, eventLocation.SingleTroop.Loyalty, eventLocation, Empire.Universe);
-            }
-            return false;
         }
 
         private void DoBuildingTimers(float elapsedTime)
