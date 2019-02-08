@@ -180,7 +180,7 @@ namespace Ship_Game
                         if (planet.Owner != null && planet.Owner.isPlayer)
                         while (j < s.PlanetList[i].TroopsHere.Count)
                         {
-                            if (!s.PlanetList[i].TroopsHere[j].GetOwner().isPlayer)
+                            if (!s.PlanetList[i].TroopsHere[j].Loyalty.isPlayer)
                             {
                                 //hasEnemyTroop = true;
 

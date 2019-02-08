@@ -1571,7 +1571,7 @@ namespace Ship_Game
                                 flagPlanet = false;
                                 foreach (Troop troop in p.TroopsHere)
                                 {
-                                    if (troop.GetOwner() != null && troop.GetOwner() == Empire.Universe.PlayerEmpire)
+                                    if (troop.Loyalty != null && troop.Loyalty == Empire.Universe.PlayerEmpire)
                                     {
                                         flagPlanet = true;
                                         break;

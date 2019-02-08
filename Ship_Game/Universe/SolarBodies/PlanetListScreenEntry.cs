@@ -183,7 +183,7 @@ namespace Ship_Game
             using (planet.TroopsHere.AcquireReadLock())
             foreach (Troop troop in planet.TroopsHere)
             {
-                if (troop.GetOwner().isPlayer)
+                if (troop.Loyalty.isPlayer)
                 {
                     troops++;
 
