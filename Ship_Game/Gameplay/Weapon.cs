@@ -163,7 +163,7 @@ namespace Ship_Game.Gameplay
         private float TargetChangeTimer;
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
-        public int SalvoSoundInterval = 1; // play sound effect every salvo
+        public int SalvoSoundInterval = 1; // play sound effect every N salvos
         public int SalvoCount = 1;
         public float SalvoTimer;
         [XmlIgnore][JsonIgnore]
@@ -257,7 +257,6 @@ namespace Ship_Game.Gameplay
                 return;
 
             AudioEmitter soundEmitter = Owner?.PlayerShip == true ? null : (emitter ?? Owner?.SoundEmitter);
-            Log.Info($"Weapon SFX {StarDriveGame.Instance.GameTime.TotalGameTime.Seconds} : {fireCueName}");
             GameAudio.PlaySfxAsync(fireCueName, soundEmitter);
             ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);
         }
@@ -323,7 +322,7 @@ namespace Ship_Game.Gameplay
             foreach (FireSource fireSource in EnumFireSources(origin, direction))
             {
                 Projectile.Create(weapon, fireSource.Origin, fireSource.Direction, target, playSound);
-                playSound = false; // only play sound once fire cone
+                playSound = false; // only play sound once per fire cone
             }
         }
 
