@@ -81,7 +81,7 @@ namespace Ship_Game
             int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(q => q.Node.tech.UID == Node.tech.UID);
             if (indexOfThis > 0) // move it up
             {
-                if (AboveisPrereq(indexOfThis))
+                if (AboveIsPreReq(indexOfThis))
                 {
                     GameAudio.NegativeClick();
                     return true;
@@ -138,7 +138,7 @@ namespace Ship_Game
         private Technology PlayerResearch              => ResourceManager.TechTree[EmpireManager.Player.ResearchTopic];
         private Technology PlayerResearchAt(int index) => ResourceManager.TechTree[ResearchUidAt(index)];
 
-        private bool AboveisPrereq(int indexOfThis)
+        bool AboveIsPreReq(int indexOfThis)
 	    {
 	        foreach (Technology.LeadsToTech dependent in PlayerResearchAt(indexOfThis - 1).LeadsTo)
 	            if (dependent.UID == Node.tech.UID)
@@ -146,8 +146,10 @@ namespace Ship_Game
 	        return false;
 	    }
 
-	    private bool CurrentIsPreReq()
+	    bool CurrentIsPreReq()
 	    {
+            if (EmpireManager.Player.ResearchTopic.IsEmpty())
+                return false;
             foreach (Technology.LeadsToTech dependent in PlayerResearch.LeadsTo)
 	            if (dependent.UID == Node.tech.UID)
                     return true;
