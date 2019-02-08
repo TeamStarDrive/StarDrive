@@ -409,11 +409,11 @@ namespace Ship_Game.Ships
         {
             TroopBoardingDefense = 0f;
 
-            foreach (Troop troopList in TroopList)
+            foreach (Troop t in TroopList)
             {
-                troopList.SetOwner(loyalty);
-                troopList.SetShip(this);
-                TroopBoardingDefense += troopList.Strength;
+                t.SetOwner(loyalty);
+                t.SetShip(this);
+                TroopBoardingDefense += t.Strength;
             }
         }
 

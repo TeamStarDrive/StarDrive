@@ -6,7 +6,7 @@ using Ship_Game.Audio;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public class TroopManager
+    public class TroopManager // Refactored by Fat Bastard. Feb 6, 2019
     {
         private readonly Planet Ground;
 
@@ -18,9 +18,9 @@ namespace Ship_Game
         private Array<PlanetGridSquare> TilesList => Ground.TilesList;
         private Array<Building> BuildingList      => Ground.BuildingList;
         private SolarSystem ParentSystem          => Ground.ParentSystem;
-        public int NumEmpireTroops(Empire us)     => TroopList.Count(t => t.GetOwner() == us);
+        public int NumEmpireTroops(Empire us)     => TroopList.Count(t => t.Loyalty == us);
         public int NumDefendingTroopCount         => NumEmpireTroops(Owner);
-        public bool WeHaveTroopsHere(Empire us)   => TroopList.Any(t => t.GetOwner() == us);
+        public bool WeHaveTroopsHere(Empire us)   => TroopList.Any(t => t.Loyalty == us);
 
         private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
@@ -69,23 +69,20 @@ namespace Ship_Game
                 PlanetGridSquare pgs = TilesList[i];
                 if (pgs.TroopsAreOnTile)
                     CourseOfAction(pgs.SingleTroop, pgs);
-                    //MoveTroop(pgs);
 
                 else if (pgs.BuildingPerformesAutoCombat(Ground))
                     CourseOfAction(pgs.building, pgs);
-                    //TryAttackWithCombatBuilding(pgs);
             }
         }
 
         private void CourseOfAction(Building b, PlanetGridSquare ourTile)
         {
             // scan for enemies
-            Array<PlanetGridSquare> targetTileList = SpotHostilesByRange(ourTile); 
-            if (targetTileList.Count == 0)
+            PlanetGridSquare nearestTargetTile = SpotClosestHostile(ourTile, Owner); 
+            if (nearestTargetTile == null)
                 return; // no targets on planet
 
             // find range
-            PlanetGridSquare nearestTargetTile = targetTileList[0]; // because it is sorted by range
             if (!nearestTargetTile.InRangeOf(ourTile, 1)) // right now all buildings have range 1
                 return;
 
@@ -96,13 +93,15 @@ namespace Ship_Game
 
         private void CourseOfAction(Troop t, PlanetGridSquare ourTile)
         {
+            if (!t.CanMove && !t.CanAttack)
+                return;
+
             // scan for enemies
-            Array<PlanetGridSquare> targetTileList = SpotHostilesByRange(ourTile);
-            if (targetTileList.Count == 0)
-                return; // no targets on planet
+            PlanetGridSquare nearestTargetTile = SpotClosestHostile(ourTile, t.Loyalty);
+            if (nearestTargetTile == null)
+                return; // no targets on planet. no need to move or attack
 
             // find range
-            PlanetGridSquare nearestTargetTile = targetTileList[0]; // because it is sorted by range
             if (t.CanAttack && nearestTargetTile.InRangeOf(ourTile, t.Range)) 
             {
                 // start combat
@@ -113,47 +112,33 @@ namespace Ship_Game
             }
 
             // move - need support in movement more than 1
-            bool moved = MoveTowardsTarget(t, ourTile, nearestTargetTile);
-            if (!moved || !t.CanAttack)
-                return;  // no need to try to attack again
-
-
-            // scan for enemies
-            targetTileList = SpotHostilesByRange(ourTile);
-            // find range
-            nearestTargetTile = targetTileList[0]; // because it is sorted by range
-            if (t.CanAttack && nearestTargetTile.InRangeOf(ourTile, t.Range))
-            {
-                // start combat
-                t.UpdateAttackActions(-1); // why not when actually resolving combat?
-                t.UpdateMoveActions(-1);
-                t.facingRight = nearestTargetTile.x >= ourTile.x;
-                CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
-            }
+            MoveTowardsTarget(t, ourTile, nearestTargetTile);
         }
 
-        private bool MoveTowardsTarget(Troop t, PlanetGridSquare ourTile, PlanetGridSquare targetTile)
+        private void MoveTowardsTarget(Troop t, PlanetGridSquare ourTile, PlanetGridSquare targetTile)
         {
             if (!t.CanMove)
-                return false;
+                return;
 
             TargetDirection direction   = ourTile.GetDirectionTo(targetTile);
-            PlanetGridSquare moveToTile = PickTilesToMoveTo(direction, ourTile);
+            PlanetGridSquare moveToTile = PickTileToMoveTo(direction, ourTile);
             if (moveToTile == null)
-                return false; // no free tile
-            
+                return; // no free tile
+
             // move to selected direction
-            t.SetFromRect(ourTile.TroopClickRect);
-            t.MovingTimer = 0.75f;
-            t.UpdateMoveActions(-1);
-            t.ResetMoveTimer();
-            moveToTile.TroopsHere.Add(t);
-            ourTile.TroopsHere.Clear();
-            return true;
+            using(ourTile.TroopsHere.AcquireWriteLock())
+            {
+                t.SetFromRect(ourTile.TroopClickRect);
+                t.MovingTimer = 0.75f;
+                t.UpdateMoveActions(-1);
+                t.ResetMoveTimer();
+                moveToTile.TroopsHere.Add(t);
+                ourTile.TroopsHere.Clear();
+            }
         }
         
         // try 3 directions to move into, based on general direction to thetarget
-        private PlanetGridSquare PickTilesToMoveTo(TargetDirection direction, PlanetGridSquare ourTile)
+        private PlanetGridSquare PickTileToMoveTo(TargetDirection direction, PlanetGridSquare ourTile)
         {
             switch (direction)
             {
@@ -194,17 +179,15 @@ namespace Ship_Game
             return null;
         }
 
-        private Array<PlanetGridSquare> SpotHostilesByRange(PlanetGridSquare spotterTile)
+        private PlanetGridSquare SpotClosestHostile(PlanetGridSquare spotterTile, Empire spotterOwner)
         {
-            Empire spotterOwner = spotterTile.SingleTroop.GetOwner();
-            Array<PlanetGridSquare> targetTileList = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare scannedTile in TilesList.OrderBy(tile =>
                 Math.Abs(tile.x - spotterTile.x) + Math.Abs(tile.y - spotterTile.y)))
             {
                 if (scannedTile.HostilesTargetsOnTile(spotterOwner, Owner))
-                    targetTileList.Add(scannedTile);
+                    return scannedTile;
             }
-            return targetTileList;
+            return null;
         }
 
         private bool HostileTargetsOnPlanet
@@ -212,7 +195,7 @@ namespace Ship_Game
             get
             {
                 foreach (PlanetGridSquare pgs in TilesList)
-                    if ((pgs.TroopsAreOnTile && pgs.SingleTroop.GetOwner() != Owner) ||
+                    if ((pgs.TroopsAreOnTile && pgs.SingleTroop.Loyalty != Owner) ||
                         (pgs.EventOnTile))
                         return true;
                 return false;
@@ -239,7 +222,7 @@ namespace Ship_Game
             Troop troop = ourTile.SingleTroop;
             if (troop.CanAttack)
             {
-                if (!troop.GetOwner().isPlayer || !Empire.Universe.LookingAtPlanet ||
+                if (!troop.Loyalty.isPlayer || !Empire.Universe.LookingAtPlanet ||
                     (!(Empire.Universe.workersPanel is CombatScreen) ||
                      ((CombatScreen) Empire.Universe.workersPanel).p != Ground) || GlobalStats.AutoCombat)
                 {
@@ -281,7 +264,7 @@ namespace Ship_Game
 
                     if (tileToMoveTo.TroopsAreOnTile)
                     {
-                        if (tileToMoveTo.SingleTroop.GetOwner() == ourTile.SingleTroop.GetOwner())
+                        if (tileToMoveTo.SingleTroop.Loyalty == ourTile.SingleTroop.Loyalty)
                             continue; // friendlies
 
                         if (tileToMoveTo.x > ourTile.x)
@@ -356,7 +339,7 @@ namespace Ship_Game
                     else if (tileToMoveTo.building != null &&
                              (tileToMoveTo.building.CombatStrength > 0 ||
                               !string.IsNullOrEmpty(tileToMoveTo.building.EventTriggerUID)) &&
-                             (Owner != ourTile.SingleTroop.GetOwner() ||
+                             (Owner != ourTile.SingleTroop.Loyalty ||
                               !string.IsNullOrEmpty(tileToMoveTo.building.EventTriggerUID)))
                     {
                         if (tileToMoveTo.x > ourTile.x)
@@ -485,11 +468,11 @@ namespace Ship_Game
                         eventLocation.TroopsHere.Add(troop);
                         start.TroopsHere.Clear();
                     }
-                    if (!eventLocation.EventOnTile || (eventLocation.NoTroopsOnTile || eventLocation.SingleTroop.GetOwner().isFaction))
+                    if (!eventLocation.EventOnTile || (eventLocation.NoTroopsOnTile || eventLocation.SingleTroop.Loyalty.isFaction))
                         return true;
                 }
 
-                ResourceManager.EventsDict[eventLocation.building?.EventTriggerUID].TriggerPlanetEvent(Ground, eventLocation.SingleTroop.GetOwner(), eventLocation, Empire.Universe);
+                ResourceManager.EventsDict[eventLocation.building?.EventTriggerUID].TriggerPlanetEvent(Ground, eventLocation.SingleTroop.Loyalty, eventLocation, Empire.Universe);
             }
             return false;
         }
@@ -536,13 +519,13 @@ namespace Ship_Game
                 troop.MovingTimer -= elapsedTime;
                 if (troop.MoveTimer < 0.0)
                 {
-                    troop.UpdateMoveActions(1);
+                    troop.UpdateMoveActions(troop.MaxStoredActions);
                     troop.ResetMoveTimer();
                 }
                 troop.UpdateAttackTimer(-elapsedTime);
                 if (troop.AttackTimer < 0.0)
                 {
-                    troop.UpdateAttackActions(1);
+                    troop.UpdateAttackActions(troop.MaxStoredActions);
                     troop.ResetAttackTimer();
                 }
             }
@@ -558,7 +541,7 @@ namespace Ship_Game
 
         private int RollDamage(PlanetGridSquare attacker, PlanetGridSquare defender)
         {
-            TargetType attackType = defender.NoTroopsOnTile ? TargetType.Hard : defender.SingleTroop.TargetType;
+            TargetType attackType = defender.BuildingOnTile ? TargetType.Hard : defender.SingleTroop.TargetType;
             var attackerStats     = new AttackerStats(attacker);
             float attackValue     = attackType == TargetType.Soft ? attackerStats.SoftAttack : attackerStats.HardAttack;
             int damage = 0;
@@ -572,8 +555,8 @@ namespace Ship_Game
 
         private void DealDamage(Combat combat, int damage, bool isViewing = false)
         {
-            PlanetGridSquare attacker = combat.Attacker;
-            PlanetGridSquare defender = combat.Defender;
+            PlanetGridSquare attacker = combat.AttackTile;
+            PlanetGridSquare defender = combat.DefenseTile;
             if (damage == 0)
             {
                 if (isViewing) GameAudio.PlaySfxAsync("sd_troop_attack_miss");
@@ -603,7 +586,7 @@ namespace Ship_Game
                 if (attacker.TroopsAreOnTile)
                     attacker.SingleTroop.AddKill(); // FB - for now multi troops on same tile is not supported
             }
-            else
+            else if (defender.CombatBuildingOnTile)
             {
                 defender.building.Strength       -= damage;
                 defender.building.CombatStrength -= damage;
@@ -620,7 +603,7 @@ namespace Ship_Game
             using (ActiveCombats.AcquireReadLock())
                 foreach (Combat combat in ActiveCombats)
                 {
-                    if (CombatDone(combat.Attacker, combat.Defender))
+                    if (CombatDone(combat.AttackTile, combat.DefenseTile))
                     {
                         ActiveCombats.QueuePendingRemoval(combat);
                         break;
@@ -629,7 +612,7 @@ namespace Ship_Game
                     combat.Timer -= elapsedTime;
                     if (combat.Timer < 3.0 && combat.phase == 1)
                     {
-                        int damage = RollDamage(combat.Attacker, combat.Defender);
+                        int damage = RollDamage(combat.AttackTile, combat.DefenseTile);
                         DealDamage(combat, damage, isViewing);
                         combat.phase = 2;
                     }
@@ -701,7 +684,7 @@ namespace Ship_Game
                 strength += BuildingList.Sum(offense => offense.CombatStrength);
 
             using (TroopList.AcquireReadLock())
-                strength += TroopList.Where(t => t.GetOwner() == empire).Sum(str => str.Strength);
+                strength += TroopList.Where(t => t.Loyalty == empire).Sum(str => str.Strength);
             return strength;
         }
 
@@ -743,7 +726,7 @@ namespace Ship_Game
             using (TroopList.AcquireReadLock())
                 foreach (Troop t in TroopList)
                 {
-                    if (!empire.TryGetRelations(t.GetOwner(), out Relationship trouble) || trouble.AtWar)
+                    if (!empire.TryGetRelations(t.Loyalty, out Relationship trouble) || trouble.AtWar)
                     {
                         enemies = true;
                         break;
@@ -755,7 +738,7 @@ namespace Ship_Game
         public int NumGroundLandingSpots()
         {            
             int spotCount = TilesList.Sum(spots => spots.MaxAllowedTroops); //.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1)
-            int troops    = TroopList.Filter(owner => owner.GetOwner() == Owner).Length;
+            int troops    = TroopList.Filter(owner => owner.Loyalty == Owner).Length;
             return spotCount - troops;
         }
 
@@ -764,7 +747,7 @@ namespace Ship_Game
             var troops = new Array<Troop>();
             foreach (Troop troop in TroopList)
             {
-                if (troop.GetOwner() != empire) continue;
+                if (troop.Loyalty != empire) continue;
 
                 if (maxToTake-- < 0)
                     troops.Add(troop);
@@ -822,10 +805,10 @@ namespace Ship_Game
                     using (planetGridSquare.TroopsHere.AcquireReadLock())
                         foreach (Troop troop in planetGridSquare.TroopsHere)
                         {
-                            if (troop.GetOwner() != null && troop.GetOwner() != defendingEmpire)
+                            if (troop.Loyalty != null && troop.Loyalty != defendingEmpire)
                             {
                                 ++InvadingForces;
-                                InvadingEmpire = troop.GetOwner();
+                                InvadingEmpire = troop.Loyalty;
                             }
                             else
                                 ++DefendingForces;

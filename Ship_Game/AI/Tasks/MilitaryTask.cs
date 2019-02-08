@@ -220,7 +220,7 @@ namespace Ship_Game.AI.Tasks
                 for (int index = TargetPlanet.TroopsHere.Count - 1; index >= 0; index--)
                 {
                     Troop t = TargetPlanet.TroopsHere[index];
-                    if (t.GetOwner() != Owner
+                    if (t.Loyalty != Owner
                         || TargetPlanet.ParentSystem.CombatInSystem
                         || t.AvailableAttackActions == 0
                         || t.MoveTimer > 0)
@@ -585,7 +585,7 @@ namespace Ship_Game.AI.Tasks
                     Array<Troop> toLaunch = new Array<Troop>();
                     foreach (Troop t in TargetPlanet.TroopsHere)
                     {
-                        if (t.GetOwner() != Owner)
+                        if (t.Loyalty != Owner)
                             continue;
 
                         toLaunch.Add(t);
