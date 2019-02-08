@@ -13,7 +13,7 @@ namespace Ship_Game
         readonly SpriteFont Font;
         readonly string Text;
         readonly string TipText;
-        readonly Ref<bool> Binding;
+        Ref<bool> Binding;
 
         Vector2 TextPos;
         Vector2 CheckPos;
@@ -56,12 +56,20 @@ namespace Ship_Game
         {
         }
 
+        public void Bind(BoolExpression binding)
+        {
+            Binding = new Ref<bool>(binding);
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             var checkRect = new Rectangle((int)CheckPos.X, (int)CenterY - 6, 10, 12);
             batch.DrawRectangle(checkRect, new Color(96, 81, 49));
             //batch.DrawRectangle(Rect, Color.Red); // DEBUG
-            batch.DrawString(Font, Text, TextPos, Color.White);
+
+            if (Text.NotEmpty())
+                batch.DrawString(Font, Text, TextPos, Color.White);
+
             if (Binding.Value)
             {
                 batch.DrawString(Fonts.Arial12Bold, "x", CheckPos, Color.White);

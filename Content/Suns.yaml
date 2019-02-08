@@ -1,11 +1,11 @@
 ﻿Sun: star_red
-  IconPath: Suns/star_red # lo res icon is used in background star field
+  IconPath: Suns/star_red.png # lo res icon is used in background star field
   LightIntensity: 1.4 # intensity of the light source
   Radius: 100000 # radius of the light source
   LightColor: [255,160,122] # LightSalmon, light source color, default: White
   Habitable: true
   Layers:
-    TexturePath: Suns/star_red.xnb # path to texture, please add .png suffix or .xnb suffix to avoid conflicts
+    TexturePath: Suns/star_red.png # path to texture, please add .png suffix or .xnb suffix to avoid conflicts
     TextureColor: [255,255,255,255] # Overrides existing texture color tint
     LayerScale: 1.0  # customizable scale for this layer
     BlendMode: AlphaBlend # AlphaBlend or Additive or None
@@ -15,7 +15,7 @@
     PulseScale: [1.0,1.0] # if pulse enabled, controls the scale variation; [1.0,1.0] to disable
     PulseColor: [1.0,1.20] # if pulse enabled, controls the layer color intensity; [1.0,1.0] do disable; I don't recommend < 1.0
   Layers:
-    TexturePath: Suns/star_red.xnb
+    TexturePath: Suns/star_red.png
     BlendMode: AlphaBlend # AlphaBlend or Additive or None
     RotationSpeed: -0.015
     PulsePeriod: 5.0
@@ -31,7 +31,7 @@ Sun: star_red2 # Yellowish Giant?
   LightColor: [255,160,122] # LightSalmon
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow
+    TexturePath: Suns/star_yellow.png
     TextureColor: [1.0,0.8,0.8,0.5]
     BlendMode: Additive
     LayerScale: 2.5
@@ -77,7 +77,7 @@ Sun: star_red3
   LightColor: [255,160,122] # LightSalmon
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow
+    TexturePath: Suns/star_yellow.png
     TextureColor: [1.0,0.6,0.6,1.0]
     BlendMode: AlphaBlend
     LayerScale: 3.5
@@ -116,38 +116,38 @@ Sun: star_red3
 
 # default yellowish-orange star
 Sun: star_yellow
-  IconPath: Suns/star_yellow
+  IconPath: Suns/star_yellow.png
   LightIntensity: 1.5
   Radius: 150000
   LightColor: [255,255,224] # LightYellow
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow
+    TexturePath: Suns/star_yellow.png
     RotationSpeed: 0.03
     PulsePeriod: 5.0
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
   Layers:
-    TexturePath: Suns/star_yellow
+    TexturePath: Suns/star_yellow.png
     RotationSpeed: -0.015
     PulsePeriod: 5.0
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
 
 Sun: star_yellow3
-  IconPath: Suns/star_yellow
+  IconPath: Suns/star_yellow.png
   LightIntensity: 1.5
   Radius: 150000
   LightColor: [255,255,224] # LightYellow
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow
+    TexturePath: Suns/star_yellow.png
     RotationSpeed: 0.03
     PulsePeriod: 5.0
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
   Layers:
-    TexturePath: Suns/star_yellow
+    TexturePath: Suns/star_yellow.png
     BlendMode: AlphaBlend
     RotationSpeed: -0.015
     PulsePeriod: 5.0
@@ -166,20 +166,20 @@ Sun: star_yellow3
 
 # 6-pointed yellow star
 Sun: star_yellow2
-  IconPath: Suns/star_yellow2
+  IconPath: Suns/star_yellow2.png
   LightIntensity: 1.5
   Radius: 150000
   LightColor: [255,255,255] # White
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow2
+    TexturePath: Suns/star_yellow2.png
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
     PulsePeriod: 5.0
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
   Layers:
-    TexturePath: Suns/star_yellow2
+    TexturePath: Suns/star_yellow2.png
     BlendMode: AlphaBlend
     RotationSpeed: -0.015
     PulsePeriod: 5.0
@@ -187,20 +187,20 @@ Sun: star_yellow2
     PulseColor: [1.0,1.20]
 
 Sun: star_green
-  IconPath: Suns/star_green
+  IconPath: Suns/star_green.png
   LightIntensity: 1.5
   Radius: 150000
   LightColor: [144,238,144] # LightGreen
   Habitable: true
   Layers:
-    TexturePath: Suns/star_green
+    TexturePath: Suns/star_green.png
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
     PulsePeriod: 5.0
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
   Layers:
-    TexturePath: Suns/star_green
+    TexturePath: Suns/star_green.png
     BlendMode: AlphaBlend
     RotationSpeed: -0.015
     PulsePeriod: 5.0
@@ -208,20 +208,20 @@ Sun: star_green
     PulseColor: [1.0,1.20]
 
 Sun: star_blue
-  IconPath: Suns/star_blue
+  IconPath: Suns/star_blue.png
   LightIntensity: 1.5
   Radius: 150000
   LightColor: [173,216,230] # LightBlue
   Habitable: true
   Layers:
-    TexturePath: Suns/star_blue
+    TexturePath: Suns/star_blue.png
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
     PulsePeriod: 5.0
     PulseScale: [0.96,1.04]
     PulseColor: [1.0,1.20]
   Layers:
-    TexturePath: Suns/star_blue
+    TexturePath: Suns/star_blue.png
     BlendMode: AlphaBlend
     RotationSpeed: -0.015
     PulsePeriod: 5.0
@@ -229,13 +229,13 @@ Sun: star_blue
     PulseColor: [1.0,1.20]
 
 Sun: star_binary
-  IconPath: Suns/star_binary
+  IconPath: Suns/star_binary.png
   LightIntensity: 1.7
   Radius: 100000
   LightColor: [255,255,255] # White
   Habitable: true
   Layers:
-    TexturePath: Suns/star_binary
+    TexturePath: Suns/star_binary.png
     BlendMode: AlphaBlend
     RotationSpeed: 0.03
     PulsePeriod: 5.0

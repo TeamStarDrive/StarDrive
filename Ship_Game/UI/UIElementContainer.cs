@@ -63,6 +63,10 @@ namespace Ship_Game
                     if (i == DebugDrawIndex)
                         batch.DrawRectangle(e.Rect, Color.Orange);
                 }
+
+                Color debugColor = Color.Red.Alpha(0.75f);
+                batch.DrawRectangle(Rect, debugColor);
+                batch.DrawString(Fonts.Arial12Bold, ToString(), Pos, debugColor);
             }
 
             if (ToolTip.Hotkey.IsEmpty())
@@ -157,12 +161,37 @@ namespace Ship_Game
             Elements.Clear();
         }
 
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        public bool Find<T>(string name, out T found) where T : UIElementV2
+        {
+            for (int i = 0; i < Elements.Count; ++i) // first find immediate children
+            {
+                UIElementV2 e = Elements[i];
+                if (e.Name == name && e is T elem)
+                {
+                    found = elem;
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < Elements.Count; ++i) // then perform recursive scan of child containers
+            {
+                UIElementV2 e = Elements[i];
+                if (e is UIElementContainer c && c.Find(name, out found))
+                    return true; // yay
+            }
+
+            found = null;
+            return false;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void RefreshZOrder()
         {
             Elements.Sort(ZOrderSorter);
         }
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected override int NextZOrder()
         {
@@ -298,24 +327,9 @@ namespace Ship_Game
             return list;
         }
 
-
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public UIBasicAnimEffect Anim() => AddEffect(new UIBasicAnimEffect(this));
-
-        /// <param name="delay">Start animation fadeIn/stay/fadeOut after seconds</param>
-        /// <param name="duration">Duration of fadeIn/stay/fadeOut</param>
-        /// <param name="fadeIn">Fade in time</param>
-        /// <param name="fadeOut">Fade out time</param>
-        public UIBasicAnimEffect Anim(
-            float delay, 
-            float duration = 1.0f, 
-            float fadeIn   = 0.25f, 
-            float fadeOut  = 0.25f) => Anim().Time(delay, duration, fadeIn, fadeOut);
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-        
-        public void StartTransition<T>(float distance, float direction, float time = 1f) where T : UIElementV2
+        public void StartTransition<T>(Vector2 distance, float direction, float time = 1f) where T : UIElementV2
         {
             var candidates = new Array<UIElementV2>();
             for (int i = 0; i < Elements.Count; ++i)
