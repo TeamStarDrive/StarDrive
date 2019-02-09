@@ -1608,7 +1608,7 @@ namespace Ship_Game.Ships
                 return RangeBase / Count;
             }
         }
-        private float CalculatMaxWeaponsRange()
+        private float CalculateMaxWeaponsRange()
         {
 
 
@@ -2132,6 +2132,19 @@ namespace Ship_Game.Ships
                                                               : empire.data.DefaultSupplyShuttle;
         }
 
+        public int RefitCost(string newShipName)
+        {
+            if (loyalty.isFaction)
+                return 0;
+
+            float oldShipCost = GetCost(loyalty);
+            float newShipCost = ResourceManager.ShipsDict[newShipName].GetCost(loyalty);
+
+            int cost = Math.Max((int)(newShipCost - oldShipCost), 0);
+            cost    += (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace
+            return cost;
+        }
+
         public ShipStatus HealthStatus
         {
             get
@@ -2258,7 +2271,7 @@ namespace Ship_Game.Ships
                 Thrust         += Thrust * mod.SpeedBonus;
             }
             CurrentStrength = CalculateShipStrength();
-            maxWeaponsRange = CalculatMaxWeaponsRange();
+            maxWeaponsRange = CalculateMaxWeaponsRange();
 
         }
 
