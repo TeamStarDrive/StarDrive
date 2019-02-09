@@ -111,13 +111,6 @@ namespace Ship_Game
             return start + (end - start) * amount;
         }
 
-        public static Vector3 LerpTo(this Vector3 start, Vector3 end, float amount)
-        {
-            return new Vector3( start.X + (end.X - start.X) * amount,
-                                start.Y + (end.Y - start.Y) * amount,
-                                start.Z + (end.Z - start.Z) * amount );
-        }
-
         public static Color LerpTo(this Color start, Color end, float amount)
         {
             return new Color((byte)(start.R + (end.R - start.R) * amount),
@@ -731,6 +724,13 @@ namespace Ship_Game
                 clipSpacePoint /= len;
             return new Vector2(( clipSpacePoint.X + 1.0f) * 0.5f * viewport.Width  + viewport.X,
                                (-clipSpacePoint.Y + 1.0f) * 0.5f * viewport.Height + viewport.Y);
+        }
+
+        public static Vector2 Measure2D(this Viewport viewport, Vector3 a, Vector3 b, ref Matrix projection, ref Matrix view)
+        {
+            Vector2 x = ProjectTo2D(viewport, a, ref projection, ref view);
+            Vector2 y = ProjectTo2D(viewport, b, ref projection, ref view);
+            return y - x;
         }
 
         public static Vector3 UnprojectToWorld(this Viewport viewport, int screenX, int screenY, float depth, 

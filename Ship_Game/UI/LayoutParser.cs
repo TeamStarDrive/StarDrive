@@ -210,7 +210,14 @@ namespace Ship_Game.UI
         {
             ElementInfo info = DeserializeElementInfo(node);
             info.Tex = LoadTexture(info.Texture);
-            info.R   = ParseRect(parent, info);
+
+            // init texture for size information, so buttons can be auto-resized
+            if (info.Tex == null && node.Key == "Button")
+            {
+                info.Tex = UIButton.StyleTexture(info.ButtonStyle);
+            }
+
+            info.R = ParseRect(parent, info);
             return info;
         }
 
@@ -243,9 +250,11 @@ namespace Ship_Game.UI
             else if (node.Key == "Button")
             {
                 info = ParseInfo(parent, node);
-                element = new UIButton(null, ButtonStyle.Default, info.R.PosVec(), info.Title.Text)
+                element = new UIButton(info.ButtonStyle, info.R)
                 {
-                    Tooltip = info.Tooltip.Text
+                    Text = info.Title.Text,
+                    Tooltip = info.Tooltip.Text,
+                    ClickSfx = info.ClickSfx,
                 };
             }
             else if (node.Key == "Checkbox")
