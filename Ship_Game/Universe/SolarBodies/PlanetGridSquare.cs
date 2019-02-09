@@ -78,17 +78,17 @@ namespace Ship_Game
             QItem = null;
         }
 
-        public bool PerformeAutoCombat(Planet p)
+        public bool PerformAutoCombat(Planet p)
         {
             return (GlobalStats.AutoCombat // always auto combat
                 || p.Owner?.isPlayer == false // or we're AI?
                 || !Empire.Universe.IsViewingCombatScreen(p)); // or we're not looking at combat screen
         }
 
-        public bool BuildingPerformesAutoCombat(Planet p)
+        public bool BuildingPerformsAutoCombat(Planet p)
         {
             return building?.CanAttack == true
-                && PerformeAutoCombat(p);
+                && PerformAutoCombat(p);
         }
 
 	    public bool HostilesTargetsOnTile(Empire us, Empire planetOwner)

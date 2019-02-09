@@ -70,7 +70,7 @@ namespace Ship_Game
                 if (pgs.TroopsAreOnTile)
                     CourseOfAction(pgs.SingleTroop, pgs);
 
-                else if (pgs.BuildingPerformesAutoCombat(Ground))
+                else if (pgs.BuildingPerformsAutoCombat(Ground))
                     CourseOfAction(pgs.building, pgs);
             }
         }
