@@ -676,14 +676,17 @@ namespace Ship_Game.AI
             if (qi.sData == null)
             {
                 ClearOrders();
+                Log.Warning($"qi.sdata for refit was null. Ship to refit: {Owner.Name}");
+                return;
             }
-            int cost = (int) (ResourceManager.ShipsDict[Owner.Name].GetCost(Owner.loyalty) -
-                              Owner.GetCost(Owner.loyalty));
-            if (cost < 0)
-                cost = 0;
-            cost += (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace
-            qi.Cost = Owner.loyalty.isFaction ? 0 : cost;
+            float oldShipCost = Owner.GetCost(Owner.loyalty);
+            float newShipCost = ResourceManager.ShipsDict[qi.sData.Name].GetCost(Owner.loyalty);
+
+            int cost   = Math.Max((int)(newShipCost - oldShipCost),0);
+            cost      += (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace
+            qi.Cost    = Owner.loyalty.isFaction ? 0 : cost;
             qi.isRefit = true;
+
             //Added by McShooterz: refit keeps name and level
             if (Owner.VanityName != Owner.Name)
                 qi.RefitName = Owner.VanityName;
@@ -691,10 +694,10 @@ namespace Ship_Game.AI
                 qi.sData.Level = (byte)Owner.Level;
             if (Owner.fleet != null)
             {
-                var refitgoal = new FleetRequisition(goal, this);
-                FleetNode.GoalGUID = refitgoal.guid;
-                Owner.loyalty.GetEmpireAI().Goals.Add(refitgoal);
-                qi.Goal = refitgoal;
+                var refitGoal      = new FleetRequisition(goal, this);
+                FleetNode.GoalGUID = refitGoal.guid;
+                Owner.loyalty.GetEmpireAI().Goals.Add(refitGoal);
+                qi.Goal = refitGoal;
             }
             OrbitTarget.ConstructionQueue.Add(qi);
             Owner.QueueTotalRemoval();
