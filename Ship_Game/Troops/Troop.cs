@@ -56,15 +56,15 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] private Empire Owner;
         [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
         [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
+
         [XmlIgnore][JsonIgnore] private float UpdateTimer;        
         [XmlIgnore][JsonIgnore] public string DisplayName => DisplayNameEmpire(Owner);
         [XmlIgnore] [JsonIgnore] public float ActualCost  => Cost * CurrentGame.Pace;
-
-        public bool CanMove      => AvailableMoveActions > 0;
-        public bool CanAttack    => AvailableAttackActions > 0;
-        public int NetHardAttack => (int)(HardAttack + 0.1f * Level * HardAttack);
-        public int NetSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
-        public Empire Loyalty    => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
+        [XmlIgnore] [JsonIgnore] public bool CanMove      => AvailableMoveActions > 0;
+        [XmlIgnore] [JsonIgnore] public bool CanAttack    => AvailableAttackActions > 0;
+        [XmlIgnore] [JsonIgnore] public int NetHardAttack => (int)(HardAttack + 0.1f * Level * HardAttack);
+        [XmlIgnore] [JsonIgnore] public int NetSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
+        [XmlIgnore] [JsonIgnore] public Empire Loyalty    => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
 
         public string DisplayNameEmpire(Empire empire = null)
         {

@@ -51,16 +51,11 @@ namespace Ship_Game.Ships
         }
 
         public ShipModule[] AllActiveHangars   => AllHangars.Filter(module => module.Active);
-
         public bool HasActiveHangars           => AllHangars.Any(module => module.Active); // FB: this changes dynamically
-
-        public bool HasTransporters => AllTransporters.Length > 0;
-
-        public bool CanInvadeOrBoard => HasTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
-
+        public bool HasTransporters            => AllTransporters.Length > 0;
+        public bool CanInvadeOrBoard           => HasTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
         public ShipModule[] AllActiveTroopBays => AllTroopBays.Filter(module => module.Active);
-
-        public int NumActiveHangars => AllHangars.Count(hangar => hangar.Active);
+        public int NumActiveHangars            => AllHangars.Count(hangar => hangar.Active);
 
         // this will return the number of assault shuttles ready to launch (regardless of troopcount)
         public int AvailableAssaultShuttles => AllTroopBays.Count(hangar => hangar.Active && hangar.hangarTimer <= 0 && hangar.GetHangarShip() == null);
@@ -86,13 +81,13 @@ namespace Ship_Game.Ships
                 if (Owner == null || Owner.TroopList.Count <= 0)
                     return 0f;
 
-                float troopStrentgh = 0f;
+                float troopStrength = 0f;
                 int maxTroopsForLaunch = Math.Min(Owner.TroopList.Count, AvailableAssaultShuttles);
                 for (int i = 0; i < maxTroopsForLaunch; ++i)
                 {
-                    troopStrentgh += Owner.TroopList[i].Strength;    
+                    troopStrength += Owner.TroopList[i].Strength;    
                 }
-                return troopStrentgh;
+                return troopStrength;
             }
         }
 
