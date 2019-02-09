@@ -51,8 +51,7 @@ Panel: planet_flare
   Pos: [0, -0.72]
   AxisAlign: Center
   DrawDepth: BackAdditive
-  # Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
-  Animation: [0, 8, 8, 1.25, 1.25]
+  Animation: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
     MinColor: [0.85,0.85,0.85,1.0] # vary the color from min
     MaxColor: [1.0,1.0,1.0,1.0]    # to max
 
@@ -63,8 +62,7 @@ Panel: optical_sun_flare
   Pos: [0.01, 0.02]
   AxisAlign: Center
   DrawDepth: BackAdditive
-  # Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
-  Animation: [0, 8, 8, 1.25, 1.25]
+  Animation: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
     #Pattern: Sine
     MinColor: [0.6,0.6,0.6,1.0] # vary the color from min
     MaxColor: [1.0,1.0,1.0,1.0]    # to max
@@ -75,37 +73,89 @@ Panel: vignette
   Rect: [0, 0, 1, 1] # fill entire Screen
   DrawDepth: Foreground # on top of everything
 
-#PanelRel("MainMenu/corner_TL", layout.CornerTL).Anim(2f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
-#PanelRel("MainMenu/corner_BR", layout.CornerBR).Anim(3f, 6f, 1f, 1f).Alpha(0.5f).Loop(hexLoop).Sine();
-
 Panel: corner_TL
   Texture: MMenu/corner_TL2.png
   Rect: [16, 16, 0.2, 0]
-  # Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
-  Animation: [2, 6, 8, 1, 1]
+  Animation: [2, 6, 9, 1, 1] # delay, duration, end-time, fadein, fadeout
     Alpha: [0.5, 1.0]
     Pattern: Sine
 
 Panel: corner_BR
   Texture: MMenu/corner_BR2.png
-  Rect: [-16, -16, 0, 0]
+  Rect: [-16, -16, 0.15, 0]
   AxisAlign: BottomRight
-  # Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
-  Animation: [2, 6, 8, 1, 1]
+  Animation: [2.5, 6, 9, 1, 1] # delay, duration, end-time, fadein, fadeout
     Alpha: [0.5, 1.0]
     Pattern: Sine
   
-Panel: moon_flare # this element is automatically placed
+Panel: moon_flare # this element is automatically translated
   Texture: MMenu/moon_flare.png
+  Rect: [-225, -193, 0.22, 0]
   DrawDepth: ForeAdditive # on top of 3D objects
 
+# moon text elements are automatically translated to moon center
+# so position is offset from moon center
+Panel: moon_text_1
+  Texture: MainMenu/moon_1
+  Pos: [-220,-130]
+  Animation: [1.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
+    Alpha: [0.0, 1.0]
+
+Panel: moon_text_2
+  Texture: MainMenu/moon_2
+  Pos: [-250,60]
+  Animation: [5.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
+    Alpha: [0.0, 1.0]
+
+Panel: moon_text_3
+  Texture: MainMenu/moon_3
+  Pos: [60, 80]
+  Animation: [7.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
+    Alpha: [0.0, 1.0]
+
 List: buttons
-  Rect: [0, 0.3, 170, 600]
-  AxisAlign: Center
+  Rect: [-20, 0.22, 200, 600]
+  AxisAlign: CenterRight
   Padding: [5,15]
   # Fill -- fill to width of the list
   # Clip -- clip elements to width of the list
   # Resize -- auto resize list itself
   ListLayout: Resize
-
-
+  Children:
+    Button: new_game
+      ButtonStyle: Default
+      Size: [1.0, 0] # aspect fill width
+      Title: "{1}" # "New Game"
+      ClickSfx: sd_ui_tactical_pause
+    Button: tutorials
+      Title: "{3}" # "Tutorials"
+      Size: [1.0, 0]
+      ClickSfx: sd_ui_tactical_pause
+    Button: load_game
+      Title: "{2}" # "Load Game"
+      Size: [1.0, 0]
+      ClickSfx: sd_ui_tactical_pause
+    Button: options
+      Title: "{4}" # "Options"
+      Size: [1.0, 0]
+      ClickSfx: sd_ui_tactical_pause
+    Button: mods
+      Title: "Mods"
+      Size: [1.0, 0]
+      ClickSfx: sd_ui_tactical_pause
+    Button: sandbox
+      Title: "Dev Sandbox"
+      Size: [1.0, 0]
+      ClickSfx: sd_ui_tactical_pause
+    Button: info
+      Title: "BlackBox Info"
+      Size: [1.0, 0]
+      ClickSfx: sd_ui_tactical_pause
+    Button: version
+      Title: "Version Check"
+      Size: [1.0, 0]
+      ClickSfx: sd_ui_tactical_pause
+    Button: exit
+      Title: "{5}" # "Exit"
+      Size: [1.0, 0]
+      ClickSfx: sd_ui_tactical_pause
