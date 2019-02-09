@@ -679,12 +679,8 @@ namespace Ship_Game.AI
                 Log.Warning($"qi.sdata for refit was null. Ship to refit: {Owner.Name}");
                 return;
             }
-            float oldShipCost = Owner.GetCost(Owner.loyalty);
-            float newShipCost = ResourceManager.ShipsDict[qi.sData.Name].GetCost(Owner.loyalty);
 
-            int cost   = Math.Max((int)(newShipCost - oldShipCost),0);
-            cost      += (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace
-            qi.Cost    = Owner.loyalty.isFaction ? 0 : cost;
+            qi.Cost    = Owner.RefitCost(qi.sData.Name);
             qi.isRefit = true;
 
             //Added by McShooterz: refit keeps name and level

@@ -64,12 +64,7 @@ namespace Ship_Game
                 Rectangle moneyRect = new Rectangle(e.X + 165, e.Y, 21, 20);
                 Vector2 moneyText = new Vector2((moneyRect.X + 25), (moneyRect.Y - 2));
                 batch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
-                int refitCost = (int)(ship.GetCost(ship.loyalty) - Shiptorefit.GetCost(ship.loyalty));
-                if (refitCost < 0)
-                {
-                    refitCost = 0;
-                }
-                refitCost = refitCost + 10;
+                int refitCost = Shiptorefit.RefitCost(ship.Name);
                 batch.DrawString(Fonts.Arial12Bold, refitCost.ToString(), moneyText, Color.White);
             }
             if (RefitTo != null)
