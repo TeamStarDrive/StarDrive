@@ -1157,18 +1157,9 @@ namespace Ship_Game.Ships
             if (shieldsMax > 0)
             {
                 def                 += shieldsMax / 50; 
-                float shieldcoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
-                // normalizing for small ships
-                if (slotCount < 10)
-                    shieldcoverage = shieldcoverage * 0.03125f;
-                else if (slotCount < 32)
-                    shieldcoverage = shieldcoverage * 0.0625f;
-                else if (slotCount < 60)
-                    shieldcoverage = shieldcoverage * 0.25f;
-                else if (slotCount < 200)
-                    shieldcoverage = shieldcoverage * 0.5f;
+                float shieldCoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
 
-                def *= shieldcoverage > 0 ? 1 + shieldcoverage : 1f; 
+                def *= shieldCoverage < 1 ? shieldCoverage : 1f; 
                 def *= 1 + shield_kinetic_resist / 5;
                 def *= 1 + shield_energy_resist / 5;
                 def *= 1 + shield_beam_resist / 5;
