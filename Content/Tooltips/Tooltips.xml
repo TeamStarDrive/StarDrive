@@ -1227,12 +1227,12 @@
     </ToolTip>
     <ToolTip>
       <TIP_ID>244</TIP_ID>
-      <Title>Weapons Peak Power drain during full beam duraion</Title>
+      <Title>Weapons Peak Power drain during full beam duration</Title>
       <Data>1988</Data>
     </ToolTip>
     <ToolTip>
       <TIP_ID>245</TIP_ID>
-      <Title>Weapons Peak Power Time during full beam duraion</Title>
+      <Title>Weapons Peak Power Time during full beam duration</Title>
       <Data>1987</Data>
     </ToolTip>
     <ToolTip>
@@ -1259,6 +1259,11 @@
       <TIP_ID>250</TIP_ID>
       <Title>Planet's space offense</Title>
       <Data>1979</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>251</TIP_ID>
+      <Title>Troop Weapon Range</Title>
+      <Data>1965</Data>
     </ToolTip>
   </ToolTipsList>
 </Tooltips>
