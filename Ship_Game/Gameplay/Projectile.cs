@@ -122,7 +122,7 @@ namespace Ship_Game.Gameplay
             return projectile;
         }
 
-        private void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound)
+        void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound)
         {
             ++DebugInfoScreen.ProjCreated;
             Position = origin;
@@ -260,9 +260,12 @@ namespace Ship_Game.Gameplay
 
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
-            if (MissileAI?.GetTarget.GetLoyalty() == attacker) return true;            
+            if (MissileAI?.GetTarget.GetLoyalty() == attacker)
+                return true;
+
             if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade
-                && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(Owner)) return true;
+                && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(Owner))
+                return true;
            
             return false;
         }

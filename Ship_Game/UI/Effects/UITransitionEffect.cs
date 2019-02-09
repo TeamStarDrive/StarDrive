@@ -5,38 +5,32 @@ namespace Ship_Game
 {
     public class UITransitionEffect : UIEffect
     {
-        readonly float TransitionTime = 1.0f;
-        readonly float Offset; // offset multiplier
-        readonly float Direction;
-
-        readonly Rectangle AnimStart;
-        readonly Rectangle AnimEnd;
+        readonly Vector2 Start;
+        readonly Vector2 End;
+        float DelayTimer;
+        readonly float TransitionTime;
 
         public UITransitionEffect(UIElementV2 e, 
-            Vector2 distance, float animOffset, float direction, float transitionTime = 1.0f) : base(e)
+            Vector2 start, Vector2 end, float delay = 0f, float transitionTime = 1.0f) : base(e)
         {
-            Offset = animOffset;
-            Direction = direction;
-            Animation = (direction < 0) ? +1f : 0f;
+            Start = start;
+            End = end;
+            DelayTimer = delay;
             TransitionTime = transitionTime;
-            AnimStart = e.Rect;
-            AnimEnd = AnimStart;
-            AnimEnd.X += (int)distance.X;
-            AnimEnd.Y += (int)distance.Y;
         }
 
         public override bool Update(float deltaTime)
         {
-            Animation += (Direction * deltaTime) / TransitionTime;
-            float animWithOffset = ((Animation - 0.5f * Offset) / 0.5f).Clamped(0f, 1f);
+            if (DelayTimer > 0f)
+            {
+                DelayTimer -= deltaTime;
+                return false;
+            }
 
-            int dx = (AnimEnd.X - AnimStart.X);
-            int dy = (AnimEnd.Y - AnimStart.Y);
-            Element.X = AnimStart.X + animWithOffset * dx;
-            Element.Y = AnimStart.Y + animWithOffset * dy;
+            Animation = (Animation + (deltaTime / TransitionTime)).Clamped(0f, 1f);
+            Element.Pos = Start.LerpTo(End, Animation);
 
-            if (Direction < 0f && animWithOffset.AlmostEqual(0f) ||
-                Direction > 0f && animWithOffset.AlmostEqual(1f))
+            if (Element.Pos.AlmostEqual(End))
             {
                 GameAudio.BlipClick(); // effect finished!
 

@@ -62,12 +62,17 @@ namespace Ship_Game.Debug
         DebugPage Page;
         readonly FloatSlider SpeedLimitSlider;
         readonly FloatSlider DebugPlatformSpeed;
+        bool CanDebugPlatformFire;
 
         public DebugInfoScreen(UniverseScreen screen) : base(screen, pause:false)
         {
             Screen = screen;
-            SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
-            DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
+            if (screen is DeveloperSandbox.DeveloperUniverse)
+            {
+                SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
+                DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
+                Checkbox(RelativeToAbsolute(-200f, 480f), () => CanDebugPlatformFire, "Start Firing", 0);
+            }
 
             foreach (Empire empire in EmpireManager.Empires)
             {
@@ -168,6 +173,8 @@ namespace Ship_Game.Debug
 
         void UpdateDebugShips(float deltaTime)
         {
+            if (DebugPlatformSpeed == null) // platform is only enabled in sandbox universe
+                return;
             float platformSpeed = DebugPlatformSpeed.AbsoluteValue;
             float speedLimiter = SpeedLimitSlider.RelativeValue;
 
@@ -179,6 +186,7 @@ namespace Ship_Game.Debug
 
             foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
             {
+                platform.CanFire = CanDebugPlatformFire;
                 if (platformSpeed.NotZero())
                 {
                     platform.Velocity.X = platformSpeed;
@@ -489,7 +497,7 @@ namespace Ship_Game.Debug
             if (ship.AI.OrderQueue.NotEmpty)
             {
                 ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
-                Vector2 pos = goals[0].TargetPlanet?.Center ?? goals[0].MovePosition;
+                Vector2 pos = goals[0].TargetPlanet?.Center ?? ship.AI.Target?.Center ?? goals[0].MovePosition;
                 DrawString($"Ship distance from goal: {pos.Distance(ship.Position)}");
                 DrawString($"AI State: {ship.AI.State}");
                 DrawString($"Combat State: {ship.AI.CombatState}");

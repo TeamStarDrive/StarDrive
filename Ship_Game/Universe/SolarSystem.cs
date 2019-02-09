@@ -150,6 +150,8 @@ namespace Ship_Game
             }
 
             bool radiation = ShouldApplyRadiationDamage(elapsedTime);
+            if (Sun.RadiationDamage > 0f)
+                UpdateSolarRadiationDebug(elapsedTime);
 
             for (int i = ShipList.Count - 1; i >= 0; --i)
             {
@@ -184,6 +186,7 @@ namespace Ship_Game
             }
         }
 
+
         float RadiationTimer;
         const float RadiationInterval = 0.5f;
 
@@ -201,25 +204,25 @@ namespace Ship_Game
             return false;
         }
 
-        void ApplySolarRadiationDamage(Ship ship)
+        void UpdateSolarRadiationDebug(float elapsedTime)
         {
-            if (Sun.RadiationDamage <= 0f)
-                return;
-
             // some debugging for us developers
-            if (Empire.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.Pathing)
+            if (Empire.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.Solar)
             {
                 for (float r = 0.03f; r < 0.5f; r += 0.03f)
                 {
                     float dist = Sun.RadiationRadius*r;
                     var color = new Color(Color.Red, Sun.DamageMultiplier(dist));
-                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Pathing, 
-                        Position, dist, color, RadiationInterval);
+                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar, 
+                        Position, dist, color, 0f);
                 }
-                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Pathing, 
-                    Position, Sun.RadiationRadius, Color.Brown, RadiationInterval);
+                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar, 
+                    Position, Sun.RadiationRadius, Color.Brown, 0f);
             }
+        }
 
+        void ApplySolarRadiationDamage(Ship ship)
+        {
             float distance = ship.Center.Distance(Position);
             if (distance < Sun.RadiationRadius)
             {

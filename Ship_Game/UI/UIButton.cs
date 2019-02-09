@@ -52,6 +52,12 @@ namespace Ship_Game
             Size  = ButtonTexture().SizeF;
         }
 
+        public UIButton(ButtonStyle style, in Rectangle rect)
+        {
+            Style = style;
+            Rect = rect;
+        }
+
         class StyleTextures
         {
             public readonly SubTexture Normal;
@@ -92,6 +98,11 @@ namespace Ship_Game
                 new StyleTextures("NewUI/Close_Normal", "NewUI/Close_Hover")
             };
             return Styling;
+        }
+
+        public static SubTexture StyleTexture(ButtonStyle style = ButtonStyle.Default)
+        {
+            return GetStyles()[(int)style].Normal;
         }
 
         public static Vector2 StyleSize(ButtonStyle style = ButtonStyle.Default)
