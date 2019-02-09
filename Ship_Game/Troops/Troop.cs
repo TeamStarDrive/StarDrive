@@ -58,13 +58,14 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
 
         [XmlIgnore][JsonIgnore] private float UpdateTimer;        
-        [XmlIgnore][JsonIgnore] public string DisplayName => DisplayNameEmpire(Owner);
-        [XmlIgnore] [JsonIgnore] public float ActualCost  => Cost * CurrentGame.Pace;
-        [XmlIgnore] [JsonIgnore] public bool CanMove      => AvailableMoveActions > 0;
-        [XmlIgnore] [JsonIgnore] public bool CanAttack    => AvailableAttackActions > 0;
-        [XmlIgnore] [JsonIgnore] public int NetHardAttack => (int)(HardAttack + 0.1f * Level * HardAttack);
-        [XmlIgnore] [JsonIgnore] public int NetSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
-        [XmlIgnore] [JsonIgnore] public Empire Loyalty    => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
+        [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);
+        [XmlIgnore] [JsonIgnore] public float ActualCost     => Cost * CurrentGame.Pace;
+        [XmlIgnore] [JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
+        [XmlIgnore] [JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;
+        [XmlIgnore] [JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.1f * Level * HardAttack);
+        [XmlIgnore] [JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
+        [XmlIgnore] [JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
+        [XmlIgnore] [JsonIgnore] public int ActualRange      => Level < 3 ? Range : Range + 1;  // veterans have bigger range
 
         public string DisplayNameEmpire(Empire empire = null)
         {
@@ -100,12 +101,12 @@ namespace Ship_Game
 
         public void UpdateMoveTimer(float amount)
         {
-            MoveTimer += amount;
+            if (!CanMove) MoveTimer += amount;
         }
 
         public void UpdateAttackTimer(float amount)
         {
-            AttackTimer += amount;
+            if (!CanAttack) AttackTimer += amount;
         }
 
         public void UpdateLaunchTimer(float amount)
@@ -123,7 +124,7 @@ namespace Ship_Game
             AttackTimer = Math.Max(AttackTimerBase - (int)(Level * 0.5), 5);
         }
 
-        public void ResetLanchTimer()
+        public void ResetLaunchTimer()
         {
             Launchtimer = MoveTimerBase; // FB -  yup, MoveTimerBase
         }

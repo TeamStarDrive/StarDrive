@@ -134,7 +134,7 @@ namespace Ship_Game
 
         public void UpdateAttackTimer(float amount)
         {
-            AttackTimer += amount;
+            if (!CanAttack) AttackTimer += amount;
         }
 
         public void ResetAttackTimer()

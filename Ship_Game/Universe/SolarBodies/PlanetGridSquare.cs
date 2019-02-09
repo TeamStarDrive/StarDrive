@@ -36,8 +36,8 @@ namespace Ship_Game
 
         // FB - all these are starting multiple troops per PGS support
         public float TroopsStrength => TroopsHere.Sum(troop => troop.Strength);
-        public int TroopsHardAttack => TroopsHere.Sum(troop => troop.NetHardAttack);
-        public int TroopsSoftAttack => TroopsHere.Sum(troop => troop.NetSoftAttack);
+        public int TroopsHardAttack => TroopsHere.Sum(troop => troop.ActualHardAttack);
+        public int TroopsSoftAttack => TroopsHere.Sum(troop => troop.ActualSoftAttack);
 
         public PlanetGridSquare()
 		{

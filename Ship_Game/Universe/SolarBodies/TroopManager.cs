@@ -46,7 +46,7 @@ namespace Ship_Game
             if (Empire.Universe.Paused) return;
             DecisionTimer -= elapsedTime;
             InCombatTimer -= elapsedTime;
-            if (TroopsAreOnPlanet) // FB  - && TroopsHereAreEnemies  maybe?
+            if (RecentCombat || TroopsAreOnPlanet)
             {
                 ResolvePlanetaryBattle(elapsedTime);
                 if (DecisionTimer <= 0)
@@ -54,9 +54,9 @@ namespace Ship_Game
                     MakeCombatDecisions();
                     DecisionTimer = 0.5f;
                 }
+                DoBuildingTimers(elapsedTime);
+                DoTroopTimers(elapsedTime);
             }
-            DoBuildingTimers(elapsedTime);
-            DoTroopTimers(elapsedTime);
         }
 
         private void MakeCombatDecisions()
@@ -105,7 +105,7 @@ namespace Ship_Game
                 return; // no targets on planet. no need to move or attack
 
             // find range
-            if (nearestTargetTile.InRangeOf(ourTile, t.Range) && !nearestTargetTile.EventOnTile) 
+            if (nearestTargetTile.InRangeOf(ourTile, t.ActualRange) && !nearestTargetTile.EventOnTile) 
             {
                 // start combat
                 t.UpdateAttackActions(-1);
@@ -113,9 +113,8 @@ namespace Ship_Game
                 t.facingRight = nearestTargetTile.x >= ourTile.x;
                 CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
             }
-
-            // move to targets
-            MoveTowardsTarget(t, ourTile, nearestTargetTile);
+            else // move to targets
+                MoveTowardsTarget(t, ourTile, nearestTargetTile);
 
             // resolve possible events 
             ResolveEvents(ourTile, nearestTargetTile);
@@ -224,7 +223,7 @@ namespace Ship_Game
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building building = BuildingList[i];
-                if (building == null)
+                if (building == null || !building.IsAttackable)
                     continue;
 
                 building.UpdateAttackTimer(-elapsedTime);
@@ -431,9 +430,9 @@ namespace Ship_Game
         {
             int num = 0;
 
-            foreach (PlanetGridSquare PGS in TilesList)
+            foreach (PlanetGridSquare pgs in TilesList)
             {
-                num += PGS.MaxAllowedTroops;
+                num += pgs.MaxAllowedTroops;
             }
             return num;
         }

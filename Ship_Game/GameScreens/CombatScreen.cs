@@ -585,7 +585,7 @@ namespace Ship_Game
                 {
                     pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
                     pgs.SingleTroop.UpdateMoveActions(-pgs.SingleTroop.MaxStoredActions);
-                    pgs.SingleTroop.ResetLanchTimer();
+                    pgs.SingleTroop.ResetLaunchTimer();
                     pgs.SingleTroop.ResetAttackTimer();
                     pgs.SingleTroop.ResetMoveTimer();
                     play = true;
@@ -665,7 +665,7 @@ namespace Ship_Game
                         pgs.TroopsHere.Add(draggedTroop.item as Troop);
                         pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
                         pgs.SingleTroop.UpdateMoveActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.ResetLanchTimer();
+                        pgs.SingleTroop.ResetLaunchTimer();
                         pgs.SingleTroop.ResetAttackTimer();
                         pgs.SingleTroop.ResetMoveTimer();
 
@@ -686,7 +686,7 @@ namespace Ship_Game
                         pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
                         pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
                         pgs.SingleTroop.UpdateMoveActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.ResetLanchTimer();
+                        pgs.SingleTroop.ResetLaunchTimer();
                         pgs.SingleTroop.ResetAttackTimer();
                         pgs.SingleTroop.ResetMoveTimer();
                         p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
