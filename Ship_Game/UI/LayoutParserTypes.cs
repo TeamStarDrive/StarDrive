@@ -29,6 +29,8 @@ namespace Ship_Game.UI
         [StarData] public readonly Vector2 Size;
         [StarData] public readonly Vector2 Padding = new Vector2(5f, 5f);
         [StarData] public readonly ListLayoutStyle ListLayout = ListLayoutStyle.Resize;
+        [StarData] public readonly ButtonStyle ButtonStyle = ButtonStyle.Default;
+        [StarData] public readonly string ClickSfx = "echo_affirm";
         /**
          * Sets the auto-layout axis of the UIElement. Default is Align.TopLeft
          * Changing the axis will change the position and rotation axis of the object.

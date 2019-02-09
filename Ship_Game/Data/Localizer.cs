@@ -79,6 +79,7 @@ namespace Ship_Game
                         continue;
                     }
                     sb.Append(Localizer.Token(id));
+                    i = j;
                 }
                 else if (c == '\\') // escape character
                 {

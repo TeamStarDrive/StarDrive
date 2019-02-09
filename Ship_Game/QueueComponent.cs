@@ -103,7 +103,7 @@ namespace Ship_Game
 			{
                 foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
                 {
-                    if (((ResearchQItem)e.item).HandleInput(input))
+                    if (e.Get<ResearchQItem>().HandleInput(input))
                     {
                         GameAudio.ResearchSelect();
                         break;

@@ -329,7 +329,7 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public void StartTransition<T>(Vector2 distance, float direction, float time = 1f) where T : UIElementV2
+        public void StartTransition<T>(Vector2 offset, float direction, float time = 1f) where T : UIElementV2
         {
             var candidates = new Array<UIElementV2>();
             for (int i = 0; i < Elements.Count; ++i)
@@ -341,8 +341,10 @@ namespace Ship_Game
             for (int i = candidates.Count - 1; i >= 0; --i)
             {
                 UIElementV2 e = candidates[i];
-                float modifier = time * (i / (float)candidates.Count);
-                e.AddEffect(new UITransitionEffect(e, distance, modifier, direction, time));
+                float delay = time * (i / (float)candidates.Count);
+                Vector2 begin = direction > 0f ? e.Pos : e.Pos + offset;
+                Vector2 end   = direction < 0f ? e.Pos : e.Pos + offset;
+                e.AddEffect(new UITransitionEffect(e, begin, end, delay, time));
             }
         }
 

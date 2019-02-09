@@ -22,18 +22,31 @@ namespace Ship_Game
 
         public static Vector2 Clamped(this Vector2 v, float minXy, float maxXy)
         {
-            return new Vector2(Max(minXy, Min(v.X, maxXy)), 
-                Max(minXy, Min(v.Y, maxXy)));
+            return new Vector2( Max(minXy, Min(v.X, maxXy)), 
+                                Max(minXy, Min(v.Y, maxXy)) );
         }
         public static Vector2 Clamped(this Vector2 v, float minX, float minY, float maxX, float maxY)
         {
-            return new Vector2(Max(minX, Min(v.X, maxX)), 
-                Max(minY, Min(v.Y, maxY)));
+            return new Vector2( Max(minX, Min(v.X, maxX)), 
+                                Max(minY, Min(v.Y, maxY)) );
         }
         public static Vector2 Clamped(this Vector2 v, Vector2 min, Vector2 max)
         {
-            return new Vector2(Max(min.X, Min(v.X, max.X)),
-                Max(min.Y, Min(v.Y, max.Y)));
+            return new Vector2( Max(min.X, Min(v.X, max.X)),
+                                Max(min.Y, Min(v.Y, max.Y)) );
+        }
+
+        public static Vector2 LerpTo(this Vector2 start, Vector2 end, float amount)
+        {
+            return new Vector2( start.X + (end.X - start.X) * amount,
+                                start.Y + (end.Y - start.Y) * amount );
+        }
+
+        public static Vector3 LerpTo(this Vector3 start, Vector3 end, float amount)
+        {
+            return new Vector3( start.X + (end.X - start.X) * amount,
+                                start.Y + (end.Y - start.Y) * amount,
+                                start.Z + (end.Z - start.Z) * amount );
         }
 
         public static Vector2 Floored(this Vector2 v) => new Vector2((int)v.X, (int)v.Y);
