@@ -46,12 +46,12 @@ namespace Ship_Game.GameScreens.MainMenu
         SceneObject MoonObj;
         Vector3 MoonPosition;
         Vector3 MoonRotation = new Vector3(264, 198, -20); // rotation in degrees
-        const float MoonScale = 0.7f;
+        float MoonScale = 1f;
         SceneObject ShipObj;
 
         Vector3 ShipPosition;
         Vector3 ShipRotation = new Vector3(-116f, -188f, -19f);
-        float ShipScale = MoonScale * 1.75f;
+        float ShipScale = 0.7f * 1.75f;
 
         AnimationController ShipAnim;
 
@@ -94,20 +94,20 @@ namespace Ship_Game.GameScreens.MainMenu
 
             if (!Find("buttons", out UIList list))
                 list = List(Vector2.Zero);
-            list.AddButton(titleId: 1,      click: NewGame_Clicked);
-            list.AddButton(titleId: 3,      click: Tutorials_Clicked);
-            list.AddButton(titleId: 2,      click: LoadGame_Clicked);
-            list.AddButton(titleId: 4,      click: Options_Clicked);
-            list.AddButton("Mods",          click: Mods_Clicked);
-            list.AddButton("Dev Sandbox",   click: DevSandbox_Clicked);
-            list.AddButton("BlackBox Info", click: Info_Clicked);
-            list.AddButton("Version Check", click: VerCheck_Clicked);
-            list.AddButton(titleId: 5,      click: Exit_Clicked);
+            if (list.Find("new_game",  out UIButton newGame))   newGame.OnClick   = NewGame_Clicked;
+            if (list.Find("tutorials", out UIButton tutorials)) tutorials.OnClick = Tutorials_Clicked;
+            if (list.Find("load_game", out UIButton loadGame))  loadGame.OnClick  = LoadGame_Clicked;
+            if (list.Find("options",   out UIButton options))   options.OnClick   = Options_Clicked;
+            if (list.Find("mods",      out UIButton mods))      mods.OnClick    = Mods_Clicked;
+            if (list.Find("sandbox",   out UIButton sandbox))   sandbox.OnClick = DevSandbox_Clicked;
+            if (list.Find("info",      out UIButton info))      info.OnClick    = Info_Clicked;
+            if (list.Find("version",   out UIButton version))   version.OnClick = VerCheck_Clicked;
+            if (list.Find("exit",      out UIButton exit))      exit.OnClick    = Exit_Clicked;
             list.PerformLayout();
 
             // Animate the buttons in and out
-            list.StartTransition<UIButton>(new Vector2(-1280f, 0), -1f, 0.8f);
-            OnExit += () => list.StartTransition<UIButton>(new Vector2(-1280f, 0), +1f, 1.0f);
+            list.StartTransition<UIButton>(new Vector2(512, 0), -1f, 0.8f);
+            OnExit += () => list.StartTransition<UIButton>(new Vector2(512, 0), +1f, 1.0f);
             
             SDLogoAnim = Add(new UISpriteElement(this, "MainMenu/Stardrive logo"));
             SDLogoAnim.Animation.FreezeAtLastFrame = layout.FreezeSDLogo;
@@ -115,15 +115,6 @@ namespace Ship_Game.GameScreens.MainMenu
             SDLogoAnim.SetRelPos(layout.SDLogoPosition);
             SDLogoAnim.Visible = layout.ShowSDLogo;
             
-            MoonPosition = new Vector3(+ScreenWidth / 2f - 300, 198 - ScreenHeight / 2f, 0f);
-            ShipPosition = new Vector3(-ScreenWidth / 4f, 528 - ScreenHeight / 2f, 0f);
-
-            PlanetType planetType = ResourceManager.RandomPlanet(PlanetCategory.Terran);
-            string planetMesh = planetType.MeshPath;
-            MoonObj = new SceneObject(TransientContent.Load<Model>(planetMesh).Meshes[0]) { ObjectType = ObjectType.Dynamic };
-            MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
-            ScreenManager.AddObject(MoonObj);
-
             InitRandomShip();
 
             AssignLightRig("example/ShipyardLightrig");
@@ -131,21 +122,34 @@ namespace Ship_Game.GameScreens.MainMenu
 
             Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
             View = Matrix.CreateTranslation(0f, 0f, 0f) 
-                * Matrix.CreateRotationY(180f.ToRadians())
-                * Matrix.CreateRotationX(0f.ToRadians())
-                * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                   * Matrix.CreateRotationY(180f.ToRadians())
+                   * Matrix.CreateRotationX(0f.ToRadians())
+                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             Projection = Matrix.CreateOrthographic(ScreenWidth, ScreenHeight, 1f, 80000f);
 
-            Vector2 moonCenter = Viewport.Project(MoonObj.WorldBoundingSphere.Center, Projection, View, Matrix.Identity).ToVec2();
 
-            if (layout.ShowMoon)
+            MoonPosition = new Vector3(+ScreenWidth / 2f - 300, 198 - ScreenHeight / 2f, 0f);
+
+            PlanetType planetType = ResourceManager.RandomPlanet(PlanetCategory.Terran);
+            var mesh = TransientContent.Load<Model>(planetType.MeshPath).Meshes[0];
+
+            float widthOnScreen = mesh.BoundingSphere.Radius*2; // because of ortographic Projection we can use 3D size directly
+            float desiredWidth = ScreenWidth * 0.15f;
+            MoonScale = desiredWidth / widthOnScreen;
+
+            MoonObj = new SceneObject(mesh) { ObjectType = ObjectType.Dynamic };
+            MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
+            ScreenManager.AddObject(MoonObj);
+
+            Vector2 moonCenter = Viewport.Project(MoonObj.WorldBoundingSphere.Center, Projection, View, Matrix.Identity).ToVec2().Rounded();
+
+            if (Find("moon_flare", out UIPanel flare))
             {
-                // @todo place automatically depending on planet size?
-                if (Find("moon_flare", out UIPanel flare))
-                {
-                    flare.Size *= 0.95f;
-                    flare.Pos = moonCenter - new Vector2(216f, 193f);
-                }
+                flare.Pos += moonCenter;
+
+                if (Find("moon_text_1", out UIPanel text1)) text1.Pos += moonCenter;
+                if (Find("moon_text_2", out UIPanel text2)) text2.Pos += moonCenter;
+                if (Find("moon_text_3", out UIPanel text3)) text3.Pos += moonCenter;
             }
             else
             {
@@ -160,12 +164,6 @@ namespace Ship_Game.GameScreens.MainMenu
 
         void CreateAnimatedOverlays(Vector2 moon, MainMenuLayout layout)
         {
-            // alien text markers flashing on top of right hand side moon
-            const float moonLoop = 12.0f; // total animation loop sync time
-            PanelRel("MainMenu/moon_1", moon+layout.MoonText1).Anim(1.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
-            PanelRel("MainMenu/moon_2", moon+layout.MoonText2).Anim(5.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
-            PanelRel("MainMenu/moon_3", moon+layout.MoonText3).Anim(7.5f, 2.0f, 0.4f, 0.7f).Alpha().Loop(moonLoop);
-
             // flashing planet hex grid overlays
             const float hexLoop = 10.0f;
             if (false && layout.ShowPlanetGrid)
@@ -336,8 +334,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ShipScale = 266f / ShipObj.ObjectBoundingSphere.Radius;
             if (DebugMeshInspect) ShipScale *= 4.0f;
 
-            Log.Info($"ship width: {ShipObj.ObjectBoundingSphere.Radius*2}  scale: {ShipScale}");
-
+            ShipPosition = new Vector3(-ScreenWidth / 4f, 528 - ScreenHeight / 2f, 0f);
             ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
             AddObject(ShipObj);
         }

@@ -13,9 +13,7 @@ namespace Ship_Game
         public Camera2D camera = new Camera2D();
 
         private Map<string, Node> TechTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
-
         public Map<string, Node> CompleteSubNodeTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
-
         public Map<string, Node> SubNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
 
         private Vector2 Cursor = Vector2.Zero;
@@ -46,14 +44,8 @@ namespace Ship_Game
 
         private Vector2 StartDragPos = Vector2.Zero;
 
-        private Rectangle DetailDestinationRect = new Rectangle(0, 0, 600, 600);
-        private Rectangle AbsoluteDestination = new Rectangle(0, 0, 600, 600);
-
         private float ClickTimer;
 
-        private Color needToBuy = new Color(255, 165, 0, 50);
-
-        private Array<UnlockItem> DetailUnlocks = new Array<UnlockItem>();
 
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
@@ -251,93 +243,75 @@ namespace Ship_Game
         }
 
         public override bool HandleInput(InputState input)
-        {                
-            if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
+        {
+            if (input.Escaped || input.ResearchExitScreen || close.HandleInput(input))
+            {
+                GameAudio.EchoAffirmative();
+                ExitScreen();
+                return true;
+            }
+
+            if (input.RightMouseHeldDown)
             {
                 StartDragPos = input.CursorPosition;
-                cameraVelocity.X = 0f;
-                cameraVelocity.Y = 0f;
+                cameraVelocity = Vector2.Zero;
             }
             if (input.MouseCurr.RightButton != ButtonState.Pressed || input.MousePrev.RightButton != ButtonState.Pressed || RightClicked) 
             {
-                cameraVelocity.X = 0f;
-                cameraVelocity.Y = 0f;
-                if (RightClicked)  //fbedard: prevent screen scroll
+                cameraVelocity = Vector2.Zero;
+                if (RightClicked) // fbedard: prevent screen scroll
                     StartDragPos = input.CursorPosition;
             }
             else
             {
-                float xDiff = input.CursorPosition.X - StartDragPos.X;
-                float yDiff = input.CursorPosition.Y - StartDragPos.Y;
-                camera.Pos = camera.Pos + new Vector2(-xDiff, -yDiff);
+                camera.Pos += (StartDragPos - input.CursorPosition);
                 StartDragPos = input.CursorPosition;
             }
 
             cameraVelocity = cameraVelocity.Clamped(-10f, 10f);
-            int backBufferWidth = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            int backBufferHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-            camera.Pos = camera.Pos.Clamped(backBufferWidth / 2f, backBufferHeight / 2f, 3200f, 3200f);
+            camera.Pos = camera.Pos.Clamped(ScreenCenter.X, ScreenCenter.Y, 3200f, 3200f);
 
-            if (input.IsCtrlKeyDown && input.KeysCurr.IsKeyDown(Keys.F1) && input.KeysPrev.IsKeyUp(Keys.F1))
+            // unlock ALL techs
+            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F1))
             {
-
-                var playerTechs = EmpireManager.Player.GetTDict();
-                foreach (var techEntry in playerTechs)
+                Map<string, TechEntry> playerTechs = EmpireManager.Player.GetTDict();
+                foreach (TechEntry techEntry in playerTechs.Values)
                 {                    
-                    techEntry.Value.Unlock(EmpireManager.Player);
+                    techEntry.Unlock(EmpireManager.Player);
                 }
-
-                //foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
-                //{
-                //    UnlockTree(tech.Key);
-                //    foreach(Technology.UnlockedMod unlockmod in tech.Value.ModulesUnlocked)
-                //        EmpireManager.Player.UnlockModuleForEmpire(unlockmod.ModuleUID);
-                //}
-                //foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
-                //{
-                //    EmpireManager.Player.GetHDict()[hull.Key] = true;
-                //}
-
-                //foreach (KeyValuePair<string, Building> building in ResourceManager.BuildingsDict)
-                //{
-                //    Building building1 = ResourceManager.BuildingsDict[building.Key];
-                //    if (string.IsNullOrEmpty(building1.EventTriggerUID))
-                //        EmpireManager.Player.GetBDict()[building.Key] = true;
-                //}
-                //EmpireManager.Player.UpdateShipsWeCanBuild();
-            }
-            //Added by McShooterz: new cheat to only unlock tech
-            if (input.KeysCurr.IsKeyDown(Keys.RightControl) && input.KeysCurr.IsKeyDown(Keys.F2) && input.KeysPrev.IsKeyUp(Keys.F2))
-            {
-                foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
-                {
-                    UnlockTree(tech.Key);
-                }
+                ReloadContent();
                 EmpireManager.Player.UpdateShipsWeCanBuild();
             }
-            //Added by McShooterz: new cheat to only unlock tech
-            if (input.KeysCurr.IsKeyDown(Keys.RightControl) && input.KeysCurr.IsKeyDown(Keys.F3) && input.KeysPrev.IsKeyUp(Keys.F3))
+
+            // unlock only selected node for player
+            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
             {
-                foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
+                if (qcomponent.CurrentResearch != null)
                 {
-                    UnlockTreeNoBonus(tech.Key);
+                    qcomponent.CurrentResearch.Node.tech.Unlock(EmpireManager.Player);
+                    EmpireManager.Player.ResearchTopic = "";
+                    ReloadContent();
+                    EmpireManager.Player.UpdateShipsWeCanBuild();
                 }
-                EmpireManager.Player.UpdateShipsWeCanBuild();
+                else
+                {
+                    GameAudio.NegativeClick();
+                }
             }
+
             qcomponent.HandleInput(input);
             if (qcomponent.Visible && qcomponent.container.HitTest(input.CursorPosition))
-            {
                 return true;
-            }
-            foreach (KeyValuePair<string, Node> tech in TechTree)
+
+            foreach (Node tech in TechTree.Values)
             {
-                if (!tech.Value.HandleInput(input) || !(tech.Value is RootNode))
+                if (tech.HandleInput(input) && tech is RootNode root)
                 {
-                    continue;
+                    PopulateNodesFromRoot(root);
+                    GameAudio.ResearchSelect();
                 }
-                PopulateNodesFromRoot(tech.Value as RootNode);
-                GameAudio.ResearchSelect();
             }
+
             RightClicked = false;
             foreach (KeyValuePair<string, Node> tech in SubNodes)
             {
@@ -366,10 +340,7 @@ namespace Ship_Game
                     qcomponent.SetVisible();
                     GameAudio.ResearchSelect();
                     var techToCheck = tech.Value.tech;
-                    var techsToAdd = new Array<string>
-                    {
-                        techToCheck.UID
-                    };
+                    var techsToAdd = new Array<string>{ techToCheck.UID };
                     if (techToCheck.Tech.RootNode != 1)
                     {
                         while (!techToCheck.Unlocked)
@@ -396,22 +367,6 @@ namespace Ship_Game
                     }
                 }
             }
-            if (input.Escaped)
-            {
-                ExitScreen();
-                return true;
-            }
-            if (input.ResearchExitScreen && !GlobalStats.TakingInput)
-            {
-                GameAudio.EchoAffirmative();
-                ExitScreen();
-                return true;
-            }
-            if (close.HandleInput(input))
-            {
-                ExitScreen();
-                return true;
-            }
             return base.HandleInput(input);
         }
 
@@ -426,7 +381,12 @@ namespace Ship_Game
             close          = new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20));
             QueueContainer = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
             qcomponent     = new QueueComponent(ScreenManager, QueueContainer, this);
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth < 1600)
+
+            TechTree.Clear();
+            CompleteSubNodeTree.Clear();
+            SubNodes.Clear();
+
+            if (ScreenWidth < 1600)
             {
                 qcomponent.SetInvisible();
             }
@@ -479,16 +439,15 @@ namespace Ship_Game
                 PopulateAllTechsFromRoot(entry.Value as RootNode);
             }
             PopulateNodesFromRoot(TechTree[GlobalStats.ResearchRootUIDToDisplay] as RootNode);
-            string resTop = EmpireManager.Player.ResearchTopic;
-            if (!string.IsNullOrEmpty(resTop))
+            if (!string.IsNullOrEmpty(EmpireManager.Player.ResearchTopic))
             {
-                CompleteSubNodeTree.TryGetValue(resTop, out var resTopNode);
-                if(resTopNode != null)
-                qcomponent.LoadQueue(resTopNode as TreeNode);
+                if (CompleteSubNodeTree.TryGetValue(EmpireManager.Player.ResearchTopic, out Node resTopNode))
+                {
+                    qcomponent.LoadQueue(resTopNode as TreeNode);
+                }
                 else
                 {
-                    resTop = string.Empty;
-                    EmpireManager.Player.ResearchTopic = string.Empty;
+                    EmpireManager.Player.ResearchTopic = "";
                 }
             }
             foreach (string uid in EmpireManager.Player.data.ResearchQueue)

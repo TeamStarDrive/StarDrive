@@ -32,6 +32,8 @@ namespace Ship_Game.GameScreens.Sandbox
 
         public float AccuracyPercent => NumHitsScored / (float)NumShotsFired;
 
+        public bool CanFire { get; set; } = false;
+
         public override void Update(float elapsedTime)
         {
             ApplyAllRepair(1000f*elapsedTime, 1, true); // +1000HP/s
@@ -48,7 +50,7 @@ namespace Ship_Game.GameScreens.Sandbox
             {
                 Log.Warning($"PredictionDebug ship {ShipName} has no weapons!");
             }
-            else
+            else if (CanFire)
             {
                 GameplayObject[] nearby = UniverseScreen.SpaceManager.FindNearby(this, 4000f, GameObjectType.Ship);
                 Weapon weapon = Weapons[0];
@@ -63,9 +65,7 @@ namespace Ship_Game.GameScreens.Sandbox
                     {
                         PredictResults.Add(new PredictedLine{ Start = weapon.Origin, End = pip });
                         if (weapon.MouseFireAtTarget(pip))
-                        {
                             NumShotsFired++;
-                        }
                     }
                 }
 
@@ -74,7 +74,17 @@ namespace Ship_Game.GameScreens.Sandbox
                     Weapon disable = Weapons[i];
                     disable.Range = 10;
                     disable.DamageAmount = 0.5f;
-                    disable.CooldownTimer = 10f;
+                    disable.CooldownTimer = 1f;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Weapons.Count; ++i)
+                {
+                    Weapon disable = Weapons[i];
+                    disable.Range = 10;
+                    disable.DamageAmount = 0.5f;
+                    disable.CooldownTimer = 1f;
                 }
             }
             base.Update(elapsedTime);
