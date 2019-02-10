@@ -103,13 +103,13 @@ namespace Ship_Game.AI
 
             foreach (Troop t in targetPlanet.TroopsHere)
             {
-                Empire owner = t?.GetOwner();
+                Empire owner = t?.Loyalty;
                 if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != ColonizeTarget.Owner &&
                     ColonizeTarget.Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
                 {
                     t.Launch();
                     troopsRemoved = true;
-                    playerTroopsRemoved |= t.GetOwner().isPlayer;
+                    playerTroopsRemoved |= t.Loyalty.isPlayer;
                 }
             }
 

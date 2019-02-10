@@ -122,7 +122,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             foreach (PlanetGridSquare tile in P.TilesList)
             {
-                if (tile.TroopsHere.Count < tile.number_allowed_troops &&
+                if (tile.TroopsHere.Count < tile.MaxAllowedTroops &&
                     (tile.building == null || (tile.building != null && tile.building.CombatStrength == 0)))
                     return true;
             }

@@ -1248,7 +1248,7 @@ namespace Ship_Game
                             {
                                 foreach (Troop troop in p.TroopsHere)
                                 {
-                                    if (troop?.GetOwner() != Universe.PlayerEmpire) continue;
+                                    if (troop?.Loyalty != Universe.PlayerEmpire) continue;
                                     empirePlanetCombat++;
                                     break;
                                 }
@@ -2258,7 +2258,7 @@ namespace Ship_Game
                 {
                     foreach (Troop troop in planet.TroopsHere)
                     {
-                        if (troop.GetOwner() == target)
+                        if (troop.Loyalty == target)
                             troop.SetOwner(this);
                     }
                 }

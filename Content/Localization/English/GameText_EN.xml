@@ -4696,6 +4696,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1965</Index>
+      <Text>Indicates the tile range this troop can fire from. Veterans (level 3 or above) get +1 bonus to their range.</Text>
+    </Token>
+    <Token>
+      <Index>1966</Index>
+      <Text>Range</Text>
+    </Token>
+    <Token>
       <Index>1967</Index>
       <Text>due to buildings which have negative environmental effects. You may remove them to reach Terraformer's full potential.</Text>
     </Token>
