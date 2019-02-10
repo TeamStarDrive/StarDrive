@@ -147,7 +147,7 @@ namespace Ship_Game
             //Building lastBuilding;
             foreach (Building b in planet.BuildingList)
             {
-                if (string.IsNullOrEmpty(b.EventTriggerUID) || (planet.Owner != null && planet.Owner.GetBDict()[b.Name]))
+                if (!b.EventHere || (planet.Owner != null && planet.Owner.GetBDict()[b.Name]))
                 {
                     continue;
                 }
@@ -183,7 +183,7 @@ namespace Ship_Game
             using (planet.TroopsHere.AcquireReadLock())
             foreach (Troop troop in planet.TroopsHere)
             {
-                if (troop.GetOwner().isPlayer)
+                if (troop.Loyalty.isPlayer)
                 {
                     troops++;
 

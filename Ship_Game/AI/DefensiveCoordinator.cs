@@ -129,7 +129,7 @@ namespace Ship_Game.AI
                 if (p.Owner != Us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(Us))
                 {
                     p.TroopsHere.ApplyPendingRemovals();
-                    foreach (Troop troop in p.TroopsHere.Where(loyalty => loyalty.GetOwner() == Us))
+                    foreach (Troop troop in p.TroopsHere.Where(loyalty => loyalty.Loyalty == Us))
                     {
                         p.TroopsHere.QueuePendingRemoval(troop);
                         troop.Launch();
@@ -385,7 +385,7 @@ namespace Ship_Game.AI
                 if (!kv.Key.CombatInSystem
                     && p.GetDefendingTroopCount() > kv.Value.IdealTroopCount * devratio)
                 {
-                    Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.GetOwner() == Us);
+                    Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.Loyalty == Us);
                     l?.Launch();
                 }
             }

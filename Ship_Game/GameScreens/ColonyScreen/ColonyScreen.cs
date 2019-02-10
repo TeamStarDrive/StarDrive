@@ -255,7 +255,7 @@ namespace Ship_Game
             }
             foreach (PlanetGridSquare planetGridSquare in P.TilesList)
             {
-                if (planetGridSquare.highlighted)
+                if (planetGridSquare.Highlighted)
                     batch.DrawRectangle(planetGridSquare.ClickRect, Color.White, 2f);
             }
 
@@ -543,12 +543,13 @@ namespace Ship_Game
                         : t.ActualStrengthMax.String(1);
 
                     DrawMultiLine(ref bCursor, t.Description);
-                    DrawTitledLine(ref bCursor, 338, t.TargetType);
+                    DrawTitledLine(ref bCursor, 338, t.TargetType.ToString());
                     DrawTitledLine(ref bCursor, 339, strength);
-                    DrawTitledLine(ref bCursor, 2218, t.NetHardAttack.ToString());
-                    DrawTitledLine(ref bCursor, 2219, t.NetSoftAttack.ToString());
+                    DrawTitledLine(ref bCursor, 2218, t.ActualHardAttack.ToString());
+                    DrawTitledLine(ref bCursor, 2219, t.ActualSoftAttack.ToString());
                     DrawTitledLine(ref bCursor, 6008, t.BoardingStrength.ToString());
                     DrawTitledLine(ref bCursor, 6023, t.Level.ToString());
+                    DrawTitledLine(ref bCursor, 1966, t.ActualRange.ToString());
                     break;
 
                 case string _:
@@ -740,7 +741,7 @@ namespace Ship_Game
                                          (1 + rect.Y + 5 + rect.Height / 2 - font.LineSpacing / 2));
 
             ScreenManager.SpriteBatch.FillRectangle(levelRect, new Color(0, 0, 0, 200));
-            ScreenManager.SpriteBatch.DrawRectangle(levelRect, troop.GetOwner().EmpireColor);
+            ScreenManager.SpriteBatch.DrawRectangle(levelRect, troop.Loyalty.EmpireColor);
             ScreenManager.SpriteBatch.DrawString(font, troop.Level.ToString(), pos, Color.Gold);
         }
 
@@ -753,7 +754,7 @@ namespace Ship_Game
             }
             if (pgs.TroopsHere.Count > 0)
             {
-                Troop troop        = pgs.TroopsHere[0];
+                Troop troop        = pgs.SingleTroop;
                 pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 48, pgs.ClickRect.Y, 48, 48);
                 troop.DrawIcon(ScreenManager.SpriteBatch, pgs.TroopClickRect);
                 if (troop.Level > 0)
@@ -929,28 +930,28 @@ namespace Ship_Game
             {
                 if (!pgs.ClickRect.HitTest(MousePos))
                 {
-                    pgs.highlighted = false;
+                    pgs.Highlighted = false;
                 }
                 else
                 {
-                    if (!pgs.highlighted)
+                    if (!pgs.Highlighted)
                     {
                         GameAudio.ButtonMouseOver();
                     }
 
-                    pgs.highlighted = true;
+                    pgs.Highlighted = true;
                 }
 
                 if (pgs.TroopsHere.Count <= 0 || !pgs.TroopClickRect.HitTest(MousePos))
                     continue;
 
-                DetailInfo = pgs.TroopsHere[0];
-                if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.Player)
+                DetailInfo = pgs.SingleTroop;
+                if (input.RightMouseClick && pgs.SingleTroop.Loyalty == EmpireManager.Player)
                 {
                     GameAudio.TroopTakeOff();
-                    Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.TroopsHere[0]);
-                    P.TroopsHere.Remove(pgs.TroopsHere[0]);
-                    pgs.TroopsHere[0].SetPlanet(null);
+                    Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.SingleTroop);
+                    P.TroopsHere.Remove(pgs.SingleTroop);
+                    pgs.SingleTroop.SetPlanet(null);
                     pgs.TroopsHere.Clear();
                     ClickedTroop = true;
                     DetailInfo = null;
@@ -1156,13 +1157,13 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
+                if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != EmpireManager.Player)
                     continue;
 
                 play = true;
-                Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.TroopsHere[0]);
-                P.TroopsHere.Remove(pgs.TroopsHere[0]);
-                pgs.TroopsHere[0].SetPlanet(null);
+                Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.SingleTroop);
+                P.TroopsHere.Remove(pgs.SingleTroop);
+                pgs.SingleTroop.SetPlanet(null);
                 pgs.TroopsHere.Clear();
                 ClickedTroop = true;
                 DetailInfo = null;

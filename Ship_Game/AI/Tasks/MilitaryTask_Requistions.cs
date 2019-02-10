@@ -139,14 +139,14 @@ namespace Ship_Game.AI.Tasks
                 ForceStrength += ship.Carrier.PlanetAssaultStrength;
             }
 
-            foreach (Troop t in potentialTroops.Where(planet=> planet.GetPlanet() != null).OrderBy(troop => troop.GetPlanet().RecentCombat ? 1 :0)
-                .ThenBy(troop => troop.GetPlanet().ParentSystem.CombatInSystem ? 1 : 0)
-                .ThenBy(troop => troop.GetPlanet().Center.SqDist(AO))
+            foreach (Troop t in potentialTroops.Where(planet=> planet.HostPlanet != null).OrderBy(troop => troop.HostPlanet.RecentCombat ? 1 :0)
+                .ThenBy(troop => troop.HostPlanet.ParentSystem.CombatInSystem ? 1 : 0)
+                .ThenBy(troop => troop.HostPlanet.Center.SqDist(AO))
             )
             {
                 if (ForceStrength > EnemyTroopStrength * 1.5f)
                     break;
-                if (t.GetOwner() == null) continue;
+                if (t.Loyalty == null) continue;
                 Ship launched = t.Launch();
                 if (launched == null)
                 {
@@ -337,7 +337,7 @@ namespace Ship_Game.AI.Tasks
 
                     foreach (Troop t in p.TroopsHere)
                     {
-                        if (t.GetOwner() != Owner)
+                        if (t.Loyalty != Owner)
                             continue;
 
                         troops.Add(t);
@@ -434,7 +434,7 @@ namespace Ship_Game.AI.Tasks
 
                 foreach (Troop t in potentialTroops)
                 {
-                    if (t.GetPlanet() == null)
+                    if (t.HostPlanet == null)
                         continue;
 
                     Ship launched = t.Launch();

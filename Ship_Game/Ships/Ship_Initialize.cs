@@ -409,11 +409,11 @@ namespace Ship_Game.Ships
         {
             TroopBoardingDefense = 0f;
 
-            foreach (Troop troopList in TroopList)
+            foreach (Troop t in TroopList)
             {
-                troopList.SetOwner(loyalty);
-                troopList.SetShip(this);
-                TroopBoardingDefense += troopList.Strength;
+                t.SetOwner(loyalty);
+                t.SetShip(this);
+                TroopBoardingDefense += t.Strength;
             }
         }
 
@@ -437,13 +437,13 @@ namespace Ship_Game.Ships
                 int numHangarsBays = Carrier.AllTroopBays.Length;
 
                 string type = troopType;
-                if (numHangarsBays < TroopList.Count + 1) //FB: if you have more troop_capcacity than hangars, consider adding some tanks
+                if (numHangarsBays < TroopList.Count + 1) //FB: if you have more troop_capacity than hangars, consider adding some tanks
                 {
                     type = troopType; // ex: "Space Marine"
                     if (TroopList.Count(trooptype => trooptype.Name == tankType) <= numHangarsBays)
                         type = tankType;
                     // number of tanks will be up to number of hangars bays you have. If you have 8 barracks and 8 hangar bays
-                    // you will get 8 infentry. if you have  8 barracks and 4 bays, you'll get 4 tanks and 4 infantry .
+                    // you will get 8 infantry. if you have  8 barracks and 4 bays, you'll get 4 tanks and 4 infantry .
                     // If you have  16 barracks and 4 bays, you'll still get 4 tanks and 12 infantry.
                     // logic here is that tanks needs hangarbays and barracks, and infantry just needs barracks.
                 }
@@ -584,12 +584,12 @@ namespace Ship_Game.Ships
             Carrier.PrepShipHangars(loyalty);
 
             if (shipData.Role == ShipData.RoleName.troop)
-                TroopCapacity         = 1; // set troopship and assault shuttle not to have 0 TroopCapcacity since they have no modules with TroopCapacity
+                TroopCapacity         = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
             MechanicalBoardingDefense = Math.Max(1, MechanicalBoardingDefense);
             shipStatusChanged         = true;
             SensorRange              += sensorBonus;
             DesignRole                = GetDesignRole();
-            //these base values are kinda f'd up. BaseCanWarp isnt being set for the shipdata and so gets passed around alot but isnt ever properly set.
+            //these base values are kinda f'd up. BaseCanWarp isn't being set for the shipdata and so gets passed around a lot but isn't ever properly set.
             //also there appear to be two of them and i think that makes no sense.
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while.
             shipData.BaseCanWarp      = WarpThrust > 0;

@@ -44,7 +44,7 @@ namespace Ship_Game
         [Serialize(31)] public string Weapon = "";
         [Serialize(33)] public float WeaponTimer;
         [Serialize(34)] public float AttackTimer;
-        [Serialize(35)] public int AvailableAttackActions = 1;
+        [Serialize(35)] public int AvailableAttackActions = 1; // FB - use UpdateAttackActions
         [Serialize(36)] public int CombatStrength;
         [Serialize(37)] public int SoftAttack;
         [Serialize(38)] public int HardAttack;
@@ -126,7 +126,22 @@ namespace Ship_Game
             TheWeapon = ResourceManager.CreateWeapon(Weapon);
             UpdateOffense();
         }
-        
+
+        public void UpdateAttackActions(int amount)
+        {
+            AvailableAttackActions = (AvailableAttackActions + amount).Clamped(0, 1);
+        }
+
+        public void UpdateAttackTimer(float amount)
+        {
+            if (!CanAttack) AttackTimer += amount;
+        }
+
+        public void ResetAttackTimer()
+        {
+            AttackTimer = 10;
+        }
+
         private void UpdateOffense()
         {
             if (isWeapon)
@@ -153,16 +168,17 @@ namespace Ship_Game
             UpdateOffense(empire);
         }
 
-        public float ActualMaintenance(Planet p)
-            => Maintenance * p.Owner.data.Traits.MaintMultiplier;
-        
+        public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
+
+        public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID);
+        public bool IsAttackable       => CombatStrength > 0;
+        public bool CanAttack          => CombatStrength > 0 && AvailableAttackActions > 0;
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;
         public bool IsMilitary         => CombatStrength > 0 
                                         && !IsCapitalOrOutpost
                                         && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
-        public bool CanAttackThisTurn => CombatStrength > 0 || AvailableAttackActions > 0;
 
         static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
         {
@@ -196,14 +212,14 @@ namespace Ship_Game
             if (AssignBuildingToRandomTile(solarSystemBody, true) != null)
                 return true;
             PlanetGridSquare targetPGS;
-            if (!string.IsNullOrEmpty(EventTriggerUID))
+            if (EventHere)
             {
                 targetPGS = AssignBuildingToRandomTile(solarSystemBody);
                 if (targetPGS != null)                
                     return targetPGS.Habitable = true;                    
                 
             }
-            if (IsOutpost || !string.IsNullOrEmpty(EventTriggerUID))
+            if (IsOutpost || EventHere)
             {
                 targetPGS = AssignBuildingToRandomTile(solarSystemBody);
                 if (targetPGS != null)

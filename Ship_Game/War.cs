@@ -58,7 +58,7 @@ namespace Ship_Game
                 using (p.TroopsHere.AcquireReadLock())
                     foreach (Troop t in p.TroopsHere)
                     {
-                        if (t.GetOwner() != us)
+                        if (t.Loyalty != us)
                         {
                             continue;
                         }
@@ -82,7 +82,7 @@ namespace Ship_Game
                 using (p.TroopsHere.AcquireReadLock())
                 foreach (Troop t in p.TroopsHere)
 				{
-					if (t.GetOwner() != them)
+					if (t.Loyalty != them)
 					{
 						continue;
 					}

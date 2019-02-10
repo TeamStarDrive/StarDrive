@@ -325,7 +325,7 @@ namespace Ship_Game
                         {
                             for (int index = 0; index < planet.BuildingList.Count; ++index)
                             {
-                                if (!string.IsNullOrEmpty(planet.BuildingList[index].EventTriggerUID))
+                                if (planet.BuildingList[index].EventHere)
                                 {
                                     flag = true;
                                     break;
@@ -430,7 +430,7 @@ namespace Ship_Game
                         {
                             for (int index = 0; index < planet.BuildingList.Count; ++index)
                             {
-                                if (!string.IsNullOrEmpty(planet.BuildingList[index].EventTriggerUID))
+                                if (planet.BuildingList[index].EventHere)
                                 {
                                     flag = true;
                                     break;
