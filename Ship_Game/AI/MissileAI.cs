@@ -198,7 +198,8 @@ namespace Ship_Game.AI
             }
             if (Target != null )
             {
-                Missile.GuidedMoveTowards(elapsedTime, (interceptPoint + LaunchJitter + TargetJitter));
+                Vector2 jitterbug = interceptPoint + LaunchJitter + TargetJitter;
+                Missile.GuidedMoveTowards(elapsedTime, jitterbug);
                 return;
             }
             MoveStraight(elapsedTime);

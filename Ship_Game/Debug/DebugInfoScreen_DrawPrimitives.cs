@@ -29,11 +29,6 @@ namespace Ship_Game.Debug
             AddPrimitive(new DebugCircle(worldPos, radius, color, 0f));
         }
 
-        public bool IgnoreThisShip(Ship ship)
-        {
-            return ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship;
-        }
-
         public void DrawLine(DebugModes mode, Vector2 startInWorld, Vector2 endInWorld,
             float width, Color color, float lifeTime)
         {
@@ -45,6 +40,12 @@ namespace Ship_Game.Debug
         {
             if (mode != Mode || !obj.IsInFrustum) return;
             AddPrimitive(new DebugGameObject(obj, Color.Red, 0f /*transient*/));
+        }
+
+        public void DrawText(DebugModes mode, Vector2 posInWorld, string text, Color color, float lifeTime)
+        {
+            if (mode != Mode) return;
+            AddPrimitive(new DebugText(posInWorld, text, color, lifeTime));
         }
 
         void DrawDebugPrimitives(float gameDeltaTime)

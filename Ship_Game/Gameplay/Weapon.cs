@@ -441,7 +441,7 @@ namespace Ship_Game.Gameplay
 
             // calculate level.
             int trackingPower = Owner?.TrackingPower ?? 1;
-            if(level == -1)
+            if (level == -1)
                 level = (Owner?.Level ?? level)
                     + trackingPower //(Owner?.TrackingPower  ?? 0)
                     + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
@@ -489,7 +489,7 @@ namespace Ship_Game.Gameplay
         public bool ProjectedImpactPointNoError(GameplayObject target, out Vector2 pip)
         {
             Vector2 ownerVel = Owner?.Velocity ?? Vector2.Zero;
-            pip = new ImpactPredictor(Origin, ownerVel, ProjectileSpeed, Range, target)
+            pip = new ImpactPredictor(Origin, ownerVel, ProjectileSpeed, target)
                 .Predict(advancedTargeting: true);
             return pip != Vector2.Zero;
         }
@@ -500,7 +500,7 @@ namespace Ship_Game.Gameplay
             Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
             Vector2 error = target.TargetErrorPos() + AdjustTargeting();
 
-            pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, Range, target)
+            pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, target)
                 .Predict(CanUseAdvancedTargeting);
 
             Vector2 targetError = SetDestination(pip, weaponOrigin, 1000) + error;
