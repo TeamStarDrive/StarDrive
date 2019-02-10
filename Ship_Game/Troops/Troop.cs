@@ -1,9 +1,9 @@
-using System;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.Ships;
+using System;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -30,34 +30,42 @@ namespace Ship_Game
         [Serialize(18)] public string OwnerString;
         [Serialize(19)] public int BoardingStrength;
         [Serialize(20)] public int MaxStoredActions = 1;
-        [Serialize(21)] public float MoveTimer;
-        [Serialize(22)] public float AttackTimer;
+        [Serialize(21)] public float MoveTimer;   // FB - use UpdateMoveTimer or ResetMoveTimer
+        [Serialize(22)] public float AttackTimer; // FB - use UpdateAttackTimer or ResetAttackTimer
         [Serialize(23)] public float MovingTimer = 1f;
-        [Serialize(24)] public int AvailableMoveActions = 1;
-        [Serialize(25)] public int AvailableAttackActions = 1;
+        [Serialize(24)] public int AvailableMoveActions   = 1; // FB - use UpdateMoveActions 
+        [Serialize(25)] public int AvailableAttackActions = 1; // FB - use UpdateAttackActions
         [Serialize(26)] public string TexturePath;
         [Serialize(27)] public bool Idle = true;
         [Serialize(28)] public int WhichFrame = 1;
-        [Serialize(29)] public float Strength;
-        [Serialize(30)] public float StrengthMax;
-        [Serialize(31)] public int HardAttack;
-        [Serialize(32)] public int SoftAttack;
+        [Serialize(29)] public float Strength; // FB - Do not modify this directly. use DamageTroop and HealTroop
+        [Serialize(30)] public float StrengthMax; 
+        [Serialize(31)] public int HardAttack; // FB - use NetHardAttack
+        [Serialize(32)] public int SoftAttack; // FB - use NetSoftAttack
         [Serialize(33)] public string Class;
         [Serialize(34)] public int Kills;
-        [Serialize(35)] public string TargetType;
+        [Serialize(35)] public TargetType TargetType;
         [Serialize(36)] public int Experience;
         [Serialize(37)] public float Cost;
         [Serialize(38)] public string sound_attack;
-        [Serialize(39)] public float Range;
-        [Serialize(40)] public float Launchtimer = 10f;
+        [Serialize(39)] public int Range;
+        [Serialize(40)] public float Launchtimer = 10f; // FB - use UpdateLaunchTimer or ResetLaunchTimer
         [Serialize(41)] public string Type;
 
-        [XmlIgnore][JsonIgnore] private Planet p;
+        [XmlIgnore][JsonIgnore] public Planet HostPlanet { get; private set; }
         [XmlIgnore][JsonIgnore] private Empire Owner;
-        [XmlIgnore][JsonIgnore] private Ship ship;
-        [XmlIgnore][JsonIgnore] private Rectangle fromRect;
-        [XmlIgnore][JsonIgnore] private float updateTimer;        
-        [XmlIgnore][JsonIgnore] public string DisplayName => DisplayNameEmpire(Owner);
+        [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
+        [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
+
+        [XmlIgnore][JsonIgnore] private float UpdateTimer;        
+        [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);
+        [XmlIgnore] [JsonIgnore] public float ActualCost     => Cost * CurrentGame.Pace;
+        [XmlIgnore] [JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
+        [XmlIgnore] [JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;
+        [XmlIgnore] [JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.1f * Level * HardAttack);
+        [XmlIgnore] [JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
+        [XmlIgnore] [JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
+        [XmlIgnore] [JsonIgnore] public int ActualRange      => Level < 3   ? Range : Range + 1;  // veterans have bigger range
 
         public string DisplayNameEmpire(Empire empire = null)
         {
@@ -68,10 +76,10 @@ namespace Ship_Game
 
         public Troop Clone()
         {
-            var t   = (Troop)MemberwiseClone();
-            t.p     = null;
-            t.Owner = null;
-            t.ship  = null;
+            var t        = (Troop)MemberwiseClone();
+            t.HostPlanet = null;
+            t.Owner      = null;
+            t.HostShip   = null;
             return t;
         }
 
@@ -79,6 +87,46 @@ namespace Ship_Game
         {
             Idle       = false;
             WhichFrame = first_frame;
+        }
+
+        public void UpdateAttackActions(int amount)
+        {
+            AvailableAttackActions = (AvailableAttackActions + amount).Clamped(0, MaxStoredActions);
+        }
+
+        public void UpdateMoveActions(int amount)
+        {
+            AvailableMoveActions = (AvailableMoveActions + amount).Clamped(0, MaxStoredActions);
+        }
+
+        public void UpdateMoveTimer(float amount)
+        {
+            if (!CanMove) MoveTimer += amount;
+        }
+
+        public void UpdateAttackTimer(float amount)
+        {
+            if (!CanAttack) AttackTimer += amount;
+        }
+
+        public void UpdateLaunchTimer(float amount)
+        {
+            Launchtimer += amount;
+        }
+
+        public void ResetMoveTimer()
+        {
+            MoveTimer = Math.Max(MoveTimerBase - (int)(Level * 0.5), 5);
+        }
+
+        public void ResetAttackTimer()
+        {
+            AttackTimer = Math.Max(AttackTimerBase - (int)(Level * 0.5), 5);
+        }
+
+        public void ResetLaunchTimer()
+        {
+            Launchtimer = MoveTimerBase; // FB -  yup, MoveTimerBase
         }
 
         private string WhichFrameString => WhichFrame.ToString("00");
@@ -175,50 +223,27 @@ namespace Ship_Game
             spriteBatch.Draw(iconTexture, drawRect, Color.White);
         }
 
-        public Rectangle GetFromRect()
-        {
-            return fromRect;
-        }
-
-        public int NetHardAttack => (int)(HardAttack + 0.1f * Level * HardAttack);
-        public int NetSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
-
-        public Empire GetOwner()
-        {
-            return Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
-        }
-
-        public Planet GetPlanet()
-        {
-            return p;
-        }
-
-        public Ship GetShip()
-        {
-            return ship;
-        }
-
         public Ship Launch()
         {
-            if (p == null)
+            if (HostPlanet == null)
                 return null;
 
-            foreach (PlanetGridSquare pgs in p.TilesList)
+            foreach (PlanetGridSquare pgs in HostPlanet.TilesList)
             {
                 if (!pgs.TroopsHere.Contains(this))
                     continue;
 
                 pgs.TroopsHere.Clear();
-                p.TroopsHere.Remove(this);
+                HostPlanet.TroopsHere.Remove(this);
             }
-            Ship retShip = Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, p.Center, this);
-            p = null;
+            Ship retShip = Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, HostPlanet.Center, this);
+            HostPlanet = null;
             return retShip;
         }
 
         public void SetFromRect(Rectangle from)
         {
-            fromRect = from;
+            FromRect = from;
         }
 
         public void SetOwner(Empire e)
@@ -230,29 +255,29 @@ namespace Ship_Game
 
         public void SetPlanet(Planet newPlanet)
         {
-            p = newPlanet;
-            if (p != null && !p.TroopsHere.Contains(this))
+            HostPlanet = newPlanet;
+            if (HostPlanet != null && !HostPlanet.TroopsHere.Contains(this))
             {
-                p.TroopsHere.Add(this);
+                HostPlanet.TroopsHere.Add(this);
             }
         }
 
         public void SetShip(Ship s)
         {
-            ship = s;
+            HostShip = s;
         }
 
         public void Update(float elapsedTime)
         {
-            Troop troop = this;
-            troop.updateTimer -= elapsedTime;
-            if (updateTimer > 0f)
+            Troop troop        = this;
+            UpdateTimer -= elapsedTime;
+            if (UpdateTimer > 0f)
                 return;
-            troop.first_frame = ResourceManager.GetTroopTemplate(troop.Name).first_frame;
-            int whichFrame = WhichFrame;
+            first_frame = ResourceManager.GetTroopTemplate(troop.Name).first_frame;
+            int whichFrame    = WhichFrame;
             if (!Idle)
             {
-                updateTimer = 0.75f / num_attack_frames;                
+                UpdateTimer = 0.75f / num_attack_frames;                
                 whichFrame++;
                 if (whichFrame <= num_attack_frames - (first_frame == 1 ? 0 : 1))
                 {
@@ -261,11 +286,11 @@ namespace Ship_Game
                 }
 
                 WhichFrame = first_frame;
-                Idle = true;
+                Idle       = true;
             }
             else
             {
-                updateTimer = 1f / num_idle_frames;
+                UpdateTimer = 1f / num_idle_frames;
                 whichFrame++;
                 if (whichFrame <= num_idle_frames - (first_frame == 1 ? 0 : 1))
                 {
@@ -288,6 +313,16 @@ namespace Ship_Game
             Level++;
         }
 
+        public void DamageTroop(float amount)
+        {
+            Strength = (Strength - amount).Clamped(0, ActualStrengthMax);
+        }
+
+        public void HealTroop(float amount)
+        {
+            DamageTroop(-amount);
+        }
+
         public float ActualStrengthMax
         {
             get
@@ -300,34 +335,31 @@ namespace Ship_Game
             }
         }
 
-        [XmlIgnore] [JsonIgnore]
-        public float ActualCost => Cost * CurrentGame.Pace;
-
         public bool AssignTroopToNearestAvailableTile(Troop t, PlanetGridSquare tile, Planet planet )
         {
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
-            foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
+            foreach (PlanetGridSquare pgs in planet.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops
-                    && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0)
-                    && (Math.Abs(tile.x - planetGridSquare.x) <= 1 && Math.Abs(tile.y - planetGridSquare.y) <= 1))
-                    list.Add(planetGridSquare);
+                if (pgs.TroopsHere.Count < pgs.MaxAllowedTroops
+                    && (pgs.NoBuildingOnTile || pgs.BuildingOnTile && pgs.building.CombatStrength == 0)
+                    && tile.InRangeOf(pgs, 1))
+                    list.Add(pgs);
             }
-            if (list.Count > 0)
-            {
-                int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
-                PlanetGridSquare planetGridSquare1 = list[index];
-                foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
-                {
-                    if (planetGridSquare2 == planetGridSquare1)
-                    {
-                        planetGridSquare2.TroopsHere.Add(t);
-                        planet.TroopsHere.Add(t);
-                        t.SetPlanet(planet);
-                        return true;
 
-                    }
-                }
+            if (list.Count <= 0)
+                return false;
+
+            int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
+            PlanetGridSquare planetGridSquare1 = list[index];
+            foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
+            {
+                if (planetGridSquare2 != planetGridSquare1)
+                    continue;
+
+                planetGridSquare2.TroopsHere.Add(t);
+                planet.TroopsHere.Add(t);
+                t.SetPlanet(planet);
+                return true;
             }
             return false;
 
@@ -335,11 +367,11 @@ namespace Ship_Game
 
         public bool AssignTroopToTile(Planet planet = null)
         {
-            planet = planet ?? p;
+            planet = planet ?? HostPlanet;
             var list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops 
+                if (planetGridSquare.TroopsHere.Count < planetGridSquare.MaxAllowedTroops 
                     && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0))
                     list.Add(planetGridSquare);
             }
@@ -357,10 +389,9 @@ namespace Ship_Game
                         Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, ActualStrengthMax);
 
                     SetPlanet(planet);
-                    if (string.IsNullOrEmpty(eventLocation.building?.EventTriggerUID) 
-                        || eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction)
+                    if (!eventLocation.EventOnTile || eventLocation.NoTroopsOnTile || eventLocation.SingleTroop.Loyalty.isFaction)
                         return true;
-                    ResourceManager.Event(eventLocation.building.EventTriggerUID).TriggerPlanetEvent(planet, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe);
+                    ResourceManager.Event(eventLocation.building.EventTriggerUID).TriggerPlanetEvent(planet, eventLocation.SingleTroop.Loyalty, eventLocation, Empire.Universe);
                 }
             }
             return false;

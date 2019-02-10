@@ -151,11 +151,11 @@ namespace Ship_Game.Universe.SolarBodies
                 int buildingDamageMax = ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax;
                 if (od.Target.TroopsHere.Count > 0)
                 {
-                    Troop item = od.Target.TroopsHere[0];
+                    Troop item = od.Target.SingleTroop;
                     item.Strength = item.Strength - (int)RandomMath.RandomBetween(troopDamageMin, troopDamageMax);
-                    if (od.Target.TroopsHere[0].Strength <= 0)
+                    if (od.Target.SingleTroop.Strength <= 0)
                     {
-                        TroopsHere.Remove(od.Target.TroopsHere[0]);
+                        TroopsHere.Remove(od.Target.SingleTroop);
                         od.Target.TroopsHere.Clear();
                     }
                 }
@@ -175,7 +175,7 @@ namespace Ship_Game.Universe.SolarBodies
                         bool flag = od.Target.Biosphere;
                         //Added Code here
                         od.Target.Habitable = false;
-                        od.Target.highlighted = false;
+                        od.Target.Highlighted = false;
                         od.Target.Biosphere = false;
                         if (flag)
                         {
@@ -246,7 +246,7 @@ namespace Ship_Game.Universe.SolarBodies
                         {
                             for (int i = 0; i < TroopsHere.Count; i++)
                             {
-                                if (TroopsHere[i].GetOwner() == EmpireManager.Cordrazine && TroopsHere[i].TargetType == "Soft")
+                                if (TroopsHere[i].Loyalty == EmpireManager.Cordrazine && TroopsHere[i].TargetType == TargetType.Soft)
                                 {
                                     StarDriveGame.Instance.SetSteamAchievement("Owlwoks_Freed");                                   
                                     TroopsHere[i].SetOwner(bomb.Owner);
@@ -348,7 +348,7 @@ namespace Ship_Game.Universe.SolarBodies
             using (TroopsHere.AcquireWriteLock())
             {
                 if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty
-                    || TroopsHere.Any(troop => troop.GetOwner() != Owner))
+                    || TroopsHere.Any(troop => troop.Loyalty != Owner))
                     return;
                 foreach (var pgs in TilesList)
                 {
@@ -356,9 +356,9 @@ namespace Ship_Game.Universe.SolarBodies
                         break;
 
                     using (pgs.TroopsHere.AcquireWriteLock())
-                        if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == Owner)
+                        if (pgs.TroopsHere.Count > 0 && pgs.SingleTroop.Loyalty == Owner)
                         {
-                            Troop troop = pgs.TroopsHere[0];
+                            Troop troop = pgs.SingleTroop;
                             ship.TroopList.Add(troop);
                             pgs.TroopsHere.Clear();
                             TroopsHere.Remove(troop);

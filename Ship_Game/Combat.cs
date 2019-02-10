@@ -4,9 +4,9 @@ namespace Ship_Game
 	{
 		public float Timer = 4f;
 
-		public PlanetGridSquare Attacker;
+		public PlanetGridSquare AttackTile;
 
-		public PlanetGridSquare Defender;
+		public PlanetGridSquare DefenseTile;
 
 		public int phase = 1;
 	}

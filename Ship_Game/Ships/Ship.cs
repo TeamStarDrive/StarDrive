@@ -1608,7 +1608,7 @@ namespace Ship_Game.Ships
                 return RangeBase / Count;
             }
         }
-        private float CalculatMaxWeaponsRange()
+        private float CalculateMaxWeaponsRange()
         {
 
 
@@ -1691,7 +1691,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < TroopList.Count; i++)   //Do we need to update this every frame? I mived it here so it would be every second, instead.   -Gretman
                 {
                     TroopList[i].SetShip(this);
-                    if (TroopList[i].GetOwner() == loyalty)
+                    if (TroopList[i].Loyalty == loyalty)
                         TroopBoardingDefense += TroopList[i].Strength;
                 }
 
@@ -1942,16 +1942,14 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool TroopsAreBoardingShip => TroopList.Count(troop => troop.GetOwner() == loyalty) != TroopList.Count;
-
-        public int NumPlayerTroopsOnShip => TroopList.Count(troop => troop.GetOwner() == EmpireManager.Player);
-
-        public int NumAiTroopsOnShip => TroopList.Count(troop => troop.GetOwner() != EmpireManager.Player);
+        public bool TroopsAreBoardingShip => TroopList.Count(troop => troop.Loyalty == loyalty) != TroopList.Count;
+        public int NumPlayerTroopsOnShip  => TroopList.Count(troop => troop.Loyalty == EmpireManager.Player);
+        public int NumAiTroopsOnShip      => TroopList.Count(troop => troop.Loyalty != EmpireManager.Player);
 
         private void UpdateTroops() //FB: this is the weirdest implemetations i've ever seen. Anyway i refactored it a bit
         {
-            Array<Troop> ownTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() == loyalty));
-            Array<Troop> enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() != loyalty));
+            Array<Troop> ownTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty == loyalty));
+            Array<Troop> enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty != loyalty));
 
             HealTroops();
             int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1); // leave a garrion of 1 if ship without barracks was boarded
@@ -1967,22 +1965,22 @@ namespace Ship_Game.Ships
             float defendingTroopsRoll = mechanicalDefenseRoll; // since mechanicalDefenseRoll might beaten by enemy troops to be negative.
 
             enemyTroops.Clear();
-            enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() != loyalty));
+            enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty != loyalty));
 
             ResolveOwnVersusEnemy();
 
             enemyTroops.Clear();
-            enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() != loyalty));
+            enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty != loyalty));
 
             ResolveEnemyVersusOwn();
 
             ownTroops.Clear();
-            ownTroops = new Array<Troop>(TroopList.Filter(troop => troop.GetOwner() == loyalty));
+            ownTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty == loyalty));
 
             if (ownTroops.Count > 0 || MechanicalBoardingDefense > 0.0)
                 return;
 
-            ChangeLoyalty(changeTo: enemyTroops[0].GetOwner());
+            ChangeLoyalty(changeTo: enemyTroops[0].Loyalty);
             RefreshMechanicalBoardingDefense();
 
             if (!AI.BadGuysNear)
@@ -2134,6 +2132,19 @@ namespace Ship_Game.Ships
                                                               : empire.data.DefaultSupplyShuttle;
         }
 
+        public int RefitCost(string newShipName)
+        {
+            if (loyalty.isFaction)
+                return 0;
+
+            float oldShipCost = GetCost(loyalty);
+            float newShipCost = ResourceManager.ShipsDict[newShipName].GetCost(loyalty);
+
+            int cost = Math.Max((int)(newShipCost - oldShipCost), 0);
+            cost    += (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace
+            return cost;
+        }
+
         public ShipStatus HealthStatus
         {
             get
@@ -2260,7 +2271,7 @@ namespace Ship_Game.Ships
                 Thrust         += Thrust * mod.SpeedBonus;
             }
             CurrentStrength = CalculateShipStrength();
-            maxWeaponsRange = CalculatMaxWeaponsRange();
+            maxWeaponsRange = CalculateMaxWeaponsRange();
 
         }
 

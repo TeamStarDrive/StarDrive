@@ -52,15 +52,15 @@ namespace Ship_Game
         public float RepairPerTurn;
 
         public bool RecentCombat => TroopManager.RecentCombat;
-        public int CountEmpireTroops(Empire us) => TroopManager.CountEmpireTroops(us);
-        public int GetDefendingTroopCount() => TroopManager.GetDefendingTroopCount();
-        public bool AnyOfOurTroops(Empire us) => TroopManager.AnyOfOurTroops(us);
-        public float GetGroundStrength(Empire empire) => TroopManager.GetGroundStrength(empire);
+        public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
+        public int GetDefendingTroopCount() => TroopManager.NumDefendingTroopCount;
+        public bool AnyOfOurTroops(Empire us) => TroopManager.WeHaveTroopsHere(us);
+        public float GetGroundStrength(Empire empire) => TroopManager.GroundStrength(empire);
         public int GetPotentialGroundTroops() => TroopManager.GetPotentialGroundTroops();
-        public float GetGroundStrengthOther(Empire AllButThisEmpire) => TroopManager.GetGroundStrengthOther(AllButThisEmpire);
+        public float GetGroundStrengthOther(Empire AllButThisEmpire) => TroopManager.GroundStrengthOther(AllButThisEmpire);
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
-        public int GetGroundLandingSpots() => TroopManager.GetGroundLandingSpots();
-        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
+        public int GetGroundLandingSpots() => TroopManager.NumGroundLandingSpots();
+        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
         public float AvgPopulationGrowth { get; private set; }
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
@@ -71,7 +71,7 @@ namespace Ship_Game
         
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
-        public const int MaxBuildings = 35; // FB currently this limited by number of tiles, all planets are 7 x 5
+        public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
         public float OrbitalsMaintenance;
 
         void CreateManagers()
@@ -194,38 +194,48 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            if (OrbitalStations.Count != 0)
-            {
-                Guid[] keys = OrbitalStations.Keys.ToArray();
-                for (int i = 0; i < keys.Length; i++)
-                {
-                    Guid key = keys[i];
-                    Ship shipyard = OrbitalStations[key];
-                    if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
-                        OrbitalStations.Remove(key);
-                }
-            }
-            if (Habitable)
-            {
-                TroopManager.Update(elapsedTime);
-                GeodeticManager.Update(elapsedTime);
-                UpdateColonyValue();
-                ScanForEnemy();
-                if (ParentSystem.CombatInSystem)
-                        UpdateSpaceCombatBuildings(elapsedTime);
-
-                UpdatePlanetaryProjectiles(elapsedTime);
-            }
+            RefreshOrbitalStations();
+            UpdateHabitable(elapsedTime);
             UpdatePosition(elapsedTime);
+        }
+
+        private void UpdateHabitable(float elapsedTime)
+        {
+            if (!Habitable)
+                return;
+
+            TroopManager.Update(elapsedTime);
+            GeodeticManager.Update(elapsedTime);
+            UpdateColonyValue();
+            ScanForEnemy();
+            if (ParentSystem.CombatInSystem)
+                UpdateSpaceCombatBuildings(elapsedTime);
+
+            UpdatePlanetaryProjectiles(elapsedTime);
+        }
+
+        private void RefreshOrbitalStations()
+        {
+            if (OrbitalStations.Count == 0)
+                return;
+
+            Guid[] keys = OrbitalStations.Keys.ToArray();
+            for (int i = 0; i < keys.Length; i++)
+            {
+                Guid key = keys[i];
+                Ship shipyard = OrbitalStations[key];
+                if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
+                    OrbitalStations.Remove(key);
+            }
         }
 
         private void ScanForEnemy()
         {
-            if (Owner == null) return;
-            if (ParentSystem.ShipList.Count <= 0) return;
-            for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
+            if (Owner == null)
+                return;
+
+            foreach (Ship ship in ParentSystem.ShipList)
             {
-                Ship ship = ParentSystem.ShipList[i];
                 if (ship.loyalty == Owner)
                     continue;
 
@@ -239,7 +249,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdateSpaceCombatBuildings(float elapsedTime)
+        private void UpdateSpaceCombatBuildings(float elapsedTime)
         {
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -712,7 +722,7 @@ namespace Ship_Game
             }
 
             UpdateMaxPopulation();
-            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner);
+            TotalDefensiveStrength = (int)TroopManager.GroundStrength(Owner);
 
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
@@ -793,7 +803,7 @@ namespace Ship_Game
             bool events = false;
             foreach (Building building in BuildingList)
             {
-                if (building.EventTriggerUID != null && !building.EventWasTriggered)
+                if (building.EventHere && !building.EventWasTriggered)
                 {
                     events = true;
                     break;
@@ -844,6 +854,14 @@ namespace Ship_Game
                 b.Strength        = (b.Strength + repairAmount).Clamped(0, t.Strength);
                 UpdateHomeDefenseHangars(b);
             }
+        }
+
+        public PlanetGridSquare GetTileByCoordinates(int x, int y)
+        {
+            if (x < 0 || x >= TileMaxX || y < 0 || y >= TileMaxY) // FB >= because coords start from 0
+                return null;
+
+            return TilesList.Find(pgs => pgs.x == x && pgs.y == y);
         }
 
         ~Planet() { Destroy(); }

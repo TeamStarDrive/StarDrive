@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.AI
 {
-    public static class ShipBuilder
+    public static class ShipBuilder  // Created by Fat Bastard to support ship picking for build
     {
         public const int OrbitalsLimit  = 27; // FB - Maximum of 27 stations or platforms (or shipyards)
         public const int ShipYardsLimit = 2; // FB - Maximum of 2 shipyards

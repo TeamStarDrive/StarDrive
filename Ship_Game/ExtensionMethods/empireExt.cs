@@ -60,7 +60,7 @@ namespace Ship_Game
             Array<Troop> troops = new Array<Troop>();
             foreach (Planet p in empire.GetPlanets())
                 for (int i = 0; i < p.TroopsHere.Count; i++)
-                    if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == empire)
+                    if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].Loyalty == empire)
                     {
                         Troop troop = p.TroopsHere[i];
                         troops.Add(troop);

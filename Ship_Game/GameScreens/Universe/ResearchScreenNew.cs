@@ -283,7 +283,7 @@ namespace Ship_Game
                 EmpireManager.Player.UpdateShipsWeCanBuild();
             }
 
-            // unlock only selected node for player
+            // Unlock only selected node for player 
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
             {
                 if (qcomponent.CurrentResearch != null)
@@ -297,6 +297,17 @@ namespace Ship_Game
                 {
                     GameAudio.NegativeClick();
                 }
+            }
+
+            //Added by McShooterz: Cheat ot unlock non bonus tech 
+            if (input.IsCtrlKeyDown  && input.KeyPressed(Keys.F3))
+            {
+                foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
+                {
+                    UnlockTreeNoBonus(tech.Key);
+                }
+                EmpireManager.Player.UpdateShipsWeCanBuild();
+                ReloadContent();
             }
 
             qcomponent.HandleInput(input);
