@@ -65,7 +65,7 @@ namespace Ship_Game
         [XmlIgnore] [JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.1f * Level * HardAttack);
         [XmlIgnore] [JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
         [XmlIgnore] [JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
-        [XmlIgnore] [JsonIgnore] public int ActualRange      => Level < 2   ? Range : Range + 1;  // veterans have bigger range
+        [XmlIgnore] [JsonIgnore] public int ActualRange      => Level < 3   ? Range : Range + 1;  // veterans have bigger range
 
         public string DisplayNameEmpire(Empire empire = null)
         {
@@ -270,10 +270,10 @@ namespace Ship_Game
         public void Update(float elapsedTime)
         {
             Troop troop        = this;
-            troop.UpdateTimer -= elapsedTime;
+            UpdateTimer -= elapsedTime;
             if (UpdateTimer > 0f)
                 return;
-            troop.first_frame = ResourceManager.GetTroopTemplate(troop.Name).first_frame;
+            first_frame = ResourceManager.GetTroopTemplate(troop.Name).first_frame;
             int whichFrame    = WhichFrame;
             if (!Idle)
             {
@@ -341,8 +341,8 @@ namespace Ship_Game
             foreach (PlanetGridSquare pgs in planet.TilesList)
             {
                 if (pgs.TroopsHere.Count < pgs.MaxAllowedTroops
-                    && (pgs.building == null || pgs.building != null && pgs.building.CombatStrength == 0)
-                    && (Math.Abs(tile.x - pgs.x) <= 1 && Math.Abs(tile.y - pgs.y) <= 1))
+                    && (pgs.NoBuildingOnTile || pgs.BuildingOnTile && pgs.building.CombatStrength == 0)
+                    && tile.InRangeOf(pgs, 1))
                     list.Add(pgs);
             }
 

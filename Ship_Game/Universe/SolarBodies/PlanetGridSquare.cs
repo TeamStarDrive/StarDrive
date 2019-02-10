@@ -109,43 +109,45 @@ namespace Ship_Game
         }
 
 
-        public TargetDirection GetDirectionTo(PlanetGridSquare target)
-	    {
+        public TileDirection GetDirectionTo(PlanetGridSquare target)
+        {
 
 	        int xDiff = (target.x - x).Clamped(-1, 1);
 	        int yDiff = (target.y - y).Clamped(-1, 1);
 	        switch (xDiff)
 	        {
-	            case 0 when yDiff == -1:  return TargetDirection.North;
-	            case 0 when yDiff == 1:   return TargetDirection.South;
-	            case 1 when yDiff == 0:   return TargetDirection.East;
-	            case -1 when yDiff == 0:  return TargetDirection.West;
-	            case 1 when yDiff == -1:  return TargetDirection.NorthEast;
-	            case -1 when yDiff == -1: return TargetDirection.NorthWest;
-	            case 1 when yDiff == 1:   return TargetDirection.SouthEast;
-	            case -1 when yDiff == 1:  return TargetDirection.SouthWest;
-	            default: return TargetDirection.None;
+	            case 0 when yDiff == -1:  return TileDirection.North;
+	            case 0 when yDiff == 1:   return TileDirection.South;
+	            case 1 when yDiff == 0:   return TileDirection.East;
+	            case -1 when yDiff == 0:  return TileDirection.West;
+	            case 1 when yDiff == -1:  return TileDirection.NorthEast;
+	            case -1 when yDiff == -1: return TileDirection.NorthWest;
+	            case 1 when yDiff == 1:   return TileDirection.SouthEast;
+	            case -1 when yDiff == 1:  return TileDirection.SouthWest;
+	            default: return TileDirection.None;
 	        }
 	    }
 
-        public void ConvertDirectionToCoordinates(TargetDirection d, out int xNew, out int yNew)
+        public Point ConvertDirectionToCoordinates(TileDirection d)
         {
+            Point p;
             switch (d)
             {
-                case TargetDirection.North:     xNew = x;     yNew = y - 1; break;
-                case TargetDirection.South:     xNew = x;     yNew = y + 1; break;
-                case TargetDirection.East:      xNew = x + 1; yNew = y;     break;
-                case TargetDirection.West:      xNew = x - 1; yNew = y;     break;
-                case TargetDirection.NorthEast: xNew = x + 1; yNew = y - 1; break;
-                case TargetDirection.NorthWest: xNew = x - 1; yNew = y - 1; break;
-                case TargetDirection.SouthEast: xNew = x + 1; yNew = y + 1; break;
-                case TargetDirection.SouthWest: xNew = x - 1; yNew = y + 1; break;
-                case TargetDirection.None:
-                default:                        xNew = x;     yNew = y;     break;
+                case TileDirection.North:     p.X = x;     p.Y = y - 1; break;
+                case TileDirection.South:     p.X = x;     p.Y = y + 1; break;
+                case TileDirection.East:      p.X = x + 1; p.Y = y;     break;
+                case TileDirection.West:      p.X = x - 1; p.Y = y;     break;
+                case TileDirection.NorthEast: p.X = x + 1; p.Y = y - 1; break;
+                case TileDirection.NorthWest: p.X = x - 1; p.Y = y - 1; break;
+                case TileDirection.SouthEast: p.X = x + 1; p.Y = y + 1; break;
+                case TileDirection.SouthWest: p.X = x - 1; p.Y = y + 1; break;
+                case TileDirection.None:
+                default:                        p.X = x;     p.Y = y;     break;
             }
+            return p;
         }
     }
-    public enum TargetDirection
+    public enum TileDirection
     {
         North,
         NorthEast,

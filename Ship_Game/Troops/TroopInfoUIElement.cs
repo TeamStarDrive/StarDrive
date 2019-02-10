@@ -47,30 +47,27 @@ namespace Ship_Game
             Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y - 10, LeftRect.Width + 8, 95);
             Submenu sub       = new Submenu(desRect);
             DescriptionSL     = new ScrollList(sub, Fonts.Arial12.LineSpacing + 1);
-            TippedItem def    = new TippedItem
+
+            ToolTipItems.Add(new TippedItem
             {
                 r = DefenseRect,
                 TIP_ID = 33
-            };
-            ToolTipItems.Add(def);
-            def = new TippedItem
+            });
+            ToolTipItems.Add(new TippedItem
             {
                 r = SoftAttackRect,
                 TIP_ID = 34
-            };
-            ToolTipItems.Add(def);
-            def = new TippedItem
+            });
+            ToolTipItems.Add(new TippedItem
             {
                 r = HardAttackRect,
                 TIP_ID = 35
-            };
-            ToolTipItems.Add(def);
-            def = new TippedItem
+            });
+            ToolTipItems.Add(new TippedItem
             {
                 r = RangeRect,
                 TIP_ID = 251
-            };
-            ToolTipItems.Add(def);
+            });
         }
 
         public override void Draw(GameTime gameTime) // refactored by  Fat Bastard Aug 6, 2018
