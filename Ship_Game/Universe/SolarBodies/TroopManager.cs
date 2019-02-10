@@ -1,6 +1,7 @@
 ﻿using Ship_Game.Gameplay;
 using System;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
 
 // ReSharper disable once CheckNamespace
@@ -68,14 +69,14 @@ namespace Ship_Game
             {
                 PlanetGridSquare pgs = TilesList[i];
                 if (pgs.TroopsAreOnTile)
-                    CourseOfAction(pgs.SingleTroop, pgs);
+                    PerformGroundActions(pgs.SingleTroop, pgs);
 
                 else if (pgs.BuildingPerformsAutoCombat(Ground))
-                    CourseOfAction(pgs.building, pgs);
+                    PerformGroundActions(pgs.building, pgs);
             }
         }
 
-        private void CourseOfAction(Building b, PlanetGridSquare ourTile)
+        private void PerformGroundActions(Building b, PlanetGridSquare ourTile)
         {
             if (!b.CanAttack)
                 return;
@@ -94,7 +95,7 @@ namespace Ship_Game
             CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
         }
 
-        private void CourseOfAction(Troop t, PlanetGridSquare ourTile)
+        private void PerformGroundActions(Troop t, PlanetGridSquare ourTile)
         {
             if (!t.CanMove && !t.CanAttack)
                 return;
@@ -133,7 +134,7 @@ namespace Ship_Game
             if (!t.CanMove || ourTile == targetTile)
                 return;
 
-            TargetDirection direction   = ourTile.GetDirectionTo(targetTile);
+            TileDirection direction   = ourTile.GetDirectionTo(targetTile);
             PlanetGridSquare moveToTile = PickTileToMoveTo(direction, ourTile);
             if (moveToTile == null)
                 return; // no free tile
@@ -151,7 +152,7 @@ namespace Ship_Game
         }
         
         // try 3 directions to move into, based on general direction to the target
-        private PlanetGridSquare PickTileToMoveTo(TargetDirection direction, PlanetGridSquare ourTile)
+        private PlanetGridSquare PickTileToMoveTo(TileDirection direction, PlanetGridSquare ourTile)
         {
             PlanetGridSquare bestFreeTile = FreeTile(direction, ourTile);
             if (bestFreeTile != null)
@@ -160,30 +161,31 @@ namespace Ship_Game
             // try alternate tiles
             switch (direction)
             {
-                case TargetDirection.North:     return FreeTile(TargetDirection.NorthEast, ourTile) ?? 
-                                                       FreeTile(TargetDirection.NorthWest, ourTile);
-                case TargetDirection.South:     return FreeTile(TargetDirection.SouthEast, ourTile) ??
-                                                       FreeTile(TargetDirection.SouthWest, ourTile);
-                case TargetDirection.East:      return FreeTile(TargetDirection.NorthEast, ourTile) ??
-                                                       FreeTile(TargetDirection.SouthEast, ourTile);
-                case TargetDirection.West:      return FreeTile(TargetDirection.NorthWest, ourTile) ??
-                                                       FreeTile(TargetDirection.SouthWest, ourTile);
-                case TargetDirection.NorthEast: return FreeTile(TargetDirection.North, ourTile) ??
-                                                       FreeTile(TargetDirection.East, ourTile);
-                case TargetDirection.NorthWest: return FreeTile(TargetDirection.North, ourTile) ??
-                                                       FreeTile(TargetDirection.West, ourTile);
-                case TargetDirection.SouthEast: return FreeTile(TargetDirection.South, ourTile) ??
-                                                       FreeTile(TargetDirection.East, ourTile);
-                case TargetDirection.SouthWest: return FreeTile(TargetDirection.South, ourTile) ??
-                                                       FreeTile(TargetDirection.West, ourTile);
+                case TileDirection.North:     return FreeTile(TileDirection.NorthEast, ourTile) ?? 
+                                                     FreeTile(TileDirection.NorthWest, ourTile);
+                case TileDirection.South:     return FreeTile(TileDirection.SouthEast, ourTile) ??
+                                                     FreeTile(TileDirection.SouthWest, ourTile);
+                case TileDirection.East:      return FreeTile(TileDirection.NorthEast, ourTile) ??
+                                                     FreeTile(TileDirection.SouthEast, ourTile);
+                case TileDirection.West:      return FreeTile(TileDirection.NorthWest, ourTile) ??
+                                                     FreeTile(TileDirection.SouthWest, ourTile);
+                case TileDirection.NorthEast: return FreeTile(TileDirection.North, ourTile) ??
+                                                     FreeTile(TileDirection.East, ourTile);
+                case TileDirection.NorthWest: return FreeTile(TileDirection.North, ourTile) ??
+                                                     FreeTile(TileDirection.West, ourTile);
+                case TileDirection.SouthEast: return FreeTile(TileDirection.South, ourTile) ??
+                                                     FreeTile(TileDirection.East, ourTile);
+                case TileDirection.SouthWest: return FreeTile(TileDirection.South, ourTile) ??
+                                                     FreeTile(TileDirection.West, ourTile);
                 default: return null;
             }
         }
 
-        private PlanetGridSquare FreeTile(TargetDirection direction, PlanetGridSquare ourTile)
+        private PlanetGridSquare FreeTile(TileDirection direction, PlanetGridSquare ourTile)
         {
-            ourTile.ConvertDirectionToCoordinates(direction, out int x, out int y);
-            PlanetGridSquare tile = Ground.GetTileByCoordinates(x, y);
+            Point newCords        = ourTile.ConvertDirectionToCoordinates(direction);
+            PlanetGridSquare tile = Ground.GetTileByCoordinates(newCords.X, newCords.Y);
+
             if (tile != null && tile.FreeForMovement && tile != ourTile)
                 return tile;
             return null;
