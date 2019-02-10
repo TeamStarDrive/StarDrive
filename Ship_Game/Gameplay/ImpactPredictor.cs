@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
 using static System.Math;
@@ -16,30 +17,34 @@ namespace Ship_Game.Gameplay
     {
         readonly Vector2 Pos; // Our Position
         readonly Vector2 Vel; // Our Velocity
-        readonly float Speed; // interception speed (projectile speed)
+        readonly float InterceptSpeed; // interception speed (projectile speed)
         readonly Vector2 TargetPos; // Target position
         readonly Vector2 TargetVel; // Target velocity
         readonly Vector2 TargetAcc; // Target acceleration
 
-        // This sets the maximum lookahead time in seconds
-        // Any impact time predictions beyond this are clamped
-        // @note This should be == max projectile health
-        readonly float MaxPredictionTime; 
-
-        // For weapon arc prediction
-        public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, float range, GameplayObject target)
+        // For generic ship movement prediction
+        public ImpactPredictor(Vector2 pos, Vector2 vel, float interceptSpeed,
+                               Vector2 targetPos, Vector2 targetVel, Vector2 targetAcc)
         {
             Pos = pos;
             Vel = vel;
-            Speed = speed;
+            InterceptSpeed = interceptSpeed;
+            TargetPos = targetPos;
+            TargetVel = targetVel;
+            TargetAcc = targetAcc;
+        }
+
+        // For weapon arc prediction
+        public ImpactPredictor(Vector2 pos, Vector2 vel, float interceptSpeed, 
+                               GameplayObject target)
+        {
+            Pos = pos;
+            Vel = vel;
+            InterceptSpeed = interceptSpeed;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
             TargetAcc = info.Acc;
-
-            // this will limit the pip from moving further than would be possible
-            float approxLifetime = range / speed;
-            MaxPredictionTime = approxLifetime * 1.1f;
         }
 
         // For generic ship movement prediction
@@ -47,11 +52,10 @@ namespace Ship_Game.Gameplay
         {
             Pos = pos;
             Vel = vel;
-            Speed = 0f;
+            InterceptSpeed = 0f;
             TargetPos = targetPos;
             TargetVel = Vector2.Zero;
             TargetAcc = Vector2.Zero;
-            MaxPredictionTime = 0f;
         }
 
         // This is used during interception / attack runs
@@ -59,20 +63,18 @@ namespace Ship_Game.Gameplay
         {
             Pos = ourShip.Center;
             Vel = ourShip.Velocity;
-            Speed = ourShip.AvgProjectileSpeed;
+            InterceptSpeed = ourShip.AvgProjectileSpeed;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
             TargetAcc = info.Acc;
-            MaxPredictionTime = 0f;
-            MaxPredictionTime = TimeToTarget(target.Center) * 1.5f;
         }
 
         public ImpactPredictor(Projectile proj, GameplayObject target)
         {
             Pos = proj.Center;
             Vel = proj.Velocity;
-            Speed = proj.Speed;
+            InterceptSpeed = proj.Speed;
             // guided missiles should not account for speed, since they are
             // ramming devices and always have more velocity
             //if (proj.Weapon.Tag_Guided)
@@ -81,27 +83,141 @@ namespace Ship_Game.Gameplay
             TargetPos = info.Pos;
             TargetVel = info.Vel;
             TargetAcc = info.Acc;
-            MaxPredictionTime = Max(0.1f, proj.Duration);
         }
 
         static TargetInfo GetTargetInfo(GameplayObject target)
         {
             if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
             {
-                return new TargetInfo { Pos = target.Center, Vel = ship.Velocity, Acc = ship.Acceleration };
+                return new TargetInfo
+                {
+                    Pos = target.Center,
+                    Vel = ship.Velocity,
+                    Acc = ship.Acceleration
+                };
             }
-            return new TargetInfo { Pos = target.Center, Vel = target.Velocity };
+            return new TargetInfo
+            {
+                Pos = target.Center,
+                Vel = target.Velocity
+            };
         }
 
-        Vector2 PredictImpactOld()
+        // http://www.dummies.com/education/science/physics/finding-distance-using-initial-velocity-time-and-acceleration/
+        static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, Vector2 accel, float time)
         {
-            Vector2 vectorToTarget = TargetPos - Pos;
-            Vector2 projectileVelocity = Vel + Vel.Normalized() * Speed;
-            float distance = vectorToTarget.Length();
-            float time = distance / projectileVelocity.Length();
-            return TargetPos + TargetVel * time;
+            // s = v0*t + (a*t^2)/2
+            Vector2 dist = vel * time + accel * (time * time * 0.5f);
+            return pos + dist;
         }
 
+        static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, float time)
+        {
+            return pos + vel * time;
+        }
+
+        public static float TimeToTarget(Vector2 pos, Vector2 target, float speed)
+        {
+            if (speed.AlmostZero())
+                return 0f;
+            return pos.Distance(target) / speed;
+        }
+
+        Vector2 PredictProjectileImpact(Vector2 targetAcc)
+        {
+            Vector2 lookAt = Pos.DirectionToTarget(TargetPos);
+            Vector2 deltaV = TargetVel - Vel;
+            float dot = deltaV.Normalized().Dot(lookAt); // deltaV intersect with lookAt
+
+            // this is the current time to target if we shot the projectile right now
+            float time = TimeToTarget(Pos, TargetPos, InterceptSpeed);
+
+            // targets are on collision course
+            if (dot < -0.95f)
+            {
+                Vector2 left = lookAt.LeftVector(); // perpendicular to forward vector
+                float dot2 = left.Dot(deltaV.Normalized());
+                float speed = deltaV.Length();
+
+                // only place movePos on the same axis as left vector
+                Vector2 movePos = TargetPos + left*(dot2*speed) + lookAt*(speed*0.2f);
+
+                //Console.WriteLine($"PIP lookAt:{lookAt} dv:{deltaV} dot:{dot.String(2)} time:{time.String(2)}");
+                Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"TTT head-on: {time.String(2)}", Color.Green, 0f);
+                return movePos;
+            }
+
+            // objects are SEPARATING faster than projectile can catch up, so this means
+            // the projectile might never hit?
+            if (deltaV.Length().GreaterOrEqual(InterceptSpeed))
+            {
+                //Console.WriteLine($"PIP lookAt:{lookAt} dv:{deltaV} dot:{dot.String(2)} time:{time.String(2)}");
+                Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"TTT never: {time.String(2)}", Color.Red, 0f);
+                return ProjectPosition(TargetPos, deltaV, targetAcc, time);
+            }
+
+            Vector2 predictedPos = default;
+
+            for (int i = 0; i < 20; ++i)
+            {
+                predictedPos = ProjectPosition(TargetPos, deltaV, targetAcc, time);
+                float newTime = TimeToTarget(Pos, predictedPos, InterceptSpeed);
+                if (time.AlmostEqual(newTime, 0.01666f))
+                    break;
+                if (/*i == 19 || */newTime > 20f)
+                    break;
+                    //throw new Exception($"Prediction probably out of range: {newTime}");
+                time = newTime;
+            }
+            
+            //Console.WriteLine($"PIP lookAt:{lookAt} dv:{deltaV} dot:{dot.String(2)} time:{time.String(2)}");
+            Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"TTT ok: {time.String(2)}", Color.Orange, 0f);
+            return predictedPos;
+        }
+
+        // @param advancedTargeting If TRUE, targeting will account for Acceleration
+        //                          which yields even more accurate target prediction!
+        public Vector2 Predict(bool advancedTargeting)
+        {
+            // @note Validated via DeveloperSandbox DebugPlatform simulations
+            // Quad is very accurate if speed is constant
+            // Quad has a tendency to over predict when accelerating
+            //Vector2 quad = PredictImpactQuad();
+
+            //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactQuad(), 50f, Color.Cyan, 0f);
+            //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(), 60f, Color.LawnGreen, 0f);
+            //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(TargetAcc), 70f, Color.HotPink, 0f);
+
+            // Iter is just as accurate when speed is constant
+            // Iter is quite accurate even when accelerating
+            // For this reason, we will favor ITER
+            if (!advancedTargeting)
+                return PredictProjectileImpact(Vector2.Zero);
+
+            // by using Target acceleration, we get superhuman target prediction
+            // even when ships are accelerating. There is almost no overshooting, even small
+            // fighters get shot out of the sky by PD/Flak
+            return PredictProjectileImpact(TargetAcc);
+        }
+
+        // @note This is different than weapon prediction
+        //       The move position is always aligned on an axis intersecting
+        //       TargetPos and perpendicular to DirectionToTarget
+        public Vector2 PredictMovePos()
+        {
+            Vector2 forward = Pos.DirectionToTarget(TargetPos);
+            Vector2 left = forward.LeftVector(); // perpendicular to forward vector
+            float dot = -left.Dot(Vel.Normalized()); // get the velocity negation direction
+            float speed = Vel.Length(); // negation magnitude
+
+            // only place movePos on the same axis as left vector
+            Vector2 movePos = TargetPos + left*(dot*speed);
+            return movePos;
+        }
+
+
+        
+        // @todo Figure out if this could be useful
         // assume we have a relative reference frame and weaponPos is stationary
         // use additional calculations to set up correct interceptSpeed and deltaVel
         // https://stackoverflow.com/a/2249237
@@ -138,151 +254,5 @@ namespace Ship_Game.Gameplay
             return Min(timeToImpact1, timeToImpact2);
         }
 
-        // http://www.dummies.com/education/science/physics/finding-distance-using-initial-velocity-time-and-acceleration/
-        static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, Vector2 accel, float time)
-        {
-            // s = v0*t + (a*t^2)/2
-            Vector2 dist = vel * time + accel * (time * time * 0.5f);
-            return pos + dist;
-        }
-
-        static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, float time)
-        {
-            return pos + vel * time;
-        }
-
-        float TimeToTarget(Vector2 target) => Pos.Distance(target) / Speed;
-
-        float PredictImpactTimeAdjusted(Vector2 deltaV)
-        {
-            float impactTime = PredictImpactTime(deltaV, Speed);
-            if (impactTime > MaxPredictionTime)
-                impactTime = MaxPredictionTime;
-            else if (impactTime <= 0f)
-                impactTime = TimeToTarget(TargetPos); // default fallback
-            return impactTime;
-        }
-
-        Vector2 PredictImpactQuad()
-        {
-            if (Speed.AlmostEqual(0f, 0.01f))
-                return TargetPos;
-
-            Vector2 deltaV = TargetVel - Vel;
-            float impactTime = PredictImpactTimeAdjusted(deltaV);
-            return ProjectPosition(TargetPos, deltaV, impactTime);
-        }
-
-        Vector2 PredictImpactQuad(Vector2 targetAccel)
-        {
-            if (Speed.AlmostEqual(0f, 0.01f))
-                return TargetPos;
-
-            Vector2 deltaV = TargetVel - Vel;
-            float impactTime = PredictImpactTimeAdjusted(deltaV);
-
-            // project target position at impactTime
-            Vector2 pip = ProjectPosition(TargetPos, deltaV, targetAccel, impactTime);
-
-            float impactTime2 = TimeToTarget(pip); // t = s/v
-            if (impactTime2 <= 0f)
-                return TargetPos; // incase of head-on collision
-
-            // this is the final corrected PIP:
-            Vector2 pip2 = ProjectPosition(TargetPos, deltaV, targetAccel, impactTime2);
-            return pip2;
-        }
-
-        Vector2 PredictImpactIter(Vector2 targetAccel)
-        {
-            if (Speed.AlmostEqual(0f, 0.01f))
-                return TargetPos;
-
-            float time = TimeToTarget(TargetPos);
-            Vector2 deltaV = TargetVel - Vel;
-
-            // objects are separating faster than projectile can catch up, so this means
-            // the projectile might never hit?
-            if (deltaV.Length().Greater(Speed+0.1f))
-                return ProjectPosition(TargetPos, deltaV, targetAccel, time);
-
-            Vector2 predictedPos = default;
-
-            for (int i = 0; i < 20; ++i)
-            {
-                predictedPos = ProjectPosition(TargetPos, deltaV, targetAccel, time);
-                float newTime = TimeToTarget(predictedPos);
-                if (newTime > 20f || time.AlmostEqual(newTime, 0.01666f))
-                    return predictedPos;
-                time = newTime;
-            }
-            return predictedPos;
-        }
-
-        Vector2 PredictImpactIter()
-        {
-            if (Speed.AlmostEqual(0f, 0.01f))
-                return TargetPos;
-
-            float time = TimeToTarget(TargetPos);
-            Vector2 deltaV = TargetVel - Vel;
-
-            // objects are separating faster than projectile can catch up, so this means
-            // the projectile might never hit?
-            if (deltaV.Length().Greater(Speed+0.1f))
-                return ProjectPosition(TargetPos, deltaV, time);
-
-            Vector2 predictedPos = default;
-
-            for (int i = 0; i < 20; ++i)
-            {
-                predictedPos = ProjectPosition(TargetPos, deltaV, time);
-                float newTime = TimeToTarget(predictedPos);
-                if (newTime > 20f || time.AlmostEqual(newTime, 0.01666f))
-                    return predictedPos;
-                time = newTime;
-            }
-            return predictedPos;
-        }
-
-        // @param advancedTargeting If TRUE, targeting will account for Acceleration
-        //                          which yields even more accurate target prediction!
-        public Vector2 Predict(bool advancedTargeting)
-        {
-            // @note Validated via DeveloperSandbox DebugPlatform simulations
-            // Quad is very accurate if speed is constant
-            // Quad has a tendency to over predict when accelerating
-            //Vector2 quad = PredictImpactQuad();
-
-            //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactQuad(), 50f, Color.Cyan, 0f);
-            //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(), 60f, Color.LawnGreen, 0f);
-            //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(TargetAcc), 70f, Color.HotPink, 0f);
-
-            // Iter is just as accurate when speed is constant
-            // Iter is quite accurate even when accelerating
-            // For this reason, we will favor ITER
-            if (!advancedTargeting)
-                return PredictImpactIter();
-
-            // by using Target acceleration, we get superhuman target prediction
-            // even when ships are accelerating. There is almost no overshooting, even small
-            // fighters get shot out of the sky by PD/Flak
-            return PredictImpactIter(TargetAcc);
-        }
-
-        // @note This is different than weapon prediction
-        //       The move position is always aligned on an axis intersecting
-        //       TargetPos and perpendicular to DirectionToTarget
-        public Vector2 PredictMovePos()
-        {
-            Vector2 forward = Pos.DirectionToTarget(TargetPos);
-            Vector2 left = forward.LeftVector(); // perpendicular to forward vector
-            float dot = -left.Dot(Vel.Normalized()); // get the velocity negation direction
-            float speed = Vel.Length(); // negation magnitude
-
-            // only place movePos on the same axis as left vector
-            Vector2 movePos = TargetPos + left*(dot*speed);
-            return movePos;
-        }
     }
 }

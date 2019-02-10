@@ -388,6 +388,9 @@ namespace Ship_Game.Gameplay
 
         public void GuidedMoveTowards(float elapsedTime, Vector2 targetPos)
         {
+            Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, Center, targetPos, 1f, Color.DarkOrange, 0f);
+            Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, targetPos, 20f, Color.DarkOrange, 0f);
+
             if (this.RotationNeededForTarget(targetPos, 0.1f, out float angleDiff, out float rotationDir))
             {
                 float rotationRadsPerSec = RotationRadsPerSecond;
