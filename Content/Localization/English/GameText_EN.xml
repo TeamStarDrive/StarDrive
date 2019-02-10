@@ -4697,7 +4697,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <!-- Data added in Venus -->
     <Token>
       <Index>1965</Index>
-      <Text>Indicates the tile range this troop can fire from. Veterans (level 2 or above) get +1 bonus to their range.</Text>
+      <Text>Indicates the tile range this troop can fire from. Veterans (level 3 or above) get +1 bonus to their range.</Text>
     </Token>
     <Token>
       <Index>1966</Index>
