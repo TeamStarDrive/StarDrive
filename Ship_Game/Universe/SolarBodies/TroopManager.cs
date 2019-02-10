@@ -36,7 +36,7 @@ namespace Ship_Game
 
         // ReSharper disable once UnusedParameter.Local Habital concept here is to not use this class if the planet cant have
         // ground combat. but that will be a future project. 
-        public TroopManager(Planet planet)
+        public TroopManager(Planet planet)      
         {
             Ground = planet;
         }
@@ -153,31 +153,28 @@ namespace Ship_Game
         // try 3 directions to move into, based on general direction to the target
         private PlanetGridSquare PickTileToMoveTo(TargetDirection direction, PlanetGridSquare ourTile)
         {
+            PlanetGridSquare bestFreeTile = FreeTile(direction, ourTile);
+            if (bestFreeTile != null)
+                return bestFreeTile;
+
+            // try alternate tiles
             switch (direction)
             {
-                case TargetDirection.North:     return FreeTile(direction, ourTile) ?? 
-                                                       FreeTile(TargetDirection.NorthEast, ourTile) ?? 
+                case TargetDirection.North:     return FreeTile(TargetDirection.NorthEast, ourTile) ?? 
                                                        FreeTile(TargetDirection.NorthWest, ourTile);
-                case TargetDirection.South:     return FreeTile(direction, ourTile) ??
-                                                       FreeTile(TargetDirection.SouthEast, ourTile) ??
+                case TargetDirection.South:     return FreeTile(TargetDirection.SouthEast, ourTile) ??
                                                        FreeTile(TargetDirection.SouthWest, ourTile);
-                case TargetDirection.East:      return FreeTile(direction, ourTile) ??
-                                                       FreeTile(TargetDirection.NorthEast, ourTile) ??
+                case TargetDirection.East:      return FreeTile(TargetDirection.NorthEast, ourTile) ??
                                                        FreeTile(TargetDirection.SouthEast, ourTile);
-                case TargetDirection.West:      return FreeTile(direction, ourTile) ??
-                                                       FreeTile(TargetDirection.NorthWest, ourTile) ??
+                case TargetDirection.West:      return FreeTile(TargetDirection.NorthWest, ourTile) ??
                                                        FreeTile(TargetDirection.SouthWest, ourTile);
-                case TargetDirection.NorthEast: return FreeTile(direction, ourTile) ??
-                                                       FreeTile(TargetDirection.North, ourTile) ??
+                case TargetDirection.NorthEast: return FreeTile(TargetDirection.North, ourTile) ??
                                                        FreeTile(TargetDirection.East, ourTile);
-                case TargetDirection.NorthWest: return FreeTile(direction, ourTile) ??
-                                                       FreeTile(TargetDirection.North, ourTile) ??
+                case TargetDirection.NorthWest: return FreeTile(TargetDirection.North, ourTile) ??
                                                        FreeTile(TargetDirection.West, ourTile);
-                case TargetDirection.SouthEast: return FreeTile(direction, ourTile) ??
-                                                       FreeTile(TargetDirection.South, ourTile) ??
+                case TargetDirection.SouthEast: return FreeTile(TargetDirection.South, ourTile) ??
                                                        FreeTile(TargetDirection.East, ourTile);
-                case TargetDirection.SouthWest: return FreeTile(direction, ourTile) ??
-                                                       FreeTile(TargetDirection.South, ourTile) ??
+                case TargetDirection.SouthWest: return FreeTile(TargetDirection.South, ourTile) ??
                                                        FreeTile(TargetDirection.West, ourTile);
                 default: return null;
             }
