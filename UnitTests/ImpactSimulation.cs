@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Ship_Game;
 
 namespace UnitTests
@@ -42,6 +42,8 @@ namespace UnitTests
         public float Duration = 60.0f;
         public float Scale = 1.0f;
         public Vector2 ProjectileVelocity;
+        public bool EnablePauses = true;
+        public string Name = "";
     }
 
     public struct SimResult
@@ -55,26 +57,73 @@ namespace UnitTests
         }
     }
 
-    class ImpactSimulation : GameDummy
+    class ImpactSimWindow : GameDummy
     {
-        readonly SimulationObject OurShip;
-        readonly SimulationObject Target;
-        readonly SimulationObject Projectile;
-        readonly Vector2 ScreenCenter;
+        public readonly Vector2 ScreenCenter;
+        public KeyboardState Keys;
+        public ImpactSimWindow() : base(1024,1024,true)
+        {
+            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
+            GlobalStats.XRES = (int)ScreenSize.X; // Required for DrawLine...
+            GlobalStats.YRES = (int)ScreenSize.Y;
+            ScreenCenter = ScreenSize * 0.5f;
+            IsFixedTimeStep = false;
+        }
+        
+        protected override void BeginRun()
+        {
+            base.BeginRun();
+            Fonts.LoadContent(Content);
+            //Keys = Keyboard.GetState();
+        }
+
+        protected override void Update(GameTime time)
+        {
+            //Keys = Keyboard.GetState();
+            base.Update(time);
+        }
+
+        protected override void Draw(GameTime time)
+        {
+            GraphicsDevice.Clear(Color.Black);
+            base.Draw(time);
+        }
+    }
+
+    class ImpactSimulation : IGameComponent, IDrawable, IUpdateable
+    {
+        SimulationObject OurShip;
+        SimulationObject Target;
+        SimulationObject Projectile;
 
         SimResult Result;
+        bool SimulationStarted;
         bool SimulationFinished;
-        float ExitAfterFinished = 10f;
+        float StartIn = 1f;
+        float ExitIn = 1f;
 
-        readonly SimParameters Sim;
+        SimParameters Sim;
         float SimTime;
         Vector2 SimCenter;
 
-        public ImpactSimulation(TestImpactPredictor.Scenario s, SimParameters sim)
-            : base(1024,1024, show:true)
+        bool HasMissed;
+        float PrevDistance;
+
+        ImpactSimWindow Owner;
+        
+        public bool Visible { get; } = true;
+        public int DrawOrder { get; } = 0;
+        public event EventHandler VisibleChanged;
+        public event EventHandler DrawOrderChanged;
+
+        public bool Enabled { get; } = true;
+        public int UpdateOrder { get; } = 0;
+        public event EventHandler EnabledChanged;
+        public event EventHandler UpdateOrderChanged;
+
+        public ImpactSimulation(ImpactSimWindow win, TestImpactPredictor.Scenario s, SimParameters sim)
         {
             Sim = sim;
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
             OurShip = new SimulationObject
             {
                 Name = "Us",
@@ -102,21 +151,24 @@ namespace UnitTests
                 Radius = 8f,
                 Sim = sim,
             };
-            GlobalStats.XRES = (int)ScreenSize.X; // Required for DrawLine...
-            GlobalStats.YRES = (int)ScreenSize.Y;
-            ScreenCenter = ScreenSize * 0.5f;
+            PrevDistance = Projectile.Position.Distance(Target.Position);
+            Owner = win;
+            Owner.Components.Add(this);
+        }
+                
+        public void Initialize()
+        {
+            
         }
 
-        protected override void BeginRun()
+        public SimResult WaitForResult()
         {
-            base.BeginRun();
-            Fonts.LoadContent(Content);
-        }
-
-        public SimResult RunIntersectionSimulation()
-        {
-            IsFixedTimeStep = false;
-            Run();
+            Owner.Show();
+            Owner.RunOne();
+            System.Windows.Forms.Application.Run(Owner.Form);
+            Owner.Hide();
+            //Owner.CreateWindow();
+            Owner.Components.Remove(this);
             return Result;
         }
 
@@ -135,9 +187,20 @@ namespace UnitTests
             return (min, max);
         }
 
-        protected override void Update(GameTime time)
+        public void Update(GameTime time)
         {
-            base.Update(time);
+            if (!Sim.EnablePauses)
+                SimulationStarted = true;
+
+            if (!SimulationStarted)
+            {
+                if (Owner.Keys.IsKeyDown(Keys.Space))
+                    SimulationStarted = true;
+                StartIn -= (float)time.ElapsedRealTime.TotalSeconds;
+                if (StartIn > 0f)
+                    return;
+                SimulationStarted = true;
+            }
 
             if (!SimulationFinished)
             {
@@ -152,19 +215,30 @@ namespace UnitTests
                 Target.Update(Sim.Step);
                 Projectile.Update(Sim.Step);
 
-                if (Target.Position.InRadius(Projectile.Position, Projectile.Radius))
+                float distance = Projectile.Position.Distance(Target.Position);
+                if (distance <= (Projectile.Radius+Target.Radius))
                 {
                     SimulationFinished = true;
+                    HasMissed = false;
 
                     // final simulation correction towards Target
                     float speed = Projectile.Velocity.Length();
-                    float distance = Target.Position.Distance(Projectile.Position);
                     float timeAdjust = distance / speed;
                     timeAdjust *= 1.09f; // additional heuristic precision adjustment
 
                     Result.Intersect = Projectile.Position + Projectile.Velocity*timeAdjust;
                     Result.Time = SimTime + timeAdjust;
                 }
+                else
+                {
+                    if (distance > PrevDistance)
+                    {
+                        HasMissed = true;
+                        Projectile.Name = "Projectile MISSED";
+                    }
+                    PrevDistance = distance;
+                }
+
 
                 if (SimTime >= Sim.Duration)
                 {
@@ -174,56 +248,56 @@ namespace UnitTests
                 (Vector2 min, Vector2 max) = GetSimulationBounds();
                 float width = min.Distance(max);
                 SimCenter = (min + max)/2f;
-                Sim.Scale = (ScreenSize.X - 200f) / (width * 2.0f);
+                Sim.Scale = (Owner.ScreenSize.X - 200f) / (width * 2.0f);
+                Sim.Scale = Sim.Scale.Clamped(0.01f, 2.0f);
             }
-            else
+            else // finished
             {
-                ExitAfterFinished -= (float)time.ElapsedRealTime.TotalSeconds;
-                if (ExitAfterFinished < 0f)
-                    Exit();
+                if (!Sim.EnablePauses || Owner.Keys.IsKeyDown(Keys.Space))
+                    ExitIn = 0f;
+
+                ExitIn -= (float)time.ElapsedRealTime.TotalSeconds;
+                if (ExitIn <= 0f)
+                    System.Windows.Forms.Application.();
             }
         }
 
-        protected override void Draw(GameTime time)
+        void DrawText(float x, float y, string text)
         {
-            GraphicsDevice.Clear(Color.Black);
-            base.Draw(time);
-            Batch.Begin();
+            Owner.Batch.DrawString(Fonts.Arial14Bold, text, new Vector2(x,y), Color.White);
+        }
 
-            Vector2 center = -SimCenter*Sim.Scale + ScreenCenter;
-            OurShip.Draw(Batch, center);
-            Target.Draw(Batch, center);
-            Projectile.Draw(Batch, center);
+        public void Draw(GameTime time)
+        {
+            SpriteBatch batch = Owner.Batch;
+            batch.Begin();
 
-            Batch.DrawString(Fonts.Arial14Bold, $"Simulation Time {SimTime.String(2)}s / {Sim.Duration.String(2)}s",
-                             new Vector2(5,5), Color.White);
+            Vector2 center = -SimCenter*Sim.Scale + Owner.ScreenCenter;
+            OurShip.Draw(batch, center);
+            Target.Draw(batch, center);
+            Projectile.Draw(batch, center);
 
-            Batch.DrawString(Fonts.Arial14Bold, $"  Scale    {Sim.Scale}",
-                new Vector2(5,25), Color.White);
-
-            Batch.DrawString(Fonts.Arial14Bold, $"  OurShip    {OurShip.Velocity.Length().String()}m/s {OurShip.Position}",
-                new Vector2(5,45), Color.White);
-
-            Batch.DrawString(Fonts.Arial14Bold, $"  Target     {Target.Velocity.Length().String()}m/s {Target.Position}",
-                new Vector2(5,65), Color.White);
-            
-            Batch.DrawString(Fonts.Arial14Bold, $"  Projectile {Projectile.Velocity.Length().String()}m/s {Projectile.Position}",
-                new Vector2(5,85), Color.White);
-
-            Batch.DrawString(Fonts.Arial14Bold, $"  {Result}",
-                new Vector2(5,105), Color.White);
+            DrawText(5,  5, $"Sim {Sim.Name} Time {SimTime.String(2)}s / {Sim.Duration.String(2)}s");
+            DrawText(5, 25, $"  Scale      {Sim.Scale.String(2)}");
+            DrawText(5, 45, $"  OurShip    {OurShip.Velocity.Length().String(),-3}m/s {OurShip.Position}");
+            DrawText(5, 65, $"  Target     {Target.Velocity.Length().String(),-3}m/s {Target.Position}");
+            DrawText(5, 85, $"  Projectile {Projectile.Velocity.Length().String(),-3}m/s {Projectile.Position} {(HasMissed?"MISSED":"")}");
+            DrawText(5,105, $"  {Result}");
 
             if (SimulationFinished && Result.Intersect.NotZero())
             {
                 Vector2 pos = center + Result.Intersect*Sim.Scale;
-                Batch.DrawCircle(pos, 10f*Sim.Scale, Color.Yellow, 2);
+                batch.DrawCircle(pos, 10f*Sim.Scale, Color.Yellow, 2);
             }
             if (SimulationFinished)
             {
-                Batch.DrawString(Fonts.Arial14Bold, $"Exit in {ExitAfterFinished.String(1)}s",
-                    new Vector2(300,5), Color.White);
+                DrawText(300,5, $"Exit in {ExitIn.String(1)}s");
             }
-            Batch.End();
+            if (!SimulationStarted)
+            {
+                DrawText(300,5, $"Start in {StartIn.String(1)}s");
+            }
+            batch.End();
         }
     }
 }
