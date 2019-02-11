@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Microsoft.Xna.Framework.Game
-// Assembly: Microsoft.Xna.Framework.Game, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d
-// MVID: E4BD910E-73ED-465E-A91E-14AAAB0CE109
-// Assembly location: C:\WINDOWS\assembly\GAC_32\Microsoft.Xna.Framework.Game\3.1.0.0__6d5c3888ef60e27d\Microsoft.Xna.Framework.Game.dll
-
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
@@ -128,7 +122,6 @@ namespace Microsoft.Xna.Framework
             Components.ComponentAdded += GameComponentAdded;
             Components.ComponentRemoved += GameComponentRemoved;
             Content                    = new ContentManager(Services);
-            Host.Window.Paint += Paint;
             Clock                      = new GameClock();
             TotalGameTime              = TimeSpan.Zero;
             AccumulatedElapsedGameTime = TimeSpan.Zero;
@@ -140,6 +133,13 @@ namespace Microsoft.Xna.Framework
         ~Game()
         {
             Dispose(false);
+        }
+
+        public void CreateDevice()
+        {
+            GraphicsDeviceManager = Services.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
+            GraphicsDeviceManager?.CreateDevice();
+            Initialize();
         }
 
         public void DoFirstUpdate()
@@ -157,14 +157,49 @@ namespace Microsoft.Xna.Framework
         {
             try
             {
-                GraphicsDeviceManager = Services.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
-                GraphicsDeviceManager?.CreateDevice();
-                Initialize();
+                CreateDevice();
                 InRun = true;
                 BeginRun();
                 DoFirstUpdate();
                 Host?.Run();
                 EndRun();
+            }
+            catch (NoSuitableGraphicsDeviceException ex)
+            {
+                if (ShowMissingRequirementMessage(ex))
+                    return;
+                throw;
+            }
+            catch (NoAudioHardwareException ex)
+            {
+                if (ShowMissingRequirementMessage(ex))
+                    return;
+                throw;
+            }
+            finally
+            {
+                InRun = false;
+            }
+        }
+
+        public void RunOne()
+        {
+            try
+            {
+                bool firstUpdate = false;
+                if (GraphicsDeviceManager == null)
+                {
+                    CreateDevice();
+                    firstUpdate = true;
+                }
+                InRun = true;
+                if (firstUpdate)
+                {
+                    BeginRun();
+                    DoFirstUpdate();
+                }
+                Host?.RunOne();
+                //EndRun();
             }
             catch (NoSuitableGraphicsDeviceException ex)
             {
@@ -492,10 +527,8 @@ namespace Microsoft.Xna.Framework
             Exiting?.Invoke(null, args);
         }
 
-        private void EnsureHost()
+        public void CreateWindow()
         {
-            if (Host != null)
-                return;
             Host = new WindowsGameHost(this);
             Host.Activated   += HostActivated;
             Host.Deactivated += HostDeactivated;
@@ -503,6 +536,13 @@ namespace Microsoft.Xna.Framework
             Host.Resume      += HostResume;
             Host.Idle        += HostIdle;
             Host.Exiting     += HostExiting;
+            Host.Window.Paint += Paint;
+        }
+
+        private void EnsureHost()
+        {
+            if (Host == null)
+                CreateWindow();
         }
 
         private void HostSuspend(object sender, EventArgs e)

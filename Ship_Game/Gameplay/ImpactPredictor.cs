@@ -123,47 +123,48 @@ namespace Ship_Game.Gameplay
             return pos.Distance(target) / speed;
         }
 
-        void DebugPip(string text, Vector2 predicted, float spd, float t, in Vector2 dv, in Color color)
+        void DebugPip(string text, Vector2 predicted, float spd, float t, in Color color)
         {
             float d = Pos.Distance(TargetPos);
-            float sd = dv.Length();
-            Console.WriteLine($"PIP {text} {predicted} d:{d.String()}m {t.String(2)}s|{spd.String()}m/s dv:{sd.String()}m/s");
+            Console.WriteLine($"PIP {text} {predicted} d:{d.String()}m {t.String(2)}s|{spd.String()}m/s");
             Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"{text}: {t.String(2)}", color, 0f);
         }
 
-        // This is pretty accurate, except when objects never intersect
-        public Vector2 PredictIterative(int iterations = 100)
+        // This is similar to quadratic, however, it applies
+        // an extra precision layer which will further improve accuracy
+        public Vector2 PredictIterative(int iterations = 5)
         {
             float interceptSpeed = InterceptSpeed;
-            Vector2 deltaV = Vel - TargetVel;
-            float time = PredictImpactTime(Pos, TargetPos, deltaV, interceptSpeed);
+            // due to how StarDrive handles projectile speed limit, we don't use deltaV,
+            // just TargetVel. In fully newtonian model we would require deltaV.
+            float time = PredictImpactTime(Pos, TargetPos, -TargetVel, interceptSpeed);
 
             Vector2 predicted;
             if (time > 0f)
             {
-                predicted = ProjectPosition(TargetPos, deltaV, TargetAcc, time);
+                predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, time);
 
                 for (int i = 0; i < iterations; ++i)
                 {
                     float newTime = TimeToTarget(Pos, predicted, interceptSpeed);
-                    predicted = ProjectPosition(TargetPos, deltaV, TargetAcc, newTime);
+                    predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, newTime);
                     if (newTime.AlmostEqual(time, 0.001f))
                         break;
                     time = newTime;
                 }
-                DebugPip("ITER", predicted, interceptSpeed, time, deltaV, Color.Green);
+                DebugPip("ITER", predicted, interceptSpeed, time, Color.Green);
             }
             // intercept is behind us in time, which means we should have fired the projectile X seconds ago
             else if (time < 0f)
             {
-                predicted = ProjectPosition(TargetPos, -deltaV, TargetAcc, -time);
-                DebugPip("BEHIND", predicted, interceptSpeed, time, deltaV, Color.Orange);
+                predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, -time);
+                DebugPip("BEHIND", predicted, interceptSpeed, time, Color.Orange);
             }
             else
             {
                 time = TimeToTarget(Pos, TargetPos, interceptSpeed);
-                predicted = ProjectPosition(TargetPos, deltaV, TargetAcc, time);
-                DebugPip("NOSOLT", predicted, interceptSpeed, time, deltaV, Color.Red);
+                predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, time);
+                DebugPip("NOSOLT", predicted, interceptSpeed, time, Color.Red);
             }
             return predicted;
         }
@@ -171,26 +172,29 @@ namespace Ship_Game.Gameplay
         Vector2 PredictProjectileImpact(Vector2 targetAcc)
         {
             float interceptSpeed = InterceptSpeed.NotZero() ? InterceptSpeed : Vel.Length();
-            Vector2 deltaV = Vel - TargetVel;
-            float time = PredictImpactTime(Pos, TargetPos, deltaV, interceptSpeed);
+
+            // due to how StarDrive handles projectile speed limit, we don't use deltaV,
+            // just TargetVel. In fully newtonian model we would require deltaV.
+            //Vector2 deltaV = Vel - TargetVel;
+            float time = PredictImpactTime(Pos, TargetPos, -TargetVel, interceptSpeed);
 
             Vector2 predicted;
             if (time > 0f)
             {
                 predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
-                DebugPip("CANHIT", predicted, interceptSpeed, time, deltaV, Color.Green);
+                DebugPip("QUAD", predicted, interceptSpeed, time, Color.Green);
             }
             // intercept is behind us in time, which means we should have fired the projectile X seconds ago
             else if (time < 0f) 
             {
-                predicted = ProjectPosition(TargetPos, -deltaV, TargetAcc, -time);
-                DebugPip("BEHIND", predicted, interceptSpeed, time, deltaV, Color.Orange);
+                predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, -time);
+                DebugPip("BEHIND", predicted, interceptSpeed, time, Color.Orange);
             }
             else // no solution, fall back to default time estimate
             {
                 time = TimeToTarget(Pos, TargetPos, interceptSpeed);
                 predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
-                DebugPip("NOSOLT", predicted, interceptSpeed, time, deltaV, Color.Red);
+                DebugPip("NOSOLT", predicted, interceptSpeed, time, Color.Red);
             }
             return predicted;
         }
