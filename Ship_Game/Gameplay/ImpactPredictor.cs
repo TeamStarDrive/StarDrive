@@ -123,56 +123,76 @@ namespace Ship_Game.Gameplay
             return pos.Distance(target) / speed;
         }
 
+        void DebugPip(string text, Vector2 predicted, float spd, float t, in Vector2 dv, in Color color)
+        {
+            float d = Pos.Distance(TargetPos);
+            float sd = dv.Length();
+            Console.WriteLine($"PIP {text} {predicted} d:{d.String()}m {t.String(2)}s|{spd.String()}m/s dv:{sd.String()}m/s");
+            Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"{text}: {t.String(2)}", color, 0f);
+        }
+
+        // This is pretty accurate, except when objects never intersect
+        public Vector2 PredictIterative(int iterations = 100)
+        {
+            float interceptSpeed = InterceptSpeed;
+            Vector2 deltaV = Vel - TargetVel;
+            float time = PredictImpactTime(Pos, TargetPos, deltaV, interceptSpeed);
+
+            Vector2 predicted;
+            if (time > 0f)
+            {
+                predicted = ProjectPosition(TargetPos, deltaV, TargetAcc, time);
+
+                for (int i = 0; i < iterations; ++i)
+                {
+                    float newTime = TimeToTarget(Pos, predicted, interceptSpeed);
+                    predicted = ProjectPosition(TargetPos, deltaV, TargetAcc, newTime);
+                    if (newTime.AlmostEqual(time, 0.001f))
+                        break;
+                    time = newTime;
+                }
+                DebugPip("ITER", predicted, interceptSpeed, time, deltaV, Color.Green);
+            }
+            // intercept is behind us in time, which means we should have fired the projectile X seconds ago
+            else if (time < 0f)
+            {
+                predicted = ProjectPosition(TargetPos, -deltaV, TargetAcc, -time);
+                DebugPip("BEHIND", predicted, interceptSpeed, time, deltaV, Color.Orange);
+            }
+            else
+            {
+                time = TimeToTarget(Pos, TargetPos, interceptSpeed);
+                predicted = ProjectPosition(TargetPos, deltaV, TargetAcc, time);
+                DebugPip("NOSOLT", predicted, interceptSpeed, time, deltaV, Color.Red);
+            }
+            return predicted;
+        }
+
         Vector2 PredictProjectileImpact(Vector2 targetAcc)
         {
-            Vector2 lookAt = Pos.DirectionToTarget(TargetPos);
-            Vector2 deltaV = TargetVel - Vel;
-            float dot = deltaV.Normalized().Dot(lookAt); // deltaV intersect with lookAt
+            float interceptSpeed = InterceptSpeed.NotZero() ? InterceptSpeed : Vel.Length();
+            Vector2 deltaV = Vel - TargetVel;
+            float time = PredictImpactTime(Pos, TargetPos, deltaV, interceptSpeed);
 
-            // this is the current time to target if we shot the projectile right now
-            float time = TimeToTarget(Pos, TargetPos, InterceptSpeed);
-
-            // targets are on collision course
-            if (dot < -0.95f)
+            Vector2 predicted;
+            if (time > 0f)
             {
-                Vector2 left = lookAt.LeftVector(); // perpendicular to forward vector
-                float dot2 = left.Dot(deltaV.Normalized());
-                float speed = deltaV.Length();
-
-                // only place movePos on the same axis as left vector
-                Vector2 movePos = TargetPos + left*(dot2*speed) + lookAt*(speed*0.2f);
-
-                //Console.WriteLine($"PIP lookAt:{lookAt} dv:{deltaV} dot:{dot.String(2)} time:{time.String(2)}");
-                Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"TTT head-on: {time.String(2)}", Color.Green, 0f);
-                return movePos;
+                predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
+                DebugPip("CANHIT", predicted, interceptSpeed, time, deltaV, Color.Green);
             }
-
-            // objects are SEPARATING faster than projectile can catch up, so this means
-            // the projectile might never hit?
-            if (deltaV.Length().GreaterOrEqual(InterceptSpeed))
+            // intercept is behind us in time, which means we should have fired the projectile X seconds ago
+            else if (time < 0f) 
             {
-                //Console.WriteLine($"PIP lookAt:{lookAt} dv:{deltaV} dot:{dot.String(2)} time:{time.String(2)}");
-                Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"TTT never: {time.String(2)}", Color.Red, 0f);
-                return ProjectPosition(TargetPos, deltaV, targetAcc, time);
+                predicted = ProjectPosition(TargetPos, -deltaV, TargetAcc, -time);
+                DebugPip("BEHIND", predicted, interceptSpeed, time, deltaV, Color.Orange);
             }
-
-            Vector2 predictedPos = default;
-
-            for (int i = 0; i < 20; ++i)
+            else // no solution, fall back to default time estimate
             {
-                predictedPos = ProjectPosition(TargetPos, deltaV, targetAcc, time);
-                float newTime = TimeToTarget(Pos, predictedPos, InterceptSpeed);
-                if (time.AlmostEqual(newTime, 0.01666f))
-                    break;
-                if (/*i == 19 || */newTime > 20f)
-                    break;
-                    //throw new Exception($"Prediction probably out of range: {newTime}");
-                time = newTime;
+                time = TimeToTarget(Pos, TargetPos, interceptSpeed);
+                predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
+                DebugPip("NOSOLT", predicted, interceptSpeed, time, deltaV, Color.Red);
             }
-            
-            //Console.WriteLine($"PIP lookAt:{lookAt} dv:{deltaV} dot:{dot.String(2)} time:{time.String(2)}");
-            Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"TTT ok: {time.String(2)}", Color.Orange, 0f);
-            return predictedPos;
+            return predicted;
         }
 
         // @param advancedTargeting If TRUE, targeting will account for Acceleration
@@ -215,43 +235,54 @@ namespace Ship_Game.Gameplay
             return movePos;
         }
 
-
-        
-        // @todo Figure out if this could be useful
         // assume we have a relative reference frame and weaponPos is stationary
         // use additional calculations to set up correct interceptSpeed and deltaVel
         // https://stackoverflow.com/a/2249237
-        float PredictImpactTime(Vector2 deltaV, float speed)
+        // @param shooter Position of shooter
+        // @param target  Position of target
+        // @param targetVel Velocity of target
+        // @param projectileSpeed Speed of intercepting projectile
+        // @return Closest impact time. If time is negative, then impact is somewhere behind us
+        public static float PredictImpactTime(Vector2 shooter, Vector2 target, Vector2 targetVel, float projectileSpeed)
         {
-            Vector2 distance = TargetPos - Pos;
+            double dx = target.X - shooter.X;
+            double dy = target.Y - shooter.Y;
+            double vx = targetVel.X;
+            double vy = targetVel.Y;
 
-            float a = deltaV.Dot(deltaV) - (speed * speed);
-            float bm = 2f * distance.Dot(deltaV);
-            float c = distance.Dot(distance);
+            double a = (vx*vx) + (vy*vy) - (projectileSpeed*projectileSpeed);
+            double bm = 2.0 * (vx*dx + vy*dy);
+            double c = dx*dx + dy*dy;
 
             // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
-            if (Abs(a) < 0.0001f)
+            if (Abs(a) < 0.0001)
                 return 0f; // no solution
 
-            float sqrt = bm * bm - 4 * a * c;
-            if (sqrt < 0.0f)
+            double sqrt = bm * bm - 4.0 * a * c;
+            if (sqrt < 0.0)
                 return 0f; // no solution
             sqrt = (float)Sqrt(sqrt);
 
             // Those values are the time values at which point you can hit the target.
-            float timeToImpact1 = (bm - sqrt) / (2 * a);
-            float timeToImpact2 = (bm + sqrt) / (2 * a);
+            double timeToImpact1 = (bm - sqrt) / (2.0 * a);
+            double timeToImpact2 = (bm + sqrt) / (2.0 * a);
 
             #if DEBUG
-            if (float.IsNaN(timeToImpact1) || float.IsNaN(timeToImpact2))
+            if (double.IsNaN(timeToImpact1) || double.IsNaN(timeToImpact2))
                 Log.Error("timeToImpact was NaN!");
             #endif
 
-            // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
-            // Take any of the remaining positive values (probably the smaller one).
-            if (timeToImpact1 < 0f) return Max(0f, timeToImpact2);
-            if (timeToImpact2 < 0f) return timeToImpact1;
-            return Min(timeToImpact1, timeToImpact2);
+            // if time is negative, the impact point is behind us
+            if (timeToImpact1 < 0f && timeToImpact2 < 0f) // both times are neg
+            {
+                // pick the closest time behind us
+                return (float)Max(timeToImpact1, timeToImpact2);
+            }
+
+            if (timeToImpact1 < 0f) return (float)timeToImpact2;
+            if (timeToImpact2 < 0f) return (float)timeToImpact1;
+            
+            return (float)Min(timeToImpact1, timeToImpact2); // pick closest intersect time
         }
 
     }
