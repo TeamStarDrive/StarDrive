@@ -23,6 +23,8 @@ namespace Ship_Game
         SpriteBatch batch;
         public SpriteBatch Batch => batch ?? (batch = new SpriteBatch(GraphicsDevice));
 
+        public Form Form => (Form)Control.FromHandle(Window.Handle);
+
         public GameDummy(int width=800, int height=600, bool show=false)
         {
             base.Content = Content = new GameContentManager(Services, "Game");
@@ -42,8 +44,17 @@ namespace Ship_Game
                 Graphics.ToggleFullScreen();
             Graphics.ApplyChanges();
 
-            var form = (Form)Control.FromHandle(Window.Handle);
-            form.Visible = show;
+            Show();
+        }
+
+        public void Show()
+        {
+            Form.Visible = true;
+        }
+
+        public void Hide()
+        {
+            Form.Visible = false;
         }
 
         public void Create()
