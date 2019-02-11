@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertExtensions.cs" />
+    <Compile Include="ImpactSimulation.cs" />
     <Compile Include="TestArrayT.cs" />
     <Compile Include="TestCollectionExt.cs" />
     <Compile Include="TestMathExt.cs" />

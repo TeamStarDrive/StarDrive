@@ -142,6 +142,17 @@ namespace Microsoft.Xna.Framework
             Dispose(false);
         }
 
+        public void DoFirstUpdate()
+        {
+            Time.ElapsedGameTime = TimeSpan.Zero;
+            Time.ElapsedRealTime = TimeSpan.Zero;
+            Time.TotalGameTime = TotalGameTime;
+            Time.TotalRealTime = Clock.CurrentTime;
+            Time.IsRunningSlowly = false;
+            Update(Time);
+            DoneFirstUpdate = true;
+        }
+
         public void Run()
         {
             try
@@ -151,13 +162,7 @@ namespace Microsoft.Xna.Framework
                 Initialize();
                 InRun = true;
                 BeginRun();
-                Time.ElapsedGameTime = TimeSpan.Zero;
-                Time.ElapsedRealTime = TimeSpan.Zero;
-                Time.TotalGameTime = TotalGameTime;
-                Time.TotalRealTime = Clock.CurrentTime;
-                Time.IsRunningSlowly = false;
-                Update(Time);
-                DoneFirstUpdate = true;
+                DoFirstUpdate();
                 Host?.Run();
                 EndRun();
             }
@@ -183,34 +188,37 @@ namespace Microsoft.Xna.Framework
         {
             if (ShouldExit)
                 return;
+
             if (!IsActiveIgnoringGuide)
             {
                 Thread.Sleep((int)InactiveSleep.TotalMilliseconds);
             }
 
             Clock.Step();
-            bool flag = true;
+            bool skipDraw = true;
             Time.TotalRealTime   = Clock.CurrentTime;
             Time.ElapsedRealTime = Clock.ElapsedTime;
             LastFrameElapsedRealTime += Clock.ElapsedTime;
-            TimeSpan timeSpan1 = Clock.ElapsedAdjustedTime;
-            if (timeSpan1 < TimeSpan.Zero)
-                timeSpan1 = TimeSpan.Zero;
+
+            TimeSpan elapsedAdjusted = Clock.ElapsedAdjustedTime;
+            if (elapsedAdjusted < TimeSpan.Zero)
+                elapsedAdjusted = TimeSpan.Zero;
             if (ForceElapsedTimeToZero)
             {
-                TimeSpan zero;
-                timeSpan1 = zero = TimeSpan.Zero;
-                LastFrameElapsedRealTime = zero;
-                Time.ElapsedRealTime = zero;
+                elapsedAdjusted = TimeSpan.Zero;
+                LastFrameElapsedRealTime = TimeSpan.Zero;
+                Time.ElapsedRealTime = TimeSpan.Zero;
                 ForceElapsedTimeToZero = false;
             }
-            if (timeSpan1 > MaximumElapsedTime)
-                timeSpan1 = MaximumElapsedTime;
+            if (elapsedAdjusted > MaximumElapsedTime)
+                elapsedAdjusted = MaximumElapsedTime;
+
             if (IsFixedTimeStep)
             {
-                if (Math.Abs(timeSpan1.Ticks - TargetElapsedGameTime.Ticks) < TargetElapsedGameTime.Ticks >> 6)
-                    timeSpan1 = TargetElapsedGameTime;
-                AccumulatedElapsedGameTime += timeSpan1;
+                if (Math.Abs(elapsedAdjusted.Ticks - TargetElapsedGameTime.Ticks) < TargetElapsedGameTime.Ticks >> 6)
+                    elapsedAdjusted = TargetElapsedGameTime;
+
+                AccumulatedElapsedGameTime += elapsedAdjusted;
                 long num = AccumulatedElapsedGameTime.Ticks / TargetElapsedGameTime.Ticks;
                 AccumulatedElapsedGameTime = new TimeSpan(AccumulatedElapsedGameTime.Ticks % TargetElapsedGameTime.Ticks);
                 LastFrameElapsedGameTime = TimeSpan.Zero;
@@ -237,7 +245,7 @@ namespace Microsoft.Xna.Framework
                         Time.TotalGameTime   = TotalGameTime;
                         Time.IsRunningSlowly = DrawRunningSlowly;
                         Update(Time);
-                        flag &= DrawSuppressed;
+                        skipDraw &= DrawSuppressed;
                         DrawSuppressed = false;
                     }
                     finally
@@ -256,20 +264,20 @@ namespace Microsoft.Xna.Framework
                 {
                     try
                     {
-                        Time.ElapsedGameTime = LastFrameElapsedGameTime = timeSpan1;
+                        Time.ElapsedGameTime = LastFrameElapsedGameTime = elapsedAdjusted;
                         Time.TotalGameTime   = TotalGameTime;
                         Time.IsRunningSlowly = false;
                         Update(Time);
-                        flag &= DrawSuppressed;
+                        skipDraw &= DrawSuppressed;
                         DrawSuppressed = false;
                     }
                     finally
                     {
-                        TotalGameTime += timeSpan1;
+                        TotalGameTime += elapsedAdjusted;
                     }
                 }
             }
-            if (flag)
+            if (skipDraw)
                 return;
             DrawFrame();
         }
