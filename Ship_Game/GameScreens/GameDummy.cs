@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
@@ -15,6 +16,12 @@ namespace Ship_Game
     {
         public GraphicsDeviceManager Graphics;
         public new GameContentManager Content { get; }
+
+        PresentationParameters Presentation => Graphics.GraphicsDevice.PresentationParameters;
+        public Vector2 ScreenSize => new Vector2(Presentation.BackBufferWidth, Presentation.BackBufferHeight);
+
+        SpriteBatch batch;
+        public SpriteBatch Batch => batch ?? (batch = new SpriteBatch(GraphicsDevice));
 
         public GameDummy(int width=800, int height=600, bool show=false)
         {
