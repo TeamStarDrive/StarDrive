@@ -10,7 +10,7 @@ namespace UnitTests
     {
         public class Scenario
         {
-            public static bool RunVisualSimulations = true;
+            public static bool RunVisualSimulations = false;
             public static float SimSpeed = 1f;
 
             public readonly Vector2 Tgt;
@@ -41,38 +41,28 @@ namespace UnitTests
                 return p.Predict(true);
             }
 
-            public Vector2 PredictIterative(float interceptSpeed)
-            {
-                var p = new ImpactPredictor(Us, UsVel, interceptSpeed, Tgt, TgtVel, ZeroAcc);
-                return p.PredictIterative();
-            }
-
             public Vector2 PredictMovePos()
             {
                 var p = new ImpactPredictor(Us, UsVel, 0f, Tgt, TgtVel, ZeroAcc);
                 return p.PredictMovePos();
             }
 
-            public void TestPredictAnySpeed(in Vector2 expected)
+            public void TestPredictStationary()
             {
                 // regardless of speed, the position must always be TARGET
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:1000));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:100));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:10));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:5));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:UsVel.Length()));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:0));
+                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:1000));
+                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:100));
+                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:10));
+                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:5));
+                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:UsVel.Length()));
+                Assert.That.Equal(0.1f, Tgt, Predict(interceptSpeed:0));
+                Assert.That.Equal(1f, Tgt, PredictMovePos());
             }
 
             public Vector2 TestPredict(in Vector2 expected, float interceptSpeed)
             {
                 Vector2 p = Predict(interceptSpeed);
-                Vector2 i = PredictIterative(interceptSpeed);
-                if (!p.AlmostEqual(i))
-                    Console.WriteLine($"DIFFERENCE QUAD-ITER: {p-i}");
                 Assert.That.Equal(1f, expected, p);
-                Assert.That.Equal(1f, expected, i);
-                Assert.That.Equal(0.5f, p, i);
                 return p;
             }
 
@@ -86,7 +76,7 @@ namespace UnitTests
                 var parameters = new SimParameters
                 {
                     Step = (1f / 60f),
-                    DelayBetweenSteps = 0.001f / SimSpeed,
+                    DelayBetweenSteps = 0.005f / SimSpeed,
                     ProjectileVelocity = projectileVel,
                     Duration = 10,
                     EnablePauses = true,

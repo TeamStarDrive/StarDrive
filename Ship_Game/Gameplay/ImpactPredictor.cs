@@ -125,48 +125,9 @@ namespace Ship_Game.Gameplay
 
         void DebugPip(string text, Vector2 predicted, float spd, float t, in Color color)
         {
-            float d = Pos.Distance(TargetPos);
-            Console.WriteLine($"PIP {text} {predicted} d:{d.String()}m {t.String(2)}s|{spd.String()}m/s");
+            //float d = Pos.Distance(TargetPos);
+            //Console.WriteLine($"PIP {text} ({predicted.X.String(1)} {predicted.Y.String(1)}) d:{d.String()}m {t.String(2)}s|{spd.String()}m/s");
             Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"{text}: {t.String(2)}", color, 0f);
-        }
-
-        // This is similar to quadratic, however, it applies
-        // an extra precision layer which will further improve accuracy
-        public Vector2 PredictIterative(int iterations = 5)
-        {
-            float interceptSpeed = InterceptSpeed;
-            // due to how StarDrive handles projectile speed limit, we don't use deltaV,
-            // just TargetVel. In fully newtonian model we would require deltaV.
-            float time = PredictImpactTime(Pos, TargetPos, -TargetVel, interceptSpeed);
-
-            Vector2 predicted;
-            if (time > 0f)
-            {
-                predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, time);
-
-                for (int i = 0; i < iterations; ++i)
-                {
-                    float newTime = TimeToTarget(Pos, predicted, interceptSpeed);
-                    predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, newTime);
-                    if (newTime.AlmostEqual(time, 0.001f))
-                        break;
-                    time = newTime;
-                }
-                DebugPip("ITER", predicted, interceptSpeed, time, Color.Green);
-            }
-            // intercept is behind us in time, which means we should have fired the projectile X seconds ago
-            else if (time < 0f)
-            {
-                predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, -time);
-                DebugPip("BEHIND", predicted, interceptSpeed, time, Color.Orange);
-            }
-            else
-            {
-                time = TimeToTarget(Pos, TargetPos, interceptSpeed);
-                predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, time);
-                DebugPip("NOSOLT", predicted, interceptSpeed, time, Color.Red);
-            }
-            return predicted;
         }
 
         Vector2 PredictProjectileImpact(Vector2 targetAcc)
@@ -182,19 +143,29 @@ namespace Ship_Game.Gameplay
             if (time > 0f)
             {
                 predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
-                DebugPip("QUAD", predicted, interceptSpeed, time, Color.Green);
+                //DebugPip("PERFECT", predicted, interceptSpeed, time, Color.Green);
             }
             // intercept is behind us in time, which means we should have fired the projectile X seconds ago
             else if (time < 0f) 
             {
                 predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, -time);
-                DebugPip("BEHIND", predicted, interceptSpeed, time, Color.Orange);
+                //DebugPip("BEHIND", predicted, interceptSpeed, time, Color.Orange);
             }
             else // no solution, fall back to default time estimate
             {
                 time = TimeToTarget(Pos, TargetPos, interceptSpeed);
                 predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
-                DebugPip("NOSOLT", predicted, interceptSpeed, time, Color.Red);
+
+                // edge case: Pos == TargetPos, they will collide with us head on
+                if (Pos.Distance(predicted) <= 8f)
+                {
+                    predicted = TargetPos;
+                    //DebugPip("COLLIDE", predicted, interceptSpeed, time, Color.Yellow);
+                }
+                else
+                {
+                    //DebugPip("NOSOLT", predicted, interceptSpeed, time, Color.Red);
+                }
             }
             return predicted;
         }
@@ -203,18 +174,11 @@ namespace Ship_Game.Gameplay
         //                          which yields even more accurate target prediction!
         public Vector2 Predict(bool advancedTargeting)
         {
-            // @note Validated via DeveloperSandbox DebugPlatform simulations
-            // Quad is very accurate if speed is constant
-            // Quad has a tendency to over predict when accelerating
-            //Vector2 quad = PredictImpactQuad();
-
             //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactQuad(), 50f, Color.Cyan, 0f);
             //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(), 60f, Color.LawnGreen, 0f);
             //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(TargetAcc), 70f, Color.HotPink, 0f);
 
-            // Iter is just as accurate when speed is constant
-            // Iter is quite accurate even when accelerating
-            // For this reason, we will favor ITER
+            // quite accurate even when accelerating
             if (!advancedTargeting)
                 return PredictProjectileImpact(Vector2.Zero);
 
