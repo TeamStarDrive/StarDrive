@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Microsoft.Xna.Framework.Game
-// Assembly: Microsoft.Xna.Framework.Game, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d
-// MVID: E4BD910E-73ED-465E-A91E-14AAAB0CE109
-// Assembly location: C:\WINDOWS\assembly\GAC_32\Microsoft.Xna.Framework.Game\3.1.0.0__6d5c3888ef60e27d\Microsoft.Xna.Framework.Game.dll
-
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
@@ -128,7 +122,6 @@ namespace Microsoft.Xna.Framework
             Components.ComponentAdded += GameComponentAdded;
             Components.ComponentRemoved += GameComponentRemoved;
             Content                    = new ContentManager(Services);
-            Host.Window.Paint += Paint;
             Clock                      = new GameClock();
             TotalGameTime              = TimeSpan.Zero;
             AccumulatedElapsedGameTime = TimeSpan.Zero;
@@ -142,24 +135,71 @@ namespace Microsoft.Xna.Framework
             Dispose(false);
         }
 
+        public void CreateDevice()
+        {
+            GraphicsDeviceManager = Services.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
+            GraphicsDeviceManager?.CreateDevice();
+            Initialize();
+        }
+
+        public void DoFirstUpdate()
+        {
+            Time.ElapsedGameTime = TimeSpan.Zero;
+            Time.ElapsedRealTime = TimeSpan.Zero;
+            Time.TotalGameTime = TotalGameTime;
+            Time.TotalRealTime = Clock.CurrentTime;
+            Time.IsRunningSlowly = false;
+            Update(Time);
+            DoneFirstUpdate = true;
+        }
+
         public void Run()
         {
             try
             {
-                GraphicsDeviceManager = Services.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
-                GraphicsDeviceManager?.CreateDevice();
-                Initialize();
+                CreateDevice();
                 InRun = true;
                 BeginRun();
-                Time.ElapsedGameTime = TimeSpan.Zero;
-                Time.ElapsedRealTime = TimeSpan.Zero;
-                Time.TotalGameTime = TotalGameTime;
-                Time.TotalRealTime = Clock.CurrentTime;
-                Time.IsRunningSlowly = false;
-                Update(Time);
-                DoneFirstUpdate = true;
+                DoFirstUpdate();
                 Host?.Run();
                 EndRun();
+            }
+            catch (NoSuitableGraphicsDeviceException ex)
+            {
+                if (ShowMissingRequirementMessage(ex))
+                    return;
+                throw;
+            }
+            catch (NoAudioHardwareException ex)
+            {
+                if (ShowMissingRequirementMessage(ex))
+                    return;
+                throw;
+            }
+            finally
+            {
+                InRun = false;
+            }
+        }
+
+        public void RunOne()
+        {
+            try
+            {
+                bool firstUpdate = false;
+                if (GraphicsDeviceManager == null)
+                {
+                    CreateDevice();
+                    firstUpdate = true;
+                }
+                InRun = true;
+                if (firstUpdate)
+                {
+                    BeginRun();
+                    DoFirstUpdate();
+                }
+                Host?.RunOne();
+                //EndRun();
             }
             catch (NoSuitableGraphicsDeviceException ex)
             {
@@ -183,34 +223,37 @@ namespace Microsoft.Xna.Framework
         {
             if (ShouldExit)
                 return;
+
             if (!IsActiveIgnoringGuide)
             {
                 Thread.Sleep((int)InactiveSleep.TotalMilliseconds);
             }
 
             Clock.Step();
-            bool flag = true;
+            bool skipDraw = true;
             Time.TotalRealTime   = Clock.CurrentTime;
             Time.ElapsedRealTime = Clock.ElapsedTime;
             LastFrameElapsedRealTime += Clock.ElapsedTime;
-            TimeSpan timeSpan1 = Clock.ElapsedAdjustedTime;
-            if (timeSpan1 < TimeSpan.Zero)
-                timeSpan1 = TimeSpan.Zero;
+
+            TimeSpan elapsedAdjusted = Clock.ElapsedAdjustedTime;
+            if (elapsedAdjusted < TimeSpan.Zero)
+                elapsedAdjusted = TimeSpan.Zero;
             if (ForceElapsedTimeToZero)
             {
-                TimeSpan zero;
-                timeSpan1 = zero = TimeSpan.Zero;
-                LastFrameElapsedRealTime = zero;
-                Time.ElapsedRealTime = zero;
+                elapsedAdjusted = TimeSpan.Zero;
+                LastFrameElapsedRealTime = TimeSpan.Zero;
+                Time.ElapsedRealTime = TimeSpan.Zero;
                 ForceElapsedTimeToZero = false;
             }
-            if (timeSpan1 > MaximumElapsedTime)
-                timeSpan1 = MaximumElapsedTime;
+            if (elapsedAdjusted > MaximumElapsedTime)
+                elapsedAdjusted = MaximumElapsedTime;
+
             if (IsFixedTimeStep)
             {
-                if (Math.Abs(timeSpan1.Ticks - TargetElapsedGameTime.Ticks) < TargetElapsedGameTime.Ticks >> 6)
-                    timeSpan1 = TargetElapsedGameTime;
-                AccumulatedElapsedGameTime += timeSpan1;
+                if (Math.Abs(elapsedAdjusted.Ticks - TargetElapsedGameTime.Ticks) < TargetElapsedGameTime.Ticks >> 6)
+                    elapsedAdjusted = TargetElapsedGameTime;
+
+                AccumulatedElapsedGameTime += elapsedAdjusted;
                 long num = AccumulatedElapsedGameTime.Ticks / TargetElapsedGameTime.Ticks;
                 AccumulatedElapsedGameTime = new TimeSpan(AccumulatedElapsedGameTime.Ticks % TargetElapsedGameTime.Ticks);
                 LastFrameElapsedGameTime = TimeSpan.Zero;
@@ -237,7 +280,7 @@ namespace Microsoft.Xna.Framework
                         Time.TotalGameTime   = TotalGameTime;
                         Time.IsRunningSlowly = DrawRunningSlowly;
                         Update(Time);
-                        flag &= DrawSuppressed;
+                        skipDraw &= DrawSuppressed;
                         DrawSuppressed = false;
                     }
                     finally
@@ -256,20 +299,20 @@ namespace Microsoft.Xna.Framework
                 {
                     try
                     {
-                        Time.ElapsedGameTime = LastFrameElapsedGameTime = timeSpan1;
+                        Time.ElapsedGameTime = LastFrameElapsedGameTime = elapsedAdjusted;
                         Time.TotalGameTime   = TotalGameTime;
                         Time.IsRunningSlowly = false;
                         Update(Time);
-                        flag &= DrawSuppressed;
+                        skipDraw &= DrawSuppressed;
                         DrawSuppressed = false;
                     }
                     finally
                     {
-                        TotalGameTime += timeSpan1;
+                        TotalGameTime += elapsedAdjusted;
                     }
                 }
             }
-            if (flag)
+            if (skipDraw)
                 return;
             DrawFrame();
         }
@@ -484,10 +527,8 @@ namespace Microsoft.Xna.Framework
             Exiting?.Invoke(null, args);
         }
 
-        private void EnsureHost()
+        public void CreateWindow()
         {
-            if (Host != null)
-                return;
             Host = new WindowsGameHost(this);
             Host.Activated   += HostActivated;
             Host.Deactivated += HostDeactivated;
@@ -495,6 +536,13 @@ namespace Microsoft.Xna.Framework
             Host.Resume      += HostResume;
             Host.Idle        += HostIdle;
             Host.Exiting     += HostExiting;
+            Host.Window.Paint += Paint;
+        }
+
+        private void EnsureHost()
+        {
+            if (Host == null)
+                CreateWindow();
         }
 
         private void HostSuspend(object sender, EventArgs e)
