@@ -8,26 +8,34 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace UnitTests
 {
-    class SimulationObject
+    class SimObject
     {
         public string Name;
         public Vector2 Position;
         public Vector2 Velocity;
         public Color Color;
         public float Radius;
-        public SimParameters Sim;
+
+        public SimObject(string name, Vector2 p, Vector2 v, Color c, float r)
+        {
+            Name = name;
+            Position = p;
+            Velocity = v;
+            Color = c;
+            Radius = r;
+        }
 
         public void Update(float deltaTime)
         {
             Position += Velocity * deltaTime;
         }
 
-        public void Draw(SpriteBatch batch, Vector2 worldCenter)
+        public void Draw(SpriteBatch batch, Vector2 worldCenter, float scale)
         {
-            float scale = Sim.Scale;
             Vector2 pos = worldCenter + Position*scale;
             batch.DrawCircle(pos, Radius*scale, Color, 1f);
             batch.DrawLine(pos, pos + Velocity*scale, Color, 1f);
@@ -43,7 +51,6 @@ namespace UnitTests
         public float Scale = 1.0f;
         public Vector2 ProjectileVelocity;
         public bool EnablePauses = true;
-        public string Name = "";
     }
 
     public struct SimResult
@@ -57,12 +64,18 @@ namespace UnitTests
         }
     }
 
-    class ImpactSimWindow : GameDummy
+    internal class ImpactSimWindow : GameDummy
     {
+        readonly AutoResetEvent Started;
         public readonly Vector2 ScreenCenter;
         public KeyboardState Keys;
-        public ImpactSimWindow() : base(1024,1024,true)
+        bool CachedVisibility;
+        public bool Visible;
+
+        ImpactSimWindow(AutoResetEvent started) : base(1024, 1024, true)
         {
+            Started = started;
+            CachedVisibility = Visible = true;
             Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
             GlobalStats.XRES = (int)ScreenSize.X; // Required for DrawLine...
             GlobalStats.YRES = (int)ScreenSize.Y;
@@ -74,42 +87,90 @@ namespace UnitTests
         {
             base.BeginRun();
             Fonts.LoadContent(Content);
-            //Keys = Keyboard.GetState();
+            Started.Set();
         }
 
         protected override void Update(GameTime time)
         {
-            //Keys = Keyboard.GetState();
+            if (CachedVisibility != Visible)
+            {
+                CachedVisibility = Visible;
+                Form.Visible = Visible;
+            }
+            if (!Visible)
+                return;
+
+            Keys = Keyboard.GetState();
             base.Update(time);
         }
 
         protected override void Draw(GameTime time)
         {
+            if (!Visible)
+                return;
+
             GraphicsDevice.Clear(Color.Black);
-            base.Draw(time);
+
+            try
+            {
+                Batch.Begin();
+                base.Draw(time);
+            }
+            finally
+            {
+                Batch.End();
+            }
         }
+
+        
+        static ImpactSimWindow Instance;
+
+        public static ImpactSimWindow GetOrStartInstance()
+        {
+            if (Instance != null)
+                return Instance;
+
+            var started = new AutoResetEvent(false);
+            new Thread(() =>
+            {
+                try
+                {
+                    Instance = new ImpactSimWindow(started);
+                    Instance.Run(); // this will only return once the window is closed
+                }
+                finally
+                {
+                    Instance = null; // clean up
+                }
+            }) { Name = "ImpactSimThread" }.Start();
+
+            started.WaitOne(); // wait until Instance.BeginRun() is finished
+            return Instance;
+        }
+    }
+
+    internal enum SimState
+    {
+        Starting, Running, Exiting
     }
 
     class ImpactSimulation : IGameComponent, IDrawable, IUpdateable
     {
-        SimulationObject OurShip;
-        SimulationObject Target;
-        SimulationObject Projectile;
+        Array<SimObject> Objects = new Array<SimObject>();
+        SimObject Projectile, Target;
 
+        SimState State = SimState.Starting;
+        float StartCounter = 1f;
+        float ExitCounter  = 1f;
+        readonly AutoResetEvent Exit = new AutoResetEvent(false);
         SimResult Result;
-        bool SimulationStarted;
-        bool SimulationFinished;
-        float StartIn = 1f;
-        float ExitIn = 1f;
-
-        SimParameters Sim;
-        float SimTime;
-        Vector2 SimCenter;
-
-        bool HasMissed;
-        float PrevDistance;
 
         ImpactSimWindow Owner;
+        SimParameters Sim;
+
+        float Time;
+        Vector2 Center;
+        float PrevDistance;
         
         public bool Visible { get; } = true;
         public int DrawOrder { get; } = 0;
@@ -121,61 +182,154 @@ namespace UnitTests
         public event EventHandler EnabledChanged;
         public event EventHandler UpdateOrderChanged;
 
-        public ImpactSimulation(ImpactSimWindow win, TestImpactPredictor.Scenario s, SimParameters sim)
+        public ImpactSimulation(TestImpactPredictor.Scenario s, SimParameters sim)
         {
-            Sim = sim;
-            OurShip = new SimulationObject
-            {
-                Name = "Us",
-                Position = s.Us,
-                Velocity = s.UsVel,
-                Color = Color.Green,
-                Radius = 32,
-                Sim = sim,
-            };
-            Target = new SimulationObject
-            {
-                Name = "Target",
-                Position = s.Tgt,
-                Velocity = s.TgtVel,
-                Color = Color.Red,
-                Radius = 32,
-                Sim = sim,
-            };
-            Projectile = new SimulationObject
-            {
-                Name = "Projectile",
-                Position = s.Us,
-                Velocity = Sim.ProjectileVelocity,
-                Color = Color.Orange,
-                Radius = 8f,
-                Sim = sim,
-            };
-            PrevDistance = Projectile.Position.Distance(Target.Position);
-            Owner = win;
-            Owner.Components.Add(this);
+            Owner = ImpactSimWindow.GetOrStartInstance();
+            Sim   = sim;
+            var us = new SimObject("Us", s.Us, s.UsVel, Color.Green, 32);
+            Target = new SimObject("Target", s.Tgt, s.TgtVel, Color.Red, 32);
+            Projectile = new SimObject("Projectile", s.Us, Sim.ProjectileVelocity, Color.Orange, 8);
+
+            Objects.AddRange(new []{ us, Target, Projectile });
+            PrevDistance = float.MaxValue;
         }
                 
         public void Initialize()
         {
-            
         }
 
-        public SimResult WaitForResult()
+        public SimResult RunAndWaitForResult()
         {
-            Owner.Show();
-            Owner.RunOne();
-            System.Windows.Forms.Application.Run(Owner.Form);
-            Owner.Hide();
-            //Owner.CreateWindow();
+            Owner.Components.Add(this);
+            Owner.Visible = true;
+
+            Exit.WaitOne();
+
             Owner.Components.Remove(this);
+            Owner.Visible = false;
             return Result;
         }
 
-        public (Vector2 Min, Vector2 Max) GetSimulationBounds()
+        public void Update(GameTime time)
+        {
+            switch (State)
+            {
+                case SimState.Starting: WaitingToStart(time); break;
+                case SimState.Running:  UpdateSimulation();   break;
+                case SimState.Exiting:  WaitingToExit(time);  break;
+            }
+        }
+
+        void WaitingToExit(GameTime time)
+        {
+            if (!Sim.EnablePauses || Owner.Keys.IsKeyDown(Keys.Space))
+                ExitCounter = 0f;
+
+            ExitCounter -= (float) time.ElapsedRealTime.TotalSeconds;
+            if (ExitCounter <= 0f)
+                Exit.Set();
+        }
+
+        void WaitingToStart(GameTime time)
+        {
+            if (!Sim.EnablePauses || Owner.Keys.IsKeyDown(Keys.Space))
+                State = SimState.Running;
+
+            if (State == SimState.Running)
+                return;
+
+            StartCounter -= (float)time.ElapsedRealTime.TotalSeconds;
+            if (StartCounter > 0f)
+                return;
+
+            State = SimState.Running;
+        }
+
+        void UpdateSimulation()
+        {
+            if (Sim.DelayBetweenSteps > 0f)
+            {
+                Thread.Sleep((int)(Sim.DelayBetweenSteps * 1000));
+            }
+
+            Time += Sim.Step;
+
+            foreach (SimObject o in Objects)
+                o.Update(Sim.Step);
+
+            float distance = Projectile.Position.Distance(Target.Position);
+            if (distance <= (Projectile.Radius + Target.Radius))
+            {
+                State = SimState.Exiting;
+
+                // final simulation correction towards Target
+                float speed = Projectile.Velocity.Length();
+                float timeAdjust = distance / speed;
+                timeAdjust *= 1.09f; // additional heuristic precision adjustment
+
+                Result.Intersect = Projectile.Position + Projectile.Velocity * timeAdjust;
+                Result.Time = Time + timeAdjust;
+                return;
+            }
+
+            if (distance > PrevDistance)
+                Projectile.Name = "Projectile MISS";
+            PrevDistance = distance;
+
+            if (Time >= Sim.Duration)
+            {
+                State = SimState.Exiting;
+                return;
+            }
+
+            (Vector2 min, Vector2 max) = GetSimulationBounds();
+            float width = min.Distance(max);
+            Center = (min + max) / 2f;
+            Sim.Scale = (Owner.ScreenSize.X - 200f) / (width * 2.0f);
+            Sim.Scale = Sim.Scale.Clamped(0.01f, 2.0f);
+        }
+
+        public void Draw(GameTime time)
+        {
+            SpriteBatch batch = Owner.Batch;
+
+            Vector2 center = -Center*Sim.Scale + Owner.ScreenCenter;
+            foreach (SimObject o in Objects)
+                o.Draw(batch, center, Sim.Scale);
+
+            DrawText(5,  5, $"Simulation Time {Time.String(2)}s / {Sim.Duration.String(2)}s");
+            DrawText(5, 25, $"  Scale      {Sim.Scale.String(2)}");
+            for (int i = 0; i < Objects.Count; ++i)
+            {
+                SimObject o = Objects[i];
+                DrawText(5, 45 + i*20, $"  {o.Name,-16}  {o.Velocity.Length().String(),-3}m/s  {o.Position}");
+            }
+            DrawText(5,105, $"  {Result}");
+
+            if (State == SimState.Exiting && Result.Intersect.NotZero())
+            {
+                Vector2 pos = center + Result.Intersect*Sim.Scale;
+                batch.DrawCircle(pos, 10f*Sim.Scale, Color.Yellow, 2);
+            }
+            if (State == SimState.Exiting)
+            {
+                DrawText(300,5, $"Exit in {ExitCounter.String(1)}s");
+            }
+            if (State == SimState.Starting)
+            {
+                DrawText(300,5, $"Start in {StartCounter.String(1)}s");
+            }
+        }
+
+        void DrawText(float x, float y, string text)
+        {
+            Owner.Batch.DrawString(Fonts.Arial14Bold, text, new Vector2(x,y), Color.White);
+        }
+        
+        (Vector2 Min, Vector2 Max) GetSimulationBounds()
         {
             Vector2 min = default, max = default;
-            foreach (SimulationObject o in new[]{ OurShip, Target, Projectile })
+            foreach (SimObject o in Objects)
             {
                 Vector2 p = o.Position;
                 if (p.X < min.X) min.X = p.X;
@@ -185,119 +339,6 @@ namespace UnitTests
                 if (p.Y > max.Y) max.Y = p.Y;
             }
             return (min, max);
-        }
-
-        public void Update(GameTime time)
-        {
-            if (!Sim.EnablePauses)
-                SimulationStarted = true;
-
-            if (!SimulationStarted)
-            {
-                if (Owner.Keys.IsKeyDown(Keys.Space))
-                    SimulationStarted = true;
-                StartIn -= (float)time.ElapsedRealTime.TotalSeconds;
-                if (StartIn > 0f)
-                    return;
-                SimulationStarted = true;
-            }
-
-            if (!SimulationFinished)
-            {
-                if (Sim.DelayBetweenSteps > 0f)
-                {
-                    Thread.Sleep((int)(Sim.DelayBetweenSteps*1000));
-                }
-
-                SimTime += Sim.Step;
-
-                OurShip.Update(Sim.Step);
-                Target.Update(Sim.Step);
-                Projectile.Update(Sim.Step);
-
-                float distance = Projectile.Position.Distance(Target.Position);
-                if (distance <= (Projectile.Radius+Target.Radius))
-                {
-                    SimulationFinished = true;
-                    HasMissed = false;
-
-                    // final simulation correction towards Target
-                    float speed = Projectile.Velocity.Length();
-                    float timeAdjust = distance / speed;
-                    timeAdjust *= 1.09f; // additional heuristic precision adjustment
-
-                    Result.Intersect = Projectile.Position + Projectile.Velocity*timeAdjust;
-                    Result.Time = SimTime + timeAdjust;
-                }
-                else
-                {
-                    if (distance > PrevDistance)
-                    {
-                        HasMissed = true;
-                        Projectile.Name = "Projectile MISSED";
-                    }
-                    PrevDistance = distance;
-                }
-
-
-                if (SimTime >= Sim.Duration)
-                {
-                    SimulationFinished = true;
-                }
-
-                (Vector2 min, Vector2 max) = GetSimulationBounds();
-                float width = min.Distance(max);
-                SimCenter = (min + max)/2f;
-                Sim.Scale = (Owner.ScreenSize.X - 200f) / (width * 2.0f);
-                Sim.Scale = Sim.Scale.Clamped(0.01f, 2.0f);
-            }
-            else // finished
-            {
-                if (!Sim.EnablePauses || Owner.Keys.IsKeyDown(Keys.Space))
-                    ExitIn = 0f;
-
-                ExitIn -= (float)time.ElapsedRealTime.TotalSeconds;
-                if (ExitIn <= 0f)
-                    System.Windows.Forms.Application.();
-            }
-        }
-
-        void DrawText(float x, float y, string text)
-        {
-            Owner.Batch.DrawString(Fonts.Arial14Bold, text, new Vector2(x,y), Color.White);
-        }
-
-        public void Draw(GameTime time)
-        {
-            SpriteBatch batch = Owner.Batch;
-            batch.Begin();
-
-            Vector2 center = -SimCenter*Sim.Scale + Owner.ScreenCenter;
-            OurShip.Draw(batch, center);
-            Target.Draw(batch, center);
-            Projectile.Draw(batch, center);
-
-            DrawText(5,  5, $"Sim {Sim.Name} Time {SimTime.String(2)}s / {Sim.Duration.String(2)}s");
-            DrawText(5, 25, $"  Scale      {Sim.Scale.String(2)}");
-            DrawText(5, 45, $"  OurShip    {OurShip.Velocity.Length().String(),-3}m/s {OurShip.Position}");
-            DrawText(5, 65, $"  Target     {Target.Velocity.Length().String(),-3}m/s {Target.Position}");
-            DrawText(5, 85, $"  Projectile {Projectile.Velocity.Length().String(),-3}m/s {Projectile.Position} {(HasMissed?"MISSED":"")}");
-            DrawText(5,105, $"  {Result}");
-
-            if (SimulationFinished && Result.Intersect.NotZero())
-            {
-                Vector2 pos = center + Result.Intersect*Sim.Scale;
-                batch.DrawCircle(pos, 10f*Sim.Scale, Color.Yellow, 2);
-            }
-            if (SimulationFinished)
-            {
-                DrawText(300,5, $"Exit in {ExitIn.String(1)}s");
-            }
-            if (!SimulationStarted)
-            {
-                DrawText(300,5, $"Start in {StartIn.String(1)}s");
-            }
-            batch.End();
         }
     }
 }
