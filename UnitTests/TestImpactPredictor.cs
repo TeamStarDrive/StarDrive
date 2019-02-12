@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
@@ -10,127 +9,14 @@ using Ship_Game.Gameplay;
 namespace UnitTests
 {
     [TestClass]
-    public class TestImpactPredictor
+    public partial class TestImpactPredictor
     {
-        static ImpactSimWindow Window;
-        
         Vector2 Pos(float x, float y) => new Vector2(x, y);
         Vector2 Vel(float x, float y) => new Vector2(x, y);
-        Vector2 Acc(float x, float y) => new Vector2(x, y);
-        Vector2 Vec(float x, float y) => new Vector2(x, y);
         
         static readonly Vector2 Zero    = new Vector2(0,0);
-        static readonly Vector2 ZeroPos = new Vector2(0,0);
         static readonly Vector2 ZeroVel = new Vector2(0,0);
         static readonly Vector2 ZeroAcc = new Vector2(0,0);
-
-        static bool RunVisualSimulations = true;
-
-        public class Scenario
-        {
-            public readonly Vector2 Tgt;
-            public readonly Vector2 Us;
-            public readonly Vector2 TgtVel;
-            public readonly Vector2 UsVel;
-            public Scenario(Vector2 tgt, Vector2 us, Vector2 tgtVel, Vector2 usVel)
-            {
-                Tgt    = tgt;
-                Us     = us;
-                TgtVel = tgtVel;
-                UsVel  = usVel;
-                Console.WriteLine("Scenario:");
-                Console.WriteLine($"  tgt:{Str(Tgt),-16} v:{Str(TgtVel)}");
-                Console.WriteLine($"   us:{Str(Us) ,-16} v:{Str(UsVel)}");
-            }
-
-            static string Str(in Vector2 pos)
-            {
-                return $"({pos.X.SignString(2),-4},{pos.Y.SignString(2)})";
-            }
-
-            public override string ToString() => $"tgt:{Tgt} tgtVel:{TgtVel}  us:{Us} usVel:{UsVel}";
-            
-            public Vector2 Predict(float interceptSpeed)
-            {
-                var p = new ImpactPredictor(Us, UsVel, interceptSpeed, Tgt, TgtVel, ZeroAcc);
-                return p.Predict(true);
-            }
-
-            public Vector2 PredictIterative(float interceptSpeed)
-            {
-                var p = new ImpactPredictor(Us, UsVel, interceptSpeed, Tgt, TgtVel, ZeroAcc);
-                return p.PredictIterative();
-            }
-
-            public Vector2 PredictMovePos()
-            {
-                var p = new ImpactPredictor(Us, UsVel, 0f, Tgt, TgtVel, ZeroAcc);
-                return p.PredictMovePos();
-            }
-
-            public void TestPredictAnySpeed(in Vector2 expected)
-            {
-                // regardless of speed, the position must always be TARGET
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:1000));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:100));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:10));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:5));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:UsVel.Length()));
-                Assert.That.Equal(0.1f, expected, Predict(interceptSpeed:0));
-            }
-
-            public Vector2 TestPredict(in Vector2 expected, float interceptSpeed)
-            {
-                Vector2 p = Predict(interceptSpeed);
-                Vector2 i = PredictIterative(interceptSpeed);
-                if (!p.AlmostEqual(i))
-                    Console.WriteLine($"DIFFERENCE QUAD-ITER: {p-i}");
-                Assert.That.Equal(1f, expected, p);
-                Assert.That.Equal(1f, expected, i);
-                Assert.That.Equal(0.5f, p, i);
-                return p;
-            }
-
-            public void TestMovePos(in Vector2 expected)
-            {
-                Assert.That.Equal(0.1f, expected, PredictMovePos());
-            }
-
-            public SimResult SimulateImpact(Vector2 projectileVel, string name)
-            {
-                var parameters = new SimParameters
-                {
-                    Step = 1f / 60f,
-                    DelayBetweenSteps = 0.001f,
-                    ProjectileVelocity = projectileVel,
-                    Duration = 10,
-                    EnablePauses = true,
-                    Name = name,
-                };
-
-                if (Window == null)
-                    Window = new ImpactSimWindow();
-
-                var impactSim = new ImpactSimulation(Window, this, parameters);
-                SimResult result = impactSim.WaitForResult();
-                Console.WriteLine(result);
-                return result;
-            }
-
-            public void TestAndSimulate(float expectedX, float expectedY, float projectileSpeed, bool forceSim = false)
-            {
-                if (forceSim || RunVisualSimulations)
-                {
-                    Vector2 p = Predict(projectileSpeed);
-                    Console.WriteLine($"SimulateImpact QUAD: {p}");
-                    SimulateImpact(Us.DirectionToTarget(p)*projectileSpeed, "QUAD");
-                }
-
-                var expected = new Vector2(expectedX, expectedY);
-                TestPredict(expected, projectileSpeed);
-            }
-        }
-
 
         [TestMethod]
         public void TimeToTarget()
@@ -207,7 +93,8 @@ namespace UnitTests
         [TestMethod]
         public void UsStoppedTargetMovingToUs()
         {
-            RunVisualSimulations = false;
+            Scenario.RunVisualSimulations = false;
+            Scenario.SimSpeed = 0.1f;
             //   * Tgt
             //   |
             //   V
@@ -233,16 +120,16 @@ namespace UnitTests
             //  Us    Tgt
             //   *  <--*
             var s3 = new Scenario(tgt:Pos(500, 0), us:Pos(0, 0), tgtVel:Vectors.Left*100, usVel:Zero);
-            s3.TestAndSimulate(454, 0, 1000, true);
-            s3.TestAndSimulate(0, 0, 100, true);
-            s3.TestAndSimulate(5, 0, 1, true);
+            s3.TestAndSimulate(454, 0, 1000);
+            s3.TestAndSimulate(0, 0, 100);
+            s3.TestAndSimulate(5, 0, 1);
             s3.TestMovePos(expected:s3.Tgt);
 
             //  Tgt    Us
             //   *-->  *
             var s4 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 0), tgtVel:Vectors.Right*100, usVel:Zero);
             s4.TestAndSimulate(45, 0, 1000);
-            s4.TestAndSimulate(500, 0, 100);
+            s4.TestAndSimulate(500, 0, 100, true);
             s4.TestAndSimulate(495, 0, 1);
             s4.TestMovePos(expected:s4.Tgt);
 
@@ -299,7 +186,7 @@ namespace UnitTests
         [TestMethod]
         public void UsStoppedTargetMovingDiagonally()
         {
-            RunVisualSimulations = false;
+            Scenario.RunVisualSimulations = false;
             //       A
             //      /
             // Tgt *
@@ -338,7 +225,7 @@ namespace UnitTests
         [TestMethod]
         public void MovingInParallel()
         {
-            RunVisualSimulations = false;
+            Scenario.RunVisualSimulations = false;
             // Tgt *---->
             //
             //  Us *--->

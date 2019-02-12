@@ -68,6 +68,7 @@
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="TestArrayT.cs" />
     <Compile Include="TestCollectionExt.cs" />
+    <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="TestMathExt.cs" />
     <Compile Include="TestSafeQueueT.cs" />
     <Compile Include="TestSerialization.cs" />
