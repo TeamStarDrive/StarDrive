@@ -12,7 +12,6 @@ namespace UnitTests
     public partial class TestImpactPredictor
     {
         Vector2 Pos(float x, float y) => new Vector2(x, y);
-        Vector2 Vel(float x, float y) => new Vector2(x, y);
         
         static readonly Vector2 Zero    = new Vector2(0,0);
         static readonly Vector2 ZeroVel = new Vector2(0,0);
@@ -32,10 +31,8 @@ namespace UnitTests
             //   * Tgt no vel
             //
             //   * Us  no vel
-            var s = new Scenario(tgt:Pos(10,-10), us:Pos(10,10), tgtVel:ZeroVel, usVel:ZeroVel);
-            s.TestPredict(s.Tgt, 0);
-            s.TestPredict(s.Tgt, 100);
-            s.TestMovePos(s.Tgt);
+            var s = new Scenario(tgt:Pos(0,0), us:Pos(0,500), tgtVel:ZeroVel, usVel:ZeroVel);
+            s.TestPredictStationary();
         }
 
         [TestMethod]
@@ -46,55 +43,47 @@ namespace UnitTests
             //   A
             //   | 
             //   * Us
-            var s1 = new Scenario(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Zero, usVel:Vectors.Up * 2);
-            s1.TestPredictAnySpeed(expected:s1.Tgt);
-            s1.TestMovePos(expected:s1.Tgt);
+            var s1 = new Scenario(tgt:Pos(0, 500), us:Pos(0, 0), tgtVel:Zero, usVel:Vectors.Up * 100);
+            s1.TestPredictStationary();
 
             //   * Us +Y
             //   |
             //   V
             //
             //   * Tgt
-            var s2 = new Scenario(tgt:Pos(10, 10),  us:Pos(10, -10), tgtVel:Zero, usVel:Vectors.Down * 2);
-            s2.TestPredictAnySpeed(expected:s2.Tgt);
-            s2.TestMovePos(expected:s2.Tgt);
+            var s2 = new Scenario(tgt:Pos(10, 10),  us:Pos(10, -10), tgtVel:Zero, usVel:Vectors.Down * 100);
+            s2.TestPredictStationary();
 
             //  Us    Tgt
             //   *-->  *
-            var s3 = new Scenario(tgt:Pos(10, 5),   us:Pos(-10, 5),  tgtVel:Zero, usVel:Vectors.Right * 2);
-            s3.TestPredictAnySpeed(expected:s3.Tgt);
-            s3.TestMovePos(expected:s3.Tgt);
+            var s3 = new Scenario(tgt:Pos(10, 5),   us:Pos(-10, 5),  tgtVel:Zero, usVel:Vectors.Right * 100);
+            s3.TestPredictStationary();
 
             //  Tgt    Us
             //   *  <--*
-            var s4 = new Scenario(tgt:Pos(-10, 5),  us:Pos(10, 5),   tgtVel:Zero, usVel:Vectors.Left * 2);
-            s4.TestPredictAnySpeed(expected:s4.Tgt);
-            s4.TestMovePos(expected:s4.Tgt);
+            var s4 = new Scenario(tgt:Pos(-10, 5),  us:Pos(10, 5),   tgtVel:Zero, usVel:Vectors.Left * 100);
+            s4.TestPredictStationary();
 
             //   * Us diagonally flying towards Them
             //    \
             //     V
             //
             //       * Them
-            var s5 = new Scenario(tgt:Pos(10, 10), us:Pos(-10, -10),  tgtVel:Zero, usVel:Vel(1,1) * 2);
-            s5.TestPredictAnySpeed(expected:s5.Tgt);
-            s5.TestMovePos(expected:s5.Tgt);
+            var s5 = new Scenario(tgt:Pos(10, 10), us:Pos(-10, -10),  tgtVel:Zero, usVel:Vectors.BotRight * 100);
+            s5.TestPredictStationary();
 
             //   * Them
             //
             //     A
             //      \
             //       * Us diagonally flying towards Them
-            var s6 = new Scenario(tgt:Pos(-10, -10), us:Pos(10, 10),  tgtVel:Zero, usVel:Vel(-1,-1) * 2);
-            s6.TestPredictAnySpeed(expected:s6.Tgt);
-            s6.TestMovePos(expected:s6.Tgt);
+            var s6 = new Scenario(tgt:Pos(-10, -10), us:Pos(10, 10),  tgtVel:Zero, usVel:Vectors.TopLeft * 100);
+            s6.TestPredictStationary();
         }
 
         [TestMethod]
         public void UsStoppedTargetMovingToUs()
         {
-            Scenario.RunVisualSimulations = false;
-            Scenario.SimSpeed = 0.1f;
             //   * Tgt
             //   |
             //   V
@@ -102,7 +91,7 @@ namespace UnitTests
             //   * Us
             var s1 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.Down*100, usVel:Zero);
             s1.TestAndSimulate(0, 45, 1000); // fast projectile, hits target before it can really move
-            s1.TestAndSimulate(0, 500, 100); // slow projectile, tgt will collide with us
+            s1.TestAndSimulate(0, 0,  100);  // edge case, vel == speed, must return TargetPos
             s1.TestAndSimulate(0, 495, 1);   // ultra slow projectile
             s1.TestMovePos(expected:s1.Tgt);
 
@@ -113,7 +102,7 @@ namespace UnitTests
             //   * Tgt
             var s2 = new Scenario(tgt:Pos(0, 500), us:Pos(0, 0), tgtVel:Vectors.Up*100, usVel:Zero);
             s2.TestAndSimulate(0, 454, 1000);
-            s2.TestAndSimulate(0, 0, 100);
+            s2.TestAndSimulate(0, 500, 100); // edge case, vel == speed, must return TargetPos
             s2.TestAndSimulate(0, 5, 1);
             s2.TestMovePos(expected:s2.Tgt);
 
@@ -121,7 +110,7 @@ namespace UnitTests
             //   *  <--*
             var s3 = new Scenario(tgt:Pos(500, 0), us:Pos(0, 0), tgtVel:Vectors.Left*100, usVel:Zero);
             s3.TestAndSimulate(454, 0, 1000);
-            s3.TestAndSimulate(0, 0, 100);
+            s3.TestAndSimulate(500, 0, 100); // edge case, vel == speed, must return TargetPos
             s3.TestAndSimulate(5, 0, 1);
             s3.TestMovePos(expected:s3.Tgt);
 
@@ -129,7 +118,7 @@ namespace UnitTests
             //   *-->  *
             var s4 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 0), tgtVel:Vectors.Right*100, usVel:Zero);
             s4.TestAndSimulate(45, 0, 1000);
-            s4.TestAndSimulate(500, 0, 100, true);
+            s4.TestAndSimulate(0, 0, 100); // edge case, vel == speed, must return TargetPos
             s4.TestAndSimulate(495, 0, 1);
             s4.TestMovePos(expected:s4.Tgt);
 
@@ -176,7 +165,6 @@ namespace UnitTests
             //     |
             //     V 100m/s
             var s2 = new Scenario(tgt:Pos(0, 500), us:Pos(0, 0), tgtVel:Vectors.Down*100, usVel:Zero);
-            //Simulate(s2, 120);
             s2.TestAndSimulate(0, 555.5f, 1000); // SimResult at 0.555s
             s2.TestAndSimulate(0, 1000, 200);    // 2x tgt speed, will catch up
             s2.TestAndSimulate(0, 3000, 120);    // SimResult at 23s
@@ -186,14 +174,12 @@ namespace UnitTests
         [TestMethod]
         public void UsStoppedTargetMovingDiagonally()
         {
-            Scenario.RunVisualSimulations = false;
             //       A
             //      /
             // Tgt *
             //     
             //     * Us
             var s1 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.TopRight*100, usVel:Zero);
-            //s1.PredictAndSimulateFire(200);
             s1.TestAndSimulate(273, -273, 300);
             s1.TestAndSimulate(683, -683, 200);
             s1.TestAndSimulate(300, -300, 120); // no solution
@@ -223,14 +209,11 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void MovingInParallel()
+        public void MovingInParallel1()
         {
-            Scenario.RunVisualSimulations = false;
             // Tgt *---->
-            //
             //  Us *--->
             var s1 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.Right*100, usVel:Vectors.Right*80);
-            //SimulateAndFire(s1, 120);
             s1.TestAndSimulate(176, 0, 300);
             s1.TestAndSimulate(288, 0, 200);
             s1.TestAndSimulate(753, 0, 120);
@@ -238,7 +221,6 @@ namespace UnitTests
             // Tgt *----->
             //  Us *-->
             var s2 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.Right*150, usVel:Vectors.Right*60);
-            //SimulateAndFire(s2, 120);
             s2.TestAndSimulate(288, 0, 300);
             s2.TestAndSimulate(566, 0, 200);
             s2.TestAndSimulate(625, 0, 120); // no solution
@@ -249,6 +231,66 @@ namespace UnitTests
             s3.TestAndSimulate(102, 0, 300);
             s3.TestAndSimulate(157, 0, 200);
             s3.TestAndSimulate(288, 0, 120); // no solution
+        }
+
+        [TestMethod]
+        public void MovingInParallel2()
+        {
+            // Tgt *   * Us
+            //     |   |
+            //     V   V
+            var s4 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 0), tgtVel:Vectors.Down*60, usVel:Vectors.Down*60);
+            s4.TestAndSimulate(0, 102, 300);
+            s4.TestAndSimulate(0, 157, 200);
+            s4.TestAndSimulate(0, 288, 120); // no solution
+
+            // Tgt *   * Us
+            //     |   V
+            //     V   
+            var s5 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 0), tgtVel:Vectors.Down*100, usVel:Vectors.Down*50);
+            s5.TestAndSimulate(0, 176, 300);
+            s5.TestAndSimulate(0, 288, 200);
+            s5.TestAndSimulate(0, 753, 120);
+
+            // Tgt *   A
+            //     |   |
+            //     V   * Us
+            var s6 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 500), tgtVel:Vectors.Down*100, usVel:Vectors.Up*100);
+            s6.TestAndSimulate(0, 195, 300);
+            s6.TestAndSimulate(0, 274, 200);
+            s6.TestAndSimulate(0, 421, 120);
+
+            // Tgt *    A
+            //    /    /
+            //   V    * Us
+            var s7 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 500), tgtVel:Vectors.BotLeft*100, usVel:Vectors.TopRight*100);
+            s7.TestAndSimulate(-267, 267, 300);
+            s7.TestAndSimulate(-500, 500, 200);
+            s7.TestAndSimulate(-589, 589, 120); // no solution
+        }
+
+        // This is the final boss. Most messed up situations happen here.
+        [TestMethod]
+        public void MovingChaotic1()
+        {
+            // Tgt    *    This is a typical intercept case, we are flanking them
+            //         \
+            //          V
+            //  Us *--->
+            var s1 = new Scenario(tgt:Pos(500, 0), us:Pos(0, 500), tgtVel:Vectors.BotRight*100, usVel:Vectors.Right*100);
+            s1.TestAndSimulate(767, 267, 300);
+            s1.TestAndSimulate(1000, 500, 200);
+            s1.TestAndSimulate(1089, 589, 120);
+
+            // Tgt    *    They are flanking us
+            //       / 
+            //      V    
+            //  <----* Us
+            var s2 = new Scenario(tgt:Pos(250, 0), us:Pos(0, 500), tgtVel:Vectors.BotLeft*200, usVel:Vectors.Left*100);
+            s2.TestAndSimulate(48, 201, 300);
+            s2.TestAndSimulate(0, 250, 200);
+            s2.TestAndSimulate(-70, 321, 120);
+            s2.TestAndSimulate(-1613, 1863, 60);
         }
     }
 }
