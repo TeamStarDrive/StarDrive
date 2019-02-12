@@ -192,6 +192,7 @@ namespace UnitTests
 
             Objects.AddRange(new []{ us, Target, Projectile });
             PrevDistance = float.MaxValue;
+            UpdateSimScaleAndBounds();
         }
                 
         public void Initialize()
@@ -282,11 +283,7 @@ namespace UnitTests
                 return;
             }
 
-            (Vector2 min, Vector2 max) = GetSimulationBounds();
-            float width = min.Distance(max);
-            Center = (min + max) / 2f;
-            Sim.Scale = (Owner.ScreenSize.X - 200f) / (width * 2.0f);
-            Sim.Scale = Sim.Scale.Clamped(0.01f, 2.0f);
+            UpdateSimScaleAndBounds();
         }
 
         public void Draw(GameTime time)
@@ -326,6 +323,15 @@ namespace UnitTests
             Owner.Batch.DrawString(Fonts.Arial14Bold, text, new Vector2(x,y), Color.White);
         }
         
+        void UpdateSimScaleAndBounds()
+        {
+            (Vector2 min, Vector2 max) = GetSimulationBounds();
+            float width = min.Distance(max);
+            Center = (min + max) / 2f;
+            Sim.Scale = (Owner.ScreenSize.X - 200f) / (width * 2.0f);
+            Sim.Scale = Sim.Scale.Clamped(0.01f, 2.0f);
+        }
+
         (Vector2 Min, Vector2 Max) GetSimulationBounds()
         {
             Vector2 min = default, max = default;
