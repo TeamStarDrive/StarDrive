@@ -1297,20 +1297,27 @@ namespace Ship_Game
             var debug = new DebugTextBlock();
             foreach (Planet p in OwnedPlanets)
             {
-                if (p.TradeAI == null) continue;
+                //if (p.TradeAI == null) continue;
 
-                var lines = new Array<string>();
-                TradeAI.DebugSummaryTotal totals = p.TradeAI.DebugSummarizeIncomingFreight(lines);
-                string food = $"{(int)p.FoodHere}(%{100 * p.Storage.FoodRatio:00.0}) {p.FS}";
-                string prod = $"{(int)p.ProdHere}(%{100 * p.Storage.ProdRatio:00.0}) {p.PS}";
-                string colonists = $"{(int)p.PopulationBillion}B(%{100 * p.Storage.PopRatio:00.0}) {p.GetGoodState(Goods.Colonists)}";
+                //var lines = new Array<string>();
+                //TradeAI.DebugSummaryTotal totals = p.TradeAI.DebugSummarizeIncomingFreight(lines);
 
-                debug.AddLine($"{p.ParentSystem.Name} : {p.Name} : IN Cargo: {totals.Total}", Color.Yellow);
-                debug.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
-                debug.AddLine($"ProdHere: {prod} IN: {totals.Prod}" );
-                debug.AddLine($"Colonists: {colonists } IN {totals.Colonists}");
+                string importFood = p.FoodImportSlots - p.FreeFoodImportSlots + "/" + p.FoodImportSlots;
+                string importProd = p.ProdImportSlots - p.FreeProdImportSlots + "/" + p.ProdImportSlots;
+                string importColonists = p.ColonistsImportSlots - p.FreeColonistImportSlots + "/" + p.ColonistsImportSlots;
+                string exportFood = p.FoodExportSlots - p.FreeFoodExportSlots + "/" + p.FoodExportSlots;
+                string exportProd = p.ProdExportSlots - p.FreeProdExportSlots + "/" + p.ProdExportSlots;
+                string exportColonists = p.ColonistsExportSlots - p.FreeColonistExportSlots + "/" + p.ColonistsExportSlots;
+                string incoming = p.IncomingFreighters.Count.ToString();
+                string outgoing = p.OutgoingFreighters.Count.ToString();
+                debug.AddLine($"{p.ParentSystem.Name} : {p.Name} :  Incoming/Outgoing {incoming} / {outgoing}", Color.Yellow);
+                debug.AddLine($"Food Import Slots: {importFood}");
+                debug.AddLine($"Prod Import Slots: {importProd}");
+                debug.AddLine($"Ppl Import Slots: {importColonists}");
+                debug.AddLine($"Food Export Slots: {exportFood}");
+                debug.AddLine($"Prod Export Slots: {exportProd}");
+                debug.AddLine($"Ppl Export Slots: {exportColonists}");
                 debug.AddLine("");
-
             }
             debug.Header = Name;
             debug.HeaderColor = EmpireColor;
@@ -1327,7 +1334,7 @@ namespace Ship_Game
                 string prod = $"{(int)p.ProdHere}(%{100*p.Storage.ProdRatio:00.0}) {p.PS}";
                 debug.AddLine($"{p.ParentSystem.Name} : {p.Name} ", Color.Yellow);
                 debug.AddLine($"FoodHere: {food} ", Color.White);
-                debug.AddLine($"ProdHere: {prod} ");
+                debug.AddLine($"ProdHere: {prod} lalala");
                 debug.AddRange(lines);
                 debug.AddLine("");
             }
@@ -2386,29 +2393,26 @@ namespace Ship_Game
 
         public bool TradeBlocked { get; private set; }
 
-        private void DoFreight() // food / prod / colonist
+        private void DoFreight()
         {
-            /*
-            1. get a list of importing planets
+            DispatchFreighters(Goods.Food);
+            DispatchFreighters(Goods.Production);
+            DispatchFreighters(Goods.Colonists);
+        }
 
-            2. get a list of exporting planets
-
-            3. get a list of free freighters
-            4. find closest exporter to importer
-            5. find closest freighter and assign it
-            6. if no freighters free, build one within money limits
-            */
-            Planet[] importingPlanets = OwnedPlanets.Filter(p => p.FreeFoodImportSlots > 0);
+        private void DispatchFreighters(Goods goods)
+        {
+            Planet[] importingPlanets = OwnedPlanets.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
             if (importingPlanets.Length == 0)
                 return;
 
-            Planet[] exportingPlanets = OwnedPlanets.Filter(p => p.FreeFoodExportSlots > 0);
+            Planet[] exportingPlanets = OwnedPlanets.Filter(p => p.FreeGoodsExportSlots(goods) > 0);
             if (exportingPlanets.Length == 0)
                 return;
 
             Ship[] idleFreighters = OwnedShips.Filter(s => s.IsIdleFreighter);
             if (idleFreighters.Length == 0)
-                return;
+                return; // todo - need to build more freighters
 
             foreach (Planet importPlanet in importingPlanets)
             {
@@ -2420,9 +2424,9 @@ namespace Ship_Game
                 if (closestIdleFreighter == null) // no more available freighters
                     break;
 
-                //closestIdleFreighter.AI.FoodOrProd = Goods.Food;
-                closestIdleFreighter.AI.ClearOrders(AIState.SystemTrader);
-                closestIdleFreighter.AI.AddShipGoal(ShipAI.Plan.PickupGoods, exportPlanet, importPlanet, Goods.Food);
+                closestIdleFreighter.AI.ClearOrders();
+                closestIdleFreighter.AI.State = AIState.SystemTrader;
+                closestIdleFreighter.AI.AddShipGoal(ShipAI.Plan.PickupGoods, exportPlanet, importPlanet, goods);
                 importPlanet.AddToIncomingFreighterList(closestIdleFreighter);
                 exportPlanet.AddToOutGoingFreighterList(closestIdleFreighter);
             }
