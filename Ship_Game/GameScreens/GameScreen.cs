@@ -22,6 +22,9 @@ namespace Ship_Game
         public bool IsExiting { get; protected set; }
         public bool IsPopup   { get; protected set; }
 
+        // @return TRUE if content was loaded this frame
+        public bool DidLoadContent { get; private set; }
+
         public Viewport Viewport { get; private set; }
         public ScreenManager ScreenManager { get; internal set; }
         public GraphicsDevice Device => ScreenManager.GraphicsDevice;
@@ -124,6 +127,7 @@ namespace Ship_Game
 
         public virtual void LoadContent()
         {
+            DidLoadContent = true;
             PerformLayout();
         }
 
@@ -135,7 +139,12 @@ namespace Ship_Game
 
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            DeltaTime = StarDriveGame.Instance.DeltaTime;
+            // @note If content was being loaded, we will force deltaTime to 1/60th
+            //       This will prevent animations going nuts due to huge deltaTime
+            DeltaTime = DidLoadContent ? (1.0f/60.0f) : StarDriveGame.Instance.DeltaTime;
+            //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
+
+            Visible = ScreenState != ScreenState.Hidden;
 
             // Update new UIElementV2
             Update(DeltaTime);
@@ -163,6 +172,8 @@ namespace Ship_Game
                     IsExiting = false;
                 }
             }
+
+            DidLoadContent = false;
         }
         
 
@@ -202,8 +213,8 @@ namespace Ship_Game
                 if (e.Visible) switch (e.DrawDepth)
                 {
                     default:
-                    case DrawDepth.Foreground:         ForeElements.Add(e); break;
-                    case DrawDepth.Background:         BackElements.Add(e); break;
+                    case DrawDepth.Foreground:   ForeElements.Add(e); break;
+                    case DrawDepth.Background:   BackElements.Add(e); break;
                     case DrawDepth.ForeAdditive: ForeAdditive.Add(e); break;
                     case DrawDepth.BackAdditive: BackAdditive.Add(e); break;
                 }

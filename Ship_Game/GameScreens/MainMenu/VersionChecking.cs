@@ -28,7 +28,7 @@ namespace Ship_Game.GameScreens.MainMenu
         public override void LoadContent()
         {            
             TitleText = "Version Check";
-            var verMod = $"Vanilla";
+            var verMod = "Vanilla";
             var mod = GlobalStats.ActiveMod;
             var versionText = GlobalStats.Version;
             var modVersionText = mod?.Version;
