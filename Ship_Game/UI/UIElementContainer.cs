@@ -89,6 +89,9 @@ namespace Ship_Game
 
         public override void Update(float deltaTime)
         {
+            if (!Visible)
+                return;
+
             base.Update(deltaTime);
 
             for (int i = 0; i < Elements.Count; ++i)
