@@ -46,31 +46,34 @@ namespace Ship_Game
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         float Unfed;
         public bool IsStarving => Unfed < 0f;
-
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
-
-        public Array<Ship> IncomingFreighters = new Array<Ship>();
-        public Array<Ship> OutgoingFreighters = new Array<Ship>();
-        public bool RecentCombat => TroopManager.RecentCombat;
-        public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
-        public int GetDefendingTroopCount() => TroopManager.NumDefendingTroopCount;
-        public bool AnyOfOurTroops(Empire us) => TroopManager.WeHaveTroopsHere(us);
-        public float GetGroundStrength(Empire empire) => TroopManager.GroundStrength(empire);
-        public int GetPotentialGroundTroops() => TroopManager.GetPotentialGroundTroops();
-        public float GetGroundStrengthOther(Empire AllButThisEmpire) => TroopManager.GroundStrengthOther(AllButThisEmpire);
-        public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
-        public int GetGroundLandingSpots() => TroopManager.NumGroundLandingSpots();
-        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
         public float AvgPopulationGrowth { get; private set; }
-        public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
-        public float ColonyValue { get; private set;}
+        public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
 
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
-        
+
+        public Array<Ship> IncomingFreighters = new Array<Ship>();
+        public Array<Ship> OutgoingFreighters = new Array<Ship>();
+
+        public bool RecentCombat                => TroopManager.RecentCombat;
+        public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
+        public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
+        public bool AnyOfOurTroops(Empire us)   => TroopManager.WeHaveTroopsHere(us);
+        public int GetGroundLandingSpots()      => TroopManager.NumGroundLandingSpots();
+        public float MaxConsumption             => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
+
+        public float GetGroundStrength(Empire empire)   => TroopManager.GroundStrength(empire);
+        public int GetPotentialGroundTroops()           => TroopManager.GetPotentialGroundTroops();
+        public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
+
+        public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
+        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
+
+       
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
@@ -80,25 +83,48 @@ namespace Ship_Game
         public int ColonistsExportSlots => ColonistsTradeState == GoodState.EXPORT ? (int)PopulationBillion: 0;
 
         public int FoodImportSlots      => ImportFood && Food.NetIncome < 0 ? Math.Abs((int)(Food.NetIncome)) + 1: 0;
-        public int ProdImportSlots      => ImportProd ? (int)((Storage.Max - Storage.Prod) / 50) : 0;
+        public int ProdImportSlots      => ImportProd ? (int)((Storage.Max - Storage.Prod) / 50) + 1: 0;
         public int ColonistsImportSlots => ColonistsTradeState == GoodState.IMPORT && PopulationRatio < 0.5f ? 
                                            (int) (MaxPopulationBillion -  PopulationBillion).Clamped(0,5) : 0;
 
-        public int IncomingFoodFreighters => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
-        public int IncomingProdFreighters => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Production));
+        public int IncomingFoodFreighters      => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
+        public int IncomingProdFreighters      => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Production));
         public int IncomingColonistsFreighters => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Colonists));
 
-        public int OutgoingFoodFreighters => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
-        public int OutgoingProdFreighters => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Production));
+        public int OutgoingFoodFreighters      => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
+        public int OutgoingProdFreighters      => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Production));
         public int OutGoingColonistsFreighters => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Colonists));
 
-        public int FreeFoodExportSlots => Math.Max(FoodExportSlots - OutgoingFoodFreighters, 0);
-        public int FreeProdExportSlots => Math.Max(ProdExportSlots - OutgoingProdFreighters, 0);
+        public int FreeFoodExportSlots     => Math.Max(FoodExportSlots - OutgoingFoodFreighters, 0);
+        public int FreeProdExportSlots     => Math.Max(ProdExportSlots - OutgoingProdFreighters, 0);
         public int FreeColonistExportSlots => Math.Max(ColonistsExportSlots - OutGoingColonistsFreighters, 0);
 
-        public int FreeFoodImportSlots => Math.Max(FoodImportSlots - IncomingFoodFreighters, 0);
-        public int FreeProdImportSlots => Math.Max(ProdImportSlots - IncomingProdFreighters, 0);
+        public int FreeFoodImportSlots     => Math.Max(FoodImportSlots - IncomingFoodFreighters, 0);
+        public int FreeProdImportSlots     => Math.Max(ProdImportSlots - IncomingProdFreighters, 0);
         public int FreeColonistImportSlots => Math.Max(ColonistsImportSlots - IncomingColonistsFreighters, 0);
+
+        public int FreeGoodsImportSlots(Goods goods)
+        {
+            switch (goods)
+            {
+                case Goods.Food:       return FreeFoodImportSlots;
+                case Goods.Production: return FreeProdImportSlots;
+                case Goods.Colonists:  return FreeColonistImportSlots;
+                default:               return 0;
+            }
+        }
+
+        public int FreeGoodsExportSlots(Goods goods)
+        {
+            switch (goods)
+            {
+                case Goods.Food:       return FreeFoodExportSlots;
+                case Goods.Production: return FreeProdExportSlots;
+                case Goods.Colonists:  return FreeColonistExportSlots;
+                default:               return 0;
+            }
+        }
+
 
         public float OrbitalsMaintenance;
 
@@ -789,7 +815,7 @@ namespace Ship_Game
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
 
-        void UpdateHomeDefenseHangars(Building b)
+        private void UpdateHomeDefenseHangars(Building b)
         {
             if (ParentSystem.CombatInSystem || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
                 return;
@@ -800,7 +826,7 @@ namespace Ship_Game
             b.UpdateCurrentDefenseShips(1, Owner);
         }
 
-        void ApplyResources()
+        private void ApplyResources()
         {
             float foodRemainder = Storage.AddFoodWithRemainder(Food.NetIncome);
             float prodRemainder = Storage.AddProdWithRemainder(Prod.NetIncome);
@@ -826,7 +852,7 @@ namespace Ship_Game
             Construction.AutoApplyProduction(prodSurplus);
         }
 
-        void GrowPopulation()
+        private void GrowPopulation()
         {
             if (Owner == null) return;
             
@@ -914,7 +940,8 @@ namespace Ship_Game
 
         ~Planet() { Destroy(); }
         public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
-        void Destroy()
+
+        private void Destroy()
         {
             ActiveCombats?.Dispose(ref ActiveCombats);
             OrbitalDropList?.Dispose(ref OrbitalDropList);
@@ -929,19 +956,31 @@ namespace Ship_Game
         public DebugTextBlock DebugPlanetInfo()
         {
             var debug = new DebugTextBlock();
-            var lines = new Array<string>();
-            var incoming = TradeAI.DebugSummarizeIncomingFreight(lines);
-            string food = $"{(int)FoodHere}({100*Storage.FoodRatio:00.0}%) workers:{Food.Percent} {FS}";
-            string prod = $"{(int)ProdHere}({100*Storage.ProdRatio:00.0}%) workers:{Prod.Percent} {PS}";
-
-            debug.AddLine($"{ParentSystem.Name} : {Name} : IN Cargo: {incoming.Total}", Color.Yellow);
-            debug.AddLine($"FoodHere: {food} IN: {incoming.Food}", Color.White);
-            debug.AddLine($"ProdHere: {prod} IN: {incoming.Prod}");
-            debug.AddLine($"IN Colonists: {incoming.Colonists}");
-            debug.AddLine($"Money: {Money.NetRevenue}");
+            string importFood = FoodImportSlots - FreeFoodImportSlots + "/" + FoodImportSlots;
+            string importProd = ProdImportSlots - FreeProdImportSlots + "/" + ProdImportSlots;
+            string importColonists = ColonistsImportSlots - FreeColonistImportSlots + "/" + ColonistsImportSlots;
+            string exportFood = FoodExportSlots - FreeFoodExportSlots + "/" + FoodExportSlots;
+            string exportProd = ProdExportSlots - FreeProdExportSlots + "/" + ProdExportSlots;
+            string exportColonists = ColonistsExportSlots - FreeColonistExportSlots + "/" + ColonistsExportSlots;
+            string incoming = IncomingFreighters.Count.ToString();
+            string outgoing = OutgoingFreighters.Count.ToString();
+            debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
+            debug.AddLine($"Incoming Freighters: {incoming}");
+            debug.AddLine($"Outgoing Freighters: {outgoing}");
+            debug.AddLine("");
+            debug.AddLine($"Food Import Slots: {importFood}");
+            debug.AddLine($"Prod Import Slots: {importProd}");
+            debug.AddLine($"Colonists Import Slots: {importColonists}");
+            debug.AddLine("");
+            debug.AddLine($"Food Export Slots: {exportFood}");
+            debug.AddLine($"Prod Export Slots: {exportProd}");
+            debug.AddLine($"Colonists Export Slots: {exportColonists}");
+            debug.AddLine("");
             string eatsWhat = NonCybernetic ? "Food" : "Prod";
             debug.AddLine($"Eats: {Consumption} {eatsWhat}");
             debug.AddLine("");
+
+
             return debug;
         }
     }
