@@ -223,16 +223,14 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        public void Draw(GameTime gameTime)
+        public void Draw()
         {
             SpriteBatch batch = SpriteBatch;
             try
             {
                 for (int i = 0; i < Screens.Count; ++i)
                 {
-                    GameScreen screen = Screens[i];
-                    if (screen.ScreenState != ScreenState.Hidden)
-                        screen.Draw(batch);
+                    Screens[i].Draw(batch);
                 }
             }
             catch (Exception e)
@@ -261,12 +259,6 @@ namespace Ship_Game
                     screen.ExitScreen();
         }
 
-        public void FadeBackBufferToBlack(int alpha, SpriteBatch spriteBatch)
-        {
-            Viewport viewport = StarDriveGame.Instance.Viewport;
-            spriteBatch.Draw(BlankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
-        }
-
         public void FadeBackBufferToBlack(int alpha)
         {
             Viewport viewport = StarDriveGame.Instance.Viewport;
@@ -279,7 +271,9 @@ namespace Ship_Game
         {
             if (SpriteBatch == null)
                 SpriteBatch = new SpriteBatch(GraphicsDevice);
+
             BlankTexture = ResourceManager.Texture("blank");
+
             foreach (GameScreen screen in Screens)
             {
                 screen.LoadContent();

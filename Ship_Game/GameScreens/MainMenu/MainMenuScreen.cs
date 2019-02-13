@@ -105,8 +105,6 @@ namespace Ship_Game.GameScreens.MainMenu
             list.PerformLayout();
 
             // Animate the buttons in and out
-            Log.Info(ConsoleColor.Magenta, "Start Transition");
-
             var animOffset = new Vector2(512f * (ScreenWidth / 1920f), 0);
             list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
@@ -161,6 +159,7 @@ namespace Ship_Game.GameScreens.MainMenu
             CreateAnimatedOverlays(moonCenter, layout);
             CreateVersionArea();
 
+            base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
         }
 
