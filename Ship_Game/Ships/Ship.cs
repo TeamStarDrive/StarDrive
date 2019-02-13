@@ -191,11 +191,12 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsIdleFreighter => !PlayerShip && AI != null 
-                                    &&!AI.HasPriorityOrder 
-                                    && AI.State != AIState.PassengerTransport
-                                    && AI.State != AIState.SystemTrader
-                                    && AI.State != AIState.Refit;
+        public bool IsIdleFreighter => IsFreighter 
+                                       && !PlayerShip && AI != null 
+                                       && !AI.HasPriorityOrder 
+                                       && AI.State != AIState.PassengerTransport
+                                       && AI.State != AIState.SystemTrader
+                                       && AI.State != AIState.Refit;
 
         public bool IsInNeutralSpace
         {
