@@ -29,7 +29,7 @@ namespace Ship_Game.Debug.Page
             }
             else
             {
-                SetTextColumns(planet.TradeAI?.DebugText());
+                SetTextColumns(new Array<DebugTextBlock> { planet.DebugPlanetInfo() });
             }
             base.Update(deltaTime);
         }
