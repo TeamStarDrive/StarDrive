@@ -124,6 +124,7 @@ namespace Ship_Game
 
         public virtual void LoadContent()
         {
+            PerformLayout();
         }
 
         public virtual void UnloadContent()

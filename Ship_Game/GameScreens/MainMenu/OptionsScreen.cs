@@ -127,7 +127,6 @@ namespace Ship_Game
             TransitionOffTime = 0f;
         }
 
-
         string AntiAliasString()
         {
             if (New.AntiAlias == 0)

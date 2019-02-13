@@ -27,34 +27,6 @@ namespace Ship_Game.GameScreens
             TransitionOffTime = 0.25f;
         }
 
-        class SummaryItem : UIElementV2
-        {
-            readonly UILabel Key, Value;
-            public SummaryItem(UIElementV2 parent, string keyText, Color keyColor, Func<float> getValue) : base(parent)
-            {
-                Key   = new UILabel(this, Vector2.Zero, $"{keyText}:", keyColor);
-                Value = new UILabel(this, Vector2.Zero, "")
-                {
-                    DynamicText = DynamicText(getValue, f => f.MoneyString())
-                };
-                Width  = Key.Width + Value.Width;
-                Height = Math.Max(Key.Height, Value.Height);
-            }
-            public override void PerformLayout()
-            {
-                Key.Pos = Pos;
-                Value.Pos.X = (Pos.X + Width) - Value.Width;
-                Value.Pos.Y = Pos.Y;
-            }
-            public override void Draw(SpriteBatch batch)
-            {
-                Key.Draw(batch);
-                Value.Draw(batch);
-            }
-            public override bool HandleInput(InputState input)
-                => Key.HandleInput(input) || Value.HandleInput(input);
-        }
-
         class SummaryPanel : UIList
         {
             public SummaryPanel(int title, in Rectangle rect, Color c) : base(rect, c)
@@ -73,7 +45,8 @@ namespace Ship_Game.GameScreens
             public void AddItem(string text, Func<float> getValue) => AddItem(text, getValue, Color.White);
             public void AddItem(string text, Func<float> getValue, Color keyColor)
             {
-                AddSplit(new UILabel($"{text}:", keyColor), new UILabel(DynamicText(getValue, f => f.MoneyString())) );
+                AddSplit(new UILabel($"{text}:", keyColor), 
+                         new UILabel(DynamicText(getValue, f => f.MoneyString())) );
             }
             public void SetTotalFooter(Func<float> getValue)
             {
