@@ -485,11 +485,11 @@ namespace Ship_Game.Gameplay
         }
 
         public Vector2 Origin => Module?.Center ?? Center;
+        public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
         public bool ProjectedImpactPointNoError(GameplayObject target, out Vector2 pip)
         {
-            Vector2 ownerVel = Owner?.Velocity ?? Vector2.Zero;
-            pip = new ImpactPredictor(Origin, ownerVel, ProjectileSpeed, target)
+            pip = new ImpactPredictor(Origin, OwnerVelocity, ProjectileSpeed, target)
                 .Predict(advancedTargeting: true);
             return pip != Vector2.Zero;
         }
@@ -497,10 +497,9 @@ namespace Ship_Game.Gameplay
         public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
             Vector2 weaponOrigin = Origin;
-            Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
             Vector2 error = target.TargetErrorPos() + AdjustTargeting();
 
-            pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, target)
+            pip = new ImpactPredictor(weaponOrigin, OwnerVelocity, ProjectileSpeed, target)
                 .Predict(CanUseAdvancedTargeting);
 
             Vector2 targetError = SetDestination(pip, weaponOrigin, 1000) + error;
