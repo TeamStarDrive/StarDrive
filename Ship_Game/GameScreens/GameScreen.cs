@@ -16,9 +16,8 @@ namespace Ship_Game
         public InputState Input;
         bool OtherScreenHasFocus;
 
-        public bool IsActive => !OtherScreenHasFocus && !IsExiting
-                                && ScreenState == ScreenState.TransitionOn 
-                                || ScreenState == ScreenState.Active;
+        public bool IsActive => !OtherScreenHasFocus && !IsExiting && 
+            (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
 
         public bool IsExiting { get; protected set; }
         public bool IsPopup   { get; protected set; }
@@ -26,10 +25,10 @@ namespace Ship_Game
         public Viewport Viewport { get; private set; }
         public ScreenManager ScreenManager { get; internal set; }
         public GraphicsDevice Device => ScreenManager.GraphicsDevice;
-        public ScreenState   ScreenState   { get; protected set; }
-        public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
-        public TimeSpan TransitionOnTime  { get; protected set; } = TimeSpan.Zero;
-        public float TransitionPosition   { get; protected set; } = 1f;
+        public ScreenState ScreenState  { get; protected set; }
+        public float TransitionOffTime  { get; protected set; }
+        public float TransitionOnTime   { get; protected set; }
+        public float TransitionPosition { get; protected set; } = 1f;
 
         public bool IsTransitioning => ScreenState == ScreenState.TransitionOn
                                     || ScreenState == ScreenState.TransitionOff;
@@ -108,7 +107,7 @@ namespace Ship_Game
                 OnExit = null;
             }
 
-            if (TransitionOffTime != TimeSpan.Zero)
+            if (TransitionOffTime.NotZero())
             {
                 IsExiting = true;
                 return;
@@ -166,9 +165,9 @@ namespace Ship_Game
         }
         
 
-        bool UpdateTransition(TimeSpan time, int direction)
+        bool UpdateTransition(float time, int direction)
         {
-            float transitionDelta = (time != TimeSpan.Zero ? (float)(DeltaTime / time.TotalSeconds) : 1f);
+            float transitionDelta = (time.NotZero() ? (DeltaTime / time) : 1f);
             TransitionPosition += transitionDelta * direction;
             if (TransitionPosition > 0f && TransitionPosition < 1f)
                 return true;

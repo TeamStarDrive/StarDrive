@@ -23,8 +23,8 @@ namespace Ship_Game.GameScreens
         {
             Player            = screen.player;
             IsPopup           = true;          
-            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime  = 0.25f;
+            TransitionOffTime = 0.25f;
         }
 
         class SummaryItem : UIElementV2

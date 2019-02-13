@@ -7,7 +7,6 @@ namespace Ship_Game
 {
     public  class MessageBoxScreen : GameScreen
     {
-        private readonly bool PauseMenu;
         private string Message;
 
         private UIButton Ok;
@@ -23,8 +22,8 @@ namespace Ship_Game
             Message = message;
             Message = Fonts.Arial12Bold.ParseText(message, 250f);
             IsPopup = true;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0.25f;
 
             Ok     = ButtonSmall(0f, 0f, titleId:15, click: OnOkClicked);
             Cancel = ButtonSmall(0f, 0f, titleId:16, click: OnCancelClicked);
@@ -40,8 +39,8 @@ namespace Ship_Game
             Message = message;
             Message = Fonts.Arial12Bold.ParseText(message, 250f);
             IsPopup = true;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0.25f;
 
             Ok     = ButtonSmall(0f, 0f, oktext,     click: OnOkClicked);
             Cancel = ButtonSmall(0f, 0f, canceltext, click: OnCancelClicked);
@@ -54,16 +53,11 @@ namespace Ship_Game
             Original = message;
             Message = message;
             IsPopup = true;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0.25f;
 
             Ok     = ButtonSmall(0f, 0f, titleId:15, click: OnOkClicked);
             Cancel = ButtonSmall(0f, 0f, titleId:16, click: OnCancelClicked);
-        }
-
-        public MessageBoxScreen(GameScreen parent, string message, bool pauseMenu) : this(parent, message)
-        {
-            PauseMenu = pauseMenu;
         }
 
         public override void Draw(SpriteBatch batch)
@@ -115,13 +109,13 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.MenuSelect && !PauseMenu)
+            if (input.MenuSelect)
             {
                 Accepted?.Invoke(this, EventArgs.Empty);
                 ExitScreen();
                 return true;
             }
-            if (input.MenuCancel || input.MenuSelect && PauseMenu)
+            if (input.MenuCancel)
             {
                 Cancelled?.Invoke(this, EventArgs.Empty);
                 ExitScreen();

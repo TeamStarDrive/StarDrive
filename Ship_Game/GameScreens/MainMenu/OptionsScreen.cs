@@ -110,8 +110,8 @@ namespace Ship_Game
         {
             MainMenu          = s;
             IsPopup           = true;
-            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime  = 0.25f;
+            TransitionOffTime = 0.25f;
             TitleText         = Localizer.Token(4);
             MiddleText        = Localizer.Token(4004);
         }
@@ -123,8 +123,8 @@ namespace Ship_Game
             Fade              = false;
             IsPopup           = true;
             FromGame          = true;
-            TransitionOnTime  = TimeSpan.FromSeconds(0);
-            TransitionOffTime = TimeSpan.FromSeconds(0);
+            TransitionOnTime  = 0f;
+            TransitionOffTime = 0f;
         }
 
 

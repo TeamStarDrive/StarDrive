@@ -197,7 +197,7 @@ namespace Ship_Game
                             TheirOpinionOfUs = 0f;
                         }
                         TheirText = GetDialogue(TheirOpinionOfUs);
-                        TransitionOnTime = TimeSpan.FromSeconds(1);
+                        TransitionOnTime = 1.0f;
                         return;
                     }
                 }
@@ -210,10 +210,10 @@ namespace Ship_Game
                     TheirOpinionOfUs = 0f;
                 }
                 TheirText = GetDialogue(TheirOpinionOfUs);
-                TransitionOnTime = TimeSpan.FromSeconds(1);
+                TransitionOnTime = 1.0f;
                 return;
             }
-            TransitionOnTime = TimeSpan.FromSeconds(1);
+            TransitionOnTime = 1.0f;
         }
 
         public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, bool EndOnly) : base(parent)
@@ -225,7 +225,7 @@ namespace Ship_Game
             IsPopup = true;
             TheirText = GetDialogueByName(which);
             dState = DialogState.End;
-            TransitionOnTime = TimeSpan.FromSeconds(1);
+            TransitionOnTime = 1.0f;
         }
 
         public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer ourOffer, Offer theirOffer) : base(parent)
@@ -239,7 +239,7 @@ namespace Ship_Game
             TheirText = GetDialogueByName(which);
             OurOffer = ourOffer;
             TheirOffer = theirOffer;
-            TransitionOnTime = TimeSpan.FromSeconds(1);
+            TransitionOnTime = 1.0f;
         }
 
         public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer ourOffer, Offer theirOffer, Empire taremp) : base(parent)
@@ -254,7 +254,7 @@ namespace Ship_Game
             TheirText = GetDialogueByName(which);
             OurOffer = ourOffer;
             TheirOffer = theirOffer;
-            TransitionOnTime = TimeSpan.FromSeconds(1);
+            TransitionOnTime = 1.0f;
         }
 
         public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Planet p) : base(parent)
@@ -266,7 +266,7 @@ namespace Ship_Game
             them = e;
             playerEmpire = us;
             whichDialogue = which;
-            TransitionOnTime = TimeSpan.FromSeconds(1);
+            TransitionOnTime = 1.0f;
             string str = which;
             string str1 = str;
             if (str != null)
@@ -276,7 +276,6 @@ namespace Ship_Game
                     TheirText = GetDialogueByName(which);
                     dState = DialogState.End;
                     WarDeclared = true;
-                    TransitionOnTime = TimeSpan.FromSeconds(1);
                     return;
                 }
 
@@ -285,7 +284,6 @@ namespace Ship_Game
                     TheirText = GetDialogueByName(which);
                     dState = DialogState.End;
                     WarDeclared = true;
-                    TransitionOnTime = TimeSpan.FromSeconds(1);
                     return;
                 }
 
@@ -293,26 +291,19 @@ namespace Ship_Game
                 {
                     TheirOpinionOfUs = them.GetRelations(playerEmpire).GetStrength();
                     if (TheirOpinionOfUs < 0f)
-                    {
                         TheirOpinionOfUs = 0f;
-                    }
                     TheirText = GetDialogue(TheirOpinionOfUs);
-                    TransitionOnTime = TimeSpan.FromSeconds(1);
                     return;
                 }
                 TheirText = GetDialogueByName(which);
                 dState = DialogState.End;
                 WarDeclared = true;
-                TransitionOnTime = TimeSpan.FromSeconds(1);
                 return;
             }
             TheirOpinionOfUs = them.GetRelations(playerEmpire).GetStrength();
             if (TheirOpinionOfUs < 0f)
-            {
                 TheirOpinionOfUs = 0f;
-            }
             TheirText = GetDialogue(TheirOpinionOfUs);
-            TransitionOnTime = TimeSpan.FromSeconds(1);
         }
 
         public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, SolarSystem s) : base(parent)
@@ -323,7 +314,7 @@ namespace Ship_Game
             them = e;
             playerEmpire = us;
             whichDialogue = which;
-            TransitionOnTime = TimeSpan.FromSeconds(1);
+            TransitionOnTime = 1.0f;
             string str = which;
             string str1 = str;
             if (str != null)
@@ -387,11 +378,8 @@ namespace Ship_Game
                     {
                         TheirOpinionOfUs = them.GetRelations(playerEmpire).GetStrength();
                         if (TheirOpinionOfUs < 0f)
-                        {
                             TheirOpinionOfUs = 0f;
-                        }
                         TheirText = GetDialogue(TheirOpinionOfUs);
-                        TransitionOnTime = TimeSpan.FromSeconds(1);
                         return;
                     }
                 }
@@ -404,10 +392,7 @@ namespace Ship_Game
                     TheirOpinionOfUs = 0f;
                 }
                 TheirText = GetDialogue(TheirOpinionOfUs);
-                TransitionOnTime = TimeSpan.FromSeconds(1);
-                return;
             }
-            TransitionOnTime = TimeSpan.FromSeconds(1);
         }
         
         public static void Stole1stColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim");
