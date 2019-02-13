@@ -840,6 +840,59 @@ namespace Ship_Game.AI
             }
         }
 
+        private void DoPickupGoods(float elapsedTime, ShipGoal g)
+        {
+            ThrustOrWarpToPosCorrected(g.Exporter.Center, elapsedTime);
+            if (Owner.Center.InRadius(g.Exporter.Center, g.Exporter.ObjectRadius + 300f))
+            {
+                switch (g.GoodsType)
+                {
+                    case Goods.Food:
+                        g.Exporter.ProdHere += Owner.UnloadProduction();
+                        g.Exporter.Population += Owner.UnloadColonists();
+
+                        float maxFoodLoad = g.Exporter.FoodHere.Clamped(0f, g.Exporter.Storage.Max * 0.10f);
+                        g.Exporter.FoodHere -= Owner.LoadFood(maxFoodLoad);
+                        break;
+                    case Goods.Production:
+                        g.Exporter.FoodHere += Owner.UnloadFood();
+                        g.Exporter.Population += Owner.UnloadColonists();
+
+                        float maxProdLoad = g.Exporter.ProdHere.Clamped(0f, g.Exporter.Storage.Max * 10f);
+                        g.Exporter.ProdHere -= Owner.LoadProduction(maxProdLoad);
+                        break;
+                    case Goods.Colonists:
+                        g.Exporter.ProdHere += Owner.UnloadProduction();
+                        g.Exporter.FoodHere += Owner.UnloadFood();
+
+                        // load everyone we can :P
+                        g.Exporter.Population -= Owner.LoadColonists(g.Exporter.Population * 0.2f);
+                        break;
+                }
+                ClearOrders();
+                AddShipGoal(Plan.DropOffGoods, g.Exporter, g.Importer, Goods.Food);
+            }
+        }
+
+        private void DoDropOffGoods(float elapsedTime, ShipGoal g)
+        {
+            ThrustOrWarpToPosCorrected(g.Importer.Center, elapsedTime);
+            if (Owner.Center.InRadius(g.Importer.Center, g.Importer.ObjectRadius + 300f))
+            {
+                Owner.loyalty.TaxGoodsIfMercantile(Owner.CargoSpaceUsed);
+                g.Importer.FoodHere += Owner.UnloadFood(g.Importer.Storage.Max - g.Importer.FoodHere);
+                g.Importer.ProdHere += Owner.UnloadProduction(g.Importer.Storage.Max - g.Importer.ProdHere);
+                g.Importer.Population += Owner.UnloadColonists(g.Importer.MaxPopulation - g.Importer.Population);
+            }
+            ClearOrders();
+            g.Importer.RemoveFromIncomingFreighterList(Owner);
+            g.Exporter.RemoveFromOutgoingFreighterList(Owner);
+            AddShipGoal(Plan.Orbit, g.Importer, "");
+            State = AIState.AwaitingOrders;
+        }
+
+
+
         void DoReturnHome(float elapsedTime)
         {
             if (Owner.HomePlanet.Owner != Owner.loyalty)

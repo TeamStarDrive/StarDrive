@@ -51,6 +51,8 @@ namespace Ship_Game
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
 
+        public Array<Ship> IncomingFreighters = new Array<Ship>();
+        public Array<Ship> OutgoingFreighters = new Array<Ship>();
         public bool RecentCombat => TroopManager.RecentCombat;
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount() => TroopManager.NumDefendingTroopCount;
@@ -72,6 +74,32 @@ namespace Ship_Game
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
+
+        public int FoodExportSlots      => ExportFood ? ((int) (Food.NetIncome / 2) + 1).Clamped(0,5) : 0;
+        public int ProdExportSlots      => ExportProd ? (int)(Prod.NetIncome / 4) + 1 : 0;
+        public int ColonistsExportSlots => ColonistsTradeState == GoodState.EXPORT ? (int)PopulationBillion: 0;
+
+        public int FoodImportSlots      => ImportFood && Food.NetIncome < 0 ? Math.Abs((int)(Food.NetIncome)) + 1: 0;
+        public int ProdImportSlots      => ImportProd ? (int)((Storage.Max - Storage.Prod) / 50) : 0;
+        public int ColonistsImportSlots => ColonistsTradeState == GoodState.IMPORT && PopulationRatio < 0.5f ? 
+                                           (int) (MaxPopulationBillion -  PopulationBillion).Clamped(0,5) : 0;
+
+        public int IncomingFoodFreighters => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
+        public int IncomingProdFreighters => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Production));
+        public int IncomingColonistsFreighters => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Colonists));
+
+        public int OutgoingFoodFreighters => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
+        public int OutgoingProdFreighters => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Production));
+        public int OutGoingColonistsFreighters => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Colonists));
+
+        public int FreeFoodExportSlots => Math.Max(FoodExportSlots - OutgoingFoodFreighters, 0);
+        public int FreeProdExportSlots => Math.Max(ProdExportSlots - OutgoingProdFreighters, 0);
+        public int FreeColonistExportSlots => Math.Max(ColonistsExportSlots - OutGoingColonistsFreighters, 0);
+
+        public int FreeFoodImportSlots => Math.Max(FoodImportSlots - IncomingFoodFreighters, 0);
+        public int FreeProdImportSlots => Math.Max(ProdImportSlots - IncomingProdFreighters, 0);
+        public int FreeColonistImportSlots => Math.Max(ColonistsImportSlots - IncomingColonistsFreighters, 0);
+
         public float OrbitalsMaintenance;
 
         void CreateManagers()
@@ -144,6 +172,26 @@ namespace Ship_Game
                 HasRings = true;
                 RingTilt = RandomMath.RandomBetween(-80f, -45f);
             }
+        }
+
+        public void AddToIncomingFreighterList(Ship ship)
+        {
+            IncomingFreighters.Add(ship);
+        }
+
+        public void AddToOutGoingFreighterList(Ship ship)
+        {
+            OutgoingFreighters.Add(ship);
+        }
+
+        public void RemoveFromIncomingFreighterList(Ship ship)
+        {
+            IncomingFreighters.Remove(ship);
+        }
+
+        public void RemoveFromOutgoingFreighterList(Ship ship)
+        {
+            OutgoingFreighters.Remove(ship);
         }
 
         public float ColonyWorth(Empire toEmpire)
