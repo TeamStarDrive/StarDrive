@@ -481,8 +481,8 @@ namespace Ship_Game.AI
                     break;
                 case Plan.DropoffPassengers: DropoffPassengers();  break;
                 case Plan.DeployStructure:   DoDeploy(toEvaluate); break;
-                case Plan.PickupGoods:       PickupGoods();        break;
-                case Plan.DropOffGoods:      DropOffGoods();       break;
+                case Plan.PickupGoods:       DoPickupGoods(elapsedTime, toEvaluate);        break;
+                case Plan.DropOffGoods:      DoDropOffGoods(elapsedTime, toEvaluate);       break;
                 case Plan.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
                 case Plan.TroopToShip:    DoTroopToShip(elapsedTime, toEvaluate);    break;
                 case Plan.BoardShip:      DoBoardShip(elapsedTime);      break;

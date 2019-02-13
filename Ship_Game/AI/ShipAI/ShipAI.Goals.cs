@@ -35,6 +35,11 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f));
         }
 
+        public void AddShipGoal(Plan plan, Planet exporter, Planet importer, Goods goodsType)
+        {
+            OrderQueue.Enqueue(new ShipGoal(plan, exporter, importer, goodsType));
+        }
+
         public bool AddShipGoal(Plan plan, Planet target, string variableString = "")
         {
             if (target == null)
@@ -76,6 +81,9 @@ namespace Ship_Game.AI
             public readonly Vector2 MovePosition;
             public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings
             public readonly Planet TargetPlanet;
+            public readonly Planet Exporter;
+            public readonly Planet Importer;
+            public readonly Goods GoodsType;
             public readonly Goal Goal;
             public readonly Fleet Fleet;
             public readonly float SpeedLimit;
@@ -89,17 +97,25 @@ namespace Ship_Game.AI
                 Plan = plan;
             }
 
-            public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet planet, Goal theGoal,
+            public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal,
                             float speedLimit, string variableString, float variableNumber)
             {
                 Plan         = plan;
                 MovePosition = pos;
                 Direction    = dir;
-                TargetPlanet = planet;
+                TargetPlanet = targetPlanet;
                 Goal         = theGoal;
                 SpeedLimit   = speedLimit;
                 VariableString = variableString;
                 VariableNumber = variableNumber;
+            }
+
+            public ShipGoal(Plan plan, Planet exporter, Planet importer, Goods goodsType)
+            {
+                Plan      = plan;
+                Exporter  = exporter;
+                Importer  = importer;
+                GoodsType = goodsType;
             }
 
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)

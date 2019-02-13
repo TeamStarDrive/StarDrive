@@ -2067,13 +2067,15 @@ namespace Ship_Game
                 return;
             if (!isPlayer)
             {
-                AssessFreighterNeeds();
+                //AssessFreighterNeeds();
+                DoFreight();
                 AssignExplorationTasks();
             }
             else
             {
                 if (AutoFreighters)
-                    AssessFreighterNeeds();
+                    DoFreight();
+                    //AssessFreighterNeeds();
                 if (AutoExplore)
                     AssignExplorationTasks();
             }
@@ -2383,6 +2385,48 @@ namespace Ship_Game
         public bool HavePreReq(string techID) => GetTechEntry(techID).HasPreReq(this);
 
         public bool TradeBlocked { get; private set; }
+
+        private void DoFreight() // food / prod / colonist
+        {
+            /*
+            1. get a list of importing planets
+
+            2. get a list of exporting planets
+
+            3. get a list of free freighters
+            4. find closest exporter to importer
+            5. find closest freighter and assign it
+            6. if no freighters free, build one within money limits
+            */
+            Planet[] importingPlanets = OwnedPlanets.Filter(p => p.FreeFoodImportSlots > 0);
+            if (importingPlanets.Length == 0)
+                return;
+
+            Planet[] exportingPlanets = OwnedPlanets.Filter(p => p.FreeFoodExportSlots > 0);
+            if (exportingPlanets.Length == 0)
+                return;
+
+            Ship[] idleFreighters = OwnedShips.Filter(s => s.IsIdleFreighter);
+            if (idleFreighters.Length == 0)
+                return;
+
+            foreach (Planet importPlanet in importingPlanets)
+            {
+                Planet exportPlanet = exportingPlanets.FindMin(p => p.Center.SqDist(importPlanet.Center));
+                if (exportPlanet == null) // no more exporting planets
+                    break;
+
+                Ship closestIdleFreighter = idleFreighters.FindMin(s => s.Center.SqDist(exportPlanet.Center));
+                if (closestIdleFreighter == null) // no more available freighters
+                    break;
+
+                //closestIdleFreighter.AI.FoodOrProd = Goods.Food;
+                closestIdleFreighter.AI.ClearOrders(AIState.SystemTrader);
+                closestIdleFreighter.AI.AddShipGoal(ShipAI.Plan.PickupGoods, exportPlanet, importPlanet, Goods.Food);
+                importPlanet.AddToIncomingFreighterList(closestIdleFreighter);
+                exportPlanet.AddToOutGoingFreighterList(closestIdleFreighter);
+            }
+        }
 
         private void AssessFreighterNeeds()
         {
