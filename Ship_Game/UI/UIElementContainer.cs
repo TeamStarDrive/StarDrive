@@ -120,9 +120,9 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
-            if (!RequiresLayout || !Visible)
-                return;
             RequiresLayout = false;
+            for (int i = 0; i < Elements.Count; ++i)
+                Elements[i].PerformLayout();
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////

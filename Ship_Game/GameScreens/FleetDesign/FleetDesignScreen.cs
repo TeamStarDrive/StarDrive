@@ -113,18 +113,9 @@ namespace Ship_Game
 
         private readonly Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
 
-
-        public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, Fleet f) : base(parent)
-        {
-            SelectedFleet = f;
-            EmpireUI = empireUI;
-            TransitionOnTime = 0.75f;
-        }
-
         public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
         {
-            if (!string.IsNullOrEmpty(audioCue))
-                GameAudio.PlaySfxAsync(audioCue);
+            GameAudio.PlaySfxAsync(audioCue);
             SelectedFleet = new Fleet();
             EmpireUI = empireUI;
             TransitionOnTime = 0.75f;
