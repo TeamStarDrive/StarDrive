@@ -60,8 +60,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
-            TransitionOnTime  = TimeSpan.FromSeconds(1);
-            TransitionOffTime = TimeSpan.FromSeconds(0.5);
+            TransitionOnTime  = 1.0f;
+            TransitionOffTime = 0.5f;
         }
         
         static void OnModChanged(FileInfo info)

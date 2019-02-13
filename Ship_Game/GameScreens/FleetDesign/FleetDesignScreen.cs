@@ -118,7 +118,7 @@ namespace Ship_Game
         {
             SelectedFleet = f;
             EmpireUI = empireUI;
-            TransitionOnTime = TimeSpan.FromSeconds(0.75);
+            TransitionOnTime = 0.75f;
         }
 
         public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
@@ -127,7 +127,7 @@ namespace Ship_Game
                 GameAudio.PlaySfxAsync(audioCue);
             SelectedFleet = new Fleet();
             EmpireUI = empireUI;
-            TransitionOnTime = TimeSpan.FromSeconds(0.75);
+            TransitionOnTime = 0.75f;
             EmpireUI.empire.UpdateShipsWeCanBuild();
             Open = true;
         }

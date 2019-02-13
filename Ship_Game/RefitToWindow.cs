@@ -24,16 +24,16 @@ namespace Ship_Game
             Screen = screen;
             Shiptorefit = entry.ship;
             IsPopup = true;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0.25f;
         }
 
         public RefitToWindow(GameScreen parent, Ship ship) : base(parent)
         {
             Shiptorefit = ship;
             IsPopup = true;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0.25f;
         }
 
         public override void Draw(SpriteBatch batch)

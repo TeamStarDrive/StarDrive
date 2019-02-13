@@ -54,8 +54,8 @@ namespace Ship_Game
 		public YouLoseScreen(GameScreen parent) : base(parent)
 		{
 			IsPopup = true;
-			TransitionOnTime = TimeSpan.FromSeconds(30);
-			TransitionOffTime = TimeSpan.FromSeconds(0.25);
+			TransitionOnTime = 30f;
+			TransitionOffTime = 0.25f;
 		}
 
 		public override void Draw(SpriteBatch batch)

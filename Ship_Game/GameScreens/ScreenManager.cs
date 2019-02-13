@@ -392,17 +392,19 @@ namespace Ship_Game
             {
                 GameScreen screen = Screens[i];
                 screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-                if (screen.ScreenState != ScreenState.TransitionOn && screen.ScreenState != ScreenState.Active)
-                    continue;
-                if (!otherScreenHasFocus && exitScreenTimer <= 0f)
+
+                if (screen.ScreenState == ScreenState.TransitionOn || screen.ScreenState == ScreenState.Active)
                 {
-                    if (!screen.IsExiting)
-                        screen.HandleInput(input);
-                    otherScreenHasFocus = true;
+                    if (!otherScreenHasFocus && exitScreenTimer <= 0f)
+                    {
+                        if (!screen.IsExiting)
+                            screen.HandleInput(input);
+                        otherScreenHasFocus = true;
+                    }
+
+                    if (!screen.IsPopup)
+                        coveredByOtherScreen = true;
                 }
-                if (screen.IsPopup)
-                    continue;
-                coveredByOtherScreen = true;
             }
         }
 

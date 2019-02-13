@@ -72,7 +72,7 @@ namespace Ship_Game
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
             EmpireUI         = empireUi;
-            TransitionOnTime = TimeSpan.FromSeconds(2);
+            TransitionOnTime = 2f;
         #if SHIPYARD
             Debug = true;
         #endif
