@@ -145,9 +145,8 @@ namespace Ship_Game
                 BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath).Texture);
                 Displacement -= 0.05f;
                 if (Displacement < 0f)
-                {
                     Displacement = 1f;
-                }
+
                 BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, Displacement));
                 BeamEffect.Begin();
                 var rs = screenMgr.GraphicsDevice.RenderState;
