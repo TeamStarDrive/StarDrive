@@ -28,10 +28,6 @@ namespace Ship_Game
 
         private int numThatFit;
 
-        private MouseState currentMouse;
-
-        private MouseState previousMouse;
-
         public RequisitionScreen(FleetDesignScreen fds) : base(fds)
         {
             this.fds = fds;
@@ -207,7 +203,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            currentMouse = input.MouseCurr;
             if (numThatFit > 0 && AssignNow.HandleInput(input))
             {
                 AssignAvailableShips();
@@ -223,7 +218,6 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            previousMouse = input.MousePrev;
             return base.HandleInput(input);
         }
 

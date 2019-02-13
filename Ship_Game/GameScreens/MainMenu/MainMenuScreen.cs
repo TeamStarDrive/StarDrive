@@ -75,7 +75,6 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override void LoadContent()
         {
-            base.LoadContent();
             ScreenManager.ClearScene();
             ResetMusic();
             LayoutParser.LoadLayout(this, "UI/MainMenu.yaml");
