@@ -400,7 +400,7 @@ namespace Ship_Game
                     break;
                 }
                 Rectangle r = rect.Value;
-                float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * k / numEntries) / 0.5f, 0f, 1f);
+                float transitionOffset = ((TransitionPosition - 0.5f * k / numEntries) / 0.5f).Clamped(0f, 1f);
                 k--;
                 if (ScreenState != ScreenState.TransitionOn)
                 {

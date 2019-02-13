@@ -154,10 +154,11 @@ namespace UnitTests
         Starting, Running, Exiting
     }
 
-    class ImpactSimulation : IGameComponent, IDrawable, IUpdateable
+    internal class ImpactSimulation : IGameComponent, IDrawable, IUpdateable
     {
-        Array<SimObject> Objects = new Array<SimObject>();
-        SimObject Projectile, Target;
+        readonly Array<SimObject> Objects = new Array<SimObject>();
+        readonly SimObject Projectile;
+        readonly SimObject Target;
 
         SimState State = SimState.Starting;
         float StartCounter = 1f;
@@ -165,22 +166,18 @@ namespace UnitTests
         readonly AutoResetEvent Exit = new AutoResetEvent(false);
         SimResult Result;
 
-        ImpactSimWindow Owner;
-        SimParameters Sim;
+        readonly ImpactSimWindow Owner;
+        readonly SimParameters Sim;
 
         float Time;
         Vector2 Center;
         float PrevDistance;
         
-        public bool Visible { get; } = true;
-        public int DrawOrder { get; } = 0;
-        public event EventHandler VisibleChanged;
-        public event EventHandler DrawOrderChanged;
+        public bool Visible     { get; } = true;
+        public bool Enabled     { get; } = true;
+        public int  DrawOrder   { get; } = 0;
+        public int  UpdateOrder { get; } = 0;
 
-        public bool Enabled { get; } = true;
-        public int UpdateOrder { get; } = 0;
-        public event EventHandler EnabledChanged;
-        public event EventHandler UpdateOrderChanged;
 
         public ImpactSimulation(TestImpactPredictor.Scenario s, SimParameters sim)
         {

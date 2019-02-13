@@ -106,8 +106,11 @@ namespace Ship_Game.GameScreens.MainMenu
             list.PerformLayout();
 
             // Animate the buttons in and out
-            list.StartTransition<UIButton>(new Vector2(512, 0), -1f, 0.8f);
-            OnExit += () => list.StartTransition<UIButton>(new Vector2(512, 0), +1f, 1.0f);
+            Log.Info(ConsoleColor.Magenta, "Start Transition");
+
+            var animOffset = new Vector2(512f * (ScreenWidth / 1920f), 0);
+            list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
+            OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
             
             SDLogoAnim = Add(new UISpriteElement(this, "MainMenu/Stardrive logo"));
             SDLogoAnim.Animation.FreezeAtLastFrame = layout.FreezeSDLogo;

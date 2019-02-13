@@ -305,8 +305,10 @@ namespace Ship_Game.Debug
 
                     Screen.DrawCircleProjected(module.Center, 8f, 6, Color.Pink);
 
-                    if (weapon.ProjectedImpactPoint(ship.AI.Target, out Vector2 impactNew))
+                    if (weapon.ProjectedImpactPointNoError(ship.AI.Target, out Vector2 impactNew))
+                    {
                         Screen.DrawLineProjected(weapon.Center, impactNew, Color.Yellow);
+                    }
 
 
                     Projectile projectile = ship.Projectiles.FirstOrDefault(p => p.Weapon == weapon);
