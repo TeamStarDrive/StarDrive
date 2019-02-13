@@ -29,8 +29,8 @@ namespace Ship_Game
         public InGameWiki(GameScreen parent) : base(parent, 750, 600)
         {
             IsPopup           = true;
-            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime  = 0.25f;
+            TransitionOffTime = 0.25f;
             var help          = ResourceManager.GatherFilesModOrVanilla("HelpTopics/" + GlobalStats.Language,"xml");
             if (help.Length  != 0)
                 HelpTopics    = help[0].Deserialize<HelpTopics>();

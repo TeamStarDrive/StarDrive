@@ -17,8 +17,8 @@ namespace Ship_Game
         private GameplayMMScreen(GameScreen parent) : base(parent, pause: true)
         {
             IsPopup = true;
-            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime  = 0.25f;
+            TransitionOffTime = 0.25f;
         }
         public GameplayMMScreen(UniverseScreen screen) : this((GameScreen)screen)
         {
