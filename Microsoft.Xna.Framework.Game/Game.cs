@@ -438,12 +438,10 @@ namespace Microsoft.Xna.Framework
             if (e.GameComponent is IUpdateable updateable)
             {
                 UpdateableComponents.Remove(updateable);
-                updateable.UpdateOrderChanged -= UpdateableUpdateOrderChanged;
             }
             if (e.GameComponent is IDrawable drawable)
             {
                 DrawableComponents.Remove(drawable);
-                drawable.DrawOrderChanged -= DrawableDrawOrderChanged;
             }
         }
 
@@ -463,7 +461,6 @@ namespace Microsoft.Xna.Framework
                     while (i < UpdateableComponents.Count && UpdateableComponents[i].UpdateOrder == updateable.UpdateOrder)
                         ++i;
                     UpdateableComponents.Insert(i, updateable);
-                    updateable.UpdateOrderChanged += UpdateableUpdateOrderChanged;
                 }
             }
             if (e.GameComponent is IDrawable drawable)
@@ -472,23 +469,6 @@ namespace Microsoft.Xna.Framework
                 if (num1 < 0)
                 {
                     int i = ~num1;
-                    while (i < DrawableComponents.Count && DrawableComponents[i].DrawOrder == drawable.DrawOrder)
-                        ++i;
-                    DrawableComponents.Insert(i, drawable);
-                    drawable.DrawOrderChanged += DrawableDrawOrderChanged;
-                }
-            }
-        }
-
-        private void DrawableDrawOrderChanged(object sender, EventArgs e)
-        {
-            if (sender is IDrawable drawable)
-            {
-                DrawableComponents.Remove(drawable);
-                int num = DrawableComponents.BinarySearch(drawable, DrawOrderComparer.Default);
-                if (num < 0)
-                {
-                    int i = ~num;
                     while (i < DrawableComponents.Count && DrawableComponents[i].DrawOrder == drawable.DrawOrder)
                         ++i;
                     DrawableComponents.Insert(i, drawable);

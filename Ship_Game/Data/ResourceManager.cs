@@ -198,13 +198,16 @@ namespace Ship_Game
                 manager.LoadContent(); 
 
             // Load non-critical resources:
-            BackgroundLoad = Parallel.Run(() =>
+            void LoadNonCritical()
             {
                 Log.Write("Load non-critical resources");
                 ExplosionManager.Initialize(RootContent);
                 LoadNonEssentialAtlases(BackgroundLoad);
                 Log.Write("Finished loading non-critical resources");
-            });
+            }
+            
+            //LoadNonCritical();
+            BackgroundLoad = Parallel.Run(LoadNonCritical);
 
             HelperFunctions.CollectMemory();
         }
@@ -889,7 +892,7 @@ namespace Ship_Game
             };
             foreach (string atlas in atlases)
             {
-                if (task.IsCancelRequested)
+                if (task?.IsCancelRequested == true)
                     break;
                 LoadAtlas(atlas);
             }

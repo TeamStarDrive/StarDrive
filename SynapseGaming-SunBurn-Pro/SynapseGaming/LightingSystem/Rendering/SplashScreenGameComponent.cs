@@ -13,24 +13,13 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// <summary>Displays the SunBurn splash screen.</summary>
     public sealed class SplashScreenGameComponent : DrawableGameComponent
     {
-
-        private readonly SplashScreen Splash;
+        readonly SplashScreen Splash;
 
         /// <summary>
         /// Used to determine when the SunBurn splash screen is finished displaying
         /// and it's safe to begin game rendering.
         /// </summary>
         public static bool DisplayComplete => SplashScreen.DisplayComplete;
-
-        /// <summary>
-        /// Used to enable or disable the SunBurn splash screen during development. Enabling the splash
-        /// screen helps when making sure the screen displays properly in released projects.
-        /// </summary>
-        public bool ShowDuringDevelopment
-        {
-            get => Splash.ShowDuringDevelopment;
-            set => Splash.ShowDuringDevelopment = value;
-        }
 
         /// <summary>Creates a new SplashScreenGameComponent instance.</summary>
         /// <param name="game"></param>
@@ -39,19 +28,6 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             DrawOrder = int.MaxValue;
             Splash = new SplashScreen(graphicsdevicemanager);
-        }
-
-        /// <summary>
-        /// Called when the DrawOrder property changes. Raises the DrawOrderChanged event.
-        /// </summary>
-        /// <param name="sender">The DrawableGameComponent.</param>
-        /// <param name="args">Arguments to the DrawOrderChanged event.</param>
-
-        protected override void OnDrawOrderChanged(object sender, EventArgs e)
-        {
-            if (DrawOrder != int.MaxValue)
-                DrawOrder = int.MaxValue;
-            base.OnDrawOrderChanged(sender, e);
         }
 
         /// <summary>

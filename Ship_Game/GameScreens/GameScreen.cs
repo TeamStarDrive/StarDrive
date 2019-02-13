@@ -133,7 +133,6 @@ namespace Ship_Game
             Elements.Clear();
         }
 
-
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             DeltaTime = StarDriveGame.Instance.DeltaTime;
@@ -146,32 +145,35 @@ namespace Ship_Game
             {
                 if (coveredByOtherScreen)
                 {
-                    ScreenState = UpdateTransition(gameTime, TransitionOffTime, 1)
+                    ScreenState = UpdateTransition(TransitionOffTime, 1)
                                 ? ScreenState.TransitionOff : ScreenState.Hidden;
-                    return;
                 }
-                ScreenState = UpdateTransition(gameTime, TransitionOnTime, -1)
-                            ? ScreenState.TransitionOn : ScreenState.Active;
+                else
+                {
+                    ScreenState = UpdateTransition(TransitionOnTime, -1)
+                                ? ScreenState.TransitionOn : ScreenState.Active;
+                }
             }
             else
             {
                 ScreenState = ScreenState.TransitionOff;
-                if (UpdateTransition(gameTime, TransitionOffTime, 1))
-                    return;
-                ScreenManager.RemoveScreen(this);
-                IsExiting = false;
+                if (!UpdateTransition(TransitionOffTime, 1))
+                {
+                    ScreenManager.RemoveScreen(this);
+                    IsExiting = false;
+                }
             }
         }
         
 
-        private bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
+        bool UpdateTransition(TimeSpan time, int direction)
         {
-            float transitionDelta = (time != TimeSpan.Zero ? (float)(gameTime.ElapsedGameTime.TotalMilliseconds / time.TotalMilliseconds) : 1f);
+            float transitionDelta = (time != TimeSpan.Zero ? (float)(DeltaTime / time.TotalSeconds) : 1f);
             TransitionPosition += transitionDelta * direction;
             if (TransitionPosition > 0f && TransitionPosition < 1f)
                 return true;
 
-            TransitionPosition = MathHelper.Clamp(TransitionPosition, 0f, 1f);
+            TransitionPosition = TransitionPosition.Clamped(0, 1);
             return false;
         }
 
