@@ -2405,6 +2405,9 @@ namespace Ship_Game
 
         private void UpdateFreighterTimersAndScrap()
         {
+            if (isPlayer && !AutoFreighters)
+                return;
+
             Ship[] ownedFreighters = OwnedShips.Filter(s => s.IsFreighter);
             for (int i = 0; i < ownedFreighters.Length; ++i)
             {
@@ -2439,19 +2442,45 @@ namespace Ship_Game
 
             foreach (Planet importer in importingPlanets)
             {
+                Ship closestIdleFreighter = null;
                 Planet exporter = exportingPlanets.FindMin(p => p.Center.SqDist(importer.Center));
                 if (exporter == null) // no more exporting planets
                     break;
+                if (!isPlayer || AutoFreighters)
+                    closestIdleFreighter = idleFreighters.FindMin(s => s.Center.SqDist(exporter.Center));
+                else
+                    closestIdleFreighter = ClosestIdleFreighterManual(exporter, goods, idleFreighters);
 
-                Ship closestIdleFreighter = idleFreighters.FindMin(s => s.Center.SqDist(exporter.Center));
                 if (closestIdleFreighter == null) // no more available freighters
                     break;
 
                 closestIdleFreighter.AI.SetupFreighterPlan(exporter, importer, goods);
             }
         }
+
+        private Ship ClosestIdleFreighterManual(Planet exporter, Goods goods, Ship[] idleFreighters)
+        {
+            Ship closestIdleFreighter = null;
+            switch (goods)
+            {
+                case Goods.Production:
+                case Goods.Food:
+                    closestIdleFreighter = idleFreighters.FindMinFiltered(s => s.TransportingProduction
+                                                                               || s.TransportingFood, s => s.Center.SqDist(exporter.Center));
+                    break;
+                case Goods.Colonists:
+                    closestIdleFreighter = idleFreighters.FindMinFiltered(s => s.DoingPassTransport,
+                        s => s.Center.SqDist(exporter.Center));
+                    break;
+            }
+            return closestIdleFreighter;
+        }
+
         private void BuildFreighter()
         {
+            if (isPlayer && !AutoFreighters)
+                return;
+
             int freightersBuilding = EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
             if (FreighterCap > TotalFreighters + freightersBuilding && MaxFreightersInQueue > freightersBuilding)
                 EmpireAI.Goals.Add(new IncreaseFreighters(this));
