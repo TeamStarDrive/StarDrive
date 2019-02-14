@@ -80,7 +80,7 @@ namespace Ship_Game
 
         public int FoodExportSlots      => ExportFood ? ((int) (Food.NetIncome / 2) + 1).Clamped(0,5) : 0;
         public int ProdExportSlots      => ExportProd ? (int)(Prod.NetIncome / 4) + 1 : 0;
-        public int ColonistsExportSlots => ColonistsTradeState == GoodState.EXPORT ? (int)PopulationBillion: 0;
+        public int ColonistsExportSlots => ColonistsTradeState == GoodState.EXPORT ? (int)(PopulationBillion / 2): 0;
 
         public int FoodImportSlots      => ImportFood && Food.NetIncome < 0 ? Math.Abs((int)(Food.NetIncome)) + 1: 0;
         public int ProdImportSlots      => ImportProd ? (int)((Storage.Max - Storage.Prod) / 50) + 1: 0;
@@ -202,11 +202,13 @@ namespace Ship_Game
 
         public void AddToIncomingFreighterList(Ship ship)
         {
-            IncomingFreighters.Add(ship);
+            if (!IncomingFreighters.Any(s => s == ship))
+                IncomingFreighters.Add(ship);
         }
 
         public void AddToOutGoingFreighterList(Ship ship)
         {
+            if (!OutgoingFreighters.Any(s => s == ship))
             OutgoingFreighters.Add(ship);
         }
 
@@ -218,6 +220,17 @@ namespace Ship_Game
         public void RemoveFromOutgoingFreighterList(Ship ship)
         {
             OutgoingFreighters.Remove(ship);
+        }
+
+        public void RefreshFreighterList(Array<Ship> list)
+        {
+            for (int i = 0; i < list.Count; ++i)
+            {
+                if (!list[i].Active || list[i].AI.State != AIState.SystemTrader)
+                {
+                    list.RemoveAt(i--);
+                }
+            }
         }
 
         public float ColonyWorth(Empire toEmpire)
@@ -281,6 +294,8 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
             UpdateColonyValue();
+            RefreshFreighterList(IncomingFreighters);
+            RefreshFreighterList(OutgoingFreighters);
             ScanForEnemy();
             if (ParentSystem.CombatInSystem)
                 UpdateSpaceCombatBuildings(elapsedTime);
