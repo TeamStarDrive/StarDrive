@@ -25,6 +25,7 @@ namespace Microsoft.Xna.Framework
     internal event EventHandler Exiting;
 
     internal abstract void Run();
+    internal abstract void RunOne();
 
     internal abstract void Exit();
 

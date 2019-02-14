@@ -21,6 +21,7 @@ namespace Microsoft.Xna.Framework
     private WindowsGameWindow gameWindow;
     private bool doneRun;
     private bool exitRequested;
+    private bool onIdleRegistered;
 
     internal override GameWindow Window
     {
@@ -88,15 +89,25 @@ namespace Microsoft.Xna.Framework
         throw new InvalidOperationException(Resources.NoMultipleRuns);
       try
       {
-        Application.Idle += new EventHandler(this.ApplicationIdle);
+        Application.Idle += this.ApplicationIdle;
         Application.Run(this.gameWindow.Form);
       }
       finally
       {
-        Application.Idle -= new EventHandler(this.ApplicationIdle);
+        Application.Idle -= this.ApplicationIdle;
         this.doneRun = true;
         this.OnExiting();
       }
+    }
+    
+    internal override void RunOne()
+    {
+        if (!onIdleRegistered)
+        {
+            Application.Idle += this.ApplicationIdle;
+            onIdleRegistered = true;
+        }
+        Application.DoEvents();
     }
 
     internal override void Exit()

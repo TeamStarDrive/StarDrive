@@ -466,7 +466,7 @@ namespace Ship_Game.Ships
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[minX + y * width]) != null && m.Active)
-                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
                 }
                 if (maxX < lastX) { // test all modules to the right
                     ++maxX; didExpand = true;
@@ -490,13 +490,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        private void DebugGridStep(Vector2 p, Color color)
+        void DebugGridStep(Vector2 p, Color color)
         {
             Vector2 gridWorldPos = GridLocalPointToWorld(GridLocalToPoint(p)) + new Vector2(8f);
             Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, gridWorldPos, 4f, color.Alpha(0.33f), 2.0f);
         }
 
-        private void DebugGridStep(Vector2 a, Vector2 b, Color color, float width = 1f)
+        void DebugGridStep(Vector2 a, Vector2 b, Color color, float width = 1f)
         {
             Vector2 worldPosA = GridLocalPointToWorld(GridLocalToPoint(a)) + new Vector2(8f);
             Vector2 worldPosB = GridLocalPointToWorld(GridLocalToPoint(b)) + new Vector2(8f);
@@ -505,7 +505,7 @@ namespace Ship_Game.Ships
 
         // take one step in the module grid
         // @todo Make use of rayRadius to improve Walk precision
-        private ShipModule TakeOneStep(Vector2 start, Vector2 step)
+        ShipModule TakeOneStep(Vector2 start, Vector2 step)
         {
             Vector2 endPos = start + step;
             Point pos = GridLocalToPoint(start);
@@ -519,35 +519,35 @@ namespace Ship_Game.Ships
             {
                 // check a module at the same Y height as final point
                 // this forces us to always take an L shaped step instead of diagonal \
-                var neighbourPos = new Vector2(start.X, endPos.Y);
+                //var neighbourPos = new Vector2(start.X, endPos.Y);
                 var neighbour = new Point(pos.X, end.Y);
-                if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                    DebugGridStep(neighbourPos, Color.Yellow);
+                //if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                //    DebugGridStep(neighbourPos, Color.Yellow);
 
                 ShipModule mb = SparseModuleGrid[neighbour.X + neighbour.Y * GridWidth];
                 if (mb != null && mb.Active)
                 {
-                    if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                        DebugGridStep(start, neighbourPos, Color.Cyan, 4f);
+                    //if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                    //    DebugGridStep(start, neighbourPos, Color.Cyan, 4f);
                     return mb;
                 }
             }
 
-            if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                DebugGridStep(endPos, Color.LightGreen);
+            //if (DebugInfoScreen.Mode == DebugModes.Targeting)
+            //    DebugGridStep(endPos, Color.LightGreen);
 
             ShipModule mc = SparseModuleGrid[end.X + end.Y * GridWidth];
             if (mc != null && mc.Active)
             {
-                if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                    DebugGridStep(start, endPos, Color.HotPink, 4f);
+                //if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                //    DebugGridStep(start, endPos, Color.HotPink, 4f);
                 return mc;
             }
             return null;
         }
 
         // perform a raytrace from point a to point b, visiting all grid points between them!
-        private ShipModule WalkModuleGrid(Vector2 a, Vector2 b)
+        ShipModule WalkModuleGrid(Vector2 a, Vector2 b)
         {
             Vector2 pos = a;
             Vector2 delta = b - a;
@@ -558,8 +558,8 @@ namespace Ship_Game.Ships
             ShipModule me = SparseModuleGrid[enter.X + enter.Y * GridWidth];
             if (me != null && me.Active)
             {
-                if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                    DebugGridStep(pos - step, pos, Color.DarkGoldenrod);
+                //if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                //    DebugGridStep(pos - step, pos, Color.DarkGoldenrod);
                 return me;
             }
 
@@ -569,8 +569,8 @@ namespace Ship_Game.Ships
                 ShipModule m = TakeOneStep(pos, step);
                 if (m != null)
                 {
-                    if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                        Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, m.Center, 6f, Color.IndianRed.Alpha(0.5f), 3f);
+                    //if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                    //    Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, m.Center, 6f, Color.IndianRed.Alpha(0.5f), 3f);
                     return m;
                 }
             }

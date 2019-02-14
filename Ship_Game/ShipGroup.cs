@@ -79,6 +79,8 @@ namespace Ship_Game
 
         public void AssignPositions(Vector2 newDirection)
         {
+            if (!newDirection.IsUnitVector())
+                Log.Error($"AssembleFleet newDirection {newDirection} must be a direction unit vector!");
             Direction = newDirection;
             float facing = newDirection.ToRadians();
             foreach (Ship ship in Ships) // rotate the existing fleet offsets
@@ -91,6 +93,8 @@ namespace Ship_Game
 
         public void AssembleFleet(Vector2 newDirection, bool forceAssembly = false)
         {
+            if (!newDirection.IsUnitVector())
+                Log.Error($"AssembleFleet newDirection {newDirection} must be a direction unit vector!");
             Direction = newDirection;
             float facing = newDirection.ToRadians();
             foreach (Ship ship in Ships)
@@ -277,6 +281,8 @@ namespace Ship_Game
 
         public void MoveDirectlyNow(Vector2 movePosition, Vector2 direction)
         {
+            if (!direction.IsUnitVector())
+                Log.Error($"MoveDirectlyNow direction {direction} must be a direction unit vector!");
             Position = movePosition;
             Direction = direction;
             AssembleFleet(direction);

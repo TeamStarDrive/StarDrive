@@ -118,8 +118,8 @@ namespace Ship_Game.AI
         {
             if (DebugInfoScreen.Mode == DebugModes.Targeting)
             {
-                Empire.Universe.DebugWin.DrawCircle(DebugModes.Targeting, pip, radius, Owner.loyalty.EmpireColor, 0f);
-                Empire.Universe.DebugWin.DrawLine(DebugModes.Targeting, Target.Center, pip, 1f, Owner.loyalty.EmpireColor, 0f);
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, pip, radius, Owner.loyalty.EmpireColor, 0f);
+                Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, Target.Center, pip, 1f, Owner.loyalty.EmpireColor, 0f);
             }
         }
 
@@ -159,7 +159,7 @@ namespace Ship_Game.AI
                 // constantly accelerate toward disengage pos:
                 Vector2 disengage = Owner.Center.DirectionToTarget(AttackRunDisengage);
                 SubLightContinuousMoveInDirection(disengage, elapsedTime, Owner.Speed);
-                DrawDebugTarget(AttackRunDisengage, Owner.Radius);
+                //DrawDebugTarget(AttackRunDisengage, Owner.Radius);
                 return;
             }
 
@@ -182,13 +182,13 @@ namespace Ship_Game.AI
             {
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
                 RotateTowardsPosition(Target.Center, elapsedTime, 0.05f);
-                DrawDebugTarget(Target.Center, Owner.Radius);
+                //DrawDebugTarget(Target.Center, Owner.Radius);
             }
             else
             {
                 // fly towards the offset attack position
                 SubLightMoveTowardsPosition(attackPos, elapsedTime, Owner.Speed*0.75f, predictPos: true, autoSlowDown: false);
-                DrawDebugTarget(attackPos, Owner.Radius);
+                //DrawDebugTarget(attackPos, Owner.Radius);
             }
         }
 
