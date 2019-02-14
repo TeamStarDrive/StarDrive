@@ -162,7 +162,7 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int FixedTrackingPower;
-        public float TradeTimer;
+        public float TradeTimer = 300;
         public bool ShipInitialized;
         public float maxFTLSpeed;
         public float NormalWarpThrust;
@@ -1209,11 +1209,6 @@ namespace Ship_Game.Ships
         public void DoColonize(Planet p, Goal g)
         {
             AI.OrderColonization(p);
-        }
-
-        public void DoTrading()
-        {
-            AI.State = AIState.SystemTrader;
         }
 
         public void ResetJumpTimer()
