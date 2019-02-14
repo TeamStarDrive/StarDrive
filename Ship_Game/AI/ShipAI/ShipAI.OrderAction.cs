@@ -167,6 +167,9 @@ namespace Ship_Game.AI
         void GenerateOrdersFromWayPoints(Vector2 position, Vector2 finalDirection, 
                                          Planet targetPlanet, bool clearOrders, float speedLimit)
         {
+            if (!finalDirection.IsUnitVector())
+                Log.Error($"GenerateOrdersFromWayPoints finalDirection {finalDirection} must be a direction unit vector!");
+
             Target = null;
 
             if (clearOrders)
