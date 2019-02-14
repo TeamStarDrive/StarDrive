@@ -1813,6 +1813,8 @@ namespace Ship_Game
                     ClickableSquads.Add(cs);
                 }
             }
+
+            SelectedFleet.Direction = Vectors.Up;
             SelectedFleet.AssembleFleet2(SelectedFleet.Direction);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
