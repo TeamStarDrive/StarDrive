@@ -1814,7 +1814,6 @@ namespace Ship_Game
                 }
             }
 
-            SelectedFleet.Direction = Vectors.Up;
             SelectedFleet.AssembleFleet2(SelectedFleet.Direction);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }

@@ -183,6 +183,12 @@ namespace Ship_Game
             return planet;
         }
 
+        public Planet FindClosestSpacePort(Vector2 position)
+        {
+            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
+            return spacePorts.FindMin(p => p.Center.SqDist(position));
+        }
+
         public bool TryFindSpaceportToBuildShipAt(Ship ship, out Planet spacePort)
         {
             Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
