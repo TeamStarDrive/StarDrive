@@ -175,47 +175,47 @@ namespace Ship_Game
 
             foreach (ScrollList.Entry e in HelpCategories.AllExpandedEntries)
             {
-                if (e.item is ModuleHeader header)
-                    if (header.HandleInput(input, e))
-                        break;
-                    else if (e.CheckHover(input))
+                if (e.item is ModuleHeader header && header.HandleInput(input, e))
+                    break;
+
+                if (e.CheckHover(input))
+                {
+                    if (input.LeftMouseClick && e.item is HelpTopic helpTopic)
                     {
-                        if (input.LeftMouseClick && e.item is HelpTopic)
+                        HelpEntries.Reset();
+                        ActiveTopic = helpTopic;
+                        if (ActiveTopic.Text != null)
                         {
-                            HelpEntries.Reset();
-                            ActiveTopic = (HelpTopic)e.item;
-                            if (ActiveTopic.Text != null)
+                            HelperFunctions.parseTextToSL(ActiveTopic.Text, (TextRect.Width - 40), Fonts.Arial12Bold, ref HelpEntries);
+                            TitlePosition = new Vector2((TextRect.X + TextRect.Width / 2)
+                                - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TitlePosition.Y);
+                        }
+                        if (!string.IsNullOrEmpty(ActiveTopic.Link))
+                        {
+                            try
                             {
-                                HelperFunctions.parseTextToSL(ActiveTopic.Text, (TextRect.Width - 40), Fonts.Arial12Bold, ref HelpEntries);
-                                TitlePosition = new Vector2((TextRect.X + TextRect.Width / 2)
-                                    - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TitlePosition.Y);
+                                SteamManager.ActivateOverlayWebPage(ActiveTopic.Link);
                             }
-                            if (!string.IsNullOrEmpty(ActiveTopic.Link))
+                            catch
                             {
-                                try
-                                {
-                                    SteamManager.ActivateOverlayWebPage(ActiveTopic.Link);
-                                }
-                                catch
-                                {
-                                    Process.Start(ActiveTopic.Link);
-                                }
-                            }
-                            if (ActiveTopic.VideoPath == null)
-                            {
-                                ActiveVideo = null;
-                                VideoPlayer = null;
-                            }
-                            else
-                            {
-                                HelpEntries.Reset();
-                                VideoPlayer = new VideoPlayer();
-                                ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", ActiveTopic.VideoPath));
-                                VideoPlayer.Play(ActiveVideo);
-                                VideoPlayer.Pause();
+                                Process.Start(ActiveTopic.Link);
                             }
                         }
+                        if (ActiveTopic.VideoPath == null)
+                        {
+                            ActiveVideo = null;
+                            VideoPlayer = null;
+                        }
+                        else
+                        {
+                            HelpEntries.Reset();
+                            VideoPlayer = new VideoPlayer();
+                            ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", ActiveTopic.VideoPath));
+                            VideoPlayer.Play(ActiveVideo);
+                            VideoPlayer.Pause();
+                        }
                     }
+                }
             }
             return base.HandleInput(input);
         }
