@@ -261,12 +261,12 @@ namespace Ship_Game.AI
             {
                 if (Target == null)
                     Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
-                var fleetPositon = Owner.fleet.FindAveragePosition() + FleetNode.FleetOffset;
-                if (Target.Center.OutsideRadius(fleetPositon, FleetNode.OrdersRadius))
+                Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                if (Target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                 {
-                    if (Owner.Center.OutsideRadius(fleetPositon, 1000))
+                    if (Owner.Center.OutsideRadius(nodePos, 1000))
                     {
-                        ThrustOrWarpToPosCorrected(fleetPositon, elapsedTime);
+                        ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
                         return;
                     }
                     DoHoldPositionCombat(elapsedTime);

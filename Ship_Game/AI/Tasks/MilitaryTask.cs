@@ -407,9 +407,8 @@ namespace Ship_Game.AI.Tasks
                                         Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
                                             if (rel != null && (rel.AtWar || rel.PreparingForWar))
                                             {
-                                                if (Vector2.Distance(Owner.GetFleetsDict()[WhichFleet].FindAveragePosition(), TargetPlanet.Center) < AORadius)
+                                                if (Owner.GetFleetsDict()[WhichFleet].AveragePosition().Distance(TargetPlanet.Center) < AORadius)
                                                     Step = 2;
-
                                                 return;
                                             }
                                         }
