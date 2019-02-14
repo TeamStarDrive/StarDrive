@@ -102,8 +102,8 @@ namespace Ship_Game
         public bool canBuildTroopShips;
         public bool canBuildSupportShips;
         public float currentMilitaryStrength;
-        public float freighterBudget;
-        public float cargoNeed = 0;
+        //public float freighterBudget;
+        //public float cargoNeed = 0;
         public float MaxResearchPotential = 10;
         public float MaxColonyValue { get; private set; }
         public Ship BestPlatformWeCanBuild { get; private set; }
@@ -119,15 +119,16 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Array<string> TroopShipTech   = new Array<string>();
         [XmlIgnore][JsonIgnore] public Array<string> CarrierTech     = new Array<string>();
         [XmlIgnore][JsonIgnore] public Array<string> SupportShipTech = new Array<string>();
-        [XmlIgnore][JsonIgnore] public Ship BoardingShuttle => ResourceManager.ShipsDict["Assault Shuttle"];
-        [XmlIgnore][JsonIgnore] public Ship SupplyShuttle   => ResourceManager.ShipsDict["Supply_Shuttle"];
-        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints = Empty<Planet>.Array;
+        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints          = Empty<Planet>.Array;
+        [XmlIgnore][JsonIgnore] public Ship BoardingShuttle     => ResourceManager.ShipsDict["Assault Shuttle"];
+        [XmlIgnore][JsonIgnore] public Ship SupplyShuttle       => ResourceManager.ShipsDict["Supply_Shuttle"];
+        [XmlIgnore][JsonIgnore] public int FreighterCap         => OwnedPlanets.Count * 3 + GetResStrat().ExpansionPriority;
+        [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue => 1 + GetResStrat().IndustryPriority;
+        [XmlIgnore][JsonIgnore] public int TotalFreighters      => OwnedShips.Count(s => s.IsFreighter);
+        [XmlIgnore][JsonIgnore] public bool IsCybernetic        => data.Traits.Cybernetic != 0;
+        [XmlIgnore][JsonIgnore] public bool NonCybernetic       => data.Traits.Cybernetic == 0;
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
-
-        [XmlIgnore][JsonIgnore] public bool IsCybernetic  => data.Traits.Cybernetic != 0;
-        [XmlIgnore][JsonIgnore] public bool NonCybernetic => data.Traits.Cybernetic == 0;
-
 
         // Income this turn before deducting ship maintenance
         public float GrossIncome              => GrossPlanetIncome + TradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
@@ -2074,7 +2075,6 @@ namespace Ship_Game
                 return;
             if (!isPlayer)
             {
-                //AssessFreighterNeeds();
                 DoFreight();
                 AssignExplorationTasks();
             }
@@ -2082,7 +2082,6 @@ namespace Ship_Game
             {
                 if (AutoFreighters)
                     DoFreight();
-                    //AssessFreighterNeeds();
                 if (AutoExplore)
                     AssignExplorationTasks();
             }
@@ -2395,11 +2394,30 @@ namespace Ship_Game
 
         private void DoFreight()
         {
-            if (NonCybernetic)
+            // Cybernetic factions never touch Food trade. Filthy Opteris are disgusted by protein-bugs. Ironic.
+            if (NonCybernetic) 
                 DispatchFreighters(Goods.Food);
 
             DispatchFreighters(Goods.Production);
             DispatchFreighters(Goods.Colonists);
+            UpdateFreighterTimersAndScrap();
+        }
+
+        private void UpdateFreighterTimersAndScrap()
+        {
+            Ship[] ownedFreighters = OwnedShips.Filter(s => s.IsFreighter);
+            for (int i = 0; i < ownedFreighters.Length; ++i)
+            {
+                Ship freighter = ownedFreighters[i];
+                if (freighter.IsIdleFreighter)
+                {
+                    freighter.TradeTimer -= 5;
+                    if (freighter.TradeTimer < 0)
+                        freighter.AI.OrderScrapShip();
+                }
+                else
+                    freighter.TradeTimer = 300;
+            }
         }
 
         private void DispatchFreighters(Goods goods)
@@ -2414,7 +2432,10 @@ namespace Ship_Game
 
             Ship[] idleFreighters = OwnedShips.Filter(s => s.IsIdleFreighter);
             if (idleFreighters.Length == 0)
-                return; // todo - need to build more freighters
+            {
+                BuildFreighter();
+                return;
+            }
 
             foreach (Planet importer in importingPlanets)
             {
@@ -2429,6 +2450,13 @@ namespace Ship_Game
                 closestIdleFreighter.AI.SetupFreighterPlan(exporter, importer, goods);
             }
         }
+        private void BuildFreighter()
+        {
+            int freightersBuilding = EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
+            if (FreighterCap > TotalFreighters + freightersBuilding && MaxFreightersInQueue > freightersBuilding)
+                EmpireAI.Goals.Add(new IncreaseFreighters(this));
+        }
+
 
         private void AssessFreighterNeeds()
         {
