@@ -10,20 +10,19 @@ namespace Ship_Game.AI
     public sealed partial class EmpireAI
     {
         /// <summary>
-        /// This uses difficult and empire personality to set the colonization goal count. 
+        /// This uses difficulty and empire personality to set the colonization goal count. 
         /// </summary>
         private int DesiredColonyGoals
         {
             get
             {
-                int baseVal = 2;
-                int difMod = (int)CurrentGame.Difficulty;
-                difMod = (int)(difMod * OwnerEmpire.GetResStrat().ExpansionRatio);
-                int econmicPersonalityMod = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
+                float baseValue = 1.0f;
+                float difMod = (float)CurrentGame.Difficulty;
+                difMod *= OwnerEmpire.GetResStrat().ExpansionRatio;
+                int plusColonyGoals = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
 
-                //int waiting = Goals.FilterBy(g => g.type == GoalType.Colonize && (g as MarkForColonization)?.WaitingForEscort == true).Length;
-
-                return baseVal + difMod + econmicPersonalityMod;// + waiting;
+                float goals = (float)System.Math.Round(baseValue + difMod + plusColonyGoals);
+                return (int)goals.Clamped(1f, 5f);
             }
         }
 
@@ -56,19 +55,20 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoColonize)
                 return;
-                Planet[] markedPlanets = GetMarkedPlanets();
-            if (markedPlanets.Length > DesiredColonyGoals)
+
+            Planet[] markedPlanets = GetMarkedPlanets();
+            if (markedPlanets.Length >= DesiredColonyGoals)
                 return;            
 
-            var allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
-
-            if (allPlanetsRanker.Count < 1)
+            Array<Goal.PlanetRanker> allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
+            if (allPlanetsRanker.IsEmpty)
                 return;
 
-            DesiredPlanets = allPlanetsRanker.Sorted(v => -(v.Value - (v.OutOfRange ? 1 :0))).Select(p => p.Planet);
+            DesiredPlanets = allPlanetsRanker
+                .Sorted(v => -(v.Value - (v.OutOfRange ? 1 :0)))
+                .Select(p => p.Planet);
 
-            if (DesiredPlanets.Length == 0)
-                return;
+            Log.Info(System.ConsoleColor.Magenta, $"ExpansionPlanner {OwnerEmpire} | marked:{markedPlanets.Length} < desired:{DesiredColonyGoals} | MarkForColonization {DesiredPlanets[0]}");
             Goals.Add(new MarkForColonization(DesiredPlanets[0], OwnerEmpire));
         }
 
