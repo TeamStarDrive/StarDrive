@@ -4,7 +4,6 @@ using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.UI;
-using Ship_Game.UI.Effects;
 
 namespace Ship_Game
 {
@@ -90,6 +89,9 @@ namespace Ship_Game
 
         public override void Update(float deltaTime)
         {
+            if (!Visible)
+                return;
+
             base.Update(deltaTime);
 
             for (int i = 0; i < Elements.Count; ++i)
@@ -121,9 +123,9 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
-            if (!RequiresLayout || !Visible)
-                return;
             RequiresLayout = false;
+            for (int i = 0; i < Elements.Count; ++i)
+                Elements[i].PerformLayout();
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -342,15 +344,18 @@ namespace Ship_Game
             {
                 UIElementV2 e = candidates[i];
                 float delay = time * (i / (float)candidates.Count);
-                Vector2 begin = direction > 0f ? e.Pos : e.Pos + offset;
+                Vector2 start = direction > 0f ? e.Pos : e.Pos + offset;
                 Vector2 end   = direction < 0f ? e.Pos : e.Pos + offset;
-                e.AddEffect(new UITransitionEffect(e, begin, end, delay, time));
+                e.AddEffect(new UIBasicAnimEffect(e)
+                    .FadeIn(delay, time)
+                    .Pos(start, end)
+                    .Sfx(null, "blip_click"));
             }
         }
 
-        public UIFadeInEffect StartFadeIn(float fadeInTime, float delay = 0f)
+        public UIBasicAnimEffect StartFadeIn(float fadeInTime, float delay = 0f)
         {
-            var fx = new UIFadeInEffect(this, fadeInTime, delay);
+            var fx = new UIBasicAnimEffect(this).FadeIn(delay, fadeInTime);
             AddEffect(fx);
             return fx;
         }

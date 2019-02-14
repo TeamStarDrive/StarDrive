@@ -21,8 +21,8 @@ namespace Ship_Game
             fade = true;
             IsPopup = true;
             FromGame = true;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0);
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0f;
             TechEntry techEntry = EmpireManager.Player.GetTechEntry(uid);
             if (techEntry == null)
                 return;

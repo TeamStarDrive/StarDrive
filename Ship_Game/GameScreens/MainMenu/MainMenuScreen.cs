@@ -60,8 +60,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
-            TransitionOnTime  = TimeSpan.FromSeconds(1);
-            TransitionOffTime = TimeSpan.FromSeconds(0.5);
+            TransitionOnTime  = 1.0f;
+            TransitionOffTime = 0.5f;
         }
         
         static void OnModChanged(FileInfo info)
@@ -75,7 +75,6 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override void LoadContent()
         {
-            base.LoadContent();
             ScreenManager.ClearScene();
             ResetMusic();
             LayoutParser.LoadLayout(this, "UI/MainMenu.yaml");
@@ -106,8 +105,9 @@ namespace Ship_Game.GameScreens.MainMenu
             list.PerformLayout();
 
             // Animate the buttons in and out
-            list.StartTransition<UIButton>(new Vector2(512, 0), -1f, 0.8f);
-            OnExit += () => list.StartTransition<UIButton>(new Vector2(512, 0), +1f, 1.0f);
+            var animOffset = new Vector2(512f * (ScreenWidth / 1920f), 0);
+            list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
+            OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
             
             SDLogoAnim = Add(new UISpriteElement(this, "MainMenu/Stardrive logo"));
             SDLogoAnim.Animation.FreezeAtLastFrame = layout.FreezeSDLogo;
@@ -159,6 +159,7 @@ namespace Ship_Game.GameScreens.MainMenu
             CreateAnimatedOverlays(moonCenter, layout);
             CreateVersionArea();
 
+            base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
         }
 

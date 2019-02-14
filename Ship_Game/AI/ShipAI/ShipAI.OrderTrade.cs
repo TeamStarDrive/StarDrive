@@ -192,14 +192,17 @@ namespace Ship_Game.AI
             Planet[] planets = GetTradePlanets(good, Planet.GoodState.IMPORT);
             if (planets.Length <= 0)
                 return false;
+
             TradeAI.TradeRoute[] tradeRoutes = GetTradeRoutes(good, planets);
-            if (tradeRoutes.Length == 0) return false;
+            if (tradeRoutes.Length == 0)
+                return false;
+
             tradeRoutes.Sort(tr => tr.Eta);
-            var route = tradeRoutes[0];
+            TradeAI.TradeRoute route = tradeRoutes[0];
             if (route.End == null)
                 return false;
-            end = route.End;
 
+            end = route.End;
             if (Owner.GetCargo(good) <= 0)
                 start = route.Start;
 
@@ -272,7 +275,7 @@ namespace Ship_Game.AI
         public void OrderTransportPassengers(float elapsedTime)
         {
             Owner.TradeTimer -= elapsedTime;
-            if ( Owner.CargoSpaceMax <= 0f || State == AIState.Flee || Owner.isConstructor) //Owner.TradeTimer > 0f ||
+            if (Owner.CargoSpaceMax <= 0f || State == AIState.Flee || Owner.isConstructor)
                 return;
 
             if (ShouldSuspendTradeDueToCombat())
@@ -281,6 +284,7 @@ namespace Ship_Game.AI
                 return;
             }
 
+            // this initializes start/end
             if (DeliverShipment(Goods.Colonists))
             {
                 State             = AIState.PassengerTransport;

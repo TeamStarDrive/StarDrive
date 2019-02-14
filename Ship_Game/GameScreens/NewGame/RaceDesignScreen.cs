@@ -93,8 +93,8 @@ namespace Ship_Game
         {
             MainMenu = mainMenu;
             IsPopup = true;
-            TransitionOnTime = TimeSpan.FromSeconds(1);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime = 1.0f;
+            TransitionOffTime = 0.25f;
             foreach (RacialTrait t in ResourceManager.RaceTraits.TraitList)
             {
                 AllTraits.Add(new TraitEntry { trait = t });
@@ -286,7 +286,7 @@ namespace Ship_Game
             batch.Begin();
             float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
             Rectangle r = ChooseRaceMenu.Menu;
-            if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
+            if (IsTransitioning)
             {
                 r.X -= (int)(transitionOffset * 256f);
             }
@@ -296,7 +296,7 @@ namespace Ship_Game
             RaceArchetypeSL.TransitionUpdate(r);
             RaceArchetypeSL.Draw(batch);
             r = dslrect;
-            if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
+            if (IsTransitioning)
             {
                 r.X += (int)(transitionOffset * 256f);
             }
@@ -394,7 +394,7 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
             batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
             r = Description.Menu;
-            if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
+            if (IsTransitioning)
             {
                 r.X += (int)(transitionOffset * 400f);
             }

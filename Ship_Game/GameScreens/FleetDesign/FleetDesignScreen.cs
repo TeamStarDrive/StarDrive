@@ -113,21 +113,12 @@ namespace Ship_Game
 
         private readonly Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
 
-
-        public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, Fleet f) : base(parent)
-        {
-            SelectedFleet = f;
-            EmpireUI = empireUI;
-            TransitionOnTime = TimeSpan.FromSeconds(0.75);
-        }
-
         public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
         {
-            if (!string.IsNullOrEmpty(audioCue))
-                GameAudio.PlaySfxAsync(audioCue);
+            GameAudio.PlaySfxAsync(audioCue);
             SelectedFleet = new Fleet();
             EmpireUI = empireUI;
-            TransitionOnTime = TimeSpan.FromSeconds(0.75);
+            TransitionOnTime = 0.75f;
             EmpireUI.empire.UpdateShipsWeCanBuild();
             Open = true;
         }
@@ -400,7 +391,7 @@ namespace Ship_Game
                     break;
                 }
                 Rectangle r = rect.Value;
-                float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * k / numEntries) / 0.5f, 0f, 1f);
+                float transitionOffset = ((TransitionPosition - 0.5f * k / numEntries) / 0.5f).Clamped(0f, 1f);
                 k--;
                 if (ScreenState != ScreenState.TransitionOn)
                 {
@@ -1822,6 +1813,8 @@ namespace Ship_Game
                     ClickableSquads.Add(cs);
                 }
             }
+
+            SelectedFleet.Direction = Vectors.Up;
             SelectedFleet.AssembleFleet2(SelectedFleet.Direction);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }

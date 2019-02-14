@@ -397,8 +397,8 @@ namespace Ship_Game
                 CameraVelocity.Y = 0.0f;
             }
 
-            CameraVelocity.X = MathHelper.Clamp(CameraVelocity.X, -10f, 10f);
-            CameraVelocity.Y = MathHelper.Clamp(CameraVelocity.Y, -10f, 10f);
+            CameraVelocity.X = CameraVelocity.X.Clamped(-10f, 10f);
+            CameraVelocity.Y = CameraVelocity.Y.Clamped(-10f, 10f);
         }
 
         private bool HandleShipHullListSelection(InputState input)
