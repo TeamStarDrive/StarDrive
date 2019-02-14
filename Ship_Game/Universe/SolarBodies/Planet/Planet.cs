@@ -52,14 +52,14 @@ namespace Ship_Game
         public float RepairPerTurn;
 
         public bool RecentCombat => TroopManager.RecentCombat;
-        public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
-        public int GetDefendingTroopCount() => TroopManager.NumDefendingTroopCount;
-        public bool AnyOfOurTroops(Empire us) => TroopManager.WeHaveTroopsHere(us);
+        public int   CountEmpireTroops(Empire us)     => TroopManager.NumEmpireTroops(us);
+        public int   GetDefendingTroopCount()         => TroopManager.NumDefendingTroopCount;
+        public bool  AnyOfOurTroops(Empire us)        => TroopManager.WeHaveTroopsHere(us);
         public float GetGroundStrength(Empire empire) => TroopManager.GroundStrength(empire);
-        public int GetPotentialGroundTroops() => TroopManager.GetPotentialGroundTroops();
-        public float GetGroundStrengthOther(Empire AllButThisEmpire) => TroopManager.GroundStrengthOther(AllButThisEmpire);
-        public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
-        public int GetGroundLandingSpots() => TroopManager.NumGroundLandingSpots();
+        public int   GetPotentialGroundTroops()       => TroopManager.GetPotentialGroundTroops();
+        public float GetGroundStrengthOther(Empire except) => TroopManager.GroundStrengthOther(except);
+        public bool  TroopsHereAreEnemies(Empire empire)   => TroopManager.TroopsHereAreEnemies(empire);
+        public int   GetGroundLandingSpots()               => TroopManager.NumGroundLandingSpots();
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
         public float AvgPopulationGrowth { get; private set; }
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;

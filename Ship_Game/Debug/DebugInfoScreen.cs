@@ -329,7 +329,7 @@ namespace Ship_Game.Debug
             {
                 Fleet fleet = Screen.SelectedFleet;
                 DrawArrowImm(fleet.Position, fleet.Position+fleet.Direction*200f, Color.OrangeRed);
-                foreach (Ship ship in fleet.GetShips)
+                foreach (Ship ship in fleet.Ships)
                     VisualizeShipGoal(ship, false);
 
                 if (fleet.FleetTask != null)
@@ -357,7 +357,7 @@ namespace Ship_Game.Debug
             {
                 ShipGroup group = Screen.ProjectedGroup;
                 DrawArrowImm(group.Position, group.Position+group.Direction*200f, Color.OrangeRed);
-                foreach (Ship ship in group.GetShips)
+                foreach (Ship ship in group.Ships)
                     VisualizeShipGoal(ship, false);
 
                 DrawString($"ShipGroup ({group.CountShips})  x {(int)group.Position.X} y {(int)group.Position.Y}");

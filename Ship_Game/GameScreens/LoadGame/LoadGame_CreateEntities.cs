@@ -431,8 +431,7 @@ namespace Ship_Game
                     }
 
                     e.GetFleetsDict()[fleetsave.Key].SetSpeed();
-                    fleet.FindAveragePositionset();
-                    fleet.Setavgtodestination();
+                    fleet.CalculateDistanceToMove();
                 }
             }
         }
