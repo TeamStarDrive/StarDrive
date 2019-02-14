@@ -43,14 +43,14 @@ namespace Ship_Game
         }
 
         
-        public bool ShortOnFood()
+        /*public bool ShortOnFood()
         {
             if (Owner?.isFaction ?? true)
                 return false;
             float incoming = IsCybernetic ? IncomingProduction : IncomingFood;
             float food = Storage.RaceFood + incoming;
             return (food / Storage.Max) < 0.1f;
-        }
+        }*/
 
         void DebugImportFood(float predictedFood, string text) =>
             Empire.Universe?.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", DebugModes.Trade);
