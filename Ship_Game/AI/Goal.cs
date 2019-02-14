@@ -180,7 +180,7 @@ namespace Ship_Game.AI
                 Value                  = baseValue / distanceInJumps;
                 OutOfRange             = PlanetToFarToColonize(planet, empire);
 
-                if (Value < .3f)
+                if (Value < 0.3f)
                     CantColonize = true;
                 
                 if (enemyStr > 0)

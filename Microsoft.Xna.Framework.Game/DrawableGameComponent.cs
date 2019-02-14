@@ -12,40 +12,12 @@ namespace Microsoft.Xna.Framework
 {
     public class DrawableGameComponent : GameComponent, IDrawable
     {
-        private bool visible = true;
         private bool initialized;
-        private int drawOrder;
         private IGraphicsDeviceService deviceService;
 
-        public bool Visible
-        {
-            get
-            {
-                return visible;
-            }
-            set
-            {
-                if (visible == value)
-                    return;
-                visible = value;
-                OnVisibleChanged(this, EventArgs.Empty);
-            }
-        }
+        public bool Visible { get; set; } = true;
 
-        public int DrawOrder
-        {
-            get
-            {
-                return drawOrder;
-            }
-            set
-            {
-                if (drawOrder == value)
-                    return;
-                drawOrder = value;
-                OnDrawOrderChanged(this, EventArgs.Empty);
-            }
-        }
+        public int DrawOrder { get; set; }
 
         public GraphicsDevice GraphicsDevice
         {
@@ -56,10 +28,6 @@ namespace Microsoft.Xna.Framework
                 return deviceService.GraphicsDevice;
             }
         }
-
-        public event EventHandler VisibleChanged;
-
-        public event EventHandler DrawOrderChanged;
 
         public DrawableGameComponent(Game game) : base(game)
         {
@@ -129,16 +97,6 @@ namespace Microsoft.Xna.Framework
 
         protected virtual void UnloadContent()
         {
-        }
-
-        protected virtual void OnDrawOrderChanged(object sender, EventArgs args)
-        {
-            DrawOrderChanged?.Invoke(this, args);
-        }
-
-        protected virtual void OnVisibleChanged(object sender, EventArgs args)
-        {
-            VisibleChanged?.Invoke(this, args);
         }
     }
 }

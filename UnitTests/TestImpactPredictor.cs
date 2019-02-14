@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Diagnostics;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -8,43 +9,13 @@ using Ship_Game.Gameplay;
 namespace UnitTests
 {
     [TestClass]
-    public class TestImpactPredictor
+    public partial class TestImpactPredictor
     {
         Vector2 Pos(float x, float y) => new Vector2(x, y);
-        Vector2 Vel(float x, float y) => new Vector2(x, y);
-        Vector2 Acc(float x, float y) => new Vector2(x, y);
-        Vector2 Vec(float x, float y) => new Vector2(x, y);
         
         static readonly Vector2 Zero    = new Vector2(0,0);
-        static readonly Vector2 ZeroPos = new Vector2(0,0);
         static readonly Vector2 ZeroVel = new Vector2(0,0);
         static readonly Vector2 ZeroAcc = new Vector2(0,0);
-
-        static Vector2 Predict(Vector2 pos, Vector2 vel, float speed,
-                               Vector2 targetPos, Vector2 targetVel, Vector2 targetAcc)
-        {
-            var p = new ImpactPredictor(pos, vel, speed, targetPos, targetVel, targetAcc);
-            return p.Predict(true);
-        }
-
-        static Vector2 PredictMovePos(Vector2 pos, Vector2 vel, float interceptSpeed,
-                                      Vector2 targetPos, Vector2 targetVel, Vector2 targetAcc)
-        {
-            var p = new ImpactPredictor(pos, vel, interceptSpeed, targetPos, targetVel, targetAcc);
-            return p.PredictMovePos();
-        }
-
-        static Vector2 Predict(in TargetUs t, float interceptSpeed)
-        {
-            var p = new ImpactPredictor(t.Us, t.UsVel, interceptSpeed, t.Tgt, t.TgtVel, ZeroAcc);
-            return p.Predict(true);
-        }
-
-        static Vector2 PredictMovePos(in TargetUs t)
-        {
-            var p = new ImpactPredictor(t.Us, t.UsVel, 0f, t.Tgt, t.TgtVel, ZeroAcc);
-            return p.PredictMovePos();
-        }
 
         [TestMethod]
         public void TimeToTarget()
@@ -60,156 +31,144 @@ namespace UnitTests
             //   * Tgt no vel
             //
             //   * Us  no vel
-            Vector2 tgt = Pos(10, -10);
-            Vector2 us  = Pos(10, +10);
-
-            Assert.AreEqual(tgt, Predict(us, ZeroVel,   0, tgt, ZeroVel, ZeroAcc));
-            Assert.AreEqual(tgt, Predict(us, ZeroVel, 100, tgt, ZeroVel, ZeroAcc));
-
-            Assert.AreEqual(tgt, PredictMovePos(us, ZeroVel,   0, tgt, ZeroVel, ZeroAcc));
-            Assert.AreEqual(tgt, PredictMovePos(us, ZeroVel, 100, tgt, ZeroVel, ZeroAcc));
-        }
-
-        struct TargetUs
-        {
-            public readonly Vector2 Tgt;
-            public readonly Vector2 Us;
-            public readonly Vector2 TgtVel;
-            public readonly Vector2 UsVel;
-            public TargetUs(Vector2 tgt, Vector2 us, Vector2 tgtVel, Vector2 usVel)
-            {
-                Tgt    = tgt;
-                Us     = us;
-                TgtVel = tgtVel;
-                UsVel  = usVel;
-            }
-            public override string ToString() => $"tgt:{Tgt} us:{Us} tgtVel:{TgtVel} usVel:{UsVel}";
+            var s = new Scenario(tgt:Pos(0,0), us:Pos(0,500), tgtVel:ZeroVel, usVel:ZeroVel);
+            s.TestPredictStationary();
         }
 
         [TestMethod]
         public void TargetStoppedUsMovingToTarget()
         {
-            var scenarios = new Array<TargetUs>
-            {
-                //   * Tgt
-                //
-                //   A
-                //   | 
-                //   * Us
-                new TargetUs(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Zero, usVel:Vectors.Up * 2),
-                //   * Us +Y
-                //   |
-                //   V
-                //
-                //   * Tgt
-                new TargetUs(tgt:Pos(10, 10),  us:Pos(10, -10), tgtVel:Zero, usVel:Vectors.Down * 2),
-                //  Us    Tgt
-                //   *-->  *
-                new TargetUs(tgt:Pos(10, 5),   us:Pos(-10, 5),  tgtVel:Zero, usVel:Vectors.Right * 2),
-                //  Tgt    Us
-                //   *  <--*
-                new TargetUs(tgt:Pos(-10, 5),  us:Pos(10, 5),   tgtVel:Zero, usVel:Vectors.Left * 2),
-                //   * Us diagonally flying towards Them
-                //    \
-                //     V
-                //
-                //       * Them
-                new TargetUs(tgt:Pos(10, 10), us:Pos(-10, -10),  tgtVel:Zero, usVel:Vel(1,1) * 2),
-                //   * Them
-                //
-                //     A
-                //      \
-                //       * Us diagonally flying towards Them
-                new TargetUs(tgt:Pos(-10, -10), us:Pos(10, 10),  tgtVel:Zero, usVel:Vel(-1,-1) * 2)
-            };
+            //   * Tgt
+            //
+            //   A
+            //   | 
+            //   * Us
+            var s1 = new Scenario(tgt:Pos(0, 500), us:Pos(0, 0), tgtVel:Zero, usVel:Vectors.Up * 100);
+            s1.TestPredictStationary();
 
-            foreach (TargetUs scenario in scenarios)
-            {
-                Console.WriteLine($"Scenario {scenario}");
-                // regardless of speed, the position must always be TARGET
-                Assert.AreEqual(scenario.Tgt, Predict(scenario, 10));
-                Assert.AreEqual(scenario.Tgt, Predict(scenario, 5));
-                Assert.AreEqual(scenario.Tgt, Predict(scenario, scenario.UsVel.Length()));
+            //   * Us +Y
+            //   |
+            //   V
+            //
+            //   * Tgt
+            var s2 = new Scenario(tgt:Pos(10, 10),  us:Pos(10, -10), tgtVel:Zero, usVel:Vectors.Down * 100);
+            s2.TestPredictStationary();
 
-                // Make sure MovePos is also TARGET
-                Assert.AreEqual(scenario.Tgt, PredictMovePos(scenario));
-            }
+            //  Us    Tgt
+            //   *-->  *
+            var s3 = new Scenario(tgt:Pos(10, 5),   us:Pos(-10, 5),  tgtVel:Zero, usVel:Vectors.Right * 100);
+            s3.TestPredictStationary();
+
+            //  Tgt    Us
+            //   *  <--*
+            var s4 = new Scenario(tgt:Pos(-10, 5),  us:Pos(10, 5),   tgtVel:Zero, usVel:Vectors.Left * 100);
+            s4.TestPredictStationary();
+
+            //   * Us diagonally flying towards Them
+            //    \
+            //     V
+            //
+            //       * Them
+            var s5 = new Scenario(tgt:Pos(10, 10), us:Pos(-10, -10),  tgtVel:Zero, usVel:Vectors.BotRight * 100);
+            s5.TestPredictStationary();
+
+            //   * Them
+            //
+            //     A
+            //      \
+            //       * Us diagonally flying towards Them
+            var s6 = new Scenario(tgt:Pos(-10, -10), us:Pos(10, 10),  tgtVel:Zero, usVel:Vectors.TopLeft * 100);
+            s6.TestPredictStationary();
         }
 
         [TestMethod]
         public void UsStoppedTargetMovingToUs()
         {
-            var scenarios = new Array<TargetUs>
-            {
-                //   * Tgt
-                //   |
-                //   V
-                //    
-                //   * Us
-                new TargetUs(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Vectors.Down*2, usVel:Zero),
-                //   * Us +Y
-                //   
-                //   A
-                //   |
-                //   * Tgt
-                new TargetUs(tgt:Pos(10, 10),  us:Pos(10, -10), tgtVel:Vectors.Up*2, usVel:Zero),
-                //  Us    Tgt
-                //   *  <--*
-                new TargetUs(tgt:Pos(10, 5),   us:Pos(-10, 5),  tgtVel:Vectors.Left*2, usVel:Zero),
-                //  Tgt    Us
-                //   *-->  *
-                new TargetUs(tgt:Pos(-10, 5),  us:Pos(10, 5),   tgtVel:Vectors.Right*2, usVel:Zero),
-                //   * Us
-                //    
-                //     A
-                //      \
-                //       * Them
-                new TargetUs(tgt:Pos(10, 10), us:Pos(-10, -10),  tgtVel:Vel(-2,-2), usVel:Zero),
-                //   * Them
-                //    \
-                //     V
-                //      
-                //       * Us diagonally flying towards Them
-                new TargetUs(tgt:Pos(-10, -10), us:Pos(10, 10),  tgtVel:Vel(2,2), usVel:Zero)
-            };
+            //   * Tgt
+            //   |
+            //   V
+            //    
+            //   * Us
+            var s1 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.Down*100, usVel:Zero);
+            s1.TestAndSimulate(0, 45, 1000); // fast projectile, hits target before it can really move
+            s1.TestAndSimulate(0, 0,  100);  // edge case, vel == speed, must return TargetPos
+            s1.TestAndSimulate(0, 495, 1);   // ultra slow projectile
+            s1.TestMovePos(expected:s1.Tgt);
 
-            foreach (TargetUs scenario in scenarios)
-            {
-                Console.WriteLine($"Scenario {scenario}");
-                // regardless of speed, the position must always be TARGET
-                Assert.AreEqual(scenario.Tgt, Predict(scenario, 10));
-                Assert.AreEqual(scenario.Tgt, Predict(scenario, 5));
-                Assert.AreEqual(scenario.Tgt, Predict(scenario, scenario.UsVel.Length()));
+            //   * Us +Y
+            //   
+            //   A
+            //   |
+            //   * Tgt
+            var s2 = new Scenario(tgt:Pos(0, 500), us:Pos(0, 0), tgtVel:Vectors.Up*100, usVel:Zero);
+            s2.TestAndSimulate(0, 454, 1000);
+            s2.TestAndSimulate(0, 500, 100); // edge case, vel == speed, must return TargetPos
+            s2.TestAndSimulate(0, 5, 1);
+            s2.TestMovePos(expected:s2.Tgt);
 
-                // Make sure MovePos is also TARGET
-                Assert.AreEqual(scenario.Tgt, PredictMovePos(scenario));
-            }
+            //  Us    Tgt
+            //   *  <--*
+            var s3 = new Scenario(tgt:Pos(500, 0), us:Pos(0, 0), tgtVel:Vectors.Left*100, usVel:Zero);
+            s3.TestAndSimulate(454, 0, 1000);
+            s3.TestAndSimulate(500, 0, 100); // edge case, vel == speed, must return TargetPos
+            s3.TestAndSimulate(5, 0, 1);
+            s3.TestMovePos(expected:s3.Tgt);
+
+            //  Tgt    Us
+            //   *-->  *
+            var s4 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 0), tgtVel:Vectors.Right*100, usVel:Zero);
+            s4.TestAndSimulate(45, 0, 1000);
+            s4.TestAndSimulate(0, 0, 100); // edge case, vel == speed, must return TargetPos
+            s4.TestAndSimulate(495, 0, 1);
+            s4.TestMovePos(expected:s4.Tgt);
+
+            //   * Us
+            //    
+            //     A
+            //      \
+            //       * Tgt
+            var s5 = new Scenario(tgt:Pos(500, 500), us:Pos(0, 0), tgtVel:Vectors.TopLeft*100, usVel:Zero);
+            s5.TestAndSimulate(438, 438, 1000);
+            s5.TestAndSimulate(207, 207, 100);
+            s5.TestAndSimulate(3, 3, 1);
+            s5.TestMovePos(expected:s5.Tgt);
+
+            //   * Tgt
+            //    \
+            //     V
+            //      
+            //       * Us diagonally flying towards Them
+            var s6 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 500), tgtVel:Vectors.BotRight*100, usVel:Zero);
+            s6.TestAndSimulate(62, 62, 1000);
+            s6.TestAndSimulate(293, 293, 100);
+            s6.TestAndSimulate(497, 497, 1);
+            s6.TestMovePos(expected:s6.Tgt);
         }
+
 
         [TestMethod]
         public void UsStoppedTargetMovingAway()
         {
-            // Tgt *---> 2m/s
+            // Tgt *---> 100m/s
             //     
             //     * Us
-            var scenario1 = new TargetUs(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Vectors.Right*2f, usVel:Zero);
-            
-            Console.WriteLine($"Scenario {scenario1}");
-            Assert.That.Equal(0.1f, Pos(10.4f, -10), Predict(scenario1, 100));
-            Assert.That.Equal(0.1f, Pos(14.0f, -10), Predict(scenario1, 10));
-            Assert.That.Equal(0.1f, Pos(30.0f, -10), Predict(scenario1, scenario1.TgtVel.Length())); // will never catch it
+            var s1 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.Right*100, usVel:Zero);
+            s1.TestAndSimulate(  50.2f, 0, 1000);
+            s1.TestAndSimulate( 288.7f, 0, 200); // 2x tgt speed, will catch up
+            s1.TestAndSimulate(1091.0f, 0, 110); // will catch up in far future
+            s1.TestAndSimulate(3526.7f, 0, 101); // will catch up in far future
+            s1.TestAndSimulate( 500.0f, 0, s1.TgtVel.Length()); // no solution
 
-            //     A 2m/s
-            //     |
+            //  Us *
+            //
             // Tgt *
-            //     
-            //     * Us
-            var scenario2 = new TargetUs(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Vectors.Up*2f, usVel:Zero);
-            
-            Console.WriteLine($"Scenario {scenario2}");
-            Assert.That.Equal(0.1f, Pos(10, -10.4f), Predict(scenario2, 100));
-            Assert.That.Equal(0.1f, Pos(10, -14.9f), Predict(scenario2, 10));
-            Assert.That.Equal(0.1f, Pos(10, -30.0f), Predict(scenario2, scenario2.TgtVel.Length())); // will never catch it
+            //     |
+            //     V 100m/s
+            var s2 = new Scenario(tgt:Pos(0, 500), us:Pos(0, 0), tgtVel:Vectors.Down*100, usVel:Zero);
+            s2.TestAndSimulate(0, 555.5f, 1000); // SimResult at 0.555s
+            s2.TestAndSimulate(0, 1000, 200);    // 2x tgt speed, will catch up
+            s2.TestAndSimulate(0, 3000, 120);    // SimResult at 23s
+            s2.TestAndSimulate(0, 1000, s2.TgtVel.Length()); // no solution
         }
 
         [TestMethod]
@@ -220,55 +179,118 @@ namespace UnitTests
             // Tgt *
             //     
             //     * Us
-            var scenario1 = new TargetUs(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Vel(2,-2), usVel:Zero);
-            
-            Console.WriteLine($"Scenario {scenario1}");
-            Assert.That.Equal(0.1f, Pos(10.4f, -10.4f), Predict(scenario1, 100));
-            Assert.That.Equal(0.1f, Pos(15.1f, -15.1f), Predict(scenario1, 10));
-            Assert.That.Equal(0.1f, Pos(24.1f, -24.1f), Predict(scenario1, scenario1.TgtVel.Length())); // will never catch it
+            var s1 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.TopRight*100, usVel:Zero);
+            s1.TestAndSimulate(273, -273, 300);
+            s1.TestAndSimulate(683, -683, 200);
+            s1.TestAndSimulate(300, -300, 120); // no solution
+            s1.TestAndSimulate(353.55f, -353.55f, s1.TgtVel.Length()); // no solution
 
             // Tgt *
             //      \
             //       V
             //
             //     * Us
-            var scenario2 = new TargetUs(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Vel(2,2), usVel:Zero);
-            
-            Console.WriteLine($"Scenario {scenario2}");
-            Assert.That.Equal(0.1f, Pos(10.4f, -9.6f), Predict(scenario2, 100));
-            Assert.That.Equal(0.1f, Pos(13.4f, -6.6f), Predict(scenario2, 10));
-            Assert.That.Equal(0.1f, Pos(24.1f, +4.1f), Predict(scenario2, scenario2.TgtVel.Length())); // will never catch it
+            var s2 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.BotRight*100, usVel:Zero);
+            //SimulateAndFire(s2, 120);
+            s2.TestAndSimulate(130, 130, 300);
+            s2.TestAndSimulate(183, 183, 200);
+            s2.TestAndSimulate(300, 300, 120); // no solution
+
+            s2.TestAndSimulate(353.55f, +353.55f, s2.TgtVel.Length(), false); // no solution
 
             // Tgt *
             //      \
             //       \
             //        \
-            //  Us *   V super high speed, it will go past Us in 1 frame
+            //  Us *   V super high speed, it will go past Us in < 1s
             //           so this should do full prediction because it's hopeless.
-            var scenario3 = new TargetUs(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Vel(20,20), usVel:Zero);
-
-            Console.WriteLine($"Scenario {scenario3}");
-            Assert.That.Equal(0.1f, Pos(80.7f, 60.7f), Predict(scenario3, scenario3.TgtVel.Length()*0.2f)); // will never catch it
+            var s3 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.BotRight*1000, usVel:Zero);
+            s2.TestAndSimulate(137, 137, s3.TgtVel.Length()*0.2f, false); // no solution
         }
 
         [TestMethod]
-        public void UsStoppedTargetMovingDiagonally2()
+        public void MovingInParallel1()
         {
-            // Tgt *
-            //      \
-            //       V
-            //
-            //     * Us
-            var scenario1 = new TargetUs(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Vel(2,3), usVel:Zero);
+            // Tgt *---->
+            //  Us *--->
+            var s1 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.Right*100, usVel:Vectors.Right*80);
+            s1.TestAndSimulate(176, 0, 300);
+            s1.TestAndSimulate(288, 0, 200);
+            s1.TestAndSimulate(753, 0, 120);
 
-            Console.WriteLine($"Scenario {scenario1}");
-            Assert.That.Equal(0.1f, Pos(10, -10), Predict(scenario1, scenario1.TgtVel.Length()*0.2f)); // will never catch it
+            // Tgt *----->
+            //  Us *-->
+            var s2 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.Right*150, usVel:Vectors.Right*60);
+            s2.TestAndSimulate(288, 0, 300);
+            s2.TestAndSimulate(566, 0, 200);
+            s2.TestAndSimulate(625, 0, 120); // no solution
 
-            var scenario2 = new TargetUs(tgt:Pos(10, -10), us:Pos(10, 10), tgtVel:Vel(3,3), usVel:Zero);
+            // Tgt *--->
+            // <---* Us
+            var s3 = new Scenario(tgt:Pos(0, 0), us:Pos(0, 500), tgtVel:Vectors.Right*60, usVel:Vectors.Left*60);
+            s3.TestAndSimulate(102, 0, 300);
+            s3.TestAndSimulate(157, 0, 200);
+            s3.TestAndSimulate(288, 0, 120); // no solution
+        }
 
-            Console.WriteLine($"Scenario {scenario2}");
-            Assert.That.Equal(0.1f, Pos(80.7f, 60.71f), Predict(scenario2, scenario2.TgtVel.Length()*0.2f)); // will never catch it
+        [TestMethod]
+        public void MovingInParallel2()
+        {
+            // Tgt *   * Us
+            //     |   |
+            //     V   V
+            var s4 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 0), tgtVel:Vectors.Down*60, usVel:Vectors.Down*60);
+            s4.TestAndSimulate(0, 102, 300);
+            s4.TestAndSimulate(0, 157, 200);
+            s4.TestAndSimulate(0, 288, 120); // no solution
 
+            // Tgt *   * Us
+            //     |   V
+            //     V   
+            var s5 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 0), tgtVel:Vectors.Down*100, usVel:Vectors.Down*50);
+            s5.TestAndSimulate(0, 176, 300);
+            s5.TestAndSimulate(0, 288, 200);
+            s5.TestAndSimulate(0, 753, 120);
+
+            // Tgt *   A
+            //     |   |
+            //     V   * Us
+            var s6 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 500), tgtVel:Vectors.Down*100, usVel:Vectors.Up*100);
+            s6.TestAndSimulate(0, 195, 300);
+            s6.TestAndSimulate(0, 274, 200);
+            s6.TestAndSimulate(0, 421, 120);
+
+            // Tgt *    A
+            //    /    /
+            //   V    * Us
+            var s7 = new Scenario(tgt:Pos(0, 0), us:Pos(500, 500), tgtVel:Vectors.BotLeft*100, usVel:Vectors.TopRight*100);
+            s7.TestAndSimulate(-267, 267, 300);
+            s7.TestAndSimulate(-500, 500, 200);
+            s7.TestAndSimulate(-589, 589, 120); // no solution
+        }
+
+        // This is the final boss. Most messed up situations happen here.
+        [TestMethod]
+        public void MovingChaotic1()
+        {
+            // Tgt    *    This is a typical intercept case, we are flanking them
+            //         \
+            //          V
+            //  Us *--->
+            var s1 = new Scenario(tgt:Pos(500, 0), us:Pos(0, 500), tgtVel:Vectors.BotRight*100, usVel:Vectors.Right*100);
+            s1.TestAndSimulate(767, 267, 300);
+            s1.TestAndSimulate(1000, 500, 200);
+            s1.TestAndSimulate(1089, 589, 120);
+
+            // Tgt    *    They are flanking us
+            //       / 
+            //      V    
+            //  <----* Us
+            var s2 = new Scenario(tgt:Pos(250, 0), us:Pos(0, 500), tgtVel:Vectors.BotLeft*200, usVel:Vectors.Left*100);
+            s2.TestAndSimulate(48, 201, 300);
+            s2.TestAndSimulate(0, 250, 200);
+            s2.TestAndSimulate(-70, 321, 120);
+            s2.TestAndSimulate(-1613, 1863, 60);
         }
     }
 }

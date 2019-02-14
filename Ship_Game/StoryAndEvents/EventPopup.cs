@@ -30,8 +30,8 @@ namespace Ship_Game
             Fade = true;
             IsPopup = true;
             FromGame = true;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0);
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0f;
             foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
             {
                 DrawPackages.Add(packagetype,new Array<DrawPackage>());

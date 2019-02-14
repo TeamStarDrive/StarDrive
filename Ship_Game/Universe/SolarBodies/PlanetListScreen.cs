@@ -51,8 +51,8 @@ namespace Ship_Game
             if(!string.IsNullOrEmpty(audioCue))
                 GameAudio.PlaySfxAsync(audioCue);
             EmpireUI = empireUi;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0.25f;
             IsPopup = true;
             if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
             {

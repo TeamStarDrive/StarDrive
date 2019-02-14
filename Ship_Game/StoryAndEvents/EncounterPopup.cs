@@ -27,8 +27,8 @@ namespace Ship_Game
 			fade = true;
 			IsPopup = true;
 			FromGame = true;
-			TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			TransitionOffTime = TimeSpan.FromSeconds(0);
+			TransitionOnTime = 0.25f;
+			TransitionOffTime = 0f;
 		}
 
 		public override void Draw(SpriteBatch batch)
