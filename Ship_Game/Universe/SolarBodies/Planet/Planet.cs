@@ -39,7 +39,7 @@ namespace Ship_Game
 
         public int CrippledTurns;
         public int TotalDefensiveStrength { get; private set; }
-        
+
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
         public int NumShipyards { get; private set; }
@@ -59,33 +59,45 @@ namespace Ship_Game
         public Array<Ship> IncomingFreighters = new Array<Ship>();
         public Array<Ship> OutgoingFreighters = new Array<Ship>();
 
-        public bool RecentCombat                => TroopManager.RecentCombat;
+        public bool RecentCombat => TroopManager.RecentCombat;
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
-        public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
-        public bool AnyOfOurTroops(Empire us)   => TroopManager.WeHaveTroopsHere(us);
-        public int GetGroundLandingSpots()      => TroopManager.NumGroundLandingSpots();
-        public float MaxConsumption             => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
+        public int GetDefendingTroopCount() => TroopManager.NumDefendingTroopCount;
+        public bool AnyOfOurTroops(Empire us) => TroopManager.WeHaveTroopsHere(us);
+        public int GetGroundLandingSpots() => TroopManager.NumGroundLandingSpots();
+        public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
-        public float GetGroundStrength(Empire empire)   => TroopManager.GroundStrength(empire);
-        public int GetPotentialGroundTroops()           => TroopManager.GetPotentialGroundTroops();
+        public float GetGroundStrength(Empire empire) => TroopManager.GroundStrength(empire);
+        public int GetPotentialGroundTroops() => TroopManager.GetPotentialGroundTroops();
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
 
-        public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
+        public float GetGroundStrengthOther(Empire allButThisEmpire) => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
 
-       
+
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
+        public bool TradeBlocked  => RecentCombat || ParentSystem.CombatInSystem;
 
-        public int FoodExportSlots      => ExportFood ? ((int) (Food.NetIncome / 2) + 1).Clamped(0,5) : 0;
-        public int ProdExportSlots      => ExportProd ? (int)(Prod.NetIncome / 4) + 1 : 0;
-        public int ColonistsExportSlots => ColonistsTradeState == GoodState.EXPORT ? (int)(PopulationBillion / 2): 0;
+        public int FoodExportSlots      => ExportFood ? ((int)(Food.NetIncome / 2) + 1).Clamped(0, 5) : 0;
+        public int ProdExportSlots      => ExportProd ? ((int)(Prod.NetIncome / 2) + 1).Clamped(0, 5) : 0;
+        public int ColonistsExportSlots => ColonistsTradeState == GoodState.EXPORT ? (int)(PopulationBillion / 2) : 0;
 
-        public int FoodImportSlots      => ImportFood && Food.NetIncome < 0 ? Math.Abs((int)(Food.NetIncome)) + 1: 0;
-        public int ProdImportSlots      => ImportProd ? (int)((Storage.Max - Storage.Prod) / 50) + 1: 0;
-        public int ColonistsImportSlots => ColonistsTradeState == GoodState.IMPORT && PopulationRatio < 0.5f ? 
-                                           (int) (MaxPopulationBillion -  PopulationBillion).Clamped(0,5) : 0;
+        public int FoodImportSlots      => ImportFood && ShortOnFood() ? ((int)(2 - Food.NetIncome)).Clamped(0, 5) : 0;
+        public int ColonistsImportSlots => ColonistsTradeState == GoodState.IMPORT && PopulationRatio < 0.5f ?
+                                           (int)(MaxPopulationBillion - PopulationBillion).Clamped(0, 5) : 0;
+
+        public int ProdImportSlots
+        {
+            get
+            {
+                if (Owner != null && Owner.NonCybernetic)
+                    return ImportProd ? (int)((Storage.Max - Storage.Prod) / 50) + 1 : 0;
+
+                return ImportProd && ShortOnFood() ? ((int)(2 - Food.NetIncome)).Clamped(0, 5) : 0;
+            }
+
+        }
 
         public int IncomingFoodFreighters      => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
         public int IncomingProdFreighters      => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Production));
@@ -124,7 +136,6 @@ namespace Ship_Game
                 default:               return 0;
             }
         }
-
 
         public float OrbitalsMaintenance;
 
@@ -338,7 +349,7 @@ namespace Ship_Game
             }
         }
 
-        private void UpdateSpaceCombatBuildings(float elapsedTime)
+        private void UpdateSpaceCombatBuildings(float elapsedTime) // FB - todo need to work on this
         {
             for (int i = 0; i < BuildingList.Count; ++i)
             {
