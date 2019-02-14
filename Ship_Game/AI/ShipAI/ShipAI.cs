@@ -465,10 +465,10 @@ namespace Ship_Game.AI
                     DropBombsAtGoal(toEvaluate, radius);
                     break;
                 case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, toEvaluate); break;
-                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, toEvaluate); break;
-                case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, toEvaluate);      break;
-                case Plan.MakeFinalApproach:         MakeFinalApproach(elapsedTime, toEvaluate);       break;
-                case Plan.RotateInlineWithVelocity:  RotateInLineWithVelocity(elapsedTime);            break;
+                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, toEvaluate);    break;
+                case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, toEvaluate);         break;
+                case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, toEvaluate);        break;
+                case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);             break;
                 case Plan.Orbit:        DoOrbit(planet, elapsedTime); break;
                 case Plan.Colonize:     Colonize(planet);             break;
                 case Plan.Explore:      DoExplore(elapsedTime);       break;
@@ -479,18 +479,18 @@ namespace Ship_Game.AI
                     if (start != null) PickupPassengers();
                     else State = AIState.AwaitingOrders;
                     break;
-                case Plan.DropoffPassengers: DropoffPassengers();  break;
-                case Plan.DeployStructure:   DoDeploy(toEvaluate); break;
-                case Plan.PickupGoods:       DoPickupGoods(elapsedTime, toEvaluate);        break;
-                case Plan.DropOffGoods:      DoDropOffGoods(elapsedTime, toEvaluate);       break;
-                case Plan.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
-                case Plan.TroopToShip:    DoTroopToShip(elapsedTime, toEvaluate);    break;
-                case Plan.BoardShip:      DoBoardShip(elapsedTime);      break;
-                case Plan.SupplyShip:     DoSupplyShip(elapsedTime, toEvaluate);     break;
-                case Plan.Refit:          DoRefit(elapsedTime, toEvaluate);          break;
-                case Plan.LandTroop:      DoLandTroop(elapsedTime, toEvaluate);      break;
-                case Plan.ResupplyEscort: DoResupplyEscort(elapsedTime, toEvaluate); break;
-                case Plan.ReturnHome:     DoReturnHome(elapsedTime);                 break;
+                case Plan.DropoffPassengers: DropoffPassengers();                       break;
+                case Plan.DeployStructure:   DoDeploy(toEvaluate);                      break;
+                case Plan.PickupGoods:       DoPickupGoods(elapsedTime, toEvaluate);    break;
+                case Plan.DropOffGoods:      DoDropOffGoods(elapsedTime, toEvaluate);   break;
+                case Plan.ReturnToHangar:    DoReturnToHangar(elapsedTime);             break;
+                case Plan.TroopToShip:       DoTroopToShip(elapsedTime, toEvaluate);    break;
+                case Plan.BoardShip:         DoBoardShip(elapsedTime);                  break;
+                case Plan.SupplyShip:        DoSupplyShip(elapsedTime, toEvaluate);     break;
+                case Plan.Refit:             DoRefit(elapsedTime, toEvaluate);          break;
+                case Plan.LandTroop:         DoLandTroop(elapsedTime, toEvaluate);      break;
+                case Plan.ResupplyEscort:    DoResupplyEscort(elapsedTime, toEvaluate); break;
+                case Plan.ReturnHome:        DoReturnHome(elapsedTime);                 break;
             }
 
             return false;
@@ -559,6 +559,40 @@ namespace Ship_Game.AI
             }
         }
 
+        public bool WaitForBlockadeRemoval(ShipGoal g, Planet planet, float elapsedTime)
+        {
+            if (planet.TradeBlocked)
+            {
+                g.BlockadeTimer -= elapsedTime;
+                if (g.BlockadeTimer > 0f)
+                    return true;
+
+                // blockade is going on for too long, abort
+                ClearOrders();
+                State = AIState.AwaitingOrders;
+                Planet fallback = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+                if (fallback != planet)
+                    AddShipGoal(Plan.Orbit, fallback, "");
+
+                g.Exporter.RemoveFromOutgoingFreighterList(Owner);
+                g.Importer.RemoveFromIncomingFreighterList(Owner);
+                return true;
+            }
+            g.BlockadeTimer = 120f; // blockade was removed, continue as planned
+            return false;
+        }
+
+        public void SetupFreighterPlan(Planet exporter, Planet importer, Goods goods)
+        {
+            ClearOrders();
+            State = AIState.SystemTrader;
+
+            // if ship has this cargo type on board, proceed to drop it off at destination
+            Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f ? Plan.DropOffGoods : Plan.PickupGoods;
+            AddShipGoal(plan, exporter, importer, goods);
+            importer.AddToIncomingFreighterList(Owner);
+            exporter.AddToOutGoingFreighterList(Owner);
+        }
 
         bool UpdateFreightAI()
         {

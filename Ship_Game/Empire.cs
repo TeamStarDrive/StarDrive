@@ -2395,7 +2395,9 @@ namespace Ship_Game
 
         private void DoFreight()
         {
-            DispatchFreighters(Goods.Food);
+            if (NonCybernetic)
+                DispatchFreighters(Goods.Food);
+
             DispatchFreighters(Goods.Production);
             DispatchFreighters(Goods.Colonists);
         }
@@ -2414,21 +2416,17 @@ namespace Ship_Game
             if (idleFreighters.Length == 0)
                 return; // todo - need to build more freighters
 
-            foreach (Planet importPlanet in importingPlanets)
+            foreach (Planet importer in importingPlanets)
             {
-                Planet exportPlanet = exportingPlanets.FindMin(p => p.Center.SqDist(importPlanet.Center));
-                if (exportPlanet == null) // no more exporting planets
+                Planet exporter = exportingPlanets.FindMin(p => p.Center.SqDist(importer.Center));
+                if (exporter == null) // no more exporting planets
                     break;
 
-                Ship closestIdleFreighter = idleFreighters.FindMin(s => s.Center.SqDist(exportPlanet.Center));
+                Ship closestIdleFreighter = idleFreighters.FindMin(s => s.Center.SqDist(exporter.Center));
                 if (closestIdleFreighter == null) // no more available freighters
                     break;
 
-                closestIdleFreighter.AI.ClearOrders();
-                closestIdleFreighter.AI.State = AIState.SystemTrader;
-                closestIdleFreighter.AI.AddShipGoal(ShipAI.Plan.PickupGoods, exportPlanet, importPlanet, goods);
-                importPlanet.AddToIncomingFreighterList(closestIdleFreighter);
-                exportPlanet.AddToOutGoingFreighterList(closestIdleFreighter);
+                closestIdleFreighter.AI.SetupFreighterPlan(exporter, importer, goods);
             }
         }
 
@@ -2495,7 +2493,7 @@ namespace Ship_Game
                 else ++i;
             }
 
-            TradeBlocked = IsTradeBlocked();
+            TradeBlocked = IsTradeBlocked(); // remove
 
             // assign unused freighters
             while (unusedFreighters.NotEmpty)
@@ -2539,7 +2537,7 @@ namespace Ship_Game
         }
 
 
-        public bool IsTradeBlocked()
+        public bool IsTradeBlocked() // remove
         {
             var allInCombat = true;
             var noImport    = true;
