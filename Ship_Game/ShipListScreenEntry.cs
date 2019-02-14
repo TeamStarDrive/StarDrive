@@ -250,26 +250,12 @@ namespace Ship_Game
                 case AIState.SystemTrader:
                     if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last2))
                     {
-                        //ShipAI.ShipGoal goal = ship.AI.OrderQueue.First(g => g.GoodsType != Goods.None);
                         string goodsType = last2.GoodsType.ToString();
                         switch (last2.Plan)
                         {
                             case ShipAI.Plan.PickupGoods:  return string.Concat(Localizer.Token(160), " ", goodsType);
                             case ShipAI.Plan.DropOffGoods: return string.Concat(Localizer.Token(163), " ", goodsType);
                         }
-                        /*
-                        string foodOrProd = (ship.AI.IsFood ? Localizer.Token(161) : Localizer.Token(162));
-                        switch (ship.AI.OrderQueue.PeekLast.Plan)
-                        {
-                            case ShipAI.Plan.PickupGoods:
-                                if (ship.AI.start == null)
-                                    return string.Concat(Localizer.Token(160), " ", foodOrProd);
-                                return string.Concat(Localizer.Token(159), " ", ship.AI.start.Name, "\n", Localizer.Token(160), " ", foodOrProd);
-                            case ShipAI.Plan.DropOffGoods:
-                                if (ship.AI.end == null)
-                                    return string.Concat(Localizer.Token(163), " ", foodOrProd);
-                                return string.Concat(Localizer.Token(159), " ", ship.AI.end.Name, "\n", Localizer.Token(163), " ", foodOrProd);
-                        }*/
                     }
                     return string.Concat(Localizer.Token(164), "\n", Localizer.Token(165));
                 case AIState.AttackRunner:

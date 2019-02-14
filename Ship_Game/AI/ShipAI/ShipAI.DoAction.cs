@@ -842,13 +842,8 @@ namespace Ship_Game.AI
 
         private void DoPickupGoods(float elapsedTime, ShipGoal g)
         {
-            if (Owner.GetCargo(g.GoodsType) / Owner.CargoSpaceMax > 0.5f)
-            {
-                ClearOrders();
-                State = AIState.SystemTrader;
-                AddShipGoal(Plan.DropOffGoods, g.Exporter, g.Importer, g.GoodsType);
-                return; // ship has this cargo type on board, proceed to drop it off at destination
-            }
+            if (WaitForBlockadeRemoval(g, g.Exporter, elapsedTime))
+                return;
 
             ThrustOrWarpToPosCorrected(g.Exporter.Center, elapsedTime);
             if (!Owner.Center.InRadius(g.Exporter.Center, g.Exporter.ObjectRadius + 300f))
@@ -883,6 +878,9 @@ namespace Ship_Game.AI
 
         private void DoDropOffGoods(float elapsedTime, ShipGoal g)
         {
+            if (WaitForBlockadeRemoval(g, g.Importer, elapsedTime))
+                return;
+
             ThrustOrWarpToPosCorrected(g.Importer.Center, elapsedTime);
             if (!Owner.Center.InRadius(g.Importer.Center, g.Importer.ObjectRadius + 300f))
                 return;

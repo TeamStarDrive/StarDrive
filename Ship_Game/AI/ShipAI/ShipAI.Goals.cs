@@ -35,9 +35,9 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f));
         }
 
-        public void AddShipGoal(Plan plan, Planet exporter, Planet importer, Goods goodsType)
+        public void AddShipGoal(Plan plan, Planet exporter, Planet importer, Goods goodsType, float blockadeTimer = 120f)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan, exporter, importer, goodsType));
+            OrderQueue.Enqueue(new ShipGoal(plan, exporter, importer, goodsType, blockadeTimer));
         }
 
         public bool AddShipGoal(Plan plan, Planet target, string variableString = "")
@@ -89,6 +89,7 @@ namespace Ship_Game.AI
             public readonly float SpeedLimit;
             public readonly string VariableString;
             public readonly float VariableNumber;
+            public float BlockadeTimer; // FB - this is changed during plan execution, therefore not readonly
 
             public override string ToString() => $"{Plan} pos:{MovePosition} dir:{Direction}";
 
@@ -110,12 +111,13 @@ namespace Ship_Game.AI
                 VariableNumber = variableNumber;
             }
 
-            public ShipGoal(Plan plan, Planet exporter, Planet importer, Goods goodsType)
+            public ShipGoal(Plan plan, Planet exporter, Planet importer, Goods goodsType, float blockadeTimer)
             {
-                Plan      = plan;
-                Exporter  = exporter;
-                Importer  = importer;
-                GoodsType = goodsType;
+                Plan          = plan;
+                Exporter      = exporter;
+                Importer      = importer;
+                GoodsType     = goodsType;
+                BlockadeTimer = blockadeTimer;
             }
 
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
