@@ -1680,7 +1680,6 @@ namespace Ship_Game
         {
             using (fleet.Ships.AcquireWriteLock())
             {
-                
                 foreach (Ship ship in SelectedShipList)
                 {
                     ship.ClearFleet();
@@ -1692,7 +1691,13 @@ namespace Ship_Game
                         fleet.Ships.Add(ship);
                     }
                 }
-                //fleet.StoredFleetDistancetoMove = 0;
+
+                // automatically assign a valid direction to the fleet
+                Vector2 direction = SelectedShipList.NotEmpty ? SelectedShipList.First.Direction : Vectors.Up;
+                for (int i = 1; i < SelectedShipList.Count; ++i)
+                    direction += SelectedShipList[i].Direction;
+                fleet.Direction = direction.Normalized();
+
                 fleet.StoredFleetPosition = Vector2.Zero;
                 fleet.AutoArrange();                
             }

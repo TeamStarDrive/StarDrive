@@ -44,7 +44,7 @@ namespace Ship_Game.AI
         bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
             if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
-                Log.Warning($"RotateToDirection {wantedForward} not a unit vector!");
+                Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
 
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();
             float angleDiff = (float)Math.Acos(wantedForward.Dot(currentForward));
@@ -60,7 +60,7 @@ namespace Ship_Game.AI
         bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
         {
             if (lookAt.AlmostZero())
-                Log.Warning($"RotateTowardsPosition {lookAt} was zero, is this a bug?");
+                Log.Error($"RotateTowardsPosition {lookAt} was zero, is this a bug?");
 
             Vector2 wantedForward = Owner.Position.DirectionToTarget(lookAt);
             return RotateToDirection(wantedForward, elapsedTime, minDiff);
