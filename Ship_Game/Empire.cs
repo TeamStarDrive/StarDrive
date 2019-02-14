@@ -2386,145 +2386,108 @@ namespace Ship_Game
 
         private void AssessFreighterNeeds()
         {
+            Ship[] ownedFreighters = OwnedShips.Filter(ship =>
+            {
+                if (!ship.Active)
+                    return false;
+                if (ship.shipData.Role == ShipData.RoleName.troop ||
+                    ship.DesignRole == ShipData.RoleName.troopShip)
+                    return false;
+
+                // fbedard: civilian can be freighter too!
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian &&
+                     ship.DesignRole != ShipData.RoleName.freighter)
+                    || ship.isColonyShip
+                    || ship.CargoSpaceMax.AlmostEqual(0)
+                    || ship.AI == null
+                    || ship.isConstructor
+                    || ship.AI.State == AIState.Refit
+                    || ship.AI.State == AIState.Scrap)
+                    return false;
+
+                return true;
+            });
+            
+            
             int tradeShips = 0;
             int passengerShips = 0;
+            var unusedFreighters = new Array<Ship>();
 
-            float moneyForFreighters = Money * .01f - freighterBudget;
-            freighterBudget = 0;
-
-            Array<Ship> unusedFreighters = new Array<Ship>();
-            Array<Ship> assignedShips = new Array<Ship>();
-
-            for (int x = 0; x < OwnedShips.Count; x++)
+            float currentMaintenance = 0f;
+            for (int i = 0; i < ownedFreighters.Length; ++i)
             {
-                Ship ship;
-                try
-                {
-                    ship = OwnedShips[x];
-                }
-                catch
-                {
-                    continue;
-                }
-                if (ship == null || ship.loyalty != this)
-                    continue;
-                if (ship.shipData.Role == ShipData.RoleName.troop || ship.DesignRole == ShipData.RoleName.troopShip)
-                {
-                    if (ship.AI.State == AIState.PassengerTransport || ship.AI.State == AIState.SystemTrader)
-                    {
-                        ship.AI.ClearOrders();
-                    }
-                    continue;
-                }
-
-                //fbedard: civilian can be freighter too!
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.DesignRole != ShipData.RoleName.freighter)
-                    || ship.isColonyShip || ship.CargoSpaceMax.AlmostEqual(0) || ship.AI == null || ship.isConstructor
-                    || ship.AI.State == AIState.Refit || ship.AI.State == AIState.Scrap
-                    )
-                {
-                    continue;
-                }
-
-                freighterBudget += ship.GetMaintCost();
-                if (ship.Velocity != Vector2.Zero && ship.AI.State != AIState.AwaitingOrders && ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader)
-                    continue;
+                Ship ship = ownedFreighters[i];
+                currentMaintenance += ship.GetMaintCost();
 
                 if (ship.AI.OrderQueue.IsEmpty || ship.AI.start == null || ship.AI.end == null)
                 {
-                        unusedFreighters.Add(ship);
+                    unusedFreighters.Add(ship);
+                    continue;
                 }
-                else switch (ship.AI.State) {
-                    case AIState.PassengerTransport:
-                        passengerShips++;
-                        break;
-                    case AIState.SystemTrader:
-                        tradeShips++;
-                        break;
-                    default:
-                        assignedShips.Add(ship);
-                        break;
+                switch (ship.AI.State)
+                {
+                    case AIState.PassengerTransport: passengerShips++; break;
+                    case AIState.SystemTrader:       tradeShips++;     break;
                 }
             }
-            int totalShipCount  = tradeShips + passengerShips + unusedFreighters.Count;
-            totalShipCount      = totalShipCount > 0 ? totalShipCount : 1;
-            freighterBudget     = freighterBudget > 0 ? freighterBudget : .1f;
-            float avgMaint      = freighterBudget / totalShipCount;
-            moneyForFreighters -= freighterBudget;
 
-            int minFreightCount = 3 + GetResStrat().ExpansionPriority + (int)(tradeShips * .5f);
+            int totalFreighters = tradeShips + passengerShips + unusedFreighters.Count;
+            float avgMaintenance = currentMaintenance / totalFreighters;
+            int minFreightCount = 3 + GetResStrat().ExpansionPriority + (int)(tradeShips * 0.5f);
 
-            int skipped = 0;
-
-            while (unusedFreighters.Count - skipped > minFreightCount)
+            for (int i = minFreightCount; i < unusedFreighters.Count; )
             {
-                Ship ship = unusedFreighters[0 + skipped];
-                if (ship.TradeTimer < 1 && ship.CargoSpaceUsed.AlmostEqual(0))
+                Ship ship = unusedFreighters[i];
+                if (ship.TradeTimer < 1 && ship.CargoSpaceUsed.AlmostZero())
                 {
                     ship.AI.OrderScrapShip();
-                    unusedFreighters.Remove(ship);
+                    unusedFreighters.RemoveAt(i);
+                    --totalFreighters;
                 }
-                else skipped++;
+                else ++i;
             }
-            int freighters = unusedFreighters.Count;
-            //get number of freighters being built
 
             TradeBlocked = IsTradeBlocked();
 
-            int type = 1;
-            while (freighters > 0 )
+            // assign unused freighters
+            while (unusedFreighters.NotEmpty)
             {
-                Ship ship = unusedFreighters[0];
-                unusedFreighters.Remove(ship);
-                freighters--;
+                Ship ship = unusedFreighters.PopLast();
                 if (ship.AI.State != AIState.Flee)
                 {
+                    int type = RandomMath.InRange(3);
                     switch (type)
                     {
-                        case 1:
+                        case 0:
                             ship.AI.FoodOrProd = Goods.Food;
-                            ship.AI.State = AIState.SystemTrader;
                             ship.AI.OrderTrade(0.1f);
-                            ++type;
+                            break;
+                        case 1:
+                            ship.AI.FoodOrProd = Goods.Production;
+                            ship.AI.OrderTrade(0.1f);
                             break;
                         case 2:
-                            ship.AI.FoodOrProd = Goods.Production;
-                            ship.AI.State = AIState.SystemTrader;
-                            ship.AI.OrderTrade(0.1f);
-                            ++type;
-                            break;
-                        default:
-                            ship.AI.State = AIState.PassengerTransport;
-                            ship.TradingFood = false;
-                            ship.TradingProd = false;
-                            ship.AI.FoodOrProd = Goods.Colonists;
                             ship.AI.OrderTransportPassengers(0.1f);
-                            type = 1;
                             break;
                     }
-                    if (ship.AI.start == null && ship.AI.end == null)
-                        assignedShips.Add(ship);
                 }
-            }
-            unusedFreighters.AddRange(assignedShips);
-            freighters = 0; // unusedFreighters.Count;
-            int goalLimt = 1  + GetResStrat().IndustryPriority;
-            foreach (Goal goal in EmpireAI.Goals)
-            {
-                if (goal is IncreaseFreighters || goal is IncreasePassengerShips)
-                {
-                    ++freighters;
-                    --goalLimt;
-                }
-            }
-            moneyForFreighters -= freighters * avgMaint;
-            freighters += unusedFreighters.Count ;
-             if (moneyForFreighters > 0 && freighters < minFreightCount && goalLimt >0)
-            {
-                ++freighters;
-                EmpireAI.Goals.Add(new IncreaseFreighters(this));
             }
 
+            // project the total number of freighters by counting Increase* freighter goals:
+            int maxFreightersInQueue = 1  + GetResStrat().IndustryPriority;
+            int freightersBuilding = EmpireAI.Goals.Count(goal => goal is IncreaseFreighters
+                                                               || goal is IncreasePassengerShips);
+
+            int projectedFreighters    = totalFreighters + freightersBuilding;
+            float projectedMaintenance = avgMaintenance*projectedFreighters;
+            float moneyForFreighters   = GrossIncome*2f;
+
+            if (projectedMaintenance < moneyForFreighters && // we can afford
+                projectedFreighters < minFreightCount && // we need more
+                freightersBuilding < maxFreightersInQueue) // and queue is not saturated
+            {
+                EmpireAI.Goals.Add(new IncreaseFreighters(this));
+            }
         }
 
 
