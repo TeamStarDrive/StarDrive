@@ -87,9 +87,9 @@ namespace Ship_Game
 
             if (Owner.NonCybernetic)
             {
-                if (Food.NetIncome <= 0 && Storage.FoodRatio < 0.2f) return true;
+                if (Food.NetIncome <= 0 && Storage.FoodRatio < 0.5f) return true;
             }
-            else if (Prod.NetIncome <= 0 && Storage.ProdRatio < 0.2f)
+            else if (Prod.NetIncome <= 0 && Storage.ProdRatio < 0.5f)
                 return true;
 
             return false;

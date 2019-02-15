@@ -5,7 +5,6 @@ using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
-using Ship_Game.Universe.SolarBodies.AI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -79,7 +78,7 @@ namespace Ship_Game
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
         public bool TradeBlocked  => RecentCombat || ParentSystem.CombatInSystem;
 
-        public int FoodExportSlots      => ExportFood ? ((int)(Food.NetIncome / 2) + 1).Clamped(0, 5) : 0;
+        public int FoodExportSlots      => ExportFood ? ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(0, 5) : 0;
         public int ProdExportSlots      => ExportProd ? ((int)(Prod.NetIncome / 2) + 1).Clamped(0, 5) : 0;
         public int ColonistsExportSlots => ColonistsTradeState == GoodState.EXPORT ? (int)(PopulationBillion / 2) : 0;
 
@@ -580,7 +579,6 @@ namespace Ship_Game
             GrowPopulation();
             TroopManager.HealTroops(2);
             RepairBuildings(1);
-            CalculateIncomingTrade();
         }
 
         private void NotifyEmptyQueue()

@@ -27,11 +27,6 @@ namespace Ship_Game
             SelectedShip?.AI.OrderExplore();
         }
 
-        public void DoTransport()
-        {
-            SelectedShip?.AI.OrderTransportPassengers(5f);
-        }
-
         public void DoDefense()
         {
             if (SelectedShip == null || player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(SelectedShip))
@@ -44,14 +39,11 @@ namespace Ship_Game
             SelectedShip.AI.State = AIState.SystemDefender;
         }
 
-        public void DoTransportGoods()
+        public void DoTransportGoods() // fb check this
         {
             if (SelectedShip == null)
                 return;
             SelectedShip.AI.State = AIState.SystemTrader;
-            SelectedShip.AI.start = null;
-            SelectedShip.AI.end = null;
-            SelectedShip.AI.OrderTrade(5f);
         }
 
         private void MarkForColonization()
