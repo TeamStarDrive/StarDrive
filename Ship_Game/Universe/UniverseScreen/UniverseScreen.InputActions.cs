@@ -39,7 +39,7 @@ namespace Ship_Game
             SelectedShip.AI.State = AIState.SystemDefender;
         }
 
-        public void DoTransportGoods() // fb check this
+        public void DoTransportGoods() // @todo FB - check this
         {
             if (SelectedShip == null)
                 return;
