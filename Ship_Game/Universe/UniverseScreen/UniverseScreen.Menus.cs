@@ -69,8 +69,8 @@ namespace Ship_Game
                 shipMenu.Add(newChild1);
                 if (SelectedShip != null && SelectedShip.CargoSpaceMax > 0.0)
                 {
-                    newChild1.Add(new PieMenuNode(Localizer.Token(1414), ResourceManager.Texture("UI/PatrolIcon"),
-                        DoTransport));
+                   /* newChild1.Add(new PieMenuNode(Localizer.Token(1414), ResourceManager.Texture("UI/PatrolIcon"),
+                        DoTransport));*/
                     newChild1.Add(new PieMenuNode(Localizer.Token(1415), ResourceManager.Texture("UI/marketIcon"),
                         DoTransportGoods));
                 }

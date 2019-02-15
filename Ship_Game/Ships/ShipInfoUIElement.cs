@@ -674,7 +674,7 @@ namespace Ship_Game.Ships
                 Orders.Add(tp);
                 OrdersButton tpass = new OrdersButton(Ship, Vector2.Zero, OrderType.PassTran, 137)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingPassTransport, x => Ship.DoingPassTransport = x)
+                    ValueToModify = new Ref<bool>(() => Ship.DoingPassTransport)
                 };
                 Orders.Add(tpass);
             }
