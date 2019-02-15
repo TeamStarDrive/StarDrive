@@ -268,19 +268,6 @@ namespace Ship_Game
                     if (ship.AI.OrbitTarget == null)
                         return Localizer.Token(182);
                     return string.Concat(Localizer.Token(182), " ", ship.AI.OrbitTarget.Name);
-                case AIState.PassengerTransport:
-                    if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
-                    {
-                        switch (last.Plan)
-                        {
-                            case ShipAI.Plan.PickupPassengers:
-                                return string.Concat(Localizer.Token(159), " ", ship.AI.start.Name, "\n", Localizer.Token(166));
-                            case ShipAI.Plan.DropoffPassengers:
-                                return string.Concat(Localizer.Token(159), " ", ship.AI.end.Name, "\n", Localizer.Token(167));
-                        }
-                        return "";
-                    }
-                    return string.Concat(Localizer.Token(168), "\n", Localizer.Token(165));
                 case AIState.Colonize:
                     if (ship.AI.ColonizeTarget == null)
                         return "";

@@ -7,7 +7,6 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.Universe.SolarBodies.AI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,8 +122,10 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Ship BoardingShuttle     => ResourceManager.ShipsDict["Assault Shuttle"];
         [XmlIgnore][JsonIgnore] public Ship SupplyShuttle       => ResourceManager.ShipsDict["Supply_Shuttle"];
         [XmlIgnore][JsonIgnore] public int FreighterCap         => OwnedPlanets.Count * 3 + GetResStrat().ExpansionPriority;
+        [XmlIgnore][JsonIgnore] public int FreightersBeingBuilt => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
         [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue => 1 + GetResStrat().IndustryPriority;
         [XmlIgnore][JsonIgnore] public int TotalFreighters      => OwnedShips.Count(s => s.IsFreighter);
+        [XmlIgnore][JsonIgnore] public Ship[] IdleFreighters    => OwnedShips.Filter(s => s.IsIdleFreighter);
         [XmlIgnore][JsonIgnore] public bool IsCybernetic        => data.Traits.Cybernetic != 0;
         [XmlIgnore][JsonIgnore] public bool NonCybernetic       => data.Traits.Cybernetic == 0;
 
@@ -1296,28 +1297,21 @@ namespace Ship_Game
         public DebugTextBlock DebugEmpireTradeInfo()
         {
             var debug = new DebugTextBlock();
+            debug.AddLine($"Total Freighters / Cap: {TotalFreighters}/{FreighterCap}");
+            debug.AddLine($"Freighters in Queue / Max: {FreightersBeingBuilt}/{MaxFreightersInQueue}");
+            debug.AddLine($"Idle Freighters: {IdleFreighters.Length}");
+            debug.AddLine("");
+            debug.AddLine("Planets:");
+            debug.AddLine("");
             foreach (Planet p in OwnedPlanets)
             {
-                //if (p.TradeAI == null) continue;
-
-                //var lines = new Array<string>();
-                //TradeAI.DebugSummaryTotal totals = p.TradeAI.DebugSummarizeIncomingFreight(lines);
-
-                string importFood = p.FoodImportSlots - p.FreeFoodImportSlots + "/" + p.FoodImportSlots;
-                string importProd = p.ProdImportSlots - p.FreeProdImportSlots + "/" + p.ProdImportSlots;
-                string importColonists = p.ColonistsImportSlots - p.FreeColonistImportSlots + "/" + p.ColonistsImportSlots;
-                string exportFood = p.FoodExportSlots - p.FreeFoodExportSlots + "/" + p.FoodExportSlots;
-                string exportProd = p.ProdExportSlots - p.FreeProdExportSlots + "/" + p.ProdExportSlots;
-                string exportColonists = p.ColonistsExportSlots - p.FreeColonistExportSlots + "/" + p.ColonistsExportSlots;
+                int importSlots = p.FoodImportSlots + p.ProdImportSlots + p.ColonistsImportSlots;
+                int exportSlots = p.FoodExportSlots + p.ProdExportSlots + p.ColonistsExportSlots;
                 string incoming = p.IncomingFreighters.Count.ToString();
                 string outgoing = p.OutgoingFreighters.Count.ToString();
-                debug.AddLine($"{p.ParentSystem.Name} : {p.Name} :  Incoming/Outgoing {incoming} / {outgoing}", Color.Yellow);
-                debug.AddLine($"Food Import Slots: {importFood}");
-                debug.AddLine($"Prod Import Slots: {importProd}");
-                debug.AddLine($"Ppl Import Slots: {importColonists}");
-                debug.AddLine($"Food Export Slots: {exportFood}");
-                debug.AddLine($"Prod Export Slots: {exportProd}");
-                debug.AddLine($"Ppl Export Slots: {exportColonists}");
+                debug.AddLine($"{p.ParentSystem.Name} : {p.Name}");
+                debug.AddLine($"Incoming / Import Slots: {incoming}/{importSlots}");
+                debug.AddLine($"Outgoing / Export Slots: {outgoing}/{exportSlots}");
                 debug.AddLine("");
             }
             debug.Header = Name;
@@ -1335,7 +1329,7 @@ namespace Ship_Game
                 string prod = $"{(int)p.ProdHere}(%{100*p.Storage.ProdRatio:00.0}) {p.PS}";
                 debug.AddLine($"{p.ParentSystem.Name} : {p.Name} ", Color.Yellow);
                 debug.AddLine($"FoodHere: {food} ", Color.White);
-                debug.AddLine($"ProdHere: {prod} lalala");
+                debug.AddLine($"ProdHere: {prod}");
                 debug.AddRange(lines);
                 debug.AddLine("");
             }
@@ -2390,8 +2384,6 @@ namespace Ship_Game
 
         public bool HavePreReq(string techID) => GetTechEntry(techID).HasPreReq(this);
 
-        public bool TradeBlocked { get; private set; }
-
         private void DoFreight()
         {
             // Cybernetic factions never touch Food trade. Filthy Opteris are disgusted by protein-bugs. Ironic.
@@ -2414,7 +2406,7 @@ namespace Ship_Game
                 Ship freighter = ownedFreighters[i];
                 if (freighter.IsIdleFreighter)
                 {
-                    freighter.TradeTimer -= 5;
+                    freighter.TradeTimer -= 5; // each turn is 5 seconds
                     if (freighter.TradeTimer < 0)
                         freighter.AI.OrderScrapShip();
                 }
@@ -2433,23 +2425,23 @@ namespace Ship_Game
             if (exportingPlanets.Length == 0)
                 return;
 
-            Ship[] idleFreighters = OwnedShips.Filter(s => s.IsIdleFreighter);
-            if (idleFreighters.Length == 0)
+            if (IdleFreighters.Length == 0)
             {
-                BuildFreighter();
+                if (FreightersBeingBuilt < MaxFreightersInQueue) BuildFreighter();
                 return;
             }
 
             foreach (Planet importer in importingPlanets)
             {
-                Ship closestIdleFreighter = null;
+                Ship closestIdleFreighter;
                 Planet exporter = exportingPlanets.FindMin(p => p.Center.SqDist(importer.Center));
                 if (exporter == null) // no more exporting planets
                     break;
+
                 if (!isPlayer || AutoFreighters)
-                    closestIdleFreighter = idleFreighters.FindMin(s => s.Center.SqDist(exporter.Center));
+                    closestIdleFreighter = IdleFreighters.FindMin(s => s.Center.SqDist(exporter.Center));
                 else
-                    closestIdleFreighter = ClosestIdleFreighterManual(exporter, goods, idleFreighters);
+                    closestIdleFreighter = ClosestIdleFreighterManual(exporter, goods);
 
                 if (closestIdleFreighter == null) // no more available freighters
                     break;
@@ -2458,19 +2450,19 @@ namespace Ship_Game
             }
         }
 
-        private Ship ClosestIdleFreighterManual(Planet exporter, Goods goods, Ship[] idleFreighters)
+        private Ship ClosestIdleFreighterManual(Planet exporter, Goods goods)
         {
             Ship closestIdleFreighter = null;
             switch (goods)
             {
                 case Goods.Production:
                 case Goods.Food:
-                    closestIdleFreighter = idleFreighters.FindMinFiltered(s => s.TransportingProduction
-                                                                               || s.TransportingFood, s => s.Center.SqDist(exporter.Center));
+                    closestIdleFreighter = IdleFreighters.FindMinFiltered(s => s.TransportingProduction
+                                                                          || s.TransportingFood, s => s.Center.SqDist(exporter.Center));
                     break;
                 case Goods.Colonists:
-                    closestIdleFreighter = idleFreighters.FindMinFiltered(s => s.DoingPassTransport,
-                        s => s.Center.SqDist(exporter.Center));
+                    closestIdleFreighter = IdleFreighters.FindMinFiltered(s => s.DoingPassTransport,
+                                                                  s => s.Center.SqDist(exporter.Center));
                     break;
             }
             return closestIdleFreighter;
@@ -2481,132 +2473,8 @@ namespace Ship_Game
             if (isPlayer && !AutoFreighters)
                 return;
 
-            int freightersBuilding = EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
-            if (FreighterCap > TotalFreighters + freightersBuilding && MaxFreightersInQueue > freightersBuilding)
+            if (FreighterCap > TotalFreighters + FreightersBeingBuilt && MaxFreightersInQueue > FreightersBeingBuilt)
                 EmpireAI.Goals.Add(new IncreaseFreighters(this));
-        }
-
-
-        private void AssessFreighterNeeds()
-        {
-            Ship[] ownedFreighters = OwnedShips.Filter(ship =>
-            {
-                if (!ship.Active)
-                    return false;
-                if (ship.shipData.Role == ShipData.RoleName.troop ||
-                    ship.DesignRole == ShipData.RoleName.troopShip)
-                    return false;
-
-                // fbedard: civilian can be freighter too!
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian &&
-                     ship.DesignRole != ShipData.RoleName.freighter)
-                    || ship.isColonyShip
-                    || ship.CargoSpaceMax.AlmostEqual(0)
-                    || ship.AI == null
-                    || ship.isConstructor
-                    || ship.AI.State == AIState.Refit
-                    || ship.AI.State == AIState.Scrap)
-                    return false;
-
-                return true;
-            });
-            
-            
-            int tradeShips = 0;
-            int passengerShips = 0;
-            var unusedFreighters = new Array<Ship>();
-
-            float currentMaintenance = 0f;
-            for (int i = 0; i < ownedFreighters.Length; ++i)
-            {
-                Ship ship = ownedFreighters[i];
-                currentMaintenance += ship.GetMaintCost();
-
-                if (ship.AI.OrderQueue.IsEmpty || ship.AI.start == null || ship.AI.end == null)
-                {
-                    unusedFreighters.Add(ship);
-                    continue;
-                }
-                switch (ship.AI.State)
-                {
-                    case AIState.PassengerTransport: passengerShips++; break;
-                    case AIState.SystemTrader:       tradeShips++;     break;
-                }
-            }
-
-            int totalFreighters = tradeShips + passengerShips + unusedFreighters.Count;
-            float avgMaintenance = currentMaintenance / totalFreighters;
-            int minFreightCount = 3 + GetResStrat().ExpansionPriority + (int)(tradeShips * 0.5f);
-
-            for (int i = minFreightCount; i < unusedFreighters.Count; )
-            {
-                Ship ship = unusedFreighters[i];
-                if (ship.TradeTimer < 1 && ship.CargoSpaceUsed.AlmostZero())
-                {
-                    ship.AI.OrderScrapShip();
-                    unusedFreighters.RemoveAt(i);
-                    --totalFreighters;
-                }
-                else ++i;
-            }
-
-            TradeBlocked = IsTradeBlocked(); // remove
-
-            // assign unused freighters
-            while (unusedFreighters.NotEmpty)
-            {
-                Ship ship = unusedFreighters.PopLast();
-                if (ship.AI.State != AIState.Flee)
-                {
-                    int type = RandomMath.InRange(3);
-                    switch (type)
-                    {
-                        case 0:
-                            ship.AI.FoodOrProd = Goods.Food;
-                            ship.AI.OrderTrade(0.1f);
-                            break;
-                        case 1:
-                            ship.AI.FoodOrProd = Goods.Production;
-                            ship.AI.OrderTrade(0.1f);
-                            break;
-                        case 2:
-                            ship.AI.OrderTransportPassengers(0.1f);
-                            break;
-                    }
-                }
-            }
-
-            // project the total number of freighters by counting Increase* freighter goals:
-            int maxFreightersInQueue = 1  + GetResStrat().IndustryPriority;
-            int freightersBuilding = EmpireAI.Goals.Count(goal => goal is IncreaseFreighters
-                                                               || goal is IncreasePassengerShips);
-
-            int projectedFreighters    = totalFreighters + freightersBuilding;
-            float projectedMaintenance = avgMaintenance*projectedFreighters;
-            float moneyForFreighters   = GrossIncome*2f;
-
-            if (projectedMaintenance < moneyForFreighters && // we can afford
-                projectedFreighters < minFreightCount && // we need more
-                freightersBuilding < maxFreightersInQueue) // and queue is not saturated
-            {
-                EmpireAI.Goals.Add(new IncreaseFreighters(this));
-            }
-        }
-
-
-        public bool IsTradeBlocked() // remove
-        {
-            var allInCombat = true;
-            var noImport    = true;
-            foreach (Planet p in GetPlanets())
-            {
-                if (p.ParentSystem.combatTimer <= 0)
-                    allInCombat = false;
-                if (p.PS == Planet.GoodState.IMPORT || p.FS == Planet.GoodState.IMPORT)
-                    noImport = false;
-            }
-
-            return allInCombat || noImport;
         }
 
         public void ReportGoalComplete(Goal g)
