@@ -253,11 +253,11 @@ namespace Ship_Game
                         string goodsType = last2.GoodsType.ToString();
                         switch (last2.Plan)
                         {
-                            case ShipAI.Plan.PickupGoods:  return string.Concat(Localizer.Token(160), " ", goodsType);
-                            case ShipAI.Plan.DropOffGoods: return string.Concat(Localizer.Token(163), " ", goodsType);
+                            case ShipAI.Plan.PickupGoods:  return $"{Localizer.Token(160)} {goodsType}";
+                            case ShipAI.Plan.DropOffGoods: return $"{Localizer.Token(163)} {goodsType}";
                         }
                     }
-                    return string.Concat(Localizer.Token(164), "\n", Localizer.Token(165));
+                    return $"{Localizer.Token(164)} \n {Localizer.Token(165)}";
                 case AIState.AttackRunner:
                 case AIState.PatrolSystem:
                 case AIState.Flee:                
