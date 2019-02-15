@@ -171,8 +171,6 @@ namespace Ship_Game.AI
             DoCombat,
             Trade,
             DefendSystem,
-            PickupPassengers,
-            DropoffPassengers,
             DeployStructure,
             PickupGoods,
             DropOffGoods,

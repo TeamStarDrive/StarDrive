@@ -218,8 +218,6 @@ namespace Ship_Game.AI
             Owner.isTurning = false;
             ThrustTarget = Vector2.Zero;
 
-            if (UpdateFreightAI())
-                return;
             if (UpdateOrderQueueAI(elapsedTime))
                 return;
 
@@ -475,11 +473,6 @@ namespace Ship_Game.AI
                 case Plan.Rebase:       DoRebase(toEvaluate);         break;
                 case Plan.DefendSystem: DoSystemDefense(elapsedTime); break;
                 case Plan.DoCombat:     DoCombat(elapsedTime);        break;
-                case Plan.PickupPassengers:
-                    if (start != null) PickupPassengers();
-                    else State = AIState.AwaitingOrders;
-                    break;
-                case Plan.DropoffPassengers: DropoffPassengers();                       break;
                 case Plan.DeployStructure:   DoDeploy(toEvaluate);                      break;
                 case Plan.PickupGoods:       DoPickupGoods(elapsedTime, toEvaluate);    break;
                 case Plan.DropOffGoods:      DoDropOffGoods(elapsedTime, toEvaluate);   break;
@@ -506,8 +499,6 @@ namespace Ship_Game.AI
                     case AIState.DoNothing:      AwaitOrders(elapsedTime);           break;
                     case AIState.AwaitingOrders: AIStateAwaitingOrders(elapsedTime); break;
                     case AIState.Escort:         AIStateEscort(elapsedTime);         break;
-                    case AIState.SystemTrader:   AIStateOrderTrade(elapsedTime);     break;
-                    case AIState.PassengerTransport: AIStatePassengersTransport(elapsedTime); break;
                     case AIState.SystemDefender: AwaitOrders(elapsedTime); break;
                     case AIState.Resupply:       AwaitOrders(elapsedTime); break;
                     case AIState.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
@@ -594,26 +585,6 @@ namespace Ship_Game.AI
             exporter.AddToOutGoingFreighterList(Owner);
         }
 
-        bool UpdateFreightAI()
-        {
-            if (State == AIState.SystemTrader && start != null && end != null &&
-                (start.Owner != Owner.loyalty || end.Owner != Owner.loyalty))
-            {
-                start = null;
-                end = null;
-                OrderTrade(5f);
-                return true;
-            }
-            if (State == AIState.PassengerTransport && start != null && end != null &&
-                (start.Owner != Owner.loyalty || end.Owner != Owner.loyalty))
-            {
-                start = null;
-                end = null;
-                OrderTransportPassengers(5f);
-                return true;
-            }
-            return false;
-        }
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
         public bool ClearOrdersConditional(Plan plan)
         {
@@ -684,6 +655,19 @@ namespace Ship_Game.AI
             }
         }
 
+        public void OrderTroopToBoardShip(Ship s)
+        {
+            EscortTarget = s;
+            ClearOrders(State, priority: true);
+            AddShipGoal(Plan.BoardShip);
+        }
+
+        public void OrderTroopToShip(Ship s)
+        {
+            EscortTarget = s;
+            ClearOrders(State);
+            AddShipGoal(Plan.TroopToShip);
+        }
 
         void ScanForThreat(float elapsedTime)
         {
@@ -698,6 +682,7 @@ namespace Ship_Game.AI
             if (State != AIState.Flee || BadGuysNear || State == AIState.Resupply || HasPriorityOrder) return;
             if (OrderQueue.NotEmpty)
                 OrderQueue.RemoveLast();
+            /*
             switch (FoodOrProd) {
                 case Goods.Colonists:  State = AIState.PassengerTransport; break;
                 case Goods.Food:
@@ -705,7 +690,8 @@ namespace Ship_Game.AI
                 default:
                     State = DefaultAIState;
                     break;
-            }
+            }*/
+            // fb need to figure tat
         }
 
         void PrioritizePlayerCommands()
@@ -732,23 +718,6 @@ namespace Ship_Game.AI
                 if (target.Active)
                     continue;
                 TargetQueue.RemoveAtSwapLast(x);
-            }
-        }
-
-        void AIStatePassengersTransport(float elapsedTime)
-        {
-            OrderTransportPassengers(elapsedTime);
-            if (start == null || end == null)
-                AwaitOrders(elapsedTime);
-        }
-
-        void AIStateOrderTrade(float elapsedTime)
-        {
-            OrderTrade(elapsedTime);
-            if (start == null || end == null)
-            {
-                AwaitOrders(elapsedTime);
-                State = AIState.SystemTrader;
             }
         }
 
