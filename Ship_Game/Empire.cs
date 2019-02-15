@@ -101,8 +101,6 @@ namespace Ship_Game
         public bool canBuildTroopShips;
         public bool canBuildSupportShips;
         public float currentMilitaryStrength;
-        //public float freighterBudget;
-        //public float cargoNeed = 0;
         public float MaxResearchPotential = 10;
         public float MaxColonyValue { get; private set; }
         public Ship BestPlatformWeCanBuild { get; private set; }
@@ -2069,13 +2067,13 @@ namespace Ship_Game
                 return;
             if (!isPlayer)
             {
-                DoFreight();
+                DispatchBuildAndScrapFreighters();
                 AssignExplorationTasks();
             }
             else
             {
                 if (AutoFreighters)
-                    DoFreight();
+                    DispatchBuildAndScrapFreighters();
                 if (AutoExplore)
                     AssignExplorationTasks();
             }
@@ -2384,14 +2382,14 @@ namespace Ship_Game
 
         public bool HavePreReq(string techID) => GetTechEntry(techID).HasPreReq(this);
 
-        private void DoFreight()
+        private void DispatchBuildAndScrapFreighters()
         {
             // Cybernetic factions never touch Food trade. Filthy Opteris are disgusted by protein-bugs. Ironic.
-            if (NonCybernetic) 
-                DispatchFreighters(Goods.Food);
+            if (NonCybernetic)
+                DispatchOrBuildFreighters(Goods.Food);
 
-            DispatchFreighters(Goods.Production);
-            DispatchFreighters(Goods.Colonists);
+            DispatchOrBuildFreighters(Goods.Production);
+            DispatchOrBuildFreighters(Goods.Colonists);
             UpdateFreighterTimersAndScrap();
         }
 
@@ -2415,7 +2413,7 @@ namespace Ship_Game
             }
         }
 
-        private void DispatchFreighters(Goods goods)
+        private void DispatchOrBuildFreighters(Goods goods)
         {
             Planet[] importingPlanets = OwnedPlanets.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
             if (importingPlanets.Length == 0)
@@ -2427,30 +2425,31 @@ namespace Ship_Game
 
             if (IdleFreighters.Length == 0)
             {
-                if (FreightersBeingBuilt < MaxFreightersInQueue) BuildFreighter();
+                if (FreightersBeingBuilt < MaxFreightersInQueue)
+                    BuildFreighter();
                 return;
             }
 
-            foreach (Planet importer in importingPlanets)
+            foreach (Planet importPlanet in importingPlanets)
             {
                 Ship closestIdleFreighter;
-                Planet exporter = exportingPlanets.FindMin(p => p.Center.SqDist(importer.Center));
-                if (exporter == null) // no more exporting planets
+                Planet exportPlanet = exportingPlanets.FindMin(p => p.Center.SqDist(importPlanet.Center));
+                if (exportPlanet == null) // no more exporting planets
                     break;
 
                 if (!isPlayer || AutoFreighters)
-                    closestIdleFreighter = IdleFreighters.FindMin(s => s.Center.SqDist(exporter.Center));
+                    closestIdleFreighter = IdleFreighters.FindMin(s => s.Center.SqDist(exportPlanet.Center));
                 else
-                    closestIdleFreighter = ClosestIdleFreighterManual(exporter, goods);
+                    closestIdleFreighter = ClosestIdleFreighterManual(exportPlanet, goods);
 
                 if (closestIdleFreighter == null) // no more available freighters
                     break;
 
-                closestIdleFreighter.AI.SetupFreighterPlan(exporter, importer, goods);
+                closestIdleFreighter.AI.SetupFreighterPlan(exportPlanet, importPlanet, goods);
             }
         }
 
-        private Ship ClosestIdleFreighterManual(Planet exporter, Goods goods)
+        private Ship ClosestIdleFreighterManual(Planet exportPlanet, Goods goods)
         {
             Ship closestIdleFreighter = null;
             switch (goods)
@@ -2458,11 +2457,11 @@ namespace Ship_Game
                 case Goods.Production:
                 case Goods.Food:
                     closestIdleFreighter = IdleFreighters.FindMinFiltered(s => s.TransportingProduction
-                                                                          || s.TransportingFood, s => s.Center.SqDist(exporter.Center));
+                                                                          || s.TransportingFood, s => s.Center.SqDist(exportPlanet.Center));
                     break;
                 case Goods.Colonists:
                     closestIdleFreighter = IdleFreighters.FindMinFiltered(s => s.DoingPassTransport,
-                                                                  s => s.Center.SqDist(exporter.Center));
+                                                                  s => s.Center.SqDist(exportPlanet.Center));
                     break;
             }
             return closestIdleFreighter;

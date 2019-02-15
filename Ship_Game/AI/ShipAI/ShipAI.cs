@@ -563,26 +563,26 @@ namespace Ship_Game.AI
                 State = AIState.AwaitingOrders;
                 Planet fallback = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
                 if (fallback != planet)
-                    AddShipGoal(Plan.Orbit, fallback, "");
+                    AddOrbitPlanetGoal(fallback, AIState.AwaitingOrders);
 
-                g.Exporter.RemoveFromOutgoingFreighterList(Owner);
-                g.Importer.RemoveFromIncomingFreighterList(Owner);
+                g.ExportPlanet.RemoveFromOutgoingFreighterList(Owner);
+                g.ImportPlanet.RemoveFromIncomingFreighterList(Owner);
                 return true;
             }
             g.BlockadeTimer = 120f; // blockade was removed, continue as planned
             return false;
         }
 
-        public void SetupFreighterPlan(Planet exporter, Planet importer, Goods goods)
+        public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)
         {
             ClearOrders();
             State = AIState.SystemTrader;
 
             // if ship has this cargo type on board, proceed to drop it off at destination
             Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f ? Plan.DropOffGoods : Plan.PickupGoods;
-            AddShipGoal(plan, exporter, importer, goods);
-            importer.AddToIncomingFreighterList(Owner);
-            exporter.AddToOutGoingFreighterList(Owner);
+            AddShipGoal(plan, exportPlanet, importPlanet, goods);
+            importPlanet.AddToIncomingFreighterList(Owner);
+            exportPlanet.AddToOutGoingFreighterList(Owner);
         }
 
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);

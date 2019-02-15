@@ -95,7 +95,6 @@ namespace Ship_Game
 
                 return ImportProd && ShortOnFood() ? ((int)(2 - Food.NetIncome)).Clamped(0, 5) : 0;
             }
-
         }
 
         public int IncomingFoodFreighters      => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
@@ -232,7 +231,7 @@ namespace Ship_Game
             OutgoingFreighters.Remove(ship);
         }
 
-        public void RefreshFreighterList(Array<Ship> list)
+        public void RemoveInvalidFreighters(Array<Ship> list)
         {
             for (int i = 0; i < list.Count; ++i)
             {
@@ -304,8 +303,8 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
             UpdateColonyValue();
-            RefreshFreighterList(IncomingFreighters);
-            RefreshFreighterList(OutgoingFreighters);
+            RemoveInvalidFreighters(IncomingFreighters);
+            RemoveInvalidFreighters(OutgoingFreighters);
             ScanForEnemy();
             if (ParentSystem.CombatInSystem)
                 UpdateSpaceCombatBuildings(elapsedTime);
@@ -348,7 +347,7 @@ namespace Ship_Game
             }
         }
 
-        private void UpdateSpaceCombatBuildings(float elapsedTime) // FB - todo need to work on this
+        private void UpdateSpaceCombatBuildings(float elapsedTime) // @todo FB - need to work on this
         {
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -986,11 +985,9 @@ namespace Ship_Game
             string exportFood = FoodExportSlots - FreeFoodExportSlots + "/" + FoodExportSlots;
             string exportProd = ProdExportSlots - FreeProdExportSlots + "/" + ProdExportSlots;
             string exportColonists = ColonistsExportSlots - FreeColonistExportSlots + "/" + ColonistsExportSlots;
-            string incoming = IncomingFreighters.Count.ToString();
-            string outgoing = OutgoingFreighters.Count.ToString();
             debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
-            debug.AddLine($"Incoming Freighters: {incoming}");
-            debug.AddLine($"Outgoing Freighters: {outgoing}");
+            debug.AddLine($"Incoming Freighters: {IncomingFreighters.Count}");
+            debug.AddLine($"Outgoing Freighters: {OutgoingFreighters.Count}");
             debug.AddLine("");
             debug.AddLine($"Food Import Slots: {importFood}");
             debug.AddLine($"Prod Import Slots: {importProd}");
