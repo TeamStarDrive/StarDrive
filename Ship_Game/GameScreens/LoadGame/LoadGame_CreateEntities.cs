@@ -533,8 +533,6 @@ namespace Ship_Game
                         foreach (Planet p in s.PlanetList)
                         {
                             if (p.guid == sg.TargetPlanetGuid)       ship.AI.ColonizeTarget = p;
-                            if (p.guid == shipData.AISave.startGuid) ship.AI.start = p;
-                            if (p.guid == shipData.AISave.endGuid)   ship.AI.end = p;
                         }
                     }
 

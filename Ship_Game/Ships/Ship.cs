@@ -500,12 +500,8 @@ namespace Ship_Game.Ships
                 if (!value) return;
                 if (AI.State != AIState.SystemTrader)
                 {
-                    AI.start = null;
-                    AI.end = null;
                     AI.State = AIState.SystemTrader;
                 }
-
-                AI.OrderTrade(0f);
             }
         }
 
@@ -515,12 +511,6 @@ namespace Ship_Game.Ships
         public bool DoingPassTransport
         {
             get => AI.State == AIState.PassengerTransport;
-            set
-            {
-                AI.start = null;
-                AI.end = null;
-                AI.OrderTransportPassengers(5f);
-            }
         }
         private bool TFood;
         public bool TransportingFood
@@ -539,11 +529,8 @@ namespace Ship_Game.Ships
                 }
                 if (AI.State == AIState.SystemTrader)
                 {
-                    AI.OrderTrade(0);
                     return;
                 }
-                AI.start = null;
-                AI.end = null;
                 AI.State = AIState.SystemTrader;
                 //AI.OrderTrade(0);
             }
@@ -565,13 +552,9 @@ namespace Ship_Game.Ships
                 }
                 if (AI.State == AIState.SystemTrader)
                 {
-                    AI.OrderTrade(0);
                     return;
                 }
-                AI.start = null;
-                AI.end = null;
                 AI.State = AIState.SystemTrader;
-                //AI.OrderTrade(0);
             }
         }
 
@@ -640,8 +623,6 @@ namespace Ship_Game.Ships
             AI.Target = null;
             AI.ColonizeTarget = null;
             AI.EscortTarget = null;
-            AI.start = null;
-            AI.end = null;
             AI.PotentialTargets.Clear();
             AI.NearByShips.Clear();
             AI.FriendliesNearby.Clear();
@@ -2454,8 +2435,6 @@ namespace Ship_Game.Ships
             AI.Target                        = null;
             AI.ColonizeTarget                = null;
             AI.EscortTarget                  = null;
-            AI.start                         = null;
-            AI.end                           = null;
             AI.PotentialTargets.Clear();
             AI.TrackProjectiles.Clear();
             AI.NearByShips.Clear();
