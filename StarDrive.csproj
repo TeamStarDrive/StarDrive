@@ -207,7 +207,6 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goals.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Movement.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderAction.cs" />
-    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderTrade.cs" />
     <Compile Include="Ship_Game\Audio\AudioHandle.cs" />
     <Compile Include="Ship_Game\Audio\AudioInstance.cs" />
     <Compile Include="Ship_Game\BuildingCategory.cs">
@@ -219,7 +218,6 @@
     <Compile Include="Ship_Game\Commands\Goals\BuildScout.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildTroop.cs" />
     <Compile Include="Ship_Game\Commands\Goals\IncreaseFreighters.cs" />
-    <Compile Include="Ship_Game\Commands\Goals\IncreasePassengerShips.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
     <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
@@ -360,7 +358,6 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Generate.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Govern.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Resources.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WeCanAffordThis.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WorkDistribution.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBProduction.cs" />
@@ -1683,7 +1680,6 @@
     </None>
     <None Include="packages.config" />
     <None Include="README.md" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\AI\TradeRoutes.cs" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
   <ItemGroup>
@@ -4629,7 +4625,9 @@
     </None>
     <None Include="Resources\StarTrek-SA.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Ship_Game\Universe\SolarBodies\AI\" />
+  </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
