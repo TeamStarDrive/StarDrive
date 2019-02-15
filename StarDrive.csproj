@@ -257,6 +257,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionFindClosestTo.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
@@ -875,10 +876,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Gameplay\SpaceRoad.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\RoadNode.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
