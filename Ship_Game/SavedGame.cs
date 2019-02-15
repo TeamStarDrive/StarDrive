@@ -439,7 +439,6 @@ namespace Ship_Game
 
                     sdata.AISave = new ShipAISave
                     {
-                        FoodOrProd = ship.AI.GetTradeTypeString(),
                         state      = ship.AI.State
                     };
                     if (ship.AI.Target is Ship targetShip)
@@ -447,14 +446,6 @@ namespace Ship_Game
                         sdata.AISave.AttackTarget = targetShip.guid;
                     }
                     sdata.AISave.defaultstate = ship.AI.DefaultAIState;
-                    if (ship.AI.start != null)
-                    {
-                        sdata.AISave.startGuid = ship.AI.start.guid;
-                    }
-                    if (ship.AI.end != null)
-                    {
-                        sdata.AISave.endGuid = ship.AI.end.guid;
-                    }
                     sdata.AISave.MovePosition = ship.AI.MovePosition;
                     sdata.AISave.ActiveWayPoints = new Array<Vector2>(ship.AI.CopyWayPoints());
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
@@ -534,7 +525,6 @@ namespace Ship_Game
                     sd.InCombatTimer = ship.InCombatTimer;
                     sd.AISave        = new ShipAISave
                     {
-                        FoodOrProd      = ship.AI.GetTradeTypeString(),
                         state           = ship.AI.State,
                         defaultstate    = ship.AI.DefaultAIState,
                         MovePosition    = ship.AI.MovePosition,

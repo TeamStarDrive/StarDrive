@@ -45,7 +45,7 @@ namespace Ship_Game.Debug.Page
                     ShipAI ai = ship.AI;
                     if (ai.State != AIState.SystemTrader) continue;
                     if (ai.OrderQueue.Count == 0) continue;
-
+/*
                     switch (ai.OrderQueue.PeekLast.Plan)
                     {
                         case ShipAI.Plan.DropOffGoods:
@@ -58,7 +58,7 @@ namespace Ship_Game.Debug.Page
                         case ShipAI.Plan.DropoffPassengers:
                             Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 32);
                             break;
-                    }
+                    }*/
                 }
             }
             base.Draw(batch);
