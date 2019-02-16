@@ -455,15 +455,11 @@ namespace Ship_Game.Debug
         {
             if (ship.AI.OrderQueue.NotEmpty)
             {
-                ShipGoal goal = ship.AI.OrderQueue[0];
-                Vector2 pos = goal.TargetPlanet?.Center ?? goal.MovePosition;
-                if (goal.Plan == Plan.DoCombat)
-                {
-                    pos = ship.AI.Target?.Position ?? pos;
-                }
+                ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
+                Vector2 pos = ship.AI.GoalTarget;
 
                 DrawLineImm(ship.Position, pos, Color.YellowGreen);
-                if (detailed) DrawCircleImm(pos, 1000f, Color.Yellow);
+                //if (detailed) DrawCircleImm(pos, 1000f, Color.Yellow);
                 DrawCircleImm(pos, 75f, Color.Maroon);
 
                 Vector2 thrustTgt = ship.AI.ThrustTarget;

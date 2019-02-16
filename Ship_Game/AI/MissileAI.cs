@@ -8,16 +8,16 @@ namespace Ship_Game.AI
     public sealed class MissileAI
     {
         private readonly Projectile Missile;
-        private GameplayObject Target;
-        public GameplayObject GetTarget => Target;
+        public GameplayObject Target { get; set; }
+
         private readonly Array<Ship> TargetList;
         private float ThinkTimer = 0.15f;
-        private bool Jammed;
-        private bool EcmRun;
+        public bool Jammed { get; private set; }
+        public bool EcmRun { get; private set; }
         private Vector2 LaunchJitter;
         private Vector2 TargetJitter;
         private readonly int Level;
-        private float TargettingTimer;
+        private float TargetingTimer;
 
         public MissileAI(Projectile missile, GameplayObject target)
         {
@@ -39,7 +39,8 @@ namespace Ship_Game.AI
                             Missile, Missile.Planet.GravityWellRadius, GameObjectType.Ship);
                 foreach(GameplayObject go in nearbyShips)
                 {
-                    if (!missile.Weapon.TargetValid(go)) continue;
+                    if (!missile.Weapon.TargetValid(go))
+                        continue;
                     var nearbyShip = (Ship) go;
                     if (missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty) )
                         TargetList.Add(nearbyShip);
@@ -48,10 +49,10 @@ namespace Ship_Game.AI
 
             TargetJitter = missile.Weapon.AdjustTargeting(Level) + target?.TargetErrorPos() ?? Vector2.Zero;
             LaunchJitter = TargetJitter * 2;
-            TargettingTimer = TargetTimerReset;
+            TargetingTimer = TargetTimerReset;
         }
 
-        private float TargetTimerReset => Math.Min(.1f + Level * .1f, .9f);
+        float TargetTimerReset => Math.Min(0.1f + Level * 0.1f, 0.9f);
 
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
@@ -104,13 +105,12 @@ namespace Ship_Game.AI
             }
         }
 
-        private void MoveStraight(float elapsedTime)
+        void MoveStraight(float elapsedTime)
         {
-            Missile.Velocity = Missile.Rotation.RadiansToDirection() * Missile.Speed; 
-            Missile.Velocity = Missile.Velocity.Normalized() * Missile.VelocityMax;
+            Missile.Velocity = Missile.Rotation.RadiansToDirection() * Missile.VelocityMax; 
         }
 
-        private void MoveTowardsTargetJammed(float elapsedTime)
+        void MoveTowardsTargetJammed(float elapsedTime)
         {
             if (Target == null)
             {
@@ -118,13 +118,14 @@ namespace Ship_Game.AI
                 EcmRun = false;
                 return;
             }
+
             Vector2 targetPos = Target.Center;
             if (!Missile.ErrorSet)
             {
-                float randomdeviation = RandomMath.RandomBetween(900f, 1400f);
-                float rdbothways = RandomMath.RandomBetween(0f, 1f) > 0.5f ? randomdeviation : -randomdeviation;
-                targetPos.X += rdbothways;
-                targetPos.Y -= rdbothways;
+                float randomDeviation = RandomMath.RandomBetween(900f, 1400f);
+                float randomDeviation2 = RandomMath.RandomBetween(0f, 1f) > 0.5f ? randomDeviation : -randomDeviation;
+                targetPos.X += randomDeviation2;
+                targetPos.Y -= randomDeviation2;
                 Missile.FixedError = targetPos;
                 Missile.ErrorSet   = true;
             }
@@ -135,16 +136,15 @@ namespace Ship_Game.AI
 
             Missile.GuidedMoveTowards(elapsedTime, targetPos);
 
-            float distancetoEnd = Missile.Center.Distance(targetPos);
-            if (distancetoEnd <= 300f)
+            float distanceToEnd = Missile.Center.Distance(targetPos);
+            if (distanceToEnd <= 300f)
                 Missile.Die(Missile, false);
             Target = null;
         }
 
         public void SetTarget(GameplayObject target) => Target = target;
 
-
-        //added by gremlin Deveksmod Missilethink.
+        // added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
             Vector2 interceptPoint = Vector2.Zero;
@@ -152,13 +152,13 @@ namespace Ship_Game.AI
             {                
                 interceptPoint = Missile.PredictImpact(Target);
                 
-                float distancetoTarget = Missile.Center.Distance(interceptPoint);
+                float distanceToTarget = Missile.Center.Distance(interceptPoint);
                 if (Jammed)
                 {
                     MoveTowardsTargetJammed(elapsedTime);
                     return;
                 }
-                if (Target is ShipModule targetModule && !EcmRun && distancetoTarget <= 4000)
+                if (Target is ShipModule targetModule && !EcmRun && distanceToTarget <= 4000)
                 {
                     EcmRun = true;
                     float targetEcm = targetModule.GetParent().ECMValue;
@@ -169,7 +169,7 @@ namespace Ship_Game.AI
                         return;
                     }
                 }
-                if (Missile.Weapon.TerminalPhaseAttack && distancetoTarget <= Missile.Weapon.TerminalPhaseDistance)
+                if (Missile.Weapon.TerminalPhaseAttack && distanceToTarget <= Missile.Weapon.TerminalPhaseDistance)
                 {
                     Missile.GuidedMoveTowards(elapsedTime, interceptPoint);
                     Missile.Velocity *= Missile.Weapon.TerminalPhaseSpeedMod;
@@ -178,14 +178,14 @@ namespace Ship_Game.AI
             }
             ThinkTimer -= elapsedTime;
             
-            if ((TargettingTimer += elapsedTime) >1)
+            if ((TargetingTimer += elapsedTime) >1)
             {
                 if (Target != null)
                 {                    
                     LaunchJitter /= 2;
                     TargetJitter = Missile.Weapon.AdjustTargeting(Level) + Target.TargetErrorPos();
                 }
-                TargettingTimer = TargetTimerReset;
+                TargetingTimer = TargetTimerReset;
             }
 
             if (ThinkTimer <= 0f)
