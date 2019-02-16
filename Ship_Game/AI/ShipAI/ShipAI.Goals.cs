@@ -128,6 +128,12 @@ namespace Ship_Game.AI
                 Trade = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
             }
 
+            public ShipGoal(Plan plan, SavedGame.TradePlanSave tp, UniverseData data)
+            {
+                Plan = plan;
+                Trade = new TradePlan(tp, data);
+            }
+
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
             {
                 Plan = sg.Plan;
@@ -162,9 +168,9 @@ namespace Ship_Game.AI
 
         public class TradePlan
         {
-            public readonly Goods Goods;
-            public readonly Planet ExportFrom;
-            public readonly Planet ImportTo;
+            public Goods Goods       { get; private set; }
+            public Planet ExportFrom { get; private set; }
+            public Planet ImportTo   { get; private set; }
             public float BlockadeTimer; // indicates how much time to wait with freight when trade is blocked
 
             public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer)
@@ -179,7 +185,7 @@ namespace Ship_Game.AI
             
             public void RegisterTrade(Ship freighter)
             {
-                ExportFrom.AddToOutGoingFreighterList(freighter);
+                ExportFrom.AddToOutgoingFreighterList(freighter);
                 ImportTo.AddToIncomingFreighterList(freighter);
             }
 
@@ -187,6 +193,14 @@ namespace Ship_Game.AI
             {
                 ExportFrom.RemoveFromOutgoingFreighterList(freighter);
                 ImportTo.RemoveFromIncomingFreighterList(freighter);
+            }
+
+            public TradePlan(SavedGame.TradePlanSave save, UniverseData data)
+            {
+                Goods         = save.Goods;
+                ExportFrom    = data.FindPlanet(save.ExportFrom);
+                ImportTo      = data.FindPlanet(save.ImportTo);
+                BlockadeTimer = save.BlockadeTimer;
             }
         }
 
