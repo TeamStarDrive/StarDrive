@@ -13,7 +13,6 @@ namespace Ship_Game.AI
         AttackRunner,
         Orbit,
         PatrolSystem,
-        PassengerTransport,
         Flee,
         Colonize,
         MoveTo,
