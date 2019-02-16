@@ -79,25 +79,6 @@ namespace Ship_Game
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
         public bool TradeBlocked  => RecentCombat || ParentSystem.CombatInSystem;
 
-        public int FoodExportSlots      => ExportFood ? ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(0, 5) : 0;
-        public int ProdExportSlots      => ExportProd ? ((int)(Prod.NetIncome / 2) + 1).Clamped(0, 5) : 0;
-        public int ColonistsExportSlots => ColonistsTradeState == GoodState.EXPORT ? (int)(PopulationBillion / 2) : 0;
-
-        public int FoodImportSlots      => ImportFood && ShortOnFood() ? ((int)(2 - Food.NetIncome)).Clamped(0, 5) : 0;
-        public int ColonistsImportSlots => ColonistsTradeState == GoodState.IMPORT && PopulationRatio < 0.5f ?
-                                           (int)(MaxPopulationBillion - PopulationBillion).Clamped(0, 5) : 0;
-
-        public int ProdImportSlots
-        {
-            get
-            {
-                if (Owner != null && Owner.NonCybernetic)
-                    return ImportProd ? (int)((Storage.Max - Storage.Prod) / 50) + 1 : 0;
-
-                return ImportProd && ShortOnFood() ? ((int)(2 - Food.NetIncome)).Clamped(0, 5) : 0;
-            }
-        }
-
         public int IncomingFoodFreighters      => FreighterTraffic(IncomingFreighters, Goods.Food);
         public int IncomingProdFreighters      => FreighterTraffic(IncomingFreighters, Goods.Production);
         public int IncomingColonistsFreighters => FreighterTraffic(IncomingFreighters, Goods.Colonists);
@@ -113,6 +94,78 @@ namespace Ship_Game
         public int FreeFoodImportSlots     => FreeFreighterSlots(FoodImportSlots, IncomingFoodFreighters);
         public int FreeProdImportSlots     => FreeFreighterSlots(ProdImportSlots, IncomingProdFreighters);
         public int FreeColonistImportSlots => FreeFreighterSlots(ColonistsImportSlots, IncomingColonistsFreighters);
+
+        public int FoodExportSlots
+        {
+            get
+            {
+                if (TradeBlocked || !ExportFood)
+                    return 0;
+
+                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(0, 5);
+            }
+        }
+
+        public int ProdExportSlots
+        {
+            get
+            {
+                if (TradeBlocked || !ExportProd)
+                    return 0;
+
+                return ((int)(Prod.NetIncome / 2) + 1).Clamped(0, 5);
+            }
+        }
+
+        public int ColonistsExportSlots
+        {
+            get
+            {
+                if (TradeBlocked || ColonistsTradeState != GoodState.EXPORT)
+                    return 0;
+
+                return (int)(PopulationBillion / 2);
+            }
+        }
+
+        public int FoodImportSlots
+        {
+            get
+            {
+                if (TradeBlocked || !ImportFood || !ShortOnFood())
+                    return 0;
+
+                return ((int)(2 - Food.NetIncome)).Clamped(0, 5);
+            }
+        }
+
+        public int ProdImportSlots
+        {
+            get
+            {
+                if (TradeBlocked || !ImportProd)
+                    return 0;
+
+                if (Owner.NonCybernetic)
+                    return (int)((Storage.Max - Storage.Prod) / 50) + 1;
+
+                if (ShortOnFood())
+                    return ((int)(2 - Food.NetIncome)).Clamped(0, 5);
+
+                return 0;
+            }
+        }
+
+        public int ColonistsImportSlots
+        {
+            get
+            {
+                if (TradeBlocked || ColonistsTradeState != GoodState.IMPORT)
+                    return 0;
+
+                return (int)(MaxPopulationBillion - PopulationBillion).Clamped(0, 5);
+            }
+        }
 
         public int FreeFreighterSlots(int slots, int freighters)
         {
