@@ -49,9 +49,9 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f));
         }
 
-        public void AddTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer = 120f)
+        public void AddTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer = 120f)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, blockadeTimer));
+            OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, freighter, blockadeTimer));
         }
 
         public bool AddShipGoal(Plan plan, Planet target, string variableString = "")
@@ -122,10 +122,10 @@ namespace Ship_Game.AI
                 VariableNumber = variableNumber;
             }
 
-            public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, float blockadeTimer)
+            public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, Ship freighter, float blockadeTimer)
             {
                 Plan = plan;
-                Trade = new TradePlan(exportPlanet, importPlanet, goods, blockadeTimer);
+                Trade = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
             }
 
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
@@ -167,12 +167,14 @@ namespace Ship_Game.AI
             public readonly Planet ImportTo;
             public float BlockadeTimer; // indicates how much time to wait with freight when trade is blocked
 
-            public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer)
+            public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer)
             {
                 ExportFrom    = exportPlanet;
                 ImportTo      = importPlanet;
                 Goods         = goodsType;
                 BlockadeTimer = blockadeTimer;
+
+                RegisterTrade(freighter);
             }
             
             public void RegisterTrade(Ship freighter)

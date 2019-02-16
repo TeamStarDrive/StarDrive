@@ -196,8 +196,8 @@ namespace Ship_Game.Ships
         public bool IsIdleFreighter => IsFreighter 
                                        && !PlayerShip && AI != null 
                                        && !AI.HasPriorityOrder 
-                                       && AI.State != AIState.PassengerTransport
                                        && AI.State != AIState.SystemTrader
+                                       && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit;
 
         public bool IsInNeutralSpace
@@ -520,10 +520,7 @@ namespace Ship_Game.Ships
             {
                 TPassengers = value;
                 if (!value)
-                {
-                    AI.OrderOrbitNearest(clearOrders: true);
                     AI.State = AIState.AwaitingOrders;
-                }
             }
         }
 
@@ -535,10 +532,7 @@ namespace Ship_Game.Ships
             {
                 TFood = value;
                 if (!value)
-                {
-                    AI.OrderOrbitNearest(clearOrders: true);
                     AI.State = AIState.AwaitingOrders;
-                }
             }
         }
 
@@ -550,10 +544,7 @@ namespace Ship_Game.Ships
             {
                 TProd = value;
                 if (!value)
-                {
-                    AI.OrderOrbitNearest(clearOrders: true);
                     AI.State = AIState.AwaitingOrders;
-                }
             }
         }
 

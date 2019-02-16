@@ -602,8 +602,7 @@ namespace Ship_Game.AI
 
             // if ship has this cargo type on board, proceed to drop it off at destination
             Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f ? Plan.DropOffGoods : Plan.PickupGoods;
-            AddTradePlan(plan, exportPlanet, importPlanet, goods);
-            OrderQueue.PeekLast.Trade.RegisterTrade(Owner);
+            AddTradePlan(plan, exportPlanet, importPlanet, goods, Owner);
         }
 
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
@@ -703,16 +702,6 @@ namespace Ship_Game.AI
             if (State != AIState.Flee || BadGuysNear || State == AIState.Resupply || HasPriorityOrder) return;
             if (OrderQueue.NotEmpty)
                 OrderQueue.RemoveLast();
-            /*
-            switch (FoodOrProd) {
-                case Goods.Colonists:  State = AIState.PassengerTransport; break;
-                case Goods.Food:
-                case Goods.Production: State = AIState.SystemTrader; break;
-                default:
-                    State = DefaultAIState;
-                    break;
-            }*/
-            // fb need to figure tat
         }
 
         void PrioritizePlayerCommands()
