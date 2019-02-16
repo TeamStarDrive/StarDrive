@@ -41,8 +41,8 @@ namespace Ship_Game
                 case ColonyType.Core:
                     AssignCoreWorldWorkers();
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
-                    DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
+                    DetermineFoodState(0.25f, 0.5f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
+                    DetermineProdState(0.25f, 0.5f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
                     break;
                 case ColonyType.Industrial:
                     //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
@@ -52,7 +52,7 @@ namespace Ship_Game
                     Res.AutoBalanceWorkers();
 
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
+                    DetermineFoodState(0.5f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     break;
                 case ColonyType.Research:
@@ -63,8 +63,8 @@ namespace Ship_Game
                     Res.AutoBalanceWorkers();
 
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
-                    DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
+                    DetermineFoodState(0.5f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
+                    DetermineProdState(0.5f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
                     break;
                 case ColonyType.Agricultural:
                     Food.Percent = FarmToPercentage(1);     //Farm all you can
@@ -73,8 +73,8 @@ namespace Ship_Game
                     Res.AutoBalanceWorkers();
 
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
-                    DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
+                    DetermineFoodState(0.15f, 0.5f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                    DetermineProdState(0.5f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
                     break;
                 case ColonyType.Military:    //This on is incomplete
                     Food.Percent = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
@@ -83,8 +83,8 @@ namespace Ship_Game
                     Res.AutoBalanceWorkers();
                     
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
-                    DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
+                    DetermineFoodState(0.5f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
+                    DetermineProdState(0.5f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
                     break;
             } //End Gov type Switch
 

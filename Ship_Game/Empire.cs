@@ -1300,12 +1300,31 @@ namespace Ship_Game
 
         public DebugTextBlock DebugEmpireTradeInfo()
         {
+            int foodShips = OwnedShips.Count(s => s.IsFreighter && !s.IsIdleFreighter && s.AI.OrderQueue
+                                             .Any(g => g.Trade?.Goods == Goods.Food));
+            int prodShips = OwnedShips.Count(s => s.IsFreighter && !s.IsIdleFreighter && s.AI.OrderQueue
+                                             .Any(g => g.Trade?.Goods == Goods.Production));
+            int colonistsShips = OwnedShips.Count(s => s.IsFreighter && !s.IsIdleFreighter && s.AI.OrderQueue
+                                                  .Any(g => g.Trade?.Goods == Goods.Colonists));
+
+            int foodImportPlanets = OwnedPlanets.Count(p => p.FoodImportSlots > 0);
+            int prodImportPlanets = OwnedPlanets.Count(p => p.ProdImportSlots > 0);
+            int coloImportPlanets = OwnedPlanets.Count(p => p.ColonistsImportSlots > 0);
+            int foodExportPlanets = OwnedPlanets.Count(p => p.FoodExportSlots > 0);
+            int prodExportPlanets = OwnedPlanets.Count(p => p.ProdExportSlots > 0);
+            int coloExportPlanets = OwnedPlanets.Count(p => p.ColonistsExportSlots > 0);
+
             var debug = new DebugTextBlock();
             debug.AddLine($"Total Freighters / Cap: {TotalFreighters}/{FreighterCap}");
+            debug.AddLine($"Freighter Types: F: {foodShips}  P: {prodShips} C: {colonistsShips}");
             debug.AddLine($"Freighters in Queue / Max: {FreightersBeingBuilt}/{MaxFreightersInQueue}");
             debug.AddLine($"Idle Freighters: {IdleFreighters.Length}");
             debug.AddLine("");
-            debug.AddLine("Planets:");
+            debug.AddLine("Planet Trade:");
+            debug.AddLine($"Importing Planets: F: {foodImportPlanets}  P: {prodImportPlanets}  C: {coloImportPlanets}");
+            debug.AddLine($"Exporting Planets: F: {foodExportPlanets}  P: {prodExportPlanets}  C: {coloExportPlanets}");
+            debug.AddLine("");
+            debug.AddLine("Planets List:");
             debug.AddLine("");
             foreach (Planet p in OwnedPlanets)
             {
@@ -1313,7 +1332,8 @@ namespace Ship_Game
                 int exportSlots = p.FoodExportSlots + p.ProdExportSlots + p.ColonistsExportSlots;
                 string incoming = p.IncomingFreighters.Count.ToString();
                 string outgoing = p.OutgoingFreighters.Count.ToString();
-                debug.AddLine($"{p.ParentSystem.Name} : {p.Name}");
+                string starving = p.Storage.Food < 0 && p.Food.NetIncome < 0 ? " (Starving!)" : "";
+                debug.AddLine($"{p.ParentSystem.Name} : {p.Name}{starving}");
                 debug.AddLine($"Incoming / Import Slots: {incoming}/{importSlots}");
                 debug.AddLine($"Outgoing / Export Slots: {outgoing}/{exportSlots}");
                 debug.AddLine("");
@@ -2439,12 +2459,12 @@ namespace Ship_Game
             foreach (Planet importPlanet in importingPlanets)
             {
                 Ship closestIdleFreighter;
-                Planet exportPlanet = exportingPlanets.FindMin(p => p.Center.SqDist(importPlanet.Center));
+                Planet exportPlanet = exportingPlanets.FindClosestTo(importPlanet);
                 if (exportPlanet == null) // no more exporting planets
                     break;
 
                 if (!isPlayer || AutoFreighters)
-                    closestIdleFreighter = IdleFreighters.FindMin(s => s.Center.SqDist(exportPlanet.Center));
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet);
                 else
                     closestIdleFreighter = ClosestIdleFreighterManual(exportPlanet, goods);
 
@@ -2464,10 +2484,13 @@ namespace Ship_Game
                 case Goods.Food:
                     closestIdleFreighter = IdleFreighters.FindMinFiltered(s => s.TransportingProduction
                                                                           || s.TransportingFood, s => s.Center.SqDist(exportPlanet.Center));
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingProduction
+                                                                                              || s.TransportingFood);
                     break;
                 case Goods.Colonists:
                     closestIdleFreighter = IdleFreighters.FindMinFiltered(s => s.DoingPassTransport,
                                                                   s => s.Center.SqDist(exportPlanet.Center));
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.DoingPassTransport);
                     break;
             }
             return closestIdleFreighter;
