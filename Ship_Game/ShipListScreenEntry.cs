@@ -250,7 +250,7 @@ namespace Ship_Game
                 case AIState.SystemTrader:
                     if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last2))
                     {
-                        string goodsType = last2.Trade.Goods.ToString();
+                        string goodsType = last2.Trade?.Goods.ToString();
                         switch (last2.Plan)
                         {
                             case ShipAI.Plan.PickupGoods:  return $"{Localizer.Token(160)} {goodsType}";
