@@ -502,61 +502,58 @@ namespace Ship_Game.Ships
                 if (!value) return;
                 if (AI.State != AIState.SystemTrader)
                 {
-                    AI.State = AIState.SystemTrader;
+                   // AI.State = AIState.SystemTrader;
                 }
             }
         }
 
-        public bool DoingFoodTransport => AI.State == AIState.SystemTrader && TransportingFood;
-        public bool DoingProdTransport => AI.State == AIState.SystemTrader && TransportingProduction;
+        
+        public bool DoingFoodTransport => TransportingFood;
+        public bool DoingProdTransport => TransportingProduction;
+        public bool DoingPassengerTransport => TransportingPassengers;
 
-        public bool DoingPassTransport
+        private bool TPassengers;
+        public bool TransportingPassengers
         {
-            get => AI.State == AIState.PassengerTransport;
+            get => TPassengers;
+            set
+            {
+                TPassengers = value;
+                if (!value)
+                {
+                    AI.OrderOrbitNearest(clearOrders: true);
+                    AI.State = AIState.AwaitingOrders;
+                }
+            }
         }
+
         private bool TFood;
         public bool TransportingFood
         {
-            get => AI.State != AIState.SystemTrader || TFood;
+            get => TFood;
             set
             {
                 TFood = value;
                 if (!value)
                 {
-                    if (!TransportingProduction)
-                    {
-                        AI.State = AIState.AwaitingOrders;
-                    }
-                    return;
+                    AI.OrderOrbitNearest(clearOrders: true);
+                    AI.State = AIState.AwaitingOrders;
                 }
-                if (AI.State == AIState.SystemTrader)
-                {
-                    return;
-                }
-                AI.State = AIState.SystemTrader;
-                //AI.OrderTrade(0);
             }
         }
+
         private bool TProd;
         public bool TransportingProduction
         {
-            get => AI.State != AIState.SystemTrader || TProd;
+            get => TProd;
             set
             {
                 TProd = value;
                 if (!value)
                 {
-                    if (!TransportingFood)
-                    {
-                        AI.State = AIState.AwaitingOrders;
-                    }
-                    return;
+                    AI.OrderOrbitNearest(clearOrders: true);
+                    AI.State = AIState.AwaitingOrders;
                 }
-                if (AI.State == AIState.SystemTrader)
-                {
-                    return;
-                }
-                AI.State = AIState.SystemTrader;
             }
         }
 
