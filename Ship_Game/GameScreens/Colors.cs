@@ -17,9 +17,19 @@ namespace Ship_Game
         // multiplies color R,G,B with multiplier, leaving alpha untouched
         public static Color MultiplyRgb(this Color color, float multiplier)
         {
-            byte r = (byte)(color.R * multiplier);
-            byte g = (byte)(color.G * multiplier);
-            byte b = (byte)(color.B * multiplier);
+            byte r = (byte)(color.R * multiplier).Clamped(0, 255);
+            byte g = (byte)(color.G * multiplier).Clamped(0, 255);
+            byte b = (byte)(color.B * multiplier).Clamped(0, 255);
+            return new Color(r, g, b, color.A);
+        }
+
+        // adds [0.0-1.0] float to existing color.
+        // where 1.0 == 255, and 0.5 == 128
+        public static Color AddRgb(this Color color, float add)
+        {
+            byte r = (byte)(color.R + add*255f).Clamped(0, 255);
+            byte g = (byte)(color.G + add*255f).Clamped(0, 255);
+            byte b = (byte)(color.B + add*255f).Clamped(0, 255);
             return new Color(r, g, b, color.A);
         }
     }

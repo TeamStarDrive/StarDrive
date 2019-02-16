@@ -2745,6 +2745,6 @@ namespace Ship_Game
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
         }
 
-        public override string ToString() => $"Id={Id} Name={Name} Player={isPlayer} Faction={isFaction}";
+        public override string ToString() => $"{(isPlayer?"Player":"AI")}({Id}) '{Name}'";
     }
 }
