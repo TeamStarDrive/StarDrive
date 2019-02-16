@@ -369,44 +369,49 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void RenderOverlay(SpriteBatch spriteBatch, Rectangle drawRect, bool showModules)
+        public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, bool showModules)
         {
-            //if (!ResourceManager.TryGetHull(shipData.Hull, out ShipData hullData))
-              //  return; //try load hull data, cancel if failed
             ShipData hullData = shipData.BaseHull;
-            if (hullData.SelectionGraphic.NotEmpty() && !showModules)// draw ship icon plus shields
+            bool drawIcon = !showModules || ModuleSlotList.Length == 0;
+
+            if (drawIcon && hullData.SelectionGraphic.NotEmpty())// draw ship icon plus shields
             {
                 Rectangle destinationRectangle = drawRect;
                 destinationRectangle.X += 2;
 
-                spriteBatch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic), destinationRectangle, Color.White);
+                batch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic), destinationRectangle, Color.White);
                 if (shield_power > 0.0)
                 {
                     byte alpha = (byte)(shield_percent * 255.0f);
-                    spriteBatch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destinationRectangle, new Color(Color.White, alpha));
+                    batch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destinationRectangle, new Color(Color.White, alpha));
                 }
+                return;
             }
-            if (!showModules && hullData.SelectionGraphic.IsEmpty() || ModuleSlotList.Length == 0)
-                return; //ship has no icon, module display is disabled, or there are no modules
 
             int maxSpan = Math.Max(GridWidth, GridHeight);
-            Vector2 halfSpan = new Vector2(GridWidth / 2, GridHeight / 2); //half-span vectors for centering
-            Vector2 halfRect = new Vector2(drawRect.Width / 2, drawRect.Height / 2);
+            Vector2 gridCenter = new Vector2(GridWidth, GridHeight) / 2f;
+            Vector2 rectCenter = new Vector2(drawRect.Width, drawRect.Height) / 2f;
 
-            float moduleSize = (drawRect.Width / (maxSpan + 1));
+            float moduleSize = (drawRect.Width / (maxSpan + 1f));
             if (moduleSize < 2.0)
                 moduleSize = drawRect.Width / (float)(maxSpan + 1);
             if (moduleSize > 10.0)
                 moduleSize = 10f;
-            Rectangle shipDrawRect = new Rectangle(
-                    drawRect.X + (int)(halfRect.X - (halfSpan.X * moduleSize)),
-                    drawRect.Y + (int)(halfRect.Y - (halfSpan.Y * moduleSize)),
+
+            var shipDrawRect = new Rectangle(
+                    drawRect.X + (int)(rectCenter.X - (gridCenter.X * moduleSize)),
+                    drawRect.Y + (int)(rectCenter.Y - (gridCenter.Y * moduleSize)),
                     (int)(GridWidth * moduleSize), (int)(GridHeight * moduleSize));
+
             foreach (ShipModule m in ModuleSlotList)
             {
                 Vector2 modulePos = (m.Position - GridOrigin) / 16f * moduleSize;
                 var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X, shipDrawRect.Y + (int)modulePos.Y, (int)moduleSize * m.XSIZE, (int)moduleSize * m.YSIZE);
-                spriteBatch.FillRectangle(rect, m.GetHealthStatusColor());
+                
+                Color healthColor = m.GetHealthStatusColor();
+                Color moduleColorMultiply = healthColor.AddRgb(0.66f);
+                batch.FillRectangle(rect, healthColor);
+                batch.Draw(m.ModuleTexture, rect, moduleColorMultiply);
             }
         }
 

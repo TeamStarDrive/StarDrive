@@ -173,6 +173,8 @@ namespace Ship_Game.Ships
         public float BaseCost { get; private set; }
         public Planet HomePlanet { get; private set; }
 
+        public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
+
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
             radius = Math.Min(radius, SensorRange);

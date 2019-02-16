@@ -444,7 +444,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private void DrawResupplyReason(Ship ship)
+        void DrawResupplyReason(Ship ship)
         {
             string text = "";
             Color color = Color.Red;
@@ -455,38 +455,28 @@ namespace Ship_Game.Ships
                 {
                     case ResupplyReason.NotNeeded:
                         if (ship.HealthPercent < ShipResupply.RepairDoneThreshold && (ship.AI.State == AIState.Resupply || ship.AI.State == AIState.ResupplyEscort))
+                        {
                             text = $"Repairing Ship by Resupply ({(int)(ship.HealthPercent * 100)}%)";
+                        }
                         else if (!ship.InCombat && ship.HealthPercent.Less(1))
                         {
                             text = $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
                             color = Color.Yellow;
                         }
-                        else
-                            return;
-
+                        else return;
                         break;
-                    case ResupplyReason.FighterReactorsDamaged:
-                        text = "Reactors Damaged";
-                        break;
-                    case ResupplyReason.LowHealth:
-                        text = "Structural Integrity Compromized";
-                        break;
+                    case ResupplyReason.FighterReactorsDamaged: text = "Reactors Damaged"; break;
+                    case ResupplyReason.LowHealth:              text = "Structural Integrity Compromised"; break;
                     case ResupplyReason.LowOrdnanceNonCombat:
-                    case ResupplyReason.LowOrdnanceCombat:
-                        text = "Ammo Reserves Critical";
-                        break;
-                    case ResupplyReason.LowTroops:
-                        text = "Need Troops";
-                        break;
-                    case ResupplyReason.NoCommand:
-                        text = "No Command, Cannot Attack";
-                        break;
+                    case ResupplyReason.LowOrdnanceCombat: text = "Ammo Reserves Critical"; break;
+                    case ResupplyReason.LowTroops:         text = "Need Troops"; break;
+                    case ResupplyReason.NoCommand:         text = "No Command, Cannot Attack"; break;
                 }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, color);
         }
         
-        private void DrawTroopStatus() // Expanded  by Fat Bastard
+        void DrawTroopStatus() // Expanded  by Fat Bastard
         {
             var troopPos     = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             int playerTroops = Ship.NumPlayerTroopsOnShip;
@@ -508,7 +498,7 @@ namespace Ship_Game.Ships
                 DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles, Color.CadetBlue, ref troopPos);
         }
 
-        private void DrawCarrierStatus(Vector2 mousePos)  // Added by Fat Bastard - display hangar status
+        void DrawCarrierStatus(Vector2 mousePos)  // Added by Fat Bastard - display hangar status
         {
             if (Ship.Carrier.AllFighterHangars.Length > 0)
             {
@@ -525,7 +515,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private void DrawHorizontalValues(int value, Color color, ref Vector2 textVector, bool withSlash = true)
+        void DrawHorizontalValues(int value, Color color, ref Vector2 textVector, bool withSlash = true)
         {
             if (withSlash)
             {
@@ -539,14 +529,12 @@ namespace Ship_Game.Ships
    
         public override bool HandleInput(InputState input)
         {
-            if (Screen.SelectedShip == null) return false;  //fbedard
+            if (Screen.SelectedShip == null)
+                return false;
             
             if (SlidingElement.HandleInput(input))
             {
-                if (SlidingElement.Open)
-                    State = ElementState.TransitionOn;
-                else
-                    State = ElementState.TransitionOff;
+                State = SlidingElement.Open ? ElementState.TransitionOn : ElementState.TransitionOff;
                 return true;
             }
 
@@ -557,7 +545,10 @@ namespace Ship_Game.Ships
                     ShipNameArea.HandlingInput = true;
             }
             else
+            {
                 ShipNameArea.Hover = false;
+            }
+
             if (ShipNameArea.HandlingInput)
             {
                 GlobalStats.TakingInput = true;
@@ -565,14 +556,21 @@ namespace Ship_Game.Ships
                 ShipNameArea.Text = Ship.VanityName;
             }
             else
+            {
                 GlobalStats.TakingInput = false;
+            }
+
             if (Gridbutton.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(Localizer.Token(2204));
+
             if (Gridbutton.HandleInput(input))
             {
-                GameAudio.AcceptClick();
-                ShowModules = !ShowModules;
-                Gridbutton.Active = ShowModules;
+                if (input.LeftMouseClick)
+                {
+                    GameAudio.AcceptClick();
+                    ShowModules = !ShowModules;
+                    Gridbutton.Active = ShowModules;
+                }
                 return true;
             }
 
@@ -599,6 +597,7 @@ namespace Ship_Game.Ships
                
             if (ElementRect.HitTest(input.CursorPosition))
                 return true;
+
             if (State == ElementState.Open)
             {                    
                 foreach (OrdersButton ordersButton in Orders)
