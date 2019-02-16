@@ -279,7 +279,7 @@ namespace Ship_Game
                 IncomingFreighters.Add(ship);
         }
 
-        public void AddToOutGoingFreighterList(Ship ship)
+        public void AddToOutgoingFreighterList(Ship ship)
         {
             if (!OutgoingFreighters.Any(s => s == ship))
             OutgoingFreighters.Add(ship);
