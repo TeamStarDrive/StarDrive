@@ -195,9 +195,12 @@ namespace Ship_Game.AI
                     float dot = Owner.Direction.Dot(Target.Velocity.Normalized());
                     if (dot > -0.25f) // they are trying to escape us
                     {
-                        speed = distanceToAttack > Owner.maxWeaponsRange*0.75f 
-                              ? Owner.velocityMaximum // catch up with max speed
-                              : Target.Velocity.Length(); // match their speed
+                        if (distanceToAttack > Owner.maxWeaponsRange*0.75f)
+                            speed = Owner.velocityMaximum; // catch up with max speed
+                        else if (distanceToAttack > Owner.maxWeaponsRange*0.25f)
+                            speed = Target.Velocity.Length() + Owner.velocityMaximum*0.05f;
+                        else
+                            speed = Target.Velocity.Length(); // match their speed
 
                         // we can't catch these bastards, so we need some jump drive assistance
                         if (targetSpeed > Owner.velocityMaximum && distanceToAttack > Owner.maxWeaponsRange)

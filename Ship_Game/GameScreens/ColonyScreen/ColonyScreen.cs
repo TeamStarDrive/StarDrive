@@ -870,7 +870,7 @@ namespace Ship_Game
             build.HandleInput(input);
 
             // We are monitoring AI Colonies
-            if (P.Owner != EmpireManager.Player)
+            if (P.Owner != EmpireManager.Player && !Log.HasDebugger)
             {
                 // Input not captured, let Universe Screen manager what happens
                 return false;

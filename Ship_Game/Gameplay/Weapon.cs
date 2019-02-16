@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 
 namespace Ship_Game.Gameplay
@@ -263,8 +264,10 @@ namespace Ship_Game.Gameplay
 
         public void FireDrone(Vector2 direction)
         {
-            if (PrepareToFire())
-                Projectile.Create(this, Module.Center, direction, null, playSound: true);
+            if (!CanFireWeaponCooldown())
+                return;
+            PrepareToFire();
+            Projectile.Create(this, Module.Center, direction, null, playSound: true);
         }
 
         public Vector2 GetFireConeSpread(Vector2 direction)
@@ -334,11 +337,10 @@ namespace Ship_Game.Gameplay
                 && Owner.Ordinance    >= OrdinanceRequiredToFire;
         }
 
-        bool PrepareToFire()
-        {
-            if (CooldownTimer > 0f || !CanFireWeapon())
-                return false;
+        bool CanFireWeaponCooldown() => CooldownTimer <= 0f && CanFireWeapon();
 
+        void PrepareToFire()
+        {
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
             CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
@@ -346,7 +348,6 @@ namespace Ship_Game.Gameplay
             Owner.InCombatTimer = 15f;
             Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
-            return true;
         }
 
         bool PrepareToFireSalvo()
@@ -391,13 +392,15 @@ namespace Ship_Game.Gameplay
                 if (ProjectedImpactPoint(target, out Vector2 pip) && CheckFireArc(pip))
                 {
                     firePos = pip;
-                    return PrepareToFire();
+                    return true;
                 }
             }
+
+            // if no target OR pip was not in arc, check if targetPos itself is in arc
             if (CheckFireArc(targetPos))
             {
                 firePos = targetPos;
-                return PrepareToFire();
+                return true;
             }
             firePos = targetPos;
             return false;
@@ -405,17 +408,19 @@ namespace Ship_Game.Gameplay
 
         bool FireAtTarget(Vector2 targetPos, GameplayObject target = null)
         {
+            if (!CanFireWeaponCooldown())
+                return false;
             if (!PrepareFirePos(target, targetPos, out Vector2 firePos))
                 return false;
 
+            PrepareToFire();
             Vector2 direction = Origin.DirectionToTarget(firePos);
-
             SpawnSalvo(direction, target, playSound:true);
 
             if (SalvoCount > 1)  // queue the rest of the salvo to follow later
             {
                 SalvosToFire   = SalvoCount - 1;
-                SalvoDirection = direction.ToRadians() - Owner.Rotation; //keep direction relative to source
+                SalvoDirection = direction.ToRadians() - Owner.Rotation; // keep direction relative to source
                 SalvoFireTimer = 0f;
                 SalvoTarget    = target;
             }
@@ -635,7 +640,8 @@ namespace Ship_Game.Gameplay
                 if (!Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
                     return destination;
             }
-            if (Tag_Tractor || isRepairBeam) return destination;
+            if (Tag_Tractor || isRepairBeam)
+                return destination;
 
             Vector2 targetError = target?.TargetErrorPos() ?? Vector2.Zero;
             targetError += AdjustTargeting();
@@ -646,10 +652,14 @@ namespace Ship_Game.Gameplay
 
         bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
         {
-            destination = ProjectedBeamPoint(source, destination, target);
-            if (!Owner.IsInsideFiringArc(this, destination) || !PrepareToFire())
+            if (!CanFireWeaponCooldown())
                 return false;
 
+            destination = ProjectedBeamPoint(source, destination, target);
+            if (!Owner.IsInsideFiringArc(this, destination))
+                return false;
+
+            PrepareToFire();
             var beam = new Beam(this, source, destination, target, followMouse);
             Module.GetParent().AddBeam(beam);
             return true;
@@ -688,19 +698,21 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            if (!ProjectedImpactPoint(target, out Vector2 pip))
-                return;
-            Vector2 direction = (pip - Center).Normalized();
+            if (ProjectedImpactPoint(target, out Vector2 pip))
+            {
+                Vector2 direction = (pip - Center).Normalized();
 
-            foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
-                Projectile.Create(this, planet, fireSource.Direction, target);
+                foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
+                    Projectile.Create(this, planet, fireSource.Direction, target);
+            }
         }
 
         public void FireAtAssignedTarget()
         {
             if (!CanFireWeapon())
                 return;
-            if (!TargetValid(FireTarget)) return;
+            if (!TargetValid(FireTarget))
+                return;
             if (FireTarget is Ship targetShip)
             {
                 FireAtAssignedTargetNonVisible(targetShip);
