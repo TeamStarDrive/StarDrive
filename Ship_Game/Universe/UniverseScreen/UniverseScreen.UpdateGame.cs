@@ -355,9 +355,8 @@ namespace Ship_Game
                         continue;
                     using (fleet.Ships.AcquireReadLock())
                     {
-                        fleet.Setavgtodestination();
+                        fleet.CalculateDistanceToMove();
                         fleet.SetSpeed();
-                        fleet.StoredFleetPosition = fleet.FindAveragePositionset();
                     }
                 }
             }

@@ -227,31 +227,20 @@ namespace Ship_Game
         static void CreateSpaceRoads(UniverseData data, SavedGame.EmpireSaveData d, Empire e)
         {
             e.SpaceRoadsList = new Array<SpaceRoad>();
-            foreach (SavedGame.SpaceRoadSave roadsave in d.SpaceRoadData)
+            foreach (SavedGame.SpaceRoadSave roadSave in d.SpaceRoadData)
             {
                 var road = new SpaceRoad();
                 foreach (SolarSystem s in data.SolarSystemsList)
                 {
-                    if (roadsave.OriginGUID == s.guid)
-                    {
-                        road.SetOrigin(s);
-                    }
-
-                    if (roadsave.DestGUID != s.guid)
-                    {
-                        continue;
-                    }
-
-                    road.SetDestination(s);
+                    if (roadSave.OriginGUID == s.guid) road.Origin = s;
+                    if (roadSave.DestGUID == s.guid)   road.Destination = s;
                 }
 
-                foreach (SavedGame.RoadNodeSave nodesave in roadsave.RoadNodes)
+                foreach (SavedGame.RoadNodeSave roadNode in roadSave.RoadNodes)
                 {
                     var node = new RoadNode();
-                    foreach (Ship s in data.MasterShipList)
-                        if (nodesave.Guid_Platform == s.guid)
-                            node.Platform = s;
-                    node.Position = nodesave.Position;
+                    data.FindShip(roadNode.Guid_Platform, out node.Platform);
+                    node.Position = roadNode.Position;
                     road.RoadNodesList.Add(node);
                 }
 
@@ -431,8 +420,7 @@ namespace Ship_Game
                     }
 
                     e.GetFleetsDict()[fleetsave.Key].SetSpeed();
-                    fleet.FindAveragePositionset();
-                    fleet.Setavgtodestination();
+                    fleet.CalculateDistanceToMove();
                 }
             }
         }
