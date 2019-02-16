@@ -174,7 +174,7 @@ namespace Ship_Game
 
         public int FreighterTraffic(Array <Ship> freighterList, Goods goods)
         {
-            return freighterList.Count(s => s.AI.OrderQueue.Any(g => g.Trade.Goods == goods));
+            return freighterList.Count(s => s.AI.HasTradeGoal(goods));
         }
 
         public int FreeGoodsImportSlots(Goods goods)
