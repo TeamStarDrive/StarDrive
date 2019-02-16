@@ -570,6 +570,11 @@ namespace Ship_Game.AI
             }
         }
 
+        public bool HasTradeGoal(Goods goods)
+        {
+            return OrderQueue.Any(g => g.Trade?.Goods == goods);
+        }
+
         public bool WaitForBlockadeRemoval(ShipGoal g, Planet planet, float elapsedTime)
         {
             if (planet.TradeBlocked)

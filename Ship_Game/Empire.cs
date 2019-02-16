@@ -1300,12 +1300,9 @@ namespace Ship_Game
 
         public DebugTextBlock DebugEmpireTradeInfo()
         {
-            int foodShips = OwnedShips.Count(s => s.IsFreighter && !s.IsIdleFreighter && s.AI.OrderQueue
-                                             .Any(g => g.Trade?.Goods == Goods.Food));
-            int prodShips = OwnedShips.Count(s => s.IsFreighter && !s.IsIdleFreighter && s.AI.OrderQueue
-                                             .Any(g => g.Trade?.Goods == Goods.Production));
-            int colonistsShips = OwnedShips.Count(s => s.IsFreighter && !s.IsIdleFreighter && s.AI.OrderQueue
-                                                  .Any(g => g.Trade?.Goods == Goods.Colonists));
+            int foodShips      = NumFreightersTrading(Goods.Food);
+            int prodShips      = NumFreightersTrading(Goods.Production);
+            int colonistsShips = NumFreightersTrading(Goods.Colonists);
 
             int foodImportPlanets = OwnedPlanets.Count(p => p.FoodImportSlots > 0);
             int prodImportPlanets = OwnedPlanets.Count(p => p.ProdImportSlots > 0);
@@ -2494,6 +2491,11 @@ namespace Ship_Game
 
             if (FreighterCap > TotalFreighters + FreightersBeingBuilt && MaxFreightersInQueue > FreightersBeingBuilt)
                 EmpireAI.Goals.Add(new IncreaseFreighters(this));
+        }
+
+        int NumFreightersTrading(Goods goods)
+        {
+            return OwnedShips.Count(s => s.IsFreighter && !s.IsIdleFreighter && s.AI.HasTradeGoal(goods));
         }
 
         public void ReportGoalComplete(Goal g)

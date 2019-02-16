@@ -499,15 +499,9 @@ namespace Ship_Game.Ships
             {
                 TransportingProduction = value;
                 TransportingFood = value;
-                if (!value) return;
-                if (AI.State != AIState.SystemTrader)
-                {
-                   // AI.State = AIState.SystemTrader;
-                }
             }
         }
 
-        
         public bool DoingFoodTransport => TransportingFood;
         public bool DoingProdTransport => TransportingProduction;
         public bool DoingPassengerTransport => TransportingPassengers;
