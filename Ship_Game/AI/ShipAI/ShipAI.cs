@@ -574,8 +574,8 @@ namespace Ship_Game.AI
         {
             if (planet.TradeBlocked)
             {
-                g.BlockadeTimer -= elapsedTime;
-                if (g.BlockadeTimer > 0f)
+                g.Trade.BlockadeTimer -= elapsedTime;
+                if (g.Trade.BlockadeTimer > 0f)
                     return true;
 
                 // blockade is going on for too long, abort
@@ -585,11 +585,10 @@ namespace Ship_Game.AI
                 if (fallback != planet)
                     AddOrbitPlanetGoal(fallback, AIState.AwaitingOrders);
 
-                g.ExportPlanet.RemoveFromOutgoingFreighterList(Owner);
-                g.ImportPlanet.RemoveFromIncomingFreighterList(Owner);
+                g.Trade.UnregisterTrade(Owner);
                 return true;
             }
-            g.BlockadeTimer = 120f; // blockade was removed, continue as planned
+            g.Trade.BlockadeTimer = 120f; // blockade was removed, continue as planned
             return false;
         }
 
@@ -600,9 +599,8 @@ namespace Ship_Game.AI
 
             // if ship has this cargo type on board, proceed to drop it off at destination
             Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f ? Plan.DropOffGoods : Plan.PickupGoods;
-            AddShipGoal(plan, exportPlanet, importPlanet, goods);
-            importPlanet.AddToIncomingFreighterList(Owner);
-            exportPlanet.AddToOutGoingFreighterList(Owner);
+            AddTradePlan(plan, exportPlanet, importPlanet, goods);
+            OrderQueue.PeekLast.Trade.RegisterTrade(Owner);
         }
 
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);

@@ -401,8 +401,8 @@ namespace Ship_Game.Debug
                 {
                     DrawString($"Trade Timer:{ship.TradeTimer}");
                     ShipGoal g = ship.AI.OrderQueue.PeekLast;
-                    if (g != null && g.BlockadeTimer < 120)
-                        DrawString($"Blockade Timer:{g.BlockadeTimer}");
+                    if (g?.Trade != null && g.Trade.BlockadeTimer < 120)
+                        DrawString($"Blockade Timer:{g.Trade.BlockadeTimer}");
                 }
 
                 if (ship.AI.State == AIState.SystemTrader)
