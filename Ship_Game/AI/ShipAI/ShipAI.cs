@@ -576,7 +576,10 @@ namespace Ship_Game.AI
             {
                 g.Trade.BlockadeTimer -= elapsedTime;
                 if (g.Trade.BlockadeTimer > 0f)
+                {
+                    ReverseThrustUntilStopped(elapsedTime);
                     return true;
+                }
 
                 // blockade is going on for too long, abort
                 ClearOrders();
