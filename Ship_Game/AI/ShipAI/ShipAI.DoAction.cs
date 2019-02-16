@@ -896,13 +896,13 @@ namespace Ship_Game.AI
                 case Goods.Food:
                     exportPlanet.ProdHere   += Owner.UnloadProduction();
                     exportPlanet.Population += Owner.UnloadColonists();
-                    float maxFoodLoad      = exportPlanet.FoodHere.Clamped(0f, exportPlanet.Storage.Max * 0.10f);
+                    float maxFoodLoad        = exportPlanet.FoodHere.Clamped(0f, exportPlanet.Storage.Max * 0.10f);
                     exportPlanet.FoodHere   -= Owner.LoadFood(maxFoodLoad);
                     break;
                 case Goods.Production:
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
-                    float maxProdLoad      = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 10f);
+                    float maxProdLoad        = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 10f);
                     exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
                     break;
                 case Goods.Colonists:
@@ -915,7 +915,7 @@ namespace Ship_Game.AI
             }
             ClearOrders();
             State = AIState.SystemTrader;
-            AddTradePlan(Plan.DropOffGoods, exportPlanet, g.Trade.ImportTo, g.Trade.Goods);
+            AddTradePlan(Plan.DropOffGoods, exportPlanet, g.Trade.ImportTo, g.Trade.Goods, Owner);
         }
 
         private void DoDropOffGoods(float elapsedTime, ShipGoal g)
