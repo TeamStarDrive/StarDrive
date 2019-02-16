@@ -386,7 +386,7 @@ namespace Ship_Game.AI
             float fleetSpeed = Owner.fleet.Speed;
             if (distance > 7500f) // Not near destination
             {
-                float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove
+                float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistanceToMove
                     - Owner.fleet.Position.Distance(Owner.fleet.Position + Owner.FleetOffset);
 
                 if (distance <= distanceFleetCenterToDistance)

@@ -8,6 +8,20 @@ namespace Ship_Game.AI
     public sealed partial class ShipAI
     {
 
+        public bool FindGoal(Plan plan, out ShipGoal goal)
+        {
+            foreach (ShipGoal g in OrderQueue)
+            {
+                if (g.Plan == plan)
+                {
+                    goal = g;
+                    return true;
+                }
+            }
+            goal = null;
+            return false;
+        }
+
         public void AddToOrderQueue(ShipGoal goal)
         {
             OrderQueue.Enqueue(goal);

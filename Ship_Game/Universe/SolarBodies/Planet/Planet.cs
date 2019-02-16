@@ -58,18 +58,19 @@ namespace Ship_Game
         public Array<Ship> IncomingFreighters = new Array<Ship>();
         public Array<Ship> OutgoingFreighters = new Array<Ship>();
 
-        public bool RecentCombat => TroopManager.RecentCombat;
-        public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
-        public int GetDefendingTroopCount() => TroopManager.NumDefendingTroopCount;
-        public bool AnyOfOurTroops(Empire us) => TroopManager.WeHaveTroopsHere(us);
-        public int GetGroundLandingSpots() => TroopManager.NumGroundLandingSpots();
+        public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
-        public float GetGroundStrength(Empire empire) => TroopManager.GroundStrength(empire);
-        public int GetPotentialGroundTroops() => TroopManager.GetPotentialGroundTroops();
+        public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
+        public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
+        public bool AnyOfOurTroops(Empire us)   => TroopManager.WeHaveTroopsHere(us);
+        public int GetGroundLandingSpots()      => TroopManager.NumGroundLandingSpots();
+
+        public float GetGroundStrength(Empire empire)   => TroopManager.GroundStrength(empire);
+        public int GetPotentialGroundTroops()           => TroopManager.GetPotentialGroundTroops();
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
 
-        public float GetGroundStrengthOther(Empire allButThisEmpire) => TroopManager.GroundStrengthOther(allButThisEmpire);
+        public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
 
 
@@ -97,21 +98,31 @@ namespace Ship_Game
             }
         }
 
-        public int IncomingFoodFreighters      => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
-        public int IncomingProdFreighters      => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Production));
-        public int IncomingColonistsFreighters => IncomingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Colonists));
+        public int IncomingFoodFreighters      => FreighterTraffic(IncomingFreighters, Goods.Food);
+        public int IncomingProdFreighters      => FreighterTraffic(IncomingFreighters, Goods.Production);
+        public int IncomingColonistsFreighters => FreighterTraffic(IncomingFreighters, Goods.Colonists);
 
-        public int OutgoingFoodFreighters      => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Food));
-        public int OutgoingProdFreighters      => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Production));
-        public int OutGoingColonistsFreighters => OutgoingFreighters.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == Goods.Colonists));
+        public int OutgoingFoodFreighters      => FreighterTraffic(OutgoingFreighters, Goods.Food);
+        public int OutgoingProdFreighters      => FreighterTraffic(OutgoingFreighters, Goods.Production);
+        public int OutGoingColonistsFreighters => FreighterTraffic(OutgoingFreighters, Goods.Colonists);
 
-        public int FreeFoodExportSlots     => Math.Max(FoodExportSlots - OutgoingFoodFreighters, 0);
-        public int FreeProdExportSlots     => Math.Max(ProdExportSlots - OutgoingProdFreighters, 0);
-        public int FreeColonistExportSlots => Math.Max(ColonistsExportSlots - OutGoingColonistsFreighters, 0);
+        public int FreeFoodExportSlots     => FreeFreighterSlots(FoodExportSlots, OutgoingFoodFreighters);
+        public int FreeProdExportSlots     => FreeFreighterSlots(ProdExportSlots, OutgoingProdFreighters);
+        public int FreeColonistExportSlots => FreeFreighterSlots(ColonistsExportSlots, OutGoingColonistsFreighters);
 
-        public int FreeFoodImportSlots     => Math.Max(FoodImportSlots - IncomingFoodFreighters, 0);
-        public int FreeProdImportSlots     => Math.Max(ProdImportSlots - IncomingProdFreighters, 0);
-        public int FreeColonistImportSlots => Math.Max(ColonistsImportSlots - IncomingColonistsFreighters, 0);
+        public int FreeFoodImportSlots     => FreeFreighterSlots(FoodImportSlots, IncomingFoodFreighters);
+        public int FreeProdImportSlots     => FreeFreighterSlots(ProdImportSlots, IncomingProdFreighters);
+        public int FreeColonistImportSlots => FreeFreighterSlots(ColonistsImportSlots, IncomingColonistsFreighters);
+
+        public int FreeFreighterSlots(int slots, int freighters)
+        {
+            return Math.Max(slots - freighters, 0);
+        }
+
+        public int FreighterTraffic(Array <Ship> freighterList, Goods goods)
+        {
+            return freighterList.Count(s => s.AI.OrderQueue.Any(g => g.GoodsType == goods));
+        }
 
         public int FreeGoodsImportSlots(Goods goods)
         {

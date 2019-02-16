@@ -270,8 +270,8 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                var fleetPosition = Owner.fleet.FindAveragePosition() + FleetNode.FleetOffset;
-                var distanceToFleet = fleetPosition.Distance(copyWeight.Ship.Center);
+                Vector2 fleetPos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                float distanceToFleet = fleetPos.Distance(copyWeight.Ship.Center);
                 copyWeight += FleetNode.OrdersRadius <= distanceToFleet ? 0 : -distanceToFleet / FleetNode.OrdersRadius;
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.GetDPS(), dpsAvg, FleetNode.DPSWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.shield_power, shieldAvg,
