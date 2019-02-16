@@ -41,6 +41,26 @@ namespace Ship_Game.AI
             Owner = owner;
         }
 
+        public Vector2 GoalTarget
+        {
+            get
+            {
+                if (OrderQueue.NotEmpty)
+                {
+                    ShipGoal goal = OrderQueue.PeekFirst;
+                    Vector2 pos = goal.TargetPlanet?.Center ?? goal.MovePosition;
+                    if (pos.NotZero())
+                        return pos;
+                }
+                return Target?.Position
+                    ?? ExplorationTarget?.Position
+                    ?? SystemToDefend?.Position
+                    ?? ColonizeTarget?.Center
+                    ?? ResupplyTarget?.Center
+                    ?? Vector2.Zero;
+            }
+        }
+
         void Colonize(Planet targetPlanet)
         {
             if (Owner.Center.OutsideRadius(targetPlanet.Center, 2000f))
@@ -273,7 +293,7 @@ namespace Ship_Game.AI
                 case ResupplyReason.LowHealth:
                     if (Owner.fleet != null && Owner.fleet.HasRepair)
                     {
-                        Ship supplyShip =  Owner.fleet.GetShips.First(supply => supply.hasRepairBeam || supply.HasRepairModule);
+                        Ship supplyShip = Owner.fleet.Ships.First(supply => supply.hasRepairBeam || supply.HasRepairModule);
                         SetUpSupplyEscort(supplyShip, supplyType: "Repair");
                         return;
                     }
@@ -542,8 +562,8 @@ namespace Ship_Game.AI
                     ClearWayPoints();
                     WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
                     State = AIState.AwaitingOrders;
-                    if (Owner.fleet?.GetStack().Count > 0)
-                        WayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
+                    if (Owner.fleet?.GoalStack.Count > 0)
+                        WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
                     else
                         OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, DesiredDirection, true, null);
                 }

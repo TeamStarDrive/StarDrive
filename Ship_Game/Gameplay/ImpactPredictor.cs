@@ -235,6 +235,9 @@ namespace Ship_Game.Gameplay
             double timeToImpact1 = (bm - sqrt) / (2.0 * a);
             double timeToImpact2 = (bm + sqrt) / (2.0 * a);
 
+            timeToImpact1 = timeToImpact1.Clamped(-60.0, +60.0);
+            timeToImpact2 = timeToImpact2.Clamped(-60.0, +60.0);
+
             #if DEBUG
             if (double.IsNaN(timeToImpact1) || double.IsNaN(timeToImpact2))
                 Log.Error("timeToImpact was NaN!");

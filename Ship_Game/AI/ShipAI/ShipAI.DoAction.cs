@@ -165,6 +165,7 @@ namespace Ship_Game.AI
 
             Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, Target.Center, spacerDistance, Owner.loyalty.EmpireColor, 0f);
 
+            
             Vector2 localQuadrant = Target.Direction.RotateDirection(AttackRunQuadrant);
             Vector2 attackPos = Target.Position + localQuadrant*Target.Radius;
 
@@ -186,9 +187,37 @@ namespace Ship_Game.AI
             }
             else
             {
-                // fly towards the offset attack position
-                SubLightMoveTowardsPosition(attackPos, elapsedTime, Owner.Speed*0.75f, predictPos: true, autoSlowDown: false);
-                //DrawDebugTarget(attackPos, Owner.Radius);
+                // figure out if the target ship is drifting towards our facing or if it's drifting away
+                float speed = Owner.Speed * 0.75f;
+                float targetSpeed = Target.Velocity.Length();
+                if (targetSpeed > 50f)
+                {
+                    float dot = Owner.Direction.Dot(Target.Velocity.Normalized());
+                    if (dot > -0.25f) // they are trying to escape us
+                    {
+                        if (distanceToAttack > Owner.maxWeaponsRange*0.75f)
+                            speed = Owner.velocityMaximum; // catch up with max speed
+                        else if (distanceToAttack > Owner.maxWeaponsRange*0.25f)
+                            speed = Target.Velocity.Length() + Owner.velocityMaximum*0.05f;
+                        else
+                            speed = Target.Velocity.Length(); // match their speed
+
+                        // we can't catch these bastards, so we need some jump drive assistance
+                        if (targetSpeed > Owner.velocityMaximum && distanceToAttack > Owner.maxWeaponsRange)
+                        {
+                            if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 pip))
+                            {
+                                DrawDebugTarget(pip, 100f);
+                                ThrustOrWarpToPosCorrected(pip, elapsedTime);
+                                return;
+                            }
+                        }
+                    }
+                    // else: they are coming towards us or just flew past us
+                }
+
+                // fly simply towards the offset attack position
+                SubLightMoveTowardsPosition(attackPos, elapsedTime, speed, predictPos: true, autoSlowDown: false);
             }
         }
 
@@ -250,7 +279,8 @@ namespace Ship_Game.AI
             if (!Owner.loyalty.isFaction && Owner.System != null && Owner.Carrier.HasTroopBays) //|| Owner.hasTransporter)
                 CombatState = CombatState.AssaultShip;
 
-            if (Target.Center.InRadius(Owner.Center, 10000))
+            // in range:
+            if (Target.Center.InRadius(Owner.Center, 7500f))
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
@@ -261,29 +291,34 @@ namespace Ship_Game.AI
             {
                 if (Target == null)
                     Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
-                var fleetPositon = Owner.fleet.FindAveragePosition() + FleetNode.FleetOffset;
-                if (Target.Center.OutsideRadius(fleetPositon, FleetNode.OrdersRadius))
+                Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                if (Target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                 {
-                    if (Owner.Center.OutsideRadius(fleetPositon, 1000))
+                    if (Owner.Center.OutsideRadius(nodePos, 1000f))
                     {
-                        ThrustOrWarpToPosCorrected(fleetPositon, elapsedTime);
+                        ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
                         return;
                     }
                     DoHoldPositionCombat(elapsedTime);
                     return;
                 }
             }
+            // out of range and not holding pos / evading:
             else if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
             {
-                ThrustOrWarpToPosCorrected(Target.Center, elapsedTime);
+                if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 prediction) == false)
+                    prediction = Target.Center;
+                ThrustOrWarpToPosCorrected(prediction, elapsedTime);
                 return;
             }
+
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
                 && Owner.Center.OutsideRadius(Target.Center, Owner.maxWeaponsRange*3f))
             {
                 ThrustOrWarpToPosCorrected(Target.Center, elapsedTime);
                 return;
             }
+
             switch (CombatState)
             {
                 case CombatState.Artillery:      DoNonFleetArtillery(elapsedTime); break;
@@ -302,47 +337,53 @@ namespace Ship_Game.AI
             Owner.InCombat = Target != null;
         }
 
-        void DoDeploy(ShipGoal sg)
+        void DoDeploy(ShipGoal g)
         {
-            if (sg.Goal == null)
+            if (g.Goal == null)
                 return;
-            Planet target = sg.TargetPlanet;
-            if (target == null && sg.Goal.TetherTarget != Guid.Empty)
+
+            Planet target = g.TargetPlanet;
+            if (target == null && g.Goal.TetherTarget != Guid.Empty)
             {
-                Empire.Universe.PlanetsDict.TryGetValue(sg.Goal.TetherTarget, out target);
+                Empire.Universe.PlanetsDict.TryGetValue(g.Goal.TetherTarget, out target);
             }
-            if (target != null && (target.Center + sg.Goal.TetherOffset).Distance(Owner.Center) > 200f)
+
+            if (target != null && (target.Center + g.Goal.TetherOffset).Distance(Owner.Center) > 200f)
             {
-                sg.Goal.BuildPosition = target.Center + sg.Goal.TetherOffset;
-                OrderDeepSpaceBuild(sg.Goal);
+                g.Goal.BuildPosition = target.Center + g.Goal.TetherOffset;
+                OrderDeepSpaceBuild(g.Goal);
                 return;
             }
-            Ship platform = Ship.CreateShipAtPoint(sg.Goal.ToBuildUID, Owner.loyalty,
-                sg.Goal.BuildPosition);
+
+            Ship platform = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
             if (platform == null)
                 return;
 
+            AddStructureToRoadsList(g, platform);
+
+            if (g.Goal.TetherTarget != Guid.Empty)
+            {
+                platform.TetherToPlanet(Empire.Universe.PlanetsDict[g.Goal.TetherTarget]);
+                platform.TetherOffset = g.Goal.TetherOffset;
+            }
+            Owner.loyalty.GetEmpireAI().Goals.Remove(g.Goal);
+            Owner.QueueTotalRemoval();
+        }
+
+        void AddStructureToRoadsList(ShipGoal g, Ship platform)
+        {
             foreach (SpaceRoad road in Owner.loyalty.SpaceRoadsList)
             {
-                bool found = false;
                 foreach (RoadNode node in road.RoadNodesList)
                 {
-                    if (node.Position != sg.Goal.BuildPosition)
-                        continue;
-                    node.Platform = platform;
-                    StatTracker.StatAddRoad(node, Owner.loyalty);
-                    found = true;
-                    break;
+                    if (node.Position == g.Goal.BuildPosition)
+                    {
+                        node.Platform = platform;
+                        StatTracker.StatAddRoad(node, Owner.loyalty);
+                        return;
+                    }
                 }
-                if (found) break;
             }
-            if (sg.Goal.TetherTarget != Guid.Empty)
-            {
-                platform.TetherToPlanet(Empire.Universe.PlanetsDict[sg.Goal.TetherTarget]);
-                platform.TetherOffset = sg.Goal.TetherOffset;
-            }
-            Owner.loyalty.GetEmpireAI().Goals.Remove(sg.Goal);
-            Owner.QueueTotalRemoval();
         }
 
         void DoEvadeCombat(float elapsedTime)

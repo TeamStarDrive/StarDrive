@@ -12,7 +12,7 @@ namespace Ship_Game.AI
             public Vector2 MovePosition;
             public Vector2 PositionLast = new Vector2();
             public Vector2 FinalFacingVector;
-            private readonly ShipGroup Fleet;
+            readonly ShipGroup Fleet;
             public float FinalFacing;
 
             public FleetGoal(ShipGroup fleet, Vector2 movePosition, float facing, Vector2 fVec, FleetGoalType t)

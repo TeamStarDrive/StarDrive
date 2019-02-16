@@ -8,7 +8,7 @@ namespace Ship_Game.Empires
   
         public SubSpaceProjectors(float universeWidth)
         {
-            Radius = universeWidth * .04f;
+            Radius = universeWidth * 0.04f;
         }
     }
 }

@@ -161,23 +161,22 @@ namespace Ship_Game.AI
             public Planet Planet;
             public float Value;
             public float Distance;
-            public float JumpRange;
             public bool OutOfRange;
-            public bool CantColonize;            
+            public bool CantColonize;
+
+            public override string ToString()
+            {
+                return $"{Planet.Name} Value={Value} Distance={Distance}";
+            }
 
             public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, Vector2 empireCenter, float enemyStr)
             {
-                int commodities        = planet.Storage.CommoditiesCount;
-                Distance               = empireCenter.Distance(planet.Center);                
-                CantColonize           = IsBadWorld(planet, canColonizeBarren, commodities);
-                
-                float distanceInJumps  = Math.Max(Distance / 600000, 1);
-                JumpRange              = distanceInJumps;
-                Planet                 = planet;
-
-                float baseValue        = planet.EmpireBaseValue(empire);
-                Value                  = baseValue / distanceInJumps;
-                OutOfRange             = PlanetToFarToColonize(planet, empire);
+                Planet       = planet;
+                Distance     = empireCenter.Distance(planet.Center);                
+                CantColonize = IsBadWorld(planet, canColonizeBarren, planet.Storage.CommoditiesCount);
+                float jumpRange = Math.Max(Distance / 600000, 1);
+                Value      = planet.EmpireBaseValue(empire) / jumpRange;
+                OutOfRange = PlanetTooFarToColonize(planet, empire);
 
                 if (Value < 0.3f)
                     CantColonize = true;
@@ -186,17 +185,16 @@ namespace Ship_Game.AI
                     Value *= (empire.currentMilitaryStrength - enemyStr) / empire.currentMilitaryStrength;
             }
 
-            private static bool IsBadWorld(Planet planetList, bool canColonizeBarren, int commodities) =>
-                planetList.IsBarrenType
-                && !canColonizeBarren && commodities == 0;
-
-            private static bool PlanetToFarToColonize(Planet planetList, Empire empire)
+            static bool IsBadWorld(Planet planet, bool canColonizeBarren, int commodities)
             {
-                AO closestAO = empire.GetEmpireAI().AreasOfOperations
-                    .FindMin(ao => ao.Center.SqDist(planetList.Center));
-                if (closestAO != null && planetList.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 1.5f))
-                    return true;
-                return false;
+                return planet.IsBarrenType && !canColonizeBarren && commodities == 0;
+            }
+
+            static bool PlanetTooFarToColonize(Planet p, Empire empire)
+            {
+                AO closestAO = empire.GetEmpireAI().AreasOfOperations.FindMin(ao => ao.Center.SqDist(p.Center));
+                return closestAO != null
+                    && p.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 1.5f);
             }
 
         }

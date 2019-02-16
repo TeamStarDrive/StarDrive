@@ -173,6 +173,8 @@ namespace Ship_Game.Ships
         public float BaseCost { get; private set; }
         public Planet HomePlanet { get; private set; }
 
+        public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
+
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
             radius = Math.Min(radius, SensorRange);
@@ -945,26 +947,12 @@ namespace Ship_Game.Ships
         bool IsPosInsideArc(Weapon w, Vector2 pos)
         {
             float halfArc = w.Module.FieldOfFire / 2f;
-            Vector2 toTarget = pos - w.Center;
-            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
-            float angleToMouse = 180f - radians.ToDegrees();
+            float angleToTarget = (pos - w.Center).ToDegrees();
             float facing = w.Module.Facing + Rotation.ToDegrees();
             if (facing > 360f)
                 facing -= 360f;
 
-            float difference = Math.Abs(angleToMouse - facing);
-            if (difference > halfArc)
-            {
-                if (angleToMouse > 180f)
-                {
-                    angleToMouse = -1f * (360f - angleToMouse);
-                }
-                if (facing > 180f)
-                {
-                    facing = -1f * (360f - facing);
-                }
-                difference = Math.Abs(angleToMouse - facing);
-            }
+            float difference = Math.Abs(angleToTarget - facing);
             return difference < halfArc;
         }
 

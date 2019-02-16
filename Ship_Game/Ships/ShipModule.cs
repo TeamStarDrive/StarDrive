@@ -16,7 +16,7 @@ namespace Ship_Game.Ships
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
 
-        public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
+        public float Facing; // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
         public bool CheckedConduits;
         public bool Powered;
         public int quadrant = -1;
