@@ -62,6 +62,14 @@ namespace Ship_Game
             if (value >= (max-0.000001f)) return max;
             return value;
         }
+
+        public static double Clamped(this double value, double min, double max)
+        {
+            if (value <= (min+0.000001)) return min;
+            if (value >= (max-0.000001)) return max;
+            return value;
+        }
+
         public static int Clamped(this int value, int min, int max)
         {
             return Max(min, Min(value, max));

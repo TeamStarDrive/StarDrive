@@ -317,8 +317,8 @@ namespace Ship_Game
                 {
                     var rdata = new SpaceRoadSave
                     {
-                        OriginGUID = road.GetOrigin().guid,
-                        DestGUID = road.GetDestination().guid,
+                        OriginGUID = road.Origin.guid,
+                        DestGUID = road.Destination.guid,
                         RoadNodes = new Array<RoadNodeSave>()
                     };
                     foreach (RoadNode node in road.RoadNodesList)
