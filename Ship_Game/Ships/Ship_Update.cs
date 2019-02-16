@@ -241,7 +241,9 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (Velocity.LengthSquared() > velocityMaximum*velocityMaximum) // RedFox: use SqLen instead of Len
+            if (Velocity.Length() < 5f)
+                Velocity = RandomMath.Vector2D(200);
+            if (Velocity.Length() > velocityMaximum)
                 Velocity = Velocity.Normalized() * velocityMaximum;
 
             Vector2 deltaMove = Velocity * elapsedTime;

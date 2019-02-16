@@ -41,6 +41,26 @@ namespace Ship_Game.AI
             Owner = owner;
         }
 
+        public Vector2 GoalTarget
+        {
+            get
+            {
+                if (OrderQueue.NotEmpty)
+                {
+                    ShipGoal goal = OrderQueue.PeekFirst;
+                    Vector2 pos = goal.TargetPlanet?.Center ?? goal.MovePosition;
+                    if (pos.NotZero())
+                        return pos;
+                }
+                return Target?.Position
+                    ?? ExplorationTarget?.Position
+                    ?? SystemToDefend?.Position
+                    ?? ColonizeTarget?.Center
+                    ?? ResupplyTarget?.Center
+                    ?? Vector2.Zero;
+            }
+        }
+
         void Colonize(Planet targetPlanet)
         {
             if (Owner.Center.OutsideRadius(targetPlanet.Center, 2000f))

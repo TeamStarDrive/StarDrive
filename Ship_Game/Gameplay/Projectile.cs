@@ -151,9 +151,11 @@ namespace Ship_Game.Gameplay
             else if (Weapon.Tag_Missile) durationMod = 2.0f;
             else if (Planet != null)     durationMod = 2.0f;
 
-            Velocity = Speed*direction + (Owner?.Velocity ?? Vector2.Zero);
+            // @todo Do not inherit parent velocity until we fix target prediction code
+            Vector2 inheritedVelocity = Vector2.Zero; // (Owner?.Velocity ?? Vector2.Zero);
+            Velocity = Speed*direction + inheritedVelocity;
             Rotation = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
-            VelocityMax = Speed + (Owner?.Velocity.Length() ?? 0f);
+            VelocityMax = Speed + inheritedVelocity.Length();
 
             InitialDuration = Duration = (Range/Speed) * durationMod;
             ParticleDelay  += Weapon.particleDelay;
@@ -260,7 +262,7 @@ namespace Ship_Game.Gameplay
 
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
-            if (MissileAI?.GetTarget.GetLoyalty() == attacker)
+            if (MissileAI?.Target.GetLoyalty() == attacker)
                 return true;
 
             if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade
@@ -304,6 +306,10 @@ namespace Ship_Game.Gameplay
                 if (p.ShouldDrawAsProjectile())
                 {
                     p.DrawProjectile(us, batch);
+                }
+                if (p.MissileAI != null && p.MissileAI.Jammed)
+                {
+                    us.DrawStringProjected(p.Center + new Vector2(16), 50f, Color.Red, "Jammed");
                 }
             }
         }
