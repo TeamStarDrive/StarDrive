@@ -2091,18 +2091,10 @@ namespace Ship_Game
 
             if (isFaction)
                 return;
-            if (!isPlayer)
-            {
-                DispatchBuildAndScrapFreighters();
+
+            DispatchBuildAndScrapFreighters();
+            if (isPlayer || AutoExplore)
                 AssignExplorationTasks();
-            }
-            else
-            {
-                if (AutoFreighters)
-                    DispatchBuildAndScrapFreighters();
-                if (AutoExplore)
-                    AssignExplorationTasks();
-            }
         }
 
         void Bankruptcy()
@@ -2485,15 +2477,11 @@ namespace Ship_Game
             {
                 case Goods.Production:
                 case Goods.Food:
-                    closestIdleFreighter = IdleFreighters.FindMinFiltered(s => s.TransportingProduction
-                                                                          || s.TransportingFood, s => s.Center.SqDist(exportPlanet.Center));
                     closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingProduction
                                                                                               || s.TransportingFood);
                     break;
                 case Goods.Colonists:
-                    closestIdleFreighter = IdleFreighters.FindMinFiltered(s => s.DoingPassTransport,
-                                                                  s => s.Center.SqDist(exportPlanet.Center));
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.DoingPassTransport);
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.DoingPassengerTransport);
                     break;
             }
             return closestIdleFreighter;
