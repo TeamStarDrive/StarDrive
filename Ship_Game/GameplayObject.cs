@@ -162,11 +162,6 @@ namespace Ship_Game
             return null;
         }
 
-        public virtual bool Touch(GameplayObject target)
-        {
-            return false; // by default, objects can't be touched
-        }
-
         public virtual bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
             return false;
@@ -176,7 +171,10 @@ namespace Ship_Game
         {
         }
 
-        public virtual Vector2 TargetErrorPos()
+        // certain modules/ships have jamming/ecm properties which make
+        // it harder for missiles to hit them and for weapons to predict our future trajectory
+        // @return Error offset or Vector2.Zero if no jamming error
+        public virtual Vector2 JammingError()
         {
             return Vector2.Zero;            
         }

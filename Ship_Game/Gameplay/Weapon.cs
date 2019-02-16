@@ -439,7 +439,7 @@ namespace Ship_Game.Gameplay
             (Module != null && Module.AccuracyPercent > 0.66f) ||
             (Owner  != null && Owner.CanUseAdvancedTargeting);
 
-        public Vector2 AdjustTargeting(int level = -1)
+        public Vector2 GetTargetingError(int level = -1)
         {
             if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
                 return Vector2.Zero; //|| Tag_PD
@@ -483,12 +483,6 @@ namespace Ship_Game.Gameplay
             return accuracy;
         }
 
-        static Vector2 SetDestination(Vector2 target, Vector2 source, float range)
-        {
-            Vector2 deltaVec = target - source;
-            return source + deltaVec.Normalized() * range;
-        }
-
         public Vector2 Origin => Module?.Center ?? Center;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
@@ -518,13 +512,14 @@ namespace Ship_Game.Gameplay
         {
             Vector2 weaponOrigin = Origin;
             pip = Predict(weaponOrigin, target, CanUseAdvancedTargeting);
+            if (pip == Vector2.Zero)
+                return false;
 
-            Vector2 error = target.TargetErrorPos() + AdjustTargeting();
-            Vector2 targetError = SetDestination(pip, weaponOrigin, 1000) + error;
-            pip = SetDestination(targetError, weaponOrigin, weaponOrigin.Distance(pip));
+            Vector2 error = target.JammingError() + GetTargetingError();
+            pip += error;
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
-            return pip != Vector2.Zero;
+            return true;
         }
 
         public void UpdatePrimaryFireTarget(GameplayObject prevTarget,
@@ -634,20 +629,20 @@ namespace Ship_Game.Gameplay
         }
         public Vector2 ProjectedBeamPoint(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
-            if (DamageAmount < 1) return destination;
-            if (target != null)
-            {
-                if (!Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
-                    return destination;
-            }
+            if (DamageAmount < 1)
+                return destination;
+
+            if (target != null && !Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
+                return destination;
+
             if (Tag_Tractor || isRepairBeam)
                 return destination;
 
-            Vector2 targetError = target?.TargetErrorPos() ?? Vector2.Zero;
-            targetError += AdjustTargeting();
-            targetError += SetDestination(destination, Center, 1000);
-            targetError = SetDestination(targetError, Center, Center.Distance(destination));
-            return targetError;
+            Vector2 error = target?.JammingError() ?? Vector2.Zero;
+            error += GetTargetingError();
+            Vector2 beamDestination = destination + error;
+
+            return beamDestination;
         }
 
         bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
