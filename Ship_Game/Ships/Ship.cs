@@ -387,14 +387,14 @@ namespace Ship_Game.Ships
         // Level 5 crews can use advanced targeting which even predicts acceleration
         public bool CanUseAdvancedTargeting => Level >= 5;
 
-        public override Vector2 TargetErrorPos()
+        public override Vector2 JammingError()
         {
-            Vector2 jitter = Vector2.Zero;
             if (CombatDisabled)
-                return jitter;
+                return Vector2.Zero;
 
-            if (ECMValue >0)
-                jitter += RandomMath2.Vector2D(ECMValue *80f);
+            Vector2 jitter = Vector2.Zero;
+            if (ECMValue > 0)
+                jitter += RandomMath2.Vector2D(ECMValue * 80f);
 
             if (loyalty.data.Traits.DodgeMod > 0)
                 jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);

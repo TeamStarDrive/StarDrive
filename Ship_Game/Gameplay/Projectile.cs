@@ -244,7 +244,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public override Vector2 TargetErrorPos()
+        public override Vector2 JammingError()
         {
             Vector2 jitter = Vector2.Zero;
             if (!Weapon.Tag_Intercept) return jitter;
@@ -410,7 +410,7 @@ namespace Ship_Game.Gameplay
                 Velocity = Velocity.Normalized() * VelocityMax;            
         }
         
-        public override bool Touch(GameplayObject target)
+        public bool Touch(GameplayObject target)
         {
             if (Miss || target == Owner)
                 return false;

@@ -1264,7 +1264,10 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override Vector2 TargetErrorPos() => Parent?.TargetErrorPos() ?? base.TargetErrorPos();
+        public override Vector2 JammingError()
+        {
+            return Parent?.JammingError() ?? Vector2.Zero;
+        }
 
         public bool FighterOut
         {
