@@ -147,10 +147,15 @@ namespace Ship_Game
                     return 0;
 
                 if (Owner.NonCybernetic)
-                    return (int)((Storage.Max - Storage.Prod) / 50) + 1;
+                {
+                    if (ConstructionQueue.Count > 0 && Storage.ProdRatio.AlmostEqual(1))
+                        return 0; // for non governor cases when all full and not constructing
 
-                if (ShortOnFood())
-                    return ((int)(2 - Food.NetIncome)).Clamped(0, 5);
+                    return (int)((Storage.Max - Storage.Prod) / 50) + 1;
+                }
+
+                if (ShortOnFood()) // cybernetics consume production
+                    return ((int)(2 - Prod.NetIncome)).Clamped(0, 5);
 
                 return 0;
             }

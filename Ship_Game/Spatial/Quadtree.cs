@@ -167,17 +167,17 @@ namespace Ship_Game
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public sealed class Quadtree : IDisposable
     {
-        private static readonly SpatialObj[] NoObjects = new SpatialObj[0];
+        static readonly SpatialObj[] NoObjects = new SpatialObj[0];
 
         public readonly int   Levels;
         public readonly float FullSize;
 
         public const int CellThreshold = 4;
-        private Node Root;
-        private int FrameId;
+        Node Root;
+        int FrameId;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
-        private class Node
+        class Node
         {
             public readonly float X, Y, LastX, LastY;
             public Node NW, NE, SE, SW;
@@ -251,7 +251,7 @@ namespace Ship_Game
             Root = new Node(-half, -half, +half, +half);
         }
 
-        private static void SplitNode(Node node, int level)
+        static void SplitNode(Node node, int level)
         {
             float midX = (node.X + node.LastX) / 2;
             float midY = (node.Y + node.LastY) / 2;
@@ -271,7 +271,7 @@ namespace Ship_Game
                 InsertAt(node, level, ref arr[i]);
         }
 
-        private static Node PickSubQuadrant(Node node, ref SpatialObj obj)
+        static Node PickSubQuadrant(Node node, ref SpatialObj obj)
         {
             float midX = (node.X + node.LastX) / 2;
             float midY = (node.Y + node.LastY) / 2;
@@ -291,7 +291,7 @@ namespace Ship_Game
             return null; // obj does not perfectly fit inside a quadrant
         }
 
-        private static void InsertAt(Node node, int level, ref SpatialObj obj)
+        static void InsertAt(Node node, int level, ref SpatialObj obj)
         {
             for (;;)
             {
@@ -328,7 +328,7 @@ namespace Ship_Game
             InsertAt(Root, Levels, ref obj);
         }
 
-        private static bool RemoveAt(Node node, GameplayObject go)
+        static bool RemoveAt(Node node, GameplayObject go)
         {
             for (int i = 0; i < node.Count; ++i)
             {
@@ -343,13 +343,13 @@ namespace Ship_Game
 
         public void Remove(GameplayObject go) => RemoveAt(Root, go);
 
-        private static void FastRemoval(GameplayObject obj, Node node, ref int index)
+        static void FastRemoval(GameplayObject obj, Node node, ref int index)
         {
             UniverseScreen.SpaceManager.FastNonTreeRemoval(obj);
             node.RemoveAtSwapLast(ref index);
         }
 
-        private void UpdateNode(Node node, int level, byte frameId)
+        void UpdateNode(Node node, int level, byte frameId)
         {
             if (node.Count > 0)
             {
@@ -401,7 +401,7 @@ namespace Ship_Game
             }
         }
 
-        private static int RemoveEmptyChildNodes(Node node)
+        static int RemoveEmptyChildNodes(Node node)
         {
             if (node.NW == null)
                 return node.Count;
@@ -428,7 +428,7 @@ namespace Ship_Game
         }
 
         // finds the node that fully encloses this spatial object
-        private Node FindEnclosingNode(ref SpatialObj obj)
+        Node FindEnclosingNode(ref SpatialObj obj)
         {
             int level = Levels;
             Node node = Root;
@@ -447,7 +447,7 @@ namespace Ship_Game
 
         // ship collision; this can collide with multiple projectiles..
         // beams are ignored because they may intersect multiple objects and thus require special CollideBeamAtNode
-        private static void CollideShipAtNode(Node node, ref SpatialObj ship)
+        static void CollideShipAtNode(Node node, ref SpatialObj ship)
         {
             for (int i = 0; i < node.Count; ++i)
             {
@@ -472,12 +472,12 @@ namespace Ship_Game
 
         //@HACK sometime Obj is null and crash the game. added if null mark dienextframe false. 
         //This is surely a bug but the hack might need to be true?
-        private static bool ProjectileIsDying(ref SpatialObj obj)
+        static bool ProjectileIsDying(ref SpatialObj obj)
             => (obj.Type & GameObjectType.Proj) != 0 && ((obj.Obj as Projectile)?.DieNextFrame ?? false);
 
 
         // projectile collision, return the first match because the projectile destroys itself anyway
-        private static bool CollideProjAtNode(Node node, ref SpatialObj proj)
+        static bool CollideProjAtNode(Node node, ref SpatialObj proj)
         {
             for (int i = 0; i < node.Count; ++i)
             {
@@ -500,14 +500,14 @@ namespace Ship_Game
                 || CollideProjAtNode(node.SW, ref proj);
         }
 
-        private struct BeamHitResult
+        struct BeamHitResult
         {
             public GameplayObject Collided;
             public float Distance;
         }
 
         // for beams it's important to only collide the CLOSEST object, so the lookup is exhaustive
-        private static void CollideBeamAtNode(Node node, ref SpatialObj beam, ref BeamHitResult result)
+        static void CollideBeamAtNode(Node node, ref SpatialObj beam, ref BeamHitResult result)
         {
             for (int i = 0; i < node.Count; ++i)
             {
@@ -530,7 +530,7 @@ namespace Ship_Game
             CollideBeamAtNode(node.SW, ref beam, ref result);
         }
 
-        private static void CollideBeamAtNode(Node node, ref SpatialObj beam)
+        static void CollideBeamAtNode(Node node, ref SpatialObj beam)
         {
             // this whole thing is quite ugly... but we need some way to set .LastCollided
             var hit = new BeamHitResult{Distance = 9999999f};
@@ -543,7 +543,7 @@ namespace Ship_Game
 
         public void CollideAll() => CollideAllAt(Root);
 
-        private static void CollideAllAt(Node node)
+        static void CollideAllAt(Node node)
         {
             if (node.NW != null) // depth first approach, to early filter LastCollided
             {
@@ -570,7 +570,7 @@ namespace Ship_Game
         }
 
 
-        private static int CountItemsRecursive(Node node)
+        static int CountItemsRecursive(Node node)
         {
             int count = node.Count;
             if (node.NW != null)
@@ -584,7 +584,7 @@ namespace Ship_Game
         }
 
 
-        private static void HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
+        static void HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
         {
             if (!beam.Touch(victim))
                 return;
@@ -603,7 +603,7 @@ namespace Ship_Game
             beam.ActualHitDestination = hitPos;
         }
 
-        private static void HandleProjCollision(Projectile projectile, GameplayObject victim)
+        static void HandleProjCollision(Projectile projectile, GameplayObject victim)
         {
             if (!projectile.Touch(victim))
                 return;
@@ -611,8 +611,8 @@ namespace Ship_Game
                 module.GetParent().MoveModulesTimer = 2f;
         }
 
-        private static void FindNearbyAtNode(Node node, ref SpatialObj nearbyDummy, GameObjectType filter, 
-                                             ref int numNearby, ref GameplayObject[] nearby)
+        static void FindNearbyAtNode(Node node, ref SpatialObj nearbyDummy, GameObjectType filter, 
+                                     ref int numNearby, ref GameplayObject[] nearby)
         {
             int count = node.Count;
             SpatialObj[] items = node.Items;
@@ -662,8 +662,9 @@ namespace Ship_Game
             return nearby;
         }
 
-        private static bool ShouldStoreDebugInfo => Empire.Universe.Debug && Empire.Universe.DebugWin != null;
-        private static void AddNearbyDebug(GameplayObject obj, float radius, GameplayObject[] nearby)
+        static bool ShouldStoreDebugInfo => Empire.Universe.Debug && Empire.Universe.DebugWin != null;
+
+        static void AddNearbyDebug(GameplayObject obj, float radius, GameplayObject[] nearby)
         {
             var debug = new FindNearbyDebug { Obj = obj, Radius = radius, Nearby = nearby, Timer = 2f };
             for (int i = 0; i < DebugFindNearby.Count; ++i)
@@ -674,7 +675,7 @@ namespace Ship_Game
             DebugFindNearby.Add(debug);
         }
 
-        private struct FindNearbyDebug
+        struct FindNearbyDebug
         {
             public GameplayObject Obj;
             public float Radius;
@@ -682,18 +683,19 @@ namespace Ship_Game
             public float Timer;
         }
 
-        private static readonly Array<FindNearbyDebug> DebugFindNearby = new Array<FindNearbyDebug>();
-        private static SpatialObj[] DebugDrawBuffer = NoObjects;
+        static readonly Array<FindNearbyDebug> DebugFindNearby = new Array<FindNearbyDebug>();
+        static SpatialObj[] DebugDrawBuffer = NoObjects;
 
-        private static readonly Color Brown  = new Color(Color.SaddleBrown, 150);
-        private static readonly Color Violet = new Color(Color.MediumVioletRed, 100);
-        private static readonly Color Golden = new Color(Color.Gold, 100);
+        static readonly Color Brown  = new Color(Color.SaddleBrown, 150);
+        static readonly Color Violet = new Color(Color.MediumVioletRed, 100);
+
+        static readonly Color Golden = new Color(Color.Gold, 100);
         // "Allies are Blue, Enemies are Red, what should I do, with our Quadtree?" - RedFox
-        private static readonly Color Blue   = new Color(Color.CadetBlue, 100);
-        private static readonly Color Red    = new Color(Color.OrangeRed, 100);
-        private static readonly Color Yellow = new Color(Color.Yellow, 100);
+        static readonly Color Blue   = new Color(Color.CadetBlue, 100);
+        static readonly Color Red    = new Color(Color.OrangeRed, 100);
+        static readonly Color Yellow = new Color(Color.Yellow, 100);
 
-        private static void DebugVisualize(UniverseScreen screen, ref Vector2 topleft, ref Vector2 botright, Node node)
+        static void DebugVisualize(UniverseScreen screen, ref Vector2 topleft, ref Vector2 botright, Node node)
         {
             var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
             var size   = new Vector2(node.LastX - node.X, node.LastY - node.Y);
@@ -723,7 +725,7 @@ namespace Ship_Game
             }
         }
 
-        private static Color GetRelationColor(GameplayObject a, GameplayObject b)
+        static Color GetRelationColor(GameplayObject a, GameplayObject b)
         {
             Empire e1 = EmpireManager.GetEmpireById(a.GetLoyaltyId());
             Empire e2 = EmpireManager.GetEmpireById(b.GetLoyaltyId());
@@ -742,9 +744,9 @@ namespace Ship_Game
         public void DebugVisualize(UniverseScreen screen)
         {
             var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
-            Vector2 topleft  = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
-            Vector2 botright = screen.UnprojectToWorldPosition(screenSize);
-            DebugVisualize(screen, ref topleft, ref botright, Root);
+            Vector2 topLeft  = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
+            Vector2 botRight = screen.UnprojectToWorldPosition(screenSize);
+            DebugVisualize(screen, ref topLeft, ref botRight, Root);
 
             Array.Clear(DebugDrawBuffer, 0, DebugDrawBuffer.Length); // prevent zombie objects
 

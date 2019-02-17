@@ -200,6 +200,8 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireRiskAssessment.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\FleetRatios.cs" />
     <Compile Include="Ship_Game\AI\Fleet.FleetGoal.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.AttackRun.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAIPlan.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />

@@ -73,10 +73,8 @@ namespace Ship_Game.Gameplay
         public bool Tag_Array     { get => this[WeaponTag.Array];     set => this[WeaponTag.Array]     = value; }
         public bool Tag_Tractor   { get => this[WeaponTag.Tractor];   set => this[WeaponTag.Tractor]   = value; }
 
-        [XmlIgnore][JsonIgnore]
-        public Ship Owner { get; set; }
-        [XmlIgnore][JsonIgnore]
-        public GameplayObject drowner; // drone owner
+        [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
+        [XmlIgnore][JsonIgnore] public GameplayObject drowner; // drone owner
         public float HitPoints;
         public bool isBeam;
         public float EffectVsArmor = 1f;
@@ -122,11 +120,8 @@ namespace Ship_Game.Gameplay
         public string WeaponType;
         public string WeaponEffectType;
         public string UID;
-        [XmlIgnore][JsonIgnore]
-        public ShipModule Module;
-
-        [XmlIgnore][JsonIgnore]
-        public float CooldownTimer;
+        [XmlIgnore][JsonIgnore] public ShipModule Module;
+        [XmlIgnore][JsonIgnore] public float CooldownTimer;
         public float fireDelay;
         public float PowerRequiredToFire;
         public bool explodes;
@@ -159,16 +154,15 @@ namespace Ship_Game.Gameplay
         public float OffPowerMod = 1f;
         public bool RangeVariance;
         public float ExplosionRadiusVisual = 4.5f;
-        [XmlIgnore][JsonIgnore]
-        public GameplayObject FireTarget { get; private set; }
+        [XmlIgnore][JsonIgnore] public GameplayObject FireTarget { get; private set; }
         private float TargetChangeTimer;
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
         public int SalvoCount = 1;
         public float SalvoTimer;
-        [XmlIgnore][JsonIgnore]
-        private int SalvosToFire;
+
+        [XmlIgnore][JsonIgnore] public int SalvosToFire { get; private set; }
         private float SalvoDirection;
         private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
         private GameplayObject SalvoTarget;
@@ -216,7 +210,7 @@ namespace Ship_Game.Gameplay
 
         public Weapon Clone()
         {
-            Weapon wep = (Weapon)MemberwiseClone();
+            var wep = (Weapon)MemberwiseClone();
             wep.SalvoTarget      = null;
             wep.FireTarget       = null;
             wep.Module           = null;
@@ -439,7 +433,7 @@ namespace Ship_Game.Gameplay
             (Module != null && Module.AccuracyPercent > 0.66f) ||
             (Owner  != null && Owner.CanUseAdvancedTargeting);
 
-        public Vector2 AdjustTargeting(int level = -1)
+        public Vector2 GetTargetingError(int level = -1)
         {
             if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
                 return Vector2.Zero; //|| Tag_PD
@@ -483,12 +477,6 @@ namespace Ship_Game.Gameplay
             return accuracy;
         }
 
-        static Vector2 SetDestination(Vector2 target, Vector2 source, float range)
-        {
-            Vector2 deltaVec = target - source;
-            return source + deltaVec.Normalized() * range;
-        }
-
         public Vector2 Origin => Module?.Center ?? Center;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
@@ -514,24 +502,57 @@ namespace Ship_Game.Gameplay
             return pip != Vector2.Zero;
         }
 
+        // @note This is used for debugging
+        [XmlIgnore][JsonIgnore]
+        public Vector2 DebugLastImpactPredict { get; private set; }
+
+        // Applies jamming error, targeting error -- based on distance to pip
+        Vector2 AdjustedImpactPoint(Vector2 origin, GameplayObject target, Vector2 pip)
+        {
+            Vector2 error = GetTargetingError(); // base error from crew level/targeting bonuses
+            if (target != null)
+            {
+                error += target.JammingError(); // if target has ECM, they can scramble their position
+            }
+
+            // once we get too close the angle error becomes too big, so move the target pos further
+            float distance = origin.Distance(pip);
+            const float minDistance = 500f;
+            if (distance < minDistance)
+            {
+                // move pip forward a bit
+                pip += (minDistance - distance)*origin.DirectionToTarget(pip);
+            }
+            
+            // total error magnitude should get smaller as we get closer
+            float errorMagnitude = 1f;
+            if (distance < 2000f)
+            {
+                errorMagnitude = (distance+minDistance) / 2000f;
+            }
+
+            Vector2 adjusted = pip + error*errorMagnitude;
+            DebugLastImpactPredict = adjusted;
+            return adjusted;
+        }
+
         public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
-            Vector2 weaponOrigin = Origin;
-            pip = Predict(weaponOrigin, target, CanUseAdvancedTargeting);
-
-            Vector2 error = target.TargetErrorPos() + AdjustTargeting();
-            Vector2 targetError = SetDestination(pip, weaponOrigin, 1000) + error;
-            pip = SetDestination(targetError, weaponOrigin, weaponOrigin.Distance(pip));
-
-            //Log.Info($"FindPIP center:{center}  pip:{pip}");
-            return pip != Vector2.Zero;
+            Vector2 origin = Origin;
+            pip = Predict(origin, target, CanUseAdvancedTargeting);
+            if (pip == Vector2.Zero)
+                return false;
+            pip = AdjustedImpactPoint(origin, target, pip);
+            return true;
         }
 
         public void UpdatePrimaryFireTarget(GameplayObject prevTarget,
             Array<Projectile> enemyProjectiles, Array<Ship> enemyShips)
         {
             TargetChangeTimer -= 0.0167f;
-            if (!CanTargetWeapon(prevTarget)) return;
+            if (!CanTargetWeapon(prevTarget))
+                return;
+
             if (!PickProjectileTarget(enemyProjectiles))
                 PickShipTarget(prevTarget, enemyShips);
         }
@@ -632,22 +653,20 @@ namespace Ship_Game.Gameplay
                 ? Owner.IsTargetInFireArcRange(this, maybeTarget)
                 : Owner.IsInsideFiringArc(this, targetPos);
         }
+
         public Vector2 ProjectedBeamPoint(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
-            if (DamageAmount < 1) return destination;
-            if (target != null)
-            {
-                if (!Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
-                    return destination;
-            }
+            if (DamageAmount < 1)
+                return destination;
+
+            if (target != null && !Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
+                return destination;
+
             if (Tag_Tractor || isRepairBeam)
                 return destination;
 
-            Vector2 targetError = target?.TargetErrorPos() ?? Vector2.Zero;
-            targetError += AdjustTargeting();
-            targetError += SetDestination(destination, Center, 1000);
-            targetError = SetDestination(targetError, Center, Center.Distance(destination));
-            return targetError;
+            Vector2 beamDestination = AdjustedImpactPoint(source, target, destination);
+            return beamDestination;
         }
 
         bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)

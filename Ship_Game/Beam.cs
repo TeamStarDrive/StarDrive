@@ -220,7 +220,7 @@ namespace Ship_Game
             Indexes[5] = 3;
         }
 
-        public override bool Touch(GameplayObject target)
+        public new bool Touch(GameplayObject target)
         {
             if (target == null || target == Owner || target is Ship)
                 return false;
