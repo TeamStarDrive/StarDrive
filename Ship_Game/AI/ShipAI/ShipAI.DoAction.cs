@@ -114,113 +114,6 @@ namespace Ship_Game.AI
                 Owner.Carrier.AssaultPlanet(invadeThis);
         }
 
-        void DrawDebugTarget(Vector2 pip, float radius)
-        {
-            if (DebugInfoScreen.Mode == DebugModes.Targeting)
-            {
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, pip, radius, Owner.loyalty.EmpireColor, 0f);
-                Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, Target.Center, pip, 1f, Owner.loyalty.EmpireColor, 0f);
-            }
-        }
-
-        // direction offset from target ship, so our attack runs go over the side of the enemy ship
-        Vector2 AttackRunQuadrant = Vectors.Right;
-        Vector2 AttackRunDisengage;
-        bool Disengaging;
-        float DisengageTimer;
-
-        // CombatState.AttackRuns: fighters / corvettes / frigates performing attack run to target
-        // @note We are guaranteed to be within 2~3x maxWeaponsRange by DoCombat
-        void DoAttackRun(float elapsedTime)
-        {
-            if (Owner.IsPlatformOrStation) // platforms can't do attack runs
-                return;
-
-            float spacerDistance = Owner.Radius + Target.Radius;
-            float adjustedWeaponRange = Owner.maxWeaponsRange * 0.8f;
-            if (spacerDistance > adjustedWeaponRange)
-                spacerDistance = adjustedWeaponRange;
-
-            float distanceToTarget = Owner.Center.Distance(Target.Center);
-
-            if (Disengaging)
-            {
-                if (distanceToTarget > Owner.maxWeaponsRange)
-                {
-                    Disengaging = false;
-                    // and pick new attack quadrant on enemy ship:
-                    switch (RandomMath.InRange(2))
-                    {
-                        default:
-                        case 0: AttackRunQuadrant = Vectors.Left;  break;
-                        case 1: AttackRunQuadrant = Vectors.Right; break;
-                    }
-                }
-                // constantly accelerate toward disengage pos:
-                Vector2 disengage = Owner.Center.DirectionToTarget(AttackRunDisengage);
-                SubLightContinuousMoveInDirection(disengage, elapsedTime, Owner.Speed);
-                //DrawDebugTarget(AttackRunDisengage, Owner.Radius);
-                return;
-            }
-
-            Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, Target.Center, spacerDistance, Owner.loyalty.EmpireColor, 0f);
-
-            
-            Vector2 localQuadrant = Target.Direction.RotateDirection(AttackRunQuadrant);
-            Vector2 attackPos = Target.Position + localQuadrant*Target.Radius;
-
-            // we are really close to attackPos?
-            float distanceToAttack = Owner.Center.Distance(attackPos);
-            if (distanceToAttack <= Owner.Radius)
-            {
-                Disengaging = true;
-
-                // pick a new disengage position to make some distance for another run
-                Vector2 disengageDir = (Owner.Rotation + RandomMath.RandomBetween(-1f, +1f)).RadiansToDirection();
-                AttackRunDisengage = Owner.Center + disengageDir * Owner.maxWeaponsRange;
-            }
-            else if (distanceToAttack < 500f)
-            {
-                // stop applying thrust when we get really close, and focus on aiming at Target.Center:
-                RotateTowardsPosition(Target.Center, elapsedTime, 0.05f);
-                //DrawDebugTarget(Target.Center, Owner.Radius);
-            }
-            else
-            {
-                // figure out if the target ship is drifting towards our facing or if it's drifting away
-                float speed = Owner.Speed * 0.75f;
-                float targetSpeed = Target.Velocity.Length();
-                if (targetSpeed > 50f)
-                {
-                    float dot = Owner.Direction.Dot(Target.Velocity.Normalized());
-                    if (dot > -0.25f) // they are trying to escape us
-                    {
-                        if (distanceToAttack > Owner.maxWeaponsRange*0.75f)
-                            speed = Owner.velocityMaximum; // catch up with max speed
-                        else if (distanceToAttack > Owner.maxWeaponsRange*0.25f)
-                            speed = Target.Velocity.Length() + Owner.velocityMaximum*0.05f;
-                        else
-                            speed = Target.Velocity.Length(); // match their speed
-
-                        // we can't catch these bastards, so we need some jump drive assistance
-                        if (targetSpeed > Owner.velocityMaximum && distanceToAttack > Owner.maxWeaponsRange)
-                        {
-                            if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 pip))
-                            {
-                                DrawDebugTarget(pip, 100f);
-                                ThrustOrWarpToPosCorrected(pip, elapsedTime);
-                                return;
-                            }
-                        }
-                    }
-                    // else: they are coming towards us or just flew past us
-                }
-
-                // fly simply towards the offset attack position
-                SubLightMoveTowardsPosition(attackPos, elapsedTime, speed, predictPos: true, autoSlowDown: false);
-            }
-        }
-
         void DoBoardShip(float elapsedTime)
         {
             HasPriorityTarget = true;
@@ -326,7 +219,7 @@ namespace Ship_Game.AI
                 case CombatState.OrbitRight:     OrbitShip((Ship)Target, elapsedTime, Orbit.Right); break;
                 case CombatState.BroadsideLeft:  DoNonFleetBroadside(elapsedTime, Orbit.Left);  break;
                 case CombatState.BroadsideRight: DoNonFleetBroadside(elapsedTime, Orbit.Left); break;
-                case CombatState.AttackRuns:     DoAttackRun(elapsedTime);          break;
+                case CombatState.AttackRuns:     AttackRun.Execute(elapsedTime);    break;
                 case CombatState.HoldPosition:   DoHoldPositionCombat(elapsedTime); break;
                 case CombatState.Evade:          DoEvadeCombat(elapsedTime);        break;
                 case CombatState.AssaultShip:    DoAssaultShipCombat(elapsedTime);  break;
@@ -940,7 +833,6 @@ namespace Ship_Game.AI
             }
 
             var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, goal.Direction);
-            DrawDebugTarget(escortVector, Owner.Radius);
             float distanceToEscortSpot = Owner.Center.Distance(escortVector);
             float supplyShipVelocity   = EscortTarget.Velocity.Length();
             float escortVelocity       = Owner.velocityMaximum;

@@ -243,6 +243,7 @@ namespace Ship_Game.Ships
 
             if (Velocity.Length() < 5f)
                 Velocity = RandomMath.Vector2D(200);
+
             if (Velocity.Length() > velocityMaximum)
                 Velocity = Velocity.Normalized() * velocityMaximum;
 
@@ -254,7 +255,7 @@ namespace Ship_Game.Ships
             if (num1 >= 57 && InFrustum)
             {
                 Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                ExplosionManager.AddExplosion(position, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
+                ExplosionManager.AddExplosion(position, Velocity, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
                 Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero);
             }
             if (num1 >= 40)

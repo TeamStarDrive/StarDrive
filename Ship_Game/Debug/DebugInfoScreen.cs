@@ -303,13 +303,16 @@ namespace Ship_Game.Debug
                     if (module == null || module.GetParent() != ship.AI.Target || weapon.Tag_Beam || weapon.Tag_Guided)
                         continue;                        
 
-                    Screen.DrawCircleProjected(module.Center, 8f, 6, Color.Pink);
-
-                    if (weapon.ProjectedImpactPointNoError(ship.AI.Target, out Vector2 impactNew))
+                    Screen.DrawCircleProjected(module.Center, 8f, 6, Color.MediumVioletRed);
+                    if (weapon.DebugLastImpactPredict.NotZero())
                     {
-                        Screen.DrawLineProjected(weapon.Center, impactNew, Color.Yellow);
-                    }
+                        weapon.ProjectedImpactPointNoError(module, out Vector2 impactNoError);
+                        Screen.DrawLineProjected(weapon.Center, weapon.DebugLastImpactPredict, Color.Yellow);
 
+                        Screen.DrawCircleProjected(impactNoError, 22f, 10, Color.BlueViolet, 2f);
+                        Screen.DrawStringProjected(impactNoError, 28f, Color.BlueViolet, "pip");
+                        Screen.DrawLineProjected(impactNoError, weapon.DebugLastImpactPredict, Color.DarkKhaki, 2f);
+                    }
 
                     Projectile projectile = ship.Projectiles.FirstOrDefault(p => p.Weapon == weapon);
                     if (projectile != null)
@@ -460,14 +463,14 @@ namespace Ship_Game.Debug
 
                 DrawLineImm(ship.Position, pos, Color.YellowGreen);
                 //if (detailed) DrawCircleImm(pos, 1000f, Color.Yellow);
-                DrawCircleImm(pos, 75f, Color.Maroon);
+                //DrawCircleImm(pos, 75f, Color.Maroon);
 
                 Vector2 thrustTgt = ship.AI.ThrustTarget;
                 if (detailed && thrustTgt.NotZero())
                 {
                     DrawLineImm(pos, thrustTgt, Color.Orange);
                     DrawLineImm(ship.Position, thrustTgt, Color.Orange);
-                    DrawCircleImm(thrustTgt, 75f, Color.MediumVioletRed);
+                    DrawCircleImm(thrustTgt, 40f, Color.MediumVioletRed, 2f);
                 }
 
                 // goal direction arrow
