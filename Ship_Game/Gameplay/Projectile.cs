@@ -244,7 +244,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public override Vector2 TargetErrorPos()
+        public override Vector2 JammingError()
         {
             Vector2 jitter = Vector2.Zero;
             if (!Weapon.Tag_Intercept) return jitter;
@@ -357,7 +357,7 @@ namespace Ship_Game.Gameplay
         bool CloseEnoughForExplosion    => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SectorView;
         bool CloseEnoughForFlashExplode => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView;
 
-        private void ExplodeProjectile(bool cleanupOnly)
+        void ExplodeProjectile(bool cleanupOnly)
         {
             if (Explodes)
             {
@@ -368,13 +368,13 @@ namespace Ship_Game.Gameplay
 
                 if (!cleanupOnly && CloseEnoughForExplosion)
                 {
-                    ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
+                    ExplosionManager.AddExplosion(new Vector3(Position, -50f), Velocity*0.1f,
+                        DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
 
-                    if (CloseEnoughForFlashExplode)
+                    if (FlashExplode && CloseEnoughForFlashExplode)
                     {
                         GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                        if (FlashExplode)
-                            Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
+                        Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
                     }
                 }
 
@@ -384,9 +384,11 @@ namespace Ship_Game.Gameplay
             //       In Vanilla, it only appears in Flak & DualFlak weapons
             else if (Weapon.FakeExplode && CloseEnoughForExplosion)
             {
-                ExplosionManager.AddExplosion(new Vector3(Position, -50f), DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
-                if (CloseEnoughForFlashExplode && FlashExplode)
+                ExplosionManager.AddExplosion(new Vector3(Position, -50f), Velocity*0.1f, 
+                    DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
+                if (FlashExplode && CloseEnoughForFlashExplode)
                 {
+                    GameAudio.PlaySfxAsync(DieCueName, Emitter);
                     Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
                 }
             }
@@ -410,7 +412,7 @@ namespace Ship_Game.Gameplay
                 Velocity = Velocity.Normalized() * VelocityMax;            
         }
         
-        public override bool Touch(GameplayObject target)
+        public bool Touch(GameplayObject target)
         {
             if (Miss || target == Owner)
                 return false;
