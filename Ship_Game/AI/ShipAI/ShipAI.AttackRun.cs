@@ -72,16 +72,21 @@ namespace Ship_Game.AI
             }
         }
 
+        // pick a new disengage position to make some distance for another run
         void PrepareToDisengage(float disengageDistance)
         {
             State = RunState.Disengage1;
 
-            // pick a new disengage position to make some distance for another run
-            Vector2 disengageDir = (Owner.Rotation + RandomMath.RandomBetween(-1f, +1f)).RadiansToDirection();
-            DisengagePos1 = AI.Target.Center + disengageDir * disengageDistance;
+            float dot = Owner.Direction.Dot(AI.Target.Velocity.Normalized());
+            float rotation = dot > -0.25f // we are chasing them, so only disengage left or right
+                ? (RandomMath.RollDice(50) ? MathExt.RadiansLeft : MathExt.RadiansRight)
+                : RandomMath.RandomBetween(-1.57f, 1.57f); // from -90 to +90 degrees
 
-            Vector2 leftOrRight = RandomMath.RollDice(50) ? disengageDir.LeftVector() : disengageDir.RightVector();
-            DisengagePos2 = DisengagePos1 + disengageDistance*(disengageDir+leftOrRight);
+            Vector2 direction = (Owner.Rotation + rotation).RadiansToDirection();
+            DisengagePos1 = AI.Target.Center + direction * disengageDistance;
+
+            Vector2 leftOrRight = RandomMath.RollDice(50) ? direction.LeftVector() : direction.RightVector();
+            DisengagePos2 = DisengagePos1 + disengageDistance*(direction+leftOrRight);
         }
 
         void ExecuteDisengage(float elapsedTime)
@@ -147,7 +152,7 @@ namespace Ship_Game.AI
         // Strafe: repeatedly with weapons within weapons range
         void StrafeTowardsTarget(float elapsedTime, float distanceToAttack, Vector2 attackPos)
         {
-            float speed = GetStrafeSpeed(distanceToAttack, out bool cantCatchUp);
+            float speed = GetStrafeSpeed(distanceToAttack, out bool cantCatchUp, out string debugStatus);
             if (cantCatchUp)
             {
                 // we can't catch these bastards! use warp
@@ -155,6 +160,7 @@ namespace Ship_Game.AI
                 {
                     DrawDebugTarget(pip, Owner.Radius);
                     AI.ThrustOrWarpToPosCorrected(pip, elapsedTime);
+                    DrawDebugText("CatchUp");
                     return;
                 }
             }
@@ -164,18 +170,18 @@ namespace Ship_Game.AI
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
                 DrawDebugTarget(AI.Target.Center, Owner.Radius);
                 AI.RotateTowardsPosition(AI.Target.Center, elapsedTime, 0.05f);
-                DrawDebugText("StrafeTerminal");
+                DrawDebugText("TerminalStrafe");
             }
             else
             {
                 // fly simply towards the offset attack position
                 DrawDebugTarget(attackPos, Owner.Radius);
                 AI.SubLightMoveTowardsPosition(attackPos, elapsedTime, speed, predictPos: true, autoSlowDown: false);
-                DrawDebugText($"Strafe {(int)speed}");
+                DrawDebugText($"{debugStatus} {(int)speed}");
             }
         }
 
-        float GetStrafeSpeed(float distance, out bool cantCatchUp)
+        float GetStrafeSpeed(float distance, out bool cantCatchUp, out string debugStatus)
         {
             float targetSpeed = AI.Target.Velocity.Length();
             cantCatchUp = false;
@@ -189,24 +195,23 @@ namespace Ship_Game.AI
                     if (targetSpeed > Owner.velocityMaximum && distance > Owner.maxWeaponsRange)
                     {
                         cantCatchUp = true;
+                        debugStatus = "";
                         return 0f;
                     }
-
-                    if (distance > Owner.maxWeaponsRange * 0.75f)
-                        return Owner.velocityMaximum; // catch up with max speed
-
-                    if (distance > Owner.maxWeaponsRange * 0.25f)
-                        return targetSpeed + Owner.velocityMaximum * 0.05f;
-
-                    return targetSpeed + 5f; // ~ match their speed
+                    
+                    debugStatus = "Chase";
+                    return (distance - Owner.maxWeaponsRange*0.6f)
+                        .Clamped(targetSpeed + Owner.velocityMaximum*0.05f, Owner.velocityMaximum);
                 }
-
+                
                 // they are coming towards us or just flew past us
+                debugStatus = "Strafe";
                 return Owner.Speed * 0.75f;
             }
 
             // enemy is really slow, so we're not in a hurry
-            // this gives a nice slow-down effect when we get close to the target
+            // using distance gives a nice slow-down effect when we get closer to the target
+            debugStatus = "SlowStrafe";
             return (distance - Owner.velocityMaximum*0.4f)
                 .Clamped(Owner.velocityMaximum*0.15f, Owner.velocityMaximum*0.9f);
         }
