@@ -1300,7 +1300,7 @@ namespace Ship_Game.Ships
                 const float accelerationTime = 2f;
                 return (maxFTLSpeed / accelerationTime);
             }
-            return Thrust / Mass;
+            return (Thrust / Mass) * 0.5f;
         }
 
         public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f, float direction = +1f)
