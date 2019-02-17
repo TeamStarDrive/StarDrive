@@ -502,7 +502,7 @@ namespace Ship_Game.AI
                 case Plan.TroopToShip:       DoTroopToShip(elapsedTime, toEvaluate);    break;
                 case Plan.BoardShip:         DoBoardShip(elapsedTime);                  break;
                 case Plan.SupplyShip:        DoSupplyShip(elapsedTime, toEvaluate);     break;
-                case Plan.Refit:             DoRefit(elapsedTime, toEvaluate);          break;
+                case Plan.Refit:             DoRefit(toEvaluate);                       break;
                 case Plan.LandTroop:         DoLandTroop(elapsedTime, toEvaluate);      break;
                 case Plan.ResupplyEscort:    DoResupplyEscort(elapsedTime, toEvaluate); break;
                 case Plan.ReturnHome:        DoReturnHome(elapsedTime);                 break;
