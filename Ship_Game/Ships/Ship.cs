@@ -388,14 +388,14 @@ namespace Ship_Game.Ships
         // Level 5 crews can use advanced targeting which even predicts acceleration
         public bool CanUseAdvancedTargeting => Level >= 5;
 
-        public override Vector2 TargetErrorPos()
+        public override Vector2 JammingError()
         {
-            Vector2 jitter = Vector2.Zero;
             if (CombatDisabled)
-                return jitter;
+                return Vector2.Zero;
 
-            if (ECMValue >0)
-                jitter += RandomMath2.Vector2D(ECMValue *80f);
+            Vector2 jitter = Vector2.Zero;
+            if (ECMValue > 0)
+                jitter += RandomMath2.Vector2D(ECMValue * 80f);
 
             if (loyalty.data.Traits.DodgeMod > 0)
                 jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
@@ -890,30 +890,31 @@ namespace Ship_Game.Ships
             lastKBState = currentKeyBoardState;
         }
 
+        public bool InRadius(Vector2 worldPos, float radius)
+        {
+            return Center.InRadius(worldPos, Radius+radius);
+        }
+
         public bool CheckRangeToTarget(Weapon w, GameplayObject target)
         {
             if (target == null || !target.Active || target.Health <= 0)
                 return false;
+
             if (engineState == MoveState.Warp)
                 return false;
 
-            var targetship = target as Ship;
             var targetModule = target as ShipModule;
-            if (targetship == null && targetModule != null)
-                targetship = targetModule.GetParent();
-            if (targetship == null && targetModule == null && w.isBeam)
+            Ship targetShip = target as Ship ?? targetModule?.GetParent();
+            if (targetShip == null && targetModule == null && w.isBeam)
                 return false;
-            if (targetship != null)
-            {
-                if (targetship.engineState == MoveState.Warp
-                    || targetship.dying
-                    || !targetship.Active
-                    || targetship.NumExternalSlots <= 0
-                    //|| !w.TargetValid(targetship.shipData.HullRole)
 
-                    )
+            if (targetShip != null)
+            {
+                if (targetShip.dying || !targetShip.Active ||
+                    targetShip.NumExternalSlots <= 0)
                     return false;
             }
+
             float attackRunRange = 50f;
             if (!w.isBeam && maxWeaponsRange < 2000)
             {
@@ -922,7 +923,8 @@ namespace Ship_Game.Ships
                     attackRunRange = 50f;
             }
 
-            return target.Center.InRadius(w.Module.Center, w.GetModifiedRange() + attackRunRange);
+            float range = attackRunRange + w.GetModifiedRange();
+            return target.Center.InRadius(w.Module.Center, range);
         }
 
         
@@ -1257,7 +1259,7 @@ namespace Ship_Game.Ships
                 const float accelerationTime = 2f;
                 return (maxFTLSpeed / accelerationTime);
             }
-            return Thrust / Mass;
+            return (Thrust / Mass) * 0.5f;
         }
 
         public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f, float direction = +1f)
@@ -2278,10 +2280,12 @@ namespace Ship_Game.Ships
             if (GlobalStats.HasMod)
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
-            ExplosionManager.AddExplosion(position, size * boost, 12f, ExplosionType.Ship);
+            ExplosionManager.AddExplosion(position, Velocity, 
+                size * boost, 12f, ExplosionType.Ship);
             if (addWarpExplode)
             {
-                ExplosionManager.AddExplosion(position, size*1.75f, 12f, ExplosionType.Warp);
+                ExplosionManager.AddExplosion(position, Velocity, 
+                    size*1.75f, 12f, ExplosionType.Warp);
             }
             UniverseScreen.SpaceManager.ShipExplode(this, size * 50, Center, Radius);
         }

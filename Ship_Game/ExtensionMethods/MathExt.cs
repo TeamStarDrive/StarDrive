@@ -222,6 +222,12 @@ namespace Ship_Game
             return (float)(PI - Atan2(direction.X, direction.Y));
         }
 
+        
+        public static float RadiansUp    = 0f;
+        public static float RadiansRight = (float)PI*0.5f;
+        public static float RadiansDown  = (float)PI;
+        public static float RadiansLeft  = (float)PI + (float)PI*0.5f;
+
         // Converts a direction vector to degrees
         public static float ToDegrees(this Vector2 direction)
         {
