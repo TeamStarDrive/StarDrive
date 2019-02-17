@@ -283,11 +283,6 @@ namespace Ship_Game
                     case 15: Platforms = 15; Stations = 10; Shipyards = 2; break;
                     default: Platforms = 0;  Stations = 0;  Shipyards = 0; break;
                 }
-
-                // Fb - this will replace stations with temp platforms until proper stations are built
-                int existingStations = stationList.Count;
-                if (existingStations < Stations)
-                    Platforms += Stations - existingStations; 
             }
         }
 
