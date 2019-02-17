@@ -943,8 +943,8 @@ namespace Ship_Game
             if (!techEntry.Unlock(this))
                 return;
             UpdateShipsWeCanBuild();
-            if (!isPlayer)
-                EmpireAI.TriggerRefit();
+            EmpireAI.TriggerRefit();
+            EmpireAI.TriggerFreightersScrap();
             data.ResearchQueue.Remove(techEntry.UID);
         }
 

@@ -282,6 +282,9 @@ namespace Ship_Game.AI
 
         public void TriggerRefit()
         {
+            if (OwnerEmpire.isPlayer)
+                return;
+
             var offPool = OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
@@ -293,6 +296,25 @@ namespace Ship_Game.AI
 
                 if (newShip == null) continue;
                 ship.AI.OrderRefitTo(newShip);
+            }
+        }
+
+        // FB - scrap idle freighter to make room for improved ones
+        public void TriggerFreightersScrap()
+        {
+            if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoFreighters)
+                return;
+
+            Ship betterFreighter = ShipBuilder.PickFreighter(OwnerEmpire);
+            if (betterFreighter == null)
+                return;
+
+            foreach (Ship idleFreighter in OwnerEmpire.IdleFreighters)
+            {
+                if (betterFreighter == idleFreighter)
+                    continue;
+
+                idleFreighter.AI.OrderScrapShip();
             }
         }
 
