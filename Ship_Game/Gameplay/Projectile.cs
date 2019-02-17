@@ -368,7 +368,7 @@ namespace Ship_Game.Gameplay
 
                 if (!cleanupOnly && CloseEnoughForExplosion)
                 {
-                    ExplosionManager.AddExplosion(new Vector3(Position, -50f), Velocity*0.25f,
+                    ExplosionManager.AddExplosion(new Vector3(Position, -50f), Velocity*0.1f,
                         DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
 
                     if (FlashExplode && CloseEnoughForFlashExplode)
@@ -384,7 +384,7 @@ namespace Ship_Game.Gameplay
             //       In Vanilla, it only appears in Flak & DualFlak weapons
             else if (Weapon.FakeExplode && CloseEnoughForExplosion)
             {
-                ExplosionManager.AddExplosion(new Vector3(Position, -50f), Velocity*0.25f, 
+                ExplosionManager.AddExplosion(new Vector3(Position, -50f), Velocity*0.1f, 
                     DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
                 if (FlashExplode && CloseEnoughForFlashExplode)
                 {
