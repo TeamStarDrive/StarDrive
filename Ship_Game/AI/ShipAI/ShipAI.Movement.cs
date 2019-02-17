@@ -57,7 +57,7 @@ namespace Ship_Game.AI
             return false;
         }
 
-        bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
+        internal bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
         {
             if (lookAt.AlmostZero())
                 Log.Error($"RotateTowardsPosition {lookAt} was zero, is this a bug?");
@@ -76,7 +76,7 @@ namespace Ship_Game.AI
 
         // @note This will constantly accelerate by design and
         //       will only slow down a little while turning too much
-        void SubLightContinuousMoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
+        internal void SubLightContinuousMoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
         {
             if (Owner.EnginesKnockedOut)
                 return;
@@ -89,7 +89,7 @@ namespace Ship_Game.AI
             Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
-        void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
+        internal void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
         {
             if (Owner.EnginesKnockedOut)
                 return;
@@ -251,7 +251,7 @@ namespace Ship_Game.AI
             return prediction;
         }
 
-        void ThrustOrWarpToPosCorrected(Vector2 pos, float elapsedTime, float speedLimit = 0f)
+        internal void ThrustOrWarpToPosCorrected(Vector2 pos, float elapsedTime, float speedLimit = 0f)
         {
             ThrustOrWarpToPos(pos, elapsedTime, speedLimit, velocityCorrect: true);
         }
