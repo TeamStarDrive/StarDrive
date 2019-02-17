@@ -1329,7 +1329,7 @@ namespace Ship_Game
                 int exportSlots = p.FoodExportSlots + p.ProdExportSlots + p.ColonistsExportSlots;
                 string incoming = p.IncomingFreighters.Count.ToString();
                 string outgoing = p.OutgoingFreighters.Count.ToString();
-                string starving = p.Storage.Food.AlmostEqual(0) && p.Food.NetIncome < 0 ? " (Starving!)" : "";
+                string starving = p.Storage.Food.AlmostZero() && p.Food.NetIncome < 0 ? " (Starving!)" : "";
                 debug.AddLine($"{p.ParentSystem.Name} : {p.Name}{starving}");
                 debug.AddLine($"Incoming / Import Slots: {incoming}/{importSlots}");
                 debug.AddLine($"Outgoing / Export Slots: {outgoing}/{exportSlots}");

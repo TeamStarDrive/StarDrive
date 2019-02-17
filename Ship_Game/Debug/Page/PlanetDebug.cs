@@ -45,20 +45,21 @@ namespace Ship_Game.Debug.Page
                     ShipAI ai = ship.AI;
                     if (ai.State != AIState.SystemTrader) continue;
                     if (ai.OrderQueue.Count == 0) continue;
-/*
+                    Color debugColor = Color.Aqua;
+                    if (ship.GetCargo(Goods.Food) > 0)
+                        debugColor = Color.GreenYellow;
+                    else if (ship.GetCargo(Goods.Production) > 0)
+                        debugColor = Color.SteelBlue;
+
                     switch (ai.OrderQueue.PeekLast.Plan)
                     {
                         case ShipAI.Plan.DropOffGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, debugColor, 6);
                             break;
                         case ShipAI.Plan.PickupGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, debugColor, 3);
                             break;
-                        case ShipAI.Plan.PickupPassengers:
-                        case ShipAI.Plan.DropoffPassengers:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 32);
-                            break;
-                    }*/
+                    }
                 }
             }
             base.Draw(batch);
