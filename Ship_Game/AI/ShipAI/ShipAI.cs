@@ -22,7 +22,7 @@ namespace Ship_Game.AI
         int StopNumber;
         public FleetDataNode FleetNode { get;  set; }
         
-        public Ship Owner;
+        public readonly Ship Owner;
         public AIState State = AIState.AwaitingOrders;
         public Guid OrbitTargetGuid;
         public Planet ColonizeTarget;
@@ -35,10 +35,12 @@ namespace Ship_Game.AI
         public Array<ShipWeight> NearByShips  = new Array<ShipWeight>();
         public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
+        readonly AttackRun AttackRun;
 
         public ShipAI(Ship owner)
         {
             Owner = owner;
+            AttackRun = new AttackRun(this);
         }
 
         public Vector2 GoalTarget
