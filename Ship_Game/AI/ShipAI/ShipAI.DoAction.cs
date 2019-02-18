@@ -34,6 +34,7 @@ namespace Ship_Game.AI
         {
             if (Empire.Universe is DeveloperSandbox.DeveloperUniverse)
                 Log.Info(ConsoleColor.Blue, $"ClearOrders new_state:{newState} priority:{priority}");
+
             OrderQueue.Clear();
             State = newState;
             HasPriorityOrder = priority;
@@ -824,7 +825,7 @@ namespace Ship_Game.AI
             }
             ClearOrders();
             State = AIState.SystemTrader;
-            AddTradePlan(Plan.DropOffGoods, exportPlanet, importPlanet, g.Trade.Goods, Owner);
+            AddTradePlan(Plan.DropOffGoods, exportPlanet, importPlanet, g.Trade.Goods);
         }
 
         private void DoDropOffGoods(float elapsedTime, ShipGoal g)
