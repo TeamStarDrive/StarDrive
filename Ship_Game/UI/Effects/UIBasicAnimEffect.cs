@@ -9,6 +9,7 @@ namespace Ship_Game
     {
         None,
         Sine, // Generates a sine wave pattern on the animation percent
+        Cosine, // Cosine wave pattern
     }
 
     public class UIBasicAnimEffect : UIEffect
@@ -185,8 +186,15 @@ namespace Ship_Game
 
         void UpdateAnimatedProperties(float ratio)
         {
+            float relativeTime = CurrentTime - Delay;
             if (AnimPattern == AnimPattern.Sine)
-                ratio *= (float)Math.Sin(CurrentTime);
+            {
+                ratio = ratio*(float)Math.Sin(relativeTime);
+            }
+            else if (AnimPattern == AnimPattern.Cosine)
+            {
+                ratio = ratio*(float)Math.Cos(relativeTime);
+            }
 
             Animation = ratio;
 
