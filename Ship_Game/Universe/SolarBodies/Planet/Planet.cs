@@ -407,7 +407,9 @@ namespace Ship_Game
                     continue;
 
                 if (ship.loyalty == Owner || !ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
+                {
                     ParentSystem.CombatInSystem = false;
+                }
                 else
                 {
                     ParentSystem.CombatInSystem = true;

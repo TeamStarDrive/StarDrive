@@ -2093,7 +2093,7 @@ namespace Ship_Game
                 return;
 
             DispatchBuildAndScrapFreighters();
-            if (isPlayer || AutoExplore)
+            if (!isPlayer || AutoExplore)
                 AssignExplorationTasks();
         }
 
