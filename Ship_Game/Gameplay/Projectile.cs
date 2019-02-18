@@ -394,22 +394,62 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void GuidedMoveTowards(float elapsedTime, Vector2 targetPos)
+        public void GuidedMoveTowards(float elapsedTime, Vector2 targetPos, float thrustNozzleRotation, bool terminalPhase = false)
         {
-            Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, Center, targetPos, 1f, Color.DarkOrange, 0f);
-            Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, targetPos, 20f, Color.DarkOrange, 0f);
+            float distance = Center.Distance(targetPos);
+            
+            bool finalPhase = distance <= 1000f;
 
-            if (this.RotationNeededForTarget(targetPos, 0.1f, out float angleDiff, out float rotationDir))
+            Vector2 adjustedPos = finalPhase ? targetPos // if we get close, then just aim at targetPos
+                // if we're still far, apply thrust offset, which will increase our accuracy
+                : ImpactPredictor.ThrustOffset(Center, Velocity, targetPos, 1f);
+
+            //var debug = Empire.Universe?.DebugWin;
+            //debug?.DrawLine(DebugModes.Targeting, Center, adjustedPos, 1f, Color.DarkOrange.Alpha(0.2f), 0f);
+            //debug?.DrawLine(DebugModes.Targeting, targetPos, adjustedPos, 1f, Color.DarkRed.Alpha(0.8f), 0f);
+            //debug?.DrawCircle(DebugModes.Targeting, adjustedPos, 5f, Color.DarkRed.Alpha(0.28f), 0f);
+            //debug?.DrawCircle(DebugModes.Targeting, targetPos, 5f, Color.DarkOrange.Alpha(0.2f), 0f);
+
+            float acceleration = Speed * 3f;
+
+            if (this.RotationNeededForTarget(adjustedPos, 0.05f, out float angleDiff, out float rotationDir))
             {
                 float rotationRadsPerSec = RotationRadsPerSecond;
                 if (rotationRadsPerSec <= 0f)
                     rotationRadsPerSec = Speed / 350f;
+
                 Rotation += rotationDir * Math.Min(angleDiff, elapsedTime*rotationRadsPerSec);
             }
 
-            Velocity += Rotation.RadiansToDirection() * Speed * elapsedTime;
-            if (Velocity.Length() > VelocityMax)
-                Velocity = Velocity.Normalized() * VelocityMax;            
+            if (angleDiff < 0.3f) // mostly facing our target
+            {
+                float nozzleRotation;
+                if (finalPhase) // correct nozzle towards target
+                    nozzleRotation = rotationDir*angleDiff;
+                else // apply user provided nozzle rotation
+                    nozzleRotation = thrustNozzleRotation;
+
+                // limit max nozzle rotation
+                // 0.52 ~ 30 degrees 
+                nozzleRotation = nozzleRotation.Clamped(-0.52f, +0.52f);
+
+                Vector2 thrustDirection = (Rotation + nozzleRotation).RadiansToDirection();
+                Velocity += thrustDirection * (acceleration * elapsedTime);
+            }
+            else // apply magic braking effect, this helps avoid useless rocket spirals
+            {
+                acceleration *= -0.2f;
+                Velocity += Velocity.Normalized() * (acceleration * elapsedTime * 0.5f);
+            }
+
+            float maxVel = VelocityMax * (terminalPhase ? Weapon.TerminalPhaseSpeedMod : 1f);
+            if (Velocity.Length() > maxVel)
+                Velocity = Velocity.Normalized() * maxVel;    
+        }
+
+        public void MoveStraight()
+        {
+            Velocity = Direction * VelocityMax; 
         }
         
         public bool Touch(GameplayObject target)
