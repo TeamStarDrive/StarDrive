@@ -36,11 +36,15 @@ namespace Ship_Game.AI
         public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
         readonly AttackRun AttackRun;
+        readonly DropOffGoods DropOffGoods;
+        readonly PickupGoods PickupGoods;
 
         public ShipAI(Ship owner)
         {
             Owner = owner;
             AttackRun = new AttackRun(this);
+            DropOffGoods = new DropOffGoods(this);
+            PickupGoods = new PickupGoods(this);
         }
 
         public Vector2 GoalTarget
@@ -492,8 +496,8 @@ namespace Ship_Game.AI
                 case Plan.DefendSystem: DoSystemDefense(elapsedTime); break;
                 case Plan.DoCombat:     DoCombat(elapsedTime);        break;
                 case Plan.DeployStructure:   DoDeploy(toEvaluate);                      break;
-                case Plan.PickupGoods:       DoPickupGoods(elapsedTime, toEvaluate);    break;
-                case Plan.DropOffGoods:      DoDropOffGoods(elapsedTime, toEvaluate);   break;
+                case Plan.PickupGoods:       PickupGoods.Execute(elapsedTime, toEvaluate);  break;
+                case Plan.DropOffGoods:      DropOffGoods.Execute(elapsedTime, toEvaluate); break;
                 case Plan.ReturnToHangar:    DoReturnToHangar(elapsedTime);             break;
                 case Plan.TroopToShip:       DoTroopToShip(elapsedTime, toEvaluate);    break;
                 case Plan.BoardShip:         DoBoardShip(elapsedTime);                  break;

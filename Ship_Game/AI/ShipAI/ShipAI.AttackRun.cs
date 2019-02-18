@@ -32,7 +32,7 @@ namespace Ship_Game.AI
 
         // CombatState.AttackRuns: fighters / corvettes / frigates performing attack run to target
         // @note We are guaranteed to be within 2~3x maxWeaponsRange by DoCombat
-        public override void Execute(float elapsedTime)
+        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
             if (Owner.IsPlatformOrStation) // platforms can't do attack runs
                 return;
