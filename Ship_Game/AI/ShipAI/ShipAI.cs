@@ -207,11 +207,7 @@ namespace Ship_Game.AI
         {
             if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate)
                 State = AIState.Exterminate;
-            if (ClearOrdersNext)
-            {
-                ClearOrders();
-                AwaitClosest = null;
-            }
+
             CheckTargetQueue();
 
             PrioritizePlayerCommands();
@@ -604,12 +600,10 @@ namespace Ship_Game.AI
 
         public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)
         {
-            ClearOrders();
-            State = AIState.SystemTrader;
-
             // if ship has this cargo type on board, proceed to drop it off at destination
-            Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f ? Plan.DropOffGoods : Plan.PickupGoods;
-            AddTradePlan(plan, exportPlanet, importPlanet, goods);
+            Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f
+                      ? Plan.DropOffGoods : Plan.PickupGoods;
+            SetTradePlan(plan, exportPlanet, importPlanet, goods);
         }
 
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
@@ -629,10 +623,9 @@ namespace Ship_Game.AI
             return clearOrders;
         }
 
-        public void CancelTradePlan(ShipGoal g, Planet orbitPlanet = null)
+        public void CancelTradePlan(Planet orbitPlanet = null)
         {
             ClearOrders();
-            g.Trade.UnregisterTrade(Owner);
             if (orbitPlanet != null)
                 AddOrbitPlanetGoal(orbitPlanet, AIState.AwaitingOrders);
             else
