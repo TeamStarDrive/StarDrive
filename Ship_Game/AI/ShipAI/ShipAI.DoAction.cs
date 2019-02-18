@@ -13,73 +13,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        public bool ClearOrdersNext;
-        public bool HasPriorityOrder;
-        public bool HadPO;
-
-        void DequeueWayPointAndOrder()
-        {
-            if (WayPoints.Count > 0)
-                WayPoints.Dequeue();
-            DequeueCurrentOrder();
-        }
-
-        void DequeueCurrentOrder()
-        {
-            if (OrderQueue.IsEmpty)
-                return;
-
-            {
-                OrderQueue.PeekFirst.Dispose();
-                OrderQueue.RemoveFirst();
-            }
-        }
-
-        public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
-        {
-            if (Empire.Universe is DeveloperSandbox.DeveloperUniverse)
-                Log.Info(ConsoleColor.Blue, $"ClearOrders new_state:{newState} priority:{priority}");
-
-            foreach (ShipGoal g in OrderQueue)
-            {
-                g.Dispose();
-            }
-
-            OrderQueue.Clear();
-            State = newState;
-            HasPriorityOrder = priority;
-            ClearOrdersNext = false;
-        }
-
-        public void ClearOrdersAndWayPoints(AIState newState = AIState.AwaitingOrders, bool priority = false)
-        {
-            ClearWayPoints();
-            ClearOrders(newState, priority);
-        }
-
-        public void ClearPriorityOrder()
-        {
-            HasPriorityOrder = false;
-            Intercepting = false;
-            HasPriorityTarget = false;
-        }
-
-        public void SetPriorityOrderWithClear()
-        {
-            SetPriorityOrder(true);
-            ClearWayPoints();
-        }
-
-        public void SetPriorityOrder(bool clearOrders)
-        {
-            if (clearOrders)
-                ClearOrders(State, true);
-            else
-                HasPriorityOrder = true;
-            Intercepting = false;
-            HasPriorityTarget = false;
-        }
-
         void DoAssaultShipCombat(float elapsedTime)
         {
             if (Owner.isSpooling || !Owner.Carrier.HasTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
@@ -435,7 +368,6 @@ namespace Ship_Game.AI
             {
                 RotateTowardsPosition(Target.Center, elapsedTime, 0.2f);
             }
-
         }
 
         void DoLandTroop(float elapsedTime, ShipGoal goal)
@@ -785,7 +717,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoPickupGoods(float elapsedTime, ShipGoal g)
+        void DoPickupGoods(float elapsedTime, ShipGoal g)
         {
             Planet exportPlanet = g.Trade.ExportFrom;
             Planet importPlanet = g.Trade.ImportTo;
@@ -798,7 +730,7 @@ namespace Ship_Game.AI
 
             if (exportPlanet.Storage.GetGoodAmount(g.Trade.Goods) < 1) // other freighter took the goods, damn!
             {
-                CancelTradePlan(g, exportPlanet);
+                CancelTradePlan(exportPlanet);
                 return;
             }
 
@@ -809,20 +741,21 @@ namespace Ship_Game.AI
                     exportPlanet.Population += Owner.UnloadColonists();
 
                     // food amount estimated the import planet needs
-                    float maxFoodLoad        = importPlanet.Storage.Max - importPlanet.FoodHere;
-                    maxFoodLoad              = (maxFoodLoad - importPlanet.Food.NetIncome * 25).Clamped(0, exportPlanet.Storage.Max * 0.5f);
+                    float maxFoodLoad = importPlanet.Storage.Max - importPlanet.FoodHere;
+                    maxFoodLoad = (maxFoodLoad - importPlanet.Food.NetIncome * 25)
+                                .Clamped(0, exportPlanet.Storage.Max * 0.5f);
                     if (maxFoodLoad.AlmostZero())
                     {
-                        CancelTradePlan(g, exportPlanet); // import planet food is good by now
+                        CancelTradePlan(exportPlanet); // import planet food is good by now
                         return;
                     }
 
-                    exportPlanet.FoodHere   -= Owner.LoadFood(maxFoodLoad);
+                    exportPlanet.FoodHere -= Owner.LoadFood(maxFoodLoad);
                     break;
                 case Goods.Production:
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
-                    float maxProdLoad        = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 0.25f);
+                    float maxProdLoad = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 0.25f);
                     exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
                     break;
                 case Goods.Colonists:
@@ -833,12 +766,10 @@ namespace Ship_Game.AI
                     exportPlanet.Population -= Owner.LoadColonists(exportPlanet.Population * 0.2f);
                     break;
             }
-            ClearOrders();
-            State = AIState.SystemTrader;
-            AddTradePlan(Plan.DropOffGoods, exportPlanet, importPlanet, g.Trade.Goods);
+            SetTradePlan(Plan.DropOffGoods, exportPlanet, importPlanet, g.Trade.Goods);
         }
 
-        private void DoDropOffGoods(float elapsedTime, ShipGoal g)
+        void DoDropOffGoods(float elapsedTime, ShipGoal g)
         {
             Planet importPlanet = g.Trade.ImportTo;
             if (WaitForBlockadeRemoval(g, importPlanet, elapsedTime))
@@ -852,7 +783,7 @@ namespace Ship_Game.AI
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
-            CancelTradePlan(g, importPlanet);
+            CancelTradePlan(importPlanet);
         }
 
         void DoReturnHome(float elapsedTime)

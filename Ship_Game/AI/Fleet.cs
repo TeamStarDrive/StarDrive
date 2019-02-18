@@ -691,7 +691,6 @@ namespace Ship_Game.AI
                         CoreFleetSubTask = null;
                         break;
                     }
-
                     SetRestrictedCombatWeights(task.AORadius);
                     TaskStep = 2;
                     break;
@@ -699,9 +698,7 @@ namespace Ship_Game.AI
                     if (!ArrivedAtCombatRally(CoreFleetSubTask)) break;
                     TaskStep = 3;
                     break;
-
                 case 3:
-
                     if (!AttackEnemyStrengthClumpsInAO(CoreFleetSubTask))
                     {
                         TaskStep = 1;
@@ -719,21 +716,20 @@ namespace Ship_Game.AI
                     }
                     if (ShipsOffMission(CoreFleetSubTask))
                         TaskStep = 3;
-                    for (int x = 0; x < Ships.Count; x++)
+                    for (int i = 0; i < Ships.Count; i++)
                     {
-                        var ship = Ships[x];
+                        Ship ship = Ships[i];
                         if (ship.AI.BadGuysNear)
-                            ship.AI.HasPriorityOrder = false;
+                            ship.AI.ClearPriorityOrder();
                     }
                     break;
 
                 case 5:
                     SendFleetToResupply();
-                    TaskStep =4;
+                    TaskStep = 4;
                     break;
                 case 6:
                     IsFleetSupplied(wantedSupplyRatio: .9f);
-
                     break;
             }
         }
@@ -806,7 +802,7 @@ namespace Ship_Game.AI
                                 TaskStep = 5;
                                 return;
                             }
-                            ship.AI.HasPriorityOrder = true;
+                            ship.AI.SetPriorityOrder(clearOrders: false);
                             fleetOrdinance    += ship.Ordinance;
                             fleetOrdinanceMax += ship.OrdinanceMax;
                         }
@@ -880,16 +876,13 @@ namespace Ship_Game.AI
             return true;
         }
 
-        /// <summary>
-        /// Return true if order successfull. Fails when enemies near.
-        /// </summary>
-        /// <param name="task"></param>
-        /// <returns></returns>
+        /// @return true if order successful. Fails when enemies near.
         bool DoOrbitTaskArea(MilitaryTask task)
         {
             CombatStatus status = FleetInAreaInCombat(task.AO, task.AORadius);
 
-            if (status < CombatStatus.ClearSpace) return false;
+            if (status < CombatStatus.ClearSpace)
+                return false;
 
             DoOrbitAreaRestricted(task.TargetPlanet, task.AO, task.AORadius);
             return true;
@@ -897,12 +890,14 @@ namespace Ship_Game.AI
 
         void CancelFleetMoveInArea(Vector2 pos, float radius )
         {
-            foreach(var ship in Ships)
+            foreach (Ship ship in Ships)
             {
-                if (ship.Center.OutsideRadius(pos, radius)) continue;
-                if (ship.AI.State != AIState.FormationWarp) continue;
-                ship.AI.State = AIState.AwaitingOrders;
-                ship.AI.ClearPriorityOrder();
+                if (!ship.Center.OutsideRadius(pos, radius) &&
+                    ship.AI.State == AIState.FormationWarp)
+                {
+                    ship.AI.State = AIState.AwaitingOrders;
+                    ship.AI.ClearPriorityOrder();
+                }
             }
         }
 
@@ -983,28 +978,30 @@ namespace Ship_Game.AI
             if (enemyClumpsDict.Count == 0)
                 return false;
 
-
             var availableShips = new Array<Ship>(AvailableShips);
 
             foreach (var kv in enemyClumpsDict.OrderBy(dis => dis.Key.SqDist(task.AO)))
             {
-                if (availableShips.Count == 0) break;
-                float attackStr = 0.0f;
-                for (int x = availableShips.Count - 1; x >= 0; x--)
-                {
-                    if (attackStr > kv.Value * 3) break;
+                if (availableShips.Count == 0)
+                    break;
 
-                    Ship ship       = availableShips[x];
+                float attackStr = 0.0f;
+                for (int i = availableShips.Count - 1; i >= 0; --i)
+                {
+                    if (attackStr > kv.Value * 3)
+                        break;
+
+                    Ship ship = availableShips[i];
                     if (ship.AI.HasPriorityOrder || ship.InCombat)
                     {
-                        availableShips.RemoveAtSwapLast(x);
+                        availableShips.RemoveAtSwapLast(i);
                         continue;
                     }
                     Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
                     ship.AI.OrderMoveTowardsPosition(kv.Key, vFacing, true, null);
                     ship.ForceCombatTimer();
 
-                    availableShips.RemoveAtSwapLast(x);
+                    availableShips.RemoveAtSwapLast(i);
                     attackStr += ship.GetStrength();
                 }
             }
@@ -1024,7 +1021,7 @@ namespace Ship_Game.AI
 
         bool MoveFleetToNearestCluster(MilitaryTask task)
         {
-            ThreatMatrix.StrengthCluster strengthCluster = new ThreatMatrix.StrengthCluster
+            var strengthCluster = new ThreatMatrix.StrengthCluster
             {
                 Empire = Owner,
                 Granularity = 5000f,
