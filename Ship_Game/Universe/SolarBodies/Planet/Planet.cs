@@ -281,13 +281,13 @@ namespace Ship_Game
         public void AddToIncomingFreighterList(Ship ship)
         {
             if (!IncomingFreighters.Any(s => s == ship))
-                IncomingFreighters.Add(ship);
+                IncomingFreighters.AddUniqueRef(ship);
         }
 
         public void AddToOutgoingFreighterList(Ship ship)
         {
             if (!OutgoingFreighters.Any(s => s == ship))
-            OutgoingFreighters.Add(ship);
+            OutgoingFreighters.AddUniqueRef(ship);
         }
 
         public void RemoveFromIncomingFreighterList(Ship ship)
@@ -300,7 +300,7 @@ namespace Ship_Game
             OutgoingFreighters.Remove(ship);
         }
 
-        public void RemoveInvalidFreighters(Array<Ship> list)
+        private static void RemoveInvalidFreighters(Array<Ship> list)
         {
             for (int i = 0; i < list.Count; ++i)
             {
