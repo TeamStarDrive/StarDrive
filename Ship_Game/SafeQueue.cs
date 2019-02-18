@@ -389,18 +389,21 @@ namespace Ship_Game
 
         public void Dispose()
         {
-            Destroy();
+            Destroy(true);
             GC.SuppressFinalize(this);
         }
 
-        ~SafeQueue() { Destroy(); }
+        ~SafeQueue() { Destroy(false); }
 
-        void Destroy()
+        void Destroy(bool force)
         {
             Count = 0;
-            ItemAdded?.Set();
-            ItemAdded?.Dispose(ref ItemAdded);
-            ThisLock?.Dispose(ref ThisLock);
+            if (force)
+            {
+                ItemAdded?.Set();
+                ItemAdded?.Dispose(ref ItemAdded);
+                ThisLock?.Dispose(ref ThisLock);
+            }
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);

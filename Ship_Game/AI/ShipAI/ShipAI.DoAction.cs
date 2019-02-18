@@ -163,7 +163,7 @@ namespace Ship_Game.AI
                 case CombatState.OrbitRight:     OrbitShip((Ship)Target, elapsedTime, Orbit.Right); break;
                 case CombatState.BroadsideLeft:  DoNonFleetBroadside(elapsedTime, Orbit.Left);  break;
                 case CombatState.BroadsideRight: DoNonFleetBroadside(elapsedTime, Orbit.Left); break;
-                case CombatState.AttackRuns:     AttackRun.Execute(elapsedTime);    break;
+                case CombatState.AttackRuns:     AttackRun.Execute(elapsedTime, null); break;
                 case CombatState.HoldPosition:   DoHoldPositionCombat(elapsedTime); break;
                 case CombatState.Evade:          DoEvadeCombat(elapsedTime);        break;
                 case CombatState.AssaultShip:    DoAssaultShipCombat(elapsedTime);  break;
@@ -715,75 +715,6 @@ namespace Ship_Game.AI
                     hangar.HangarShipGuid = Guid.Empty;
                 }
             }
-        }
-
-        void DoPickupGoods(float elapsedTime, ShipGoal g)
-        {
-            Planet exportPlanet = g.Trade.ExportFrom;
-            Planet importPlanet = g.Trade.ImportTo;
-            if (WaitForBlockadeRemoval(g, exportPlanet, elapsedTime))
-                return;
-
-            ThrustOrWarpToPosCorrected(exportPlanet.Center, elapsedTime);
-            if (!Owner.Center.InRadius(exportPlanet.Center, exportPlanet.ObjectRadius + 300f))
-                return;
-
-            if (exportPlanet.Storage.GetGoodAmount(g.Trade.Goods) < 1) // other freighter took the goods, damn!
-            {
-                CancelTradePlan(exportPlanet);
-                return;
-            }
-
-            switch (g.Trade.Goods)
-            {
-                case Goods.Food:
-                    exportPlanet.ProdHere   += Owner.UnloadProduction();
-                    exportPlanet.Population += Owner.UnloadColonists();
-
-                    // food amount estimated the import planet needs
-                    float maxFoodLoad = importPlanet.Storage.Max - importPlanet.FoodHere;
-                    maxFoodLoad = (maxFoodLoad - importPlanet.Food.NetIncome * 25)
-                                .Clamped(0, exportPlanet.Storage.Max * 0.5f);
-                    if (maxFoodLoad.AlmostZero())
-                    {
-                        CancelTradePlan(exportPlanet); // import planet food is good by now
-                        return;
-                    }
-
-                    exportPlanet.FoodHere -= Owner.LoadFood(maxFoodLoad);
-                    break;
-                case Goods.Production:
-                    exportPlanet.FoodHere   += Owner.UnloadFood();
-                    exportPlanet.Population += Owner.UnloadColonists();
-                    float maxProdLoad = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 0.25f);
-                    exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
-                    break;
-                case Goods.Colonists:
-                    exportPlanet.ProdHere += Owner.UnloadProduction();
-                    exportPlanet.FoodHere += Owner.UnloadFood();
-
-                    // load everyone we can :P
-                    exportPlanet.Population -= Owner.LoadColonists(exportPlanet.Population * 0.2f);
-                    break;
-            }
-            SetTradePlan(Plan.DropOffGoods, exportPlanet, importPlanet, g.Trade.Goods);
-        }
-
-        void DoDropOffGoods(float elapsedTime, ShipGoal g)
-        {
-            Planet importPlanet = g.Trade.ImportTo;
-            if (WaitForBlockadeRemoval(g, importPlanet, elapsedTime))
-                return;
-
-            ThrustOrWarpToPosCorrected(importPlanet.Center, elapsedTime);
-            if (!Owner.Center.InRadius(importPlanet.Center, importPlanet.ObjectRadius + 300f))
-                return;
-
-            Owner.loyalty.TaxGoodsIfMercantile(Owner.CargoSpaceUsed);
-            importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
-            importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
-            importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
-            CancelTradePlan(importPlanet);
         }
 
         void DoReturnHome(float elapsedTime)
