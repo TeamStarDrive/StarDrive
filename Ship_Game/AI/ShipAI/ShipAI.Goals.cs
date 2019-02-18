@@ -128,13 +128,7 @@ namespace Ship_Game.AI
                 Trade = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
             }
 
-            public ShipGoal(Plan plan, SavedGame.TradePlanSave tp, UniverseData data)
-            {
-                Plan = plan;
-                Trade = new TradePlan(tp, data);
-            }
-
-            public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
+            public ShipGoal(SavedGame.ShipGoalSave sg, SavedGame.TradePlanSave tp, UniverseData data, Ship ship)
             {
                 Plan = sg.Plan;
                 MovePosition = sg.MovePosition;
@@ -163,14 +157,17 @@ namespace Ship_Game.AI
                             Goal = empireGoal;
                     }
                 }
+
+                if (tp != null)
+                    Trade = new TradePlan(tp, data);
             }
         }
 
         public class TradePlan
         {
-            public Goods Goods       { get; private set; }
-            public Planet ExportFrom { get; private set; }
-            public Planet ImportTo   { get; private set; }
+            public readonly Goods Goods;
+            public readonly Planet ExportFrom;
+            public readonly Planet ImportTo;
             public float BlockadeTimer; // indicates how much time to wait with freight when trade is blocked
 
             public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer)
