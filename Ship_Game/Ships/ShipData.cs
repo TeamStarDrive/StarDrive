@@ -325,7 +325,7 @@ namespace Ship_Game.Ships
             Civilian,
             Recon,
             Conservative,
-            Netural,
+            Neutral,
             Reckless,
             Kamikaze
         }

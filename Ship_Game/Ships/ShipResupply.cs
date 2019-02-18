@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
                 default:
                 case ShipData.Category.Civilian: threshold     = 0.85f; break;
                 case ShipData.Category.Recon: threshold        = 0.65f; break;
-                case ShipData.Category.Netural: threshold      = 0.5f; break;
+                case ShipData.Category.Neutral: threshold      = 0.5f; break;
                 case ShipData.Category.Unclassified: threshold = 0.4f; break;
                 case ShipData.Category.Conservative: threshold = 0.35f; break;
                 case ShipData.Category.Reckless: threshold     = 0.2f; break;

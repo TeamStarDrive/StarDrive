@@ -160,13 +160,14 @@ namespace Ship_Game
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
                 Empire.Universe.MasterShipList.Clear();
             
-            CreateEmpires(saveData, data);      step.Advance();
-            GiftShipsFromServantEmpire(data);   step.Advance();
-            CreateRelations(saveData);          step.Advance();
-            CreateSolarSystems(saveData, data); step.Advance();
-            CreateAllShips(saveData, data);     step.Advance();
-            CreateFleetsFromSave(saveData, data);  step.Advance();
-            CreateTasksGoalsRoads(saveData, data); step.Advance();
+            CreateEmpires(saveData, data);                     step.Advance();
+            GiftShipsFromServantEmpire(data);                  step.Advance();
+            CreateRelations(saveData);                         step.Advance();
+            CreateSolarSystems(saveData, data);                step.Advance();
+            CreateAllShips(saveData, data);                    step.Advance();
+            CreateFleetsFromSave(saveData, data);              step.Advance();
+            CreateTasksGoalsRoads(saveData, data);             step.Advance();
+            CreatePlanetImportExportShipLists(saveData, data); step.Advance();
             RestoreSolarSystemCQs(saveData, data); step.Finish();
             return data;
         }

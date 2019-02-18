@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Ship_Game.Ships;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,8 +21,8 @@ namespace Ship_Game.AI
         public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0, 
                       ShipModuleType targetModule = ShipModuleType.Dummy, ShipData.HangarOptions designation = ShipData.HangarOptions.General)
         {
-            // The AI will pick ships to build based on their Strength and game difficulty level 
-            // instead of techs needed. This allows it to choose the toughest ships to build. This is notmalized by ship total slots
+            // The AI will pick ships to build based on their Strength and game difficulty level.
+            // This allows it to choose the toughest ships to build. This is normalized by ship total slots
             // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
             return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, designation);
         }
@@ -84,7 +85,7 @@ namespace Ship_Game.AI
             return ships;
         }
 
-        // Pick the stongest ship to build with a cost limit and a role
+        // Pick the strongest ship to build with a cost limit and a role
         public static Ship PickCostEffectiveShipToBuild(ShipData.RoleName role, Empire empire, float maxCost, float maintBudget)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
@@ -149,6 +150,34 @@ namespace Ship_Game.AI
             Ship picked = RandomMath.RandItem(ships);
             Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Stength: {oldShip.BaseStrength} refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
             return picked;
+        }
+
+        public static Ship PickFreighter(Empire empire)
+        {
+            if (empire.isPlayer && empire.AutoFreighters &&
+                ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out Ship freighter))
+                return freighter;
+
+            var freighters = new Array<Ship>();
+            foreach (string shipId in empire.ShipsWeCanBuild)
+            {
+                Ship ship = ResourceManager.GetShipTemplate(shipId);
+                if (ship.shipData.Role != ShipData.RoleName.freighter || ship.CargoSpaceMax < 1f)
+                    continue; // definitely not a freighter
+
+                if (ship.isColonyShip || ship.isConstructor)
+                    continue; // ignore colony ships and constructors
+
+                if (ship.shipData.ShipCategory == ShipData.Category.Civilian ||
+                    ship.shipData.ShipCategory == ShipData.Category.Unclassified)
+                    freighters.Add(ship); // only consider civilian/unclassified as freighters
+            }
+
+            freighter = freighters
+                .OrderByDescending(ship => ship.CargoSpaceMax)
+                .ThenByDescending(ship => ship.NormalizedStrength)
+                .FirstOrDefault();
+            return freighter;
         }
 
         public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,
