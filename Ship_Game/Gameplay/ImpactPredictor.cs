@@ -203,6 +203,20 @@ namespace Ship_Game.Gameplay
             return movePos;
         }
 
+        public static Vector2 ThrustOffset(Vector2 ourPos, Vector2 ourVel, Vector2 targetPos, float magnitude = 1f)
+        {
+            Vector2 forward = ourPos.DirectionToTarget(targetPos);
+            Vector2 left = forward.LeftVector(); // perpendicular to forward vector
+            float dot = -left.Dot(ourVel.Normalized()); // get the velocity negation direction
+            float speed = ourVel.Length(); // negation magnitude
+
+            // only place movePos on the same axis as left vector
+            Vector2 movePos = targetPos + left*(dot*speed);
+            if (magnitude.NotEqual(1f))
+                movePos = targetPos.LerpTo(movePos, magnitude);
+            return movePos;
+        }
+
         // assume we have a relative reference frame and weaponPos is stationary
         // use additional calculations to set up correct interceptSpeed and deltaVel
         // https://stackoverflow.com/a/2249237
