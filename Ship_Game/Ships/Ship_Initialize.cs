@@ -326,7 +326,6 @@ namespace Ship_Game.Ships
         public void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
         {
             InitializeAI();
-            AI.SetTradeType(aiSave.FoodOrProd);
             AI.State              = aiSave.state;
             AI.DefaultAIState     = aiSave.defaultstate;
             AI.MovePosition       = aiSave.MovePosition;
