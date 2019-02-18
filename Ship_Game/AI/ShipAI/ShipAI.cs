@@ -629,6 +629,16 @@ namespace Ship_Game.AI
             return clearOrders;
         }
 
+        public void CancelTradePlan(ShipGoal g, Planet orbitPlanet = null)
+        {
+            ClearOrders();
+            g.Trade.UnregisterTrade(Owner);
+            if (orbitPlanet != null)
+                AddOrbitPlanetGoal(orbitPlanet, AIState.AwaitingOrders);
+            else
+                State = AIState.AwaitingOrders;
+        }
+
         void UpdateUtilityModuleAI(float elapsedTime)
         {
             UtilityModuleCheckTimer -= elapsedTime;

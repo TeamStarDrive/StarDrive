@@ -31,7 +31,7 @@ namespace Ship_Game
             Prod.Percent = 0;
             Res.Percent = 0;
 
-            switch (colonyType) //New resource management by Gretman
+            switch (colonyType) //New resource management by Gretman  // @todo FB - dont assign researchers if they can do nothing 
             {
                 case ColonyType.TradeHub:
                     AssignCoreWorldWorkers();
@@ -41,8 +41,8 @@ namespace Ship_Game
                 case ColonyType.Core:
                     AssignCoreWorldWorkers();
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.25f, 0.5f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
-                    DetermineProdState(0.25f, 0.5f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
+                    DetermineFoodState(0.2f, 0.5f);   //these will evaluate to: Start Importing if stores drop below 20%, and stop importing once stores are above 50%.
+                    DetermineProdState(0.2f, 0.5f);   //                        Start Exporting if stores are above 50%, but dont stop exporting unless stores drop below 33%.
                     break;
                 case ColonyType.Industrial:
                     //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
@@ -55,10 +55,10 @@ namespace Ship_Game
                     DetermineFoodState(0.5f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     break;
-                case ColonyType.Research:
+                case ColonyType.Research: 
                     //This governor will rely on imports, focusing on research as long as no one is starving
                     Food.Percent = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
-                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.333f));        //Save a litle production too
+                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.333f));        //Save a little production too
                     if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
                     Res.AutoBalanceWorkers();
 
