@@ -508,7 +508,7 @@ namespace Ship_Game
         {
             if (EmpireManager.Remnants == null)
                 return;
-            Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetUid, EmpireManager.Remnants, where);
+            Fleet defensiveFleetAt = HelperFunctions.CreateFleetAt(fleetUid, EmpireManager.Remnants, where, CombatState.Artillery);
             var militaryTask = new MilitaryTask
             {
                 AO = where,

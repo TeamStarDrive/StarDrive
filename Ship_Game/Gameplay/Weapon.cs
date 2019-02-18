@@ -145,7 +145,7 @@ namespace Ship_Game.Gameplay
         public bool isRepairBeam;
         public bool TerminalPhaseAttack;
         public float TerminalPhaseDistance;
-        public float TerminalPhaseSpeedMod;
+        public float TerminalPhaseSpeedMod = 2f;
         public float ArmourPen = 0f;
         public string SecondaryFire;
         public bool AltFireMode;
@@ -433,27 +433,27 @@ namespace Ship_Game.Gameplay
             (Module != null && Module.AccuracyPercent > 0.66f) ||
             (Owner  != null && Owner.CanUseAdvancedTargeting);
 
-        public Vector2 GetTargetingError(int level = -1)
+        Vector2 GetLevelBasedError(int level = -1)
         {
             if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
                 return Vector2.Zero; //|| Tag_PD
 
-            // calculate level.
-            int trackingPower = Owner?.TrackingPower ?? 1;
             if (level == -1)
-                level = (Owner?.Level ?? level)
-                    + trackingPower //(Owner?.TrackingPower  ?? 0)
-                    + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
+            {
+                level = (Owner?.Level ?? 0)
+                      + (Owner?.TrackingPower ?? 0)
+                      + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
+            }
 
-            // reduce jitter by level cubed. if jitter is less than a module radius stop.
-            float baseJitter = 45f + 8 * Module.XSIZE * Module.YSIZE;
-            float adjust     = Math.Max(0, baseJitter - level * level * level);
-            if (adjust < 8) return Vector2.Zero;
+            // reduce error by level cubed. if error is less than a module radius stop.
+            float baseError = 45f + 8 * Module.XSIZE * Module.YSIZE;
+            float adjust = Math.Max(0, baseError - level * level * level);
+            if (adjust < 8)
+                return Vector2.Zero;
 
-            //reduce or increase jitter based on weapon and trait characteristics.
-
-            if (Tag_Cannon) adjust   *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
-            if (Tag_Kinetic) adjust  *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
+            // reduce or increase error based on weapon and trait characteristics.
+            if (Tag_Cannon)  adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
+            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
 
             adjust *= CalculateBaseAccuracy();
 
@@ -477,13 +477,52 @@ namespace Ship_Game.Gameplay
             return accuracy;
         }
 
+        // @note This is used for debugging
+        [XmlIgnore][JsonIgnore]
+        public Vector2 DebugLastImpactPredict { get; private set; }
+
+        public Vector2 GetTargetError(GameplayObject target, int level = -1)
+        {
+            Vector2 error = GetLevelBasedError(level); // base error from crew level/targeting bonuses
+            if (target != null)
+            {
+                error += target.JammingError(); // if target has ECM, they can scramble their position
+            }
+            return error;
+        }
+
+        // Applies correction to weapon target based on distance to target
+        public Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
+        {
+            // once we get too close the angle error becomes too big, so move the target pos further
+            float distance = source.Distance(target);
+            const float minDistance = 500f;
+            if (distance < minDistance)
+            {
+                // move pip forward a bit
+                target += (minDistance - distance)*source.DirectionToTarget(target);
+            }
+            
+            // total error magnitude should get smaller as we get closer
+            float errorMagnitude = 1f;
+            if (distance < 2000f)
+            {
+                errorMagnitude = (distance+minDistance) / 2000f;
+            }
+
+            Vector2 adjusted = target + error*errorMagnitude;
+            DebugLastImpactPredict = adjusted;
+            return adjusted;
+        }
+
+        
         public Vector2 Origin => Module?.Center ?? Center;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
         Vector2 Predict(Vector2 origin, GameplayObject target, bool advancedTargeting)
         {
             Vector2 pip = new ImpactPredictor(origin, OwnerVelocity, ProjectileSpeed, target)
-                        .Predict(advancedTargeting);
+                .Predict(advancedTargeting);
 
             float distance = origin.Distance(pip);
             float maxPredictionRange = Range*2;
@@ -502,47 +541,13 @@ namespace Ship_Game.Gameplay
             return pip != Vector2.Zero;
         }
 
-        // @note This is used for debugging
-        [XmlIgnore][JsonIgnore]
-        public Vector2 DebugLastImpactPredict { get; private set; }
-
-        // Applies jamming error, targeting error -- based on distance to pip
-        Vector2 AdjustedImpactPoint(Vector2 origin, GameplayObject target, Vector2 pip)
-        {
-            Vector2 error = GetTargetingError(); // base error from crew level/targeting bonuses
-            if (target != null)
-            {
-                error += target.JammingError(); // if target has ECM, they can scramble their position
-            }
-
-            // once we get too close the angle error becomes too big, so move the target pos further
-            float distance = origin.Distance(pip);
-            const float minDistance = 500f;
-            if (distance < minDistance)
-            {
-                // move pip forward a bit
-                pip += (minDistance - distance)*origin.DirectionToTarget(pip);
-            }
-            
-            // total error magnitude should get smaller as we get closer
-            float errorMagnitude = 1f;
-            if (distance < 2000f)
-            {
-                errorMagnitude = (distance+minDistance) / 2000f;
-            }
-
-            Vector2 adjusted = pip + error*errorMagnitude;
-            DebugLastImpactPredict = adjusted;
-            return adjusted;
-        }
-
         public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
             Vector2 origin = Origin;
             pip = Predict(origin, target, CanUseAdvancedTargeting);
             if (pip == Vector2.Zero)
                 return false;
-            pip = AdjustedImpactPoint(origin, target, pip);
+            pip = AdjustedImpactPoint(origin, pip, GetTargetError(target));
             return true;
         }
 
@@ -665,7 +670,7 @@ namespace Ship_Game.Gameplay
             if (Tag_Tractor || isRepairBeam)
                 return destination;
 
-            Vector2 beamDestination = AdjustedImpactPoint(source, target, destination);
+            Vector2 beamDestination = AdjustedImpactPoint(source, destination, GetTargetError(target));
             return beamDestination;
         }
 

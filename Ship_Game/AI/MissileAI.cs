@@ -7,17 +7,25 @@ namespace Ship_Game.AI
 {
     public sealed class MissileAI
     {
-        private readonly Projectile Missile;
+        readonly Projectile Missile;
         public GameplayObject Target { get; set; }
 
-        private readonly Array<Ship> TargetList;
-        private float ThinkTimer = 0.15f;
+        readonly Array<Ship> TargetList;
+        float TargetUpdateTimer = 0.15f;
+
         public bool Jammed { get; private set; }
-        public bool EcmRun { get; private set; }
-        private Vector2 LaunchJitter;
-        private Vector2 TargetJitter;
-        private readonly int Level;
-        private float TargetingTimer;
+        bool CalculatedJamming;
+        
+        readonly int Level;
+        Vector2 TargetError;
+        float ErrorAdjustTimer;
+
+        float RandomDirectionTimer;
+        float RandomNozzleDirection;
+
+        float InitialPhaseDirection;
+        float InitialPhaseTimer = 0.5f;
+
 
         public MissileAI(Projectile missile, GameplayObject target)
         {
@@ -37,22 +45,19 @@ namespace Ship_Game.AI
                 TargetList = new Array<Ship>();
                 GameplayObject[] nearbyShips = UniverseScreen.SpaceManager.FindNearby(
                             Missile, Missile.Planet.GravityWellRadius, GameObjectType.Ship);
-                foreach(GameplayObject go in nearbyShips)
+                foreach (GameplayObject go in nearbyShips)
                 {
-                    if (!missile.Weapon.TargetValid(go))
-                        continue;
-                    var nearbyShip = (Ship) go;
-                    if (missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty) )
-                        TargetList.Add(nearbyShip);
+                    if (missile.Weapon.TargetValid(go))
+                    {
+                        var nearbyShip = (Ship) go;
+                        if (missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty))
+                            TargetList.Add(nearbyShip);
+                    }
                 }
             }
 
-            TargetJitter = missile.Weapon.GetTargetingError(Level) + target?.JammingError() ?? Vector2.Zero;
-            LaunchJitter = TargetJitter * 2;
-            TargetingTimer = TargetTimerReset;
+            InitialPhaseDirection = RandomMath.RollDice(50) ? -1f : +1f;
         }
-
-        float TargetTimerReset => Math.Min(0.1f + Level * 0.1f, 0.9f);
 
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
@@ -71,10 +76,11 @@ namespace Ship_Game.AI
 
                 foreach (Ship ship in owningShip.AI.PotentialTargets)
                 {
-                    if (!ship.Active || ship.dying || ship.engineState == Ship.MoveState.Warp)
-                        continue;
-                    Target = ship.GetRandomInternalModule(Missile);
-                    return;
+                    if (ship.Active && !ship.dying && ship.engineState != Ship.MoveState.Warp)
+                    {
+                        Target = ship.GetRandomInternalModule(Missile);
+                        return;
+                    }
                 }                
             }
 
@@ -105,17 +111,12 @@ namespace Ship_Game.AI
             }
         }
 
-        void MoveStraight(float elapsedTime)
-        {
-            Missile.Velocity = Missile.Rotation.RadiansToDirection() * Missile.VelocityMax; 
-        }
-
         void MoveTowardsTargetJammed(float elapsedTime)
         {
             if (Target == null)
             {
                 Jammed = false;
-                EcmRun = false;
+                CalculatedJamming = false;
                 return;
             }
 
@@ -134,7 +135,7 @@ namespace Ship_Game.AI
                 targetPos = Missile.FixedError;
             }
 
-            Missile.GuidedMoveTowards(elapsedTime, targetPos);
+            Missile.GuidedMoveTowards(elapsedTime, targetPos, 0f);
 
             float distanceToEnd = Missile.Center.Distance(targetPos);
             if (distanceToEnd <= 300f)
@@ -142,68 +143,84 @@ namespace Ship_Game.AI
             Target = null;
         }
 
-        public void SetTarget(GameplayObject target) => Target = target;
-
         // added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
-            Vector2 interceptPoint = Vector2.Zero;
+            Vector2 targetIntercept = Vector2.Zero;
             if (Target != null)
             {                
-                interceptPoint = Missile.PredictImpact(Target);
-                
-                float distanceToTarget = Missile.Center.Distance(interceptPoint);
+                targetIntercept = Missile.PredictImpact(Target);
+                float distanceToTarget = Missile.Center.Distance(targetIntercept);
+
+                if (!CalculatedJamming && distanceToTarget <= 4000f && Target is ShipModule targetModule)
+                {
+                    float targetEcm = targetModule.GetParent().ECMValue;
+                    float ecmResist = Missile.Weapon.ECMResist + RandomMath.RandomBetween(0f, 1f);
+                    Jammed = (ecmResist < targetEcm);
+                    CalculatedJamming = true;
+                }
+
                 if (Jammed)
                 {
                     MoveTowardsTargetJammed(elapsedTime);
                     return;
                 }
-                if (Target is ShipModule targetModule && !EcmRun && distanceToTarget <= 4000)
-                {
-                    EcmRun = true;
-                    float targetEcm = targetModule.GetParent().ECMValue;
-                    if (RandomMath.RandomBetween(0f, 1f) + Missile.Weapon.ECMResist < targetEcm)
-                    {
-                        Jammed = true;
-                        MoveTowardsTargetJammed(elapsedTime);
-                        return;
-                    }
-                }
+
                 if (Missile.Weapon.TerminalPhaseAttack && distanceToTarget <= Missile.Weapon.TerminalPhaseDistance)
                 {
-                    Missile.GuidedMoveTowards(elapsedTime, interceptPoint);
-                    Missile.Velocity *= Missile.Weapon.TerminalPhaseSpeedMod;
+                    Missile.GuidedMoveTowards(elapsedTime, targetIntercept, 0f, terminalPhase: true);
                     return;
                 }
             }
-            ThinkTimer -= elapsedTime;
-            TargetingTimer += elapsedTime;
 
-            if (TargetingTimer > 1f)
-            {
-                if (Target != null)
-                {                    
-                    LaunchJitter /= 2;
-                    TargetJitter = Missile.Weapon.GetTargetingError(Level) + Target.JammingError();
-                }
-                TargetingTimer = TargetTimerReset;
-            }
+            TargetUpdateTimer -= elapsedTime;
+            ErrorAdjustTimer -= elapsedTime;
+            RandomDirectionTimer -= elapsedTime;
+            InitialPhaseTimer -= elapsedTime;
 
-            if (ThinkTimer <= 0f)
+            if (TargetUpdateTimer <= 0f)
             {
+                TargetUpdateTimer = 0.15f;
                 if (Target == null || !Target.Active || Target is ShipModule targetModule && targetModule.GetParent().dying)
                 {
                     Target = null;
                     ChooseTarget();
+                    ErrorAdjustTimer = 0f; // readjust error
                 }
             }
-            if (Target != null )
+
+            if (ErrorAdjustTimer <= 0f)
             {
-                Vector2 jitterbug = interceptPoint + LaunchJitter + TargetJitter;
-                Missile.GuidedMoveTowards(elapsedTime, jitterbug);
-                return;
+                // with every increase in level, adjustment gets much faster
+                ErrorAdjustTimer = Math.Max(0.1f, 0.8f - Level * 0.1f);
+
+                if (Target != null)
+                {
+                    TargetError = Missile.Weapon.GetTargetError(Target, Level);
+                }
             }
-            MoveStraight(elapsedTime);
+
+            if (RandomDirectionTimer <= 0f)
+            {
+                RandomDirectionTimer = 0.5f;
+                RandomNozzleDirection = RandomMath.RandomBetween(-0.5f, +0.5f);
+            }
+
+            float nozzleDirection = RandomNozzleDirection;
+            if (InitialPhaseTimer > 0f)
+            {
+                nozzleDirection += InitialPhaseDirection;
+            }
+
+            if (Target != null)
+            {
+                Vector2 target = targetIntercept + TargetError;
+                Missile.GuidedMoveTowards(elapsedTime, target, nozzleDirection);
+            }
+            else
+            {
+                Missile.MoveStraight();
+            }
         }
     }
 }

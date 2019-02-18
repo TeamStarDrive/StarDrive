@@ -31,39 +31,47 @@ namespace Ship_Game
             ExitScreen();
         }
 
+        static bool PlayerCanBuildFleet(FleetDesign fleetDesign)
+        {
+            foreach (FleetDataNode node in fleetDesign.Data)
+            {
+                if (!EmpireManager.Player.WeCanBuildThis(node.ShipName))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         protected override void InitSaveList()
         {
             var serializer = new XmlSerializer(typeof(FleetDesign));
 
-            foreach (FileInfo info in ResourceManager.GatherFilesModOrVanilla("FleetDesigns", "xml"))
+            FileInfo[] coreDesigns = ResourceManager.GatherFilesModOrVanilla("FleetDesigns", "xml");
+            foreach (FileInfo info in coreDesigns)
             {
-                bool ok = true;
-                foreach (FleetDataNode node in serializer.Deserialize<FleetDesign>(info).Data)
-                {
-                    if (EmpireManager.Player.WeCanBuildThis(node.ShipName))
-                        continue;
-                    ok = false;
-                    break;
-                }
-                if (ok)
+                var design = serializer.Deserialize<FleetDesign>(info);
+                if (PlayerCanBuildFleet(design))
                 {
                     SavesSL.AddItem(new FileData(info, info, info.NameNoExt()));
                 }
+                else
+                {
+                    Log.Info($"Player cannot build fleet {design.Name}");
+                }
             }
 
-            foreach (FileInfo info in Dir.GetFiles(Path)) // player made fleets, can be deleted
+            FileInfo[] playerDesigns = Dir.GetFiles(Path);
+            foreach (FileInfo info in playerDesigns) // player made fleets, can be deleted
             {
-                bool ok = true;
-                foreach (FleetDataNode node in serializer.Deserialize<FleetDesign>(info).Data)
-                {
-                    if (EmpireManager.Player.WeCanBuildThis(node.ShipName))
-                        continue;
-                    ok = false;
-                    break;
-                }
-                if (ok)
+                var design = serializer.Deserialize<FleetDesign>(info);
+                if (PlayerCanBuildFleet(design))
                 {
                     SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddSubItem(info);
+                }
+                else
+                {
+                    Log.Info($"Player cannot build fleet {design.Name}");
                 }
             }
         }
