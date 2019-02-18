@@ -311,7 +311,7 @@ namespace Ship_Game.AI
 
             foreach (Ship idleFreighter in OwnerEmpire.IdleFreighters)
             {
-                if (betterFreighter == idleFreighter)
+                if (betterFreighter.Name == idleFreighter.Name)
                     continue;
 
                 idleFreighter.AI.OrderScrapShip();
