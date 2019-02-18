@@ -129,7 +129,7 @@ namespace Ship_Game.AI
                 Trade = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
             }
 
-            public ShipGoal(SavedGame.ShipGoalSave sg, SavedGame.TradePlanSave tp, UniverseData data, Ship ship)
+            public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
             {
                 Plan = sg.Plan;
                 MovePosition = sg.MovePosition;
@@ -159,8 +159,8 @@ namespace Ship_Game.AI
                     }
                 }
 
-                if (tp != null)
-                    Trade = new TradePlan(tp, data, ship);
+                if (sg.Trade != null)
+                    Trade = new TradePlan(sg.Trade, data, ship);
             }
 
             ~ShipGoal() { Destroy(); } // finalizer

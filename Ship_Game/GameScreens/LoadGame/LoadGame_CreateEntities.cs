@@ -528,7 +528,7 @@ namespace Ship_Game
                     if (sg.Plan == ShipAI.Plan.DeployStructure)
                         ship.isConstructor = true;
 
-                    ship.AI.AddToOrderQueue(new ShipAI.ShipGoal(sg, sg.Trade, data, ship));
+                    ship.AI.AddToOrderQueue(new ShipAI.ShipGoal(sg, data, ship));
                 }
             }
         }
