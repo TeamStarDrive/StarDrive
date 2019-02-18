@@ -105,7 +105,7 @@ namespace Ship_Game.Ships
                         return ShipData.RoleName.scout;
                     case ShipData.Category.Conservative:
                         break;
-                    case ShipData.Category.Netural:
+                    case ShipData.Category.Neutral:
                         break;
                     case ShipData.Category.Reckless:
                         break;
