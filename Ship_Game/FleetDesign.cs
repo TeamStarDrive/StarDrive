@@ -53,6 +53,11 @@ namespace Ship_Game
             }
             return weight;
         }
+
+        public FleetDataNode Clone()
+        {
+            return (FleetDataNode)MemberwiseClone();
+        }
     }
 
     public sealed class FleetDesign
