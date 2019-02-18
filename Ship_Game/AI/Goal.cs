@@ -64,7 +64,6 @@ namespace Ship_Game.AI
                 case BuildTroop.ID:             return new BuildTroop();
                 case FleetRequisition.ID:       return new FleetRequisition();
                 case IncreaseFreighters.ID:     return new IncreaseFreighters();
-                case IncreasePassengerShips.ID: return new IncreasePassengerShips();
                 case MarkForColonization.ID:    return new MarkForColonization();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }

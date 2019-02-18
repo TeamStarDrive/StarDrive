@@ -1,18 +1,15 @@
 ﻿using System;
-using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game.Universe.SolarBodies
 {
     public class ColonyStorage
     {
-        public TradeAI Trade { get;}
         public float Max { get; set; } = 10f;
         readonly Planet Ground;
         readonly Map<string, float> Commodities = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
 
         public ColonyStorage(Planet planet)
         {
-            Trade = new TradeAI(planet);
             Ground = planet;
         }
 
