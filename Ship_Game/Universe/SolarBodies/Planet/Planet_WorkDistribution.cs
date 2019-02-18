@@ -67,8 +67,8 @@ namespace Ship_Game
             }
             else // Strategy for Flesh-bags:
             {
-                AssignCoreWorldFarmers(0.8f); 
-                AssignCoreWorldProduction(0.8f - Food.Percent); // then we optimize production
+                AssignCoreWorldFarmers(1f); 
+                AssignCoreWorldProduction(1f - Food.Percent); // then we optimize production
                 Res.AutoBalanceWorkers(); // and rest goes to research
             }
         }

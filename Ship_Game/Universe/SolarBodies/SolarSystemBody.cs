@@ -6,7 +6,6 @@ using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
-using Ship_Game.Universe.SolarBodies.AI;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -454,7 +453,6 @@ namespace Ship_Game
                 if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
                     ParentSystem.OwnerList.Add(planet.Owner);                
             }
-            thisPlanet.TradeAI.ClearHistory();
 
             if (newOwner.isPlayer && !newOwner.AutoColonize)
                 colonyType = Planet.ColonyType.Colony;
