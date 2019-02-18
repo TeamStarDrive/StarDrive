@@ -604,7 +604,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void DoRefit(float elapsedTime, ShipGoal goal)
+        void DoRefit(ShipGoal goal)
         {
             QueueItem qi = new BuildShip(goal, OrbitTarget);
             if (qi.sData == null)
@@ -777,6 +777,7 @@ namespace Ship_Game.AI
         private void DoPickupGoods(float elapsedTime, ShipGoal g)
         {
             Planet exportPlanet = g.Trade.ExportFrom;
+            Planet importPlanet = g.Trade.ImportTo;
             if (WaitForBlockadeRemoval(g, exportPlanet, elapsedTime))
                 return;
 
@@ -784,18 +785,33 @@ namespace Ship_Game.AI
             if (!Owner.Center.InRadius(exportPlanet.Center, exportPlanet.ObjectRadius + 300f))
                 return;
 
+            if (exportPlanet.Storage.GetGoodAmount(g.Trade.Goods) < 1) // other freighter took the goods, damn!
+            {
+                CancelTradePlan(g, exportPlanet);
+                return;
+            }
+
             switch (g.Trade.Goods)
             {
                 case Goods.Food:
                     exportPlanet.ProdHere   += Owner.UnloadProduction();
                     exportPlanet.Population += Owner.UnloadColonists();
-                    float maxFoodLoad        = exportPlanet.FoodHere.Clamped(0f, exportPlanet.Storage.Max * 0.10f);
+
+                    // food amount estimated the import planet needs
+                    float maxFoodLoad        = importPlanet.Storage.Max - importPlanet.FoodHere;
+                    maxFoodLoad              = (maxFoodLoad - importPlanet.Food.NetIncome * 25).Clamped(0, exportPlanet.Storage.Max * 0.5f);
+                    if (maxFoodLoad.AlmostZero())
+                    {
+                        CancelTradePlan(g, exportPlanet); // import planet food is good by now
+                        return;
+                    }
+
                     exportPlanet.FoodHere   -= Owner.LoadFood(maxFoodLoad);
                     break;
                 case Goods.Production:
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
-                    float maxProdLoad        = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 10f);
+                    float maxProdLoad        = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 0.25f);
                     exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
                     break;
                 case Goods.Colonists:
@@ -808,7 +824,7 @@ namespace Ship_Game.AI
             }
             ClearOrders();
             State = AIState.SystemTrader;
-            AddTradePlan(Plan.DropOffGoods, exportPlanet, g.Trade.ImportTo, g.Trade.Goods, Owner);
+            AddTradePlan(Plan.DropOffGoods, exportPlanet, importPlanet, g.Trade.Goods, Owner);
         }
 
         private void DoDropOffGoods(float elapsedTime, ShipGoal g)
@@ -825,9 +841,7 @@ namespace Ship_Game.AI
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
-            ClearOrders();
-            g.Trade.UnregisterTrade(Owner);
-            AddOrbitPlanetGoal(importPlanet, AIState.AwaitingOrders);
+            CancelTradePlan(g, importPlanet);
         }
 
         void DoReturnHome(float elapsedTime)
