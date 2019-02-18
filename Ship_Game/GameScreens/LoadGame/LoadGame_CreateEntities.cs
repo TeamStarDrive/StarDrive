@@ -521,14 +521,14 @@ namespace Ship_Game
                     {
                         foreach (Planet p in s.PlanetList)
                         {
-                            if (p.guid == sg.TargetPlanetGuid)       ship.AI.ColonizeTarget = p;
+                            if (p.guid == sg.TargetPlanetGuid) ship.AI.ColonizeTarget = p;
                         }
                     }
 
                     if (sg.Plan == ShipAI.Plan.DeployStructure)
                         ship.isConstructor = true;
 
-                    ship.AI.AddToOrderQueue(new ShipAI.ShipGoal(sg, data, ship));
+                    ship.AI.AddGoalFromSave(sg, data);
                 }
             }
         }
