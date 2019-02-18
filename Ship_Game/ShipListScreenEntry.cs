@@ -251,10 +251,11 @@ namespace Ship_Game
                     if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last2))
                     {
                         string goodsType = last2.Trade?.Goods.ToString();
+                        string blockade = last2.Trade?.BlockadeTimer < 120 ? Localizer.Token(1964) : "";
                         switch (last2.Plan)
                         {
-                            case ShipAI.Plan.PickupGoods:  return $"{Localizer.Token(160)} {goodsType}";
-                            case ShipAI.Plan.DropOffGoods: return $"{Localizer.Token(163)} {goodsType}";
+                            case ShipAI.Plan.PickupGoods:  return $"{Localizer.Token(160)} {goodsType} {blockade}";
+                            case ShipAI.Plan.DropOffGoods: return $"{Localizer.Token(163)} {goodsType} {blockade}";
                         }
                     }
                     return $"{Localizer.Token(164)} \n {Localizer.Token(165)}";
