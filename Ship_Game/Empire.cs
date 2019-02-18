@@ -1533,13 +1533,16 @@ namespace Ship_Game
 
         public bool WeCanBuildThis(string ship)
         {
-            if (!ResourceManager.ShipsDict.TryGetValue(ship, out Ship ship1))
+            if (!ResourceManager.GetShipTemplate(ship, out Ship ship1))
+            {
+                Log.Warning($"Ship does not exist: {ship}");
                 return false;
+            }
 
             ShipData shipData = ship1.shipData;
             if (shipData == null)
             {
-                Universe?.DebugWin?.DebugLogText($"{data.PortraitName} : shipData is null : '{ship}'", DebugModes.Normal);
+                Log.Warning($"{data.PortraitName} : shipData is null : '{ship}'");
                 return false;
             }
 
@@ -1555,16 +1558,16 @@ namespace Ship_Game
                 {
                     if (ShipTechs.Contains(shipTech)) continue;
                     TechEntry onlyShipTech = TechnologyDict[shipTech];
-                    if (onlyShipTech.Unlocked) continue;
-
-                    Universe?.DebugWin?.DebugLogText($"Locked Tech : '{shipTech}' in design : '{ship}'", DebugModes.Normal);
-                    return false;
+                    if (!onlyShipTech.Unlocked)
+                    {
+                        //Log.Info($"Locked Tech : '{shipTech}' in design : '{ship}'");
+                        return false;
+                    }
                 }
-                Universe?.DebugWin?.DebugLogText($"New Ship WeCanBuild {shipData.Name} Hull: '{shipData.Hull}' DesignRole: '{ship1.DesignRole}'"
-                    , DebugModes.Last);
+                //Log.Info($"New Ship WeCanBuild {shipData.Name} Hull: '{shipData.Hull}' DesignRole: '{ship1.DesignRole}'");
             }
-
             else
+            {
                 // check if all modules in the ship are unlocked
                 foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlots)
                 {
@@ -1572,11 +1575,11 @@ namespace Ship_Game
                         moduleSlotData.InstalledModuleUID == "Dummy" ||
                         UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
                         continue;
-                    Universe?.DebugWin?.DebugLogText($"Locked module : '{moduleSlotData.InstalledModuleUID}' in design : '{ship}'"
-                        , DebugModes.Normal);
+                    //Log.Info($"Locked module : '{moduleSlotData.InstalledModuleUID}' in design : '{ship}'");
                     return false; // can't build this ship because it contains a locked Module
                 }
 
+            }
             return true;
         }
 

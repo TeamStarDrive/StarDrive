@@ -14,6 +14,7 @@ namespace Ship_Game.AI
     {
         // direction offset from target ship, so our attack runs go over the side of the enemy ship
         Vector2 TargetQuadrant = Vectors.Right;
+        Vector2 DisengageStart;
         Vector2 DisengagePos1;
         Vector2 DisengagePos2;
         enum RunState
@@ -82,8 +83,10 @@ namespace Ship_Game.AI
                 ? (RandomMath.RollDice(50) ? MathExt.RadiansLeft : MathExt.RadiansRight)
                 : RandomMath.RandomBetween(-1.57f, 1.57f); // from -90 to +90 degrees
 
+            DisengageStart = AI.Target.Center;
+
             Vector2 direction = (Owner.Rotation + rotation).RadiansToDirection();
-            DisengagePos1 = AI.Target.Center + direction * disengageDistance;
+            DisengagePos1 = DisengageStart + direction * disengageDistance;
 
             Vector2 leftOrRight = RandomMath.RollDice(50) ? direction.LeftVector() : direction.RightVector();
             DisengagePos2 = DisengagePos1 + disengageDistance*(direction+leftOrRight);
@@ -92,8 +95,8 @@ namespace Ship_Game.AI
         void ExecuteDisengage(float elapsedTime)
         {
             Vector2 disengagePos = (State == RunState.Disengage1) ? DisengagePos1 : DisengagePos2;
-            float disengageLimit = AI.Target.Center.Distance(disengagePos) + 20f;
-            float distance = Owner.Center.Distance(AI.Target.Center);
+            float disengageLimit = DisengageStart.Distance(disengagePos) + 20f;
+            float distance = DisengageStart.Distance(Owner.Center);
 
             if (State == RunState.Disengage1)
             {
@@ -128,7 +131,7 @@ namespace Ship_Game.AI
                 DebugInfoScreen debug = Empire.Universe.DebugWin;
                 debug.DrawCircle(DebugModes.Targeting, DisengagePos1, 30f, Owner.loyalty.EmpireColor, 0f);
                 debug.DrawCircle(DebugModes.Targeting, DisengagePos2, 30f, Owner.loyalty.EmpireColor, 0f);
-                debug.DrawCircle(DebugModes.Targeting, AI.Target.Center, disengageLimit, Color.Bisque, 0f);
+                debug.DrawCircle(DebugModes.Targeting, DisengageStart, disengageLimit, Color.Bisque, 0f);
                 debug.DrawLine(DebugModes.Targeting, Owner.Center, disengagePos, 1f, Owner.loyalty.EmpireColor, 0f);
                 DrawDebugText(State.ToString());
             }

@@ -40,7 +40,7 @@ namespace Ship_Game.AI
         }
 
         // the drone will orbit around the ship it's healing
-        private void OrbitShip(Ship ship, float elapsedTime)
+        void OrbitShip(Ship ship, float elapsedTime)
         {
             Vector2 orbitalPos = ship.Center.PointOnCircle(OrbitalAngle, 1500f);
             if (orbitalPos.InRadius(Drone.Center, 1500f))
@@ -51,7 +51,7 @@ namespace Ship_Game.AI
                 orbitalPos = ship.Center.PointOnCircle(OrbitalAngle, 2500f);
             }
             if (elapsedTime > 0f)
-                Drone.GuidedMoveTowards(elapsedTime, DroneTarget?.Center ?? orbitalPos);
+                Drone.GuidedMoveTowards(elapsedTime, DroneTarget?.Center ?? orbitalPos, 0f);
         }
 
         public void Think(float elapsedTime)

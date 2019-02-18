@@ -567,7 +567,7 @@ namespace Ship_Game.AI
                     if (Owner.fleet?.GoalStack.Count > 0)
                         WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
                     else
-                        OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, DesiredDirection, true, null);
+                        OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, Owner.fleet.Direction, true, null);
                 }
             }
         }
