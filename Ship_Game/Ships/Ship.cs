@@ -162,7 +162,7 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int FixedTrackingPower;
-        public float TradeTimer;
+        public float TradeTimer = 300;
         public bool ShipInitialized;
         public float maxFTLSpeed;
         public float NormalWarpThrust;
@@ -193,11 +193,12 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsIdleFreighter => !PlayerShip && AI != null 
-                                    &&!AI.HasPriorityOrder 
-                                    && AI.State != AIState.PassengerTransport
-                                    && AI.State != AIState.SystemTrader
-                                    && AI.State != AIState.Refit;
+        public bool IsIdleFreighter => IsFreighter 
+                                       && !PlayerShip && AI != null 
+                                       && !AI.HasPriorityOrder 
+                                       && AI.State != AIState.SystemTrader
+                                       && AI.State != AIState.Flee
+                                       && AI.State != AIState.Refit;
 
         public bool IsInNeutralSpace
         {
@@ -498,81 +499,46 @@ namespace Ship_Game.Ships
             {
                 TransportingProduction = value;
                 TransportingFood = value;
-                if (!value) return;
-                if (AI.State != AIState.SystemTrader)
-                {
-                    AI.start = null;
-                    AI.end = null;
-                    AI.State = AIState.SystemTrader;
-                }
-
-                AI.OrderTrade(0f);
             }
         }
 
-        public bool DoingFoodTransport => AI.State == AIState.SystemTrader && TransportingFood;
-        public bool DoingProdTransport => AI.State == AIState.SystemTrader && TransportingProduction;
+        public bool DoingFoodTransport => TransportingFood;
+        public bool DoingProdTransport => TransportingProduction;
+        public bool DoingPassengerTransport => TransportingPassengers;
 
-        public bool DoingPassTransport
+        private bool TPassengers;
+        public bool TransportingPassengers
         {
-            get => AI.State == AIState.PassengerTransport;
+            get => TPassengers;
             set
             {
-                AI.start = null;
-                AI.end = null;
-                AI.OrderTransportPassengers(5f);
+                TPassengers = value;
+                if (!value)
+                    AI.State = AIState.AwaitingOrders;
             }
         }
+
         private bool TFood;
         public bool TransportingFood
         {
-            get => AI.State != AIState.SystemTrader || TFood;
+            get => TFood;
             set
             {
                 TFood = value;
                 if (!value)
-                {
-                    if (!TransportingProduction)
-                    {
-                        AI.State = AIState.AwaitingOrders;
-                    }
-                    return;
-                }
-                if (AI.State == AIState.SystemTrader)
-                {
-                    AI.OrderTrade(0);
-                    return;
-                }
-                AI.start = null;
-                AI.end = null;
-                AI.State = AIState.SystemTrader;
-                //AI.OrderTrade(0);
+                    AI.State = AIState.AwaitingOrders;
             }
         }
+
         private bool TProd;
         public bool TransportingProduction
         {
-            get => AI.State != AIState.SystemTrader || TProd;
+            get => TProd;
             set
             {
                 TProd = value;
                 if (!value)
-                {
-                    if (!TransportingFood)
-                    {
-                        AI.State = AIState.AwaitingOrders;
-                    }
-                    return;
-                }
-                if (AI.State == AIState.SystemTrader)
-                {
-                    AI.OrderTrade(0);
-                    return;
-                }
-                AI.start = null;
-                AI.end = null;
-                AI.State = AIState.SystemTrader;
-                //AI.OrderTrade(0);
+                    AI.State = AIState.AwaitingOrders;
             }
         }
 
@@ -641,8 +607,6 @@ namespace Ship_Game.Ships
             AI.Target = null;
             AI.ColonizeTarget = null;
             AI.EscortTarget = null;
-            AI.start = null;
-            AI.end = null;
             AI.PotentialTargets.Clear();
             AI.NearByShips.Clear();
             AI.FriendliesNearby.Clear();
@@ -1198,11 +1162,6 @@ namespace Ship_Game.Ships
         public void DoColonize(Planet p, Goal g)
         {
             AI.OrderColonization(p);
-        }
-
-        public void DoTrading()
-        {
-            AI.State = AIState.SystemTrader;
         }
 
         public void ResetJumpTimer()
@@ -2450,8 +2409,6 @@ namespace Ship_Game.Ships
             AI.Target                        = null;
             AI.ColonizeTarget                = null;
             AI.EscortTarget                  = null;
-            AI.start                         = null;
-            AI.end                           = null;
             AI.PotentialTargets.Clear();
             AI.TrackProjectiles.Clear();
             AI.NearByShips.Clear();

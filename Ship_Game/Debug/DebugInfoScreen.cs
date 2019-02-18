@@ -400,9 +400,13 @@ namespace Ship_Game.Debug
                            ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
                 DrawString(ship.AI.HasPriorityTarget ? "Priority Target" : "No Priority Target");
                 DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
-
-                if (ship.AI.State == AIState.SystemTrader)
-                    DrawString($"Trading Prod:{ship.TradingProd} food:{ship.TradingFood} Goods:{ship.AI.FoodOrProd}");
+                if (ship.IsFreighter)
+                {
+                    DrawString($"Trade Timer:{ship.TradeTimer}");
+                    ShipGoal g = ship.AI.OrderQueue.PeekLast;
+                    if (g?.Trade != null && g.Trade.BlockadeTimer < 120)
+                        DrawString($"Blockade Timer:{g.Trade.BlockadeTimer}");
+                }
 
                 if (ship.AI.Target is Ship shipTarget)
                 {

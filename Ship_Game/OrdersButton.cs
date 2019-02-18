@@ -282,11 +282,6 @@ namespace Ship_Game
                             {
                                 for (int i = 0; i < ShipList.Count; i++)
                                 {
-                                    ShipList[i].AI.start = null;
-                                    ShipList[i].AI.end = null;
-                                    ShipList[i].AI.State = AIState.SystemTrader;
-                                    ShipList[i].AI.FoodOrProd = Goods.Food;
-                                    ShipList[i].AI.OrderTrade(0);
                                     ShipList[i].TransportingFood = !ShipList[i].TransportingFood;
                                 }
 
@@ -296,23 +291,12 @@ namespace Ship_Game
                         {
                                 for (int i = 0; i < ShipList.Count; i++)
                                 {
-                                    ShipList[i].AI.start = null;
-                                    ShipList[i].AI.end = null;
-                                    ShipList[i].AI.State = AIState.SystemTrader;
-                                    ShipList[i].AI.FoodOrProd = Goods.Production;
-                                    ShipList[i].AI.OrderTrade(0);
                                     ShipList[i].TransportingProduction = !ShipList[i].TransportingProduction;
-
-
                                 }
                             return true;
                         }
                         case OrderType.PassTran:
                         {
-                            for (int i = 0; i < ShipList.Count; i++)
-                            {
-                                ShipList[i].AI.OrderTransportPassengers(5f);
-                            }
                             return true;
                         }
                         case OrderType.TroopToggle:
