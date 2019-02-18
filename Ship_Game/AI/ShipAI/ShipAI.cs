@@ -609,7 +609,7 @@ namespace Ship_Game.AI
 
             // if ship has this cargo type on board, proceed to drop it off at destination
             Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f ? Plan.DropOffGoods : Plan.PickupGoods;
-            AddTradePlan(plan, exportPlanet, importPlanet, goods, Owner);
+            AddTradePlan(plan, exportPlanet, importPlanet, goods);
         }
 
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
