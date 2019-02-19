@@ -218,8 +218,8 @@ namespace Ship_Game
                         planet    = p,
                         Asteroids = false
                     });
+                    p.UpdateIncomes(true);  // must be before restoring commodities since max storage is set here           
                     RestoreCommodities(p, ring.Planet);
-                    p.UpdateIncomes(true);  //fbedard: needed for OrderTrade()                 
                 }
             }
             return system;
