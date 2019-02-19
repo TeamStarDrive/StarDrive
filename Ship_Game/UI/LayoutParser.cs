@@ -206,10 +206,17 @@ namespace Ship_Game.UI
             return Content.LoadTextureOrDefault("Textures/" + texturePath);
         }
 
+        SpriteAnimation LoadSpriteAnim(string animationPath)
+        {
+            if (animationPath.IsEmpty()) return null;
+            return new SpriteAnimation(Content, animationPath, true);
+        }
+
         ElementInfo ParseInfo(UIElementV2 parent, StarDataNode node)
         {
             ElementInfo info = DeserializeElementInfo(node);
             info.Tex = LoadTexture(info.Texture);
+            info.Spr = LoadSpriteAnim(info.Animation?.SpriteAnim);
 
             // init texture for size information, so buttons can be auto-resized
             if (info.Tex == null && node.Key == "Button")
@@ -228,7 +235,11 @@ namespace Ship_Game.UI
             if (node.Key == "Panel")
             {
                 info = ParseInfo(parent, node);
-                element = new UIPanel(info.R, info.Tex, info.Color ?? Color.White);
+                Color color = info.Color ?? Color.White;
+                if (info.Spr != null)
+                    element = new UIPanel(info.R, info.Spr, color);
+                else
+                    element = new UIPanel(info.R, info.Tex, color);
             }
             else if (node.Key == "List")
             {
