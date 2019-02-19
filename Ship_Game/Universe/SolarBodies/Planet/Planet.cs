@@ -48,7 +48,6 @@ namespace Ship_Game
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
-        public float AvgPopulationGrowth { get; private set; }
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
@@ -927,21 +926,23 @@ namespace Ship_Game
         private void GrowPopulation()
         {
             if (Owner == null) return;
-            
-            float repRate = Owner.data.BaseReproductiveRate * Population;
+
+            float balanceGrowth = (1 - PopulationRatio).Clamped(0.1f, 1f);
+            float repRate       = Owner.data.BaseReproductiveRate * Population * balanceGrowth;
             if (Owner.data.Traits.PopGrowthMax.NotZero())
                 repRate = Math.Min(repRate, Owner.data.Traits.PopGrowthMax * 1000f);
-            repRate = Math.Max(repRate, Owner.data.Traits.PopGrowthMin * 1000f);
+
+            repRate  = Math.Max(repRate, Owner.data.Traits.PopGrowthMin * 1000f);
             repRate += PlusFlatPopulationPerTurn;
             repRate += repRate * Owner.data.Traits.ReproductionMod;
 
             if (IsStarving)
                 Population += Unfed * 10f; // <-- This reduces population depending on starvation severity.
-            else
+
+            else if (!ShortOnFood())
                 Population += repRate;
 
             Population = Population.Clamped(100f, MaxPopulation);
-            AvgPopulationGrowth = (AvgPopulationGrowth + repRate) / 2;
         }
 
         public bool EventsOnBuildings()
