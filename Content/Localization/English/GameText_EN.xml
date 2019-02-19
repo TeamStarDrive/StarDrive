@@ -2487,7 +2487,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>683</Index>
       <Text>Terraforming</Text>
     </Token>
-
     <Token>
       <Index>685</Index>
       <Text>Thalaron Blaster</Text>
@@ -4695,6 +4694,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Expansionists</Text>
     </Token>
     <!-- Data added in Venus -->
+    <Token>
+      <Index>1962</Index>
+      <Text>Colonists</Text>
+    </Token>
     <Token>
       <Index>1963</Index>
       <Text>Landing Troops on</Text>
