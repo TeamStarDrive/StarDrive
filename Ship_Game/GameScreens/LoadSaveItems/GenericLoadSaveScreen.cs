@@ -61,8 +61,8 @@ namespace Ship_Game
             this.TitleText = TitleText;
             this.TabText = TabText;
             IsPopup = true;
-            TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0.25f;
         }
 
         public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText) 

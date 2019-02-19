@@ -51,8 +51,8 @@ namespace Ship_Game
 		public YouWinScreen(GameScreen parent) : base(parent)
 		{
 			IsPopup = true;
-			TransitionOnTime = TimeSpan.FromSeconds(30);
-			TransitionOffTime = TimeSpan.FromSeconds(0.25);
+			TransitionOnTime = 30f;
+			TransitionOffTime = 0.25f;
 		}
 
 		public YouWinScreen(GameScreen parent, string text) : base(parent)
@@ -60,8 +60,8 @@ namespace Ship_Game
             txt = text;
             txt = Fonts.Arial20Bold.ParseText(txt, 500f);
 			IsPopup = true;
-			TransitionOnTime = TimeSpan.FromSeconds(30);
-			TransitionOffTime = TimeSpan.FromSeconds(0.25);
+			TransitionOnTime = 30f;
+			TransitionOffTime = 0.25f;
 		}
 
 

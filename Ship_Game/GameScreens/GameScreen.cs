@@ -16,20 +16,22 @@ namespace Ship_Game
         public InputState Input;
         bool OtherScreenHasFocus;
 
-        public bool IsActive => !OtherScreenHasFocus && !IsExiting
-                                && ScreenState == ScreenState.TransitionOn 
-                                || ScreenState == ScreenState.Active;
+        public bool IsActive => !OtherScreenHasFocus && !IsExiting && 
+            (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
 
         public bool IsExiting { get; protected set; }
         public bool IsPopup   { get; protected set; }
 
+        // @return TRUE if content was loaded this frame
+        public bool DidLoadContent { get; private set; }
+
         public Viewport Viewport { get; private set; }
         public ScreenManager ScreenManager { get; internal set; }
         public GraphicsDevice Device => ScreenManager.GraphicsDevice;
-        public ScreenState   ScreenState   { get; protected set; }
-        public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
-        public TimeSpan TransitionOnTime  { get; protected set; } = TimeSpan.Zero;
-        public float TransitionPosition   { get; protected set; } = 1f;
+        public ScreenState ScreenState  { get; protected set; }
+        public float TransitionOffTime  { get; protected set; }
+        public float TransitionOnTime   { get; protected set; }
+        public float TransitionPosition { get; protected set; } = 1f;
 
         public bool IsTransitioning => ScreenState == ScreenState.TransitionOn
                                     || ScreenState == ScreenState.TransitionOff;
@@ -108,7 +110,7 @@ namespace Ship_Game
                 OnExit = null;
             }
 
-            if (TransitionOffTime != TimeSpan.Zero)
+            if (TransitionOffTime.NotZero())
             {
                 IsExiting = true;
                 return;
@@ -125,6 +127,8 @@ namespace Ship_Game
 
         public virtual void LoadContent()
         {
+            DidLoadContent = true;
+            PerformLayout();
         }
 
         public virtual void UnloadContent()
@@ -133,10 +137,14 @@ namespace Ship_Game
             Elements.Clear();
         }
 
-
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            DeltaTime = StarDriveGame.Instance.DeltaTime;
+            // @note If content was being loaded, we will force deltaTime to 1/60th
+            //       This will prevent animations going nuts due to huge deltaTime
+            DeltaTime = DidLoadContent ? (1.0f/60.0f) : StarDriveGame.Instance.DeltaTime;
+            //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
+
+            Visible = ScreenState != ScreenState.Hidden;
 
             // Update new UIElementV2
             Update(DeltaTime);
@@ -146,32 +154,37 @@ namespace Ship_Game
             {
                 if (coveredByOtherScreen)
                 {
-                    ScreenState = UpdateTransition(gameTime, TransitionOffTime, 1)
+                    ScreenState = UpdateTransition(TransitionOffTime, 1)
                                 ? ScreenState.TransitionOff : ScreenState.Hidden;
-                    return;
                 }
-                ScreenState = UpdateTransition(gameTime, TransitionOnTime, -1)
-                            ? ScreenState.TransitionOn : ScreenState.Active;
+                else
+                {
+                    ScreenState = UpdateTransition(TransitionOnTime, -1)
+                                ? ScreenState.TransitionOn : ScreenState.Active;
+                }
             }
             else
             {
                 ScreenState = ScreenState.TransitionOff;
-                if (UpdateTransition(gameTime, TransitionOffTime, 1))
-                    return;
-                ScreenManager.RemoveScreen(this);
-                IsExiting = false;
+                if (!UpdateTransition(TransitionOffTime, 1))
+                {
+                    ScreenManager.RemoveScreen(this);
+                    IsExiting = false;
+                }
             }
+
+            DidLoadContent = false;
         }
         
 
-        private bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
+        bool UpdateTransition(float time, int direction)
         {
-            float transitionDelta = (time != TimeSpan.Zero ? (float)(gameTime.ElapsedGameTime.TotalMilliseconds / time.TotalMilliseconds) : 1f);
+            float transitionDelta = (time.NotZero() ? (DeltaTime / time) : 1f);
             TransitionPosition += transitionDelta * direction;
             if (TransitionPosition > 0f && TransitionPosition < 1f)
                 return true;
 
-            TransitionPosition = MathHelper.Clamp(TransitionPosition, 0f, 1f);
+            TransitionPosition = TransitionPosition.Clamped(0, 1);
             return false;
         }
 
@@ -200,8 +213,8 @@ namespace Ship_Game
                 if (e.Visible) switch (e.DrawDepth)
                 {
                     default:
-                    case DrawDepth.Foreground:         ForeElements.Add(e); break;
-                    case DrawDepth.Background:         BackElements.Add(e); break;
+                    case DrawDepth.Foreground:   ForeElements.Add(e); break;
+                    case DrawDepth.Background:   BackElements.Add(e); break;
                     case DrawDepth.ForeAdditive: ForeAdditive.Add(e); break;
                     case DrawDepth.BackAdditive: BackAdditive.Add(e); break;
                 }

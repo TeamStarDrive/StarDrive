@@ -30,6 +30,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -39,6 +40,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -59,10 +61,14 @@
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssertExtensions.cs" />
+    <Compile Include="ImpactSimulation.cs" />
     <Compile Include="TestArrayT.cs" />
     <Compile Include="TestCollectionExt.cs" />
+    <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="TestMathExt.cs" />
     <Compile Include="TestSafeQueueT.cs" />
     <Compile Include="TestSerialization.cs" />
@@ -73,6 +79,7 @@
     <Compile Include="TestStarDataParser.cs" />
     <Compile Include="TestProgressCounter.cs" />
     <Compile Include="TestVectorMath.cs" />
+    <Compile Include="TestImpactPredictor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

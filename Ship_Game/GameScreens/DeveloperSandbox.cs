@@ -12,8 +12,9 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        const int NumOpponents = 0;
+        const int NumOpponents = 1;
         const bool PlayerIsCybernetic = false;
+        string PlayerPreference = "Kulrathi";
         DeveloperUniverse Universe;
         TaskResult<UniverseData> CreateTask;
 
@@ -90,8 +91,14 @@ namespace Ship_Game
             var sandbox = new UniverseData { Size = new Vector2(500000f) };
             CurrentGame.StartNew(sandbox, pace:1f);
 
-            IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(
-                                            d => d.IsCybernetic == PlayerIsCybernetic));
+            bool PlayerFilter(IEmpireData d)
+            {
+                if (PlayerPreference.NotEmpty())
+                    return d.Name.Contains(PlayerPreference);
+                return d.IsCybernetic == PlayerIsCybernetic;
+            }
+
+            IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(PlayerFilter));
 
             IEmpireData[] opponents = ResourceManager.MajorRaces.Filter(data => data.Name != player.Name);
 

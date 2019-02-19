@@ -76,4 +76,20 @@ namespace Ship_Game.Debug
             screen.DrawCircleProjected(Obj.Center, Obj.Radius, Color, 2);
         }
     }
+
+    public class DebugText : DebugPrimitive
+    {
+        readonly Vector2 PosInWorld;
+        readonly string Text;
+        public DebugText(Vector2 posInWorld, string text, Color color, float lifeTime) : base(color, lifeTime)
+        {
+            PosInWorld = posInWorld;
+            Text = text;
+        }
+        public override void Draw(UniverseScreen screen)
+        {
+            screen.DrawStringProjected(PosInWorld, 0f, 1f, Color, Text);
+        }
+    }
+
 }

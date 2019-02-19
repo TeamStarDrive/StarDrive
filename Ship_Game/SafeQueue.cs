@@ -187,6 +187,26 @@ namespace Ship_Game
             }
         }
 
+        // Will TRY to dequeue the FIRST item from the queue, which is the first item that was Enqueued
+        public bool TryDequeue(out T item)
+        {
+            unchecked
+            {
+                ThisLock.EnterWriteLock();
+                if (Count == 0)
+                {
+                    item = default;
+                    ThisLock.ExitWriteLock();
+                    return false;
+                }
+                item = Items[Head];
+                if (++Head == Items.Length) Head = 0;
+                --Count;
+                ThisLock.ExitWriteLock();
+                return true;
+            }
+        }
+
         // block until an item is available or timeout was reached
         public bool WaitDequeue(out T item, int millisecondTimeout = -1)
         {

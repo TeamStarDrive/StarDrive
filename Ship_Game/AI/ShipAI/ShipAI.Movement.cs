@@ -44,7 +44,7 @@ namespace Ship_Game.AI
         bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
             if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
-                Log.Warning($"RotateToDirection {wantedForward} not a unit vector!");
+                Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
 
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();
             float angleDiff = (float)Math.Acos(wantedForward.Dot(currentForward));
@@ -57,10 +57,10 @@ namespace Ship_Game.AI
             return false;
         }
 
-        bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
+        internal bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
         {
             if (lookAt.AlmostZero())
-                Log.Warning($"RotateTowardsPosition {lookAt} was zero, is this a bug?");
+                Log.Error($"RotateTowardsPosition {lookAt} was zero, is this a bug?");
 
             Vector2 wantedForward = Owner.Position.DirectionToTarget(lookAt);
             return RotateToDirection(wantedForward, elapsedTime, minDiff);
@@ -76,7 +76,7 @@ namespace Ship_Game.AI
 
         // @note This will constantly accelerate by design and
         //       will only slow down a little while turning too much
-        void SubLightContinuousMoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
+        internal void SubLightContinuousMoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
         {
             if (Owner.EnginesKnockedOut)
                 return;
@@ -89,7 +89,7 @@ namespace Ship_Game.AI
             Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
-        void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
+        internal void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
         {
             if (Owner.EnginesKnockedOut)
                 return;
@@ -251,7 +251,7 @@ namespace Ship_Game.AI
             return prediction;
         }
 
-        void ThrustOrWarpToPosCorrected(Vector2 pos, float elapsedTime, float speedLimit = 0f)
+        internal void ThrustOrWarpToPosCorrected(Vector2 pos, float elapsedTime, float speedLimit = 0f)
         {
             ThrustOrWarpToPos(pos, elapsedTime, speedLimit, velocityCorrect: true);
         }
@@ -386,7 +386,7 @@ namespace Ship_Game.AI
             float fleetSpeed = Owner.fleet.Speed;
             if (distance > 7500f) // Not near destination
             {
-                float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove
+                float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistanceToMove
                     - Owner.fleet.Position.Distance(Owner.fleet.Position + Owner.FleetOffset);
 
                 if (distance <= distanceFleetCenterToDistance)

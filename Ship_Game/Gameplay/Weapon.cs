@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 
 namespace Ship_Game.Gameplay
@@ -72,10 +73,8 @@ namespace Ship_Game.Gameplay
         public bool Tag_Array     { get => this[WeaponTag.Array];     set => this[WeaponTag.Array]     = value; }
         public bool Tag_Tractor   { get => this[WeaponTag.Tractor];   set => this[WeaponTag.Tractor]   = value; }
 
-        [XmlIgnore][JsonIgnore]
-        public Ship Owner { get; set; }
-        [XmlIgnore][JsonIgnore]
-        public GameplayObject drowner; // drone owner
+        [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
+        [XmlIgnore][JsonIgnore] public GameplayObject drowner; // drone owner
         public float HitPoints;
         public bool isBeam;
         public float EffectVsArmor = 1f;
@@ -121,11 +120,8 @@ namespace Ship_Game.Gameplay
         public string WeaponType;
         public string WeaponEffectType;
         public string UID;
-        [XmlIgnore][JsonIgnore]
-        public ShipModule Module;
-
-        [XmlIgnore][JsonIgnore]
-        public float CooldownTimer;
+        [XmlIgnore][JsonIgnore] public ShipModule Module;
+        [XmlIgnore][JsonIgnore] public float CooldownTimer;
         public float fireDelay;
         public float PowerRequiredToFire;
         public bool explodes;
@@ -149,7 +145,7 @@ namespace Ship_Game.Gameplay
         public bool isRepairBeam;
         public bool TerminalPhaseAttack;
         public float TerminalPhaseDistance;
-        public float TerminalPhaseSpeedMod;
+        public float TerminalPhaseSpeedMod = 2f;
         public float ArmourPen = 0f;
         public string SecondaryFire;
         public bool AltFireMode;
@@ -158,16 +154,15 @@ namespace Ship_Game.Gameplay
         public float OffPowerMod = 1f;
         public bool RangeVariance;
         public float ExplosionRadiusVisual = 4.5f;
-        [XmlIgnore][JsonIgnore]
-        public GameplayObject FireTarget { get; private set; }
+        [XmlIgnore][JsonIgnore] public GameplayObject FireTarget { get; private set; }
         private float TargetChangeTimer;
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
         public int SalvoCount = 1;
         public float SalvoTimer;
-        [XmlIgnore][JsonIgnore]
-        private int SalvosToFire;
+
+        [XmlIgnore][JsonIgnore] public int SalvosToFire { get; private set; }
         private float SalvoDirection;
         private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
         private GameplayObject SalvoTarget;
@@ -215,7 +210,7 @@ namespace Ship_Game.Gameplay
 
         public Weapon Clone()
         {
-            Weapon wep = (Weapon)MemberwiseClone();
+            var wep = (Weapon)MemberwiseClone();
             wep.SalvoTarget      = null;
             wep.FireTarget       = null;
             wep.Module           = null;
@@ -263,8 +258,10 @@ namespace Ship_Game.Gameplay
 
         public void FireDrone(Vector2 direction)
         {
-            if (PrepareToFire())
-                Projectile.Create(this, Module.Center, direction, null, playSound: true);
+            if (!CanFireWeaponCooldown())
+                return;
+            PrepareToFire();
+            Projectile.Create(this, Module.Center, direction, null, playSound: true);
         }
 
         public Vector2 GetFireConeSpread(Vector2 direction)
@@ -334,11 +331,10 @@ namespace Ship_Game.Gameplay
                 && Owner.Ordinance    >= OrdinanceRequiredToFire;
         }
 
-        bool PrepareToFire()
-        {
-            if (CooldownTimer > 0f || !CanFireWeapon())
-                return false;
+        bool CanFireWeaponCooldown() => CooldownTimer <= 0f && CanFireWeapon();
 
+        void PrepareToFire()
+        {
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
             CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
@@ -346,7 +342,6 @@ namespace Ship_Game.Gameplay
             Owner.InCombatTimer = 15f;
             Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
-            return true;
         }
 
         bool PrepareToFireSalvo()
@@ -391,13 +386,15 @@ namespace Ship_Game.Gameplay
                 if (ProjectedImpactPoint(target, out Vector2 pip) && CheckFireArc(pip))
                 {
                     firePos = pip;
-                    return PrepareToFire();
+                    return true;
                 }
             }
+
+            // if no target OR pip was not in arc, check if targetPos itself is in arc
             if (CheckFireArc(targetPos))
             {
                 firePos = targetPos;
-                return PrepareToFire();
+                return true;
             }
             firePos = targetPos;
             return false;
@@ -405,17 +402,19 @@ namespace Ship_Game.Gameplay
 
         bool FireAtTarget(Vector2 targetPos, GameplayObject target = null)
         {
+            if (!CanFireWeaponCooldown())
+                return false;
             if (!PrepareFirePos(target, targetPos, out Vector2 firePos))
                 return false;
 
+            PrepareToFire();
             Vector2 direction = Origin.DirectionToTarget(firePos);
-
             SpawnSalvo(direction, target, playSound:true);
 
             if (SalvoCount > 1)  // queue the rest of the salvo to follow later
             {
                 SalvosToFire   = SalvoCount - 1;
-                SalvoDirection = direction.ToRadians() - Owner.Rotation; //keep direction relative to source
+                SalvoDirection = direction.ToRadians() - Owner.Rotation; // keep direction relative to source
                 SalvoFireTimer = 0f;
                 SalvoTarget    = target;
             }
@@ -434,27 +433,27 @@ namespace Ship_Game.Gameplay
             (Module != null && Module.AccuracyPercent > 0.66f) ||
             (Owner  != null && Owner.CanUseAdvancedTargeting);
 
-        public Vector2 AdjustTargeting(int level = -1)
+        Vector2 GetLevelBasedError(int level = -1)
         {
             if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
                 return Vector2.Zero; //|| Tag_PD
 
-            // calculate level.
-            int trackingPower = Owner?.TrackingPower ?? 1;
-            if(level == -1)
-                level = (Owner?.Level ?? level)
-                    + trackingPower //(Owner?.TrackingPower  ?? 0)
-                    + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
+            if (level == -1)
+            {
+                level = (Owner?.Level ?? 0)
+                      + (Owner?.TrackingPower ?? 0)
+                      + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
+            }
 
-            // reduce jitter by level cubed. if jitter is less than a module radius stop.
-            float baseJitter = 45f + 8 * Module.XSIZE * Module.YSIZE;
-            float adjust     = Math.Max(0, baseJitter - level * level * level);
-            if (adjust < 8) return Vector2.Zero;
+            // reduce error by level cubed. if error is less than a module radius stop.
+            float baseError = 45f + 8 * Module.XSIZE * Module.YSIZE;
+            float adjust = Math.Max(0, baseError - level * level * level);
+            if (adjust < 8)
+                return Vector2.Zero;
 
-            //reduce or increase jitter based on weapon and trait characteristics.
-
-            if (Tag_Cannon) adjust   *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
-            if (Tag_Kinetic) adjust  *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
+            // reduce or increase error based on weapon and trait characteristics.
+            if (Tag_Cannon)  adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
+            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
 
             adjust *= CalculateBaseAccuracy();
 
@@ -478,43 +477,87 @@ namespace Ship_Game.Gameplay
             return accuracy;
         }
 
-        static Vector2 SetDestination(Vector2 target, Vector2 source, float range)
+        // @note This is used for debugging
+        [XmlIgnore][JsonIgnore]
+        public Vector2 DebugLastImpactPredict { get; private set; }
+
+        public Vector2 GetTargetError(GameplayObject target, int level = -1)
         {
-            Vector2 deltaVec = target - source;
-            return source + deltaVec.Normalized() * range;
+            Vector2 error = GetLevelBasedError(level); // base error from crew level/targeting bonuses
+            if (target != null)
+            {
+                error += target.JammingError(); // if target has ECM, they can scramble their position
+            }
+            return error;
         }
 
+        // Applies correction to weapon target based on distance to target
+        public Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
+        {
+            // once we get too close the angle error becomes too big, so move the target pos further
+            float distance = source.Distance(target);
+            const float minDistance = 500f;
+            if (distance < minDistance)
+            {
+                // move pip forward a bit
+                target += (minDistance - distance)*source.DirectionToTarget(target);
+            }
+            
+            // total error magnitude should get smaller as we get closer
+            float errorMagnitude = 1f;
+            if (distance < 2000f)
+            {
+                errorMagnitude = (distance+minDistance) / 2000f;
+            }
+
+            Vector2 adjusted = target + error*errorMagnitude;
+            DebugLastImpactPredict = adjusted;
+            return adjusted;
+        }
+
+        
         public Vector2 Origin => Module?.Center ?? Center;
+        public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
+
+        Vector2 Predict(Vector2 origin, GameplayObject target, bool advancedTargeting)
+        {
+            Vector2 pip = new ImpactPredictor(origin, OwnerVelocity, ProjectileSpeed, target)
+                .Predict(advancedTargeting);
+
+            float distance = origin.Distance(pip);
+            float maxPredictionRange = Range*2;
+            if (distance > maxPredictionRange)
+            {
+                Vector2 predictionVector = target.Center.DirectionToTarget(pip);
+                pip = target.Center + predictionVector*maxPredictionRange;
+            }
+
+            return pip;
+        }
 
         public bool ProjectedImpactPointNoError(GameplayObject target, out Vector2 pip)
         {
-            Vector2 ownerVel = Owner?.Velocity ?? Vector2.Zero;
-            pip = new ImpactPredictor(Origin, ownerVel, ProjectileSpeed, Range, target)
-                .Predict(advancedTargeting: true);
+            pip = Predict(Origin, target, advancedTargeting: true);
             return pip != Vector2.Zero;
         }
 
         public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
-            Vector2 weaponOrigin = Origin;
-            Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
-            Vector2 error = target.TargetErrorPos() + AdjustTargeting();
-
-            pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, Range, target)
-                .Predict(CanUseAdvancedTargeting);
-
-            Vector2 targetError = SetDestination(pip, weaponOrigin, 1000) + error;
-            pip = SetDestination(targetError, weaponOrigin, weaponOrigin.Distance(pip));
-
-            //Log.Info($"FindPIP center:{center}  pip:{pip}");
-            return pip != Vector2.Zero;
+            Vector2 origin = Origin;
+            pip = Predict(origin, target, CanUseAdvancedTargeting);
+            if (pip == Vector2.Zero)
+                return false;
+            pip = AdjustedImpactPoint(origin, pip, GetTargetError(target));
+            return true;
         }
 
         public void UpdatePrimaryFireTarget(GameplayObject prevTarget,
             Array<Projectile> enemyProjectiles, Array<Ship> enemyShips)
         {
             TargetChangeTimer -= 0.0167f;
-            if (!CanTargetWeapon(prevTarget)) return;
+            if (!CanTargetWeapon(prevTarget))
+                return;
+
             if (!PickProjectileTarget(enemyProjectiles))
                 PickShipTarget(prevTarget, enemyShips);
         }
@@ -615,29 +658,32 @@ namespace Ship_Game.Gameplay
                 ? Owner.IsTargetInFireArcRange(this, maybeTarget)
                 : Owner.IsInsideFiringArc(this, targetPos);
         }
+
         public Vector2 ProjectedBeamPoint(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
-            if (DamageAmount < 1) return destination;
-            if (target != null)
-            {
-                if (!Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
-                    return destination;
-            }
-            if (Tag_Tractor || isRepairBeam) return destination;
+            if (DamageAmount < 1)
+                return destination;
 
-            Vector2 targetError = target?.TargetErrorPos() ?? Vector2.Zero;
-            targetError += AdjustTargeting();
-            targetError += SetDestination(destination, Center, 1000);
-            targetError = SetDestination(targetError, Center, Center.Distance(destination));
-            return targetError;
+            if (target != null && !Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
+                return destination;
+
+            if (Tag_Tractor || isRepairBeam)
+                return destination;
+
+            Vector2 beamDestination = AdjustedImpactPoint(source, destination, GetTargetError(target));
+            return beamDestination;
         }
 
         bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
         {
-            destination = ProjectedBeamPoint(source, destination, target);
-            if (!Owner.IsInsideFiringArc(this, destination) || !PrepareToFire())
+            if (!CanFireWeaponCooldown())
                 return false;
 
+            destination = ProjectedBeamPoint(source, destination, target);
+            if (!Owner.IsInsideFiringArc(this, destination))
+                return false;
+
+            PrepareToFire();
             var beam = new Beam(this, source, destination, target, followMouse);
             Module.GetParent().AddBeam(beam);
             return true;
@@ -676,19 +722,21 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            if (!ProjectedImpactPoint(target, out Vector2 pip))
-                return;
-            Vector2 direction = (pip - Center).Normalized();
+            if (ProjectedImpactPoint(target, out Vector2 pip))
+            {
+                Vector2 direction = (pip - Center).Normalized();
 
-            foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
-                Projectile.Create(this, planet, fireSource.Direction, target);
+                foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
+                    Projectile.Create(this, planet, fireSource.Direction, target);
+            }
         }
 
         public void FireAtAssignedTarget()
         {
             if (!CanFireWeapon())
                 return;
-            if (!TargetValid(FireTarget)) return;
+            if (!TargetValid(FireTarget))
+                return;
             if (FireTarget is Ship targetShip)
             {
                 FireAtAssignedTargetNonVisible(targetShip);

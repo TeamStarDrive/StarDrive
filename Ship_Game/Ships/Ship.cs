@@ -162,7 +162,7 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int FixedTrackingPower;
-        public float TradeTimer;
+        public float TradeTimer = 300;
         public bool ShipInitialized;
         public float maxFTLSpeed;
         public float NormalWarpThrust;
@@ -172,6 +172,8 @@ namespace Ship_Game.Ships
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost { get; private set; }
         public Planet HomePlanet { get; private set; }
+
+        public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -191,11 +193,12 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsIdleFreighter => !PlayerShip && AI != null 
-                                    &&!AI.HasPriorityOrder 
-                                    && AI.State != AIState.PassengerTransport
-                                    && AI.State != AIState.SystemTrader
-                                    && AI.State != AIState.Refit;
+        public bool IsIdleFreighter => IsFreighter 
+                                       && !PlayerShip && AI != null 
+                                       && !AI.HasPriorityOrder 
+                                       && AI.State != AIState.SystemTrader
+                                       && AI.State != AIState.Flee
+                                       && AI.State != AIState.Refit;
 
         public bool IsInNeutralSpace
         {
@@ -385,14 +388,14 @@ namespace Ship_Game.Ships
         // Level 5 crews can use advanced targeting which even predicts acceleration
         public bool CanUseAdvancedTargeting => Level >= 5;
 
-        public override Vector2 TargetErrorPos()
+        public override Vector2 JammingError()
         {
-            Vector2 jitter = Vector2.Zero;
             if (CombatDisabled)
-                return jitter;
+                return Vector2.Zero;
 
-            if (ECMValue >0)
-                jitter += RandomMath2.Vector2D(ECMValue *80f);
+            Vector2 jitter = Vector2.Zero;
+            if (ECMValue > 0)
+                jitter += RandomMath2.Vector2D(ECMValue * 80f);
 
             if (loyalty.data.Traits.DodgeMod > 0)
                 jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
@@ -496,81 +499,46 @@ namespace Ship_Game.Ships
             {
                 TransportingProduction = value;
                 TransportingFood = value;
-                if (!value) return;
-                if (AI.State != AIState.SystemTrader)
-                {
-                    AI.start = null;
-                    AI.end = null;
-                    AI.State = AIState.SystemTrader;
-                }
-
-                AI.OrderTrade(0f);
             }
         }
 
-        public bool DoingFoodTransport => AI.State == AIState.SystemTrader && TransportingFood;
-        public bool DoingProdTransport => AI.State == AIState.SystemTrader && TransportingProduction;
+        public bool DoingFoodTransport => TransportingFood;
+        public bool DoingProdTransport => TransportingProduction;
+        public bool DoingPassengerTransport => TransportingPassengers;
 
-        public bool DoingPassTransport
+        private bool TPassengers;
+        public bool TransportingPassengers
         {
-            get => AI.State == AIState.PassengerTransport;
+            get => TPassengers;
             set
             {
-                AI.start = null;
-                AI.end = null;
-                AI.OrderTransportPassengers(5f);
+                TPassengers = value;
+                if (!value)
+                    AI.State = AIState.AwaitingOrders;
             }
         }
+
         private bool TFood;
         public bool TransportingFood
         {
-            get => AI.State != AIState.SystemTrader || TFood;
+            get => TFood;
             set
             {
                 TFood = value;
                 if (!value)
-                {
-                    if (!TransportingProduction)
-                    {
-                        AI.State = AIState.AwaitingOrders;
-                    }
-                    return;
-                }
-                if (AI.State == AIState.SystemTrader)
-                {
-                    AI.OrderTrade(0);
-                    return;
-                }
-                AI.start = null;
-                AI.end = null;
-                AI.State = AIState.SystemTrader;
-                //AI.OrderTrade(0);
+                    AI.State = AIState.AwaitingOrders;
             }
         }
+
         private bool TProd;
         public bool TransportingProduction
         {
-            get => AI.State != AIState.SystemTrader || TProd;
+            get => TProd;
             set
             {
                 TProd = value;
                 if (!value)
-                {
-                    if (!TransportingFood)
-                    {
-                        AI.State = AIState.AwaitingOrders;
-                    }
-                    return;
-                }
-                if (AI.State == AIState.SystemTrader)
-                {
-                    AI.OrderTrade(0);
-                    return;
-                }
-                AI.start = null;
-                AI.end = null;
-                AI.State = AIState.SystemTrader;
-                //AI.OrderTrade(0);
+                    AI.State = AIState.AwaitingOrders;
             }
         }
 
@@ -639,8 +607,6 @@ namespace Ship_Game.Ships
             AI.Target = null;
             AI.ColonizeTarget = null;
             AI.EscortTarget = null;
-            AI.start = null;
-            AI.end = null;
             AI.PotentialTargets.Clear();
             AI.NearByShips.Clear();
             AI.FriendliesNearby.Clear();
@@ -924,30 +890,31 @@ namespace Ship_Game.Ships
             lastKBState = currentKeyBoardState;
         }
 
+        public bool InRadius(Vector2 worldPos, float radius)
+        {
+            return Center.InRadius(worldPos, Radius+radius);
+        }
+
         public bool CheckRangeToTarget(Weapon w, GameplayObject target)
         {
             if (target == null || !target.Active || target.Health <= 0)
                 return false;
+
             if (engineState == MoveState.Warp)
                 return false;
 
-            var targetship = target as Ship;
             var targetModule = target as ShipModule;
-            if (targetship == null && targetModule != null)
-                targetship = targetModule.GetParent();
-            if (targetship == null && targetModule == null && w.isBeam)
+            Ship targetShip = target as Ship ?? targetModule?.GetParent();
+            if (targetShip == null && targetModule == null && w.isBeam)
                 return false;
-            if (targetship != null)
-            {
-                if (targetship.engineState == MoveState.Warp
-                    || targetship.dying
-                    || !targetship.Active
-                    || targetship.NumExternalSlots <= 0
-                    //|| !w.TargetValid(targetship.shipData.HullRole)
 
-                    )
+            if (targetShip != null)
+            {
+                if (targetShip.dying || !targetShip.Active ||
+                    targetShip.NumExternalSlots <= 0)
                     return false;
             }
+
             float attackRunRange = 50f;
             if (!w.isBeam && maxWeaponsRange < 2000)
             {
@@ -956,33 +923,20 @@ namespace Ship_Game.Ships
                     attackRunRange = 50f;
             }
 
-            return target.Center.InRadius(w.Module.Center, w.GetModifiedRange() + attackRunRange);
+            float range = attackRunRange + w.GetModifiedRange();
+            return target.Center.InRadius(w.Module.Center, range);
         }
 
         
         bool IsPosInsideArc(Weapon w, Vector2 pos)
         {
             float halfArc = w.Module.FieldOfFire / 2f;
-            Vector2 toTarget = pos - w.Center;
-            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
-            float angleToMouse = 180f - radians.ToDegrees();
+            float angleToTarget = (pos - w.Center).ToDegrees();
             float facing = w.Module.Facing + Rotation.ToDegrees();
             if (facing > 360f)
                 facing -= 360f;
 
-            float difference = Math.Abs(angleToMouse - facing);
-            if (difference > halfArc)
-            {
-                if (angleToMouse > 180f)
-                {
-                    angleToMouse = -1f * (360f - angleToMouse);
-                }
-                if (facing > 180f)
-                {
-                    facing = -1f * (360f - facing);
-                }
-                difference = Math.Abs(angleToMouse - facing);
-            }
+            float difference = Math.Abs(angleToTarget - facing);
             return difference < halfArc;
         }
 
@@ -1210,11 +1164,6 @@ namespace Ship_Game.Ships
             AI.OrderColonization(p);
         }
 
-        public void DoTrading()
-        {
-            AI.State = AIState.SystemTrader;
-        }
-
         public void ResetJumpTimer()
         {
             JumpTimer = FTLSpoolTime * loyalty.data.SpoolTimeModifier;
@@ -1310,7 +1259,7 @@ namespace Ship_Game.Ships
                 const float accelerationTime = 2f;
                 return (maxFTLSpeed / accelerationTime);
             }
-            return Thrust / Mass;
+            return (Thrust / Mass) * 0.5f;
         }
 
         public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f, float direction = +1f)
@@ -2331,10 +2280,12 @@ namespace Ship_Game.Ships
             if (GlobalStats.HasMod)
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
-            ExplosionManager.AddExplosion(position, size * boost, 12f, ExplosionType.Ship);
+            ExplosionManager.AddExplosion(position, Velocity, 
+                size * boost, 12f, ExplosionType.Ship);
             if (addWarpExplode)
             {
-                ExplosionManager.AddExplosion(position, size*1.75f, 12f, ExplosionType.Warp);
+                ExplosionManager.AddExplosion(position, Velocity, 
+                    size*1.75f, 12f, ExplosionType.Warp);
             }
             UniverseScreen.SpaceManager.ShipExplode(this, size * 50, Center, Radius);
         }
@@ -2458,8 +2409,6 @@ namespace Ship_Game.Ships
             AI.Target                        = null;
             AI.ColonizeTarget                = null;
             AI.EscortTarget                  = null;
-            AI.start                         = null;
-            AI.end                           = null;
             AI.PotentialTargets.Clear();
             AI.TrackProjectiles.Clear();
             AI.NearByShips.Clear();

@@ -462,10 +462,12 @@ namespace Ship_Game
                     break;
                 case ColonyType.Core:
                     score += 1; // Core governors are open to different building functions
-                    score += + b.CreditsPerColonist * 5
+                    score += +b.CreditsPerColonist * 5
                              + b.PlusTaxPercentage * 10
                              + b.MaxPopIncrease / 1000 * 2
                              + b.PlusFlatPopulation / 5
+                             + b.PlusFlatProductionAmount.Clamped(-2, 1)
+                             + b.PlusFlatFoodAmount.Clamped(-2, 1)
                              + b.PlusFlatResearchAmount / 2
                              + b.PlusResearchPerColonist
                              + b.MaxFertilityOnBuild * 12;

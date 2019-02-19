@@ -122,6 +122,7 @@ namespace Ship_Game
             p.UpdateTerraformPoints(psdata.TerraformPoints);
             foreach (Guid guid in psdata.StationsList)
                 p.OrbitalStations[guid]   = null; // reserve orbital stations (and platforms)
+
             p.Food.Percent = psdata.farmerPercentage;
             p.Prod.Percent = psdata.workerPercentage;
             p.Res.Percent  = psdata.researcherPercentage;
@@ -227,31 +228,20 @@ namespace Ship_Game
         static void CreateSpaceRoads(UniverseData data, SavedGame.EmpireSaveData d, Empire e)
         {
             e.SpaceRoadsList = new Array<SpaceRoad>();
-            foreach (SavedGame.SpaceRoadSave roadsave in d.SpaceRoadData)
+            foreach (SavedGame.SpaceRoadSave roadSave in d.SpaceRoadData)
             {
                 var road = new SpaceRoad();
                 foreach (SolarSystem s in data.SolarSystemsList)
                 {
-                    if (roadsave.OriginGUID == s.guid)
-                    {
-                        road.SetOrigin(s);
-                    }
-
-                    if (roadsave.DestGUID != s.guid)
-                    {
-                        continue;
-                    }
-
-                    road.SetDestination(s);
+                    if (roadSave.OriginGUID == s.guid) road.Origin = s;
+                    if (roadSave.DestGUID == s.guid)   road.Destination = s;
                 }
 
-                foreach (SavedGame.RoadNodeSave nodesave in roadsave.RoadNodes)
+                foreach (SavedGame.RoadNodeSave roadNode in roadSave.RoadNodes)
                 {
                     var node = new RoadNode();
-                    foreach (Ship s in data.MasterShipList)
-                        if (nodesave.Guid_Platform == s.guid)
-                            node.Platform = s;
-                    node.Position = nodesave.Position;
+                    data.FindShip(roadNode.Guid_Platform, out node.Platform);
+                    node.Position = roadNode.Position;
                     road.RoadNodesList.Add(node);
                 }
 
@@ -431,8 +421,7 @@ namespace Ship_Game
                     }
 
                     e.GetFleetsDict()[fleetsave.Key].SetSpeed();
-                    fleet.FindAveragePositionset();
-                    fleet.Setavgtodestination();
+                    fleet.CalculateDistanceToMove();
                 }
             }
         }
@@ -533,22 +522,19 @@ namespace Ship_Game
                         foreach (Planet p in s.PlanetList)
                         {
                             if (p.guid == sg.TargetPlanetGuid)       ship.AI.ColonizeTarget = p;
-                            if (p.guid == shipData.AISave.startGuid) ship.AI.start = p;
-                            if (p.guid == shipData.AISave.endGuid)   ship.AI.end = p;
                         }
                     }
 
                     if (sg.Plan == ShipAI.Plan.DeployStructure)
                         ship.isConstructor = true;
 
-                    ship.AI.AddToOrderQueue(new ShipAI.ShipGoal(sg, data, ship));
+                    if (sg.Trade == null)
+                        ship.AI.AddToOrderQueue(new ShipAI.ShipGoal(sg, data, ship));
+                    else
+                        ship.AI.AddToOrderQueue(new ShipAI.ShipGoal(sg.Plan, sg.Trade, data));
                 }
             }
         }
-
-
-
-
 
         void CreateEmpires(SavedGame.UniverseSaveData saveData, UniverseData data)
         {
@@ -605,6 +591,36 @@ namespace Ship_Game
                 CreateMilitaryTasks(esd, e, data);
                 CreateShipGoals(esd, data, e);
             }
+        }
+
+        void CreatePlanetImportExportShipLists(SavedGame.UniverseSaveData saveData, UniverseData data)
+        {
+            foreach (SavedGame.SolarSystemSaveData ssd in saveData.SolarSystemDataList)
+                foreach (SavedGame.RingSave ring in ssd.RingList)
+                {
+                    if (ring.Asteroids)
+                        continue;
+
+                    SavedGame.PlanetSaveData savedPlanet = ring.Planet;
+                    Planet planet = data.FindPlanet(savedPlanet.guid);
+                    if (savedPlanet.IncomingFreighters != null)
+                    {
+                        foreach (Guid freighterGuid in savedPlanet.IncomingFreighters)
+                        {
+                            data.FindShip(freighterGuid, out Ship freighter);
+                            planet.AddToIncomingFreighterList(freighter);
+                        }
+                    }
+
+                    if (savedPlanet.OutgoingFreighters != null)
+                    {
+                        foreach (Guid freighterGuid in savedPlanet.OutgoingFreighters)
+                        {
+                            data.FindShip(freighterGuid, out Ship freighter);
+                            planet.AddToOutgoingFreighterList(freighter);
+                        }
+                    }
+                }
         }
 
         static void CreateAllShips(SavedGame.UniverseSaveData saveData, UniverseData data)

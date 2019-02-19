@@ -200,6 +200,8 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireRiskAssessment.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\FleetRatios.cs" />
     <Compile Include="Ship_Game\AI\Fleet.FleetGoal.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.AttackRun.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAIPlan.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
@@ -207,7 +209,6 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goals.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Movement.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderAction.cs" />
-    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderTrade.cs" />
     <Compile Include="Ship_Game\Audio\AudioHandle.cs" />
     <Compile Include="Ship_Game\Audio\AudioInstance.cs" />
     <Compile Include="Ship_Game\BuildingCategory.cs">
@@ -219,7 +220,6 @@
     <Compile Include="Ship_Game\Commands\Goals\BuildScout.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildTroop.cs" />
     <Compile Include="Ship_Game\Commands\Goals\IncreaseFreighters.cs" />
-    <Compile Include="Ship_Game\Commands\Goals\IncreasePassengerShips.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
     <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
@@ -257,6 +257,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionFindClosestTo.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
@@ -346,8 +347,6 @@
     <Compile Include="Ship_Game\HullBonus.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadRaceScreen.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIEffect.cs" />
-    <Compile Include="Ship_Game\UI\Effects\UIFadeInEffect.cs" />
-    <Compile Include="Ship_Game\UI\Effects\UITransitionEffect.cs" />
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
@@ -362,7 +361,6 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Generate.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Govern.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Resources.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WeCanAffordThis.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_WorkDistribution.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBProduction.cs" />
@@ -546,10 +544,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\GameScreens\Universe\GameplayMMScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RoundLineManager.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -881,10 +875,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Gameplay\SpaceRoad.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\Gameplay\RoadNode.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1689,7 +1679,6 @@
     </None>
     <None Include="packages.config" />
     <None Include="README.md" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\AI\TradeRoutes.cs" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
   <ItemGroup>
@@ -1715,6 +1704,9 @@
     <None Include="Content\Explosions.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="Content\FleetDesigns\Kulrathi Mauler Fleet.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\HelpTopics\English\HelpTopics_English.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -4635,7 +4627,9 @@
     </None>
     <None Include="Resources\StarTrek-SA.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Ship_Game\Universe\SolarBodies\AI\" />
+  </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>

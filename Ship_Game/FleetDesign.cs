@@ -27,27 +27,36 @@ namespace Ship_Game
         [Serialize(12)] public CombatState CombatState;
         [Serialize(13)] public Vector2 OrdersOffset;
         [Serialize(14)] public float OrdersRadius = 500000;//0.5f;
+
         public float ApplyWeight(float shipStat, float statAvg, float fleetWeight)
         {
-            if (fleetWeight > .49f && fleetWeight < .51f) return 0;
+            if (fleetWeight > 0.49f && fleetWeight < 0.51f)
+                return 0;
 
             return shipStat > statAvg
-                ? 2 * (-.5f + fleetWeight)
-                : 4 * (.50f - fleetWeight);
+                ? 2 * (-0.5f + fleetWeight)
+                : 4 * ( 0.5f - fleetWeight);
         }
+
         public float ApplyFleetWeight(Fleet fleet, Ship potential)
         {
             float weight = 0;           
-            if ((DefenderWeight > .49f && DefenderWeight < .51f) || (AssistWeight > .49f && AssistWeight < .51f))
+            if ((DefenderWeight > 0.49f && DefenderWeight < 0.51f) ||
+                (AssistWeight > 0.49f && AssistWeight < 0.51f))
                 return weight;
-            foreach (Ship ship in fleet.GetShips)
+            foreach (Ship ship in fleet.Ships)
             {
                 if (potential.AI.Target == ship)
-                    weight += -.5f + DefenderWeight;
+                    weight -= 0.5f + DefenderWeight;
                 if (ship.AI.Target == potential)
-                    weight += -5f + AssistWeight;
+                    weight -= 5.0f + AssistWeight;
             }
             return weight;
+        }
+
+        public FleetDataNode Clone()
+        {
+            return (FleetDataNode)MemberwiseClone();
         }
     }
 
@@ -67,7 +76,5 @@ namespace Ship_Game
                 node.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
             }
         }
-
-
     }
 }

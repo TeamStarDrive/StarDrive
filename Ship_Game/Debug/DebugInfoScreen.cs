@@ -303,11 +303,16 @@ namespace Ship_Game.Debug
                     if (module == null || module.GetParent() != ship.AI.Target || weapon.Tag_Beam || weapon.Tag_Guided)
                         continue;                        
 
-                    Screen.DrawCircleProjected(module.Center, 8f, 6, Color.Pink);
+                    Screen.DrawCircleProjected(module.Center, 8f, 6, Color.MediumVioletRed);
+                    if (weapon.DebugLastImpactPredict.NotZero())
+                    {
+                        weapon.ProjectedImpactPointNoError(module, out Vector2 impactNoError);
+                        Screen.DrawLineProjected(weapon.Center, weapon.DebugLastImpactPredict, Color.Yellow);
 
-                    if (weapon.ProjectedImpactPoint(ship.AI.Target, out Vector2 impactNew))
-                        Screen.DrawLineProjected(weapon.Center, impactNew, Color.Yellow);
-
+                        Screen.DrawCircleProjected(impactNoError, 22f, 10, Color.BlueViolet, 2f);
+                        Screen.DrawStringProjected(impactNoError, 28f, Color.BlueViolet, "pip");
+                        Screen.DrawLineProjected(impactNoError, weapon.DebugLastImpactPredict, Color.DarkKhaki, 2f);
+                    }
 
                     Projectile projectile = ship.Projectiles.FirstOrDefault(p => p.Weapon == weapon);
                     if (projectile != null)
@@ -327,7 +332,7 @@ namespace Ship_Game.Debug
             {
                 Fleet fleet = Screen.SelectedFleet;
                 DrawArrowImm(fleet.Position, fleet.Position+fleet.Direction*200f, Color.OrangeRed);
-                foreach (Ship ship in fleet.GetShips)
+                foreach (Ship ship in fleet.Ships)
                     VisualizeShipGoal(ship, false);
 
                 if (fleet.FleetTask != null)
@@ -355,7 +360,7 @@ namespace Ship_Game.Debug
             {
                 ShipGroup group = Screen.ProjectedGroup;
                 DrawArrowImm(group.Position, group.Position+group.Direction*200f, Color.OrangeRed);
-                foreach (Ship ship in group.GetShips)
+                foreach (Ship ship in group.Ships)
                     VisualizeShipGoal(ship, false);
 
                 DrawString($"ShipGroup ({group.CountShips})  x {(int)group.Position.X} y {(int)group.Position.Y}");
@@ -395,9 +400,13 @@ namespace Ship_Game.Debug
                            ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
                 DrawString(ship.AI.HasPriorityTarget ? "Priority Target" : "No Priority Target");
                 DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
-
-                if (ship.AI.State == AIState.SystemTrader)
-                    DrawString($"Trading Prod:{ship.TradingProd} food:{ship.TradingFood} Goods:{ship.AI.FoodOrProd}");
+                if (ship.IsFreighter)
+                {
+                    DrawString($"Trade Timer:{ship.TradeTimer}");
+                    ShipGoal g = ship.AI.OrderQueue.PeekLast;
+                    if (g?.Trade != null && g.Trade.BlockadeTimer < 120)
+                        DrawString($"Blockade Timer:{g.Trade.BlockadeTimer}");
+                }
 
                 if (ship.AI.Target is Ship shipTarget)
                 {
@@ -453,23 +462,19 @@ namespace Ship_Game.Debug
         {
             if (ship.AI.OrderQueue.NotEmpty)
             {
-                ShipGoal goal = ship.AI.OrderQueue[0];
-                Vector2 pos = goal.TargetPlanet?.Center ?? goal.MovePosition;
-                if (goal.Plan == Plan.DoCombat)
-                {
-                    pos = ship.AI.Target?.Position ?? pos;
-                }
+                ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
+                Vector2 pos = ship.AI.GoalTarget;
 
                 DrawLineImm(ship.Position, pos, Color.YellowGreen);
-                if (detailed) DrawCircleImm(pos, 1000f, Color.Yellow);
-                DrawCircleImm(pos, 75f, Color.Maroon);
+                //if (detailed) DrawCircleImm(pos, 1000f, Color.Yellow);
+                //DrawCircleImm(pos, 75f, Color.Maroon);
 
                 Vector2 thrustTgt = ship.AI.ThrustTarget;
                 if (detailed && thrustTgt.NotZero())
                 {
                     DrawLineImm(pos, thrustTgt, Color.Orange);
                     DrawLineImm(ship.Position, thrustTgt, Color.Orange);
-                    DrawCircleImm(thrustTgt, 75f, Color.MediumVioletRed);
+                    DrawCircleImm(thrustTgt, 40f, Color.MediumVioletRed, 2f);
                 }
 
                 // goal direction arrow
