@@ -50,6 +50,7 @@ namespace Ship_Game.UI
         // these are initialized after parsing:
         public Rectangle R;
         public SubTexture Tex;
+        public SpriteAnimation Spr;
         public string ElementName() => Name ?? Texture ?? "";
         public override string ToString() => $"{ElementName()} Rect:{Rect}";
     }
@@ -60,6 +61,7 @@ namespace Ship_Game.UI
         #pragma warning disable 649
         // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
         [StarDataKey] public readonly float[] Params;
+        [StarData] public readonly string SpriteAnim;
         [StarData] public readonly Color? MinColor;
         [StarData] public readonly Color? MaxColor;
         [StarData] public readonly AnimPattern Pattern = AnimPattern.None;
