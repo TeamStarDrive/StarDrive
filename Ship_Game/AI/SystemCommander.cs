@@ -38,7 +38,7 @@ namespace Ship_Game.AI
         {            
             IdealShipStrength = 0;
             PercentageOfValue = 0f;
-            ValueToUs = System.combatTimer > 0 ? 5 : 0;
+            ValueToUs = System.HostileForcesPresent(Us) ? 5 : 0;
             foreach (Planet p in System.PlanetList)
             {
                 if (!PlanetTracker.TryGetValue(p, out PlanetTracker trackedPlanet))

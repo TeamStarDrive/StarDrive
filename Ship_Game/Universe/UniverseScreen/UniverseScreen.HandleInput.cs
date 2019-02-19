@@ -681,9 +681,7 @@ namespace Ship_Game
             else if (Input.KeysCurr.IsKeyDown(Keys.LeftControl))
             {
                 ship.AI.OrderMoveTowardsPosition(pos, direction, true, null);
-                ship.AI.AddShipGoal(ShipAI.Plan.HoldPosition, pos, direction);
-                ship.AI.HasPriorityOrder = true;
-                ship.AI.IgnoreCombat = true;
+                ship.AI.OrderHoldPosition(pos, direction);
             }
             else
             {
@@ -1685,8 +1683,7 @@ namespace Ship_Game
                     ship.ClearFleet();
                     if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
                     {                        
-                        ship.AI.ClearOrders();
-                        ship.AI.ClearWayPoints();
+                        ship.AI.ClearOrdersAndWayPoints();
                         ship.AI.ClearPriorityOrder();
                         fleet.AddShip(ship);
                     }

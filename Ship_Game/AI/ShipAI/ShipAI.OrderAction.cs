@@ -12,7 +12,7 @@ namespace Ship_Game.AI
         public void OrderAssaultPlanet(Planet planetToAssault)
         {
             ClearOrders();
-            AddLandTroopGoal(planetToAssault);
+            AddPlanetGoal(Plan.LandTroop, planetToAssault, AIState.AssaultPlanet);
         }
 
         public void OrderAllStop()
@@ -20,6 +20,13 @@ namespace Ship_Game.AI
             ClearWayPoints();
             ClearOrders(AIState.HoldPosition);
             AddShipGoal(Plan.Stop);
+        }
+
+        public void OrderHoldPosition(Vector2 position, Vector2 direction)
+        {
+            AddShipGoal(Plan.HoldPosition, position, direction);
+            HasPriorityOrder = true;
+            IgnoreCombat     = true;
         }
 
         public void OrderAttackSpecificTarget(Ship toAttack)
@@ -144,7 +151,7 @@ namespace Ship_Game.AI
             if (Owner.Carrier.AnyPlanetAssaultAvailable)
             {
                 SetPriorityOrderWithClear();
-                AddLandTroopGoal(target);
+                AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet);
             }
         }
 
@@ -242,7 +249,7 @@ namespace Ship_Game.AI
 
             var systemList = (
                 from sys in Owner.loyalty.GetOwnedSystems()
-                where sys.combatTimer <= 0f && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
+                where !sys.HostileForcesPresent(Owner.loyalty) && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
                 orderby Owner.Center.Distance(sys.Position)
                 select sys).ToArray();
 

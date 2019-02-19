@@ -759,6 +759,7 @@ namespace Ship_Game.Ships
             AI.HasPriorityTarget = true;
             InCombatTimer = 15f;
         }
+
         /// <summary>
         /// forces the ship to be in combat without a target.
         /// </summary>
