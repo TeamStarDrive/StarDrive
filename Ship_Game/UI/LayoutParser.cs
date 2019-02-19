@@ -176,16 +176,28 @@ namespace Ship_Game.UI
 
             Vector2 absSize = AbsoluteSize(info, size, parent.Size);
 
-            if (info.Tex != null)
+            int texWidth = 0, texHeight = 0;
+            if (info.Spr != null)
+            {
+                texWidth  = info.Spr.Width;
+                texHeight = info.Spr.Height;
+            }
+            else if (info.Tex != null)
+            {
+                texWidth  = info.Tex.Width;
+                texHeight = info.Tex.Height;
+            }
+
+            if (texWidth != 0 && texHeight != 0)
             {
                 if (absSize.AlmostZero())
                 {
-                    absSize.X = (float)Math.Round(info.Tex.Width  * VirtualXForm.X);
-                    absSize.Y = (float)Math.Round(info.Tex.Height * VirtualXForm.Y);
+                    absSize.X = (float)Math.Round(texWidth  * VirtualXForm.X);
+                    absSize.Y = (float)Math.Round(texHeight * VirtualXForm.Y);
                 }
                 else if (absSize.Y.AlmostZero())
                 {
-                    float aspectRatio = (info.Tex.Height / (float)info.Tex.Width);
+                    float aspectRatio = (texHeight / (float)texWidth);
                     absSize.Y = (float)Math.Round(absSize.X * aspectRatio);
                 }
             }
@@ -206,17 +218,24 @@ namespace Ship_Game.UI
             return Content.LoadTextureOrDefault("Textures/" + texturePath);
         }
 
-        SpriteAnimation LoadSpriteAnim(string animationPath)
+        SpriteAnimation LoadSpriteAnim(SpriteAnimInfo sprite)
         {
-            if (animationPath.IsEmpty()) return null;
-            return new SpriteAnimation(Content, animationPath, true);
+            if (sprite == null || sprite.Path.IsEmpty()) return null;
+            var sa = new SpriteAnimation(Content, "Textures/" + sprite.Path, autoStart: false)
+            {
+                Looping = sprite.Looping,
+                FreezeAtLastFrame  = sprite.FreezeAtLastFrame,
+                VisibleBeforeDelay = sprite.VisibleBeforeDelay,
+            };
+            sa.Start(sprite.Duration, sprite.StartAt, sprite.Delay);
+            return sa;
         }
 
         ElementInfo ParseInfo(UIElementV2 parent, StarDataNode node)
         {
             ElementInfo info = DeserializeElementInfo(node);
             info.Tex = LoadTexture(info.Texture);
-            info.Spr = LoadSpriteAnim(info.Animation?.SpriteAnim);
+            info.Spr = LoadSpriteAnim(info.SpriteAnim);
 
             // init texture for size information, so buttons can be auto-resized
             if (info.Tex == null && node.Key == "Button")
