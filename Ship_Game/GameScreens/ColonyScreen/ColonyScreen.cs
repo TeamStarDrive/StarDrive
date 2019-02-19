@@ -627,7 +627,7 @@ namespace Ship_Game
 
                 case ScrollList.Entry entry:
                     var selectedBuilding = entry.Get<Building>();
-                    spriteBatch.DrawString(Font20, selectedBuilding.Name, bCursor, color);
+                    spriteBatch.DrawString(Font20, Localizer.Token(selectedBuilding.NameTranslationIndex), bCursor, color);
                     bCursor.Y += Font20.LineSpacing + 5;
                     string selectionText = MultiLineFormat(selectedBuilding.DescriptionIndex);
                     spriteBatch.DrawString(Font12, selectionText, bCursor, color);
