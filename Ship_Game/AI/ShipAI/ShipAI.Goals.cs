@@ -7,6 +7,63 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
+        public bool HasPriorityOrder;
+        public bool HadPO;
+
+        void DequeueWayPointAndOrder()
+        {
+            if (WayPoints.Count > 0)
+                WayPoints.Dequeue();
+            DequeueCurrentOrder();
+        }
+
+        void DequeueCurrentOrder()
+        {
+            if (OrderQueue.TryDequeue(out ShipGoal goal))
+                goal.Dispose();
+        }
+
+        public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
+        {
+            if (Empire.Universe is DeveloperSandbox.DeveloperUniverse)
+                Log.Info(ConsoleColor.Blue, $"ClearOrders new_state:{newState} priority:{priority}");
+
+            foreach (ShipGoal g in OrderQueue)
+                g.Dispose();
+
+            OrderQueue.Clear();
+            State = newState;
+            HasPriorityOrder = priority;
+        }
+
+        public void ClearOrdersAndWayPoints(AIState newState = AIState.AwaitingOrders, bool priority = false)
+        {
+            ClearWayPoints();
+            ClearOrders(newState, priority);
+        }
+
+        public void ClearPriorityOrder()
+        {
+            HasPriorityOrder  = false;
+            Intercepting      = false;
+            HasPriorityTarget = false;
+        }
+
+        void SetPriorityOrderWithClear()
+        {
+            SetPriorityOrder(true);
+            ClearWayPoints();
+        }
+
+        public void SetPriorityOrder(bool clearOrders)
+        {
+            if (clearOrders)
+                ClearOrders(State, true);
+            else
+                HasPriorityOrder = true;
+            Intercepting      = false;
+            HasPriorityTarget = false;
+        }
 
         public bool FindGoal(Plan plan, out ShipGoal goal)
         {
@@ -22,39 +79,40 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public void AddToOrderQueue(ShipGoal goal)
+        public void AddGoalFromSave(SavedGame.ShipGoalSave sg, UniverseData data)
         {
-            OrderQueue.Enqueue(goal);
+            OrderQueue.Enqueue(new ShipGoal(sg, data, Owner));
         }
 
-        public void AddShipGoal(Plan plan)
+        void AddShipGoal(Plan plan)
         {
             OrderQueue.Enqueue(new ShipGoal(plan));
         }
 
-        public void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir)
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir)
         {
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, null, null, 0f, "", 0f));
         }
 
-        public void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal, 
-                                string variableString, float variableNumber)
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal, 
+                         string variableString, float variableNumber)
         {
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, null, theGoal, 
                                             0f, variableString, variableNumber));
         }
 
-        public void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit)
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit)
         {
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f));
         }
 
-        public void AddTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer = 120f)
+        internal void SetTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer = 120f)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, freighter, blockadeTimer));
+            ClearOrders(AIState.SystemTrader);
+            OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, Owner, blockadeTimer));
         }
 
-        public bool AddShipGoal(Plan plan, Planet target, string variableString = "")
+        bool AddShipGoal(Plan plan, Planet target, string variableString = "")
         {
             if (target == null)
             {
@@ -67,7 +125,7 @@ namespace Ship_Game.AI
             return true;
         }
 
-        public void AddPlanetGoal(Plan plan, Planet planet, AIState newState, bool priority = false)
+        void AddPlanetGoal(Plan plan, Planet planet, AIState newState, bool priority = false)
         {
             if (AddShipGoal(plan, planet))
             {
@@ -78,18 +136,14 @@ namespace Ship_Game.AI
             }
         }
 
-        public void AddOrbitPlanetGoal(Planet planet, AIState newState = AIState.Orbit)
+        void AddOrbitPlanetGoal(Planet planet, AIState newState = AIState.Orbit)
         {
             AddPlanetGoal(Plan.Orbit, planet, newState);
         }
 
-        public void AddLandTroopGoal(Planet planet)
+        public class ShipGoal : IDisposable
         {
-            AddPlanetGoal(Plan.LandTroop, planet, AIState.AssaultPlanet);
-        }
-
-        public class ShipGoal
-        {
+            bool IsDisposed;
             // ship goal variables are read-only by design, do not allow writes!
             public readonly Plan Plan;
             public readonly Vector2 MovePosition;
@@ -128,12 +182,6 @@ namespace Ship_Game.AI
                 Trade = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
             }
 
-            public ShipGoal(Plan plan, SavedGame.TradePlanSave tp, UniverseData data)
-            {
-                Plan = plan;
-                Trade = new TradePlan(tp, data);
-            }
-
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
             {
                 Plan = sg.Plan;
@@ -163,14 +211,32 @@ namespace Ship_Game.AI
                             Goal = empireGoal;
                     }
                 }
+
+                if (sg.Trade != null)
+                    Trade = new TradePlan(sg.Trade, data, ship);
+            }
+
+            ~ShipGoal() { Destroy(); } // finalizer
+            public void Dispose()
+            {
+                Destroy();
+                GC.SuppressFinalize(this);
+            }
+
+            private void Destroy()
+            {
+                if (IsDisposed) return;
+                IsDisposed = true;
+                Trade?.UnregisterTrade(Trade.Freighter);
             }
         }
 
         public class TradePlan
         {
-            public Goods Goods       { get; private set; }
-            public Planet ExportFrom { get; private set; }
-            public Planet ImportTo   { get; private set; }
+            public readonly Goods Goods;
+            public readonly Planet ExportFrom;
+            public readonly Planet ImportTo;
+            public readonly Ship Freighter;
             public float BlockadeTimer; // indicates how much time to wait with freight when trade is blocked
 
             public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer)
@@ -179,6 +245,7 @@ namespace Ship_Game.AI
                 ImportTo      = importPlanet;
                 Goods         = goodsType;
                 BlockadeTimer = blockadeTimer;
+                Freighter      = freighter;
 
                 RegisterTrade(freighter);
             }
@@ -195,12 +262,13 @@ namespace Ship_Game.AI
                 ImportTo.RemoveFromIncomingFreighterList(freighter);
             }
 
-            public TradePlan(SavedGame.TradePlanSave save, UniverseData data)
+            public TradePlan(SavedGame.TradePlanSave save, UniverseData data, Ship freighter)
             {
                 Goods         = save.Goods;
                 ExportFrom    = data.FindPlanet(save.ExportFrom);
                 ImportTo      = data.FindPlanet(save.ImportTo);
                 BlockadeTimer = save.BlockadeTimer;
+                Freighter     = freighter;
             }
         }
 
