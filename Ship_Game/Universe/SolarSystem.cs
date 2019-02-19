@@ -8,15 +8,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
-    public sealed class SolarSystem : Explorable, IDisposable
+    public sealed class SolarSystem : Explorable
     {
         public string Name = "Random System";
-        public bool CombatInSystem;
-        public float combatTimer;
         public Guid guid = Guid.NewGuid();
         public bool DontStartNearPlayer;
         public float DangerTimer;
@@ -72,13 +71,11 @@ namespace Ship_Game
                     : 0.0f;
             }
 
-            combatTimer -= realTime;
-
             foreach (SunLayerState layer in SunLayers)
                 layer.Update(elapsedTime);
 
-            if (combatTimer <= 0.0)
-                CombatInSystem = false;
+            foreach (var status in Status)
+                status.Value.Update(realTime);
 
             bool viewing = false;
             if (universe.Frustum.Contains(Position, Radius))
@@ -139,7 +136,6 @@ namespace Ship_Game
                     moon.So.Visibility = ObjectVisibility.None;
                 }
             }
-            
 
             for (int i = 0; i < PlanetList.Count; i++)
             {
@@ -230,6 +226,32 @@ namespace Ship_Game
                                                       * Sun.RadiationDamage;
                 ship.CauseRadiationDamage(damage);
             }
+        }
+
+        readonly Map<Empire, EmpireSolarSystemStatus> Status = new Map<Empire, EmpireSolarSystemStatus>();
+
+        EmpireSolarSystemStatus GetStatus(Empire empire)
+        {
+            if (!Status.TryGetValue(empire, out EmpireSolarSystemStatus status))
+            {
+                status = new EmpireSolarSystemStatus(this, empire);
+                Status.Add(empire, status);
+            }
+            return status;
+        }
+
+        public float GetCombatTimer(Empire empire)
+        {
+            if (empire == null)
+                return 0f;
+            return GetStatus(empire).CombatTimer;
+        }
+
+        public bool HostileForcesPresent(Empire empire)
+        {
+            if (empire == null)
+                return false;
+            return GetStatus(empire).HostileForcesPresent;
         }
 
         public bool IsFullyExploredBy(Empire empire) => FullyExplored.IsSet(empire);
@@ -856,20 +878,6 @@ namespace Ship_Game
             public Planet planet;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~SolarSystem() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            ShipList = null;
-            AsteroidsList = null;
-        }
-
-        public override string ToString() => $"System '{Name}' Pos={Position} Combat={CombatInSystem} Rings={NumberOfRings}";
+        public override string ToString() => $"System '{Name}' Pos={Position} Rings={NumberOfRings}";
     }
 }

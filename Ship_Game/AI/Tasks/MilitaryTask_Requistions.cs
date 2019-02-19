@@ -139,8 +139,9 @@ namespace Ship_Game.AI.Tasks
                 ForceStrength += ship.Carrier.PlanetAssaultStrength;
             }
 
-            foreach (Troop t in potentialTroops.Where(planet=> planet.HostPlanet != null).OrderBy(troop => troop.HostPlanet.RecentCombat ? 1 :0)
-                .ThenBy(troop => troop.HostPlanet.ParentSystem.CombatInSystem ? 1 : 0)
+            foreach (Troop t in potentialTroops.Where(planet => planet.HostPlanet != null)
+                .OrderBy(troop => troop.HostPlanet.RecentCombat ? 1 :0)
+                .ThenBy(troop => troop.HostPlanet.ParentSystem.HostileForcesPresent(Owner) ? 1 : 0)
                 .ThenBy(troop => troop.HostPlanet.Center.SqDist(AO))
             )
             {
@@ -280,7 +281,7 @@ namespace Ship_Game.AI.Tasks
             {
                 if (!IsCoreFleetTask)
                     foreach (var kv in Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict
-                        .OrderByDescending(system => system.Key.CombatInSystem
+                        .OrderByDescending(system => system.Key.HostileForcesPresent(Owner)
                             ? 1
                             : 2 * system.Key.Position.SqDist(TargetPlanet.Center))
                         .ThenByDescending(ship => (ship.Value.GetOurStrength() - ship.Value.IdealShipStrength) < 1000)
@@ -332,7 +333,7 @@ namespace Ship_Game.AI.Tasks
                 GetAvailableShips(area, bombers, everythingElse, troopShips, everythingElse);
                 foreach (Planet p in area.GetPlanets())
                 {
-                    if (p.RecentCombat || p.ParentSystem.combatTimer > 0)
+                    if (p.RecentCombat || p.ParentSystem.HostileForcesPresent(Owner))
                         continue;
 
                     foreach (Troop t in p.TroopsHere)

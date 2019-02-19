@@ -77,7 +77,7 @@ namespace Ship_Game
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
-        public bool TradeBlocked  => RecentCombat || ParentSystem.CombatInSystem;
+        public bool TradeBlocked  => RecentCombat || ParentSystem.HostileForcesPresent(Owner);
 
         public int IncomingFoodFreighters      => FreighterTraffic(IncomingFreighters, Goods.Food);
         public int IncomingProdFreighters      => FreighterTraffic(IncomingFreighters, Goods.Production);
@@ -354,7 +354,7 @@ namespace Ship_Game
             Projectiles.Add(projectile);
         }
 
-        //added by gremlin deveks drop bomb
+        // added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb) => GeodeticManager.DropBomb(bomb);
 
         public void Update(float elapsedTime)
@@ -364,7 +364,7 @@ namespace Ship_Game
             UpdatePosition(elapsedTime);
         }
 
-        private void UpdateHabitable(float elapsedTime)
+        void UpdateHabitable(float elapsedTime)
         {
             if (!Habitable)
                 return;
@@ -374,14 +374,14 @@ namespace Ship_Game
             UpdateColonyValue();
             RemoveInvalidFreighters(IncomingFreighters);
             RemoveInvalidFreighters(OutgoingFreighters);
-            ScanForEnemy();
-            if (ParentSystem.CombatInSystem)
+
+            if (ParentSystem.HostileForcesPresent(Owner))
                 UpdateSpaceCombatBuildings(elapsedTime);
 
             UpdatePlanetaryProjectiles(elapsedTime);
         }
 
-        private void RefreshOrbitalStations()
+        void RefreshOrbitalStations()
         {
             if (OrbitalStations.Count == 0)
                 return;
@@ -396,29 +396,7 @@ namespace Ship_Game
             }
         }
 
-        private void ScanForEnemy()
-        {
-            if (Owner == null)
-                return;
-
-            foreach (Ship ship in ParentSystem.ShipList)
-            {
-                if (ship.loyalty == Owner)
-                    continue;
-
-                if (ship.loyalty == Owner || !ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
-                {
-                    ParentSystem.CombatInSystem = false;
-                }
-                else
-                {
-                    ParentSystem.CombatInSystem = true;
-                    return;
-                }
-            }
-        }
-
-        private void UpdateSpaceCombatBuildings(float elapsedTime) // @todo FB - need to work on this
+        void UpdateSpaceCombatBuildings(float elapsedTime) // @todo FB - need to work on this
         {
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -911,7 +889,7 @@ namespace Ship_Game
 
         private void UpdateHomeDefenseHangars(Building b)
         {
-            if (ParentSystem.CombatInSystem || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
+            if (ParentSystem.HostileForcesPresent(Owner) || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
                 return;
 
             if (ParentSystem.ShipList.Any(t => t.HomePlanet != null))
