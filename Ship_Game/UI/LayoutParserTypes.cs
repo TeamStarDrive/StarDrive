@@ -44,6 +44,7 @@ namespace Ship_Game.UI
         [StarData] public readonly LocText Title;
         [StarData] public readonly LocText Tooltip;
         [StarData] public readonly AnimInfo Animation = null;
+        [StarData] public readonly SpriteAnimInfo SpriteAnim = null;
         [StarData] public readonly bool DebugDraw;
         #pragma warning restore 649
 
@@ -61,11 +62,24 @@ namespace Ship_Game.UI
         #pragma warning disable 649
         // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
         [StarDataKey] public readonly float[] Params;
-        [StarData] public readonly string SpriteAnim;
         [StarData] public readonly Color? MinColor;
         [StarData] public readonly Color? MaxColor;
         [StarData] public readonly AnimPattern Pattern = AnimPattern.None;
         [StarData] public readonly Range Alpha = new Range(1f);
+        #pragma warning restore 649
+    }
+
+    [StarDataType]
+    internal class SpriteAnimInfo
+    {
+        #pragma warning disable 649
+        [StarDataKey] public readonly string Path;
+        [StarData] public readonly float Delay;
+        [StarData] public readonly float Duration;
+        [StarData] public readonly float StartAt;
+        [StarData] public readonly bool Looping;
+        [StarData] public readonly bool FreezeAtLastFrame;
+        [StarData] public readonly bool VisibleBeforeDelay;
         #pragma warning restore 649
     }
 }

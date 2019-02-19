@@ -14,7 +14,9 @@ namespace Ship_Game
         // if true, this animation will freeze at the last frame
         // this only applies if animation is not looping
         public bool FreezeAtLastFrame;
+        public bool VisibleBeforeDelay;
 
+        public float Delay;
         public float CurrentTime;
         public float Duration;
 
@@ -40,12 +42,13 @@ namespace Ship_Game
             }
         }
 
-        public void Start(float duration = 1f, float at = 0f)
+        public void Start(float duration = 1f, float startAt = 0f, float delay = 0f)
         {
-            CurrentTime = at;
+            CurrentTime = startAt.Clamped(startAt, duration);
             Duration    = duration;
-            IsAnimating = Atlas.Count > 0;
-            if (IsAnimating)
+            Delay       = delay;
+            IsAnimating = Atlas?.Count > 0;
+            if (Atlas != null && IsAnimating)
             {
                 Width  = Atlas[0].Width;
                 Height = Atlas[0].Height;
@@ -54,7 +57,14 @@ namespace Ship_Game
 
         public void Update(float deltaTime)
         {
-            if (!IsAnimating) return;
+            if (!IsAnimating)
+                return;
+
+            if (Delay > 0f)
+            {
+                Delay -= deltaTime;
+                return;
+            }
 
             CurrentTime += deltaTime;
             if (CurrentTime > Duration)
@@ -84,17 +94,26 @@ namespace Ship_Game
             }
         }
 
+        bool IsVisible => IsAnimating && (Delay <= 0f || VisibleBeforeDelay);
+
         public void Draw(SpriteBatch batch, Rectangle rect)
         {
-            if (!IsAnimating) return;
+            if (!IsVisible) return;
             SubTexture frame = Atlas[CurrentFrameId];
             batch.Draw(frame, rect, Color.White);
+        }
+
+        public void Draw(SpriteBatch batch, Rectangle rect, Color color)
+        {
+            if (!IsVisible) return;
+            SubTexture frame = Atlas[CurrentFrameId];
+            batch.Draw(frame, rect, color);
         }
 
         public void Draw(SpriteBatch batch, Rectangle rect, 
                          float rotation, float scale, float z = 0f)
         {
-            if (!IsAnimating) return;
+            if (!IsVisible) return;
             SubTexture frame = Atlas[CurrentFrameId];
             batch.Draw(frame, rect, rotation, scale, z);
         }
@@ -102,7 +121,7 @@ namespace Ship_Game
         public void Draw(SpriteBatch batch, Vector2 pos, Vector2 size, 
                          float rotation, float scale, float z = 0f)
         {
-            if (!IsAnimating) return;
+            if (!IsVisible) return;
             var r = new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
             SubTexture frame = Atlas[CurrentFrameId];
             batch.Draw(frame, r, rotation, scale, z);
@@ -110,7 +129,7 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch batch, Vector2 pos, Color c, float rotation, float scale, SpriteEffects effects = SpriteEffects.None)
         {
-            if (!IsAnimating) return;
+            if (!IsVisible) return;
             SubTexture frame = Atlas[CurrentFrameId];
             batch.Draw(frame, pos, c, rotation, frame.CenterF, scale, effects, 0.9f);
         }
