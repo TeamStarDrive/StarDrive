@@ -16,7 +16,7 @@ namespace Ship_Game.Commands.Goals
             {
                 FindPlanetToBuildAt,
                 WaitMainGoalCompletion,
-                ReportGoalCompleteToEmpireAndStartTrading
+                ReportGoalCompleteToEmpire
             };
         }
         public IncreaseFreighters(Empire empire) : this()
@@ -24,38 +24,10 @@ namespace Ship_Game.Commands.Goals
             this.empire = empire;
         }
 
-        bool PickFreighter(out Ship freighter)
-        {
-            if (empire.isPlayer && empire.AutoFreighters &&
-                ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out freighter))
-                return true;
-
-            var freighters = new Array<Ship>();
-            foreach (string shipId in empire.ShipsWeCanBuild)
-            {
-                Ship ship = ResourceManager.GetShipTemplate(shipId);
-                if (ship.shipData.Role != ShipData.RoleName.freighter || ship.CargoSpaceMax < 1f)
-                    continue; // definitely not a freighter
-
-                if (ship.isColonyShip || ship.isConstructor)
-                    continue; // ignore colony ships and constructors
-
-                if (ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                    ship.shipData.ShipCategory == ShipData.Category.Unclassified)
-                    freighters.Add(ship); // only consider civilian/unclassified as freighters
-            }
-
-            freighter = freighters
-                .OrderByDescending(ship => ship.CargoSpaceMax <= empire.cargoNeed * 0.5f ? ship.CargoSpaceMax : 0)
-                .ThenByDescending(ship => (int)(ship.WarpThrust / ship.Mass / 1000f))
-                .ThenByDescending(ship => ship.Thrust / ship.Mass)
-                .FirstOrDefault();
-            return freighter != null;
-        }
-
         GoalStep FindPlanetToBuildAt()
         {
-            if (!PickFreighter(out Ship freighter))
+            Ship freighter = ShipBuilder.PickFreighter(empire);
+            if (freighter == null)
                 return GoalStep.GoalFailed;
 
             if (!empire.FindPlanetToBuildAt(empire.BestBuildPlanets, freighter, out Planet planet))
@@ -65,10 +37,9 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
-        GoalStep ReportGoalCompleteToEmpireAndStartTrading()
+        GoalStep ReportGoalCompleteToEmpire()
         {
             empire.ReportGoalComplete(this);
-            FinishedShip.DoTrading();
             return GoalStep.GoalComplete;
         }
     }

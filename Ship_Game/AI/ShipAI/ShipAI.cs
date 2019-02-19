@@ -22,7 +22,7 @@ namespace Ship_Game.AI
         int StopNumber;
         public FleetDataNode FleetNode { get;  set; }
         
-        public Ship Owner;
+        public readonly Ship Owner;
         public AIState State = AIState.AwaitingOrders;
         public Guid OrbitTargetGuid;
         public Planet ColonizeTarget;
@@ -35,10 +35,32 @@ namespace Ship_Game.AI
         public Array<ShipWeight> NearByShips  = new Array<ShipWeight>();
         public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
+        readonly AttackRun AttackRun;
 
         public ShipAI(Ship owner)
         {
             Owner = owner;
+            AttackRun = new AttackRun(this);
+        }
+
+        public Vector2 GoalTarget
+        {
+            get
+            {
+                if (OrderQueue.NotEmpty)
+                {
+                    ShipGoal goal = OrderQueue.PeekFirst;
+                    Vector2 pos = goal.TargetPlanet?.Center ?? goal.MovePosition;
+                    if (pos.NotZero())
+                        return pos;
+                }
+                return Target?.Position
+                    ?? ExplorationTarget?.Position
+                    ?? SystemToDefend?.Position
+                    ?? ColonizeTarget?.Center
+                    ?? ResupplyTarget?.Center
+                    ?? Vector2.Zero;
+            }
         }
 
         void Colonize(Planet targetPlanet)
@@ -218,8 +240,6 @@ namespace Ship_Game.AI
             Owner.isTurning = false;
             ThrustTarget = Vector2.Zero;
 
-            if (UpdateFreightAI())
-                return;
             if (UpdateOrderQueueAI(elapsedTime))
                 return;
 
@@ -275,7 +295,7 @@ namespace Ship_Game.AI
                 case ResupplyReason.LowHealth:
                     if (Owner.fleet != null && Owner.fleet.HasRepair)
                     {
-                        Ship supplyShip =  Owner.fleet.GetShips.First(supply => supply.hasRepairBeam || supply.HasRepairModule);
+                        Ship supplyShip = Owner.fleet.Ships.First(supply => supply.hasRepairBeam || supply.HasRepairModule);
                         SetUpSupplyEscort(supplyShip, supplyType: "Repair");
                         return;
                     }
@@ -465,32 +485,27 @@ namespace Ship_Game.AI
                     DropBombsAtGoal(toEvaluate, radius);
                     break;
                 case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, toEvaluate); break;
-                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, toEvaluate); break;
-                case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, toEvaluate);      break;
-                case Plan.MakeFinalApproach:         MakeFinalApproach(elapsedTime, toEvaluate);       break;
-                case Plan.RotateInlineWithVelocity:  RotateInLineWithVelocity(elapsedTime);            break;
+                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, toEvaluate);    break;
+                case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, toEvaluate);         break;
+                case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, toEvaluate);        break;
+                case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);             break;
                 case Plan.Orbit:        DoOrbit(planet, elapsedTime); break;
                 case Plan.Colonize:     Colonize(planet);             break;
                 case Plan.Explore:      DoExplore(elapsedTime);       break;
                 case Plan.Rebase:       DoRebase(toEvaluate);         break;
                 case Plan.DefendSystem: DoSystemDefense(elapsedTime); break;
                 case Plan.DoCombat:     DoCombat(elapsedTime);        break;
-                case Plan.PickupPassengers:
-                    if (start != null) PickupPassengers();
-                    else State = AIState.AwaitingOrders;
-                    break;
-                case Plan.DropoffPassengers: DropoffPassengers();  break;
-                case Plan.DeployStructure:   DoDeploy(toEvaluate); break;
-                case Plan.PickupGoods:       PickupGoods();        break;
-                case Plan.DropOffGoods:      DropOffGoods();       break;
-                case Plan.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
-                case Plan.TroopToShip:    DoTroopToShip(elapsedTime, toEvaluate);    break;
-                case Plan.BoardShip:      DoBoardShip(elapsedTime);      break;
-                case Plan.SupplyShip:     DoSupplyShip(elapsedTime, toEvaluate);     break;
-                case Plan.Refit:          DoRefit(elapsedTime, toEvaluate);          break;
-                case Plan.LandTroop:      DoLandTroop(elapsedTime, toEvaluate);      break;
-                case Plan.ResupplyEscort: DoResupplyEscort(elapsedTime, toEvaluate); break;
-                case Plan.ReturnHome:     DoReturnHome(elapsedTime);                 break;
+                case Plan.DeployStructure:   DoDeploy(toEvaluate);                      break;
+                case Plan.PickupGoods:       DoPickupGoods(elapsedTime, toEvaluate);    break;
+                case Plan.DropOffGoods:      DoDropOffGoods(elapsedTime, toEvaluate);   break;
+                case Plan.ReturnToHangar:    DoReturnToHangar(elapsedTime);             break;
+                case Plan.TroopToShip:       DoTroopToShip(elapsedTime, toEvaluate);    break;
+                case Plan.BoardShip:         DoBoardShip(elapsedTime);                  break;
+                case Plan.SupplyShip:        DoSupplyShip(elapsedTime, toEvaluate);     break;
+                case Plan.Refit:             DoRefit(toEvaluate);                       break;
+                case Plan.LandTroop:         DoLandTroop(elapsedTime, toEvaluate);      break;
+                case Plan.ResupplyEscort:    DoResupplyEscort(elapsedTime, toEvaluate); break;
+                case Plan.ReturnHome:        DoReturnHome(elapsedTime);                 break;
             }
 
             return false;
@@ -506,8 +521,6 @@ namespace Ship_Game.AI
                     case AIState.DoNothing:      AwaitOrders(elapsedTime);           break;
                     case AIState.AwaitingOrders: AIStateAwaitingOrders(elapsedTime); break;
                     case AIState.Escort:         AIStateEscort(elapsedTime);         break;
-                    case AIState.SystemTrader:   AIStateOrderTrade(elapsedTime);     break;
-                    case AIState.PassengerTransport: AIStatePassengersTransport(elapsedTime); break;
                     case AIState.SystemDefender: AwaitOrders(elapsedTime); break;
                     case AIState.Resupply:       AwaitOrders(elapsedTime); break;
                     case AIState.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
@@ -551,35 +564,54 @@ namespace Ship_Game.AI
                     ClearWayPoints();
                     WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
                     State = AIState.AwaitingOrders;
-                    if (Owner.fleet?.GetStack().Count > 0)
-                        WayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
+                    if (Owner.fleet?.GoalStack.Count > 0)
+                        WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
                     else
-                        OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, DesiredDirection, true, null);
+                        OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, Owner.fleet.Direction, true, null);
                 }
             }
         }
 
-
-        bool UpdateFreightAI()
+        public bool HasTradeGoal(Goods goods)
         {
-            if (State == AIState.SystemTrader && start != null && end != null &&
-                (start.Owner != Owner.loyalty || end.Owner != Owner.loyalty))
+            return OrderQueue.Any(g => g.Trade?.Goods == goods);
+        }
+
+        public bool WaitForBlockadeRemoval(ShipGoal g, Planet planet, float elapsedTime)
+        {
+            if (planet.TradeBlocked)
             {
-                start = null;
-                end = null;
-                OrderTrade(5f);
+                g.Trade.BlockadeTimer -= elapsedTime;
+                if (g.Trade.BlockadeTimer > 0f)
+                {
+                    ReverseThrustUntilStopped(elapsedTime);
+                    return true;
+                }
+
+                // blockade is going on for too long, abort
+                ClearOrders();
+                State = AIState.AwaitingOrders;
+                Planet fallback = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+                if (fallback != planet)
+                    AddOrbitPlanetGoal(fallback, AIState.AwaitingOrders);
+
+                g.Trade.UnregisterTrade(Owner);
                 return true;
             }
-            if (State == AIState.PassengerTransport && start != null && end != null &&
-                (start.Owner != Owner.loyalty || end.Owner != Owner.loyalty))
-            {
-                start = null;
-                end = null;
-                OrderTransportPassengers(5f);
-                return true;
-            }
+            g.Trade.BlockadeTimer = 120f; // blockade was removed, continue as planned
             return false;
         }
+
+        public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)
+        {
+            ClearOrders();
+            State = AIState.SystemTrader;
+
+            // if ship has this cargo type on board, proceed to drop it off at destination
+            Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f ? Plan.DropOffGoods : Plan.PickupGoods;
+            AddTradePlan(plan, exportPlanet, importPlanet, goods, Owner);
+        }
+
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
         public bool ClearOrdersConditional(Plan plan)
         {
@@ -595,6 +627,16 @@ namespace Ship_Game.AI
             if (clearOrders)
                 ClearOrders();
             return clearOrders;
+        }
+
+        public void CancelTradePlan(ShipGoal g, Planet orbitPlanet = null)
+        {
+            ClearOrders();
+            g.Trade.UnregisterTrade(Owner);
+            if (orbitPlanet != null)
+                AddOrbitPlanetGoal(orbitPlanet, AIState.AwaitingOrders);
+            else
+                State = AIState.AwaitingOrders;
         }
 
         void UpdateUtilityModuleAI(float elapsedTime)
@@ -650,6 +692,19 @@ namespace Ship_Game.AI
             }
         }
 
+        public void OrderTroopToBoardShip(Ship s)
+        {
+            EscortTarget = s;
+            ClearOrders(State, priority: true);
+            AddShipGoal(Plan.BoardShip);
+        }
+
+        public void OrderTroopToShip(Ship s)
+        {
+            EscortTarget = s;
+            ClearOrders(State);
+            AddShipGoal(Plan.TroopToShip);
+        }
 
         void ScanForThreat(float elapsedTime)
         {
@@ -664,14 +719,6 @@ namespace Ship_Game.AI
             if (State != AIState.Flee || BadGuysNear || State == AIState.Resupply || HasPriorityOrder) return;
             if (OrderQueue.NotEmpty)
                 OrderQueue.RemoveLast();
-            switch (FoodOrProd) {
-                case Goods.Colonists:  State = AIState.PassengerTransport; break;
-                case Goods.Food:
-                case Goods.Production: State = AIState.SystemTrader; break;
-                default:
-                    State = DefaultAIState;
-                    break;
-            }
         }
 
         void PrioritizePlayerCommands()
@@ -698,23 +745,6 @@ namespace Ship_Game.AI
                 if (target.Active)
                     continue;
                 TargetQueue.RemoveAtSwapLast(x);
-            }
-        }
-
-        void AIStatePassengersTransport(float elapsedTime)
-        {
-            OrderTransportPassengers(elapsedTime);
-            if (start == null || end == null)
-                AwaitOrders(elapsedTime);
-        }
-
-        void AIStateOrderTrade(float elapsedTime)
-        {
-            OrderTrade(elapsedTime);
-            if (start == null || end == null)
-            {
-                AwaitOrders(elapsedTime);
-                State = AIState.SystemTrader;
             }
         }
 

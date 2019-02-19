@@ -13,38 +13,39 @@ namespace Ship_Game.Debug
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, float lifeTime)
         {
-            if (mode != Mode) return;
+            if (mode != Mode || !Visible) return;
             AddPrimitive(new DebugCircle(worldPos, radius, Color.Yellow, lifeTime));
         }
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color, float lifeTime)
         {
-            if (mode != Mode) return;
+            if (mode != Mode || !Visible) return;
             AddPrimitive(new DebugCircle(worldPos, radius, color, lifeTime));
         }
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color)
         {
-            if (mode != Mode) return;
+            if (mode != Mode || !Visible) return;
             AddPrimitive(new DebugCircle(worldPos, radius, color, 0f));
-        }
-
-        public bool IgnoreThisShip(Ship ship)
-        {
-            return ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship;
         }
 
         public void DrawLine(DebugModes mode, Vector2 startInWorld, Vector2 endInWorld,
             float width, Color color, float lifeTime)
         {
-            if (mode != Mode) return;
+            if (mode != Mode || !Visible) return;
             AddPrimitive(new DebugLine(startInWorld, endInWorld, width, color, lifeTime));
         }
 
         public void DrawGameObject(DebugModes mode, GameplayObject obj)
         {
-            if (mode != Mode || !obj.IsInFrustum) return;
+            if (mode != Mode || !Visible || !obj.IsInFrustum) return;
             AddPrimitive(new DebugGameObject(obj, Color.Red, 0f /*transient*/));
+        }
+
+        public void DrawText(DebugModes mode, Vector2 posInWorld, string text, Color color, float lifeTime)
+        {
+            if (mode != Mode || !Visible) return;
+            AddPrimitive(new DebugText(posInWorld, text, color, lifeTime));
         }
 
         void DrawDebugPrimitives(float gameDeltaTime)
@@ -66,11 +67,13 @@ namespace Ship_Game.Debug
         // This will draw immediately using the current SpriteBatch
         public void DrawCircleImm(Vector2 worldPos, float radius, Color color, float thickness = 1f)
         {
+            if (!Visible) return;
             Empire.Universe.DrawCircleProjected(worldPos, radius, color, thickness);
         }
 
         public void DrawLineImm(Vector2 worldA, Vector2 worldB, Color color, float thickness = 1f)
         {
+            if (!Visible) return;
             Vector2 screenA = Empire.Universe.ProjectToScreenPosition(worldA);
             Vector2 screenB = Empire.Universe.ProjectToScreenPosition(worldB);
             DrawLine(screenA, screenB, color, thickness);
@@ -78,6 +81,7 @@ namespace Ship_Game.Debug
 
         public void DrawArrowImm(Vector2 worldA, Vector2 worldB, Color color, float thickness = 1f)
         {
+            if (!Visible) return;
             Vector2 screenA = Empire.Universe.ProjectToScreenPosition(worldA);
             Vector2 screenB = Empire.Universe.ProjectToScreenPosition(worldB);
             DrawLine(screenA, screenB, color, thickness);

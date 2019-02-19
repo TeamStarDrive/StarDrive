@@ -10,20 +10,19 @@ namespace Ship_Game.AI
     public sealed partial class EmpireAI
     {
         /// <summary>
-        /// This uses difficult and empire personality to set the colonization goal count. 
+        /// This uses difficulty and empire personality to set the colonization goal count. 
         /// </summary>
         private int DesiredColonyGoals
         {
             get
             {
-                int baseVal = 2;
-                int difMod = (int)CurrentGame.Difficulty;
-                difMod = (int)(difMod * OwnerEmpire.GetResStrat().ExpansionRatio);
-                int econmicPersonalityMod = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
+                float baseValue = 1.0f;
+                float difMod = (float)CurrentGame.Difficulty;
+                difMod *= OwnerEmpire.GetResStrat().ExpansionRatio;
+                int plusColonyGoals = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
 
-                //int waiting = Goals.FilterBy(g => g.type == GoalType.Colonize && (g as MarkForColonization)?.WaitingForEscort == true).Length;
-
-                return baseVal + difMod + econmicPersonalityMod;// + waiting;
+                float goals = (float)System.Math.Round(baseValue + difMod + plusColonyGoals);
+                return (int)goals.Clamped(1f, 5f);
             }
         }
 
@@ -56,19 +55,19 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoColonize)
                 return;
-                Planet[] markedPlanets = GetMarkedPlanets();
-            if (markedPlanets.Length > DesiredColonyGoals)
+
+            Planet[] markedPlanets = GetMarkedPlanets();
+            if (markedPlanets.Length >= DesiredColonyGoals)
                 return;            
 
-            var allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
-
-            if (allPlanetsRanker.Count < 1)
+            Array<Goal.PlanetRanker> allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
+            if (allPlanetsRanker.IsEmpty)
                 return;
 
-            DesiredPlanets = allPlanetsRanker.Sorted(v => -(v.Value - (v.OutOfRange ? 1 :0))).Select(p => p.Planet);
+            Goal.PlanetRanker[] ranked = allPlanetsRanker.Sorted(v => -(v.Value - (v.OutOfRange ? 1 :0)));
+            DesiredPlanets = ranked.Select(p => p.Planet);
 
-            if (DesiredPlanets.Length == 0)
-                return;
+            Log.Info(System.ConsoleColor.Magenta, $"Colonize {markedPlanets.Length}/{DesiredColonyGoals} | {ranked[0]} | {OwnerEmpire}");
             Goals.Add(new MarkForColonization(DesiredPlanets[0], OwnerEmpire));
         }
 
@@ -85,37 +84,27 @@ namespace Ship_Game.AI
             
             var allPlanetsRanker = new Array<Goal.PlanetRanker>();
             Vector2 weightedCenter = OwnerEmpire.GetWeightedCenter();
-            //Here we should be using the building score that the governors use to determine is a planet is viable i think.
-            //bool foodBonus = OwnerEmpire.GetTDict()["Aeroponics"].Unlocked || OwnerEmpire.data.Traits.Cybernetic > 0;
+            // Here we should be using the building score that the governors use to determine is a planet is viable i think.
+            // bool foodBonus = OwnerEmpire.GetTDict()["Aeroponics"].Unlocked || OwnerEmpire.data.Traits.Cybernetic > 0;
             
-            for (int x = 0; x < UniverseScreen.SolarSystemList.Count; x++)
+            for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
-                SolarSystem sys = UniverseScreen.SolarSystemList[x];
+                SolarSystem sys = UniverseScreen.SolarSystemList[i];
 
-                if (!sys.IsExploredBy(OwnerEmpire))
-                    continue;
-               
-                if (IsColonizeBlockedByMorals(sys))
+                if (!sys.IsExploredBy(OwnerEmpire) || IsColonizeBlockedByMorals(sys))
                     continue;
 
                 float str = ThreatMatrix.PingRadarStr(sys.Position, sys.Radius, OwnerEmpire, true);
 
                 for (int y = 0; y < sys.PlanetList.Count; y++)
                 {
-                    Planet planet = sys.PlanetList[y];
-                    if (!planet.Habitable)
-                        continue;
-                    if (planet.Owner != null)
-                        continue;
-                    if (markedPlanets.Contains(planet))
-                        continue;
-
-                    var r2 = new Goal.PlanetRanker(OwnerEmpire, planet, canColonizeBarren, weightedCenter, str);
-
-                    if (r2.CantColonize)
-                        continue;
-
-                    allPlanetsRanker.Add(r2);
+                    Planet p = sys.PlanetList[y];
+                    if (p.Habitable && p.Owner == null && !markedPlanets.Contains(p))
+                    {
+                        var r2 = new Goal.PlanetRanker(OwnerEmpire, p, canColonizeBarren, weightedCenter, str);
+                        if (!r2.CantColonize)
+                            allPlanetsRanker.Add(r2);
+                    }
                 }
             }
             return allPlanetsRanker;

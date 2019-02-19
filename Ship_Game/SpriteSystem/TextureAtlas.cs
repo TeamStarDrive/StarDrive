@@ -13,7 +13,7 @@ namespace Ship_Game
     /// for related textures and animation sequences
     public class TextureAtlas : IDisposable
     {
-        const int Version = 14; // changing this will force all caches to regenerate
+        const int Version = 15; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -213,7 +213,7 @@ namespace Ship_Game
                 Lookup.Clear();
                 Width  = 0;
                 Height = 0;
-                Name = fs.ReadLine();
+                Name   = fs.ReadLine();
                 int.TryParse(fs.ReadLine(), out NumPacked);
                 if (NumPacked > 0)
                 {
@@ -282,7 +282,7 @@ namespace Ship_Game
         {
             var textures = new TextureInfo[textureFiles.Length];
 
-            bool noPackAll = ResourceManager.AtlasExcludeFolder.Contains(path.Name);
+            bool noPackAll = ResourceManager.AtlasExcludeFolder.Contains(path.OriginalName);
             HashSet<string> ignore = ResourceManager.AtlasExcludeTextures; // HACK
 
             for (int i = 0; i < textureFiles.Length; ++i)
@@ -310,19 +310,21 @@ namespace Ship_Game
             public readonly string Texture;
             public readonly string Descriptor;
             public readonly string CacheDir;
-            public readonly string Name;
+            public readonly string AtlasName;
+            public readonly string OriginalName;
             public AtlasPath(string name)
             {
-                Name = name.Replace('/', '_');
+                OriginalName = Path.GetFileName(name);
+                AtlasName = name.Replace('/', '_');
                 CacheDir = Dir.StarDriveAppData + "/TextureCache";
                 Directory.CreateDirectory(CacheDir);
-                Texture    = $"{CacheDir}/{Name}.dds";
-                Descriptor = $"{CacheDir}/{Name}.atlas";
+                Texture    = $"{CacheDir}/{AtlasName}.dds";
+                Descriptor = $"{CacheDir}/{AtlasName}.atlas";
             }
             public string GetExportPath(TextureInfo t)
             {
                 string prefix = t.NoPack ? "NoPack/" : "";
-                string dir = $"{CacheDir}/{Name}/{prefix}{t.Name}";
+                string dir = $"{CacheDir}/{AtlasName}/{prefix}{t.Name}";
                 Directory.CreateDirectory(dir);
                 return dir;
             }

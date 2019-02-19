@@ -155,9 +155,11 @@ namespace Ship_Game
                 if (filter(item))
                 {
                     float value = selector(item);
-                    if (value > min) continue;
-                    min = value;
-                    found = item;
+                    if (value < min)
+                    {
+                        min = value;
+                        found = item;
+                    }
                 }
             }
             return found;

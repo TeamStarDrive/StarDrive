@@ -314,8 +314,7 @@ namespace Ship_Game.UI
 
                 UIBasicAnimEffect a = element.Anim(delay, duration, fadeIn, fadeOut);
                 
-                if (data.Pattern == AnimPattern.Sine)
-                    a.Sine();
+                a.AnimPattern = data.Pattern;
 
                 if (loop.NotZero())
                     a.Loop(loop);

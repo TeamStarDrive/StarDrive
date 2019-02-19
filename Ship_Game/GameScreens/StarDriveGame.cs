@@ -33,6 +33,7 @@ namespace Ship_Game
 
         public float DeltaTime { get; private set; }
         public GameTime GameTime;
+        public int FrameId { get; private set; }
 
         public StarDriveGame()
         {
@@ -135,6 +136,7 @@ namespace Ship_Game
 
         protected override void Update(GameTime gameTime)
         {
+            ++FrameId;
             GameTime = gameTime;
             DeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             GameAudio.Update();
@@ -152,7 +154,7 @@ namespace Ship_Game
                 return;
 
             GraphicsDevice.Clear(Color.Black);
-            ScreenManager.Draw(gameTime);
+            ScreenManager.Draw();
             base.Draw(gameTime);
         }
 

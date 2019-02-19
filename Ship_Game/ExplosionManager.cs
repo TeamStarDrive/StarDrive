@@ -22,6 +22,7 @@ namespace Ship_Game
         {
             public PointLight Light;
             public Vector2 Pos;
+            public Vector2 Vel;
             public float Time;
             public float Duration;
             public float Radius;
@@ -92,13 +93,14 @@ namespace Ship_Game
             Empire.Universe.AddLight(newExp.Light);
         }
 
-        public static void AddExplosion(Vector3 position, float radius, float intensity, ExplosionType type)
+        public static void AddExplosion(Vector3 position, Vector2 velocity, float radius, float intensity, ExplosionType type)
         {
             Explosion expType = RandomMath2.RandItem(Types[type]);
             var exp = new ExplosionState
             {
                 Duration = 2.25f,
                 Pos = position.ToVec2(),
+                Vel = velocity,
                 Animation = expType.Atlas,
                 Radius = radius <= 0f ? 1f : radius*expType.Scale
             };
@@ -122,20 +124,20 @@ namespace Ship_Game
                 ActiveExplosions.Add(exp);
         }
 
-        static bool DebugExplosions = false;
-
         public static void Update(UniverseScreen us, float elapsedTime)
         {
-            if (DebugExplosions && us.Input.IsCtrlKeyDown && us.Input.LeftMouseClick)
+            // This is purely for DEBUGGING all explosion effects
+            bool debugExplosions = Log.HasDebugger && false;
+            if (debugExplosions && us.Input.IsCtrlKeyDown && us.Input.LeftMouseClick)
             {
                 GameAudio.PlaySfxAsync("sd_explosion_ship_det_large");
-                AddExplosion(us.CursorWorldPosition, 500.0f, 5.0f, ExplosionType.Ship);
-                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Projectile);
-                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Photon);
-                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), 500.0f, 5.0f, ExplosionType.Warp);
+                AddExplosion(us.CursorWorldPosition, RandomMath.Vector2D(50f), 500.0f, 5.0f, ExplosionType.Ship);
+                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), RandomMath.Vector2D(50f), 500.0f, 5.0f, ExplosionType.Projectile);
+                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), RandomMath.Vector2D(50f), 500.0f, 5.0f, ExplosionType.Photon);
+                AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), RandomMath.Vector2D(50f), 500.0f, 5.0f, ExplosionType.Warp);
 
                 for (int i = 0; i < 15; ++i) // some fireworks!
-                    AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), 200.0f, 5.0f, ExplosionType.Projectile);
+                    AddExplosion(us.CursorWorldPosition+RandomMath.Vector3D(500f), RandomMath.Vector2D(50f), 200.0f, 5.0f, ExplosionType.Projectile);
             }
 
             using (Lock.AcquireWriteLock())
@@ -155,11 +157,12 @@ namespace Ship_Game
                         e.Light.Intensity -= 10f * elapsedTime;
                     }
 
+                    e.Pos += e.Vel * elapsedTime;
+
                     // time is update last, because we don't want to skip frame 0 due to bad interpolation
                     e.Time += elapsedTime;
                 }
             }
-
         }
 
         public static void DrawExplosions(SpriteBatch batch, in Matrix view, in Matrix projection)

@@ -17,18 +17,17 @@ namespace Ship_Game
         public float Speed;
         public Empire Owner;
         public Vector2 Position;  // center of the ship group
-        public Vector2 Direction; // direction facing of this ship group
-        protected Stack<Fleet.FleetGoal> GoalStack = new Stack<Fleet.FleetGoal>();
+        public Vector2 Direction = Vectors.Up; // direction facing of this ship group
+        public readonly Stack<Fleet.FleetGoal> GoalStack = new Stack<Fleet.FleetGoal>();
         public Vector2 GoalMovePosition;
         public Array<Ship> FleetTargetList = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] public Vector2 StoredFleetPosition;
-        [XmlIgnore][JsonIgnore] public float StoredFleetDistancetoMove;
-        [XmlIgnore][JsonIgnore] public IReadOnlyList<Ship> GetShips => Ships;
-        public override string ToString() => $"FleetGroup size={Ships.Count}";
-
-        public Stack<Fleet.FleetGoal> GetStack() => GoalStack;
+        Vector2 AveragePos;
+        int LastAveragePosUpdate = -1;
+        public float StoredFleetDistanceToMove;
 
         public Fleet.FleetGoal PopGoalStack() => GoalStack.Pop();
+        public int CountShips => Ships.Count;
+        public override string ToString() => $"FleetGroup size={Ships.Count}";
 
         public ShipGroup()
         {
@@ -68,17 +67,19 @@ namespace Ship_Game
         public virtual void AddShip(Ship ship)
         {
             Ships.Add(ship);
+            LastAveragePosUpdate = -1; // deferred position refresh
         }
 
         void AddShips(IReadOnlyList<Ship> ships)
         {
             Ships.AddRange(ships);
+            LastAveragePosUpdate = -1; // deferred position refresh
         }
-
-        public int CountShips => Ships.Count;
 
         public void AssignPositions(Vector2 newDirection)
         {
+            if (!newDirection.IsUnitVector())
+                Log.Error($"AssembleFleet newDirection {newDirection} must be a direction unit vector!");
             Direction = newDirection;
             float facing = newDirection.ToRadians();
             foreach (Ship ship in Ships) // rotate the existing fleet offsets
@@ -91,6 +92,8 @@ namespace Ship_Game
 
         public void AssembleFleet(Vector2 newDirection, bool forceAssembly = false)
         {
+            if (!newDirection.IsUnitVector())
+                Log.Error($"AssembleFleet newDirection {newDirection} must be a direction unit vector!");
             Direction = newDirection;
             float facing = newDirection.ToRadians();
             foreach (Ship ship in Ships)
@@ -216,39 +219,38 @@ namespace Ship_Game
             return pos;
         }
 
-        public Vector2 FindAveragePosition()
+        public Vector2 AveragePosition()
         {
-            if (StoredFleetPosition == Vector2.Zero)
-                StoredFleetPosition = FindAveragePositionset();
-            return StoredFleetPosition;
+            // Update Pos once per frame, OR if LastAveragePosUpdate was invalidated
+            if (LastAveragePosUpdate != StarDriveGame.Instance.FrameId)
+            {
+                LastAveragePosUpdate = StarDriveGame.Instance.FrameId;
+                AveragePos = AveragePosition(Ships);
+            }
+            return AveragePos;
         }
 
-        public Vector2 FindAveragePositionset()
-        {
-            using (Ships.AcquireReadLock())
-                return AveragePosition(Ships);
-        }
-
-        public void Setavgtodestination()
+        public void CalculateDistanceToMove()
         {
             var distances = new Array<float>();
             using (Ships.AcquireReadLock())
-                foreach (Ship distance in Ships)
+            {
+                foreach (Ship ship in Ships)
                 {
-                    if (distance.EnginesKnockedOut || !distance.Active || distance.InCombat)
-                        continue;
-                    distances.Add(distance.Center.Distance(Position + distance.FleetOffset) - 100);
+                    if (ship.Active && !ship.EnginesKnockedOut && !ship.InCombat)
+                        distances.Add(ship.Center.Distance(Position + ship.FleetOffset) - 100);
                 }
+            }
 
             if (distances.Count <= 2)
             {
-                StoredFleetDistancetoMove = Vector2.Distance(StoredFleetPosition, Position);
+                StoredFleetDistanceToMove = AveragePosition().Distance(Position);
                 return;
             }
-            float avgdistance = distances.Average();
-            float sum = (float)distances.Sum(distance => Math.Pow(distance - avgdistance, 2));
-            float stddev = (float)Math.Sqrt((sum) / (distances.Count - 1));
-            StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average();
+            float avgDistance = distances.Average();
+            float sum = distances.Sum(d => (d - avgDistance)*(d - avgDistance));
+            float stddev = (float)Math.Sqrt(sum / (distances.Count - 1));
+            StoredFleetDistanceToMove = distances.Where(distance => distance <= avgDistance + stddev).Average();
         }
 
         protected bool IsFleetSupplied(float wantedSupplyRatio =.1f)
@@ -277,6 +279,8 @@ namespace Ship_Game
 
         public void MoveDirectlyNow(Vector2 movePosition, Vector2 direction)
         {
+            if (!direction.IsUnitVector())
+                Log.Error($"MoveDirectlyNow direction {direction} must be a direction unit vector!");
             Position = movePosition;
             Direction = direction;
             AssembleFleet(direction);
@@ -362,9 +366,9 @@ namespace Ship_Game
                 position = Position;
             MoveStatus moveStatus = MoveStatus.Assembled;
             bool inCombat = false;
-            for (int index = 0; index < Ships.Count; index++)
+            for (int i = 0; i < Ships.Count; i++)
             {
-                Ship ship = Ships[index];
+                Ship ship = Ships[i];
                 if (ship.EMPdisabled || !ship.hasCommand || !ship.Active)
                     continue;
                 inCombat |= ship.InCombat;
@@ -387,16 +391,17 @@ namespace Ship_Game
 
         public CombatStatus FleetInAreaInCombat(Vector2 position, float radius)
         {
-            for (int x = 0; x < Ships.Count; ++x)
+            for (int i = 0; i < Ships.Count; ++i)
             {
-                Ship ship = Ships[x];
-                CombatStatus status = SetCombatMoveAtPositon(ship, position, radius);
+                Ship ship = Ships[i];
+                CombatStatus status = SetCombatMoveAtPosition(ship, position, radius);
                 if (status != CombatStatus.ClearSpace)
                     return status;
             }
             return CombatStatus.ClearSpace;
         }
-        protected CombatStatus SetCombatMoveAtPositon(Ship ship, Vector2 position, float radius)
+
+        protected CombatStatus SetCombatMoveAtPosition(Ship ship, Vector2 position, float radius)
         {
             if (ship.Center.OutsideRadius(position, radius))
                 return CombatStatus.ClearSpace;
@@ -408,6 +413,7 @@ namespace Ship_Game
             if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
             return CombatStatus.ClearSpace;
         }
+
         public void Dispose()
         {
             Destroy();

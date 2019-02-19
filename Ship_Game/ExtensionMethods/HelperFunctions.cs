@@ -37,7 +37,7 @@ namespace Ship_Game
             return null;
         }
 
-        private static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position)
+        static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position, CombatState state)
         {
             if (data == null)
                 return null;
@@ -49,7 +49,11 @@ namespace Ship_Game
                 DataNodes = new BatchRemovalCollection<FleetDataNode>()
             };
             foreach (FleetDataNode node in data.Data)
-                fleet.DataNodes.Add(node);
+            {
+                FleetDataNode cloned = node.Clone();
+                cloned.CombatState = state;
+                fleet.DataNodes.Add(cloned);
+            }
             fleet.Name           = data.Name;
             fleet.FleetIconIndex = data.FleetIconIndex;
 
@@ -58,21 +62,22 @@ namespace Ship_Game
                 {
                     Ship s = Ship.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
                     if (s == null) continue;
+                    s.AI.CombatState = node.CombatState;
                     s.RelativeFleetOffset = node.FleetOffset;
                     node.Ship = s;
-                    node.OrdersRadius = node.OrdersRadius >1 ? node.OrdersRadius : s.SensorRange * node.OrdersRadius;
+                    node.OrdersRadius = node.OrdersRadius > 1 ? node.OrdersRadius : s.SensorRange * node.OrdersRadius;
                     fleet.AddShip(s);
                 }
             return fleet;
         }
 
-        public static Fleet CreateDefensiveFleetAt(string fleetUid, Empire owner, Vector2 position)
+        public static Fleet CreateFleetAt(string fleetUid, Empire owner, Vector2 position, CombatState state)
         {
-            return CreateFleetFromData(LoadFleetDesign(fleetUid), owner, position);
+            return CreateFleetFromData(LoadFleetDesign(fleetUid), owner, position, state);
         }
-        public static void CreateFleetAt(string fleetUid, Empire owner, Vector2 position)
+        public static void CreateFirstFleetAt(string fleetUid, Empire owner, Vector2 position, CombatState state)
         {
-            Fleet fleet = CreateDefensiveFleetAt(fleetUid, owner, position);
+            Fleet fleet = CreateFleetAt(fleetUid, owner, position, state);
             if (fleet != null)
                 owner.FirstFleet = fleet;
         }
