@@ -38,8 +38,7 @@ namespace Ship_Game.SpriteSystem
 
         public void Update(float deltaTime)
         {
-            if (Anim != null)
-                Anim.Update(deltaTime);
+            Anim?.Update(deltaTime);
         }
 
         public void Draw(SpriteBatch batch, Vector2 screenPos, float scale, Color color)
