@@ -283,7 +283,7 @@ namespace Ship_Game.AI
                             message.Append('\n').Append(tile.Name).Append(" on ").Append(planet.Name);
                     }
 
-                    if (system.combatTimer > 0)
+                    if (system.HostileForcesPresent(Owner.loyalty))
                         message.Append("\nCombat in system!!!");
 
                     if (system.OwnerList.Count > 0 && !system.OwnerList.Contains(Owner.loyalty))

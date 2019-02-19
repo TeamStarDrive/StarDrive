@@ -16,20 +16,22 @@ namespace Ship_Game.Universe.SolarBodies
         private SolarSystem ParentSystem => SolarSystemBody.ParentSystem;
         private int TurnsSinceTurnover => SolarSystemBody.TurnsSinceTurnover;
         private float ShieldStrengthCurrent => SolarSystemBody.ShieldStrengthCurrent;
-        //private readonly TroopManager TroopManager;
         private float Population => SolarSystemBody.Population;
         private Shield Shield => SolarSystemBody.Shield;
         private Vector2 Center => SolarSystemBody.Center;
         private SceneObject SO => SolarSystemBody.SO;
         private bool HasSpacePort => SolarSystemBody.HasSpacePort;
         private int Level => SolarSystemBody.Level;
-        private Map<Guid,Ship> Stations => SolarSystemBody.OrbitalStations;
-        private float RepairPerTurn => SolarSystemBody.RepairPerTurn;        
+        Map<Guid,Ship> Stations => SolarSystemBody.OrbitalStations;
+        float RepairPerTurn => SolarSystemBody.RepairPerTurn;        
         
+        float SystemCombatTimer;
+
         public GeodeticManager (Planet planet)
         {
             SolarSystemBody = planet;
         }
+
         private int CountShipYards()
         {
             int shipYardCount =0;
@@ -40,9 +42,13 @@ namespace Ship_Game.Universe.SolarBodies
             }
             return shipYardCount;
         }
-        public void Update(float elaspedTime)
+
+        public void Update(float elapsedTime)
         {
-            
+            if (SolarSystemBody.ParentSystem.HostileForcesPresent(Owner))
+                SystemCombatTimer += elapsedTime;
+            else
+                SystemCombatTimer = 0f;
         }
 
         private void PlayPlanetSfx(string name, Vector3 position) => SolarSystemBody.PlayPlanetSfx(name, position);
@@ -347,7 +353,7 @@ namespace Ship_Game.Universe.SolarBodies
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
             using (TroopsHere.AcquireWriteLock())
             {
-                if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty
+                if ((ship.InCombat && ParentSystem.HostileForcesPresent(ship.loyalty)) || TroopsHere.IsEmpty
                     || TroopsHere.Any(troop => troop.Loyalty != Owner))
                     return;
                 foreach (var pgs in TilesList)
@@ -369,10 +375,11 @@ namespace Ship_Game.Universe.SolarBodies
 
         private void AddTroopsForFactions(Ship ship)
         {
-            if (ParentSystem.combatTimer < -30 && ship.TroopCapacity > ship.TroopList.Count)
+            // @todo Wyvern logic needs a better implementation :|
+            if (SystemCombatTimer > 30 && ship.TroopCapacity > ship.TroopList.Count)
             {
                 ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
-                ParentSystem.combatTimer = 0;
+                SystemCombatTimer = 0;
             }
             /* FB: this code is unclear, why is it being run for all planets with pop > 0 ?
             if (ship.Carrier.HasTroopBays)
