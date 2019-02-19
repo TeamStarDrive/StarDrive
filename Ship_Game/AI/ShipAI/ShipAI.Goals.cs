@@ -8,6 +8,20 @@ namespace Ship_Game.AI
     public sealed partial class ShipAI
     {
 
+        public bool FindGoal(Plan plan, out ShipGoal goal)
+        {
+            foreach (ShipGoal g in OrderQueue)
+            {
+                if (g.Plan == plan)
+                {
+                    goal = g;
+                    return true;
+                }
+            }
+            goal = null;
+            return false;
+        }
+
         public void AddToOrderQueue(ShipGoal goal)
         {
             OrderQueue.Enqueue(goal);
@@ -33,6 +47,11 @@ namespace Ship_Game.AI
         public void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit)
         {
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f));
+        }
+
+        public void AddTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer = 120f)
+        {
+            OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, freighter, blockadeTimer));
         }
 
         public bool AddShipGoal(Plan plan, Planet target, string variableString = "")
@@ -81,6 +100,7 @@ namespace Ship_Game.AI
             public readonly float SpeedLimit;
             public readonly string VariableString;
             public readonly float VariableNumber;
+            public TradePlan Trade;
 
             public override string ToString() => $"{Plan} pos:{MovePosition} dir:{Direction}";
 
@@ -89,17 +109,29 @@ namespace Ship_Game.AI
                 Plan = plan;
             }
 
-            public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet planet, Goal theGoal,
+            public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal,
                             float speedLimit, string variableString, float variableNumber)
             {
                 Plan         = plan;
                 MovePosition = pos;
                 Direction    = dir;
-                TargetPlanet = planet;
+                TargetPlanet = targetPlanet;
                 Goal         = theGoal;
                 SpeedLimit   = speedLimit;
                 VariableString = variableString;
                 VariableNumber = variableNumber;
+            }
+
+            public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, Ship freighter, float blockadeTimer)
+            {
+                Plan = plan;
+                Trade = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
+            }
+
+            public ShipGoal(Plan plan, SavedGame.TradePlanSave tp, UniverseData data)
+            {
+                Plan = plan;
+                Trade = new TradePlan(tp, data);
             }
 
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
@@ -134,6 +166,44 @@ namespace Ship_Game.AI
             }
         }
 
+        public class TradePlan
+        {
+            public Goods Goods       { get; private set; }
+            public Planet ExportFrom { get; private set; }
+            public Planet ImportTo   { get; private set; }
+            public float BlockadeTimer; // indicates how much time to wait with freight when trade is blocked
+
+            public TradePlan(Planet exportPlanet, Planet importPlanet, Goods goodsType, Ship freighter, float blockadeTimer)
+            {
+                ExportFrom    = exportPlanet;
+                ImportTo      = importPlanet;
+                Goods         = goodsType;
+                BlockadeTimer = blockadeTimer;
+
+                RegisterTrade(freighter);
+            }
+            
+            public void RegisterTrade(Ship freighter)
+            {
+                ExportFrom.AddToOutgoingFreighterList(freighter);
+                ImportTo.AddToIncomingFreighterList(freighter);
+            }
+
+            public void UnregisterTrade(Ship freighter)
+            {
+                ExportFrom.RemoveFromOutgoingFreighterList(freighter);
+                ImportTo.RemoveFromIncomingFreighterList(freighter);
+            }
+
+            public TradePlan(SavedGame.TradePlanSave save, UniverseData data)
+            {
+                Goods         = save.Goods;
+                ExportFrom    = data.FindPlanet(save.ExportFrom);
+                ImportTo      = data.FindPlanet(save.ImportTo);
+                BlockadeTimer = save.BlockadeTimer;
+            }
+        }
+
         public enum Plan
         {
             Stop,
@@ -153,8 +223,6 @@ namespace Ship_Game.AI
             DoCombat,
             Trade,
             DefendSystem,
-            PickupPassengers,
-            DropoffPassengers,
             DeployStructure,
             PickupGoods,
             DropOffGoods,

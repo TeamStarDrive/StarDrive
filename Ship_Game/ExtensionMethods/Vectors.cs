@@ -18,6 +18,10 @@ namespace Ship_Game
         public static Vector2 Down  = new Vector2( 0,  1);
         public static Vector2 Left  = new Vector2(-1,  0);
         public static Vector2 Right = new Vector2( 1,  0);
+        public static Vector2 TopLeft  => new Vector2(-1, -1);
+        public static Vector2 TopRight => new Vector2(+1, -1);
+        public static Vector2 BotLeft  => new Vector2(-1, +1);
+        public static Vector2 BotRight => new Vector2(+1, +1);
 
 
         public static Vector2 Clamped(this Vector2 v, float minXy, float maxXy)

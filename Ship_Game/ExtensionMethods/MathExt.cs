@@ -62,6 +62,14 @@ namespace Ship_Game
             if (value >= (max-0.000001f)) return max;
             return value;
         }
+
+        public static double Clamped(this double value, double min, double max)
+        {
+            if (value <= (min+0.000001)) return min;
+            if (value >= (max-0.000001)) return max;
+            return value;
+        }
+
         public static int Clamped(this int value, int min, int max)
         {
             return Max(min, Min(value, max));
@@ -213,6 +221,12 @@ namespace Ship_Game
                 return 0f; // Up
             return (float)(PI - Atan2(direction.X, direction.Y));
         }
+
+        
+        public static float RadiansUp    = 0f;
+        public static float RadiansRight = (float)PI*0.5f;
+        public static float RadiansDown  = (float)PI;
+        public static float RadiansLeft  = (float)PI + (float)PI*0.5f;
 
         // Converts a direction vector to degrees
         public static float ToDegrees(this Vector2 direction)
@@ -398,7 +412,7 @@ namespace Ship_Game
             if (denom == 0)
             {
                 // lines are collinear or parallel
-                hit = default(Point);
+                hit = default;
                 return false;
             }
             int dxC = c.X - a.X;
@@ -409,7 +423,7 @@ namespace Ship_Game
             if (t < 0 || t > 1 || u < 0 || u > 1)
             {
                 // line segments do not intersect within their ranges
-                hit = default(Point);
+                hit = default;
                 return false;
             }
             hit = new Point(a.X + (int)(dxA * t), 
@@ -418,52 +432,45 @@ namespace Ship_Game
         }
 
 
-        // Liang-Barsky line clipping algorithm
-        // @note This algorithm relies on Y down !! It will not work with Y up
-        // Takes an axis aligned bounding rect (0..boundsWidth)x(0..boundsHeight)
-        // and two points that form a line [start, end]
-        // If result is true (which means line [start,end] intersects bounds) then
-        // output is [clippedStart, clippedEnd]. Otherwise no result is written.
-        // http://www.skytopia.com/project/articles/compsci/clipping.html
-        public static bool ClipLineWithBounds(
-            int boundsWidth, int boundsHeight, // Define the x/y clipping values for the border.
-            Point start, Point end,            // Define the start and end points of the line.
-            ref Point clippedStart, ref Point clippedEnd)  // The clipped points
+        /// <summary>Attempt to intersect two line segments.</summary>
+        /// <param name="a">Start of line AB.</param>
+        /// <param name="b">End of line AB.</param>
+        /// <param name="c">Start of line CD.</param>
+        /// <param name="d">End of line CD.</param>
+        /// <param name="hit">The point of intersection if within the line segments, or empty..</param>
+        /// <returns><c>true</c> if the line segments intersect, otherwise <c>false</c>.</returns>
+        public static bool TryLineIntersect(Vector2 a, Vector2 b, Vector2 c, Vector2 d, out Vector2 hit)
         {
-            float t0 = 0f, t1 = 1f;
-            int dx = end.X - start.X;
-            int dy = end.Y - start.Y;
-            int p = 0, q = 0;
-            int lastX = boundsWidth - 1, lastY = boundsHeight - 1;
-            for (int edge = 0; edge < 4; ++edge)
+            float dxA = b.X - a.X;
+            float dyA = b.Y - a.Y;
+            float dxD = d.X - c.X;
+            float dyD = d.Y - c.Y;
+
+            // t = (q − p) × s / (r × s)
+            // u = (q − p) × r / (r × s)
+            float denom = dxA*dyD - dyA*dxD;
+            if (denom.AlmostZero())
             {
-                switch (edge) // Traverse through left, right, bottom, top edges.
-                {
-                    case 0: p = -dx; q = start.X;         break; // left  edge check
-                    case 1: p =  dx; q = lastX - start.X; break; // right edge check
-                    case 2: p =  dy; q = lastY - start.Y; break; // bottom edge check
-                    case 3: p = -dy; q = start.Y;         break; // top edge check
-                }
-                if (p == 0 && q < 0)
-                    return false;   // (parallel line outside)
-                float r = q / (float)p;
-                if (p < 0)
-                {
-                    if (r > t1) return false; // line will clip too far, we're out of bounds
-                    if (r > t0) t0 = r;       // clip line from start towards end
-                }
-                else if (p > 0)
-                {
-                    if (r < t0) return false; // line will clip too far, we're out of bounds
-                    if (r < t1) t1 = r;       // clip line from end towards start
-                }
+                // lines are collinear or parallel
+                hit = default;
+                return false;
             }
-            clippedStart.X = Max(0, Min((int)(start.X + t0 * dx), lastX));
-            clippedStart.Y = Max(0, Min((int)(start.Y + t0 * dy), lastY));
-            clippedEnd.X   = Max(0, Min((int)(start.X + t1 * dx), lastX));
-            clippedEnd.Y   = Max(0, Min((int)(start.Y + t1 * dy), lastY));
+            float dxC = c.X - a.X;
+            float dyC = c.Y - a.Y;
+            float t = (dxC * dyD - dyC * dxD) / denom;
+            float u = (dxC * dyA - dyC * dxA) / denom;
+
+            if (t < 0 || t > 1 || u < 0 || u > 1)
+            {
+                // line segments do not intersect within their ranges
+                hit = default;
+                return false;
+            }
+            hit = new Vector2(a.X + (dxA * t), 
+                              a.Y + (dyA * t));
             return true;
         }
+
 
         // Liang-Barsky line clipping algorithm
         // @note This algorithm relies on Y down !! It will not work with Y up

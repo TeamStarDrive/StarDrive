@@ -101,7 +101,7 @@ namespace Ship_Game.AI
                     case ShipData.Category.Reckless:
                         weight += SmallAttackWeight * 2f;
                         break;
-                    case ShipData.Category.Netural:
+                    case ShipData.Category.Neutral:
                         weight += SmallAttackWeight / 2f;
                         break;
                     default:
@@ -111,7 +111,7 @@ namespace Ship_Game.AI
             }
             if (surfaceArea > 30 && surfaceArea < 100)
             {                
-                weight += Owner.shipData.ShipCategory == ShipData.Category.Netural ?  MediumAttackWeight *= 1.5f : MediumAttackWeight;                
+                weight += Owner.shipData.ShipCategory == ShipData.Category.Neutral ?  MediumAttackWeight *= 1.5f : MediumAttackWeight;                
             }
             if (surfaceArea > 100)
             {
@@ -119,7 +119,7 @@ namespace Ship_Game.AI
                     case ShipData.Category.Reckless:
                         weight += LargeAttackWeight /2f;
                         break;
-                    case ShipData.Category.Netural:
+                    case ShipData.Category.Neutral:
                         weight += LargeAttackWeight * 2f;
                         break;
                     default:

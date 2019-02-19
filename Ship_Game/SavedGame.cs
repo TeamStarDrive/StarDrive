@@ -167,8 +167,14 @@ namespace Ship_Game
                             prodHere             = ring.planet.ProdHere,
                             ColonyType           = ring.planet.colonyType,
                             StationsList         = new Array<Guid>(),
-                            SpecialDescription = ring.planet.SpecialDescription
+                            SpecialDescription   = ring.planet.SpecialDescription
                         };
+
+                        if (ring.planet.IncomingFreighters.Count > 0)
+                            pdata.IncomingFreighters = ring.planet.IncomingFreighters.Select(p => p.guid);
+                        if (ring.planet.OutgoingFreighters.Count > 0)
+                            pdata.OutgoingFreighters = ring.planet.OutgoingFreighters.Select(p => p.guid);
+
                         foreach (var station in ring.planet.OrbitalStations)
                         {
                             if (station.Value.Active) pdata.StationsList.Add(station.Key);
@@ -317,8 +323,8 @@ namespace Ship_Game
                 {
                     var rdata = new SpaceRoadSave
                     {
-                        OriginGUID = road.GetOrigin().guid,
-                        DestGUID = road.GetDestination().guid,
+                        OriginGUID = road.Origin.guid,
+                        DestGUID = road.Destination.guid,
                         RoadNodes = new Array<RoadNodeSave>()
                     };
                     foreach (RoadNode node in road.RoadNodesList)
@@ -439,7 +445,6 @@ namespace Ship_Game
 
                     sdata.AISave = new ShipAISave
                     {
-                        FoodOrProd = ship.AI.GetTradeTypeString(),
                         state      = ship.AI.State
                     };
                     if (ship.AI.Target is Ship targetShip)
@@ -447,31 +452,35 @@ namespace Ship_Game
                         sdata.AISave.AttackTarget = targetShip.guid;
                     }
                     sdata.AISave.defaultstate = ship.AI.DefaultAIState;
-                    if (ship.AI.start != null)
-                    {
-                        sdata.AISave.startGuid = ship.AI.start.guid;
-                    }
-                    if (ship.AI.end != null)
-                    {
-                        sdata.AISave.endGuid = ship.AI.end.guid;
-                    }
                     sdata.AISave.MovePosition = ship.AI.MovePosition;
                     sdata.AISave.ActiveWayPoints = new Array<Vector2>(ship.AI.CopyWayPoints());
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
                     foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
                     {
-                        sdata.AISave.ShipGoalsList.Add(new ShipGoalSave
+                        var s = new ShipGoalSave
                         {
-                            Plan           = sg.Plan,
-                            DesiredFacing  = sg.Direction.ToRadians(),
+                            Plan = sg.Plan,
+                            DesiredFacing = sg.Direction.ToRadians(),
                             VariableString = sg.VariableString,
-                            SpeedLimit     = sg.SpeedLimit,
-                            MovePosition   = sg.MovePosition,
-                            fleetGuid      = sg.Fleet?.Guid ?? Guid.Empty,
-                            goalGuid       = sg.Goal?.guid  ?? Guid.Empty,
+                            SpeedLimit = sg.SpeedLimit,
+                            MovePosition = sg.MovePosition,
+                            fleetGuid = sg.Fleet?.Guid ?? Guid.Empty,
+                            goalGuid = sg.Goal?.guid ?? Guid.Empty,
                             TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
-                        });
+                        };
+                        if (sg.Trade != null)
+                        {
+                            s.Trade = new TradePlanSave
+                            {
+                                Goods         = sg.Trade.Goods,
+                                ExportFrom    = sg.Trade.ExportFrom?.guid ?? Guid.Empty,
+                                ImportTo      = sg.Trade.ImportTo?.guid ?? Guid.Empty,
+                                BlockadeTimer = sg.Trade.BlockadeTimer,
+                            };
+                        }
+                        sdata.AISave.ShipGoalsList.Add(s);
                     }
+
                     if (ship.AI.OrbitTarget != null)
                     {
                         sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.guid;
@@ -534,7 +543,6 @@ namespace Ship_Game
                     sd.InCombatTimer = ship.InCombatTimer;
                     sd.AISave        = new ShipAISave
                     {
-                        FoodOrProd      = ship.AI.GetTradeTypeString(),
                         state           = ship.AI.State,
                         defaultstate    = ship.AI.DefaultAIState,
                         MovePosition    = ship.AI.MovePosition,
@@ -790,6 +798,8 @@ namespace Ship_Game
             [Serialize(31)] public bool ProdLock;
             [Serialize(32)] public float ShieldStrength;
             [Serialize(33)] public float MaxFertility;
+            [Serialize(34)] public Guid[] IncomingFreighters;
+            [Serialize(35)] public Guid[] OutgoingFreighters;
         }
 
         public struct ProjectileSaveData
@@ -860,6 +870,15 @@ namespace Ship_Game
             [Serialize(6)] public float DesiredFacing;
             [Serialize(7)] public float FacingVector;
             [Serialize(8)] public Guid TargetPlanetGuid;
+            [Serialize(9)] public TradePlanSave Trade;
+        }
+
+        public class TradePlanSave
+        {
+            [Serialize(0)] public Guid ExportFrom;
+            [Serialize(1)] public Guid ImportTo;
+            [Serialize(2)] public Goods Goods;
+            [Serialize(3)] public float BlockadeTimer;
         }
 
         public class ShipSaveData

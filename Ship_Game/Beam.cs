@@ -60,13 +60,15 @@ namespace Ship_Game
             Destination             = destination;
 
             TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
-            JitterRadius = Target?.Center.Distance(Jitter) ?? 0;
-            if (JitterRadius > 0)
-                WanderPath = Vector2.Normalize(destination - target.Center) * 8f;
-            if (float.IsNaN(WanderPath.X))
-                WanderPath = Vector2.Zero;
+            if (Target != null)
+            {
+                JitterRadius = Target.Center.Distance(Jitter);
+                WanderPath = (destination - Target.Center).Normalized() * 8f;
+                if (float.IsNaN(WanderPath.X))
+                    WanderPath = Vector2.Zero;
+            }
 
-            ActualHitDestination    = Destination;
+            ActualHitDestination = Destination;
             Initialize();
             weapon.ModifyProjectile(this);
 
@@ -93,7 +95,6 @@ namespace Ship_Game
             if (Owner != null)
             {
                 Loyalty = Owner?.loyalty ?? DroneAI?.Drone?.Loyalty; // set loyalty before adding to spatial manager
-
                 SetSystem(Owner?.System ?? DroneAI?.Drone?.System);
             }
             InitBeamMeshIndices();
@@ -145,9 +146,8 @@ namespace Ship_Game
                 BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath).Texture);
                 Displacement -= 0.05f;
                 if (Displacement < 0f)
-                {
                     Displacement = 1f;
-                }
+
                 BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, Displacement));
                 BeamEffect.Begin();
                 var rs = screenMgr.GraphicsDevice.RenderState;
@@ -220,13 +220,15 @@ namespace Ship_Game
             Indexes[5] = 3;
         }
 
-        public override bool Touch(GameplayObject target)
+        public new bool Touch(GameplayObject target)
         {
             if (target == null || target == Owner || target is Ship)
                 return false;
+
             if (target is Projectile projectile)
             {
-                if (!Weapon.Tag_PD && !Weapon.TruePD) return false;
+                if (!Weapon.Tag_PD && !Weapon.TruePD)
+                    return false;
                 if (projectile.Weapon?.Tag_Intercept != true || projectile.Weapon?.Tag_PD == true)
                     return false;
                 if (!Loyalty.IsEmpireAttackable(projectile.Loyalty))
@@ -270,12 +272,13 @@ namespace Ship_Game
             Source = srcCenter;
             if (ship != null && ship.Active && !DisableSpatialCollision)
             {
-                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f; //* .25f);
+                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f;
 
-                if (Destination.OutsideRadius(Target.Center, JitterRadius * .5f))
-                    WanderPath = Vector2.Normalize(Target.Center - Destination) * sweep;
+                if (Destination.OutsideRadius(Target.Center, JitterRadius * 0.5f))
+                    WanderPath = (Target.Center - Destination).Normalized() * sweep;
+
                 if (float.IsNaN(WanderPath.X))
-                    WanderPath = Vector2.Normalize(Target.Center - ActualHitDestination) * sweep;
+                    WanderPath = (Target.Center - ActualHitDestination).Normalized() * sweep;
             }
 
             if (FollowMouse)
@@ -286,14 +289,13 @@ namespace Ship_Game
             }
 
             // always update Destination to ensure beam stays in range
-            SetDestination( //FollowMouse
-                //? Empire.Universe.mouseWorldPos
+            SetDestination(
                 DisableSpatialCollision
                     ? Target?.Center ?? Destination
                     : Destination + WanderPath);
 
-
-            if (!BeamCollidedThisFrame) ActualHitDestination = Destination;
+            if (!BeamCollidedThisFrame)
+                ActualHitDestination = Destination;
 
             BeamCollidedThisFrame = false;
 

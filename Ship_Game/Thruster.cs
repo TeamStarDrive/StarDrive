@@ -145,7 +145,7 @@ namespace Ship_Game
         public void Update(Vector3 direction, float thrustsize, float thrustspeed, Vector3 camera_position)
         {
             var scaleFactors = new Vector3(tscale);
-            heat = MathHelper.Clamp(thrustsize, 0f, 1f);
+            heat = thrustsize.Clamped(0f, 1f);
             tick = tick + thrustspeed;
             colors[0] = Color.LightBlue; // END
             colors[1] = Color.OrangeRed; // EXHAUST

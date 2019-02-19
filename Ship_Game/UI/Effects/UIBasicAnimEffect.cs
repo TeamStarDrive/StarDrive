@@ -1,13 +1,15 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    enum AnimPattern
+    public enum AnimPattern
     {
         None,
         Sine, // Generates a sine wave pattern on the animation percent
+        Cosine, // Cosine wave pattern
     }
 
     public class UIBasicAnimEffect : UIEffect
@@ -15,6 +17,7 @@ namespace Ship_Game
         public float CurrentTime { get; private set; }
         public float EndTime     { get; private set; }
         public bool  Looping     { get; private set; }
+        public bool  Started     { get; private set; }
 
         public float Delay       = 0f;
         public float Duration    = 1f;
@@ -31,7 +34,16 @@ namespace Ship_Game
         public Color MinColor = Microsoft.Xna.Framework.Graphics.Color.Black;
         public Color MaxColor = Microsoft.Xna.Framework.Graphics.Color.White;
 
-        public bool GenerateSineWave;
+        // if TRUE, then position 
+        public bool AnimatePosition;
+        public Vector2 StartPos;
+        public Vector2 EndPos;
+
+        public AnimPattern AnimPattern = AnimPattern.None;
+
+        public bool SoundEffects;
+        public string StartSfx;
+        public string EndSfx;
 
         public UIBasicAnimEffect(UIElementV2 element) : base(element)
         {
@@ -41,17 +53,43 @@ namespace Ship_Game
         /// <param name="duration">Duration of fadeIn/stay/fadeOut</param>
         /// <param name="fadeIn">Fade in time</param>
         /// <param name="fadeOut">Fade out time</param>
+        ///
+        /// Examples:
+        ///   -- total time is 2 seconds
+        ///   -- animation starts after 1.0s
+        ///   -- there is a 0.25s fade in period, 0.5s stay period and 0.25s fade out period
+        ///   Time(1.0f, 1.0f, 0.25f, 0.25f);
+        ///
+        ///   -- total time is 0.5s
+        ///   -- entire animation consists of 0.5s fade-in
+        ///   Time(0, 0.5f, 0.5f, 0);
+        /// 
+        ///   -- total time is 0.5s
+        ///   -- entire animation consists of 0.5s fade-in
+        ///   Time(0, 0.5f, 0, 0.5f);
         public UIBasicAnimEffect Time(float delay, 
-                                  float duration = 1f, 
-                                  float fadeIn   = 0.25f, 
-                                  float fadeOut  = 0.25f)
+                                      float duration = 1f, 
+                                      float fadeIn   = 0.25f, 
+                                      float fadeOut  = 0.25f)
         {
-            Delay    = delay;
-            Duration = duration;
+            Delay       = delay;
+            Duration    = duration;
             DurationIn  = fadeIn;
             DurationOut = fadeOut;
-            EndTime = delay + duration;
+            EndTime     = delay + duration;
             return this;
+        }
+
+        // Only fades in the animation, no fade out or stay
+        public UIBasicAnimEffect FadeIn(float delay, float duration = 1f)
+        {
+            return Time(delay, duration, duration, 0);
+        }
+
+        // Only fades out the animation, no fade in or stay
+        public UIBasicAnimEffect FadeOut(float delay, float duration = 1f)
+        {
+            return Time(delay, duration, 0, duration);
         }
 
         // Always loop with loopTime
@@ -65,11 +103,11 @@ namespace Ship_Game
         // a simplified loop animation, always starts with 0 delay
         public UIBasicAnimEffect Loop(float duration, float fadeIn, float fadeOut)
         {
-            Delay = 0f;
-            Duration = EndTime = duration;
-            DurationIn = fadeIn;
+            Delay       = 0f;
+            Duration    = EndTime = duration;
+            DurationIn  = fadeIn;
             DurationOut = fadeOut;
-            Looping = true;
+            Looping     = true;
             return this;
         }
 
@@ -77,8 +115,8 @@ namespace Ship_Game
         public UIBasicAnimEffect Alpha(float min=0f, float max=1f) // [0.0 - 1.0]
         {
             AnimateAlpha = true;
-            MinAlpha = min;
-            MaxAlpha = max;
+            MinAlpha     = min;
+            MaxAlpha     = max;
             return this;
         }
 
@@ -86,22 +124,77 @@ namespace Ship_Game
         public UIBasicAnimEffect Color(Color minColor, Color maxColor)
         {
             AnimateColor = true;
-            MinColor = minColor;
-            MaxColor = maxColor;
+            MinColor     = minColor;
+            MaxColor     = maxColor;
             return this;
         }
 
         // Generates a sine wave pattern on the animation percent
         public UIBasicAnimEffect Sine()
         {
-            GenerateSineWave = true;
+            AnimPattern = AnimPattern.Sine;
             return this;
+        }
+
+        // Enable position transition animation
+        // @note This will PERMANENTLY reposition the UIElement to @endPos
+        public UIBasicAnimEffect Pos(Vector2 startPos, Vector2 endPos)
+        {
+            AnimatePosition = true;
+            Element.Pos     = startPos;
+            StartPos        = startPos;
+            EndPos          = endPos;
+            return this;
+        }
+
+        public UIBasicAnimEffect Sfx(string startSfx, string endSfx)
+        {
+            SoundEffects = true;
+            StartSfx     = startSfx;
+            EndSfx       = endSfx;
+            return this;
+        }
+
+        void OnAnimationDelayed()
+        {
+            UpdateAnimatedProperties(0f);
+        }
+        
+        void OnAnimationStart()
+        {
+            Started = true;
+            if (SoundEffects && StartSfx.NotEmpty())
+            {
+                GameAudio.PlaySfxAsync(StartSfx);
+            }
+        }
+
+        void OnAnimationProgress()
+        {
+            UpdateAnimatedProperties(CurrentAnimPercent());
+        }
+
+        void OnAnimationEnd()
+        {
+            UpdateAnimatedProperties(CurrentAnimPercent());
+
+            if (SoundEffects && EndSfx.NotEmpty())
+            {
+                GameAudio.PlaySfxAsync(EndSfx);
+            }
         }
 
         void UpdateAnimatedProperties(float ratio)
         {
-            if (GenerateSineWave)
-                ratio *= (float)Math.Sin(CurrentTime);
+            float relativeTime = CurrentTime - Delay;
+            if (AnimPattern == AnimPattern.Sine)
+            {
+                ratio = ratio*(float)Math.Sin(relativeTime);
+            }
+            else if (AnimPattern == AnimPattern.Cosine)
+            {
+                ratio = ratio*(float)Math.Cos(relativeTime);
+            }
 
             Animation = ratio;
 
@@ -118,6 +211,10 @@ namespace Ship_Game
                 }
                 ce.Color = color;
             }
+            if (AnimatePosition)
+            {
+                Element.Pos = StartPos.LerpTo(EndPos, Animation);
+            }
         }
 
         public override bool Update(float deltaTime)
@@ -125,6 +222,8 @@ namespace Ship_Game
             CurrentTime += deltaTime;
             if (CurrentTime > EndTime)
             {
+                OnAnimationEnd();
+                Started = false;
                 if (!Looping)
                     return true; // remove FX!
                 CurrentTime -= EndTime; // wrap around
@@ -132,12 +231,14 @@ namespace Ship_Game
 
             if (CurrentTime < Delay)
             {
-                UpdateAnimatedProperties(0f);
+                OnAnimationDelayed();
                 return false;
             }
 
-            float anim = CurrentAnimPercent();
-            UpdateAnimatedProperties(anim);
+            if (!Started)
+                OnAnimationStart();
+
+            OnAnimationProgress();
             return false;
         }
 

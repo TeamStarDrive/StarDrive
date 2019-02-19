@@ -508,7 +508,7 @@ namespace Ship_Game
         {
             if (EmpireManager.Remnants == null)
                 return;
-            Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetUid, EmpireManager.Remnants, where);
+            Fleet defensiveFleetAt = HelperFunctions.CreateFleetAt(fleetUid, EmpireManager.Remnants, where, CombatState.Artillery);
             var militaryTask = new MilitaryTask
             {
                 AO = where,
@@ -774,53 +774,6 @@ namespace Ship_Game
 
         }
 
-        void ClearParticles()
-        {
-            beamflashes.UnloadContent();
-            explosionParticles.UnloadContent();
-            photonExplosionParticles.UnloadContent();
-            explosionSmokeParticles.UnloadContent();
-            projectileTrailParticles.UnloadContent();
-            fireTrailParticles.UnloadContent();
-            smokePlumeParticles.UnloadContent();
-            fireParticles.UnloadContent();
-            engineTrailParticles.UnloadContent();
-            flameParticles.UnloadContent();
-            sparks.UnloadContent();
-            lightning.UnloadContent();
-            flash.UnloadContent();
-            star_particles.UnloadContent();
-            neb_particles.UnloadContent();
-        }
-
-        MultiShipData ComputeMultiShipCircle()
-        {
-            float num1 = 0.0f;
-            float num2 = 0.0f;
-            float num3 = 0.0f;
-            float num4 = 0.0f;
-            foreach (Ship ship in SelectedShipList)
-            {
-                num1 += ship.Position.X;
-                num2 += ship.Position.Y;
-                num3 += ship.Health;
-                num4 += ship.HealthMax;
-            }
-            float x = num1 / SelectedShipList.Count;
-            float y = num2 / SelectedShipList.Count;
-            var multiShipData = new MultiShipData();
-            multiShipData.status = num3 / num4;
-            multiShipData.weightedCenter = new Vector2(x, y);
-            multiShipData.Radius = 0.0f;
-            foreach (Ship gameplayObject in SelectedShipList)
-            {
-                float num5 = Vector2.Distance(gameplayObject.Position, multiShipData.weightedCenter);
-                if (num5 > multiShipData.Radius)
-                    multiShipData.Radius = num5;
-            }
-            //this.computeCircle = false;
-            return multiShipData;
-        }
 
         // Refactored by RedFox
         // this draws the colored empire borders
@@ -1005,13 +958,6 @@ namespace Ship_Game
             public Rectangle ClickRect;
             public Fleet Fleet;
             public int Key;
-        }
-
-        struct MultiShipData
-        {
-            public float status;
-            public Vector2 weightedCenter;
-            public float Radius;
         }
 
         public class FogOfWarNode

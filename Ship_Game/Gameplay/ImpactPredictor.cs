@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
 using static System.Math;
@@ -16,30 +17,34 @@ namespace Ship_Game.Gameplay
     {
         readonly Vector2 Pos; // Our Position
         readonly Vector2 Vel; // Our Velocity
-        readonly float Speed; // interception speed (projectile speed)
+        readonly float InterceptSpeed; // interception speed (projectile speed)
         readonly Vector2 TargetPos; // Target position
         readonly Vector2 TargetVel; // Target velocity
         readonly Vector2 TargetAcc; // Target acceleration
 
-        // This sets the maximum lookahead time in seconds
-        // Any impact time predictions beyond this are clamped
-        // @note This should be == max projectile health
-        readonly float MaxPredictionTime; 
-
-        // For weapon arc prediction
-        public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, float range, GameplayObject target)
+        // For generic ship movement prediction
+        public ImpactPredictor(Vector2 pos, Vector2 vel, float interceptSpeed,
+                               Vector2 targetPos, Vector2 targetVel, Vector2 targetAcc)
         {
             Pos = pos;
             Vel = vel;
-            Speed = speed;
+            InterceptSpeed = interceptSpeed;
+            TargetPos = targetPos;
+            TargetVel = targetVel;
+            TargetAcc = targetAcc;
+        }
+
+        // For weapon arc prediction
+        public ImpactPredictor(Vector2 pos, Vector2 vel, float interceptSpeed, 
+                               GameplayObject target)
+        {
+            Pos = pos;
+            Vel = vel;
+            InterceptSpeed = interceptSpeed;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
             TargetAcc = info.Acc;
-
-            // this will limit the pip from moving further than would be possible
-            float approxLifetime = range / speed;
-            MaxPredictionTime = approxLifetime * 1.1f;
         }
 
         // For generic ship movement prediction
@@ -47,11 +52,10 @@ namespace Ship_Game.Gameplay
         {
             Pos = pos;
             Vel = vel;
-            Speed = 0f;
+            InterceptSpeed = 0f;
             TargetPos = targetPos;
             TargetVel = Vector2.Zero;
             TargetAcc = Vector2.Zero;
-            MaxPredictionTime = 0f;
         }
 
         // This is used during interception / attack runs
@@ -59,20 +63,18 @@ namespace Ship_Game.Gameplay
         {
             Pos = ourShip.Center;
             Vel = ourShip.Velocity;
-            Speed = ourShip.AvgProjectileSpeed;
+            InterceptSpeed = ourShip.AvgProjectileSpeed;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
             TargetAcc = info.Acc;
-            MaxPredictionTime = 0f;
-            MaxPredictionTime = TimeToTarget(target.Center) * 1.5f;
         }
 
         public ImpactPredictor(Projectile proj, GameplayObject target)
         {
             Pos = proj.Center;
             Vel = proj.Velocity;
-            Speed = proj.Speed;
+            InterceptSpeed = proj.Speed;
             // guided missiles should not account for speed, since they are
             // ramming devices and always have more velocity
             //if (proj.Weapon.Tag_Guided)
@@ -81,61 +83,24 @@ namespace Ship_Game.Gameplay
             TargetPos = info.Pos;
             TargetVel = info.Vel;
             TargetAcc = info.Acc;
-            MaxPredictionTime = Max(0.1f, proj.Duration);
         }
 
         static TargetInfo GetTargetInfo(GameplayObject target)
         {
             if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
             {
-                return new TargetInfo { Pos = target.Center, Vel = ship.Velocity, Acc = ship.Acceleration };
+                return new TargetInfo
+                {
+                    Pos = target.Center,
+                    Vel = ship.Velocity,
+                    Acc = ship.Acceleration
+                };
             }
-            return new TargetInfo { Pos = target.Center, Vel = target.Velocity };
-        }
-
-        Vector2 PredictImpactOld()
-        {
-            Vector2 vectorToTarget = TargetPos - Pos;
-            Vector2 projectileVelocity = Vel + Vel.Normalized() * Speed;
-            float distance = vectorToTarget.Length();
-            float time = distance / projectileVelocity.Length();
-            return TargetPos + TargetVel * time;
-        }
-
-        // assume we have a relative reference frame and weaponPos is stationary
-        // use additional calculations to set up correct interceptSpeed and deltaVel
-        // https://stackoverflow.com/a/2249237
-        float PredictImpactTime(Vector2 deltaV, float speed)
-        {
-            Vector2 distance = TargetPos - Pos;
-
-            float a = deltaV.Dot(deltaV) - (speed * speed);
-            float bm = 2f * distance.Dot(deltaV);
-            float c = distance.Dot(distance);
-
-            // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
-            if (Abs(a) < 0.0001f)
-                return 0f; // no solution
-
-            float sqrt = bm * bm - 4 * a * c;
-            if (sqrt < 0.0f)
-                return 0f; // no solution
-            sqrt = (float)Sqrt(sqrt);
-
-            // Those values are the time values at which point you can hit the target.
-            float timeToImpact1 = (bm - sqrt) / (2 * a);
-            float timeToImpact2 = (bm + sqrt) / (2 * a);
-
-            #if DEBUG
-            if (float.IsNaN(timeToImpact1) || float.IsNaN(timeToImpact2))
-                Log.Error("timeToImpact was NaN!");
-            #endif
-
-            // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
-            // Take any of the remaining positive values (probably the smaller one).
-            if (timeToImpact1 < 0f) return Max(0f, timeToImpact2);
-            if (timeToImpact2 < 0f) return timeToImpact1;
-            return Min(timeToImpact1, timeToImpact2);
+            return new TargetInfo
+            {
+                Pos = target.Center,
+                Vel = target.Velocity
+            };
         }
 
         // http://www.dummies.com/education/science/physics/finding-distance-using-initial-velocity-time-and-acceleration/
@@ -151,123 +116,76 @@ namespace Ship_Game.Gameplay
             return pos + vel * time;
         }
 
-        float TimeToTarget(Vector2 target) => Pos.Distance(target) / Speed;
-
-        float PredictImpactTimeAdjusted(Vector2 deltaV)
+        public static float TimeToTarget(Vector2 pos, Vector2 target, float speed)
         {
-            float impactTime = PredictImpactTime(deltaV, Speed);
-            if (impactTime > MaxPredictionTime)
-                impactTime = MaxPredictionTime;
-            else if (impactTime <= 0f)
-                impactTime = TimeToTarget(TargetPos); // default fallback
-            return impactTime;
+            if (speed.AlmostZero())
+                return 0f;
+            return pos.Distance(target) / speed;
         }
 
-        Vector2 PredictImpactQuad()
+        void DebugPip(string text, Vector2 predicted, float spd, float t, in Color color)
         {
-            if (Speed.AlmostEqual(0f, 0.01f))
-                return TargetPos;
-
-            Vector2 deltaV = TargetVel - Vel;
-            float impactTime = PredictImpactTimeAdjusted(deltaV);
-            return ProjectPosition(TargetPos, deltaV, impactTime);
+            //float d = Pos.Distance(TargetPos);
+            //Console.WriteLine($"PIP {text} ({predicted.X.String(1)} {predicted.Y.String(1)}) d:{d.String()}m {t.String(2)}s|{spd.String()}m/s");
+            Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"{text}: {t.String(2)}", color, 0f);
         }
 
-        Vector2 PredictImpactQuad(Vector2 targetAccel)
+        Vector2 PredictProjectileImpact(Vector2 targetAcc)
         {
-            if (Speed.AlmostEqual(0f, 0.01f))
-                return TargetPos;
+            float interceptSpeed = InterceptSpeed.NotZero() ? InterceptSpeed : Vel.Length();
 
-            Vector2 deltaV = TargetVel - Vel;
-            float impactTime = PredictImpactTimeAdjusted(deltaV);
+            // due to how StarDrive handles projectile speed limit, we don't use deltaV,
+            // just TargetVel. In fully newtonian model we would require deltaV.
+            //Vector2 deltaV = Vel - TargetVel;
+            float time = PredictImpactTime(Pos, TargetPos, -TargetVel, interceptSpeed);
 
-            // project target position at impactTime
-            Vector2 pip = ProjectPosition(TargetPos, deltaV, targetAccel, impactTime);
-
-            float impactTime2 = TimeToTarget(pip); // t = s/v
-            if (impactTime2 <= 0f)
-                return TargetPos; // incase of head-on collision
-
-            // this is the final corrected PIP:
-            Vector2 pip2 = ProjectPosition(TargetPos, deltaV, targetAccel, impactTime2);
-            return pip2;
-        }
-
-        Vector2 PredictImpactIter(Vector2 targetAccel)
-        {
-            if (Speed.AlmostEqual(0f, 0.01f))
-                return TargetPos;
-
-            float time = TimeToTarget(TargetPos);
-            Vector2 deltaV = TargetVel - Vel;
-
-            // objects are separating faster than projectile can catch up, so this means
-            // the projectile might never hit?
-            if (deltaV.Length().Greater(Speed+0.1f))
-                return ProjectPosition(TargetPos, deltaV, targetAccel, time);
-
-            Vector2 predictedPos = default;
-
-            for (int i = 0; i < 20; ++i)
+            Vector2 predicted;
+            if (time > 0f)
             {
-                predictedPos = ProjectPosition(TargetPos, deltaV, targetAccel, time);
-                float newTime = TimeToTarget(predictedPos);
-                if (newTime > 20f || time.AlmostEqual(newTime, 0.01666f))
-                    return predictedPos;
-                time = newTime;
+                predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
+                //DebugPip("PERFECT", predicted, interceptSpeed, time, Color.Green);
             }
-            return predictedPos;
-        }
-
-        Vector2 PredictImpactIter()
-        {
-            if (Speed.AlmostEqual(0f, 0.01f))
-                return TargetPos;
-
-            float time = TimeToTarget(TargetPos);
-            Vector2 deltaV = TargetVel - Vel;
-
-            // objects are separating faster than projectile can catch up, so this means
-            // the projectile might never hit?
-            if (deltaV.Length().Greater(Speed+0.1f))
-                return ProjectPosition(TargetPos, deltaV, time);
-
-            Vector2 predictedPos = default;
-
-            for (int i = 0; i < 20; ++i)
+            // intercept is behind us in time, which means we should have fired the projectile X seconds ago
+            else if (time < 0f) 
             {
-                predictedPos = ProjectPosition(TargetPos, deltaV, time);
-                float newTime = TimeToTarget(predictedPos);
-                if (newTime > 20f || time.AlmostEqual(newTime, 0.01666f))
-                    return predictedPos;
-                time = newTime;
+                predicted = ProjectPosition(TargetPos, TargetVel, TargetAcc, -time);
+                //DebugPip("BEHIND", predicted, interceptSpeed, time, Color.Orange);
             }
-            return predictedPos;
+            else // no solution, fall back to default time estimate
+            {
+                time = TimeToTarget(Pos, TargetPos, interceptSpeed);
+                predicted = ProjectPosition(TargetPos, TargetVel, targetAcc, time);
+
+                // edge case: Pos == TargetPos, they will collide with us head on
+                if (Pos.Distance(predicted) <= 8f)
+                {
+                    predicted = TargetPos;
+                    //DebugPip("COLLIDE", predicted, interceptSpeed, time, Color.Yellow);
+                }
+                else
+                {
+                    //DebugPip("NOSOLT", predicted, interceptSpeed, time, Color.Red);
+                }
+            }
+            return predicted;
         }
 
         // @param advancedTargeting If TRUE, targeting will account for Acceleration
         //                          which yields even more accurate target prediction!
         public Vector2 Predict(bool advancedTargeting)
         {
-            // @note Validated via DeveloperSandbox DebugPlatform simulations
-            // Quad is very accurate if speed is constant
-            // Quad has a tendency to over predict when accelerating
-            //Vector2 quad = PredictImpactQuad();
-
             //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactQuad(), 50f, Color.Cyan, 0f);
             //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(), 60f, Color.LawnGreen, 0f);
             //Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, PredictImpactIter(TargetAcc), 70f, Color.HotPink, 0f);
 
-            // Iter is just as accurate when speed is constant
-            // Iter is quite accurate even when accelerating
-            // For this reason, we will favor ITER
+            // quite accurate even when accelerating
             if (!advancedTargeting)
-                return PredictImpactIter();
+                return PredictProjectileImpact(Vector2.Zero);
 
             // by using Target acceleration, we get superhuman target prediction
             // even when ships are accelerating. There is almost no overshooting, even small
             // fighters get shot out of the sky by PD/Flak
-            return PredictImpactIter(TargetAcc);
+            return PredictProjectileImpact(TargetAcc);
         }
 
         // @note This is different than weapon prediction
@@ -284,5 +202,73 @@ namespace Ship_Game.Gameplay
             Vector2 movePos = TargetPos + left*(dot*speed);
             return movePos;
         }
+
+        public static Vector2 ThrustOffset(Vector2 ourPos, Vector2 ourVel, Vector2 targetPos, float magnitude = 1f)
+        {
+            Vector2 forward = ourPos.DirectionToTarget(targetPos);
+            Vector2 left = forward.LeftVector(); // perpendicular to forward vector
+            float dot = -left.Dot(ourVel.Normalized()); // get the velocity negation direction
+            float speed = ourVel.Length(); // negation magnitude
+
+            // only place movePos on the same axis as left vector
+            Vector2 movePos = targetPos + left*(dot*speed);
+            if (magnitude.NotEqual(1f))
+                movePos = targetPos.LerpTo(movePos, magnitude);
+            return movePos;
+        }
+
+        // assume we have a relative reference frame and weaponPos is stationary
+        // use additional calculations to set up correct interceptSpeed and deltaVel
+        // https://stackoverflow.com/a/2249237
+        // @param shooter Position of shooter
+        // @param target  Position of target
+        // @param targetVel Velocity of target
+        // @param projectileSpeed Speed of intercepting projectile
+        // @return Closest impact time. If time is negative, then impact is somewhere behind us
+        public static float PredictImpactTime(Vector2 shooter, Vector2 target, Vector2 targetVel, float projectileSpeed)
+        {
+            double dx = target.X - shooter.X;
+            double dy = target.Y - shooter.Y;
+            double vx = targetVel.X;
+            double vy = targetVel.Y;
+
+            double a = (vx*vx) + (vy*vy) - (projectileSpeed*projectileSpeed);
+            double bm = 2.0 * (vx*dx + vy*dy);
+            double c = dx*dx + dy*dy;
+
+            // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
+            if (Abs(a) < 0.0001)
+                return 0f; // no solution
+
+            double sqrt = bm * bm - 4.0 * a * c;
+            if (sqrt < 0.0)
+                return 0f; // no solution
+            sqrt = (float)Sqrt(sqrt);
+
+            // Those values are the time values at which point you can hit the target.
+            double timeToImpact1 = (bm - sqrt) / (2.0 * a);
+            double timeToImpact2 = (bm + sqrt) / (2.0 * a);
+
+            timeToImpact1 = timeToImpact1.Clamped(-60.0, +60.0);
+            timeToImpact2 = timeToImpact2.Clamped(-60.0, +60.0);
+
+            #if DEBUG
+            if (double.IsNaN(timeToImpact1) || double.IsNaN(timeToImpact2))
+                Log.Error("timeToImpact was NaN!");
+            #endif
+
+            // if time is negative, the impact point is behind us
+            if (timeToImpact1 < 0f && timeToImpact2 < 0f) // both times are neg
+            {
+                // pick the closest time behind us
+                return (float)Max(timeToImpact1, timeToImpact2);
+            }
+
+            if (timeToImpact1 < 0f) return (float)timeToImpact2;
+            if (timeToImpact2 < 0f) return (float)timeToImpact1;
+            
+            return (float)Min(timeToImpact1, timeToImpact2); // pick closest intersect time
+        }
+
     }
 }

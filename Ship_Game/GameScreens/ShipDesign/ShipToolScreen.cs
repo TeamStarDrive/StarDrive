@@ -80,8 +80,8 @@ namespace Ship_Game
 
         public ShipToolScreen(GameScreen parent) : base(parent)
         {
-            TransitionOnTime = TimeSpan.FromSeconds(0);
-            TransitionOffTime = TimeSpan.FromSeconds(0);
+            TransitionOnTime = 0f;
+            TransitionOffTime = 0f;
             designInputState = new InputState();
         }
 

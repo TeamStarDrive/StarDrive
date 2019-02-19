@@ -75,9 +75,25 @@ namespace Ship_Game
             get
             {
                 if (ShortOnFood() || Population > 2000f)     return GoodState.EXPORT;
-                if (!ShortOnFood() && MaxPopulation > 2000f) return GoodState.IMPORT;
+                if (!ShortOnFood() && MaxPopulation > 2000f && PopulationRatio < 0.5f) return GoodState.IMPORT;
                 return GoodState.STORE;
             }
+        }
+
+        public bool ShortOnFood()
+        {
+            if (Owner?.isFaction ?? true)
+                return false;
+
+            if (Owner.NonCybernetic)
+            {
+                if (Food.NetIncome <= 0 && Storage.FoodRatio < 0.5f)
+                    return true;
+            }
+            else if (Prod.NetIncome.Less(1) && Storage.ProdRatio < 0.5f)
+                return true;
+
+            return false;
         }
 
         public GoodState GetGoodState(Goods good)

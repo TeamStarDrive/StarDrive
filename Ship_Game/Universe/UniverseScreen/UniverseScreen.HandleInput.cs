@@ -103,8 +103,8 @@ namespace Ship_Game
 
             if (input.SpawnShip)
                 Ship.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
-            if (input.SpawnFleet2) HelperFunctions.CreateFleetAt("Fleet 2", empire, mouseWorldPos);
-            if (input.SpawnFleet1) HelperFunctions.CreateFleetAt("Fleet 1", empire, mouseWorldPos);
+            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt("Fleet 2", empire, mouseWorldPos, CombatState.Artillery);
+            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt("Fleet 1", empire, mouseWorldPos, CombatState.AttackRuns);
 
             if (SelectedShip != null)
             {
@@ -215,7 +215,7 @@ namespace Ship_Game
                     {
                         ViewingShip = false;
                         AdjustCamTimer = 0.5f;
-                        CamDestination = SelectedFleet.FindAveragePosition().ToVec3(CamPos.Z);
+                        CamDestination = SelectedFleet.AveragePosition().ToVec3(CamPos.Z);
                         if (viewState < UnivScreenState.SystemView)
                             CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
 
@@ -492,7 +492,7 @@ namespace Ship_Game
                     {
                         ViewingShip = false;
                         AdjustCamTimer = 0.5f;
-                        CamDestination = SelectedFleet.FindAveragePosition().ToVec3();
+                        CamDestination = SelectedFleet.AveragePosition().ToVec3();
 
                         if (CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
                             CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
@@ -1680,7 +1680,6 @@ namespace Ship_Game
         {
             using (fleet.Ships.AcquireWriteLock())
             {
-                
                 foreach (Ship ship in SelectedShipList)
                 {
                     ship.ClearFleet();
@@ -1689,12 +1688,10 @@ namespace Ship_Game
                         ship.AI.ClearOrders();
                         ship.AI.ClearWayPoints();
                         ship.AI.ClearPriorityOrder();
-                        fleet.Ships.Add(ship);
+                        fleet.AddShip(ship);
                     }
                 }
-                //fleet.StoredFleetDistancetoMove = 0;
-                fleet.StoredFleetPosition = Vector2.Zero;
-                fleet.AutoArrange();                
+                fleet.AutoArrange();
             }
             InputCheckPreviousShip();
 
@@ -1866,7 +1863,7 @@ namespace Ship_Game
                 else
                 if (SelectedFleet != null && SelectedFleet.Ships.Count > 0)
                 {
-                    CamDestination = new Vector3(SelectedFleet.FindAveragePosition().X, SelectedFleet.FindAveragePosition().Y, camDestinationZ);
+                    CamDestination = new Vector3(SelectedFleet.AveragePosition(), camDestinationZ);
                 }
                 else
                 if (SelectedShipList.Count > 0 && SelectedShipList[0] != null && SelectedShipList[0].Active)
