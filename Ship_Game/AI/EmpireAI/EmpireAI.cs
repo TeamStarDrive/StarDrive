@@ -113,7 +113,8 @@ namespace Ship_Game.AI
             SolarSystem nearesttoHome = sortedList.OrderBy(furthest => Vector2.Distance(OwnerEmpire.GetWeightedCenter(), furthest.Position)).FirstOrDefault();
             foreach (SolarSystem nearest in sortedList)
             {
-                if (nearest.CombatInSystem) continue;
+                if (nearest.HostileForcesPresent(OwnerEmpire))
+                    continue;
                 float distanceToScout = Vector2.Distance(queryingShip.Center, nearest.Position);
                 float distanceToEarth = Vector2.Distance(OwnerEmpire.GetWeightedCenter(), nearest.Position);
 

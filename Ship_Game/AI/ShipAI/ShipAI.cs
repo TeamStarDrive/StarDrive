@@ -36,11 +36,15 @@ namespace Ship_Game.AI
         public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
         readonly AttackRun AttackRun;
+        readonly DropOffGoods DropOffGoods;
+        readonly PickupGoods PickupGoods;
 
         public ShipAI(Ship owner)
         {
             Owner = owner;
             AttackRun = new AttackRun(this);
+            DropOffGoods = new DropOffGoods(this);
+            PickupGoods = new PickupGoods(this);
         }
 
         public Vector2 GoalTarget
@@ -207,11 +211,7 @@ namespace Ship_Game.AI
         {
             if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate)
                 State = AIState.Exterminate;
-            if (ClearOrdersNext)
-            {
-                ClearOrders();
-                AwaitClosest = null;
-            }
+
             CheckTargetQueue();
 
             PrioritizePlayerCommands();
@@ -496,8 +496,8 @@ namespace Ship_Game.AI
                 case Plan.DefendSystem: DoSystemDefense(elapsedTime); break;
                 case Plan.DoCombat:     DoCombat(elapsedTime);        break;
                 case Plan.DeployStructure:   DoDeploy(toEvaluate);                      break;
-                case Plan.PickupGoods:       DoPickupGoods(elapsedTime, toEvaluate);    break;
-                case Plan.DropOffGoods:      DoDropOffGoods(elapsedTime, toEvaluate);   break;
+                case Plan.PickupGoods:       PickupGoods.Execute(elapsedTime, toEvaluate);  break;
+                case Plan.DropOffGoods:      DropOffGoods.Execute(elapsedTime, toEvaluate); break;
                 case Plan.ReturnToHangar:    DoReturnToHangar(elapsedTime);             break;
                 case Plan.TroopToShip:       DoTroopToShip(elapsedTime, toEvaluate);    break;
                 case Plan.BoardShip:         DoBoardShip(elapsedTime);                  break;
@@ -604,12 +604,10 @@ namespace Ship_Game.AI
 
         public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)
         {
-            ClearOrders();
-            State = AIState.SystemTrader;
-
             // if ship has this cargo type on board, proceed to drop it off at destination
-            Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f ? Plan.DropOffGoods : Plan.PickupGoods;
-            AddTradePlan(plan, exportPlanet, importPlanet, goods, Owner);
+            Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f
+                      ? Plan.DropOffGoods : Plan.PickupGoods;
+            SetTradePlan(plan, exportPlanet, importPlanet, goods);
         }
 
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
@@ -629,10 +627,9 @@ namespace Ship_Game.AI
             return clearOrders;
         }
 
-        public void CancelTradePlan(ShipGoal g, Planet orbitPlanet = null)
+        public void CancelTradePlan(Planet orbitPlanet = null)
         {
             ClearOrders();
-            g.Trade.UnregisterTrade(Owner);
             if (orbitPlanet != null)
                 AddOrbitPlanetGoal(orbitPlanet, AIState.AwaitingOrders);
             else

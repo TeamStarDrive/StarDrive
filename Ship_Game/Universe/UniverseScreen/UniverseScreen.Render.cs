@@ -352,7 +352,7 @@ namespace Ship_Game
                     }
 
                     TimeSpan totalGameTime;
-                    if (solarSystem.CombatInSystem)
+                    if (solarSystem.HostileForcesPresent(EmpireManager.Player))
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
@@ -457,7 +457,7 @@ namespace Ship_Game
                     }
 
                     TimeSpan totalGameTime;
-                    if (solarSystem.CombatInSystem)
+                    if (solarSystem.HostileForcesPresent(EmpireManager.Player))
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;

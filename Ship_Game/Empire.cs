@@ -171,7 +171,7 @@ namespace Ship_Game
         }
 
         public Planet[] BestBuildPlanets => RallyPoints.Filter(planet =>
-            planet.HasSpacePort && planet.ParentSystem.combatTimer <= 0
+            planet.HasSpacePort && planet.ParentSystem.HostileForcesPresent(this)
             && planet.IsVibrant
             && planet.colonyType != Planet.ColonyType.Research
             && (planet.colonyType != Planet.ColonyType.Industrial || planet.IsCoreWorld)
@@ -290,15 +290,18 @@ namespace Ship_Game
 
             foreach (SolarSystem systemCheck in OwnedSolarSystems)
             {
-                if (systemCheck.combatTimer > 10) continue;
+                if (systemCheck.HostileForcesPresent(this))
+                    continue;
                 bool systemHasUnfriendlies = false;
                 foreach (Empire empire in systemCheck.OwnerList)
                 {
-                    if (!IsEmpireAttackable(empire)) continue;
+                    if (!IsEmpireAttackable(empire))
+                        continue;
                     systemHasUnfriendlies = true;
                     break;
                 }
-                if (systemHasUnfriendlies) continue;
+                if (systemHasUnfriendlies)
+                    continue;
 
                 foreach (Planet planet in systemCheck.PlanetList)
                 {
@@ -2093,8 +2096,7 @@ namespace Ship_Game
                 return;
 
             DispatchBuildAndScrapFreighters();
-            if (isPlayer || AutoExplore)
-                AssignExplorationTasks();
+            AssignExplorationTasks();
         }
 
         void Bankruptcy()
@@ -2400,7 +2402,7 @@ namespace Ship_Game
 
         public bool HavePreReq(string techID) => GetTechEntry(techID).HasPreReq(this);
 
-        private void DispatchBuildAndScrapFreighters()
+        void DispatchBuildAndScrapFreighters()
         {
             // Cybernetic factions never touch Food trade. Filthy Opteris are disgusted by protein-bugs. Ironic.
             if (NonCybernetic)
@@ -2411,7 +2413,7 @@ namespace Ship_Game
             UpdateFreighterTimersAndScrap();
         }
 
-        private void UpdateFreighterTimersAndScrap()
+        void UpdateFreighterTimersAndScrap()
         {
             if (isPlayer && !AutoFreighters)
                 return;
@@ -2430,7 +2432,9 @@ namespace Ship_Game
                     }
                 }
                 else
+                {
                     freighter.TradeTimer = 300;
+                }
             }
         }
 
@@ -2543,6 +2547,9 @@ namespace Ship_Game
 
         private void AssignExplorationTasks()
         {
+            if (!isPlayer || AutoExplore)
+                return;
+
             int unexplored =0;
             bool haveUnexploredSystems = false;
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)

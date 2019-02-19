@@ -382,7 +382,7 @@ namespace Ship_Game.AI
             {
                 if (Us.isPlayer && p.colonyType != Planet.ColonyType.Military) continue;
                 float devratio = (p.Level + 1) / (kv.Value.SystemDevelopmentlevel + 1);
-                if (!kv.Key.CombatInSystem
+                if (!kv.Key.HostileForcesPresent(Us)
                     && p.GetDefendingTroopCount() > kv.Value.IdealTroopCount * devratio)
                 {
                     Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.Loyalty == Us);

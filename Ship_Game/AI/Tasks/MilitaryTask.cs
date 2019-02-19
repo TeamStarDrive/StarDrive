@@ -221,7 +221,7 @@ namespace Ship_Game.AI.Tasks
                 {
                     Troop t = TargetPlanet.TroopsHere[index];
                     if (t.Loyalty != Owner
-                        || TargetPlanet.ParentSystem.CombatInSystem
+                        || TargetPlanet.ParentSystem.HostileForcesPresent(Owner)
                         || t.AvailableAttackActions == 0
                         || t.MoveTimer > 0)
                         continue;
