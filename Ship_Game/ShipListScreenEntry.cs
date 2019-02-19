@@ -217,6 +217,10 @@ namespace Ship_Game
                     {
                         if (first.TargetPlanet == null)
                             return first.Plan.ToString();
+
+                        if (first.Plan == ShipAI.Plan.LandTroop)
+                            return $"{Localizer.Token(1963)} {first.TargetPlanet.Name}";
+
                         return first.Plan + " to " + first.TargetPlanet.Name;
                     }
                     return ship.AI.State.ToString();
