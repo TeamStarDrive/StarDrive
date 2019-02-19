@@ -120,7 +120,6 @@ namespace Ship_Game.AI
             PotentialTargets.Clear();
             NearByShips.Clear();
 
-
             if (HasPriorityTarget)
             {
                 if (Target == null)
@@ -157,15 +156,16 @@ namespace Ship_Game.AI
             float shieldAvg = 0;
             float dpsAvg = 0;
             float sizeAvg = 0;
+
             if (thisSystem != null)
+            {
                 for (int i = 0; i < thisSystem.PlanetList.Count; i++)
                 {
                     Planet p = thisSystem.PlanetList[i];
                     BadGuysNear = BadGuysNear || Owner.loyalty.IsEmpireAttackable(p.Owner) &&
                                   Owner.Center.InRadius(p.Center, radius);
                 }
-
-      
+            }
 
             GameplayObject[] nearbyShips = sensorShip.GetObjectsInSensors(GameObjectType.Ship, radius);
             for (int x = 0; x < nearbyShips.Length; x++)
@@ -185,7 +185,9 @@ namespace Ship_Game.AI
                 }
 
                 bool isAttackable = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
-                if (!isAttackable) continue;
+                if (!isAttackable)
+                    continue;
+
                 armorAvg += nearbyShip.armor_max;
                 shieldAvg += nearbyShip.shield_max;
                 dpsAvg += nearbyShip.GetDPS();
@@ -193,8 +195,8 @@ namespace Ship_Game.AI
                 BadGuysNear = true;
                 if (radius < 1)
                     continue;
-                var sw = new ShipWeight(nearbyShip, 1);
 
+                var sw = new ShipWeight(nearbyShip, 1);
 
                 if (BadGuysNear && nearbyShip.AI.Target is Ship nearbyShipsTarget &&
                     nearbyShipsTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
