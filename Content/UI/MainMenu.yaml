@@ -67,6 +67,21 @@ Panel: optical_sun_flare
     MinColor: [0.6,0.6,0.6,1.0] # vary the color from min
     MaxColor: [1.0,1.0,1.0,1.0]    # to max
 
+Panel: blacbox_animated_logo
+  Size: [0.5, 0]
+  Pos: [0.05, 360]
+  Color: [0.8,0.8,0.8,1]
+  AxisAlign: Center
+  DrawDepth: Foreground
+  SpriteAnim: MMenu/bb_logo_animated
+    Delay: 2
+    Duration: 7
+    StartAt: 0
+    Looping: true
+    FreezeAtLastFrame: false
+    VisibleBeforeDelay: true
+  Animation: [2, 3, 0, 3.0, 0] # delay, duration, end-time, fadein, fadeout
+    Alpha: [0, 0.5]
 
 Panel: vignette
   Texture: MainMenu/vignette

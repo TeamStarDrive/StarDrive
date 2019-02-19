@@ -90,7 +90,7 @@ namespace Ship_Game
         {
             if (SpriteAnim != null)
             {
-                SpriteAnim.Draw(batch, Rect);
+                SpriteAnim.Draw(batch, Rect, Color);
             }
             else if (Texture != null)
             {
