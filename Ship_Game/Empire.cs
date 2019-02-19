@@ -2096,8 +2096,7 @@ namespace Ship_Game
                 return;
 
             DispatchBuildAndScrapFreighters();
-            if (!isPlayer || AutoExplore)
-                AssignExplorationTasks();
+            AssignExplorationTasks();
         }
 
         void Bankruptcy()
@@ -2548,6 +2547,9 @@ namespace Ship_Game
 
         private void AssignExplorationTasks()
         {
+            if (!isPlayer || AutoExplore)
+                return;
+
             int unexplored =0;
             bool haveUnexploredSystems = false;
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
