@@ -93,6 +93,9 @@ namespace Ship_Game
 
         private void BuildPlatformsAndStations()
         {
+            if (Owner.isPlayer && !GovOrbitals)
+                return;
+
             var currentPlatforms      = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations       = FilterOrbitals(ShipData.RoleName.station);
             int rank                  = FindColonyRank();
