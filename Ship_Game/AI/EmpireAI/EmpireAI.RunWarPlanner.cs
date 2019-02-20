@@ -425,8 +425,8 @@ namespace Ship_Game.AI
 
         private void FightDefaultWar(KeyValuePair<Empire, Relationship> r)
         {
-            float warWeight = 1 + OwnerEmpire.GetResStrat().ExpansionPriority +
-                              OwnerEmpire.GetResStrat().MilitaryPriority;
+            float warWeight = 1 + OwnerEmpire.ResearchStrategy.ExpansionPriority +
+                              OwnerEmpire.ResearchStrategy.MilitaryPriority;
             foreach (MilitaryTask militaryTask in TaskList)
             {
                 if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
@@ -538,7 +538,7 @@ namespace Ship_Game.AI
                 return;
 
             float warWeight = 1 +
-                              OwnerEmpire.GetResStrat().MilitaryPriority;
+                              OwnerEmpire.ResearchStrategy.MilitaryPriority;
             var weightedTargets = EmpireAttackWeights();
             foreach (var kv in weightedTargets)
             {

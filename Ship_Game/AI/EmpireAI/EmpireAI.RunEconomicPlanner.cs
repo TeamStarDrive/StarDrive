@@ -31,7 +31,7 @@ namespace Ship_Game.AI
             AutoSetTaxes(treasuryGoal);
 
             float goalClamped = goal.Clamped(0, 1);
-            var resStrat = OwnerEmpire.GetResStrat();
+            var resStrat = OwnerEmpire.ResearchStrategy;
             float buildRatio = (resStrat.MilitaryRatio + resStrat.IndustryRatio + resStrat.ExpansionRatio) /2f;
             
             SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            

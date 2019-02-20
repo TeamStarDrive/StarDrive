@@ -40,7 +40,7 @@ namespace Ship_Game.Commands.Goals
                 return true;
 
             foreach (var relationship in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(relationship, ColonizationTarget);
+                empire.GetEmpireAI().CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
                         
             RemoveEscortTask();
 
@@ -209,7 +209,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(them, ColonizationTarget);
+                empire.GetEmpireAI().CheckClaim(them.Key, them.Value, ColonizationTarget);
 
             return GoalStep.GoalComplete;
         }

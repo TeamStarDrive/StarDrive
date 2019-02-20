@@ -307,9 +307,11 @@ namespace Ship_Game.AI
             SystemToPatrol = ExplorationTarget;
             if (PatrolRoute.Count == 0)
             {
-                foreach (Planet p in SystemToPatrol.PlanetList) PatrolRoute.Add(p);
+                foreach (Planet p in SystemToPatrol.PlanetList)
+                    PatrolRoute.Add(p);
 
-                if (SystemToPatrol.PlanetList.Count == 0) return ExploreEmptySystem(elapsedTime, SystemToPatrol);
+                if (SystemToPatrol.PlanetList.Count == 0)
+                    return ExploreEmptySystem(elapsedTime, SystemToPatrol);
             }
             else
             {

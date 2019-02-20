@@ -65,7 +65,6 @@ namespace Ship_Game
         public static UniverseScreen Universe;
         //public Vector4 VColor;          //Not referenced in code, removing to save memory
         private EmpireAI EmpireAI;
-        private EconomicResearchStrategy economicResearchStrategy;
         private float UpdateTimer;
         public bool isPlayer;
         public float TotalShipMaintenance { get; private set; }
@@ -119,9 +118,9 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Planet[] RallyPoints          = Empty<Planet>.Array;
         [XmlIgnore][JsonIgnore] public Ship BoardingShuttle     => ResourceManager.ShipsDict["Assault Shuttle"];
         [XmlIgnore][JsonIgnore] public Ship SupplyShuttle       => ResourceManager.ShipsDict["Supply_Shuttle"];
-        [XmlIgnore][JsonIgnore] public int FreighterCap         => OwnedPlanets.Count * 3 + GetResStrat().ExpansionPriority;
+        [XmlIgnore][JsonIgnore] public int FreighterCap         => OwnedPlanets.Count * 3 + ResearchStrategy.ExpansionPriority;
         [XmlIgnore][JsonIgnore] public int FreightersBeingBuilt => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
-        [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue => 1 + GetResStrat().IndustryPriority;
+        [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue => 1 + ResearchStrategy.IndustryPriority;
         [XmlIgnore][JsonIgnore] public int TotalFreighters      => OwnedShips.Count(s => s.IsFreighter);
         [XmlIgnore][JsonIgnore] public Ship[] IdleFreighters    => OwnedShips.Filter(s => s.IsIdleFreighter);
         [XmlIgnore][JsonIgnore] public bool IsCybernetic        => data.Traits.Cybernetic != 0;
@@ -690,7 +689,7 @@ namespace Ship_Game
 
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
-            economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
+            ResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
             data.TechDelayTime = 4;
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
@@ -846,10 +845,11 @@ namespace Ship_Game
 
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
-            economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
+            ResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
             InitColonyRankModifier();
         }
-        private bool WeCanUseThisLater(TechEntry tech)
+
+        bool WeCanUseThisLater(TechEntry tech)
         {
             foreach (Technology.LeadsToTech leadsToTech in tech.Tech.LeadsTo)
             {
@@ -860,8 +860,8 @@ namespace Ship_Game
             return false;
         }
 
-
-        public EconomicResearchStrategy GetResStrat() => economicResearchStrategy;
+        [XmlIgnore][JsonIgnore]
+        public EconomicResearchStrategy ResearchStrategy { get; set; }
 
         public string[] GetTroopsWeCanBuild() => UnlockedTroopDict.Where(kv => kv.Value)
                                                                   .Select(kv => kv.Key).ToArray();
@@ -2580,7 +2580,7 @@ namespace Ship_Game
                     return;
             }
 
-            var desiredScouts = unexplored * economicResearchStrategy.ExpansionRatio * .5f;
+            var desiredScouts = unexplored * ResearchStrategy.ExpansionRatio * .5f;
             foreach (Ship ship in OwnedShips)
             {
                 if (ship.DesignRole != ShipData.RoleName.scout || ship.PlayerShip)
