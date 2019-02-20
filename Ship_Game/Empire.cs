@@ -170,10 +170,8 @@ namespace Ship_Game
         }
 
         public Planet[] BestBuildPlanets => RallyPoints.Filter(planet =>
-            planet.HasSpacePort && planet.ParentSystem.HostileForcesPresent(this)
-            && planet.IsVibrant
-            && planet.colonyType != Planet.ColonyType.Research
-            && (planet.colonyType != Planet.ColonyType.Industrial || planet.IsCoreWorld)
+            planet.HasSpacePort && !planet.ParentSystem.HostileForcesPresent(this)
+            && (planet.IsVibrant || planet.IsCoreWorld || planet.Prod.NetIncome > 5)
         );
 
         public Planet PlanetToBuildShipAt(float actualCost)
@@ -2520,8 +2518,8 @@ namespace Ship_Game
 
         public Vector2 GetWeightedCenter()
         {
-            int planets     = 0;
-            Vector2 avgPlanetCenter = new Vector2();
+            int planets = 0;
+            var avgPlanetCenter = new Vector2();
 
             using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
