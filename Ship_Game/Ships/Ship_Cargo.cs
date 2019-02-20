@@ -26,7 +26,7 @@ namespace Ship_Game.Ships
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
 
-        public float OrdnancePercent => OrdinanceMax > 1 ? Ordinance / OrdinanceMax : 1f;
+        public float OrdnancePercent => OrdinanceMax > 1 ? (Ordinance + Carrier.OrdnanceInSpace) / OrdinanceMax : 1f;
 
         public float ChangeOrdnance(float ordnance)
         {
