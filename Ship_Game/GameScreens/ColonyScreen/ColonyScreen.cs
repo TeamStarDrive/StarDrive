@@ -30,7 +30,7 @@ namespace Ship_Game
         private Submenu build;
         private Submenu queue;
         private UICheckBox GovSliders;
-        private UICheckBox GovBuildings;
+        private UICheckBox GovOrbitals;
         private UITextEntry PlanetName = new UITextEntry();
         private Rectangle PlanetIcon;
         private EmpireUIOverlay eui;
@@ -182,22 +182,26 @@ namespace Ship_Game
                 var rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
                 GovernorDropdown = new DropOptions<int>(this, new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
                 GovernorDropdown.AddOption("--", 1);
-                GovernorDropdown.AddOption(Localizer.Token(4064), 0);
-                GovernorDropdown.AddOption(Localizer.Token(4065), 2);
-                GovernorDropdown.AddOption(Localizer.Token(4066), 4);
-                GovernorDropdown.AddOption(Localizer.Token(4067), 3);
-                GovernorDropdown.AddOption(Localizer.Token(4068), 5);
-                GovernorDropdown.AddOption(Localizer.Token(5087), 6);
+                GovernorDropdown.AddOption(Localizer.Token(4064), 0); // Core
+                GovernorDropdown.AddOption(Localizer.Token(4065), 2); // Industrial
+                GovernorDropdown.AddOption(Localizer.Token(4066), 4); // Agricultural
+                GovernorDropdown.AddOption(Localizer.Token(4067), 3); // Research
+                GovernorDropdown.AddOption(Localizer.Token(4068), 5); // Military
+                GovernorDropdown.AddOption(Localizer.Token(5087), 6); // Trade Hub
                 GovernorDropdown.ActiveIndex = GetIndex(p);
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
 
                 // @todo add localization
-                GovBuildings = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing * 2 + 15, 
-                                            () => p.GovBuildings, Font12, "Governor manages buildings", 0);
+                //GovBuildings = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing * 2 + 15, 
+                //                            () => p.GovBuildings, Font12, "Governor manages buildings", 0);
 
-                GovSliders = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing + 10,
-                                          () => p.GovSliders, Font12, "Governor manages labor sliders", 0);
+                //GovSliders = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing + 10,
+                //                          () => p.GovSliders, Font12, "Governor manages labor sliders", 0);
+
+                GovOrbitals = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + Font12.LineSpacing + 3,
+                    () => p.GovOrbitals,
+                    x => { p.GovOrbitals = x; }, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
             }
             else
             {
@@ -445,6 +449,8 @@ namespace Ship_Game
             string colonyTypeInfo = Font12.ParseText(P.ColonyTypeInfoText, description.Width);
             batch.DrawString(Font12, colonyTypeInfo, descCursor, Color.White);
             GovernorDropdown.Draw(batch); // draw dropdown on top of other text
+            if (P.Owner.isPlayer && GovernorDropdown.ActiveIndex != 0)
+                GovOrbitals.Draw(batch); // only for non Core colonies
 
             if (GlobalStats.HardcoreRuleset)
             {
@@ -882,6 +888,7 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             pFacilities.HandleInputNoReset(input);
+            GovOrbitals.HandleInput(input);
 
             if (HandleCycleColoniesLeftRight(input))
                 return true;
