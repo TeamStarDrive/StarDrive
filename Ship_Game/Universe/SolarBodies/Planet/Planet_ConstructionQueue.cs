@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -63,50 +64,37 @@ namespace Ship_Game
         public int NumOrbitalsInTheWorks     => ConstructionQueue.Count(b => b.isOrbital);
         public int NumShipYardsInTheWorks    => ConstructionQueue.Count(s => s.sData != null && s.sData.IsShipyard);
         public bool BiosphereInTheWorks      => BuildingInQueue(Building.BiospheresId);
-        public int TotalTurnsInConstruction  => ConstructionQueue.Count > 0 ? NumberOfTurnsUntilCompleted(ConstructionQueue.Last) : 0;
         public bool BuildingBuilt(int bid)   => BuildingList.Any(existing => existing.BID == bid);
         public bool BuildingInQueue(int bid) => ConstructionQueue
                                                .Any(q => q.isBuilding && q.Building.BID == bid);
 
-
-                                            
         // exists on planet OR in queue
         public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
         public bool BuildingBuiltOrQueued(int bid) => BuildingBuilt(bid) || BuildingInQueue(bid);
 
-        bool FindConstructionBuilding(Goods goods, out QueueItem item)
+        public int TurnsUntilQueueCompleted
         {
-            foreach (QueueItem it in ConstructionQueue)
+            get
             {
-                if (it.isBuilding) switch (goods)
+                int turns = 0;
+                for (int i = 0; i < ConstructionQueue.Count; ++i)
                 {
-                    case Goods.Food:       if (it.Building.ProducesFood)       { item = it; return true; } break;
-                    case Goods.Production: if (it.Building.ProducesProduction) { item = it; return true; } break;
-                    case Goods.Colonists:  if (it.Building.ProducesPopulation) { item = it; return true; } break;
+                    turns += ConstructionQueue[i].TurnsUntilComplete;
                 }
+                return turns;
             }
-            item = null;
-            return false;
         }
 
-        int NumberOfTurnsUntilCompleted(QueueItem item)
+        // @return Total numbers before ship will be finished if
+        //         inserted to the end of the queue.
+        public int TurnsUntilQueueComplete(float shipCost)
         {
-            int turns = 0;
-            foreach (QueueItem q in ConstructionQueue)
-            {
-                turns += q.TurnsUntilComplete;
-                if (q == item)
-                    break;
-            }
-            return turns;
-        }
+            if (!HasSpacePort)
+                return 9999; // impossible
 
-        int NumberOfTurnsUntilCompleted()
-        {
-            int turns = 0;
-            for (int i = 0; i < ConstructionQueue.Count; ++i)
-                turns += ConstructionQueue[i].TurnsUntilComplete;
-            return turns;
+            int shipTurns = (int)Math.Ceiling((shipCost*ShipBuildingModifier) / Prod.NetMaxPotential);
+            int total = shipTurns + TurnsUntilQueueCompleted;
+            return Math.Min(999, total);
         }
 
         public float TotalCostOfTroopsInQueue()

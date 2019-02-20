@@ -298,7 +298,7 @@ namespace Ship_Game.AI
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 case ResupplyReason.LowTroops:
-                    nearestRallyPoint = Owner.loyalty.RallyShipYards.FindMax(p => p.TroopsHere.Count);
+                    nearestRallyPoint = Owner.loyalty.RallyPoints.FindMax(p => p.TroopsHere.Count);
                     break;
                 case ResupplyReason.NotNeeded:
                     return;

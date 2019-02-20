@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Ship_Game.Commands;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
@@ -551,29 +550,31 @@ namespace Ship_Game.AI
 
         void DoRefit(ShipGoal goal)
         {
-            QueueItem qi = new BuildShip(goal, OrbitTarget);
-            if (qi.sData == null)
+            Ship template = ResourceManager.GetShipTemplate(goal.VariableString, throwIfError: false);
+
+            if (template == null)
             {
                 ClearOrders();
-                Log.Warning($"qi.sdata for refit was null. Ship to refit: {Owner.Name}");
+                Log.Warning($"Refit {Owner.Name} failed: {goal.VariableString} is not a valid ship template!");
                 return;
             }
 
-            qi.Cost    = Owner.RefitCost(qi.sData.Name);
-            qi.isRefit = true;
-
-            //Added by McShooterz: refit keeps name and level
-            if (Owner.VanityName != Owner.Name)
-                qi.RefitName = Owner.VanityName;
-            if (qi.sData != null)
-                qi.sData.Level = (byte)Owner.Level;
             if (Owner.fleet != null)
             {
-                var refitGoal      = new FleetRequisition(goal, this);
+                var refitGoal = new FleetRequisition(goal, this);
                 FleetNode.GoalGUID = refitGoal.guid;
                 Owner.loyalty.GetEmpireAI().Goals.Add(refitGoal);
-                qi.Goal = refitGoal;
+                return; // Construction is handled by FleetRequisition
             }
+
+            var qi = new QueueItem(OrbitTarget);
+            qi.sData = template.shipData;
+            qi.Cost = Owner.RefitCost(qi.sData.Name);
+            qi.isShip = true;
+            qi.isRefit = true;
+            qi.RefitName = Owner.VanityName;
+            qi.ShipLevel = Owner.Level;
+
             OrbitTarget.ConstructionQueue.Add(qi);
             Owner.QueueTotalRemoval();
         }
