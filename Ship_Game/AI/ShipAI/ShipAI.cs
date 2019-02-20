@@ -9,18 +9,15 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI : IDisposable
     {
-        Vector2 AINewDir;
-        Goal ColonizeGoal;
         Planet AwaitClosest;
         Planet PatrolTarget;
         Vector2 OrbitPos;
         float FindNewPosTimer;
-        float DistanceLast;
         float UtilityModuleCheckTimer;
         SolarSystem SystemToPatrol;
         readonly Array<Planet> PatrolRoute = new Array<Planet>();
         int StopNumber;
-        public FleetDataNode FleetNode { get;  set; }
+        public FleetDataNode FleetNode;
         
         public readonly Ship Owner;
         public AIState State = AIState.AwaitingOrders;
@@ -31,8 +28,8 @@ namespace Ship_Game.AI
         public SolarSystem SystemToDefend;
         public SolarSystem ExplorationTarget;
         public AIState DefaultAIState = AIState.AwaitingOrders;
-        public SafeQueue<ShipGoal> OrderQueue = new SafeQueue<ShipGoal>();
-        public Array<ShipWeight> NearByShips  = new Array<ShipWeight>();
+        public SafeQueue<ShipGoal> OrderQueue  = new SafeQueue<ShipGoal>();
+        public Array<ShipWeight>   NearByShips = new Array<ShipWeight>();
         public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
         readonly AttackRun AttackRun;
@@ -67,19 +64,18 @@ namespace Ship_Game.AI
             }
         }
 
-        void Colonize(Planet targetPlanet)
+        void Colonize(Planet targetPlanet, ShipGoal shipGoal)
         {
             if (Owner.Center.OutsideRadius(targetPlanet.Center, 2000f))
             {
                 DequeueCurrentOrder();
-                OrderColonization(targetPlanet);
-                State = AIState.Colonize;
+                OrderColonization(targetPlanet, shipGoal.Goal);
                 return;
             }
 
             if (targetPlanet.Owner != null || !targetPlanet.Habitable)
             {
-                ColonizeGoal?.NotifyMainGoalCompleted();
+                shipGoal.Goal?.NotifyMainGoalCompleted();
                 ClearOrders();
                 return;
             }
@@ -490,7 +486,7 @@ namespace Ship_Game.AI
                 case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, toEvaluate);        break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);             break;
                 case Plan.Orbit:        DoOrbit(planet, elapsedTime); break;
-                case Plan.Colonize:     Colonize(planet);             break;
+                case Plan.Colonize:     Colonize(planet, toEvaluate); break;
                 case Plan.Explore:      DoExplore(elapsedTime);       break;
                 case Plan.Rebase:       DoRebase(toEvaluate);         break;
                 case Plan.DefendSystem: DoSystemDefense(elapsedTime); break;
