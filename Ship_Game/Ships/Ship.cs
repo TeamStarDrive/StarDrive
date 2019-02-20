@@ -1162,7 +1162,7 @@ namespace Ship_Game.Ships
 
         public void DoColonize(Planet p, Goal g)
         {
-            AI.OrderColonization(p);
+            AI.OrderColonization(p, g);
         }
 
         public void ResetJumpTimer()
