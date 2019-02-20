@@ -115,7 +115,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Array<string> TroopShipTech   = new Array<string>();
         [XmlIgnore][JsonIgnore] public Array<string> CarrierTech     = new Array<string>();
         [XmlIgnore][JsonIgnore] public Array<string> SupportShipTech = new Array<string>();
-        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints          = Empty<Planet>.Array;
+        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints     = Empty<Planet>.Array;
         [XmlIgnore][JsonIgnore] public Ship BoardingShuttle     => ResourceManager.ShipsDict["Assault Shuttle"];
         [XmlIgnore][JsonIgnore] public Ship SupplyShuttle       => ResourceManager.ShipsDict["Supply_Shuttle"];
         [XmlIgnore][JsonIgnore] public int FreighterCap         => OwnedPlanets.Count * 3 + ResearchStrategy.ExpansionPriority;
@@ -144,60 +144,36 @@ namespace Ship_Game
             foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag.
                 ship.shipStatusChanged = true;
         }
+
         public Planet FindNearestRallyPoint(Vector2 location)
         {
-            if (RallyPoints.Length == 0) return null;
-            return RallyPoints?.FindMin(p => p.Center.SqDist(location)) ?? OwnedPlanets?.FindMin(p => p.Center.SqDist(location));
+            return RallyPoints.FindMin( p => p.Center.SqDist(location))
+                ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
         }
-
-        public Planet[] RallyShipYards => RallyPoints.Filter(sy => sy.HasSpacePort);
 
         public Planet RallyShipYardNearestTo(Vector2 position)
         {
-            Planet p = RallyPoints.Length == 0
-                ? null
-                : RallyPoints.FindMaxFiltered(planet => planet?.HasSpacePort ?? false,
-                    planet => -position.SqDist(planet?.Center ?? Vector2.Zero));
-            switch (p) {
-                case null when RallyPoints.Length > 0:
-                    return RallyPoints.FindMin(planet => -position.SqDist(planet.Center));
-                case null:
-                    Log.Warning($"RallyShipYardNearestTo Had null elements: RallyPoints {RallyPoints.Length}");
-                    break;
-            }
-
-            return p;
+            return RallyPoints.FindMinFiltered(p => p.HasSpacePort,
+                                               p => position.SqDist(p.Center))
+                ?? SpacePorts.FindMin(p => position.SqDist(p.Center))
+                ?? FindNearestRallyPoint(position);
         }
 
-        public Planet[] BestBuildPlanets => RallyPoints.Filter(planet =>
-            planet.HasSpacePort && planet.ParentSystem.HostileForcesPresent(this)
-            && planet.IsVibrant
-            && planet.colonyType != Planet.ColonyType.Research
-            && (planet.colonyType != Planet.ColonyType.Industrial || planet.IsCoreWorld)
+        public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
+
+        public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p =>
+            p.HasSpacePort && !p.ParentSystem.HostileForcesPresent(this)
         );
 
-        public Planet PlanetToBuildShipAt(float actualCost)
+        public bool FindClosestSpacePort(Vector2 position, out Planet closest)
         {
-            Planet planet = OwnedPlanets.FindMin(p => p.Construction.EstimateMinTurnsToBuildShip(actualCost));
-            return planet;
-        }
-
-        public Planet FindClosestSpacePort(Vector2 position)
-        {
-            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
-            return spacePorts.FindMin(p => p.Center.SqDist(position));
+            closest = SpacePorts.FindMin(p => p.Center.SqDist(position));
+            return closest != null;
         }
 
         public bool TryFindSpaceportToBuildShipAt(Ship ship, out Planet spacePort)
         {
-            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
-            return FindPlanetToBuildAt(spacePorts, ship, out spacePort);
-        }
-
-        public bool FindPlanetToBuildOffensiveShipAt(Ship ship, out Planet planet)
-        {
-            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort && p.colonyType != Planet.ColonyType.Research);
-            return FindPlanetToBuildAt(spacePorts, ship, out planet);
+            return FindPlanetToBuildAt(SpacePorts, ship, out spacePort);
         }
 
         public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen)
@@ -205,18 +181,12 @@ namespace Ship_Game
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
-                chosen = ports.FindMin(p => p.Construction.EstimateMinTurnsToBuildShip(cost));
+                chosen = ports.FindMin(p => p.TurnsUntilQueueComplete(cost));
                 return true;
             }
+            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
             chosen = null;
             return false;
-        }
-
-        public bool FindClosestPlanetToBuildAt(Vector2 position, out Planet chosen)
-        {
-            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
-            chosen = spacePorts.FindMin(p => p.Center.SqDist(position));
-            return chosen != null;
         }
 
         public string Name => data.Traits.Name;
@@ -283,32 +253,40 @@ namespace Ship_Game
 
         public void SetRallyPoints()
         {
-            if (NoPlanetsForRally()) return;
-
-            Array<Planet> rallyPlanets = new Array<Planet>();
-
-            foreach (SolarSystem systemCheck in OwnedSolarSystems)
+            Array<Planet> rallyPlanets;
+            // defeated empires and factions can use rally points now.
+            if (OwnedPlanets.Count == 0)
             {
-                if (systemCheck.HostileForcesPresent(this))
-                    continue;
-                bool systemHasUnfriendlies = false;
-                foreach (Empire empire in systemCheck.OwnerList)
+                rallyPlanets = GetPlanetsNearStations();
+                if (rallyPlanets.Count == 0)
                 {
-                    if (!IsEmpireAttackable(empire))
-                        continue;
-                    systemHasUnfriendlies = true;
-                    break;
-                }
-                if (systemHasUnfriendlies)
-                    continue;
-
-                foreach (Planet planet in systemCheck.PlanetList)
-                {
-                    if (planet.Owner != this) continue;
-                    rallyPlanets.Add(planet);
+                    Planet p = GetNearestUnOwnedPlanet();
+                    if (p != null)
+                        rallyPlanets.Add(p);
                 }
 
+                //super failSafe. just take any planet.
+                if (rallyPlanets.Count == 0)
+                    rallyPlanets.Add(Universe.PlanetsDict.First().Value);
+
+                RallyPoints = rallyPlanets.ToArray();
+                return;
             }
+
+            rallyPlanets = new Array<Planet>();
+
+            foreach (SolarSystem system in OwnedSolarSystems)
+            {
+                if (!system.HostileForcesPresent(this))
+                {
+                    foreach (Planet planet in system.PlanetList)
+                    {
+                        if (planet.Owner == this)
+                            rallyPlanets.Add(planet);
+                    }
+                }
+            }
+
             if (rallyPlanets.Count > 0)
             {
                 RallyPoints = rallyPlanets.ToArray();
@@ -332,29 +310,7 @@ namespace Ship_Game
                 Log.Error("SetRallyPoint: No Planets found");
         }
 
-        private bool NoPlanetsForRally()
-        {
-            //defeated empires and factions can use rally points now.
-            if (OwnedPlanets.Count != 0) return false;
-            Array<Planet> rallyPlanets = new Array<Planet>();
-            rallyPlanets = GetPlanetsNearStations();
-            if (rallyPlanets.Count == 0)
-            {
-                Planet p = GetNearestUnOwnedPlanet();
-                if (p != null)
-                    rallyPlanets.Add(p);
-            }
-
-            //super failSafe. just take any planet.
-            if (rallyPlanets.Count == 0)
-                rallyPlanets.Add(Universe.PlanetsDict.First().Value);
-
-            RallyPoints = rallyPlanets.ToArray();
-            return true;
-        }
-
-
-        private Array<Planet> GetPlanetsNearStations()
+        Array<Planet> GetPlanetsNearStations()
         {
             var planets = new Array<Planet>();
             foreach(var station in OwnedShips)
@@ -2519,8 +2475,8 @@ namespace Ship_Game
 
         public Vector2 GetWeightedCenter()
         {
-            int planets     = 0;
-            Vector2 avgPlanetCenter = new Vector2();
+            int planets = 0;
+            var avgPlanetCenter = new Vector2();
 
             using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
@@ -2545,9 +2501,9 @@ namespace Ship_Game
             GlobalStats.IncrementRemnantKills((int)expData.KillExp);
         }
 
-        private void AssignExplorationTasks()
+        void AssignExplorationTasks()
         {
-            if (!isPlayer || AutoExplore)
+            if (isPlayer && !AutoExplore)
                 return;
 
             int unexplored =0;
