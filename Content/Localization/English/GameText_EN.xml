@@ -4695,6 +4695,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1960</Index>
+      <Text>Governor Manages Defense Orbitals</Text>
+    </Token>
+    <Token>
+      <Index>1961</Index>
+      <Text>The Governor will build Stations, Shipyards and Platforms based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire</Text>
+    </Token>
+    <Token>
       <Index>1962</Index>
       <Text>Colonists</Text>
     </Token>
@@ -7415,7 +7423,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5087</Index>
-      <Text>TradeHub</Text>
+      <Text>Trade Hub</Text>
     </Token>
   
 
