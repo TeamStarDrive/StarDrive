@@ -51,7 +51,7 @@ namespace Ship_Game.Commands.Goals
             if (!ChooseScoutShipToBuild(out Ship scout))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildAt(empire.BestBuildPlanets, scout, out Planet planet))
+            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, scout, out Planet planet))
                 return GoalStep.TryAgain;
 
             planet.Construction.AddShip(scout, this, notifyOnEmpty: false);

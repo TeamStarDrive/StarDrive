@@ -20,6 +20,7 @@ namespace Ship_Game.Commands.Goals
                 AddShipToFleetAndMoveToPosition
             };
         }
+
         public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai) : this()
         {
             FleetDataNode node = ai.Owner.fleet.DataNodes.First(n => n.Ship == ai.Owner);
@@ -40,11 +41,15 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetForFleetRequisition()
         {            
-            Planet p = PlanetBuildingAt ?? empire.PlanetToBuildShipAt(ShipToBuild.GetCost(empire));
-            if (p == null)
+            if (PlanetBuildingAt == null || !PlanetBuildingAt.HasSpacePort)
+            {
+                empire.FindPlanetToBuildAt(empire.SpacePorts, ShipToBuild, out PlanetBuildingAt);
+            }
+
+            if (PlanetBuildingAt == null)
                 return GoalStep.TryAgain;
             
-            p.Construction.AddShip(ShipToBuild, this, notifyOnEmpty: false);
+            PlanetBuildingAt.Construction.AddShip(ShipToBuild, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
 

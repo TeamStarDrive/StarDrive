@@ -23,6 +23,7 @@ namespace Ship_Game
         public Rectangle removeRect;
         public int QueueNumber;
         public bool isRefit;
+        public int ShipLevel;
         public string RefitName = "";
         public PlanetGridSquare pgs;
         public string DisplayName;

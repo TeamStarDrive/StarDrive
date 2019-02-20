@@ -222,7 +222,6 @@
     <Compile Include="Ship_Game\Commands\Goals\BuildTroop.cs" />
     <Compile Include="Ship_Game\Commands\Goals\IncreaseFreighters.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
-    <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
     <Compile Include="Ship_Game\Data\DDSReader.cs" />
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
@@ -4990,6 +4989,7 @@
     <None Include="Resources\StarTrek-SA.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Ship_Game\Commands\QueueItems\" />
     <Folder Include="Ship_Game\Universe\SolarBodies\AI\" />
   </ItemGroup>
   <ItemGroup>

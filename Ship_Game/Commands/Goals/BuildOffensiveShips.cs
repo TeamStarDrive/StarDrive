@@ -32,7 +32,7 @@ namespace Ship_Game.Commands.Goals
             if (!ResourceManager.GetShipTemplate(ToBuildUID, out Ship template))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildOffensiveShipAt(template, out Planet planet))
+            if (!empire.TryFindSpaceportToBuildShipAt(template, out Planet planet))
                 return GoalStep.TryAgain;
 
             planet.Construction.AddShip(template, this);
