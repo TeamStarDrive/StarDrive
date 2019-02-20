@@ -32,7 +32,8 @@ namespace Ship_Game.Commands.Goals
             ColonizationTarget = toColonize;
         }
 
-        static Planet FindPlanetForConstruction(Empire e) => e.BestBuildPlanets.FindMin(p => p.TotalTurnsInConstruction);            
+        static Planet FindPlanetForConstruction(Empire e)
+            => e.BestBuildPlanets.FindMin(p => p.TotalTurnsInConstruction);            
 
         bool IsValid()
         {

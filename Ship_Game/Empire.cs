@@ -208,6 +208,7 @@ namespace Ship_Game
                 chosen = ports.FindMin(p => p.Construction.EstimateMinTurnsToBuildShip(cost));
                 return true;
             }
+            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
             chosen = null;
             return false;
         }
@@ -2545,9 +2546,9 @@ namespace Ship_Game
             GlobalStats.IncrementRemnantKills((int)expData.KillExp);
         }
 
-        private void AssignExplorationTasks()
+        void AssignExplorationTasks()
         {
-            if (!isPlayer || AutoExplore)
+            if (isPlayer && !AutoExplore)
                 return;
 
             int unexplored =0;
