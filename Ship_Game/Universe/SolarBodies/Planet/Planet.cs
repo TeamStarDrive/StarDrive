@@ -33,7 +33,7 @@ namespace Ship_Game
         public SpaceStation Station = new SpaceStation(null);
 
         public bool GovBuildings = true;
-        public bool GovSliders = true;
+        public bool GovOrbitals  = true;
         public bool AllowInfantry;
 
         public int CrippledTurns;
