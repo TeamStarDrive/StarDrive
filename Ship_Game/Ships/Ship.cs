@@ -1400,7 +1400,7 @@ namespace Ship_Game.Ships
 
         public ShipData ToShipData()
         {
-            var data                       = new ShipData();
+            var data = new ShipData();
             data.BaseCanWarp               = shipData.BaseCanWarp;
             data.BaseStrength              = -1;
             data.TechsNeeded               = shipData.TechsNeeded;
@@ -1421,11 +1421,13 @@ namespace Ship_Game.Ships
             data.MechanicalBoardingDefense = MechanicalBoardingDefense;
             data.BaseHull                  = shipData.BaseHull;
             foreach (Thruster thruster in ThrusterList)
+            {
                 data.ThrusterList.Add(new ShipToolScreen.ThrusterZone
                 {
                     Scale    = thruster.tscale,
                     Position = thruster.XMLPos
                 });
+            }
             return data;
         }
 

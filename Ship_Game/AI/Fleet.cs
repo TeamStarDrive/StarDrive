@@ -748,12 +748,12 @@ namespace Ship_Game.AI
                 {
                     case 0:
                     {
-                        Planet closestPlanet = Owner.FindClosestSpacePort(task.AO);
-                        if (closestPlanet == null)
-                            break;
-                        Vector2 dir = closestPlanet.Center.DirectionToTarget(task.AO);
-                        MoveToNow(closestPlanet.Center, dir);
-                        TaskStep = 1;
+                        if (Owner.FindClosestSpacePort(task.AO, out Planet closestPlanet))
+                        {
+                            Vector2 dir = closestPlanet.Center.DirectionToTarget(task.AO);
+                            MoveToNow(closestPlanet.Center, dir);
+                            TaskStep = 1;
+                        }
                         break;
                     }
                     case 1:
@@ -783,13 +783,13 @@ namespace Ship_Game.AI
                         }
                     case 5:
                     {
-                        Planet closestPlanet = Owner.FindClosestSpacePort(Position);
-                        if (closestPlanet == null)
-                            break;
-                        Position = closestPlanet.Center;
-                        foreach (Ship ship in Ships)
-                            ship.AI.OrderResupply(closestPlanet, true);
-                        TaskStep = 6;
+                        if (Owner.FindClosestSpacePort(Position, out Planet closestPlanet))
+                        {
+                            Position = closestPlanet.Center;
+                            foreach (Ship ship in Ships)
+                                ship.AI.OrderResupply(closestPlanet, true);
+                            TaskStep = 6;
+                        }
                         break;
                     }
                     case 6:
