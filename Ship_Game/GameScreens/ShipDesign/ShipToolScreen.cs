@@ -50,8 +50,6 @@ namespace Ship_Game
 
         private Array<ToggleButton> DesignStateButtons = new Array<ToggleButton>();
 
-        private Vector2 Center;
-
         private string ModelPath;
 
         private Thruster thruster;
@@ -492,7 +490,6 @@ namespace Ship_Game
             projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 10000f);
             moduleSlot = TransientContent.Load<SubTexture>("Textures/Ships/singlebox");
             DottedLine = TransientContent.Load<SubTexture>("Textures/UI/DottedLine");
-            Center = new Vector2(screenWidth / 2, screenHeight / 2);
             ConfigureSlots();
             thruster = new Thruster();
             thruster.LoadAndAssignDefaultEffects(TransientContent);

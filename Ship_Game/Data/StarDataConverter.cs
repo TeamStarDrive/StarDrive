@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -12,29 +8,28 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data
 {
-    public class StartDataParseError : Exception
-    {
-        public StartDataParseError(object value, string couldNotConvertToWhat)
-            : base($"StarDataConverter could not convert '{value}' ({value?.GetType()}) to {couldNotConvertToWhat}")
-        {
-            
-        }
-    }
-
     internal static class ConvertTo
     {
+        public static void Error(object value, string couldNotConvertToWhat)
+        {
+            string e = $"StarDataConverter could not convert '{value}' ({value?.GetType()}) to {couldNotConvertToWhat}";
+            Log.Error(e);
+        }
+
         public static float Float(object value)
         {
             if (value is int i)   return i;
             if (value is float f) return f;
-            throw new StartDataParseError(value, "Float -- expected float");
+            Error(value, "Float -- expected float");
+            return 0f;
         }
 
         public static byte Byte(object value)
         {
             if (value is int i)   return (byte)i;
             if (value is float f) return (byte)(int)f;
-            throw new StartDataParseError(value, "Byte -- expected float");
+            Error(value, "Byte -- expected float");
+            return 0;
         }
     }
     
@@ -138,8 +133,12 @@ namespace Ship_Game.Data
         {
             if (value == null)
                 return null;
+
             if (!(value is object[] array))
-                throw new StartDataParseError(value, "Array convert failed -- expected a list of values [*, *, *]");
+            {
+                ConvertTo.Error(value, "Array convert failed -- expected a list of values [*, *, *]");
+                return value;
+            }
 
             Array converted = Array.CreateInstance(ElemType, array.Length);
             for (int i = 0; i < array.Length; ++i)
@@ -163,7 +162,9 @@ namespace Ship_Game.Data
                 return Enum.Parse(ToEnum, s, ignoreCase:true);
             if (value is int i)
                 return Enum.ToObject(ToEnum, i);
-            throw new StartDataParseError(value, $"Enum '{ToEnum.Name}' -- expected a string or int");
+
+            ConvertTo.Error(value, $"Enum '{ToEnum.Name}' -- expected a string or int");
+            return ToEnum.GetEnumValues().GetValue(0);
         }
     }
 
@@ -180,7 +181,10 @@ namespace Ship_Game.Data
             if (value is int i)   return new Range(i);
             if (value is float f) return new Range(f);
             if (!(value is object[] objects) || objects.Length < 2)
-                throw new StartDataParseError(value, "Range -- expected [float,float] or [int,int] or float or int");
+            {
+                ConvertTo.Error(value, "Range -- expected [float,float] or [int,int] or float or int");
+                return new Range(0);
+            }
             return new Range(Number(objects[0]), Number(objects[1]));
         }
     }
@@ -195,7 +199,8 @@ namespace Ship_Game.Data
             if (value is string s)
                 return new LocText(s);
 
-            throw new StartDataParseError(value, "LocText -- expected int or format string");
+            ConvertTo.Error(value, "LocText -- expected int or format string");
+            return new LocText("INVALID TEXT");
         }
     }
     
@@ -234,7 +239,9 @@ namespace Ship_Game.Data
                 f = f.Clamped(0f, 1f);
                 return new Color(f, f, f, f);
             }
-            throw new StartDataParseError(value, "Color -- expected [int,int,int,int] or [float,float,float,float] or int or number");
+            
+            ConvertTo.Error(value, "Color -- expected [int,int,int,int] or [float,float,float,float] or int or number");
+            return Color.Red;
         }
     }
 
@@ -251,7 +258,8 @@ namespace Ship_Game.Data
             if (value is float f)
                 return (int)f;
 
-            throw new StartDataParseError(value, "Int -- expected string or float");
+            ConvertTo.Error(value, "Int -- expected string or float");
+            return 0;
         }
     }
 
@@ -268,7 +276,8 @@ namespace Ship_Game.Data
             if (value is int i)    return (float)i;
             if (value is float ff) return ff;
             
-            throw new StartDataParseError(value, "Float -- expected string or int");
+            ConvertTo.Error(value, "Float -- expected string or int");
+            return 0.0f;
         }
     }
 
@@ -281,7 +290,8 @@ namespace Ship_Game.Data
                 return s == "true" || s == "True";
             }
             
-            throw new StartDataParseError(value, "Bool -- expected string 'true' or 'false'");
+            ConvertTo.Error(value, "Bool -- expected string 'true' or 'false'");
+            return false;
         }
     }
 
@@ -304,8 +314,9 @@ namespace Ship_Game.Data
                 if (objects.Length >= 2) v.Y = ConvertTo.Float(objects[1]);
                 return v;
             }
-
-            throw new StartDataParseError(value, "Vector2 -- expected [float,float]");
+            
+            ConvertTo.Error(value, "Vector2 -- expected [float,float]");
+            return Vector2.Zero;
         }
     }
 
@@ -321,8 +332,9 @@ namespace Ship_Game.Data
                 if (objects.Length >= 3) v.Z = ConvertTo.Float(objects[2]);
                 return v;
             }
-
-            throw new StartDataParseError(value, "Vector3 -- expected [float,float,float]");
+            
+            ConvertTo.Error(value, "Vector3 -- expected [float,float,float]");
+            return Vector3.Zero;
         }
     }
 
@@ -339,8 +351,9 @@ namespace Ship_Game.Data
                 if (objects.Length >= 4) v.W = ConvertTo.Float(objects[3]);
                 return v;
             }
-
-            throw new StartDataParseError(value, "Vector4 -- expected [float,float,float,float]");
+            
+            ConvertTo.Error(value, "Vector4 -- expected [float,float,float,float]");
+            return Vector4.Zero;
         }
     }
 

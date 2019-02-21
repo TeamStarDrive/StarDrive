@@ -83,6 +83,7 @@ namespace Ship_Game
         public Vector2 BotLeft  => new Vector2(Pos.X,          Pos.Y + Size.Y);
         public float CenterX => Pos.X + Size.X*0.5f;
         public float CenterY => Pos.Y + Size.Y*0.5f;
+        public Vector2 Center => Pos + Size*0.5f;
 
         public string ElementDescr => $"{Name} {{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
 

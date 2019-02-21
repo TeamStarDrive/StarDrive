@@ -6,12 +6,11 @@ namespace Ship_Game
 {
     public sealed class ModInformation
     {
-        public string ModName                = "";
-        public string CustomMenuMusic        = "";
-        public string ModDescription         = "";
+        public string ModName         = "";
+        public string CustomMenuMusic = "";
+        public string ModDescription  = "";
         public bool DisableDefaultRaces;
         public string PortraitPath = "";
-        public string ModImagePath = "";
         public string URL          = "";
         public string Author       = "";
 
@@ -75,8 +74,6 @@ namespace Ship_Game
         public int SwampHab  = 67;
         public int TerranHab = 75;
         
-        public MainMenuLayout Layout = new MainMenuLayout();
-
         public int ChanceForCategory(PlanetCategory category)
         {
             switch (category)
