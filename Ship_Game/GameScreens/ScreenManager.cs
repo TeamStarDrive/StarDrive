@@ -148,24 +148,18 @@ namespace Ship_Game
                 SceneInter.LightManager.Remove(light);
         }
 
-        public void RefreshLight(ILight light)
-        {
-            if (light == null) return;
-            lock (InterfaceLock)
-            {
-                SceneInter.LightManager.Remove(light);
-                SceneInter.LightManager.Submit(light);
-            }
-        }
-
         public void RemoveAllLights()
         {
+            if (NumScreens > 0)
+                Log.Info($"{CurrentScreen.Name} RemoveAllLights");
             lock (InterfaceLock)
                 SceneInter.LightManager.Clear();
         }
 
         public void AssignLightRig(LightRig rig)
         {
+            if (NumScreens > 0)
+                Log.Info($"{CurrentScreen.Name} AssignLightRig {rig.Name}");
             lock (InterfaceLock)
             {
                 SceneInter.LightManager.Clear();

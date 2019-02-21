@@ -21,9 +21,6 @@ namespace Ship_Game
         private UICheckBox CarrierOnlyCheckBox;
         public void ChangeHull(ShipData hull)
         {
-        #if SHIPYARD
-            TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
-        #endif
             if (hull == null) return;
             ModSel.ResetLists();
             RemoveObject(shipSO);
@@ -60,15 +57,6 @@ namespace Ship_Game
                     SlotOptions        = hullSlot.SlotOptions
                 };
                 ActiveHull.ModuleSlots[i] = data;
-            #if SHIPYARD
-                if (data.Restrictions == Restrictions.I)   TotalI++;
-                if (data.Restrictions == Restrictions.O)   TotalO++;
-                if (data.Restrictions == Restrictions.E)   TotalE++;
-                if (data.Restrictions == Restrictions.IO)  TotalIO++;
-                if (data.Restrictions == Restrictions.IE)  TotalIE++;
-                if (data.Restrictions == Restrictions.OE)  TotalOE++;
-                if (data.Restrictions == Restrictions.IOE) TotalIOE++;
-            #endif
             }
 
             BindListsToActiveHull();
@@ -200,6 +188,12 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (input.DebugMode)
+            {
+                LoadContent();
+                return true;
+            }
+
             CategoryList.HandleInput(input);
             HangarOptionsList.HandleInput(input);
             ShieldsBehaviorList.HandleInput(input);
@@ -672,8 +666,8 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
+            Log.Info("ShipDesignScreen.LoadContent");
             RemoveAll();
-            AssignLightRig("example/ShipyardLightrig");
             if (ScreenWidth  <= 1280 || ScreenHeight <= 768)
             {
                 LowRes = true;
@@ -707,7 +701,6 @@ namespace Ship_Game
 
             // FB: added the *2 below since vulfar ships were acting strangly without it (too small vs modulegrid). 
             // Maybe because they are long and narrow. This code is an enigma.
-            // Redfox is working on a fix for this
             float hullWidth = (highestX - lowestX) * 2;
 
             // So, this attempts to zoom so the entire design is visible
@@ -801,35 +794,11 @@ namespace Ship_Game
             BtnSymmetricDesign.ClickSfx = "blip_click";
             BtnSymmetricDesign.Tooltip = Localizer.Token(1984);
 
-
-            //BeginHLayout(ScreenWidth - 150f, ScreenHeight - 47f, -142);
-            //ButtonMedium(titleId:105, click: b =>
-            //{
-            //    if (!CheckDesign()) {
-            //        GameAudio.NegativeClick();
-            //        ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
-            //        return;
-            //    }
-            //    ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
-            //});
-            //ButtonMedium(titleId:8, click: b =>
-            //{
-            //    ScreenManager.AddScreen(new LoadDesigns(this));
-            //});
-            //ButtonMedium(titleId:106, clickSfx:"blip_click", click: b =>
-            //{
-            //    ToggleOverlay = !ToggleOverlay;
-            //});
-            //BtnSymmetricDesign = ButtonMedium(titleId: 1985, clickSfx: "blip_click", click: b =>
-            //{
-            //    OnSymmetricDesignToggle();
-            //});
-            //BtnSymmetricDesign.Tooltip = Localizer.Token(1984);
-            //Vector2 layoutEndV = EndLayout();
-
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomList.Y, 210, 25);
             LoadContentFinish();
             BindListsToActiveHull();
+
+            AssignLightRig("example/ShipyardLightrig");
         }
 
         void LoadContentFinish()
