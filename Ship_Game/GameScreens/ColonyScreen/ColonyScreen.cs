@@ -191,15 +191,7 @@ namespace Ship_Game
                 GovernorDropdown.ActiveIndex = GetIndex(p);
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-
-                // @todo add localization
-                //GovBuildings = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing * 2 + 15, 
-                //                            () => p.GovBuildings, Font12, "Governor manages buildings", 0);
-
-                //GovSliders = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing + 10,
-                //                          () => p.GovSliders, Font12, "Governor manages labor sliders", 0);
-
-                GovOrbitals = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + Font12.LineSpacing + 3,
+                GovOrbitals  = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + Font12.LineSpacing + 3,
                     () => p.GovOrbitals,
                     x => { p.GovOrbitals = x; }, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
             }

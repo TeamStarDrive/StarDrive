@@ -245,7 +245,6 @@ namespace Ship_Game
                             ? ship.Name + " " + Localizer.Token(2041)
                             : ship.Name, position, Color.Green);
                     position.Y += Font12.LineSpacing;
-
                     //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
                     var role = ship.BaseHull.Name;
                     batch.DrawString(Font8, role + ": ", position, Color.DarkGray);
@@ -284,10 +283,50 @@ namespace Ship_Game
                         ((int) (entry.Get<Ship>().GetCost(P.Owner) * P.ShipBuildingModifier)).ToString(), position,
                         Color.White);
                     entry.DrawPlusEdit(batch);
+
+                    DrawSelectedShipInfo((int)position.X, entry.CenterY, ship, batch);
                 }
             }
 
             PlayerDesignsToggle.Draw(ScreenManager);
+        }
+
+        void DrawSelectedShipInfo(int x, int y, Ship ship, SpriteBatch batch)
+        {
+            var shipBackground = new Rectangle(x - 840, y - 120, 360, 240);
+            var shipOverlay    = new Rectangle(x - 700, y - 100, 200, 200);
+            Vector2 cursor     = new Vector2(x - 815, y - 119);
+            batch.Draw(ResourceManager.Texture("NewUI/colonyShipBuildBG"), shipBackground, Color.White);
+            ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
+            DrawShipDataLine(ship.Name, "", ref cursor, batch, Font12, Color.Gold);
+            DrawShipDataLine("Speed:", ship.Speed, ref cursor, batch, Font8, Color.White);
+            DrawShipDataLine("W.Speed:", ship.maxFTLSpeed, ref cursor, batch, Font8, Color.White);
+            DrawShipDataLine("Turn Speed:", ship.TurnThrust, ref cursor, batch, Font8, Color.White);
+            DrawShipDataLine("Shields:", ship.shield_max, ref cursor, batch, Font8, Color.White);
+        }
+
+        void DrawShipDataLine(string description, string data, ref Vector2 cursor, SpriteBatch batch, SpriteFont font, Color color)
+        {
+            NextLine(ref cursor, font);
+            Vector2 ident = new Vector2(cursor.X + 80, cursor.Y);
+            batch.DrawString(font, description, cursor, color);
+            batch.DrawString(font, data, ident, color);
+        }
+
+        void DrawShipDataLine(string description, float data, ref Vector2 cursor, SpriteBatch batch, SpriteFont font, Color color)
+        {
+            if (data.LessOrEqual(0))
+                return;
+
+            NextLine(ref cursor, font);
+            Vector2 ident = new Vector2(cursor.X + 80, cursor.Y);
+            batch.DrawString(font, description, cursor, color);
+            batch.DrawString(font, data.GetNumberString(), ident, color);
+        }
+
+        void NextLine(ref Vector2 cursor, SpriteFont font)
+        {
+            cursor.Y += font.LineSpacing + 2;
         }
 
         void DrawBuildTroopsList(SpriteBatch batch)
