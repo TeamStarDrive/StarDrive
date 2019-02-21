@@ -63,25 +63,34 @@ Panel: optical_sun_flare
   AxisAlign: Center
   DrawDepth: BackAdditive
   Animation: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
-    #Pattern: Sine
     MinColor: [0.6,0.6,0.6,1.0] # vary the color from min
     MaxColor: [1.0,1.0,1.0,1.0]    # to max
 
+Panel: stardrive_animated_logo
+  Size: [0.3, 0]
+  Pos: [-0.06, 60]
+  AxisAlign: TopRight
+  DrawDepth: Foreground
+  SpriteAnim: ../MainMenu/Stardrive logo
+    Delay: 0
+    Duration: 3
+    FreezeAtLastFrame: true
+
 Panel: blacbox_animated_logo
-  Size: [0.5, 0]
-  Pos: [0.05, 360]
-  Color: [0.8,0.8,0.8,1]
-  AxisAlign: Center
+  Size: [0.25, 0]
+  Pos: [-0.06, 170]
+  Color: [0.8,0.8,0.8,0.0] # start with alpha 0.0
+  AxisAlign: TopRight
   DrawDepth: Foreground
   SpriteAnim: MMenu/bb_logo_animated
-    Delay: 2
+    Delay: 0
     Duration: 7
     StartAt: 0
     Looping: true
     FreezeAtLastFrame: false
     VisibleBeforeDelay: true
-  Animation: [2, 3, 0, 3.0, 0] # delay, duration, end-time, fadein, fadeout
-    Alpha: [0, 0.5]
+  Animation: [1, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
+    Alpha: [0, 1]
 
 Panel: vignette
   Texture: MainMenu/vignette
@@ -102,29 +111,23 @@ Panel: corner_BR
   Animation: [2.5, 6, 9, 1, 1] # delay, duration, end-time, fadein, fadeout
     Alpha: [0.5, 1.0]
     Pattern: Sine
-  
-Panel: moon_flare # this element is automatically translated
-  Texture: MMenu/moon_flare.png
-  Rect: [-225, -193, 0.22, 0]
-  DrawDepth: ForeAdditive # on top of 3D objects
 
-# moon text elements are automatically translated to moon center
-# so position is offset from moon center
-Panel: moon_text_1
+# logo text elements are automatically translated to logo center
+Panel: logo_text_1
   Texture: MainMenu/moon_1
-  Pos: [-220,-130]
+  Pos: [-385,-170]
   Animation: [1.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
     Alpha: [0.0, 1.0]
 
-Panel: moon_text_2
+Panel: logo_text_2
   Texture: MainMenu/moon_2
-  Pos: [-250,60]
+  Pos: [-350,10]
   Animation: [5.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
     Alpha: [0.0, 1.0]
 
-Panel: moon_text_3
+Panel: logo_text_3
   Texture: MainMenu/moon_3
-  Pos: [60, 80]
+  Pos: [45, 10]
   Animation: [7.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
     Alpha: [0.0, 1.0]
 

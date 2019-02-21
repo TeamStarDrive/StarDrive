@@ -191,7 +191,7 @@ namespace Ship_Game.AI
             {
                 Plan = sg.Plan;
                 MovePosition = sg.MovePosition;
-                Direction = sg.DesiredFacing.RadiansToDirection();
+                Direction = sg.Direction;
 
                 if (sg.TargetPlanetGuid != Guid.Empty)
                     TargetPlanet = data.FindPlanet(sg.TargetPlanetGuid);
@@ -228,11 +228,11 @@ namespace Ship_Game.AI
                 GC.SuppressFinalize(this);
             }
 
-            private void Destroy()
+            void Destroy()
             {
                 if (IsDisposed) return;
                 IsDisposed = true;
-                Trade?.UnregisterTrade(Trade.Freighter);
+                Trade?.UnRegisterTrade(Trade.Freighter);
             }
         }
 
@@ -252,19 +252,8 @@ namespace Ship_Game.AI
                 BlockadeTimer = blockadeTimer;
                 Freighter      = freighter;
 
-                RegisterTrade(freighter);
-            }
-            
-            public void RegisterTrade(Ship freighter)
-            {
                 ExportFrom.AddToOutgoingFreighterList(freighter);
                 ImportTo.AddToIncomingFreighterList(freighter);
-            }
-
-            public void UnregisterTrade(Ship freighter)
-            {
-                ExportFrom.RemoveFromOutgoingFreighterList(freighter);
-                ImportTo.RemoveFromIncomingFreighterList(freighter);
             }
 
             public TradePlan(SavedGame.TradePlanSave save, UniverseData data, Ship freighter)
@@ -274,6 +263,12 @@ namespace Ship_Game.AI
                 ImportTo      = data.FindPlanet(save.ImportTo);
                 BlockadeTimer = save.BlockadeTimer;
                 Freighter     = freighter;
+            }
+            
+            public void UnRegisterTrade(Ship freighter)
+            {
+                ExportFrom.RemoveFromOutgoingFreighterList(freighter);
+                ImportTo.RemoveFromIncomingFreighterList(freighter);
             }
         }
 

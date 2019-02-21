@@ -4,21 +4,20 @@ using System.Linq;
 
 namespace Ship_Game
 {
-    public sealed class SaveGameScreen : GenericLoadSaveScreen, IDisposable
+    public sealed class SaveGameScreen : GenericLoadSaveScreen
     {
-        private UniverseScreen screen;
+        readonly UniverseScreen Screen;
 
         public SaveGameScreen(UniverseScreen screen) 
             : base(screen, SLMode.Save, screen.PlayerLoyalty + ", Star Date " + screen.StarDateString, "Save Game", "Saved Games", "Saved Game already exists.  Overwrite?")
         {
-            this.screen = screen;
+            Screen = screen;
             Path = Dir.StarDriveAppData + "/Saved Games/";
-            //this.selectedFile = new FileData();
         }
 
         public override void DoSave()
         {
-            SavedGame savedGame = new SavedGame(screen, EnterNameArea.Text);
+            var savedGame = new SavedGame(Screen, EnterNameArea.Text);
             ExitScreen();
         }
 
