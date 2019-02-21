@@ -1603,7 +1603,7 @@ namespace Ship_Game.Ships
             float longR = longRange.GetAverageDam();
             float shotR = shortRange.GetAverageDam();
 
-            if (AI.CombatState == CombatState.Artillery || AI.CombatState != CombatState.ShortRange && longR > shotR)
+            if (AI?.CombatState == CombatState.Artillery || AI?.CombatState != CombatState.ShortRange && longR > shotR)
             {
                 return longRange.GetAverageRange();
             }
@@ -2224,7 +2224,6 @@ namespace Ship_Game.Ships
             }
             CurrentStrength = CalculateShipStrength();
             maxWeaponsRange = CalculateMaxWeaponsRange();
-
         }
 
         public bool IsTethered => TetheredTo != null;
