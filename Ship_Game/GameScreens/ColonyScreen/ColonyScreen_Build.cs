@@ -94,7 +94,7 @@ namespace Ship_Game
         }
 
         #endregion
-
+        Ship SelectedShip;
 
         void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
@@ -236,7 +236,12 @@ namespace Ship_Game
                 else
                 {
                     var ship = entry.Get<Ship>();
-
+                    if (ship != SelectedShip) // no need to do these calcs all the time for the same ship
+                    {
+                        ship.RecalculatePower();
+                        ship.ShipStatusChange();
+                        SelectedShip = ship;
+                    }
                     topLeft.Y = entry.Y;
                     batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
                     Vector2 position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
@@ -297,12 +302,20 @@ namespace Ship_Game
             var shipOverlay    = new Rectangle(x - 700, y - 100, 200, 200);
             Vector2 cursor     = new Vector2(x - 815, y - 119);
             batch.Draw(ResourceManager.Texture("NewUI/colonyShipBuildBG"), shipBackground, Color.White);
+            float subLightSpeed = ship.Thrust / ship.Mass;
+            float warpSpeed     = ship.WarpThrust / ship.Mass * EmpireManager.Player.data.FTLModifier;
+            float turnRate      = ship.TurnThrust.ToDegrees() / ship.Mass / 700;
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
-            DrawShipDataLine(ship.Name, "", ref cursor, batch, Font12, Color.Gold);
-            DrawShipDataLine("Speed:", ship.Speed, ref cursor, batch, Font8, Color.White);
-            DrawShipDataLine("W.Speed:", ship.maxFTLSpeed, ref cursor, batch, Font8, Color.White);
-            DrawShipDataLine("Turn Speed:", ship.TurnThrust, ref cursor, batch, Font8, Color.White);
-            DrawShipDataLine("Shields:", ship.shield_max, ref cursor, batch, Font8, Color.White);
+            DrawShipDataLine(ship.Name, "", ref cursor, batch, Font12, Color.White);
+            DrawShipDataLine("Warp:", warpSpeed, ref cursor, batch, Font8, Color.LightBlue);
+            DrawShipDataLine("Speed:", subLightSpeed, ref cursor, batch, Font8, Color.LightBlue);
+            DrawShipDataLine("Turn Rate:", turnRate, ref cursor, batch, Font8, Color.LightBlue);
+            DrawShipDataLine("Shields:", ship.shield_max, ref cursor, batch, Font8, Color.LightGreen);
+            DrawShipDataLine("Hangars:", ship.Carrier.AllFighterHangars.Count(), ref cursor, batch, Font8, Color.IndianRed);
+            DrawShipDataLine("Troop Bays:", ship.Carrier.AllTroopBays.Count(), ref cursor, batch, Font8, Color.IndianRed);
+            DrawShipDataLine("Troops:", ship.TroopCapacity, ref cursor, batch, Font8, Color.IndianRed);
+            DrawShipDataLine("Bomb Bays:", ship.BombCount, ref cursor, batch, Font8, Color.IndianRed);
+            DrawShipDataLine("EMP Def:", ship.EmpTolerance, ref cursor, batch, Font8, Color.Purple);
         }
 
         void DrawShipDataLine(string description, string data, ref Vector2 cursor, SpriteBatch batch, SpriteFont font, Color color)

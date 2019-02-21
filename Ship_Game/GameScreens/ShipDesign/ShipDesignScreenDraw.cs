@@ -447,11 +447,10 @@ namespace Ship_Game
             empResist += size; // FB: so the player will know the true EMP Tolerance
             targets   += fixedTargets;
 
-            // @todo WTF is this?
-            mass += (ActiveHull.ModuleSlots.Length / 2f);
+            mass += (ActiveHull.ModuleSlots.Length);
             mass *= EmpireManager.Player.data.MassModifier;
-            if (mass < (ActiveHull.ModuleSlots.Length / 2f))
-                mass = (ActiveHull.ModuleSlots.Length / 2f);
+            if (mass < ActiveHull.ModuleSlots.Length)
+                mass = ActiveHull.ModuleSlots.Length;
 
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
