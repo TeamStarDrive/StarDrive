@@ -591,7 +591,7 @@ namespace Ship_Game.AI
                 if (fallback != planet)
                     AddOrbitPlanetGoal(fallback, AIState.AwaitingOrders);
 
-                g.Trade.UnregisterTrade(Owner);
+                g.Trade.UnRegisterTrade(Owner);
                 return true;
             }
             g.Trade.BlockadeTimer = 120f; // blockade was removed, continue as planned

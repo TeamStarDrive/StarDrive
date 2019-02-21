@@ -327,8 +327,8 @@ namespace Ship_Game.Ships
         public void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
         {
             InitializeAI();
-            AI.State              = aiSave.state;
-            AI.DefaultAIState     = aiSave.defaultstate;
+            AI.State              = aiSave.State;
+            AI.DefaultAIState     = aiSave.DefaultState;
             AI.MovePosition       = aiSave.MovePosition;
             AI.OrbitTargetGuid    = aiSave.OrbitTarget;
             AI.TargetGuid         = aiSave.AttackTarget;
