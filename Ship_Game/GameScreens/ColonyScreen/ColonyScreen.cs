@@ -29,7 +29,6 @@ namespace Ship_Game
         private Submenu pFacilities;
         private Submenu build;
         private Submenu queue;
-        private UICheckBox GovSliders;
         private UICheckBox GovOrbitals;
         private UITextEntry PlanetName = new UITextEntry();
         private Rectangle PlanetIcon;
@@ -40,9 +39,7 @@ namespace Ship_Game
         private UIButton SendTroops;  //fbedard
         private DropOptions<int> GovernorDropdown;
         public CloseButton close;
-        private Rectangle MoneyRect;
         private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
-        private ScrollList CommoditiesSL;
         private Rectangle GridPos;
         private Submenu subColonyGrid;
         private ScrollList buildSL;
@@ -85,8 +82,6 @@ namespace Ship_Game
             LeftMenu = new Menu1(theMenu2);
             var theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, ScreenWidth / 3 - 15, ScreenHeight - theMenu1.Y - 2);
             RightMenu = new Menu1(theMenu3);
-            var iconMoney = ResourceManager.Texture("NewUI/icon_money");
-            MoneyRect = new Rectangle(theMenu2.X + theMenu2.Width - 75, theMenu2.Y + 20, iconMoney.Width, iconMoney.Height);
             close = new CloseButton(this, new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
             var theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             PlanetInfo = new Submenu(theMenu4);
@@ -147,7 +142,7 @@ namespace Ship_Game
             SendTroops = Button(theMenu9.X + theMenu9.Width - launchTroops.Rect.Width - 185,
                                 theMenu9.Y - 5, "Send Troops", OnSendTroopsClicked);
 
-            CommoditiesSL = new ScrollList(pFacilities, 40);
+            //new ScrollList(pFacilities, 40);
             var theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (theMenu3.Height - 60)));
             build = new Submenu(theMenu10);
             build.AddTab(Localizer.Token(334));
@@ -192,16 +187,8 @@ namespace Ship_Game
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
 
-                // @todo add localization
-                //GovBuildings = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing * 2 + 15, 
-                //                            () => p.GovBuildings, Font12, "Governor manages buildings", 0);
-
-                //GovSliders = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing + 10,
-                //                          () => p.GovSliders, Font12, "Governor manages labor sliders", 0);
-
                 GovOrbitals = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + Font12.LineSpacing + 3,
-                    () => p.GovOrbitals,
-                    x => { p.GovOrbitals = x; }, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
+                    () => p.GovOrbitals, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
             }
             else
             {
