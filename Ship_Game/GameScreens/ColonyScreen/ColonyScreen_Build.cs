@@ -298,15 +298,17 @@ namespace Ship_Game
 
         void DrawSelectedShipInfo(int x, int y, Ship ship, SpriteBatch batch)
         {
-            var shipBackground = new Rectangle(x - 840, y - 120, 360, 240);
-            var shipOverlay    = new Rectangle(x - 700, y - 100, 200, 200);
-            Vector2 cursor     = new Vector2(x - 815, y - 119);
-            batch.Draw(ResourceManager.Texture("NewUI/colonyShipBuildBG"), shipBackground, Color.White);
-            float subLightSpeed = ship.Thrust / ship.Mass;
+            var shipBackground  = new Rectangle(x - 840, y - 120, 360, 240);
+            var shipOverlay     = new Rectangle(x - 700, y - 100, 200, 200);
+            Vector2 cursor      = new Vector2(x - 815, y - 119);
+            float subLightSpeed = ship.Thrust / ship.Mass; 
             float warpSpeed     = ship.WarpThrust / ship.Mass * EmpireManager.Player.data.FTLModifier;
             float turnRate      = ship.TurnThrust.ToDegrees() / ship.Mass / 700;
+            batch.Draw(ResourceManager.Texture("NewUI/colonyShipBuildBG"), shipBackground, Color.White);
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
             DrawShipDataLine(ship.Name, "", ref cursor, batch, Font12, Color.White);
+            DrawShipDataLine(ship.shipData.ShipCategory.ToString(), "", ref cursor, batch, Font8, Color.Gray);
+            DrawShipDataLine(ship.shipData.CombatState.ToString(), "", ref cursor, batch, Font8, Color.Yellow);
             DrawShipDataLine("Weapons:", ship.Weapons.Count, ref cursor, batch, Font8, Color.Gold);
             DrawShipDataLine("Warp:", warpSpeed, ref cursor, batch, Font8, Color.LightBlue);
             DrawShipDataLine("Speed:", subLightSpeed, ref cursor, batch, Font8, Color.LightBlue);
@@ -315,7 +317,7 @@ namespace Ship_Game
             DrawShipDataLine("Hangars:", ship.Carrier.AllFighterHangars.Count(), ref cursor, batch, Font8, Color.IndianRed);
             DrawShipDataLine("Troop Bays:", ship.Carrier.AllTroopBays.Count(), ref cursor, batch, Font8, Color.IndianRed);
             DrawShipDataLine("Troops:", ship.TroopCapacity, ref cursor, batch, Font8, Color.IndianRed);
-            DrawShipDataLine("Bomb Bays:", ship.BombCount, ref cursor, batch, Font8, Color.IndianRed);
+            DrawShipDataLine("Bomb Bays:", ship.BombBays.Count, ref cursor, batch, Font8, Color.IndianRed);
             DrawShipDataLine("EMP Def:", ship.EmpTolerance, ref cursor, batch, Font8, Color.Purple);
         }
 
