@@ -150,16 +150,12 @@ namespace Ship_Game
 
         public void RemoveAllLights()
         {
-            if (NumScreens > 0)
-                Log.Info($"{CurrentScreen.Name} RemoveAllLights");
             lock (InterfaceLock)
                 SceneInter.LightManager.Clear();
         }
 
         public void AssignLightRig(LightRig rig)
         {
-            if (NumScreens > 0)
-                Log.Info($"{CurrentScreen.Name} AssignLightRig {rig.Name}");
             lock (InterfaceLock)
             {
                 SceneInter.LightManager.Clear();
@@ -224,7 +220,10 @@ namespace Ship_Game
             {
                 for (int i = 0; i < Screens.Count; ++i)
                 {
-                    Screens[i].Draw(batch);
+                    if (Screens[i].Visible)
+                    {
+                        Screens[i].Draw(batch);
+                    }
                 }
             }
             catch (Exception e)
