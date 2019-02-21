@@ -106,7 +106,7 @@ namespace Ship_Game.GameScreens.MainMenu
             VersionArea = Panel(Rectangle.Empty, Color.TransparentBlack);
             VersionArea.StartFadeIn(3.0f, delay: 2.0f);
 
-            VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 90, "StarDrive 16A"));
+            VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 90, "StarDrive 15B"));
             VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 64, GlobalStats.ExtendedVersion));
             if (GlobalStats.HasMod)
             {
