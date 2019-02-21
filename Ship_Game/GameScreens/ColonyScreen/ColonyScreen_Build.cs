@@ -307,6 +307,7 @@ namespace Ship_Game
             float turnRate      = ship.TurnThrust.ToDegrees() / ship.Mass / 700;
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
             DrawShipDataLine(ship.Name, "", ref cursor, batch, Font12, Color.White);
+            DrawShipDataLine("Weapons:", ship.Weapons.Count, ref cursor, batch, Font8, Color.Gold);
             DrawShipDataLine("Warp:", warpSpeed, ref cursor, batch, Font8, Color.LightBlue);
             DrawShipDataLine("Speed:", subLightSpeed, ref cursor, batch, Font8, Color.LightBlue);
             DrawShipDataLine("Turn Rate:", turnRate, ref cursor, batch, Font8, Color.LightBlue);
