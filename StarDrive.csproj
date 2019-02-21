@@ -1612,6 +1612,9 @@
     <None Include="Content\Textures\Modules\PolaronTurret3x3.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\NewUI\colonyShipBuildBG.xnb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Content\Textures\NewUI\DynamicBomber.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
