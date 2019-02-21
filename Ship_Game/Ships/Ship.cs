@@ -457,21 +457,19 @@ namespace Ship_Game.Ships
 
         public int BombCount
         {
-
-            get
+           get
             {
-                int Bombs = 0;
+                int bombs = 0;
                 if (BombBays.Count > 0)
                 {
-                    ++Bombs;
+                    ++bombs;
                     if (Ordinance / OrdinanceMax > 0.2f)
                     {
-                        Bombs += BombBays.Count;
+                        bombs += BombBays.Count;
                     }
                 }
-                return Bombs;
+                return bombs;
             }
-
         }
 
         public bool FightersOut
