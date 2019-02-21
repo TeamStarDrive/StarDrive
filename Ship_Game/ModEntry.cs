@@ -1,18 +1,18 @@
 using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
-	public sealed class ModEntry : UIElementV2
+	public sealed class ModEntry : UIElementContainer
 	{
 		public string ModName;
 		public ModInformation mi;
 		public string MainMenuMusic;
         public string Version;        
         SubTexture PortraitTex;
-        SubTexture BackgroundTex;
-        Vector2 BackgroundSize;
 
         public ModEntry(ModInformation modInfo) : base(null, Vector2.Zero)
 		{
@@ -24,21 +24,11 @@ namespace Ship_Game
 
         public void LoadContent(GameScreen screen)
         {
+            RemoveAll();
             Size = screen.Size;
-            var content = screen.ContentManager;
-            PortraitTex = content.LoadModTexture(ModName, mi.PortraitPath);
+            PortraitTex = screen.ContentManager.LoadModTexture(ModName, mi.PortraitPath);
 
-            if (mi.Layout.ShowModImage)
-            {
-                BackgroundTex = content.LoadModTexture(ModName, mi.ModImagePath);
-                BackgroundSize = BackgroundTex.SizeF;
-                if (mi.Layout.ModImageFillScreen)
-                {
-                    // fill the width of the screen
-                    float aspectRatio = (float)BackgroundTex.Height / BackgroundTex.Width;
-                    BackgroundSize = new Vector2(screen.ScreenWidth, screen.ScreenWidth * aspectRatio);
-                }
-            }
+            LayoutParser.LoadLayout(this, Size, "UI/MainMenu.Mod.yaml", layoutRequired: false);
         }
 
         public void DrawListElement(SpriteBatch batch, Rectangle clickRect)
@@ -70,12 +60,6 @@ namespace Ship_Game
             batch.Draw(PortraitTex, portrait, Color.White);
             batch.DrawRectangle(portrait, Color.White);
 		}
-
-        public override void Draw(SpriteBatch batch)
-        {
-            if (BackgroundTex != null)
-                batch.Draw(BackgroundTex, mi.Layout.ModImagePos, BackgroundSize);
-        }
 
         public override bool HandleInput(InputState input)
         {
