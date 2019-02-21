@@ -101,6 +101,7 @@ namespace Ship_Game
             }
 
             p.colonyType = psdata.ColonyType;
+            p.GovOrbitals = psdata.GovOrbitals;
 
             p.FS                    = psdata.FoodState;
             p.PS                    = psdata.ProdState;
