@@ -255,7 +255,6 @@ namespace Ship_Game.AI
     public class PlanetTracker
     {
         public float Value;
-        public int TroopsWanted;
         public int TroopsHere;
         public Planet Planet;
         readonly Empire Owner;
