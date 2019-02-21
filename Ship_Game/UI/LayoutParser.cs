@@ -14,7 +14,7 @@ namespace Ship_Game.UI
         public static void LoadLayout(GameScreen screen, string layoutFile)
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile(layoutFile);
-            Load(screen, screen.ScreenArea, file);
+            LoadLayout(screen, screen.ScreenArea, file);
 
             // trigger ReloadContent when layout file is modified
             ScreenManager.Instance.AddHotLoadTarget(screen, layoutFile, file.FullName);
@@ -22,17 +22,22 @@ namespace Ship_Game.UI
 
         // Loads a generic UI container -- does not register for HotLoading
         // because container might have been destroyed
-        public static void LoadLayout(UIElementContainer container, Vector2 size, string layoutFile)
+        public static void LoadLayout(UIElementContainer container, Vector2 size, string layoutFile, bool layoutRequired = true)
         {
+            container.RemoveAll();
+
             FileInfo file = ResourceManager.GetModOrVanillaFile(layoutFile);
-            Load(container, size, file);
+            if (file == null && layoutRequired)
+                throw new FileNotFoundException($"Missing required layout {layoutFile}");
+
+            if (file != null)
+                LoadLayout(container, size, file);
         }
 
-        static void Load(UIElementContainer main, Vector2 size, FileInfo file)
+        public static void LoadLayout(UIElementContainer container, Vector2 size, FileInfo file)
         {
-            main.RemoveAll();
-
-            var layoutParser = new LayoutParser(main, size, file);
+            container.RemoveAll();
+            var layoutParser = new LayoutParser(container, size, file);
             layoutParser.CreateElements();
         }
 
