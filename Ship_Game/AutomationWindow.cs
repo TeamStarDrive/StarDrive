@@ -93,10 +93,10 @@ namespace Ship_Game
 
             UIList rest = List(new Vector2(win.X + 10f, win.Y + 200f));
             rest.Padding = new Vector2(2f, 10f);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoFreighterPicker, title:1958, tooltip:1959);
-            rest.AddCheckbox(() => GlobalStats.AutoCombat,                   title:2207, tooltip:2230);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,        title:6136, tooltip:7039);
-            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,      title:6138, tooltip:7040);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title:1958, tooltip:1959);
+            rest.AddCheckbox(() => GlobalStats.AutoCombat,                     title:2207, tooltip:2230);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title:6136, tooltip:7039);
+            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title:6138, tooltip:7040);
 
 
             UpdateDropDowns();
