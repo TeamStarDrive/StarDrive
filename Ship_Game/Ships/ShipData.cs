@@ -60,9 +60,8 @@ namespace Ship_Game.Ships
         [XmlArray(ElementName = "techsNeeded")] public HashSet<string> TechsNeeded = new HashSet<string>();
         [XmlIgnore] [JsonIgnore] public int TechScore;
 
-        //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
-        private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
-        private static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
+        static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
+        static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
         [XmlIgnore] [JsonIgnore] public RoleName HullRole => BaseHull.Role;
 
         [XmlIgnore] [JsonIgnore] public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
