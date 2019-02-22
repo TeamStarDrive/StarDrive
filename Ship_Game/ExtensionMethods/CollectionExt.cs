@@ -76,6 +76,14 @@ namespace Ship_Game
             return n;
         }
 
+        public static int Count<TKey, TValue>(this Map<TKey, TValue>.ValueCollection values, Predicate<TValue> match)
+        {
+            int count = 0;
+            foreach (TValue value in values)
+                if (match(value))
+                    ++count;
+            return count;
+        }
 
         // warning, this is O(n*m), worst case O(n^2)
         // Special optimized version that only works with reference types

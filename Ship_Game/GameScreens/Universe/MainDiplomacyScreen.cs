@@ -901,17 +901,12 @@ namespace Ship_Game
         private float GetScientificStr(Empire e)
         {
             float scientificStr = 0f;
-            HashSet<Planet> planets = new HashSet<Planet>();
 
             if (Traders.Contains(e) || Friends.Contains(e))
             {
-                foreach (KeyValuePair<string, TechEntry> Technology in e.GetTDict())
+                foreach (TechEntry tech in e.TechEntries)
                 {
-                    if (!Technology.Value.Unlocked)
-                    {
-                        continue;
-                    }
-                    scientificStr += ResourceManager.Tech(Technology.Key).ActualCost;
+                    if (tech.Unlocked) scientificStr += tech.Tech.ActualCost;
                 }
                 return scientificStr;
             }
