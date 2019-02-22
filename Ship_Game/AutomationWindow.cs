@@ -82,20 +82,21 @@ namespace Ship_Game
             ColonyShipDropDown = ticks.Add(new CheckedDropdown(this))
                 .Create(() => EmpireManager.Player.AutoColonize, title:306, tooltip:2227);
 
-            FreighterDropDown = ticks.Add(new CheckedDropdown(this))
-                .Create(() => EmpireManager.Player.AutoFreighters, title:308, tooltip:2229);
-
             ConstructorDropDown = ticks.Add(new CheckedDropdown(this))
                 .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
+
+            FreighterDropDown = ticks.Add(new CheckedDropdown(this))
+                .Create(() => EmpireManager.Player.AutoFreighters, title: 308, tooltip: 2229);
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
 
-            UIList rest = List(new Vector2(win.X + 10f, win.Y + 220f));
+            UIList rest = List(new Vector2(win.X + 10f, win.Y + 200f));
             rest.Padding = new Vector2(2f, 10f);
-            rest.AddCheckbox(() => GlobalStats.AutoCombat,              title:2207, tooltip:2230);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,   title:6136, tooltip:7039);
-            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes, title:6138, tooltip:7040);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoFreighterPicker, title:1958, tooltip:1959);
+            rest.AddCheckbox(() => GlobalStats.AutoCombat,                   title:2207, tooltip:2230);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,        title:6136, tooltip:7039);
+            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,      title:6138, tooltip:7040);
 
 
             UpdateDropDowns();
@@ -188,8 +189,6 @@ namespace Ship_Game
 
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && ship.CargoSpaceMax > 0f);
-
-            FreighterDropDown?.AddOption("<Fully Automated>", 0);
 
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.isColonyShip);

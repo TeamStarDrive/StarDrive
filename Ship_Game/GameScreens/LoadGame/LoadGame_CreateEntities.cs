@@ -543,10 +543,11 @@ namespace Ship_Game
                 data.EmpireList.Add(e);
                 if (isPlayer)
                 {
-                    e.AutoColonize = saveData.AutoColonize;
-                    e.AutoExplore = saveData.AutoExplore;
-                    e.AutoFreighters = saveData.AutoFreighters;
-                    e.AutoBuild = saveData.AutoProjectors;
+                    e.AutoColonize        = saveData.AutoColonize;
+                    e.AutoExplore         = saveData.AutoExplore;
+                    e.AutoFreighters      = saveData.AutoFreighters;
+                    e.AutoFreighterPicker = saveData.AutoFreightersPicker;
+                    e.AutoBuild           = saveData.AutoProjectors;
                 }
 
                 EmpireManager.Add(e);
