@@ -19,8 +19,8 @@ namespace Ship_Game
 		public Rectangle TitleRect;
 
 		public Rectangle BaseRect = new Rectangle(0, 0, 92, 98);
-
-        //public bool researching;          //Not referenced in code, removing to save memory
+        public Vector2 RightPoint => new Vector2(BaseRect.Right - 25,
+                                                 BaseRect.CenterY() - 10);
 
         public bool complete;
 
