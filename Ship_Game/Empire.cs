@@ -80,6 +80,7 @@ namespace Ship_Game
         public bool AutoExplore;
         public bool AutoColonize;
         public bool AutoFreighters;
+        public bool AutoFreighterPicker;
         public bool AutoResearch;
         public int TotalScore;
         public float TechScore;
