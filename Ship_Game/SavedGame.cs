@@ -76,33 +76,34 @@ namespace Ship_Game
 
         public SavedGame(UniverseScreen screenToSave, string saveAs)
         {
-            SaveData.SaveGameVersion     = SaveGameVersion;
-            SaveData.RemnantKills        = GlobalStats.RemnantKills;
-            SaveData.RemnantActivation   = GlobalStats.RemnantActivation;
-            SaveData.RemnantArmageddon   = GlobalStats.RemnantArmageddon;
-            SaveData.gameDifficulty      = CurrentGame.Difficulty;
-            SaveData.AutoColonize        = EmpireManager.Player.AutoColonize;
-            SaveData.AutoExplore         = EmpireManager.Player.AutoExplore;
-            SaveData.AutoFreighters      = EmpireManager.Player.AutoFreighters;
-            SaveData.AutoProjectors      = EmpireManager.Player.AutoBuild;
-            SaveData.GamePacing          = CurrentGame.Pace;
-            SaveData.GameScale           = screenToSave.GameScale;
-            SaveData.StarDate            = screenToSave.StarDate;
-            SaveData.FTLModifier         = screenToSave.FTLModifier;
-            SaveData.EnemyFTLModifier    = screenToSave.EnemyFTLModifier;
-            SaveData.GravityWells        = screenToSave.GravityWells;
-            SaveData.PlayerLoyalty       = screenToSave.PlayerLoyalty;
-            SaveData.RandomEvent         = RandomEventManager.ActiveEvent;
-            SaveData.campos              = new Vector2(screenToSave.CamPos.X, screenToSave.CamPos.Y);
-            SaveData.camheight           = screenToSave.CamHeight;
-            SaveData.MinimumWarpRange    = GlobalStats.MinimumWarpRange;
-            SaveData.TurnTimer           = (byte)GlobalStats.TurnTimer;
-            SaveData.IconSize            = GlobalStats.IconSize;
-            SaveData.preventFederations  = GlobalStats.PreventFederations;
-            SaveData.GravityWellRange    = GlobalStats.GravityWellRange;
-            SaveData.EliminationMode     = GlobalStats.EliminationMode;
-            SaveData.EmpireDataList      = new Array<EmpireSaveData>();
-            SaveData.SolarSystemDataList = new Array<SolarSystemSaveData>();
+            SaveData.SaveGameVersion      = SaveGameVersion;
+            SaveData.RemnantKills         = GlobalStats.RemnantKills;
+            SaveData.RemnantActivation    = GlobalStats.RemnantActivation;
+            SaveData.RemnantArmageddon    = GlobalStats.RemnantArmageddon;
+            SaveData.gameDifficulty       = CurrentGame.Difficulty;
+            SaveData.AutoColonize         = EmpireManager.Player.AutoColonize;
+            SaveData.AutoExplore          = EmpireManager.Player.AutoExplore;
+            SaveData.AutoFreighters       = EmpireManager.Player.AutoFreighters;
+            SaveData.AutoFreightersPicker = EmpireManager.Player.AutoFreighterPicker;
+            SaveData.AutoProjectors       = EmpireManager.Player.AutoBuild;
+            SaveData.GamePacing           = CurrentGame.Pace;
+            SaveData.GameScale            = screenToSave.GameScale;
+            SaveData.StarDate             = screenToSave.StarDate;
+            SaveData.FTLModifier          = screenToSave.FTLModifier;
+            SaveData.EnemyFTLModifier     = screenToSave.EnemyFTLModifier;
+            SaveData.GravityWells         = screenToSave.GravityWells;
+            SaveData.PlayerLoyalty        = screenToSave.PlayerLoyalty;
+            SaveData.RandomEvent          = RandomEventManager.ActiveEvent;
+            SaveData.campos               = new Vector2(screenToSave.CamPos.X, screenToSave.CamPos.Y);
+            SaveData.camheight            = screenToSave.CamHeight;
+            SaveData.MinimumWarpRange     = GlobalStats.MinimumWarpRange;
+            SaveData.TurnTimer            = (byte)GlobalStats.TurnTimer;
+            SaveData.IconSize             = GlobalStats.IconSize;
+            SaveData.preventFederations   = GlobalStats.PreventFederations;
+            SaveData.GravityWellRange     = GlobalStats.GravityWellRange;
+            SaveData.EliminationMode      = GlobalStats.EliminationMode;
+            SaveData.EmpireDataList       = new Array<EmpireSaveData>();
+            SaveData.SolarSystemDataList  = new Array<SolarSystemSaveData>();
             SaveData.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             
 
@@ -960,6 +961,7 @@ namespace Ship_Game
             [Serialize(31)] public bool preventFederations;
             [Serialize(32)] public float GravityWellRange = GlobalStats.GravityWellRange;
             [Serialize(33)] public bool EliminationMode;
+            [Serialize(34)] public bool AutoFreightersPicker;
         }
     }
 }
