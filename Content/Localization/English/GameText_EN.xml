@@ -5786,7 +5786,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2229</Index>
-      <Text>Your empire will automatically manage your freighter needs, creating freighters to transport food and passengers where needed. You will still need to designate which planets import and export various goods</Text>
+      <Text>Your empire will automatically manage your freighter needs, creating freighters to transport food and passengers where needed. You will still need to designate which planets import and export various goods or select a Governor to them. You may select here a specific Freighter name you wish your Empire will use or "Fully Automatic", to indicates auto selection of best freighter available.</Text>
     </Token>
     <Token>
       <Index>2230</Index>

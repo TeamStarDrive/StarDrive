@@ -171,12 +171,16 @@ namespace Ship_Game.AI
                 if (ship.shipData.ShipCategory == ShipData.Category.Civilian ||
                     ship.shipData.ShipCategory == ShipData.Category.Unclassified)
                     freighters.Add(ship); // only consider civilian/unclassified as freighters
+
+                Log.Info($"pick freighter: {ship.Name}: {ship.CargoSpaceMax} + {ship.maxFTLSpeed / 2000} + {ship.shield_max / 250}");
             }
+            if (freighters.Count == 1)
+                return freighters[0];  // its the only freighter we have.
 
             freighter = freighters
-                .OrderByDescending(ship => ship.CargoSpaceMax)
-                .ThenByDescending(ship => ship.NormalizedStrength)
-                .FirstOrDefault();
+                .FindMax(ship => ship.CargoSpaceMax + ship.maxFTLSpeed / 2000 + ship.shield_max / 250);
+
+            Log.Info($"Picked {freighter.Name}");
             return freighter;
         }
 
