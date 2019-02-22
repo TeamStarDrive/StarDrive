@@ -14,6 +14,10 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
+        private Ship SelectedShip;
+        private float MaxWeaponRange;
+        private float AverageWeaponRange;
+
         #region Populat lists
 
         class ShipCategory
@@ -94,9 +98,6 @@ namespace Ship_Game
         }
 
         #endregion
-        Ship SelectedShip;
-        float MaxWeaponRange;
-        float AverageWeaponRange;
 
         void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
