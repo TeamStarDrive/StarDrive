@@ -58,7 +58,7 @@ namespace Ship_Game
                 if (numUnlocks > 3) break;
                 if (techTemplate.ModulesUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
                     techTemplate.ModulesUnlocked[i].Type == null || 
-                    techTemplate.ModulesUnlocked[i].Type == EmpireManager.Player.GetTDict()[tech.UID].AcquiredFrom)
+                    techTemplate.ModulesUnlocked[i].Type == EmpireManager.Player.AcquiredFrom(tech))
                 {
                     UnlockItem unlock  = new UnlockItem();
                     unlock.module      = ResourceManager.GetModuleTemplate(techTemplate.ModulesUnlocked[i].ModuleUID);
@@ -74,7 +74,7 @@ namespace Ship_Game
                 if (numUnlocks > 3) break;
                 if (techTemplate.BonusUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
                     techTemplate.BonusUnlocked[i].Type == null ||
-                    techTemplate.BonusUnlocked[i].Type == EmpireManager.Player.GetTDict()[tech.UID].AcquiredFrom)
+                    techTemplate.BonusUnlocked[i].Type == EmpireManager.Player.AcquiredFrom(tech))
                 {
                     UnlockItem unlock = new UnlockItem
                     {
@@ -91,7 +91,7 @@ namespace Ship_Game
                 if (numUnlocks > 3) break;
                 if (techTemplate.BuildingsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
                     techTemplate.BuildingsUnlocked[i].Type == null || 
-                    techTemplate.BuildingsUnlocked[i].Type == EmpireManager.Player.GetTDict()[tech.UID].AcquiredFrom)
+                    techTemplate.BuildingsUnlocked[i].Type == EmpireManager.Player.AcquiredFrom(tech))
                 {
                     UnlockItem unlock = new UnlockItem();
                     unlock.building = ResourceManager.BuildingsDict[techTemplate.BuildingsUnlocked[i].Name];
@@ -107,7 +107,7 @@ namespace Ship_Game
                 if (numUnlocks > 3) break;
 				if (techTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.data.Traits.ShipType || 
                     techTemplate.HullsUnlocked[i].ShipType == null || 
-                    techTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.GetTDict()[tech.UID].AcquiredFrom)
+                    techTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.AcquiredFrom(tech))
 				{
 					UnlockItem unlock = new UnlockItem
 					{
@@ -126,7 +126,7 @@ namespace Ship_Game
                 if (techTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
                     techTemplate.TroopsUnlocked[i].Type == "ALL" || 
                     techTemplate.TroopsUnlocked[i].Type == null || 
-                    techTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.GetTDict()[tech.UID].AcquiredFrom)
+                    techTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.AcquiredFrom(tech))
 				{
 					UnlockItem unlock = new UnlockItem();
 					unlock.troop       = ResourceManager.GetTroopTemplate(techTemplate.TroopsUnlocked[i].Name);
@@ -222,7 +222,7 @@ namespace Ship_Game
                         spriteBatch.DrawString(TitleFont, text, position, complete ? new Color(132, 172, 208) : Color.White);
                         ++num1;
                     }
-                    int num2 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / EmpireManager.Player.GetTDict()[tech.UID].TechCost * (double)progressRect.Height);
+                    int num2 = (int)(progressRect.Height - EmpireManager.Player.TechProgress(tech) / EmpireManager.Player.TechCost(tech) * (double)progressRect.Height);
                     Rectangle destinationRectangle1 = progressRect;
                     destinationRectangle1.Height = num2;
                     spriteBatch.Draw(active ? ResourceManager.Texture("ResearchMenu/tech_progress") 
@@ -247,7 +247,7 @@ namespace Ship_Game
                         spriteBatch.DrawString(TitleFont, text, position, complete ? new Color(132, 172, 208) : Color.White);
                         ++num3;
                     }
-                    int num4 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / ResourceManager.Tech(tech.UID).ActualCost * (double)progressRect.Height);
+                    int num4 = (int)(progressRect.Height - EmpireManager.Player.TechProgress(tech) / ResourceManager.Tech(tech.UID).ActualCost * (double)progressRect.Height);
                     Rectangle destinationRectangle2 = progressRect;
                     destinationRectangle2.Height = num4;
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), progressRect, Color.White);
@@ -271,14 +271,14 @@ namespace Ship_Game
                         spriteBatch.DrawString(TitleFont, text, position, complete ? new Color(163, 198, 236) : Color.White);
                         ++num5;
                     }
-                    int num6 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / EmpireManager.Player.GetTDict()[tech.UID].TechCost * (double)progressRect.Height);
+                    int num6 = (int)(progressRect.Height - EmpireManager.Player.TechProgress(tech) / EmpireManager.Player.TechCost(tech) * (double)progressRect.Height);
                     Rectangle destinationRectangle3 = progressRect;
                     destinationRectangle3.Height = num6;
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), progressRect, Color.White);
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle3, Color.White);
                     break;
             }
-            spriteBatch.DrawString(TitleFont, ((float)(int)EmpireManager.Player.GetTDict()[tech.UID].TechCost).String(1), CostPos, Color.White);
+            spriteBatch.DrawString(TitleFont, ((float)(int)EmpireManager.Player.TechCost(tech)).String(1), CostPos, Color.White);
         }
 
 		public void DrawGlow(ScreenManager ScreenManager) 
