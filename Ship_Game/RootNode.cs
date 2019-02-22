@@ -19,7 +19,7 @@ namespace Ship_Game
 
 		private Rectangle IconRect;
 
-		public RootNode(Vector2 Position, TechEntry Tech)
+		public RootNode(Vector2 position, TechEntry Tech)
 		{
 			if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{
@@ -27,8 +27,8 @@ namespace Ship_Game
 			}
 			tech = Tech;
 			TechName = Localizer.Token(ResourceManager.TechTree[Tech.UID].NameIndex);
-			RootRect.X = (int)Position.X;
-			RootRect.Y = (int)Position.Y;
+			RootRect.X = (int)position.X;
+			RootRect.Y = (int)position.Y;
 			IconRect = new Rectangle(RootRect.X + RootRect.Width / 2 - 39, RootRect.Y + RootRect.Height / 2 - 29, 78, 58);
 			TitleRect = new Rectangle(RootRect.X + 2, RootRect.Y - 21, 108, 61);
 		}
