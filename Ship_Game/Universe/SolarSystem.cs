@@ -176,7 +176,7 @@ namespace Ship_Game
                     ship.Update(elapsedTime);
                     if (ship.PlayerShip)
                     {
-                        ship.ProcessInput(elapsedTime);
+                        ship.ProcessInput(universe.Input, elapsedTime);
                     }
                 }
             }

@@ -27,6 +27,7 @@ namespace Ship_Game.Ships
         public byte Level;
         public string SelectionGraphic = "";
         public string Name; // ex: "Dodaving", just an arbitrary name
+        public string ModName;
         public bool HasFixedCost;
         public short FixedCost;
         public float FixedUpkeep;
@@ -72,6 +73,9 @@ namespace Ship_Game.Ships
         // Model path of the template hull layout
         [XmlIgnore] [JsonIgnore] public string HullModel => BaseHull.ModelPath;
 
+        [XmlIgnore] [JsonIgnore] public bool IsValidForCurrentMod
+            => ModName.IsEmpty() || ModName == GlobalStats.ModName;
+
         // You should always use this `Icon` property, because of bugs with `IconPath` initialization
         // when a ShipData is copied. @todo Fix ShipData copying
         [XmlIgnore] [JsonIgnore] public SubTexture Icon => ResourceManager.Texture(ActualIconPath);
@@ -79,7 +83,6 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
         [XmlIgnore] [JsonIgnore] public Vector3 Volume { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
-
 
         public void UpdateBaseHull()
         {
@@ -93,13 +96,13 @@ namespace Ship_Game.Ships
         public override string ToString() { return Name; }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private struct CThrusterZone
+        struct CThrusterZone
         {
             public readonly float X, Y, Scale;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private struct CModuleSlot
+        struct CModuleSlot
         {
             public readonly float PosX, PosY, Health, ShieldPower, ShieldUpChance, ShieldPowerBeforeWarp, Facing;
             public readonly CStrView InstalledModuleUID;
@@ -109,7 +112,7 @@ namespace Ship_Game.Ships
             public readonly CStrView SlotOptions;
         }
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        private unsafe struct CShipDataParser
+        unsafe struct CShipDataParser
         {
             public readonly CStrView Name;
             public readonly CStrView Hull;
@@ -124,6 +127,7 @@ namespace Ship_Game.Ships
             public readonly CStrView ShipCategory;
             public readonly CStrView HangarDesignation;
             public readonly CStrView ShieldsBehavior;
+            public readonly CStrView ModName;
 
             public readonly int TechScore;
             public readonly float BaseStrength;
@@ -154,11 +158,11 @@ namespace Ship_Game.Ships
         }
 
         [DllImport("SDNative.dll")]
-        private static extern unsafe CShipDataParser* CreateShipDataParser(
+        static extern unsafe CShipDataParser* CreateShipDataParser(
             [MarshalAs(UnmanagedType.LPWStr)] string filename);
 
         [DllImport("SDNative.dll")]
-        private static extern unsafe void DisposeShipDataParser(CShipDataParser* parser);
+        static extern unsafe void DisposeShipDataParser(CShipDataParser* parser);
 
         // Added by RedFox - manual parsing of ShipData, because this is the slowest part
         // in loading, the brunt work is offloaded to C++ and then copied back into C#
@@ -182,6 +186,7 @@ namespace Ship_Game.Ships
                     experience     = s->Experience,
                     Level          = s->Level,
                     Name           = s->Name.AsString,
+                    ModName        = s->ModName.AsString,
                     HasFixedCost   = s->HasFixedCost != 0,
                     FixedCost      = s->FixedCost,
                     HasFixedUpkeep = s->HasFixedUpkeep != 0,

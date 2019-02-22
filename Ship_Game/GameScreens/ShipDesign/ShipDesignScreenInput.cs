@@ -921,7 +921,9 @@ namespace Ship_Game
         private ShipData CloneActiveHull(string newName)
         {
             ShipData hull = ActiveHull.GetClone();
-            hull.Name        = newName;
+            hull.Name = newName;
+            // save name of the mod, so we can ignore it in vanilla
+            hull.ModName = GlobalStats.ActiveModInfo?.ModName;
             hull.ModuleSlots = CreateModuleSlots();
             return hull;
         }
