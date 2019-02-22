@@ -543,18 +543,17 @@ namespace Ship_Game
                 data.EmpireList.Add(e);
                 if (isPlayer)
                 {
-                    e.AutoColonize        = saveData.AutoColonize;
-                    e.AutoExplore         = saveData.AutoExplore;
-                    e.AutoFreighters      = saveData.AutoFreighters;
-                    e.AutoFreighterPicker = saveData.AutoFreightersPicker;
-                    e.AutoBuild           = saveData.AutoProjectors;
+                    e.AutoColonize          = saveData.AutoColonize;
+                    e.AutoExplore           = saveData.AutoExplore;
+                    e.AutoFreighters        = saveData.AutoFreighters;
+                    e.AutoPickBestFreighter = saveData.AutoPickBestFreighter;
+                    e.AutoBuild             = saveData.AutoProjectors;
                 }
 
                 EmpireManager.Add(e);
             }
         }
 
-        
         static void GiftShipsFromServantEmpire(UniverseData data)
         {
             foreach (Empire e in data.EmpireList)
