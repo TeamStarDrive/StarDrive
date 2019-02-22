@@ -23,6 +23,10 @@ namespace Ship_Game
         //add initializer for tech
         [XmlIgnore][JsonIgnore]
         public Technology Tech => ResourceManager.TechTree[UID];
+
+        [XmlIgnore][JsonIgnore]
+        public bool IsRoot => Tech.RootNode == 1;
+
         [XmlIgnore][JsonIgnore]
         public Array<string> ConqueredSource = new Array<string>();
         public TechnologyType TechnologyType => Tech.TechnologyType;
@@ -86,17 +90,10 @@ namespace Ship_Game
             float cost = 0;
             if (Tech.LeadsTo.Count == 0)
                 return 0;
-            foreach (var leadsTo in Tech.LeadsTo)
+            foreach (Technology.LeadsToTech leadsTo in Tech.LeadsTo)
             {
                 float tempCost = empire.GetTechEntry(leadsTo.UID).LookAheadCost(techType, empire);
-                if (tempCost > 0)
-                    if (cost > 0)
-                    {
-                        cost = Math.Min(tempCost, cost);
-                    }
-                    else
-                        cost = tempCost;
-
+                if (tempCost > 0) cost = cost > 0 ? Math.Min(tempCost, cost) : tempCost;
             }
             return cost == 0 ? 0 : TechCost + cost;
         }
@@ -202,9 +199,11 @@ namespace Ship_Game
             int count = 0;
             foreach (Technology.LeadsToTech leadTo in Tech.LeadsTo)
             {
-                if (!techList.Contains(leadTo.UID)) continue;
-                count++;
-                return count + empire.GetTechEntry(leadTo.UID).CountTechsToOneInList(techList, empire);
+                if (techList.Contains(leadTo.UID))
+                {
+                    count++;
+                    return count + empire.GetTechEntry(leadTo.UID).CountTechsToOneInList(techList, empire);
+                }
             }
             return count;
 
@@ -307,12 +306,14 @@ namespace Ship_Game
             Discovered = true;
             DiscoverToRoot(empire);
             if (discoverForward)
-            foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
             {
-                //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
-                var tech = empire.GetTechEntry(leadsToTech.UID);
-                if (!tech.Tech.Secret && !tech.IsRestricted(empire))
-                    tech.SetDiscovered(empire);
+                foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
+                {
+                    //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
+                    TechEntry tech = empire.GetTechEntry(leadsToTech.UID);
+                    if (!tech.Tech.Secret && !tech.IsRestricted(empire))
+                        tech.SetDiscovered(empire);
+                }
             }
             return true;
         }
@@ -364,7 +365,7 @@ namespace Ship_Game
             if (Discovered) return this;
             foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
             {
-                var tech = empire.GetTechEntry(leadsToTech.UID);
+                TechEntry tech = empire.GetTechEntry(leadsToTech.UID);
                 return tech.FindNextDiscoveredTech(empire);
             }
             return null;

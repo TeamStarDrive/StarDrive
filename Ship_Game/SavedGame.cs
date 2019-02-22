@@ -399,10 +399,8 @@ namespace Ship_Game
                     gsaidata.Goals.Add(gdata);
                 }
                 empireToSave.GSAIData = gsaidata;
-                foreach (KeyValuePair<string, TechEntry> tech in e.GetTDict())
-                {
-                    empireToSave.TechTree.Add(tech.Value);
-                }
+
+                empireToSave.TechTree.AddRange(e.TechEntries);
 
                 foreach (Ship ship in e.GetShips())
                 {

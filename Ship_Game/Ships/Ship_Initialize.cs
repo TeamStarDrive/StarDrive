@@ -21,7 +21,7 @@ namespace Ship_Game.Ships
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate))
             {
-                Log.Error($"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
+                Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return;
             }
 
@@ -44,7 +44,7 @@ namespace Ship_Game.Ships
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
             {
-                Log.Error($"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
+                Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return; // return and crash again...
             }
 

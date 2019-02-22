@@ -135,7 +135,7 @@ namespace Ship_Game
                 return type == null
                     || type == "ALL"
                     || type == EmpireManager.Player.data.Traits.ShipType
-                    || type == EmpireManager.Player.GetTechEntry(TechUID).AcquiredFrom;
+                    || type == EmpireManager.Player.AcquiredFrom(TechUID);
             }
 
             foreach (Technology.UnlockedMod module in Technology.ModulesUnlocked)
