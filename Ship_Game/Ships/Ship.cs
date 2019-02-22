@@ -485,7 +485,7 @@ namespace Ship_Game.Ships
         {
             if (BombBays.Count <= 0) return ShipStatus.NotApplicable;
             if (OrdnanceStatus < ShipStatus.Poor) return ShipStatus.Critical;
-            float bombSeconds = Ordinance / (BombBays[0].BayOrdnanceUsagePerSecond * BombBays.Count);
+            float bombSeconds = Ordinance / (BombBays[0].InstalledWeapon.OrdinanceRequiredToFire * BombBays.Count);
             bombSeconds = bombSeconds.Clamped(0, 60); //can we bomb for a full minute?
             return ToShipStatus(bombSeconds,60);
         }
