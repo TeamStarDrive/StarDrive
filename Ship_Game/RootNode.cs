@@ -16,8 +16,10 @@ namespace Ship_Game
 		public Rectangle TitleRect;
 
 		public Rectangle RootRect = new Rectangle(0, 0, 129, 76);
-
+        public Vector2 RightPoint => new Vector2(RootRect.Right - 10,
+                                                 RootRect.CenterY());
 		private Rectangle IconRect;
+
 
 		public RootNode(Vector2 position, TechEntry Tech)
 		{

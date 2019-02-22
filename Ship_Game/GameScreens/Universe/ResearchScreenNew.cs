@@ -12,7 +12,7 @@ namespace Ship_Game
     {
         public Camera2D camera = new Camera2D();
 
-        private Map<string, Node> TechTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
+        private Map<string, Node> RootNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
         public Map<string, Node> CompleteSubNodeTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
         public Map<string, Node> SubNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
 
@@ -58,153 +58,145 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+
             batch.Begin();
-            batch.FillRectangle(new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
+            batch.FillRectangle(new Rectangle(0, 0, ScreenWidth, ScreenHeight), Color.Black);
             MainMenu.Draw(batch);
             batch.End();
+
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, camera.Transform);
-            foreach (KeyValuePair<string, Node> keyValuePair in TechTree)
-            {
-                RootNode rootNode = keyValuePair.Value as RootNode;
-                if (rootNode?.nodeState != NodeState.Press) continue;
-                Vector2 vector21 = new Vector2(rootNode.RootRect.X + rootNode.RootRect.Width - 10
-                    , rootNode.RootRect.Y + rootNode.RootRect.Height / 2);
-                Vector2 vector22 = MainMenuOffset + new Vector2(ColumnOffset, 0.0f);
-                vector22.Y = vector21.Y;
-                vector22.X -= Vector2.Distance(vector21, vector22) / 2f;
-                Technology technology = ResourceManager.TechTree[keyValuePair.Key];
-                for (int index = 0; index < technology.LeadsTo.Count; ++index)
-                {
-                    Technology.LeadsToTech leadsToTech = technology.LeadsTo[index];
-                    TechEntry techEntry = EmpireManager.Player.GetTechEntry(leadsToTech.UID);
-                    techEntry = techEntry.FindNextDiscoveredTech(EmpireManager.Player);
-                    if (techEntry == null)
-                       continue;
+            
+            DrawConnectingLines(batch);
 
-                    bool complete = techEntry.Unlocked;
-                    var treeNode = SubNodes[techEntry.UID] as TreeNode;
-                    if (treeNode == null)
-                        continue;
-
-                    var vector23 = new Vector2(vector22.X, treeNode.BaseRect.Y + treeNode.BaseRect.Height / 2 - 10);
-                    --vector23.Y;
-                    if (vector23.Y > vector22.Y)
-                        batch.DrawResearchLineVertical(vector22, vector23, complete);
-                    else
-                        batch.DrawResearchLineVertical(vector23, vector22, complete);
-                }
-            }
-            foreach (KeyValuePair<string, Node> keyValuePair in SubNodes)
-            {
-                if (!(keyValuePair.Value is TreeNode)) continue;
-
-                Vector2 vector21 = new Vector2((keyValuePair.Value as TreeNode).BaseRect.X + (keyValuePair.Value as TreeNode).BaseRect.Width - 25, (keyValuePair.Value as TreeNode).BaseRect.Y + (keyValuePair.Value as TreeNode).BaseRect.Height / 2 - 10);
-                Vector2 vector22 = vector21 + new Vector2(ColumnOffset / 2f, 0.0f);
-                vector22.Y = vector21.Y;
-                Array<Technology.LeadsToTech> leadsTo = ResourceManager.TechTree[keyValuePair.Key].LeadsTo;
-                for (int index = 0; index < leadsTo.Count; ++index)
-                {
-                    Technology.LeadsToTech leadsToTech1 = leadsTo[index];                    
-                    TechEntry techEntry1 = EmpireManager.Player.GetTechEntry(leadsToTech1.UID);
-                    techEntry1 = techEntry1.FindNextDiscoveredTech(EmpireManager.Player);
-                    if (techEntry1 == null)
-                    {
-                        continue;
-                    }
-                    
-
-                    bool complete = techEntry1.Unlocked;
-                    var treeNode1 = SubNodes[techEntry1.UID] as TreeNode;
-                    var vector23 = new Vector2(vector22.X, treeNode1.BaseRect.Y + treeNode1.BaseRect.Height / 2 - 10);
-                    if (vector23.Y > vector22.Y)
-                        batch.DrawResearchLineVertical(vector22, vector23, complete);
-                    else
-                        batch.DrawResearchLineVertical(vector23, vector22, complete);
-                }
-            }
-            foreach (KeyValuePair<string, Node> keyValuePair in SubNodes)
-            {
-                Technology technology2 = ResourceManager.TechTree[keyValuePair.Key];
-                if (keyValuePair.Value is TreeNode && technology2.LeadsTo.Count > 0)
-                {
-                    TreeNode treeNode2 = (keyValuePair.Value as TreeNode);
-                    Vector2 LeftPoint1 = new Vector2(treeNode2.BaseRect.X + treeNode2.BaseRect.Width - 25, treeNode2.BaseRect.Y + treeNode2.BaseRect.Height / 2 - 10);
-                    Vector2 RightPoint1 = LeftPoint1 + new Vector2(ColumnOffset / 2, 0.0f);
-                    RightPoint1.Y = LeftPoint1.Y;
-                    bool Complete1 = false;
-                    for (int index = 0; index < technology2.LeadsTo.Count; ++index)
-                    {
-                        Technology.LeadsToTech leadsToTech2 = technology2.LeadsTo[index];
-                        TechEntry techEntry2 = EmpireManager.Player.GetTechEntry(leadsToTech2.UID);
-                        techEntry2 = techEntry2.FindNextDiscoveredTech(EmpireManager.Player);
-                        if (techEntry2 != null)                     
-                        {
-                            bool complete2 = false;
-                            if (techEntry2.Unlocked)
-                            {
-                                complete2 = true;
-                                Complete1 = true;
-                            }
-                            var treeNode3 = (SubNodes[techEntry2.UID] as TreeNode);
-                            var LeftPoint2 = new Vector2(RightPoint1.X, treeNode3.BaseRect.Y + treeNode3.BaseRect.Height / 2 - 10);
-                            Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
-                            batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, complete2);
-                        }
-                    }
-                    batch.DrawResearchLineHorizontal(LeftPoint1, RightPoint1, Complete1);
-                }
-            }
-            foreach (KeyValuePair<string, Node> keyValuePair in TechTree)
-            {
-                RootNode rootNode1 = (keyValuePair.Value as RootNode);
-                if (rootNode1?.nodeState == NodeState.Press)
-                {
-                    Vector2 LeftPoint1 = new Vector2(rootNode1.RootRect.X + rootNode1.RootRect.Width - 10, rootNode1.RootRect.Y + rootNode1.RootRect.Height / 2);
-                    Vector2 RightPoint1 = MainMenuOffset + new Vector2(ColumnOffset, 0.0f);
-                    RightPoint1.Y = LeftPoint1.Y;
-                    RightPoint1.X -= Vector2.Distance(LeftPoint1, RightPoint1) / 2f;
-                    bool Complete1 = false;
-                    Technology technology4 = ResourceManager.TechTree[keyValuePair.Key];
-                    for (int index = 0; index < technology4.LeadsTo.Count; ++index)
-                    {
-                        Technology.LeadsToTech leadsToTech3 = technology4.LeadsTo[index];
-                        TechEntry techEntry3 = EmpireManager.Player.GetTechEntry(leadsToTech3.UID);
-                        techEntry3 = techEntry3.FindNextDiscoveredTech(EmpireManager.Player);
-                        if (techEntry3 != null)
-                        {
-                            bool Complete2 = false;
-                            if (techEntry3.Unlocked)
-                            {
-                                Complete2 = true;
-                                Complete1 = true;
-                            }
-                            TreeNode treeNode4 = (SubNodes[techEntry3.UID] as TreeNode);
-                            Vector2 LeftPoint2 = new Vector2(RightPoint1.X, treeNode4.BaseRect.Y + treeNode4.BaseRect.Height / 2 - 10);
-                            --LeftPoint2.Y;
-                            Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
-                            batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, Complete2);
-                        }
-                    }
-                    batch.DrawResearchLineHorizontal(LeftPoint1, RightPoint1, Complete1);
-                }
-            }
-            foreach (KeyValuePair<string, Node> keyValuePair in TechTree)
+            foreach (KeyValuePair<string, Node> keyValuePair in RootNodes)
             {
                 if (keyValuePair.Value is RootNode rootNode)
                     rootNode.Draw(ScreenManager.SpriteBatch);
             }
+
             foreach (KeyValuePair<string, Node> keyValuePair in SubNodes)
             {
                 if (keyValuePair.Value is TreeNode treeNode)
                     treeNode.Draw(ScreenManager);
             }
             batch.End();
+
             batch.Begin();
-            //MainMenu.DrawHollow();
             close.Draw(batch);
             qcomponent.Draw(batch);
             ToolTip.Draw(batch);
             batch.End();
+        }
+
+        static Vector2 CenterBetweenPoints(Vector2 left, Vector2 right)
+        {
+            return left.LerpTo(right, 0.5f).Rounded();
+        }
+
+        RootNode GetCurrentlySelectedRootNode()
+        {
+            foreach (Node node in RootNodes.Values)
+                if (node is RootNode root && root.nodeState == NodeState.Press)
+                    return root;
+            return null;
+        }
+
+        void DrawConnectingLines(SpriteBatch batch)
+        {
+            RootNode rootNode = GetCurrentlySelectedRootNode();
+
+            // Level 0 VERTICAL line coming straight from root nodes
+            {
+                Vector2 rootNodeRight = rootNode.RightPoint;
+                var nextNodeLeft = new Vector2(MainMenuOffset.X + ColumnOffset, rootNodeRight.Y);
+                Vector2 midPoint = CenterBetweenPoints(rootNode.RightPoint, nextNodeLeft);
+
+                foreach (Technology.LeadsToTech leadsTo in rootNode.tech.Tech.LeadsTo)
+                {
+                    TechEntry techEntry = EmpireManager.Player.GetTechEntry(leadsTo.UID);
+                    techEntry = techEntry.FindNextDiscoveredTech(EmpireManager.Player);
+                    if (techEntry != null)
+                    {
+                        var treeNode = (TreeNode) SubNodes[techEntry.UID];
+                        var midPointOther = new Vector2(midPoint.X, treeNode.BaseRect.CenterY() - 10);
+                        batch.DrawResearchLineVertical(midPoint, midPointOther, techEntry.Unlocked);
+                    }
+                }
+
+                bool firstTechComplete = false;
+                foreach (Technology.LeadsToTech leadsTo in rootNode.tech.Tech.LeadsTo)
+                {
+                    TechEntry techEntry = EmpireManager.Player.GetTechEntry(leadsTo.UID);
+                    techEntry = techEntry.FindNextDiscoveredTech(EmpireManager.Player);
+                    if (techEntry != null)
+                    {
+                        if (techEntry.Unlocked)
+                            firstTechComplete = true;
+                        
+                        var treeNode = (TreeNode)SubNodes[techEntry.UID];
+                        var midPointOther = new Vector2(midPoint.X, treeNode.BaseRect.CenterY() - 10);
+                        Vector2 RightPoint2 = midPointOther + new Vector2(rootNodeRight.Distance(nextNodeLeft) + 13f, 0.0f);
+                        batch.DrawResearchLineHorizontalGradient(midPointOther, RightPoint2, techEntry.Unlocked);
+                    }
+                }
+
+                batch.DrawResearchLineHorizontal(rootNodeRight, midPoint, firstTechComplete);
+            }
+
+            foreach (KeyValuePair<string, Node> keyValuePair in SubNodes)
+            {
+                if (!(keyValuePair.Value is TreeNode treeNode))
+                    continue;
+
+                var vector21 = new Vector2(treeNode.BaseRect.X + treeNode.BaseRect.Width - 25,
+                                           treeNode.BaseRect.Y + treeNode.BaseRect.Height / 2 - 10);
+                Vector2 vector22 = vector21 + new Vector2(ColumnOffset / 2f, 0.0f);
+                vector22.Y = vector21.Y;
+
+                foreach (Technology.LeadsToTech leadsTo in treeNode.tech.Tech.LeadsTo)
+                {
+                    TechEntry techEntry1 = EmpireManager.Player.GetTechEntry(leadsTo.UID);
+                    techEntry1 = techEntry1.FindNextDiscoveredTech(EmpireManager.Player);
+                    if (techEntry1 != null)
+                    {
+                        var treeNode1 = SubNodes[techEntry1.UID] as TreeNode;
+                        var vector23 = new Vector2(vector22.X, treeNode1.BaseRect.CenterY() - 10);
+                        batch.DrawResearchLineVertical(vector22, vector23, techEntry1.Unlocked);
+                    }
+                }
+            }
+
+            foreach (Node subNode in SubNodes.Values)
+            {
+                if (!(subNode is TreeNode node))
+                    continue;
+
+                Technology technology2 = node.tech.Tech;
+                if (technology2.LeadsTo.Count <= 0)
+                    continue;
+
+                var leftPoint = node.RightPoint;
+                Vector2 rightPoint = leftPoint + new Vector2(ColumnOffset / 2, 0.0f);
+                bool complete1 = false;
+                foreach (Technology.LeadsToTech leadsToTech2 in technology2.LeadsTo)
+                {
+                    TechEntry techEntry2 = EmpireManager.Player.GetTechEntry(leadsToTech2.UID);
+                    techEntry2 = techEntry2.FindNextDiscoveredTech(EmpireManager.Player);
+                    if (techEntry2 != null)
+                    {
+                        if (techEntry2.Unlocked)
+                            complete1 = true;
+
+                        var treeNode3 = (SubNodes[techEntry2.UID] as TreeNode);
+                        var LeftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY() - 10);
+                        Vector2 RightPoint2 = LeftPoint2 + new Vector2(leftPoint.Distance(rightPoint) + 13f, 0.0f);
+                        batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, techEntry2.Unlocked);
+                    }
+                }
+
+                batch.DrawResearchLineHorizontal(leftPoint, rightPoint, complete1);
+            }
+
         }
 
         public override void ExitScreen()
@@ -217,7 +209,7 @@ namespace Ship_Game
         private int FindDeepestY()
         {
             int deepest = 0;
-            foreach (KeyValuePair<string, Node> node in TechTree)
+            foreach (KeyValuePair<string, Node> node in RootNodes)
             {
                 if (node.Value.NodePosition.Y <= deepest)
                 {
@@ -313,7 +305,7 @@ namespace Ship_Game
             if (qcomponent.Visible && qcomponent.container.HitTest(input.CursorPosition))
                 return true;
 
-            foreach (Node tech in TechTree.Values)
+            foreach (Node tech in RootNodes.Values)
             {
                 if (tech.HandleInput(input) && tech is RootNode root)
                 {
@@ -390,7 +382,7 @@ namespace Ship_Game
             QueueContainer = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
             qcomponent     = new QueueComponent(ScreenManager, QueueContainer, this);
 
-            TechTree.Clear();
+            RootNodes.Clear();
             CompleteSubNodeTree.Clear();
             SubNodes.Clear();
 
@@ -419,11 +411,11 @@ namespace Ship_Game
             }
 
             RowOffset = (main.Height - 40) / 6;
-            foreach (KeyValuePair<string, Node> entry in TechTree)
+            foreach (KeyValuePair<string, Node> entry in RootNodes)
             {
                 PopulateAllTechsFromRoot(entry.Value as RootNode);
             }
-            PopulateNodesFromRoot(TechTree[GlobalStats.ResearchRootUIDToDisplay] as RootNode);
+            PopulateNodesFromRoot(RootNodes[GlobalStats.ResearchRootUIDToDisplay] as RootNode);
             if (!string.IsNullOrEmpty(EmpireManager.Player.ResearchTopic))
             {
                 if (CompleteSubNodeTree.TryGetValue(EmpireManager.Player.ResearchTopic, out Node resTopNode))
@@ -473,7 +465,7 @@ namespace Ship_Game
 
         public void PopulateAllTechsFromRoot(RootNode Root)
         {
-            foreach (KeyValuePair<string, Node> node in TechTree)
+            foreach (KeyValuePair<string, Node> node in RootNodes)
             {
                 (node.Value as RootNode).nodeState = NodeState.Normal;
             }
@@ -513,7 +505,7 @@ namespace Ship_Game
                 ColumnOffset = (MainMenu.Menu.Width - 350) / Cols + 1;
             else
                 ColumnOffset = 165;
-            foreach (KeyValuePair<string, Node> node in TechTree)
+            foreach (KeyValuePair<string, Node> node in RootNodes)
             {
                 (node.Value as RootNode).nodeState = NodeState.Normal;
             }
@@ -630,7 +622,7 @@ namespace Ship_Game
             {
                 newNode.isResearched = true;
             }
-            TechTree.Add(tech.UID, newNode);
+            RootNodes.Add(tech.UID, newNode);
         }
 
         private void UnlockTree(string key)
