@@ -1,5 +1,5 @@
-﻿using System;
-using Ship_Game.Ships;
+﻿using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game.AI
 {
@@ -15,9 +15,9 @@ namespace Ship_Game.AI
         public float MinBombers { get; set; }
         public float MinCarriers { get; set; }
         public float MinSupport { get; set; }
-        
+
         public Empire OwnerEmpire { get; }
-        
+
         public FleetRatios(Empire empire)
         {
             OwnerEmpire    = empire;
@@ -33,27 +33,27 @@ namespace Ship_Game.AI
             MinCarriers  = 0;
             MinSupport   = 0;
             SetFleetRatios();
-   
+
         }
 
         public void SetFleetRatios()
         {
             //fighters: 1, corvettes: 4, frigates: 8, cruisers: 6, capitals: 1, bombers: 1f, carriers: 1f, support: 1f, troopShip: 1f
-            if (OwnerEmpire.canBuildCapitals)                
-                SetCounts(new[] { 1, 4, 4, 3, 1, 1, 1, 1, 1 });            
+            if (OwnerEmpire.canBuildCapitals)
+                SetCounts(new[] { 1, 4, 4, 3, 1, 1, 1, 1, 1 });
 
-            else if (OwnerEmpire.canBuildCruisers)            
+            else if (OwnerEmpire.canBuildCruisers)
                 SetCounts(new[] { 6, 8, 8, 2, 0, 1, 1, 1, 1 });
-            
-            else if (OwnerEmpire.canBuildFrigates)            
+
+            else if (OwnerEmpire.canBuildFrigates)
                 SetCounts(new[] { 10, 15, 5, 0, 0, 1, 1, 1, 1 });
-                        
-            else if (OwnerEmpire.canBuildCorvettes)                
-                SetCounts(new[] { 10, 5, 0, 0, 0, 1, 1, 1, 1 });            
-            
-            else            
+
+            else if (OwnerEmpire.canBuildCorvettes)
+                SetCounts(new[] { 10, 5, 0, 0, 0, 1, 1, 1, 1 });
+
+            else
                 SetCounts(new[] { 20, 0, 0, 0, 0, 1, 1, 1, 1 });
-        }        
+        }
 
         private void SetCounts(int[] counts)
         {
@@ -65,7 +65,7 @@ namespace Ship_Game.AI
             MinTroopShip = counts[5];
             MinBombers   = counts[6];
             MinCarriers  = counts[7];
-            MinSupport   = counts[8];           
+            MinSupport   = counts[8];
 
             if (!OwnerEmpire.canBuildTroopShips)
                 MinTroopShip = 0;
@@ -107,8 +107,8 @@ namespace Ship_Game.AI
             //float shipUpkeep = Math.Max(roleUpkeep, .01f) / Math.Max(roleCount, 1);
             //figure the possible number of ships in role based on capacity and upkeep
             //float possible   = totalCapacity / shipUpkeep;
-            
-            
+
+
 
             return (int)desired;
         }
@@ -137,7 +137,7 @@ namespace Ship_Game.AI
             if (ship.fleet != null)
             {
                 Log.Warning($"FleetRatios: attempting to add a ship already in a fleet '{ship.fleet.Name}'. removing from fleet");
-                ship.ClearFleet(); 
+                ship.ClearFleet();
                 foreach(var fleet in OwnerEmpire.GetFleetsDict())
                 {
                     fleet.Value.RemoveShip(ship);
@@ -184,12 +184,12 @@ namespace Ship_Game.AI
             ships.AddRange(GetShipByCounts(Ships, Ratios.MinSupport, ShipData.RoleName.support));
             return ships;
         }
-        
+
         public Array<Ship> GetInvasionFleet(int bombs, int troops)
         {
             Array<Ship> ships = GetBasicFleet();
             ships.AddRange(GetBombers(bombs));
-            ships.AddRange(GetTroops(troops));            
+            ships.AddRange(GetTroops(troops));
             return ships;
         }
 
@@ -202,16 +202,16 @@ namespace Ship_Game.AI
             //Array<Ship> ships = new Array<Ship>();
             if (bombCount < 1 || Ratios.MinBombers < 1)
                 return EmptyArray<Ship>.Array;
-            return GetShipsByFeaturesAndRole(Ships, bombCount, s => s.BombCount,
+            return GetShipsByFeaturesAndRole(Ships, bombCount, s => s.BombsUseful,
                 r => r?.DesignRole == ShipData.RoleName.bomber);
         }
 
 
-        private Array<Ship> GetShipByCounts(Array<Ship> ships, float wanted, ShipData.RoleName role) 
+        private Array<Ship> GetShipByCounts(Array<Ship> ships, float wanted, ShipData.RoleName role)
             => GetShipByCounts(ships, wanted, s => s.DesignRole == role);
 
         private Array<Ship> GetShipByCounts(Array<Ship> ships, float wanted, Func<Ship,bool> func)
-        {            
+        {
             var shipSet = new Array<Ship>();
             if (wanted < 1) return shipSet;
 
