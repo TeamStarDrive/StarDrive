@@ -161,6 +161,7 @@ namespace Ship_Game
                 return;
             options.Clear();
 
+
             foreach (string ship in EmpireManager.Player.ShipsWeCanBuild)
             {
                 if (ResourceManager.GetShipTemplate(ship, out Ship template) && predicate(template))
@@ -186,16 +187,12 @@ namespace Ship_Game
             EmpireData playerData = Universe.player.data;
 
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
-                ship =>
-                {
-                    return ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && ship.CargoSpaceMax > 0f;
-                });
+                ship => ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && ship.CargoSpaceMax > 0f);
+
+            FreighterDropDown?.AddOption("<Fully Automated>", 0);
 
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
-                ship =>
-                {
-                    return ship.ShipGoodToBuild(EmpireManager.Player) && ship.isColonyShip;
-                });
+                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.isColonyShip);
 
             InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor, 
                 ship =>

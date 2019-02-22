@@ -1004,7 +1004,6 @@ namespace Ship_Game
                     if (nearby.System == null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
                         break;
 
-                    nearby.System.DangerTimer = 120f;
                     break;
                 }
 
