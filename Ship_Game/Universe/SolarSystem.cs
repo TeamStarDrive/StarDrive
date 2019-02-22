@@ -18,9 +18,7 @@ namespace Ship_Game
         public string Name = "Random System";
         public Guid guid = Guid.NewGuid();
         public bool DontStartNearPlayer;
-        public float DangerTimer;
-        public float DangerUpdater = 10f;
-
+        
         //public Array<Empire> OwnerList = new Array<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
         public Array<Ship> ShipList = new Array<Ship>();
@@ -60,16 +58,6 @@ namespace Ship_Game
         {
             float realTime = (float)StarDriveGame.Instance.GameTime.ElapsedRealTime.TotalSeconds;
             var player = EmpireManager.Player;
-            DangerTimer -= realTime;            
-            DangerUpdater -= realTime;
-            if (DangerUpdater < 0.0)
-            {
-                DangerUpdater = 10f;
-
-                DangerTimer = player.KnownShips.Any(s => s.Center.InRadius(Position, Radius))
-                    ? 120f
-                    : 0.0f;
-            }
 
             foreach (SunLayerState layer in SunLayers)
                 layer.Update(elapsedTime);
