@@ -666,6 +666,9 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float MaxWeaponRange     => Weapons.Count > 0 ? Weapons.FindMax(w => w.Range).Range : 0;
+        public float AverageWeaponRange => Weapons.Count > 0 ? Weapons.Sum(w => w.Range) / Weapons.Count : 0;
+
         public void SetmaxFTLSpeed()
         {
             if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
