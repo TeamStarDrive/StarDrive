@@ -90,7 +90,7 @@ namespace Ship_Game
                     else
                     {
                         bool ok = !(r.MoneyToThem > 0 && playerEmpire.Money < r.MoneyToThem);
-                        if (r.RequiredTech != null && !playerEmpire.GetTDict()[r.RequiredTech].Unlocked)
+                        if (r.RequiredTech != null && !playerEmpire.HasUnlocked(r.RequiredTech))
                             ok = false;
                         if (r.FailIfNotAlluring && playerEmpire.data.Traits.DiplomacyMod < 0.2)
                             ok = false;
