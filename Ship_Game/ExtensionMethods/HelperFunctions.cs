@@ -291,11 +291,12 @@ namespace Ship_Game
         public static string GetNumberString(this float stat)
         {
             CultureInfo invariant = CultureInfo.InvariantCulture;
-            if (Math.Abs(stat) < 1000f) return stat.ToString("#.#", invariant);  // 950.7
-            if (Math.Abs(stat) < 10000f) return stat.ToString("#", invariant);   // 9500
+            if (Math.Abs(stat) < 100f)   return stat.ToString("0.##", invariant); // 95.75  or 0.25
+            if (Math.Abs(stat) < 1000f)  return stat.ToString("0.#", invariant);  // 950.7  or 0.5
+            if (Math.Abs(stat) < 10000f) return stat.ToString("#", invariant);    // 9500
             float single = stat / 1000f;
-            if (Math.Abs(single) < 100f)  return single.ToString("#.##", invariant) + "k"; // 57.75k
-            if (Math.Abs(single) < 1000f) return single.ToString("#.#", invariant) + "k";  // 950.7k
+            if (Math.Abs(single) < 100f)  return single.ToString("0.##", invariant) + "k"; // 57.75k or 0.5k
+            if (Math.Abs(single) < 1000f) return single.ToString("0.#", invariant) + "k";  // 950.7k
             return single.ToString("#", invariant) + "k"; // 1000k
         }
     }
