@@ -33,9 +33,6 @@ namespace Ship_Game.Ships
 
         public Vector2 projectedPosition;
         private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
-        public bool TradingFood = true;
-        public bool TradingProd = true;
-        public bool ShieldsUp   = true;
         private Array<Projectile> projectiles = new Array<Projectile>();
         private Array<Beam> beams             = new Array<Beam>();
         public Array<Weapon> Weapons          = new Array<Weapon>();
@@ -75,8 +72,6 @@ namespace Ship_Game.Ships
         public float InCombatTimer;
         public bool isTurning;
         public float InhibitionRadius;
-        private KeyboardState lastKBState;
-        private KeyboardState currentKeyBoardState;
         public bool IsPlatform;
         private SceneObject ShipSO;
         public bool ManualHangarOverride;
@@ -142,9 +137,7 @@ namespace Ship_Game.Ships
         public float HealPerTurn;
         private bool UpdatedModulesOnce;
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
-        private float xdie;
-        private float ydie;
-        private float zdie;
+        Vector3 DieRotation;
         private float dietimer;
         public float BaseStrength;
         public bool BaseCanWarp;
@@ -766,24 +759,24 @@ namespace Ship_Game.Ships
         /// <param name="timer"></param>
         public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
 
-        public void ProcessInput(float elapsedTime)
+        public void ProcessInput(InputState input, float elapsedTime)
         {
             if (GlobalStats.TakingInput || EMPdisabled || !hasCommand)
                 return;
-            if (Empire.Universe.Input != null)
-                currentKeyBoardState = Empire.Universe.Input.KeysCurr;
+            if (Empire.Universe.Input == null)
+                return;
 
-            if (currentKeyBoardState.IsKeyDown(Keys.D)) AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.A)) AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.W)) AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.S)) AI.State = AIState.ManualControl;
+            if (input.IsKeyDown(Keys.D)) AI.State = AIState.ManualControl;
+            if (input.IsKeyDown(Keys.A)) AI.State = AIState.ManualControl;
+            if (input.IsKeyDown(Keys.W)) AI.State = AIState.ManualControl;
+            if (input.IsKeyDown(Keys.S)) AI.State = AIState.ManualControl;
 
             if (AI.State == AIState.ManualControl)
             {
-                if (Active && !currentKeyBoardState.IsKeyDown(Keys.LeftControl))
+                if (Active && !input.IsKeyDown(Keys.LeftControl))
                 {
                     isThrusting = false;
-                    if (currentKeyBoardState.IsKeyDown(Keys.D))
+                    if (input.IsKeyDown(Keys.D))
                     {
                         isTurning = true;
                         isThrusting = true;
@@ -793,7 +786,7 @@ namespace Ship_Game.Ships
                         if (yRotation > -MaxBank)
                             yRotation -= yBankAmount;
                     }
-                    else if (currentKeyBoardState.IsKeyDown(Keys.A))
+                    else if (input.IsKeyDown(Keys.A))
                     {
                         isTurning = true;
                         isThrusting = true;
@@ -860,18 +853,18 @@ namespace Ship_Game.Ships
                         isThrusting = false;
                     }
 
-                    if (currentKeyBoardState.IsKeyDown(Keys.F) && !lastKBState.IsKeyDown(Keys.F))
+                    if (input.KeyPressed(Keys.F))
                     {
                         if (!isSpooling)
                             EngageStarDrive();
                         else
                             HyperspaceReturn();
                     }
-                    if (currentKeyBoardState.IsKeyDown(Keys.W))
+                    if (input.IsKeyDown(Keys.W))
                     {
                         ApplyThrust(elapsedTime, velocityMaximum, +1f);
                     }
-                    else if (currentKeyBoardState.IsKeyDown(Keys.S))
+                    else if (input.IsKeyDown(Keys.S))
                     {
                         ApplyThrust(elapsedTime, velocityMaximum, -1f);
                     }
@@ -888,7 +881,6 @@ namespace Ship_Game.Ships
                     GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
                 }
             }
-            lastKBState = currentKeyBoardState;
         }
 
         public bool InRadius(Vector2 worldPos, float radius)
@@ -1736,7 +1728,7 @@ namespace Ship_Game.Ships
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
                     PowerDraw = NetPower.NetWarpPowerDraw;
-                else if (engineState != MoveState.Warp && ShieldsUp)
+                else if (engineState != MoveState.Warp)
                     PowerDraw = NetPower.NetSubLightPowerDraw;
                 else
                     PowerDraw = NetPower.NetWarpPowerDraw;
@@ -2313,9 +2305,9 @@ namespace Ship_Game.Ships
             if (UniverseRandom.IntBetween(0, 100) > 65.0 && !IsPlatform && InFrustum)
             {
                 dying         = true;
-                xdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                ydie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                zdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
                 dietimer      = UniverseRandom.RandomBetween(4f, 6f);
                 if (psource != null && psource.Explodes && psource.DamageAmount > 100.0)
                     reallyDie = true;

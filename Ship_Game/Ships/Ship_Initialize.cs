@@ -12,6 +12,12 @@ namespace Ship_Game.Ships
         // You can also call Ship.CreateShip... functions to spawn ships
         protected Ship(Empire empire, ShipData data, bool fromSave, bool isTemplate) : base(GameObjectType.Ship)
         {
+            if (!data.IsValidForCurrentMod)
+            {
+                Log.Info($"Design {data.Name} [Mod:{data.ModName}] ignored for [{GlobalStats.ModOrVanillaName}]");
+                return;
+            }
+
             Position   = new Vector2(200f, 200f);
             Name       = data.Name;
             Level      = data.Level;
@@ -35,6 +41,13 @@ namespace Ship_Game.Ships
         {
             if (template == null)
                 return; // Aaarghhh!!
+
+            if (!template.shipData.IsValidForCurrentMod)
+            {
+                Log.Info($"Design {template.shipData.Name} [Mod:{template.shipData.ModName}] is not valid for [{GlobalStats.ModOrVanillaName}]");
+                return;
+            }
+
             Position     = position;
             Name         = template.Name;
             BaseStrength = template.BaseStrength;
