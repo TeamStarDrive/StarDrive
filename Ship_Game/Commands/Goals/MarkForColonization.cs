@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -39,8 +39,8 @@ namespace Ship_Game.Commands.Goals
 
             foreach (var relationship in empire.AllRelations)
                 empire.GetEmpireAI().CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
-                        
-            RemoveEscortTask();
+
+            RemoveEscortTask(); //this is in the wrong place
 
             if (FinishedShip == null)
                 return false;
@@ -74,7 +74,7 @@ namespace Ship_Game.Commands.Goals
         void RemoveEscortTask()
         {
             MilitaryTask defendClaim = GetClaimTask();
-            if (defendClaim != null)            
+            if (defendClaim != null)
                 empire.GetEmpireAI().TaskList.QueuePendingRemoval(defendClaim);
         }
 
@@ -97,7 +97,7 @@ namespace Ship_Game.Commands.Goals
             WaitingForEscort = HasEscort = false;
             if (empire.isPlayer || empire.isFaction)
                 return false;
-            
+
             float str = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(ColonizationTarget.Center, 150000f, empire);
             if (str < 10)
                 return false;
@@ -105,15 +105,15 @@ namespace Ship_Game.Commands.Goals
             WaitingForEscort = true;
             if (EscortStatus(str) == TaskStatus.Running)
                 return true;
-            
-            
+
+
             if (empire.data.DiplomaticPersonality.Territorialism < 50 &&
                 empire.data.DiplomaticPersonality.Trustworthiness < 50)
             {
                 var tohold = new Array<Goal> { this };
                 var task = new MilitaryTask(ColonizationTarget.Center, 125000f, tohold, empire, str);
                 task.SetTargetPlanet(ColonizationTarget);
-                    empire.GetEmpireAI().TaskList.Add(task);                                    
+                    empire.GetEmpireAI().TaskList.Add(task);
             }
 
             var militaryTask = new MilitaryTask
@@ -178,7 +178,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null) // we already have a ship
                 return GoalStep.GoToNextStep;
 
-            if (!IsValid()) 
+            if (!IsValid())
                 return GoalStep.GoalComplete;
 
             if (!HasEscort)
@@ -218,7 +218,8 @@ namespace Ship_Game.Commands.Goals
 
             if (UpdateEscortNeeds() && !HasEscort)
                 return GoalStep.TryAgain;
-
+            if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
+                return GoalStep.RestartGoal;
             FinishedShip.DoColonize(ColonizationTarget, this);
             return GoalStep.GoToNextStep;
         }
