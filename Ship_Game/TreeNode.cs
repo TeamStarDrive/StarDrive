@@ -329,27 +329,28 @@ namespace Ship_Game
 			{
 				State = NodeState.Normal;
 			}
+
 			if (!moddedRect3.HitTest(input.CursorPosition))
 			{
-				foreach (UnlocksGrid.GridItem gridItem in grid.GridOfUnlocks)
+				foreach (UnlocksGrid.GridItem gi in grid.GridOfUnlocks)
 				{
-					Vector2 RectPos4 = camera.GetScreenSpaceFromWorldSpace(new Vector2(gridItem.rect.X, gridItem.rect.Y));
-					Rectangle moddedRect4 = new Rectangle((int)RectPos4.X, (int)RectPos4.Y, gridItem.rect.Width, gridItem.rect.Height);
-					if (!moddedRect4.HitTest(input.CursorPosition))
-					{
-						continue;
-					}
-					string tip = string.Concat(gridItem.item.privateName, "\n\n", gridItem.item.Description);
-					if (gridItem.item.HullUnlocked == null)
-					{
-						ToolTip.CreateTooltip(tip);
-					}
-					else
-					{
-                        ShipData unlocked = ResourceManager.Hull(gridItem.item.HullUnlocked);
-                        ToolTip.CreateTooltip($"{unlocked.Name} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
-					}
-				}
+					Vector2 rectPos4 = camera.GetScreenSpaceFromWorldSpace(gi.Pos);
+					var moddedRect4 = new Rectangle((int)rectPos4.X, (int)rectPos4.Y, gi.rect.Width, gi.rect.Height);
+                    if (moddedRect4.HitTest(input.CursorPosition))
+                    {
+                        string tip = string.Concat(gi.item.privateName, "\n\n", gi.item.Description);
+                        if (gi.item.HullUnlocked == null)
+                        {
+                            ToolTip.CreateTooltip(tip);
+                        }
+                        else
+                        {
+                            ShipData unlocked = ResourceManager.Hull(gi.item.HullUnlocked);
+                            ToolTip.CreateTooltip(
+                                $"{unlocked.Name} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
+                        }
+                    }
+                }
 			}
 			else
 			{
