@@ -19,6 +19,10 @@ namespace Ship_Game
 
     public sealed class Empire : IDisposable
     {
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException(
+                $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to public PROPERTIES. {this}");
+
         public float ProjectorRadius => Universe.SubSpaceProjectors.Radius;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
         private readonly Map<int, Fleet> FleetsDict    = new Map<int, Fleet>();
@@ -485,18 +489,40 @@ namespace Ship_Game
 
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 
-        public Map<string, TechEntry> GetTDict() => TechnologyDict;
+        public Map<string, TechEntry>.ValueCollection TechEntries => TechnologyDict.Values;
 
-        public TechEntry GetTechEntry(string tech)
+        // @note this is used for comparing rival empire tech entries
+        public TechEntry GetTechEntry(TechEntry theirTech) => GetTechEntry(theirTech.UID);
+        public TechEntry GetTechEntry(Technology theirTech) => GetTechEntry(theirTech.UID);
+
+        public TechEntry GetTechEntry(string uid)
         {
-            if (TechnologyDict.TryGetValue(tech, out TechEntry techEntry))
+            if (TechnologyDict.TryGetValue(uid, out TechEntry techEntry))
                 return techEntry;
-            Log.Error($"Empire GetTechEntry: Failed To Find Tech: ({tech})");
+            Log.Error($"Empire GetTechEntry: Failed To Find Tech: ({uid})");
             return TechEntry.None;
         }
 
+        public bool TryGetTechEntry(string uid, out TechEntry techEntry)
+        {
+            return TechnologyDict.TryGetValue(uid, out techEntry);
+        }
+
+        public bool HasUnlocked(string uid)       => GetTechEntry(uid).Unlocked;
+        public bool HasUnlocked(TechEntry tech)   => GetTechEntry(tech).Unlocked;
+        public bool HasDiscovered(string techId)  => GetTechEntry(techId).Discovered;
+        public float TechProgress(TechEntry tech) => GetTechEntry(tech).Progress;
+        public float TechCost(TechEntry tech)     => GetTechEntry(tech).TechCost;
+        public string AcquiredFrom(TechEntry tech) => GetTechEntry(tech).AcquiredFrom;
+        public string AcquiredFrom(string techId)  => GetTechEntry(techId).AcquiredFrom;
+
+        public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
+
         public float GetProjectedResearchNextTurn()
             => OwnedPlanets.Sum(p=> p.Res.NetIncome);
+
+        public TechEntry CurrentResearch
+            => ResearchTopic.NotEmpty() ? TechnologyDict[ResearchTopic] : TechEntry.None;
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
 
@@ -699,11 +725,7 @@ namespace Ship_Game
         {
             foreach (var kv in ResourceManager.TechTree)
             {
-                TechEntry techEntry = new TechEntry
-                {
-                    Progress = 0.0f,
-                    UID = kv.Key
-                };
+                var techEntry = new TechEntry(kv.Key);
 
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
                 bool raceLimited = kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0;
@@ -831,7 +853,7 @@ namespace Ship_Game
             PopulateShipTechLists(moduleUID, techUID);
         }
 
-        private void PopulateShipTechLists(string moduleUID, string techUID, bool addToMainShipTechs = true)
+        void PopulateShipTechLists(string moduleUID, string techUID, bool addToMainShipTechs = true)
         {
             if (addToMainShipTechs)
                 ShipTechs.Add(techUID);
@@ -872,17 +894,14 @@ namespace Ship_Game
             UnlockedTroopDict[troopName] = true;
             UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(troopName));
         }
+
         public void UnlockEmpireBuilding(string buildingName) => UnlockedBuildingsDict[buildingName] = true;
 
         public void SetEmpireTechDiscovered(string techUID)
         {
             TechEntry tech = GetTechEntry(techUID);
-            if (tech == null)
-            {
-                Log.Warning($"SetEmpireTechDiscovered: Tech UID was not found: Tech({techUID})");
-                return; //don't crash.
-            }
-            tech.SetDiscovered(this);
+            if (tech != TechEntry.None)
+                tech.SetDiscovered(this);
         }
 
         public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevealedTechs(this);
@@ -896,16 +915,20 @@ namespace Ship_Game
             }
         }
 
-        public void UnlockTech(string techId) => UnlockTech(GetTechEntry(techId));
+        public void UnlockTech(string techId)
+        {
+            UnlockTech(GetTechEntry(techId));
+        }
 
         public void UnlockTech(TechEntry techEntry)
         {
-            if (!techEntry.Unlock(this))
-                return;
-            UpdateShipsWeCanBuild();
-            EmpireAI.TriggerRefit();
-            EmpireAI.TriggerFreightersScrap();
-            data.ResearchQueue.Remove(techEntry.UID);
+            if (techEntry.Unlock(this))
+            {
+                UpdateShipsWeCanBuild();
+                EmpireAI.TriggerRefit();
+                EmpireAI.TriggerFreightersScrap();
+                data.ResearchQueue.Remove(techEntry.UID);
+            }
         }
 
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
@@ -1286,8 +1309,8 @@ namespace Ship_Game
             {
                 int importSlots = p.FoodImportSlots + p.ProdImportSlots + p.ColonistsImportSlots;
                 int exportSlots = p.FoodExportSlots + p.ProdExportSlots + p.ColonistsExportSlots;
-                string incoming = p.IncomingFreighters.Count.ToString();
-                string outgoing = p.OutgoingFreighters.Count.ToString();
+                string incoming = p.NumIncomingFreighters.ToString();
+                string outgoing = p.NumOutgoingFreighters.ToString();
                 string starving = p.Storage.Food.AlmostZero() && p.Food.NetIncome < 0 ? " (Starving!)" : "";
                 debug.AddLine($"{p.ParentSystem.Name} : {p.Name}{starving}");
                 debug.AddLine($"Incoming / Import Slots: {incoming}/{importSlots}");
@@ -2140,7 +2163,7 @@ namespace Ship_Game
             }
 
             float research = Research + leftoverResearch;
-            TechEntry tech = GetTechEntry(ResearchTopic);
+            TechEntry tech = CurrentResearch;
             if (tech.UID.IsEmpty())
                 return;
             //reduce the impact of tech that doesnt affect cybernetics.
@@ -2256,7 +2279,7 @@ namespace Ship_Game
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
-            foreach (TechEntry techEntry in target.GetTDict().Values)
+            foreach (TechEntry techEntry in target.TechEntries)
             {
                 if (techEntry.Unlocked)
                     AcquireTech(techEntry.UID, target);
@@ -2356,7 +2379,7 @@ namespace Ship_Game
             return num;
         }
 
-        public bool HavePreReq(string techID) => GetTechEntry(techID).HasPreReq(this);
+        public bool HavePreReq(string techId) => GetTechEntry(techId).HasPreReq(this);
 
         void DispatchBuildAndScrapFreighters()
         {

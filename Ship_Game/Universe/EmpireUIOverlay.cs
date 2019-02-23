@@ -449,21 +449,21 @@ namespace Ship_Game
 					spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(102), "..."), textCursor, new Color(255, 240, 189));
 					return;
 				}
-				float percentResearch = empire.GetTDict()[empire.ResearchTopic].Progress / empire.GetTDict()[empire.ResearchTopic].TechCost;
+				float percentResearch = empire.CurrentResearch.Progress / empire.CurrentResearch.TechCost;
 				int xOffset = (int)(percentResearch * res2.Width);
 				Rectangle gradientSourceRect = res2;
 				gradientSourceRect.X = 159 - xOffset;
                 Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_gradient"), new Rectangle(res2.X, res2.Y, res2.Width, res2.Height), gradientSourceRect, Color.White);
                 Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_over"), res2, Color.White);
-				int research = (int)empire.GetTDict()[empire.ResearchTopic].Progress;
+				int research = (int)empire.CurrentResearch.Progress;
 				float plusRes = empire.GetProjectedResearchNextTurn();
 				float x = res2.X + res2.Width - 30;
 				SpriteFont arial12Bold = Fonts.Arial12Bold;
-				object[] str = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+				object[] str = { research.ToString(), "/", empire.CurrentResearch.TechCost, " (+", plusRes.ToString("#.0"), ")" };
 				textCursor.X = x - arial12Bold.MeasureString(string.Concat(str)).X;
 				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
 				SpriteFont spriteFont = Fonts.Arial12Bold;
-				object[] objArray = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+				object[] objArray = { research.ToString(), "/", empire.CurrentResearch.TechCost, " (+", plusRes.ToString("#.0"), ")" };
 				spriteBatch.DrawString(spriteFont, string.Concat(objArray), textCursor, new Color(255, 240, 189));
 				return;
 			}
@@ -471,20 +471,20 @@ namespace Ship_Game
 			{
 				if (!string.IsNullOrEmpty(empire.ResearchTopic))
 				{
-					float percentResearch = empire.GetTDict()[empire.ResearchTopic].Progress / empire.GetTDict()[empire.ResearchTopic].TechCost;
+					float percentResearch = empire.CurrentResearch.Progress / empire.CurrentResearch.TechCost;
 					int xOffset = (int)(percentResearch * res2.Width);
 					Rectangle gradientSourceRect = res2;
 					gradientSourceRect.X = 159 - xOffset;
                     Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_gradient"), new Rectangle(res2.X, res2.Y, res2.Width, res2.Height), gradientSourceRect, Color.White);
                     Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_over"), res2, Color.White);
-					int research = (int)empire.GetTDict()[empire.ResearchTopic].Progress;
+					int research = (int)empire.CurrentResearch.Progress;
 					float plusRes = empire.GetProjectedResearchNextTurn();
 					float single = res2.X + res2.Width - 20;
 					SpriteFont arial12Bold1 = Fonts.Arial12Bold;
-					object[] str1 = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+					object[] str1 = { research.ToString(), "/", empire.CurrentResearch.TechCost, " (+", plusRes.ToString("#.0"), ")" };
 					textCursor.X = single - arial12Bold1.MeasureString(string.Concat(str1)).X;
 					textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-					object[] objArray1 = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+					object[] objArray1 = { research.ToString(), "/", empire.CurrentResearch.TechCost, " (+", plusRes.ToString("#.0"), ")" };
 					string text = string.Concat(objArray1);
 					if (Fonts.Arial12Bold.MeasureString(text).X <= 75f)
 					{
@@ -493,7 +493,7 @@ namespace Ship_Game
 					}
 					float x1 = res2.X + res2.Width - 20;
 					SpriteFont tahoma10 = Fonts.Tahoma10;
-					object[] str2 = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+					object[] str2 = { research.ToString(), "/", empire.CurrentResearch.TechCost, " (+", plusRes.ToString("#.0"), ")" };
 					textCursor.X = x1 - tahoma10.MeasureString(string.Concat(str2)).X;
 					textCursor.Y = res2.Height / 2 - Fonts.Tahoma10.LineSpacing / 2;
 					textCursor.X = (int)textCursor.X;

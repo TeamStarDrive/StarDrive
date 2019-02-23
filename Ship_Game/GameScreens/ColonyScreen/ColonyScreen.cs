@@ -333,7 +333,7 @@ namespace Ship_Game
                 batch.DrawString(Font12, $"{Localizer.Token(683)} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, Color.White);
             }
 
-            if (P.IncomingFreighters.Count > 0 && P.Owner.isPlayer)
+            if (P.NumIncomingFreighters > 0 && P.Owner.isPlayer)
             {
                 Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 2);
                 Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (Font12.LineSpacing + 2) * 2);

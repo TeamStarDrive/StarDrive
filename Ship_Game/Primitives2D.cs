@@ -9,7 +9,7 @@ namespace Ship_Game
 
     public static class Primitives2D
     {
-        private static Texture2D Pixel;
+        static Texture2D Pixel;
 
         public static void BracketRectangle(this SpriteBatch spriteBatch, Rectangle rect, Color color, int bracketSize)
         {
@@ -41,19 +41,19 @@ namespace Ship_Game
             spriteBatch.Draw(ResourceManager.Texture("UI/bracket_BL"), bl, color);
         }
 
-        private static void CreateThePixel(SpriteBatch spriteBatch)
+        static void CreateThePixel(SpriteBatch spriteBatch)
         {
             Pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
             Pixel.SetData(new []{ Color.White });
         }
 
-        private static bool IsIntersectingScreen(Vector2 a, Vector2 b)
+        static bool IsIntersectingScreen(Vector2 a, Vector2 b)
         {
             return Min(a.X, b.X) < GlobalStats.XRES && 0 < Max(a.X, b.X)
                 && Min(a.Y, b.Y) < GlobalStats.YRES && 0 < Max(a.Y, b.Y);
         }
 
-        private static bool IsIntersectingScreen(Vector2 pos, float radius)
+        static bool IsIntersectingScreen(Vector2 pos, float radius)
         {
             return (pos.X-radius) < GlobalStats.XRES && 0 < (pos.X+radius)
                 && (pos.Y-radius) < GlobalStats.YRES && 0 < (pos.Y+radius);
@@ -121,7 +121,7 @@ namespace Ship_Game
             DrawLine(spriteBatch, point1, distance, angle, color, thickness);
         }
 
-        private static void DrawLine(this SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness)
+        static void DrawLine(this SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness)
         {
             if (Pixel == null)
                 CreateThePixel(spriteBatch);
@@ -178,12 +178,11 @@ namespace Ship_Game
             var r = new Rectangle((int)leftPoint.X + 5, (int)leftPoint.Y - 2, (int)Vector2.Distance(leftPoint, rightPoint) - 5, 5);
             var small = new Rectangle((int)leftPoint.X, (int)leftPoint.Y, 5, 1);
             FillRectangle(spriteBatch, small, (complete ? new Color(110, 171, 227) : new Color(194, 194, 194)));
-            if (complete)
-            {
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/grid_horiz_complete"), r, Color.White);
-                return;
-            }
-            spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/grid_horiz"), r, Color.White);
+
+            SubTexture texture = ResourceManager.Texture(complete
+                               ? "ResearchMenu/grid_horiz_complete"
+                               : "ResearchMenu/grid_horiz");
+            spriteBatch.Draw(texture, r, Color.White);
         }
 
         public static void DrawResearchLineHorizontalGradient(this SpriteBatch spriteBatch, Vector2 left, Vector2 right, bool complete)
@@ -191,23 +190,24 @@ namespace Ship_Game
             var r = new Rectangle((int)left.X + 5, (int)left.Y - 2, (int)Vector2.Distance(left, right) - 5, 5);
             var small = new Rectangle((int)left.X, (int)left.Y, 5, 1);
             FillRectangle(spriteBatch, small, (complete ? new Color(110, 171, 227) : new Color(194, 194, 194)));
-            if (complete)
-            {
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/grid_horiz_gradient_complete"), r, Color.White);
-                return;
-            }
-            spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/grid_horiz_gradient"), r, Color.White);
+
+            SubTexture texture = ResourceManager.Texture(complete
+                               ? "ResearchMenu/grid_horiz_gradient_complete"
+                               : "ResearchMenu/grid_horiz_gradient");
+            spriteBatch.Draw(texture, r, Color.White);
         }
 
         public static void DrawResearchLineVertical(this SpriteBatch spriteBatch, Vector2 top, Vector2 bottom, bool complete)
         {
-            var r = new Rectangle((int)top.X - 2, (int)top.Y, 5, (int)Vector2.Distance(top, bottom));
-            if (complete)
-            {
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/grid_vert_complete"), r, Color.White);
-                return;
-            }
-            spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/grid_vert"), r, Color.White);
+            if (top.Y > bottom.Y) // top must have lower Y
+                Vectors.Swap(ref top, ref bottom);
+
+            SubTexture texture = ResourceManager.Texture(complete
+                               ? "ResearchMenu/grid_vert_complete"
+                               : "ResearchMenu/grid_vert");
+            
+            var r = new Rectangle((int)top.X - 2, (int)top.Y, 5, (int)top.Distance(bottom));
+            spriteBatch.Draw(texture, r, Color.White);
         }
 
         public static void FillRectangle(this SpriteBatch spriteBatch, Rectangle rect, Color color)

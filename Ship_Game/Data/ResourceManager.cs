@@ -900,6 +900,7 @@ namespace Ship_Game
         }
 
         public static ShipModule GetModuleTemplate(string uid) => ModuleTemplates[uid];
+        public static bool GetModuleTemplate(string uid, out ShipModule module) => ModuleTemplates.Get(uid, out module);
         public static bool ModuleExists(string uid) => ModuleTemplates.ContainsKey(uid);
         public static IReadOnlyDictionary<string, ShipModule> ShipModules => ModuleTemplates;
         public static ICollection<ShipModule> ShipModuleTemplates => ModuleTemplates.Values;
@@ -1493,7 +1494,7 @@ namespace Ship_Game
             return ShipsDict.TryGetValue(shipName, out template);
         }
 
-        private static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
+        static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
         {
             foreach (FileInfo info in filesToAdd)
             {
@@ -1514,7 +1515,7 @@ namespace Ship_Game
 
         // Refactored by RedFox
         // This is a hotpath during loading and ~50% of time is spent here
-        private static void LoadShipTemplates()
+        static void LoadShipTemplates()
         {
             ShipsDict.Clear();
 
@@ -1527,7 +1528,7 @@ namespace Ship_Game
         }
 
 
-        private static void TechValidator()
+        static void TechValidator()
         {
             Array<Technology> techs = TechTree.Values.ToArrayList();
             var rootTechs = new Array<Technology>();
@@ -1575,7 +1576,7 @@ namespace Ship_Game
             }
         }
 
-        private static void LoadTechTree()
+        static void LoadTechTree()
         {
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaTechs;
             Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
@@ -1602,185 +1603,17 @@ namespace Ship_Game
                 TechTree[fileUid] = tech;
 
                 // categorize uncategorized techs
-                if (tech.TechnologyType != TechnologyType.General)
-                    continue;
-
-                if (tech.ModulesUnlocked.Count > 0)
+                if (tech.TechnologyType == TechnologyType.General)
                 {
-                    foreach (Technology.UnlockedMod moduleU in tech.ModulesUnlocked)
-                    {
-                        if (!ModuleTemplates.TryGetValue(moduleU.ModuleUID, out ShipModule module))
-                        {
-                            Log.Warning($"Tech {tech.UID} unlock unavailable : {moduleU.ModuleUID}");
-                            continue;
-                        }
-
-                        if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
-                            || module.Is(ShipModuleType.Hangar))
-                            tech.TechnologyType = TechnologyType.ShipWeapons;
-                        else if (module.ShieldPower >= 1f
-                                 || module.Is(ShipModuleType.Armor)
-                                 || module.Is(ShipModuleType.Countermeasure)
-                                 || module.Is(ShipModuleType.Shield))
-                            tech.TechnologyType = TechnologyType.ShipDefense;
-                        else
-                            tech.TechnologyType = TechnologyType.ShipGeneral;
-                    }
+                    tech.TechnologyType = Technology.GetTechnologyTypeFromUnlocks(tech);
                 }
-                else if (tech.HullsUnlocked.Count > 0)
-                {
-                    tech.TechnologyType = TechnologyType.ShipHull;
-                    foreach (Technology.UnlockedHull hull in tech.HullsUnlocked)
-                    {
-                        ShipData.RoleName role = Hull(hull.Name).Role;
-                        if (role == ShipData.RoleName.freighter
-                            || role == ShipData.RoleName.platform
-                            || role == ShipData.RoleName.construction
-                            || role == ShipData.RoleName.station)
-                            tech.TechnologyType = TechnologyType.Industry;
-                    }
-
-                }
-                else if (tech.TechnologyType == TechnologyType.General && tech.BonusUnlocked.Count > 0)
-                {
-                    foreach (Technology.UnlockedBonus unlockedBonus in tech.BonusUnlocked)
-                    {
-                        switch (unlockedBonus.Type)
-                        {
-                            case "SHIPMODULE":
-                            case "HULL":
-                                tech.TechnologyType = TechnologyType.ShipGeneral;
-                                break;
-                            case "TROOP":
-                                tech.TechnologyType = TechnologyType.GroundCombat;
-                                break;
-                            case "BUILDING":
-                                tech.TechnologyType = TechnologyType.Colonization;
-                                break;
-                            case "ADVANCE":
-                                tech.TechnologyType = TechnologyType.ShipGeneral;
-                                break;
-                        }
-                        switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
-                        {
-                            case "Xeno Compilers":
-                            case "Research Bonus": tech.TechnologyType = TechnologyType.Research; break;
-                            case "FTL Spool Bonus":
-                            case "Set FTL Drain Modifier":
-                            case "Trade Tariff":
-                            case "Bonus Money Per Trade":
-                            case "Slipstreams":
-                            case "In Borders FTL Bonus":
-                            case "StarDrive Enhancement":
-                            case "FTL Speed Bonus":
-                            case "FTL Efficiency":
-                            case "FTL Efficiency Bonus":
-                            case "Civilian Maintenance":
-                            case "Privatization":
-                            case "Production Bonus":
-                            case "Construction Bonus":
-                            case "Consumption Bonus":
-                            case "Tax Bonus":
-                            case "Maintenance Bonus":
-                                tech.TechnologyType = TechnologyType.Economic; break;
-                            case "Top Guns":
-                            case "Bonus Fighter Levels":
-                            case "Mass Reduction":
-                            case "Percent Mass Adjustment":
-                            case "STL Speed Bonus":
-                            case "ArmourMass": tech.TechnologyType = TechnologyType.ShipGeneral; break;
-                            case "Resistance is Futile":
-                            case "Super Soldiers":
-                            case "Troop Strength Modifier Bonus":
-                            case "Allow Assimilation": tech.TechnologyType = TechnologyType.GroundCombat; break;
-                            case "Cryogenic Suspension":
-                            case "Increased Lifespans":
-                            case "Population Growth Bonus":
-                            case "Set Population Growth Min":
-                            case "Set Population Growth Max":
-                            case "Spy Offense":
-                            case "Spy Offense Roll Bonus":
-                            case "Spy Defense":
-                            case "Spy Defense Roll Bonus":
-                            case "Xenolinguistic Nuance":
-                            case "Diplomacy Bonus":
-                            case "Passenger Modifier": tech.TechnologyType = TechnologyType.Colonization; break;
-                            case "Ordnance Effectiveness":
-                            case "Ordnance Effectiveness Bonus":
-                            case "Tachyons":
-                            case "Sensor Range Bonus":
-                            case "Fuel Cell Upgrade":
-                            case "Ship Experience Bonus":
-                            case "Power Flow Bonus":
-                            case "Shield Power Bonus":
-                            case "Fuel Cell Bonus": tech.TechnologyType = TechnologyType.ShipGeneral; break;
-                            case "Missile Armor":
-                            case "Missile HP Bonus":
-                            case "Hull Strengthening":
-                            case "Module HP Bonus":
-                            case "ECM Bonus":
-                            case "Missile Dodge Change Bonus":
-                            case "Reaction Drive Upgrade":
-                            case "Reactive Armor":
-                            case "Repair Bonus":
-                            case "Kulrathi Might":
-                            case "Armor Explosion Reduction": tech.TechnologyType = TechnologyType.ShipDefense; break;
-                            case "Armor Piercing":
-                            case "Armor Phasing":
-                            case "Weapon_Speed":
-                            case "Weapon_Damage":
-                            case "Weapon_ExplosionRadius":
-                            case "Weapon_TurnSpeed":
-                            case "Weapon_Rate":
-                            case "Weapon_Range":
-                            case "Weapon_ShieldDamage":
-                            case "Weapon_ArmorDamage":
-                            case "Weapon_HP":
-                            case "Weapon_ShieldPenetration":
-                            case "Weapon_ArmourPenetration":
-                                tech.TechnologyType = TechnologyType.ShipWeapons; break;
-                        }
-
-                    }
-                }
-                else if (tech.BuildingsUnlocked.Count > 0)
-                {
-                    foreach (Technology.UnlockedBuilding buildingU in tech.BuildingsUnlocked)
-                    {
-                        if (!BuildingsDict.TryGetValue(buildingU.Name, out Building building))
-                        {
-                            Log.Warning($"Tech {tech.UID} unlock unavailable : {buildingU.Name}");
-                            continue;
-                        }
-                        if (building.AllowInfantry || building.PlanetaryShieldStrengthAdded > 0
-                            || building.CombatStrength > 0 || building.isWeapon
-                            || building.Strength > 0 || building.IsSensor)
-                            tech.TechnologyType = TechnologyType.GroundCombat;
-                        else if (building.AllowShipBuilding || building.PlusFlatProductionAmount > 0
-                                 || building.PlusProdPerRichness > 0 || building.StorageAdded > 0
-                                 || building.PlusFlatProductionAmount > 0)
-                            tech.TechnologyType = TechnologyType.Industry;
-                        else if (building.PlusTaxPercentage > 0 || building.CreditsPerColonist > 0)
-                            tech.TechnologyType = TechnologyType.Economic;
-                        else if (building.PlusFlatResearchAmount > 0 || building.PlusResearchPerColonist > 0)
-                            tech.TechnologyType = TechnologyType.Research;
-                        else if (building.PlusFoodPerColonist > 0 || building.PlusFlatFoodAmount > 0
-                                 || building.PlusFoodPerColonist > 0 || building.MaxPopIncrease > 0
-                                 || building.PlusFlatPopulation > 0 || building.Name == "Biosspheres" || building.PlusTerraformPoints > 0)
-                            tech.TechnologyType = TechnologyType.Colonization;
-                    }
-                }
-
-
-                else if (tech.TroopsUnlocked.Count > 0)
-                {
-                    tech.TechnologyType = TechnologyType.GroundCombat;
-                }
-                else tech.TechnologyType = TechnologyType.General;
             }
+
+            foreach (Technology tech in TechTree.Values)
+                tech.ResolveLeadsToTechs();
         }
 
-        private static void LoadToolTips()
+        static void LoadToolTips()
         {
             foreach (var tooltips in LoadEntities<Tooltips>("Tooltips", "LoadToolTips"))
             {
