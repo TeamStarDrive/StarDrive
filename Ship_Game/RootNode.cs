@@ -21,14 +21,14 @@ namespace Ship_Game
 		private Rectangle IconRect;
 
 
-		public RootNode(Vector2 position, TechEntry Tech)
+		public RootNode(Vector2 position, TechEntry entry)
 		{
 			if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{
 				TitleFont = Fonts.Arial10;
 			}
-			tech = Tech;
-			TechName = Localizer.Token(ResourceManager.TechTree[Tech.UID].NameIndex);
+			Entry = entry;
+			TechName = Localizer.Token(ResourceManager.TechTree[entry.UID].NameIndex);
 			RootRect.X = (int)position.X;
 			RootRect.Y = (int)position.Y;
 			IconRect = new Rectangle(RootRect.X + RootRect.Width / 2 - 39, RootRect.Y + RootRect.Height / 2 - 29, 78, 58);
@@ -60,7 +60,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[tech.UID].IconPath)), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[Entry.UID].IconPath)), IconRect, Color.White);
 					return;
 				}
 				case NodeState.Hover:
@@ -81,7 +81,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_selhover"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[tech.UID].IconPath, "_hover")), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[Entry.UID].IconPath, "_hover")), IconRect, Color.White);
 					return;
 				}
 				case NodeState.Press:
@@ -102,7 +102,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_press"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[tech.UID].IconPath, "_hover")), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[Entry.UID].IconPath, "_hover")), IconRect, Color.White);
 					return;
 				}
 				default:

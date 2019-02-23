@@ -58,13 +58,17 @@ namespace Ship_Game
                 if (sdata.empireData.DefaultTroopShip.IsEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
             }
-            foreach(TechEntry tech in sdata.TechTree)
+
+            foreach (TechEntry tech in sdata.TechTree)
             {
-                if (!ResourceManager.TryGetTech(tech.UID, out _))
-                    Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
-                else
+                if (ResourceManager.TryGetTech(tech.UID, out _))
+                {
+                    tech.ResolveTech();
                     e.TechnologyDict.Add(tech.UID, tech);
-            }            
+                }
+                else Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
+            }
+            
             e.InitializeFromSave();
             e.AddMoney(sdata.Money - e.Money);
             e.Research = sdata.Research;

@@ -1494,7 +1494,7 @@ namespace Ship_Game
             return ShipsDict.TryGetValue(shipName, out template);
         }
 
-        private static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
+        static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
         {
             foreach (FileInfo info in filesToAdd)
             {
@@ -1515,7 +1515,7 @@ namespace Ship_Game
 
         // Refactored by RedFox
         // This is a hotpath during loading and ~50% of time is spent here
-        private static void LoadShipTemplates()
+        static void LoadShipTemplates()
         {
             ShipsDict.Clear();
 
@@ -1528,7 +1528,7 @@ namespace Ship_Game
         }
 
 
-        private static void TechValidator()
+        static void TechValidator()
         {
             Array<Technology> techs = TechTree.Values.ToArrayList();
             var rootTechs = new Array<Technology>();
@@ -1576,7 +1576,7 @@ namespace Ship_Game
             }
         }
 
-        private static void LoadTechTree()
+        static void LoadTechTree()
         {
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaTechs;
             Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
@@ -1608,10 +1608,12 @@ namespace Ship_Game
                     tech.TechnologyType = Technology.GetTechnologyTypeFromUnlocks(tech);
                 }
             }
+
+            foreach (Technology tech in TechTree.Values)
+                tech.ResolveLeadsToTechs();
         }
 
-
-        private static void LoadToolTips()
+        static void LoadToolTips()
         {
             foreach (var tooltips in LoadEntities<Tooltips>("Tooltips", "LoadToolTips"))
             {

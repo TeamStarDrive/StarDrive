@@ -5,7 +5,7 @@ namespace Ship_Game
 {
     public abstract class Node
     {
-        public TechEntry tech;
+        public TechEntry Entry;
         public Rectangle NodeRect;
         public Vector2 NodePosition;
         public bool isResearched;
