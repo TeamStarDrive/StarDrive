@@ -30,76 +30,70 @@ namespace Ship_Game
         {
             public UnlockItem item;
             public Rectangle rect;
+            public Vector2 Pos => new Vector2(rect.X, rect.Y);
         }
 
         public Array<GridItem> GridOfUnlocks = new Array<GridItem>();
 
         public UnlocksGrid(Array<UnlockItem> Unlocks, Rectangle r)
 		{
-			Vector2 Cursor = new Vector2(r.X, r.Y);
-			int Column = 0;
-			int Row = 0;
+			int x = 0;
+			int y = 0;
 			foreach (UnlockItem item in Unlocks)
 			{
-				GridItem gi = new GridItem
+				var gi = new GridItem
 				{
-					rect = new Rectangle((int)Cursor.X + 32 * Column, (int)Cursor.Y + 32 * Row, 32, 32),
+					rect = new Rectangle(r.X + 32 * x, r.Y + 32 * y, 32, 32),
 					item = item
 				};
 				GridOfUnlocks.Add(gi);
-				Row++;
-				if (Row != 2)
-				{
-					continue;
-				}
-				Row = 0;
-				Column++;
-			}
+				y++;
+                if (y == 2)
+                {
+                    y = 0;
+                    x++;
+                }
+            }
 		}
 
 		public void Draw(SpriteBatch batch)
 		{
 			foreach (GridItem gi in GridOfUnlocks)
-			{
-				UnlockItem unlock = gi.item;
-				if (unlock.Type == UnlockType.SHIPMODULE)
-				{
-					var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 16 * unlock.module.XSIZE, 16 * unlock.module.YSIZE);
-                    iconRect.X = iconRect.X + 16 - iconRect.Width / 2;
-                    iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
+            {
+                UnlockItem unlock = gi.item;
+                switch (unlock.Type)
+                {
+                    case UnlockType.SHIPMODULE:
+                    {
+                        var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 16 * unlock.module.XSIZE, 16 * unlock.module.YSIZE);
+                        iconRect.X = iconRect.X + 16 - iconRect.Width / 2;
+                        iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
 
-					while (iconRect.Height > gi.rect.Height)
-					{
-						iconRect.Height = iconRect.Height - unlock.module.YSIZE;
-						iconRect.Width = iconRect.Width - unlock.module.XSIZE;
-						iconRect.X = gi.rect.X + 16 - iconRect.Width / 2;
-						iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
-					}
+                        while (iconRect.Height > gi.rect.Height)
+                        {
+                            iconRect.Height = iconRect.Height - unlock.module.YSIZE;
+                            iconRect.Width = iconRect.Width - unlock.module.XSIZE;
+                            iconRect.X = gi.rect.X + 16 - iconRect.Width / 2;
+                            iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
+                        }
 
-					batch.Draw(unlock.module.ModuleTexture, iconRect, Color.White);
-				}
-
-				if (unlock.Type == UnlockType.TROOP)
-				{
-                    var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-					unlock.troop.DrawIcon(batch, iconRect);
-				}
-				else if (unlock.Type == UnlockType.BUILDING)
-				{
-                    var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-					batch.Draw(ResourceManager.Texture($"Buildings/icon_{unlock.building.Icon}_64x64"), iconRect, Color.White);
-				}
-				else if (unlock.Type == UnlockType.HULL)
-				{
-					var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-					batch.Draw(ResourceManager.Hull(unlock.privateName).Icon, iconRect, Color.White);
-				}
-				else if (unlock.Type == UnlockType.ADVANCE)
-				{
-                    var iconRect2 = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-                    batch.Draw(ResourceManager.Texture("TechIcons/star"), iconRect2, Color.White);
-				}
-			}
+                        batch.Draw(unlock.module.ModuleTexture, iconRect, Color.White);
+                        break;
+                    }
+                    case UnlockType.TROOP:
+                        unlock.troop.DrawIcon(batch, gi.rect);
+                        break;
+                    case UnlockType.BUILDING:
+                        batch.Draw(ResourceManager.Texture($"Buildings/icon_{unlock.building.Icon}_64x64"), gi.rect, Color.White);
+                        break;
+                    case UnlockType.HULL:
+                        batch.Draw(ResourceManager.Hull(unlock.privateName).Icon, gi.rect, Color.White);
+                        break;
+                    case UnlockType.ADVANCE:
+                        batch.Draw(ResourceManager.Texture("TechIcons/star"), gi.rect, Color.White);
+                        break;
+                }
+            }
 		}
 	}
 }
