@@ -106,6 +106,8 @@ namespace Ship_Game
                     }
                     case UnlockType.ADVANCE:
                     {
+                        var r = new Rectangle(UnlocksRect.X + 24, entry.Y + 24, 48, 48);
+                        batch.Draw(ResourceManager.Texture("TechIcons/star"), r, Color.White);
                         DrawTitleAndDescr(unlockItem.privateName, unlockItem.Description);
                         break;
                     }
