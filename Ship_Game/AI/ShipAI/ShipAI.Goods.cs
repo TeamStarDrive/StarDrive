@@ -86,6 +86,10 @@ namespace Ship_Game.AI
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
+
+            // If we did not unload all cargo, its better to build faster freighters
+            float fasterFreighters     = Owner.CargoSpaceUsed.NotZero() ? 0.01f : -0.01f;
+            Owner.loyalty.IncreaseFastVsBigFreighterRatio(fasterFreighters);
             AI.CancelTradePlan(importPlanet);
         }
     }

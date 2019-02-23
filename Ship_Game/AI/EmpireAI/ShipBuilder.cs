@@ -152,7 +152,7 @@ namespace Ship_Game.AI
             return picked;
         }
 
-        public static Ship PickFreighter(Empire empire)
+        public static Ship PickFreighter(Empire empire, float fastVsBig)
         {
             if (empire.isPlayer && empire.AutoFreighters && !EmpireManager.Player.AutoPickBestFreighter &&
                 ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out Ship freighter))
@@ -172,13 +172,27 @@ namespace Ship_Game.AI
                     ship.shipData.ShipCategory == ShipData.Category.Unclassified)
                     freighters.Add(ship); // only consider civilian/unclassified as freighters
 
+
                 if (Empire.Universe?.Debug == true)
-                    Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: {ship.CargoSpaceMax} " +
-                                                $"+ {ship.maxFTLSpeed / 2000} + {ship.shield_max / 250}");
+                {
+                    float value = ship.CargoSpaceMax * (ship.maxFTLSpeed / 1000)
+                                                     * (ship.maxFTLSpeed / 1000 * fastVsBig)
+                                                     / (ship.SurfaceArea * ship.GetCost(empire));
+                    Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: " +
+                                                $"Cargo: {ship.CargoSpaceMax} " +
+                                                $"FTL: {ship.maxFTLSpeed / 1000} " +
+                                                $"Size: {ship.SurfaceArea} " +
+                                                $"Cost: {ship.GetCost(empire)} " +
+                                                $"Size: {ship.SurfaceArea} --> " +
+                                                $"Value: {value}");
+                }
             }
 
+            // FTL is more valuable than cargo and divide them all in surface area to normalize it
             freighter = freighters
-                .FindMax(ship => ship.CargoSpaceMax + ship.maxFTLSpeed / 2000 + ship.shield_max / 250);
+                .FindMax(ship => ship.CargoSpaceMax * (ship.maxFTLSpeed / 1000) 
+                                                            * (ship.maxFTLSpeed / 1000 * fastVsBig)
+                                                            / (ship.SurfaceArea * ship.GetCost(empire)));
 
             Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter.Name}");
             return freighter;
