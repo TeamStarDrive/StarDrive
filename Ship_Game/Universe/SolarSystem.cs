@@ -876,6 +876,67 @@ namespace Ship_Game
             public float Distance;
             public bool Asteroids;
             public Planet planet;
+
+            public SavedGame.RingSave Serialize()
+            {
+                var ringSave = new SavedGame.RingSave
+                {
+                    Asteroids = Asteroids,
+                    OrbitalDistance = Distance
+                };
+
+                if (planet == null)
+                    return ringSave;
+
+                var pdata = new SavedGame.PlanetSaveData
+                {
+                    Crippled_Turns       = planet.CrippledTurns,
+                    guid                 = planet.guid,
+                    FoodState            = planet.FS,
+                    ProdState            = planet.PS,
+                    FoodLock             = planet.Food.PercentLock,
+                    ProdLock             = planet.Prod.PercentLock,
+                    ResLock              = planet.Res.PercentLock,
+                    Name                 = planet.Name,
+                    Scale                = planet.Scale,
+                    ShieldStrength       = planet.ShieldStrengthCurrent,
+                    Population           = planet.Population,
+                    PopulationMax        = planet.MaxPopBase,
+                    Fertility            = planet.Fertility,
+                    MaxFertility         = planet.MaxFertility,
+                    Richness             = planet.MineralRichness,
+                    Owner                = planet.Owner?.data.Traits.Name ?? "",
+                    WhichPlanet          = planet.Type.Id,
+                    OrbitalAngle         = planet.OrbitalAngle,
+                    OrbitalDistance      = planet.OrbitalRadius,
+                    HasRings             = planet.HasRings,
+                    Radius               = planet.ObjectRadius,
+                    farmerPercentage     = planet.Food.Percent,
+                    workerPercentage     = planet.Prod.Percent,
+                    researcherPercentage = planet.Res.Percent,
+                    foodHere             = planet.FoodHere,
+                    TerraformPoints      = planet.TerraformPoints,
+                    prodHere             = planet.ProdHere,
+                    ColonyType           = planet.colonyType,
+                    GovOrbitals          = planet.GovOrbitals,
+                    SpecialDescription   = planet.SpecialDescription,
+                    IncomingFreighters = planet.IncomingFreighterIds,
+                    OutgoingFreighters = planet.OutgoingFreighterIds,
+                    StationsList       = planet.OrbitalStations.Where(kv => kv.Value.Active)
+                                                                    .Select(kv => kv.Key).ToArray(),
+                    ExploredBy = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
+                };
+
+                if (planet.Owner != null)
+                {
+                    pdata.QISaveList = planet.ConstructionQueue.Select(item => item.Serialize());
+                }
+
+                pdata.PGSList = planet.TilesList.Select(tile => tile.Serialize());
+
+                ringSave.Planet = pdata;
+                return ringSave;
+            }
         }
 
         public override string ToString() => $"System '{Name}' Pos={Position} Rings={NumberOfRings}";

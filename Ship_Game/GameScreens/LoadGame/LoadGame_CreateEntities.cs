@@ -189,7 +189,7 @@ namespace Ship_Game
                 moon.Initialize();
                 system.MoonList.Add(moon);
             }
-            system.SetExploredBy(ssd.EmpiresThatKnowThisSystem);
+            system.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
             foreach (SavedGame.RingSave ring in ssd.RingList)
             {
@@ -216,7 +216,7 @@ namespace Ship_Game
                         system.OwnerList.Add(p.Owner);
                     }
                     system.PlanetList.Add(p);
-                    p.SetExploredBy(ssd.EmpiresThatKnowThisSystem);
+                    p.SetExploredBy(ssd.ExploredBy);
 
                     system.RingList.Add(new SolarSystem.Ring
                     {

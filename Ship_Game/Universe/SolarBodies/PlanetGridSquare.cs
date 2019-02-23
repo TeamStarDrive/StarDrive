@@ -146,7 +146,21 @@ namespace Ship_Game
             }
             return p;
         }
+
+        public SavedGame.PGSData Serialize()
+        {
+            return new SavedGame.PGSData
+            {
+                x          = x,
+                y          = y,
+                Habitable  = Habitable,
+                Biosphere  = Biosphere,
+                building   = building,
+                TroopsHere = TroopsHere
+            };
+        }
     }
+
     public enum TileDirection
     {
         North,
