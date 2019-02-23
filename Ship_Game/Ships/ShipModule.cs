@@ -52,7 +52,7 @@ namespace Ship_Game.Ships
         public DynamicHangarOptions DynamicHangar { get; private set; } 
 
 
-        public float BombTimer;
+        //public float BombTimer;
         public ShipModuleType ModuleType;
         public string IconTexturePath;
 
@@ -268,13 +268,14 @@ namespace Ship_Game.Ships
             WeaponType            = template.WeaponType;
             isWeapon              = WeaponType.NotEmpty();
             OrdinanceCapacity     = template.OrdinanceCapacity;
-            BombTimer             = template.BombTimer;
+            //BombTimer             = template.BombTimer;
             IconTexturePath       = template.IconTexturePath;
             TargetValue           = template.TargetValue;
             TemplateMaxHealth     = template.HealthMax;
 
             UpdateModuleRadius();
         }
+        
 
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
         {
@@ -884,6 +885,7 @@ namespace Ship_Game.Ships
                     break;
                 case ShipModuleType.Bomb:
                     Parent?.BombBays.Add(this);
+                    InstalledWeapon = ResourceManager.GetWeaponTemplate(BombType);
                     break;
                 case ShipModuleType.Drone:
                     ConfigWeapon();
@@ -945,8 +947,8 @@ namespace Ship_Game.Ships
             }
 
             //SetHealth(Health); // Update and validate Health
-
-            BombTimer -= elapsedTime;
+            if (Active && ModuleType == ShipModuleType.Bomb)
+                InstalledWeapon.CooldownTimer -= elapsedTime;
 
             if (Active && ModuleType == ShipModuleType.Hangar) //(this.hangarShip == null || !this.hangarShip.Active) && 
                 hangarTimer -= elapsedTime;

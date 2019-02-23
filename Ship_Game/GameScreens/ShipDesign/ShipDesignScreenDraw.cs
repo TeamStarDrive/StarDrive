@@ -421,7 +421,7 @@ namespace Ship_Game
                 if (!slot.Module.isWeapon && slot.Module.BombType == null)
                     continue;
 
-                Weapon weapon      = slot.Module.BombType == null ? slot.Module.InstalledWeapon : ResourceManager.WeaponsDict[slot.Module.BombType];
+                Weapon weapon = slot.Module.InstalledWeapon;// slot.Module.BombType == null ? slot.Module.InstalledWeapon : ResourceManager.WeaponsDict[slot.Module.BombType];
                 ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
                 weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
                 // added by Fat Bastard for Energy power calcs
