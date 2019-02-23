@@ -51,8 +51,6 @@ namespace Ship_Game.Ships
         public float ShieldUpChance { get; private set; } = 100;
         public DynamicHangarOptions DynamicHangar { get; private set; } 
 
-
-        //public float BombTimer;
         public ShipModuleType ModuleType;
         public string IconTexturePath;
 
@@ -267,8 +265,7 @@ namespace Ship_Game.Ships
             ModuleType            = template.ModuleType;
             WeaponType            = template.WeaponType;
             isWeapon              = WeaponType.NotEmpty();
-            OrdinanceCapacity     = template.OrdinanceCapacity;
-            //BombTimer             = template.BombTimer;
+            OrdinanceCapacity     = template.OrdinanceCapacity;            
             IconTexturePath       = template.IconTexturePath;
             TargetValue           = template.TargetValue;
             TemplateMaxHealth     = template.HealthMax;
