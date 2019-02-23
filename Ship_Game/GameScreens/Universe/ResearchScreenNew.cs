@@ -12,39 +12,39 @@ namespace Ship_Game
     {
         public Camera2D camera = new Camera2D();
 
-        private Map<string, Node> RootNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
-        public Map<string, Node> CompleteSubNodeTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
-        public Map<string, Node> SubNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
+        readonly Map<string, RootNode> RootNodes = new Map<string, RootNode>(StringComparer.OrdinalIgnoreCase);
+        public Map<string, Node> AllTechNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
+        public Map<string, TreeNode> SubNodes = new Map<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
 
-        private Vector2 Cursor = Vector2.Zero;
+        Vector2 Cursor = Vector2.Zero;
 
-        private CloseButton close;
+        CloseButton close;
 
-        private Menu2 MainMenu;
+        Menu2 MainMenu;
 
         public EmpireUIOverlay empireUI;
 
-        private Vector2 MainMenuOffset;
+        Vector2 MainMenuOffset;
 
-        private Rectangle QueueContainer;
+        Rectangle QueueContainer;
 
         public QueueComponent qcomponent;
 
-        private string UIDCurrentRoot = "";
+        string UIDCurrentRoot = "";
 
-        private int ColumnOffset = 175;
+        int ColumnOffset = 175;
 
-        private int RowOffset = 100;
+        int RowOffset = 100;
 
-        private Array<Vector2> ClaimedSpots = new Array<Vector2>();
+        Array<Vector2> ClaimedSpots = new Array<Vector2>();
 
-        private Vector2 cameraVelocity = Vector2.Zero;
+        Vector2 cameraVelocity = Vector2.Zero;
 
         public bool RightClicked;
 
-        private Vector2 StartDragPos = Vector2.Zero;
+        Vector2 StartDragPos = Vector2.Zero;
 
-        private float ClickTimer;
+        float ClickTimer;
 
 
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
@@ -68,16 +68,14 @@ namespace Ship_Game
             
             DrawConnectingLines(batch);
 
-            foreach (KeyValuePair<string, Node> keyValuePair in RootNodes)
+            foreach (RootNode rootNode in RootNodes.Values)
             {
-                if (keyValuePair.Value is RootNode rootNode)
-                    rootNode.Draw(ScreenManager.SpriteBatch);
+                rootNode.Draw(ScreenManager.SpriteBatch);
             }
 
-            foreach (KeyValuePair<string, Node> keyValuePair in SubNodes)
+            foreach (TreeNode treeNode in SubNodes.Values)
             {
-                if (keyValuePair.Value is TreeNode treeNode)
-                    treeNode.Draw(ScreenManager);
+                treeNode.Draw(ScreenManager);
             }
             batch.End();
 
@@ -95,8 +93,8 @@ namespace Ship_Game
 
         RootNode GetCurrentlySelectedRootNode()
         {
-            foreach (Node node in RootNodes.Values)
-                if (node is RootNode root && root.nodeState == NodeState.Press)
+            foreach (RootNode root in RootNodes.Values)
+                if (root.nodeState == NodeState.Press)
                     return root;
             return null;
         }
@@ -111,90 +109,70 @@ namespace Ship_Game
                 var nextNodeLeft = new Vector2(MainMenuOffset.X + ColumnOffset, rootNodeRight.Y);
                 Vector2 midPoint = CenterBetweenPoints(rootNode.RightPoint, nextNodeLeft);
 
-                foreach (Technology.LeadsToTech leadsTo in rootNode.tech.Tech.LeadsTo)
+                bool anyTechsComplete = false;
+
+                foreach (TechEntry child in rootNode.Entry.GetFirstDiscoveredEntries())
                 {
-                    TechEntry techEntry = EmpireManager.Player.GetTechEntry(leadsTo.UID);
-                    techEntry = techEntry.FindNextDiscoveredTech(EmpireManager.Player);
-                    if (techEntry != null)
-                    {
-                        var treeNode = (TreeNode) SubNodes[techEntry.UID];
-                        var midPointOther = new Vector2(midPoint.X, treeNode.BaseRect.CenterY() - 10);
-                        batch.DrawResearchLineVertical(midPoint, midPointOther, techEntry.Unlocked);
-                    }
+                    if (child.Unlocked)
+                        anyTechsComplete = true;
+
+                    TreeNode node = SubNodes[child.UID];
+                    var midPointOther = new Vector2(midPoint.X, node.BaseRect.CenterY() - 10);
+                    batch.DrawResearchLineVertical(midPoint, midPointOther, child.Unlocked);
+
+                    Vector2 destinationPos = midPointOther + new Vector2(rootNodeRight.Distance(nextNodeLeft) + 13f, 0.0f);
+                    batch.DrawResearchLineHorizontalGradient(midPointOther, destinationPos, child.Unlocked);
                 }
 
-                bool firstTechComplete = false;
-                foreach (Technology.LeadsToTech leadsTo in rootNode.tech.Tech.LeadsTo)
-                {
-                    TechEntry techEntry = EmpireManager.Player.GetTechEntry(leadsTo.UID);
-                    techEntry = techEntry.FindNextDiscoveredTech(EmpireManager.Player);
-                    if (techEntry != null)
-                    {
-                        if (techEntry.Unlocked)
-                            firstTechComplete = true;
-                        
-                        var treeNode = (TreeNode)SubNodes[techEntry.UID];
-                        var midPointOther = new Vector2(midPoint.X, treeNode.BaseRect.CenterY() - 10);
-                        Vector2 RightPoint2 = midPointOther + new Vector2(rootNodeRight.Distance(nextNodeLeft) + 13f, 0.0f);
-                        batch.DrawResearchLineHorizontalGradient(midPointOther, RightPoint2, techEntry.Unlocked);
-                    }
-                }
-
-                batch.DrawResearchLineHorizontal(rootNodeRight, midPoint, firstTechComplete);
+                batch.DrawResearchLineHorizontal(rootNodeRight, midPoint, anyTechsComplete);
             }
 
-            foreach (KeyValuePair<string, Node> keyValuePair in SubNodes)
+            foreach (TreeNode treeNode in SubNodes.Values)
             {
-                if (!(keyValuePair.Value is TreeNode treeNode))
-                    continue;
-
                 var vector21 = new Vector2(treeNode.BaseRect.X + treeNode.BaseRect.Width - 25,
                                            treeNode.BaseRect.Y + treeNode.BaseRect.Height / 2 - 10);
                 Vector2 vector22 = vector21 + new Vector2(ColumnOffset / 2f, 0.0f);
                 vector22.Y = vector21.Y;
 
-                foreach (Technology.LeadsToTech leadsTo in treeNode.tech.Tech.LeadsTo)
+                foreach (Technology.LeadsToTech leadsTo in treeNode.Entry.Tech.LeadsTo)
                 {
                     TechEntry techEntry1 = EmpireManager.Player.GetTechEntry(leadsTo.UID);
                     techEntry1 = techEntry1.FindNextDiscoveredTech(EmpireManager.Player);
                     if (techEntry1 != null)
                     {
-                        var treeNode1 = SubNodes[techEntry1.UID] as TreeNode;
+                        var treeNode1 = SubNodes[techEntry1.UID];
                         var vector23 = new Vector2(vector22.X, treeNode1.BaseRect.CenterY() - 10);
                         batch.DrawResearchLineVertical(vector22, vector23, techEntry1.Unlocked);
                     }
                 }
             }
 
-            foreach (Node subNode in SubNodes.Values)
+            foreach (TreeNode node in SubNodes.Values)
             {
-                if (!(subNode is TreeNode node))
-                    continue;
-
-                Technology technology2 = node.tech.Tech;
-                if (technology2.LeadsTo.Count <= 0)
-                    continue;
-
-                var leftPoint = node.RightPoint;
-                Vector2 rightPoint = leftPoint + new Vector2(ColumnOffset / 2, 0.0f);
-                bool complete1 = false;
-                foreach (Technology.LeadsToTech leadsToTech2 in technology2.LeadsTo)
+                Technology technology2 = node.Entry.Tech;
+                if (technology2.LeadsTo.Count > 0)
                 {
-                    TechEntry techEntry2 = EmpireManager.Player.GetTechEntry(leadsToTech2.UID);
-                    techEntry2 = techEntry2.FindNextDiscoveredTech(EmpireManager.Player);
-                    if (techEntry2 != null)
+                    var leftPoint = node.RightPoint;
+                    Vector2 rightPoint = leftPoint + new Vector2(ColumnOffset / 2f, 0.0f);
+                    bool complete1 = false;
+                    foreach (Technology.LeadsToTech leadsToTech2 in technology2.LeadsTo)
                     {
-                        if (techEntry2.Unlocked)
-                            complete1 = true;
+                        TechEntry techEntry2 = EmpireManager.Player.GetTechEntry(leadsToTech2.UID);
+                        techEntry2 = techEntry2.FindNextDiscoveredTech(EmpireManager.Player);
+                        if (techEntry2 != null)
+                        {
+                            if (techEntry2.Unlocked)
+                                complete1 = true;
 
-                        var treeNode3 = (SubNodes[techEntry2.UID] as TreeNode);
-                        var LeftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY() - 10);
-                        Vector2 RightPoint2 = LeftPoint2 + new Vector2(leftPoint.Distance(rightPoint) + 13f, 0.0f);
-                        batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, techEntry2.Unlocked);
+                            TreeNode treeNode3 = (SubNodes[techEntry2.UID]);
+                            var LeftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY() - 10);
+                            Vector2 RightPoint2 = LeftPoint2 + new Vector2(leftPoint.Distance(rightPoint) + 13f, 0.0f);
+                            batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, techEntry2.Unlocked);
+                        }
                     }
-                }
 
-                batch.DrawResearchLineHorizontal(leftPoint, rightPoint, complete1);
+                    batch.DrawResearchLineHorizontal(leftPoint, rightPoint, complete1);
+                }
             }
 
         }
@@ -206,30 +184,24 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-        private int FindDeepestY()
+        int FindDeepestY()
         {
             int deepest = 0;
-            foreach (KeyValuePair<string, Node> node in RootNodes)
+            foreach (RootNode root in RootNodes.Values)
             {
-                if (node.Value.NodePosition.Y <= deepest)
-                {
-                    continue;
-                }
-                deepest = (int)node.Value.NodePosition.Y;
+                if (root.NodePosition.Y > deepest)
+                    deepest = (int) root.NodePosition.Y;
             }
             return deepest;
         }
 
-        private int FindDeepestYSubNodes()
+        int FindDeepestYSubNodes()
         {
             int deepest = 0;
-            foreach (KeyValuePair<string, Node> node in SubNodes)
+            foreach (TreeNode node in SubNodes.Values)
             {
-                if (node.Value.NodePosition.Y <= deepest)
-                {
-                    continue;
-                }
-                deepest = (int)node.Value.NodePosition.Y;
+                if (node.NodePosition.Y > deepest)
+                    deepest = (int)node.NodePosition.Y;
             }
             return deepest;
         }
@@ -279,7 +251,7 @@ namespace Ship_Game
             {
                 if (qcomponent.CurrentResearch != null)
                 {
-                    qcomponent.CurrentResearch.Node.tech.Unlock(EmpireManager.Player);
+                    qcomponent.CurrentResearch.Node.Entry.Unlock(EmpireManager.Player);
                     EmpireManager.Player.ResearchTopic = "";
                     ReloadContent();
                     EmpireManager.Player.UpdateShipsWeCanBuild();
@@ -293,9 +265,9 @@ namespace Ship_Game
             //Added by McShooterz: Cheat ot unlock non bonus tech 
             if (input.IsCtrlKeyDown  && input.KeyPressed(Keys.F3))
             {
-                foreach (KeyValuePair<string, Technology> tech in ResourceManager.TechTree)
+                foreach (Technology tech in ResourceManager.TechTree.Values)
                 {
-                    UnlockTreeNoBonus(tech.Key);
+                    UnlockTreeNoBonus(tech);
                 }
                 EmpireManager.Player.UpdateShipsWeCanBuild();
                 ReloadContent();
@@ -305,9 +277,9 @@ namespace Ship_Game
             if (qcomponent.Visible && qcomponent.container.HitTest(input.CursorPosition))
                 return true;
 
-            foreach (Node tech in RootNodes.Values)
+            foreach (RootNode root in RootNodes.Values)
             {
-                if (tech.HandleInput(input) && tech is RootNode root)
+                if (root.HandleInput(input))
                 {
                     PopulateNodesFromRoot(root);
                     GameAudio.ResearchSelect();
@@ -315,25 +287,25 @@ namespace Ship_Game
             }
 
             RightClicked = false;
-            foreach (KeyValuePair<string, Node> tech in SubNodes)
+            foreach (TreeNode node in SubNodes.Values)
             {
-                if (!(tech.Value as TreeNode).HandleInput(input, ScreenManager, camera))
+                if (!node.HandleInput(input, ScreenManager, camera))
                 {
-                    if ((tech.Value as TreeNode).screen.RightClicked)  //fbedard: popup open
+                    if (node.Screen.RightClicked)  //fbedard: popup open
                         RightClicked = true;
                     continue;
                 }
-                if (EmpireManager.Player.HasUnlocked(tech.Key))
+                if (EmpireManager.Player.HasUnlocked(node.Entry.UID))
                 {
                     GameAudio.NegativeClick();
                 }
-                else if (EmpireManager.Player.HavePreReq(tech.Key))
+                else if (EmpireManager.Player.HavePreReq(node.Entry.UID))
                 {
                     qcomponent.SetVisible();
-                    qcomponent.AddToQueue(tech.Value as TreeNode);
+                    qcomponent.AddToQueue(node);
                     GameAudio.ResearchSelect();
                 }
-                else if (EmpireManager.Player.HavePreReq(tech.Key))
+                else if (EmpireManager.Player.HavePreReq(node.Entry.UID))
                 {
                     GameAudio.NegativeClick();
                 }
@@ -341,7 +313,7 @@ namespace Ship_Game
                 {
                     qcomponent.SetVisible();
                     GameAudio.ResearchSelect();
-                    var techToCheck = tech.Value.tech;
+                    TechEntry techToCheck = node.Entry;
                     var techsToAdd = new Array<string>{ techToCheck.UID };
                     if (techToCheck.Tech.RootNode != 1)
                     {
@@ -352,7 +324,7 @@ namespace Ship_Game
                             {
                                 break;
                             }                            
-                            if (!preReq.Unlocked )
+                            if (!preReq.Unlocked)
                             {
                                 techsToAdd.Add(preReq.UID);
                             }
@@ -363,7 +335,7 @@ namespace Ship_Game
                     foreach (string toAdd in techsToAdd)
                     {
                         TechEntry techEntry = EmpireManager.Player.GetTechEntry(toAdd);
-                        if (techEntry.Discovered) qcomponent.AddToQueue(SubNodes[toAdd] as TreeNode);
+                        if (techEntry.Discovered) qcomponent.AddToQueue(SubNodes[toAdd]);
                     }
                 }
             }
@@ -372,10 +344,8 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            camera              = new Camera2D();
-            camera.Pos          = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f);
-            Rectangle main      = new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth
-                , ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
+            camera = new Camera2D { Pos = new Vector2(Viewport.Width, Viewport.Height) / 2f };
+            var main = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
             MainMenu       = new Menu2(main);
             MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
             close          = new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20));
@@ -383,7 +353,7 @@ namespace Ship_Game
             qcomponent     = new QueueComponent(ScreenManager, QueueContainer, this);
 
             RootNodes.Clear();
-            CompleteSubNodeTree.Clear();
+            AllTechNodes.Clear();
             SubNodes.Clear();
 
             if (ScreenWidth < 1600)
@@ -411,14 +381,17 @@ namespace Ship_Game
             }
 
             RowOffset = (main.Height - 40) / 6;
-            foreach (KeyValuePair<string, Node> entry in RootNodes)
+            foreach (RootNode node in RootNodes.Values)
             {
-                PopulateAllTechsFromRoot(entry.Value as RootNode);
+                PopulateAllTechsFromRoot(node);
             }
-            PopulateNodesFromRoot(RootNodes[GlobalStats.ResearchRootUIDToDisplay] as RootNode);
-            if (!string.IsNullOrEmpty(EmpireManager.Player.ResearchTopic))
+
+            RootNode root = RootNodes[GlobalStats.ResearchRootUIDToDisplay];
+            PopulateNodesFromRoot(root);
+
+            if (EmpireManager.Player.ResearchTopic.NotEmpty())
             {
-                if (CompleteSubNodeTree.TryGetValue(EmpireManager.Player.ResearchTopic, out Node resTopNode))
+                if (AllTechNodes.TryGetValue(EmpireManager.Player.ResearchTopic, out Node resTopNode))
                 {
                     qcomponent.LoadQueue(resTopNode as TreeNode);
                 }
@@ -429,175 +402,92 @@ namespace Ship_Game
             }
             foreach (string uid in EmpireManager.Player.data.ResearchQueue)
             {
-                qcomponent.LoadQueue(CompleteSubNodeTree[uid] as TreeNode);
+                qcomponent.LoadQueue(AllTechNodes[uid] as TreeNode);
             }
             base.LoadContent();
         }
 
-        public void PopulateAllTechs(Node treenode)
+        Vector2 GridSize => new Vector2(ColumnOffset, RowOffset);
+
+        Vector2 GetCurrentCursorOffset(float yOffset = 0)
         {
-            Technology technology = treenode.tech.Tech;
-            for (int i = 0; i < technology.LeadsTo.Count; i++)
+            var cursor = new Vector2(Cursor.X, Cursor.Y + yOffset);
+            return (MainMenuOffset + cursor*GridSize).Rounded();
+        }
+
+        public void PopulateAllTechs(Node node)
+        {
+            bool first = true;
+            foreach (TechEntry child in node.Entry.GetPlayerChildEntries())
             {
-                TechEntry techEntry = EmpireManager.Player.GetTechEntry(technology.LeadsTo[i].UID);
-                if (i != 0)
-                {
-                    Cursor.Y = FindDeepestYSubNodes() + 1;
-                }
-                else
-                {
-                    Cursor.Y = FindDeepestYSubNodes();
-                }
-                Cursor.X = treenode.NodePosition.X + 1f;
-                var newNode = new TreeNode(MainMenuOffset + new Vector2(ColumnOffset * (int)Cursor.X, RowOffset * (int)Cursor.Y), techEntry, this)
-                {
-                    NodePosition = Cursor
-                };
-                if (EmpireManager.Player.HasUnlocked(techEntry))
-                {
-                    newNode.complete = true;
-                }
-                if (techEntry.Discovered)
-                    CompleteSubNodeTree.Add(newNode.tech.UID, newNode);
+                Cursor.X = node.NodePosition.X + 1f;
+                Cursor.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                if (first) first = false;
+
+                var newNode = new TreeNode(GetCurrentCursorOffset(), child, this) { NodePosition = Cursor };
+
+                if (child.Discovered)
+                    AllTechNodes.Add(newNode.Entry.UID, newNode);
                 PopulateAllTechs(newNode);
             }
         }
 
-        public void PopulateAllTechsFromRoot(RootNode Root)
+        public void PopulateAllTechsFromRoot(RootNode root)
         {
-            foreach (KeyValuePair<string, Node> node in RootNodes)
-            {
-                (node.Value as RootNode).nodeState = NodeState.Normal;
-            }
-            Root.nodeState = NodeState.Press;
+            foreach (RootNode node in RootNodes.Values)
+                node.nodeState = NodeState.Normal;
+            root.nodeState = NodeState.Press;
+
             Cursor = new Vector2(1f, 1f);
-            Technology technology = ResourceManager.TechTree[Root.tech.UID];            
-            for (int i = 0; i < technology.LeadsTo.Count; i++)
+            foreach (TechEntry child in root.Entry.GetPlayerChildEntries())
             {
-                TechEntry techEntry = EmpireManager.Player.GetTechEntry(technology.LeadsTo[i].UID);
+                var newNode = new TreeNode(GetCurrentCursorOffset(), child, this) { NodePosition = Cursor };
 
-                var newNode = new TreeNode(MainMenuOffset + new Vector2(ColumnOffset * (int) Cursor.X,
-                                           RowOffset * (int) Cursor.Y), techEntry, this)
-                {
-                    NodePosition = Cursor
-                };
-                if (EmpireManager.Player.HasUnlocked(techEntry))
-                {
-                    newNode.complete = true;
-                }
-                if (techEntry.Discovered)
-                    CompleteSubNodeTree.Add(newNode.tech.UID, newNode);
+                if (child.Discovered)
+                    AllTechNodes.Add(newNode.Entry.UID, newNode);
+
                 PopulateAllTechs(newNode);
             }
         }
 
-        public void PopulateNodesFromRoot(RootNode Root)
+        public void PopulateNodesFromRoot(RootNode root)
         {
-            UIDCurrentRoot = Root.tech.UID;
+            UIDCurrentRoot = root.Entry.UID;
             SubNodes.Clear();
-            int Rows = 1;
-            int Cols = CalculateTreeDimensionsFromRoot(Root.tech.UID, ref Rows, 0, 0);
-            if (Rows < 9)
-                RowOffset = (MainMenu.Menu.Height - 40) / Rows;
+            int rows = 1;
+            int cols = CalculateTreeDimensionsFromRoot(root.Entry.UID, ref rows, 0, 0);
+            if (rows < 9)
+                RowOffset = (MainMenu.Menu.Height - 40) / rows;
             else
                 RowOffset = (MainMenu.Menu.Height - 40) / 9;
-            if (Cols > 0 && Cols < 9)
-                ColumnOffset = (MainMenu.Menu.Width - 350) / Cols + 1;
+
+            if (cols > 0 && cols < 9)
+                ColumnOffset = (MainMenu.Menu.Width - 350) / cols + 1;
             else
                 ColumnOffset = 165;
-            foreach (KeyValuePair<string, Node> node in RootNodes)
-            {
-                (node.Value as RootNode).nodeState = NodeState.Normal;
-            }
-            Root.nodeState = NodeState.Press;
+
+            foreach (RootNode node in RootNodes.Values)
+                node.nodeState = NodeState.Normal;
+            root.nodeState = NodeState.Press;
+
             ClaimedSpots.Clear();
             Cursor = new Vector2(1f, 1f);
             bool first = true;
-            Technology technology = ResourceManager.TechTree[Root.tech.UID];
-            for (int i = 0; i < technology.LeadsTo.Count; i++)
-            {
-                TechEntry techEntry = EmpireManager.Player.GetTechEntry(technology.LeadsTo[i].UID)
-                                                   .FindNextDiscoveredTech(EmpireManager.Player);
-                if (techEntry != null)
-                {
-                    if (!first)
-                    {
-                        Cursor.Y = FindDeepestYSubNodes() + 1;
-                    }
-                    else
-                    {
-                        Cursor.Y = FindDeepestYSubNodes();
-                        first = false;
-                    }
-                    Cursor.X = Root.NodePosition.X + 1f;
-                    TechEntry te = techEntry;
-                    TreeNode newNode = new TreeNode(MainMenuOffset + new Vector2(ColumnOffset * (int)Cursor.X, 
-                        RowOffset * (int)Cursor.Y), te, this)
-                    {
-                        NodePosition = Cursor
-                    };
-                    if (EmpireManager.Player.HasUnlocked(te))
-                    {
-                        newNode.complete = true;
-                    }
-                    
-                        SubNodes.Add(newNode.tech.UID, newNode);
-                    PopulateNodesFromSubNode(newNode);
-                }
-            }
-        }
 
-        public void PopulateNodesFromSubNode(Node treenode)
-        {
-            Vector2 Position = new Vector2(Cursor.X, Cursor.Y);
-            bool SeatTaken = false;
-            foreach (Vector2 v in ClaimedSpots)
+            foreach (TechEntry discovered in root.Entry.GetFirstDiscoveredEntries())
             {
-                if (v.X != Position.X || v.Y != Position.Y)
-                {
-                    continue;
-                }
-                SeatTaken = true;
-            }
-            if (SeatTaken)
-            {
-                Cursor.Y = Cursor.Y + 1f;
-            }
-            else if (treenode.tech.Discovered)
-            {
-                ClaimedSpots.Add(Position);
-            }
+                Cursor.X = root.NodePosition.X + 1f;
+                Cursor.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                if (first) first = false;
 
-            Technology technology = ResourceManager.TechTree[treenode.tech.UID];
-            for (int i = 0; i < technology.LeadsTo.Count; i++)
-            {
-                TechEntry techEntry = EmpireManager.Player.GetTechEntry(technology.LeadsTo[i].UID);
-                if (i != 0)
-                {
-                    Cursor.Y = FindDeepestYSubNodes() + 1;
-                }
-                else
-                {
-                    Cursor.Y = FindDeepestYSubNodes();
-                }
-                Cursor.X = treenode.NodePosition.X + 1f;
-                float x = ColumnOffset * (int)Cursor.X;
-                float y = RowOffset * (int)Cursor.Y;
-                var newNode = new TreeNode(MainMenuOffset + new Vector2(x, y), techEntry, this)
-                {
-                    NodePosition = Cursor
-                };
-                if (EmpireManager.Player.HasUnlocked(techEntry))
-                {
-                    newNode.complete = true;
-                }
-                if (techEntry.Discovered)
-                    SubNodes.Add(newNode.tech.UID, newNode);
+                var newNode = new TreeNode(GetCurrentCursorOffset(), discovered, this) { NodePosition = Cursor };
+
+                SubNodes.Add(newNode.Entry.UID, newNode);
                 PopulateNodesFromSubNode(newNode);
             }
         }
 
-        private void SetNode(TechEntry tech)
+        public void PopulateNodesFromSubNode(Node node)
         {
             var position = new Vector2(Cursor.X, Cursor.Y);
             bool seatTaken = false;
@@ -606,6 +496,41 @@ namespace Ship_Game
                 if (v.AlmostEqual(position))
                     seatTaken = true;
             }
+
+            if (seatTaken)
+            {
+                Cursor.Y += 1f;
+            }
+            else if (node.Entry.Discovered)
+            {
+                ClaimedSpots.Add(position);
+            }
+
+            bool first = true;
+            foreach (TechEntry child in node.Entry.GetPlayerChildEntries())
+            {
+                Cursor.X = node.NodePosition.X + 1f;
+                Cursor.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                if (first) first = false;
+
+                var newNode = new TreeNode(GetCurrentCursorOffset(), child, this) { NodePosition = Cursor };
+
+                if (child.Discovered)
+                    SubNodes.Add(newNode.Entry.UID, newNode);
+                PopulateNodesFromSubNode(newNode);
+            }
+        }
+
+        void SetNode(TechEntry tech)
+        {
+            var position = new Vector2(Cursor.X, Cursor.Y);
+            bool seatTaken = false;
+            foreach (Vector2 v in ClaimedSpots)
+            {
+                if (v.AlmostEqual(position))
+                    seatTaken = true;
+            }
+
             if (seatTaken)
             {
                 Cursor.Y = Cursor.Y + 1f;
@@ -614,10 +539,9 @@ namespace Ship_Game
             {
                 ClaimedSpots.Add(position);
             }
-            RootNode newNode = new RootNode(MainMenuOffset + new Vector2(ColumnOffset * (int)Cursor.X, RowOffset * ((int)Cursor.Y - 1)), tech)
-            {
-                NodePosition = Cursor
-            };
+
+            var newNode = new RootNode(GetCurrentCursorOffset(-1), tech) { NodePosition = Cursor };
+
             if (EmpireManager.Player.HasUnlocked(tech))
             {
                 newNode.isResearched = true;
@@ -625,45 +549,27 @@ namespace Ship_Game
             RootNodes.Add(tech.UID, newNode);
         }
 
-        private void UnlockTree(string key)
+        void UnlockTreeNoBonus(Technology tech)
         {
-            if (!EmpireManager.Player.HasDiscovered(key) || !EmpireManager.Player.HavePreReq(key))
-                return;
-
-            /* Fat Bastard: The line below was missing the "if" statement. without the if to check if the tech is unlocked already,
-                it will unlock bonus techs again and again, giving you massive amount of bonuses when you press the Ctrl F2.
-                I added the same if to the UnlockTreeNoBonus method below 
-                This code is called only when cheating and not in a regular game */
-
-            if (!EmpireManager.Player.HasUnlocked(key))
-                EmpireManager.Player.UnlockTech(key);
-
-            Technology techd = ResourceManager.TechTree[key];
-            foreach (Technology.LeadsToTech tech in techd.LeadsTo)
-                UnlockTree(tech.UID);
-        }
-
-        private void UnlockTreeNoBonus(string key)
-        {
-            if (EmpireManager.Player.HasDiscovered(key) && EmpireManager.Player.HavePreReq(key))
+            string uid = tech.UID;
+            if (EmpireManager.Player.HasDiscovered(uid) && EmpireManager.Player.HavePreReq(uid))
             {
-                Technology t = ResourceManager.TechTree[key];
-                if (t.BonusUnlocked.Count == 0 && !EmpireManager.Player.HasUnlocked(key))
-                    EmpireManager.Player.UnlockTech(key);
-                foreach (Technology.LeadsToTech tech in t.LeadsTo)
-                    UnlockTreeNoBonus(tech.UID);
+                if (tech.BonusUnlocked.Count == 0 && !EmpireManager.Player.HasUnlocked(uid))
+                    EmpireManager.Player.UnlockTech(uid);
+
+                foreach (Technology child in tech.Children)
+                    UnlockTreeNoBonus(child);
             }
         }
 
         //Added by McShooterz: find size of tech tree before it is built
-        private static int CalculateTreeDimensionsFromRoot(string UID, ref int rows, int cols, int colmax)
+        static int CalculateTreeDimensionsFromRoot(string uid, ref int rows, int cols, int colmax)
         {
-            int max = 0;
             int rowCount = 0;
             cols++;
             if (cols > colmax)
                 colmax = cols;
-            Technology technology = ResourceManager.TechTree[UID];
+            Technology technology = ResourceManager.TechTree[uid];
             if (technology.LeadsTo.Count > 1)
             {
                 foreach (Technology.LeadsToTech tech in technology.LeadsTo)
@@ -678,7 +584,7 @@ namespace Ship_Game
             {
                 if (EmpireManager.Player.HasDiscovered(tech.UID))
                 {
-                    max = CalculateTreeDimensionsFromRoot(tech.UID, ref rows, cols, colmax);
+                    int max = CalculateTreeDimensionsFromRoot(tech.UID, ref rows, cols, colmax);
                     if (max > colmax)
                         colmax = max;
                 }
@@ -693,29 +599,15 @@ namespace Ship_Game
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            ResearchScreenNew clickTimer = this;
-            clickTimer.ClickTimer = clickTimer.ClickTimer + elapsedTime;
-            var tech = qcomponent?.CurrentResearch;
-            if (tech != null && tech.Node.tech.Progress >= tech.Node.tech.TechCost)
+            ClickTimer += elapsedTime;
+
+            ResearchQItem tech = qcomponent?.CurrentResearch;
+            if (tech != null && tech.Node.Entry.Progress >= tech.Node.Entry.TechCost)
+            {
                 qcomponent.CurrentResearch.Node.complete = true;
+            }
+
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
-        public class UnlockItem
-        {
-            public string Type;
-
-            public string HullUnlocked;
-
-            public string privateName;
-
-            public Building building;
-
-            public ShipModule module;
-
-            public Troop troop;
-
-            public string Description;
         }
     }
 }
