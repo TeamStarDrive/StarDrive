@@ -1,8 +1,8 @@
-using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Linq;
 
 namespace Ship_Game.AI
 {
@@ -518,25 +518,22 @@ namespace Ship_Game.AI
 
         public void DropBombsAtGoal(ShipGoal goal, float radius)
         {
-            if (Owner.Center.InRadius(goal.TargetPlanet.Center, radius))
+            if (!Owner.Center.InRadius(goal.TargetPlanet.Center, radius)) return;
+            foreach (ShipModule bombBay in Owner.BombBays)
             {
-                foreach (ShipModule bombBay in Owner.BombBays)
+                if (bombBay.InstalledWeapon.CooldownTimer > 0f)
+                    continue;
+                var bomb = new Bomb(new Vector3(Owner.Center, 0f), Owner.loyalty)
                 {
-                    if (bombBay.BombTimer > 0f)
-                        continue;
-                    var bomb = new Bomb(new Vector3(Owner.Center, 0f), Owner.loyalty)
-                    {
-                        WeaponName = bombBay.BombType
-                    };
-                    var wepTemplate = ResourceManager.WeaponsDict[bombBay.BombType];
+                    WeaponName = bombBay.BombType
+                };
 
-                    if (Owner.Ordinance > wepTemplate.OrdinanceRequiredToFire)
-                    {
-                        Owner.ChangeOrdnance(-wepTemplate.OrdinanceRequiredToFire);
-                        bomb.SetTarget(goal.TargetPlanet);
-                        Empire.Universe.BombList.Add(bomb);
-                        bombBay.BombTimer = wepTemplate.fireDelay;
-                    }
+                if (Owner.Ordinance > bombBay.InstalledWeapon.OrdinanceRequiredToFire)
+                {
+                    Owner.ChangeOrdnance(-bombBay.InstalledWeapon.OrdinanceRequiredToFire);
+                    bomb.SetTarget(goal.TargetPlanet);
+                    Empire.Universe.BombList.Add(bomb);
+                    bombBay.InstalledWeapon.CooldownTimer = bombBay.InstalledWeapon.fireDelay;
                 }
             }
         }
