@@ -148,7 +148,7 @@ namespace Ship_Game.AI
                 return null;
 
             Ship picked = RandomMath.RandItem(ships);
-            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Stength: {oldShip.BaseStrength} refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
+            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.BaseStrength} refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
             return picked;
         }
 
@@ -172,15 +172,15 @@ namespace Ship_Game.AI
                     ship.shipData.ShipCategory == ShipData.Category.Unclassified)
                     freighters.Add(ship); // only consider civilian/unclassified as freighters
 
-                Log.Info($"pick freighter: {ship.Name}: {ship.CargoSpaceMax} + {ship.maxFTLSpeed / 2000} + {ship.shield_max / 250}");
+                if (Empire.Universe?.Debug == true)
+                    Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: {ship.CargoSpaceMax} " +
+                                                $"+ {ship.maxFTLSpeed / 2000} + {ship.shield_max / 250}");
             }
-            if (freighters.Count == 1)
-                return freighters[0];  // its the only freighter we have.
 
             freighter = freighters
                 .FindMax(ship => ship.CargoSpaceMax + ship.maxFTLSpeed / 2000 + ship.shield_max / 250);
 
-            Log.Info($"Picked {freighter.Name}");
+            Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter.Name}");
             return freighter;
         }
 
@@ -204,10 +204,10 @@ namespace Ship_Game.AI
             DynamicHangarOptions dynamicHangarType = GetDynamicHangarOptions(shipName);
             switch (dynamicHangarType)
             {
-                case DynamicHangarOptions.DynamicLaunch:  return Color.Gold;
+                case DynamicHangarOptions.DynamicLaunch:      return Color.Gold;
                 case DynamicHangarOptions.DynamicInterceptor: return Color.Cyan;
-                case DynamicHangarOptions.DynamicAntiShip:  return Color.OrangeRed;
-                default:                                  return Color.White;
+                case DynamicHangarOptions.DynamicAntiShip:    return Color.OrangeRed;
+                default:                                      return Color.White;
             }
         }
 
