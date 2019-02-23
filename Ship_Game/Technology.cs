@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Ship_Game.Ships;
@@ -12,6 +13,11 @@ namespace Ship_Game
         /// This is purely used for logging/debugging to mark where the Technology was loaded from
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
         [XmlIgnore] public float ActualCost => Cost * CurrentGame.Pace;
+
+        [XmlIgnore] public Technology[] Children;
+        [XmlIgnore] public Technology[] Parents;
+
+        public static readonly Technology Dummy = new Technology();
 
         public int RootNode;
         public float Cost;
@@ -40,6 +46,7 @@ namespace Ship_Game
         //added by McShooterz: Racial Tech variables
         public Array<RequiredRace> RaceRestrictions = new Array<RequiredRace>();
         public Array<RequiredRace> RaceExclusions   = new Array<RequiredRace>();
+
         public struct RequiredRace
         {
             public string ShipType;
@@ -130,6 +137,30 @@ namespace Ship_Game
             if (them.data.EconomicPersonality.Name == "Technologists")
                 value *= 1.25f;
             return value;
+        }
+
+
+        Technology[] ResolveLeadsToTechs(string what, Array<LeadsToTech> leads)
+        {
+            var resolved = new Array<Technology>();
+            foreach (LeadsToTech leadsTo in leads)
+            {
+                if (ResourceManager.TryGetTech(leadsTo.UID, out Technology child))
+                {
+                    resolved.Add(child);
+                }
+                else
+                {
+                    Log.Warning(ConsoleColor.DarkRed, $"Tech '{UID}' {what} '{leadsTo.UID}' does not exist!");
+                }
+            }
+            return resolved.ToArray();
+        }
+
+        public void ResolveLeadsToTechs()
+        {
+            Children = ResolveLeadsToTechs("LeadsTo", LeadsTo);
+            Parents  = ResolveLeadsToTechs("ComesFrom", ComesFrom);
         }
 
         public static TechnologyType GetTechnologyTypeFromUnlocks(Technology tech)

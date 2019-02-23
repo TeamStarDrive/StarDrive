@@ -492,6 +492,7 @@ namespace Ship_Game
 
         // @note this is used for comparing rival empire tech entries
         public TechEntry GetTechEntry(TechEntry theirTech) => GetTechEntry(theirTech.UID);
+        public TechEntry GetTechEntry(Technology theirTech) => GetTechEntry(theirTech.UID);
 
         public TechEntry GetTechEntry(string uid)
         {
@@ -723,11 +724,7 @@ namespace Ship_Game
         {
             foreach (var kv in ResourceManager.TechTree)
             {
-                TechEntry techEntry = new TechEntry
-                {
-                    Progress = 0.0f,
-                    UID = kv.Key
-                };
+                var techEntry = new TechEntry(kv.Key);
 
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
                 bool raceLimited = kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0;
