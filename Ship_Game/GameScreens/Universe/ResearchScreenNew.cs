@@ -30,21 +30,16 @@ namespace Ship_Game
 
         public QueueComponent qcomponent;
 
-        string UIDCurrentRoot = "";
+        int GridWidth  = 175;
+        int GridHeight = 100;
 
-        int ColumnOffset = 175;
-
-        int RowOffset = 100;
-
-        Array<Vector2> ClaimedSpots = new Array<Vector2>();
+        readonly Array<Vector2> ClaimedSpots = new Array<Vector2>();
 
         Vector2 cameraVelocity = Vector2.Zero;
 
         public bool RightClicked;
 
         Vector2 StartDragPos = Vector2.Zero;
-
-        float ClickTimer;
 
 
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
@@ -106,7 +101,7 @@ namespace Ship_Game
             // Level 0 VERTICAL line coming straight from root nodes
             {
                 Vector2 rootNodeRight = rootNode.RightPoint;
-                var nextNodeLeft = new Vector2(MainMenuOffset.X + ColumnOffset, rootNodeRight.Y);
+                var nextNodeLeft = new Vector2(MainMenuOffset.X + GridWidth, rootNodeRight.Y);
                 Vector2 midPoint = CenterBetweenPoints(rootNode.RightPoint, nextNodeLeft);
 
                 bool anyTechsComplete = false;
@@ -131,7 +126,7 @@ namespace Ship_Game
             {
                 var vector21 = new Vector2(treeNode.BaseRect.X + treeNode.BaseRect.Width - 25,
                                            treeNode.BaseRect.Y + treeNode.BaseRect.Height / 2 - 10);
-                Vector2 vector22 = vector21 + new Vector2(ColumnOffset / 2f, 0.0f);
+                Vector2 vector22 = vector21 + new Vector2(GridWidth / 2f, 0.0f);
                 vector22.Y = vector21.Y;
 
                 foreach (Technology.LeadsToTech leadsTo in treeNode.Entry.Tech.LeadsTo)
@@ -153,7 +148,7 @@ namespace Ship_Game
                 if (technology2.LeadsTo.Count > 0)
                 {
                     var leftPoint = node.RightPoint;
-                    Vector2 rightPoint = leftPoint + new Vector2(ColumnOffset / 2f, 0.0f);
+                    Vector2 rightPoint = leftPoint + new Vector2(GridWidth / 2f, 0.0f);
                     bool complete1 = false;
                     foreach (Technology.LeadsToTech leadsToTech2 in technology2.LeadsTo)
                     {
@@ -179,7 +174,7 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            GlobalStats.ResearchRootUIDToDisplay = UIDCurrentRoot;
+            GlobalStats.ResearchRootUIDToDisplay = GetCurrentlySelectedRootNode().Entry.UID;
             RightClicked = false;
             base.ExitScreen();
         }
@@ -188,10 +183,8 @@ namespace Ship_Game
         {
             int deepest = 0;
             foreach (RootNode root in RootNodes.Values)
-            {
                 if (root.NodePosition.Y > deepest)
                     deepest = (int) root.NodePosition.Y;
-            }
             return deepest;
         }
 
@@ -199,16 +192,14 @@ namespace Ship_Game
         {
             int deepest = 0;
             foreach (TreeNode node in SubNodes.Values)
-            {
                 if (node.NodePosition.Y > deepest)
                     deepest = (int)node.NodePosition.Y;
-            }
             return deepest;
         }
 
         public override bool HandleInput(InputState input)
         {
-            if (input.Escaped || input.ResearchExitScreen || close.HandleInput(input))
+            if (input.Escaped || input.ResearchExitScreen)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
@@ -348,7 +339,7 @@ namespace Ship_Game
             var main = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
             MainMenu       = new Menu2(main);
             MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
-            close          = new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20));
+            close          = Add(new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20)));
             QueueContainer = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
             qcomponent     = new QueueComponent(ScreenManager, QueueContainer, this);
 
@@ -363,8 +354,8 @@ namespace Ship_Game
 
             int numDiscoveredRoots = EmpireManager.Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
 
-            RowOffset = (main.Height - 40) / numDiscoveredRoots;
-            MainMenuOffset.Y = main.Y + RowOffset / 3;
+            GridHeight = (main.Height - 40) / numDiscoveredRoots;
+            MainMenuOffset.Y = main.Y + GridHeight / 3;
             if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
             {
                 MainMenuOffset.Y = MainMenuOffset.Y + 8f;
@@ -380,7 +371,7 @@ namespace Ship_Game
                 }
             }
 
-            RowOffset = (main.Height - 40) / 6;
+            GridHeight = (main.Height - 40) / 6;
             foreach (RootNode node in RootNodes.Values)
             {
                 PopulateAllTechsFromRoot(node);
@@ -407,7 +398,7 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        Vector2 GridSize => new Vector2(ColumnOffset, RowOffset);
+        Vector2 GridSize => new Vector2(GridWidth, GridHeight);
 
         Vector2 GetCurrentCursorOffset(float yOffset = 0)
         {
@@ -432,11 +423,16 @@ namespace Ship_Game
             }
         }
 
-        public void PopulateAllTechsFromRoot(RootNode root)
+        void ResetRootNodeStates(RootNode selectedRoot)
         {
             foreach (RootNode node in RootNodes.Values)
                 node.nodeState = NodeState.Normal;
-            root.nodeState = NodeState.Press;
+            selectedRoot.nodeState = NodeState.Press;
+        }
+
+        public void PopulateAllTechsFromRoot(RootNode root)
+        {
+            ResetRootNodeStates(root);
 
             Cursor = new Vector2(1f, 1f);
             foreach (TechEntry child in root.Entry.GetPlayerChildEntries())
@@ -452,25 +448,20 @@ namespace Ship_Game
 
         public void PopulateNodesFromRoot(RootNode root)
         {
-            UIDCurrentRoot = root.Entry.UID;
+            ResetRootNodeStates(root);
+
             SubNodes.Clear();
+            ClaimedSpots.Clear();
+
             int rows = 1;
             int cols = CalculateTreeDimensionsFromRoot(root.Entry.UID, ref rows, 0, 0);
-            if (rows < 9)
-                RowOffset = (MainMenu.Menu.Height - 40) / rows;
-            else
-                RowOffset = (MainMenu.Menu.Height - 40) / 9;
+            if (rows < 9) GridHeight = (MainMenu.Menu.Height - 40) / rows;
+            else          GridHeight = (MainMenu.Menu.Height - 40) / 9;
 
-            if (cols > 0 && cols < 9)
-                ColumnOffset = (MainMenu.Menu.Width - 350) / cols + 1;
-            else
-                ColumnOffset = 165;
+            if (cols > 0 && cols < 9) GridWidth = (MainMenu.Menu.Width - 350) / cols + 1;
+            else                      GridWidth = 165;
 
-            foreach (RootNode node in RootNodes.Values)
-                node.nodeState = NodeState.Normal;
-            root.nodeState = NodeState.Press;
 
-            ClaimedSpots.Clear();
             Cursor = new Vector2(1f, 1f);
             bool first = true;
 
@@ -487,24 +478,24 @@ namespace Ship_Game
             }
         }
 
+        bool PositionIsClaimed(Vector2 position)
+        {
+            foreach (Vector2 v in ClaimedSpots)
+                if (v.AlmostEqual(position)) return true;
+            return false;
+        }
+
+        void UpdateCursorAndClaimedSpots(bool addToClaimed)
+        {
+            if (PositionIsClaimed(Cursor))
+                Cursor.Y += 1f;
+            else if (addToClaimed)
+                ClaimedSpots.Add(Cursor);
+        }
+
         public void PopulateNodesFromSubNode(Node node)
         {
-            var position = new Vector2(Cursor.X, Cursor.Y);
-            bool seatTaken = false;
-            foreach (Vector2 v in ClaimedSpots)
-            {
-                if (v.AlmostEqual(position))
-                    seatTaken = true;
-            }
-
-            if (seatTaken)
-            {
-                Cursor.Y += 1f;
-            }
-            else if (node.Entry.Discovered)
-            {
-                ClaimedSpots.Add(position);
-            }
+            UpdateCursorAndClaimedSpots(node.Entry.Discovered);
 
             bool first = true;
             foreach (TechEntry child in node.Entry.GetPlayerChildEntries())
@@ -523,22 +514,7 @@ namespace Ship_Game
 
         void SetNode(TechEntry tech)
         {
-            var position = new Vector2(Cursor.X, Cursor.Y);
-            bool seatTaken = false;
-            foreach (Vector2 v in ClaimedSpots)
-            {
-                if (v.AlmostEqual(position))
-                    seatTaken = true;
-            }
-
-            if (seatTaken)
-            {
-                Cursor.Y = Cursor.Y + 1f;
-            }
-            else
-            {
-                ClaimedSpots.Add(position);
-            }
+            UpdateCursorAndClaimedSpots(true);
 
             var newNode = new RootNode(GetCurrentCursorOffset(-1), tech) { NodePosition = Cursor };
 
@@ -598,9 +574,6 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            ClickTimer += elapsedTime;
-
             ResearchQItem tech = qcomponent?.CurrentResearch;
             if (tech != null && tech.Node.Entry.Progress >= tech.Node.Entry.TechCost)
             {

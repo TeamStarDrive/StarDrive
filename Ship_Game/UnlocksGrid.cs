@@ -57,18 +57,17 @@ namespace Ship_Game
 			}
 		}
 
-		public void Draw(SpriteBatch spriteBatch)
+		public void Draw(SpriteBatch batch)
 		{
 			foreach (GridItem gi in GridOfUnlocks)
 			{
 				UnlockItem unlock = gi.item;
 				if (unlock.Type == UnlockType.SHIPMODULE)
 				{
-					Rectangle iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 16 * unlock.module.XSIZE, 16 * unlock.module.YSIZE);
-					//{
-                        iconRect.X = iconRect.X + 16 - iconRect.Width / 2;
-                        iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
-					//};
+					var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 16 * unlock.module.XSIZE, 16 * unlock.module.YSIZE);
+                    iconRect.X = iconRect.X + 16 - iconRect.Width / 2;
+                    iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
+
 					while (iconRect.Height > gi.rect.Height)
 					{
 						iconRect.Height = iconRect.Height - unlock.module.YSIZE;
@@ -76,29 +75,30 @@ namespace Ship_Game
 						iconRect.X = gi.rect.X + 16 - iconRect.Width / 2;
 						iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
 					}
-					spriteBatch.Draw(unlock.module.ModuleTexture, iconRect, Color.White);
+
+					batch.Draw(unlock.module.ModuleTexture, iconRect, Color.White);
 				}
+
 				if (unlock.Type == UnlockType.TROOP)
 				{
                     var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-					unlock.troop.DrawIcon(spriteBatch, iconRect);
+					unlock.troop.DrawIcon(batch, iconRect);
 				}
 				else if (unlock.Type == UnlockType.BUILDING)
 				{
                     var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", unlock.building.Icon, "_64x64")), iconRect, Color.White);
+					batch.Draw(ResourceManager.Texture($"Buildings/icon_{unlock.building.Icon}_64x64"), iconRect, Color.White);
 				}
 				else if (unlock.Type == UnlockType.HULL)
 				{
 					var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-					spriteBatch.Draw(ResourceManager.Hull(unlock.privateName).Icon, iconRect, Color.White);
+					batch.Draw(ResourceManager.Hull(unlock.privateName).Icon, iconRect, Color.White);
 				}
-				else if (unlock.Type != UnlockType.ADVANCE)
+				else if (unlock.Type == UnlockType.ADVANCE)
 				{
-					continue;
+                    var iconRect2 = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
+                    batch.Draw(ResourceManager.Texture("TechIcons/star"), iconRect2, Color.White);
 				}
-                var iconRect2 = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-				spriteBatch.Draw(ResourceManager.Texture("TechIcons/star"), iconRect2, Color.White);
 			}
 		}
 	}
