@@ -26,7 +26,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            Ship freighter = ShipBuilder.PickFreighter(empire);
+            Ship freighter = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio);
             if (freighter == null)
                 return GoalStep.GoalFailed;
 

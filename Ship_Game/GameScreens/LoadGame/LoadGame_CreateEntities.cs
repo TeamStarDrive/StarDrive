@@ -55,6 +55,8 @@ namespace Ship_Game
                 e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
                 e.data.CurrentConstructor   = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
+
+                e.IncreaseFastVsBigFreighterRatio(sdata.FastVsBigFreighterRatio - e.FastVsBigFreighterRatio);
                 if (sdata.empireData.DefaultTroopShip.IsEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
             }
