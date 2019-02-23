@@ -485,7 +485,10 @@ namespace Ship_Game.Ships
         {
             if (BombBays.Count <= 0) return ShipStatus.NotApplicable;
             if (OrdnanceStatus < ShipStatus.Poor) return ShipStatus.Critical;
-            float bombSeconds = Ordinance / (BombBays[0].InstalledWeapon.OrdinanceRequiredToFire * BombBays.Count);
+            //we need a standard formula for calculating the below.
+            //one is the alpha strike. the other is the continued firing. The below only gets the sustained.
+            //so the effect is that it might not have enough ordnance to fire the alpha strike. But it will do.
+            float bombSeconds = Ordinance / BombBays.Sum(b => b.InstalledWeapon.OrdinanceRequiredToFire / b.InstalledWeapon.fireDelay);
             bombSeconds = bombSeconds.Clamped(0, 60); //can we bomb for a full minute?
             return ToShipStatus(bombSeconds,60);
         }
