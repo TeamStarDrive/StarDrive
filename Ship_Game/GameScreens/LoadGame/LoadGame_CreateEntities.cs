@@ -87,33 +87,26 @@ namespace Ship_Game
                 OrbitalAngle = psdata.OrbitalAngle
             };
 
-            if (!string.IsNullOrEmpty(psdata.Owner))
+            if (psdata.Owner.NotEmpty())
             {
                 p.Owner = EmpireManager.GetEmpireByName(psdata.Owner);
                 p.Owner.AddPlanet(p);
             }
 
-            if(!string.IsNullOrEmpty(psdata.SpecialDescription))
+            if (psdata.SpecialDescription.NotEmpty())
                 p.SpecialDescription = psdata.SpecialDescription;
 
-            if (psdata.Scale > 0f)
-                p.Scale = psdata.Scale;
-            else
-            {
-                float scale = RandomMath.RandomBetween(1f, 2f);
-                p.Scale = scale;
-            }
-
+            p.Scale = psdata.Scale > 0f ? psdata.Scale : RandomMath.RandomBetween(1f, 2f);
             p.colonyType = psdata.ColonyType;
             p.GovOrbitals = psdata.GovOrbitals;
 
-            p.FS                    = psdata.FoodState;
-            p.PS                    = psdata.ProdState;
-            p.Food.PercentLock      = psdata.FoodLock;
-            p.Prod.PercentLock      = psdata.ProdLock;
-            p.Res.PercentLock       = psdata.ResLock;
-            p.OrbitalRadius         = psdata.OrbitalDistance;
-            p.MaxPopBase            = psdata.PopulationMax;
+            p.FS               = psdata.FoodState;
+            p.PS               = psdata.ProdState;
+            p.Food.PercentLock = psdata.FoodLock;
+            p.Prod.PercentLock = psdata.ProdLock;
+            p.Res.PercentLock  = psdata.ResLock;
+            p.OrbitalRadius    = psdata.OrbitalDistance;
+            p.MaxPopBase       = psdata.PopulationMax;
 
             p.SetFertility(psdata.Fertility, psdata.MaxFertility);
 
@@ -126,7 +119,7 @@ namespace Ship_Game
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
             p.UpdateTerraformPoints(psdata.TerraformPoints);
             foreach (Guid guid in psdata.StationsList)
-                p.OrbitalStations[guid]   = null; // reserve orbital stations (and platforms)
+                p.OrbitalStations[guid] = null; // reserve orbital stations (and platforms)
 
             p.Food.Percent = psdata.farmerPercentage;
             p.Prod.Percent = psdata.workerPercentage;
