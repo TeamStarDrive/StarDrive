@@ -18,7 +18,7 @@ namespace Ship_Game
 			Pos = position;
 			Screen = screen;
 			var container = new Rectangle((int)position.X, (int)position.Y, 320, 110);
-			Node = new TreeNode(container.PosVec() + new Vector2(100f, 20f), node.tech, screen);
+			Node = new TreeNode(container.PosVec() + new Vector2(100f, 20f), node.Entry, screen);
 			var rup    = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33, 30, 30);
 			var rdown  = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33 + 36, 30, 30);
 			var cancel = new Rectangle(container.X + 15 + 30 + 12, container.Y + container.Height / 2 - 15, 30, 30);
@@ -38,7 +38,7 @@ namespace Ship_Game
 
 		public void Draw(ScreenManager screenManager, Rectangle container)
 		{
-			Node = new TreeNode(new Vector2(container.X, container.Y) + new Vector2(100f, 20f), Node.tech, Screen);
+			Node = new TreeNode(new Vector2(container.X, container.Y) + new Vector2(100f, 20f), Node.Entry, Screen);
 			BtnUp.r     = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33, 30, 30);
 			BtnDown.r   = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33 + 36, 30, 30);
 			BtnCancel.r = new Rectangle(container.X + 15 + 30 + 12, container.Y + container.Height / 2 - 15, 30, 30);
@@ -60,7 +60,7 @@ namespace Ship_Game
         private void SwapQueueItems(int first, int second)
         {
             string tmp = EmpireManager.Player.data.ResearchQueue[first];
-            EmpireManager.Player.data.ResearchQueue[first] = Node.tech.UID;
+            EmpireManager.Player.data.ResearchQueue[first] = Node.Entry.UID;
             EmpireManager.Player.data.ResearchQueue[second] = tmp;
         }
 
@@ -73,12 +73,12 @@ namespace Ship_Game
 
         private bool HandleResearchButtonUp()
         {
-            if (Node.tech.UID == EmpireManager.Player.ResearchTopic)
+            if (Node.Entry.UID == EmpireManager.Player.ResearchTopic)
             {
                 GameAudio.NegativeClick();
                 return true;
             }
-            int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(q => q.Node.tech.UID == Node.tech.UID);
+            int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(q => q.Node.Entry.UID == Node.Entry.UID);
             if (indexOfThis > 0) // move it up
             {
                 if (AboveIsPreReq(indexOfThis))
@@ -105,14 +105,14 @@ namespace Ship_Game
 
 	    private bool HandleResearchButtonDown()
 	    {
-	        if (Node.tech.UID == EmpireManager.Player.ResearchTopic && EmpireManager.Player.data.ResearchQueue.Count == 0)
+	        if (Node.Entry.UID == EmpireManager.Player.ResearchTopic && EmpireManager.Player.data.ResearchQueue.Count == 0)
 	        {
 	            GameAudio.NegativeClick();
                 return true;
 	        }
-	        if (Node.tech.UID != EmpireManager.Player.ResearchTopic) // move tech down
+	        if (Node.Entry.UID != EmpireManager.Player.ResearchTopic) // move tech down
 	        {
-	            int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(r => r.Node.tech.UID == Node.tech.UID);
+	            int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(r => r.Node.Entry.UID == Node.Entry.UID);
 	            if (indexOfThis == -1 || indexOfThis == EmpireManager.Player.data.ResearchQueue.Count - 1 || ThisIsPreReq(indexOfThis))
 	            {
 	                GameAudio.NegativeClick();
@@ -141,7 +141,7 @@ namespace Ship_Game
         bool AboveIsPreReq(int indexOfThis)
 	    {
 	        foreach (Technology.LeadsToTech dependent in PlayerResearchAt(indexOfThis - 1).LeadsTo)
-	            if (dependent.UID == Node.tech.UID)
+	            if (dependent.UID == Node.Entry.UID)
 	                return true;
 	        return false;
 	    }
@@ -151,7 +151,7 @@ namespace Ship_Game
             if (EmpireManager.Player.ResearchTopic.IsEmpty())
                 return false;
             foreach (Technology.LeadsToTech dependent in PlayerResearch.LeadsTo)
-	            if (dependent.UID == Node.tech.UID)
+	            if (dependent.UID == Node.Entry.UID)
                     return true;
             return false;
 	    }
@@ -179,10 +179,10 @@ namespace Ship_Game
 
         private bool HandleResearchButtonCancel()
 	    {
-	        if (Node.tech.UID != EmpireManager.Player.ResearchTopic)
+	        if (Node.Entry.UID != EmpireManager.Player.ResearchTopic)
 	        {
 	            Screen.qcomponent.QSL.RemoveItem(this);
-	            RemoveTech(Node.tech.UID);
+	            RemoveTech(Node.Entry.UID);
 	        }
 	        else if (EmpireManager.Player.data.ResearchQueue.Count == 0)
 	        {
@@ -191,7 +191,7 @@ namespace Ship_Game
 	        }
 	        else
 	        {
-	            RemoveTech(Node.tech.UID);
+	            RemoveTech(Node.Entry.UID);
 
 	            if (EmpireManager.Player.data.ResearchQueue.Count == 0)
 	            {
@@ -201,9 +201,9 @@ namespace Ship_Game
 	            else
 	            {
 	                var qItem = Screen.qcomponent.QSL.FirstItem<ResearchQItem>();
-	                EmpireManager.Player.ResearchTopic = qItem.Node.tech.UID;
+	                EmpireManager.Player.ResearchTopic = qItem.Node.Entry.UID;
 	                Screen.qcomponent.CurrentResearch = new ResearchQItem(Screen.qcomponent.CurrentResearch.Pos, qItem.Node, Screen);
-	                EmpireManager.Player.data.ResearchQueue.Remove(qItem.Node.tech.UID);
+	                EmpireManager.Player.data.ResearchQueue.Remove(qItem.Node.Entry.UID);
 	                Screen.qcomponent.QSL.RemoveFirst();
 	            }
 	        }
@@ -219,7 +219,7 @@ namespace Ship_Game
 				RemoveTech(dependent.UID);
 			}
 			EmpireManager.Player.data.ResearchQueue.Remove(uid);
-            Screen.qcomponent.QSL.RemoveFirstIf<ResearchQItem>(rqi => rqi.Node.tech.UID == uid);
+            Screen.qcomponent.QSL.RemoveFirstIf<ResearchQItem>(rqi => rqi.Node.Entry.UID == uid);
 		}
 	}
 }

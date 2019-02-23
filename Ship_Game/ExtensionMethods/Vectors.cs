@@ -323,5 +323,11 @@ namespace Ship_Game
             return dot < 0f && dot.LessOrEqual(-tolerance);
         }
 
+        public static void Swap(ref Vector2 a, ref Vector2 b)
+        {
+            Vector2 tmp = a;
+            a = b;
+            b = tmp;
+        }
     }
 }

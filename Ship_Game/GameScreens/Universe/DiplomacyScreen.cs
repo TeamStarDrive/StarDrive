@@ -752,14 +752,15 @@ namespace Ship_Game
 
             layout.AddCategory(1217, () =>
             {
-                foreach (KeyValuePair<string, TechEntry> technology in empire.GetTDict())
+                foreach (TechEntry entry in empire.TechEntries)
                 {
                     // Added by McShooterz: prevent root nodes from being traded
-                    if (!technology.Value.Unlocked || other.GetTDict()[technology.Key].Unlocked ||
-                        !other.HavePreReq(technology.Key) || technology.Value.Tech.RootNode == 1)
-                        continue;
-                    Technology tech = ResourceManager.TechTree[technology.Key];
-                    layout.AddSubItem($"{Localizer.Token(tech.NameIndex)}: {(int)tech.ActualCost}", "Tech", technology.Key);
+                    if (entry.Unlocked && !other.HasUnlocked(entry) &&
+                        other.HavePreReq(entry.UID) && !entry.IsRoot)
+                    {
+                        Technology tech = entry.Tech;
+                        layout.AddSubItem($"{Localizer.Token(tech.NameIndex)}: {(int) tech.ActualCost}", "Tech", entry.UID);
+                    }
                 }
             });
 
