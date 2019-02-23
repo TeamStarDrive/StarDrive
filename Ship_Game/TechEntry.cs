@@ -12,34 +12,48 @@ namespace Ship_Game
         [Serialize(1)] public float Progress;
         [Serialize(2)] public bool Discovered;
         [Serialize(3)] public bool Unlocked;
-        [Serialize(4)] public int  Level;
+        [Serialize(4)] public int Level;
         [Serialize(5)] public string AcquiredFrom = "";
         [Serialize(6)] public bool shipDesignsCanuseThis = true;
-        [Serialize(7)] public float maxOffensiveValueFromthis = 0;
 
         [XmlIgnore][JsonIgnore]
         public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
 
         //add initializer for tech
         [XmlIgnore][JsonIgnore]
-        public Technology Tech => ResourceManager.TechTree[UID];
+        public Technology Tech { get; private set; }
+
+        [XmlIgnore][JsonIgnore]
+        public bool IsRoot => Tech.RootNode == 1;
+
         [XmlIgnore][JsonIgnore]
         public Array<string> ConqueredSource = new Array<string>();
         public TechnologyType TechnologyType => Tech.TechnologyType;
         public int MaxLevel => Tech.MaxLevel;
         [XmlIgnore][JsonIgnore]
-        private Dictionary<TechnologyType, float> TechLookAhead;
+        readonly Dictionary<TechnologyType, float> TechLookAhead = new Dictionary<TechnologyType, float>();
 
-        public static readonly TechEntry None = new TechEntry { UID = "" };
+        public static readonly TechEntry None = new TechEntry("");
 
         public TechEntry()
         {
-            TechLookAhead = new Dictionary<TechnologyType, float>();
             foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
                 TechLookAhead.Add(techType, 0);
         }
+
+        public TechEntry(string uid) : this()
+        {
+            UID = uid;
+            ResolveTech();
+        }
+
+        public void ResolveTech()
+        {
+            Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;
+        }
+
         public bool UnlocksFoodBuilding => GoodsBuildingUnlocked(Goods.Food);
-        private bool GoodsBuildingUnlocked (Goods good)
+        bool GoodsBuildingUnlocked(Goods good)
         {
             foreach (Building building in Tech.GetBuildings())
             {
@@ -50,15 +64,14 @@ namespace Ship_Game
                     case Goods.Production:
                         break;
                     case Goods.Food:
-                        {
-                            if (building.PlusFlatFoodAmount > 0
-                                || building.PlusFoodPerColonist > 0
-                                || building.PlusTerraformPoints > 0
-                                || building.MaxFertilityOnBuild > 0)
-                                return true;
-
-                            break;
-                        }
+                    {
+                        if (building.PlusFlatFoodAmount > 0
+                            || building.PlusFoodPerColonist > 0
+                            || building.PlusTerraformPoints > 0
+                            || building.MaxFertilityOnBuild > 0)
+                            return true;
+                        break;
+                    }
                     case Goods.Colonists:
                         break;
                     default:
@@ -78,7 +91,7 @@ namespace Ship_Game
             }
         }
 
-        private float LookAheadCost(TechnologyType techType, Empire empire)
+        float LookAheadCost(TechnologyType techType, Empire empire)
         {
             if (!Discovered) return 0;
             if (!Unlocked && Tech.TechnologyType == techType)
@@ -86,22 +99,15 @@ namespace Ship_Game
             float cost = 0;
             if (Tech.LeadsTo.Count == 0)
                 return 0;
-            foreach (var leadsTo in Tech.LeadsTo)
+            foreach (Technology.LeadsToTech leadsTo in Tech.LeadsTo)
             {
                 float tempCost = empire.GetTechEntry(leadsTo.UID).LookAheadCost(techType, empire);
-                if (tempCost > 0)
-                    if (cost > 0)
-                    {
-                        cost = Math.Min(tempCost, cost);
-                    }
-                    else
-                        cost = tempCost;
-
+                if (tempCost > 0) cost = cost > 0 ? Math.Min(tempCost, cost) : tempCost;
             }
             return cost == 0 ? 0 : TechCost + cost;
         }
 
-        private bool CheckSource(string unlockType, Empire empire)
+        bool CheckSource(string unlockType, Empire empire)
         {
             if (unlockType == null)
                 return true;
@@ -132,8 +138,6 @@ namespace Ship_Game
 
             }
             empire.UpdateShipsWeCanBuild(hullList);
-            //if (Empire.Universe != null)
-            //    LoadModelsFromDiscoveredTech(empire);
             return hullList;
         }
 
@@ -202,9 +206,11 @@ namespace Ship_Game
             int count = 0;
             foreach (Technology.LeadsToTech leadTo in Tech.LeadsTo)
             {
-                if (!techList.Contains(leadTo.UID)) continue;
-                count++;
-                return count + empire.GetTechEntry(leadTo.UID).CountTechsToOneInList(techList, empire);
+                if (techList.Contains(leadTo.UID))
+                {
+                    count++;
+                    return count + empire.GetTechEntry(leadTo.UID).CountTechsToOneInList(techList, empire);
+                }
             }
             return count;
 
@@ -307,12 +313,14 @@ namespace Ship_Game
             Discovered = true;
             DiscoverToRoot(empire);
             if (discoverForward)
-            foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
             {
-                //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
-                var tech = empire.GetTechEntry(leadsToTech.UID);
-                if (!tech.Tech.Secret && !tech.IsRestricted(empire))
-                    tech.SetDiscovered(empire);
+                foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
+                {
+                    //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
+                    TechEntry tech = empire.GetTechEntry(leadsToTech.UID);
+                    if (!tech.Tech.Secret && !tech.IsRestricted(empire))
+                        tech.SetDiscovered(empire);
+                }
             }
             return true;
         }
@@ -350,24 +358,53 @@ namespace Ship_Game
             }
             return null;
         }
+
         public bool HasPreReq(Empire empire)
         {
             TechEntry preReq = GetPreReq(empire);
-            if (preReq == null || preReq.UID.IsEmpty()) return false;
-            if (preReq.Unlocked || !preReq.Discovered) return true;
+
+            if (preReq == null || preReq.UID.IsEmpty())
+                return false;
+
+            if (preReq.Unlocked || !preReq.Discovered)
+                return true;
+
             return false;
         }
 
         public TechEntry FindNextDiscoveredTech(Empire empire)
         {
-            Technology technology = Tech;
-            if (Discovered) return this;
-            foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
+            if (Discovered)
+                return this;
+            foreach (Technology child in Tech.Children)
             {
-                var tech = empire.GetTechEntry(leadsToTech.UID);
-                return tech.FindNextDiscoveredTech(empire);
+                TechEntry discovered = empire.GetTechEntry(child)
+                                             .FindNextDiscoveredTech(empire);
+                if (discovered != null)
+                    return discovered;
             }
             return null;
+        }
+
+        public TechEntry[] FindChildEntries(Empire empire)
+        {
+            return Tech.Children.Select(empire.GetTechEntry);
+        }
+
+        public TechEntry[] GetPlayerChildEntries()
+        {
+            return Tech.Children.Select(EmpireManager.Player.GetTechEntry);
+        }
+
+        public Array<TechEntry> GetFirstDiscoveredEntries()
+        {
+            var entries = new Array<TechEntry>();
+            foreach (TechEntry child in GetPlayerChildEntries())
+            {
+                TechEntry discovered = child.FindNextDiscoveredTech(EmpireManager.Player);
+                if (discovered != null) entries.Add(discovered);
+            }
+            return entries;
         }
 
         public void UnlockBonus(Empire empire)

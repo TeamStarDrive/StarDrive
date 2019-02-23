@@ -58,13 +58,17 @@ namespace Ship_Game
                 if (sdata.empireData.DefaultTroopShip.IsEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
             }
-            foreach(TechEntry tech in sdata.TechTree)
+
+            foreach (TechEntry tech in sdata.TechTree)
             {
-                if (!ResourceManager.TryGetTech(tech.UID, out _))
-                    Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
-                else
+                if (ResourceManager.TryGetTech(tech.UID, out _))
+                {
+                    tech.ResolveTech();
                     e.TechnologyDict.Add(tech.UID, tech);
-            }            
+                }
+                else Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
+            }
+            
             e.InitializeFromSave();
             e.AddMoney(sdata.Money - e.Money);
             e.Research = sdata.Research;
@@ -83,33 +87,26 @@ namespace Ship_Game
                 OrbitalAngle = psdata.OrbitalAngle
             };
 
-            if (!string.IsNullOrEmpty(psdata.Owner))
+            if (psdata.Owner.NotEmpty())
             {
                 p.Owner = EmpireManager.GetEmpireByName(psdata.Owner);
                 p.Owner.AddPlanet(p);
             }
 
-            if(!string.IsNullOrEmpty(psdata.SpecialDescription))
+            if (psdata.SpecialDescription.NotEmpty())
                 p.SpecialDescription = psdata.SpecialDescription;
 
-            if (psdata.Scale > 0f)
-                p.Scale = psdata.Scale;
-            else
-            {
-                float scale = RandomMath.RandomBetween(1f, 2f);
-                p.Scale = scale;
-            }
-
+            p.Scale = psdata.Scale > 0f ? psdata.Scale : RandomMath.RandomBetween(1f, 2f);
             p.colonyType = psdata.ColonyType;
             p.GovOrbitals = psdata.GovOrbitals;
 
-            p.FS                    = psdata.FoodState;
-            p.PS                    = psdata.ProdState;
-            p.Food.PercentLock      = psdata.FoodLock;
-            p.Prod.PercentLock      = psdata.ProdLock;
-            p.Res.PercentLock       = psdata.ResLock;
-            p.OrbitalRadius         = psdata.OrbitalDistance;
-            p.MaxPopBase            = psdata.PopulationMax;
+            p.FS               = psdata.FoodState;
+            p.PS               = psdata.ProdState;
+            p.Food.PercentLock = psdata.FoodLock;
+            p.Prod.PercentLock = psdata.ProdLock;
+            p.Res.PercentLock  = psdata.ResLock;
+            p.OrbitalRadius    = psdata.OrbitalDistance;
+            p.MaxPopBase       = psdata.PopulationMax;
 
             p.SetFertility(psdata.Fertility, psdata.MaxFertility);
 
@@ -122,7 +119,7 @@ namespace Ship_Game
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
             p.UpdateTerraformPoints(psdata.TerraformPoints);
             foreach (Guid guid in psdata.StationsList)
-                p.OrbitalStations[guid]   = null; // reserve orbital stations (and platforms)
+                p.OrbitalStations[guid] = null; // reserve orbital stations (and platforms)
 
             p.Food.Percent = psdata.farmerPercentage;
             p.Prod.Percent = psdata.workerPercentage;
@@ -185,7 +182,7 @@ namespace Ship_Game
                 moon.Initialize();
                 system.MoonList.Add(moon);
             }
-            system.SetExploredBy(ssd.EmpiresThatKnowThisSystem);
+            system.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
             foreach (SavedGame.RingSave ring in ssd.RingList)
             {
@@ -212,7 +209,7 @@ namespace Ship_Game
                         system.OwnerList.Add(p.Owner);
                     }
                     system.PlanetList.Add(p);
-                    p.SetExploredBy(ssd.EmpiresThatKnowThisSystem);
+                    p.SetExploredBy(ssd.ExploredBy);
 
                     system.RingList.Add(new SolarSystem.Ring
                     {
@@ -562,10 +559,10 @@ namespace Ship_Game
                     continue;
                 Empire servantEmpire = e;
                 Empire masterEmpire = EmpireManager.GetEmpireByName(servantEmpire.data.AbsorbedBy);
-                foreach (KeyValuePair<string, TechEntry> masterEmpireTech in masterEmpire.GetTDict())
+                foreach (TechEntry masterTech in masterEmpire.TechEntries)
                 {
-                    if (masterEmpireTech.Value.Unlocked)
-                        masterEmpire.UnlockHullsSave(masterEmpireTech.Value, servantEmpire.data.Traits.ShipType);
+                    if (masterTech.Unlocked)
+                        masterEmpire.UnlockHullsSave(masterTech, servantEmpire.data.Traits.ShipType);
                 }
             }
         }

@@ -266,9 +266,7 @@ namespace Ship_Game.Debug
 
                 if (!string.IsNullOrEmpty(e.ResearchTopic))
                 {
-                    var techEntry = e.GetTechEntry(e.ResearchTopic);
-                    float gamePaceStatic = techEntry.TechCost;
-                    DrawString($"Research: {techEntry.Progress:0}/{gamePaceStatic:0} ({e.GetProjectedResearchNextTurn().String()} / {e.MaxResearchPotential.String()})");
+                    DrawString($"Research: {e.CurrentResearch.Progress:0}/{e.CurrentResearch.TechCost:0} ({e.GetProjectedResearchNextTurn().String()} / {e.MaxResearchPotential.String()})");
                     DrawString("   --" + e.ResearchTopic);
                     Ship bestShip = e.GetEmpireAI().GetBestCombatShip;
                     if (bestShip != null)
@@ -560,8 +558,7 @@ namespace Ship_Game.Debug
                 DrawString("Planet Count:  "+e.GetPlanets().Count);
                 if (!string.IsNullOrEmpty(e.ResearchTopic))
                 {
-                    float cost = ResourceManager.TechTree[e.ResearchTopic].ActualCost;
-                    DrawString($"Research: {e.GetTDict()[e.ResearchTopic].Progress:0}/{cost:0}({e.GetProjectedResearchNextTurn().String()})");
+                    DrawString($"Research: {e.CurrentResearch.Progress:0}/{e.CurrentResearch.TechCost:0}({e.GetProjectedResearchNextTurn().String()})");
                     DrawString("   --"+e.ResearchTopic);
                 }
 

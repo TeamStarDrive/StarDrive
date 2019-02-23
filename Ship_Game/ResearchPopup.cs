@@ -106,6 +106,8 @@ namespace Ship_Game
                     }
                     case UnlockType.ADVANCE:
                     {
+                        var r = new Rectangle(UnlocksRect.X + 24, entry.Y + 24, 48, 48);
+                        batch.Draw(ResourceManager.Texture("TechIcons/star"), r, Color.White);
                         DrawTitleAndDescr(unlockItem.privateName, unlockItem.Description);
                         break;
                     }
@@ -135,7 +137,7 @@ namespace Ship_Game
                 return type == null
                     || type == "ALL"
                     || type == EmpireManager.Player.data.Traits.ShipType
-                    || type == EmpireManager.Player.GetTechEntry(TechUID).AcquiredFrom;
+                    || type == EmpireManager.Player.AcquiredFrom(TechUID);
             }
 
             foreach (Technology.UnlockedMod module in Technology.ModulesUnlocked)

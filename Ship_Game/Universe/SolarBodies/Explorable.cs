@@ -27,12 +27,12 @@ namespace Ship_Game
     public class Explorable
     {
         // this is a sparse map where [Empire.Id-1] is the index
-        private Empire[] ExploredBy = Empty<Empire>.Array;
+        Empire[] ExploredBy = Empty<Empire>.Array;
 
         public bool IsExploredBy(Empire empire)  => ExploredBy.IsSet(empire);
         public void SetExploredBy(Empire empire) => ExploredBy.Set(ref ExploredBy, empire);
         public void SetExploredBy(string empireName) => SetExploredBy(EmpireManager.GetEmpireByName(empireName));
-        public void SetExploredBy(Array<string> empireNames)
+        public void SetExploredBy(string[] empireNames)
         {
             if (empireNames == null)
                 return;
