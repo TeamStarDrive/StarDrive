@@ -312,6 +312,7 @@ namespace Ship_Game
             }
         }
 
+        // @todo - need to make all these calcs in one place. Right now they are also done in Ship.cs
         void DrawShipInfoPanel()
         {
             float hitPoints                = 0f;
