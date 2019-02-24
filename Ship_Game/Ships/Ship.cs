@@ -452,16 +452,16 @@ namespace Ship_Game.Ships
         {
            get
             {
-                int bombs = 0;
+                int Bombs = 0;
                 if (BombBays.Count > 0)
                 {
-                    ++bombs;
+                    ++Bombs;
                     if (Ordinance / OrdinanceMax > 0.2f)
                     {
-                        bombs += BombBays.Count;
+                        Bombs += BombBays.Count;
                     }
                 }
-                return bombs;
+                return Bombs;
             }
         }
 
