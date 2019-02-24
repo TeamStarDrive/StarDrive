@@ -2077,6 +2077,18 @@ namespace Ship_Game.Ships
                                                               : empire.data.DefaultSupplyShuttle;
         }
 
+        public float BestFreighterValue(Empire empire, float fastVsBig)
+        {
+            float warpK          = maxFTLSpeed / 1000;
+            float warpWeight     = warpK * (warpK * fastVsBig);
+            float cargoWeight    = CargoSpaceMax * (CargoSpaceMax * (1 - fastVsBig));
+            float costAreaWeight = SurfaceArea + GetCost(empire);
+
+            // For faster ships: warp * warp * cargo
+            // for bigger cargo: warp * cargo * cargo
+            return warpWeight * cargoWeight / costAreaWeight;
+        }
+
         public int RefitCost(string newShipName)
         {
             if (loyalty.isFaction)
