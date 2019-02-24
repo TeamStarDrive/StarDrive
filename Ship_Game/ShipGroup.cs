@@ -106,10 +106,10 @@ namespace Ship_Game
             }
         }
 
-        static float GetMaxRadius(IReadOnlyList<Ship> shipList)
+        static float GetMaxRadius(Ship[] shipList)
         {
             float maxRadius = 0.0f;
-            for (int i = 0; i < shipList.Count; ++i)
+            for (int i = 0; i < shipList.Length; ++i)
                 maxRadius = Math.Max(maxRadius, shipList[i].GetSO().WorldBoundingSphere.Radius);
             return maxRadius;
         }
