@@ -570,9 +570,10 @@ namespace Ship_Game.Ships
                     massModifier = loyalty.data.ArmourMassModifier;
                 Mass += module.Mass * massModifier;
 
-                Thrust += module.thrust;
+                Thrust     += module.thrust;
                 WarpThrust += module.WarpThrust;
-                Health += module.Health;
+                TurnThrust += module.TurnThrust;
+                Health     += module.Health;
 
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
                 PowerStoreMax += module.ActualPowerStoreMax;
