@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SgMotion.Controllers;
 using Ship_Game.AI;
+using Ship_Game.Audio;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
@@ -11,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Ship_Game.Audio;
 
 namespace Ship_Game.Ships
 {
@@ -180,15 +180,15 @@ namespace Ship_Game.Ships
             {
                 if (isColonyShip || isConstructor || CargoSpaceMax < 1f)
                     return false;
-                return shipData.Role == ShipData.RoleName.freighter 
+                return shipData.Role == ShipData.RoleName.freighter
                     || shipData.ShipCategory == ShipData.Category.Civilian
                     || shipData.ShipCategory == ShipData.Category.Unclassified;
             }
         }
 
-        public bool IsIdleFreighter => IsFreighter 
-                                       && !PlayerShip && AI != null 
-                                       && !AI.HasPriorityOrder 
+        public bool IsIdleFreighter => IsFreighter
+                                       && !PlayerShip && AI != null
+                                       && !AI.HasPriorityOrder
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit;
@@ -338,7 +338,7 @@ namespace Ship_Game.Ships
                     if (!damagedShields.Contains(shield))
                     {
                         float damageAbsorb = 0.5f; // @todo Radiation Resistance
-                        shield.Damage(damageCauser, damage * damageAbsorb * shield.ShieldHitRadius); 
+                        shield.Damage(damageCauser, damage * damageAbsorb * shield.ShieldHitRadius);
                         damagedShields.Add(shield);
                     }
                 }
@@ -920,7 +920,7 @@ namespace Ship_Game.Ships
             return target.Center.InRadius(w.Module.Center, range);
         }
 
-        
+
         bool IsPosInsideArc(Weapon w, Vector2 pos)
         {
             float halfArc = w.Module.FieldOfFire / 2f;
@@ -948,7 +948,7 @@ namespace Ship_Game.Ships
                     if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
                         return false;
                 }
-                if ((loyalty == targetShip.loyalty || !loyalty.isFaction 
+                if ((loyalty == targetShip.loyalty || !loyalty.isFaction
                      && loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
                     return false;
             }
@@ -1179,7 +1179,7 @@ namespace Ship_Game.Ships
                 return "sd_warp_stop_small";
             return SurfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
         }
-        
+
         // safe Warp out distance so the ship still has time to slow down
         public float WarpOutDistance => 3200f + GetSTLSpeed() * 3f;
 
@@ -1278,7 +1278,7 @@ namespace Ship_Game.Ships
                 Velocity = Velocity.Normalized() * speedLimit;
         }
 
-        // simulates navigational thrusting to remove sideways or reverse travel 
+        // simulates navigational thrusting to remove sideways or reverse travel
         void RemoveDrift(float elapsedTime)
         {
             // compare ship velocity vector against where it is pointing
@@ -2232,40 +2232,48 @@ namespace Ship_Game.Ships
 
         public float GetDPS() => DPS;
 
-        //Added by McShooterz: add experience for cruisers and stations, modified for dynamic system
+        //Added by McShooterz: Refactored by CG
         public void AddKill(Ship killed)
         {
             ++kills;
             if (loyalty == null)
                 return;
-            //Added by McShooterz: change level cap, dynamic experience required per level
-            var ownerExpSettings = ShipRole.GetExpSettings(this);
-            var killedExpSettings = ShipRole.GetExpSettings(killed);
-            killed.loyalty?.TheyKilledOurShip(loyalty, killedExpSettings);
 
-            float exp = killedExpSettings.ExpPerLevel * (1 + killed.Level);
-            exp += exp * loyalty.data.ExperienceMod;
+            float exp   = killed.ExperienceShipIsWorth();
+            exp        += exp * loyalty.data.ExperienceMod;
             experience += exp;
+            ConvertExperienceToLevel();
+        }
 
-            while (experience > ownerExpSettings.ExpPerLevel * (1 + Level))
+        public float ExperienceShipIsWorth()
+        {
+            ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(this);
+            float exp = killedExpSettings.ExpPerLevel * (1 + Level);
+            return exp;
+        }
+
+        private void ConvertExperienceToLevel()
+        {
+            ShipRole.Race ownerExpSettings = ShipRole.GetExpSettings(this);
+            while (true)
             {
-                experience -= ownerExpSettings.ExpPerLevel * (1 + Level);
+                if (experience <= 0) return;
+                float experienceThreshold = ownerExpSettings.ExpPerLevel * (1 + Level);
+                if (experienceThreshold <= 0) return;
+                if (experience < experienceThreshold) return;
                 AddToShipLevel(1);
+                experience -= experienceThreshold;
             }
-
-            if (!loyalty.TryGetRelations(killed.loyalty, out Relationship rel))
-                return;
-            if (!rel.AtWar)
-            {
-                rel.ShipKilled(killedExpSettings.KillExp);
-                return;
-            }
-            rel.ActiveWar.StrengthKilled += killed.BaseStrength;
-            rel.ActiveWar.StrengthLost += killed.BaseStrength;
         }
 
         public void AddToShipLevel(int amountToAdd) => Level = Math.Min(255, Level + amountToAdd);
-        
+
+        public void UpdateEmpiresOnKill(Ship killedShip)
+        {
+            loyalty.WeKilledTheirShip(killedShip.loyalty, killedShip);
+            killedShip.loyalty.TheyKilledOurShip(loyalty, killedShip);
+        }
+
         void ExplodeShip(float size, bool addWarpExplode)
         {
             if (!InFrustum) return;
@@ -2275,11 +2283,11 @@ namespace Ship_Game.Ships
             if (GlobalStats.HasMod)
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
-            ExplosionManager.AddExplosion(position, Velocity, 
+            ExplosionManager.AddExplosion(position, Velocity,
                 size * boost, 12f, ExplosionType.Ship);
             if (addWarpExplode)
             {
-                ExplosionManager.AddExplosion(position, Velocity, 
+                ExplosionManager.AddExplosion(position, Velocity,
                     size*1.75f, 12f, ExplosionType.Warp);
             }
             UniverseScreen.SpaceManager.ShipExplode(this, size * 50, Center, Radius);
@@ -2298,7 +2306,10 @@ namespace Ship_Game.Ships
             ++DebugInfoScreen.ShipsDied;
             Projectile psource = source as Projectile;
             if (!cleanupOnly)
+            {
+                psource?.Module?.GetParent().UpdateEmpiresOnKill(this);
                 psource?.Module?.GetParent().AddKill(this);
+            }
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
@@ -2356,11 +2367,11 @@ namespace Ship_Game.Ships
                     case ShipData.RoleName.fighter:
                     case ShipData.RoleName.frigate:   ExplodeShip(size * 10, cleanupOnly); break;
                     case ShipData.RoleName.carrier:
-                    case ShipData.RoleName.capital:   
-                    case ShipData.RoleName.cruiser:   
+                    case ShipData.RoleName.capital:
+                    case ShipData.RoleName.cruiser:
                     case ShipData.RoleName.station:   ExplodeShip(size * 8, true);         break;
                     case ShipData.RoleName.freighter:
-                    case ShipData.RoleName.platform:  
+                    case ShipData.RoleName.platform:
                     default:                          ExplodeShip(size * 8, cleanupOnly);  break;
                 }
 
@@ -2699,7 +2710,7 @@ namespace Ship_Game.Ships
             {
                 ShipRole role = shipData.ShipRole;
                 return  !shipData.CarrierShip && !Deleted
-                    && !role.Protected && !role.NoBuild 
+                    && !role.Protected && !role.NoBuild
                     && (GlobalStats.ShowAllDesigns || IsPlayerDesign);
             }
         }
