@@ -416,7 +416,8 @@ namespace Ship_Game
             // replace ships in fleet from selection
             if (input.ReplaceFleet)
             {
-                if (SelectedShipList.Count == 0) return;
+                if (SelectedShipList.Count == 0)
+                    return;
 
                 for (int i = player.GetFleetsDict()[index].Ships.Count - 1; i >= 0; i--)
                 {
@@ -437,20 +438,20 @@ namespace Ship_Game
             }
             else if (input.AddToFleet) // added by gremlin add ships to exiting fleet
             {
-                if (SelectedShipList.Count == 0) return;
+                if (SelectedShipList.Count == 0)
+                    return;
 
-                string str = Fleet.GetDefaultFleetNames(index);
                 Fleet fleet = player.GetFleetsDict()[index];
                 foreach (Ship ship in SelectedShipList)
                 {
-                    if (ship.fleet == fleet) continue;
-                    ship.ClearFleet();
+                    if (ship.fleet != fleet)
+                        ship.ClearFleet();
                 }
 
                 if (fleet != null && fleet.Ships.Count > 0)
                 {
                     fleet = new Fleet();
-                    fleet.Name = str + " Fleet";
+                    fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
                     fleet.Owner = player;
                 }
                 AddSelectedShipsToFleet(fleet);
@@ -731,267 +732,7 @@ namespace Ship_Game
             return true;
         }
 
-        
-        (Vector2 Start, Vector2 End, Vector2 Direction) RightClickDragResult(Vector2 defaultDirection)
-        {
-            Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-            Vector2 end = UnprojectToWorldPosition(Input.EndRightHold);
-            if (Input.StartRightHold.AlmostEqual(Input.EndRightHold)) // this was a mouse click, no direction possible
-            {
-                return (start, end, defaultDirection);
-            }
-            else
-            {
-                return (start, end, start.DirectionToTarget(end).LeftVector());
-            }
-        }
-
         // @note targetPlanet/targetShip are the attack/orbit etc targets
-        void MoveFleetToMouse(Fleet fleet, Planet targetPlanet, Ship targetShip, bool wasProjecting)
-        {
-            Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-            //Log.Info($"MoveShipToMouse  {start}  projecting:{wasProjecting}");
-            if (wasProjecting)
-            {
-                Vector2 end = UnprojectToWorldPosition(Input.EndRightHold);
-                Vector2 dir = start.DirectionToTarget(end).LeftVector();
-                MoveFleetToLocation(targetShip, targetPlanet, start, dir, fleet);
-            }
-            else
-            {
-                Vector2 dir = fleet.Position.DirectionToTarget(start);
-                MoveFleetToLocation(targetShip, targetPlanet, start, dir, fleet);
-            }
-        }
-
-        void MoveShipToMouse(Ship selectedShip, bool wasProjecting)
-        {
-            Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-            //Log.Info($"MoveShipToMouse  {start}  projecting:{wasProjecting}");
-            if (wasProjecting)
-            {
-                Vector2 end = UnprojectToWorldPosition(Input.EndRightHold);
-                Vector2 dir = start.DirectionToTarget(end).LeftVector();
-                MoveShipToLocation(start, dir, selectedShip);
-            }
-            else
-            {
-                Vector2 dir = selectedShip.Position.DirectionToTarget(start);
-                MoveShipToLocation(start, dir, selectedShip);
-            }
-        }
-
-        void MoveShipGroupToMouse(bool wasProjecting)
-        {
-            if (wasProjecting) // dragging right mouse
-            {
-                if (ProjectedGroup == null)
-                {
-                    Log.Warning("MoveShipGroupToMouse (projectedGroup was NULL)");
-                    return; // projection is not valid YET, come back next update
-                }
-                Log.Info("MoveShipGroupToMouse (projectedGroup)");
-                foreach (Ship selectedShip in SelectedShipList)
-                    MoveShipToLocation(selectedShip.projectedPosition, ProjectedGroup.ProjectedDirection, selectedShip);
-                return;
-            }
-
-            // right mouse was clicked
-            Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-            Vector2 fleetCenter = ShipGroup.AveragePosition(SelectedShipList);
-            Vector2 direction = fleetCenter.DirectionToTarget(start);
-
-            if (ProjectedGroup == null || !ProjectedGroup.IsShipListEqual(SelectedShipList)) 
-            {
-                Log.Info("MoveShipGroupToMouse (NEW)");
-                // assemble brand new group
-                ProjectedGroup = new ShipGroup(SelectedShipList, start, start, direction, player);
-                foreach (Ship selectedShip in SelectedShipList)
-                    MoveShipToLocation(selectedShip.projectedPosition, direction, selectedShip);
-            }
-            else // move existing group
-            {
-                Log.Info("MoveShipGroupToMouse (existing)");
-                ProjectedGroup.MoveToNow(start, direction);
-            }
-        }
-
-        void HandleShipSelectionAndOrders()
-        {
-            if (NotificationManager.HitTest)
-                return;
-
-            if (Input.RightMouseClick)            
-                SelectedSomethingTimer = 3f;
-            
-            if (SelectedShip != null && SelectedShip.AI.State == AIState.ManualControl &&
-                Input.StartRightHold.InRadius(SelectedShip.Center, 5000f))
-            {
-                Log.Info("Input.StartRighthold.InRadius(SelectedShip.Center, 5000f)");
-                return;
-            }
-
-            if (Input.RightMouseHeld(0.15f))
-            {
-                ProjectSelectedShipsToFleetPositions();
-            }
-            else if (ProjectingPosition && Input.RightMouseUp)
-            {
-                MoveSelectedShipsToProjectedPositions();
-            }
-            else if (!ProjectingPosition && Input.RightMouseReleased)
-            {
-                MoveSelectedShipsToMouse();
-            }
-        }
-
-        void ProjectSelectedShipsToFleetPositions()
-        {
-            if (Input.StartRightHold.AlmostEqual(Input.EndRightHold))
-                return; // not dragging yet
-
-            ProjectingPosition = true;
-            Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-            Vector2 end   = UnprojectToWorldPosition(Input.EndRightHold);
-            Vector2 direction = start.DirectionToTarget(end).LeftVector();
-
-            //Log.Info($"ProjectingPos  screenStart:{Input.StartRightHold} current:{Input.EndRightHold}  D:{direction}");
-
-            if (SelectedFleet != null && SelectedFleet.Owner == EmpireManager.Player)
-            {
-                ProjectingPosition = true;
-                SelectedFleet.ProjectPos(start, direction);
-                ProjectedGroup = SelectedFleet;
-            }
-            else if (SelectedShip != null && SelectedShip.loyalty == player)
-            {
-                if (SelectedShip.isConstructor || SelectedShip.shipData.Role == ShipData.RoleName.supply)
-                {
-                    if (SelectedShip != null && previousSelection != SelectedShip) // fbedard
-                        previousSelection = SelectedShip;
-                    SelectedShip = null;
-                    GameAudio.NegativeClick();
-                }
-                else
-                {
-                    ShipGroup shipGroup = new ShipGroup();
-                    shipGroup.AddShip(SelectedShip);
-                    shipGroup.ProjectPosNoOffset(start, direction);
-                    ProjectedGroup = shipGroup;
-                }
-            }
-            else if (SelectedShipList.Count > 0)
-            {
-                foreach (Ship ship in SelectedShipList)
-                {
-                    if (ship.loyalty != player)
-                        return;
-                }
-
-                ProjectedGroup = new ShipGroup(SelectedShipList, start, end, direction, player);
-            }
-        }
-
-        void MoveSelectedShipsToProjectedPositions()
-        {
-            Log.Info($"MoveSelectedShipsToProjectedPositions  start:{Input.StartRightHold}");
-
-            ProjectingPosition = false;
-            if (SelectedFleet != null && SelectedFleet.Owner == player)
-            {
-                SelectedSomethingTimer = 3f;
-                MoveFleetToMouse(SelectedFleet, null, null, wasProjecting: true);
-            }
-            else if (SelectedShip != null && SelectedShip?.loyalty == player)
-            {
-                player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
-                SelectedSomethingTimer = 3f;
-                if (UnselectableShip())
-                {
-                    if (SelectedShip != null && previousSelection != SelectedShip) // fbedard
-                        previousSelection = SelectedShip;
-                    return;
-                }
-                MoveShipToMouse(SelectedShip, wasProjecting: true);
-            }
-            else if (SelectedShipList.Count > 0)
-            {
-                SelectedSomethingTimer = 3f;
-                foreach (Ship ship in SelectedShipList)
-                {
-                    if (ship.loyalty != player || UnselectableShip(ship))
-                        return;
-                }
-
-                GameAudio.AffirmativeClick();
-                MoveShipGroupToMouse(wasProjecting:true);
-            }
-        }
-
-        void MoveSelectedShipsToMouse()
-        {
-            Log.Info($"MoveSelectedShipsToMouse {Input.CursorPosition}");
-            Ship shipClicked = CheckShipClick(Input);
-            Planet planetClicked = CheckPlanetClick();
-
-            ProjectingPosition = false;
-
-            if (SelectedFleet != null && SelectedFleet.Owner.isPlayer)
-            {
-                SelectedSomethingTimer = 3f;
-                MoveFleetToMouse(SelectedFleet, planetClicked, shipClicked, wasProjecting: false);
-            }
-            else if (SelectedShip != null && SelectedShip.loyalty.isPlayer)
-            {
-                player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
-                SelectedSomethingTimer = 3f;
-
-                if (shipClicked != null && shipClicked != SelectedShip)
-                {
-                    if (UnselectableShip())
-                        return;
-
-                    GameAudio.AffirmativeClick();
-                    AttackSpecificShip(SelectedShip, shipClicked);
-                }
-                else if (ShipPieMenu(shipClicked)) { } //i think i fd this up. come back to it later. 
-                else if (planetClicked != null) RightClickOnPlanet(SelectedShip, planetClicked, true);
-                else if (UnselectableShip()) return;
-                else MoveShipToMouse(SelectedShip, wasProjecting: false/*click*/);
-            }
-            else if (SelectedShipList.Count > 0)
-            {
-                SelectedSomethingTimer = 3f;
-                foreach (Ship ship in SelectedShipList)
-                    if (UnselectableShip(ship) || !ship.loyalty.isPlayer)
-                        return;
-
-                GameAudio.AffirmativeClick();
-
-                if (shipClicked != null || planetClicked != null)
-                {
-                    foreach (Ship selectedShip in SelectedShipList)
-                    {
-                        player.GetEmpireAI().DefensiveCoordinator.Remove(selectedShip);
-                        RightClickOnShip(selectedShip, shipClicked);
-                        RightClickOnPlanet(selectedShip, planetClicked);
-                    }
-                }
-                else
-                {
-                    MoveShipGroupToMouse(wasProjecting: false/*click*/);
-                }
-            }
-
-            if (SelectedFleet != null || SelectedItem != null || SelectedShip != null || SelectedPlanet != null || SelectedShipList.Count != 0)
-                return;
-            if (shipClicked == null || shipClicked.Mothership != null || shipClicked.isConstructor)
-                return;
-            if (SelectedShip != null && previousSelection != SelectedShip && SelectedShip != shipClicked)
-                previousSelection = SelectedShip;
-            SelectedShip = shipClicked;
-            ShipPieMenu(SelectedShip);
-        }
 
         bool SelectShipClicks(InputState input)
         {
@@ -1042,14 +783,14 @@ namespace Ship_Game
             if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                 previousSelection = SelectedShip;
 
-            SelectedShip       = null;
-            SelectedPlanet     = null;
-            SelectedFleet      = null;
-            SelectedSystem     = null;
-            SelectedItem       = null;
-            ProjectingPosition = false;
-            ProjectedGroup     = null;
-            //SelectedShipList.Clear();
+            SelectedShip    = null;
+            SelectedPlanet  = null;
+            SelectedFleet   = null;
+            SelectedSystem  = null;
+            SelectedItem    = null;
+            Project.Started = false;
+            CurrentGroup    = null;
+
             if (viewState >= UnivScreenState.SectorView)
             {
                 if ((SelectedSystem = CheckSolarSystemClick()) != null)
