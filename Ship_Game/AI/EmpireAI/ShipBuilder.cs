@@ -185,7 +185,6 @@ namespace Ship_Game.AI
                 }
             }
 
-            // FTL is more valuable than cargo and divide them all in surface area to normalize it
             freighter = freighters
                 .FindMax(ship => ship.BestFreighterValue(empire, fastVsBig));
 
