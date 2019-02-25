@@ -9,10 +9,6 @@ namespace Ship_Game
 {
     public sealed class ShipListScreen : GameScreen
     {
-        private EmpireUIOverlay eui;
-
-        //private bool LowRes;
-
         private Menu2 TitleBar;
 
         private Vector2 TitlePos;
@@ -56,8 +52,6 @@ namespace Ship_Game
         private Rectangle STRIconRect;
         private SortButton SB_STR;
 
-        private bool StrSorted = true;
-
         private Rectangle MaintRect;
         private SortButton Maint;
 
@@ -70,13 +64,9 @@ namespace Ship_Game
         private Rectangle STL;
         private SortButton SB_STL;
 
-        private Rectangle AutoButton;
-
-        //private bool AutoButtonHover;
-
         private int CurrentLine;
 
-        public ShipListScreen(GameScreen parent, EmpireUIOverlay empUI, string audioCue = "") : base(parent)
+        public ShipListScreen(UniverseScreen parent, EmpireUIOverlay empUI, string audioCue = "") : base(parent)
         {
             if (!string.IsNullOrEmpty(audioCue))
                 GameAudio.PlaySfxAsync(audioCue);
@@ -84,12 +74,7 @@ namespace Ship_Game
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
             IsPopup = true;
-            eui = empUI;
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
-            {
-                //this.LowRes = true;
-            }
-            Rectangle titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
+            var titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(190)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
@@ -137,7 +122,6 @@ namespace Ship_Game
             // Replaced using the tick-box for player design filtering. Platforms now can be browsed with 'structures'
             // this.ShowRoles.AddOption("Player Designs Only", 7);
             
-            AutoButton = new Rectangle(0, 0, 243, 33);
             SortSystem = new SortButton(this.empUI.empire.data.SLSort,Localizer.Token(192));
             SortName = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(193));
             SortRole = new SortButton(this.empUI.empire.data.SLSort,Localizer.Token(194));
@@ -339,7 +323,6 @@ namespace Ship_Game
             {
                 GameAudio.AcceptClick();
                 button.Ascending = !button.Ascending;
-                StrSorted = button.Ascending;
                 if (button.Ascending) ShipSL.Sort(sortPredicate);
                 else ShipSL.SortDescending(sortPredicate);
             }
