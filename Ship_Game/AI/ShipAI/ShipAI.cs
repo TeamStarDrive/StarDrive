@@ -18,7 +18,7 @@ namespace Ship_Game.AI
         readonly Array<Planet> PatrolRoute = new Array<Planet>();
         int StopNumber;
         public FleetDataNode FleetNode;
-        
+
         public readonly Ship Owner;
         public AIState State = AIState.AwaitingOrders;
         public Guid OrbitTargetGuid;
@@ -450,7 +450,9 @@ namespace Ship_Game.AI
                     if (Owner.Ordinance < 0.05 * Owner.OrdinanceMax //'Aint Got no bombs!
                         || planet.TroopsHere.Count == 0 && planet.Population <= 0f //Everyone is dead
                         || (planet.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
-                        <= planet.GetGroundStrength(Owner.loyalty))
+                        <= planet.GetGroundStrength(Owner.loyalty)
+                        || (planet.Owner != null && !Owner.loyalty.IsEmpireAttackable(planet.Owner))
+                        )
                         //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
                     {
                         //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrength would both return 0,
@@ -521,7 +523,7 @@ namespace Ship_Game.AI
                     case AIState.Resupply:       AwaitOrders(elapsedTime); break;
                     case AIState.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
                     case AIState.AwaitingOffenseOrders: break;
-                    case AIState.Exterminate: 
+                    case AIState.Exterminate:
                         OrderFindExterminationTarget(); break;
                     default:
                         if (Target != null)
@@ -547,7 +549,7 @@ namespace Ship_Game.AI
                 ReverseThrustUntilStopped(elapsedTime);
                 RotateToDirection(Owner.fleet.Direction, elapsedTime, 0.02f);
             }
-            else 
+            else
             if (State == AIState.FormationWarp || State == AIState.Orbit || State == AIState.AwaitingOrders ||
                     (!HasPriorityOrder && !HadPO && State != AIState.HoldPosition))
             {

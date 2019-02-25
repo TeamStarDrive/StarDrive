@@ -866,29 +866,28 @@ namespace Ship_Game.Ships
             switch (ModuleType)
             {
                 case ShipModuleType.Turret:
-                    ConfigWeapon();
+                    InstallWeapon();
                     InstalledWeapon.isTurret = true;
                     break;
                 case ShipModuleType.MainGun:
-                    ConfigWeapon();
+                    InstallWeapon();
                     InstalledWeapon.isMainGun = true;
                     break;
                 case ShipModuleType.MissileLauncher:
-                    ConfigWeapon();
+                    InstallWeapon();
                     break;
                 case ShipModuleType.Colony:
                     if (Parent != null)
                         Parent.isColonyShip = true;
                     break;
                 case ShipModuleType.Bomb:
-                    Parent?.BombBays.Add(this);
-                    InstalledWeapon = ResourceManager.GetWeaponTemplate(BombType);
+                    InstallBomb();
                     break;
                 case ShipModuleType.Drone:
-                    ConfigWeapon();
+                    InstallWeapon();
                     break;
                 case ShipModuleType.Spacebomb:
-                    ConfigWeapon();
+                    InstallWeapon();
                     break;
             }
             
@@ -896,16 +895,29 @@ namespace Ship_Game.Ships
                 Parent.IsSupplyShip = true;
         }
 
-        private void ConfigWeapon()
+        private void InstallWeapon()
         {
             if (InstalledWeapon != null && InstalledWeapon.WeaponType == WeaponType)
                 return;
-            InstalledWeapon = ResourceManager.CreateWeapon(WeaponType);
+            ConfigWeapon(WeaponType);
+            Parent?.Weapons.Add(InstalledWeapon);
+            isWeapon = true;
+        }
+        private void InstallBomb()
+        {
+            if (InstalledWeapon != null && InstalledWeapon.UID == BombType)
+                return;
+            ConfigWeapon(BombType);
+            Parent?.BombBays.Add(this);
+        }
+
+        private void ConfigWeapon(string weaponType)
+        {                        
+            InstalledWeapon = ResourceManager.CreateWeapon(weaponType);
             InstalledWeapon.Module = this;
             InstalledWeapon.Owner  = Parent;
-            InstalledWeapon.Center = Center;
-            isWeapon = true;
-            Parent?.Weapons.Add(InstalledWeapon);
+            InstalledWeapon.Center = Center;            
+            
         }
 
         public void SetHangarShip(Ship ship)
@@ -943,11 +955,7 @@ namespace Ship_Game.Ships
                 Parent.shipStatusChanged = true;
             }
 
-            //SetHealth(Health); // Update and validate Health
-            if (Active && ModuleType == ShipModuleType.Bomb)
-                InstalledWeapon.CooldownTimer -= elapsedTime;
-
-            if (Active && ModuleType == ShipModuleType.Hangar) //(this.hangarShip == null || !this.hangarShip.Active) && 
+            if (Active && ModuleType == ShipModuleType.Hangar) 
                 hangarTimer -= elapsedTime;
 
             // Shield Recharge / Discharge
