@@ -892,8 +892,8 @@ namespace Ship_Game
                     ScreenManager.SpriteBatch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius, color);
                 }
             }
-            if (ProjectingPosition)
-                DrawProjectedGroup();
+
+            DrawProjectedGroup();
 
             var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
 
@@ -935,10 +935,10 @@ namespace Ship_Game
 
         private void DrawProjectedGroup()
         {
-            if (ProjectedGroup == null)
+            if (!Project.Started || CurrentGroup == null)
                 return;
 
-            foreach (Ship ship in ProjectedGroup.Ships)
+            foreach (Ship ship in CurrentGroup.Ships)
             {
                 if (!ship.Active)
                     continue;
@@ -953,7 +953,7 @@ namespace Ship_Game
                         ? 0.15f
                         : 0.08f;
 
-                DrawTextureProjected(symbol, ship.projectedPosition, scale, ProjectedGroup.ProjectedDirection.ToRadians(),
+                DrawTextureProjected(symbol, ship.projectedPosition, scale, CurrentGroup.ProjectedDirection.ToRadians(),
                     new Color(0, 255, 0, 100));
             }
         }
