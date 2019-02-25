@@ -443,8 +443,7 @@ namespace Ship_Game
 
             mass += (ActiveHull.ModuleSlots.Length);
             mass *= EmpireManager.Player.data.MassModifier;
-            if (mass < ActiveHull.ModuleSlots.Length)
-                mass = ActiveHull.ModuleSlots.Length;
+            cost += (int)(cost * EmpireManager.Player.data.Traits.ShipCostMod);
 
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
