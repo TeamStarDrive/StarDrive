@@ -200,22 +200,28 @@ namespace Ship_Game
             }
 
             Log.Assert(i == ships.Length, "Some ships were not assigned virtual fleet positions!");
-            return GetProjectedMidPoint(start, end, fleetWidth);
+            return GetProjectedMidPoint(start, end, new Vector2(fleetWidth, 0));
         }
 
-        public Vector2 GetProjectedMidPoint(Vector2 start, Vector2 end, float width)
+        public Vector2 GetProjectedMidPoint(Vector2 start, Vector2 end, Vector2 size)
         {
             Vector2 dir = start.DirectionToTarget(end);
-            return start + dir * (width*0.5f);
+            float width = size.X * 0.5f;
+            Vector2 center = start + dir * width;
+
+            float height = size.Y * 0.75f;
+            return center + dir.RightVector() * height;
         }
 
-        public float GetRelativeWidth()
+        public Vector2 GetRelativeSize()
         {
-            float min = 0, max = 0;
+            Vector2 min = default, max = default;
             foreach (Ship ship in Ships)
             {
-                if (ship.FleetOffset.X < min) min = ship.FleetOffset.X;
-                if (ship.FleetOffset.X > max) max = ship.FleetOffset.X;
+                if (ship.FleetOffset.X < min.X) min.X = ship.FleetOffset.X;
+                if (ship.FleetOffset.X > max.X) max.X = ship.FleetOffset.X;
+                if (ship.FleetOffset.Y < min.Y) min.Y = ship.FleetOffset.Y;
+                if (ship.FleetOffset.Y > max.Y) max.Y = ship.FleetOffset.Y;
             }
             return max - min;
         }
