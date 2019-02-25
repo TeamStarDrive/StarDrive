@@ -2498,7 +2498,7 @@ namespace Ship_Game
 
         public void IncreaseFastVsBigFreighterRatio(float amount)
         {
-            FastVsBigFreighterRatio = (FastVsBigFreighterRatio + amount).Clamped(0.01f, 1);
+            FastVsBigFreighterRatio = (FastVsBigFreighterRatio + amount).Clamped(0.1f, 1);
         }
 
         public EmpireAI GetEmpireAI() => EmpireAI;
