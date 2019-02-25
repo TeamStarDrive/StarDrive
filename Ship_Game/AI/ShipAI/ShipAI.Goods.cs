@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI
 {
@@ -90,7 +91,20 @@ namespace Ship_Game.AI
             // If we did not unload all cargo, its better to build faster freighters
             float fasterFreighters     = Owner.CargoSpaceUsed.NotZero() ? 0.01f : -0.01f;
             Owner.loyalty.IncreaseFastVsBigFreighterRatio(fasterFreighters);
+            CheckAndScrap1To10();
             AI.CancelTradePlan(importPlanet);
+        }
+
+        // 1 out of 10 trades - check if there is better suited freighter model available
+        // Note that there are more scrap logic for freighters (idle timeout and idle ones where a new tech is researched
+        void CheckAndScrap1To10() 
+        {
+            if (!RandomMath.RollDice(10))
+                return;
+
+            Ship betterFreighter = ShipBuilder.PickFreighter(Owner.loyalty, Owner.loyalty.FastVsBigFreighterRatio);
+            if (betterFreighter != null && betterFreighter.Name != Owner.Name)
+                AI.OrderScrapShip();
         }
     }
 }
