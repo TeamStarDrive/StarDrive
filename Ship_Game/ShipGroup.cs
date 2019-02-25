@@ -36,8 +36,8 @@ namespace Ship_Game
         public ShipGroup(Array<Ship> shipList, Vector2 start, Vector2 end, Vector2 direction, Empire owner)
         {
             Owner = owner;
-            AssembleDefaultGroup(shipList, start, end);
-            ProjectPos((start+end)*0.5f, direction);
+            Vector2 fleetCenter = AssembleDefaultGroup(shipList, start, end);
+            ProjectPos(fleetCenter, direction);
         }
 
         public void ProjectPos(Vector2 projectedPos, Vector2 direction)
@@ -52,6 +52,7 @@ namespace Ship_Game
             }
         }
 
+        // This is used for single-ship groups
         public void ProjectPosNoOffset(Vector2 projectedPos, Vector2 direction)
         {
             ProjectedDirection = direction;
@@ -144,23 +145,27 @@ namespace Ship_Game
             });
         }
 
-        void AssembleDefaultGroup(Array<Ship> shipList, Vector2 leftCorner, Vector2 rightCorner)
+        Vector2 AssembleDefaultGroup(Array<Ship> shipList, Vector2 start, Vector2 end)
         {
             if (shipList.IsEmpty)
-                return;
+                return start;
+
             Ship[] ships = ConsistentSort(shipList);
             AddShips(ships);
 
             float shipSpacing = GetMaxRadius(ships) + 500f;
-            float fleetWidth = rightCorner.Distance(leftCorner);
+            float fleetWidth = start.Distance(end);
+
+            if (fleetWidth > shipSpacing * ships.Length)
+                fleetWidth = shipSpacing * ships.Length;
 
             int w = ships.Length, h = 1; // virtual layout grid
 
             if (fleetWidth.AlmostZero()) // no width provided, probably RIGHT CLICK
             {
                 // SO, we perform automatic layout to rows and columns
-                // until w/h ratio is <= 2 resulting in: 2x1 3x1 4x2 5x2 6x3 7x4 8x4...
-                while (w / (float)h > 2.0f)
+                // until w/h ratio is < 4 resulting in: 2x1 3x1 4x2 5x2 6x3 7x4 8x4...
+                while (w / (float)h > 4f)
                 {
                     w -= w / 2;
                     h = (int)Math.Ceiling(ships.Length / (double)w);
@@ -193,7 +198,26 @@ namespace Ship_Game
                         Ships[i++].RelativeFleetOffset = new Vector2(x-cx2, y) * shipSpacing;
                 }
             }
+
             Log.Assert(i == ships.Length, "Some ships were not assigned virtual fleet positions!");
+            return GetProjectedMidPoint(start, end, fleetWidth);
+        }
+
+        public Vector2 GetProjectedMidPoint(Vector2 start, Vector2 end, float width)
+        {
+            Vector2 dir = start.DirectionToTarget(end);
+            return start + dir * (width*0.5f);
+        }
+
+        public float GetRelativeWidth()
+        {
+            float min = 0, max = 0;
+            foreach (Ship ship in Ships)
+            {
+                if (ship.FleetOffset.X < min) min = ship.FleetOffset.X;
+                if (ship.FleetOffset.X > max) max = ship.FleetOffset.X;
+            }
+            return max - min;
         }
 
         public bool IsShipListEqual(Array<Ship> ships)
