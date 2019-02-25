@@ -176,11 +176,6 @@ namespace Ship_Game.AI
                 if (Empire.Universe?.Debug == true)
                 {
                     Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: " +
-                                                $"Cargo: {ship.CargoSpaceMax} " +
-                                                $"FTL: {ship.maxFTLSpeed / 1000} " +
-                                                $"Size: {ship.SurfaceArea} " +
-                                                $"Cost: {ship.GetCost(empire)} " +
-                                                $"Size: {ship.SurfaceArea} --> " +
                                                 $"Value: {ship.BestFreighterValue(empire, fastVsBig)}");
                 }
             }
@@ -188,7 +183,9 @@ namespace Ship_Game.AI
             freighter = freighters
                 .FindMax(ship => ship.BestFreighterValue(empire, fastVsBig));
 
-            Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter.Name}");
+            if (Empire.Universe?.Debug == true)
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter.Name}");
+
             return freighter;
         }
 

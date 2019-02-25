@@ -2081,7 +2081,7 @@ namespace Ship_Game.Ships
         {
             float warpK          = maxFTLSpeed / 1000;
             float movementWeight = warpK + GetSTLSpeed() / 10 + rotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
-            float cargoWeight    = CargoSpaceMax.Clamped(0,80) - (float)SurfaceArea / 2;
+            float cargoWeight    = CargoSpaceMax.Clamped(0,80) - (float)SurfaceArea / 25;
 
             // For faster , cheaper ships vs big and maybe slower ships
             return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
