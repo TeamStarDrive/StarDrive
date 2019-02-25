@@ -1658,6 +1658,8 @@ namespace Ship_Game.Ships
                 {
                     Weapons[i].Update(deltaTime);
                 }
+                for (int i = 0; i < BombBays.Count; i++)
+                    BombBays[i].InstalledWeapon.Update(deltaTime);
             }
 
             if (updateTimer <= 0) //|| shipStatusChanged)
@@ -1751,7 +1753,7 @@ namespace Ship_Game.Ships
                 foreach (ShipModule slot in ModuleSlotList)
                       slot.Update(1);
 
-                if (shipStatusChanged) //|| InCombat
+                if (shipStatusChanged)
                 {
                     ShipStatusChange();
                 }
@@ -1778,13 +1780,7 @@ namespace Ship_Game.Ships
                 }
 
                 // Add ordnance
-                if (Ordinance < OrdinanceMax)
-                {
-                    Ordinance += OrdAddedPerSecond;
-                    if (Ordinance > OrdinanceMax)
-                        Ordinance = OrdinanceMax;
-                }
-                else Ordinance = OrdinanceMax;
+                ChangeOrdnance(OrdAddedPerSecond);
 
                 // Update max health if needed
                 int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
@@ -1795,6 +1791,7 @@ namespace Ship_Game.Ships
                 }
 
                 // return home if it is a defense ship
+                //this should be AI behavior.
                 if (!InCombat && HomePlanet != null)
                     ReturnHome();
 
