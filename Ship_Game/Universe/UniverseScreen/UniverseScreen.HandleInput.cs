@@ -783,14 +783,14 @@ namespace Ship_Game
             if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                 previousSelection = SelectedShip;
 
-            SelectedShip       = null;
-            SelectedPlanet     = null;
-            SelectedFleet      = null;
-            SelectedSystem     = null;
-            SelectedItem       = null;
-            ProjectingPosition = false;
-            ProjectedGroup     = null;
-            //SelectedShipList.Clear();
+            SelectedShip    = null;
+            SelectedPlanet  = null;
+            SelectedFleet   = null;
+            SelectedSystem  = null;
+            SelectedItem    = null;
+            Project.Started = false;
+            CurrentGroup    = null;
+
             if (viewState >= UnivScreenState.SectorView)
             {
                 if ((SelectedSystem = CheckSolarSystemClick()) != null)
