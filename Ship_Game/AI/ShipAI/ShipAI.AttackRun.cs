@@ -59,7 +59,9 @@ namespace Ship_Game.AI
 
             if (ShouldDisengage(distanceToAttack, spacerDistance))
             {
-                PrepareToDisengage(600f);
+                // @todo Take turning factor into account!
+                float distance = distanceToAttack+50.0f;
+                PrepareToDisengage(distance);
             }
             else if (distanceToAttack < 500f)
             {
@@ -77,6 +79,8 @@ namespace Ship_Game.AI
         void PrepareToDisengage(float disengageDistance)
         {
             State = RunState.Disengage1;
+
+            float turnAboutTime = (float)Math.PI / Owner.rotationRadiansPerSecond;
 
             float dot = Owner.Direction.Dot(AI.Target.Velocity.Normalized());
             float rotation = dot > -0.25f // we are chasing them, so only disengage left or right
@@ -98,6 +102,7 @@ namespace Ship_Game.AI
             float disengageLimit = DisengageStart.Distance(disengagePos) + 20f;
             float distance = DisengageStart.Distance(Owner.Center);
 
+            float disengageSpeed = (Owner.velocityMaximum*0.8f).Clamped(200f, 1000f);
             if (State == RunState.Disengage1)
             {
                 if (distance > disengageLimit) // Disengage1 success
@@ -112,7 +117,8 @@ namespace Ship_Game.AI
                     return;
                 }
                 
-                AI.SubLightContinuousMoveInDirection(Owner.Center.DirectionToTarget(DisengagePos1), elapsedTime, Owner.Speed);
+                AI.SubLightContinuousMoveInDirection(Owner.Center.DirectionToTarget(DisengagePos1),
+                    elapsedTime, disengageSpeed);
             }
             else // if (State == RunState.Disengage2)
             {
@@ -121,7 +127,8 @@ namespace Ship_Game.AI
                     State = RunState.Strafing;
                     return;
                 }
-                AI.SubLightContinuousMoveInDirection(Owner.Center.DirectionToTarget(DisengagePos2), elapsedTime, Owner.Speed*0.8f);
+                AI.SubLightContinuousMoveInDirection(Owner.Center.DirectionToTarget(DisengagePos2), 
+                    elapsedTime, disengageSpeed);
             }
 
             if (DebugInfoScreen.Mode == DebugModes.Targeting &&
