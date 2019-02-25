@@ -450,7 +450,7 @@ namespace Ship_Game.Ships
 
         public int BombCount
         {
-           get
+            get
             {
                 int Bombs = 0;
                 if (BombBays.Count > 0)

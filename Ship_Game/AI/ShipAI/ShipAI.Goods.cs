@@ -88,15 +88,15 @@ namespace Ship_Game.AI
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
 
-            // If we did not unload all cargo, its better to build faster freighters
-            float fasterFreighters     = Owner.CargoSpaceUsed.NotZero() ? 0.01f : -0.01f;
+            // If we did not unload all cargo, its better to build faster smaller cheaper freighters
+            float fasterFreighters     = Owner.CargoSpaceUsed.NotZero() ? 0.01f : -0.005f;
             Owner.loyalty.IncreaseFastVsBigFreighterRatio(fasterFreighters);
             CheckAndScrap1To10();
             AI.CancelTradePlan(importPlanet);
         }
 
         // 1 out of 10 trades - check if there is better suited freighter model available
-        // Note that there are more scrap logic for freighters (idle timeout and idle ones where a new tech is researched
+        // Note that there are more scrap logic for freighters (idle timeout and idle ones when a new tech is researched
         void CheckAndScrap1To10() 
         {
             if (!RandomMath.RollDice(10))
