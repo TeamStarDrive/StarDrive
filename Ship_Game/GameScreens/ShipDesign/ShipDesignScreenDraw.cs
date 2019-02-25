@@ -1,11 +1,11 @@
-using System;
-using System.Globalization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Globalization;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -14,7 +14,7 @@ namespace Ship_Game
 
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
-        public override void Draw(SpriteBatch batch) 
+        public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = StarDriveGame.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
@@ -93,7 +93,7 @@ namespace Ship_Game
             }
         }
 
-        static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, SlotStruct slot, Rectangle r, ShipModule template = null) 
+        static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, SlotStruct slot, Rectangle r, ShipModule template = null)
         {
             SpriteEffects effects = SpriteEffects.None;
             float rotation        = 0f;
@@ -143,9 +143,9 @@ namespace Ship_Game
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                if (slot.ModuleUID  == null 
-                    || slot.Tex     == null 
-                    || slot.Module  != HighlightedModule 
+                if (slot.ModuleUID  == null
+                    || slot.Tex     == null
+                    || slot.Module  != HighlightedModule
                     && !ShowAllArcs)
                      continue;
 
@@ -178,8 +178,8 @@ namespace Ship_Game
                     continue;
 
                 Vector2 lightOrigin = new Vector2(8f, 8f);
-                if (slot.Module.PowerDraw <= 0f 
-                    || slot.Module.Powered 
+                if (slot.Module.PowerDraw <= 0f
+                    || slot.Module.Powered
                     || slot.Module.ModuleType == ShipModuleType.PowerConduit)
                         continue;
                 spriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
@@ -306,7 +306,7 @@ namespace Ship_Game
                     batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                     batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
-                    
+
                     e.CheckHover(mousePos);
                 }
             }
@@ -417,15 +417,15 @@ namespace Ship_Game
                     offense += slot.Module.CalculateModuleOffense();
                     defense += slot.Module.CalculateModuleDefense(ModuleGrid.SlotsCount);
                 }
-                //added by gremlin collect weapon stats                  
+                //added by gremlin collect weapon stats
                 if (!slot.Module.isWeapon && slot.Module.BombType == null)
                     continue;
 
-                Weapon weapon = slot.Module.InstalledWeapon;// slot.Module.BombType == null ? slot.Module.InstalledWeapon : ResourceManager.WeaponsDict[slot.Module.BombType];
+                Weapon weapon = slot.Module.InstalledWeapon;
                 ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
                 weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
                 // added by Fat Bastard for Energy power calcs
-                if (weapon.isBeam) 
+                if (weapon.isBeam)
                 {
                     beamPeakPowerNeeded += weapon.BeamPowerCostPerSecond;
                     beamLongestDuration  = Math.Max(beamLongestDuration, weapon.BeamDuration);
@@ -448,11 +448,11 @@ namespace Ship_Game
 
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
-            float turn          = MathHelper.ToDegrees(turnThrust / mass / 700f); 
+            float turn          = MathHelper.ToDegrees(turnThrust / mass / 700f);
             float warpSpeed     = (warpThrust / (mass + 0.1f)) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
             string warpString   = warpSpeed.GetNumberString();
             float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
-            float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier; 
+            float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier;
 
             var cursor = new Vector2((StatsSub.Menu.X + 10), (ShipStats.Menu.Y + 18));
 
@@ -460,7 +460,7 @@ namespace Ship_Game
 
             float upkeep;
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working 
+                upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working
             else
                 upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
 
@@ -546,7 +546,7 @@ namespace Ship_Game
                 }
                 cost += bonus.StartingCost * CurrentGame.Pace; // apply flat discount or extra price
                 cost *= (1f - bonus.CostBonus); // now apply % discount
-                DrawStatColor(ref cursor, TintedValue(109, cost, 99, Color.White));  
+                DrawStatColor(ref cursor, TintedValue(109, cost, 99, Color.White));
             }
 
             void DrawOrdnance()
@@ -630,7 +630,7 @@ namespace Ship_Game
 
             void DrawPeakPowerStats()
             {
-                // FB: @todo  using Beam Longest Duration for peak power calculation in case of variable beam durations in the ship will show the player he needs 
+                // FB: @todo  using Beam Longest Duration for peak power calculation in case of variable beam durations in the ship will show the player he needs
                 // more power than actually needed. Need to find a better way to show accurate numbers to the player in such case
                 if (!(beamLongestDuration > 0))
                     return;
@@ -774,7 +774,7 @@ namespace Ship_Game
             }
 
             ModSel.Draw(ScreenManager.SpriteBatch);
-            
+
             DrawHullSelection(ScreenManager.SpriteBatch);
 
             if (IsActive)
