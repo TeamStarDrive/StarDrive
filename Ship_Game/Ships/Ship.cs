@@ -695,7 +695,7 @@ namespace Ship_Game.Ships
         public float GetSTLSpeed()
         {
             float thrustWeightRatio = Thrust / Mass;
-            float speed = thrustWeightRatio + thrustWeightRatio * loyalty.data.SubLightModifier;
+            float speed = thrustWeightRatio * loyalty.data.SubLightModifier;
             return Math.Min(speed, 2500);
         }
 

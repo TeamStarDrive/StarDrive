@@ -467,7 +467,6 @@ namespace Ship_Game.Ships
 
         public void InitializeStatus(bool fromSave)
         {
-            Mass                     = 0f;
             Thrust                   = 0f;
             WarpThrust               = 0f;
             PowerStoreMax            = 0f;
@@ -487,6 +486,7 @@ namespace Ship_Game.Ships
             FTLSpoolTime             = 0f;
             RangeForOverlay          = 0f;
             SurfaceArea              = shipData.ModuleSlots.Length;
+            Mass                     = SurfaceArea;
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 
@@ -525,7 +525,6 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
 
             float sensorBonus = 0f;
-
             foreach (ShipModule module in ModuleSlotList)
             {
                 if (module.UID == "Dummy") // ignore legacy dummy modules
