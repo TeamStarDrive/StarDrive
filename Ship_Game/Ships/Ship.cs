@@ -2087,6 +2087,19 @@ namespace Ship_Game.Ships
             return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
         }
 
+        public bool IsCandidateFreighterBuild()
+        {
+            if (shipData.Role != ShipData.RoleName.freighter 
+                || CargoSpaceMax < 1f
+                || isColonyShip
+                || isConstructor)
+                return false; // definitely not a freighter
+
+            // only Civilian or Unclassified may be freighter candidates
+            return shipData.ShipCategory == ShipData.Category.Civilian ||
+                   shipData.ShipCategory == ShipData.Category.Unclassified;
+        }
+
         public int RefitCost(string newShipName)
         {
             if (loyalty.isFaction)
