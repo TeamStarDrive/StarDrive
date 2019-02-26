@@ -165,7 +165,7 @@ namespace Ship_Game.AI
                 if (ship.shipData.Role != ShipData.RoleName.freighter || ship.CargoSpaceMax < 1f)
                     continue; // definitely not a freighter
 
-                if (ship.isColonyShip || ship.isConstructor)
+                if (ship.isColonyShip || ship.shipData.Role == ShipData.RoleName.construction)
                     continue; // ignore colony ships and constructors
 
                 if (ship.shipData.ShipCategory == ShipData.Category.Civilian ||
