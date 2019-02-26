@@ -381,16 +381,6 @@ namespace Ship_Game.Ships
                 if (shield_power_max > 0.0f)
                     shield = ShieldManager.AddShield(this, Rotation, Center);
             }
-
-            if (ModuleType == ShipModuleType.Hangar && !IsSupplyBay)
-            {
-                if (OrdinanceCapacity == 0)
-                {
-                    OrdinanceCapacity = (short)(MaximumHangarShipSize / 2);
-                    if (OrdinanceCapacity < 50)
-                        OrdinanceCapacity = 50;
-                }
-            }
         }
 
         public void InitHangar()

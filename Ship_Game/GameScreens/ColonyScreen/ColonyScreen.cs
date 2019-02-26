@@ -186,8 +186,7 @@ namespace Ship_Game
                 GovernorDropdown.ActiveIndex = GetIndex(p);
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-
-                GovOrbitals = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + Font12.LineSpacing + 3,
+                GovOrbitals  = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + Font12.LineSpacing + 3,
                     () => p.GovOrbitals, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
             }
             else

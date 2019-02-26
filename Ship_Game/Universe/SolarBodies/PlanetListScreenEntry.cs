@@ -94,7 +94,7 @@ namespace Ship_Game
             }
 
             double totalSeconds = StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds;
-            if (planet.ParentSystem.DangerTimer > 0f)
+            if (planet.ParentSystem.HostileForcesPresent(EmpireManager.Player))
             {
                 float f = (float)Math.Sin(totalSeconds);
                 f = Math.Abs(f) * 255f;

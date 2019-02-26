@@ -3687,6 +3687,9 @@
     <Content Include="Content\Textures\neutron\star_neutron_00008.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Textures\NewUI\colonyShipBuildBG.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Textures\sd_explosion_07a_bb\sd_explosion_07a_cc_00000.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

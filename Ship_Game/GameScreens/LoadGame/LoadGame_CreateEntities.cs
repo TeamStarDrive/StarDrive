@@ -55,6 +55,8 @@ namespace Ship_Game
                 e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
                 e.data.CurrentConstructor   = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
+
+                e.IncreaseFastVsBigFreighterRatio(sdata.FastVsBigFreighterRatio - e.FastVsBigFreighterRatio);
                 if (sdata.empireData.DefaultTroopShip.IsEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
             }
@@ -540,17 +542,17 @@ namespace Ship_Game
                 data.EmpireList.Add(e);
                 if (isPlayer)
                 {
-                    e.AutoColonize = saveData.AutoColonize;
-                    e.AutoExplore = saveData.AutoExplore;
-                    e.AutoFreighters = saveData.AutoFreighters;
-                    e.AutoBuild = saveData.AutoProjectors;
+                    e.AutoColonize          = saveData.AutoColonize;
+                    e.AutoExplore           = saveData.AutoExplore;
+                    e.AutoFreighters        = saveData.AutoFreighters;
+                    e.AutoPickBestFreighter = saveData.AutoPickBestFreighter;
+                    e.AutoBuild             = saveData.AutoProjectors;
                 }
 
                 EmpireManager.Add(e);
             }
         }
 
-        
         static void GiftShipsFromServantEmpire(UniverseData data)
         {
             foreach (Empire e in data.EmpireList)

@@ -306,7 +306,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoFreighters)
                 return;
 
-            Ship betterFreighter = ShipBuilder.PickFreighter(OwnerEmpire);
+            Ship betterFreighter = ShipBuilder.PickFreighter(OwnerEmpire, OwnerEmpire.FastVsBigFreighterRatio);
             if (betterFreighter == null)
                 return;
 
