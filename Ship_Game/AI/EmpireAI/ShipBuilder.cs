@@ -162,17 +162,10 @@ namespace Ship_Game.AI
             foreach (string shipId in empire.ShipsWeCanBuild)
             {
                 Ship ship = ResourceManager.GetShipTemplate(shipId);
-                if (ship.shipData.Role != ShipData.RoleName.freighter || ship.CargoSpaceMax < 1f)
-                    continue; // definitely not a freighter
+                if (!ship.IsCandidateFreighterBuild())
+                    continue;
 
-                if (ship.isColonyShip || ship.shipData.Role == ShipData.RoleName.construction)
-                    continue; // ignore colony ships and constructors
-
-                if (ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                    ship.shipData.ShipCategory == ShipData.Category.Unclassified)
-                    freighters.Add(ship); // only consider civilian/unclassified as freighters
-
-
+                freighters.Add(ship);
                 if (Empire.Universe?.Debug == true)
                 {
                     Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: " +
