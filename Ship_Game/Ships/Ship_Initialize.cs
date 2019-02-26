@@ -467,7 +467,6 @@ namespace Ship_Game.Ships
 
         public void InitializeStatus(bool fromSave)
         {
-            Mass                     = 0f;
             Thrust                   = 0f;
             WarpThrust               = 0f;
             PowerStoreMax            = 0f;
@@ -487,6 +486,7 @@ namespace Ship_Game.Ships
             FTLSpoolTime             = 0f;
             RangeForOverlay          = 0f;
             SurfaceArea              = shipData.ModuleSlots.Length;
+            Mass                     = SurfaceArea;
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 
@@ -525,7 +525,6 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
 
             float sensorBonus = 0f;
-
             foreach (ShipModule module in ModuleSlotList)
             {
                 if (module.UID == "Dummy") // ignore legacy dummy modules
@@ -570,9 +569,10 @@ namespace Ship_Game.Ships
                     massModifier = loyalty.data.ArmourMassModifier;
                 Mass += module.Mass * massModifier;
 
-                Thrust += module.thrust;
+                Thrust     += module.thrust;
                 WarpThrust += module.WarpThrust;
-                Health += module.Health;
+                TurnThrust += module.TurnThrust;
+                Health     += module.Health;
 
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
                 PowerStoreMax += module.ActualPowerStoreMax;

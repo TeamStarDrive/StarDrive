@@ -450,7 +450,6 @@ namespace Ship_Game.Ships
 
         public int BombCount
         {
-
             get
             {
                 int Bombs = 0;
@@ -464,7 +463,6 @@ namespace Ship_Game.Ships
                 }
                 return Bombs;
             }
-
         }
 
         public bool FightersOut
@@ -661,6 +659,9 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float MaxWeaponRange     => Weapons.Count > 0 ? Weapons.FindMax(w => w.Range).Range : 0;
+        public float AverageWeaponRange => Weapons.Count > 0 ? Weapons.Sum(w => w.Range) / Weapons.Count : 0;
+
         public void SetmaxFTLSpeed()
         {
             if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
@@ -694,7 +695,7 @@ namespace Ship_Game.Ships
         public float GetSTLSpeed()
         {
             float thrustWeightRatio = Thrust / Mass;
-            float speed = thrustWeightRatio + thrustWeightRatio * loyalty.data.SubLightModifier;
+            float speed = thrustWeightRatio * loyalty.data.SubLightModifier;
             return Math.Min(speed, 2500);
         }
 
@@ -1595,7 +1596,7 @@ namespace Ship_Game.Ships
             float longR = longRange.GetAverageDam();
             float shotR = shortRange.GetAverageDam();
 
-            if (AI.CombatState == CombatState.Artillery || AI.CombatState != CombatState.ShortRange && longR > shotR)
+            if (AI?.CombatState == CombatState.Artillery || AI?.CombatState != CombatState.ShortRange && longR > shotR)
             {
                 return longRange.GetAverageRange();
             }
@@ -2076,6 +2077,29 @@ namespace Ship_Game.Ships
                                                               : empire.data.DefaultSupplyShuttle;
         }
 
+        public float BestFreighterValue(Empire empire, float fastVsBig)
+        {
+            float warpK          = maxFTLSpeed / 1000;
+            float movementWeight = warpK + GetSTLSpeed() / 10 + rotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
+            float cargoWeight    = CargoSpaceMax.Clamped(0,80) - (float)SurfaceArea / 25;
+
+            // For faster , cheaper ships vs big and maybe slower ships
+            return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
+        }
+
+        public bool IsCandidateFreighterBuild()
+        {
+            if (shipData.Role != ShipData.RoleName.freighter 
+                || CargoSpaceMax < 1f
+                || isColonyShip
+                || isConstructor)
+                return false; // definitely not a freighter
+
+            // only Civilian or Unclassified may be freighter candidates
+            return shipData.ShipCategory == ShipData.Category.Civilian ||
+                   shipData.ShipCategory == ShipData.Category.Unclassified;
+        }
+
         public int RefitCost(string newShipName)
         {
             if (loyalty.isFaction)
@@ -2216,7 +2240,6 @@ namespace Ship_Game.Ships
             }
             CurrentStrength = CalculateShipStrength();
             maxWeaponsRange = CalculateMaxWeaponsRange();
-
         }
 
         public bool IsTethered => TetheredTo != null;

@@ -312,6 +312,7 @@ namespace Ship_Game
             }
         }
 
+        // @todo - need to make all these calcs in one place. Right now they are also done in Ship.cs
         void DrawShipInfoPanel()
         {
             float hitPoints                = 0f;
@@ -440,11 +441,9 @@ namespace Ship_Game
             empResist += size; // FB: so the player will know the true EMP Tolerance
             targets   += fixedTargets;
 
-            // @todo WTF is this?
-            mass += (ActiveHull.ModuleSlots.Length / 2f);
+            mass += (ActiveHull.ModuleSlots.Length);
             mass *= EmpireManager.Player.data.MassModifier;
-            if (mass < (ActiveHull.ModuleSlots.Length / 2f))
-                mass = (ActiveHull.ModuleSlots.Length / 2f);
+            cost += (int)(cost * EmpireManager.Player.data.Traits.ShipCostMod);
 
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
