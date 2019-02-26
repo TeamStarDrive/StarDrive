@@ -84,6 +84,7 @@ namespace Ship_Game
         public bool AutoExplore;
         public bool AutoColonize;
         public bool AutoFreighters;
+        public bool AutoPickBestFreighter;
         public bool AutoResearch;
         public int TotalScore;
         public float TechScore;
@@ -104,12 +105,13 @@ namespace Ship_Game
         public bool canBuildTroopShips;
         public bool canBuildSupportShips;
         public float currentMilitaryStrength;
-        public float MaxResearchPotential = 10;
-        public float MaxColonyValue { get; private set; }
-        public Ship BestPlatformWeCanBuild { get; private set; }
-        public Ship BestStationWeCanBuild { get; private set; }
+        public float MaxResearchPotential    = 10;
+        public float FastVsBigFreighterRatio { get; private set; } = 0.5f;
+        public float MaxColonyValue          { get; private set; }
+        public Ship BestPlatformWeCanBuild   { get; private set; }
+        public Ship BestStationWeCanBuild    { get; private set; }
+        public int ColonyRankModifier        { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
-        public int ColonyRankModifier { get; private set; }
         //added by gremlin
         private float leftoverResearch;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
@@ -1027,7 +1029,6 @@ namespace Ship_Game
                     if (nearby.System == null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
                         break;
 
-                    nearby.System.DangerTimer = 120f;
                     break;
                 }
 
@@ -1298,6 +1299,7 @@ namespace Ship_Game
             debug.AddLine($"Freighter Types: F: {foodShips}  P: {prodShips} C: {colonistsShips}");
             debug.AddLine($"Freighters in Queue / Max: {FreightersBeingBuilt}/{MaxFreightersInQueue}");
             debug.AddLine($"Idle Freighters: {IdleFreighters.Length}");
+            debug.AddLine($"Fast or Big Ratio: {FastVsBigFreighterRatio}");
             debug.AddLine("");
             debug.AddLine("Planet Trade:");
             debug.AddLine($"Importing Planets: F: {foodImportPlanets}  P: {prodImportPlanets}  C: {coloImportPlanets}");
@@ -2492,6 +2494,11 @@ namespace Ship_Game
                 EmpireAI.Goals.RemoveAtSwapLast(index);
                 break;
             }
+        }
+
+        public void IncreaseFastVsBigFreighterRatio(float amount)
+        {
+            FastVsBigFreighterRatio = (FastVsBigFreighterRatio + amount).Clamped(0.1f, 1);
         }
 
         public EmpireAI GetEmpireAI() => EmpireAI;
