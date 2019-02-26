@@ -312,26 +312,26 @@ namespace Ship_Game
             float turnRate      = ship.TurnThrust.ToDegrees() / mass / 700;
             batch.Draw(ResourceManager.Texture("NewUI/colonyShipBuildBG"), shipBackground, Color.White);
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
-            DrawShipDataLine(ship.Name, "", ref cursor, batch, Font12, Color.White);
-            DrawShipDataLine(ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", ref cursor, batch, Font8, Color.Gray);
+            DrawShipValueLine(ship.Name, "", ref cursor, batch, Font12, Color.White);
+            DrawShipValueLine(ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", ref cursor, batch, Font8, Color.Gray);
             WriteLine(ref cursor, Font8);
-            DrawShipDataLine("Weapons:", ship.Weapons.Count, ref cursor, batch, Font8, Color.LightBlue);
-            DrawShipDataLine("Max W.Range:", MaxWeaponRange, ref cursor, batch, Font8, Color.LightBlue);
-            DrawShipDataLine("Avr W.Range:", AverageWeaponRange, ref cursor, batch, Font8, Color.LightBlue);
-            DrawShipDataLine("Warp:", warpSpeed, ref cursor, batch, Font8, Color.LightGreen);
-            DrawShipDataLine("Speed:", subLightSpeed, ref cursor, batch, Font8, Color.LightGreen);
-            DrawShipDataLine("Turn Rate:", turnRate, ref cursor, batch, Font8, Color.LightGreen);
-            DrawShipDataLine("Repair:", ship.RepairRate, ref cursor, batch, Font8, Color.Goldenrod);
-            DrawShipDataLine("Shields:", ship.shield_max, ref cursor, batch, Font8, Color.Goldenrod);
-            DrawShipDataLine("EMP Def:", ship.EmpTolerance, ref cursor, batch, Font8, Color.Goldenrod);
-            DrawShipDataLine("Hangars:", ship.Carrier.AllFighterHangars.Count(), ref cursor, batch, Font8, Color.IndianRed);
-            DrawShipDataLine("Troop Bays:", ship.Carrier.AllTroopBays.Count(), ref cursor, batch, Font8, Color.IndianRed);
-            DrawShipDataLine("Troops:", ship.TroopCapacity, ref cursor, batch, Font8, Color.IndianRed);
-            DrawShipDataLine("Bomb Bays:", ship.BombBays.Count, ref cursor, batch, Font8, Color.IndianRed);
-            DrawShipDataLine("Cargo Space:", ship.CargoSpaceMax, ref cursor, batch, Font8, Color.Khaki);
+            DrawShipValueLine("Weapons:", ship.Weapons.Count, ref cursor, batch, Font8, Color.LightBlue);
+            DrawShipValueLine("Max W.Range:", MaxWeaponRange, ref cursor, batch, Font8, Color.LightBlue);
+            DrawShipValueLine("Avr W.Range:", AverageWeaponRange, ref cursor, batch, Font8, Color.LightBlue);
+            DrawShipValueLine("Warp:", warpSpeed, ref cursor, batch, Font8, Color.LightGreen);
+            DrawShipValueLine("Speed:", subLightSpeed, ref cursor, batch, Font8, Color.LightGreen);
+            DrawShipValueLine("Turn Rate:", turnRate, ref cursor, batch, Font8, Color.LightGreen);
+            DrawShipValueLine("Repair:", ship.RepairRate, ref cursor, batch, Font8, Color.Goldenrod);
+            DrawShipValueLine("Shields:", ship.shield_max, ref cursor, batch, Font8, Color.Goldenrod);
+            DrawShipValueLine("EMP Def:", ship.EmpTolerance, ref cursor, batch, Font8, Color.Goldenrod);
+            DrawShipValueLine("Hangars:", ship.Carrier.AllFighterHangars.Length, ref cursor, batch, Font8, Color.IndianRed);
+            DrawShipValueLine("Troop Bays:", ship.Carrier.AllTroopBays.Length, ref cursor, batch, Font8, Color.IndianRed);
+            DrawShipValueLine("Troops:", ship.TroopCapacity, ref cursor, batch, Font8, Color.IndianRed);
+            DrawShipValueLine("Bomb Bays:", ship.BombBays.Count, ref cursor, batch, Font8, Color.IndianRed);
+            DrawShipValueLine("Cargo Space:", ship.CargoSpaceMax, ref cursor, batch, Font8, Color.Khaki);
         }
 
-        void DrawShipDataLine(string description, string data, ref Vector2 cursor, SpriteBatch batch, SpriteFont font, Color color)
+        void DrawShipValueLine(string description, string data, ref Vector2 cursor, SpriteBatch batch, SpriteFont font, Color color)
         {
             WriteLine(ref cursor, font);
             Vector2 ident = new Vector2(cursor.X + 80, cursor.Y);
@@ -339,7 +339,7 @@ namespace Ship_Game
             batch.DrawString(font, data, ident, color);
         }
 
-        void DrawShipDataLine(string description, float data, ref Vector2 cursor, SpriteBatch batch, SpriteFont font, Color color)
+        void DrawShipValueLine(string description, float data, ref Vector2 cursor, SpriteBatch batch, SpriteFont font, Color color)
         {
             if (data.LessOrEqual(0))
                 return;
