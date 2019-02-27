@@ -28,7 +28,6 @@ namespace Ship_Game
         readonly MainMenuScreen MainMenu;
         Texture2D LoadingScreenTexture;
         string AdviceText;
-        Ship NewGameShip;
         TaskResult BackgroundTask;
         UniverseScreen us;
 
@@ -148,33 +147,6 @@ namespace Ship_Game
 
                     Ship ship2 = Ship.CreateShipAt(startingScout, empire, planet, new Vector2(-2500, -2000), true);
                     Data.MasterShipList.Add(ship2);
-
-                    if (empire == Player)
-                    {
-                        string starterShip = empire.data.Traits.Prototype == 0
-                            ? empire.data.StartingShip
-                            : empire.data.PrototypeShip;
-
-                        NewGameShip = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
-                        if (GlobalStats.ActiveModInfo == null || NewGameShip.VanityName == "")
-                            NewGameShip.VanityName = "Perseverance";
-
-                        Data.MasterShipList.Add(NewGameShip);
-
-                        // Doctor: I think commenting this should completely stop all the recognition of the starter ship being the 'controlled' ship for the pie menu.
-                        Data.NewGameShip = NewGameShip;
-
-                        planet.colonyType = Planet.ColonyType.Colony;
-                    }
-                    else
-                    {
-                        string starterShip = empire.data.StartingShip;
-                        if (GlobalStats.HardcoreRuleset) starterShip += " STL";
-                        starterShip = empire.data.Traits.Prototype == 0 ? starterShip : empire.data.PrototypeShip;
-
-                        Ship ship3 = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
-                        Data.MasterShipList.Add(ship3);
-                    }
                 }
             }
 
