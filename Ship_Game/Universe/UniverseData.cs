@@ -23,8 +23,7 @@ namespace Ship_Game
 
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
 
-        public Ship playerShip;
-
+        public Ship NewGameShip;
         public Array<Empire> EmpireList = new Array<Empire>();
 
         public enum GameDifficulty

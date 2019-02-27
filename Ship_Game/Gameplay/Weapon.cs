@@ -251,7 +251,7 @@ namespace Ship_Game.Gameplay
             if (ToggleCue.IsPlaying)
                 return;
 
-            AudioEmitter soundEmitter = Owner?.PlayerShip == true ? null : (emitter ?? Owner?.SoundEmitter);
+            AudioEmitter soundEmitter = emitter ?? Owner?.SoundEmitter;
             GameAudio.PlaySfxAsync(fireCueName, soundEmitter);
             ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);
         }
@@ -571,8 +571,8 @@ namespace Ship_Game.Gameplay
                 || !Module.Powered || IsRepairDrone || isRepairBeam
                 || PowerRequiredToFire > Owner.PowerCurrent)
                 return false;
-            if ((!TruePD || !Tag_PD) && Owner.PlayerShip)
-                return false;
+            //if ((!TruePD || !Tag_PD) && Owner.PlayerShip)
+            //    return false;
 
             var projTarget = FireTarget as Projectile;
 

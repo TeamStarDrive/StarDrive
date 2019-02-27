@@ -227,10 +227,6 @@ namespace Ship_Game.Ships
                         us.DrawString(posOnScreen, shipRotation, 600f / us.CamHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
                     }
                 }
-
-                // finally, draw firing arcs for the player ship
-                if (PlayerShip && slot.FieldOfFire > 0.0f && slot.InstalledWeapon != null)
-                    us.DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
 
             if (false && us.Debug)

@@ -28,7 +28,7 @@ namespace Ship_Game
         readonly MainMenuScreen MainMenu;
         Texture2D LoadingScreenTexture;
         string AdviceText;
-        Ship playerShip;
+        Ship NewGameShip;
         TaskResult BackgroundTask;
         UniverseScreen us;
 
@@ -155,16 +155,14 @@ namespace Ship_Game
                             ? empire.data.StartingShip
                             : empire.data.PrototypeShip;
 
-                        playerShip = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
-                        playerShip.SensorRange = 100000f; // @todo What is this range hack?
+                        NewGameShip = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
+                        if (GlobalStats.ActiveModInfo == null || NewGameShip.VanityName == "")
+                            NewGameShip.VanityName = "Perseverance";
 
-                        if (GlobalStats.ActiveModInfo == null || playerShip.VanityName == "")
-                            playerShip.VanityName = "Perseverance";
-
-                        Data.MasterShipList.Add(playerShip);
+                        Data.MasterShipList.Add(NewGameShip);
 
                         // Doctor: I think commenting this should completely stop all the recognition of the starter ship being the 'controlled' ship for the pie menu.
-                        Data.playerShip = playerShip;
+                        Data.NewGameShip = NewGameShip;
 
                         planet.colonyType = Planet.ColonyType.Colony;
                     }
@@ -176,9 +174,6 @@ namespace Ship_Game
 
                         Ship ship3 = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
                         Data.MasterShipList.Add(ship3);
-
-                        //empire.AddShip(ship3);
-                        //empire.GetForcePool().Add(ship3);
                     }
                 }
             }
@@ -644,7 +639,7 @@ namespace Ship_Game
                 player    = Player,
                 GameScale = Scale,
                 ScreenManager = ScreenManager,
-                CamPos = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
+                CamPos = new Vector3(-NewGameShip.Center.X, NewGameShip.Center.Y, 5000f),
             };
 
             EmpireShipBonuses.RefreshBonuses();
