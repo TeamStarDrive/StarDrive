@@ -373,10 +373,22 @@ namespace Ship_Game
 
             CreateProjectionMatrix();
             SetLighting(UseRealLights);
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                if (empire.isFaction)
+                    continue;
+
+                string starterShip = empire.data.Traits.Prototype == 0
+                    ? empire.data.StartingShip
+                    : empire.data.PrototypeShip;
+
+                Planet homePlanet = empire.GetPlanets()[0];
+                Ship.CreateShipAt(starterShip, empire, homePlanet, new Vector2(350f, 0.0f), true);
+            }
+
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 SpawnRemnantsInSolarSystem(solarSystem);
-
                 foreach (Planet p in solarSystem.PlanetList)
                 {
                     if (p.Owner != null)
