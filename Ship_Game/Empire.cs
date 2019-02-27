@@ -2569,7 +2569,7 @@ namespace Ship_Game
             var desiredScouts = unexplored * ResearchStrategy.ExpansionRatio * .5f;
             foreach (Ship ship in OwnedShips)
             {
-                if (ship.DesignRole != ShipData.RoleName.scout || ship.PlayerShip)
+                if (ship.DesignRole != ShipData.RoleName.scout)
                     continue;
                 ship.DoExplore();
                 if (++numScouts >= desiredScouts)

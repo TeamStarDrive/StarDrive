@@ -159,7 +159,7 @@ namespace Ship_Game
         MiniMap minimap;
         bool loading;
         public Thread ProcessTurnsThread;
-        public Ship playerShip;
+        public Ship NewGameShip;
         public float transitionElapsedTime;
         public BoundingFrustum Frustum;
         ClickablePlanets tippedPlanet;
@@ -231,10 +231,10 @@ namespace Ship_Game
             GravityWells          = data.GravityWells;
             SolarSystemList       = data.SolarSystemsList;
             MasterShipList        = data.MasterShipList;
-            playerShip            = data.playerShip;
-            PlayerEmpire          = playerShip.loyalty;
-            PlayerLoyalty         = playerShip.loyalty.data.Traits.Name;
-            ShipToView            = playerShip;
+            NewGameShip            = data.NewGameShip;
+            PlayerEmpire          = NewGameShip.loyalty;
+            PlayerLoyalty         = NewGameShip.loyalty.data.Traits.Name;
+            ShipToView            = NewGameShip;
             PlayerEmpire.isPlayer = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
@@ -251,10 +251,8 @@ namespace Ship_Game
             SolarSystemList       = data.SolarSystemsList;
             MasterShipList        = data.MasterShipList;
             loadFogPath           = data.loadFogPath;
-            playerShip            = data.playerShip;
             PlayerEmpire          = EmpireManager.GetEmpireByName(loyalty);
             PlayerLoyalty         = loyalty;
-            ShipToView            = playerShip;
             PlayerEmpire.isPlayer = true;
             loading               = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
@@ -444,8 +442,8 @@ namespace Ship_Game
 
             if (!loading)
             {
-                CamPos.X = playerShip.Center.X;
-                CamPos.Y = playerShip.Center.Y;
+                CamPos.X = NewGameShip.Center.X;
+                CamPos.Y = NewGameShip.Center.Y;
                 CamHeight = 2750f;
             }
             CamDestination = new Vector3(CamPos.X, CamPos.Y, CamHeight);
@@ -687,7 +685,6 @@ namespace Ship_Game
             NebulousShit.Clear();
             bloomComponent = null;
             bg3d.Dispose(ref bg3d);
-            playerShip = null;
             ShipToView = null;
             foreach (Ship ship in MasterShipList)
                 ship?.RemoveFromUniverseUnsafe();
