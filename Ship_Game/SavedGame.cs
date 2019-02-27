@@ -283,10 +283,6 @@ namespace Ship_Game
                     }
                     sdata.Name       = ship.Name;
                     sdata.VanityName = ship.VanityName;
-                    if (ship.PlayerShip)
-                    {
-                        sdata.IsPlayerShip = true;
-                    }
                     sdata.Hull             = ship.shipData.Hull;
                     sdata.Power            = ship.PowerCurrent;
                     sdata.Ordnance         = ship.Ordinance;
@@ -394,10 +390,6 @@ namespace Ship_Game
                     }
                     sd.Name = ship.Name;
                     sd.VanityName = ship.VanityName;
-                    if (ship.PlayerShip)
-                    {
-                        sd.IsPlayerShip = true;
-                    }
                     sd.Hull          = ship.shipData.Hull;
                     sd.Power         = ship.PowerCurrent;
                     sd.Ordnance      = ship.Ordinance;
@@ -746,7 +738,7 @@ namespace Ship_Game
             [Serialize(7)] public string Hull;
             [Serialize(8)] public string Name;
             [Serialize(9)] public string VanityName;
-            [Serialize(10)] public bool IsPlayerShip;
+            [Serialize(10)] public bool IsPlayerShip; // FB - will removing this break saves?
             [Serialize(11)] public float yRotation;
             [Serialize(12)] public float Power;
             [Serialize(13)] public float Ordnance;
