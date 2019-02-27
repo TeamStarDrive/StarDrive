@@ -634,7 +634,7 @@ namespace Ship_Game
 
             GameAudio.StopGenericMusic(immediate: false);
             Planet homePlanet = Player.GetPlanets()[0];
-            us = new UniverseScreen(Data)
+            us = new UniverseScreen(Data, Player)
             {
                 player    = Player,
                 GameScale = Scale,
