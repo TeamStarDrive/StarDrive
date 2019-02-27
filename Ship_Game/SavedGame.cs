@@ -738,24 +738,23 @@ namespace Ship_Game
             [Serialize(7)] public string Hull;
             [Serialize(8)] public string Name;
             [Serialize(9)] public string VanityName;
-            [Serialize(10)] public bool IsPlayerShip; // FB - will removing this break saves?
-            [Serialize(11)] public float yRotation;
-            [Serialize(12)] public float Power;
-            [Serialize(13)] public float Ordnance;
-            [Serialize(14)] public float InCombatTimer;
-            [Serialize(15)] public float experience;
-            [Serialize(16)] public int kills;
-            [Serialize(17)] public Array<Troop> TroopList;
-            [Serialize(18)] public RectangleData[] AreaOfOperation;
-            [Serialize(19)] public float FoodCount;
-            [Serialize(20)] public float ProdCount;
-            [Serialize(21)] public float PopCount;
-            [Serialize(22)] public Guid TetheredTo;
-            [Serialize(23)] public Vector2 TetherOffset;
-            [Serialize(24)] public Array<ProjectileSaveData> Projectiles;
-            [Serialize(25)] public bool FightersLaunched;
-            [Serialize(26)] public bool TroopsLaunched;
-            [Serialize(27)] public Guid HomePlanetGuid;
+            [Serialize(10)] public float yRotation;
+            [Serialize(11)] public float Power;
+            [Serialize(12)] public float Ordnance;
+            [Serialize(13)] public float InCombatTimer;
+            [Serialize(14)] public float experience;
+            [Serialize(15)] public int kills;
+            [Serialize(16)] public Array<Troop> TroopList;
+            [Serialize(17)] public RectangleData[] AreaOfOperation;
+            [Serialize(18)] public float FoodCount;
+            [Serialize(19)] public float ProdCount;
+            [Serialize(20)] public float PopCount;
+            [Serialize(21)] public Guid TetheredTo;
+            [Serialize(22)] public Vector2 TetherOffset;
+            [Serialize(23)] public Array<ProjectileSaveData> Projectiles;
+            [Serialize(24)] public bool FightersLaunched;
+            [Serialize(25)] public bool TroopsLaunched;
+            [Serialize(26)] public Guid HomePlanetGuid;
         }
 
         public class SolarSystemSaveData
