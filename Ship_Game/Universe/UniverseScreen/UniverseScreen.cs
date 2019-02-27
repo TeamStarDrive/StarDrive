@@ -442,8 +442,8 @@ namespace Ship_Game
 
             if (!loading)
             {
-                CamPos.X = NewGameShip.Center.X;
-                CamPos.Y = NewGameShip.Center.Y;
+                CamPos.X = PlayerEmpire.GetPlanets()[0].Center.X;
+                CamPos.Y = PlayerEmpire.GetPlanets()[0].Center.Y;
                 CamHeight = 2750f;
             }
             CamDestination = new Vector3(CamPos.X, CamPos.Y, CamHeight);
