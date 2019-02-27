@@ -373,19 +373,7 @@ namespace Ship_Game
 
             CreateProjectionMatrix();
             SetLighting(UseRealLights);
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                if (empire.isFaction)
-                    continue;
-
-                string starterShip = empire.data.Traits.Prototype == 0
-                    ? empire.data.StartingShip
-                    : empire.data.PrototypeShip;
-
-                Planet homePlanet = empire.GetPlanets()[0];
-                Ship.CreateShipAt(starterShip, empire, homePlanet, new Vector2(350f, 0.0f), true);
-            }
-
+            CreateStartingShips();
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 SpawnRemnantsInSolarSystem(solarSystem);
@@ -489,6 +477,33 @@ namespace Ship_Game
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
             ProcessTurnsThread.Start();
+        }
+
+        private void CreateStartingShips()
+        {
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                if (empire.isFaction)
+                    continue;
+
+                Planet homePlanet    = empire.GetPlanets()[0];
+                string colonyShip    = empire.data.DefaultColonyShip;
+                string startingScout = empire.data.StartingScout;
+                string starterShip   = empire.data.Traits.Prototype == 0
+                                       ? empire.data.StartingShip
+                                       : empire.data.PrototypeShip;
+
+                if (GlobalStats.HardcoreRuleset)
+                {
+                    colonyShip += " STL";
+                    startingScout += " STL";
+                    starterShip += " STL";
+                }
+
+                Ship.CreateShipAt(starterShip, empire, homePlanet, new Vector2(350f, 0.0f), true);
+                Ship.CreateShipAt(colonyShip, empire, homePlanet, new Vector2(-2000, -2000), true);
+                Ship.CreateShipAt(startingScout, empire, homePlanet, new Vector2(-2500, -2000), true);
+            }
         }
 
         public static void SpawnRemnantsInSolarSystem(SolarSystem solarSystem)
