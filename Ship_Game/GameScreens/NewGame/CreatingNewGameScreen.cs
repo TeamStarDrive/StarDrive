@@ -633,13 +633,13 @@ namespace Ship_Game
                 return false;
 
             GameAudio.StopGenericMusic(immediate: false);
-            
+            Planet homePlanet = Player.GetPlanets()[0];
             us = new UniverseScreen(Data)
             {
                 player    = Player,
                 GameScale = Scale,
                 ScreenManager = ScreenManager,
-                CamPos = new Vector3(-NewGameShip.Center.X, NewGameShip.Center.Y, 5000f),
+                CamPos = new Vector3(homePlanet.Center.X, homePlanet.Center.Y, 5000f),
             };
 
             EmpireShipBonuses.RefreshBonuses();
