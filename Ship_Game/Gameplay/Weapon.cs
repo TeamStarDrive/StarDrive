@@ -571,8 +571,6 @@ namespace Ship_Game.Gameplay
                 || !Module.Powered || IsRepairDrone || isRepairBeam
                 || PowerRequiredToFire > Owner.PowerCurrent)
                 return false;
-            //if ((!TruePD || !Tag_PD) && Owner.PlayerShip)
-            //    return false;
 
             var projTarget = FireTarget as Projectile;
 

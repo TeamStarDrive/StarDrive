@@ -159,7 +159,6 @@ namespace Ship_Game
         MiniMap minimap;
         bool loading;
         public Thread ProcessTurnsThread;
-        public Ship NewGameShip;
         public float transitionElapsedTime;
         public BoundingFrustum Frustum;
         ClickablePlanets tippedPlanet;
@@ -222,7 +221,7 @@ namespace Ship_Game
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
-        public UniverseScreen(UniverseData data) : base(null) // new game
+        public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
             Name = "UniverseScreen";
             UniverseSize          = data.Size.X;
@@ -231,10 +230,8 @@ namespace Ship_Game
             GravityWells          = data.GravityWells;
             SolarSystemList       = data.SolarSystemsList;
             MasterShipList        = data.MasterShipList;
-            NewGameShip            = data.NewGameShip;
-            PlayerEmpire          = NewGameShip.loyalty;
-            PlayerLoyalty         = NewGameShip.loyalty.data.Traits.Name;
-            ShipToView            = NewGameShip;
+            PlayerEmpire          = loyalty;
+            PlayerLoyalty         = loyalty.data.Traits.Name;
             PlayerEmpire.isPlayer = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
