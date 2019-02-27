@@ -136,17 +136,7 @@ namespace Ship_Game
                         planet.Station.LoadContent(ScreenManager);
                     }
 
-                    string colonyShip = empire.data.DefaultColonyShip;
-                    if (GlobalStats.HardcoreRuleset) colonyShip += " STL";
 
-                    Ship ship1 = Ship.CreateShipAt(colonyShip, empire, planet, new Vector2(-2000, -2000), true);
-                    Data.MasterShipList.Add(ship1);
-
-                    string startingScout = empire.data.StartingScout;
-                    if (GlobalStats.HardcoreRuleset) startingScout += " STL";
-
-                    Ship ship2 = Ship.CreateShipAt(startingScout, empire, planet, new Vector2(-2500, -2000), true);
-                    Data.MasterShipList.Add(ship2);
                 }
             }
 
