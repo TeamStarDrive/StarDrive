@@ -2,7 +2,7 @@
 
 namespace Ship_Game.Ships
 {
-    public struct ShipResupply
+    public struct ShipResupply // Created by Fat Bastard to centralize all ship supply logic
     {
         private readonly Ship Ship;
         public const float OrdnanceThresholdCombat             = 0.01f;

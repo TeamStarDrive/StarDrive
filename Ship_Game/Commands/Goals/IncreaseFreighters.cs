@@ -26,11 +26,11 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            Ship freighter = ShipBuilder.PickFreighter(empire);
+            Ship freighter = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio);
             if (freighter == null)
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildAt(empire.BestBuildPlanets, freighter, out Planet planet))
+            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, freighter, out Planet planet))
                 return GoalStep.TryAgain;
 
             planet.Construction.AddShip(freighter, this, notifyOnEmpty: false);

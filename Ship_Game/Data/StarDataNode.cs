@@ -26,15 +26,18 @@ namespace Ship_Game.Data
         // finds a direct child element
         public bool FindChild(string key, out StarDataNode found)
         {
-            int count = Items.Count;
-            StarDataNode[] fast = Items.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
+            if (Items != null)
             {
-                StarDataNode node = fast[i];
-                if (node.Key == key)
+                int count = Items.Count;
+                StarDataNode[] fast = Items.GetInternalArrayItems();
+                for (int i = 0; i < count; ++i)
                 {
-                    found = node;
-                    return true;
+                    StarDataNode node = fast[i];
+                    if (node.Key == key)
+                    {
+                        found = node;
+                        return true;
+                    }
                 }
             }
             found = null;
@@ -50,11 +53,14 @@ namespace Ship_Game.Data
                 return true;
 
             // then go recursive
-            int count = Items.Count;
-            StarDataNode[] fast = Items.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
-                if (fast[i].FindChildRecursive(key, out found))
-                    return true;
+            if (Items != null)
+            {
+                int count = Items.Count;
+                StarDataNode[] fast = Items.GetInternalArrayItems();
+                for (int i = 0; i < count; ++i)
+                    if (fast[i].FindChildRecursive(key, out found))
+                        return true;
+            }
             return false;
         }
 

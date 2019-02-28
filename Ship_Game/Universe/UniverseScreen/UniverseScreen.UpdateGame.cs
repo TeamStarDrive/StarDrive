@@ -598,7 +598,7 @@ namespace Ship_Game
                     }
 
                     if (DeepSpaceShips[i].PlayerShip)
-                        DeepSpaceShips[i].ProcessInput(elapsedTime);
+                        DeepSpaceShips[i].ProcessInput(Input, elapsedTime);
                 }
                 else
                 {

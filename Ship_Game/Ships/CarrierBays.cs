@@ -63,6 +63,26 @@ namespace Ship_Game.Ships
         // this will return the number of assault shuttles in space
         public int LaunchedAssaultShuttles =>  AllTroopBays.Count(hangar => hangar.GetHangarShip()?.Active == true);
 
+        public float OrdnanceInSpace  // returns potential Ordnance in space for carriers (as fighters cost ordnance to launch)
+        {
+            get
+            {
+                if (Owner == null)
+                    return 0;
+
+                float ordnance = 0;
+                for (int i = 0; i < AllFighterHangars.Count(); ++i)
+                {
+                    ShipModule hangar = AllHangars[i];
+                    if (hangar.FighterOut)
+                        ordnance += hangar.GetHangarShip().ShipOrdLaunchCost;
+
+                }
+                return ordnance;
+            }
+        }
+
+
         public int NumTroopsInShipAndInSpace
         {
             get

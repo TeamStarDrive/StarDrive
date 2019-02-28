@@ -26,10 +26,8 @@ namespace Ship_Game.AI
         public Array<Squad> RearFlank = new Array<Squad>();
         public Array<Array<Squad>> AllFlanks = new Array<Array<Squad>>();
 
-        Map<Vector2, Ship[]> EnemyClumpsDict = new Map<Vector2, Ship[]>();
         Map<Ship, Array<Ship>> InterceptorDict = new Map<Ship, Array<Ship>>();
         int DefenseTurns = 50;
-        Vector2 TargetPosition = Vector2.Zero;
         public MilitaryTask FleetTask;
         MilitaryTask CoreFleetSubTask;
         public FleetCombatStatus Fcs;
@@ -149,7 +147,7 @@ namespace Ship_Game.AI
                 if (ship.DesignRole >= ShipData.RoleName.fighter && ship.DesignRole == largestCombat)
                 {
                     ScreenShips.Add(ship);
-                    mainShipList.RemoveSwapLast(ship);
+                    mainShipList.RemoveAtSwapLast(i);
                 }
                 else if (ship.DesignRole            == ShipData.RoleName.troop ||
                          ship.DesignRole            == ShipData.RoleName.freighter ||
@@ -158,12 +156,12 @@ namespace Ship_Game.AI
                 )
                 {
                     RearShips.Add(ship);
-                    mainShipList.RemoveSwapLast(ship);
+                    mainShipList.RemoveAtSwapLast(i);
                 }
                 else if (ship.DesignRole < ShipData.RoleName.fighter)
                 {
                     CenterShips.Add(ship);
-                    mainShipList.RemoveSwapLast(ship);
+                    mainShipList.RemoveAtSwapLast(i);
                 }
                 else
                 {
@@ -172,7 +170,7 @@ namespace Ship_Game.AI
                         RightShips.Add(ship);
                     else
                         LeftShips.Add(ship);
-                    mainShipList.RemoveSwapLast(ship);
+                    mainShipList.RemoveAtSwapLast(i);
                 }
             }
 
@@ -219,7 +217,7 @@ namespace Ship_Game.AI
 
         public void AutoArrange()
         {
-            ResetFlankLists();
+            ResetFlankLists(); // set up center, left, right, screen, rear...
 
             SetSpeed();
 
@@ -292,18 +290,30 @@ namespace Ship_Game.AI
         Array<Squad> SortSquad(Array<Ship> allShips, SquadSortType sort)
         {
             var destSquad = new Array<Squad>();
-            if (allShips.IsEmpty) return destSquad;
-            allShips.Sort(ship =>
+            if (allShips.IsEmpty)
+                return destSquad;
+
+            int SortValue(Ship ship)
             {
                 switch (sort)
                 {
-                    case SquadSortType.Size:  return -ship.SurfaceArea;
-                    case SquadSortType.Speed: return -ship.Speed;
+                    case SquadSortType.Size:  return ship.SurfaceArea;
+                    case SquadSortType.Speed: return (int)ship.GetSTLSpeed();
                     default:                  return 0;
                 }
+            }
+
+            allShips.Sort((a, b) =>
+            {
+                int aValue = SortValue(a);
+                int bValue = SortValue(b);
+
+                int order = bValue - aValue;
+                if (order != 0) return order;
+                return b.guid.CompareTo(a.guid);
             });
 
-            Squad squad = new Squad { Fleet = this };
+            var squad = new Squad { Fleet = this };
             destSquad.Add(squad);
             for (int x = 0; x < allShips.Count; ++x)
             {
@@ -748,12 +758,12 @@ namespace Ship_Game.AI
                 {
                     case 0:
                     {
-                        Planet closestPlanet = Owner.FindClosestSpacePort(task.AO);
-                        if (closestPlanet == null)
-                            break;
-                        Vector2 dir = closestPlanet.Center.DirectionToTarget(task.AO);
-                        MoveToNow(closestPlanet.Center, dir);
-                        TaskStep = 1;
+                        if (Owner.FindClosestSpacePort(task.AO, out Planet closestPlanet))
+                        {
+                            Vector2 dir = closestPlanet.Center.DirectionToTarget(task.AO);
+                            MoveToNow(closestPlanet.Center, dir);
+                            TaskStep = 1;
+                        }
                         break;
                     }
                     case 1:
@@ -783,13 +793,13 @@ namespace Ship_Game.AI
                         }
                     case 5:
                     {
-                        Planet closestPlanet = Owner.FindClosestSpacePort(Position);
-                        if (closestPlanet == null)
-                            break;
-                        Position = closestPlanet.Center;
-                        foreach (Ship ship in Ships)
-                            ship.AI.OrderResupply(closestPlanet, true);
-                        TaskStep = 6;
+                        if (Owner.FindClosestSpacePort(Position, out Planet closestPlanet))
+                        {
+                            Position = closestPlanet.Center;
+                            foreach (Ship ship in Ships)
+                                ship.AI.OrderResupply(closestPlanet, true);
+                            TaskStep = 6;
+                        }
                         break;
                     }
                     case 6:
@@ -1442,42 +1452,24 @@ namespace Ship_Game.AI
             ScreenFlank     = null;
             RearFlank       = null;
             AllFlanks       = null;
-            EnemyClumpsDict = null;
             InterceptorDict = null;
             FleetTask       = null;
             base.Destroy();
         }
+
         public static string GetDefaultFleetNames(int index)
         {
             switch (index)
             {
-                case 1:
-                    return "First";
-
-                case 2:
-                    return "Second";
-
-                case 3:
-                    return "Third";
-
-                case 4:
-                    return "Fourth";
-
-                case 5:
-                    return "Fifth";
-
-                case 6:
-                    return "Sixth";
-
-                case 7:
-                    return "Seventh";
-
-                case 8:
-                    return "Eigth";
-
-                case 9:
-                    return "Ninth";
-
+                case 1: return "First";
+                case 2: return "Second";
+                case 3: return "Third";
+                case 4: return "Fourth";
+                case 5: return "Fifth";
+                case 6: return "Sixth";
+                case 7: return "Seventh";
+                case 8: return "Eight";
+                case 9: return "Ninth";
             }
             return "";
         }

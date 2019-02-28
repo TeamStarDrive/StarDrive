@@ -43,7 +43,7 @@ namespace Ship_Game.AI
                 researchDebt = OwnerEmpire.GetTechEntry(postResearchTopic).TechCost;
                 researchDebt = researchDebt / OwnerEmpire.MaxResearchPotential;
             }
-            researchDebt += OwnerEmpire.GetResStrat().ResearchPriority -wars;
+            researchDebt += OwnerEmpire.ResearchStrategy.ResearchPriority -wars;
             float economics = (OwnerEmpire.data.TaxRate * 10); 
             float needsFood = 0;
 
@@ -52,7 +52,7 @@ namespace Ship_Game.AI
                 if (hunger.Storage.RaceFoodRatio < 0.2f)                
                     ++needsFood;
                 
-                if (!OwnerEmpire.GetTDict()["Biospheres"].Unlocked)
+                if (!OwnerEmpire.HasUnlocked("Biospheres"))
                 {
                     if (hunger.Fertility < 0.1f)
                         needsFood += 2;
@@ -110,7 +110,7 @@ namespace Ship_Game.AI
             float economics, string command = "CHEAPEST")
         {
             Map<string, float> priority = new Map<string, float>();
-            var resStrat = OwnerEmpire.GetResStrat();
+            var resStrat = OwnerEmpire.ResearchStrategy;
 
             priority.Add("SHIPTECH", randomizer(resStrat.MilitaryPriority, wars + shipBuildBonus));
 
@@ -151,14 +151,14 @@ namespace Ship_Game.AI
         private bool ProcessScript(bool atWar, bool highTaxes, bool lowResearch, bool lowincome)
         {
             int loopcount = 0;
-            var strat = OwnerEmpire.GetResStrat();
+            var strat = OwnerEmpire.ResearchStrategy;
             Start:
             if (strat != null &&
                 ScriptIndex < strat.TechPath.Count &&
                 loopcount < strat.TechPath.Count)
             {
                 string scriptentry = strat.TechPath[ScriptIndex].id;
-                string scriptCommand = OwnerEmpire.GetTDict().ContainsKey(scriptentry)
+                string scriptCommand = OwnerEmpire.HasTechEntry(scriptentry)
                     ? scriptentry
                     : scriptentry.Split(':')[0];
                 DebugLog($"index : {ScriptIndex}");
@@ -183,7 +183,7 @@ namespace Ship_Game.AI
                     case "LOOP":
                         {
                             ScriptIndex =
-                                int.Parse(OwnerEmpire.GetResStrat().TechPath[ScriptIndex].id
+                                int.Parse(OwnerEmpire.ResearchStrategy.TechPath[ScriptIndex].id
                                     .Split(':')[1]);
                             loopcount++;
                             goto Start;
@@ -292,27 +292,28 @@ namespace Ship_Game.AI
                     case "IFTECHRESEARCHED":
                         bool techResearched = false;
                         string[] techResearchedScript = scriptentry.Split(':');
-                        if (OwnerEmpire.GetTDict().TryGetValue(techResearchedScript[2], out TechEntry checkedTech))
+                        if (OwnerEmpire.TryGetTechEntry(techResearchedScript[2], out TechEntry checkedTech))
+                        {
                             if (checkedTech.Unlocked)
                                 techResearched = true;
-
+                        }
                         loopcount += ScriptBump(techResearched);
                         goto Start;
                     default:
                         {
                             DebugLog($"Hard Script : {scriptentry}");
-                            if (OwnerEmpire.GetTDict().TryGetValue(scriptentry, out TechEntry defaulttech))
+                            if (OwnerEmpire.TryGetTechEntry(scriptentry, out TechEntry defaulttech))
                             {
                                 if (defaulttech.Unlocked)
 
                                 {
-                                    DebugLog($"Already Unlocked");
+                                    DebugLog("Already Unlocked");
                                     ScriptIndex++;
                                     goto Start;
                                 }
                                 if (!defaulttech.Unlocked && OwnerEmpire.HavePreReq(defaulttech.UID))
                                 {
-                                    DebugLog($"Researching");
+                                    DebugLog("Researching");
                                     OwnerEmpire.ResearchTopic = defaulttech.UID;
                                     ScriptIndex++;
                                     if (!string.IsNullOrEmpty(scriptentry))
@@ -332,20 +333,16 @@ namespace Ship_Game.AI
                             }
 
 
-                            foreach (EconomicResearchStrategy.Tech tech in OwnerEmpire.GetResStrat()
-                                .TechPath)
+                            foreach (EconomicResearchStrategy.Tech tech in OwnerEmpire.ResearchStrategy.TechPath)
                             {
-                                if (!OwnerEmpire.GetTDict().ContainsKey(tech.id) ||
-                                    OwnerEmpire.GetTDict()[tech.id].Unlocked ||
-                                    !OwnerEmpire.HavePreReq(tech.id))
+                                if (OwnerEmpire.HasTechEntry(tech.id) && !OwnerEmpire.HasUnlocked(tech.id) &&
+                                    OwnerEmpire.HavePreReq(tech.id))
                                 {
-                                    continue;
+                                    OwnerEmpire.ResearchTopic = tech.id;
+                                    ScriptIndex++;
+                                    if (tech.id.NotEmpty())
+                                        return true;
                                 }
-
-                                OwnerEmpire.ResearchTopic = tech.id;
-                                ScriptIndex++;
-                                if (!string.IsNullOrEmpty(tech.id))
-                                    return true;
                             }
                             GoRandomOnce();
                             ScriptIndex++;
@@ -356,7 +353,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.ResearchTopic.IsEmpty())
             {
                 GoRandomOnce();
-                if (loopcount >= OwnerEmpire.GetResStrat().TechPath.Count)
+                if (loopcount >= OwnerEmpire.ResearchStrategy.TechPath.Count)
                     res_strat = ResearchStrategy.Random;
 
             }
@@ -378,7 +375,7 @@ namespace Ship_Game.AI
             {
                 ScriptIndex =
                     int.Parse(
-                        OwnerEmpire.GetResStrat().TechPath[ScriptIndex].id.Split(':')[1]);                
+                        OwnerEmpire.ResearchStrategy.TechPath[ScriptIndex].id.Split(':')[1]);                
                 return 1;
             }
             ScriptIndex++;
@@ -565,20 +562,15 @@ namespace Ship_Game.AI
         {
             var bestShiptechs = new Array<TechEntry>();
 
-            //use the shiptech choosers which just chooses tech in the list. 
-            var repeatingTechs = new Array<TechEntry>();
-            foreach (var kv in OwnerEmpire.GetTDict())
-            {
-                if (kv.Value.MaxLevel > 1)
-                    repeatingTechs.Add(kv.Value);
-            }
+            // use the shiptech choosers which just chooses tech in the list. 
+            TechEntry[] repeatingTechs = OwnerEmpire.TechEntries.Filter(t => t.MaxLevel > 1);
+
             foreach (string shiptech in shipTechs)
             {
-                TechEntry test = OwnerEmpire.GetTechEntry(shiptech);
-                if (test != null)
+                if (OwnerEmpire.TryGetTechEntry(shiptech, out TechEntry test))
                 {
                     bool skiprepeater = false;
-                    //repeater compensator. This needs some deeper logic. I current just say if you research one level. Dont research any more.
+                    // repeater compensator. This needs some deeper logic. I current just say if you research one level. Dont research any more.
                     if (test.MaxLevel > 1)
                     {
                         foreach (TechEntry repeater in repeatingTechs)
@@ -831,9 +823,9 @@ namespace Ship_Game.AI
 
         private bool ShipHasUndiscoveredTech(Ship ship)
         {
-            foreach (var techName in ship.shipData.TechsNeeded)
+            foreach (string techName in ship.shipData.TechsNeeded)
             {
-                if (!OwnerEmpire.GetTechEntry(techName).Discovered)
+                if (!OwnerEmpire.HasDiscovered(techName))
                     return true;
             }
             return false;
@@ -889,32 +881,21 @@ namespace Ship_Game.AI
             return true;
         }
 
-        private int SumShipTechCostFiltered(Ship ship, HashSet<string> techList)
-        {
-            int techCost = 0;
-            foreach (string shipTech in ship.shipData.TechsNeeded)
-            {
-                if (techList.Contains(shipTech)) continue;
-                techCost += (int) (OwnerEmpire.GetTechEntry(shipTech)?.TechCost ?? 0);
-            }
-            return techCost;
-        }
-
-        private Array<TechEntry> AvailableTechs()
+        Array<TechEntry> AvailableTechs()
         {
             var availableTechs = new Array<TechEntry>();
 
-            foreach (var kv in OwnerEmpire.GetTDict())
+            foreach (TechEntry tech in OwnerEmpire.TechEntries)
             {
-                if (!kv.Value.Discovered || !kv.Value.shipDesignsCanuseThis || kv.Value.Unlocked ||
-                    !OwnerEmpire.HavePreReq(kv.Key))
-                    continue;
-
-                availableTechs.Add(kv.Value);
-                kv.Value.SetLookAhead(OwnerEmpire);
+                if (tech.Discovered && tech.shipDesignsCanuseThis && !tech.Unlocked &&
+                    OwnerEmpire.HavePreReq(tech.UID))
+                {
+                    availableTechs.Add(tech);
+                    tech.SetLookAhead(OwnerEmpire);
+                }
             }
             if (availableTechs.Count == 0)
-                DebugLog($"No Techs found to research");
+                DebugLog("No Techs found to research");
             return availableTechs;
         }
 

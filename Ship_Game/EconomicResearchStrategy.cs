@@ -13,7 +13,8 @@ namespace Ship_Game
         public byte ResearchPriority = 5;
         public byte IndustryPriority = 5;
 
-        public float PriorityRatio(float priority) => Math.Max( priority  / (MilitaryPriority + ExpansionPriority + ResearchPriority + IndustryPriority ) , .1f);
+        public float PriorityRatio(float priority) 
+            => Math.Max(priority / (MilitaryPriority + ExpansionPriority + ResearchPriority + IndustryPriority), 0.1f);
         public float MilitaryRatio => PriorityRatio(MilitaryPriority);
         public float ExpansionRatio => PriorityRatio(ExpansionPriority);
         public float ResearchRatio => PriorityRatio(ResearchPriority);

@@ -161,13 +161,12 @@ namespace Ship_Game.Universe.SolarBodies
 
         bool OnShipComplete(QueueItem q)
         {
-            if (!ResourceManager.ShipsDict.ContainsKey(q.sData.Name))
+            if (!ResourceManager.ShipTemplateExists(q.sData.Name))
                 return false;
 
             Ship shipAt;
             if (q.isRefit)
-                shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true,
-                                q.RefitName.NotEmpty() ? q.RefitName : q.sData.Name, q.sData.Level);
+                shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true, q.RefitName, q.ShipLevel);
             else
                 shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true);
 
@@ -368,15 +367,6 @@ namespace Ship_Game.Universe.SolarBodies
             q.OnComplete?.Invoke(success: false);
         }
 
-        public int EstimateMinTurnsToBuildShip(float shipCost)
-        {
-            if (!P.HasSpacePort)
-                return 9999; // waaaay impossible
-            int shipTurns = (int)Math.Ceiling((shipCost*P.ShipBuildingModifier) / P.Prod.NetMaxPotential);
-            int otherItems = ConstructionQueue.Sum(q => q.TurnsUntilComplete);
-            int total = shipTurns + otherItems;
-            return Math.Min(999, total);
-        }
 
         public bool TryBiosphereBuild(Building b, QueueItem qi)
         {

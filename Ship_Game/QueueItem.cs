@@ -23,6 +23,7 @@ namespace Ship_Game
         public Rectangle removeRect;
         public int QueueNumber;
         public bool isRefit;
+        public int ShipLevel;
         public string RefitName = "";
         public PlanetGridSquare pgs;
         public string DisplayName;
@@ -83,5 +84,26 @@ namespace Ship_Game
         }
 
         public override string ToString() => DisplayText;
+
+        public SavedGame.QueueItemSave Serialize()
+        {
+            var qi = new SavedGame.QueueItemSave
+            {
+                isBuilding  = isBuilding,
+                IsRefit     = isRefit,
+                isShip      = isShip,
+                DisplayName = DisplayName,
+                isTroop     = isTroop,
+                ProgressTowards = ProductionSpent,
+                isPlayerAdded   = IsPlayerAdded
+            };
+            if (qi.IsRefit)    qi.RefitCost = Cost;
+            if (qi.isBuilding) qi.UID = Building.Name;
+            if (qi.isShip)     qi.UID = sData.Name;
+            if (qi.isTroop)    qi.UID = TroopType;
+            if (Goal != null) qi.GoalGUID  = Goal.guid;
+            if (pgs != null)  qi.pgsVector = new Vector2(pgs.x, pgs.y);
+            return qi;
+        }
     }
 }

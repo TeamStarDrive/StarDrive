@@ -33,7 +33,7 @@ namespace Ship_Game
         public SpaceStation Station = new SpaceStation(null);
 
         public bool GovBuildings = true;
-        public bool GovSliders = true;
+        public bool GovOrbitals  = true;
         public bool AllowInfantry;
 
         public int CrippledTurns;
@@ -48,15 +48,19 @@ namespace Ship_Game
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
-        public float AvgPopulationGrowth { get; private set; }
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
 
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
-        public Array<Ship> IncomingFreighters = new Array<Ship>();
-        public Array<Ship> OutgoingFreighters = new Array<Ship>();
+        public int NumIncomingFreighters => IncomingFreighters.Count;
+        public int NumOutgoingFreighters => OutgoingFreighters.Count;
+        readonly Array<Ship> IncomingFreighters = new Array<Ship>();
+        readonly Array<Ship> OutgoingFreighters = new Array<Ship>();
+
+        public Guid[] IncomingFreighterIds => IncomingFreighters.Select(s => s.guid);
+        public Guid[] OutgoingFreighterIds => OutgoingFreighters.Select(s => s.guid);
 
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
@@ -113,7 +117,7 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportProd)
                     return 0;
 
-                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(0, 5);
+                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50) + 1).Clamped(0, 5);
             }
         }
 
@@ -280,13 +284,11 @@ namespace Ship_Game
 
         public void AddToIncomingFreighterList(Ship ship)
         {
-            if (!IncomingFreighters.Any(s => s == ship))
-                IncomingFreighters.AddUniqueRef(ship);
+            IncomingFreighters.AddUniqueRef(ship);
         }
 
         public void AddToOutgoingFreighterList(Ship ship)
         {
-            if (!OutgoingFreighters.Any(s => s == ship))
             OutgoingFreighters.AddUniqueRef(ship);
         }
 
@@ -300,13 +302,13 @@ namespace Ship_Game
             OutgoingFreighters.Remove(ship);
         }
 
-        private static void RemoveInvalidFreighters(Array<Ship> list)
+        static void RemoveInvalidFreighters(Array<Ship> list)
         {
-            for (int i = 0; i < list.Count; ++i)
+            for (int i = list.Count-1; i >= 0; --i)
             {
                 if (!list[i].Active || list[i].AI.State != AIState.SystemTrader)
                 {
-                    list.RemoveAt(i--);
+                    list.RemoveAt(i);
                 }
             }
         }
@@ -927,21 +929,23 @@ namespace Ship_Game
         private void GrowPopulation()
         {
             if (Owner == null) return;
-            
-            float repRate = Owner.data.BaseReproductiveRate * Population;
+
+            float balanceGrowth = (1 - PopulationRatio).Clamped(0.1f, 1f);
+            float repRate       = Owner.data.BaseReproductiveRate * Population * balanceGrowth;
             if (Owner.data.Traits.PopGrowthMax.NotZero())
                 repRate = Math.Min(repRate, Owner.data.Traits.PopGrowthMax * 1000f);
-            repRate = Math.Max(repRate, Owner.data.Traits.PopGrowthMin * 1000f);
+
+            repRate  = Math.Max(repRate, Owner.data.Traits.PopGrowthMin * 1000f);
             repRate += PlusFlatPopulationPerTurn;
             repRate += repRate * Owner.data.Traits.ReproductionMod;
 
             if (IsStarving)
                 Population += Unfed * 10f; // <-- This reduces population depending on starvation severity.
-            else
+
+            else if (!ShortOnFood())
                 Population += repRate;
 
             Population = Population.Clamped(100f, MaxPopulation);
-            AvgPopulationGrowth = (AvgPopulationGrowth + repRate) / 2;
         }
 
         public bool EventsOnBuildings()
@@ -1035,8 +1039,8 @@ namespace Ship_Game
             string exportProd = ProdExportSlots - FreeProdExportSlots + "/" + ProdExportSlots;
             string exportColonists = ColonistsExportSlots - FreeColonistExportSlots + "/" + ColonistsExportSlots;
             debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
-            debug.AddLine($"Incoming Freighters: {IncomingFreighters.Count}");
-            debug.AddLine($"Outgoing Freighters: {OutgoingFreighters.Count}");
+            debug.AddLine($"Incoming Freighters: {NumIncomingFreighters}");
+            debug.AddLine($"Outgoing Freighters: {NumOutgoingFreighters}");
             debug.AddLine("");
             debug.AddLine($"Food Import Slots: {importFood}");
             debug.AddLine($"Prod Import Slots: {importProd}");

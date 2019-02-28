@@ -14,7 +14,7 @@ namespace Ship_Game.UI
         public static void LoadLayout(GameScreen screen, string layoutFile)
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile(layoutFile);
-            Load(screen, screen.ScreenArea, file);
+            LoadLayout(screen, screen.ScreenArea, file);
 
             // trigger ReloadContent when layout file is modified
             ScreenManager.Instance.AddHotLoadTarget(screen, layoutFile, file.FullName);
@@ -22,17 +22,22 @@ namespace Ship_Game.UI
 
         // Loads a generic UI container -- does not register for HotLoading
         // because container might have been destroyed
-        public static void LoadLayout(UIElementContainer container, Vector2 size, string layoutFile)
+        public static void LoadLayout(UIElementContainer container, Vector2 size, string layoutFile, bool layoutRequired = true)
         {
+            container.RemoveAll();
+
             FileInfo file = ResourceManager.GetModOrVanillaFile(layoutFile);
-            Load(container, size, file);
+            if (file == null && layoutRequired)
+                throw new FileNotFoundException($"Missing required layout {layoutFile}");
+
+            if (file != null)
+                LoadLayout(container, size, file);
         }
 
-        static void Load(UIElementContainer main, Vector2 size, FileInfo file)
+        public static void LoadLayout(UIElementContainer container, Vector2 size, FileInfo file)
         {
-            main.RemoveAll();
-
-            var layoutParser = new LayoutParser(main, size, file);
+            container.RemoveAll();
+            var layoutParser = new LayoutParser(container, size, file);
             layoutParser.CreateElements();
         }
 
@@ -176,16 +181,28 @@ namespace Ship_Game.UI
 
             Vector2 absSize = AbsoluteSize(info, size, parent.Size);
 
-            if (info.Tex != null)
+            int texWidth = 0, texHeight = 0;
+            if (info.Spr != null)
+            {
+                texWidth  = info.Spr.Width;
+                texHeight = info.Spr.Height;
+            }
+            else if (info.Tex != null)
+            {
+                texWidth  = info.Tex.Width;
+                texHeight = info.Tex.Height;
+            }
+
+            if (texWidth != 0 && texHeight != 0)
             {
                 if (absSize.AlmostZero())
                 {
-                    absSize.X = (float)Math.Round(info.Tex.Width  * VirtualXForm.X);
-                    absSize.Y = (float)Math.Round(info.Tex.Height * VirtualXForm.Y);
+                    absSize.X = (float)Math.Round(texWidth  * VirtualXForm.X);
+                    absSize.Y = (float)Math.Round(texHeight * VirtualXForm.Y);
                 }
                 else if (absSize.Y.AlmostZero())
                 {
-                    float aspectRatio = (info.Tex.Height / (float)info.Tex.Width);
+                    float aspectRatio = (texHeight / (float)texWidth);
                     absSize.Y = (float)Math.Round(absSize.X * aspectRatio);
                 }
             }
@@ -206,10 +223,24 @@ namespace Ship_Game.UI
             return Content.LoadTextureOrDefault("Textures/" + texturePath);
         }
 
+        SpriteAnimation LoadSpriteAnim(SpriteAnimInfo sprite)
+        {
+            if (sprite == null || sprite.Path.IsEmpty()) return null;
+            var sa = new SpriteAnimation(Content, "Textures/" + sprite.Path, autoStart: false)
+            {
+                Looping = sprite.Looping,
+                FreezeAtLastFrame  = sprite.FreezeAtLastFrame,
+                VisibleBeforeDelay = sprite.VisibleBeforeDelay,
+            };
+            sa.Start(sprite.Duration, sprite.StartAt, sprite.Delay);
+            return sa;
+        }
+
         ElementInfo ParseInfo(UIElementV2 parent, StarDataNode node)
         {
             ElementInfo info = DeserializeElementInfo(node);
             info.Tex = LoadTexture(info.Texture);
+            info.Spr = LoadSpriteAnim(info.SpriteAnim);
 
             // init texture for size information, so buttons can be auto-resized
             if (info.Tex == null && node.Key == "Button")
@@ -228,7 +259,11 @@ namespace Ship_Game.UI
             if (node.Key == "Panel")
             {
                 info = ParseInfo(parent, node);
-                element = new UIPanel(info.R, info.Tex, info.Color ?? Color.White);
+                Color color = info.Color ?? Color.White;
+                if (info.Spr != null)
+                    element = new UIPanel(info.R, info.Spr, color);
+                else
+                    element = new UIPanel(info.R, info.Tex, color);
             }
             else if (node.Key == "List")
             {
