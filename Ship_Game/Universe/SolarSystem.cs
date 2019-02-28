@@ -228,6 +228,11 @@ namespace Ship_Game
             return status;
         }
 
+        public bool ShipInSystem(Ship ship)
+        {
+            return ShipList.Any(s => s == ship);
+        }
+
         public float GetCombatTimer(Empire empire)
         {
             if (empire == null)
