@@ -91,8 +91,11 @@ namespace Ship_Game.AI
             // If we did not unload all cargo, its better to build faster smaller cheaper freighters
             float fasterFreighters     = Owner.CargoSpaceUsed.NotZero() ? 0.02f : -0.005f;
             Owner.loyalty.IncreaseFastVsBigFreighterRatio(fasterFreighters);
+            Planet toOrbit = importPlanet.TradeBlocked ? Owner.loyalty.FindNearestRallyPoint(Owner.Center)
+                                                       : importPlanet;
+
+            AI.CancelTradePlan(toOrbit);
             CheckAndScrap1To10();
-            AI.CancelTradePlan(importPlanet);
         }
 
         // 1 out of 10 trades - check if there is better suited freighter model available and we have idle
