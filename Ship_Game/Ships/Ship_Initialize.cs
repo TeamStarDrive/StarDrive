@@ -12,6 +12,12 @@ namespace Ship_Game.Ships
         // You can also call Ship.CreateShip... functions to spawn ships
         protected Ship(Empire empire, ShipData data, bool fromSave, bool isTemplate) : base(GameObjectType.Ship)
         {
+            if (!data.IsValidForCurrentMod)
+            {
+                Log.Info($"Design {data.Name} [Mod:{data.ModName}] ignored for [{GlobalStats.ModOrVanillaName}]");
+                return;
+            }
+
             Position   = new Vector2(200f, 200f);
             Name       = data.Name;
             Level      = data.Level;
@@ -21,7 +27,7 @@ namespace Ship_Game.Ships
 
             if (!CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate))
             {
-                Log.Error($"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
+                Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return;
             }
 
@@ -35,6 +41,13 @@ namespace Ship_Game.Ships
         {
             if (template == null)
                 return; // Aaarghhh!!
+
+            if (!template.shipData.IsValidForCurrentMod)
+            {
+                Log.Info($"Design {template.shipData.Name} [Mod:{template.shipData.ModName}] is not valid for [{GlobalStats.ModOrVanillaName}]");
+                return;
+            }
+
             Position     = position;
             Name         = template.Name;
             BaseStrength = template.BaseStrength;
@@ -44,7 +57,7 @@ namespace Ship_Game.Ships
 
             if (!CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
             {
-                Log.Error($"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
+                Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return; // return and crash again...
             }
 
@@ -253,7 +266,8 @@ namespace Ship_Game.Ships
 
         // Added by McShooterz: for refit to keep name
         // Refactored by RedFox
-        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit, string refitName, int refitLevel)
+        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit, 
+                                        string refitName, int refitLevel)
         {
             Ship ship = CreateShipAt(shipName, owner, p, doOrbit);
 
@@ -326,8 +340,8 @@ namespace Ship_Game.Ships
         public void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
         {
             InitializeAI();
-            AI.State              = aiSave.state;
-            AI.DefaultAIState     = aiSave.defaultstate;
+            AI.State              = aiSave.State;
+            AI.DefaultAIState     = aiSave.DefaultState;
             AI.MovePosition       = aiSave.MovePosition;
             AI.OrbitTargetGuid    = aiSave.OrbitTarget;
             AI.TargetGuid         = aiSave.AttackTarget;
@@ -453,7 +467,6 @@ namespace Ship_Game.Ships
 
         public void InitializeStatus(bool fromSave)
         {
-            Mass                     = 0f;
             Thrust                   = 0f;
             WarpThrust               = 0f;
             PowerStoreMax            = 0f;
@@ -473,6 +486,7 @@ namespace Ship_Game.Ships
             FTLSpoolTime             = 0f;
             RangeForOverlay          = 0f;
             SurfaceArea              = shipData.ModuleSlots.Length;
+            Mass                     = SurfaceArea;
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 
@@ -511,7 +525,6 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
 
             float sensorBonus = 0f;
-
             foreach (ShipModule module in ModuleSlotList)
             {
                 if (module.UID == "Dummy") // ignore legacy dummy modules
@@ -556,9 +569,10 @@ namespace Ship_Game.Ships
                     massModifier = loyalty.data.ArmourMassModifier;
                 Mass += module.Mass * massModifier;
 
-                Thrust += module.thrust;
+                Thrust     += module.thrust;
                 WarpThrust += module.WarpThrust;
-                Health += module.Health;
+                TurnThrust += module.TurnThrust;
+                Health     += module.Health;
 
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
                 PowerStoreMax += module.ActualPowerStoreMax;

@@ -106,6 +106,11 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f));
         }
 
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal)
+        {
+            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, theGoal, 0f, "", 0f));
+        }
+
         internal void SetTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer = 120f)
         {
             ClearOrders(AIState.SystemTrader);
@@ -121,7 +126,7 @@ namespace Ship_Game.AI
             }
 
             OrderQueue.Enqueue(new ShipGoal(plan, target.Center, Vectors.Up, 
-                target, null, 0f, variableString, 0f));
+                               target, null, 0f, variableString, 0f));
             return true;
         }
 
@@ -149,7 +154,7 @@ namespace Ship_Game.AI
             public readonly Vector2 MovePosition;
             public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings
             public readonly Planet TargetPlanet;
-            public readonly Goal Goal;
+            public readonly Goal Goal; // Empire AI Goal
             public readonly Fleet Fleet;
             public readonly float SpeedLimit;
             public readonly string VariableString;
@@ -186,7 +191,7 @@ namespace Ship_Game.AI
             {
                 Plan = sg.Plan;
                 MovePosition = sg.MovePosition;
-                Direction = sg.DesiredFacing.RadiansToDirection();
+                Direction = sg.Direction;
 
                 if (sg.TargetPlanetGuid != Guid.Empty)
                     TargetPlanet = data.FindPlanet(sg.TargetPlanetGuid);
@@ -223,11 +228,11 @@ namespace Ship_Game.AI
                 GC.SuppressFinalize(this);
             }
 
-            private void Destroy()
+            void Destroy()
             {
                 if (IsDisposed) return;
                 IsDisposed = true;
-                Trade?.UnregisterTrade(Trade.Freighter);
+                Trade?.UnRegisterTrade(Trade.Freighter);
             }
         }
 
@@ -247,19 +252,8 @@ namespace Ship_Game.AI
                 BlockadeTimer = blockadeTimer;
                 Freighter      = freighter;
 
-                RegisterTrade(freighter);
-            }
-            
-            public void RegisterTrade(Ship freighter)
-            {
                 ExportFrom.AddToOutgoingFreighterList(freighter);
                 ImportTo.AddToIncomingFreighterList(freighter);
-            }
-
-            public void UnregisterTrade(Ship freighter)
-            {
-                ExportFrom.RemoveFromOutgoingFreighterList(freighter);
-                ImportTo.RemoveFromIncomingFreighterList(freighter);
             }
 
             public TradePlan(SavedGame.TradePlanSave save, UniverseData data, Ship freighter)
@@ -269,6 +263,12 @@ namespace Ship_Game.AI
                 ImportTo      = data.FindPlanet(save.ImportTo);
                 BlockadeTimer = save.BlockadeTimer;
                 Freighter     = freighter;
+            }
+            
+            public void UnRegisterTrade(Ship freighter)
+            {
+                ExportFrom.RemoveFromOutgoingFreighterList(freighter);
+                ImportTo.RemoveFromIncomingFreighterList(freighter);
             }
         }
 

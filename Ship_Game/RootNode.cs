@@ -16,19 +16,21 @@ namespace Ship_Game
 		public Rectangle TitleRect;
 
 		public Rectangle RootRect = new Rectangle(0, 0, 129, 76);
-
+        public Vector2 RightPoint => new Vector2(RootRect.Right - 10,
+                                                 RootRect.CenterY());
 		private Rectangle IconRect;
 
-		public RootNode(Vector2 Position, TechEntry Tech)
+
+		public RootNode(Vector2 position, TechEntry entry)
 		{
 			if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{
 				TitleFont = Fonts.Arial10;
 			}
-			tech = Tech;
-			TechName = Localizer.Token(ResourceManager.TechTree[Tech.UID].NameIndex);
-			RootRect.X = (int)Position.X;
-			RootRect.Y = (int)Position.Y;
+			Entry = entry;
+			TechName = Localizer.Token(ResourceManager.TechTree[entry.UID].NameIndex);
+			RootRect.X = (int)position.X;
+			RootRect.Y = (int)position.Y;
 			IconRect = new Rectangle(RootRect.X + RootRect.Width / 2 - 39, RootRect.Y + RootRect.Height / 2 - 29, 78, 58);
 			TitleRect = new Rectangle(RootRect.X + 2, RootRect.Y - 21, 108, 61);
 		}
@@ -58,7 +60,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[tech.UID].IconPath)), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[Entry.UID].IconPath)), IconRect, Color.White);
 					return;
 				}
 				case NodeState.Hover:
@@ -79,7 +81,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_selhover"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[tech.UID].IconPath, "_hover")), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[Entry.UID].IconPath, "_hover")), IconRect, Color.White);
 					return;
 				}
 				case NodeState.Press:
@@ -100,7 +102,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_press"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[tech.UID].IconPath, "_hover")), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[Entry.UID].IconPath, "_hover")), IconRect, Color.White);
 					return;
 				}
 				default:

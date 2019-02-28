@@ -29,8 +29,7 @@ namespace Ship_Game
         private Submenu pFacilities;
         private Submenu build;
         private Submenu queue;
-        private UICheckBox GovSliders;
-        private UICheckBox GovBuildings;
+        private UICheckBox GovOrbitals;
         private UITextEntry PlanetName = new UITextEntry();
         private Rectangle PlanetIcon;
         private EmpireUIOverlay eui;
@@ -40,9 +39,7 @@ namespace Ship_Game
         private UIButton SendTroops;  //fbedard
         private DropOptions<int> GovernorDropdown;
         public CloseButton close;
-        private Rectangle MoneyRect;
         private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
-        private ScrollList CommoditiesSL;
         private Rectangle GridPos;
         private Submenu subColonyGrid;
         private ScrollList buildSL;
@@ -85,8 +82,6 @@ namespace Ship_Game
             LeftMenu = new Menu1(theMenu2);
             var theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, ScreenWidth / 3 - 15, ScreenHeight - theMenu1.Y - 2);
             RightMenu = new Menu1(theMenu3);
-            var iconMoney = ResourceManager.Texture("NewUI/icon_money");
-            MoneyRect = new Rectangle(theMenu2.X + theMenu2.Width - 75, theMenu2.Y + 20, iconMoney.Width, iconMoney.Height);
             close = new CloseButton(this, new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
             var theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             PlanetInfo = new Submenu(theMenu4);
@@ -147,7 +142,7 @@ namespace Ship_Game
             SendTroops = Button(theMenu9.X + theMenu9.Width - launchTroops.Rect.Width - 185,
                                 theMenu9.Y - 5, "Send Troops", OnSendTroopsClicked);
 
-            CommoditiesSL = new ScrollList(pFacilities, 40);
+            //new ScrollList(pFacilities, 40);
             var theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (theMenu3.Height - 60)));
             build = new Submenu(theMenu10);
             build.AddTab(Localizer.Token(334));
@@ -182,22 +177,17 @@ namespace Ship_Game
                 var rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
                 GovernorDropdown = new DropOptions<int>(this, new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
                 GovernorDropdown.AddOption("--", 1);
-                GovernorDropdown.AddOption(Localizer.Token(4064), 0);
-                GovernorDropdown.AddOption(Localizer.Token(4065), 2);
-                GovernorDropdown.AddOption(Localizer.Token(4066), 4);
-                GovernorDropdown.AddOption(Localizer.Token(4067), 3);
-                GovernorDropdown.AddOption(Localizer.Token(4068), 5);
-                GovernorDropdown.AddOption(Localizer.Token(5087), 6);
+                GovernorDropdown.AddOption(Localizer.Token(4064), 0); // Core
+                GovernorDropdown.AddOption(Localizer.Token(4065), 2); // Industrial
+                GovernorDropdown.AddOption(Localizer.Token(4066), 4); // Agricultural
+                GovernorDropdown.AddOption(Localizer.Token(4067), 3); // Research
+                GovernorDropdown.AddOption(Localizer.Token(4068), 5); // Military
+                GovernorDropdown.AddOption(Localizer.Token(5087), 6); // Trade Hub
                 GovernorDropdown.ActiveIndex = GetIndex(p);
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-
-                // @todo add localization
-                GovBuildings = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing * 2 + 15, 
-                                            () => p.GovBuildings, Font12, "Governor manages buildings", 0);
-
-                GovSliders = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing + 10,
-                                          () => p.GovSliders, Font12, "Governor manages labor sliders", 0);
+                GovOrbitals  = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + Font12.LineSpacing + 3,
+                    () => p.GovOrbitals, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
             }
             else
             {
@@ -336,11 +326,33 @@ namespace Ship_Game
                 Color fertColor = P.Fertility < P.MaxFertility ? Color.LightGreen : Color.Pink;
                 batch.DrawString(Font12, $"{P.Fertility.String(2)} / {P.MaxFertility.String(2)}", position3, fertColor);
             }
+
             if (P.TerraformPoints > 0)
             {
                 Vector2 terraformPos = new Vector2(vector2_2.X + num5 * 4.4f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
-                batch.DrawString(Font12, $"Terraforming - {(P.TerraformPoints * 100).String(0)}%", terraformPos, Color.White);
+                batch.DrawString(Font12, $"{Localizer.Token(683)} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, Color.White);
             }
+
+            if (P.NumIncomingFreighters > 0 && P.Owner.isPlayer)
+            {
+                Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 2);
+                Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (Font12.LineSpacing + 2) * 2);
+                int lineDown = Font12.LineSpacing + 2;
+                batch.DrawString(Font12, "Incoming Freighters:", incomingTitle, Color.White);
+                incomingTitle.Y += lineDown;
+                incomingData.Y  += lineDown;
+                batch.DrawString(Font12, $"{Localizer.Token(161)}:", incomingTitle, Color.Gray);
+                batch.DrawString(Font12, $"{P.IncomingFoodFreighters}", incomingData, Color.White);
+                incomingTitle.Y += lineDown;
+                incomingData.Y  += lineDown;
+                batch.DrawString(Font12, $"{Localizer.Token(162)}:", incomingTitle, Color.Gray);
+                batch.DrawString(Font12, $"{P.IncomingProdFreighters}", incomingData, Color.White);
+                incomingTitle.Y += lineDown;
+                incomingData.Y  += lineDown;
+                batch.DrawString(Font12, $"{Localizer.Token(1962)}:", incomingTitle, Color.Gray);
+                batch.DrawString(Font12, $"{P.IncomingColonistsFreighters}", incomingData, Color.White);
+            }
+
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20);
@@ -423,6 +435,8 @@ namespace Ship_Game
             string colonyTypeInfo = Font12.ParseText(P.ColonyTypeInfoText, description.Width);
             batch.DrawString(Font12, colonyTypeInfo, descCursor, Color.White);
             GovernorDropdown.Draw(batch); // draw dropdown on top of other text
+            if (P.Owner.isPlayer && GovernorDropdown.ActiveIndex != 0)
+                GovOrbitals.Draw(batch); // only for non Core colonies
 
             if (GlobalStats.HardcoreRuleset)
             {
@@ -627,7 +641,7 @@ namespace Ship_Game
 
                 case ScrollList.Entry entry:
                     var selectedBuilding = entry.Get<Building>();
-                    spriteBatch.DrawString(Font20, selectedBuilding.Name, bCursor, color);
+                    spriteBatch.DrawString(Font20, Localizer.Token(selectedBuilding.NameTranslationIndex), bCursor, color);
                     bCursor.Y += Font20.LineSpacing + 5;
                     string selectionText = MultiLineFormat(selectedBuilding.DescriptionIndex);
                     spriteBatch.DrawString(Font12, selectionText, bCursor, color);
@@ -860,6 +874,7 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             pFacilities.HandleInputNoReset(input);
+            GovOrbitals.HandleInput(input);
 
             if (HandleCycleColoniesLeftRight(input))
                 return true;

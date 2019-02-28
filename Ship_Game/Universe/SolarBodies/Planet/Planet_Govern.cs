@@ -76,7 +76,7 @@ namespace Ship_Game
                     DetermineFoodState(0.15f, 0.5f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     DetermineProdState(0.5f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
                     break;
-                case ColonyType.Military:    //This on is incomplete
+                case ColonyType.Military:
                     Food.Percent = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
                     Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.5f));    //Keep some prod handy
                     if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
@@ -93,6 +93,9 @@ namespace Ship_Game
 
         private void BuildPlatformsAndStations()
         {
+            if (Owner.isPlayer && !GovOrbitals)
+                return;
+
             var currentPlatforms      = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations       = FilterOrbitals(ShipData.RoleName.station);
             int rank                  = FindColonyRank();

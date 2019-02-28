@@ -33,9 +33,6 @@ namespace Ship_Game.Ships
 
         public Vector2 projectedPosition;
         private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
-        public bool TradingFood = true;
-        public bool TradingProd = true;
-        public bool ShieldsUp   = true;
         private Array<Projectile> projectiles = new Array<Projectile>();
         private Array<Beam> beams             = new Array<Beam>();
         public Array<Weapon> Weapons          = new Array<Weapon>();
@@ -75,8 +72,6 @@ namespace Ship_Game.Ships
         public float InCombatTimer;
         public bool isTurning;
         public float InhibitionRadius;
-        private KeyboardState lastKBState;
-        private KeyboardState currentKeyBoardState;
         public bool IsPlatform;
         private SceneObject ShipSO;
         public bool ManualHangarOverride;
@@ -142,9 +137,7 @@ namespace Ship_Game.Ships
         public float HealPerTurn;
         private bool UpdatedModulesOnce;
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
-        private float xdie;
-        private float ydie;
-        private float zdie;
+        Vector3 DieRotation;
         private float dietimer;
         public float BaseStrength;
         public bool BaseCanWarp;
@@ -457,7 +450,6 @@ namespace Ship_Game.Ships
 
         public int BombCount
         {
-
             get
             {
                 int Bombs = 0;
@@ -471,7 +463,6 @@ namespace Ship_Game.Ships
                 }
                 return Bombs;
             }
-
         }
 
         public bool FightersOut
@@ -668,6 +659,9 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float MaxWeaponRange     => Weapons.Count > 0 ? Weapons.FindMax(w => w.Range).Range : 0;
+        public float AverageWeaponRange => Weapons.Count > 0 ? Weapons.Sum(w => w.Range) / Weapons.Count : 0;
+
         public void SetmaxFTLSpeed()
         {
             if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
@@ -701,7 +695,7 @@ namespace Ship_Game.Ships
         public float GetSTLSpeed()
         {
             float thrustWeightRatio = Thrust / Mass;
-            float speed = thrustWeightRatio + thrustWeightRatio * loyalty.data.SubLightModifier;
+            float speed = thrustWeightRatio * loyalty.data.SubLightModifier;
             return Math.Min(speed, 2500);
         }
 
@@ -766,24 +760,24 @@ namespace Ship_Game.Ships
         /// <param name="timer"></param>
         public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
 
-        public void ProcessInput(float elapsedTime)
+        public void ProcessInput(InputState input, float elapsedTime)
         {
             if (GlobalStats.TakingInput || EMPdisabled || !hasCommand)
                 return;
-            if (Empire.Universe.Input != null)
-                currentKeyBoardState = Empire.Universe.Input.KeysCurr;
+            if (Empire.Universe.Input == null)
+                return;
 
-            if (currentKeyBoardState.IsKeyDown(Keys.D)) AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.A)) AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.W)) AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.S)) AI.State = AIState.ManualControl;
+            if (input.IsKeyDown(Keys.D)) AI.State = AIState.ManualControl;
+            if (input.IsKeyDown(Keys.A)) AI.State = AIState.ManualControl;
+            if (input.IsKeyDown(Keys.W)) AI.State = AIState.ManualControl;
+            if (input.IsKeyDown(Keys.S)) AI.State = AIState.ManualControl;
 
             if (AI.State == AIState.ManualControl)
             {
-                if (Active && !currentKeyBoardState.IsKeyDown(Keys.LeftControl))
+                if (Active && !input.IsKeyDown(Keys.LeftControl))
                 {
                     isThrusting = false;
-                    if (currentKeyBoardState.IsKeyDown(Keys.D))
+                    if (input.IsKeyDown(Keys.D))
                     {
                         isTurning = true;
                         isThrusting = true;
@@ -793,7 +787,7 @@ namespace Ship_Game.Ships
                         if (yRotation > -MaxBank)
                             yRotation -= yBankAmount;
                     }
-                    else if (currentKeyBoardState.IsKeyDown(Keys.A))
+                    else if (input.IsKeyDown(Keys.A))
                     {
                         isTurning = true;
                         isThrusting = true;
@@ -860,18 +854,18 @@ namespace Ship_Game.Ships
                         isThrusting = false;
                     }
 
-                    if (currentKeyBoardState.IsKeyDown(Keys.F) && !lastKBState.IsKeyDown(Keys.F))
+                    if (input.KeyPressed(Keys.F))
                     {
                         if (!isSpooling)
                             EngageStarDrive();
                         else
                             HyperspaceReturn();
                     }
-                    if (currentKeyBoardState.IsKeyDown(Keys.W))
+                    if (input.IsKeyDown(Keys.W))
                     {
                         ApplyThrust(elapsedTime, velocityMaximum, +1f);
                     }
-                    else if (currentKeyBoardState.IsKeyDown(Keys.S))
+                    else if (input.IsKeyDown(Keys.S))
                     {
                         ApplyThrust(elapsedTime, velocityMaximum, -1f);
                     }
@@ -888,7 +882,6 @@ namespace Ship_Game.Ships
                     GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
                 }
             }
-            lastKBState = currentKeyBoardState;
         }
 
         public bool InRadius(Vector2 worldPos, float radius)
@@ -1162,7 +1155,7 @@ namespace Ship_Game.Ships
 
         public void DoColonize(Planet p, Goal g)
         {
-            AI.OrderColonization(p);
+            AI.OrderColonization(p, g);
         }
 
         public void ResetJumpTimer()
@@ -1400,7 +1393,7 @@ namespace Ship_Game.Ships
 
         public ShipData ToShipData()
         {
-            var data                       = new ShipData();
+            var data = new ShipData();
             data.BaseCanWarp               = shipData.BaseCanWarp;
             data.BaseStrength              = -1;
             data.TechsNeeded               = shipData.TechsNeeded;
@@ -1421,11 +1414,13 @@ namespace Ship_Game.Ships
             data.MechanicalBoardingDefense = MechanicalBoardingDefense;
             data.BaseHull                  = shipData.BaseHull;
             foreach (Thruster thruster in ThrusterList)
+            {
                 data.ThrusterList.Add(new ShipToolScreen.ThrusterZone
                 {
                     Scale    = thruster.tscale,
                     Position = thruster.XMLPos
                 });
+            }
             return data;
         }
 
@@ -1601,7 +1596,7 @@ namespace Ship_Game.Ships
             float longR = longRange.GetAverageDam();
             float shotR = shortRange.GetAverageDam();
 
-            if (AI.CombatState == CombatState.Artillery || AI.CombatState != CombatState.ShortRange && longR > shotR)
+            if (AI?.CombatState == CombatState.Artillery || AI?.CombatState != CombatState.ShortRange && longR > shotR)
             {
                 return longRange.GetAverageRange();
             }
@@ -1734,7 +1729,7 @@ namespace Ship_Game.Ships
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
                     PowerDraw = NetPower.NetWarpPowerDraw;
-                else if (engineState != MoveState.Warp && ShieldsUp)
+                else if (engineState != MoveState.Warp)
                     PowerDraw = NetPower.NetSubLightPowerDraw;
                 else
                     PowerDraw = NetPower.NetWarpPowerDraw;
@@ -2082,6 +2077,29 @@ namespace Ship_Game.Ships
                                                               : empire.data.DefaultSupplyShuttle;
         }
 
+        public float BestFreighterValue(Empire empire, float fastVsBig)
+        {
+            float warpK          = maxFTLSpeed / 1000;
+            float movementWeight = warpK + GetSTLSpeed() / 10 + rotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
+            float cargoWeight    = CargoSpaceMax.Clamped(0,80) - (float)SurfaceArea / 25;
+
+            // For faster , cheaper ships vs big and maybe slower ships
+            return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
+        }
+
+        public bool IsCandidateFreighterBuild()
+        {
+            if (shipData.Role != ShipData.RoleName.freighter 
+                || CargoSpaceMax < 1f
+                || isColonyShip
+                || isConstructor)
+                return false; // definitely not a freighter
+
+            // only Civilian or Unclassified may be freighter candidates
+            return shipData.ShipCategory == ShipData.Category.Civilian ||
+                   shipData.ShipCategory == ShipData.Category.Unclassified;
+        }
+
         public int RefitCost(string newShipName)
         {
             if (loyalty.isFaction)
@@ -2222,7 +2240,6 @@ namespace Ship_Game.Ships
             }
             CurrentStrength = CalculateShipStrength();
             maxWeaponsRange = CalculateMaxWeaponsRange();
-
         }
 
         public bool IsTethered => TetheredTo != null;
@@ -2311,9 +2328,9 @@ namespace Ship_Game.Ships
             if (UniverseRandom.IntBetween(0, 100) > 65.0 && !IsPlatform && InFrustum)
             {
                 dying         = true;
-                xdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                ydie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                zdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
                 dietimer      = UniverseRandom.RandomBetween(4f, 6f);
                 if (psource != null && psource.Explodes && psource.DamageAmount > 100.0)
                     reallyDie = true;

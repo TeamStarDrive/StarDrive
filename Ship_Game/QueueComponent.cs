@@ -40,13 +40,13 @@ namespace Ship_Game
 		{
 			if (CurrentResearch == null)
 			{
-				EmpireManager.Player.ResearchTopic = researchItem.tech.UID;
+				EmpireManager.Player.ResearchTopic = researchItem.Entry.UID;
 				CurrentResearch = new ResearchQItem(new Vector2(csub.Menu.X + 5, csub.Menu.Y + 30), researchItem, screen);
 				return;
 			}
-			if (!EmpireManager.Player.data.ResearchQueue.Contains(researchItem.tech.UID) && EmpireManager.Player.ResearchTopic != researchItem.tech.UID)
+			if (!EmpireManager.Player.data.ResearchQueue.Contains(researchItem.Entry.UID) && EmpireManager.Player.ResearchTopic != researchItem.Entry.UID)
 			{
-				EmpireManager.Player.data.ResearchQueue.Add(researchItem.tech.UID);
+				EmpireManager.Player.data.ResearchQueue.Add(researchItem.Entry.UID);
 				ResearchQItem qi = new ResearchQItem(new Vector2(csub.Menu.X + 5, csub.Menu.Y + 30), researchItem, screen);
 				QSL.AddItem(qi);
 			}
@@ -63,7 +63,7 @@ namespace Ship_Game
 			batch.FillRectangle(container, Color.Black);
 			QSL.DrawBlue(batch);
 			csub.Draw(batch);
-            var tech = CurrentResearch?.Node?.tech;
+            var tech = CurrentResearch?.Node?.Entry;
             var complete = tech == null || CurrentResearch.Node.complete || tech.TechCost == tech.Progress;
 			if ( !complete)
 			{
@@ -146,12 +146,12 @@ namespace Ship_Game
             var items = new Array<ResearchQItem>();
             if (EmpireManager.Player.ResearchTopic.NotEmpty())
             {
-                var researchItem = (TreeNode)screen.CompleteSubNodeTree[EmpireManager.Player.ResearchTopic];
+                var researchItem = (TreeNode)screen.AllTechNodes[EmpireManager.Player.ResearchTopic];
                 CurrentResearch = CreateQItem(researchItem);
             }
             foreach (string uid in EmpireManager.Player.data.ResearchQueue)
             {
-                var researchItem = (TreeNode)screen.CompleteSubNodeTree[uid];
+                var researchItem = (TreeNode)screen.AllTechNodes[uid];
                 items.Add(CreateQItem(researchItem));
             }
             QSL.SetItems(items);

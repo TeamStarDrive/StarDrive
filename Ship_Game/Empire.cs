@@ -19,6 +19,10 @@ namespace Ship_Game
 
     public sealed class Empire : IDisposable
     {
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException(
+                $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to public PROPERTIES. {this}");
+
         public float ProjectorRadius => Universe.SubSpaceProjectors.Radius;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
         private readonly Map<int, Fleet> FleetsDict    = new Map<int, Fleet>();
@@ -65,7 +69,6 @@ namespace Ship_Game
         public static UniverseScreen Universe;
         //public Vector4 VColor;          //Not referenced in code, removing to save memory
         private EmpireAI EmpireAI;
-        private EconomicResearchStrategy economicResearchStrategy;
         private float UpdateTimer;
         public bool isPlayer;
         public float TotalShipMaintenance { get; private set; }
@@ -81,6 +84,7 @@ namespace Ship_Game
         public bool AutoExplore;
         public bool AutoColonize;
         public bool AutoFreighters;
+        public bool AutoPickBestFreighter;
         public bool AutoResearch;
         public int TotalScore;
         public float TechScore;
@@ -101,12 +105,13 @@ namespace Ship_Game
         public bool canBuildTroopShips;
         public bool canBuildSupportShips;
         public float currentMilitaryStrength;
-        public float MaxResearchPotential = 10;
-        public float MaxColonyValue { get; private set; }
-        public Ship BestPlatformWeCanBuild { get; private set; }
-        public Ship BestStationWeCanBuild { get; private set; }
+        public float MaxResearchPotential    = 10;
+        public float FastVsBigFreighterRatio { get; private set; } = 0.5f;
+        public float MaxColonyValue          { get; private set; }
+        public Ship BestPlatformWeCanBuild   { get; private set; }
+        public Ship BestStationWeCanBuild    { get; private set; }
+        public int ColonyRankModifier        { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
-        public int ColonyRankModifier { get; private set; }
         //added by gremlin
         private float leftoverResearch;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
@@ -116,12 +121,12 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Array<string> TroopShipTech   = new Array<string>();
         [XmlIgnore][JsonIgnore] public Array<string> CarrierTech     = new Array<string>();
         [XmlIgnore][JsonIgnore] public Array<string> SupportShipTech = new Array<string>();
-        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints          = Empty<Planet>.Array;
+        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints     = Empty<Planet>.Array;
         [XmlIgnore][JsonIgnore] public Ship BoardingShuttle     => ResourceManager.ShipsDict["Assault Shuttle"];
         [XmlIgnore][JsonIgnore] public Ship SupplyShuttle       => ResourceManager.ShipsDict["Supply_Shuttle"];
-        [XmlIgnore][JsonIgnore] public int FreighterCap         => OwnedPlanets.Count * 3 + GetResStrat().ExpansionPriority;
+        [XmlIgnore][JsonIgnore] public int FreighterCap         => OwnedPlanets.Count * 3 + ResearchStrategy.ExpansionPriority;
         [XmlIgnore][JsonIgnore] public int FreightersBeingBuilt => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
-        [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue => 1 + GetResStrat().IndustryPriority;
+        [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue => 1 + ResearchStrategy.IndustryPriority;
         [XmlIgnore][JsonIgnore] public int TotalFreighters      => OwnedShips.Count(s => s.IsFreighter);
         [XmlIgnore][JsonIgnore] public Ship[] IdleFreighters    => OwnedShips.Filter(s => s.IsIdleFreighter);
         [XmlIgnore][JsonIgnore] public bool IsCybernetic        => data.Traits.Cybernetic != 0;
@@ -145,60 +150,36 @@ namespace Ship_Game
             foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag.
                 ship.shipStatusChanged = true;
         }
+
         public Planet FindNearestRallyPoint(Vector2 location)
         {
-            if (RallyPoints.Length == 0) return null;
-            return RallyPoints?.FindMin(p => p.Center.SqDist(location)) ?? OwnedPlanets?.FindMin(p => p.Center.SqDist(location));
+            return RallyPoints.FindMin( p => p.Center.SqDist(location))
+                ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
         }
-
-        public Planet[] RallyShipYards => RallyPoints.Filter(sy => sy.HasSpacePort);
 
         public Planet RallyShipYardNearestTo(Vector2 position)
         {
-            Planet p = RallyPoints.Length == 0
-                ? null
-                : RallyPoints.FindMaxFiltered(planet => planet?.HasSpacePort ?? false,
-                    planet => -position.SqDist(planet?.Center ?? Vector2.Zero));
-            switch (p) {
-                case null when RallyPoints.Length > 0:
-                    return RallyPoints.FindMin(planet => -position.SqDist(planet.Center));
-                case null:
-                    Log.Warning($"RallyShipYardNearestTo Had null elements: RallyPoints {RallyPoints.Length}");
-                    break;
-            }
-
-            return p;
+            return RallyPoints.FindMinFiltered(p => p.HasSpacePort,
+                                               p => position.SqDist(p.Center))
+                ?? SpacePorts.FindMin(p => position.SqDist(p.Center))
+                ?? FindNearestRallyPoint(position);
         }
 
-        public Planet[] BestBuildPlanets => RallyPoints.Filter(planet =>
-            planet.HasSpacePort && planet.ParentSystem.HostileForcesPresent(this)
-            && planet.IsVibrant
-            && planet.colonyType != Planet.ColonyType.Research
-            && (planet.colonyType != Planet.ColonyType.Industrial || planet.IsCoreWorld)
+        public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
+
+        public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p =>
+            p.HasSpacePort && !p.ParentSystem.HostileForcesPresent(this)
         );
 
-        public Planet PlanetToBuildShipAt(float actualCost)
+        public bool FindClosestSpacePort(Vector2 position, out Planet closest)
         {
-            Planet planet = OwnedPlanets.FindMin(p => p.Construction.EstimateMinTurnsToBuildShip(actualCost));
-            return planet;
-        }
-
-        public Planet FindClosestSpacePort(Vector2 position)
-        {
-            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
-            return spacePorts.FindMin(p => p.Center.SqDist(position));
+            closest = SpacePorts.FindMin(p => p.Center.SqDist(position));
+            return closest != null;
         }
 
         public bool TryFindSpaceportToBuildShipAt(Ship ship, out Planet spacePort)
         {
-            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
-            return FindPlanetToBuildAt(spacePorts, ship, out spacePort);
-        }
-
-        public bool FindPlanetToBuildOffensiveShipAt(Ship ship, out Planet planet)
-        {
-            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort && p.colonyType != Planet.ColonyType.Research);
-            return FindPlanetToBuildAt(spacePorts, ship, out planet);
+            return FindPlanetToBuildAt(SpacePorts, ship, out spacePort);
         }
 
         public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen)
@@ -206,18 +187,12 @@ namespace Ship_Game
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
-                chosen = ports.FindMin(p => p.Construction.EstimateMinTurnsToBuildShip(cost));
+                chosen = ports.FindMin(p => p.TurnsUntilQueueComplete(cost));
                 return true;
             }
+            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
             chosen = null;
             return false;
-        }
-
-        public bool FindClosestPlanetToBuildAt(Vector2 position, out Planet chosen)
-        {
-            Planet[] spacePorts = OwnedPlanets.Filter(p => p.HasSpacePort);
-            chosen = spacePorts.FindMin(p => p.Center.SqDist(position));
-            return chosen != null;
         }
 
         public string Name => data.Traits.Name;
@@ -284,32 +259,40 @@ namespace Ship_Game
 
         public void SetRallyPoints()
         {
-            if (NoPlanetsForRally()) return;
-
-            Array<Planet> rallyPlanets = new Array<Planet>();
-
-            foreach (SolarSystem systemCheck in OwnedSolarSystems)
+            Array<Planet> rallyPlanets;
+            // defeated empires and factions can use rally points now.
+            if (OwnedPlanets.Count == 0)
             {
-                if (systemCheck.HostileForcesPresent(this))
-                    continue;
-                bool systemHasUnfriendlies = false;
-                foreach (Empire empire in systemCheck.OwnerList)
+                rallyPlanets = GetPlanetsNearStations();
+                if (rallyPlanets.Count == 0)
                 {
-                    if (!IsEmpireAttackable(empire))
-                        continue;
-                    systemHasUnfriendlies = true;
-                    break;
-                }
-                if (systemHasUnfriendlies)
-                    continue;
-
-                foreach (Planet planet in systemCheck.PlanetList)
-                {
-                    if (planet.Owner != this) continue;
-                    rallyPlanets.Add(planet);
+                    Planet p = GetNearestUnOwnedPlanet();
+                    if (p != null)
+                        rallyPlanets.Add(p);
                 }
 
+                //super failSafe. just take any planet.
+                if (rallyPlanets.Count == 0)
+                    rallyPlanets.Add(Universe.PlanetsDict.First().Value);
+
+                RallyPoints = rallyPlanets.ToArray();
+                return;
             }
+
+            rallyPlanets = new Array<Planet>();
+
+            foreach (SolarSystem system in OwnedSolarSystems)
+            {
+                if (!system.HostileForcesPresent(this))
+                {
+                    foreach (Planet planet in system.PlanetList)
+                    {
+                        if (planet.Owner == this)
+                            rallyPlanets.Add(planet);
+                    }
+                }
+            }
+
             if (rallyPlanets.Count > 0)
             {
                 RallyPoints = rallyPlanets.ToArray();
@@ -333,29 +316,7 @@ namespace Ship_Game
                 Log.Error("SetRallyPoint: No Planets found");
         }
 
-        private bool NoPlanetsForRally()
-        {
-            //defeated empires and factions can use rally points now.
-            if (OwnedPlanets.Count != 0) return false;
-            Array<Planet> rallyPlanets = new Array<Planet>();
-            rallyPlanets = GetPlanetsNearStations();
-            if (rallyPlanets.Count == 0)
-            {
-                Planet p = GetNearestUnOwnedPlanet();
-                if (p != null)
-                    rallyPlanets.Add(p);
-            }
-
-            //super failSafe. just take any planet.
-            if (rallyPlanets.Count == 0)
-                rallyPlanets.Add(Universe.PlanetsDict.First().Value);
-
-            RallyPoints = rallyPlanets.ToArray();
-            return true;
-        }
-
-
-        private Array<Planet> GetPlanetsNearStations()
+        Array<Planet> GetPlanetsNearStations()
         {
             var planets = new Array<Planet>();
             foreach(var station in OwnedShips)
@@ -529,18 +490,40 @@ namespace Ship_Game
 
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 
-        public Map<string, TechEntry> GetTDict() => TechnologyDict;
+        public Map<string, TechEntry>.ValueCollection TechEntries => TechnologyDict.Values;
 
-        public TechEntry GetTechEntry(string tech)
+        // @note this is used for comparing rival empire tech entries
+        public TechEntry GetTechEntry(TechEntry theirTech) => GetTechEntry(theirTech.UID);
+        public TechEntry GetTechEntry(Technology theirTech) => GetTechEntry(theirTech.UID);
+
+        public TechEntry GetTechEntry(string uid)
         {
-            if (TechnologyDict.TryGetValue(tech, out TechEntry techEntry))
+            if (TechnologyDict.TryGetValue(uid, out TechEntry techEntry))
                 return techEntry;
-            Log.Error($"Empire GetTechEntry: Failed To Find Tech: ({tech})");
+            Log.Error($"Empire GetTechEntry: Failed To Find Tech: ({uid})");
             return TechEntry.None;
         }
 
+        public bool TryGetTechEntry(string uid, out TechEntry techEntry)
+        {
+            return TechnologyDict.TryGetValue(uid, out techEntry);
+        }
+
+        public bool HasUnlocked(string uid)       => GetTechEntry(uid).Unlocked;
+        public bool HasUnlocked(TechEntry tech)   => GetTechEntry(tech).Unlocked;
+        public bool HasDiscovered(string techId)  => GetTechEntry(techId).Discovered;
+        public float TechProgress(TechEntry tech) => GetTechEntry(tech).Progress;
+        public float TechCost(TechEntry tech)     => GetTechEntry(tech).TechCost;
+        public string AcquiredFrom(TechEntry tech) => GetTechEntry(tech).AcquiredFrom;
+        public string AcquiredFrom(string techId)  => GetTechEntry(techId).AcquiredFrom;
+
+        public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
+
         public float GetProjectedResearchNextTurn()
             => OwnedPlanets.Sum(p=> p.Res.NetIncome);
+
+        public TechEntry CurrentResearch
+            => ResearchTopic.NotEmpty() ? TechnologyDict[ResearchTopic] : TechEntry.None;
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
 
@@ -690,7 +673,7 @@ namespace Ship_Game
 
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
-            economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
+            ResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
             data.TechDelayTime = 4;
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
@@ -743,11 +726,7 @@ namespace Ship_Game
         {
             foreach (var kv in ResourceManager.TechTree)
             {
-                TechEntry techEntry = new TechEntry
-                {
-                    Progress = 0.0f,
-                    UID = kv.Key
-                };
+                var techEntry = new TechEntry(kv.Key);
 
                 //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
                 bool raceLimited = kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0;
@@ -846,10 +825,11 @@ namespace Ship_Game
 
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
-            economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
+            ResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
             InitColonyRankModifier();
         }
-        private bool WeCanUseThisLater(TechEntry tech)
+
+        bool WeCanUseThisLater(TechEntry tech)
         {
             foreach (Technology.LeadsToTech leadsToTech in tech.Tech.LeadsTo)
             {
@@ -860,8 +840,8 @@ namespace Ship_Game
             return false;
         }
 
-
-        public EconomicResearchStrategy GetResStrat() => economicResearchStrategy;
+        [XmlIgnore][JsonIgnore]
+        public EconomicResearchStrategy ResearchStrategy { get; set; }
 
         public string[] GetTroopsWeCanBuild() => UnlockedTroopDict.Where(kv => kv.Value)
                                                                   .Select(kv => kv.Key).ToArray();
@@ -874,7 +854,7 @@ namespace Ship_Game
             PopulateShipTechLists(moduleUID, techUID);
         }
 
-        private void PopulateShipTechLists(string moduleUID, string techUID, bool addToMainShipTechs = true)
+        void PopulateShipTechLists(string moduleUID, string techUID, bool addToMainShipTechs = true)
         {
             if (addToMainShipTechs)
                 ShipTechs.Add(techUID);
@@ -915,17 +895,14 @@ namespace Ship_Game
             UnlockedTroopDict[troopName] = true;
             UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(troopName));
         }
+
         public void UnlockEmpireBuilding(string buildingName) => UnlockedBuildingsDict[buildingName] = true;
 
         public void SetEmpireTechDiscovered(string techUID)
         {
             TechEntry tech = GetTechEntry(techUID);
-            if (tech == null)
-            {
-                Log.Warning($"SetEmpireTechDiscovered: Tech UID was not found: Tech({techUID})");
-                return; //don't crash.
-            }
-            tech.SetDiscovered(this);
+            if (tech != TechEntry.None)
+                tech.SetDiscovered(this);
         }
 
         public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevealedTechs(this);
@@ -939,16 +916,20 @@ namespace Ship_Game
             }
         }
 
-        public void UnlockTech(string techId) => UnlockTech(GetTechEntry(techId));
+        public void UnlockTech(string techId)
+        {
+            UnlockTech(GetTechEntry(techId));
+        }
 
         public void UnlockTech(TechEntry techEntry)
         {
-            if (!techEntry.Unlock(this))
-                return;
-            UpdateShipsWeCanBuild();
-            EmpireAI.TriggerRefit();
-            EmpireAI.TriggerFreightersScrap();
-            data.ResearchQueue.Remove(techEntry.UID);
+            if (techEntry.Unlock(this))
+            {
+                UpdateShipsWeCanBuild();
+                EmpireAI.TriggerRefit();
+                EmpireAI.TriggerFreightersScrap();
+                data.ResearchQueue.Remove(techEntry.UID);
+            }
         }
 
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
@@ -1048,7 +1029,6 @@ namespace Ship_Game
                     if (nearby.System == null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
                         break;
 
-                    nearby.System.DangerTimer = 120f;
                     break;
                 }
 
@@ -1319,6 +1299,7 @@ namespace Ship_Game
             debug.AddLine($"Freighter Types: F: {foodShips}  P: {prodShips} C: {colonistsShips}");
             debug.AddLine($"Freighters in Queue / Max: {FreightersBeingBuilt}/{MaxFreightersInQueue}");
             debug.AddLine($"Idle Freighters: {IdleFreighters.Length}");
+            debug.AddLine($"Fast or Big Ratio: {FastVsBigFreighterRatio}");
             debug.AddLine("");
             debug.AddLine("Planet Trade:");
             debug.AddLine($"Importing Planets: F: {foodImportPlanets}  P: {prodImportPlanets}  C: {coloImportPlanets}");
@@ -1330,8 +1311,8 @@ namespace Ship_Game
             {
                 int importSlots = p.FoodImportSlots + p.ProdImportSlots + p.ColonistsImportSlots;
                 int exportSlots = p.FoodExportSlots + p.ProdExportSlots + p.ColonistsExportSlots;
-                string incoming = p.IncomingFreighters.Count.ToString();
-                string outgoing = p.OutgoingFreighters.Count.ToString();
+                string incoming = p.NumIncomingFreighters.ToString();
+                string outgoing = p.NumOutgoingFreighters.ToString();
                 string starving = p.Storage.Food.AlmostZero() && p.Food.NetIncome < 0 ? " (Starving!)" : "";
                 debug.AddLine($"{p.ParentSystem.Name} : {p.Name}{starving}");
                 debug.AddLine($"Incoming / Import Slots: {incoming}/{importSlots}");
@@ -2184,7 +2165,7 @@ namespace Ship_Game
             }
 
             float research = Research + leftoverResearch;
-            TechEntry tech = GetTechEntry(ResearchTopic);
+            TechEntry tech = CurrentResearch;
             if (tech.UID.IsEmpty())
                 return;
             //reduce the impact of tech that doesnt affect cybernetics.
@@ -2300,7 +2281,7 @@ namespace Ship_Game
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
-            foreach (TechEntry techEntry in target.GetTDict().Values)
+            foreach (TechEntry techEntry in target.TechEntries)
             {
                 if (techEntry.Unlocked)
                     AcquireTech(techEntry.UID, target);
@@ -2400,7 +2381,7 @@ namespace Ship_Game
             return num;
         }
 
-        public bool HavePreReq(string techID) => GetTechEntry(techID).HasPreReq(this);
+        public bool HavePreReq(string techId) => GetTechEntry(techId).HasPreReq(this);
 
         void DispatchBuildAndScrapFreighters()
         {
@@ -2515,12 +2496,17 @@ namespace Ship_Game
             }
         }
 
+        public void IncreaseFastVsBigFreighterRatio(float amount)
+        {
+            FastVsBigFreighterRatio = (FastVsBigFreighterRatio + amount).Clamped(0.1f, 1);
+        }
+
         public EmpireAI GetEmpireAI() => EmpireAI;
 
         public Vector2 GetWeightedCenter()
         {
-            int planets     = 0;
-            Vector2 avgPlanetCenter = new Vector2();
+            int planets = 0;
+            var avgPlanetCenter = new Vector2();
 
             using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
@@ -2545,9 +2531,9 @@ namespace Ship_Game
             GlobalStats.IncrementRemnantKills((int)expData.KillExp);
         }
 
-        private void AssignExplorationTasks()
+        void AssignExplorationTasks()
         {
-            if (!isPlayer || AutoExplore)
+            if (isPlayer && !AutoExplore)
                 return;
 
             int unexplored =0;
@@ -2580,7 +2566,7 @@ namespace Ship_Game
                     return;
             }
 
-            var desiredScouts = unexplored * economicResearchStrategy.ExpansionRatio * .5f;
+            var desiredScouts = unexplored * ResearchStrategy.ExpansionRatio * .5f;
             foreach (Ship ship in OwnedShips)
             {
                 if (ship.DesignRole != ShipData.RoleName.scout || ship.PlayerShip)

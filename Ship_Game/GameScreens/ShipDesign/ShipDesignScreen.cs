@@ -57,11 +57,6 @@ namespace Ship_Game
         private Rectangle DesignRoleRect;
         public bool IsSymmetricDesignMode = true;
 
-
-    #if SHIPYARD
-        short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0; //For Gretman's debug shipyard
-    #endif
-
         private struct MirrorSlot
         {
             public SlotStruct Slot;
@@ -71,7 +66,8 @@ namespace Ship_Game
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
-            EmpireUI         = empireUi;
+            Name = "ShipDesignScreen";
+            EmpireUI = empireUi;
             TransitionOnTime = 2f;
         #if SHIPYARD
             Debug = true;
