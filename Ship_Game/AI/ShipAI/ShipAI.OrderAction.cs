@@ -70,13 +70,13 @@ namespace Ship_Game.AI
             AddPlanetGoal(Plan.Bombard, toBombard, AIState.Bombard, priority: true);
         }
 
-        public void OrderColonization(Planet toColonize)
+        public void OrderColonization(Planet toColonize, Goal g = null)
         {
             if (toColonize == null)
                 return;
             ColonizeTarget = toColonize;
             OrderMoveTowardsPosition(toColonize.Center, Vectors.Up, true, toColonize);
-            AddShipGoal(Plan.Colonize, toColonize.Center, Vectors.Up, toColonize, 0f);
+            AddShipGoal(Plan.Colonize, toColonize.Center, Vectors.Up, toColonize, g);
             State = AIState.Colonize;
         }
 
@@ -167,7 +167,6 @@ namespace Ship_Game.AI
 
         public void OrderMoveTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders, Planet targetPlanet)
         {
-            DistanceLast = 0f;
             GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, clearOrders, Owner.Speed);
         }
 

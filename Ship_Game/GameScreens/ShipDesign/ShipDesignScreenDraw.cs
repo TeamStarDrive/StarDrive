@@ -47,7 +47,7 @@ namespace Ship_Game
             ScreenManager.EndFrameRendering();
         }
 
-        private void DrawEmptySlots(SpriteBatch spriteBatch)
+        void DrawEmptySlots(SpriteBatch spriteBatch)
         {
             SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
 
@@ -74,7 +74,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawModules(SpriteBatch spriteBatch)
+        void DrawModules(SpriteBatch spriteBatch)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -93,7 +93,7 @@ namespace Ship_Game
             }
         }
 
-        private static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, SlotStruct slot, Rectangle r, ShipModule template = null) 
+        static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, SlotStruct slot, Rectangle r, ShipModule template = null) 
         {
             SpriteEffects effects = SpriteEffects.None;
             float rotation        = 0f;
@@ -139,7 +139,7 @@ namespace Ship_Game
             spriteBatch.Draw(texture, r, Color.White, rotation, Vector2.Zero, effects, 1f);
         }
 
-        private void DrawTacticalData(SpriteBatch spriteBatch)
+        void DrawTacticalData(SpriteBatch spriteBatch)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -167,7 +167,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawUnpoweredTex(SpriteBatch spriteBatch)
+        void DrawUnpoweredTex(SpriteBatch spriteBatch)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -187,7 +187,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawShieldRadius(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
+        void DrawShieldRadius(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             spriteBatch.DrawCircle(center, slot.Module.ShieldHitRadius, Color.LightGreen);
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
@@ -196,7 +196,7 @@ namespace Ship_Game
             spriteBatch.DrawCircle(mirrored.Center, mirrored.Slot.Module.ShieldHitRadius, Color.LightGreen);
         }
 
-        private void DrawFireArcText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
+        void DrawFireArcText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
         {
             Color color = Color.Black;
             color.A     = 140;
@@ -212,7 +212,7 @@ namespace Ship_Game
             ToolTip.ShipYardArcTip();
         }
 
-        private void DrawHangarShipText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
+        void DrawHangarShipText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
         {
             Color color         = Color.Black;
             color.A             = 100;
@@ -227,7 +227,7 @@ namespace Ship_Game
             DrawString(mirrored.Center, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
-        private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
+        void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             SubTexture arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
             var origin           = new Vector2(250f, 250f);
@@ -241,7 +241,7 @@ namespace Ship_Game
             spriteBatch.Draw(arcTexture, mirrorRect, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
         }
 
-        private void DrawWeaponArcs(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
+        void DrawWeaponArcs(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             Weapon w = slot.Module.InstalledWeapon;
             if (w == null)
@@ -253,7 +253,7 @@ namespace Ship_Game
             else                                      DrawArc(center, slot, new Color(0, 0, 255, 255), spriteBatch, mirrored);
         }
 
-        private void DrawActiveModule(SpriteBatch spriteBatch)
+        void DrawActiveModule(SpriteBatch spriteBatch)
         {
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
             var r = new Rectangle((int)Input.CursorPosition.X, (int)Input.CursorPosition.Y,
@@ -272,22 +272,15 @@ namespace Ship_Game
             DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
         }
 
-        private void DrawDebug()
+        void DrawDebug()
         {
-            float width2 = ScreenWidth / 2f;
-            var pos  = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
+            var pos = new Vector2(CenterX - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
             HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, "Debug", pos, Fonts.Arial20Bold);
-            pos      = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
+            pos = new Vector2(CenterX - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
             HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, Operation.ToString(), pos, Fonts.Arial20Bold);
-            #if SHIPYARD
-                string ratios = $"I: {TotalI}       O: {TotalO}      E: {TotalE}      IO: {TotalIO}      " +
-                                $"IE: {TotalIE}      OE: {TotalOE}      IOE: {TotalIOE}";
-                pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Ratios).X / 2, 180f);
-                HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, pos, Fonts.Arial20Bold);
-            #endif
         }
 
-        private void DrawHullSelection(SpriteBatch batch)
+        void DrawHullSelection(SpriteBatch batch)
         {
             Rectangle  r = HullSelectionSub.Menu;
             r.Y      += 25;
@@ -319,7 +312,8 @@ namespace Ship_Game
             }
         }
 
-        private void DrawShipInfoPanel()
+        // @todo - need to make all these calcs in one place. Right now they are also done in Ship.cs
+        void DrawShipInfoPanel()
         {
             float hitPoints                = 0f;
             float mass                     = 0f;
@@ -447,11 +441,9 @@ namespace Ship_Game
             empResist += size; // FB: so the player will know the true EMP Tolerance
             targets   += fixedTargets;
 
-            // @todo WTF is this?
-            mass += (ActiveHull.ModuleSlots.Length / 2f);
+            mass += (ActiveHull.ModuleSlots.Length);
             mass *= EmpireManager.Player.data.MassModifier;
-            if (mass < (ActiveHull.ModuleSlots.Length / 2f))
-                mass = (ActiveHull.ModuleSlots.Length / 2f);
+            cost += (int)(cost * EmpireManager.Player.data.Traits.ShipCostMod);
 
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
@@ -461,7 +453,7 @@ namespace Ship_Game
             float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
             float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier; 
 
-            Vector2 cursor   = new Vector2((StatsSub.Menu.X + 10), (ShipStats.Menu.Y + 18));
+            var cursor = new Vector2((StatsSub.Menu.X + 10), (ShipStats.Menu.Y + 18));
 
             DrawHullBonuses();
 
@@ -655,7 +647,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawRequirement(ref Vector2 cursor, string words, bool met, int tooltipId = 0, float lineSpacing = 2)
+        void DrawRequirement(ref Vector2 cursor, string words, bool met, int tooltipId = 0, float lineSpacing = 2)
         {
             float amount = 165f;
             SpriteFont font = Fonts.Arial12Bold;
@@ -689,37 +681,37 @@ namespace Ship_Game
             DrawStatColor(ref cursor, sv);
         }
 
-        private void DrawStatEnergy(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStatEnergy(ref Vector2 cursor, string words, string stat, int tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.LightSkyBlue, Color.LightGreen);
         }
 
-        private void DrawStatPropulsion(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStatPropulsion(ref Vector2 cursor, string words, string stat, int tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.DarkSeaGreen, Color.LightGreen);
         }
 
-        private void DrawStatOrdnance(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStatOrdnance(ref Vector2 cursor, string words, string stat, int tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightGreen);
         }
 
-        private void DrawStatBad(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStatBad(ref Vector2 cursor, string words, string stat, int tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightPink);
         }
 
-        private void DrawStat(ref Vector2 cursor, string words, string stat, int tooltipId)
+        void DrawStat(ref Vector2 cursor, string words, string stat, int tooltipId)
         {
             DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightGreen);
         }
 
-        private static void WriteLine(ref Vector2 cursor, int lines = 1)
+        static void WriteLine(ref Vector2 cursor, int lines = 1)
         {
             cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;
         }
 
-        private void DrawUi()
+        void DrawUi()
         {
             EmpireUI.Draw(ScreenManager.SpriteBatch);
             DrawShipInfoPanel();
@@ -795,14 +787,14 @@ namespace Ship_Game
             }
         }
 
-        private enum ValueTint
+        enum ValueTint
         {
             None,
             Bad,
             GoodBad
         }
 
-        private struct StatValue
+        struct StatValue
         {
             public string Title;
             public Color TitleColor;
@@ -819,22 +811,22 @@ namespace Ship_Game
             public string ValueText => IsPercent ? Value.ToString("P1") : Value.GetNumberString();
         }
 
-        private static StatValue NormalValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue NormalValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.None, Spacing = spacing, LineSpacing = lineSpacing };
 
-        private static StatValue BadValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue BadValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.Bad, Spacing = spacing, LineSpacing = lineSpacing };
 
-        private static StatValue TintedValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue TintedValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
 
-        private static StatValue TintedValue(int titleId, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue TintedValue(int titleId, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = Localizer.Token(titleId)+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
 
-        private static StatValue TintedPercent(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+        static StatValue TintedPercent(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
 
-        private void DrawStatColor(ref Vector2 cursor, StatValue stat)
+        void DrawStatColor(ref Vector2 cursor, StatValue stat)
         {
             SpriteFont font = Fonts.Arial12Bold;
             //const float spacing = 165f;

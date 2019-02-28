@@ -92,7 +92,7 @@ namespace Ship_Game
             }
             if (UnlockTech != null)
             {
-                var tech = triggerer.GetTechEntry(UnlockTech);
+                TechEntry tech = triggerer.GetTechEntry(UnlockTech);
                 if (!tech.Unlocked)
                 {
                     tech.Discovered = true;

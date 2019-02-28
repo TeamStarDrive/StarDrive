@@ -148,16 +148,6 @@ namespace Ship_Game
                 SceneInter.LightManager.Remove(light);
         }
 
-        public void RefreshLight(ILight light)
-        {
-            if (light == null) return;
-            lock (InterfaceLock)
-            {
-                SceneInter.LightManager.Remove(light);
-                SceneInter.LightManager.Submit(light);
-            }
-        }
-
         public void RemoveAllLights()
         {
             lock (InterfaceLock)
@@ -230,7 +220,10 @@ namespace Ship_Game
             {
                 for (int i = 0; i < Screens.Count; ++i)
                 {
-                    Screens[i].Draw(batch);
+                    if (Screens[i].Visible)
+                    {
+                        Screens[i].Draw(batch);
+                    }
                 }
             }
             catch (Exception e)

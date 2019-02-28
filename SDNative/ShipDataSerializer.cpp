@@ -98,6 +98,7 @@ namespace SDNative
                     }
                 });
                 elem.parse("ModelPath"         , ModelPath);
+                elem.parse("ModName"           , ModName);
                 elem.parse("DefaultAIState"    , DefaultAIState);
                 elem.parse("ShipCategory"      , ShipCategory);
                 elem.parse("HangarDesignation" , HangarDesignation);

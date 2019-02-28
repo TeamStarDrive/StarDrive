@@ -393,20 +393,22 @@ namespace Ship_Game
                         MissionNameIndex = 2183;
                         if (Target == null)
                             return;
-                        Array<string> PotentialUIDs = new Array<string>();
-                        foreach (KeyValuePair<string, TechEntry> entry in Target.GetTDict())
+
+                        var potentialUIDs = new Array<string>();
+                        foreach (TechEntry tech in Target.TechEntries)
                         {
                             //Added by McShooterz: Root nodes cannot be stolen
-                            if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked || entry.Value.Tech.RootNode == 1)
+                            if (tech.Unlocked && Owner.HavePreReq(tech.UID) &&
+                                !Owner.HasUnlocked(tech) &&
+                                tech.Tech.RootNode != 1)
                             {
-                                continue;
+                                potentialUIDs.Add(tech.UID);
                             }
-                            PotentialUIDs.Add(entry.Value.UID);
                         }
-                        string theUID = "";
-                        if (PotentialUIDs.Count != 0)
+
+                        if (potentialUIDs.Count != 0)
                         {
-                            theUID = PotentialUIDs[RandomMath.InRange(PotentialUIDs.Count)];
+                            string theUID = RandomMath.RandItem(potentialUIDs);
                             if (DiceRoll >= ResourceManager.AgentMissionData.StealTechRollPerfect)
                             {
                                 //Added by McShooterz

@@ -9,33 +9,26 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        /// <summary>
         /// This uses difficulty and empire personality to set the colonization goal count. 
-        /// </summary>
-        private int DesiredColonyGoals
+        int DesiredColonyGoals
         {
             get
             {
-                float baseValue = 1.0f;
-                float difMod = (float)CurrentGame.Difficulty;
-                difMod *= OwnerEmpire.GetResStrat().ExpansionRatio;
-                int plusColonyGoals = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
+                float baseValue = 1.1f; // @note This value is very sensitive, don't mess around without testing
+                float diffMod = (float)CurrentGame.Difficulty * 2 * OwnerEmpire.ResearchStrategy.ExpansionRatio;
+                int plusGoals = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
 
-                float goals = (float)System.Math.Round(baseValue + difMod + plusColonyGoals);
+                float goals = (int)(baseValue + diffMod + plusGoals);
                 return (int)goals.Clamped(1f, 5f);
             }
         }
 
-        private Planet[] DesiredPlanets  = new Planet[0];
+        Planet[] DesiredPlanets = Empty<Planet>.Array;
 
-        public void CheckClaim(KeyValuePair<Empire, Relationship> relKv, Planet claimedPlanet)
+        public void CheckClaim(Empire thievingEmpire, Relationship thiefRelationship, Planet claimedPlanet)
         {        
-
             if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction) 
                 return;
-
-            Empire thievingEmpire        = relKv.Key;
-            Relationship thiefRelationship = relKv.Value;
 
             if (!thiefRelationship.Known)            
                 return;
@@ -57,7 +50,8 @@ namespace Ship_Game.AI
                 return;
 
             Planet[] markedPlanets = GetMarkedPlanets();
-            if (markedPlanets.Length >= DesiredColonyGoals)
+            int desired = DesiredColonyGoals;
+            if (markedPlanets.Length >= desired)
                 return;            
 
             Array<Goal.PlanetRanker> allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
@@ -67,17 +61,12 @@ namespace Ship_Game.AI
             Goal.PlanetRanker[] ranked = allPlanetsRanker.Sorted(v => -(v.Value - (v.OutOfRange ? 1 :0)));
             DesiredPlanets = ranked.Select(p => p.Planet);
 
-            Log.Info(System.ConsoleColor.Magenta, $"Colonize {markedPlanets.Length}/{DesiredColonyGoals} | {ranked[0]} | {OwnerEmpire}");
+            Log.Info(System.ConsoleColor.Magenta, $"Colonize {markedPlanets.Length+1}/{desired} | {ranked[0]} | {OwnerEmpire}");
             Goals.Add(new MarkForColonization(DesiredPlanets[0], OwnerEmpire));
         }
 
-        /// <summary>
         /// Go through all known planets. filter planets by colonization rules. Rank remaining ones. 
-        /// 
-        /// </summary>
-        /// <param name="markedPlanets"></param>
-        /// <returns></returns>
-        private Array<Goal.PlanetRanker>  GatherAllPlanetRanks(Planet[] markedPlanets)
+        Array<Goal.PlanetRanker> GatherAllPlanetRanks(Planet[] markedPlanets)
         {
             //need a better way to find biosphere
             bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.IsCybernetic;
@@ -140,7 +129,7 @@ namespace Ship_Game.AI
             
         }
 
-        private Planet[] GetMarkedPlanets()
+        Planet[] GetMarkedPlanets()
         {            
             var list = new Array<Planet>();
             foreach (Goal g in Goals)

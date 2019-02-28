@@ -50,6 +50,7 @@ namespace SDNative
         strview ShipCategory      = "Unclassified";
         strview HangarDesignation = "General";
         strview ShieldsBehavior   = "FullPower";
+		strview ModName           = Empty;
         int      TechScore             = 0;
         float    BaseStrength          = 0.0f;
         float    FixedUpkeep           = 0.0f;

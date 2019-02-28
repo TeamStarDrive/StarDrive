@@ -1,0 +1,26 @@
+﻿# You can declare Mod specific UI elements
+# without having to modify MainMenu.yaml.
+# This allows for more flexibility if you do not want
+# to completely recreate main menu UI layout.
+#
+# However, if you want to create a completely different
+# and custom MainMenu, just ignore this file and modify
+# MainMenu.yaml instead.
+
+
+# Panel: mod_logo
+#   Size: [0.4, 0]
+#   Pos: [-0.06, 170]
+#   Color: [0.8,0.8,0.8,0.0] # start with alpha 0.0
+#   AxisAlign: Center
+#   DrawDepth: Foreground
+#   SpriteAnim: MMenu/bb_logo_animated
+#     Delay: 1
+#     Duration: 7
+#     StartAt: 0
+#     Looping: true
+#     FreezeAtLastFrame: false
+#     VisibleBeforeDelay: true
+#   Animation: [1, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
+#     Alpha: [0, 1]
+

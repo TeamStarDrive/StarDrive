@@ -119,7 +119,24 @@ namespace Ship_Game.Universe.SolarBodies
             else if (this == Planet.Prod) { a = Planet.Food; b = Planet.Res;  }
             else if (this == Planet.Res)  { a = Planet.Food; b = Planet.Prod; }
             else return; // we're not Food,Prod,Res, so bail out
-            AutoBalanceWorkers(a.Percent + b.Percent);
+
+            if (this == Planet.Res && Planet.Res.YieldPerColonist.AlmostZero())
+                // no need to assign research since no capacity available. increase food and prod instead.
+                BalanceWithZeroResearch(a, b);
+            else
+                AutoBalanceWorkers(a.Percent + b.Percent);
+        }
+
+        public void BalanceWithZeroResearch(ColonyResource food, ColonyResource prod)
+        {
+            float remainder = 1 - (food.Percent + prod.Percent);
+            if (Planet.Owner.IsCybernetic)
+                prod.Percent += remainder;
+            else
+            {
+                food.Percent += remainder / 2;
+                prod.Percent += remainder / 2;
+            }
         }
     }
 

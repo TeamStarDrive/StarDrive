@@ -44,12 +44,14 @@ namespace Ship_Game.UI
         [StarData] public readonly LocText Title;
         [StarData] public readonly LocText Tooltip;
         [StarData] public readonly AnimInfo Animation = null;
+        [StarData] public readonly SpriteAnimInfo SpriteAnim = null;
         [StarData] public readonly bool DebugDraw;
         #pragma warning restore 649
 
         // these are initialized after parsing:
         public Rectangle R;
         public SubTexture Tex;
+        public SpriteAnimation Spr;
         public string ElementName() => Name ?? Texture ?? "";
         public override string ToString() => $"{ElementName()} Rect:{Rect}";
     }
@@ -64,6 +66,20 @@ namespace Ship_Game.UI
         [StarData] public readonly Color? MaxColor;
         [StarData] public readonly AnimPattern Pattern = AnimPattern.None;
         [StarData] public readonly Range Alpha = new Range(1f);
+        #pragma warning restore 649
+    }
+
+    [StarDataType]
+    internal class SpriteAnimInfo
+    {
+        #pragma warning disable 649
+        [StarDataKey] public readonly string Path;
+        [StarData] public readonly float Delay;
+        [StarData] public readonly float Duration;
+        [StarData] public readonly float StartAt;
+        [StarData] public readonly bool Looping;
+        [StarData] public readonly bool FreezeAtLastFrame;
+        [StarData] public readonly bool VisibleBeforeDelay;
         #pragma warning restore 649
     }
 }

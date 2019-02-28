@@ -14,6 +14,7 @@ namespace Ship_Game
     public class UIPanel : UIElementContainer, IColorElement
     {
         public SubTexture Texture;
+        public SpriteAnimation SpriteAnim;
         public Color Color { get; set; }
         public bool DebugBorder;
 
@@ -73,9 +74,25 @@ namespace Ship_Game
             Color = color;
         }
 
+        public UIPanel(in Rectangle rect, SpriteAnimation spriteAnim, Color color) : base(null, rect)
+        {
+            SpriteAnim = spriteAnim;
+            Color = color;
+        }
+
+        public override void Update(float deltaTime)
+        {
+            SpriteAnim?.Update(deltaTime);
+            base.Update(deltaTime);
+        }
+
         public override void Draw(SpriteBatch batch)
         {
-            if (Texture != null)
+            if (SpriteAnim != null)
+            {
+                SpriteAnim.Draw(batch, Rect, Color);
+            }
+            else if (Texture != null)
             {
                 batch.Draw(Texture, Rect, Color);
             }
@@ -83,6 +100,7 @@ namespace Ship_Game
             {
                 batch.FillRectangle(Rect, Color);
             }
+
             if (DebugBorder)
             {
                 batch.DrawRectangle(Rect, Color.Red);

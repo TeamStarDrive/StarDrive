@@ -149,16 +149,11 @@ namespace Ship_Game.AI.Tasks
             {
                 foreach (Goal g in Owner.GetEmpireAI().Goals)
                 {
-                    if (g.guid != goalGuid)
-                        continue;
-
-                    g.Held = false;
+                    if (g.guid == goalGuid) g.Held = false;
                 }
             }
 
             AO closestAO = FindClosestAO();
-
-
             if (closestAO == null)
             {
                 //something wrong here in the logic flow as sometimes the fleet is null. 
@@ -171,11 +166,12 @@ namespace Ship_Game.AI.Tasks
                     if (ship?.Active ?? false)
                         Owner.ForcePoolAdd(ship);
                 }
-
                 return;
             }
 
-            if (WhichFleet == -1 || Fleet == null) return;
+            if (WhichFleet == -1 || Fleet == null)
+                return;
+
             if (IsCoreFleetTask)
             {
                 foreach (Ship ship in Fleet.Ships)
@@ -232,10 +228,7 @@ namespace Ship_Game.AI.Tasks
                 foreach (Troop t in toLaunch)
                 {
                     Ship troopship = t.Launch();
-                    if (troopship == null)
-                        continue;
-
-                    troopship.AI.OrderRebaseToNearest();
+                    troopship?.AI.OrderRebaseToNearest();
                 }
 
                 toLaunch.Clear();
