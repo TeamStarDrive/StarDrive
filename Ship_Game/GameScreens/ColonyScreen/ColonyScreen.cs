@@ -654,11 +654,11 @@ namespace Ship_Game
         void DrawPlanetStat(ref Vector2 cursor, SpriteBatch batch)
         {
             DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food added generated per turn");
+            DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food generated per turn");
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", "Net flat production added generated per turn");
+            DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", "Net flat production generated per turn");
             DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", "Net research per colonist allocated to Science");
-            DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", "Net flat research added generated per turn");
+            DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", "Net flat research generated per turn");
         }
 
         void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b)
