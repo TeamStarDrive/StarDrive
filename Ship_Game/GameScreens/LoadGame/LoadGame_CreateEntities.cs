@@ -256,8 +256,6 @@ namespace Ship_Game
                 return;
 
             e.AddShip(ship);
-            if (ship.PlayerShip)
-                data.playerShip = ship;
             data.MasterShipList.Add(ship);
         }
 

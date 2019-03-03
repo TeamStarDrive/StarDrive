@@ -820,12 +820,7 @@ namespace Ship_Game
             
             if (SelectedShipList.Count == 1)
             {
-                if (SelectedShipList[0] == playerShip)
-                    LoadShipMenuNodes(1);
-                else if (SelectedShipList[0].loyalty == player)
-                    LoadShipMenuNodes(1);
-                else
-                    LoadShipMenuNodes(0);
+                LoadShipMenuNodes(SelectedShipList[0].loyalty == player ? 1 : 0);
                 return;
             }
 
@@ -937,12 +932,7 @@ namespace Ship_Game
                     previousSelection = SelectedShip;
                 SelectedShip = SelectedShipList[0];
                 ShipInfoUIElement.SetShip(SelectedShip);
-                if (SelectedShipList[0] == playerShip)
-                    LoadShipMenuNodes(1);
-                else if (SelectedShipList[0]?.loyalty == player)
-                    LoadShipMenuNodes(1);
-                else
-                    LoadShipMenuNodes(0);
+                LoadShipMenuNodes(SelectedShipList[0]?.loyalty == player ? 1 : 0);
             }
 
             SelectionBox = new Rectangle(0, 0, -1, -1);

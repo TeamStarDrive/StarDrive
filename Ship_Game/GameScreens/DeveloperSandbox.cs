@@ -66,7 +66,7 @@ namespace Ship_Game
 
         public class DeveloperUniverse : UniverseScreen
         {
-            public DeveloperUniverse(UniverseData sandbox) : base(sandbox)
+            public DeveloperUniverse(UniverseData sandbox) : base(sandbox, EmpireManager.Empires[0])
             {
                 player = PlayerEmpire;
                 NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
@@ -151,13 +151,10 @@ namespace Ship_Game
             }
 
             Empire playerEmpire = sandbox.EmpireList.First;
-            Planet homePlanet = playerEmpire.GetPlanets()[0];
-            sandbox.playerShip = Ship.CreateShipAtPoint("Unarmed Scout", playerEmpire, homePlanet.Center);
-            sandbox.playerShip.VanityName = "Developer's Scout";
-            sandbox.MasterShipList.Add(sandbox.playerShip); // there is no universe yet, add manually
+            Planet homePlanet   = playerEmpire.GetPlanets()[0];
 
             // @note Auto-added to empire
-            Vector2 debugDir = playerEmpire.GetOwnedSystems()[0].Position.DirectionToTarget(homePlanet.Center);
+            Vector2 debugDir  = playerEmpire.GetOwnedSystems()[0].Position.DirectionToTarget(homePlanet.Center);
             var debugPlatform = new PredictionDebugPlatform("Kinetic Platform", EmpireManager.Remnants, homePlanet.Center + debugDir * 5000f);
             Log.Assert(debugPlatform.HasModules, "Failed to create DebugPlatform");
             sandbox.MasterShipList.Add(debugPlatform); // there is no universe yet, add manually

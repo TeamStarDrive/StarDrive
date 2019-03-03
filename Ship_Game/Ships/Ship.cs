@@ -107,7 +107,6 @@ namespace Ship_Game.Ships
         readonly AudioHandle JumpSfx = new AudioHandle();
         public float InhibitedTimer;
         public int Level;
-        public bool PlayerShip;
         private int MaxHealthRevision;
         public float HealthMax { get; private set; }
         public float ShipMass;
@@ -186,9 +185,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsIdleFreighter => IsFreighter
-                                       && !PlayerShip && AI != null
-                                       && !AI.HasPriorityOrder
+        public bool IsIdleFreighter => IsFreighter 
+                                       && AI != null 
+                                       && !AI.HasPriorityOrder 
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit;
@@ -759,130 +758,6 @@ namespace Ship_Game.Ships
         /// </summary>
         /// <param name="timer"></param>
         public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
-
-        public void ProcessInput(InputState input, float elapsedTime)
-        {
-            if (GlobalStats.TakingInput || EMPdisabled || !hasCommand)
-                return;
-            if (Empire.Universe.Input == null)
-                return;
-
-            if (input.IsKeyDown(Keys.D)) AI.State = AIState.ManualControl;
-            if (input.IsKeyDown(Keys.A)) AI.State = AIState.ManualControl;
-            if (input.IsKeyDown(Keys.W)) AI.State = AIState.ManualControl;
-            if (input.IsKeyDown(Keys.S)) AI.State = AIState.ManualControl;
-
-            if (AI.State == AIState.ManualControl)
-            {
-                if (Active && !input.IsKeyDown(Keys.LeftControl))
-                {
-                    isThrusting = false;
-                    if (input.IsKeyDown(Keys.D))
-                    {
-                        isTurning = true;
-                        isThrusting = true;
-                        RotationalVelocity += rotationRadiansPerSecond * elapsedTime;
-                        if (RotationalVelocity > rotationRadiansPerSecond)
-                            RotationalVelocity = rotationRadiansPerSecond;
-                        if (yRotation > -MaxBank)
-                            yRotation -= yBankAmount;
-                    }
-                    else if (input.IsKeyDown(Keys.A))
-                    {
-                        isTurning = true;
-                        isThrusting = true;
-                        RotationalVelocity -= rotationRadiansPerSecond * elapsedTime;
-                        if (Math.Abs(RotationalVelocity) > rotationRadiansPerSecond)
-                            RotationalVelocity = -rotationRadiansPerSecond;
-                        if (yRotation < MaxBank)
-                            yRotation += yBankAmount;
-                    }
-                    else if (engineState == MoveState.Warp)
-                    {
-                        isSpooling = true;
-                        isTurning = false;
-
-                        if (yRotation > 0.0)
-                            yRotation -= yBankAmount;
-                        else if (yRotation < 0.0)
-                            yRotation += yBankAmount;
-
-                        if (RotationalVelocity > 0.0)
-                        {
-                            isTurning = true;
-                            RotationalVelocity -= rotationRadiansPerSecond * elapsedTime;
-                            if (RotationalVelocity < 0.0)
-                                RotationalVelocity = 0.0f;
-                        }
-                        else if (RotationalVelocity < 0.0)
-                        {
-                            isTurning = true;
-                            RotationalVelocity += rotationRadiansPerSecond * elapsedTime;
-                            if (RotationalVelocity > 0.0)
-                                RotationalVelocity = 0.0f;
-                        }
-                    }
-                    else
-                    {
-                        isTurning = false;
-                        if (yRotation > 0.0)
-                        {
-                            yRotation -= yBankAmount;
-                            if (yRotation < 0.0)
-                                yRotation = 0.0f;
-                        }
-                        else if (yRotation < 0.0)
-                        {
-                            yRotation += yBankAmount;
-                            if (yRotation > 0.0)
-                                yRotation = 0.0f;
-                        }
-                        if (RotationalVelocity > 0.0)
-                        {
-                            isTurning = true;
-                            RotationalVelocity -= rotationRadiansPerSecond * elapsedTime;
-                            if (RotationalVelocity < 0.0)
-                                RotationalVelocity = 0.0f;
-                        }
-                        else if (RotationalVelocity < 0.0)
-                        {
-                            isTurning = true;
-                            RotationalVelocity += rotationRadiansPerSecond * elapsedTime;
-                            if (RotationalVelocity > 0.0)
-                                RotationalVelocity = 0.0f;
-                        }
-                        isThrusting = false;
-                    }
-
-                    if (input.KeyPressed(Keys.F))
-                    {
-                        if (!isSpooling)
-                            EngageStarDrive();
-                        else
-                            HyperspaceReturn();
-                    }
-                    if (input.IsKeyDown(Keys.W))
-                    {
-                        ApplyThrust(elapsedTime, velocityMaximum, +1f);
-                    }
-                    else if (input.IsKeyDown(Keys.S))
-                    {
-                        ApplyThrust(elapsedTime, velocityMaximum, -1f);
-                    }
-                    MouseState state = Mouse.GetState();
-                    if (state.RightButton == ButtonState.Pressed)
-                    {
-                        Vector2 pickedPos = Empire.Universe.UnprojectToWorldPosition(new Vector2(state.X, state.Y));
-                        foreach (Weapon w in Weapons)
-                            w.MouseFireAtTarget(pickedPos);
-                    }
-                }
-                else
-                {
-                    GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
-                }
-            }
-        }
 
         public bool InRadius(Vector2 worldPos, float radius)
         {
@@ -1622,7 +1497,7 @@ namespace Ship_Game.Ships
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
             if (Rotation < 0f) Rotation += 6.28318548202515f;
 
-            if (InCombat && !EMPdisabled && hasCommand || PlayerShip)
+            if (InCombat && !EMPdisabled && hasCommand)
             {
                 for (int i = 0; i < Weapons.Count; i++)
                 {
@@ -1630,17 +1505,17 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (updateTimer <= 0) //|| shipStatusChanged)
+            if (updateTimer <= 0)
             {
                 TroopBoardingDefense = 0f;
-                for (int i = 0; i < TroopList.Count; i++)   //Do we need to update this every frame? I mived it here so it would be every second, instead.   -Gretman
+                for (int i = 0; i < TroopList.Count; i++)   //Do we need to update this every frame? I moved it here so it would be every second, instead.   -Gretman
                 {
                     TroopList[i].SetShip(this);
                     if (TroopList[i].Loyalty == loyalty)
                         TroopBoardingDefense += TroopList[i].Strength;
                 }
 
-                if ((InCombat && !EMPdisabled && hasCommand || PlayerShip) && Weapons.Count > 0)
+                if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
                 {
                     AI.CombatAI.UpdateCombatAI(this);
 

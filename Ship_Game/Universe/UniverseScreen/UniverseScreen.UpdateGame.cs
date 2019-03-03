@@ -596,9 +596,6 @@ namespace Ship_Game
                         DeepSpaceShips[i].Inhibited = true;
                         DeepSpaceShips[i].InhibitedTimer = 10f;
                     }
-
-                    if (DeepSpaceShips[i].PlayerShip)
-                        DeepSpaceShips[i].ProcessInput(Input, elapsedTime);
                 }
                 else
                 {
