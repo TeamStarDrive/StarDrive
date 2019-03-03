@@ -46,6 +46,7 @@ namespace Ship_Game
         //added by McShooterz: Racial Tech variables
         public Array<RequiredRace> RaceRestrictions = new Array<RequiredRace>();
         public Array<RequiredRace> RaceExclusions   = new Array<RequiredRace>();
+        public Array<RequiredRace> RaceForceUnlock  = new Array<RequiredRace>();
 
         public struct RequiredRace
         {

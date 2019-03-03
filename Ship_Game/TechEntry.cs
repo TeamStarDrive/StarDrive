@@ -215,7 +215,12 @@ namespace Ship_Game
             return count;
 
         }
+        public void UnlockWithoutChecking(Empire empire)
+        {
+            Progress = Tech.ActualCost;
+            Unlocked = true;
 
+        }
         public bool Unlock(Empire empire)
         {
             if (!SetDiscovered(empire))
@@ -276,22 +281,43 @@ namespace Ship_Game
             }
         }
 
+        public bool IsUnlockedByRace(Empire empire)
+        {
+            return IsInRequiredRaceArray(empire, Tech.RaceForceUnlock);
+        }
+
         private static bool IsInRequiredRaceArray(Empire empire, IEnumerable<Technology.RequiredRace> requiredRace)
         {
+            bool traitMatch = false;
             foreach (Technology.RequiredRace item in requiredRace)
             {
-                if (item.ShipType != empire.data.Traits.ShipType)
-                    continue;
-                return true;
+                if (item.ShipType == empire.data.Traits.ShipType) return true;
+
+                switch (item.RacialTrait) {
+                    case "Cybernetic":
+                    {
+                        traitMatch = empire.data.Traits.IsCybernetic;
+                            break;
+                    }
+                    case "":
+                        break;
+                    default:
+                        traitMatch = false;
+                        Log.Warning($"RacialTrait restriction {item.RacialTrait} is unknown");
+                        break;
+                }
             }
-            return false;
+            return traitMatch;
         }
 
         private bool IsRestricted(Empire empire)
         {
-            if (Tech.RaceExclusions.Count > 0 && IsInRequiredRaceArray(empire, Tech.RaceExclusions))
+            if (IsUnlockedByRace(empire)) return false;
+            if (empire.data.Traits.TechTypeRestrictions(Tech.TechnologyType)) return true;
+            if (Tech.RaceExclusions.Count > 0 && IsInRequiredRaceArray(empire, Tech.RaceExclusions) ||
+                Tech.RaceRestrictions.Count > 0 && !IsInRequiredRaceArray(empire, Tech.RaceRestrictions))
                 return true;
-            return Tech.RaceRestrictions.Count > 0 && !IsInRequiredRaceArray(empire, Tech.RaceRestrictions);
+            return false;
         }
 
         public void DoRevealedTechs(Empire empire)
@@ -301,7 +327,19 @@ namespace Ship_Game
             {
                 if (!CheckSource(revealedTech.Type, empire))
                     continue;
-                empire.SetEmpireTechRevealed(revealedTech.RevUID);
+                if (!IsRestricted(empire))
+                    Discovered = true;
+                //empire.SetEmpireTechRevealed(revealedTech.RevUID);
+            }
+            if (Tech.Secret && Tech.RootNode == 0)
+            {
+                foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
+                {
+                    //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
+                    TechEntry tech = empire.GetTechEntry(leadsToTech.UID);
+                    if (!tech.IsRestricted(empire))
+                        tech.Discovered = true;
+                }
             }
         }
 
@@ -312,13 +350,13 @@ namespace Ship_Game
 
             Discovered = true;
             DiscoverToRoot(empire);
+            if (Tech.Secret) return true;
             if (discoverForward)
             {
                 foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
                 {
-                    //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
                     TechEntry tech = empire.GetTechEntry(leadsToTech.UID);
-                    if (!tech.Tech.Secret && !tech.IsRestricted(empire))
+                    if (!tech.IsRestricted(empire))
                         tech.SetDiscovered(empire);
                 }
             }

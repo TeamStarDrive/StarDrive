@@ -906,6 +906,7 @@ namespace Ship_Game
         }
 
         public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevealedTechs(this);
+        public void SetEmpireTechRevealed(TechEntry techEntry) => techEntry.DoRevealedTechs(this);
 
         public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
         {
