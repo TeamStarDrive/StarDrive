@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 using System;
 
 namespace Ship_Game.Gameplay
@@ -454,12 +455,7 @@ namespace Ship_Game.Gameplay
             Trust = n;
             InitialStrength = 50f + n;
         }
-
-        public void ShipKilled(float anger)
-        {
-            Anger_MilitaryConflict += anger;
-        }
-
+        
         private void UpdateIntelligence(Empire us, Empire them)
         {
             if (!(us.Money > IntelligenceBudget) || !(IntelligencePenetration < 100f))
@@ -668,6 +664,25 @@ namespace Ship_Game.Gameplay
         {
             return !Treaty_NAPact && TotalAnger  > (personality?.Territorialism
                 ?? EmpireManager.Player.data.BorderTolerance);
+        }
+
+        public void LostAShip(Ship ourShip)
+        {
+            ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(ourShip);
+            if (!AtWar)
+            {
+                Anger_MilitaryConflict += killedExpSettings.KillExp;
+                return;
+            }
+            ActiveWar.StrengthLost += ourShip.BaseStrength;
+
+        }
+        public void KilledAShip(Ship theirShip)
+        {            
+            if (!AtWar)                            
+                return;
+            
+            ActiveWar.StrengthKilled += theirShip.BaseStrength;
         }
 
         public void Dispose()
