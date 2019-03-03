@@ -159,7 +159,6 @@ namespace Ship_Game
         MiniMap minimap;
         bool loading;
         public Thread ProcessTurnsThread;
-        public Ship playerShip;
         public float transitionElapsedTime;
         public BoundingFrustum Frustum;
         ClickablePlanets tippedPlanet;
@@ -222,7 +221,7 @@ namespace Ship_Game
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
-        public UniverseScreen(UniverseData data) : base(null) // new game
+        public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
             Name = "UniverseScreen";
             UniverseSize          = data.Size.X;
@@ -231,10 +230,8 @@ namespace Ship_Game
             GravityWells          = data.GravityWells;
             SolarSystemList       = data.SolarSystemsList;
             MasterShipList        = data.MasterShipList;
-            playerShip            = data.playerShip;
-            PlayerEmpire          = playerShip.loyalty;
-            PlayerLoyalty         = playerShip.loyalty.data.Traits.Name;
-            ShipToView            = playerShip;
+            PlayerEmpire          = loyalty;
+            PlayerLoyalty         = loyalty.data.Traits.Name;
             PlayerEmpire.isPlayer = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
@@ -251,10 +248,8 @@ namespace Ship_Game
             SolarSystemList       = data.SolarSystemsList;
             MasterShipList        = data.MasterShipList;
             loadFogPath           = data.loadFogPath;
-            playerShip            = data.playerShip;
             PlayerEmpire          = EmpireManager.GetEmpireByName(loyalty);
             PlayerLoyalty         = loyalty;
-            ShipToView            = playerShip;
             PlayerEmpire.isPlayer = true;
             loading               = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
@@ -378,10 +373,10 @@ namespace Ship_Game
 
             CreateProjectionMatrix();
             SetLighting(UseRealLights);
+            CreateStartingShips();
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 SpawnRemnantsInSolarSystem(solarSystem);
-
                 foreach (Planet p in solarSystem.PlanetList)
                 {
                     if (p.Owner != null)
@@ -444,8 +439,8 @@ namespace Ship_Game
 
             if (!loading)
             {
-                CamPos.X = playerShip.Center.X;
-                CamPos.Y = playerShip.Center.Y;
+                CamPos.X = PlayerEmpire.GetPlanets()[0].Center.X;
+                CamPos.Y = PlayerEmpire.GetPlanets()[0].Center.Y;
                 CamHeight = 2750f;
             }
             CamDestination = new Vector3(CamPos.X, CamPos.Y, CamHeight);
@@ -482,6 +477,33 @@ namespace Ship_Game
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
             ProcessTurnsThread.Start();
+        }
+
+        private void CreateStartingShips()
+        {
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                if (empire.isFaction)
+                    continue;
+
+                Planet homePlanet    = empire.GetPlanets()[0];
+                string colonyShip    = empire.data.DefaultColonyShip;
+                string startingScout = empire.data.StartingScout;
+                string starterShip   = empire.data.Traits.Prototype == 0
+                                       ? empire.data.StartingShip
+                                       : empire.data.PrototypeShip;
+
+                if (GlobalStats.HardcoreRuleset)
+                {
+                    colonyShip    += " STL";
+                    startingScout += " STL";
+                    starterShip   += " STL";
+                }
+
+                Ship.CreateShipAt(starterShip, empire, homePlanet, new Vector2(350f, 0.0f), true);
+                Ship.CreateShipAt(colonyShip, empire, homePlanet, new Vector2(-2000, -2000), true);
+                Ship.CreateShipAt(startingScout, empire, homePlanet, new Vector2(-2500, -2000), true);
+            }
         }
 
         public static void SpawnRemnantsInSolarSystem(SolarSystem solarSystem)
@@ -687,7 +709,6 @@ namespace Ship_Game
             NebulousShit.Clear();
             bloomComponent = null;
             bg3d.Dispose(ref bg3d);
-            playerShip = null;
             ShipToView = null;
             foreach (Ship ship in MasterShipList)
                 ship?.RemoveFromUniverseUnsafe();

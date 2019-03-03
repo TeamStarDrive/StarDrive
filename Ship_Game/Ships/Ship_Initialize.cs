@@ -176,7 +176,6 @@ namespace Ship_Game.Ships
         {
             guid             = save.guid;
             Position         = save.Position;
-            PlayerShip       = save.IsPlayerShip;
             experience       = save.experience;
             kills            = save.kills;
             PowerCurrent     = save.Power;
