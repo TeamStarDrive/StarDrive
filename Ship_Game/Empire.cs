@@ -2522,13 +2522,29 @@ namespace Ship_Game
             return avgPlanetCenter / planets;
         }
 
-        public void TheyKilledOurShip(Empire they, ShipRole.Race expData)
+        public void TheyKilledOurShip(Empire they, Ship killedShip)
         {
-            if (!isFaction || this != EmpireManager.Remnants) return;
-            if (!they.isPlayer) return;
-            if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) return;
+            if (KillsForRemnantStory(they, killedShip)) return;
+            if (!TryGetRelations(they, out Relationship rel))
+                return;
+            rel.LostAShip(killedShip);
+        }
 
-            GlobalStats.IncrementRemnantKills((int)expData.KillExp);
+        public void WeKilledTheirShip(Empire they, Ship killedShip)
+        {            
+            if (!TryGetRelations(they, out Relationship rel))
+                return;
+            rel.KilledAShip(killedShip);
+        }
+
+        public bool KillsForRemnantStory(Empire they, Ship killedShip)
+        {
+            if (!isFaction || this != EmpireManager.Remnants) return false;
+            if (!they.isPlayer) return false;
+            if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) return false;
+            ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
+            GlobalStats.IncrementRemnantKills((int)killedExpSettings.KillExp);
+            return true;
         }
 
         void AssignExplorationTasks()
