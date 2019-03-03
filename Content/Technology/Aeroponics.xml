@@ -16,7 +16,7 @@
   </LeadsTo>
   <RaceExclusions>
     <RequiredRace>
-      <ShipType>Opteris</ShipType>
+      <RacialTrait>Cybernetic</RacialTrait>
     </RequiredRace>
   </RaceExclusions>
   <ModulesUnlocked />
