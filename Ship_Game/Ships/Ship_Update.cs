@@ -165,21 +165,6 @@ namespace Ship_Game.Ships
                 UpdateThrusters();
             }
 
-            if (PlayerShip)
-            {
-                if ((!isSpooling || !Active) && Afterburner.IsPlaying)
-                {
-                    Afterburner.Stop();
-                }
-                if (isThrusting && AI.State == AIState.ManualControl && DroneSfx.IsStopped)
-                {
-                    DroneSfx.PlaySfxAsync("starcruiser_drone01", SoundEmitter);
-                }
-                else if ((!isThrusting || !Active) && DroneSfx.IsPlaying)
-                {
-                    DroneSfx.Stop();
-                }
-            }
             SoundEmitter.Position = new Vector3(Center, 0);
         }
 
