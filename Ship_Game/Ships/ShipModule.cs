@@ -588,7 +588,7 @@ namespace Ship_Game.Ships
             {
                 damageRemainder = 0f;
                 if (source != null) EvtDamageInflicted(source, 0f);
-                return; // damage was deflected
+                return; // damage was deflected. FB - if we want to do projectile deflection draw. need to return false here
             }
 
             DebugDamageCircle();
