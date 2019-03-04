@@ -118,17 +118,6 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsCybernetic => Cybernetic > 0;
         [XmlIgnore][JsonIgnore] public bool IsOrganic    => Cybernetic < 1;
 
-        public bool TechTypeRestrictions(TechnologyType techType)
-        {
-            switch (techType)
-            {
-                case TechnologyType.Colonization:
-                    {
-                        return IsCybernetic;
-                    }
-            }
-            return false;
-        }
 
         public void TechUnlocks(TechEntry techEntry, Empire empire)
         {
@@ -137,7 +126,7 @@ namespace Ship_Game
             {
                 //added by McShooterz: alternate way to unlock militaristic techs
                 if (techEntry.Tech.Militaristic)
-                    techEntry.UnlockWithoutChecking(empire);
+                    techEntry.SetLockWithoutChecking(true);
 
                 // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
                 if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
@@ -150,7 +139,7 @@ namespace Ship_Game
             }
 
             if (techEntry.IsUnlockedByRace(empire))
-                techEntry.UnlockWithoutChecking(empire);
+                techEntry.SetLockWithoutChecking(true);
         }
 
 

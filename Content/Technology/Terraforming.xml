@@ -9,6 +9,11 @@
   <DescriptionIndex>684</DescriptionIndex>
   <LongDescription>Terraforming planets is a slow process but it can produce excellent results. Barren planets can be made habitable and even relatively fertile given enough time. Terraforming will never increase a planet's fertility beyond 1.0. </LongDescription>
   <LeadsTo />
+  <RaceExclusions>
+    <RequiredRace>
+      <RacialTrait>Cybernetic</RacialTrait>
+    </RequiredRace>
+  </RaceExclusions>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>
