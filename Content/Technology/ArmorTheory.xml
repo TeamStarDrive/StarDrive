@@ -16,6 +16,11 @@
       <UID>Advanced Materials</UID>
     </LeadsToTech>
   </LeadsTo>
+  <RaceForceUnlock>
+    <RequiredRace>
+      <RacialTrait>Militaristic</RacialTrait>
+    </RequiredRace>
+  </RaceForceUnlock>
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>SteelArmorSmall</ModuleUID>

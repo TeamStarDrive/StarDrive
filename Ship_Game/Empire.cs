@@ -733,7 +733,7 @@ namespace Ship_Game
                     techEntry.SetDiscovered(false);
                     kv.Value.Secret = true;
                 }
-                else //not racial tech
+                else
                 {
                     bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && kv.Value.RootNode == 0);
                     techEntry.SetLockWithoutChecking(kv.Value.RootNode == 1 && !secret);

@@ -1,7 +1,7 @@
-using System;
-using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.Ships;
+using System;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -122,26 +122,10 @@ namespace Ship_Game
         public void TechUnlocks(TechEntry techEntry, Empire empire)
         {
             if (!techEntry.Discovered) return;
-            if (Militaristic == 1)
-            {
-                //added by McShooterz: alternate way to unlock militaristic techs
-                if (techEntry.Tech.Militaristic)
-                    techEntry.SetLockWithoutChecking(true);
-
-                // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
-                if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
-                {
-                    if (techEntry.UID == "HeavyFighterHull" ||
-                                         techEntry.UID == "Military" || techEntry.UID == "ArmorTheory")
-                        techEntry.Unlock(empire);
-
-                }
-            }
 
             if (techEntry.IsUnlockedByRace(empire))
                 techEntry.SetLockWithoutChecking(true);
         }
-
 
         //Added by McShooterz: set old values from new bools
         public void LoadTraitConstraints()
@@ -151,17 +135,17 @@ namespace Ship_Game
                 return;
             foreach (RacialTrait trait in traits.TraitList)
             {
-                if (PhysicalTraitAlluring && trait.DiplomacyMod > 0 
+                if (PhysicalTraitAlluring && trait.DiplomacyMod > 0
                     || PhysicalTraitRepulsive && trait.DiplomacyMod < 0)
                 {
                     DiplomacyMod = trait.DiplomacyMod;
                 }
-                if (PhysicalTraitEagleEyed && trait.EnergyDamageMod > 0 
+                if (PhysicalTraitEagleEyed && trait.EnergyDamageMod > 0
                     || PhysicalTraitBlind && trait.EnergyDamageMod < 0)
                 {
                     EnergyDamageMod = trait.EnergyDamageMod;
                 }
-                if (PhysicalTraitEfficientMetabolism && trait.ConsumptionModifier < 0 
+                if (PhysicalTraitEfficientMetabolism && trait.ConsumptionModifier < 0
                     || PhysicalTraitGluttonous && trait.ConsumptionModifier > 0)
                 {
                     ConsumptionModifier = trait.ConsumptionModifier;
@@ -254,7 +238,7 @@ namespace Ship_Game
 
             if (HistoryTraitPrototypeFlagship)
                 Prototype = 1;
-          
+
         }
 
         public void ApplyTraitToShip(Ship ship)

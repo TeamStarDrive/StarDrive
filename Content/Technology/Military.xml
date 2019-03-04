@@ -16,6 +16,11 @@
       <UID>ShipboardAssault</UID>
     </LeadsToTech>
   </LeadsTo>
+  <RaceForceUnlock>
+    <RequiredRace>
+      <RacialTrait>Militaristic</RacialTrait>
+    </RequiredRace>
+  </RaceForceUnlock>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>
