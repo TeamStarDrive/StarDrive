@@ -83,6 +83,13 @@ namespace Ship_Game
             }
         }
 
+        bool PlayerFilter(IEmpireData d)
+        {
+            if (PlayerPreference.NotEmpty())
+                return d.Name.Contains(PlayerPreference);
+            return d.IsCybernetic == PlayerIsCybernetic;
+        }
+
         UniverseData CreateSandboxUniverse()
         {
             Stopwatch s = Stopwatch.StartNew();
@@ -91,12 +98,7 @@ namespace Ship_Game
             var sandbox = new UniverseData { Size = new Vector2(500000f) };
             CurrentGame.StartNew(sandbox, pace:1f);
 
-            bool PlayerFilter(IEmpireData d)
-            {
-                if (PlayerPreference.NotEmpty())
-                    return d.Name.Contains(PlayerPreference);
-                return d.IsCybernetic == PlayerIsCybernetic;
-            }
+
 
             IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(PlayerFilter));
 
@@ -182,8 +184,6 @@ namespace Ship_Game
         {
             foreach (Planet planet in wipSystem.PlanetList)
             {
-                planet.ParentSystem = wipSystem;
-                planet.Center += wipSystem.Position;
                 planet.InitializePlanetMesh(this);
             }
             foreach (Asteroid asteroid in wipSystem.AsteroidsList)

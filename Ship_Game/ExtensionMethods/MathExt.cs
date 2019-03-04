@@ -594,20 +594,6 @@ namespace Ship_Game
             return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Up;
         }
 
-        public static Point ToGridPoint(this Vector2 vector, float reducer =16f)
-        {
-            vector.ToGridXY(out int x, out int y, reducer);
-            return new Point(x, y);
-        }
-
-        public static void ToGridXY(this Vector2 vector, out int x, out int y, float reducer = 16f)
-        {
-            float xround = vector.X > 0 ? .5f : -.5f;
-            float yround = vector.Y > 0 ? .5f : -.5f;
-            x = (int)((vector.X / reducer) + xround);
-            y = (int)((vector.Y / reducer) + yround);            
-        }
-
         // Creates a 3D Forward vector from XYZ DEGREES rotation
         // X = Yaw;  Y = Pitch;  Z = Roll
         public static Vector3 DegreesToForward(this Vector3 degrees) => degrees.DegsToRad().RadiansToForward();

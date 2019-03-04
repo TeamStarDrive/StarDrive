@@ -15,7 +15,6 @@ namespace Ship_Game
         public Vector2 Source;
         public Vector2 Destination;
         public Vector2 ActualHitDestination; // actual location where beam hits another ship
-        private Vector2 TargetPosistion;
         public int Thickness { get; private set; }
         public static Effect BeamEffect;
         public bool FollowMouse;
@@ -41,7 +40,6 @@ namespace Ship_Game
             FollowMouse             = followMouse;
             Weapon                  = weapon;
             Target                  = target;
-            TargetPosistion         = destination;
             Module                  = weapon.Module;
             DamageAmount            = weapon.GetDamageWithBonuses(weapon.Owner);
             PowerCost               = weapon.BeamPowerCostPerSecond;
@@ -59,7 +57,6 @@ namespace Ship_Game
             Source                  = source;
             Destination             = destination;
 
-            TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
             if (Target != null)
             {
                 JitterRadius = Target.Center.Distance(Jitter);
@@ -103,20 +100,9 @@ namespace Ship_Game
             QuadVertexDecl = new VertexDeclaration(Empire.Universe.ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
         }
 
-        private void SetDestination(Vector2 destination, float range =-1)
+        private void SetDestination(Vector2 destination)
         {
-            range = range < 0 ? Range : range;
-            Vector2 deltaVec = destination - Source;
-            if (!DisableSpatialCollision)
-            {
-                TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
-            }
-            else
-            {
-                TargetPosistion = destination;
-            }
-             
-            Destination = Source + deltaVec.Normalized() * range;
+            Destination = Source + Source.DirectionToTarget(destination) * Range;
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -283,21 +269,14 @@ namespace Ship_Game
 
             if (FollowMouse)
             {
-                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) *
-                              16f; //* .25f);
-                WanderPath = Vector2.Normalize(Empire.Universe.mouseWorldPos - Destination) * sweep;
+                float sweep = (Module?.WeaponRotationSpeed ?? 1f) * 16f;
+                WanderPath = Destination.DirectionToTarget(Empire.Universe.mouseWorldPos) * sweep;
             }
 
             // always update Destination to ensure beam stays in range
-            SetDestination(
-                DisableSpatialCollision
-                    ? Target?.Center ?? Destination
-                    : Destination + WanderPath);
-
-            if (!BeamCollidedThisFrame)
-                ActualHitDestination = Destination;
-
-            BeamCollidedThisFrame = false;
+            SetDestination(DisableSpatialCollision
+                            ? Target?.Center ?? Destination
+                            : Destination + WanderPath);
 
             if (!Owner.IsInsideFiringArc(Weapon, Destination))
             {
@@ -308,9 +287,16 @@ namespace Ship_Game
                 return;
             }
 
+            if (!BeamCollidedThisFrame)
+                ActualHitDestination = Destination;
+            else
+                BeamCollidedThisFrame = false;
+
             UpdateBeamMesh();
             if (Duration < 0f && !Infinite)
+            {
                 Die(null, true);
+            }
         }
 
         public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, float elapsedTime)
@@ -322,8 +308,8 @@ namespace Ship_Game
             // apply drone repair effect, 5 times more if not in combat
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
-                float beamRepairMuliplier = targetShip.InCombat ? 1 : 5;
-                targetShip.ApplyRepairOnce(-DamageAmount * beamRepairMuliplier * elapsedTime, Owner?.Level ?? 0);
+                float repairMultiplier = targetShip.InCombat ? 1 : 5;
+                targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * elapsedTime, Owner?.Level ?? 0);
             }
 
             UpdateBeamMesh();
