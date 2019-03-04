@@ -400,7 +400,11 @@ namespace Ship_Game
             Count = 0;
             if (force)
             {
-                ItemAdded?.Set();
+                if (ItemAdded != null)
+                {
+                    ItemAdded.Set();
+                    ItemAdded = null;
+                }
             }
         }
 
