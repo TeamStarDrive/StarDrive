@@ -215,10 +215,13 @@ namespace Ship_Game
             return count;
 
         }
-        public void UnlockWithoutChecking(Empire empire)
+
+        public void LockWithoutChecking() => SetLockWithoutChecking(true);
+
+        public void SetLockWithoutChecking(bool setLock)
         {
-            Progress = Tech.ActualCost;
-            Unlocked = true;
+            Progress = setLock ? Tech.ActualCost : 0;
+            Unlocked = setLock;
 
         }
         public bool Unlock(Empire empire)
@@ -299,6 +302,11 @@ namespace Ship_Game
                         traitMatch = empire.data.Traits.IsCybernetic;
                             break;
                     }
+                    case "Militaristic":
+                    {
+                            traitMatch = empire.data.Traits.Militaristic > 0;
+                            break;
+                    }
                     case "":
                         break;
                     default:
@@ -310,10 +318,9 @@ namespace Ship_Game
             return traitMatch;
         }
 
-        private bool IsRestricted(Empire empire)
+        public bool IsRestricted(Empire empire)
         {
             if (IsUnlockedByRace(empire)) return false;
-            if (empire.data.Traits.TechTypeRestrictions(Tech.TechnologyType)) return true;
             if (Tech.RaceExclusions.Count > 0 && IsInRequiredRaceArray(empire, Tech.RaceExclusions) ||
                 Tech.RaceRestrictions.Count > 0 && !IsInRequiredRaceArray(empire, Tech.RaceRestrictions))
                 return true;
@@ -328,8 +335,7 @@ namespace Ship_Game
                 if (!CheckSource(revealedTech.Type, empire))
                     continue;
                 if (!IsRestricted(empire))
-                    Discovered = true;
-                //empire.SetEmpireTechRevealed(revealedTech.RevUID);
+                    Discovered = true;                
             }
             if (Tech.Secret && Tech.RootNode == 0)
             {
@@ -342,6 +348,11 @@ namespace Ship_Game
                 }
             }
         }
+
+        public void SetDiscovered() => SetDiscovered(true);
+
+        public void SetDiscovered(bool discovered) => Discovered = discovered;
+        
 
         public bool SetDiscovered(Empire empire, bool discoverForward = true)
         {
@@ -432,7 +443,7 @@ namespace Ship_Game
         public TechEntry[] GetPlayerChildEntries()
         {
             return Tech.Children.Select(EmpireManager.Player.GetTechEntry);
-        }
+        }        
 
         public Array<TechEntry> GetFirstDiscoveredEntries()
         {

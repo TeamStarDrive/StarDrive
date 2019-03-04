@@ -12,6 +12,11 @@
       <UID>Terraforming</UID>
     </LeadsToTech>
   </LeadsTo>
+  <RaceExclusions>
+    <RequiredRace>
+      <RacialTrait>Cybernetic</RacialTrait>
+    </RequiredRace>
+  </RaceExclusions>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>

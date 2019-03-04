@@ -728,42 +728,20 @@ namespace Ship_Game
             {
                 var techEntry = new TechEntry(kv.Key);
 
-                //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
-                bool raceLimited = kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0;
-                if (raceLimited)
+                if (techEntry.IsRestricted(this))
                 {
-                    techEntry.Discovered |= kv.Value.RaceRestrictions.Count == 0 && kv.Value.ComesFrom.Count >0;
-                    kv.Value.Secret |= kv.Value.RaceRestrictions.Count != 0;
-                    foreach (Technology.RequiredRace raceTech in kv.Value.RaceRestrictions)
-                    {
-                        if (raceTech.ShipType != data.Traits.ShipType) continue;
-                        techEntry.Discovered = true;
-                        break;
-                    }
-                    if (techEntry.Discovered)
-                    {
-                        foreach (Technology.RequiredRace raceTech in kv.Value.RaceExclusions)
-                        {
-                            if (raceTech.ShipType != data.Traits.ShipType) continue;
-                            techEntry.Discovered = false;
-                            kv.Value.Secret = true;
-                            break;
-                        }
-                    }
-
-                    if (techEntry.Discovered)
-                        techEntry.Unlocked = kv.Value.RootNode == 1;
+                    techEntry.SetDiscovered(false);
+                    kv.Value.Secret = true;
                 }
                 else //not racial tech
                 {
                     bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && kv.Value.RootNode == 0);
-                    techEntry.Unlocked = kv.Value.RootNode == 1 && !secret;
-                    techEntry.Discovered = !secret;
+                    techEntry.SetLockWithoutChecking(kv.Value.RootNode == 1 && !secret);
+                    techEntry.SetDiscovered(!secret);
                 }
 
-
                 if (isFaction || data.Traits.Prewarp == 1)
-                    techEntry.Unlocked = false;
+                    techEntry.SetLockWithoutChecking(false);
                 TechnologyDict.Add(kv.Key, techEntry);
             }
         }
@@ -1401,7 +1379,7 @@ namespace Ship_Game
 
         public float GetTotalTradeIncome()
         {
-            float total = 0f; 
+            float total = 0f;
             foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
                 if (kv.Value.Treaty_Trade) total += kv.Value.TradeIncome();
             return total;
@@ -1450,7 +1428,7 @@ namespace Ship_Game
             return GrossIncome + plusNetIncome - BuildingAndShipMaint;
         }
 
-        public float GetActualNetLastTurn() => Money - MoneyLastTurn; 
+        public float GetActualNetLastTurn() => Money - MoneyLastTurn;
 
         public void FactionShipsWeCanBuild()
         {
@@ -1663,7 +1641,7 @@ namespace Ship_Game
                 militaryPotential += fertility + p.MineralRichness + p.MaxPopulationBillion;
                 if (p.MaxPopulation >=500)
                 {
-                    
+
                     if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
                         researchPotential = (tech.ActualCost - Research) / tech.ActualCost
                                             * (p.Fertility*2 + p.MineralRichness + (p.MaxPopulation / 500));
@@ -2532,7 +2510,7 @@ namespace Ship_Game
         }
 
         public void WeKilledTheirShip(Empire they, Ship killedShip)
-        {            
+        {
             if (!TryGetRelations(they, out Relationship rel))
                 return;
             rel.KilledAShip(killedShip);
