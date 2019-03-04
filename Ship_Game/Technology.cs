@@ -54,8 +54,7 @@ namespace Ship_Game
             public string RacialTrait;
         }
 
-        //added by McShooterz: Alternate Tach variables
-        public bool Militaristic;
+        //added by McShooterz: Alternate Tach variables        
         public bool unlockFrigates;
         public bool unlockCruisers;
         public bool unlockBattleships;

@@ -299,7 +299,7 @@ namespace Ship_Game
                 switch (item.RacialTrait) {
                     case "Cybernetic":
                     {
-                        traitMatch = empire.data.Traits.IsCybernetic;
+                            traitMatch = empire.data.Traits.IsCybernetic;
                             break;
                     }
                     case "Militaristic":

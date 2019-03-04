@@ -16,6 +16,11 @@
       <UID>FighterTheory</UID>
     </LeadsToTech>
   </LeadsTo>
+  <RaceForceUnlock>
+    <RequiredRace>
+      <RacialTrait>Militaristic</RacialTrait>
+    </RequiredRace>
+  </RaceForceUnlock>
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>engine_fighter_1x1</ModuleUID>
