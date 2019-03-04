@@ -811,6 +811,7 @@ namespace Ship_Game.AI
 
         void Dispose(bool disposing)
         {
+            ClearOrders(); // just in case, clear all orders
             NearByShips = null;
             FriendliesNearby?.Dispose(ref FriendliesNearby);
             OrderQueue?.Dispose(ref OrderQueue);
