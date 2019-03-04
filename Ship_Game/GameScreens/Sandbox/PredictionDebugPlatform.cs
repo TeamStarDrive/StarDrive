@@ -28,15 +28,15 @@ namespace Ship_Game.GameScreens.Sandbox
 
         int NumHitsScored;
         int NumShotsFired;
-        float ShotTimer = 0f;
+        float ShotTimer;
 
         public float AccuracyPercent => NumHitsScored / (float)NumShotsFired;
-
         public bool CanFire { get; set; } = false;
 
         public override void Update(float elapsedTime)
         {
             ApplyAllRepair(1000f*elapsedTime, 1, true); // +1000HP/s
+            AddPower(25f);
 
             ShotTimer += elapsedTime;
             if (ShotTimer > 5f) // cull shots to have a fresh accuracy
@@ -53,38 +53,42 @@ namespace Ship_Game.GameScreens.Sandbox
             else if (CanFire)
             {
                 GameplayObject[] nearby = UniverseScreen.SpaceManager.FindNearby(this, 4000f, GameObjectType.Ship);
-                Weapon weapon = Weapons[0];
-                weapon.Module.FieldOfFire = 360f;
-                weapon.fireDelay = 0.5f;
-                weapon.Range = 4000f;
-                weapon.DamageAmount = 0.5f;
-                PredictResults.Clear();
-                foreach (GameplayObject o in nearby)
-                {
-                    if (weapon.ProjectedImpactPointNoError(o, out Vector2 pip))
-                    {
-                        PredictResults.Add(new PredictedLine{ Start = weapon.Origin, End = pip });
-                        if (weapon.MouseFireAtTarget(pip))
-                            NumShotsFired++;
-                    }
-                }
+                nearby.SortByDistance(Center);
 
-                for (int i = 1; i < Weapons.Count; ++i)
+                var nearbyShips = new Array<Ship>(nearby.Cast<Ship>());
+                var noProjectiles = new Array<Projectile>();
+
+                foreach (Weapon weapon in Weapons)
                 {
-                    Weapon disable = Weapons[i];
-                    disable.Range = 10;
-                    disable.DamageAmount = 0.5f;
-                    disable.CooldownTimer = 1f;
+                    weapon.Module.FieldOfFire = 120f;
+                    weapon.fireDelay = 0.5f;
+                    weapon.Range = 4000f;
+                    PredictResults.Clear();
+
+                    foreach (Ship ship in nearbyShips)
+                    {
+                        if (weapon.isBeam)
+                        {
+                            weapon.UpdatePrimaryFireTarget(weapon.FireTarget, noProjectiles, nearbyShips);
+                            if (weapon.FireTarget != null)
+                                weapon.FireAtAssignedTarget();
+                        }
+                        else if (weapon.ProjectedImpactPointNoError(ship, out Vector2 pip))
+                        {
+                            PredictResults.Add(new PredictedLine{ Start = weapon.Origin, End = pip });
+                            if (weapon.ManualFireTowardsPos(pip))
+                                NumShotsFired++;
+                        }
+                    }
                 }
             }
             else
             {
-                for (int i = 0; i < Weapons.Count; ++i)
+                foreach (Weapon weapon in Weapons)
                 {
-                    Weapon disable = Weapons[i];
-                    disable.Range = 10;
-                    disable.DamageAmount = 0.5f;
-                    disable.CooldownTimer = 1f;
+                    weapon.Range = 10;
+                    weapon.DamageAmount = 0.5f;
+                    weapon.CooldownTimer = 1f;
                 }
             }
             base.Update(elapsedTime);

@@ -947,7 +947,7 @@ namespace Ship_Game.AI
 
         void GatherAtAO(MilitaryTask task, float distanceFromAO)
         {
-            Position = task.AO.OffSetTo(AveragePosition(), distanceFromAO);
+            Position = task.AO.OffsetTowards(AveragePosition(), distanceFromAO);
             FormationWarpTo(Position, AveragePosition().DirectionToTarget(task.AO));
         }
 
