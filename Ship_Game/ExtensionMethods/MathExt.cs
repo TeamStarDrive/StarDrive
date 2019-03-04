@@ -297,6 +297,8 @@ namespace Ship_Game
             return new Vector2(dx / len, dy / len);
         }
 
+        
+
         public static Vector2 Acceleration(this Vector2 startVel, Vector2 endVel, float deltaTime)
         {
             Vector2 deltaV = (endVel - startVel);
@@ -518,7 +520,7 @@ namespace Ship_Game
             return true;
         }
 
-        public static Vector2 OffSetTo(this Vector2 center, Vector2 target, float distance)
+        public static Vector2 OffsetTowards(this Vector2 center, Vector2 target, float distance)
         {
             return center + center.DirectionToTarget(target) * distance;
         }
