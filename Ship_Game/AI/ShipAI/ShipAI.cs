@@ -803,18 +803,9 @@ namespace Ship_Game.AI
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~ShipAI() { Dispose(false); }
-
-        void Dispose(bool disposing)
-        {
-            ClearOrders(); // just in case, clear all orders
+            ClearOrders(); // dispose any active goals
             NearByShips = null;
             FriendliesNearby?.Dispose(ref FriendliesNearby);
-            OrderQueue?.Dispose(ref OrderQueue);
             PotentialTargets?.Dispose(ref PotentialTargets);
         }
     }
