@@ -672,7 +672,7 @@ namespace Ship_Game.Gameplay
             return beamDestination;
         }
 
-        bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
+        bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
             if (!CanFireWeaponCooldown())
                 return false;
@@ -682,7 +682,7 @@ namespace Ship_Game.Gameplay
                 return false;
 
             PrepareToFire();
-            var beam = new Beam(this, source, destination, target, followMouse);
+            var beam = new Beam(this, source, destination, target);
             Module.GetParent().AddBeam(beam);
             return true;
         }
@@ -700,17 +700,19 @@ namespace Ship_Game.Gameplay
             FireBeam(Module.Center, target.Center, target);
         }
 
-        public bool MouseFireAtTarget(Vector2 targetPos)
+        public bool ManualFireTowardsPos(Vector2 targetPos)
         {
             if (!CanFireWeapon())
                 return false;
-            if (isBeam) return FireBeam(Module.Center, targetPos, null, true);
+            if (isBeam) return FireBeam(Module.Center, targetPos, null);
             else        return FireAtTarget(targetPos, null);
         }
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
-            if (!TargetValid(targetShip)) return;
+            if (!TargetValid(targetShip))
+                return;
+            
             targetShip.InCombatTimer = 15f;
             GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 

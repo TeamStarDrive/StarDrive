@@ -17,7 +17,6 @@ namespace Ship_Game
         public Vector2 ActualHitDestination; // actual location where beam hits another ship
         public int Thickness { get; private set; }
         public static Effect BeamEffect;
-        public bool FollowMouse;
         public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
         public int[] Indexes = new int[6];
         private readonly float BeamZ = RandomMath2.RandomBetween(-1f, 1f);
@@ -25,19 +24,13 @@ namespace Ship_Game
         private VertexDeclaration QuadVertexDecl;
         private float Displacement = 1f;
         [XmlIgnore][JsonIgnore] public bool BeamCollidedThisFrame;
-        private float JitterRadius;
-        private readonly Vector2 Jitter;
-        private Vector2 WanderPath = Vector2.Zero;
-
-        [XmlIgnore][JsonIgnore]
-        public GameplayObject Target { get; }
+        [XmlIgnore][JsonIgnore] public GameplayObject Target { get; }
 
         // Create a beam with an initial destination position that optionally follows GameplayObject [target]
-        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false) : base(GameObjectType.Beam)
+        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null) : base(GameObjectType.Beam)
         {
-            //there is an error here in beam creation where the weapon has no module.
+            // there is an error here in beam creation where the weapon has no module.
             // i am setting these values in the weapon CreateDroneBeam where possible.
-            FollowMouse             = followMouse;
             Weapon                  = weapon;
             Target                  = target;
             Module                  = weapon.Module;
@@ -50,22 +43,13 @@ namespace Ship_Game
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
-            Jitter                  = destination;
-            JitterRadius            = 0;
             Emitter.Position        = new Vector3(source, 0f);
-            Owner                   = weapon.Owner ;
+            Owner                   = weapon.Owner;
             Source                  = source;
             Destination             = destination;
-
-            if (Target != null)
-            {
-                JitterRadius = Target.Center.Distance(Jitter);
-                WanderPath = (destination - Target.Center).Normalized() * 8f;
-                if (float.IsNaN(WanderPath.X))
-                    WanderPath = Vector2.Zero;
-            }
-
             ActualHitDestination = Destination;
+            BeamCollidedThisFrame = true; // 
+
             Initialize();
             weapon.ModifyProjectile(this);
 
@@ -76,6 +60,7 @@ namespace Ship_Game
         }
 
         // Create a spatially fixed beam spawned from a ship center
+        // Used by DIMENSIONAL PRISON
         public Beam(Ship ship, Vector2 destination, int thickness) : base(GameObjectType.Beam)
         {
             Owner       = ship;
@@ -100,11 +85,6 @@ namespace Ship_Game
             QuadVertexDecl = new VertexDeclaration(Empire.Universe.ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
         }
 
-        private void SetDestination(Vector2 destination)
-        {
-            Destination = Source + Source.DirectionToTarget(destination) * Range;
-        }
-
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
             if (Owner != null)
@@ -125,6 +105,20 @@ namespace Ship_Game
             lock (GlobalStats.BeamEffectLocker)
             {
                 Empire.Universe.beamflashes.AddParticleThreadA(new Vector3(Source, BeamZ), Vector3.Zero);
+                
+                var hit = new Vector3(ActualHitDestination, BeamZ);
+                if (BeamCollidedThisFrame) // a cool hit effect
+                {
+                    Empire.Universe.sparks.AddParticleThreadA(hit, new Vector3(50f));
+                    Empire.Universe.fireTrailParticles.AddParticleThreadA(hit, new Vector3(50f));
+                    Empire.Universe.fireTrailParticles.AddParticleThreadA(hit, Vector3.Zero);
+                }
+                else // dispersion effect
+                {
+                    Empire.Universe.sparks.AddParticleThreadA(hit, Vector3.Zero);
+                    Empire.Universe.sparks.AddParticleThreadA(hit, Vector3.Zero);
+                }
+
                 screenMgr.GraphicsDevice.VertexDeclaration = QuadVertexDecl;
                 BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
                 BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
@@ -192,18 +186,6 @@ namespace Ship_Game
             Vertices[1].Position = new Vector3(src - (right * Thickness), BeamZ); // topleft
             Vertices[2].Position = new Vector3(dst + (right * Thickness), BeamZ); // botright
             Vertices[3].Position = new Vector3(src + (right * Thickness), BeamZ); // topright
-
-            // @todo Why are we always doing this extra work??
-            Vertices[0].TextureCoordinate = new Vector2(0f, 1f);
-            Vertices[1].TextureCoordinate = new Vector2(0f, 0f);
-            Vertices[2].TextureCoordinate = new Vector2(1f, 1f);
-            Vertices[3].TextureCoordinate = new Vector2(1f, 0f);
-            Indexes[0] = 0;
-            Indexes[1] = 1;
-            Indexes[2] = 2;
-            Indexes[3] = 2;
-            Indexes[4] = 1;
-            Indexes[5] = 3;
         }
 
         public new bool Touch(GameplayObject target)
@@ -256,35 +238,19 @@ namespace Ship_Game
 
             Duration -= elapsedTime;
             Source = srcCenter;
-            if (ship != null && ship.Active && !DisableSpatialCollision)
-            {
-                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f;
-
-                if (Destination.OutsideRadius(Target.Center, JitterRadius * 0.5f))
-                    WanderPath = (Target.Center - Destination).Normalized() * sweep;
-
-                if (float.IsNaN(WanderPath.X))
-                    WanderPath = (Target.Center - ActualHitDestination).Normalized() * sweep;
-            }
-
-            if (FollowMouse)
-            {
-                float sweep = (Module?.WeaponRotationSpeed ?? 1f) * 16f;
-                WanderPath = Destination.DirectionToTarget(Empire.Universe.mouseWorldPos) * sweep;
-            }
 
             // always update Destination to ensure beam stays in range
-            SetDestination(DisableSpatialCollision
-                            ? Target?.Center ?? Destination
-                            : Destination + WanderPath);
+            Vector2 newDestination = (Target?.Center ?? Destination);
 
-            if (!Owner.IsInsideFiringArc(Weapon, Destination))
+            // old destination adjusted to same distance as newDestination,
+            // so we get two equal length lines \/
+            Vector2 oldAdjusted = Source.OffsetTowards(Destination, Source.Distance(newDestination));
+            float sweepSpeed = (Module?.WeaponRotationSpeed ?? 1f) * 48f * elapsedTime;
+            Vector2 newPosition = oldAdjusted.OffsetTowards(newDestination, sweepSpeed);
+
+            if (Owner.IsInsideFiringArc(Weapon, newPosition))
             {
-                if (ship != null)
-                    Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, Destination, ship.Radius, Color.Yellow);
-                Log.Info("Beam killed because of angle");
-                Die(null, true);
-                return;
+                Destination = Source.OffsetTowards(newPosition, Range);
             }
 
             if (!BeamCollidedThisFrame)

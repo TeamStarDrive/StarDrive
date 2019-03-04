@@ -157,7 +157,9 @@ namespace Ship_Game
 
             // @note Auto-added to empire
             Vector2 debugDir  = playerEmpire.GetOwnedSystems()[0].Position.DirectionToTarget(homePlanet.Center);
-            var debugPlatform = new PredictionDebugPlatform("Kinetic Platform", EmpireManager.Remnants, homePlanet.Center + debugDir * 5000f);
+            string platformId = "Kinetic Platform";
+            //string platformId = "Beam Platform L4";
+            var debugPlatform = new PredictionDebugPlatform(platformId, EmpireManager.Remnants, homePlanet.Center + debugDir * 5000f);
             Log.Assert(debugPlatform.HasModules, "Failed to create DebugPlatform");
             sandbox.MasterShipList.Add(debugPlatform); // there is no universe yet, add manually
 
