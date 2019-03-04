@@ -145,29 +145,29 @@ namespace Ship_Game
             foreach (TreeNode node in SubNodes.Values)
             {
                 Technology technology2 = node.Entry.Tech;
-                if (technology2.LeadsTo.Count > 0)
+
+                if (!technology2.Children.Any(tech => EmpireManager.Player.GetTechEntry(tech.UID).Discovered)) continue;
+
+                var leftPoint = node.RightPoint;
+                Vector2 rightPoint = leftPoint + new Vector2(GridWidth / 2f, 0.0f);
+                bool complete1 = false;
+                foreach (Technology.LeadsToTech leadsToTech2 in technology2.LeadsTo)
                 {
-                    var leftPoint = node.RightPoint;
-                    Vector2 rightPoint = leftPoint + new Vector2(GridWidth / 2f, 0.0f);
-                    bool complete1 = false;
-                    foreach (Technology.LeadsToTech leadsToTech2 in technology2.LeadsTo)
+                    TechEntry techEntry2 = EmpireManager.Player.GetTechEntry(leadsToTech2.UID);
+                    techEntry2 = techEntry2.FindNextDiscoveredTech(EmpireManager.Player);
+                    if (techEntry2 != null)
                     {
-                        TechEntry techEntry2 = EmpireManager.Player.GetTechEntry(leadsToTech2.UID);
-                        techEntry2 = techEntry2.FindNextDiscoveredTech(EmpireManager.Player);
-                        if (techEntry2 != null)
-                        {
-                            if (techEntry2.Unlocked)
-                                complete1 = true;
+                        if (techEntry2.Unlocked)
+                            complete1 = true;
 
-                            TreeNode treeNode3 = (SubNodes[techEntry2.UID]);
-                            var LeftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY() - 10);
-                            Vector2 RightPoint2 = LeftPoint2 + new Vector2(leftPoint.Distance(rightPoint) + 13f, 0.0f);
-                            batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, techEntry2.Unlocked);
-                        }
+                        TreeNode treeNode3 = (SubNodes[techEntry2.UID]);
+                        var LeftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY() - 10);
+                        Vector2 RightPoint2 = LeftPoint2 + new Vector2(leftPoint.Distance(rightPoint) + 13f, 0.0f);
+                        batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, techEntry2.Unlocked);
                     }
-
-                    batch.DrawResearchLineHorizontal(leftPoint, rightPoint, complete1);
                 }
+
+                batch.DrawResearchLineHorizontal(leftPoint, rightPoint, complete1);
             }
 
         }
