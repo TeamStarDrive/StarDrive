@@ -269,23 +269,20 @@ namespace Ship_Game
         static void InitializeShip(UniverseData data, Ship ship)
         {
             ship.InitializeShip(loadingFromSavegame: true);
+
             if (ship.Carrier.HasHangars)
             {
                 foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
                 {
-                    foreach (Ship othership in ship.loyalty.GetShips())
+                    if (data.FindShip(ship.loyalty, hangar.HangarShipGuid, out Ship hangarShip))
                     {
-                        if (hangar.HangarShipGuid != othership.guid)
-                            continue;
-                        hangar.SetHangarShip(othership);
-                        othership.Mothership = ship;
+                        hangar.ResetHangarShip(hangarShip);
                     }
                 }
             }
 
             foreach (SolarSystem s in data.SolarSystemsList)
             {
-                Guid orbitTargetGuid = ship.AI.OrbitTargetGuid;
                 foreach (Planet p in s.PlanetList)
                 {
                     foreach (Guid station in p.OrbitalStations.Keys.ToArray())
@@ -296,40 +293,22 @@ namespace Ship_Game
                             ship.TetherToPlanet(p);
                         }
                     }
-
-                    if (p.guid != orbitTargetGuid)
-                        continue;
-                    ship.AI.OrbitTarget = p;
-                    if (ship.AI.State != AIState.Orbit)
-                        continue;
-                    ship.AI.OrderToOrbit(p);
                 }
             }
 
-            if (ship.AI.State == AIState.SystemDefender)
+            if (data.FindPlanet(ship.AI.OrbitTargetGuid, out Planet toOrbit))
             {
-                Guid systemToDefendGuid = ship.AI.SystemToDefendGuid;
-                foreach (SolarSystem s in data.SolarSystemsList)
-                {
-                    if (s.guid != systemToDefendGuid)
-                        continue;
-                    ship.AI.SystemToDefend = s;
-                    ship.AI.State = AIState.SystemDefender;
-                }
+                ship.AI.OrbitTarget = toOrbit;
+                if (ship.AI.State == AIState.Orbit)
+                    ship.AI.OrderToOrbit(toOrbit);
             }
 
             if (ship.shipData.IsShipyard && !ship.IsTethered)
                 ship.Active = false;
-
-            Guid escortTargetGuid = ship.AI.EscortTargetGuid;
-            foreach (Ship s in data.MasterShipList)
-            {
-                if (s.guid == escortTargetGuid)
-                    ship.AI.EscortTarget = s;
-                if (s.guid != ship.AI.TargetGuid)
-                    continue;
-                ship.AI.Target = s;
-            }
+            
+            ship.AI.SystemToDefend = data.FindSystemOrNull(ship.AI.SystemToDefendGuid);
+            ship.AI.EscortTarget   = data.FindShipOrNull(ship.AI.EscortTargetGuid);
+            ship.AI.Target         = data.FindShipOrNull(ship.AI.TargetGuid);
 
             foreach (Projectile p in ship.Projectiles)
             {
