@@ -284,45 +284,48 @@ namespace Ship_Game
             }
         }
 
-        public bool IsUnlockedByRace(Empire empire)
+        public bool IsUnlockedAtGameStart(Empire empire)
         {
-            return IsInRequiredRaceArray(empire, Tech.RaceForceUnlock);
+            return InRaceRequirementsArray(empire, Tech.UnlockedAtGameStart);
         }
 
-        private static bool IsInRequiredRaceArray(Empire empire, IEnumerable<Technology.RequiredRace> requiredRace)
-        {
-            bool traitMatch = false;
-            foreach (Technology.RequiredRace item in requiredRace)
+        private static bool InRaceRequirementsArray(Empire empire, IEnumerable<Technology.RaceRequirements> requiredRace)
+        {            
+            foreach (Technology.RaceRequirements item in requiredRace)
             {
-                if (item.ShipType == empire.data.Traits.ShipType) return true;
+                if (item.ShipType == empire.data.Traits.ShipType) 
+                    return true;
 
                 switch (item.RacialTrait) {
                     case "Cybernetic":
-                    {
-                            traitMatch = empire.data.Traits.IsCybernetic;
+                        {
+                            if (empire.data.Traits.Cybernetic > 0) 
+                                return true;
                             break;
-                    }
+                        }
                     case "Militaristic":
-                    {
-                            traitMatch = empire.data.Traits.Militaristic > 0;
+                    { 
+                            if (empire.data.Traits.Militaristic > 0) 
+                                return true;
                             break;
                     }
                     case "":
                         break;
                     default:
-                        traitMatch = false;
                         Log.Warning($"RacialTrait restriction {item.RacialTrait} is unknown");
                         break;
                 }
             }
-            return traitMatch;
+            return false;
         }
 
         public bool IsRestricted(Empire empire)
         {
-            if (IsUnlockedByRace(empire)) return false;
-            if (Tech.RaceExclusions.Count > 0 && IsInRequiredRaceArray(empire, Tech.RaceExclusions) ||
-                Tech.RaceRestrictions.Count > 0 && !IsInRequiredRaceArray(empire, Tech.RaceRestrictions))
+            if (IsUnlockedAtGameStart(empire)) 
+                return false;
+            if (Tech.HiddenFrom.Count > 0 && InRaceRequirementsArray(empire, Tech.HiddenFrom))
+                return true;
+            if (Tech.NotHiddenFrom.Count > 0 && !InRaceRequirementsArray(empire, Tech.NotHiddenFrom))
                 return true;
             return false;
         }
@@ -369,6 +372,8 @@ namespace Ship_Game
                     TechEntry tech = empire.GetTechEntry(leadsToTech.UID);
                     if (!tech.IsRestricted(empire))
                         tech.SetDiscovered(empire);
+                    else 
+                        Log.Warning("what");
                 }
             }
             return true;

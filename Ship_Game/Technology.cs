@@ -44,11 +44,11 @@ namespace Ship_Game
         public int MaxLevel = 1;
 
         //added by McShooterz: Racial Tech variables
-        public Array<RequiredRace> RaceRestrictions = new Array<RequiredRace>();
-        public Array<RequiredRace> RaceExclusions   = new Array<RequiredRace>();
-        public Array<RequiredRace> RaceForceUnlock  = new Array<RequiredRace>();
+        public Array<RaceRequirements> NotHiddenFrom = new Array<RaceRequirements>();
+        public Array<RaceRequirements> HiddenFrom   = new Array<RaceRequirements>();
+        public Array<RaceRequirements> UnlockedAtGameStart  = new Array<RaceRequirements>();
 
-        public struct RequiredRace
+        public struct RaceRequirements
         {
             public string ShipType;
             public string RacialTrait;
@@ -68,6 +68,11 @@ namespace Ship_Game
                 UID = techID;
             }
         }
+
+        public bool AnyChildrenDiscovered(Empire empire) 
+            => Children.Any(tech => empire.GetTechEntry(tech.UID).Discovered);
+        public Technology[] DiscoveredChildren(Empire empire)
+        => Children.Filter(tech => empire.GetTechEntry(tech.UID).Discovered);
 
         public class UnlockedBonus
         {
