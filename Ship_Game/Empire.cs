@@ -729,10 +729,7 @@ namespace Ship_Game
                 var techEntry = new TechEntry(kv.Key);
 
                 if (techEntry.IsRestricted(this))
-                {
                     techEntry.SetDiscovered(false);
-                    kv.Value.Secret = true;
-                }
                 else
                 {
                     bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && kv.Value.RootNode == 0);

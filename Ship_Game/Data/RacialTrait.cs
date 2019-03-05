@@ -123,7 +123,7 @@ namespace Ship_Game
         {
             if (!techEntry.Discovered) return;
 
-            if (techEntry.IsUnlockedByRace(empire))
+            if (techEntry.IsUnlockedAtGameStart(empire))
                 techEntry.SetLockWithoutChecking(true);
         }
 
@@ -202,12 +202,10 @@ namespace Ship_Game
                 {
                     BonusExplored = trait.BonusExplored;
                 }
-                if (HistoryTraitCybernetic)
-                {
+                if (HistoryTraitCybernetic)                
                     Cybernetic = 1;
-                    if (trait.RepairMod > 0)            //Is this a bug? Should this be its own if branch?
-                        RepairMod = trait.RepairMod;
-                }
+                if (trait.RepairMod > 0)          
+                    RepairMod = trait.RepairMod;
                 if (HistoryTraitManifestDestiny && trait.PassengerBonus > 0)
                 {
                     PassengerBonus = trait.PassengerBonus;
