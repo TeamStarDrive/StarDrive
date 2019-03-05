@@ -278,24 +278,30 @@ namespace Ship_Game
                         return "";
                     return string.Concat(Localizer.Token(169), " ", ship.AI.ColonizeTarget.Name);
                 case AIState.MoveTo:
-                    if (!(ship.Velocity == Vector2.Zero) || ship.isTurning)
+                    if (ship.Velocity.NotZero() || ship.isTurning)
                     {
                         string text = string.Concat(Localizer.Token(187), " ");
-                        if (ship.AI.OrderQueue.IsEmpty)
+                        if (!ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
                         {
                             SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
                             if (system.IsExploredBy(EmpireManager.Player))
                                 return string.Concat(text, Localizer.Token(189), " ", system.Name);
                             return Localizer.Token(174);
                         }
-                        if (ship.AI.OrderQueue.PeekLast.Plan != ShipAI.Plan.DeployStructure)
+                        if (last.Plan == ShipAI.Plan.DeployStructure)
+                        {
+                            text = string.Concat(text, Localizer.Token(188));
+                            if (last.Goal != null && ResourceManager.GetShipTemplate(last.Goal.ToBuildUID, out Ship toBuild))
+                                text = string.Concat(text, " ", toBuild.Name);
+                            return text;
+                        }
+                        else
                         {
                             SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
                             if (system.IsExploredBy(EmpireManager.Player))
                                 return text + system.Name;
                             return Localizer.Token(174);
                         }
-                        return string.Concat(text, Localizer.Token(188), " ", ResourceManager.ShipsDict[ship.AI.OrderQueue.PeekLast.Goal.ToBuildUID].Name);
                     }
                     return Localizer.Token(180);
                 case AIState.Explore:        return Localizer.Token(174);

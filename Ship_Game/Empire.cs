@@ -21,7 +21,7 @@ namespace Ship_Game
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
             throw new InvalidOperationException(
-                $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to public PROPERTIES. {this}");
+                $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Empire XXX;` PROPERTIES/FIELDS. {this}");
 
         public float ProjectorRadius => Universe.SubSpaceProjectors.Radius;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
@@ -51,9 +51,7 @@ namespace Ship_Game
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
         private int TurnCount = 1;
-        //public int ColonizationGoalCount = 2;          //Not referenced in code, removing to save memory
         public string ResearchTopic = "";
-        //private Array<War> Wars = new Array<War>();          //Not referenced in code, removing to save memory
         private Fleet DefensiveFleet = new Fleet();
         private Array<Ship> ForcePool = new Array<Ship>();
         public EmpireData data;
@@ -61,13 +59,12 @@ namespace Ship_Game
         public string PortraitName;
 
         // faction means it's not an actual Empire like Humans or Kulrathi
-        // it doesnt normally colonize or make war plans.
+        // it doesn't normally colonize or make war plans.
         // it gets special instructions, usually event based, for example Corsairs
         public bool isFaction;
         public float Research;
         public Color EmpireColor;
         public static UniverseScreen Universe;
-        //public Vector4 VColor;          //Not referenced in code, removing to save memory
         private EmpireAI EmpireAI;
         private float UpdateTimer;
         public bool isPlayer;

@@ -69,9 +69,6 @@ namespace Ship_Game.AI
 
         public bool NodeAlreadyExistsAt(Vector2 pos)
         {
-            if (OwnerEmpire.isPlayer)
-                Log.Info($"NodeAlreadyExists? {pos}");
-
             foreach (Goal g in Goals)
                 if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, 1000f))
                     return true;
@@ -129,7 +126,11 @@ namespace Ship_Game.AI
                     {
                         if (node.Platform == null || (node.Platform != null && !node.Platform.Active))
                         {
-                            if (!NodeAlreadyExistsAt(node.Position))
+                            bool nodeExists = NodeAlreadyExistsAt(node.Position);
+                            if (OwnerEmpire.isPlayer) // DEBUG
+                                Log.Info($"NodeAlreadyExists? {node.Position}: {nodeExists}");
+
+                            if (!nodeExists)
                             {
                                 node.Platform = null;
                                 Log.Info($"BuildProjector {node.Position}");

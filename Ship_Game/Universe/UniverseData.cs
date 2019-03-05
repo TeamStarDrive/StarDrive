@@ -52,29 +52,72 @@ namespace Ship_Game
             return null;
         }
 
-        public Planet FindPlanet(Guid planetGuid)
+        public bool FindSystem(in Guid systemGuid, out SolarSystem foundSystem)
         {
-            foreach (SolarSystem s in SolarSystemsList)
+            return (foundSystem = FindSystemOrNull(systemGuid)) != null;
+        }
+
+        public SolarSystem FindSystemOrNull(in Guid systemGuid)
+        {
+            if (systemGuid != Guid.Empty)
             {
-                Planet p = s.FindPlanet(planetGuid);
-                if (p != null)
-                    return p;
+                foreach (SolarSystem s in SolarSystemsList)
+                    if (s.guid == systemGuid)
+                        return s;
+            }
+            return null;
+        }
+
+        public bool FindPlanet(in Guid planetGuid, out Planet foundPlanet)
+        {
+            return (foundPlanet = FindPlanetOrNull(planetGuid)) != null;
+        }
+
+        public Planet FindPlanetOrNull(in Guid planetGuid)
+        {
+            if (planetGuid != Guid.Empty)
+            {
+                foreach (SolarSystem s in SolarSystemsList)
+                {
+                    Planet p = s.FindPlanet(planetGuid);
+                    if (p != null)
+                        return p;
+                }
             }
             return null;
         }
 
         public bool FindShip(in Guid shipGuid, out Ship foundShip)
         {
-            foreach (Ship ship in MasterShipList)
+            return (foundShip = FindShipOrNull(shipGuid)) != null;
+        }
+
+        public Ship FindShipOrNull(in Guid shipGuid)
+        {
+            if (shipGuid != Guid.Empty)
             {
-                if (ship.guid == shipGuid)
-                {
-                    foundShip = ship;
-                    return true;
-                }
+                foreach (Ship ship in MasterShipList)
+                    if (ship.guid == shipGuid)
+                        return ship;
             }
-            foundShip = null;
-            return false;
+            return null;
+        }
+
+        public bool FindShip(Empire empire, in Guid shipGuid, out Ship foundShip)
+        {
+            return (foundShip = FindShipOrNull(empire, shipGuid)) != null;
+        }
+        
+        public Ship FindShipOrNull(Empire empire, in Guid shipGuid)
+        {
+            if (shipGuid != Guid.Empty)
+            {
+                Array<Ship> ownedShips = empire.GetShips();
+                foreach (Ship ship in ownedShips)
+                    if (ship.guid == shipGuid)
+                        return ship;
+            }
+            return null;
         }
     }
 }
