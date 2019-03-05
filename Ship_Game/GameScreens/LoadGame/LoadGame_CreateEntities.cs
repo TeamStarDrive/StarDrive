@@ -340,7 +340,7 @@ namespace Ship_Game
                 {
                     if (rsave.Planet != null)
                     {
-                        Planet p = data.FindPlanet(rsave.Planet.guid);
+                        Planet p = data.FindPlanetOrNull(rsave.Planet.guid);
                         if (p?.Owner != null)
                         {
                             RestorePlanetConstructionQueue(saveData, rsave, p);
@@ -439,11 +439,8 @@ namespace Ship_Game
                     task.SetEmpire(e);
                     e.GetEmpireAI().TaskList.Add(task);
 
-                    if (task.TargetPlanetGuid != Guid.Empty)
-                    {
-                        Planet p = data.FindPlanet(task.TargetPlanetGuid);
-                        if (p != null) task.SetTargetPlanet(p);
-                    }
+                    if (data.FindPlanet(task.TargetPlanetGuid, out Planet p))
+                        task.SetTargetPlanet(p);
 
                     foreach (Guid guid in task.HeldGoals)
                     {
@@ -597,22 +594,24 @@ namespace Ship_Game
                         continue;
 
                     SavedGame.PlanetSaveData savedPlanet = ring.Planet;
-                    Planet planet = data.FindPlanet(savedPlanet.guid);
-                    if (savedPlanet.IncomingFreighters != null)
+                    if (data.FindPlanet(savedPlanet.guid, out Planet planet))
                     {
-                        foreach (Guid freighterGuid in savedPlanet.IncomingFreighters)
+                        if (savedPlanet.IncomingFreighters != null)
                         {
-                            data.FindShip(freighterGuid, out Ship freighter);
-                            planet.AddToIncomingFreighterList(freighter);
+                            foreach (Guid freighterGuid in savedPlanet.IncomingFreighters)
+                            {
+                                data.FindShip(freighterGuid, out Ship freighter);
+                                planet.AddToIncomingFreighterList(freighter);
+                            }
                         }
-                    }
 
-                    if (savedPlanet.OutgoingFreighters != null)
-                    {
-                        foreach (Guid freighterGuid in savedPlanet.OutgoingFreighters)
+                        if (savedPlanet.OutgoingFreighters != null)
                         {
-                            data.FindShip(freighterGuid, out Ship freighter);
-                            planet.AddToOutgoingFreighterList(freighter);
+                            foreach (Guid freighterGuid in savedPlanet.OutgoingFreighters)
+                            {
+                                data.FindShip(freighterGuid, out Ship freighter);
+                                planet.AddToOutgoingFreighterList(freighter);
+                            }
                         }
                     }
                 }

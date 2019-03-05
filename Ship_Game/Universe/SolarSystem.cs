@@ -252,11 +252,14 @@ namespace Ship_Game
             //Log.Info($"The {empire.Name} have fully explored {Name}");
         }
 
-        public Planet FindPlanet(Guid planetGuid)
+        public Planet FindPlanet(in Guid planetGuid)
         {
-            foreach (Planet p in PlanetList)
-                if (p.guid == planetGuid)
-                    return p;
+            if (planetGuid != Guid.Empty)
+            {
+                foreach (Planet p in PlanetList)
+                    if (p.guid == planetGuid)
+                        return p;
+            }
             return null;
         }
 

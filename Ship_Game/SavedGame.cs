@@ -208,7 +208,6 @@ namespace Ship_Game
                 var gsaidata = new GSAISAVE
                 {
                     UsedFleets = e.GetEmpireAI().UsedFleets,
-                    Goals      = new Array<GoalSave>(),
                     PinGuids   = new Array<Guid>(),
                     PinList    = new Array<ThreatMatrix.Pin>()
                 };
@@ -227,7 +226,9 @@ namespace Ship_Game
                     }
                     task.TargetPlanetGuid = task.TargetPlanet.guid;
                 }
-                foreach (Goal g in e.GetEmpireAI().Goals)
+
+                Array<Goal> goals = e.GetEmpireAI().Goals;
+                gsaidata.Goals = goals.Select(g =>
                 {
                     var gdata = new GoalSave
                     {
@@ -258,8 +259,8 @@ namespace Ship_Game
                     {
                         gdata.beingBuiltGUID = g.ShipToBuild.guid;
                     }
-                    gsaidata.Goals.Add(gdata);
-                }
+                    return gdata;
+                });
                 empireToSave.GSAIData = gsaidata;
 
                 empireToSave.TechTree.AddRange(e.TechEntries);
@@ -598,7 +599,7 @@ namespace Ship_Game
         public class GSAISAVE
         {
             [Serialize(0)] public Array<int> UsedFleets;
-            [Serialize(1)] public Array<GoalSave> Goals;
+            [Serialize(1)] public GoalSave[] Goals;
             [Serialize(2)] public Array<MilitaryTask> MilitaryTaskList;
             [Serialize(3)] public Array<Guid> PinGuids;
             [Serialize(4)] public Array<ThreatMatrix.Pin> PinList;

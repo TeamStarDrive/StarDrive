@@ -190,8 +190,7 @@ namespace Ship_Game.AI
                 MovePosition = sg.MovePosition;
                 Direction = sg.Direction;
 
-                if (sg.TargetPlanetGuid != Guid.Empty)
-                    TargetPlanet = data.FindPlanet(sg.TargetPlanetGuid);
+                TargetPlanet = data.FindPlanetOrNull(sg.TargetPlanetGuid);
 
                 VariableString = sg.VariableString;
                 SpeedLimit = sg.SpeedLimit;
@@ -207,11 +206,17 @@ namespace Ship_Game.AI
 
                 if (sg.goalGuid != Guid.Empty)
                 {
-                    foreach (Goal empireGoal in loyalty.GetEmpireAI().Goals)
+                    Array<Goal> goals = loyalty.GetEmpireAI().Goals;
+                    foreach (Goal empireGoal in goals)
                     {
                         if (sg.goalGuid == empireGoal.guid)
+                        {
                             Goal = empireGoal;
+                            break;
+                        }
                     }
+                    if (Goal == null)
+                        Log.Warning($"ShipGoalSave {sg.Plan}: failed to find Empire.Goal {sg.goalGuid}");
                 }
 
                 if (sg.Trade != null)
@@ -256,8 +261,8 @@ namespace Ship_Game.AI
             public TradePlan(SavedGame.TradePlanSave save, UniverseData data, Ship freighter)
             {
                 Goods         = save.Goods;
-                ExportFrom    = data.FindPlanet(save.ExportFrom);
-                ImportTo      = data.FindPlanet(save.ImportTo);
+                ExportFrom    = data.FindPlanetOrNull(save.ExportFrom);
+                ImportTo      = data.FindPlanetOrNull(save.ImportTo);
                 BlockadeTimer = save.BlockadeTimer;
                 Freighter     = freighter;
             }
