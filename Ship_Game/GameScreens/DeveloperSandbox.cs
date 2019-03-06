@@ -12,7 +12,7 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        const int NumOpponents = 1;
+        const int NumOpponents = 0;
         const bool PlayerIsCybernetic = false;
         string PlayerPreference = "Kulrathi";
         DeveloperUniverse Universe;
@@ -66,7 +66,7 @@ namespace Ship_Game
 
         public class DeveloperUniverse : UniverseScreen
         {
-            public DeveloperUniverse(UniverseData sandbox) : base(sandbox)
+            public DeveloperUniverse(UniverseData sandbox) : base(sandbox, EmpireManager.Empires[0])
             {
                 player = PlayerEmpire;
                 NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
@@ -83,6 +83,13 @@ namespace Ship_Game
             }
         }
 
+        bool PlayerFilter(IEmpireData d)
+        {
+            if (PlayerPreference.NotEmpty())
+                return d.Name.Contains(PlayerPreference);
+            return d.IsCybernetic == PlayerIsCybernetic;
+        }
+
         UniverseData CreateSandboxUniverse()
         {
             Stopwatch s = Stopwatch.StartNew();
@@ -91,12 +98,7 @@ namespace Ship_Game
             var sandbox = new UniverseData { Size = new Vector2(500000f) };
             CurrentGame.StartNew(sandbox, pace:1f);
 
-            bool PlayerFilter(IEmpireData d)
-            {
-                if (PlayerPreference.NotEmpty())
-                    return d.Name.Contains(PlayerPreference);
-                return d.IsCybernetic == PlayerIsCybernetic;
-            }
+
 
             IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(PlayerFilter));
 
@@ -123,13 +125,6 @@ namespace Ship_Game
                 system.GenerateStartingSystem(e.data.Traits.HomeSystemName, sandbox, 1f, e);
                 system.OwnerList.Add(e);
                 sandbox.SolarSystemsList.Add(system);
-
-                foreach (Planet p in system.PlanetList)
-                {
-                    if (e.isPlayer)
-                        p.colonyType = Planet.ColonyType.Colony; // this is required to disable governors... for some reason
-                    p.SetExploredBy(e);
-                }
             }
 
             foreach (IEmpireData data in ResourceManager.MinorRaces) // init minor races
@@ -151,14 +146,13 @@ namespace Ship_Game
             }
 
             Empire playerEmpire = sandbox.EmpireList.First;
-            Planet homePlanet = playerEmpire.GetPlanets()[0];
-            sandbox.playerShip = Ship.CreateShipAtPoint("Unarmed Scout", playerEmpire, homePlanet.Center);
-            sandbox.playerShip.VanityName = "Developer's Scout";
-            sandbox.MasterShipList.Add(sandbox.playerShip); // there is no universe yet, add manually
+            Planet homePlanet   = playerEmpire.GetPlanets()[0];
 
             // @note Auto-added to empire
-            Vector2 debugDir = playerEmpire.GetOwnedSystems()[0].Position.DirectionToTarget(homePlanet.Center);
-            var debugPlatform = new PredictionDebugPlatform("Kinetic Platform", EmpireManager.Remnants, homePlanet.Center + debugDir * 5000f);
+            Vector2 debugDir  = playerEmpire.GetOwnedSystems()[0].Position.DirectionToTarget(homePlanet.Center);
+            string platformId = "Kinetic Platform";
+            //string platformId = "Beam Platform L4";
+            var debugPlatform = new PredictionDebugPlatform(platformId, EmpireManager.Remnants, homePlanet.Center + debugDir * 5000f);
             Log.Assert(debugPlatform.HasModules, "Failed to create DebugPlatform");
             sandbox.MasterShipList.Add(debugPlatform); // there is no universe yet, add manually
 
@@ -185,8 +179,6 @@ namespace Ship_Game
         {
             foreach (Planet planet in wipSystem.PlanetList)
             {
-                planet.ParentSystem = wipSystem;
-                planet.Center += wipSystem.Position;
                 planet.InitializePlanetMesh(this);
             }
             foreach (Asteroid asteroid in wipSystem.AsteroidsList)

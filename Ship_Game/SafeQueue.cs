@@ -400,9 +400,11 @@ namespace Ship_Game
             Count = 0;
             if (force)
             {
-                ItemAdded?.Set();
-                ItemAdded?.Dispose(ref ItemAdded);
-                ThisLock?.Dispose(ref ThisLock);
+                if (ItemAdded != null)
+                {
+                    ItemAdded.Set();
+                    ItemAdded = null;
+                }
             }
         }
 
@@ -424,7 +426,7 @@ namespace Ship_Game
                 Index = 0;
                 Count = queue.Count;
                 Items = queue.Items;
-                Current = default(T);
+                Current = default;
             }
             public void Dispose()
             {
@@ -445,19 +447,6 @@ namespace Ship_Game
                 throw new NotImplementedException();
             }
         }
-    }
-
-    internal sealed class ReadOnlyCollectionDebugView<T>
-    {
-        readonly IReadOnlyCollection<T> Collection;
-
-        public ReadOnlyCollectionDebugView(IReadOnlyCollection<T> collection)
-        {
-            Collection = collection;
-        }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public T[] Items => Collection.ToArray();
     }
 
     internal sealed class SafeQueueDebugView<T>

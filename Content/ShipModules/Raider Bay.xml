@@ -37,6 +37,7 @@
   <CrewRequired>10</CrewRequired>
   <CrewSupplied>0</CrewSupplied>
   <PowerDraw>20</PowerDraw>
+  <OrdinanceCapacity>50</OrdinanceCapacity>
 
 
   <NameIndex>4000</NameIndex>

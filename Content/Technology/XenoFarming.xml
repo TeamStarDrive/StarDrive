@@ -13,6 +13,11 @@
       <UID>Vertical Farming</UID>
     </LeadsToTech>
   </LeadsTo>
+  <HiddenFrom>
+    <RaceRequirements>
+      <RacialTrait>Cybernetic</RacialTrait>
+    </RaceRequirements>
+  </HiddenFrom>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>

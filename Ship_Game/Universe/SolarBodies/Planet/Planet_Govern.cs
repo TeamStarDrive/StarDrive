@@ -31,7 +31,7 @@ namespace Ship_Game
             Prod.Percent = 0;
             Res.Percent = 0;
 
-            switch (colonyType) //New resource management by Gretman  // @todo FB - dont assign researchers if they can do nothing 
+            switch (colonyType) //New resource management by Gretman 
             {
                 case ColonyType.TradeHub:
                     AssignCoreWorldWorkers();

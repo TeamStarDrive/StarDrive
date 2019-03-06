@@ -148,13 +148,13 @@ namespace Ship_Game.AI
                 return null;
 
             Ship picked = RandomMath.RandItem(ships);
-            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Stength: {oldShip.BaseStrength} refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
+            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.BaseStrength} refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
             return picked;
         }
 
-        public static Ship PickFreighter(Empire empire)
+        public static Ship PickFreighter(Empire empire, float fastVsBig)
         {
-            if (empire.isPlayer && empire.AutoFreighters &&
+            if (empire.isPlayer && empire.AutoFreighters && !EmpireManager.Player.AutoPickBestFreighter &&
                 ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out Ship freighter))
                 return freighter;
 
@@ -162,21 +162,23 @@ namespace Ship_Game.AI
             foreach (string shipId in empire.ShipsWeCanBuild)
             {
                 Ship ship = ResourceManager.GetShipTemplate(shipId);
-                if (ship.shipData.Role != ShipData.RoleName.freighter || ship.CargoSpaceMax < 1f)
-                    continue; // definitely not a freighter
+                if (!ship.IsCandidateFreighterBuild())
+                    continue;
 
-                if (ship.isColonyShip || ship.isConstructor)
-                    continue; // ignore colony ships and constructors
-
-                if (ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                    ship.shipData.ShipCategory == ShipData.Category.Unclassified)
-                    freighters.Add(ship); // only consider civilian/unclassified as freighters
+                freighters.Add(ship);
+                if (Empire.Universe?.Debug == true)
+                {
+                    Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: " +
+                                                $"Value: {ship.BestFreighterValue(empire, fastVsBig)}");
+                }
             }
 
             freighter = freighters
-                .OrderByDescending(ship => ship.CargoSpaceMax)
-                .ThenByDescending(ship => ship.NormalizedStrength)
-                .FirstOrDefault();
+                .FindMax(ship => ship.BestFreighterValue(empire, fastVsBig));
+
+            if (Empire.Universe?.Debug == true)
+                Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter.Name}");
+
             return freighter;
         }
 
@@ -200,10 +202,10 @@ namespace Ship_Game.AI
             DynamicHangarOptions dynamicHangarType = GetDynamicHangarOptions(shipName);
             switch (dynamicHangarType)
             {
-                case DynamicHangarOptions.DynamicLaunch:  return Color.Gold;
+                case DynamicHangarOptions.DynamicLaunch:      return Color.Gold;
                 case DynamicHangarOptions.DynamicInterceptor: return Color.Cyan;
-                case DynamicHangarOptions.DynamicAntiShip:  return Color.OrangeRed;
-                default:                                  return Color.White;
+                case DynamicHangarOptions.DynamicAntiShip:    return Color.OrangeRed;
+                default:                                      return Color.White;
             }
         }
 

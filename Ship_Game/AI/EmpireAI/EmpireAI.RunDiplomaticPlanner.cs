@@ -417,26 +417,25 @@ namespace Ship_Game.AI {
                         if (Relationship.Value.TurnsKnown >= FirstDemand && !Relationship.Value.Treaty_NAPact &&
                             !Relationship.Value.HaveRejectedDemandTech && !Relationship.Value.XenoDemandedTech)
                         {
-                            Array<string> PotentialDemands = new Array<string>();
-                            foreach (KeyValuePair<string, TechEntry> tech in Relationship.Key.GetTDict())
+                            var potentialDemands = new Array<string>();
+                            foreach (TechEntry tech in Relationship.Key.TechEntries)
                             {
                                 //Added by McShooterz: prevent root nodes from being demanded, and secret but not discovered
-                                if (!tech.Value.Unlocked || OwnerEmpire.GetTDict()[tech.Key].Unlocked ||
-                                    tech.Value.Tech.RootNode == 1 ||
-                                    (tech.Value.Tech.Secret && !tech.Value.Tech.Discovered))
+                                if (tech.Unlocked && !OwnerEmpire.HasUnlocked(tech) &&
+                                    tech.Tech.RootNode != 1 &&
+                                    (!tech.Tech.Secret || tech.Tech.Discovered))
                                 {
-                                    continue;
+                                    potentialDemands.Add(tech.UID);
                                 }
-                                PotentialDemands.Add(tech.Key);
                             }
-                            if (PotentialDemands.Count > 0)
+                            if (potentialDemands.Count > 0)
                             {
-                                int Random = (int) RandomMath.RandomBetween(0f, PotentialDemands.Count + 0.75f);
-                                if (Random > PotentialDemands.Count - 1)
+                                int Random = (int) RandomMath.RandomBetween(0f, potentialDemands.Count + 0.75f);
+                                if (Random > potentialDemands.Count - 1)
                                 {
-                                    Random = PotentialDemands.Count - 1;
+                                    Random = potentialDemands.Count - 1;
                                 }
-                                string TechToDemand = PotentialDemands[Random];
+                                string TechToDemand = potentialDemands[Random];
                                 Offer DemandTech = new Offer();
                                 DemandTech.TechnologiesOffered.Add(TechToDemand);
                                 Relationship.Value.XenoDemandedTech = true;

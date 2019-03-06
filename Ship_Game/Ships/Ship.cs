@@ -33,9 +33,6 @@ namespace Ship_Game.Ships
 
         public Vector2 projectedPosition;
         private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
-        public bool TradingFood = true;
-        public bool TradingProd = true;
-        public bool ShieldsUp   = true;
         private Array<Projectile> projectiles = new Array<Projectile>();
         private Array<Beam> beams             = new Array<Beam>();
         public Array<Weapon> Weapons          = new Array<Weapon>();
@@ -75,8 +72,6 @@ namespace Ship_Game.Ships
         public float InCombatTimer;
         public bool isTurning;
         public float InhibitionRadius;
-        private KeyboardState lastKBState;
-        private KeyboardState currentKeyBoardState;
         public bool IsPlatform;
         private SceneObject ShipSO;
         public bool ManualHangarOverride;
@@ -112,7 +107,6 @@ namespace Ship_Game.Ships
         readonly AudioHandle JumpSfx = new AudioHandle();
         public float InhibitedTimer;
         public int Level;
-        public bool PlayerShip;
         private int MaxHealthRevision;
         public float HealthMax { get; private set; }
         public float ShipMass;
@@ -142,9 +136,7 @@ namespace Ship_Game.Ships
         public float HealPerTurn;
         private bool UpdatedModulesOnce;
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
-        private float xdie;
-        private float ydie;
-        private float zdie;
+        Vector3 DieRotation;
         private float dietimer;
         public float BaseStrength;
         public bool BaseCanWarp;
@@ -193,9 +185,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsIdleFreighter => IsFreighter
-                                       && !PlayerShip && AI != null
-                                       && !AI.HasPriorityOrder
+        public bool IsIdleFreighter => IsFreighter 
+                                       && AI != null 
+                                       && !AI.HasPriorityOrder 
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit;
@@ -455,46 +447,21 @@ namespace Ship_Game.Ships
 
         }
 
-        public int BombsUseful
+        public int BombCount
         {
             get
             {
-                int bombBays = BombBays.Count;
-
-                switch (Bomb60SecStatus())
+                int Bombs = 0;
+                if (BombBays.Count > 0)
                 {
-                    case ShipStatus.Critical:
-                        return bombBays /10;
-                    case ShipStatus.Poor:
-                        return bombBays / 5;
-                    case ShipStatus.Average:
-                    case ShipStatus.Good:
-                        return bombBays /2;
-                    case ShipStatus.Excellent:
-                    case ShipStatus.Maximum:
-                        return bombBays;
-                    case ShipStatus.NotApplicable:
-                        return 0;
+                    ++Bombs;
+                    if (Ordinance / OrdinanceMax > 0.2f)
+                    {
+                        Bombs += BombBays.Count;
+                    }
                 }
-                return 0;
+                return Bombs;
             }
-
-        }
-
-        public ShipStatus Bomb60SecStatus()
-        {
-            if (BombBays.Count <= 0) return ShipStatus.NotApplicable;
-            if (OrdnanceStatus < ShipStatus.Poor) return ShipStatus.Critical;
-            //we need a standard formula for calculating the below.
-            //one is the alpha strike. the other is the continued firing. The below only gets the sustained.
-            //so the effect is that it might not have enough ordnance to fire the alpha strike. But it will do.
-            float bombSeconds = Ordinance / BombBays.Sum(b =>
-            {
-                var bomb = b.InstalledWeapon;
-                return bomb.OrdinanceRequiredToFire / bomb.fireDelay;
-            });
-            bombSeconds = bombSeconds.Clamped(0, 60); //can we bomb for a full minute?
-            return ToShipStatus(bombSeconds,60);
         }
 
         public bool FightersOut
@@ -691,6 +658,9 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float MaxWeaponRange     => Weapons.Count > 0 ? Weapons.FindMax(w => w.Range).Range : 0;
+        public float AverageWeaponRange => Weapons.Count > 0 ? Weapons.Sum(w => w.Range) / Weapons.Count : 0;
+
         public void SetmaxFTLSpeed()
         {
             if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
@@ -724,7 +694,7 @@ namespace Ship_Game.Ships
         public float GetSTLSpeed()
         {
             float thrustWeightRatio = Thrust / Mass;
-            float speed = thrustWeightRatio + thrustWeightRatio * loyalty.data.SubLightModifier;
+            float speed = thrustWeightRatio * loyalty.data.SubLightModifier;
             return Math.Min(speed, 2500);
         }
 
@@ -788,131 +758,6 @@ namespace Ship_Game.Ships
         /// </summary>
         /// <param name="timer"></param>
         public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
-
-        public void ProcessInput(float elapsedTime)
-        {
-            if (GlobalStats.TakingInput || EMPdisabled || !hasCommand)
-                return;
-            if (Empire.Universe.Input != null)
-                currentKeyBoardState = Empire.Universe.Input.KeysCurr;
-
-            if (currentKeyBoardState.IsKeyDown(Keys.D)) AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.A)) AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.W)) AI.State = AIState.ManualControl;
-            if (currentKeyBoardState.IsKeyDown(Keys.S)) AI.State = AIState.ManualControl;
-
-            if (AI.State == AIState.ManualControl)
-            {
-                if (Active && !currentKeyBoardState.IsKeyDown(Keys.LeftControl))
-                {
-                    isThrusting = false;
-                    if (currentKeyBoardState.IsKeyDown(Keys.D))
-                    {
-                        isTurning = true;
-                        isThrusting = true;
-                        RotationalVelocity += rotationRadiansPerSecond * elapsedTime;
-                        if (RotationalVelocity > rotationRadiansPerSecond)
-                            RotationalVelocity = rotationRadiansPerSecond;
-                        if (yRotation > -MaxBank)
-                            yRotation -= yBankAmount;
-                    }
-                    else if (currentKeyBoardState.IsKeyDown(Keys.A))
-                    {
-                        isTurning = true;
-                        isThrusting = true;
-                        RotationalVelocity -= rotationRadiansPerSecond * elapsedTime;
-                        if (Math.Abs(RotationalVelocity) > rotationRadiansPerSecond)
-                            RotationalVelocity = -rotationRadiansPerSecond;
-                        if (yRotation < MaxBank)
-                            yRotation += yBankAmount;
-                    }
-                    else if (engineState == MoveState.Warp)
-                    {
-                        isSpooling = true;
-                        isTurning = false;
-
-                        if (yRotation > 0.0)
-                            yRotation -= yBankAmount;
-                        else if (yRotation < 0.0)
-                            yRotation += yBankAmount;
-
-                        if (RotationalVelocity > 0.0)
-                        {
-                            isTurning = true;
-                            RotationalVelocity -= rotationRadiansPerSecond * elapsedTime;
-                            if (RotationalVelocity < 0.0)
-                                RotationalVelocity = 0.0f;
-                        }
-                        else if (RotationalVelocity < 0.0)
-                        {
-                            isTurning = true;
-                            RotationalVelocity += rotationRadiansPerSecond * elapsedTime;
-                            if (RotationalVelocity > 0.0)
-                                RotationalVelocity = 0.0f;
-                        }
-                    }
-                    else
-                    {
-                        isTurning = false;
-                        if (yRotation > 0.0)
-                        {
-                            yRotation -= yBankAmount;
-                            if (yRotation < 0.0)
-                                yRotation = 0.0f;
-                        }
-                        else if (yRotation < 0.0)
-                        {
-                            yRotation += yBankAmount;
-                            if (yRotation > 0.0)
-                                yRotation = 0.0f;
-                        }
-                        if (RotationalVelocity > 0.0)
-                        {
-                            isTurning = true;
-                            RotationalVelocity -= rotationRadiansPerSecond * elapsedTime;
-                            if (RotationalVelocity < 0.0)
-                                RotationalVelocity = 0.0f;
-                        }
-                        else if (RotationalVelocity < 0.0)
-                        {
-                            isTurning = true;
-                            RotationalVelocity += rotationRadiansPerSecond * elapsedTime;
-                            if (RotationalVelocity > 0.0)
-                                RotationalVelocity = 0.0f;
-                        }
-                        isThrusting = false;
-                    }
-
-                    if (currentKeyBoardState.IsKeyDown(Keys.F) && !lastKBState.IsKeyDown(Keys.F))
-                    {
-                        if (!isSpooling)
-                            EngageStarDrive();
-                        else
-                            HyperspaceReturn();
-                    }
-                    if (currentKeyBoardState.IsKeyDown(Keys.W))
-                    {
-                        ApplyThrust(elapsedTime, velocityMaximum, +1f);
-                    }
-                    else if (currentKeyBoardState.IsKeyDown(Keys.S))
-                    {
-                        ApplyThrust(elapsedTime, velocityMaximum, -1f);
-                    }
-                    MouseState state = Mouse.GetState();
-                    if (state.RightButton == ButtonState.Pressed)
-                    {
-                        Vector2 pickedPos = Empire.Universe.UnprojectToWorldPosition(new Vector2(state.X, state.Y));
-                        foreach (Weapon w in Weapons)
-                            w.MouseFireAtTarget(pickedPos);
-                    }
-                }
-                else
-                {
-                    GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
-                }
-            }
-            lastKBState = currentKeyBoardState;
-        }
 
         public bool InRadius(Vector2 worldPos, float radius)
         {
@@ -1626,7 +1471,7 @@ namespace Ship_Game.Ships
             float longR = longRange.GetAverageDam();
             float shotR = shortRange.GetAverageDam();
 
-            if (AI.CombatState == CombatState.Artillery || AI.CombatState != CombatState.ShortRange && longR > shotR)
+            if (AI?.CombatState == CombatState.Artillery || AI?.CombatState != CombatState.ShortRange && longR > shotR)
             {
                 return longRange.GetAverageRange();
             }
@@ -1652,27 +1497,25 @@ namespace Ship_Game.Ships
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
             if (Rotation < 0f) Rotation += 6.28318548202515f;
 
-            if (InCombat && !EMPdisabled && hasCommand || PlayerShip)
+            if (InCombat && !EMPdisabled && hasCommand)
             {
                 for (int i = 0; i < Weapons.Count; i++)
                 {
                     Weapons[i].Update(deltaTime);
                 }
-                for (int i = 0; i < BombBays.Count; i++)
-                    BombBays[i].InstalledWeapon.Update(deltaTime);
             }
 
-            if (updateTimer <= 0) //|| shipStatusChanged)
+            if (updateTimer <= 0)
             {
                 TroopBoardingDefense = 0f;
-                for (int i = 0; i < TroopList.Count; i++)   //Do we need to update this every frame? I mived it here so it would be every second, instead.   -Gretman
+                for (int i = 0; i < TroopList.Count; i++)   //Do we need to update this every frame? I moved it here so it would be every second, instead.   -Gretman
                 {
                     TroopList[i].SetShip(this);
                     if (TroopList[i].Loyalty == loyalty)
                         TroopBoardingDefense += TroopList[i].Strength;
                 }
 
-                if ((InCombat && !EMPdisabled && hasCommand || PlayerShip) && Weapons.Count > 0)
+                if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
                 {
                     AI.CombatAI.UpdateCombatAI(this);
 
@@ -1753,7 +1596,7 @@ namespace Ship_Game.Ships
                 foreach (ShipModule slot in ModuleSlotList)
                       slot.Update(1);
 
-                if (shipStatusChanged)
+                if (shipStatusChanged) //|| InCombat
                 {
                     ShipStatusChange();
                 }
@@ -1761,7 +1604,7 @@ namespace Ship_Game.Ships
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
                     PowerDraw = NetPower.NetWarpPowerDraw;
-                else if (engineState != MoveState.Warp && ShieldsUp)
+                else if (engineState != MoveState.Warp)
                     PowerDraw = NetPower.NetSubLightPowerDraw;
                 else
                     PowerDraw = NetPower.NetWarpPowerDraw;
@@ -1780,7 +1623,13 @@ namespace Ship_Game.Ships
                 }
 
                 // Add ordnance
-                ChangeOrdnance(OrdAddedPerSecond);
+                if (Ordinance < OrdinanceMax)
+                {
+                    Ordinance += OrdAddedPerSecond;
+                    if (Ordinance > OrdinanceMax)
+                        Ordinance = OrdinanceMax;
+                }
+                else Ordinance = OrdinanceMax;
 
                 // Update max health if needed
                 int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
@@ -1791,7 +1640,6 @@ namespace Ship_Game.Ships
                 }
 
                 // return home if it is a defense ship
-                //this should be AI behavior.
                 if (!InCombat && HomePlanet != null)
                     ReturnHome();
 
@@ -2104,6 +1952,29 @@ namespace Ship_Game.Ships
                                                               : empire.data.DefaultSupplyShuttle;
         }
 
+        public float BestFreighterValue(Empire empire, float fastVsBig)
+        {
+            float warpK          = maxFTLSpeed / 1000;
+            float movementWeight = warpK + GetSTLSpeed() / 10 + rotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
+            float cargoWeight    = CargoSpaceMax.Clamped(0,80) - (float)SurfaceArea / 25;
+
+            // For faster , cheaper ships vs big and maybe slower ships
+            return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
+        }
+
+        public bool IsCandidateFreighterBuild()
+        {
+            if (shipData.Role != ShipData.RoleName.freighter 
+                || CargoSpaceMax < 1f
+                || isColonyShip
+                || isConstructor)
+                return false; // definitely not a freighter
+
+            // only Civilian or Unclassified may be freighter candidates
+            return shipData.ShipCategory == ShipData.Category.Civilian ||
+                   shipData.ShipCategory == ShipData.Category.Unclassified;
+        }
+
         public int RefitCost(string newShipName)
         {
             if (loyalty.isFaction)
@@ -2244,7 +2115,6 @@ namespace Ship_Game.Ships
             }
             CurrentStrength = CalculateShipStrength();
             maxWeaponsRange = CalculateMaxWeaponsRange();
-
         }
 
         public bool IsTethered => TetheredTo != null;
@@ -2260,39 +2130,47 @@ namespace Ship_Game.Ships
 
         public float GetDPS() => DPS;
 
-        //Added by McShooterz: add experience for cruisers and stations, modified for dynamic system
+        //Added by McShooterz: Refactored by CG
         public void AddKill(Ship killed)
         {
             ++kills;
             if (loyalty == null)
                 return;
-            //Added by McShooterz: change level cap, dynamic experience required per level
-            var ownerExpSettings = ShipRole.GetExpSettings(this);
-            var killedExpSettings = ShipRole.GetExpSettings(killed);
-            killed.loyalty?.TheyKilledOurShip(loyalty, killedExpSettings);
 
-            float exp = killedExpSettings.ExpPerLevel * (1 + killed.Level);
-            exp += exp * loyalty.data.ExperienceMod;
+            float exp   = killed.ExperienceShipIsWorth();
+            exp        += exp * loyalty.data.ExperienceMod;
             experience += exp;
+            ConvertExperienceToLevel();
+        }
 
-            while (experience > ownerExpSettings.ExpPerLevel * (1 + Level))
+        public float ExperienceShipIsWorth()
+        {
+            ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(this);
+            float exp = killedExpSettings.ExpPerLevel * (1 + Level);
+            return exp;
+        }
+
+        private void ConvertExperienceToLevel()
+        {
+            ShipRole.Race ownerExpSettings = ShipRole.GetExpSettings(this);
+            while (true)
             {
-                experience -= ownerExpSettings.ExpPerLevel * (1 + Level);
+                if (experience <= 0) return;
+                float experienceThreshold = ownerExpSettings.ExpPerLevel * (1 + Level);
+                if (experienceThreshold <= 0) return;
+                if (experience < experienceThreshold) return;
                 AddToShipLevel(1);
+                experience -= experienceThreshold;
             }
-
-            if (!loyalty.TryGetRelations(killed.loyalty, out Relationship rel))
-                return;
-            if (!rel.AtWar)
-            {
-                rel.ShipKilled(killedExpSettings.KillExp);
-                return;
-            }
-            rel.ActiveWar.StrengthKilled += killed.BaseStrength;
-            rel.ActiveWar.StrengthLost += killed.BaseStrength;
         }
 
         public void AddToShipLevel(int amountToAdd) => Level = Math.Min(255, Level + amountToAdd);
+
+        public void UpdateEmpiresOnKill(Ship killedShip)
+        {
+            loyalty.WeKilledTheirShip(killedShip.loyalty, killedShip);
+            killedShip.loyalty.TheyKilledOurShip(loyalty, killedShip);
+        }
 
         void ExplodeShip(float size, bool addWarpExplode)
         {
@@ -2326,16 +2204,19 @@ namespace Ship_Game.Ships
             ++DebugInfoScreen.ShipsDied;
             Projectile psource = source as Projectile;
             if (!cleanupOnly)
+            {
+                psource?.Module?.GetParent().UpdateEmpiresOnKill(this);
                 psource?.Module?.GetParent().AddKill(this);
+            }
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
             if (UniverseRandom.IntBetween(0, 100) > 65.0 && !IsPlatform && InFrustum)
             {
                 dying         = true;
-                xdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                ydie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                zdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
                 dietimer      = UniverseRandom.RandomBetween(4f, 6f);
                 if (psource != null && psource.Explodes && psource.DamageAmount > 100.0)
                     reallyDie = true;
