@@ -489,12 +489,7 @@ namespace Ship_Game.AI
                 Log.Error($"techType not found : ");
                 return null;
             }
-            DebugLog($"\nFind : {techtype.ToString()}");
-            if (OwnerEmpire.data.Traits.TechTypeRestrictions(techtype))
-            {
-                DebugLog($"Trait Restricted : {techtype.ToString()}");
-                return null;
-            }
+            DebugLog($"\nFind : {techtype.ToString()}");         
 
             TechEntry[] filteredTechs;
             TechEntry researchTech = null;

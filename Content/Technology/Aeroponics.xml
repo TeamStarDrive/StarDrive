@@ -14,11 +14,11 @@
       <UID>Biospheres</UID>
     </LeadsToTech>
   </LeadsTo>
-  <RaceExclusions>
-    <RequiredRace>
-      <ShipType>Opteris</ShipType>
-    </RequiredRace>
-  </RaceExclusions>
+  <HiddenFrom>
+    <RaceRequirements>
+      <RacialTrait>Cybernetic</RacialTrait>
+    </RaceRequirements>
+  </HiddenFrom>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>
