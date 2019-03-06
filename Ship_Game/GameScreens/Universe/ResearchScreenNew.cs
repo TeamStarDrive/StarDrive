@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -39,8 +39,7 @@ namespace Ship_Game
 
         public bool RightClicked;
 
-        Vector2 StartDragPos = Vector2.Zero;
-
+        Vector2 StartDragPos = Vector2.Zero;        
 
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
@@ -60,7 +59,7 @@ namespace Ship_Game
             batch.End();
 
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, camera.Transform);
-            
+
             DrawConnectingLines(batch);
 
             foreach (RootNode rootNode in RootNodes.Values)
@@ -144,8 +143,8 @@ namespace Ship_Game
 
             foreach (TreeNode node in SubNodes.Values)
             {
-                Technology technology2 = node.Entry.Tech;
-                if (technology2.LeadsTo.Count > 0)
+                Technology technology2 = node.Entry.Tech;                
+                if (technology2.AnyChildrenDiscovered(EmpireManager.Player))
                 {
                     var leftPoint = node.RightPoint;
                     Vector2 rightPoint = leftPoint + new Vector2(GridWidth / 2f, 0.0f);
@@ -160,9 +159,9 @@ namespace Ship_Game
                                 complete1 = true;
 
                             TreeNode treeNode3 = (SubNodes[techEntry2.UID]);
-                            var LeftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY() - 10);
-                            Vector2 RightPoint2 = LeftPoint2 + new Vector2(leftPoint.Distance(rightPoint) + 13f, 0.0f);
-                            batch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, techEntry2.Unlocked);
+                            var leftPoint2 = new Vector2(rightPoint.X, treeNode3.BaseRect.CenterY() - 10);
+                            Vector2 rightPoint2 = leftPoint2 + new Vector2(leftPoint.Distance(rightPoint) + 13f, 0.0f);
+                            batch.DrawResearchLineHorizontalGradient(leftPoint2, rightPoint2, techEntry2.Unlocked);
                         }
                     }
 
@@ -211,7 +210,7 @@ namespace Ship_Game
                 StartDragPos = input.CursorPosition;
                 cameraVelocity = Vector2.Zero;
             }
-            if (input.MouseCurr.RightButton != ButtonState.Pressed || input.MousePrev.RightButton != ButtonState.Pressed || RightClicked) 
+            if (input.MouseCurr.RightButton != ButtonState.Pressed || input.MousePrev.RightButton != ButtonState.Pressed || RightClicked)
             {
                 cameraVelocity = Vector2.Zero;
                 if (RightClicked) // fbedard: prevent screen scroll
@@ -237,7 +236,7 @@ namespace Ship_Game
                 EmpireManager.Player.UpdateShipsWeCanBuild();
             }
 
-            // Unlock only selected node for player 
+            // Unlock only selected node for player
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
             {
                 if (qcomponent.CurrentResearch != null)
@@ -253,7 +252,7 @@ namespace Ship_Game
                 }
             }
 
-            //Added by McShooterz: Cheat ot unlock non bonus tech 
+            //Added by McShooterz: Cheat ot unlock non bonus tech
             if (input.IsCtrlKeyDown  && input.KeyPressed(Keys.F3))
             {
                 foreach (Technology tech in ResourceManager.TechTree.Values)
@@ -314,7 +313,7 @@ namespace Ship_Game
                             if (preReq == null)
                             {
                                 break;
-                            }                            
+                            }
                             if (!preReq.Unlocked)
                             {
                                 techsToAdd.Add(preReq.UID);
@@ -458,7 +457,7 @@ namespace Ship_Game
             if (rows < 9) GridHeight = (MainMenu.Menu.Height - 40) / rows;
             else          GridHeight = (MainMenu.Menu.Height - 40) / 9;
 
-            if (cols > 0 && cols < 9) GridWidth = (MainMenu.Menu.Width - 350) / cols + 1;
+            if (cols > 0 && cols < 9) GridWidth = (MainMenu.Menu.Width - 350) / cols;
             else                      GridWidth = 165;
 
 
@@ -551,10 +550,24 @@ namespace Ship_Game
                 foreach (Technology.LeadsToTech tech in technology.LeadsTo)
                 {
                     if (EmpireManager.Player.HasDiscovered(tech.UID))
+                    {
                         rowCount++;
+                        continue;
+                    }
+                    //first lead to tech was not discovered.
+                    //find any discovered entries from here.
+                    foreach (var child in EmpireManager.Player.GetTechEntry(tech.UID).GetPlayerChildEntries())
+                    {
+                        if (child.Discovered)
+                        {
+                            rowCount++;
+                            break;
+                        }
+                    }
+
                 }
                 if (rowCount > 1)
-                    rows += rowCount - 1;
+                rows += rowCount - 1;
             }
             foreach (Technology.LeadsToTech tech in technology.LeadsTo)
             {

@@ -13,6 +13,11 @@
       <UID>XenoFarming</UID>
     </LeadsToTech>
   </LeadsTo>
+  <UnlockedAtGameStart>
+    <RaceRequirements>
+      <RacialTrait>Cybernetic</RacialTrait>
+    </RaceRequirements>
+  </UnlockedAtGameStart>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>
