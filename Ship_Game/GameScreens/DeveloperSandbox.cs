@@ -125,13 +125,6 @@ namespace Ship_Game
                 system.GenerateStartingSystem(e.data.Traits.HomeSystemName, sandbox, 1f, e);
                 system.OwnerList.Add(e);
                 sandbox.SolarSystemsList.Add(system);
-
-                foreach (Planet p in system.PlanetList)
-                {
-                    if (e.isPlayer)
-                        p.colonyType = Planet.ColonyType.Colony; // this is required to disable governors... for some reason
-                    p.SetExploredBy(e);
-                }
             }
 
             foreach (IEmpireData data in ResourceManager.MinorRaces) // init minor races

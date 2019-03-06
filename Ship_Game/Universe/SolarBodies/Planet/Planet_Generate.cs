@@ -124,6 +124,8 @@ namespace Ship_Game
                     TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
                 }
             }
+            if (Owner.isPlayer)
+                colonyType = ColonyType.Colony;
         }
 
         // Refactored by Fat Bastard && RedFox
