@@ -227,10 +227,6 @@ namespace Ship_Game.Ships
                         us.DrawString(posOnScreen, shipRotation, 600f / us.CamHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
                     }
                 }
-
-                // finally, draw firing arcs for the player ship
-                if (PlayerShip && slot.FieldOfFire > 0.0f && slot.InstalledWeapon != null)
-                    us.DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
 
             if (false && us.Debug)
@@ -369,7 +365,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, bool showModules)
+        public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, bool showModules, bool moduleHealthColor = true)
         {
             ShipData hullData = shipData.BaseHull;
             bool drawIcon = !showModules || ModuleSlotList.Length == 0;
@@ -408,8 +404,8 @@ namespace Ship_Game.Ships
                 Vector2 modulePos = (m.Position - GridOrigin) / 16f * moduleSize;
                 var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X, shipDrawRect.Y + (int)modulePos.Y, (int)moduleSize * m.XSIZE, (int)moduleSize * m.YSIZE);
                 
-                Color healthColor = m.GetHealthStatusColor();
-                Color moduleColorMultiply = healthColor.AddRgb(0.66f);
+                Color healthColor         = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40,40,40);
+                Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
                 batch.FillRectangle(rect, healthColor);
                 batch.Draw(m.ModuleTexture, rect, moduleColorMultiply);
             }

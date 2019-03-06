@@ -577,7 +577,7 @@ namespace Ship_Game.AI
 
         public bool WaitForBlockadeRemoval(ShipGoal g, Planet planet, float elapsedTime)
         {
-            if (planet.TradeBlocked)
+            if (planet.TradeBlocked && Owner.System != planet.ParentSystem)
             {
                 g.Trade.BlockadeTimer -= elapsedTime;
                 if (g.Trade.BlockadeTimer > 0f)
@@ -805,17 +805,9 @@ namespace Ship_Game.AI
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~ShipAI() { Dispose(false); }
-
-        void Dispose(bool disposing)
-        {
+            ClearOrders(); // dispose any active goals
             NearByShips = null;
             FriendliesNearby?.Dispose(ref FriendliesNearby);
-            OrderQueue?.Dispose(ref OrderQueue);
             PotentialTargets?.Dispose(ref PotentialTargets);
         }
     }

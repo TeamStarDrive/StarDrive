@@ -297,6 +297,8 @@ namespace Ship_Game
             return new Vector2(dx / len, dy / len);
         }
 
+        
+
         public static Vector2 Acceleration(this Vector2 startVel, Vector2 endVel, float deltaTime)
         {
             Vector2 deltaV = (endVel - startVel);
@@ -518,7 +520,7 @@ namespace Ship_Game
             return true;
         }
 
-        public static Vector2 OffSetTo(this Vector2 center, Vector2 target, float distance)
+        public static Vector2 OffsetTowards(this Vector2 center, Vector2 target, float distance)
         {
             return center + center.DirectionToTarget(target) * distance;
         }
@@ -592,20 +594,6 @@ namespace Ship_Game
         public static Vector3 RadiansToUp(this Vector3 radians)
         {
             return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Up;
-        }
-
-        public static Point ToGridPoint(this Vector2 vector, float reducer =16f)
-        {
-            vector.ToGridXY(out int x, out int y, reducer);
-            return new Point(x, y);
-        }
-
-        public static void ToGridXY(this Vector2 vector, out int x, out int y, float reducer = 16f)
-        {
-            float xround = vector.X > 0 ? .5f : -.5f;
-            float yround = vector.Y > 0 ? .5f : -.5f;
-            x = (int)((vector.X / reducer) + xround);
-            y = (int)((vector.Y / reducer) + yround);            
         }
 
         // Creates a 3D Forward vector from XYZ DEGREES rotation

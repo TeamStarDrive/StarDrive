@@ -205,7 +205,7 @@ namespace Ship_Game.Commands.Goals
                 return FinishedShip;
 
             foreach (Ship ship in empire.GetShips())
-                if (ship.isColonyShip && !ship.PlayerShip && (ship.AI != null && ship.AI.State != AIState.Colonize))
+                if (ship.isColonyShip && ship.AI != null && ship.AI.State != AIState.Colonize)
                     return ship;
 
             return null;

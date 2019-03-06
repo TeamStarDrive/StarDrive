@@ -19,6 +19,10 @@ namespace Ship_Game
 
     public sealed class Empire : IDisposable
     {
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException(
+                $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Empire XXX;` PROPERTIES/FIELDS. {this}");
+
         public float ProjectorRadius => Universe.SubSpaceProjectors.Radius;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
         private readonly Map<int, Fleet> FleetsDict    = new Map<int, Fleet>();
@@ -47,9 +51,7 @@ namespace Ship_Game
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
         private int TurnCount = 1;
-        //public int ColonizationGoalCount = 2;          //Not referenced in code, removing to save memory
         public string ResearchTopic = "";
-        //private Array<War> Wars = new Array<War>();          //Not referenced in code, removing to save memory
         private Fleet DefensiveFleet = new Fleet();
         private Array<Ship> ForcePool = new Array<Ship>();
         public EmpireData data;
@@ -57,13 +59,12 @@ namespace Ship_Game
         public string PortraitName;
 
         // faction means it's not an actual Empire like Humans or Kulrathi
-        // it doesnt normally colonize or make war plans.
+        // it doesn't normally colonize or make war plans.
         // it gets special instructions, usually event based, for example Corsairs
         public bool isFaction;
         public float Research;
         public Color EmpireColor;
         public static UniverseScreen Universe;
-        //public Vector4 VColor;          //Not referenced in code, removing to save memory
         private EmpireAI EmpireAI;
         private float UpdateTimer;
         public bool isPlayer;
@@ -80,6 +81,7 @@ namespace Ship_Game
         public bool AutoExplore;
         public bool AutoColonize;
         public bool AutoFreighters;
+        public bool AutoPickBestFreighter;
         public bool AutoResearch;
         public int TotalScore;
         public float TechScore;
@@ -100,12 +102,13 @@ namespace Ship_Game
         public bool canBuildTroopShips;
         public bool canBuildSupportShips;
         public float currentMilitaryStrength;
-        public float MaxResearchPotential = 10;
-        public float MaxColonyValue { get; private set; }
-        public Ship BestPlatformWeCanBuild { get; private set; }
-        public Ship BestStationWeCanBuild { get; private set; }
+        public float MaxResearchPotential    = 10;
+        public float FastVsBigFreighterRatio { get; private set; } = 0.5f;
+        public float MaxColonyValue          { get; private set; }
+        public Ship BestPlatformWeCanBuild   { get; private set; }
+        public Ship BestStationWeCanBuild    { get; private set; }
+        public int ColonyRankModifier        { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
-        public int ColonyRankModifier { get; private set; }
         //added by gremlin
         private float leftoverResearch;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
@@ -484,18 +487,40 @@ namespace Ship_Game
 
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 
-        public Map<string, TechEntry> GetTDict() => TechnologyDict;
+        public Map<string, TechEntry>.ValueCollection TechEntries => TechnologyDict.Values;
 
-        public TechEntry GetTechEntry(string tech)
+        // @note this is used for comparing rival empire tech entries
+        public TechEntry GetTechEntry(TechEntry theirTech) => GetTechEntry(theirTech.UID);
+        public TechEntry GetTechEntry(Technology theirTech) => GetTechEntry(theirTech.UID);
+
+        public TechEntry GetTechEntry(string uid)
         {
-            if (TechnologyDict.TryGetValue(tech, out TechEntry techEntry))
+            if (TechnologyDict.TryGetValue(uid, out TechEntry techEntry))
                 return techEntry;
-            Log.Error($"Empire GetTechEntry: Failed To Find Tech: ({tech})");
+            Log.Error($"Empire GetTechEntry: Failed To Find Tech: ({uid})");
             return TechEntry.None;
         }
 
+        public bool TryGetTechEntry(string uid, out TechEntry techEntry)
+        {
+            return TechnologyDict.TryGetValue(uid, out techEntry);
+        }
+
+        public bool HasUnlocked(string uid)       => GetTechEntry(uid).Unlocked;
+        public bool HasUnlocked(TechEntry tech)   => GetTechEntry(tech).Unlocked;
+        public bool HasDiscovered(string techId)  => GetTechEntry(techId).Discovered;
+        public float TechProgress(TechEntry tech) => GetTechEntry(tech).Progress;
+        public float TechCost(TechEntry tech)     => GetTechEntry(tech).TechCost;
+        public string AcquiredFrom(TechEntry tech) => GetTechEntry(tech).AcquiredFrom;
+        public string AcquiredFrom(string techId)  => GetTechEntry(techId).AcquiredFrom;
+
+        public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
+
         public float GetProjectedResearchNextTurn()
             => OwnedPlanets.Sum(p=> p.Res.NetIncome);
+
+        public TechEntry CurrentResearch
+            => ResearchTopic.NotEmpty() ? TechnologyDict[ResearchTopic] : TechEntry.None;
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
 
@@ -698,48 +723,22 @@ namespace Ship_Game
         {
             foreach (var kv in ResourceManager.TechTree)
             {
-                TechEntry techEntry = new TechEntry
-                {
-                    Progress = 0.0f,
-                    UID = kv.Key
-                };
+                var techEntry = new TechEntry(kv.Key);
 
-                //added by McShooterz: Checks if tech is racial, hides it, and reveals it only to races that pass
-                bool raceLimited = kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0;
-                if (raceLimited)
-                {
-                    techEntry.Discovered |= kv.Value.RaceRestrictions.Count == 0 && kv.Value.ComesFrom.Count >0;
-                    kv.Value.Secret |= kv.Value.RaceRestrictions.Count != 0;
-                    foreach (Technology.RequiredRace raceTech in kv.Value.RaceRestrictions)
-                    {
-                        if (raceTech.ShipType != data.Traits.ShipType) continue;
-                        techEntry.Discovered = true;
-                        break;
-                    }
-                    if (techEntry.Discovered)
-                    {
-                        foreach (Technology.RequiredRace raceTech in kv.Value.RaceExclusions)
-                        {
-                            if (raceTech.ShipType != data.Traits.ShipType) continue;
-                            techEntry.Discovered = false;
-                            kv.Value.Secret = true;
-                            break;
-                        }
-                    }
-
-                    if (techEntry.Discovered)
-                        techEntry.Unlocked = kv.Value.RootNode == 1;
-                }
-                else //not racial tech
+                if (techEntry.IsHidden(this))
+                    techEntry.SetDiscovered(false);
+                else
                 {
                     bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && kv.Value.RootNode == 0);
-                    techEntry.Unlocked = kv.Value.RootNode == 1 && !secret;
-                    techEntry.Discovered = !secret;
+                    if (kv.Value.RootNode == 1 && !secret)
+                        techEntry.ForceFullyResearched();
+                    else                    
+                        techEntry.ForceNeedsFullResearch();                    
+                    techEntry.SetDiscovered(!secret);
                 }
 
-
                 if (isFaction || data.Traits.Prewarp == 1)
-                    techEntry.Unlocked = false;
+                    techEntry.ForceNeedsFullResearch();
                 TechnologyDict.Add(kv.Key, techEntry);
             }
         }
@@ -830,7 +829,7 @@ namespace Ship_Game
             PopulateShipTechLists(moduleUID, techUID);
         }
 
-        private void PopulateShipTechLists(string moduleUID, string techUID, bool addToMainShipTechs = true)
+        void PopulateShipTechLists(string moduleUID, string techUID, bool addToMainShipTechs = true)
         {
             if (addToMainShipTechs)
                 ShipTechs.Add(techUID);
@@ -871,20 +870,18 @@ namespace Ship_Game
             UnlockedTroopDict[troopName] = true;
             UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(troopName));
         }
+
         public void UnlockEmpireBuilding(string buildingName) => UnlockedBuildingsDict[buildingName] = true;
 
         public void SetEmpireTechDiscovered(string techUID)
         {
             TechEntry tech = GetTechEntry(techUID);
-            if (tech == null)
-            {
-                Log.Warning($"SetEmpireTechDiscovered: Tech UID was not found: Tech({techUID})");
-                return; //don't crash.
-            }
-            tech.SetDiscovered(this);
+            if (tech != TechEntry.None)
+                tech.SetDiscovered(this);
         }
 
         public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevealedTechs(this);
+        public void SetEmpireTechRevealed(TechEntry techEntry) => techEntry.DoRevealedTechs(this);
 
         public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
         {
@@ -895,16 +892,20 @@ namespace Ship_Game
             }
         }
 
-        public void UnlockTech(string techId) => UnlockTech(GetTechEntry(techId));
+        public void UnlockTech(string techId)
+        {
+            UnlockTech(GetTechEntry(techId));
+        }
 
         public void UnlockTech(TechEntry techEntry)
         {
-            if (!techEntry.Unlock(this))
-                return;
-            UpdateShipsWeCanBuild();
-            EmpireAI.TriggerRefit();
-            EmpireAI.TriggerFreightersScrap();
-            data.ResearchQueue.Remove(techEntry.UID);
+            if (techEntry.Unlock(this))
+            {
+                UpdateShipsWeCanBuild();
+                EmpireAI.TriggerRefit();
+                EmpireAI.TriggerFreightersScrap();
+                data.ResearchQueue.Remove(techEntry.UID);
+            }
         }
 
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
@@ -1004,7 +1005,6 @@ namespace Ship_Game
                     if (nearby.System == null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
                         break;
 
-                    nearby.System.DangerTimer = 120f;
                     break;
                 }
 
@@ -1275,6 +1275,7 @@ namespace Ship_Game
             debug.AddLine($"Freighter Types: F: {foodShips}  P: {prodShips} C: {colonistsShips}");
             debug.AddLine($"Freighters in Queue / Max: {FreightersBeingBuilt}/{MaxFreightersInQueue}");
             debug.AddLine($"Idle Freighters: {IdleFreighters.Length}");
+            debug.AddLine($"Fast or Big Ratio: {FastVsBigFreighterRatio}");
             debug.AddLine("");
             debug.AddLine("Planet Trade:");
             debug.AddLine($"Importing Planets: F: {foodImportPlanets}  P: {prodImportPlanets}  C: {coloImportPlanets}");
@@ -1286,8 +1287,8 @@ namespace Ship_Game
             {
                 int importSlots = p.FoodImportSlots + p.ProdImportSlots + p.ColonistsImportSlots;
                 int exportSlots = p.FoodExportSlots + p.ProdExportSlots + p.ColonistsExportSlots;
-                string incoming = p.IncomingFreighters.Count.ToString();
-                string outgoing = p.OutgoingFreighters.Count.ToString();
+                string incoming = p.NumIncomingFreighters.ToString();
+                string outgoing = p.NumOutgoingFreighters.ToString();
                 string starving = p.Storage.Food.AlmostZero() && p.Food.NetIncome < 0 ? " (Starving!)" : "";
                 debug.AddLine($"{p.ParentSystem.Name} : {p.Name}{starving}");
                 debug.AddLine($"Incoming / Import Slots: {incoming}/{importSlots}");
@@ -1375,7 +1376,7 @@ namespace Ship_Game
 
         public float GetTotalTradeIncome()
         {
-            float total = 0f; 
+            float total = 0f;
             foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
                 if (kv.Value.Treaty_Trade) total += kv.Value.TradeIncome();
             return total;
@@ -1424,7 +1425,7 @@ namespace Ship_Game
             return GrossIncome + plusNetIncome - BuildingAndShipMaint;
         }
 
-        public float GetActualNetLastTurn() => Money - MoneyLastTurn; 
+        public float GetActualNetLastTurn() => Money - MoneyLastTurn;
 
         public void FactionShipsWeCanBuild()
         {
@@ -1637,7 +1638,7 @@ namespace Ship_Game
                 militaryPotential += fertility + p.MineralRichness + p.MaxPopulationBillion;
                 if (p.MaxPopulation >=500)
                 {
-                    
+
                     if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
                         researchPotential = (tech.ActualCost - Research) / tech.ActualCost
                                             * (p.Fertility*2 + p.MineralRichness + (p.MaxPopulation / 500));
@@ -2140,7 +2141,7 @@ namespace Ship_Game
             }
 
             float research = Research + leftoverResearch;
-            TechEntry tech = GetTechEntry(ResearchTopic);
+            TechEntry tech = CurrentResearch;
             if (tech.UID.IsEmpty())
                 return;
             //reduce the impact of tech that doesnt affect cybernetics.
@@ -2256,7 +2257,7 @@ namespace Ship_Game
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
-            foreach (TechEntry techEntry in target.GetTDict().Values)
+            foreach (TechEntry techEntry in target.TechEntries)
             {
                 if (techEntry.Unlocked)
                     AcquireTech(techEntry.UID, target);
@@ -2356,7 +2357,7 @@ namespace Ship_Game
             return num;
         }
 
-        public bool HavePreReq(string techID) => GetTechEntry(techID).HasPreReq(this);
+        public bool HavePreReq(string techId) => GetTechEntry(techId).HasPreReq(this);
 
         void DispatchBuildAndScrapFreighters()
         {
@@ -2471,6 +2472,11 @@ namespace Ship_Game
             }
         }
 
+        public void IncreaseFastVsBigFreighterRatio(float amount)
+        {
+            FastVsBigFreighterRatio = (FastVsBigFreighterRatio + amount).Clamped(0.1f, 1);
+        }
+
         public EmpireAI GetEmpireAI() => EmpireAI;
 
         public Vector2 GetWeightedCenter()
@@ -2492,13 +2498,29 @@ namespace Ship_Game
             return avgPlanetCenter / planets;
         }
 
-        public void TheyKilledOurShip(Empire they, ShipRole.Race expData)
+        public void TheyKilledOurShip(Empire they, Ship killedShip)
         {
-            if (!isFaction || this != EmpireManager.Remnants) return;
-            if (!they.isPlayer) return;
-            if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) return;
+            if (KillsForRemnantStory(they, killedShip)) return;
+            if (!TryGetRelations(they, out Relationship rel))
+                return;
+            rel.LostAShip(killedShip);
+        }
 
-            GlobalStats.IncrementRemnantKills((int)expData.KillExp);
+        public void WeKilledTheirShip(Empire they, Ship killedShip)
+        {
+            if (!TryGetRelations(they, out Relationship rel))
+                return;
+            rel.KilledAShip(killedShip);
+        }
+
+        public bool KillsForRemnantStory(Empire they, Ship killedShip)
+        {
+            if (!isFaction || this != EmpireManager.Remnants) return false;
+            if (!they.isPlayer) return false;
+            if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) return false;
+            ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
+            GlobalStats.IncrementRemnantKills((int)killedExpSettings.KillExp);
+            return true;
         }
 
         void AssignExplorationTasks()
@@ -2539,7 +2561,7 @@ namespace Ship_Game
             var desiredScouts = unexplored * ResearchStrategy.ExpansionRatio * .5f;
             foreach (Ship ship in OwnedShips)
             {
-                if (ship.DesignRole != ShipData.RoleName.scout || ship.PlayerShip)
+                if (ship.DesignRole != ShipData.RoleName.scout)
                     continue;
                 ship.DoExplore();
                 if (++numScouts >= desiredScouts)

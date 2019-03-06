@@ -77,7 +77,7 @@ namespace Ship_Game
         {
             float ratio = storage / Storage.Max;
             if (ratio > 0.8f)
-                return +1.5f; // when idling, keep production low to leave room for others
+                return 1; // when idling, keep production low to leave room for others
 
             float minPerTurn = res.NetMaxPotential * 0.1f;
             float maxPerTurn = res.NetMaxPotential * 0.9f; // MAX % for this product

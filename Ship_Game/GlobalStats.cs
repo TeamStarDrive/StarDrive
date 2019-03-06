@@ -72,6 +72,7 @@ namespace Ship_Game
         public static string ModName = "";
         public static string ModPath = ""; // "Mods/MyMod/"
         public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/MyMod/MyMod.xml"
+        public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
         public static string ResearchRootUIDToDisplay = "Colonization";
         public static int RemnantKills;
         public static int RemnantActivation;

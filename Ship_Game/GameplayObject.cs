@@ -1,12 +1,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-using Ship_Game.Audio;
 
 namespace Ship_Game
 {
@@ -28,7 +28,7 @@ namespace Ship_Game
 
         /**
          *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
-         *        will be accidentally serialized! 
+         *        will be accidentally serialized!
          */
 
         [XmlIgnore][JsonIgnore] public bool Active = true;
@@ -87,8 +87,8 @@ namespace Ship_Game
         }
 
         public virtual void Die(GameplayObject source, bool cleanupOnly)
-        {            
-            Active = false; 
+        {
+            Active = false;
             Empire.Universe.QueueGameplayObjectRemoval(this);
         }
 
@@ -98,12 +98,12 @@ namespace Ship_Game
                 UniverseScreen.SpaceManager.Remove(this);
         }
 
-        [XmlIgnore][JsonIgnore] 
+        [XmlIgnore][JsonIgnore]
         public bool IsInFrustum =>
             Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView &&
             Empire.Universe.Frustum.Contains(Center, 2000f);
 
-        [XmlIgnore][JsonIgnore] 
+        [XmlIgnore][JsonIgnore]
         public string SystemName => System?.Name ?? "Deep Space";
 
         public void SetSystem(SolarSystem system)
@@ -133,10 +133,12 @@ namespace Ship_Game
             {
                 var ship = (Ship)this;
                 Empire oldLoyalty = ship.loyalty;
+                oldLoyalty.TheyKilledOurShip(changeTo, ship);
+                changeTo.WeKilledTheirShip(oldLoyalty, ship);
                 ship.ClearFleet();
                 oldLoyalty.GetShips().QueuePendingRemoval(ship);
                 oldLoyalty.RemoveShip(ship);
-                                                         
+
                 oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
                 changeTo.AddShipNextFrame(ship);
                 ship.shipStatusChanged = true;
@@ -176,7 +178,7 @@ namespace Ship_Game
         // @return Error offset or Vector2.Zero if no jamming error
         public virtual Vector2 JammingError()
         {
-            return Vector2.Zero;            
+            return Vector2.Zero;
         }
 
         public virtual void OnDamageInflicted(ShipModule victim, float damage)

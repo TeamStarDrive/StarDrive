@@ -35,7 +35,16 @@ namespace Ship_Game.Universe.SolarBodies
         public float Population
         {
             get => PopValue;
-            set => PopValue = value.Clamped(0f, Ground.MaxPopulation);
+            set
+            {
+                if (float.IsNaN(value))
+                {
+                    Log.Error("Invalid NAN Value!");
+                    value = 0f;
+                }
+
+                PopValue = value.Clamped(0f, Ground.MaxPopulation);
+            }
         }
 
         // different from Food -- this is based on race

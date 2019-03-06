@@ -165,21 +165,6 @@ namespace Ship_Game.Ships
                 UpdateThrusters();
             }
 
-            if (PlayerShip)
-            {
-                if ((!isSpooling || !Active) && Afterburner.IsPlaying)
-                {
-                    Afterburner.Stop();
-                }
-                if (isThrusting && AI.State == AIState.ManualControl && DroneSfx.IsStopped)
-                {
-                    DroneSfx.PlaySfxAsync("starcruiser_drone01", SoundEmitter);
-                }
-                else if ((!isThrusting || !Active) && DroneSfx.IsPlaying)
-                {
-                    DroneSfx.Stop();
-                }
-            }
             SoundEmitter.Position = new Vector3(Center, 0);
         }
 
@@ -258,20 +243,18 @@ namespace Ship_Game.Ships
                 Vector3 position = UniverseRandom.Vector3D(0f, Radius);
                 Empire.Universe.sparks.AddParticleThreadA(position, Vector3.Zero);
             }
-            yRotation += xdie * elapsedTime;
-            xRotation += ydie * elapsedTime;
+            yRotation += DieRotation.X * elapsedTime;
+            xRotation += DieRotation.Y * elapsedTime;
+            Rotation  += DieRotation.Z * elapsedTime;
 
-            //Ship ship3 = this;
-            //double num2 = (double)this.Rotation + (double)this.zdie * (double)elapsedTime;
-            Rotation += zdie * elapsedTime;
             if (ShipSO == null)
                 return;
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && inSensorRange)
             {
                 ShipSO.World = Matrix.CreateRotationY(yRotation)
-                               * Matrix.CreateRotationX(xRotation)
-                               * Matrix.CreateRotationZ(Rotation)
-                               * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+                             * Matrix.CreateRotationX(xRotation)
+                             * Matrix.CreateRotationZ(Rotation)
+                             * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
                 if (shipData.Animated)
                 {
                     ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;

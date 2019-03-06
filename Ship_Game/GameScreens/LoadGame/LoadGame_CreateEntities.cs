@@ -55,16 +55,22 @@ namespace Ship_Game
                 e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
                 e.data.CurrentConstructor   = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
+
+                e.IncreaseFastVsBigFreighterRatio(sdata.FastVsBigFreighterRatio - e.FastVsBigFreighterRatio);
                 if (sdata.empireData.DefaultTroopShip.IsEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
             }
-            foreach(TechEntry tech in sdata.TechTree)
+
+            foreach (TechEntry tech in sdata.TechTree)
             {
-                if (!ResourceManager.TryGetTech(tech.UID, out _))
-                    Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
-                else
+                if (ResourceManager.TryGetTech(tech.UID, out _))
+                {
+                    tech.ResolveTech();
                     e.TechnologyDict.Add(tech.UID, tech);
-            }            
+                }
+                else Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
+            }
+            
             e.InitializeFromSave();
             e.AddMoney(sdata.Money - e.Money);
             e.Research = sdata.Research;
@@ -83,33 +89,26 @@ namespace Ship_Game
                 OrbitalAngle = psdata.OrbitalAngle
             };
 
-            if (!string.IsNullOrEmpty(psdata.Owner))
+            if (psdata.Owner.NotEmpty())
             {
                 p.Owner = EmpireManager.GetEmpireByName(psdata.Owner);
                 p.Owner.AddPlanet(p);
             }
 
-            if(!string.IsNullOrEmpty(psdata.SpecialDescription))
+            if (psdata.SpecialDescription.NotEmpty())
                 p.SpecialDescription = psdata.SpecialDescription;
 
-            if (psdata.Scale > 0f)
-                p.Scale = psdata.Scale;
-            else
-            {
-                float scale = RandomMath.RandomBetween(1f, 2f);
-                p.Scale = scale;
-            }
-
+            p.Scale = psdata.Scale > 0f ? psdata.Scale : RandomMath.RandomBetween(1f, 2f);
             p.colonyType = psdata.ColonyType;
             p.GovOrbitals = psdata.GovOrbitals;
 
-            p.FS                    = psdata.FoodState;
-            p.PS                    = psdata.ProdState;
-            p.Food.PercentLock      = psdata.FoodLock;
-            p.Prod.PercentLock      = psdata.ProdLock;
-            p.Res.PercentLock       = psdata.ResLock;
-            p.OrbitalRadius         = psdata.OrbitalDistance;
-            p.MaxPopBase            = psdata.PopulationMax;
+            p.FS               = psdata.FoodState;
+            p.PS               = psdata.ProdState;
+            p.Food.PercentLock = psdata.FoodLock;
+            p.Prod.PercentLock = psdata.ProdLock;
+            p.Res.PercentLock  = psdata.ResLock;
+            p.OrbitalRadius    = psdata.OrbitalDistance;
+            p.MaxPopBase       = psdata.PopulationMax;
 
             p.SetFertility(psdata.Fertility, psdata.MaxFertility);
 
@@ -122,7 +121,7 @@ namespace Ship_Game
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
             p.UpdateTerraformPoints(psdata.TerraformPoints);
             foreach (Guid guid in psdata.StationsList)
-                p.OrbitalStations[guid]   = null; // reserve orbital stations (and platforms)
+                p.OrbitalStations[guid] = null; // reserve orbital stations (and platforms)
 
             p.Food.Percent = psdata.farmerPercentage;
             p.Prod.Percent = psdata.workerPercentage;
@@ -185,7 +184,7 @@ namespace Ship_Game
                 moon.Initialize();
                 system.MoonList.Add(moon);
             }
-            system.SetExploredBy(ssd.EmpiresThatKnowThisSystem);
+            system.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
             foreach (SavedGame.RingSave ring in ssd.RingList)
             {
@@ -212,7 +211,7 @@ namespace Ship_Game
                         system.OwnerList.Add(p.Owner);
                     }
                     system.PlanetList.Add(p);
-                    p.SetExploredBy(ssd.EmpiresThatKnowThisSystem);
+                    p.SetExploredBy(ssd.ExploredBy);
 
                     system.RingList.Add(new SolarSystem.Ring
                     {
@@ -257,8 +256,6 @@ namespace Ship_Game
                 return;
 
             e.AddShip(ship);
-            if (ship.PlayerShip)
-                data.playerShip = ship;
             data.MasterShipList.Add(ship);
         }
 
@@ -343,7 +340,7 @@ namespace Ship_Game
                 {
                     if (rsave.Planet != null)
                     {
-                        Planet p = data.FindPlanet(rsave.Planet.guid);
+                        Planet p = data.FindPlanetOrNull(rsave.Planet.guid);
                         if (p?.Owner != null)
                         {
                             RestorePlanetConstructionQueue(saveData, rsave, p);
@@ -442,11 +439,8 @@ namespace Ship_Game
                     task.SetEmpire(e);
                     e.GetEmpireAI().TaskList.Add(task);
 
-                    if (task.TargetPlanetGuid != Guid.Empty)
-                    {
-                        Planet p = data.FindPlanet(task.TargetPlanetGuid);
-                        if (p != null) task.SetTargetPlanet(p);
-                    }
+                    if (data.FindPlanet(task.TargetPlanetGuid, out Planet p))
+                        task.SetTargetPlanet(p);
 
                     foreach (Guid guid in task.HeldGoals)
                     {
@@ -543,17 +537,17 @@ namespace Ship_Game
                 data.EmpireList.Add(e);
                 if (isPlayer)
                 {
-                    e.AutoColonize = saveData.AutoColonize;
-                    e.AutoExplore = saveData.AutoExplore;
-                    e.AutoFreighters = saveData.AutoFreighters;
-                    e.AutoBuild = saveData.AutoProjectors;
+                    e.AutoColonize          = saveData.AutoColonize;
+                    e.AutoExplore           = saveData.AutoExplore;
+                    e.AutoFreighters        = saveData.AutoFreighters;
+                    e.AutoPickBestFreighter = saveData.AutoPickBestFreighter;
+                    e.AutoBuild             = saveData.AutoProjectors;
                 }
 
                 EmpireManager.Add(e);
             }
         }
 
-        
         static void GiftShipsFromServantEmpire(UniverseData data)
         {
             foreach (Empire e in data.EmpireList)
@@ -562,10 +556,10 @@ namespace Ship_Game
                     continue;
                 Empire servantEmpire = e;
                 Empire masterEmpire = EmpireManager.GetEmpireByName(servantEmpire.data.AbsorbedBy);
-                foreach (KeyValuePair<string, TechEntry> masterEmpireTech in masterEmpire.GetTDict())
+                foreach (TechEntry masterTech in masterEmpire.TechEntries)
                 {
-                    if (masterEmpireTech.Value.Unlocked)
-                        masterEmpire.UnlockHullsSave(masterEmpireTech.Value, servantEmpire.data.Traits.ShipType);
+                    if (masterTech.Unlocked)
+                        masterEmpire.UnlockHullsSave(masterTech, servantEmpire.data.Traits.ShipType);
                 }
             }
         }
@@ -600,22 +594,24 @@ namespace Ship_Game
                         continue;
 
                     SavedGame.PlanetSaveData savedPlanet = ring.Planet;
-                    Planet planet = data.FindPlanet(savedPlanet.guid);
-                    if (savedPlanet.IncomingFreighters != null)
+                    if (data.FindPlanet(savedPlanet.guid, out Planet planet))
                     {
-                        foreach (Guid freighterGuid in savedPlanet.IncomingFreighters)
+                        if (savedPlanet.IncomingFreighters != null)
                         {
-                            data.FindShip(freighterGuid, out Ship freighter);
-                            planet.AddToIncomingFreighterList(freighter);
+                            foreach (Guid freighterGuid in savedPlanet.IncomingFreighters)
+                            {
+                                data.FindShip(freighterGuid, out Ship freighter);
+                                planet.AddToIncomingFreighterList(freighter);
+                            }
                         }
-                    }
 
-                    if (savedPlanet.OutgoingFreighters != null)
-                    {
-                        foreach (Guid freighterGuid in savedPlanet.OutgoingFreighters)
+                        if (savedPlanet.OutgoingFreighters != null)
                         {
-                            data.FindShip(freighterGuid, out Ship freighter);
-                            planet.AddToOutgoingFreighterList(freighter);
+                            foreach (Guid freighterGuid in savedPlanet.OutgoingFreighters)
+                            {
+                                data.FindShip(freighterGuid, out Ship freighter);
+                                planet.AddToOutgoingFreighterList(freighter);
+                            }
                         }
                     }
                 }

@@ -43,55 +43,6 @@ namespace Ship_Game
             return new Vector2(ray.Position.X + num2 * ray.Direction.X, ray.Position.Y + num2 * ray.Direction.Y);
         }
 
-        public void FollowPlayer()
-        {
-            SelectedShip.AI.State = AIState.Escort;
-            SelectedShip.AI.EscortTarget = playerShip;
-        }
-
-        public void ViewShip()
-        {
-            if (SelectedShip == null)
-                return;
-            if (playerShip != null && SelectedShip == playerShip)
-            {
-                playerShip.PlayerShip = false;
-                playerShip.AI.State = AIState.AwaitingOrders;
-                playerShip = null;
-            }
-            else
-            {
-                if (SelectedShip.loyalty != player || SelectedShip.isConstructor)
-                    return;
-                ShipToView = SelectedShip;
-                snappingToShip = true;
-                HeightOnSnap = CamHeight;
-                CamDestination.Z = 3500f;
-                if (playerShip != null)
-                {
-                    playerShip.PlayerShip = false;
-                    playerShip.AI.State = AIState.AwaitingOrders;
-                    playerShip = SelectedShip;
-                    SelectedShip.PlayerShip = true;
-                    SelectedShip.AI.State = AIState.ManualControl;
-                }
-                else
-                {
-                    playerShip = SelectedShip;
-                    SelectedShip.PlayerShip = true;
-                    SelectedShip.AI.State = AIState.ManualControl;
-                }
-                AdjustCamTimer = 1.5f;
-                transitionElapsedTime = 0.0f;
-                CamDestination.Z = 4500f;
-                snappingToShip = true;
-                ViewingShip = true;
-                if (!playerShip.isSpooling)
-                    return;
-                playerShip.HyperspaceReturn();
-            }
-        }
-
         public void ViewToShip()
         {
             if (SelectedShip == null)

@@ -217,6 +217,11 @@ namespace Ship_Game
             return (int)font.MeasureString(text).X;
         }
 
+        public static int TextWidth(this SpriteFont font, int localizationId)
+        {
+            return (int)font.MeasureString(Localizer.Token(localizationId)).X;
+        }
+
         public static void parseTextToSL(string text, float width, SpriteFont font, ref ScrollList List)
         {
             string line = "";

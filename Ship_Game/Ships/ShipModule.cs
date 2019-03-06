@@ -379,16 +379,6 @@ namespace Ship_Game.Ships
                 if (shield_power_max > 0.0f)
                     shield = ShieldManager.AddShield(this, Rotation, Center);
             }
-
-            if (ModuleType == ShipModuleType.Hangar && !IsSupplyBay)
-            {
-                if (OrdinanceCapacity == 0)
-                {
-                    OrdinanceCapacity = (short)(MaximumHangarShipSize / 2);
-                    if (OrdinanceCapacity < 50)
-                        OrdinanceCapacity = 50;
-                }
-            }
         }
 
         public void InitHangar()
@@ -596,7 +586,7 @@ namespace Ship_Game.Ships
             {
                 damageRemainder = 0f;
                 if (source != null) EvtDamageInflicted(source, 0f);
-                return; // damage was deflected
+                return; // damage was deflected. FB - if we want to do projectile deflection draw. need to return false here
             }
 
             DebugDamageCircle();
@@ -1092,7 +1082,18 @@ namespace Ship_Game.Ships
             repairAmount = RepairDifficulty  <= 0 ? repairAmount : repairAmount / RepairDifficulty; //Some modules mightbe more difficult to repiar
             float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamped(0, repairAmount);
             SetHealth(Health + repairAmount );
+            VisualizeRepair();
+
             return repairLeft;
+        }
+
+        public void VisualizeRepair()
+        {
+            float modelZ               = Parent.BaseHull.ModelZ;
+            modelZ                     = modelZ.Clamped(0, 200) * -1;
+            Vector3 repairEffectOrigin = Center.ToVec3(modelZ);
+            for (int i = 0; i < 50; i++)
+                Empire.Universe.sparks.AddParticleThreadB(repairEffectOrigin, Vector3.Zero);
         }
 
         // Used for picking best repair candidate based on main  moduletype (disregard secondary module fucntions)
