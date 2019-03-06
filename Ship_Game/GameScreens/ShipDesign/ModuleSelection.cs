@@ -1,10 +1,10 @@
-﻿using System;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Text;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -65,14 +65,14 @@ namespace Ship_Game
         public bool HandleInput(InputState input, ShipModule activeModule, ShipModule highlightedModule)
         {
             if (HitTest(input) && WeaponSl.HandleInput(input))
-                return true;            
+                return true;
             ChooseFighterSL.HandleInput(input, activeModule, highlightedModule);
             ActiveModSubMenu.HandleInputNoReset(input);
             if (!base.HandleInput(input))
                 return false;
             ResetLists();
             return false;
-            
+
         }
         public new void Draw(SpriteBatch batch)
         {
@@ -110,7 +110,7 @@ namespace Ship_Game
             return string.Concat(returnString, line);
         }
 
-       
+
         private void DrawString(ref Vector2 cursorPos, string text, SpriteFont font = null)
         {
             if (font == null) font = Fonts.Arial8Bold;
@@ -408,8 +408,8 @@ namespace Ship_Game
             modTitlePos.X = 10;
             float strength = mod.CalculateModuleOffenseDefense(ParentScreen.ActiveHull.ModuleSlots.Length);
             DrawStat(ref modTitlePos, "Offense", strength, 227);
-            
-            if (!mod.isWeapon || mod.InstalledWeapon == null)
+
+            if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)
             {
                 DrawModuleStats(mod, modTitlePos, starty);
             }
@@ -433,7 +433,7 @@ namespace Ship_Game
         private void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
             if (stat.IsEmpty())
-                return;            
+                return;
             ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Menu.Width * 0.33f, lineSpacing: 0);
             WriteLine(ref cursor);
         }
@@ -480,10 +480,10 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(131), mod.thrust, 91);
             DrawStat(ref modTitlePos, Localizer.Token(2064), mod.WarpThrust, 92);
             DrawStat(ref modTitlePos, Localizer.Token(2260), mod.TurnThrust, 148);
-            
+
             float shieldMax = mod.ActualShieldPowerMax;
             DrawStat(ref modTitlePos, Localizer.Token(132), shieldMax, 93);
-            
+
             DrawStat(ref modTitlePos, Localizer.Token(133), mod.shield_radius, 94);
             DrawStat(ref modTitlePos, Localizer.Token(134), mod.shield_recharge_rate, 95);
             DrawStat(ref modTitlePos, Localizer.Token(1994), mod.shield_recharge_combat_rate, 1993);
@@ -526,11 +526,11 @@ namespace Ship_Game
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
             {
                 DrawStat(ref modTitlePos, Localizer.Token(6004), mod.ECM, 154, isPercent: true);
-                
+
             }
             if (mod.ModuleType == ShipModuleType.Hangar)
             {
-                DrawStat(ref modTitlePos, Localizer.Token(136), mod.hangarTimerConstant, 98);                
+                DrawStat(ref modTitlePos, Localizer.Token(136), mod.hangarTimerConstant, 98);
             }
             if (mod.explodes)
             {
@@ -548,10 +548,10 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(6149), mod.InterceptResist, 196, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6150), mod.RailgunResist, 197, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6151), mod.SpaceBombResist, 198, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(6152), mod.BombResist, 199, isPercent: true);            
+            DrawStat(ref modTitlePos, Localizer.Token(6152), mod.BombResist, 199, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6153), mod.BioWeaponResist, 200, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6154), mod.DroneResist, 201, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(6155), mod.WarpResist, 202, isPercent: true);            
+            DrawStat(ref modTitlePos, Localizer.Token(6155), mod.WarpResist, 202, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6156), mod.TorpedoResist, 203, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6157), mod.CannonResist, 204, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6158), mod.SubspaceResist, 205, isPercent: true);
@@ -584,7 +584,7 @@ namespace Ship_Game
             DrawString(ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), Fonts.Arial20Bold);
             shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
             shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing *2;
-            DrawStat(ref shipSelectionPos, "LaunchCost", ship.ShipOrdLaunchCost, -1);                
+            DrawStat(ref shipSelectionPos, "LaunchCost", ship.ShipOrdLaunchCost, -1);
             DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, -1);
             DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, -1);
             DrawStat(ref shipSelectionPos, "FTL", ship.maxFTLSpeed, -1);
@@ -658,24 +658,24 @@ namespace Ship_Game
                 if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, 242);
             }
 
-            
+
             DrawStat(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, 87);
             DrawStat(ref cursor, "Delay", delay, 183);
 
-            
+
             DrawStat(ref cursor, "EMP", w.EMPDamage, 110);
             float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
             DrawStat(ref cursor, "Siphon", siphon, 184);
-            
+
             float tractor = w.MassDamage + w.MassDamage * beamMultiplier;
             DrawStat(ref cursor, "Tractor", tractor, 185);
             float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
-            DrawStat(ref cursor, "Pwr Dmg", powerDamage, 186);         
+            DrawStat(ref cursor, "Pwr Dmg", powerDamage, 186);
 
             DrawStat(ref cursor, Localizer.Token(130), m.FieldOfFire, 88);
             DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, 89);
-            
-                
+
+
             DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, 90);
 
             if (w.Tag_Guided && GlobalStats.HasMod && GlobalStats.ActiveModInfo.enableECM)
@@ -686,7 +686,7 @@ namespace Ship_Game
             //if (w.EffectVSShields != 1f)
                 DrawResistancePercent(ref cursor, w, "VS Shield", WeaponStat.Shield);
             //if (w.ShieldPenChance > 0)
-                DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance / 100, 181, isPercent: true);            
+                DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance / 100, 181, isPercent: true);
                 DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
 
             if (m.RepairDifficulty > 0) DrawStat(ref cursor, Localizer.Token(1992), m.RepairDifficulty, 241); // Complexity
@@ -696,7 +696,7 @@ namespace Ship_Game
                 WriteLine(ref cursor);
                 DrawString(ref cursor, "Cannot Target Ships" );
             }
-            else 
+            else
             if (w.Excludes_Fighters || w.Excludes_Corvettes ||
                 w.Excludes_Capitals || w.Excludes_Stations)
             {
@@ -722,7 +722,7 @@ namespace Ship_Game
         }
 
         private void WriteLine(ref Vector2 cursor, string text)
-        {          
+        {
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
             WriteLine(ref cursor);
         }
@@ -780,11 +780,11 @@ namespace Ship_Game
             float effect = ModifiedWeaponStat(weapon, stat) ;
             if (effect == 1 ) return;
             DrawStat(ref cursor, description, effect, 147, isPercent: true);
-            
+
         }
 
         private void DrawVSResist(ref Vector2 cursor, string words, string stat, int tooltipId)
-        {            
+        {
             DrawStat(ref cursor, words, stat, tooltipId);
         }
 
