@@ -7,6 +7,13 @@ namespace Ship_Game
 {
     public sealed class RacialTrait
     {
+        public enum NameOfTrait
+        {
+            None,
+            Cybernetic,
+            Militaristic
+        }
+        
         [Serialize(0)] public string Name;
         [Serialize(1)] public int TraitName;
         [Serialize(2)] public string VideoPath = "";
@@ -124,7 +131,7 @@ namespace Ship_Game
             if (!techEntry.Discovered) return;
 
             if (techEntry.IsUnlockedAtGameStart(empire))
-                techEntry.SetLockWithoutChecking(true);
+                techEntry.ForceFullyResearched();
         }
 
         //Added by McShooterz: set old values from new bools

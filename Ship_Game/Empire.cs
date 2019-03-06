@@ -728,17 +728,20 @@ namespace Ship_Game
             {
                 var techEntry = new TechEntry(kv.Key);
 
-                if (techEntry.IsRestricted(this))
+                if (techEntry.IsHidden(this))
                     techEntry.SetDiscovered(false);
                 else
                 {
                     bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && kv.Value.RootNode == 0);
-                    techEntry.SetLockWithoutChecking(kv.Value.RootNode == 1 && !secret);
+                    if (kv.Value.RootNode == 1 && !secret)
+                        techEntry.ForceFullyResearched();
+                    else                    
+                        techEntry.ForceNeedsFullResearch();                    
                     techEntry.SetDiscovered(!secret);
                 }
 
                 if (isFaction || data.Traits.Prewarp == 1)
-                    techEntry.SetLockWithoutChecking(false);
+                    techEntry.ForceNeedsFullResearch();
                 TechnologyDict.Add(kv.Key, techEntry);
             }
         }

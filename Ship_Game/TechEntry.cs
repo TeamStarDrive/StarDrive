@@ -216,14 +216,18 @@ namespace Ship_Game
 
         }
 
-        public void LockWithoutChecking() => SetLockWithoutChecking(true);
-
-        public void SetLockWithoutChecking(bool setLock)
+        public void ForceFullyResearched()
         {
-            Progress = setLock ? Tech.ActualCost : 0;
-            Unlocked = setLock;
-
+            Progress = Tech.ActualCost;
+            Unlocked = true;
         }
+
+        public void ForceNeedsFullResearch()
+        {
+            Progress = 0;
+            Unlocked = false;
+        }
+
         public bool Unlock(Empire empire)
         {
             if (!SetDiscovered(empire))
@@ -277,10 +281,7 @@ namespace Ship_Game
             {
                 if (ResourceManager.Hull(hullName.Name, out ShipData shipData) &&
                     shipData.ShipStyle == empire.data.Traits.ShipType)
-                {
-                    //Log.Warning($"Preloading {hullName.Name}");
                     shipData.PreLoadModel();
-                }
             }
         }
 
@@ -290,42 +291,35 @@ namespace Ship_Game
         }
 
         private static bool InRaceRequirementsArray(Empire empire, IEnumerable<Technology.RaceRequirements> requiredRace)
-        {            
+        {
             foreach (Technology.RaceRequirements item in requiredRace)
             {
-                if (item.ShipType == empire.data.Traits.ShipType) 
+                if (item.ShipType == empire.data.Traits.ShipType)
                     return true;
 
                 switch (item.RacialTrait) {
-                    case "Cybernetic":
-                        {
-                            if (empire.data.Traits.Cybernetic > 0) 
-                                return true;
-                            break;
-                        }
-                    case "Militaristic":
-                    { 
-                            if (empire.data.Traits.Militaristic > 0) 
-                                return true;
-                            break;
-                    }
-                    case "":
+                    case RacialTrait.NameOfTrait.None:
                         break;
-                    default:
-                        Log.Warning($"RacialTrait restriction {item.RacialTrait} is unknown");
+                    case RacialTrait.NameOfTrait.Cybernetic:
+                        if (empire.data.Traits.Cybernetic > 0)
+                            return true;
+                        break;
+                    case RacialTrait.NameOfTrait.Militaristic:
+                        if (empire.data.Traits.Militaristic > 0)
+                            return true;
                         break;
                 }
             }
             return false;
         }
 
-        public bool IsRestricted(Empire empire)
+        public bool IsHidden(Empire empire)
         {
-            if (IsUnlockedAtGameStart(empire)) 
+            if (IsUnlockedAtGameStart(empire))
                 return false;
             if (Tech.HiddenFrom.Count > 0 && InRaceRequirementsArray(empire, Tech.HiddenFrom))
                 return true;
-            if (Tech.NotHiddenFrom.Count > 0 && !InRaceRequirementsArray(empire, Tech.NotHiddenFrom))
+            if (Tech.HiddenFromAllExcept.Count > 0 && !InRaceRequirementsArray(empire, Tech.HiddenFromAllExcept))
                 return true;
             return false;
         }
@@ -337,8 +331,8 @@ namespace Ship_Game
             {
                 if (!CheckSource(revealedTech.Type, empire))
                     continue;
-                if (!IsRestricted(empire))
-                    Discovered = true;                
+                if (!IsHidden(empire))
+                    Discovered = true;
             }
             if (Tech.Secret && Tech.RootNode == 0)
             {
@@ -346,20 +340,18 @@ namespace Ship_Game
                 {
                     //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
                     TechEntry tech = empire.GetTechEntry(leadsToTech.UID);
-                    if (!tech.IsRestricted(empire))
+                    if (!tech.IsHidden(empire))
                         tech.Discovered = true;
                 }
             }
         }
 
-        public void SetDiscovered() => SetDiscovered(true);
+        public void SetDiscovered(bool discovered = true) => Discovered = discovered;
 
-        public void SetDiscovered(bool discovered) => Discovered = discovered;
-        
 
         public bool SetDiscovered(Empire empire, bool discoverForward = true)
         {
-            if (IsRestricted(empire))
+            if (IsHidden(empire))
                 return false;
 
             Discovered = true;
@@ -370,10 +362,8 @@ namespace Ship_Game
                 foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
                 {
                     TechEntry tech = empire.GetTechEntry(leadsToTech.UID);
-                    if (!tech.IsRestricted(empire))
+                    if (!tech.IsHidden(empire))
                         tech.SetDiscovered(empire);
-                    else 
-                        Log.Warning("what");
                 }
             }
             return true;
@@ -404,7 +394,7 @@ namespace Ship_Game
                 foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
                 {
                     if (leadsToTech.UID != UID) continue;
-                    if (keyValuePair.Value.Tech.RootNode ==1 || !keyValuePair.Value.IsRestricted(empire))
+                    if (keyValuePair.Value.Tech.RootNode ==1 || !keyValuePair.Value.IsHidden(empire))
                         return keyValuePair.Value;
 
                     return keyValuePair.Value.GetPreReq(empire);
@@ -448,7 +438,7 @@ namespace Ship_Game
         public TechEntry[] GetPlayerChildEntries()
         {
             return Tech.Children.Select(EmpireManager.Player.GetTechEntry);
-        }        
+        }
 
         public Array<TechEntry> GetFirstDiscoveredEntries()
         {
