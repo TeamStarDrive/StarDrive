@@ -43,22 +43,22 @@ namespace Ship_Game
         //Added by McShooterz to allow for techs with more than one level
         public int MaxLevel = 1;
 
-        //added by McShooterz: Racial Tech variables
-        public Array<RequiredRace> RaceRestrictions = new Array<RequiredRace>();
-        public Array<RequiredRace> RaceExclusions   = new Array<RequiredRace>();
+        //added by McShooterz: Racial Tech variables.        
+        //This hides the tech from all races except for the ones in the RaceRequirements list
+        public Array<RaceRequirements> HiddenFromAllExcept = new Array<RaceRequirements>();
+        //this hides the tech from the races in the RaceRequirements list. 
+        public Array<RaceRequirements> HiddenFrom   = new Array<RaceRequirements>();
+        //This unlocks the tech at game start for the races in the RaceRequirements list. 
+        //This will override the other two restrictors. 
+        public Array<RaceRequirements> UnlockedAtGameStart  = new Array<RaceRequirements>();
 
-        public struct RequiredRace
+        //This is used with the tech restrictors above to list races or traits that will create 
+        //rules for the restriction
+        public struct RaceRequirements
         {
             public string ShipType;
-            public string RacialTrait;
+            public RacialTrait.NameOfTrait RacialTrait;
         }
-
-        //added by McShooterz: Alternate Tach variables
-        public bool Militaristic;
-        public bool unlockFrigates;
-        public bool unlockCruisers;
-        public bool unlockBattleships;
-        public bool unlockCorvettes;
 
         public struct LeadsToTech
         {
@@ -68,6 +68,11 @@ namespace Ship_Game
                 UID = techID;
             }
         }
+
+        public bool AnyChildrenDiscovered(Empire empire) 
+            => Children.Any(tech => empire.GetTechEntry(tech.UID).Discovered);
+        public Technology[] DiscoveredChildren(Empire empire)
+        => Children.Filter(tech => empire.GetTechEntry(tech.UID).Discovered);
 
         public class UnlockedBonus
         {

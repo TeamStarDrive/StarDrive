@@ -37,7 +37,7 @@ namespace Ship_Game
 
         public static Race GetExpSettings(Ship ship)
         {
-            if (ResourceManager.ShipRoles.TryGetValue(ship.DesignRole, out ShipRole role))
+            if (ResourceManager.ShipRoles.TryGetValue(ship.shipData.HullRole, out ShipRole role))
             {
                 var expSettings = role.RaceList.Find(r => r.ShipType == ship.loyalty.data.Traits.ShipType);
                 if (expSettings != null)

@@ -37,6 +37,7 @@ namespace Ship_Game
         {
             GlobalStats.RemnantArmageddon = false;
             GlobalStats.RemnantKills = 0;
+            GlobalStats.RemnantActivation = 0;
             MainMenu = mainMenu;
             foreach (Artifact art in ResourceManager.ArtifactsDict.Values)
                 art.Discovered = false;
