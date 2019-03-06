@@ -493,42 +493,55 @@ namespace Ship_Game.Gameplay
                     Health = 0f;
                     break;
             }
-            if (WeaponEffectType == "Plasma")
+            switch (WeaponEffectType)
             {
-                var center  = new Vector3(Center.X, Center.Y, -100f);
-                Vector3 forward  = Rotation.RadiansToDirection3D();
-                Vector3 right    = forward.RightVector(z:1f);
-                Vector3 backward = -forward;
-                for (int i = 0; i < 20; i++)
+                case "Plasma":
                 {
-                    Vector3 random = UniverseRandom.Vector3D(250f) * right;
-                    Empire.Universe.flameParticles.AddParticleThreadA(center, random);
+                    var center  = new Vector3(Center.X, Center.Y, -100f);
+                    Vector3 forward  = Rotation.RadiansToDirection3D();
+                    Vector3 right    = forward.RightVector(z:1f);
+                    Vector3 backward = -forward;
+                    for (int i = 0; i < 20; i++)
+                    {
+                        Vector3 random = UniverseRandom.Vector3D(250f) * right;
+                        Empire.Universe.flameParticles.AddParticleThreadA(center, random);
 
-                    random = UniverseRandom.Vector3D(150f) + backward;
-                    Empire.Universe.flameParticles.AddParticleThreadA(center, random);
+                        random = UniverseRandom.Vector3D(150f) + backward;
+                        Empire.Universe.flameParticles.AddParticleThreadA(center, random);
+                    }
+
+                    break;
                 }
-            }
-            else if (WeaponEffectType == "MuzzleBlast") // currently unused
-            {
-                var center  = new Vector3(Center.X, Center.Y, -100f);
-                Vector3 forward  = Rotation.RadiansToDirection3D();
-                Vector3 right    = forward.RightVector(z:1f);
-                Vector3 backward = -forward;
-                for (int i = 0; i < 20; i++)
+                // currently unused
+                case "MuzzleBlast":
                 {
-                    Vector3 random = UniverseRandom.Vector3D(500f) * right;
-                    Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
+                    var center  = new Vector3(Center.X, Center.Y, -100f);
+                    Vector3 forward  = Rotation.RadiansToDirection3D();
+                    Vector3 right    = forward.RightVector(z:1f);
+                    Vector3 backward = -forward;
+                    for (int i = 0; i < 20; i++)
+                    {
+                        Vector3 random = UniverseRandom.Vector3D(500f) * right;
+                        Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
 
-                    random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f), 
-                                                    UniverseRandom.RandomBetween(-500f, 500f), 
-                                                    UniverseRandom.RandomBetween(-150f, 150f));
-                    Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
+                        random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f), 
+                                     UniverseRandom.RandomBetween(-500f, 500f), 
+                                     UniverseRandom.RandomBetween(-150f, 150f));
+                        Empire.Universe.fireTrailParticles.AddParticleThreadA(center, random);
+                    }
+
+                    break;
                 }
-            }
-            else if (WeaponType == "Ballistic Cannon")
-            {
-                if (target is ShipModule shipModule && !shipModule.Is(ShipModuleType.Shield))
-                    GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
+                default:
+                {
+                    if (WeaponType == "Ballistic Cannon")
+                    {
+                        if (target is ShipModule shipModule && !shipModule.Is(ShipModuleType.Shield))
+                            GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
+                    }
+
+                    break;
+                }
             }
             
             DieNextFrame = true;
