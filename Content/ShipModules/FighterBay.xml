@@ -39,7 +39,7 @@
   <CrewSupplied>0</CrewSupplied>
   <Description>This hangar bay supports a single fighter-class ship at a time.  If the fighter is destroyed in combat, it will respawn from this bay after a cooldown. You may designate which of your fighter designs launches from this bay in the ship design screen</Description>
   <PowerDraw>10</PowerDraw>
-
+  <OrdinanceCapacity>25</OrdinanceCapacity>
 
   <NameIndex>950</NameIndex>
   <DescriptionIndex>951</DescriptionIndex>

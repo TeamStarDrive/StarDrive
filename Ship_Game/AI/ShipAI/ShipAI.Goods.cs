@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI
 {
@@ -86,7 +87,31 @@ namespace Ship_Game.AI
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
-            AI.CancelTradePlan(importPlanet);
+
+            // If we did not unload all cargo, its better to build faster smaller cheaper freighters
+            float fasterFreighters     = Owner.CargoSpaceUsed.NotZero() ? 0.02f : -0.005f;
+            Owner.loyalty.IncreaseFastVsBigFreighterRatio(fasterFreighters);
+            Planet toOrbit = importPlanet.TradeBlocked ? Owner.loyalty.FindNearestRallyPoint(Owner.Center)
+                                                       : importPlanet;
+
+            AI.CancelTradePlan(toOrbit);
+            CheckAndScrap1To10();
+        }
+
+        // 1 out of 10 trades - check if there is better suited freighter model available and we have idle
+        // freighters which can cover the scrap
+        // Note that there are more scrap logic for freighters (idle timeout and idle ones when a new tech is researched
+        void CheckAndScrap1To10() 
+        {
+            if (!RandomMath.RollDice(10))
+                return;
+
+            if (Owner.loyalty.IdleFreighters.Length == 0)
+                return;
+
+            Ship betterFreighter = ShipBuilder.PickFreighter(Owner.loyalty, Owner.loyalty.FastVsBigFreighterRatio);
+            if (betterFreighter != null && betterFreighter.Name != Owner.Name)
+                AI.OrderScrapShip();
         }
     }
 }

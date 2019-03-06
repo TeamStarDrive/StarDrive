@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -11,6 +14,11 @@ namespace Ship_Game
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
         [XmlIgnore] public float ActualCost => Cost * CurrentGame.Pace;
 
+        [XmlIgnore] public Technology[] Children;
+        [XmlIgnore] public Technology[] Parents;
+
+        public static readonly Technology Dummy = new Technology();
+
         public int RootNode;
         public float Cost;
         public bool Secret;
@@ -21,7 +29,6 @@ namespace Ship_Game
 
         public int NameIndex;
         public int DescriptionIndex;
-
 
         public Array<LeadsToTech> LeadsTo                = new Array<LeadsToTech>();
         public Array<LeadsToTech> ComesFrom              = new Array<LeadsToTech>();
@@ -36,21 +43,22 @@ namespace Ship_Game
         //Added by McShooterz to allow for techs with more than one level
         public int MaxLevel = 1;
 
-        //added by McShooterz: Racial Tech variables
-        public Array<RequiredRace> RaceRestrictions = new Array<RequiredRace>();
-        public Array<RequiredRace> RaceExclusions = new Array<RequiredRace>();
-        public struct RequiredRace
+        //added by McShooterz: Racial Tech variables.        
+        //This hides the tech from all races except for the ones in the RaceRequirements list
+        public Array<RaceRequirements> HiddenFromAllExcept = new Array<RaceRequirements>();
+        //this hides the tech from the races in the RaceRequirements list. 
+        public Array<RaceRequirements> HiddenFrom   = new Array<RaceRequirements>();
+        //This unlocks the tech at game start for the races in the RaceRequirements list. 
+        //This will override the other two restrictors. 
+        public Array<RaceRequirements> UnlockedAtGameStart  = new Array<RaceRequirements>();
+
+        //This is used with the tech restrictors above to list races or traits that will create 
+        //rules for the restriction
+        public struct RaceRequirements
         {
             public string ShipType;
-            public string RacialTrait;
+            public RacialTrait.NameOfTrait RacialTrait;
         }
-
-        //added by McShooterz: Alternate Tach variables
-        public bool Militaristic;
-        public bool unlockFrigates;
-        public bool unlockCruisers;
-        public bool unlockBattleships;
-        public bool unlockCorvettes;
 
         public struct LeadsToTech
         {
@@ -60,6 +68,11 @@ namespace Ship_Game
                 UID = techID;
             }
         }
+
+        public bool AnyChildrenDiscovered(Empire empire) 
+            => Children.Any(tech => empire.GetTechEntry(tech.UID).Discovered);
+        public Technology[] DiscoveredChildren(Empire empire)
+        => Children.Filter(tech => empire.GetTechEntry(tech.UID).Discovered);
 
         public class UnlockedBonus
         {
@@ -109,12 +122,13 @@ namespace Ship_Game
             public string RevUID;
             public string Type;
         }
+
         public Building[] GetBuildings()
         {
-            Array<Building> buildings = new Array<Building>();
+            var buildings = new HashSet<Building>();
             foreach (UnlockedBuilding buildingName in BuildingsUnlocked)
             {
-                buildings.AddUniqueRef(ResourceManager.GetBuildingTemplate(buildingName.Name));
+                buildings.Add(ResourceManager.GetBuildingTemplate(buildingName.Name));
             }
             return buildings.ToArray();
         }
@@ -128,6 +142,235 @@ namespace Ship_Game
             if (them.data.EconomicPersonality.Name == "Technologists")
                 value *= 1.25f;
             return value;
+        }
+
+
+        Technology[] ResolveLeadsToTechs(string what, Array<LeadsToTech> leads)
+        {
+            var resolved = new Array<Technology>();
+            foreach (LeadsToTech leadsTo in leads)
+            {
+                if (ResourceManager.TryGetTech(leadsTo.UID, out Technology child))
+                {
+                    resolved.Add(child);
+                }
+                else
+                {
+                    Log.Warning(ConsoleColor.DarkRed, $"Tech '{UID}' {what} '{leadsTo.UID}' does not exist!");
+                }
+            }
+            return resolved.ToArray();
+        }
+
+        public void ResolveLeadsToTechs()
+        {
+            Children = ResolveLeadsToTechs("LeadsTo", LeadsTo);
+            Parents  = ResolveLeadsToTechs("ComesFrom", ComesFrom);
+        }
+
+        public static TechnologyType GetTechnologyTypeFromUnlocks(Technology tech)
+        {
+            if (tech.ModulesUnlocked.Count > 0)
+            {
+                return GetModuleTechnologyType(tech);
+            }
+
+            if (tech.HullsUnlocked.Count > 0)
+            {
+                return GetHullTechnologyType(tech);
+            }
+
+            if (tech.BonusUnlocked.Count > 0)
+            {
+                return GetBonusTechnologyType(tech);
+            }
+
+            if (tech.BuildingsUnlocked.Count > 0)
+            {
+                return GetBuildingTechnologyType(tech);
+            }
+
+            if (tech.TroopsUnlocked.Count > 0)
+            {
+                return TechnologyType.GroundCombat;
+            }
+
+            return TechnologyType.General;
+        }
+
+        static TechnologyType GetBuildingTechnologyType(Technology tech)
+        {
+            foreach (UnlockedBuilding buildingU in tech.BuildingsUnlocked)
+            {
+                if (!ResourceManager.GetBuilding(buildingU.Name, out Building building))
+                {
+                    Log.Warning($"Tech {tech.UID} unlock unavailable : {buildingU.Name}");
+                    continue;
+                }
+
+                if (building.AllowInfantry || building.isWeapon || building.IsSensor ||
+                    building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0 || building.Strength > 0)
+                    return TechnologyType.GroundCombat;
+
+                if (building.AllowShipBuilding || building.PlusFlatProductionAmount > 0 ||
+                    building.PlusProdPerRichness > 0 || building.StorageAdded > 0 || building.PlusFlatProductionAmount > 0)
+                    return TechnologyType.Industry;
+
+                if (building.PlusTaxPercentage > 0 || building.CreditsPerColonist > 0)
+                    return TechnologyType.Economic;
+
+                if (building.PlusFlatResearchAmount > 0 || building.PlusResearchPerColonist > 0)
+                    return TechnologyType.Research;
+
+                if (building.PlusFoodPerColonist > 0 || building.PlusFlatFoodAmount > 0 ||
+                    building.PlusFoodPerColonist > 0 || building.MaxPopIncrease > 0 ||
+                    building.PlusFlatPopulation > 0 || building.PlusTerraformPoints > 0 || building.IsBiospheres)
+                    return TechnologyType.Colonization;
+            }
+
+            return TechnologyType.General;
+        }
+
+        static TechnologyType GetBonusTechnologyType(Technology tech)
+        {
+            foreach (UnlockedBonus unlockedBonus in tech.BonusUnlocked)
+            {
+                switch (unlockedBonus.Type)
+                {
+                    case "SHIPMODULE":
+                    case "HULL": return TechnologyType.ShipGeneral;
+                    case "TROOP": return TechnologyType.GroundCombat;
+                    case "BUILDING": return TechnologyType.Colonization;
+                    case "ADVANCE": return TechnologyType.ShipGeneral;
+                }
+
+                switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
+                {
+                    case "Xeno Compilers":
+                    case "Research Bonus":
+                        return TechnologyType.Research;
+                    case "FTL Spool Bonus":
+                    case "Set FTL Drain Modifier":
+                    case "Trade Tariff":
+                    case "Bonus Money Per Trade":
+                    case "Slipstreams":
+                    case "In Borders FTL Bonus":
+                    case "StarDrive Enhancement":
+                    case "FTL Speed Bonus":
+                    case "FTL Efficiency":
+                    case "FTL Efficiency Bonus":
+                    case "Civilian Maintenance":
+                    case "Privatization":
+                    case "Production Bonus":
+                    case "Construction Bonus":
+                    case "Consumption Bonus":
+                    case "Tax Bonus":
+                    case "Maintenance Bonus":
+                        return TechnologyType.Economic;
+                    case "Top Guns":
+                    case "Bonus Fighter Levels":
+                    case "Mass Reduction":
+                    case "Percent Mass Adjustment":
+                    case "STL Speed Bonus":
+                    case "ArmourMass":
+                        return TechnologyType.ShipGeneral;
+                    case "Resistance is Futile":
+                    case "Super Soldiers":
+                    case "Troop Strength Modifier Bonus":
+                    case "Allow Assimilation":
+                        return TechnologyType.GroundCombat;
+                    case "Cryogenic Suspension":
+                    case "Increased Lifespans":
+                    case "Population Growth Bonus":
+                    case "Set Population Growth Min":
+                    case "Set Population Growth Max":
+                    case "Spy Offense":
+                    case "Spy Offense Roll Bonus":
+                    case "Spy Defense":
+                    case "Spy Defense Roll Bonus":
+                    case "Xenolinguistic Nuance":
+                    case "Diplomacy Bonus":
+                    case "Passenger Modifier":
+                        return TechnologyType.Colonization;
+                    case "Ordnance Effectiveness":
+                    case "Ordnance Effectiveness Bonus":
+                    case "Tachyons":
+                    case "Sensor Range Bonus":
+                    case "Fuel Cell Upgrade":
+                    case "Ship Experience Bonus":
+                    case "Power Flow Bonus":
+                    case "Shield Power Bonus":
+                    case "Fuel Cell Bonus":
+                        return TechnologyType.ShipGeneral;
+                    case "Missile Armor":
+                    case "Missile HP Bonus":
+                    case "Hull Strengthening":
+                    case "Module HP Bonus":
+                    case "ECM Bonus":
+                    case "Missile Dodge Change Bonus":
+                    case "Reaction Drive Upgrade":
+                    case "Reactive Armor":
+                    case "Repair Bonus":
+                    case "Kulrathi Might":
+                    case "Armor Explosion Reduction":
+                        return TechnologyType.ShipDefense;
+                    case "Armor Piercing":
+                    case "Armor Phasing":
+                    case "Weapon_Speed":
+                    case "Weapon_Damage":
+                    case "Weapon_ExplosionRadius":
+                    case "Weapon_TurnSpeed":
+                    case "Weapon_Rate":
+                    case "Weapon_Range":
+                    case "Weapon_ShieldDamage":
+                    case "Weapon_ArmorDamage":
+                    case "Weapon_HP":
+                    case "Weapon_ShieldPenetration":
+                    case "Weapon_ArmourPenetration":
+                        return TechnologyType.ShipWeapons;
+                }
+            }
+
+            return TechnologyType.ShipGeneral;
+        }
+
+        static TechnologyType GetHullTechnologyType(Technology tech)
+        {
+            foreach (UnlockedHull hull in tech.HullsUnlocked)
+            {
+                ShipData.RoleName role = ResourceManager.Hull(hull.Name).Role;
+                if (role == ShipData.RoleName.freighter
+                    || role == ShipData.RoleName.platform
+                    || role == ShipData.RoleName.construction
+                    || role == ShipData.RoleName.station)
+                    return TechnologyType.Industry;
+            }
+
+            return TechnologyType.ShipHull;
+        }
+
+        static TechnologyType GetModuleTechnologyType(Technology tech)
+        {
+            foreach (UnlockedMod moduleU in tech.ModulesUnlocked)
+            {
+                if (!ResourceManager.GetModuleTemplate(moduleU.ModuleUID, out ShipModule module))
+                {
+                    Log.Warning($"Tech {tech.UID} unlock unavailable : {moduleU.ModuleUID}");
+                    continue;
+                }
+
+                if (module.InstalledWeapon != null
+                    || module.MaximumHangarShipSize > 0
+                    || module.Is(ShipModuleType.Hangar))
+                    return TechnologyType.ShipWeapons;
+                if (module.ShieldPower >= 1f
+                    || module.Is(ShipModuleType.Armor)
+                    || module.Is(ShipModuleType.Countermeasure)
+                    || module.Is(ShipModuleType.Shield))
+                    return TechnologyType.ShipDefense;
+            }
+
+            return TechnologyType.ShipGeneral;
         }
     }
 }

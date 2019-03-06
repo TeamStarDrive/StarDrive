@@ -28,7 +28,6 @@ namespace Ship_Game
         readonly MainMenuScreen MainMenu;
         Texture2D LoadingScreenTexture;
         string AdviceText;
-        Ship playerShip;
         TaskResult BackgroundTask;
         UniverseScreen us;
 
@@ -38,6 +37,7 @@ namespace Ship_Game
         {
             GlobalStats.RemnantArmageddon = false;
             GlobalStats.RemnantKills = 0;
+            GlobalStats.RemnantActivation = 0;
             MainMenu = mainMenu;
             foreach (Artifact art in ResourceManager.ArtifactsDict.Values)
                 art.Discovered = false;
@@ -137,49 +137,7 @@ namespace Ship_Game
                         planet.Station.LoadContent(ScreenManager);
                     }
 
-                    string colonyShip = empire.data.DefaultColonyShip;
-                    if (GlobalStats.HardcoreRuleset) colonyShip += " STL";
 
-                    Ship ship1 = Ship.CreateShipAt(colonyShip, empire, planet, new Vector2(-2000, -2000), true);
-                    Data.MasterShipList.Add(ship1);
-
-                    string startingScout = empire.data.StartingScout;
-                    if (GlobalStats.HardcoreRuleset) startingScout += " STL";
-
-                    Ship ship2 = Ship.CreateShipAt(startingScout, empire, planet, new Vector2(-2500, -2000), true);
-                    Data.MasterShipList.Add(ship2);
-
-                    if (empire == Player)
-                    {
-                        string starterShip = empire.data.Traits.Prototype == 0
-                            ? empire.data.StartingShip
-                            : empire.data.PrototypeShip;
-
-                        playerShip = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
-                        playerShip.SensorRange = 100000f; // @todo What is this range hack?
-
-                        if (GlobalStats.ActiveModInfo == null || playerShip.VanityName == "")
-                            playerShip.VanityName = "Perseverance";
-
-                        Data.MasterShipList.Add(playerShip);
-
-                        // Doctor: I think commenting this should completely stop all the recognition of the starter ship being the 'controlled' ship for the pie menu.
-                        Data.playerShip = playerShip;
-
-                        planet.colonyType = Planet.ColonyType.Colony;
-                    }
-                    else
-                    {
-                        string starterShip = empire.data.StartingShip;
-                        if (GlobalStats.HardcoreRuleset) starterShip += " STL";
-                        starterShip = empire.data.Traits.Prototype == 0 ? starterShip : empire.data.PrototypeShip;
-
-                        Ship ship3 = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
-                        Data.MasterShipList.Add(ship3);
-
-                        //empire.AddShip(ship3);
-                        //empire.GetForcePool().Add(ship3);
-                    }
                 }
             }
 
@@ -638,13 +596,13 @@ namespace Ship_Game
                 return false;
 
             GameAudio.StopGenericMusic(immediate: false);
-            
-            us = new UniverseScreen(Data)
+            Planet homePlanet = Player.GetPlanets()[0];
+            us = new UniverseScreen(Data, Player)
             {
                 player    = Player,
                 GameScale = Scale,
                 ScreenManager = ScreenManager,
-                CamPos = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
+                CamPos = new Vector3(homePlanet.Center.X, homePlanet.Center.Y, 5000f),
             };
 
             EmpireShipBonuses.RefreshBonuses();

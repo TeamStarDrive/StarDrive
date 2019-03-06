@@ -367,15 +367,6 @@ namespace Ship_Game
             Vector2 tempPos = Camera.WASDCamMovement(input, this, camLimit); //This moves the grid
             CameraPosition.X = tempPos.X; //This moves the model
             CameraPosition.Y = tempPos.Y;
-            //Log.Info("CamPosX: {0}  CamPosY: {1}  Camera.PosX: {2}  Camera.PosY: {3}  Zoom: {4}  Limit: {5}",
-            //      CameraPosition.X, CameraPosition.Y, Camera.Pos.X, Camera.Pos.Y, Camera.Zoom, CamLimit);
-
-            //i cant get this to work right. 
-            //if (Input.MiddleMouseClick)
-            //{
-            //    Vector2 test = Camera.GetScreenSpaceFromWorldSpace(shipSO.WorldBoundingSphere.Center.ToVec2());          
-            //    CameraPosition = test.ToVec3(TransitionZoom);
-            //}
             if (input.RightMouseHeld())
             {
                 float num1 = input.CursorPosition.X - StartDragPos.X;
@@ -468,21 +459,6 @@ namespace Ship_Game
                     (slotStruct.Module != HighlightedModule || !(slotStruct.Module.FieldOfFire > 0f)) ||
                     slotStruct.Module.ModuleType != ShipModuleType.Turret)
                     continue;
-
-                //I am not sure what the below was trying to do. It wasnt doing anything...
-                //Ok i remember what this does. it restricts the arc change 
-                //float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
-                //float angleToTarget = spaceFromWorldSpace.AngleToTarget(vector2);
-                //float facing = HighlightedModule.Facing;
-                //float angle = Math.Abs(angleToTarget - facing);
-                //if (angle > fieldOfFire)
-                //{
-                //    if (angleToTarget > 180f)
-                //        angleToTarget = -1f * (360f - angleToTarget);
-                //    if (facing > 180f)
-                //        facing = -1f * (360f - facing);
-                //    angle = Math.Abs(angleToTarget - facing);
-                //}
 
                 if (input.ShipYardArcMove())
                 {
@@ -921,7 +897,9 @@ namespace Ship_Game
         private ShipData CloneActiveHull(string newName)
         {
             ShipData hull = ActiveHull.GetClone();
-            hull.Name        = newName;
+            hull.Name = newName;
+            // save name of the mod, so we can ignore it in vanilla
+            hull.ModName = GlobalStats.ActiveModInfo?.ModName;
             hull.ModuleSlots = CreateModuleSlots();
             return hull;
         }

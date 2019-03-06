@@ -251,7 +251,7 @@ namespace Ship_Game.Gameplay
             if (ToggleCue.IsPlaying)
                 return;
 
-            AudioEmitter soundEmitter = Owner?.PlayerShip == true ? null : (emitter ?? Owner?.SoundEmitter);
+            AudioEmitter soundEmitter = emitter ?? Owner?.SoundEmitter;
             GameAudio.PlaySfxAsync(fireCueName, soundEmitter);
             ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);
         }
@@ -571,8 +571,6 @@ namespace Ship_Game.Gameplay
                 || !Module.Powered || IsRepairDrone || isRepairBeam
                 || PowerRequiredToFire > Owner.PowerCurrent)
                 return false;
-            if ((!TruePD || !Tag_PD) && Owner.PlayerShip)
-                return false;
 
             var projTarget = FireTarget as Projectile;
 
@@ -674,7 +672,7 @@ namespace Ship_Game.Gameplay
             return beamDestination;
         }
 
-        bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
+        bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
             if (!CanFireWeaponCooldown())
                 return false;
@@ -684,7 +682,7 @@ namespace Ship_Game.Gameplay
                 return false;
 
             PrepareToFire();
-            var beam = new Beam(this, source, destination, target, followMouse);
+            var beam = new Beam(this, source, destination, target);
             Module.GetParent().AddBeam(beam);
             return true;
         }
@@ -702,17 +700,19 @@ namespace Ship_Game.Gameplay
             FireBeam(Module.Center, target.Center, target);
         }
 
-        public bool MouseFireAtTarget(Vector2 targetPos)
+        public bool ManualFireTowardsPos(Vector2 targetPos)
         {
             if (!CanFireWeapon())
                 return false;
-            if (isBeam) return FireBeam(Module.Center, targetPos, null, true);
+            if (isBeam) return FireBeam(Module.Center, targetPos, null);
             else        return FireAtTarget(targetPos, null);
         }
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
-            if (!TargetValid(targetShip)) return;
+            if (!TargetValid(targetShip))
+                return;
+            
             targetShip.InCombatTimer = 15f;
             GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 

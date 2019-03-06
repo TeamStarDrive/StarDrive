@@ -14,7 +14,6 @@ namespace Ship_Game
             shipMenu = new PieMenuNode();
             planetMenu.Add(new PieMenuNode("View Planet", viewPlanetIcon, ViewPlanet));
             planetMenu.Add(new PieMenuNode("Mark for Colonization", viewPlanetIcon, MarkForColonization));
-            shipMenu.Add(new PieMenuNode("Commandeer Ship", viewPlanetIcon, ViewShip));
         }
 
         private void LoadMenuNodes(bool Owned, bool Habitable)
@@ -55,25 +54,12 @@ namespace Ship_Game
 
         private void LoadShipMenuNodes(int which)
         {
-            shipMenu.Children.Clear();
+            shipMenu.Children?.Clear();
             if (which == 1)
             {
-                if (SelectedShip != null && SelectedShip == playerShip)
-                    shipMenu.Add(new PieMenuNode("Relinquish Control", ResourceManager.Texture("UI/viewPlanetIcon"),
-                        ViewShip));
-                else
-                    shipMenu.Add(new PieMenuNode(Localizer.Token(1412),
-                        ResourceManager.Texture("UI/viewPlanetIcon"), ViewShip));
                 PieMenuNode newChild1 = new PieMenuNode(Localizer.Token(1413),
                     ResourceManager.Texture("UI/OrdersIcon"), null);
                 shipMenu.Add(newChild1);
-                if (SelectedShip != null && SelectedShip.CargoSpaceMax > 0.0)
-                {
-                   /* newChild1.Add(new PieMenuNode(Localizer.Token(1414), ResourceManager.Texture("UI/PatrolIcon"),
-                        DoTransport));*/
-                    newChild1.Add(new PieMenuNode(Localizer.Token(1415), ResourceManager.Texture("UI/marketIcon"),
-                        DoTransportGoods));
-                }
                 newChild1.Add(new PieMenuNode(Localizer.Token(1416), ResourceManager.Texture("UI/marketIcon"),
                     DoExplore));
                 newChild1.Add(

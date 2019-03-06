@@ -370,7 +370,7 @@ namespace Ship_Game
                         ++num3;
                     }
 
-                    if (solarSystem.DangerTimer > 0f)
+                    if (solarSystem.HostileForcesPresent(EmpireManager.Player))
                     {
                         if (num3 == 1 || num3 == 2)
                             vector2.X += 20f;
@@ -475,7 +475,7 @@ namespace Ship_Game
                         ++num3;
                     }
 
-                    if (solarSystem.DangerTimer > 0.0)
+                    if (solarSystem.HostileForcesPresent(EmpireManager.Player))
                     {
                         if (num3 == 1 || num3 == 2)
                             vector2.X += 20f;
