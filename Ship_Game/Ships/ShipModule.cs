@@ -1,10 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
+using Ship_Game.Audio;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
-using Ship_Game.Audio;
 
 namespace Ship_Game.Ships
 {
@@ -32,12 +32,12 @@ namespace Ship_Game.Ships
         public Vector3 GetCenter3D => Center3D;
         private const float OnFireThreshold = 0.15f;
         private ShipModuleDamageVisualization DamageVisualizer;
-        private EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;        
+        private EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
         private Ship Parent;
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
-        public Restrictions Restrictions;        
+        public Restrictions Restrictions;
         private Shield shield;
         public Shield GetShield => shield;
         public string hangarShipUID;
@@ -45,14 +45,12 @@ namespace Ship_Game.Ships
         public Guid HangarShipGuid;
         public float hangarTimer;
         public bool isWeapon;
-        public Weapon InstalledWeapon;        
+        public Weapon InstalledWeapon;
 
         public float ShieldPowerBeforeWarp { get; private set; }
         public float ShieldUpChance { get; private set; } = 100;
-        public DynamicHangarOptions DynamicHangar { get; private set; } 
+        public DynamicHangarOptions DynamicHangar { get; private set; }
 
-
-        public float BombTimer;
         public ShipModuleType ModuleType;
         public string IconTexturePath;
 
@@ -60,7 +58,7 @@ namespace Ship_Game.Ships
 
         public float FieldOfFire; // field of fire arc, in degrees
         public int TargetValue;
-        public float TransporterTimer;        
+        public float TransporterTimer;
         public const int MaxPriority =6;
 
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
@@ -184,7 +182,7 @@ namespace Ship_Game.Ships
         public float ActualCost => Cost * CurrentGame.Pace;
 
         // the actual hit radius is a bit bigger for some legacy reason
-        public float ShieldHitRadius => Flyweight.shield_radius + 10f;        
+        public float ShieldHitRadius => Flyweight.shield_radius + 10f;
 
         public float AccuracyPercent = -1;
 
@@ -195,7 +193,7 @@ namespace Ship_Game.Ships
             set => WeaponRotation = value;
         }
         public float WeaponECM = 0;
-        
+
         public SubTexture ModuleTexture => ResourceManager.Texture(IconTexturePath);
         public bool HasColonyBuilding => ModuleType == ShipModuleType.Colony || DeployBuildingOnColonize.NotEmpty();
 
@@ -207,7 +205,7 @@ namespace Ship_Game.Ships
 
         public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
 
-        // FB: This method was created to deal with modules which have secondary fucntionality. Use this whenever you want to check 
+        // FB: This method was created to deal with modules which have secondary fucntionality. Use this whenever you want to check
         // moduletypes for calculations. Dont use it when you are looking for main functionality as defined in the xml (for instance - shipdesign screen)
         public bool Is(ShipModuleType type)
         {
@@ -224,7 +222,7 @@ namespace Ship_Game.Ships
         public float HealthPercent => Health / ActualMaxHealth;
 
         // Used to configure how good of a target this module is
-        public int ModuleTargettingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules        
+        public int ModuleTargettingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules
 
 
         private void SetHealth(float newHealth)
@@ -236,7 +234,7 @@ namespace Ship_Game.Ships
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
             Parent.AddShipHealth(healthChange);
         }
-        
+
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
 
@@ -268,13 +266,13 @@ namespace Ship_Game.Ships
             WeaponType            = template.WeaponType;
             isWeapon              = WeaponType.NotEmpty();
             OrdinanceCapacity     = template.OrdinanceCapacity;
-            BombTimer             = template.BombTimer;
             IconTexturePath       = template.IconTexturePath;
             TargetValue           = template.TargetValue;
             TemplateMaxHealth     = template.HealthMax;
 
             UpdateModuleRadius();
         }
+
 
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
         {
@@ -363,19 +361,19 @@ namespace Ship_Game.Ships
 
             XMLPosition = pos;
 
-            // center of the top left 1x1 slot of this module 
+            // center of the top left 1x1 slot of this module
             //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
 
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
             LocalCenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + YSIZE * 8f);
-            // center of this module            
+            // center of this module
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
             SetAttributes();
-            
+
             if (!isTemplate)
             {
                 if (shield_power_max > 0.0f)
@@ -517,7 +515,7 @@ namespace Ship_Game.Ships
             float dy = Center.Y - worldPos.Y;
             return dx * dx + dy * dy <= r2 * r2;
         }
-        
+
         public bool RayHitTestNoShield(Vector2 startPos, Vector2 endPos, float rayRadius)
         {
             Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
@@ -584,7 +582,7 @@ namespace Ship_Game.Ships
             }
 
             float healthBefore = Health + ShieldPower;
-            if (!TryDamageModule(source, damageAmount * damageModifier)) 
+            if (!TryDamageModule(source, damageAmount * damageModifier))
             {
                 damageRemainder = 0f;
                 if (source != null) EvtDamageInflicted(source, 0f);
@@ -597,10 +595,10 @@ namespace Ship_Game.Ships
             if (damageModifier <= 1) // below 1, resistance. above 1, vulnerability.
                 absorbedDamage /= damageModifier; // module absorbed more dam because of good resistance
             // else: extra dam already calculated
-            
+
             if (source != null) EvtDamageInflicted(source, absorbedDamage);
 
-            damageRemainder = (int)(damageAmount - absorbedDamage); 
+            damageRemainder = (int)(damageAmount - absorbedDamage);
         }
 
         public void DebugDamage(float percent)
@@ -608,7 +606,7 @@ namespace Ship_Game.Ships
             float health = Health * percent + ShieldPower ;
             float damage = health.Clamped(0, Health + ShieldPower);
             var source   = GetParent();
-            Damage(source, damage);            
+            Damage(source, damage);
         }
 
         public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
@@ -635,7 +633,7 @@ namespace Ship_Game.Ships
             }
 
             //BUG: So this makes it so that if shieldpower is greater than zero the modeule wont be damaged.
-            //even if the damage is greater than the shield amount. 
+            //even if the damage is greater than the shield amount.
             if (damagingShields)
             {
                 ShieldPower = (ShieldPower - modifiedDamage).Clamped(0, ShieldPower);
@@ -775,7 +773,7 @@ namespace Ship_Game.Ships
                     else
                         UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
                             ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
-                }            
+                }
             }
             if (ActualPowerFlowMax > 0 || PowerRadius > 0)
                 Parent.NeedRecalculate = true;
@@ -858,45 +856,58 @@ namespace Ship_Game.Ships
             switch (ModuleType)
             {
                 case ShipModuleType.Turret:
-                    ConfigWeapon();
+                    InstallWeapon();
                     InstalledWeapon.isTurret = true;
                     break;
                 case ShipModuleType.MainGun:
-                    ConfigWeapon();
+                    InstallWeapon();
                     InstalledWeapon.isMainGun = true;
                     break;
                 case ShipModuleType.MissileLauncher:
-                    ConfigWeapon();
+                    InstallWeapon();
                     break;
                 case ShipModuleType.Colony:
                     if (Parent != null)
                         Parent.isColonyShip = true;
                     break;
                 case ShipModuleType.Bomb:
-                    Parent?.BombBays.Add(this);
+                    InstallBomb();
                     break;
                 case ShipModuleType.Drone:
-                    ConfigWeapon();
+                    InstallWeapon();
                     break;
                 case ShipModuleType.Spacebomb:
-                    ConfigWeapon();
+                    InstallWeapon();
                     break;
             }
-            
+
             if (IsSupplyBay && Parent != null)
                 Parent.IsSupplyShip = true;
         }
 
-        private void ConfigWeapon()
+        private void InstallWeapon()
         {
             if (InstalledWeapon != null && InstalledWeapon.WeaponType == WeaponType)
                 return;
-            InstalledWeapon = ResourceManager.CreateWeapon(WeaponType);
+            ConfigWeapon(WeaponType);
+            Parent?.Weapons.Add(InstalledWeapon);
+            isWeapon = true;
+        }
+        private void InstallBomb()
+        {
+            if (InstalledWeapon != null && InstalledWeapon.UID == BombType)
+                return;
+            ConfigWeapon(BombType);
+            Parent?.BombBays.Add(this);
+        }
+
+        private void ConfigWeapon(string weaponType)
+        {
+            InstalledWeapon = ResourceManager.CreateWeapon(weaponType);
             InstalledWeapon.Module = this;
             InstalledWeapon.Owner  = Parent;
             InstalledWeapon.Center = Center;
-            isWeapon = true;
-            Parent?.Weapons.Add(InstalledWeapon);
+
         }
 
         public void SetHangarShip(Ship ship)
@@ -934,11 +945,7 @@ namespace Ship_Game.Ships
                 Parent.shipStatusChanged = true;
             }
 
-            //SetHealth(Health); // Update and validate Health
-
-            BombTimer -= elapsedTime;
-
-            if (Active && ModuleType == ShipModuleType.Hangar) //(this.hangarShip == null || !this.hangarShip.Active) && 
+            if (Active && ModuleType == ShipModuleType.Hangar)
                 hangarTimer -= elapsedTime;
 
             // Shield Recharge / Discharge
@@ -1047,7 +1054,7 @@ namespace Ship_Game.Ships
             if (!CanVisualizeDamage)
                 return; // bail out for modules that are never visualized
 
-            if (OnFire && Parent.InFrustum && 
+            if (OnFire && Parent.InFrustum &&
                 Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
                 if (DamageVisualizer == null)
@@ -1055,7 +1062,7 @@ namespace Ship_Game.Ships
 
                 DamageVisualizer.Update(elapsedTime, Center3D, Active);
             }
-            else // destroy immediately when out of vision range or if module is no longer OnFire 
+            else // destroy immediately when out of vision range or if module is no longer OnFire
             {
                 DamageVisualizer = null;
             }
@@ -1157,10 +1164,10 @@ namespace Ship_Game.Ships
             float shieldsMax = ActualShieldPowerMax;
             if (shieldsMax > 0)
             {
-                def                 += shieldsMax / 50; 
+                def                 += shieldsMax / 50;
                 float shieldCoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
 
-                def *= shieldCoverage < 1 ? shieldCoverage : 1f; 
+                def *= shieldCoverage < 1 ? shieldCoverage : 1f;
                 def *= 1 + shield_kinetic_resist / 5;
                 def *= 1 + shield_energy_resist / 5;
                 def *= 1 + shield_beam_resist / 5;
@@ -1216,9 +1223,9 @@ namespace Ship_Game.Ships
             float off = InstalledWeapon?.UpdateOffense(this) ?? 0f;
 
             off += IsTroopBay ? 50 : 0;
-            if (ModuleType != ShipModuleType.Hangar || hangarShipUID.IsEmpty() 
-                                                    || hangarShipUID == "NotApplicable" 
-                                                    || IsSupplyBay 
+            if (ModuleType != ShipModuleType.Hangar || hangarShipUID.IsEmpty()
+                                                    || hangarShipUID == "NotApplicable"
+                                                    || IsSupplyBay
                                                     || IsTroopBay)
                 return off;
 
