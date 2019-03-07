@@ -501,6 +501,8 @@ namespace Ship_Game
             return TechEntry.None;
         }
 
+        public TechEntry GetNextDiscoveredTech(string uid) => GetTechEntry(uid).FindNextDiscoveredTech(this);
+
         public bool TryGetTechEntry(string uid, out TechEntry techEntry)
         {
             return TechnologyDict.TryGetValue(uid, out techEntry);

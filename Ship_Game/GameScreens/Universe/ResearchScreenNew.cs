@@ -39,7 +39,7 @@ namespace Ship_Game
 
         public bool RightClicked;
 
-        Vector2 StartDragPos = Vector2.Zero;        
+        Vector2 StartDragPos = Vector2.Zero;
 
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
@@ -143,7 +143,7 @@ namespace Ship_Game
 
             foreach (TreeNode node in SubNodes.Values)
             {
-                Technology technology2 = node.Entry.Tech;                
+                Technology technology2 = node.Entry.Tech;
                 if (technology2.AnyChildrenDiscovered(EmpireManager.Player))
                 {
                     var leftPoint = node.RightPoint;
@@ -545,35 +545,24 @@ namespace Ship_Game
             if (cols > colmax)
                 colmax = cols;
             Technology technology = ResourceManager.TechTree[uid];
-            if (technology.LeadsTo.Count > 1)
+            //look for branches and make space for them
+            if (technology.LeadsTo.Count >0)
             {
-                foreach (Technology.LeadsToTech tech in technology.LeadsTo)
+                //dont count the main branch. use the branch that stars here.
+                for (int i = 1; i < technology.LeadsTo.Count; i++)
                 {
-                    if (EmpireManager.Player.HasDiscovered(tech.UID))
-                    {
+                    var techChild = EmpireManager.Player.GetNextDiscoveredTech(technology.LeadsTo[i].UID);
+                    if (techChild != null)
                         rowCount++;
-                        continue;
-                    }
-                    //first lead to tech was not discovered.
-                    //find any discovered entries from here.
-                    foreach (var child in EmpireManager.Player.GetTechEntry(tech.UID).GetPlayerChildEntries())
-                    {
-                        if (child.Discovered)
-                        {
-                            rowCount++;
-                            break;
-                        }
-                    }
-
                 }
-                if (rowCount > 1)
-                rows += rowCount - 1;
+                rows += rowCount;
             }
             foreach (Technology.LeadsToTech tech in technology.LeadsTo)
             {
-                if (EmpireManager.Player.HasDiscovered(tech.UID))
+                var techChild = EmpireManager.Player.GetNextDiscoveredTech(tech.UID);
+                if (techChild != null)
                 {
-                    int max = CalculateTreeDimensionsFromRoot(tech.UID, ref rows, cols, colmax);
+                    int max = CalculateTreeDimensionsFromRoot(techChild.Tech.UID, ref rows, cols, colmax);
                     if (max > colmax)
                         colmax = max;
                 }
