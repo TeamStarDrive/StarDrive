@@ -446,22 +446,47 @@ namespace Ship_Game.Ships
             }
 
         }
-
-        public int BombCount
+        
+        public int BombsUseful
         {
             get
             {
-                int Bombs = 0;
-                if (BombBays.Count > 0)
+                int bombBays = BombBays.Count;
+
+                switch (Bomb60SecStatus())
                 {
-                    ++Bombs;
-                    if (Ordinance / OrdinanceMax > 0.2f)
-                    {
-                        Bombs += BombBays.Count;
-                    }
+                    case ShipStatus.Critical:
+                        return bombBays / 10;
+                    case ShipStatus.Poor:
+                        return bombBays / 5;
+                    case ShipStatus.Average:
+                    case ShipStatus.Good:
+                        return bombBays / 2;
+                    case ShipStatus.Excellent:
+                    case ShipStatus.Maximum:
+                        return bombBays;
+                    case ShipStatus.NotApplicable:
+                        return 0;
                 }
-                return Bombs;
+                return 0;
             }
+
+        }
+
+        public ShipStatus Bomb60SecStatus()
+        {
+            if (BombBays.Count <= 0) return ShipStatus.NotApplicable;
+            if (OrdnanceStatus < ShipStatus.Poor) return ShipStatus.Critical;
+            //we need a standard formula for calculating the below.
+            //one is the alpha strike. the other is the continued firing. The below only gets the sustained.
+            //so the effect is that it might not have enough ordnance to fire the alpha strike. But it will do.
+            float bombSeconds = Ordinance / BombBays.Sum(b =>
+            {
+                var bomb = b.InstalledWeapon;
+                return bomb.OrdinanceRequiredToFire / bomb.fireDelay;
+            });
+            bombSeconds = bombSeconds.Clamped(0, 60); //can we bomb for a full minute?
+            return ToShipStatus(bombSeconds, 60);
         }
 
         public bool FightersOut
@@ -1502,6 +1527,12 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < Weapons.Count; i++)
                 {
                     Weapons[i].Update(deltaTime);
+                }
+
+                for (int i = 0; i < BombBays.Count; i++)
+                {
+                    var bomb = BombBays[i];
+                    bomb.InstalledWeapon.Update(deltaTime);
                 }
             }
 
