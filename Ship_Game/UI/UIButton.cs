@@ -39,6 +39,11 @@ namespace Ship_Game
 
         public override string ToString() => $"Button '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
         
+        public UIButton(ButtonStyle style)
+        {
+            Style = style;
+        }
+
         public UIButton(UIElementV2 parent, Vector2 pos, string text) : base(parent, pos)
         {
             Text = text;
@@ -50,12 +55,6 @@ namespace Ship_Game
             Style = style;
             Text  = text;
             Size  = ButtonTexture().SizeF;
-        }
-
-        public UIButton(ButtonStyle style, in Rectangle rect)
-        {
-            Style = style;
-            Rect = rect;
         }
 
         class StyleTextures

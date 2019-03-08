@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
+using Ship_Game.SpriteSystem;
 
 namespace Ship_Game.UI
 {
@@ -106,12 +107,12 @@ namespace Ship_Game.UI
         {
             if (size.X < 0f)
             {
-                Log.Error($"Element {info.ElementName()} Width cannot be negative: {size.X} ! Using default value 64.");
+                Log.Error($"Element {info.ElementName} Width cannot be negative: {size.X} ! Using default value 64.");
                 size.X = 64;
             }
             if (size.Y < 0f)
             {
-                Log.Error($"Element {info.ElementName()} Height cannot be negative: {size.Y} ! Using default value 64.");
+                Log.Error($"Element {info.ElementName} Height cannot be negative: {size.Y} ! Using default value 64.");
                 size.Y = 64;
             }
             Vector2 result = size;
@@ -167,14 +168,14 @@ namespace Ship_Game.UI
             if (info.Pos.NotZero())
             {
                 if (hasRectDefinition)
-                    Log.Warning($"Attribute 'Pos' ignored in '{info.ElementName()}' because 'Rect' overrides it!");
+                    Log.Warning($"Attribute 'Pos' ignored in '{info.ElementName}' because 'Rect' overrides it!");
                 else
                     pos = info.Pos;
             }
             if (info.Size.NotZero())
             {
                 if (hasRectDefinition)
-                    Log.Warning($"Attribute 'Size' ignored in '{info.ElementName()}' because 'Rect' overrides it!");
+                    Log.Warning($"Attribute 'Size' ignored in '{info.ElementName}' because 'Rect' overrides it!");
                 else
                     size = info.Size;
             }
@@ -254,21 +255,20 @@ namespace Ship_Game.UI
 
         void CreateElement(UIElementContainer parent, StarDataNode node)
         {
+            if (node.Key == "Screen")
+                return; // ignore layout descriptor
+
+            bool newElement = true;
             UIElementV2 element;
-            ElementInfo info;
+            ElementInfo info = ParseInfo(parent, node);
+
             if (node.Key == "Panel")
             {
-                info = ParseInfo(parent, node);
-                Color color = info.Color ?? Color.White;
-                if (info.Spr != null)
-                    element = new UIPanel(info.R, info.Spr, color);
-                else
-                    element = new UIPanel(info.R, info.Tex, color);
+                element = new UIPanel();
             }
             else if (node.Key == "List")
             {
-                info = ParseInfo(parent, node);
-                element = new UIList(info.R, info.Color ?? Color.TransparentBlack)
+                element = new UIList
                 {
                     Padding = info.Padding,
                     LayoutStyle = info.ListLayout,
@@ -276,16 +276,11 @@ namespace Ship_Game.UI
             }
             else if (node.Key == "Label")
             {
-                info = ParseInfo(parent, node);
-                element = new UILabel(info.Title.Text, info.Color ?? Color.White)
-                {
-                    Rect = info.R
-                };
+                element = new UILabel(info.Title.Text);
             }
             else if (node.Key == "Button")
             {
-                info = ParseInfo(parent, node);
-                element = new UIButton(info.ButtonStyle, info.R)
+                element = new UIButton(info.ButtonStyle)
                 {
                     Text = info.Title.Text,
                     Tooltip = info.Tooltip.Text,
@@ -294,13 +289,17 @@ namespace Ship_Game.UI
             }
             else if (node.Key == "Checkbox")
             {
-                info = ParseInfo(parent, node);
                 bool dummy = false;
                 element = new UICheckBox(() => dummy, Fonts.Arial12Bold, info.Title.Text, info.Tooltip.Text);
             }
-            else if (node.Key == "Screen")
+            else if (node.Key == "Override")
             {
-                return; // ignore layout descriptor
+                if (!parent.Find(info.ElementName, out element))
+                {
+                    Log.Warning($"Override {info.ElementName} not found in parent {parent.Name}!");
+                    return;
+                }
+                newElement = false;
             }
             else
             {
@@ -308,11 +307,29 @@ namespace Ship_Game.UI
                 return; // meh
             }
 
-            element.Name = info.ElementName();
+            if (element is ISpriteElement sprite)
+            {
+                if (info.Spr != null)
+                    sprite.Sprite = new DrawableSprite(info.Spr);
+                else if (info.Tex != null)
+                    sprite.Sprite = new DrawableSprite(info.Tex);
+            }
+
+            if (element is IColorElement colorElement && info.Color != null)
+            {
+                colorElement.Color = info.Color.Value;
+            }
+
+            element.Name = info.ElementName;
+            element.Rect = info.R;
             element.DrawDepth = info.DrawDepth;
             element.Visible = info.Visible;
             ParseAnimation(element, info);
-            parent.Add(element);
+
+            if (newElement)
+            {
+                parent.Add(element);
+            }
 
             var container = element as UIElementContainer;
             if (container != null)
