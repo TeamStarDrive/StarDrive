@@ -46,6 +46,19 @@ Panel: planet
   AxisAlign: BottomLeft # Align our Pos and Axis to BottomLeft
   DrawDepth: Background
 
+Panel: citylights
+  Texture: MMenu/citylights3.png
+  Size: [1, 0]
+  Color: [0.45,0.45,0.45,1.0]
+  AxisAlign: BottomCenter
+  DrawDepth: BackAdditive
+  # animation pattern is idential to planet_flare
+  # however, the min-max color is reversed so that:
+  # if sun is flaring, lights are dim, when sun is dim, lights are bright
+  Animation: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
+    MinColor: [0.60,0.60,0.60,1.0] # vary the color from A to B
+    MaxColor: [0.45,0.45,0.45,1.0]
+
 Panel: planet_flare
   Texture: MMenu/new_flare.png
   Pos: [0, -0.72]
@@ -64,7 +77,7 @@ Panel: optical_sun_flare
   DrawDepth: BackAdditive
   Animation: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
     MinColor: [0.6,0.6,0.6,1.0] # vary the color from min
-    MaxColor: [1.0,1.0,1.0,1.0]    # to max
+    MaxColor: [1.0,1.0,1.0,1.0] # to max
 
 Panel: stardrive_animated_logo
   Size: [0.3, 0]
