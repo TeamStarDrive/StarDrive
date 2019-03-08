@@ -181,7 +181,7 @@ namespace Ship_Game
                 {                    
                     var modInfo = new FileInfo(modFile);
                     var e = new ModEntry(ser.Deserialize<ModInformation>(modInfo));
-                    e.LoadContent(mmscreen);
+                    e.LoadPortrait(mmscreen);
                     ModsSL.AddItem(e);
                 }
                 catch (Exception ex)
