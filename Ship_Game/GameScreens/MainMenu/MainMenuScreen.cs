@@ -43,7 +43,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             ScreenManager.ClearScene();
             ResetMusic();
-            LayoutParser.LoadLayout(this, "UI/MainMenu.yaml");
+            LayoutParser.LoadLayout(this, "UI/MainMenu.yaml", clearElements: true);
 
             if (GlobalStats.HasMod)
             {

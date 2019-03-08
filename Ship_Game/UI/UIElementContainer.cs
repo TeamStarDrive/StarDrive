@@ -27,6 +27,9 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
+        protected UIElementContainer()
+        {
+        }
         protected UIElementContainer(UIElementV2 parent, Vector2 pos) : base(parent, pos)
         {
         }
@@ -303,20 +306,7 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public UIPanel Panel(in Rectangle r, Color c)               => Add(new UIPanel(this, r, c));
-        public UIPanel Panel(SubTexture t, in Rectangle r)          => Add(new UIPanel(this, t, r));
-        public UIPanel Panel(SubTexture t, in Rectangle r, Color c) => Add(new UIPanel(this, t, r, c));
-        public UIPanel Panel(string t, int x, int y)   => Add(new UIPanel(this, t, x, y));
-        public UIPanel Panel(string t, in Rectangle r) => Add(new UIPanel(this, t, r));
-        public UIPanel Panel(string t)                 => Add(new UIPanel(this, t));
-
-        // special Panel overload, parse relative position instead of absolute pos
-        public UIPanel PanelRel(string t, Vector2 relPos)
-        {
-            UIPanel p = Add(new UIPanel(this, t));
-            p.SetRelPos(relPos);
-            return p;
-        }
+        public UIPanel Panel(in Rectangle r, Color c) => Add(new UIPanel(this, r, c));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
