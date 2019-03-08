@@ -11,7 +11,7 @@ namespace Ship_Game
         public Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
             //return Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
-            return Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), ref projection, ref view);
+            return Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), projection, view);
         }
 
         public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)

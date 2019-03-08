@@ -303,7 +303,7 @@ namespace Ship_Game
             CameraPosition.Z = OriginalZ / Camera.Zoom;
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
             View = Matrix.CreateRotationY(180f.ToRadians())
-                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
