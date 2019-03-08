@@ -2439,9 +2439,10 @@ namespace Ship_Game
             switch (goods)
             {
                 case Goods.Production:
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingProduction);
+                    break;
                 case Goods.Food:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingProduction
-                                                                                              || s.TransportingFood);
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingFood);
                     break;
                 case Goods.Colonists:
                     closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.DoingPassengerTransport);

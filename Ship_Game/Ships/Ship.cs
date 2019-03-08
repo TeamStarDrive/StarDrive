@@ -507,18 +507,19 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool DoingTransport
+        public bool DoingFoodTransport
         {
-            get => AI.State == AIState.SystemTrader;
-            set
-            {
-                TransportingProduction = value;
-                TransportingFood = value;
-            }
+            get => TransportingFood;
+            set => TransportingFood = value;
         }
 
-        public bool DoingFoodTransport => TransportingFood;
-        public bool DoingProdTransport => TransportingProduction;
+        public bool DoingProdTransport
+        {
+            get => TransportingProduction;
+            set => TransportingProduction = value;
+        }
+
+
         public bool DoingPassengerTransport => TransportingPassengers;
 
         private bool TPassengers;
