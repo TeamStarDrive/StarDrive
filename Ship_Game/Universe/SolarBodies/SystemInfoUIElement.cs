@@ -78,11 +78,9 @@ namespace Ship_Game
             clickTimer.ClickTimer = clickTimer.ClickTimer + elapsedTime;
             SystemInfoUIElement selectionTimer = this;
             selectionTimer.SelectionTimer = selectionTimer.SelectionTimer + elapsedTime;
-            Vector3 pScreenSpace = screen.Viewport.Project(new Vector3(s.Position, 0f), screen.projection, screen.view, Matrix.Identity);
-            Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
+            Vector2 pPos = screen.ProjectTo2D(s.Position.ToVec3());
             Vector2 radialPos = new Vector2(s.Position.X + 4500f, s.Position.Y);
-            Vector3 insetRadialPos = screen.Viewport.Project(new Vector3(radialPos, 0f), screen.projection, screen.view, Matrix.Identity);
-            Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
+            Vector2 insetRadialSS = screen.ProjectTo2D(radialPos.ToVec3());
             float pRadius = Vector2.Distance(insetRadialSS, pPos);
             if (pRadius < 5f)
             {

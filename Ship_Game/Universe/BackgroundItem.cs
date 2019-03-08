@@ -65,7 +65,7 @@ namespace Ship_Game
 			Indices[5] = 3;
 		}
 
-		public void LoadContent(ScreenManager manager, Matrix view, Matrix projection)
+		public void LoadContent(ScreenManager manager)
 		{
 			LayoutDescriptor = new VertexDeclaration(manager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
 		}

@@ -49,7 +49,7 @@ namespace Ship_Game
             var screen = Empire.Universe;
             var r = new Rectangle((int)center.X - radius, (int)center.Y - radius, radius*2, radius*2);
             Prison = new BackgroundItem();
-            Prison.LoadContent(screen.ScreenManager, screen.view, screen.projection);
+            Prison.LoadContent(screen.ScreenManager);
             Prison.UpperLeft  = new Vector3(r.X, r.Y, 0f);
             Prison.LowerLeft  = Prison.UpperLeft + new Vector3(0f, r.Height, 0f);
             Prison.UpperRight = Prison.UpperLeft + new Vector3(r.Width, 0f, 0f);
@@ -78,7 +78,7 @@ namespace Ship_Game
             {
                 screen.flash.AddParticleThreadA(new Vector3(PlaformCenter, 0f), Vector3.Zero);
             }
-            Prison.Draw(manager, screen.view, screen.projection, 1f);
+            Prison.Draw(manager, screen.View, screen.Projection, 1f);
         }
 
         private Vector2 GenerateRandomV2(float radius)

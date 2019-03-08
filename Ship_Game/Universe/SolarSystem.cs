@@ -74,8 +74,8 @@ namespace Ship_Game
             {
                 var rect = new Rectangle((int) Position.X - (int)Radius,
                                          (int) Position.Y - (int)Radius, (int)Radius*2, (int)Radius*2);
-                Vector3 position = universe.Viewport.Unproject(new Vector3(500f, 500f, 0f), universe.projection, universe.view, Matrix.Identity);
-                Vector3 direction = universe.Viewport.Unproject(new Vector3(500f, 500f, 1f), universe.projection, universe.view, Matrix.Identity) -
+                Vector3 position = universe.Viewport.Unproject(new Vector3(500f, 500f, 0f), universe.Projection, universe.View, Matrix.Identity);
+                Vector3 direction = universe.Viewport.Unproject(new Vector3(500f, 500f, 1f), universe.Projection, universe.View, Matrix.Identity) -
                                     position;
                 direction.Normalize();
                 var ray = new Ray(position, direction);

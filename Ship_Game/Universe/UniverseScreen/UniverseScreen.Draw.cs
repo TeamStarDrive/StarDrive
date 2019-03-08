@@ -23,11 +23,11 @@ namespace Ship_Game
             foreach (BasicEffect basicEffect in xnaPlanetModel.Meshes[1].Effects)
             {
                 basicEffect.World = Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * world;
-                basicEffect.View = view;
+                basicEffect.View = View;
                 basicEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
                 basicEffect.Texture = RingTexture;
                 basicEffect.TextureEnabled = true;
-                basicEffect.Projection = projection;
+                basicEffect.Projection = Projection;
             }
             xnaPlanetModel.Meshes[1].Draw();
             ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
@@ -51,11 +51,11 @@ namespace Ship_Game
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
                 basicEffect.World = Matrix.CreateScale(4.1f) * world;
-                basicEffect.View = view;
+                basicEffect.View = View;
                 // @todo 3D Texture Atlas support?
                 basicEffect.Texture = atmosphere.Texture;
                 basicEffect.TextureEnabled = true;
-                basicEffect.Projection = projection;
+                basicEffect.Projection = Projection;
                 basicEffect.LightingEnabled = true;
                 basicEffect.DirectionalLight0.DiffuseColor = new Vector3(1f, 1f, 1f);
                 basicEffect.DirectionalLight0.Enabled = true;
@@ -76,8 +76,8 @@ namespace Ship_Game
         private void DrawAtmo1(in Matrix world)
         {
             AtmoEffect.Parameters["World"].SetValue(Matrix.CreateScale(3.83f) * world);
-            AtmoEffect.Parameters["Projection"].SetValue(projection);
-            AtmoEffect.Parameters["View"].SetValue(view);
+            AtmoEffect.Parameters["Projection"].SetValue(Projection);
+            AtmoEffect.Parameters["View"].SetValue(View);
             AtmoEffect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f, 0.0f, 1500f));
             AtmoEffect.Parameters["DiffuseLightDirection"].SetValue(new Vector3(-0.98f, 0.425f, -0.4f));
             for (int pass = 0; pass < AtmoEffect.CurrentTechnique.Passes.Count; ++pass)
@@ -106,10 +106,10 @@ namespace Ship_Game
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
                 basicEffect.World                           = Matrix.CreateScale(4.05f) * world;
-                basicEffect.View                            = view;
+                basicEffect.View                            = View;
                 basicEffect.Texture                         = cloudTex;
                 basicEffect.TextureEnabled                  = true;
-                basicEffect.Projection                      = projection;
+                basicEffect.Projection                      = Projection;
                 basicEffect.LightingEnabled                 = true;
                 basicEffect.DirectionalLight0.DiffuseColor  = new Vector3(1f, 1f, 1f);                
                 basicEffect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
@@ -136,11 +136,11 @@ namespace Ship_Game
             {
                 float num = 4500f;
                 Vector3 vector3_1 = Viewport.Project(
-                    new Vector3(SelectedSystem.Position, 0.0f), projection, view, Matrix.Identity);
+                    new Vector3(SelectedSystem.Position, 0.0f), Projection, View, Matrix.Identity);
                 Vector2 Position = new Vector2(vector3_1.X, vector3_1.Y);
                 Vector3 vector3_2 = Viewport.Project(
                     new Vector3(new Vector2(SelectedSystem.Position.X + num, SelectedSystem.Position.Y),
-                        0.0f), projection, view, Matrix.Identity);
+                        0.0f), Projection, View, Matrix.Identity);
                 float Radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), Position);
                 if (Radius < 5.0)
                     Radius = 5f;
@@ -151,10 +151,10 @@ namespace Ship_Game
                 return;
             float radius = SelectedPlanet.SO.WorldBoundingSphere.Radius;
             Vector3 vector3_3 = Viewport.Project(
-                new Vector3(SelectedPlanet.Center, 2500f), projection, view, Matrix.Identity);
+                new Vector3(SelectedPlanet.Center, 2500f), Projection, View, Matrix.Identity);
             Vector2 Position1 = new Vector2(vector3_3.X, vector3_3.Y);
             Vector3 vector3_4 = Viewport.Project(
-                new Vector3(SelectedPlanet.Center.PointOnCircle(90f, radius), 2500f), projection, view,
+                new Vector3(SelectedPlanet.Center.PointOnCircle(90f, radius), 2500f), Projection, View,
                 Matrix.Identity);
             float Radius1 = Vector2.Distance(new Vector2(vector3_4.X, vector3_4.Y), Position1);
             if (Radius1 < 8.0)
@@ -173,12 +173,12 @@ namespace Ship_Game
                 if (!fogOfWarNode.Discovered)
                     continue;
 
-                Vector3 vector3_1 = viewport.Project(fogOfWarNode.Position.ToVec3(), projection, view,
+                Vector3 vector3_1 = viewport.Project(fogOfWarNode.Position.ToVec3(), Projection, View,
                     Matrix.Identity);
                 Vector2 vector2 = vector3_1.ToVec2();
                 Vector3 vector3_2 = viewport.Project(
                     new Vector3(fogOfWarNode.Position.PointOnCircle(90f, fogOfWarNode.Radius * 1.5f), 0.0f),
-                    projection, view, Matrix.Identity);
+                    Projection, View, Matrix.Identity);
                 float num = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2.X);
                 Rectangle destinationRectangle =
                     new Rectangle((int) vector2.X, (int) vector2.Y, (int) num * 2, (int) num * 2);
@@ -199,8 +199,8 @@ namespace Ship_Game
                     //Vector2 unProject = ProjectToScreenPosition(influ.Position);
                     Vector2 screenPos = ProjectToScreenPosition(influ.Position);  //local_1.ToVec2();
                     Vector3 local_4 = viewport.Project(
-                        new Vector3(influ.Position.PointOnCircle(90f, influ.Radius * 1.5f), 0.0f), projection,
-                        view, Matrix.Identity);
+                        new Vector3(influ.Position.PointOnCircle(90f, influ.Radius * 1.5f), 0.0f), Projection,
+                        View, Matrix.Identity);
 
                     float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - screenPos.X) * 2.59999990463257f;
                     Rectangle local_7 = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)local_6, (int)local_6);
@@ -275,7 +275,7 @@ namespace Ship_Game
         {
             Render(gameTime);
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            ExplosionManager.DrawExplosions(ScreenManager.SpriteBatch, view, projection);
+            ExplosionManager.DrawExplosions(ScreenManager.SpriteBatch, View, Projection);
 #if DEBUG
             if (viewState < UnivScreenState.SectorView)
             foreach (Empire empire in EmpireManager.Empires)
@@ -326,16 +326,16 @@ namespace Ship_Game
             ScreenManager.GraphicsDevice.Clear(Color.White);
 
             Viewport.Project(new Vector3(UniverseSize / 2f, UniverseSize / 2f, 0.0f),
-                projection, view, Matrix.Identity);
+                Projection, View, Matrix.Identity);
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
             if (!Debug) // don't draw fog of war in debug
             {
                 Vector3 vector3_1 =
-                    Viewport.Project(Vector3.Zero, projection, view,
+                    Viewport.Project(Vector3.Zero, Projection, View,
                         Matrix.Identity);
                 Vector3 vector3_2 =
                     Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f),
-                        projection, view, Matrix.Identity);
+                        Projection, View, Matrix.Identity);
 
                 Rectangle fogRect = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
                     (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
@@ -362,17 +362,17 @@ namespace Ship_Game
 
             lock (GlobalStats.BeamEffectLocker)
             {
-                Beam.BeamEffect.Parameters["View"].SetValue(view);
-                Beam.BeamEffect.Parameters["Projection"].SetValue(projection);
+                Beam.BeamEffect.Parameters["View"].SetValue(View);
+                Beam.BeamEffect.Parameters["Projection"].SetValue(Projection);
             }
             AdjustCamera((float) gameTime.ElapsedGameTime.TotalSeconds);
             CamPos.Z = CamHeight;
-            view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f)
+            View = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f)
                    * Matrix.CreateRotationY(180f.ToRadians())
                    * Matrix.CreateRotationX(0.0f.ToRadians())
                    * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamHeight),
                        new Vector3(-CamPos.X, CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
-            Matrix matrix = view;
+            Matrix matrix = View;
 
             var graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(0, MainTarget);
@@ -403,7 +403,7 @@ namespace Ship_Game
             basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
             basicFogOfWarEffect.End();
             batch.End();
-            view = matrix;
+            View = matrix;
             if (drawBloom) bloomComponent.Draw(gameTime);
             batch.Begin(SpriteBlendMode.AlphaBlend);
 
@@ -757,7 +757,7 @@ namespace Ship_Game
                    
                     float fIconScale = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
 
-                    Vector3 vector3 = Viewport.Project(new Vector3(planet.Center, 2500f), projection, view, Matrix.Identity);
+                    Vector3 vector3 = Viewport.Project(new Vector3(planet.Center, 2500f), Projection, View, Matrix.Identity);
                     var position = new Vector2(vector3.X, vector3.Y);
                     SubTexture planetTex = planet.PlanetTexture;
 
@@ -1135,7 +1135,7 @@ namespace Ship_Game
             renderState.SourceBlend = Blend.SourceAlpha;
             renderState.DestinationBlend = Blend.One;
             renderState.DepthBufferWriteEnable = false;
-            ShieldManager.Draw(view, projection);
+            ShieldManager.Draw(View, Projection);
         }
 
         private void DrawPlanetInfo()
@@ -1244,7 +1244,7 @@ namespace Ship_Game
 
         public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)
         {
-            DrawModelMesh(model, Matrix.CreateScale(scale) * world, view, new Vector3(1f, 1f, 1f), projection, projTex);
+            DrawModelMesh(model, Matrix.CreateScale(scale) * world, View, new Vector3(1f, 1f, 1f), Projection, projTex);
             Device.RenderState.DepthBufferWriteEnable = true;
         }
 
