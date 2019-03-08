@@ -51,7 +51,7 @@ namespace Ship_Game
                 nebZ += RandomMath.AvgRandomBetween(minZ, maxZ); ;
                 var neb = new BackgroundItem(nebTexure);
                 CreateBGItem(nebrect, nebZ, neb);
-                neb.LoadContent(Screen.ScreenManager, Screen.view, Screen.projection);
+                neb.LoadContent(Screen.ScreenManager);
                 BGItems.Add(neb);
                 if (starParts)
                     Screen.star_particles.AddParticleThreadB(new Vector3(nebrect.X, nebrect.Y, nebZ), Vector3.Zero);
@@ -92,7 +92,7 @@ namespace Ship_Game
             BigNeb_1.UpperRight = BigNeb_1.UpperLeft + new Vector3(xSize, 0f, 0f);
             BigNeb_1.LowerRight = BigNeb_1.UpperLeft + new Vector3(xSize, ySize, 0f);
             BigNeb_1.FillVertices();
-            BigNeb_1.LoadContent(Screen.ScreenManager, Screen.view, Screen.projection);
+            BigNeb_1.LoadContent(Screen.ScreenManager);
             BGItems.Add(BigNeb_1);
 
             var BigNeb_2 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
@@ -104,7 +104,7 @@ namespace Ship_Game
             BigNeb_2.UpperRight = BigNeb_2.UpperLeft + new Vector3(xSize, 0f, 0f);
             BigNeb_2.LowerRight = BigNeb_2.UpperLeft + new Vector3(xSize, ySize, 0f);
             BigNeb_2.FillVertices();
-            BigNeb_2.LoadContent(Screen.ScreenManager, Screen.view, Screen.projection);
+            BigNeb_2.LoadContent(Screen.ScreenManager);
             BGItems.Add(BigNeb_2);
 
             var BigNeb_3 = new BackgroundItem(ResourceManager.SmallNebulaRandom());
@@ -118,7 +118,7 @@ namespace Ship_Game
             BigNeb_3.UpperRight = BigNeb_3.UpperLeft + new Vector3(xSize, 0f, 0f);
             BigNeb_3.LowerRight = BigNeb_3.UpperLeft + new Vector3(xSize, ySize, 0f);
             BigNeb_3.FillVertices();
-            BigNeb_3.LoadContent(Screen.ScreenManager, Screen.view, Screen.projection);
+            BigNeb_3.LoadContent(Screen.ScreenManager);
             BGItems.Add(BigNeb_3);
         }
 
@@ -139,7 +139,7 @@ namespace Ship_Game
 
             for (int i = 0; i < BGItems.Count; i++)
             {
-                BGItems[i].Draw(Screen.ScreenManager, Screen.view, Screen.projection, alpha);
+                BGItems[i].Draw(Screen.ScreenManager, Screen.View, Screen.Projection, alpha);
             }
 
             device.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
