@@ -30,18 +30,18 @@ namespace Ship_Game
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
-                                in Rectangle destinationRect, Color color)
+                                in Rectangle destRect, Color color)
         {
             CheckSubTextureDisposed(texture);
-            batch.Draw(texture.Texture, destinationRect, texture.Rect, color);
+            batch.Draw(texture.Texture, destRect, texture.Rect, color);
         }
 
         public static void Draw(
-            this SpriteBatch batch, SubTexture texture, Rectangle destinationRectangle,
+            this SpriteBatch batch, SubTexture texture, in Rectangle destRect,
             Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
             CheckSubTextureDisposed(texture);
-            batch.Draw(texture.Texture, destinationRectangle, texture.Rect,
+            batch.Draw(texture.Texture, destRect, texture.Rect,
                        color, rotation, origin, effects, layerDepth);
         }
 
@@ -85,32 +85,32 @@ namespace Ship_Game
                        rotation, texture.CenterF, SpriteEffects.None, z);
         }
 
-        static Rectangle AdjustedToSubTexture(SubTexture texture, Rectangle sourceRectangle)
+        static Rectangle AdjustedToSubTexture(SubTexture texture, Rectangle srcRect)
         {
             Rectangle subRect = texture.Rect;
             return new Rectangle(
-                subRect.X + sourceRectangle.X,
-                subRect.Y + sourceRectangle.Y,
-                sourceRectangle.Width,
-                sourceRectangle.Height
+                subRect.X + srcRect.X,
+                subRect.Y + srcRect.Y,
+                srcRect.Width,
+                srcRect.Height
             );
         }
 
-        public static void Draw(this SpriteBatch batch, SubTexture texture, Rectangle destinationRectangle,
-                                Rectangle sourceRectangle, Color color)
+        public static void Draw(this SpriteBatch batch, SubTexture texture, Rectangle destRect,
+                                Rectangle srcRect, Color color)
         {
             CheckSubTextureDisposed(texture);
-            Rectangle adjustedSrcRect = AdjustedToSubTexture(texture, sourceRectangle);
-            batch.Draw(texture.Texture, destinationRectangle, adjustedSrcRect, color);
+            Rectangle adjustedSrcRect = AdjustedToSubTexture(texture, srcRect);
+            batch.Draw(texture.Texture, destRect, adjustedSrcRect, color);
         }
 
         public static void Draw(
-            this SpriteBatch batch, SubTexture texture, Rectangle destinationRectangle, Rectangle sourceRectangle,
+            this SpriteBatch batch, SubTexture texture, Rectangle destRect, Rectangle srcRect,
             Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
             CheckSubTextureDisposed(texture);
-            Rectangle adjustedSrcRect = AdjustedToSubTexture(texture, sourceRectangle);
-            batch.Draw(texture.Texture, destinationRectangle, adjustedSrcRect,
+            Rectangle adjustedSrcRect = AdjustedToSubTexture(texture, srcRect);
+            batch.Draw(texture.Texture, destRect, adjustedSrcRect,
                        color, rotation, origin, effects, layerDepth);
         }
 

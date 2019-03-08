@@ -20,8 +20,8 @@ namespace Ship_Game
         public float CurrentTime;
         public float Duration;
 
+        public string Name => Atlas?.Name ?? "";
         public int NumFrames => Atlas?.Count ?? 0;
-
         public int Width  { get; private set; }
         public int Height { get; private set; }
 
@@ -96,42 +96,47 @@ namespace Ship_Game
 
         bool IsVisible => IsAnimating && (Delay <= 0f || VisibleBeforeDelay);
 
-        public void Draw(SpriteBatch batch, Rectangle rect)
+        public void Draw(SpriteBatch sb, in Rectangle r)
         {
             if (!IsVisible) return;
             SubTexture frame = Atlas[CurrentFrameId];
-            batch.Draw(frame, rect, Color.White);
+            sb.Draw(frame, r, Color.White);
         }
 
-        public void Draw(SpriteBatch batch, Rectangle rect, Color color)
+        public void Draw(SpriteBatch sb, in Rectangle r, Color color)
         {
             if (!IsVisible) return;
             SubTexture frame = Atlas[CurrentFrameId];
-            batch.Draw(frame, rect, color);
+            sb.Draw(frame, r, color);
         }
 
-        public void Draw(SpriteBatch batch, Rectangle rect, 
-                         float rotation, float scale, float z = 0f)
+        public void Draw(SpriteBatch sb, in Rectangle r, float rotation, float scale, float z = 0f)
         {
             if (!IsVisible) return;
             SubTexture frame = Atlas[CurrentFrameId];
-            batch.Draw(frame, rect, rotation, scale, z);
+            sb.Draw(frame, r, rotation, scale, z);
         }
         
-        public void Draw(SpriteBatch batch, Vector2 pos, Vector2 size, 
-                         float rotation, float scale, float z = 0f)
+        public void Draw(SpriteBatch sb, Vector2 pos, Vector2 size, float rot, float scale, float z = 0f)
         {
             if (!IsVisible) return;
             var r = new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
             SubTexture frame = Atlas[CurrentFrameId];
-            batch.Draw(frame, r, rotation, scale, z);
+            sb.Draw(frame, r, rot, scale, z);
         }
 
-        public void Draw(SpriteBatch batch, Vector2 pos, Color c, float rotation, float scale, SpriteEffects effects = SpriteEffects.None)
+        public void Draw(SpriteBatch sb, Vector2 pos, Color c, float rot, float scale, SpriteEffects e = SpriteEffects.None)
         {
             if (!IsVisible) return;
             SubTexture frame = Atlas[CurrentFrameId];
-            batch.Draw(frame, pos, c, rotation, frame.CenterF, scale, effects, 0.9f);
+            sb.Draw(frame, pos, c, rot, frame.CenterF, scale, e, 0.9f);
+        }
+
+        public void Draw(SpriteBatch sb, in Rectangle r, Color c, float rot, SpriteEffects e = SpriteEffects.None)
+        {
+            if (!IsVisible) return;
+            SubTexture frame = Atlas[CurrentFrameId];
+            sb.Draw(frame, r, c, rot, Vector2.Zero, e, 0.9f);
         }
     }
 

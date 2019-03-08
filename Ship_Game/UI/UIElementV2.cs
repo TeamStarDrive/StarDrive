@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {
@@ -31,6 +32,11 @@ namespace Ship_Game
     public interface IColorElement
     {
         Color Color { get; set; }
+    }
+
+    public interface ISpriteElement
+    {
+        DrawableSprite Sprite { get; set; }
     }
 
     public abstract class UIElementV2 : IInputHandler

@@ -52,8 +52,8 @@ namespace Ship_Game.UI
         public Rectangle R;
         public SubTexture Tex;
         public SpriteAnimation Spr;
-        public string ElementName() => Name ?? Texture ?? "";
-        public override string ToString() => $"{ElementName()} Rect:{Rect}";
+        public string ElementName => Name ?? Texture ?? "";
+        public override string ToString() => $"{ElementName} Rect:{Rect}";
     }
 
     [StarDataType]

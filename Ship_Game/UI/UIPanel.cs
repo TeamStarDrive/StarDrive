@@ -5,24 +5,28 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {
     /// <summary>
     /// A colored UI Panel that also behaves as a container for UI elements
     /// </summary>
-    public class UIPanel : UIElementContainer, IColorElement
+    public class UIPanel : UIElementContainer, IColorElement, ISpriteElement
     {
-        public SubTexture Texture;
-        public SpriteAnimation SpriteAnim;
-        public Color Color { get; set; }
+        public DrawableSprite Sprite { get; set; }
+        public Color Color { get; set; } = Color.White;
         public bool DebugBorder;
 
         public override string ToString()
         {
-            return Texture == null
+            return Sprite == null
                 ? $"Panel {ElementDescr} Color={Color}"
-                : $"Panel {ElementDescr} Name={Texture.Name}";
+                : $"Panel {ElementDescr} Name={Sprite.Name}";
+        }
+
+        public UIPanel()
+        {
         }
 
         // Hint: use Color.TransparentBlack to create Panels with no fill
@@ -36,65 +40,17 @@ namespace Ship_Game
             Color = color;
         }
 
-        public UIPanel(UIElementV2 parent, SubTexture tex, in Rectangle rect) : base(parent, rect)
-        {
-            Texture = tex;
-            Color = Color.White;
-        }
-        
-        public UIPanel(UIElementV2 parent, SubTexture tex, in Rectangle r, Color c) : base(parent, r)
-        {
-            Texture = tex;
-            Color = c;
-        }
-
-        public UIPanel(UIElementV2 parent, string tex, int x, int y) : base(parent, new Vector2(x,y))
-        {
-            Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
-            Size = Texture.SizeF;
-            Color = Color.White;
-        }
-
-        public UIPanel(UIElementV2 parent, string tex, in Rectangle r) : base(parent, r)
-        {
-            Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
-            Color = Color.White;
-        }
-
-        public UIPanel(UIElementV2 parent, string tex) : base(parent, Vector2.Zero)
-        {
-            Texture = parent.ContentManager.LoadTextureOrDefault("Textures/"+tex);
-            Size = Texture.SizeF;
-            Color = Color.White;
-        }
-
-        public UIPanel(in Rectangle rect, SubTexture texture, Color color) : base(null, rect)
-        {
-            Texture = texture;
-            Color = color;
-        }
-
-        public UIPanel(in Rectangle rect, SpriteAnimation spriteAnim, Color color) : base(null, rect)
-        {
-            SpriteAnim = spriteAnim;
-            Color = color;
-        }
-
         public override void Update(float deltaTime)
         {
-            SpriteAnim?.Update(deltaTime);
+            Sprite?.Update(deltaTime);
             base.Update(deltaTime);
         }
 
         public override void Draw(SpriteBatch batch)
         {
-            if (SpriteAnim != null)
+            if (Sprite != null)
             {
-                SpriteAnim.Draw(batch, Rect, Color);
-            }
-            else if (Texture != null)
-            {
-                batch.Draw(Texture, Rect, Color);
+                Sprite.Draw(batch, Rect, Color);
             }
             else if (Color.A > 0)
             {
@@ -105,6 +61,7 @@ namespace Ship_Game
             {
                 batch.DrawRectangle(Rect, Color.Red);
             }
+
             base.Draw(batch);
         }
     }
