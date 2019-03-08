@@ -8,13 +8,17 @@ namespace Ship_Game
 	{
         sealed class FTL
         {
-            public Vector2 WorldPos;
+            // the FTL flash moves from Ship front to ship end
+            public Vector3 Front;
+            public Vector3 Rear;
             public float Life  = 0.9f;
             public float Scale = 0.1f;
             public float Rotation;
+            public Vector3 CurrentPos => Front.LerpTo(Rear, RelativeLife);
+            public float RelativeLife => 1f - (Life / 0.9f);
         }
 		static readonly Array<FTL> Effects = new Array<FTL>();
-        static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
         static SubTexture FTLTexture;
 
         public static void LoadContent(GameContentManager content)
@@ -22,28 +26,30 @@ namespace Ship_Game
             FTLTexture = content.Load<SubTexture>("Textures/Ships/FTL");
         }
 
-        public static void AddFTL(Vector2 worldPos)
+        public static void AddFTL(Vector3 front, Vector3 rear)
         {
-            var f = new FTL { WorldPos = worldPos };
+            var f = new FTL { Front = front, Rear = rear };
             using (Lock.AcquireWriteLock())
                 Effects.Add(f);
         }
 
-        static Vector2 ScreenPosition(Vector2 worldPos, in Matrix view, in Matrix projection)
+        public static void AddFTL(Vector3 position, Vector3 forward, float radius)
         {
-            return StarDriveGame.Instance.Viewport.Project(worldPos.ToVec3(), 
-                                 projection, view, Matrix.Identity).ToVec2();
+            var front = position + forward*radius;
+            var rear  = position - forward*(radius*3);
+            AddFTL(front, rear);
         }
 
-        public static void DrawFTLModels(UniverseScreen us, SpriteBatch batch)
+        public static void DrawFTLModels(GameScreen screen, SpriteBatch batch)
         {
             batch.Begin();
             using (Lock.AcquireReadLock())
             {
                 foreach (FTL f in Effects)
                 {
-                    Vector2 pos  = ScreenPosition(f.WorldPos, us.view, us.projection);
-                    Vector2 edge = ScreenPosition(f.WorldPos+new Vector2(100f,0f), us.view, us.projection);
+                    Vector3 worldPos = f.CurrentPos;
+                    Vector2 pos  = screen.ProjectTo2D(worldPos);
+                    Vector2 edge = screen.ProjectTo2D(worldPos+new Vector3(100,0,0));
 
                     float relSizeOnScreen = (edge.X - pos.X) / StarDriveGame.Instance.ScreenWidth;
                     float sizeScaleOnScreen = f.Scale * 1.25f * relSizeOnScreen;
@@ -55,14 +61,14 @@ namespace Ship_Game
             batch.End();
         }
 
-		public static void Update(float elapsedTime)
+		public static void Update(float deltaTime)
 		{
             using (Lock.AcquireWriteLock())
             {
                 for (int i = 0; i < Effects.Count; ++i)
 			    {
                     FTL f = Effects[i];
-			        f.Life -= elapsedTime;
+			        f.Life -= deltaTime;
                     if (f.Life <= 0f)
                     {
                         Effects.RemoveAtSwapLast(i--);
@@ -80,7 +86,7 @@ namespace Ship_Game
 			                f.Scale = 60f;
 			        }
 
-			        if (elapsedTime > 0f)
+			        if (deltaTime > 0f)
 			            f.Rotation += 0.09817477f;
 			    }
             }

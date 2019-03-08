@@ -1125,7 +1125,8 @@ namespace Ship_Game.Ships
                 Center.InRadius(Empire.Universe.CamPos.ToVec2(), 100000f) && Empire.Universe.CamHeight < 250000)
             {
                 GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
-                FTLManager.AddFTL(Center);
+                
+                FTLManager.AddFTL(Center.ToVec3(), Direction3D, -Radius);
             }
 
             engineState = MoveState.Sublight;
@@ -1278,7 +1279,7 @@ namespace Ship_Game.Ships
                 {
                     if (engineState == MoveState.Sublight)
                     {
-                        FTLManager.AddFTL(Center);
+                        FTLManager.AddFTL(Center.ToVec3(), Direction3D, Radius);
                         engineState = MoveState.Warp;
                     }
                     else

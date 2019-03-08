@@ -1,33 +1,24 @@
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using SgMotion;
-using SgMotion.Controllers;
 using Ship_Game.Audio;
-using Ship_Game.Ships;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
+using SynapseGaming.LightingSystem.Lights;
+using SynapseGaming.LightingSystem.Shadows;
 
 namespace Ship_Game.GameScreens.MainMenu
 {
     public sealed class MainMenuScreen : GameScreen
     {
-        SceneObject ShipObj;
-        Vector3 ShipPosition;
-        Vector3 ShipRotation = new Vector3(-116f, -188f, -19f);
-        float ShipScale = 0.7f * 1.75f;
-
-        AnimationController ShipAnim;
-
-        bool DebugMeshInspect = false;
+        readonly MainMenuShip Ship;
         UIElementContainer VersionArea;
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
             TransitionOnTime  = 1.0f;
             TransitionOffTime = 0.5f;
+            Ship = new MainMenuShip(this);
         }
         
         static void OnModChanged(FileInfo info)
@@ -43,6 +34,8 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             ScreenManager.ClearScene();
             ResetMusic();
+            SetupMainMenuLightRig();
+
             LayoutParser.LoadLayout(this, "UI/MainMenu.yaml", clearElements: true);
 
             if (GlobalStats.HasMod)
@@ -76,17 +69,13 @@ namespace Ship_Game.GameScreens.MainMenu
             list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
             
-            InitRandomShip();
+            Ship.InitRandomShip();
 
-            AssignLightRig("example/ShipyardLightrig");
-            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
+            var camPos = new Vector3(0f, 0f, -1000f);
+            var lookAt = new Vector3(0f, 0f, 10000f);
+            View = Matrix.CreateLookAt(camPos, lookAt, Vector3.Down);
+            Projection = Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f);
 
-            Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateTranslation(0f, 0f, 0f) 
-                   * Matrix.CreateRotationY(180f.ToRadians())
-                   * Matrix.CreateRotationX(0f.ToRadians())
-                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-            Projection = Matrix.CreateOrthographic(ScreenWidth, ScreenHeight, 1f, 80000f);
 
             if (Find("blacbox_animated_logo", out UIPanel logo))
             {
@@ -99,6 +88,46 @@ namespace Ship_Game.GameScreens.MainMenu
 
             base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
+        }
+
+        void SetupMainMenuLightRig()
+        {
+            //AssignLightRig("example/ShipyardLightrig");
+            ScreenManager.RemoveAllLights();
+            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
+
+            var topRightInBackground = new Vector3(2000,-1000,1000);
+            var lightYellow = new Color(255,254,224);
+            AddLight("MainMenu Sun", lightYellow, 2.0f, topRightInBackground);
+
+            AddLight(new AmbientLight
+            {
+                Name = "MainMenu AmbientFill",
+                DiffuseColor = new Color(20, 30, 55).ToVector3(), // dark violet
+                Intensity = 1,
+            });
+        }
+
+        void AddLight(string name, Color color, float intensity, Vector3 position)
+        {
+            var light = new PointLight
+            {
+                Name                = name,
+                DiffuseColor        = color.ToVector3(),
+                Intensity           = intensity,
+                ObjectType          = ObjectType.Static, // RedFox: changed this to Static
+                FillLight           = false,
+                Radius              = 100000,
+                Position            = position,
+                Enabled             = true,
+                FalloffStrength     = 1f,
+                ShadowPerSurfaceLOD = true,
+                ShadowQuality = 1f
+            };
+
+            light.ShadowType = ShadowType.AllObjects;
+            light.World = Matrix.CreateTranslation(light.Position);
+            AddLight(light);
         }
 
         void CreateVersionArea()
@@ -132,28 +161,15 @@ namespace Ship_Game.GameScreens.MainMenu
         public override void Draw(SpriteBatch batch)
         {
             DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
+            Ship?.Draw(batch);
         }
 
         public override bool HandleInput(InputState input)
         {
-            // Use these controls to reorient the ship and planet in the menu. The new rotation
-            // is logged into debug console and can be set as default values later
-            if (DebugMeshInspect && IsActive)
-            {
-                if (input.IsKeyDown(Keys.W)) ShipRotation.X += 1.0f;
-                if (input.IsKeyDown(Keys.S)) ShipRotation.X -= 1.0f;
-                if (input.IsKeyDown(Keys.A)) ShipRotation.Y += 1.0f;
-                if (input.IsKeyDown(Keys.D)) ShipRotation.Y -= 1.0f;
-                if (input.IsKeyDown(Keys.Q)) ShipRotation.Z += 1.0f;
-                if (input.IsKeyDown(Keys.E)) ShipRotation.Z -= 1.0f;
+            if (!IsActive)
+                return false;
 
-                if (input.ScrollIn)  ShipScale += 0.1f;
-                if (input.ScrollOut) ShipScale -= 0.1f;
-
-                // if new keypress, spawn random ship
-                if (input.KeyPressed(Keys.Space))
-                    InitRandomShip();
-            }
+            Ship?.HandleInput(input);
 
             // handle buttons and stuff
             if (base.HandleInput(input))
@@ -197,89 +213,14 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
-        void InitRandomShip()
-        {
-            if (ShipObj != null) // Allow multiple init
-            {
-                RemoveObject(ShipObj);
-                ShipObj.Clear();
-                ShipObj = null;
-                ShipAnim = null;
-            }
 
-            // FrostHand: do we actually need to show Model/Ships/speeder/ship07 in base version? Or could show random ship for base and modded version?
-            if (GlobalStats.HasMod && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
-            {
-                int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
-                string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
-                ShipObj = ResourceManager.GetSceneMesh(TransientContent, modelPath);
-            }
-            else if (DebugMeshInspect)
-            {
-                ShipObj = ResourceManager.GetSceneMesh(TransientContent, "Model/TestShips/Soyo/Soyo.obj");
-                //ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
-            }
-            else
-            {
-                ShipData[] hulls = ResourceManager.Hulls.Filter(s
-                    => s.Role == ShipData.RoleName.frigate
-                        //|| s.Role == ShipData.RoleName.cruiser
-                        //|| s.Role == ShipData.RoleName.capital
-                        //&& s.ShipStyle != "Remnant"
-                        && s.ShipStyle != "Ralyeh"); // Ralyeh ships look disgusting in the menu
-                ShipData hull = hulls[RandomMath.InRange(hulls.Length)];
-
-                ShipObj = ResourceManager.GetSceneMesh(TransientContent, hull.ModelPath, hull.Animated);
-                if (hull.Animated) // Support animated meshes if we use them at all
-                {
-                    SkinnedModel model = TransientContent.LoadSkinnedModel(hull.ModelPath);
-                    ShipAnim = new AnimationController(model.SkeletonBones);
-                    ShipAnim.StartClip(model.AnimationClips["Take 001"]);
-                }
-            }
-
-            // we want main menu ships to have a certain acceptable size:
-            ShipScale = 266f / ShipObj.ObjectBoundingSphere.Radius;
-            if (DebugMeshInspect) ShipScale *= 4.0f;
-
-            ShipPosition = new Vector3(-ScreenWidth / 4f, 528 - ScreenHeight / 2f, 0f);
-            ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
-            AddObject(ShipObj);
-        }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            ScreenManager.UpdateSceneObjects(gameTime);
-
-            if (!DebugMeshInspect)
-            {
-                // slow moves the ship across the screen
-                float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-                ShipRotation.Y += deltaTime * 0.06f;
-                ShipPosition   += deltaTime * -ShipRotation.DegreesToUp() * 1.5f; // move forward 1.5 units/s
-            }
-            else
-            {
-                ShipPosition = new Vector3(0f, 0f, 0f);
-            }
-
-            // shipObj can be modified while mod is loading
-            if (ShipObj != null)
-            {
-                ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
-
-                // Added by RedFox: support animated ships
-                if (ShipAnim != null)
-                {
-                    ShipObj.SkinBones = ShipAnim.SkinnedBoneTransforms;
-                    ShipAnim.Speed = 0.45f;
-                    ShipAnim.Update(gameTime.ElapsedGameTime, Matrix.Identity);
-                }
-            }
-
+            Ship?.Update(gameTime);
             ScreenManager.UpdateSceneObjects(gameTime);
             
-            if (RandomMath.RollDice(percent:0.25f)) // 0.25%
+            if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {
                 Comet c = Add(new Comet(this));
                 c.SetDirection(new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f));

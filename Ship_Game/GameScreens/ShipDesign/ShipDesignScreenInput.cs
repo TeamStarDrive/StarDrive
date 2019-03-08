@@ -660,7 +660,7 @@ namespace Ship_Game
             Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
             View = Matrix.CreateRotationY(180f.ToRadians())
-                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
 
             float aspectRatio = (float)Viewport.Width / Viewport.Height;
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
@@ -685,7 +685,7 @@ namespace Ship_Game
                 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
 
                 View = Matrix.CreateRotationY(180f.ToRadians())
-                     * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                     * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
 
                 Vector3 center   = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
                 Vector3 hullEdge = Viewport.Project(new Vector3(hullWidth, 0, 0), Projection, View, Matrix.Identity);
