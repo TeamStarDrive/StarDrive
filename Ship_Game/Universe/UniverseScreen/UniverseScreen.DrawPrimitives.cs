@@ -11,7 +11,7 @@ namespace Ship_Game
         public Vector2 ProjectToScreenPosition(Vector2 posInWorld, float zAxis = 0f)
         {
             //return Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
-            return Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), projection, view);
+            return Viewport.ProjectTo2D(posInWorld.ToVec3(zAxis), Projection, View);
         }
 
         public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld, out Vector2 posOnScreen, out float sizeOnScreen)
@@ -57,8 +57,8 @@ namespace Ship_Game
 
         public Vector3 UnprojectToWorldPosition3D(Vector2 screenSpace)
         {
-            Vector3 pos = Viewport.Unproject(new Vector3(screenSpace, 0f), projection, view, Matrix.Identity);
-            Vector3 dir = Viewport.Unproject(new Vector3(screenSpace, 1f), projection, view, Matrix.Identity) - pos;
+            Vector3 pos = Viewport.Unproject(new Vector3(screenSpace, 0f), Projection, View, Matrix.Identity);
+            Vector3 dir = Viewport.Unproject(new Vector3(screenSpace, 1f), Projection, View, Matrix.Identity) - pos;
             dir.Normalize();
             float num = -pos.Z / dir.Z;
             return (pos + num * dir);

@@ -11,22 +11,22 @@ namespace Ship_Game
     {
         private void RenderParticles()
         {
-            beamflashes             .SetCamera(view, projection);
-            explosionParticles      .SetCamera(view, projection);
-            photonExplosionParticles.SetCamera(view, projection);
-            explosionSmokeParticles .SetCamera(view, projection);
-            projectileTrailParticles.SetCamera(view, projection);
-            fireTrailParticles      .SetCamera(view, projection);
-            smokePlumeParticles     .SetCamera(view, projection);
-            fireParticles           .SetCamera(view, projection);
-            engineTrailParticles    .SetCamera(view, projection);
-            flameParticles          .SetCamera(view, projection);
-            SmallflameParticles     .SetCamera(view, projection);
-            sparks                  .SetCamera(view, projection);
-            lightning               .SetCamera(view, projection);
-            flash                   .SetCamera(view, projection);
-            star_particles          .SetCamera(view, projection);
-            neb_particles           .SetCamera(view, projection);
+            beamflashes             .SetCamera(View, Projection);
+            explosionParticles      .SetCamera(View, Projection);
+            photonExplosionParticles.SetCamera(View, Projection);
+            explosionSmokeParticles .SetCamera(View, Projection);
+            projectileTrailParticles.SetCamera(View, Projection);
+            fireTrailParticles      .SetCamera(View, Projection);
+            smokePlumeParticles     .SetCamera(View, Projection);
+            fireParticles           .SetCamera(View, Projection);
+            engineTrailParticles    .SetCamera(View, Projection);
+            flameParticles          .SetCamera(View, Projection);
+            SmallflameParticles     .SetCamera(View, Projection);
+            sparks                  .SetCamera(View, Projection);
+            lightning               .SetCamera(View, Projection);
+            flash                   .SetCamera(View, Projection);
+            star_particles          .SetCamera(View, Projection);
+            neb_particles           .SetCamera(View, Projection);
         }
 
         Map<PlanetGlow, SubTexture> Glows = new Map<PlanetGlow, SubTexture>(new []
@@ -145,7 +145,7 @@ namespace Ship_Game
         // This draws the hi-res 3D sun and orbital circles
         void DrawSolarSysWithOrbits(SolarSystem sys, Vector2 sysScreenPos)
         {
-            sys.Sun.DrawSunMesh(sys, view, projection);
+            sys.Sun.DrawSunMesh(sys, View, Projection);
             //DrawSunMesh(sys, sys.Zrotate);
             //if (sys.Sun.DoubleLayered) // draw second sun layer
             //    DrawSunMesh(sys, sys.Zrotate / -2.0f);
@@ -211,22 +211,22 @@ namespace Ship_Game
             for (int index = 0; index < 41; ++index)
             {
                 Vector3 vector3_1 = Viewport.Project(
-                    new Vector3((float) (index * (double) UniverseSize / 40.0), 0.0f, 0.0f), projection,
-                    view, Matrix.Identity);
+                    new Vector3((float) (index * (double) UniverseSize / 40.0), 0.0f, 0.0f), Projection,
+                    View, Matrix.Identity);
                 Vector3 vector3_2 = Viewport.Project(
                     new Vector3((float) (index * (double) UniverseSize / 40.0), UniverseSize, 0.0f),
-                    projection, view, Matrix.Identity);
+                    Projection, View, Matrix.Identity);
                 ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color(211, 211, 211, 70));
             }
             for (int index = 0; index < 41; ++index)
             {
                 Vector3 vector3_1 = Viewport.Project(
-                    new Vector3(0.0f, (float) (index * (double) UniverseSize / 40.0), 40f), projection,
-                    view, Matrix.Identity);
+                    new Vector3(0.0f, (float) (index * (double) UniverseSize / 40.0), 40f), Projection,
+                    View, Matrix.Identity);
                 Vector3 vector3_2 = Viewport.Project(
                     new Vector3(UniverseSize, (float) (index * (double) UniverseSize / 40.0), 0.0f),
-                    projection, view, Matrix.Identity);
+                    Projection, View, Matrix.Identity);
                 ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color(211, 211, 211, 70));
             }
@@ -243,7 +243,7 @@ namespace Ship_Game
                 }
                 if (viewState >= UnivScreenState.GalaxyView) // super zoomed out
                 {
-                    sys.Sun.DrawLowResSun(batch, sys, view, projection);
+                    sys.Sun.DrawLowResSun(batch, sys, View, Projection);
                 }
             }
         }
@@ -256,13 +256,13 @@ namespace Ship_Game
             SpriteBatch batch = ScreenManager.SpriteBatch;
 
             Vector3 vector3_4 =
-                Viewport.Project(solarSystem.Position.ToVec3(), projection, view,
+                Viewport.Project(solarSystem.Position.ToVec3(), Projection, View,
                     Matrix.Identity);
             Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
             Vector3 vector3_5 =
                 Viewport.Project(
-                    new Vector3(solarSystem.Position.PointOnCircle(90f, 25000f), 0.0f), projection,
-                    view, Matrix.Identity);
+                    new Vector3(solarSystem.Position.PointOnCircle(90f, 25000f), 0.0f), Projection,
+                    View, Matrix.Identity);
             float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
             Vector2 vector2 = new Vector2(position.X, position.Y);
             if ((solarSystem.IsExploredBy(player) || Debug) && SelectedSystem != solarSystem)
@@ -278,7 +278,7 @@ namespace Ship_Game
                     Viewport.Project(
                         new Vector3(
                             new Vector2(100000f * GameScale, 0.0f) +
-                            solarSystem.Position, 0.0f), projection, view, Matrix.Identity);
+                            solarSystem.Position, 0.0f), Projection, View, Matrix.Identity);
                 float radius = Vector2.Distance(new Vector2(vector3_6.X, vector3_6.Y), position);
                 if (viewState == UnivScreenState.SectorView)
                 {
@@ -508,7 +508,7 @@ namespace Ship_Game
                 Ship ship = player.KnownShips[i];
                 if (ship != null && ship.InFrustum && ship.inSensorRange)
                 {
-                    ship.RenderThrusters(ref view, ref projection);
+                    ship.RenderThrusters(ref View, ref Projection);
                 }
             }
         }
@@ -516,11 +516,11 @@ namespace Ship_Game
         public void Render(GameTime gameTime)
         {
             if (Frustum == null)
-                Frustum = new BoundingFrustum(view * projection);
+                Frustum = new BoundingFrustum(View * Projection);
             else
-                Frustum.Matrix = view * projection;
+                Frustum.Matrix = View * Projection;
 
-            ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
+            ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
 
             RenderBackdrop();
             ScreenManager.SpriteBatch.Begin();

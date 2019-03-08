@@ -1084,8 +1084,8 @@ namespace Ship_Game
                 if (!(goal is BuildConstructionShip))
                     continue;
                 const float radius = 100f;                    
-                Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), projection, view, Matrix.Identity).ToVec2();
-                Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), projection, view, Matrix.Identity);
+                Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), Projection, View, Matrix.Identity).ToVec2();
+                Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), Projection, View, Matrix.Identity);
                 float num = Vector2.Distance(new Vector2(buildOffSet.X, buildOffSet.Y), buildPos) + 10f;
                 var underConstruction = new ClickableItemUnderConstruction
                 {

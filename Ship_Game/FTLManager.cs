@@ -26,18 +26,16 @@ namespace Ship_Game
             FTLTexture = content.Load<SubTexture>("Textures/Ships/FTL");
         }
 
-        public static void AddFTL(Vector3 front, Vector3 rear)
-        {
-            var f = new FTL { Front = front, Rear = rear };
-            using (Lock.AcquireWriteLock())
-                Effects.Add(f);
-        }
-
         public static void AddFTL(Vector3 position, Vector3 forward, float radius)
         {
-            var front = position + forward*radius;
-            var rear  = position - forward*(radius*3);
-            AddFTL(front, rear);
+            Vector3 front = position + forward*radius;
+            Vector3 rear  = position - forward*(radius*3);
+            var f = new FTL { Front = front, Rear = rear };
+
+            using (Lock.AcquireWriteLock())
+            {
+                Effects.Add(f);
+            }
         }
 
         public static void DrawFTLModels(GameScreen screen, SpriteBatch batch)
