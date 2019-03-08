@@ -12,17 +12,19 @@ namespace Ship_Game.SpriteSystem
     // Within a single abstract entity
     public class DrawableSprite
     {
-        public SpriteEffects Effects;
         SpriteAnimation Anim;
         SubTexture Tex;
+
+        public SpriteEffects Effects;
         public float Rotation;
+        public string Name => Tex?.Name ?? Anim?.Name ?? "";
 
         public DrawableSprite(SpriteEffects effect = SpriteEffects.None)
         {
             Effects = effect;
         }
 
-        public void Animation(GameContentManager content, string animation, bool looping)
+        public DrawableSprite(GameContentManager content, string animation, bool looping)
         {
             Anim = new SpriteAnimation(content, "Textures/" + animation)
             {
@@ -30,10 +32,30 @@ namespace Ship_Game.SpriteSystem
             };
         }
 
-        public void Texture2D(GameContentManager content, string texture)
+        public DrawableSprite(GameContentManager content, string texture)
         {
             var tex = content.Load<Texture2D>("Textures/" + texture);
             Tex = new SubTexture(texture, tex);
+        }
+
+        public DrawableSprite(SubTexture texture)
+        {
+            Tex = texture;
+        }
+
+        public DrawableSprite(SpriteAnimation spriteAnim)
+        {
+            Anim = spriteAnim;
+        }
+
+        public static DrawableSprite Animation(GameContentManager content, string animation, bool looping)
+        {
+            return new DrawableSprite(content, animation, looping);
+        }
+
+        public static DrawableSprite Texture2D(GameContentManager content, string texture)
+        {
+            return new DrawableSprite(content, texture);
         }
 
         public void Update(float deltaTime)
@@ -50,6 +72,18 @@ namespace Ship_Game.SpriteSystem
             else
             {
                 batch.Draw(Tex, screenPos, color, Rotation, Tex.CenterF, scale, Effects, 0.9f);
+            }
+        }
+
+        public void Draw(SpriteBatch batch, in Rectangle rect, Color color)
+        {
+            if (Anim != null)
+            {
+                Anim.Draw(batch, rect, color, Rotation, Effects);
+            }
+            else
+            {
+                batch.Draw(Tex, rect, color, Rotation, Vector2.Zero, Effects, 0.9f);
             }
         }
     }

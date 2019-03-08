@@ -61,8 +61,9 @@ namespace Ship_Game
 
         public override string ToString() => $"List {ElementDescr} Items={Items.Count} Header={Header!=null} Footer={Footer!=null}";
 
-        public UIList(UIElementV2 parent, in Rectangle rect) : base(parent, in rect, Color.TransparentBlack)
+        public UIList()
         {
+            Color = Color.TransparentBlack;
         }
 
         public UIList(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size, Color.TransparentBlack)

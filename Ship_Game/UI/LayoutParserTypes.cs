@@ -23,7 +23,7 @@ namespace Ship_Game.UI
         [StarDataKey] public readonly string Name;
         [StarData] public readonly string Texture;
         [StarData] public readonly bool Visible = true; // Visible by default
-        [StarData] public readonly DrawDepth DrawDepth = DrawDepth.Foreground;
+        [StarData] public readonly DrawDepth? DrawDepth;
         [StarData] public readonly Vector4 Rect;
         [StarData] public readonly Vector2 Pos;
         [StarData] public readonly Vector2 Size;
@@ -52,8 +52,8 @@ namespace Ship_Game.UI
         public Rectangle R;
         public SubTexture Tex;
         public SpriteAnimation Spr;
-        public string ElementName() => Name ?? Texture ?? "";
-        public override string ToString() => $"{ElementName()} Rect:{Rect}";
+        public string ElementName => Name ?? Texture ?? "";
+        public override string ToString() => $"{ElementName} Rect:{Rect}";
     }
 
     [StarDataType]

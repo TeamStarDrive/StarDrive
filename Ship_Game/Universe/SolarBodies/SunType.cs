@@ -192,13 +192,13 @@ namespace Ship_Game.Universe.SolarBodies
         {
             Info = info;
 
-            Sprite = new DrawableSprite(SpriteEffects.FlipVertically);
-            Sprite.Rotation = info.RotationStart.Generate(); // start at a random rotation
-            
             if (info.AnimationPath.NotEmpty())
-                Sprite.Animation(content, info.AnimationPath, looping: true);
+                Sprite = DrawableSprite.Animation(content, info.AnimationPath, looping: true);
             else
-                Sprite.Texture2D(content, info.TexturePath);
+                Sprite = DrawableSprite.Texture2D(content, info.TexturePath);
+            
+            Sprite.Effects = SpriteEffects.FlipVertically;
+            Sprite.Rotation = info.RotationStart.Generate();
         }
 
         public void Update(float deltaTime)
