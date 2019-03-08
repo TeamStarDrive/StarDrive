@@ -194,6 +194,11 @@ namespace Ship_Game
             return effect;
         }
 
+        public void ClearEffects()
+        {
+            Effects = null;
+        }
+
         protected void UpdateEffects(float deltaTime)
         {
             Log.Assert(Visible, "UpdateEffects should only be called when Visible");
