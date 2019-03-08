@@ -8,19 +8,9 @@
 # MainMenu.yaml instead.
 
 
-# Panel: mod_logo
-#   Size: [0.4, 0]
-#   Pos: [-0.06, 170]
-#   Color: [0.8,0.8,0.8,0.0] # start with alpha 0.0
-#   AxisAlign: Center
-#   DrawDepth: Foreground
-#   SpriteAnim: MMenu/bb_logo_animated
-#     Delay: 1
-#     Duration: 7
-#     StartAt: 0
-#     Looping: true
-#     FreezeAtLastFrame: false
-#     VisibleBeforeDelay: true
-#   Animation: [1, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
-#     Alpha: [0, 1]
+# Override: background
+#   Texture: MMenu/new_background.png
+#   Rect: [0.0, 0.0, 0.75, 0.0] # 75% of screen, preserve aspect 
+#   AxisAlign: Center # and put it to center
+#   DrawDepth: Background
 

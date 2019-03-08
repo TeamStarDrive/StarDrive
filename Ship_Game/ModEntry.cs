@@ -22,13 +22,18 @@ namespace Ship_Game
             Version       = mi.Version;
 		}
 
+        public void LoadPortrait(GameScreen screen)
+        {
+            PortraitTex = screen.ContentManager.LoadModTexture(ModName, mi.PortraitPath);
+        }
+
         public void LoadContent(GameScreen screen)
         {
             RemoveAll();
             Size = screen.Size;
-            PortraitTex = screen.ContentManager.LoadModTexture(ModName, mi.PortraitPath);
+            LoadPortrait(screen);
 
-            LayoutParser.LoadLayout(this, Size, "UI/MainMenu.Mod.yaml", layoutRequired: false);
+            LayoutParser.LoadLayout(screen, Size, "UI/MainMenu.Mod.yaml", clearElements: false, required: false);
         }
 
         public void DrawListElement(SpriteBatch batch, Rectangle clickRect)

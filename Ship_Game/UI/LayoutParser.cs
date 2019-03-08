@@ -12,10 +12,10 @@ namespace Ship_Game.UI
     public class LayoutParser
     {
         // Loads GameScreen and registers it for HotLoading
-        public static void LoadLayout(GameScreen screen, string layoutFile)
+        public static void LoadLayout(GameScreen screen, string layoutFile, bool clearElements)
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile(layoutFile);
-            LoadLayout(screen, screen.ScreenArea, file);
+            LoadLayout(screen, screen.ScreenArea, file, clearElements);
 
             // trigger ReloadContent when layout file is modified
             ScreenManager.Instance.AddHotLoadTarget(screen, layoutFile, file.FullName);
@@ -23,21 +23,22 @@ namespace Ship_Game.UI
 
         // Loads a generic UI container -- does not register for HotLoading
         // because container might have been destroyed
-        public static void LoadLayout(UIElementContainer container, Vector2 size, string layoutFile, bool layoutRequired = true)
+        public static void LoadLayout(UIElementContainer container, Vector2 size, string layoutFile, 
+                                      bool clearElements, bool required)
         {
-            container.RemoveAll();
-
             FileInfo file = ResourceManager.GetModOrVanillaFile(layoutFile);
-            if (file == null && layoutRequired)
+            if (file == null && required)
                 throw new FileNotFoundException($"Missing required layout {layoutFile}");
 
             if (file != null)
-                LoadLayout(container, size, file);
+                LoadLayout(container, size, file, clearElements);
         }
 
-        public static void LoadLayout(UIElementContainer container, Vector2 size, FileInfo file)
+        public static void LoadLayout(UIElementContainer container, Vector2 size, FileInfo file, bool clearElements)
         {
-            container.RemoveAll();
+            if (clearElements)
+                container.RemoveAll();
+
             var layoutParser = new LayoutParser(container, size, file);
             layoutParser.CreateElements();
         }
@@ -296,7 +297,7 @@ namespace Ship_Game.UI
             {
                 if (!parent.Find(info.ElementName, out element))
                 {
-                    Log.Warning($"Override {info.ElementName} not found in parent {parent.Name}!");
+                    Log.Warning($"Override '{info.ElementName}' failed. Element not found in '{parent.Name}'!");
                     return;
                 }
                 newElement = false;
