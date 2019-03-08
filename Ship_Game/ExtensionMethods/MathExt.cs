@@ -581,76 +581,6 @@ namespace Ship_Game
                                s * (self.X - center.X) + c * (self.Y - center.Y) + center.Y);
         }
 
-        // Creates a 3D Forward vector from XYZ RADIANS rotation
-        // X = Yaw;  Y = Pitch;  Z = Roll
-        public static Vector3 RadiansToForward(this Vector3 radians)
-        {
-            return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Forward;
-        }
-        public static Vector3 RadiansToRight(this Vector3 radians)
-        {
-            return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Right;
-        }
-        public static Vector3 RadiansToUp(this Vector3 radians)
-        {
-            return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Up;
-        }
-
-        // Creates a 3D Forward vector from XYZ DEGREES rotation
-        // X = Yaw;  Y = Pitch;  Z = Roll
-        public static Vector3 DegreesToForward(this Vector3 degrees) => degrees.DegsToRad().RadiansToForward();
-        public static Vector3 DegreesToRight(this Vector3 degrees)   => degrees.DegsToRad().RadiansToRight();
-        public static Vector3 DegreesToUp(this Vector3 degrees)      => degrees.DegsToRad().RadiansToUp();
-
-
-        // Creates an Affine World transformation Matrix
-        public static Matrix AffineTransform(Vector3 position, Vector3 rotationRadians, float scale)
-        {
-            return Matrix.CreateScale(scale)
-                * Matrix.CreateRotationX(rotationRadians.X)
-                * Matrix.CreateRotationY(rotationRadians.Y)
-                * Matrix.CreateRotationZ(rotationRadians.Z)
-                * Matrix.CreateTranslation(position);
-        }
-
-        // Sets the Affine World transformation Matrix for this SceneObject
-        public static void AffineTransform(this SceneObject so, Vector3 position, Vector3 rotationRadians, float scale)
-        {
-            so.World = Matrix.CreateScale(scale)
-                * Matrix.CreateRotationX(rotationRadians.X)
-                * Matrix.CreateRotationY(rotationRadians.Y)
-                * Matrix.CreateRotationZ(rotationRadians.Z)
-                * Matrix.CreateTranslation(position);
-        }
-
-        // Sets the Affine World transformation Matrix for this SceneObject
-        public static void AffineTransform(this SceneObject so, Vector3 position, float xRads, float yRads, float zRads, float scale)
-        {
-            so.World = Matrix.CreateScale(scale)
-                * Matrix.CreateRotationX(xRads)
-                * Matrix.CreateRotationY(yRads)
-                * Matrix.CreateRotationZ(zRads)
-                * Matrix.CreateTranslation(position);
-        }
-
-        // Sets the Affine World transformation Matrix for this SceneObject
-        public static void AffineTransform(this SceneObject so, float x, float y, float z, float xRads, float yRads, float zRads, float scale)
-        {
-            so.World = Matrix.CreateScale(scale)
-                * Matrix.CreateRotationX(xRads)
-                * Matrix.CreateRotationY(yRads)
-                * Matrix.CreateRotationZ(zRads)
-                * Matrix.CreateTranslation(x, y, z);
-        }
-
-        // Sets the Affine World transformation Matrix for this SceneObject
-        public static void AffineTransform(this SceneObject so, Vector2 position, float xRads, float yRads, float zRads)
-        {
-            so.World = Matrix.CreateRotationX(xRads)
-                * Matrix.CreateRotationY(yRads)
-                * Matrix.CreateRotationZ(zRads)
-                * Matrix.CreateTranslation(position.ToVec3());
-        }
 
         // Returns true if a is almost equal to b, within float epsilon error margin
         public static bool AlmostEqual(this float a, float b)
@@ -710,41 +640,6 @@ namespace Ship_Game
             return (min - 0.000001f) <= x && x <= (max + 0.000001f);
         }
 
-        public static Vector2 ProjectTo2D(this Viewport viewport, Vector3 source, ref Matrix projection, ref Matrix view)
-        {
-            Matrix.Multiply(ref view, ref projection, out Matrix viewProjection);
-            Vector3.Transform(ref source, ref viewProjection, out Vector3 clipSpacePoint);
-            float len = source.X*viewProjection.M14 + source.Y*viewProjection.M24 + source.Z*viewProjection.M34 + viewProjection.M44;
-            if (!len.AlmostEqual(1f)) // normalize
-                clipSpacePoint /= len;
-            return new Vector2(( clipSpacePoint.X + 1.0f) * 0.5f * viewport.Width  + viewport.X,
-                               (-clipSpacePoint.Y + 1.0f) * 0.5f * viewport.Height + viewport.Y);
-        }
-
-        public static Vector2 Measure2D(this Viewport viewport, Vector3 a, Vector3 b, ref Matrix projection, ref Matrix view)
-        {
-            Vector2 x = ProjectTo2D(viewport, a, ref projection, ref view);
-            Vector2 y = ProjectTo2D(viewport, b, ref projection, ref view);
-            return y - x;
-        }
-
-        public static Vector3 UnprojectToWorld(this Viewport viewport, int screenX, int screenY, float depth, 
-                                               ref Matrix projection, ref Matrix view)
-        {
-            Matrix.Multiply(ref view, ref projection, out Matrix viewProjection);
-            Matrix.Invert(ref viewProjection, out Matrix invViewProj);
-
-            var source = new Vector3(
-                (screenX - viewport.X)  / (viewport.Width * 2.0f) - 1.0f,
-                (screenY - viewport.Y)  / (viewport.Height * 2.0f) - 1.0f,
-                (depth - viewport.MinDepth) / (viewport.MaxDepth - viewport.MinDepth));
-
-            Vector3.Transform(ref source, ref invViewProj, out Vector3 worldPos);
-            float len = source.X*invViewProj.M14 + source.Y*invViewProj.M24 + source.Z*invViewProj.M34 + invViewProj.M44;
-            if (!len.AlmostEqual(1f))
-                worldPos /= len;
-            return worldPos;
-        }
 
         public static float Max3(float a, float b, float c) => Max(a, Max(b, c));
 
