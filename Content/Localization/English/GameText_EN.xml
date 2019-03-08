@@ -6340,11 +6340,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>215</Index>
-      <Text>Orders this ship to transport goods. Right click to toggle whether this ship will trade food when given a "Transport Goods" order.</Text>
+      <Text>Orders this ship to transport food. This ship will transport food from exporting planets to importing plants</Text>
     </Token>
     <Token>
       <Index>216</Index>
-      <Text>Orders this ship to transport goods. Right click to toggle whether this ship will trade production when given a "Transport Goods" order</Text>
+      <Text>Orders this ship to transport production. This ship will transport production from exporting planets to importing plants</Text>
     </Token>
     <Token>
       <Index>356</Index>
