@@ -278,6 +278,10 @@ namespace Ship_Game
                     GameAudio.AcceptClick();
                     switch (orderType)
                     {
+                        /*
+                         FB @todo this one is not working for groups. Need to check this
+                         when selecting multiple freighters, the manual trade buttons are not drawn. 
+
                         case OrderType.TradeFood:
                             {
                                 for (int i = 0; i < ShipList.Count; i++)
@@ -294,7 +298,7 @@ namespace Ship_Game
                                     ShipList[i].TransportingProduction = !ShipList[i].TransportingProduction;
                                 }
                             return true;
-                        }
+                        }*/
                         case OrderType.PassTran:
                         {
                             return true;

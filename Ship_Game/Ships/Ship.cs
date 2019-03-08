@@ -164,6 +164,9 @@ namespace Ship_Game.Ships
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost { get; private set; }
         public Planet HomePlanet { get; private set; }
+        public bool TransportingPassengers { get; private set; }
+        public bool TransportingFood       { get; private set; }
+        public bool TransportingProduction { get; private set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
@@ -520,42 +523,10 @@ namespace Ship_Game.Ships
         }
 
 
-        public bool DoingPassengerTransport => TransportingPassengers;
-
-        private bool TPassengers;
-        public bool TransportingPassengers
+        public bool DoingPassengerTransport
         {
-            get => TPassengers;
-            set
-            {
-                TPassengers = value;
-                if (!value)
-                    AI.State = AIState.AwaitingOrders;
-            }
-        }
-
-        private bool TFood;
-        public bool TransportingFood
-        {
-            get => TFood;
-            set
-            {
-                TFood = value;
-                if (!value)
-                    AI.State = AIState.AwaitingOrders;
-            }
-        }
-
-        private bool TProd;
-        public bool TransportingProduction
-        {
-            get => TProd;
-            set
-            {
-                TProd = value;
-                if (!value)
-                    AI.State = AIState.AwaitingOrders;
-            }
+            get => TransportingPassengers;
+            set => TransportingPassengers = value;
         }
 
         public bool DoingExplore

@@ -5562,7 +5562,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2172</Index>
-      <Text>Orders this ship to transport colonists from your high population worlds to your low population worlds. If an area of operations is set for the ship, then this ship will only transport passengers within that AO.</Text>
+      <Text>Orders this ship to transport colonists from your high population worlds to your low population worlds. Starving or dwindling food reserves will not get new colonists until food reserves/production gets better.</Text>
     </Token>
     <Token>
       <Index>2173</Index>
