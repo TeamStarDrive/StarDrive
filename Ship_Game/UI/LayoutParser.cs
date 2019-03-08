@@ -207,6 +207,11 @@ namespace Ship_Game.UI
                     float aspectRatio = (texHeight / (float)texWidth);
                     absSize.Y = (float)Math.Round(absSize.X * aspectRatio);
                 }
+                else if (absSize.X.AlmostZero())
+                {
+                    float aspectRatio = (texWidth / (float)texHeight);
+                    absSize.X = (float)Math.Round(absSize.Y * aspectRatio);
+                }
             }
 
             Vector2 absPos = AbsolutePos(pos, absSize, parent.Pos, parent.Size, info.AxisAlign);
@@ -241,16 +246,19 @@ namespace Ship_Game.UI
         ElementInfo ParseInfo(UIElementV2 parent, StarDataNode node)
         {
             ElementInfo info = DeserializeElementInfo(node);
-            info.Tex = LoadTexture(info.Texture);
-            info.Spr = LoadSpriteAnim(info.SpriteAnim);
-
-            // init texture for size information, so buttons can be auto-resized
-            if (info.Tex == null && node.Key == "Button")
+            if (info != null)
             {
-                info.Tex = UIButton.StyleTexture(info.ButtonStyle);
-            }
+                info.Tex = LoadTexture(info.Texture);
+                info.Spr = LoadSpriteAnim(info.SpriteAnim);
 
-            info.R = ParseRect(parent, info);
+                // init texture for size information, so buttons can be auto-resized
+                if (info.Tex == null && node.Key == "Button")
+                {
+                    info.Tex = UIButton.StyleTexture(info.ButtonStyle);
+                }
+
+                info.R = ParseRect(parent, info);
+            }
             return info;
         }
 
@@ -262,7 +270,9 @@ namespace Ship_Game.UI
             bool newElement = true;
             UIElementV2 element;
             ElementInfo info = ParseInfo(parent, node);
-
+            if (info == null)
+                return; // meh
+            
             if (node.Key == "Panel")
             {
                 element = new UIPanel();
@@ -321,16 +331,22 @@ namespace Ship_Game.UI
                 colorElement.Color = info.Color.Value;
             }
 
-            element.Name = info.ElementName;
-            element.Rect = info.R;
-            element.DrawDepth = info.DrawDepth;
-            element.Visible = info.Visible;
-            ParseAnimation(element, info);
-
             if (newElement)
             {
+                element.Name = info.ElementName;
+                element.Rect = info.R;
                 parent.Add(element);
             }
+            else // OVERRIDE
+            {
+                if (info.R.IsEmpty == false)
+                    element.Rect = info.R;
+            }
+
+            if (info.DrawDepth != null)
+                element.DrawDepth = info.DrawDepth.Value;
+            element.Visible = info.Visible;
+            ParseAnimation(element, info);
 
             var container = element as UIElementContainer;
             if (container != null)
@@ -356,6 +372,8 @@ namespace Ship_Game.UI
             AnimInfo data = info.Animation;
             if (data != null)
             {
+                element.ClearEffects();
+
                 // Delay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)
                 float[] p = data.Params ?? Empty<float>.Array;
 
