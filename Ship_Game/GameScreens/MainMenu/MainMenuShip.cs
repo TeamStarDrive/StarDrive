@@ -58,7 +58,7 @@ namespace Ship_Game.GameScreens.MainMenu
             float Speed = 10f; // forward speed in units/s
             bool Spooling;
             bool EnteringFTL;
-            public CoastingAcrossScreen(MainMenuShip ship) : base(ship, RandomMath.RandomBetween(30, 40))
+            public CoastingAcrossScreen(MainMenuShip ship) : base(ship, 6/*RandomMath.RandomBetween(30, 40)*/)
             {
                 NextState = () => new WarpingOut(ship);
             }
@@ -74,7 +74,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 }
                 if (!EnteringFTL && Remaining < 0.2f)
                 {
-                    FTLManager.AddFTL(Ship.Position, Ship.Forward, 500);
+                    FTLManager.AddFTL(Ship.Position, Ship.Forward, 266);
                     EnteringFTL = true;
                 }
                 return base.Update(deltaTime);
@@ -92,7 +92,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 ship.Rotation = new Vector3(-110, 152, -10); // reset direction
                 ship.Scale = WarpScale;
                 End = new Vector3(-489, -68, 226);
-                Start = End - ship.Forward*50000f;
+                Start = End - ship.Forward*100000f;
                 ship.Position = Start;
                 NextState = () => new CoastingAcrossScreen(ship);
             }
@@ -102,7 +102,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
                 if (!ExitingFTL && Remaining < 0.1f)
                 {
-                    FTLManager.AddFTL(End, Ship.Forward, -500);
+                    FTLManager.AddFTL(End, Ship.Forward, -266);
                     ExitingFTL = true;
                 }
 
@@ -126,7 +126,7 @@ namespace Ship_Game.GameScreens.MainMenu
             public WarpingOut(MainMenuShip ship) : base(ship, 1f)
             {
                 Start = ship.Position;
-                End   = ship.Position + ship.Forward * 15000f;
+                End   = ship.Position + ship.Forward * 50000f;
                 NextState = () => new IdlingInDeepSpace(ship, RandomMath.RandomBetween(10, 15));
             }
             public override bool Update(float deltaTime)
@@ -197,7 +197,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
                 if (input.WasAnyKeyPressed)
                 {
-                    Log.Info($"Position: {Position.String(0)}  Rotation: {Rotation.String(0)}");
+                    Log.Info($"Position: {Position.String()}  Rotation: {Rotation.String()}");
                 }
             }
         }
@@ -248,7 +248,7 @@ namespace Ship_Game.GameScreens.MainMenu
             if (DebugMeshInspect) BaseScale *= 4.0f;
 
             Screen.AddObject(ShipObj);
-            State = new IdlingInDeepSpace(this, 3);
+            State = new IdlingInDeepSpace(this, 1);
             UpdateTransform();
 
             FTLManager.LoadContent(Screen.TransientContent);
@@ -261,15 +261,13 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public void Update(GameTime gameTime)
         {
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
             if (DebugMeshInspect)
             {
                 Position = new Vector3(0f, 0f, 0f);
             }
             else
             {
-                State?.Update(deltaTime);
+                State?.Update(0.016f);
             }
             
             // shipObj can be modified while mod is loading
@@ -286,7 +284,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 }
             }
 
-            FTLManager.Update(deltaTime);
+            FTLManager.Update(Screen, 0.016f);
         }
 
         public void Draw(SpriteBatch batch)
