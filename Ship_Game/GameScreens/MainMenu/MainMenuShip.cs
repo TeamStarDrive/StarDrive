@@ -67,7 +67,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 // slow moves the ship across the screen
                 Ship.Rotation.Y += deltaTime * 0.06f;
                 Ship.Position += deltaTime * Ship.Forward * Speed;
-                if (!Spooling && Remaining < 3.0f)
+                if (!Spooling && Remaining < 3.2f)
                 {
                     GameAudio.PlaySfxAsync("sd_warp_start_large");
                     Spooling = true;
@@ -261,13 +261,14 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public void Update(GameTime gameTime)
         {
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (DebugMeshInspect)
             {
                 Position = new Vector3(0f, 0f, 0f);
             }
             else
             {
-                State?.Update(0.016f);
+                State?.Update(deltaTime);
             }
             
             // shipObj can be modified while mod is loading
@@ -284,7 +285,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 }
             }
 
-            FTLManager.Update(Screen, 0.016f);
+            FTLManager.Update(Screen, deltaTime);
         }
 
         public void Draw(SpriteBatch batch)

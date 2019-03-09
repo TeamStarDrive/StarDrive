@@ -205,15 +205,18 @@ namespace Ship_Game
 
         public static void DrawFTLModels(SpriteBatch batch, GameScreen screen)
         {
-            batch.Begin(SpriteBlendMode.Additive, SpriteSortMode.Immediate, SaveStateMode.None);
             using (Lock.AcquireReadLock())
             {
+                if (Effects.IsEmpty)
+                    return;
+
+                batch.Begin(SpriteBlendMode.Additive, SpriteSortMode.Immediate, SaveStateMode.None);
                 for (int i = 0; i < Effects.Count; ++i)
                 {
                     Effects[i].Draw(batch, screen);
                 }
+                batch.End();
             }
-            batch.End();
         }
         
         static UIGraphView GetGraph(GameScreen screen, string name, float x, float max)
