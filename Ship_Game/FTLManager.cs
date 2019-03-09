@@ -23,6 +23,7 @@ namespace Ship_Game
             [StarData] public readonly bool FrontToBack = true;
             [StarData] public readonly Color Color = Color.White;
             [StarData] public readonly Color DebugGraphColor = Color.Red;
+            [StarData] public readonly int PositionFromLayer = -1;
             [StarData] readonly Vector2[] ScaleCurve;
             [StarData] readonly Vector2[] ColorCurve;
             #pragma warning restore 649
@@ -47,17 +48,19 @@ namespace Ship_Game
         sealed class FTLLayer
         {
             readonly FTLLayerData FTL;
+            readonly FTLLayer GetPosition;
             readonly Vector3 Offset;
             float Time;
-            Vector3 Position;
             float Rotation;
             float Scale;
+            Vector3 WorldPos;
 
-            public FTLLayer(in Vector3 offset, FTLLayerData data)
+            public FTLLayer(in Vector3 offset, FTLLayerData data, FTLLayer getPosition)
             {
                 FTL = data;
+                GetPosition = getPosition;
                 Offset = data.FrontToBack ? offset : -offset; // invert the offset
-                Scale = data.ScaleCurves.GetY(Time);
+                Scale = data.ScaleCurves.GetY(0f);
             }
 
             // @return TRUE if layer has finished
@@ -67,27 +70,28 @@ namespace Ship_Game
                 if (Time >= FTL.Duration)
                     return true; // are we done?
 
-                Position = position;
-
-                Rotation += FTL.Rotation * deltaTime;
+                Rotation = FTL.Rotation * Time;
 
                 Scale = FTL.ScaleCurves.GetY(Time);
                 DebugGraph?.AddTimedSample(Scale, FTL.DebugGraphColor);
 
+                if (GetPosition != null)
+                {
+                    WorldPos = GetPosition.WorldPos;
+                }
+                else
+                {
+                    Vector3 start = position + Offset;
+                    Vector3 end   = position - Offset;
+                    WorldPos = start.LerpTo(end, Time / FTL.Duration);
+                }
                 return false;
             }
 
             public void Draw(SpriteBatch batch, GameScreen screen)
             {
-                float relativeTime = Time / FTL.Duration;
-
-                Vector3 start = Position + Offset;
-                Vector3 end   = Position - Offset;
-
-                Vector3 worldPos = start.LerpTo(end, relativeTime);
-
-                Vector2 pos  = screen.ProjectTo2D(worldPos);
-                Vector2 edge = screen.ProjectTo2D(worldPos+new Vector3(125,0,0));
+                Vector2 pos  = screen.ProjectTo2D(WorldPos);
+                Vector2 edge = screen.ProjectTo2D(WorldPos + new Vector3(125,0,0));
 
                 float relSizeOnScreen = (edge.X - pos.X) / screen.Width;
                 float sizeScaleOnScreen = Scale * relSizeOnScreen;
@@ -101,7 +105,7 @@ namespace Ship_Game
                 }
 
                 batch.Draw(FTL.Tex, pos, color, Rotation,
-                    FTL.Tex.CenterF, sizeScaleOnScreen, SpriteEffects.None, 0.9f);
+                           FTL.Tex.CenterF, sizeScaleOnScreen, SpriteEffects.None, 0.9f);
             }
         }
 
@@ -109,6 +113,7 @@ namespace Ship_Game
         {
             readonly FTLLayer[] Layers;
             readonly Func<Vector3> GetPosition;
+            Vector3 Position;
 
             public FTLInstance(Func<Vector3> getPosition, in Vector3 offset)
             {
@@ -116,20 +121,26 @@ namespace Ship_Game
                 Layers = new FTLLayer[FTLLayers.Length];
                 for (int i = 0; i < Layers.Length; ++i)
                 {
-                    Layers[i] = new FTLLayer(offset, FTLLayers[i]);
+                    FTLLayerData data = FTLLayers[i];
+                    FTLLayer positionRef = null;
+                    if (0 <= data.PositionFromLayer && data.PositionFromLayer < i)
+                    {
+                        positionRef = Layers[data.PositionFromLayer];
+                    }
+                    Layers[i] = new FTLLayer(offset, data, positionRef);
                 }
             }
 
             // @return TRUE if all layers have finished
             public bool Update(float deltaTime)
             {
-                Vector3 position = GetPosition();
+                Position = GetPosition();
                 bool allFinished = true;
                 for (int i = 0; i < Layers.Length; ++i)
                 {
                     if (Layers[i] != null)
                     {
-                        if (Layers[i].Update(deltaTime, position))
+                        if (Layers[i].Update(deltaTime, Position))
                             Layers[i] = null; // layer finished
                         else
                             allFinished = false; // this layer was still ok
