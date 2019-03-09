@@ -200,7 +200,7 @@ namespace Ship_Game.Gameplay
         {
             if (Weapon.Animated == 1)
             {
-                string animFolder = "Textures/"+Path.GetDirectoryName(Weapon.AnimationPath);
+                string animFolder = "Textures/" + Path.GetDirectoryName(Weapon.AnimationPath);
                 Animation = new SpriteAnimation(ResourceManager.RootContent, animFolder);
                 Animation.Looping = Weapon.LoopAnimation == 1;
                 float loopDuration = (InitialDuration / Animation.NumFrames);

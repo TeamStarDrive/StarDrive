@@ -134,18 +134,29 @@ namespace Ship_Game.Data
             if (value == null)
                 return null;
 
-            if (!(value is object[] array))
+            Array converted;
+            if (value is Array<StarDataNode> sequence)
             {
-                ConvertTo.Error(value, "Array convert failed -- expected a list of values [*, *, *]");
-                return value;
+                converted = Array.CreateInstance(ElemType, sequence.Count);
+                for (int i = 0; i < sequence.Count; ++i)
+                {
+                    converted.SetValue(Converter.Convert(sequence[i].Value), i);
+                }
+                return converted;
             }
 
-            Array converted = Array.CreateInstance(ElemType, array.Length);
-            for (int i = 0; i < array.Length; ++i)
+            if (value is object[] array)
             {
-                converted.SetValue(Converter.Convert(array[i]), i);
+                converted = Array.CreateInstance(ElemType, array.Length);
+                for (int i = 0; i < array.Length; ++i)
+                {
+                    converted.SetValue(Converter.Convert(array[i]), i);
+                }
+                return converted;
             }
-            return converted;
+
+            ConvertTo.Error(value, "Array convert failed -- expected a list of values [*, *, *]");
+            return value;
         }
     }
 

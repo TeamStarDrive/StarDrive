@@ -356,5 +356,12 @@ namespace Ship_Game
             a = b;
             b = tmp;
         }
+
+        public static void Swap(ref Vector3 a, ref Vector3 b)
+        {
+            Vector3 tmp = a;
+            a = b;
+            b = tmp;
+        }
     }
 }
