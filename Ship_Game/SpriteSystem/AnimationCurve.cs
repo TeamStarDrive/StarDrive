@@ -33,14 +33,12 @@ namespace Ship_Game.SpriteSystem
         {
             foreach ((float x, float y) in elements)
                 Points.Add(new Vector2(x*timeScale, y));
-            Finish();
         }
 
         public AnimationCurve(IEnumerable<Vector2> elements, float timeScale = 1f)
         {
             foreach (Vector2 p in elements)
                 Points.Add(new Vector2(p.X * timeScale, p.Y));
-            Finish();
         }
 
         public void AddRange(IEnumerable<Vector2> elements)
@@ -69,16 +67,13 @@ namespace Ship_Game.SpriteSystem
             Points.Add(point);
         }
         
-        public void Finish()
-        {
-            if (Curve.IsEmpty)
-                CalculateCurve();
-        }
-
         public float GetY(float x)
         {
             if (Curve.IsEmpty)
             {
+                if (Points.Count == 1) // not a curve:
+                    return Points[0].Y;
+
                 if (!CalculateCurve())
                     return -1f;
             }
