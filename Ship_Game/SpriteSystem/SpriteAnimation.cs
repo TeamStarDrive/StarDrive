@@ -42,6 +42,12 @@ namespace Ship_Game
             }
         }
 
+        public SpriteAnimation(TextureAtlas atlas, float duration)
+        {
+            Atlas = atlas;
+            Start(duration);
+        }
+
         public void Start(float duration = 1f, float startAt = 0f, float delay = 0f)
         {
             CurrentTime = startAt.Clamped(startAt, duration);
