@@ -50,16 +50,17 @@ FTLLayer:
 
 FTLLayer:
   Texture: FTL/BSG_warp_iris.dds # big iris
-  Duration: 1.0
+  Duration: 1.2
   Rotation: -1.2
-  FrontToBack: True
+  PositionFromLayer: 0 # sync position to huge flare
   DebugGraphColor: [0,255,0] # GREEN
   ScaleCurve:
-    - [0.3, 0.0]
-    - [1.0, 30.0]
-  ColorCurve:
     - [0.2, 0.0]
-    - [0.6, 0.6]
+    - [0.9, 30.0]
+  ColorCurve:
+    - [0.1, 0.0]
+    - [0.4, 0.6]
+    - [0.8, 0.0]
     - [1.0, 0.0]
 
 
