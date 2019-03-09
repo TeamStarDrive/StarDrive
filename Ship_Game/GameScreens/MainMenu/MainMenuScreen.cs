@@ -41,7 +41,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
             if (GlobalStats.HasMod)
             {
-                ScreenManager.AddHotLoadTarget("Mod", GlobalStats.ModFile, OnModChanged);
+                ScreenManager.AddHotLoadTarget(this, "Mod", GlobalStats.ModFile, OnModChanged);
             }
 
             Find("planet", out UIPanel planet);

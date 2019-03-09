@@ -87,7 +87,7 @@ namespace Ship_Game.Data
                 if (index >= line.Length || line[newDepth] == '#')
                     continue; 
 
-                StarDataNode node = ParseLineAsNode(line);
+                StarDataNode node = ParseLineAsNode(line, out bool isSequence);
                 if (newDepth > depth)
                 {
                     saved.Push(new DepthSave{ Depth=depth, Node=root });
@@ -105,36 +105,76 @@ namespace Ship_Game.Data
                     }
                 }
 
-                root.AddItem(node);
+                if (isSequence)
+                {
+                    var sequence = root.Value as Array<StarDataNode>;
+                    if (root.Value == null)
+                        root.Value = sequence = new Array<StarDataNode>();
+                    if (sequence == null)
+                        throw new InvalidOperationException($"Attempted to create sequence on root with non-sequence Value: {root.Value}");
+                    sequence.Add(node);
+                }
+                else
+                {
+                    root.AddItem(node);
+                }
+
                 depth = newDepth;
                 prev = node;
             }
         }
 
-        static StarDataNode ParseLineAsNode(string line)
+        static string RemoveComment(string text)
         {
-            string[] parts = line.Split(Colon, 2, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 1) // no value
+            int comment = text.IndexOf('#');
+            return comment == -1 ? text : text.Substring(0, comment);
+        }
+
+        static StarDataNode ParseLineAsNode(string line, out bool isSequence)
+        {
+            line = line.TrimStart();
+            isSequence = line[0] == '-' && line[1] == ' ';
+            if (isSequence)
             {
-                return new StarDataNode
+                line = line.Substring(2);
+                string[] parts = line.Split(Colon, 2, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 1)
                 {
-                    Key  = parts[0].Trim(),
-                    Value = null
-                };
+                    return new StarDataNode
+                    {
+                        Key  = null,
+                        Value = BoxValue(RemoveComment(parts[0]))
+                    };
+                }
+                else
+                {
+                    return new StarDataNode
+                    {
+                        Key  = parts[0].Trim(),
+                        Value = BoxValue(RemoveComment(parts[1]))
+                    };
+                }
             }
-
-            string value = parts[1];
-            int comment = value.IndexOf('#');
-            if (comment != -1)
+            else
             {
-                value = value.Substring(0, comment);
+                string[] parts = line.Split(Colon, 2, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 1) // no value
+                {
+                    return new StarDataNode
+                    {
+                        Key  = RemoveComment(parts[0]).Trim(),
+                        Value = null
+                    };
+                }
+                else
+                {
+                    return new StarDataNode
+                    {
+                        Key  = parts[0].Trim(),
+                        Value = BoxValue(RemoveComment(parts[1]))
+                    };
+                }
             }
-
-            return new StarDataNode
-            {
-                Key  = parts[0].Trim(),
-                Value = BoxValue(value)
-            };
         }
 
         static object BoxValue(string value)
@@ -147,8 +187,10 @@ namespace Ship_Game.Data
             char c = value[0];
             if (c == '[')
             {
-                value = value.Trim(Array);
-                string[] elements = value.Split(Commas, StringSplitOptions.None);
+                if (value[1] == '[')
+                    throw new InvalidDataException($"Cannot parse nested arrays, use a sequence instead: '{value}'");
+                string trimmed = value.Trim(Array);
+                string[] elements = trimmed.Split(Commas, StringSplitOptions.None);
 
                 // now individually box each element into an object array
                 var array = new object[elements.Length];

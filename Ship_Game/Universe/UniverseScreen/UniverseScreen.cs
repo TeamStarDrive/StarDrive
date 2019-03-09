@@ -627,7 +627,7 @@ namespace Ship_Game
             cloudTex       = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
             RingTexture    = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
             
-            FTLManager.LoadContent(content);
+            FTLManager.LoadContent(this);
             MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);
             StarField = new StarField(this);
