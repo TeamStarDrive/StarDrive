@@ -10,36 +10,126 @@ namespace Ship_Game
 {
 	internal static class FTLManager
 	{
-        static FTLConfig FTL;
+        static FTLLayerData[] FTLLayers;
+        static UIGraphView DebugGraph;
 
-        class FTLConfig
+        class FTLLayerData
         {
             #pragma warning disable 649
             [StarData] public readonly string Texture;
-            [StarData] public readonly string Animation;
             [StarData] public readonly float Duration = 0.6f;
             [StarData] public readonly float Rotation = 6.28f;
             [StarData] public readonly bool FrontToBack = true;
-            [StarData] public readonly Vector2[] Curve;
+            [StarData] public readonly Vector2[] ScaleCurve;
             #pragma warning restore 649
 
-            public float RotationPerFrame;
-            public AnimationCurve Curves;
+            public AnimationCurve ScaleCurveAnim;
             public SubTexture Tex;
-            public TextureAtlas Anim;
+
+            public void LoadContent(GameContentManager content)
+            {
+                string texture = Texture.NotEmpty()
+                    ? "Textures/" + Texture
+                    : "Textures/Ships/FTL.xnb";
+                Tex = content.LoadSubTexture(texture);
+
+                ScaleCurveAnim = new AnimationCurve();
+                foreach (Vector2 p in ScaleCurve)
+                    ScaleCurveAnim.Add(p.X * Duration, p.Y);
+                ScaleCurveAnim.Finish();
+            }
+        }
+
+        sealed class FTLLayer
+        {
+            readonly FTLLayerData FTL;
+            readonly Vector3 Start;
+            readonly Vector3 End;
+            float Time;
+            float Scale;
+            float Rotation;
+
+            public FTLLayer(in Vector3 start, in Vector3 end, FTLLayerData data)
+            {
+                FTL = data;
+                Start = start;
+                End   = end;
+                Scale = data.ScaleCurveAnim.GetY(Time);
+
+                if (!data.FrontToBack) // invert the direction
+                    Vectors.Swap(ref Start, ref End);
+            }
+
+            // @return TRUE if dead
+            public bool Update(float deltaTime)
+            {
+                Time += deltaTime;
+                if (Time >= FTL.Duration)
+                    return true; // are we done?
+
+                Scale = FTL.ScaleCurveAnim.GetY(Time);
+
+                DebugGraph?.AddTimedSample(Scale);
+
+                Rotation += FTL.Rotation * deltaTime;
+                return false;
+            }
+
+            public void Draw(SpriteBatch batch, GameScreen screen)
+            {
+                float relativeTime = Time / FTL.Duration;
+                Vector3 worldPos = Start.LerpTo(End, relativeTime);
+
+                Vector2 pos  = screen.ProjectTo2D(worldPos);
+                Vector2 edge = screen.ProjectTo2D(worldPos+new Vector3(125,0,0));
+
+                float relSizeOnScreen = (edge.X - pos.X) / screen.Width;
+                float sizeScaleOnScreen = Scale * relSizeOnScreen;
+                if (sizeScaleOnScreen > 2f)
+                {
+                    batch.Draw(FTL.Tex, pos, Color.White, Rotation,
+                        FTL.Tex.CenterF, sizeScaleOnScreen, SpriteEffects.None, 0.9f);
+                }
+            }
         }
 
         sealed class FTLInstance
         {
-            // the FTL flash moves from Ship front to ship end
-            public Vector3 Start;
-            public Vector3 End;
-            public float Time;
-            public float Scale = 0.1f;
-            public float Rotation;
-            public Vector3 CurrentPos => Start.LerpTo(End, RelativeLife);
-            public float RelativeLife => Time / FTL.Duration;
-            public SpriteAnimation Animation;
+            readonly FTLLayer[] Layers;
+
+            public FTLInstance(in Vector3 start, in Vector3 end)
+            {
+                Layers = new FTLLayer[FTLLayers.Length];
+                for (int i = 0; i < Layers.Length; ++i)
+                {
+                    Layers[i] = new FTLLayer(start, end, FTLLayers[i]);
+                }
+            }
+
+            // @return TRUE if all layers have finished
+            public bool Update(float deltaTime)
+            {
+                bool allFinished = true;
+                for (int i = 0; i < Layers.Length; ++i)
+                {
+                    if (Layers[i] != null)
+                    {
+                        if (Layers[i].Update(deltaTime))
+                            Layers[i] = null; // layer finished
+                        else
+                            allFinished = false; // this layer was still ok
+                    }
+                }
+                return allFinished;
+            }
+
+            public void Draw(SpriteBatch batch, GameScreen screen)
+            {
+                for (int i = 0; i < Layers.Length; ++i)
+                {
+                    Layers[i]?.Draw(batch, screen);
+                }
+            }
         }
 
 		static readonly Array<FTLInstance> Effects = new Array<FTLInstance>();
@@ -47,8 +137,6 @@ namespace Ship_Game
 
         public static void LoadContent(GameScreen screen)
         {
-            GameContentManager content = screen.TransientContent;
-            
             FileInfo file = ResourceManager.GetModOrVanillaFile("FTL.yaml");
             ScreenManager.Instance.AddHotLoadTarget(screen, "FTL", file.FullName, fileInfo =>
             {
@@ -57,40 +145,19 @@ namespace Ship_Game
 
             using (var parser = new StarDataParser(file))
             {
-                Array<FTLConfig> elements = parser.DeserializeArray<FTLConfig>();
-                FTL = elements[0];
-
-                if (FTL.Texture.NotEmpty())
-                    FTL.Tex = content.LoadSubTexture("Textures/" + FTL.Texture);
-                else if (FTL.Animation.NotEmpty())
-                    FTL.Anim = content.LoadTextureAtlas("Textures/" + FTL.Animation);
-                else
-                    FTL.Tex = content.LoadSubTexture("Textures/Ships/FTL.xnb");
-
-                FTL.RotationPerFrame = FTL.Rotation / 60f;
-
-                FTL.Curves = new AnimationCurve();
-                foreach (Vector2 p in FTL.Curve)
-                    FTL.Curves.Add(p.X * FTL.Duration, p.Y);
+                FTLLayers = parser.DeserializeArray<FTLLayerData>().ToArray();
+                foreach (FTLLayerData layerData in FTLLayers)
+                {
+                    layerData.LoadContent(screen.TransientContent);
+                }
             }
         }
 
-        public static void AddFTL(Vector3 position, Vector3 forward, float radius)
+        public static void AddFTL(in Vector3 position, in Vector3 forward, float radius)
         {
-            if (!FTL.FrontToBack)
-                radius = -radius; // invert the direction
-
             Vector3 start = position + forward*(radius);
             Vector3 end   = position - forward*(radius*3f);
-
-            var f = new FTLInstance
-            {
-                Start = start,
-                End   = end
-            };
-
-            if (FTL.Anim != null)
-                f.Animation = new SpriteAnimation(FTL.Anim, FTL.Duration);
+            var f = new FTLInstance(start, end);
 
             using (Lock.AcquireWriteLock())
             {
@@ -98,30 +165,14 @@ namespace Ship_Game
             }
         }
 
-        public static void DrawFTLModels(GameScreen screen, SpriteBatch batch)
+        public static void DrawFTLModels(SpriteBatch batch, GameScreen screen)
         {
             batch.Begin(SpriteBlendMode.Additive, SpriteSortMode.Immediate, SaveStateMode.None);
             using (Lock.AcquireReadLock())
             {
-                foreach (FTLInstance f in Effects)
+                for (int i = 0; i < Effects.Count; ++i)
                 {
-                    Vector3 worldPos = f.CurrentPos;
-                    Vector2 pos  = screen.ProjectTo2D(worldPos);
-                    Vector2 edge = screen.ProjectTo2D(worldPos+new Vector3(125,0,0));
-
-                    float relSizeOnScreen = (edge.X - pos.X) / screen.Width;
-                    float sizeScaleOnScreen = f.Scale * relSizeOnScreen;
-                    
-                    if (f.Animation != null)
-                    {
-                        f.Animation.Draw(batch, pos, Color.White, f.Rotation, sizeScaleOnScreen);
-                    }
-                    else
-                    {
-                        batch.Draw(FTL.Tex, pos, Color.White, f.Rotation,
-                            FTL.Tex.CenterF, sizeScaleOnScreen, SpriteEffects.FlipVertically, 0.9f);
-                    }
-
+                    Effects[i].Draw(batch, screen);
                 }
             }
             batch.End();
@@ -149,26 +200,16 @@ namespace Ship_Game
             if (deltaTime <= 0f)
                 return;
 
-            UIGraphView graph = GetGraph(screen);
+            DebugGraph = GetGraph(screen);
 
             using (Lock.AcquireWriteLock())
             {
                 for (int i = 0; i < Effects.Count; ++i)
 			    {
-                    FTLInstance f = Effects[i];
-                    f.Time += deltaTime;
-                    if (f.Time > FTL.Duration)
+                    if (Effects[i].Update(deltaTime))
                     {
                         Effects.RemoveAtSwapLast(i--);
-                        continue;
                     }
-
-                    f.Animation?.Update(deltaTime);
-
-                    f.Scale = FTL.Curves.GetY(f.Time);
-                    graph.AddTimedSample(f.Scale);
-
-			        f.Rotation += FTL.RotationPerFrame;
 			    }
             }
 		}
