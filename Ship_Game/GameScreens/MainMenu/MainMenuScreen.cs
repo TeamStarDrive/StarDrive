@@ -2,6 +2,7 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
@@ -85,6 +86,22 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             CreateVersionArea();
+
+            //UIGraphView graph = Add(new UIGraphView()
+            //{
+            //    Name = "test_graph",
+            //    Color = Color.TransparentBlack,
+            //    Pos = new Vector2(550, Bottom - 500),
+            //    Size = new Vector2(500, 250),
+            //});
+            //var curve = new AnimationCurve(new [] 
+            //{
+            //    (0.0f, 0.0f),
+            //    (0.5f, 1.0f),
+            //    (0.7f, 0.2f),
+            //    (1.0f, 0.0f),
+            //});
+            //curve.DrawCurveTo(graph, 0, 1, 0.005f);
 
             base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");

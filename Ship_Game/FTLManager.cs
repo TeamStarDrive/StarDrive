@@ -2,32 +2,41 @@ using System.Globalization;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {
 	internal static class FTLManager
 	{
-        const float FTLTime = 0.9f;
+        const float FTLTime = 0.6f;
 
         sealed class FTL
         {
             // the FTL flash moves from Ship front to ship end
             public Vector3 Front;
             public Vector3 Rear;
-            public float Life  = FTLTime;
+            public float Time;
             public float Scale = 0.1f;
             public float Rotation;
             public Vector3 CurrentPos => Front.LerpTo(Rear, RelativeLife);
-            public float RelativeLife => 1f - (Life / FTLTime);
+            public float RelativeLife => Time / FTLTime;
             public SpriteAnimation Animation;
         }
 		static readonly Array<FTL> Effects = new Array<FTL>();
         static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
         static SubTexture FTLTexture;
+        static AnimationCurve FTLScaleCurve;
 
         public static void LoadContent(GameContentManager content)
         {
             FTLTexture = content.Load<SubTexture>("Textures/Ships/FTL");
+            FTLScaleCurve = new AnimationCurve(new []
+            {
+                (0.0f,         0.1f),
+                (FTLTime*0.25f, 60f),
+                (FTLTime*0.50f,  2f),
+                (FTLTime*1.00f,  0f),
+            });
         }
 
         public static void AddFTL(Vector3 position, Vector3 forward, float radius)
@@ -104,8 +113,8 @@ namespace Ship_Game
                 for (int i = 0; i < Effects.Count; ++i)
 			    {
                     FTL f = Effects[i];
-			        f.Life -= deltaTime;
-                    if (f.Life <= 0f)
+                    f.Time += deltaTime;
+                    if (f.Time > FTLTime)
                     {
                         Effects.RemoveAtSwapLast(i--);
                         continue;
@@ -113,18 +122,8 @@ namespace Ship_Game
 
                     f.Animation?.Update(deltaTime);
 
-                    if (f.Life >= (FTLTime*0.66f))
-                    {
-                        f.Scale *= 1.5625f;
-                        if (f.Scale > 60f)
-                            f.Scale = 60f;
-                    }
-                    else
-                    {
-                        f.Scale *= 0.4f;
-                    }
-
-                    graph.AddSample(f.Scale);
+                    f.Scale = FTLScaleCurve.GetY(f.Time);
+                    graph.AddTimedSample(f.Scale);
 
 			        f.Rotation += 0.09817477f;
 			    }
