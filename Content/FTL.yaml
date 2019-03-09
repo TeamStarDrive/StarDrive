@@ -4,18 +4,48 @@
 # We use multiple layers for the animations, each one of them
 # can have different duration/rotation/direction/scale
 
+# FTLLayer:
+#   Texture: Ships/FTL.xnb
+#   Duration: 0.6 # duration of the warp effect
+#   Rotation: 5.8 # radians per second
+#   FrontToBack: True # direction of the FTL animation move
+#   DebugGraphColor: [255,0,0]
+#   # SCALE curve over time
+#   # [relative_time, scale]
+#   # scale curve is auto smoothed using a quadratic S-curve approach
+#   ScaleCurve:
+#     - [0.0,  0.1]
+#     - [0.2, 40.0]
+#     - [0.4,  2.0]
+#     - [0.9,  0.0]
+#     - [1.0,  0.0]
+
 FTLLayer:
-  Texture: Ships/FTL.xnb
-  #Animation: Ship/BSGWarp
-  Duration: 0.6 # duration of the warp effect
-  Rotation: 5.8 # radians per second
-  FrontToBack: True # direction of the FTL animation move
-  # animation SCALE curve over time
-  # [time, scale]
-  # the curve is auto smoothed using a quadratic S-curve approach
+  Texture: FTL/BSG_warp2.dds # huge flare
+  Duration: 0.9
+  Rotation: 5.8
+  FrontToBack: True
+  DebugGraphColor: [255,0,0]
   ScaleCurve:
     - [0.0,  0.1]
-    - [0.2, 40.0]
-    - [0.4,  2.0]
+    - [0.3,  5.0]
+    - [0.6, 40.0]
     - [0.9,  0.0]
     - [1.0,  0.0]
+
+FTLLayer:
+  Texture: FTL/BSG_warp_iris.dds # big iris
+  Duration: 0.9
+  Rotation: -2.4
+  FrontToBack: True
+  DebugGraphColor: [0,255,0]
+  ScaleCurve:
+    - [0.2, 0.0]
+    - [0.8, 20.0]
+    - [1.0,  20.0]
+  ColorCurve:
+    - [0.3, 0.0]
+    - [0.6, 0.5]
+    - [0.9, 0.0]
+
+

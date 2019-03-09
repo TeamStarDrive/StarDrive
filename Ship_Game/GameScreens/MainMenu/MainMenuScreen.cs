@@ -77,7 +77,6 @@ namespace Ship_Game.GameScreens.MainMenu
             View = Matrix.CreateLookAt(camPos, lookAt, Vector3.Down);
             Projection = Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f);
 
-
             if (Find("blacbox_animated_logo", out UIPanel logo))
             {
                 if (Find("logo_text_1", out UIPanel text1)) text1.Pos += logo.Center;
@@ -86,22 +85,6 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             CreateVersionArea();
-
-            //UIGraphView graph = Add(new UIGraphView()
-            //{
-            //    Name = "test_graph",
-            //    Color = Color.TransparentBlack,
-            //    Pos = new Vector2(550, Bottom - 500),
-            //    Size = new Vector2(500, 250),
-            //});
-            //var curve = new AnimationCurve(new [] 
-            //{
-            //    (0.0f, 0.0f),
-            //    (0.5f, 1.0f),
-            //    (0.7f, 0.2f),
-            //    (1.0f, 0.0f),
-            //});
-            //curve.DrawCurveTo(graph, 0, 1, 0.005f);
 
             base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
@@ -113,15 +96,15 @@ namespace Ship_Game.GameScreens.MainMenu
             ScreenManager.RemoveAllLights();
             ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
-            var topRightInBackground = new Vector3(2000,-1000,1000);
+            var topRightInBackground = new Vector3(1000,-1000,1000);
             var lightYellow = new Color(255,254,224);
             AddLight("MainMenu Sun", lightYellow, 2.0f, topRightInBackground);
 
             AddLight(new AmbientLight
             {
                 Name = "MainMenu AmbientFill",
-                DiffuseColor = new Color(20, 30, 55).ToVector3(), // dark violet
-                Intensity = 1,
+                DiffuseColor = new Color(40, 60, 110).ToVector3(), // dark violet
+                Intensity = 0.75f,
             });
         }
 
