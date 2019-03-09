@@ -305,7 +305,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 batch.End();
             }
 
-            FTLManager.DrawFTLModels(Screen, batch);
+            FTLManager.DrawFTLModels(batch, Screen);
         }
     }
 }

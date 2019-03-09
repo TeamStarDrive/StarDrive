@@ -7,7 +7,16 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game.SpriteSystem
 {
-    public class AnimationCurve
+    /**
+     * Read-Only view of AnimationCurve
+     */
+    interface IAnimationCurve
+    {
+        float GetY(float x);
+        void DrawCurveTo(UIGraphView graph, float startX, float endX, float step);
+    }
+
+    public class AnimationCurve : IAnimationCurve
     {
         // A finalized curve
         readonly Array<Vector2> Curve  = new Array<Vector2>();
@@ -57,6 +66,12 @@ namespace Ship_Game.SpriteSystem
             Curve.Clear();
             Points.Add(point);
         }
+        
+        public void Finish()
+        {
+            if (Curve.IsEmpty)
+                CalculateCurve();
+        }
 
         public float GetY(float x)
         {
@@ -96,7 +111,11 @@ namespace Ship_Game.SpriteSystem
             return a.Y.LerpTo(b.Y, relPos);
         }
 
-        public void DrawCurveTo(UIGraphView graph, float startX, float endX, float step = 0.05f)
+        /**
+         * Draws this curve to a graph view
+         * @param step Curve sampling step, for example startX=0, endX=1, step=0.01
+         */
+        public void DrawCurveTo(UIGraphView graph, float startX, float endX, float step)
         {
             if (Curve.IsEmpty)
                 CalculateCurve();
