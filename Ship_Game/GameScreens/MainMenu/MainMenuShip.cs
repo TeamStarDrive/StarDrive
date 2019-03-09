@@ -72,9 +72,9 @@ namespace Ship_Game.GameScreens.MainMenu
                     GameAudio.PlaySfxAsync("sd_warp_start_large");
                     Spooling = true;
                 }
-                if (!EnteringFTL && Remaining < 0.2f)
+                if (!EnteringFTL && Remaining < 0.5f)
                 {
-                    FTLManager.AddFTL(Ship.Position, Ship.Forward, 266);
+                    FTLManager.EnterFTL(Ship.Position, Ship.Forward, 266);
                     EnteringFTL = true;
                 }
                 return base.Update(deltaTime);
@@ -100,9 +100,9 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 Ship.Position = Start.LerpTo(End, RelativeTime);
 
-                if (!ExitingFTL && Remaining < 0.1f)
+                if (!ExitingFTL && Remaining < 0.15f)
                 {
-                    FTLManager.AddFTL(End, Ship.Forward, -266);
+                    FTLManager.ExitFTL(() => Ship.Position, Ship.Forward, 266);
                     ExitingFTL = true;
                 }
 

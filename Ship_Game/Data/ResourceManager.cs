@@ -820,7 +820,7 @@ namespace Ship_Game
 
         public static FileInfo[] GatherTextureFiles(string dir, bool recursive)
         {
-            string[] extensions = {"png", "gif", "jpg", "xnb"};
+            string[] extensions = {"png", "gif", "jpg", "xnb", "dds"};
             var allFiles = new Array<FileInfo>();
             foreach (string ext in extensions)
             {
