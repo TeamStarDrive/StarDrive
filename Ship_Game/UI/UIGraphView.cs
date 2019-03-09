@@ -10,13 +10,14 @@ namespace Ship_Game
 {
     public class UIGraphView : UIPanel
     {
-        public float TimeRange { get; private set; }
-        public float Min { get; private set; }
-        public float Max { get; private set; }
+        public float TimeRange { get; private set; } = 1f;
+        public float Min { get; private set; } = 0f;
+        public float Max { get; private set; } = 1f;
 
-        public Color LineColor = Color.White;
-
+        public Color LineColor = Color.Red;
         float CurrentTime;
+        public bool ActiveTimeLine;
+        bool AddedThisFrame;
 
         struct DataPoint
         {
@@ -37,31 +38,48 @@ namespace Ship_Game
             Max = max;
         }
 
-        public void AddSample(float value)
+        public void Clear()
         {
-            Points.Add(new DataPoint
-            {
-                Time = CurrentTime,
-                Value = value
-            });
+            ActiveTimeLine = false;
+            AddedThisFrame = false;
+            Points.Clear();
+        }
+
+        public void AddFixedSample(float time, float value)
+        {
+            Points.Add(new DataPoint{ Time = time, Value = value });
+        }
+
+        public void AddTimedSample(float value)
+        {
+            ActiveTimeLine = true;
+            AddedThisFrame = true;
+            Points.Add(new DataPoint{ Time = CurrentTime, Value = value });
         }
 
         public override void Update(float deltaTime)
         {
-            CurrentTime += deltaTime;
-
-            float tooOld = CurrentTime - TimeRange;
-
-            for (int i = 0; i < Points.Count; ++i)
+            if (ActiveTimeLine)
             {
-                // if we encounter a point that is OK, remove all data points before us
-                if (Points[i].Time >= tooOld)
-                {
-                    Points.RemoveRange(0, i);
-                    break;
-                }
-            }
+                CurrentTime += deltaTime;
+                float tooOld = CurrentTime - TimeRange;
 
+                for (int i = 0; i < Points.Count; ++i)
+                {
+                    // if we encounter a point that is OK, remove all data points before us
+                    if (Points[i].Time >= tooOld)
+                    {
+                        Points.RemoveRange(0, i);
+                        break;
+                    }
+                }
+
+                if (!AddedThisFrame) // add dummy value
+                {
+                    Points.Add(new DataPoint{ Time = CurrentTime, Value = Min });
+                }
+                AddedThisFrame = false;
+            }
             base.Update(deltaTime);
         }
 
@@ -91,6 +109,10 @@ namespace Ship_Game
             batch.DrawLine(inner.RelPos(0, 0.25f), inner.RelPos(1, 0.25f), backBrown);
             batch.DrawLine(inner.RelPos(0, 0.50f), inner.RelPos(1, 0.50f), backBrown);
             batch.DrawLine(inner.RelPos(0, 0.75f), inner.RelPos(1, 0.75f), backBrown);
+            
+            batch.DrawLine(inner.RelPos(0.25f, 0), inner.RelPos(0.25f, 1), backBrown);
+            batch.DrawLine(inner.RelPos(0.50f, 0), inner.RelPos(0.50f, 1), backBrown);
+            batch.DrawLine(inner.RelPos(0.75f, 0), inner.RelPos(0.75f, 1), backBrown);
 
             if (!Points.IsEmpty)
             {
@@ -107,12 +129,22 @@ namespace Ship_Game
             for (int i = 1; i < ticks; ++i)
             {
                 Vector2 a = inner.RelPos(0, i * (1f / ticks));
-                Vector2 b = a + new Vector2(5, 0);
+                Vector2 b = a + new Vector2(6, 0);
+                batch.DrawLine(a, b, brown);
+            }
+
+            for (int i = 1; i < ticks; ++i)
+            {
+                Vector2 a = inner.RelPos(i * (1f / ticks), 1);
+                Vector2 b = a - new Vector2(0, 6);
                 batch.DrawLine(a, b, brown);
             }
 
             batch.DrawString(Fonts.Arial12, $"Max: {Max}", inner.RelPos(0,0)-new Vector2(0,15), LineColor);
             batch.DrawString(Fonts.Arial12, $"Min: {Min}", inner.RelPos(0,1), LineColor);
+
+            int titleX = inner.CenterX() - Fonts.Arial12.TextWidth(Name)/2;
+            batch.DrawString(Fonts.Arial12, Name, new Vector2(titleX, Rect.Y), LineColor);
         }
     }
 }

@@ -58,7 +58,7 @@ namespace Ship_Game.GameScreens.MainMenu
             float Speed = 10f; // forward speed in units/s
             bool Spooling;
             bool EnteringFTL;
-            public CoastingAcrossScreen(MainMenuShip ship) : base(ship, 6/*RandomMath.RandomBetween(30, 40)*/)
+            public CoastingAcrossScreen(MainMenuShip ship) : base(ship, 4/*RandomMath.RandomBetween(30, 40)*/)
             {
                 NextState = () => new WarpingOut(ship);
             }
@@ -127,7 +127,7 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 Start = ship.Position;
                 End   = ship.Position + ship.Forward * 50000f;
-                NextState = () => new IdlingInDeepSpace(ship, RandomMath.RandomBetween(10, 15));
+                NextState = () => new IdlingInDeepSpace(ship, 2f);
             }
             public override bool Update(float deltaTime)
             {
