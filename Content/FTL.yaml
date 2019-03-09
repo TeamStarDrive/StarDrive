@@ -22,30 +22,44 @@
 
 FTLLayer:
   Texture: FTL/BSG_warp2.dds # huge flare
-  Duration: 0.9
+  Duration: 0.8
   Rotation: 5.8
   FrontToBack: True
-  DebugGraphColor: [255,0,0]
+  DebugGraphColor: [255,0,0] # RED
   ScaleCurve:
-    - [0.0,  0.1]
-    - [0.3,  5.0]
-    - [0.6, 40.0]
-    - [0.9,  0.0]
-    - [1.0,  0.0]
+    - [0.0, 4.0]
+    - [0.2, 20.0]
+    - [0.4, 2.0]
+    - [0.6, 4.0]
+    - [0.8, 40.0]
+    - [1.0, 0.0]
+
+# FTLLayer:
+#   Texture: FTL/BSG_warp1.dds # smaller flare
+#   Duration: 0.8
+#   Rotation: 5.8
+#   FrontToBack: True
+#   DebugGraphColor: [0,0,255] # BLUE
+#   ScaleCurve:
+#     - [0.0, 0.0]
+#     - [0.1, 20.0]
+#     - [0.3, 4.0]
+#     - [0.6, 4.0]
+#     - [0.8, 40.0]
+#     - [1.0, 0.0]
 
 FTLLayer:
   Texture: FTL/BSG_warp_iris.dds # big iris
-  Duration: 0.9
-  Rotation: -2.4
+  Duration: 1.0
+  Rotation: -1.2
   FrontToBack: True
-  DebugGraphColor: [0,255,0]
+  DebugGraphColor: [0,255,0] # GREEN
   ScaleCurve:
-    - [0.2, 0.0]
-    - [0.8, 20.0]
-    - [1.0,  20.0]
-  ColorCurve:
     - [0.3, 0.0]
-    - [0.6, 0.5]
-    - [0.9, 0.0]
+    - [1.0, 30.0]
+  ColorCurve:
+    - [0.2, 0.0]
+    - [0.6, 0.6]
+    - [1.0, 0.0]
 
 
