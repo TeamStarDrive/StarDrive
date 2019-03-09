@@ -251,7 +251,7 @@ namespace Ship_Game.GameScreens.MainMenu
             State = new IdlingInDeepSpace(this, 1);
             UpdateTransform();
 
-            FTLManager.LoadContent(Screen.TransientContent);
+            FTLManager.LoadContent(Screen);
         }
 
         void UpdateTransform()

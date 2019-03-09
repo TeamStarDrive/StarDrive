@@ -1,53 +1,96 @@
 using System.Globalization;
+using System.IO;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
 using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {
 	internal static class FTLManager
 	{
-        const float FTLTime = 0.6f;
+        static FTLConfig FTL;
 
-        sealed class FTL
+        class FTLConfig
+        {
+            #pragma warning disable 649
+            [StarData] public readonly string Texture;
+            [StarData] public readonly string Animation;
+            [StarData] public readonly float Duration = 0.6f;
+            [StarData] public readonly float Rotation = 6.28f;
+            [StarData] public readonly bool FrontToBack = true;
+            [StarData] public readonly Vector2[] Curve;
+            #pragma warning restore 649
+
+            public float RotationPerFrame;
+            public AnimationCurve Curves;
+            public SubTexture Tex;
+            public TextureAtlas Anim;
+        }
+
+        sealed class FTLInstance
         {
             // the FTL flash moves from Ship front to ship end
-            public Vector3 Front;
-            public Vector3 Rear;
+            public Vector3 Start;
+            public Vector3 End;
             public float Time;
             public float Scale = 0.1f;
             public float Rotation;
-            public Vector3 CurrentPos => Front.LerpTo(Rear, RelativeLife);
-            public float RelativeLife => Time / FTLTime;
+            public Vector3 CurrentPos => Start.LerpTo(End, RelativeLife);
+            public float RelativeLife => Time / FTL.Duration;
             public SpriteAnimation Animation;
         }
-		static readonly Array<FTL> Effects = new Array<FTL>();
-        static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
-        static SubTexture FTLTexture;
-        static AnimationCurve FTLScaleCurve;
 
-        public static void LoadContent(GameContentManager content)
+		static readonly Array<FTLInstance> Effects = new Array<FTLInstance>();
+        static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
+
+        public static void LoadContent(GameScreen screen)
         {
-            FTLTexture = content.Load<SubTexture>("Textures/Ships/FTL");
-            FTLScaleCurve = new AnimationCurve(new []
+            GameContentManager content = screen.TransientContent;
+            
+            FileInfo file = ResourceManager.GetModOrVanillaFile("FTL.yaml");
+            ScreenManager.Instance.AddHotLoadTarget(screen, "FTL", file.FullName, fileInfo =>
             {
-                (0.0f,         0.1f),
-                (FTLTime*0.25f, 60f),
-                (FTLTime*0.50f,  2f),
-                (FTLTime*1.00f,  0f),
+                LoadContent(screen);
             });
+
+            using (var parser = new StarDataParser(file))
+            {
+                Array<FTLConfig> elements = parser.DeserializeArray<FTLConfig>();
+                FTL = elements[0];
+
+                if (FTL.Texture.NotEmpty())
+                    FTL.Tex = content.LoadSubTexture("Textures/" + FTL.Texture);
+                else if (FTL.Animation.NotEmpty())
+                    FTL.Anim = content.LoadTextureAtlas("Textures/" + FTL.Animation);
+                else
+                    FTL.Tex = content.LoadSubTexture("Textures/Ships/FTL.xnb");
+
+                FTL.RotationPerFrame = FTL.Rotation / 60f;
+
+                FTL.Curves = new AnimationCurve();
+                foreach (Vector2 p in FTL.Curve)
+                    FTL.Curves.Add(p.X * FTL.Duration, p.Y);
+            }
         }
 
         public static void AddFTL(Vector3 position, Vector3 forward, float radius)
         {
-            Vector3 front = position + forward*(radius);
-            Vector3 rear  = position - forward*(radius*3f);
-            var f = new FTL
+            if (!FTL.FrontToBack)
+                radius = -radius; // invert the direction
+
+            Vector3 start = position + forward*(radius);
+            Vector3 end   = position - forward*(radius*3f);
+
+            var f = new FTLInstance
             {
-                Front = front,
-                Rear = rear
+                Start = start,
+                End   = end
             };
+
+            if (FTL.Anim != null)
+                f.Animation = new SpriteAnimation(FTL.Anim, FTL.Duration);
 
             using (Lock.AcquireWriteLock())
             {
@@ -60,7 +103,7 @@ namespace Ship_Game
             batch.Begin(SpriteBlendMode.Additive, SpriteSortMode.Immediate, SaveStateMode.None);
             using (Lock.AcquireReadLock())
             {
-                foreach (FTL f in Effects)
+                foreach (FTLInstance f in Effects)
                 {
                     Vector3 worldPos = f.CurrentPos;
                     Vector2 pos  = screen.ProjectTo2D(worldPos);
@@ -75,8 +118,8 @@ namespace Ship_Game
                     }
                     else
                     {
-                        batch.Draw(FTLTexture, pos, Color.White, f.Rotation,
-                            FTLTexture.CenterF, sizeScaleOnScreen, SpriteEffects.FlipVertically, 0.9f);
+                        batch.Draw(FTL.Tex, pos, Color.White, f.Rotation,
+                            FTL.Tex.CenterF, sizeScaleOnScreen, SpriteEffects.FlipVertically, 0.9f);
                     }
 
                 }
@@ -112,9 +155,9 @@ namespace Ship_Game
             {
                 for (int i = 0; i < Effects.Count; ++i)
 			    {
-                    FTL f = Effects[i];
+                    FTLInstance f = Effects[i];
                     f.Time += deltaTime;
-                    if (f.Time > FTLTime)
+                    if (f.Time > FTL.Duration)
                     {
                         Effects.RemoveAtSwapLast(i--);
                         continue;
@@ -122,10 +165,10 @@ namespace Ship_Game
 
                     f.Animation?.Update(deltaTime);
 
-                    f.Scale = FTLScaleCurve.GetY(f.Time);
+                    f.Scale = FTL.Curves.GetY(f.Time);
                     graph.AddTimedSample(f.Scale);
 
-			        f.Rotation += 0.09817477f;
+			        f.Rotation += FTL.RotationPerFrame;
 			    }
             }
 		}
