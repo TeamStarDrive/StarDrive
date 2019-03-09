@@ -29,16 +29,18 @@ namespace Ship_Game.SpriteSystem
             Granularity = granularity.Clamped(0.001f, 100f);
         }
 
-        public AnimationCurve(IEnumerable<ValueTuple<float, float>> elements)
+        public AnimationCurve(IEnumerable<ValueTuple<float, float>> elements, float timeScale = 1f)
         {
             foreach ((float x, float y) in elements)
-                Points.Add(new Vector2(x, y));
+                Points.Add(new Vector2(x*timeScale, y));
+            Finish();
         }
 
-        public AnimationCurve(IEnumerable<Vector2> elements)
+        public AnimationCurve(IEnumerable<Vector2> elements, float timeScale = 1f)
         {
             foreach (Vector2 p in elements)
-                Points.Add(p);
+                Points.Add(new Vector2(p.X * timeScale, p.Y));
+            Finish();
         }
 
         public void AddRange(IEnumerable<Vector2> elements)
@@ -76,7 +78,10 @@ namespace Ship_Game.SpriteSystem
         public float GetY(float x)
         {
             if (Curve.IsEmpty)
-                CalculateCurve();
+            {
+                if (!CalculateCurve())
+                    return -1f;
+            }
 
             int min = 0;
             int max = Curve.Count - 1;
@@ -98,6 +103,10 @@ namespace Ship_Game.SpriteSystem
                     max = mid - 1;
                     if (max == min) { max = mid; break; } // custom adjust
                 }
+                else // midX == x, very rare, but happens
+                {
+                    return Curve[mid].Y; // quick path
+                }
             }
 
             Vector2 a = Curve[min];
@@ -117,9 +126,6 @@ namespace Ship_Game.SpriteSystem
          */
         public void DrawCurveTo(UIGraphView graph, float startX, float endX, float step)
         {
-            if (Curve.IsEmpty)
-                CalculateCurve();
-
             for (float x = startX; x <= endX; x += step)
             {
                 float y = GetY(x);
@@ -127,12 +133,12 @@ namespace Ship_Game.SpriteSystem
             }
         }
 
-        void CalculateCurve()
+        bool CalculateCurve()
         {
             if (Points.Count < 2)
             {
                 Log.Error("Invalid Animation Curve. At least 2 points are required!");
-                return;
+                return false;
             }
 
             for (int i = 1; i < Points.Count; ++i)
@@ -153,6 +159,7 @@ namespace Ship_Game.SpriteSystem
                 }
                 Curve.Add(CubeBezier(p0, p1, p2, p3, 1f));
             }
+            return true;
         }
         
         static Vector2 CubeBezier(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t)

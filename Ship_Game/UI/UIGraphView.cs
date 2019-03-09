@@ -14,18 +14,26 @@ namespace Ship_Game
         public float Min { get; private set; } = 0f;
         public float Max { get; private set; } = 1f;
 
+        // This is the DEFAULT line color, however, it can be overriden in AddTimedSample
         public Color LineColor = Color.Red;
+
         float CurrentTime;
         public bool ActiveTimeLine;
-        bool AddedThisFrame;
 
-        struct DataPoint
+        struct Sample
         {
             public float Time;
             public float Value;
         }
 
-        readonly Array<DataPoint> Points = new Array<DataPoint>();
+        class Graph
+        {
+            public Color Color;
+            public bool AddedThisFrame;
+            public readonly Array<Sample> Samples = new Array<Sample>();
+        }
+
+        readonly Map<Color, Graph> Graphs = new Map<Color, Graph>();
 
         public UIGraphView()
         {
@@ -41,20 +49,36 @@ namespace Ship_Game
         public void Clear()
         {
             ActiveTimeLine = false;
-            AddedThisFrame = false;
-            Points.Clear();
+            Graphs.Clear();
+        }
+
+        Graph GetOrCreateGraph(Color color)
+        {
+            if (Graphs.Get(color, out Graph graph))
+                return graph;
+
+            graph = new Graph{ Color = color };
+            Graphs[color] = graph;
+            return graph;
         }
 
         public void AddFixedSample(float time, float value)
         {
-            Points.Add(new DataPoint{ Time = time, Value = value });
+            Graph graph = GetOrCreateGraph(LineColor);
+            graph.Samples.Add(new Sample{ Time = time, Value = value });
         }
 
         public void AddTimedSample(float value)
         {
+            AddTimedSample(value, LineColor);
+        }
+
+        public void AddTimedSample(float value, Color sampleColor)
+        {
+            Graph g = GetOrCreateGraph(sampleColor);
+            g.AddedThisFrame = true;
             ActiveTimeLine = true;
-            AddedThisFrame = true;
-            Points.Add(new DataPoint{ Time = CurrentTime, Value = value });
+            g.Samples.Add(new Sample{ Time = CurrentTime, Value = value, });
         }
 
         public override void Update(float deltaTime)
@@ -64,29 +88,31 @@ namespace Ship_Game
                 CurrentTime += deltaTime;
                 float tooOld = CurrentTime - TimeRange;
 
-                for (int i = 0; i < Points.Count; ++i)
+                foreach (Graph g in Graphs.Values)
                 {
-                    // if we encounter a point that is OK, remove all data points before us
-                    if (Points[i].Time >= tooOld)
+                    for (int i = 0; i < g.Samples.Count; ++i)
                     {
-                        Points.RemoveRange(0, i);
-                        break;
+                        // if we encounter a point that is OK, remove all data points before us
+                        if (g.Samples[i].Time >= tooOld)
+                        {
+                            g.Samples.RemoveRange(0, i);
+                            break;
+                        }
                     }
-                }
 
-                if (!AddedThisFrame) // add dummy value
-                {
-                    Points.Add(new DataPoint{ Time = CurrentTime, Value = Min });
+                    if (!g.AddedThisFrame) // add dummy value
+                    {
+                        g.Samples.Add(new Sample{ Time = CurrentTime, Value = Min, });
+                    }
+                    g.AddedThisFrame = false;
                 }
-                AddedThisFrame = false;
             }
             base.Update(deltaTime);
         }
 
-        Vector2 AbsolutePos(int pointId, in Rectangle rect)
+        Vector2 AbsolutePos(float start, in Sample p, in Rectangle rect)
         {
-            DataPoint p = Points[pointId];
-            float timeOffset = p.Time - Points[0].Time;
+            float timeOffset = p.Time - start;
             float relX  = timeOffset / TimeRange;
             float value = p.Value.Clamped(Min, Max);
             float relY  = (value - Min) / (Max - Min);
@@ -114,13 +140,18 @@ namespace Ship_Game
             batch.DrawLine(inner.RelPos(0.50f, 0), inner.RelPos(0.50f, 1), backBrown);
             batch.DrawLine(inner.RelPos(0.75f, 0), inner.RelPos(0.75f, 1), backBrown);
 
-            if (!Points.IsEmpty)
+            foreach (Graph g in Graphs.Values)
             {
-                Vector2 p0 = AbsolutePos(0, inner);
-                for (int i = 1; i < Points.Count; ++i)
+                if (g.Samples.Count <= 1)
+                    continue;
+
+                Sample first = g.Samples[0];
+                Vector2 p0 = AbsolutePos(first.Time, first, inner);
+                for (int i = 1; i < g.Samples.Count; ++i)
                 {
-                    Vector2 p1 = AbsolutePos(i, inner);
-                    batch.DrawLine(p0, p1, LineColor, 2);
+                    Sample sample = g.Samples[i];
+                    Vector2 p1 = AbsolutePos(first.Time, sample, inner);
+                    batch.DrawLine(p0, p1, g.Color, 2);
                     p0 = p1;
                 }
             }
