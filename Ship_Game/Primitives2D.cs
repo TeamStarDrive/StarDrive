@@ -110,7 +110,7 @@ namespace Ship_Game
         public static void DrawCircle(this SpriteBatch spriteBatch, float x, float y, float radius, Color color, float thickness = 1f)
             => spriteBatch.DrawCircle(new Vector2(x, y), radius, color, thickness);
 
-        public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness = 1f)
+        public static void DrawLine(this SpriteBatch batch, Vector2 point1, Vector2 point2, Color color, float thickness = 1f)
         {
             // intersection tests will eliminate up to 95% of all lines, leading to much faster rendering performance
             if (!IsIntersectingScreen(point1, point2))
@@ -118,17 +118,17 @@ namespace Ship_Game
 
             float distance = point1.Distance(point2);
             float angle = (float)Atan2(point2.Y - point1.Y, point2.X - point1.X);
-            DrawLine(spriteBatch, point1, distance, angle, color, thickness);
+            DrawLine(batch, point1, distance, angle, color, thickness);
         }
 
-        static void DrawLine(this SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness)
+        static void DrawLine(this SpriteBatch batch, Vector2 point, float length, float angle, Color color, float thickness)
         {
             if (Pixel == null)
-                CreateThePixel(spriteBatch);
+                CreateThePixel(batch);
 
             // some hack here - the 1px texture is rotated and scaled to proper width/height
             var scale = new Vector2(length, thickness);
-            spriteBatch.Draw(Pixel, point, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            batch.Draw(Pixel, point, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
         public static void DrawRectangle(this SpriteBatch spriteBatch, Rectangle rect, Color color, float thickness = 1f)

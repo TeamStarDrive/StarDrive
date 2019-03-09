@@ -24,7 +24,7 @@ namespace Ship_Game
         public static Vector2 BotRight => new Vector2(+1, +1);
 
 
-        public static string String(this Vector3 v, int precision)
+        public static string String(this Vector3 v, int precision = 0)
         {
             return $"{{X {v.X.String(precision)} Y {v.Y.String(precision)} Z {v.Z.String(precision)}}}";
         }
