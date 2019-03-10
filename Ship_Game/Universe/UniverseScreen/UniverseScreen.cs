@@ -626,7 +626,7 @@ namespace Ship_Game
             AtmoEffect     = content.Load<Effect>("Effects/PlanetHalo");
             cloudTex       = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
             RingTexture    = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
-            
+
             FTLManager.LoadContent(this);
             MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);
