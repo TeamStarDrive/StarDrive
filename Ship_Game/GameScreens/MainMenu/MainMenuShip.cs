@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SgMotion;
@@ -15,166 +16,39 @@ namespace Ship_Game.GameScreens.MainMenu
      */
     class MainMenuShip
     {
-        const float FirstWarpInDelay = 3;
-        const float MinTimeCoasting = 30;
-        const float MinTimeInDeepSpace = 10;
-
-        static float RandomDuration(float min)
-        {
-            return RandomMath.AvgRandomBetween(min, min*1.5f);
-        }
-
-        abstract class ShipState
-        {
-            protected readonly MainMenuShip Ship;
-            protected readonly float Duration;
-            protected float Time;
-            protected float RelativeTime => Time / Duration;
-            protected float Remaining => Duration - Time;
-            protected Func<ShipState> NextState;
-
-            protected ShipState(MainMenuShip ship, float duration)
-            {
-                Ship = ship;
-                Duration = duration;
-            }
-
-            // @return TRUE if lifetime transition is over
-            public virtual bool Update(float deltaTime)
-            {
-                Time += deltaTime;
-                if (Time >= Duration)
-                {
-                    Time = Duration;
-                    Ship.State = NextState();
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        class IdlingInDeepSpace : ShipState
-        {
-            public IdlingInDeepSpace(MainMenuShip ship, float duration) : base(ship, duration)
-            {
-                ship.Position = new Vector3(-50000, 0, 50000); // out of screen, out of mind
-                NextState = () => new WarpingIn(ship);
-            }
-        }
-
-        class CoastingAcrossScreen : ShipState
-        {
-            float Speed = 10f; // forward speed in units/s
-            bool Spooling;
-            bool EnteringFTL;
-            public CoastingAcrossScreen(MainMenuShip ship) : base(ship, RandomDuration(MinTimeCoasting))
-            {
-                NextState = () => new WarpingOut(ship);
-            }
-            public override bool Update(float deltaTime)
-            {
-                // slow moves the ship across the screen
-                Ship.Rotation.Y += deltaTime * 0.06f;
-                Ship.Position += deltaTime * Ship.Forward * Speed;
-                if (!Spooling && Remaining < 3.2f)
-                {
-                    GameAudio.PlaySfxAsync("sd_warp_start_large");
-                    Spooling = true;
-                }
-                if (!EnteringFTL && Remaining < 0.5f)
-                {
-                    FTLManager.EnterFTL(Ship.Position, Ship.Forward, 266);
-                    EnteringFTL = true;
-                }
-                return base.Update(deltaTime);
-            }
-        }
-
-        class WarpingIn : ShipState
-        {
-            readonly Vector3 Start, End;
-            readonly Vector3 WarpScale = new Vector3(1, 4, 1);
-            bool ExitingFTL;
-
-            public WarpingIn(MainMenuShip ship) : base(ship, duration: 1f)
-            {
-                ship.Rotation = new Vector3(-110, 152, -10); // reset direction
-                ship.Scale = WarpScale;
-                End = new Vector3(-489, -68, 226);
-                Start = End - ship.Forward*100000f;
-                ship.Position = Start;
-                NextState = () => new CoastingAcrossScreen(ship);
-            }
-            public override bool Update(float deltaTime)
-            {
-                Ship.Position = Start.LerpTo(End, RelativeTime);
-
-                if (!ExitingFTL && Remaining < 0.15f)
-                {
-                    FTLManager.ExitFTL(() => Ship.Position, Ship.Forward, 266);
-                    ExitingFTL = true;
-                }
-
-                if (base.Update(deltaTime))
-                {
-                    GameAudio.PlaySfxAsync("sd_warp_stop");
-                    Ship.Position = End;
-                    Ship.Scale = Vector3.One;
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        class WarpingOut : ShipState
-        {
-            readonly Vector3 Start; // far right foreground
-            readonly Vector3 End;
-            readonly Vector3 WarpScale = new Vector3(1, 4, 1);
-
-            public WarpingOut(MainMenuShip ship) : base(ship, 1f)
-            {
-                Start = ship.Position;
-                End   = ship.Position + ship.Forward * 50000f;
-                NextState = () => new IdlingInDeepSpace(ship, RandomDuration(MinTimeInDeepSpace));
-            }
-            public override bool Update(float deltaTime)
-            {
-                Ship.Position = Start.LerpTo(End, RelativeTime);
-                Ship.Scale = WarpScale;
-                if (base.Update(deltaTime))
-                {
-                    Ship.Scale = Vector3.One;
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        Vector3 Position;
-        Vector3 Rotation = new Vector3(-110, 152, -10);
-        Vector3 Scale = new Vector3(1, 1, 1);
+        public readonly Vector3 InitialPosition;
+        public readonly Vector3 InitialRotation;
+        public Vector3 Position = new Vector3(-50000, 0, 50000f); // out of the screen
+        public Vector3 Rotation;
+        public Vector3 Scale = Vector3.One;
+        float BaseScale;
 
         // StarDrive Meshes are oriented towards -Y, which is Vector3.Down 
-        Vector3 Forward => Rotation.DegsToRad().RotateVector(Vector3.Down);
+        public Vector3 Forward => Rotation.DegsToRad().RotateVector(Vector3.Down);
         // And the Up is oriented to -Z, which is Vector3.Forward
-        Vector3 Up => Rotation.DegsToRad().RotateVector(Vector3.Forward);
-        Vector3 Right => Rotation.DegsToRad().RotateVector(Vector3.Right);
+        public Vector3 Up => Rotation.DegsToRad().RotateVector(Vector3.Forward);
+        public Vector3 Right => Rotation.DegsToRad().RotateVector(Vector3.Right);
 
-        float BaseScale = 1.225f;
-        ShipState State;
-
+        readonly MainMenuScreen Screen;
+        public readonly MainMenuShipAI AI;
         SceneObject ShipObj;
         AnimationController ShipAnim;
 
         bool DebugMeshRotate = false;
         bool DebugMeshInspect = false;
 
-        readonly MainMenuScreen Screen;
-
-        public MainMenuShip(MainMenuScreen screen)
+        public MainMenuShip(
+            MainMenuScreen screen,
+            in Vector3 initialPos,
+            in Vector3 initialRot,
+            IMainMenuShipAI ai)
         {
             Screen = screen;
+            InitialPosition = initialPos;
+            Rotation = InitialRotation = initialRot;
+
+            AI = ai.GetClone();
+            InitRandomShip();
         }
 
         public void HandleInput(InputState input)
@@ -257,10 +131,14 @@ namespace Ship_Game.GameScreens.MainMenu
             if (DebugMeshInspect) BaseScale *= 4.0f;
 
             Screen.AddObject(ShipObj);
-            State = new IdlingInDeepSpace(this, FirstWarpInDelay);
             UpdateTransform();
+        }
 
-            FTLManager.LoadContent(Screen);
+        readonly AudioEmitter SoundEmitter = new AudioEmitter();
+
+        public void PlaySfx(string sfx)
+        {
+            GameAudio.PlaySfxAsync(sfx);
         }
 
         void UpdateTransform()
@@ -270,16 +148,17 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public void Update(GameTime gameTime)
         {
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (DebugMeshInspect)
             {
-                Position = new Vector3(0f, 0f, 0f);
+                Position = Vector3.Zero;
             }
             else
             {
-                State?.Update(deltaTime);
+                AI.Update(this, Screen.DeltaTime);
             }
-            
+
+            SoundEmitter.Position = Position;
+
             // shipObj can be modified while mod is loading
             if (ShipObj != null)
             {
@@ -293,8 +172,6 @@ namespace Ship_Game.GameScreens.MainMenu
                     ShipAnim.Update(gameTime.ElapsedGameTime, Matrix.Identity);
                 }
             }
-
-            FTLManager.Update(Screen, deltaTime);
         }
 
         public void Draw(SpriteBatch batch)
@@ -314,8 +191,6 @@ namespace Ship_Game.GameScreens.MainMenu
                 DrawLine(Position, Position + Up*100, Color.Blue);
                 batch.End();
             }
-
-            FTLManager.DrawFTLModels(batch, Screen);
         }
     }
 }
