@@ -391,19 +391,16 @@ namespace Ship_Game
                     Empire.Universe.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
                 else
                 {
-                    lock (GlobalStats.OwnedPlanetsLock)
-                    {
-                        Empire.Universe.NotificationManager.AddPlanetDiedNotification(thisPlanet, Empire.Universe.PlayerEmpire);
+                    Empire.Universe.NotificationManager.AddPlanetDiedNotification(thisPlanet, Empire.Universe.PlayerEmpire);
 
-                        if (Owner != null)
-                        {
-                            // check if Owner still has planets in this system:
-                            bool hasPlanetsInSystem = ParentSystem.PlanetList
-                                                    .Any(p => p != thisPlanet && p.Owner == Owner);
-                            if (!hasPlanetsInSystem)
-                                ParentSystem.OwnerList.Remove(Owner);
-                            Owner = null;
-                        }
+                    if (Owner != null)
+                    {
+                        // check if Owner still has planets in this system:
+                        bool hasPlanetsInSystem = ParentSystem.PlanetList
+                                                .Any(p => p != thisPlanet && p.Owner == Owner);
+                        if (!hasPlanetsInSystem)
+                            ParentSystem.OwnerList.Remove(Owner);
+                        Owner = null;
                     }
                     ConstructionQueue.Clear();
                     return;
