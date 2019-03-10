@@ -41,7 +41,7 @@ FTLLayer:
   Duration: 0.8
   Rotation: -5.8
   FrontToBack: True
-  DebugGraphColor: [0,255,255] # MAGENTA
+  DebugGraphColor: [0,255,255] # CYAN
   ScaleCurve:
     - [0.0, 4.0]
     - [0.5, 20.0]
@@ -53,17 +53,20 @@ FTLLayer:
     - [0.6, 0.5]
     - [1.0, 0.0]
 
- # faster small flare, slightly ahead of the main flare
+ # faster small flare, meets up with the main flare
 FTLLayer:
   Texture: FTL/BSG_warp1.dds
   Duration: 0.6
   Rotation: 2.4
-  FrontToBack: True
+  FrontToBack: False
   DebugGraphColor: [0,0,255] # BLUE
   ScaleCurve:
     - [0.0, 4.0]
     - [0.5, 16.0]
     - [1.0, 0.0]
+  ColorCurve:
+    - [0.0, 1.0]
+    - [0.8, 0.0]
 
 FTLLayer:
   Texture: FTL/BSG_warp_iris.dds # big iris
