@@ -116,7 +116,6 @@ namespace Ship_Game
         public string loadFogPath;
         public Model xnaPlanetModel;
         public Texture2D RingTexture;
-        public AudioListener Listener;
         public UnivScreenState viewState;
         public bool LookingAtPlanet;
         public bool snappingToShip;
@@ -620,7 +619,6 @@ namespace Ship_Game
             LoadMenu();
 
             anomalyManager = new AnomalyManager();
-            Listener       = new AudioListener();
             xnaPlanetModel = content.Load<Model>("Model/SpaceObjects/planet");
             atmoModel      = content.Load<Model>("Model/sphere");
             AtmoEffect     = content.Load<Effect>("Effects/PlanetHalo");
@@ -668,7 +666,7 @@ namespace Ship_Game
                     ScreenManager.Music = GameAudio.PlayMusic("AmbientMusic");
             }
 
-            Listener.Position = new Vector3(CamPos.X, CamPos.Y, 0.0f);
+            GameAudio.Update3DSound(new Vector3(CamPos.X, CamPos.Y, 0.0f));
 
             ScreenManager.UpdateSceneObjects(gameTime);
             EmpireUI.Update(deltaTime);

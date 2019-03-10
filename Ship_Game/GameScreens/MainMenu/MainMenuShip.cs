@@ -138,7 +138,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public void PlaySfx(string sfx)
         {
-            GameAudio.PlaySfxAsync(sfx);
+            GameAudio.PlaySfxAsync(sfx, SoundEmitter);
         }
 
         void UpdateTransform()
