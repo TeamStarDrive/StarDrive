@@ -1,7 +1,9 @@
 using System;
+using System.Management;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using NAudio.CoreAudioApi;
 using Cue = Microsoft.Xna.Framework.Audio.Cue;
 
 namespace Ship_Game.Audio
@@ -37,14 +39,37 @@ namespace Ship_Game.Audio
         static Array<QueuedSfx> SfxQueue;
         static Thread SfxThread;
 
-        public static void Initialize(string settingsFile, string waveBankFile, string soundBankFile)
+        static string SettingsFile, WaveBankFile, SoundBankFile;
+
+        public static void ReloadAfterDeviceChange(MMDevice newDevice)
+        {
+            Initialize(newDevice, SettingsFile, WaveBankFile, SoundBankFile);
+        }
+
+        public static void Initialize(MMDevice device, string settingsFile, string waveBankFile, string soundBankFile)
         {
             try
             {
-                TrackedInstances = new Array<IAudioInstance>();
-                AudioEngine  = new AudioEngine(settingsFile);
+                Destroy(); // just in case
+
+                // try selecting an audio device if no argument given
+                if (device == null && !AudioDevices.PickAudioDevice(out device))
+                {
+                    Log.Warning("GameAudio is disabled since audio device selection failed.");
+                    return;
+                }
+
+                Log.Info($"GameAudio.Device: {device.FriendlyName}");
+                AudioDevices.CurrentDevice = device; // make sure it's always properly in sync
+
+                SettingsFile = settingsFile;
+                WaveBankFile = waveBankFile;
+                SoundBankFile = soundBankFile;
+
+                AudioEngine  = new AudioEngine(settingsFile, TimeSpan.FromMilliseconds(250), device.ID);
                 WaveBank     = new WaveBank(AudioEngine, waveBankFile, 0, 16);
                 SoundBank    = new SoundBank(AudioEngine, soundBankFile);
+                TrackedInstances = new Array<IAudioInstance>();
 
                 while (!WaveBank.IsPrepared)
                     AudioEngine.Update();
