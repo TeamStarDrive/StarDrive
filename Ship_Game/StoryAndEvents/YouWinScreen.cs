@@ -142,10 +142,17 @@ namespace Ship_Game
 			return base.HandleInput(input);
 		}
 
+        void PlayWinTheme()
+        {
+            if (!Music.IsPlaying)
+                Music = GameAudio.PlayMusic("TitleTheme");
+        }
+
 		public override void LoadContent()
 		{
 		    GameAudio.SwitchToRacialMusic();
-		    Music = GameAudio.PlayMusic("TitleTheme");
+            GameAudio.MuteGenericMusic();
+            PlayWinTheme();
 
             if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 880)
 			{
@@ -169,7 +176,7 @@ namespace Ship_Game
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
-		    GameAudio.MuteGenericMusic();
+            PlayWinTheme();
 
             scale = 1f + 2f * TransitionPosition;
             Saturation = 100f * (1f - TransitionPosition);
