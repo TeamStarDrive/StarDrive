@@ -1696,10 +1696,7 @@ namespace Ship_Game
             SliderSize.Tip_ID = 14;
             StarField = new StarField(this);
             //bg = new Background();
-            float width = Viewport.Width;
-            Viewport viewport = Viewport;
-            float aspectRatio = width / viewport.Height;
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 100f, 15000f);
+            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f);
             using (SelectedFleet.Ships.AcquireReadLock())
             foreach (Ship ship in SelectedFleet.Ships)
             {
@@ -1796,7 +1793,8 @@ namespace Ship_Game
             AdjustCamera();
             CamPos.X = CamPos.X + CamVelocity.X;
             CamPos.Y = CamPos.Y + CamVelocity.Y;
-            View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), new Vector3(0f, -1f, 0f));
+            View = Matrix.CreateRotationY(180f.ToRadians())
+                * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), Vector3.Down);
             ClickableSquads.Clear();
             foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
             {

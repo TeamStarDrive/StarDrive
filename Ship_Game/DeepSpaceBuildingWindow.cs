@@ -164,8 +164,8 @@ namespace Ship_Game
                 {
                     scale = 0.15f;
                 }
-                Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(mousePos.X, mousePos.Y, 0f), screen.projection, screen.view, Matrix.Identity);
-                Vector3 farPoint = screen.Viewport.Unproject(new Vector3(mousePos.X, mousePos.Y, 1f), screen.projection, screen.view, Matrix.Identity);
+                Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(mousePos.X, mousePos.Y, 0f), screen.Projection, screen.View, Matrix.Identity);
+                Vector3 farPoint = screen.Viewport.Unproject(new Vector3(mousePos.X, mousePos.Y, 1f), screen.Projection, screen.View, Matrix.Identity);
                 Vector3 direction = farPoint - nearPoint;
                 direction.Normalize();
                 Ray pickRay = new Ray(nearPoint, direction);
@@ -222,8 +222,8 @@ namespace Ship_Game
                 screen.showingDSBW = false;
                 return true;
             }
-            Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 0f), screen.projection, screen.view, Matrix.Identity);
-            Vector3 farPoint = screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 1f), screen.projection, screen.view, Matrix.Identity);
+            Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 0f), screen.Projection, screen.View, Matrix.Identity);
+            Vector3 farPoint = screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 1f), screen.Projection, screen.View, Matrix.Identity);
             Vector3 direction = farPoint - nearPoint;
             direction.Normalize();
             Ray pickRay = new Ray(nearPoint, direction);

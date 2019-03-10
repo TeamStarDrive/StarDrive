@@ -1,28 +1,20 @@
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using SgMotion;
-using SgMotion.Controllers;
 using Ship_Game.Audio;
-using Ship_Game.Ships;
+using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
+using SynapseGaming.LightingSystem.Lights;
+using SynapseGaming.LightingSystem.Shadows;
 
 namespace Ship_Game.GameScreens.MainMenu
 {
     public sealed class MainMenuScreen : GameScreen
     {
-        SceneObject ShipObj;
-        Vector3 ShipPosition;
-        Vector3 ShipRotation = new Vector3(-116f, -188f, -19f);
-        float ShipScale = 0.7f * 1.75f;
-
-        AnimationController ShipAnim;
-
-        bool DebugMeshInspect = false;
+        Array<MainMenuShip> Ships = new Array<MainMenuShip>();
         UIElementContainer VersionArea;
+        Vector3 CamPos;
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
@@ -43,11 +35,13 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             ScreenManager.ClearScene();
             ResetMusic();
+            SetupMainMenuLightRig();
+
             LayoutParser.LoadLayout(this, "UI/MainMenu.yaml", clearElements: true);
 
             if (GlobalStats.HasMod)
             {
-                ScreenManager.AddHotLoadTarget("Mod", GlobalStats.ModFile, OnModChanged);
+                ScreenManager.AddHotLoadTarget(this, "Mod", GlobalStats.ModFile, OnModChanged);
             }
 
             Find("planet", out UIPanel planet);
@@ -76,17 +70,13 @@ namespace Ship_Game.GameScreens.MainMenu
             list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
             
-            InitRandomShip();
+            FTLManager.LoadContent(this);
+            CreateMainMenuFleet();
 
-            AssignLightRig("example/ShipyardLightrig");
-            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
-
-            Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateTranslation(0f, 0f, 0f) 
-                   * Matrix.CreateRotationY(180f.ToRadians())
-                   * Matrix.CreateRotationX(0f.ToRadians())
-                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-            Projection = Matrix.CreateOrthographic(ScreenWidth, ScreenHeight, 1f, 80000f);
+            CamPos = new Vector3(0f, 0f, -1000f);
+            var lookAt = new Vector3(0f, 0f, 10000f);
+            View = Matrix.CreateLookAt(CamPos, lookAt, Vector3.Down);
+            Projection = Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f);
 
             if (Find("blacbox_animated_logo", out UIPanel logo))
             {
@@ -99,6 +89,46 @@ namespace Ship_Game.GameScreens.MainMenu
 
             base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
+        }
+
+        void SetupMainMenuLightRig()
+        {
+            //AssignLightRig("example/ShipyardLightrig");
+            ScreenManager.RemoveAllLights();
+            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
+
+            var topRightInBackground = new Vector3(1000,-1000,1000);
+            var lightYellow = new Color(255,254,224);
+            AddLight("MainMenu Sun", lightYellow, 2.0f, topRightInBackground);
+
+            AddLight(new AmbientLight
+            {
+                Name = "MainMenu AmbientFill",
+                DiffuseColor = new Color(40, 60, 110).ToVector3(), // dark violet
+                Intensity = 0.75f,
+            });
+        }
+
+        void AddLight(string name, Color color, float intensity, Vector3 position)
+        {
+            var light = new PointLight
+            {
+                Name                = name,
+                DiffuseColor        = color.ToVector3(),
+                Intensity           = intensity,
+                ObjectType          = ObjectType.Static, // RedFox: changed this to Static
+                FillLight           = false,
+                Radius              = 100000,
+                Position            = position,
+                Enabled             = true,
+                FalloffStrength     = 1f,
+                ShadowPerSurfaceLOD = true,
+                ShadowQuality = 1f
+            };
+
+            light.ShadowType = ShadowType.AllObjects;
+            light.World = Matrix.CreateTranslation(light.Position);
+            AddLight(light);
         }
 
         void CreateVersionArea()
@@ -118,6 +148,46 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
+        void CreateMainMenuFleet()
+        {
+            //const float FirstWarpInDelay = 3;
+            //const float MinTimeCoasting = 30;
+            //const float MinTimeInDeepSpace = 10;
+            const float FirstWarpInDelay = 2;
+            const float MinTimeCoasting = 5;
+            const float MinTimeInDeepSpace = 4;
+
+            float Random(float value, float variance)
+            {
+                return RandomMath.RandomBetween(value, value*variance);
+            }
+
+            var fleetAI = new MainMenuShipAI(
+                () => new IdlingInDeepSpace(Random(FirstWarpInDelay, 1.5f)),
+                () => new WarpingIn(),
+                () => new CoastingAcrossScreen(Random(MinTimeCoasting, 1.2f)),
+                () => new WarpingOut(),
+                () => new IdlingInDeepSpace(Random(MinTimeInDeepSpace, 1.2f))
+            ) { Looping = false };
+
+            var r = new Vector3(-110, 152, -10);
+            Ships.Clear();
+            Ships.Add(new MainMenuShip(this, new Vector3(-490, -70, 250), r, fleetAI));
+            Ships.Add(new MainMenuShip(this, new Vector3(-289, -170, 1000), r, fleetAI));
+        }
+        
+        void UpdateMainMenuShips(GameTime gameTime)
+        {
+            foreach (var ship in Ships)
+                ship.Update(gameTime);
+            
+            // if all ship AI's have finished, create a new one
+            Ships.RemoveAllIf(ship => ship.AI.Finished);
+            if (Ships.IsEmpty)
+                CreateMainMenuFleet();
+        }
+
+
         void NewGame_Clicked(UIButton button)   => ScreenManager.AddScreen(new RaceDesignScreen(this));
         void Tutorials_Clicked(UIButton button) => ScreenManager.AddScreen(new TutorialScreen(this));
         void LoadGame_Clicked(UIButton button)  => ScreenManager.AddScreen(new LoadSaveScreen(this));
@@ -129,31 +199,14 @@ namespace Ship_Game.GameScreens.MainMenu
         void DevSandbox_Clicked(UIButton button)=> ScreenManager.GoToScreen(new DeveloperSandbox(), clear3DObjects: true);
         void Exit_Clicked(UIButton button)      => ExitScreen();
 
-        public override void Draw(SpriteBatch batch)
-        {
-            DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
-        }
 
         public override bool HandleInput(InputState input)
         {
-            // Use these controls to reorient the ship and planet in the menu. The new rotation
-            // is logged into debug console and can be set as default values later
-            if (DebugMeshInspect && IsActive)
-            {
-                if (input.IsKeyDown(Keys.W)) ShipRotation.X += 1.0f;
-                if (input.IsKeyDown(Keys.S)) ShipRotation.X -= 1.0f;
-                if (input.IsKeyDown(Keys.A)) ShipRotation.Y += 1.0f;
-                if (input.IsKeyDown(Keys.D)) ShipRotation.Y -= 1.0f;
-                if (input.IsKeyDown(Keys.Q)) ShipRotation.Z += 1.0f;
-                if (input.IsKeyDown(Keys.E)) ShipRotation.Z -= 1.0f;
+            if (!IsActive)
+                return false;
 
-                if (input.ScrollIn)  ShipScale += 0.1f;
-                if (input.ScrollOut) ShipScale -= 0.1f;
-
-                // if new keypress, spawn random ship
-                if (input.KeyPressed(Keys.Space))
-                    InitRandomShip();
-            }
+            foreach (var ship in Ships)
+                ship.HandleInput(input);
 
             // handle buttons and stuff
             if (base.HandleInput(input))
@@ -197,89 +250,16 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
-        void InitRandomShip()
-        {
-            if (ShipObj != null) // Allow multiple init
-            {
-                RemoveObject(ShipObj);
-                ShipObj.Clear();
-                ShipObj = null;
-                ShipAnim = null;
-            }
-
-            // FrostHand: do we actually need to show Model/Ships/speeder/ship07 in base version? Or could show random ship for base and modded version?
-            if (GlobalStats.HasMod && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
-            {
-                int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
-                string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
-                ShipObj = ResourceManager.GetSceneMesh(TransientContent, modelPath);
-            }
-            else if (DebugMeshInspect)
-            {
-                ShipObj = ResourceManager.GetSceneMesh(TransientContent, "Model/TestShips/Soyo/Soyo.obj");
-                //ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
-            }
-            else
-            {
-                ShipData[] hulls = ResourceManager.Hulls.Filter(s
-                    => s.Role == ShipData.RoleName.frigate
-                        //|| s.Role == ShipData.RoleName.cruiser
-                        //|| s.Role == ShipData.RoleName.capital
-                        //&& s.ShipStyle != "Remnant"
-                        && s.ShipStyle != "Ralyeh"); // Ralyeh ships look disgusting in the menu
-                ShipData hull = hulls[RandomMath.InRange(hulls.Length)];
-
-                ShipObj = ResourceManager.GetSceneMesh(TransientContent, hull.ModelPath, hull.Animated);
-                if (hull.Animated) // Support animated meshes if we use them at all
-                {
-                    SkinnedModel model = TransientContent.LoadSkinnedModel(hull.ModelPath);
-                    ShipAnim = new AnimationController(model.SkeletonBones);
-                    ShipAnim.StartClip(model.AnimationClips["Take 001"]);
-                }
-            }
-
-            // we want main menu ships to have a certain acceptable size:
-            ShipScale = 266f / ShipObj.ObjectBoundingSphere.Radius;
-            if (DebugMeshInspect) ShipScale *= 4.0f;
-
-            ShipPosition = new Vector3(-ScreenWidth / 4f, 528 - ScreenHeight / 2f, 0f);
-            ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
-            AddObject(ShipObj);
-        }
-
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            ScreenManager.UpdateSceneObjects(gameTime);
+            UpdateMainMenuShips(gameTime);
 
-            if (!DebugMeshInspect)
-            {
-                // slow moves the ship across the screen
-                float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-                ShipRotation.Y += deltaTime * 0.06f;
-                ShipPosition   += deltaTime * -ShipRotation.DegreesToUp() * 1.5f; // move forward 1.5 units/s
-            }
-            else
-            {
-                ShipPosition = new Vector3(0f, 0f, 0f);
-            }
-
-            // shipObj can be modified while mod is loading
-            if (ShipObj != null)
-            {
-                ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
-
-                // Added by RedFox: support animated ships
-                if (ShipAnim != null)
-                {
-                    ShipObj.SkinBones = ShipAnim.SkinnedBoneTransforms;
-                    ShipAnim.Speed = 0.45f;
-                    ShipAnim.Update(gameTime.ElapsedGameTime, Matrix.Identity);
-                }
-            }
+            GameAudio.Update3DSound(CamPos);
+            FTLManager.Update(this, DeltaTime);
 
             ScreenManager.UpdateSceneObjects(gameTime);
             
-            if (RandomMath.RollDice(percent:0.25f)) // 0.25%
+            if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {
                 Comet c = Add(new Comet(this));
                 c.SetDirection(new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f));
@@ -297,6 +277,15 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+        }
+
+        public override void Draw(SpriteBatch batch)
+        {
+            DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
+            foreach (var ship in Ships)
+                ship.Draw(batch);
+
+            FTLManager.DrawFTLModels(batch, this);
         }
     }
 }

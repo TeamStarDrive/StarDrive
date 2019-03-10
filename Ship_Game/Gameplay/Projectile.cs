@@ -200,7 +200,7 @@ namespace Ship_Game.Gameplay
         {
             if (Weapon.Animated == 1)
             {
-                string animFolder = "Textures/"+Path.GetDirectoryName(Weapon.AnimationPath);
+                string animFolder = "Textures/" + Path.GetDirectoryName(Weapon.AnimationPath);
                 Animation = new SpriteAnimation(ResourceManager.RootContent, animFolder);
                 Animation.Looping = Weapon.LoopAnimation == 1;
                 float loopDuration = (InitialDuration / Animation.NumFrames);
@@ -499,7 +499,7 @@ namespace Ship_Game.Gameplay
                 {
                     var center  = new Vector3(Center.X, Center.Y, -100f);
                     Vector3 forward  = Rotation.RadiansToDirection3D();
-                    Vector3 right    = forward.RightVector(z:1f);
+                    Vector3 right    = forward.RightVector2D(z:1f);
                     Vector3 backward = -forward;
                     for (int i = 0; i < 20; i++)
                     {
@@ -517,7 +517,7 @@ namespace Ship_Game.Gameplay
                 {
                     var center  = new Vector3(Center.X, Center.Y, -100f);
                     Vector3 forward  = Rotation.RadiansToDirection3D();
-                    Vector3 right    = forward.RightVector(z:1f);
+                    Vector3 right    = forward.RightVector2D(z:1f);
                     Vector3 backward = -forward;
                     for (int i = 0; i < 20; i++)
                     {
