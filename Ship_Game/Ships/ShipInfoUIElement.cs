@@ -661,19 +661,19 @@ namespace Ship_Game.Ships
             {
                 OrdersButton tf = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingFoodTransport, x => Ship.DoingTransport = x),
-                    RightClickValueToModify = new Ref<bool>(() => Ship.TransportingFood, x => Ship.TransportingFood = x)
+                    ValueToModify = new Ref<bool>(() => Ship.TransportingFood)
+                    //RightClickValueToModify = new Ref<bool>(() => Ship.TransportingFood, x => Ship.TransportingFood = x)
                 };
                 Orders.Add(tf);
                 OrdersButton tp = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, 17)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingProdTransport, x => Ship.DoingTransport = x),
-                    RightClickValueToModify = new Ref<bool>(() => Ship.TransportingProduction, x => Ship.TransportingProduction = x)
+                    ValueToModify = new Ref<bool>(() => Ship.TransportingProduction)
+                    //RightClickValueToModify = new Ref<bool>(() => Ship.TransportingProduction, x => Ship.TransportingProduction = x)
                 };
                 Orders.Add(tp);
                 OrdersButton tpass = new OrdersButton(Ship, Vector2.Zero, OrderType.PassTran, 137)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingPassengerTransport, x => Ship.TransportingPassengers = x)
+                    ValueToModify = new Ref<bool>(() => Ship.TransportingColonists)
                 };
                 Orders.Add(tpass);
             }
