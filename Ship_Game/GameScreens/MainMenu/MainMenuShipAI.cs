@@ -1,0 +1,193 @@
+﻿using System;
+using Microsoft.Xna.Framework;
+
+namespace Ship_Game.GameScreens.MainMenu
+{
+    interface IMainMenuShipAI
+    {
+        MainMenuShipAI GetClone();
+    }
+
+    class MainMenuShipAI : IMainMenuShipAI
+    {
+        readonly Func<ShipState>[] States;
+        ShipState Current;
+        int State;
+        public bool Finished { get; private set; }
+        public bool Looping;
+
+        public MainMenuShipAI(params Func<ShipState>[] states)
+        {
+            States = states;
+        }
+        public MainMenuShipAI GetClone()
+        {
+            return new MainMenuShipAI(States);
+        }
+        public void Update(MainMenuShip ship, float deltaTime)
+        {
+            if (Finished)
+                return;
+
+            if (Current == null)
+            {
+                Current = States[State]();
+                Current.Initialize(ship);
+            }
+
+            if (Current.Update(deltaTime))
+            {
+                Current = null;
+                ++State;
+                if (State >= States.Length)
+                {
+                    // loop?
+                    if (Looping)
+                        State = 1; // but always skip the first (default) state
+                    else
+                        Finished = true;
+                }
+            }
+        }
+    }
+
+    abstract class ShipState
+    {
+        protected MainMenuShip Ship;
+        protected readonly float Duration;
+        protected float Time;
+        protected float RelativeTime => Time / Duration;
+        protected float Remaining => Duration - Time;
+
+        protected ShipState(float duration)
+        {
+            Duration = duration;
+        }
+
+        public virtual void Initialize(MainMenuShip ship)
+        {
+            Ship = ship;
+            Time = 0f;
+        }
+
+        // @return TRUE if lifetime transition is over
+        public virtual bool Update(float deltaTime)
+        {
+            Time += deltaTime;
+            if (Time >= Duration)
+            {
+                Time = Duration;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    class IdlingInDeepSpace : ShipState
+    {
+        public IdlingInDeepSpace(float duration) : base(duration)
+        {
+        }
+        public override void Initialize(MainMenuShip ship)
+        {
+            ship.Position = new Vector3(-50000, 0, 50000); // out of screen, out of mind
+            base.Initialize(ship);
+        }
+    }
+
+    class CoastingAcrossScreen : ShipState
+    {
+        float Speed = 10f; // forward speed in units/s
+        bool Spooling;
+        bool EnteringFTL;
+        public CoastingAcrossScreen(float duration) : base(duration)
+        {
+        }
+        public override bool Update(float deltaTime)
+        {
+            // slow moves the ship across the screen
+            Ship.Rotation.Y += deltaTime * 0.06f;
+            Ship.Position += deltaTime * Ship.Forward * Speed;
+            if (!Spooling && Remaining < 3.2f)
+            {
+                Ship.PlaySfx("sd_warp_start_large");
+                Spooling = true;
+            }
+            if (!EnteringFTL && Remaining < 0.5f)
+            {
+                FTLManager.EnterFTL(Ship.Position, Ship.Forward, 266);
+                EnteringFTL = true;
+            }
+            return base.Update(deltaTime);
+        }
+    }
+
+    class WarpingIn : ShipState
+    {
+        Vector3 Start, End;
+        readonly Vector3 WarpScale = new Vector3(1, 4, 1);
+        bool ExitingFTL;
+
+        public WarpingIn() : base(1f)
+        {
+        }
+        public override void Initialize(MainMenuShip ship)
+        {
+            ship.Rotation = ship.InitialRotation; // reset direction
+            ship.Scale = WarpScale;
+            End = ship.InitialPosition;
+            Start = End - ship.Forward*100000f;
+            ship.Position = Start;
+            base.Initialize(ship);
+        }
+        public override bool Update(float deltaTime)
+        {
+            Ship.Position = Start.LerpTo(End, RelativeTime);
+
+            if (!ExitingFTL && Remaining < 0.15f)
+            {
+                FTLManager.ExitFTL(() => Ship.Position, Ship.Forward, 266);
+                ExitingFTL = true;
+            }
+
+            if (base.Update(deltaTime))
+            {
+                
+                Ship.PlaySfx("sd_warp_stop");
+                Ship.Position = End;
+                Ship.Scale = Vector3.One;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    class WarpingOut : ShipState
+    {
+        Vector3 Start; // far right foreground
+        Vector3 End;
+        readonly Vector3 WarpScale = new Vector3(1, 4, 1);
+
+        public WarpingOut() : base(1f)
+        {
+        }
+        public override void Initialize(MainMenuShip ship)
+        {
+            Start = ship.Position;
+            End   = ship.Position + ship.Forward * 50000f;
+            base.Initialize(ship);
+        }
+        public override bool Update(float deltaTime)
+        {
+            Ship.Position = Start.LerpTo(End, RelativeTime);
+            Ship.Scale = WarpScale;
+            if (base.Update(deltaTime))
+            {
+                Ship.Scale = Vector3.One;
+                return true;
+            }
+            return false;
+        }
+    }
+
+}

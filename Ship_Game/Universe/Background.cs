@@ -93,9 +93,9 @@ namespace Ship_Game
             var blackRect = new Rectangle(0, 0, vp.Width, vp.Height);
             batch.Begin();
             batch.FillRectangle(blackRect, Color.Black);
-            Vector3 upperLeft = vp.Project(Vector3.Zero, u.projection, u.view, Matrix.Identity);
-            Vector3 lowerRight = vp.Project(new Vector3(u.UniverseSize, u.UniverseSize, 0f), u.projection, u.view, Matrix.Identity);
-            vp.Project(new Vector3(u.UniverseSize / 2f, u.UniverseSize / 2f, 0f), u.projection, u.view, Matrix.Identity);
+            Vector3 upperLeft  = vp.Project(Vector3.Zero, u.Projection, u.View, Matrix.Identity);
+            Vector3 lowerRight = vp.Project(new Vector3(u.UniverseSize, u.UniverseSize, 0f), u.Projection, u.View, Matrix.Identity);
+            vp.Project(new Vector3(u.UniverseSize / 2f, u.UniverseSize / 2f, 0f), u.Projection, u.View, Matrix.Identity);
             var drawRect = new Rectangle((int)upperLeft.X, (int)upperLeft.Y, (int)lowerRight.X - (int)upperLeft.X, (int)lowerRight.Y - (int)upperLeft.Y);
             batch.Draw(ResourceManager.Texture("galaxy"), drawRect, Color.White);
             batch.End();

@@ -92,8 +92,6 @@ namespace Ship_Game
         PieMenu pieMenu;
         PieMenuNode planetMenu;
         PieMenuNode shipMenu;
-        public Matrix view;
-        public Matrix projection;
         public ParticleSystem beamflashes;
         public ParticleSystem explosionParticles;
         public ParticleSystem photonExplosionParticles;
@@ -118,7 +116,6 @@ namespace Ship_Game
         public string loadFogPath;
         public Model xnaPlanetModel;
         public Texture2D RingTexture;
-        public AudioListener Listener;
         public UnivScreenState viewState;
         public bool LookingAtPlanet;
         public bool snappingToShip;
@@ -337,7 +334,7 @@ namespace Ship_Game
         void CreateProjectionMatrix()
         {
             float aspect = (float)Viewport.Width / Viewport.Height;
-            projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f);
+            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspect, 100f, 3E+07f);
         }
 
         public override void LoadContent()
@@ -428,8 +425,8 @@ namespace Ship_Game
                 Matrix camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight),
                                                                 new Vector3(-univRadius, univRadius, 0.0f), Vector3.Up);
 
-                Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, projection, camMaxToUnivCenter, Matrix.Identity);
-                Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f), projection, camMaxToUnivCenter, Matrix.Identity);
+                Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity);
+                Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
                 univSizeOnScreen = univBotRight.X - univTopLeft.X;
                 if (univSizeOnScreen < (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
                     MaxCamHeight -= 0.1f * MaxCamHeight;
@@ -582,7 +579,7 @@ namespace Ship_Game
             Empire.Universe = this;
 
             CreateProjectionMatrix();
-            Frustum            = new BoundingFrustum(view * projection);
+            Frustum            = new BoundingFrustum(View * Projection);
             mmHousing          = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
             minimap            = Add(new MiniMap(mmHousing));
@@ -625,14 +622,13 @@ namespace Ship_Game
             LoadMenu();
 
             anomalyManager = new AnomalyManager();
-            Listener       = new AudioListener();
             xnaPlanetModel = content.Load<Model>("Model/SpaceObjects/planet");
             atmoModel      = content.Load<Model>("Model/sphere");
             AtmoEffect     = content.Load<Effect>("Effects/PlanetHalo");
             cloudTex       = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
             RingTexture    = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
             
-            FTLManager.LoadContent(content);
+            FTLManager.LoadContent(this);
             MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);
             StarField = new StarField(this);
@@ -673,7 +669,7 @@ namespace Ship_Game
                     ScreenManager.Music = GameAudio.PlayMusic("AmbientMusic");
             }
 
-            Listener.Position = new Vector3(CamPos.X, CamPos.Y, 0.0f);
+            GameAudio.Update3DSound(new Vector3(CamPos.X, CamPos.Y, 0.0f));
 
             ScreenManager.UpdateSceneObjects(gameTime);
             EmpireUI.Update(deltaTime);
@@ -689,7 +685,7 @@ namespace Ship_Game
 
         void ProjectPieMenu(Vector2 position, float z)
         {
-            var proj = Viewport.Project(position.ToVec3(z), projection, view, Matrix.Identity);
+            var proj = Viewport.Project(position.ToVec3(z), Projection, View, Matrix.Identity);
             pieMenu.Position    = proj.ToVec2();
             pieMenu.Radius      = 75f;
             pieMenu.ScaleFactor = 1f;

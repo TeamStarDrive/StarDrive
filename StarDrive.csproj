@@ -250,6 +250,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\FRect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ListExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\Matrices.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MeshUtil.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MiscExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NumberExt.cs" />
@@ -273,6 +274,8 @@
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame_CreateEntities.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShip.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShipAI.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionLabel.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />
@@ -335,6 +338,7 @@
     </Compile>
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
+    <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIBasicAnimEffect.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteAnimation.cs" />
@@ -350,6 +354,7 @@
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
+    <Compile Include="Ship_Game\UI\UIGraphView.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
     <Compile Include="Ship_Game\Universe\EmpireSolarSystemStatus.cs" />
@@ -1452,6 +1457,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Fonts\Verdana10.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\FTL.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Nebulas\nebula_1024x1024_01.xnb">
@@ -3274,6 +3282,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Technology\XenoMining.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\FTL\BSG_warp1.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\FTL\BSG_warp2.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\FTL\BSG_warp_iris.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\Minimap\radar_over.png">

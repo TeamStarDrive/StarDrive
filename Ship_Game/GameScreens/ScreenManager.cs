@@ -321,13 +321,20 @@ namespace Ship_Game
         // @param key Unique key to categorize the hot load target
         // @param file File to check
         // @param onModified Event to trigger if File was changed
-        public void AddHotLoadTarget(string key, string file, Action<FileInfo> onModified)
+        public void AddHotLoadTarget(GameScreen screen, string key, string file, Action<FileInfo> onModified)
         {
             HotLoadTargets[key] = new Hotloadable {
                 File = file,
                 LastModified = File.GetLastWriteTimeUtc(file), 
                 OnModified = onModified
             };
+            if (screen != null)
+            {
+                screen.OnExit += () =>
+                {
+                    HotLoadTargets.Remove(key);
+                };
+            }
         }
 
         // Adds a GameScreen as a HotLoad target

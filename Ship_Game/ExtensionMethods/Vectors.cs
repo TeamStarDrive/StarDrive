@@ -24,6 +24,12 @@ namespace Ship_Game
         public static Vector2 BotRight => new Vector2(+1, +1);
 
 
+        public static string String(this Vector3 v, int precision = 0)
+        {
+            return $"{{X {v.X.String(precision)} Y {v.Y.String(precision)} Z {v.Z.String(precision)}}}";
+        }
+
+
         public static Vector2 Clamped(this Vector2 v, float minXy, float maxXy)
         {
             return new Vector2( Max(minXy, Min(v.X, maxXy)), 
@@ -108,32 +114,54 @@ namespace Ship_Game
 
         // assuming this is a direction vector, gives the left side perpendicular vector
         // @note This assumes that +Y is DOWNWARDS on the screen
-
         public static Vector2 RightVector(this Vector2 direction)
         {
             return new Vector2(-direction.Y, direction.X);
         }
 
-        // Same as Vector2.RightVector; Z axis is not modified
-
-        public static Vector3 RightVector(this Vector3 direction)
-        {
-            return new Vector3(-direction.Y, direction.X, direction.Z);
-        }
-
         // Same as Vector3.RightVector; but Z axis is set manually
-
-        public static Vector3 RightVector(this Vector3 direction, float z)
+        public static Vector3 RightVector2D(this Vector3 direction, float z)
         {
             return new Vector3(-direction.Y, direction.X, z);
         }
 
+        // shipUpVector is required to correctly calculate the result
+        public static Vector3 RightVector(this Vector3 direction, in Vector3 shipUpVector)
+        {
+            return Vector3.Cross(direction, shipUpVector);
+        }
 
+        public static Vector3 LeftVector(this Vector3 direction, in Vector3 shipUpVector)
+        {
+            return -Vector3.Cross(direction, shipUpVector);
+        }
+
+        // shipUpVector is required to correctly calculate the result
+        public static Vector3 UpVector(this Vector3 direction, in Vector3 shipUpVector)
+        {
+            var right = RightVector(direction, shipUpVector);
+            return Vector3.Cross(right, direction);
+        }
+
+        public static Vector3 DownVector(this Vector3 direction, in Vector3 shipUpVector)
+        {
+            var right = RightVector(direction, shipUpVector);
+            return -Vector3.Cross(right, direction);
+        }
+
+
+        /**
+         * Assuming `radians` is an Euler XYZ rotation triplet in Radians,
+         * Rotate `point` around (0,0,0)
+         */
+        public static Vector3 RotateVector(this Vector3 radians, in Vector3 point)
+        {
+            return Vector3.Transform(point, radians.RadiansToRotMatrix());
+        }
 
         
         // Gets the Squared distance from source point a to destination b
         // This is faster than Vector2.Distance()
-
         public static float SqDist(this Vector2 a, Vector2 b)
         {
             float dx = a.X - b.X;
@@ -142,7 +170,6 @@ namespace Ship_Game
         }
 
         // Squared distance between two Vector3's
-
         public static float SqDist(this Vector3 a, Vector3 b)
         {
             float dx = a.X - b.X;
@@ -326,6 +353,13 @@ namespace Ship_Game
         public static void Swap(ref Vector2 a, ref Vector2 b)
         {
             Vector2 tmp = a;
+            a = b;
+            b = tmp;
+        }
+
+        public static void Swap(ref Vector3 a, ref Vector3 b)
+        {
+            Vector3 tmp = a;
             a = b;
             b = tmp;
         }

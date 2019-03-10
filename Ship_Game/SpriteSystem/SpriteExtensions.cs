@@ -114,7 +114,6 @@ namespace Ship_Game
                        color, rotation, origin, effects, layerDepth);
         }
 
-
         public static void DrawString(
             this SpriteBatch batch, SpriteFont font, string text, float x, float y)
         {
