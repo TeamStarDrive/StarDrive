@@ -162,8 +162,11 @@ namespace Ship_Game.Ships
         public Array<Empire> BorderCheck  = new Array<Empire>();
 
         public float FTLModifier { get; private set; } = 1f;
-        public float BaseCost { get; private set; }
+        public float BaseCost    { get; private set; }
         public Planet HomePlanet { get; private set; }
+        public bool TransportingColonists  { get; set; }
+        public bool TransportingFood       { get; set; }
+        public bool TransportingProduction { get; set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
@@ -504,56 +507,6 @@ namespace Ship_Game.Ships
                     Carrier.ScrambleFighters();
                 else
                     Carrier.RecoverFighters();
-            }
-        }
-
-        public bool DoingTransport
-        {
-            get => AI.State == AIState.SystemTrader;
-            set
-            {
-                TransportingProduction = value;
-                TransportingFood = value;
-            }
-        }
-
-        public bool DoingFoodTransport => TransportingFood;
-        public bool DoingProdTransport => TransportingProduction;
-        public bool DoingPassengerTransport => TransportingPassengers;
-
-        private bool TPassengers;
-        public bool TransportingPassengers
-        {
-            get => TPassengers;
-            set
-            {
-                TPassengers = value;
-                if (!value)
-                    AI.State = AIState.AwaitingOrders;
-            }
-        }
-
-        private bool TFood;
-        public bool TransportingFood
-        {
-            get => TFood;
-            set
-            {
-                TFood = value;
-                if (!value)
-                    AI.State = AIState.AwaitingOrders;
-            }
-        }
-
-        private bool TProd;
-        public bool TransportingProduction
-        {
-            get => TProd;
-            set
-            {
-                TProd = value;
-                if (!value)
-                    AI.State = AIState.AwaitingOrders;
             }
         }
 
