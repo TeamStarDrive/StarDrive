@@ -296,12 +296,14 @@ namespace Ship_Game
                     sdata.TroopList        = ship.TroopList;
                     sdata.FightersLaunched = ship.FightersLaunched;
                     sdata.TroopsLaunched   = ship.TroopsLaunched;
-
-                    sdata.AreaOfOperation = ship.AreaOfOperation.Select(r => new RectangleData(r));
+                    sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
 
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
 
+                    sdata.TransportingFood       = ship.TransportingFood;
+                    sdata.TransportingProduction = ship.TransportingProduction;
+                    sdata.TransportingColonists  = ship.TransportingColonists;
                     sdata.AISave = new ShipAISave
                     {
                         State      = ship.AI.State
@@ -756,6 +758,9 @@ namespace Ship_Game
             [Serialize(24)] public bool FightersLaunched;
             [Serialize(25)] public bool TroopsLaunched;
             [Serialize(26)] public Guid HomePlanetGuid;
+            [Serialize(27)] public bool TransportingFood;
+            [Serialize(28)] public bool TransportingProduction;
+            [Serialize(29)] public bool TransportingColonists;
         }
 
         public class SolarSystemSaveData
