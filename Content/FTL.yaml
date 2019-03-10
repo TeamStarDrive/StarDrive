@@ -1,0 +1,82 @@
+﻿# This file controls FTL Animation parameters
+# and can be interactively changed while the game is running
+
+# We use multiple layers for the animations, each one of them
+# can have different duration/rotation/direction/scale
+
+# FTLLayer:
+#   Texture: Ships/FTL.xnb
+#   Duration: 0.6 # duration of the warp effect
+#   Rotation: 5.8 # radians per second
+#   FrontToBack: True # direction of the FTL animation move
+#   DebugGraphColor: [255,0,0]
+#   # SCALE curve over time
+#   # [relative_time, scale]
+#   # scale curve is auto smoothed using a quadratic S-curve approach
+#   ScaleCurve:
+#     - [0.0,  0.1]
+#     - [0.2, 40.0]
+#     - [0.4,  2.0]
+#     - [0.9,  0.0]
+#     - [1.0,  0.0]
+
+ # big flare
+FTLLayer:
+  Texture: FTL/BSG_warp2.dds
+  Duration: 0.8
+  Rotation: 5.8
+  FrontToBack: True
+  DebugGraphColor: [255,0,0] # RED
+  ScaleCurve:
+    - [0.0, 4.0]
+    - [0.2, 20.0]
+    - [0.4, 2.0]
+    - [0.6, 4.0]
+    - [0.8, 40.0]
+    - [1.0, 0.0]
+
+ # smaller flare in sync with big flare, rotating the other way
+FTLLayer:
+  Texture: FTL/BSG_warp1.dds
+  Duration: 0.8
+  Rotation: -5.8
+  FrontToBack: True
+  DebugGraphColor: [0,255,255] # MAGENTA
+  ScaleCurve:
+    - [0.0, 4.0]
+    - [0.5, 20.0]
+    - [1.0, 0.0]
+  ColorCurve:
+    - [0.0, 0.0]
+    - [0.3, 0.5]
+    - [0.4, 0.0]
+    - [0.6, 0.5]
+    - [1.0, 0.0]
+
+ # faster small flare, slightly ahead of the main flare
+FTLLayer:
+  Texture: FTL/BSG_warp1.dds
+  Duration: 0.6
+  Rotation: 2.4
+  FrontToBack: True
+  DebugGraphColor: [0,0,255] # BLUE
+  ScaleCurve:
+    - [0.0, 4.0]
+    - [0.5, 16.0]
+    - [1.0, 0.0]
+
+FTLLayer:
+  Texture: FTL/BSG_warp_iris.dds # big iris
+  Duration: 1.2
+  Rotation: -1.2
+  PositionFromLayer: 0 # sync position to huge flare
+  DebugGraphColor: [0,255,0] # GREEN
+  ScaleCurve:
+    - [0.2, 0.0]
+    - [0.9, 30.0]
+  ColorCurve:
+    - [0.1, 0.0]
+    - [0.4, 0.6]
+    - [0.8, 0.0]
+
+

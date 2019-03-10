@@ -62,7 +62,7 @@ namespace Ship_Game
         protected VideoPlayer VideoPlaying;
         protected Texture2D VideoTexture;
 
-        protected Matrix View, Projection;
+        public Matrix View, Projection;
 
         protected GameScreen(GameScreen parent, bool pause = true) 
             : this(parent, new Rectangle(0, 0, StarDriveGame.Instance.ScreenWidth, StarDriveGame.Instance.ScreenHeight), pause)
@@ -311,6 +311,12 @@ namespace Ship_Game
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        public Vector2 ProjectTo2D(Vector3 position)
+        {
+            return Viewport.ProjectTo2D(position, Projection, View);
+        }
+        
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // just draws a line, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

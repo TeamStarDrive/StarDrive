@@ -17,7 +17,7 @@ namespace Ship_Game.SpriteSystem
         public Texture2D Texture;
         public bool NoPack; // This texture should not be packed
 
-        public override string ToString() => $"X:{X} Y:{Y} W:{Width} H:{Height} Name:{Name} Type:{Type}";
+        public override string ToString() => $"X:{X} Y:{Y} W:{Width} H:{Height} Name:{Name} Type:{Type} Format:{Texture?.Format.ToString() ?? ""}";
 
         public Color[] GetColorData()
         {

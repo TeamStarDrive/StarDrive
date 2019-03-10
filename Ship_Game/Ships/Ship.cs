@@ -1097,7 +1097,8 @@ namespace Ship_Game.Ships
                 Center.InRadius(Empire.Universe.CamPos.ToVec2(), 100000f) && Empire.Universe.CamHeight < 250000)
             {
                 GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
-                FTLManager.AddFTL(Center);
+                
+                FTLManager.ExitFTL(GetPosition3D, Direction3D, Radius);
             }
 
             engineState = MoveState.Sublight;
@@ -1107,6 +1108,11 @@ namespace Ship_Game.Ships
             if (Velocity != Vector2.Zero) // return from warp with max STL speed
                 Velocity = Velocity.Normalized() * velocityMaximum;
             Speed = velocityMaximum;
+        }
+
+        Vector3 GetPosition3D()
+        {
+            return Center.ToVec3();
         }
 
         // validates speed limit
@@ -1250,7 +1256,7 @@ namespace Ship_Game.Ships
                 {
                     if (engineState == MoveState.Sublight)
                     {
-                        FTLManager.AddFTL(Center);
+                        FTLManager.EnterFTL(Center.ToVec3(), Direction3D, Radius);
                         engineState = MoveState.Warp;
                     }
                     else

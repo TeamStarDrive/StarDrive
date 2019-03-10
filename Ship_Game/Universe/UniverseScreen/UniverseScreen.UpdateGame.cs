@@ -281,11 +281,9 @@ namespace Ship_Game
             {
                 using (BombList.AcquireReadLock())
                 {
-                    for (int local_19 = 0; local_19 < BombList.Count; ++local_19)
+                    for (int i = 0; i < BombList.Count; ++i)
                     {
-                        Bomb local_20 = BombList[local_19];
-                        if (local_20 != null)
-                            local_20.Update(elapsedTime);
+                        BombList[i]?.Update(elapsedTime);
                     }
                 }
                 BombList.ApplyPendingRemovals();
@@ -294,7 +292,7 @@ namespace Ship_Game
             if (elapsedTime > 0)
             {
                 ShieldManager.Update();
-                FTLManager.Update(elapsedTime);
+                FTLManager.Update(this, elapsedTime);
 
                 for (int index = 0; index < JunkList.Count; ++index)
                     JunkList[index].Update(elapsedTime);

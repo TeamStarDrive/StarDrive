@@ -42,6 +42,12 @@ namespace Ship_Game
             }
         }
 
+        public SpriteAnimation(TextureAtlas atlas, float duration)
+        {
+            Atlas = atlas;
+            Start(duration);
+        }
+
         public void Start(float duration = 1f, float startAt = 0f, float delay = 0f)
         {
             CurrentTime = startAt.Clamped(startAt, duration);
@@ -137,33 +143,6 @@ namespace Ship_Game
             if (!IsVisible) return;
             SubTexture frame = Atlas[CurrentFrameId];
             sb.Draw(frame, r, c, rot, Vector2.Zero, e, 0.9f);
-        }
-    }
-
-    public class UISpriteElement : UIElementV2
-    {
-        public SpriteAnimation Animation;
-
-        public UISpriteElement(UIElementV2 parent, string atlasPath, bool autoStart = true)
-            : base(parent, Vector2.Zero)
-        {
-            Animation = new SpriteAnimation(parent.ContentManager, atlasPath, autoStart);
-            Size = new Vector2(Animation.Width, Animation.Height);
-        }
-
-        public override void Update(float deltaTime)
-        {
-            Animation.Update(deltaTime);
-        }
-
-        public override void Draw(SpriteBatch batch)
-        {
-            Animation.Draw(batch, Rect);
-        }
-
-        public override bool HandleInput(InputState input)
-        {
-            return false;
         }
     }
 }

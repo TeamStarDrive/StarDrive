@@ -15,10 +15,10 @@ namespace Ship_Game
                 MousePosition.Y -
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
             Vector3 position1 = Viewport.Unproject(
-                new Vector3(MousePosition.X, MousePosition.Y, 0.0f), projection, this.view, Matrix.Identity);
+                new Vector3(MousePosition.X, MousePosition.Y, 0.0f), Projection, this.View, Matrix.Identity);
             Vector3 direction1 =
                 Viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f),
-                    projection, this.view, Matrix.Identity) - position1;
+                    Projection, this.View, Matrix.Identity) - position1;
             direction1.Normalize();
             Ray ray = new Ray(position1, direction1);
             float num1 = -ray.Position.Z / ray.Direction.Z;
@@ -29,14 +29,14 @@ namespace Ship_Game
                           Matrix.CreateLookAt(new Vector3(CamPos.X, CamPos.Y, DesiredCamHeight),
                               new Vector3(CamPos.X, CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Vector3 vector3 =
-                Viewport.Project(source, projection, view, Matrix.Identity);
+                Viewport.Project(source, Projection, view, Matrix.Identity);
             Vector2 vector2_2 = new Vector2((int) vector3.X - vector2_1.X,
                 (int) vector3.Y - vector2_1.Y);
             Vector3 position2 = Viewport.Unproject(
-                new Vector3(vector2_2.X, vector2_2.Y, 0.0f), projection, view, Matrix.Identity);
+                new Vector3(vector2_2.X, vector2_2.Y, 0.0f), Projection, view, Matrix.Identity);
             Vector3 direction2 =
                 Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 1f),
-                    projection, view, Matrix.Identity) - position2;
+                    Projection, view, Matrix.Identity) - position2;
             direction2.Normalize();
             ray = new Ray(position2, direction2);
             float num2 = -ray.Position.Z / ray.Direction.Z;
