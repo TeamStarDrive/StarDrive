@@ -296,7 +296,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public static void DrawList(UniverseScreen us, SpriteBatch batch, 
+        public static void DrawList(UniverseScreen us, SpriteBatch batch,
                                     IReadOnlyList<Projectile> projectiles)
         {
             int count = projectiles.Count;
@@ -312,6 +312,7 @@ namespace Ship_Game.Gameplay
                     us.DrawStringProjected(p.Center + new Vector2(16), 50f, Color.Red, "Jammed");
                 }
             }
+
         }
 
         public void DamageMissile(GameplayObject source, float damageAmount)
