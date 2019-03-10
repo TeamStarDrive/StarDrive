@@ -15,6 +15,15 @@ namespace Ship_Game.GameScreens.MainMenu
      */
     class MainMenuShip
     {
+        const float FirstWarpInDelay = 3;
+        const float MinTimeCoasting = 30;
+        const float MinTimeInDeepSpace = 10;
+
+        static float RandomDuration(float min)
+        {
+            return RandomMath.AvgRandomBetween(min, min*1.5f);
+        }
+
         abstract class ShipState
         {
             protected readonly MainMenuShip Ship;
@@ -58,7 +67,7 @@ namespace Ship_Game.GameScreens.MainMenu
             float Speed = 10f; // forward speed in units/s
             bool Spooling;
             bool EnteringFTL;
-            public CoastingAcrossScreen(MainMenuShip ship) : base(ship, 4/*RandomMath.RandomBetween(30, 40)*/)
+            public CoastingAcrossScreen(MainMenuShip ship) : base(ship, RandomDuration(MinTimeCoasting))
             {
                 NextState = () => new WarpingOut(ship);
             }
@@ -127,7 +136,7 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 Start = ship.Position;
                 End   = ship.Position + ship.Forward * 50000f;
-                NextState = () => new IdlingInDeepSpace(ship, 2f);
+                NextState = () => new IdlingInDeepSpace(ship, RandomDuration(MinTimeInDeepSpace));
             }
             public override bool Update(float deltaTime)
             {
@@ -248,7 +257,7 @@ namespace Ship_Game.GameScreens.MainMenu
             if (DebugMeshInspect) BaseScale *= 4.0f;
 
             Screen.AddObject(ShipObj);
-            State = new IdlingInDeepSpace(this, 1);
+            State = new IdlingInDeepSpace(this, FirstWarpInDelay);
             UpdateTransform();
 
             FTLManager.LoadContent(Screen);

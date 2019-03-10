@@ -12,6 +12,7 @@ namespace Ship_Game
 	internal static class FTLManager
 	{
         static FTLLayerData[] FTLLayers;
+        static bool EnableDebugGraph = false;
         static UIGraphView DebugGraph;
 
         class FTLLayerData
@@ -100,7 +101,7 @@ namespace Ship_Game
                 if (FTL.ColorCurves != null)
                 {
                     float colorMul = FTL.ColorCurves.GetY(Time);
-                    DebugGraph?.AddTimedSample(colorMul*30f, FTL.DebugGraphColor.MultiplyRgb(0.5f));
+                    //DebugGraph?.AddTimedSample(colorMul*30f, FTL.DebugGraphColor.MultiplyRgb(0.5f));
                     color = color.MultiplyRgb(colorMul);
                 }
 
@@ -246,7 +247,10 @@ namespace Ship_Game
                 LoadContent(screen);
             }
 
-            DebugGraph = GetGraph(screen, "FTL_Debug_Graph", 0, 60);
+            if (EnableDebugGraph)
+            {
+                DebugGraph = GetGraph(screen, "FTL_Debug_Graph", 0, 60);
+            }
 
             using (Lock.AcquireWriteLock())
             {
