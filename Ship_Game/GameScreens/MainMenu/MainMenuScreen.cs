@@ -254,7 +254,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             UpdateMainMenuShips(gameTime);
 
-            //GameAudio.Update3DSound(CamPos);
+            GameAudio.Update3DSound(CamPos);
             FTLManager.Update(this, DeltaTime);
 
             ScreenManager.UpdateSceneObjects(gameTime);
