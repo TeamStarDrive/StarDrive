@@ -168,7 +168,6 @@ namespace Ship_Game
             {
                 if (FTLLayers != null)
                 {
-                    Log.Info(ConsoleColor.DarkRed, "FTLManager.Unload");
                     Effects.Clear();
                     FTLLayers = null;
                 }
@@ -241,11 +240,6 @@ namespace Ship_Game
 		{
             if (deltaTime <= 0f)
                 return;
-
-            if (FTLLayers == null)
-            {
-                LoadContent(screen);
-            }
 
             if (EnableDebugGraph)
             {

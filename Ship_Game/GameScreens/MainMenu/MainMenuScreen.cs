@@ -12,14 +12,14 @@ namespace Ship_Game.GameScreens.MainMenu
 {
     public sealed class MainMenuScreen : GameScreen
     {
-        readonly MainMenuShip Ship;
+        Array<MainMenuShip> Ships = new Array<MainMenuShip>();
         UIElementContainer VersionArea;
+        Vector3 CamPos;
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
             TransitionOnTime  = 1.0f;
             TransitionOffTime = 0.5f;
-            Ship = new MainMenuShip(this);
         }
         
         static void OnModChanged(FileInfo info)
@@ -70,11 +70,12 @@ namespace Ship_Game.GameScreens.MainMenu
             list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
             
-            Ship.InitRandomShip();
+            FTLManager.LoadContent(this);
+            CreateMainMenuFleet();
 
-            var camPos = new Vector3(0f, 0f, -1000f);
+            CamPos = new Vector3(0f, 0f, -1000f);
             var lookAt = new Vector3(0f, 0f, 10000f);
-            View = Matrix.CreateLookAt(camPos, lookAt, Vector3.Down);
+            View = Matrix.CreateLookAt(CamPos, lookAt, Vector3.Down);
             Projection = Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f);
 
             if (Find("blacbox_animated_logo", out UIPanel logo))
@@ -147,6 +148,46 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
+        void CreateMainMenuFleet()
+        {
+            //const float FirstWarpInDelay = 3;
+            //const float MinTimeCoasting = 30;
+            //const float MinTimeInDeepSpace = 10;
+            const float FirstWarpInDelay = 2;
+            const float MinTimeCoasting = 5;
+            const float MinTimeInDeepSpace = 4;
+
+            float Random(float value, float variance)
+            {
+                return RandomMath.RandomBetween(value, value*variance);
+            }
+
+            var fleetAI = new MainMenuShipAI(
+                () => new IdlingInDeepSpace(Random(FirstWarpInDelay, 1.5f)),
+                () => new WarpingIn(),
+                () => new CoastingAcrossScreen(Random(MinTimeCoasting, 1.2f)),
+                () => new WarpingOut(),
+                () => new IdlingInDeepSpace(Random(MinTimeInDeepSpace, 1.2f))
+            ) { Looping = false };
+
+            var r = new Vector3(-110, 152, -10);
+            Ships.Clear();
+            Ships.Add(new MainMenuShip(this, new Vector3(-490, -70, 250), r, fleetAI));
+            Ships.Add(new MainMenuShip(this, new Vector3(-289, -170, 1000), r, fleetAI));
+        }
+        
+        void UpdateMainMenuShips(GameTime gameTime)
+        {
+            foreach (var ship in Ships)
+                ship.Update(gameTime);
+            
+            // if all ship AI's have finished, create a new one
+            Ships.RemoveAllIf(ship => ship.AI.Finished);
+            if (Ships.IsEmpty)
+                CreateMainMenuFleet();
+        }
+
+
         void NewGame_Clicked(UIButton button)   => ScreenManager.AddScreen(new RaceDesignScreen(this));
         void Tutorials_Clicked(UIButton button) => ScreenManager.AddScreen(new TutorialScreen(this));
         void LoadGame_Clicked(UIButton button)  => ScreenManager.AddScreen(new LoadSaveScreen(this));
@@ -158,18 +199,14 @@ namespace Ship_Game.GameScreens.MainMenu
         void DevSandbox_Clicked(UIButton button)=> ScreenManager.GoToScreen(new DeveloperSandbox(), clear3DObjects: true);
         void Exit_Clicked(UIButton button)      => ExitScreen();
 
-        public override void Draw(SpriteBatch batch)
-        {
-            DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
-            Ship?.Draw(batch);
-        }
 
         public override bool HandleInput(InputState input)
         {
             if (!IsActive)
                 return false;
 
-            Ship?.HandleInput(input);
+            foreach (var ship in Ships)
+                ship.HandleInput(input);
 
             // handle buttons and stuff
             if (base.HandleInput(input))
@@ -213,11 +250,13 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
-
-
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            Ship?.Update(gameTime);
+            UpdateMainMenuShips(gameTime);
+
+            //GameAudio.Update3DSound(CamPos);
+            FTLManager.Update(this, DeltaTime);
+
             ScreenManager.UpdateSceneObjects(gameTime);
             
             if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
@@ -238,6 +277,15 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+        }
+
+        public override void Draw(SpriteBatch batch)
+        {
+            DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
+            foreach (var ship in Ships)
+                ship.Draw(batch);
+
+            FTLManager.DrawFTLModels(batch, this);
         }
     }
 }
