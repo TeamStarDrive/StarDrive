@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi.Interfaces;
 
 namespace Ship_Game.Audio
 {
@@ -19,8 +21,7 @@ namespace Ship_Game.Audio
             {
                 try
                 {
-                    var enumerator = new MMDeviceEnumerator();
-                    return enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).ToArrayList();
+                    return Enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).ToArrayList();
                 }
                 catch (Exception e)
                 {
@@ -36,8 +37,7 @@ namespace Ship_Game.Audio
             {
                 try
                 {
-                    var enumerator = new MMDeviceEnumerator();
-                    return enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                    return Enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
                 }
                 catch (Exception e)
                 {
@@ -59,6 +59,8 @@ namespace Ship_Game.Audio
             GlobalStats.SoundDevice = Id(newDevice);
         }
 
+        public static bool UserPrefersDefaultDevice => "Default".Equals(GlobalStats.SoundDevice, StringComparison.OrdinalIgnoreCase);
+
         /**
          * Attempts to select an audio device
          * First it checks player preference
@@ -77,7 +79,7 @@ namespace Ship_Game.Audio
             Array<MMDevice> devices = Devices;
 
             string userDevice = GlobalStats.SoundDevice;
-            if ("Default".Equals(userDevice, StringComparison.OrdinalIgnoreCase))
+            if (UserPrefersDefaultDevice)
             {
                 if (defaultDevice != null)
                     return defaultDevice;
@@ -107,6 +109,93 @@ namespace Ship_Game.Audio
                 return devices[0];
             }
             return null;
+        }
+
+        static readonly MMDeviceEnumerator Enumerator;
+        static AudioNotificationClient NotificationClient;
+        static readonly SafeQueue<DeviceEvent> Events = new SafeQueue<DeviceEvent>();
+
+        static AudioDevices()
+        {
+            Enumerator = new MMDeviceEnumerator();
+            NotificationClient = new AudioNotificationClient();
+            Enumerator.RegisterEndpointNotificationCallback(NotificationClient);
+        }
+
+        enum EventType
+        {
+            DefaultChanged,
+            Added,
+            Removed
+        }
+
+        struct DeviceEvent
+        {
+            public EventType Type;
+            public string DeviceId;
+        }
+
+        internal static void HandleEvents()
+        {
+            if (Events.TryDequeue(out DeviceEvent evt))
+            {
+                switch (evt.Type)
+                {
+                    case EventType.DefaultChanged:
+                        // if user has chosen default device
+                        if (UserPrefersDefaultDevice && Id(CurrentDevice) != evt.DeviceId)
+                        {
+                            GameAudio.ReloadAfterDeviceChange(null);
+                        }
+                        break;
+                    case EventType.Added:
+                        // we didn't have any device (all speakers unplugged?)
+                        if (CurrentDevice == null)
+                        {
+                            GameAudio.ReloadAfterDeviceChange(null);
+                        }
+                        break;
+                    case EventType.Removed:
+                        // if current device was removed, auto-pick new
+                        if (Id(CurrentDevice) == evt.DeviceId)
+                        {
+                            GameAudio.ReloadAfterDeviceChange(null);
+                        }
+                        break;
+                }
+            }
+        }
+
+        class AudioNotificationClient : IMMNotificationClient
+        {
+            public AudioNotificationClient()
+            {
+                if (Environment.OSVersion.Version.Major < 6)
+                    throw new NotSupportedException("This functionality is only supported on Windows Vista or newer.");
+            }
+
+            public void OnDefaultDeviceChanged(DataFlow dataFlow, Role deviceRole, string defaultDeviceId)
+            {
+                Events.Enqueue(new DeviceEvent{ Type = EventType.DefaultChanged, DeviceId = defaultDeviceId});
+            }
+
+            public void OnDeviceAdded(string deviceId)
+            {
+                Events.Enqueue(new DeviceEvent{ Type = EventType.Added, DeviceId = deviceId});
+            }
+
+            public void OnDeviceRemoved(string deviceId)
+            {
+                Events.Enqueue(new DeviceEvent{ Type = EventType.Removed, DeviceId = deviceId});
+            }
+
+            public void OnDeviceStateChanged(string deviceId, DeviceState newState)
+            {
+            }
+
+            public void OnPropertyValueChanged(string deviceId, PropertyKey propertyKey)
+            {
+            }
         }
     }
 }
