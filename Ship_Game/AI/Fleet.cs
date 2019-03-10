@@ -1126,7 +1126,7 @@ namespace Ship_Game.AI
             return stillMissionEffective;
         }
 
-        void InvadeTactics(Array<Ship> flankShips, string type, Vector2 moveTo)
+        void InvadeTactics(Array<Ship> flankShips, InvasionTactics type, Vector2 moveTo)
         {
             foreach (Ship ship in flankShips)
             {
@@ -1140,19 +1140,19 @@ namespace Ship_Game.AI
                 ai.FleetNode.DefenderWeight = 1f;
                 ai.FleetNode.OrdersRadius = ship.maxWeaponsRange;
                 switch (type) {
-                    case "screen":
+                    case InvasionTactics.Screen:
                         if (!ship.InCombat)
                             ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, false);
                         break;
-                    case "rear":
+                    case InvasionTactics.Rear:
                         if (!ai.HasPriorityOrder)
                             ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, false, Speed * 0.75f);
                         break;
-                    case "center":
+                    case InvasionTactics.Center:
                         if (!ship.InCombat || (ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber))
                             ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, false);
                         break;
-                    case "side":
+                    case InvasionTactics.Side:
                         if (!ship.InCombat)
                             ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, false);
                         break;
@@ -1160,15 +1160,23 @@ namespace Ship_Game.AI
             }
         }
 
+        private enum InvasionTactics
+        {
+            Screen,
+            Center,
+            Side,
+            Rear
+        }
+
         bool EscortingToPlanet(MilitaryTask task)
         {
             Vector2 targetPos = task.TargetPlanet.Center;
             AttackEnemyStrengthClumpsInAO(task);
-            InvadeTactics(ScreenShips, "screen", targetPos);
-            InvadeTactics(CenterShips, "center", targetPos);
-            InvadeTactics(RearShips, "rear", targetPos);
-            InvadeTactics(RightShips, "side", targetPos);
-            InvadeTactics(LeftShips, "side", targetPos);
+            InvadeTactics(ScreenShips, InvasionTactics.Screen, targetPos);
+            InvadeTactics(CenterShips, InvasionTactics.Center, targetPos);
+            InvadeTactics(RearShips, InvasionTactics.Rear, targetPos);
+            InvadeTactics(RightShips, InvasionTactics.Rear, targetPos);
+            InvadeTactics(LeftShips, InvasionTactics.Side, targetPos);
 
             return !task.TargetPlanet.AnyOfOurTroops(Owner) || Ships.Any(bombers => bombers.AI.State == AIState.Bombard);
         }
@@ -1195,7 +1203,7 @@ namespace Ship_Game.AI
         }
 
         // @return TRUE if any ships are bombing planet
-        // Bombing is done if we have no ground strength or if 
+        // Bombing is done if we have no ground strength or if
         // there are more than provided free spaces (???)
         bool BombPlanet(float ourGroundStrength, MilitaryTask task , int freeSpacesNeeded = 5)
         {
@@ -1387,7 +1395,7 @@ namespace Ship_Game.AI
                     SetCombatMoveAtPosition(ship, Position, 7500);
                 }
                 AddShip(ship, true);
-                ReadyForWarp = ReadyForWarp && ship.ShipReadyForWarp();
+                ReadyForWarp = ReadyForWarp && ship.ShipReadyForWarp() > ShipStatus.Poor;
             }
             Ships.ApplyPendingRemovals();
 
