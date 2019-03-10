@@ -210,8 +210,10 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goals.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Movement.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.OrderAction.cs" />
+    <Compile Include="Ship_Game\Audio\AudioDevices.cs" />
     <Compile Include="Ship_Game\Audio\AudioHandle.cs" />
     <Compile Include="Ship_Game\Audio\AudioInstance.cs" />
+    <Compile Include="Ship_Game\Audio\NAudioNotificationClient.cs" />
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
