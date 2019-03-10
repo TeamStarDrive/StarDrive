@@ -301,7 +301,7 @@ namespace Ship_Game
             {
                 string isDefault = (device.ID == defaultDevice.ID) ? "* " : "";
                 SoundDevices.AddOption($"{isDefault}{device.FriendlyName}", device);
-                if (device.ID == AudioDevices.CurrentDevice.ID)
+                if (!AudioDevices.UserPrefersDefaultDevice && device.ID == AudioDevices.CurrentDevice.ID)
                     SoundDevices.ActiveIndex = devices.IndexOf(device) + 1;
             }
 

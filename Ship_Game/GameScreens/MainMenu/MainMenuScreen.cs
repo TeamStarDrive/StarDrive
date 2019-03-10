@@ -265,11 +265,8 @@ namespace Ship_Game.GameScreens.MainMenu
                 c.SetDirection(new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f));
             }
 
-            if (!GlobalStats.HasMod || GlobalStats.ActiveMod.MainMenuMusic.IsEmpty())
-            {
-                if (!IsExiting && ScreenManager.Music.IsStopped)
-                    ResetMusic();
-            }
+            if (!IsExiting && ScreenManager.Music.IsStopped)
+                ResetMusic();
 
             if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
             {

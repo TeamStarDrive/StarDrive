@@ -125,6 +125,8 @@ namespace Ship_Game.Audio
             ThisFrameSfxCount = 0;
             DisposeStoppedInstances();
 
+            AudioDevices.HandleEvents();
+
             AudioEngine?.Update();
         }
 
