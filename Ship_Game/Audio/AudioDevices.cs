@@ -112,14 +112,14 @@ namespace Ship_Game.Audio
         }
 
         static readonly MMDeviceEnumerator Enumerator;
-        static AudioNotificationClient NotificationClient;
+        static AudioNotificationClient EventHandler;
         static readonly SafeQueue<DeviceEvent> Events = new SafeQueue<DeviceEvent>();
 
         static AudioDevices()
         {
             Enumerator = new MMDeviceEnumerator();
-            NotificationClient = new AudioNotificationClient();
-            Enumerator.RegisterEndpointNotificationCallback(NotificationClient);
+            EventHandler = new AudioNotificationClient();
+            Enumerator.RegisterEndpointNotificationCallback(EventHandler);
         }
 
         enum EventType
@@ -137,7 +137,7 @@ namespace Ship_Game.Audio
 
         internal static void HandleEvents()
         {
-            if (Events.TryDequeue(out DeviceEvent evt))
+            while (Events.TryDequeue(out DeviceEvent evt))
             {
                 switch (evt.Type)
                 {
