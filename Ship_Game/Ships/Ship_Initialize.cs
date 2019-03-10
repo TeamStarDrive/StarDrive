@@ -193,7 +193,7 @@ namespace Ship_Game.Ships
 
             TransportingFood       = save.TransportingFood;
             TransportingProduction = save.TransportingProduction;
-            TransportingPassengers = save.TransportingPassengers;
+            TransportingColonists  = save.TransportingColonists;
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.Name;

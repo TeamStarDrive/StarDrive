@@ -2445,7 +2445,7 @@ namespace Ship_Game
                     closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingFood);
                     break;
                 case Goods.Colonists:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.DoingPassengerTransport);
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingColonists);
                     break;
             }
             return closestIdleFreighter;
