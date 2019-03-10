@@ -44,7 +44,6 @@ namespace Ship_Game
 
         // @todo Get rid of all global locks
         public static object ClickableSystemsLock = new object();
-        public static object OwnedPlanetsLock     = new object();
         public static object ClickableItemLocker  = new object();
         public static object TaskLocker           = new object();
         public static object FleetButtonLocker    = new object();
@@ -52,7 +51,6 @@ namespace Ship_Game
 
         public static bool ShowAllDesigns        = true;
         public static int ModulesMoved           = 0;
-        public static int DSCombatScans          = 0;
         public static int BeamTests              = 0;
         public static int ModuleUpdates          = 0;
         public static int WeaponArcChecks        = 0;
@@ -101,14 +99,7 @@ namespace Ship_Game
         public static bool DisableAsteroids;
 
         public static int ShipCountLimit;
-        public static float spaceroadlimit          = .025f;
         public static int FreighterLimit            = 50;
-        public static int ScriptedTechWithin        = 6;
-
-        public static float DefensePlatformLimit    = .025f;
-        public static ReaderWriterLockSlim UiLocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        public static int BeamOOM                   = 0;
-        public static string bugTracker             = "";
 
         public static int AutoSaveFreq = 300;   //Added by Gretman
         public static bool CornersGame = false;     //Also added by Gretman
@@ -131,6 +122,7 @@ namespace Ship_Game
         public static bool RenderBloom    = true;
         public static float MusicVolume   = 0.7f;
         public static float EffectsVolume = 1f;
+        public static string SoundDevice = "Default"; // Use windows default device if not explicitly specified
         public static Language Language   = Language.English;
 
         // Render options
@@ -206,13 +198,14 @@ namespace Ship_Game
 
         #if DEBUG
             VerboseLogging = true;
-#endif
+        #endif
 
-#if PERF
+        #if PERF
             RestrictAIPlayerInteraction = true;
-#endif
+        #endif
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
             if (int.TryParse(GetSetting("EffectsVolume"), out int fxVol))  EffectsVolume = fxVol / 100f;
+            GetSetting("SoundDevice", ref SoundDevice);
             GetSetting("Language", ref Language);
             GetSetting("XRES", ref XRES);
             GetSetting("YRES", ref YRES);
@@ -324,13 +317,14 @@ namespace Ship_Game
 
             WriteSetting(config, "MusicVolume",   (int)(MusicVolume * 100));
             WriteSetting(config, "EffectsVolume", (int)(EffectsVolume * 100));
-            WriteSetting(config, "Language",           Language);
-            WriteSetting(config, "XRES",               XRES);
-            WriteSetting(config, "YRES",               YRES);
-            WriteSetting(config, "CameraPanSpeed",     CameraPanSpeed);
-            WriteSetting(config, "VerboseLogging",     VerboseLogging);
-            WriteSetting(config, "TestLoad",           TestLoad);
-            WriteSetting(config, "PreLoad",            PreLoad);
+            WriteSetting(config, "SoundDevice",    SoundDevice);
+            WriteSetting(config, "Language",       Language);
+            WriteSetting(config, "XRES",           XRES);
+            WriteSetting(config, "YRES",           YRES);
+            WriteSetting(config, "CameraPanSpeed", CameraPanSpeed);
+            WriteSetting(config, "VerboseLogging", VerboseLogging);
+            WriteSetting(config, "TestLoad",       TestLoad);
+            WriteSetting(config, "PreLoad",        PreLoad);
 
             config.Save();
             ConfigurationManager.RefreshSection("appSettings");
