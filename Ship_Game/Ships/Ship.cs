@@ -162,11 +162,11 @@ namespace Ship_Game.Ships
         public Array<Empire> BorderCheck  = new Array<Empire>();
 
         public float FTLModifier { get; private set; } = 1f;
-        public float BaseCost { get; private set; }
+        public float BaseCost    { get; private set; }
         public Planet HomePlanet { get; private set; }
-        public bool TransportingPassengers { get; private set; }
-        public bool TransportingFood       { get; private set; }
-        public bool TransportingProduction { get; private set; }
+        public bool TransportingColonists  { get; set; }
+        public bool TransportingFood       { get; set; }
+        public bool TransportingProduction { get; set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
@@ -508,25 +508,6 @@ namespace Ship_Game.Ships
                 else
                     Carrier.RecoverFighters();
             }
-        }
-
-        public bool DoingFoodTransport
-        {
-            get => TransportingFood;
-            set => TransportingFood = value;
-        }
-
-        public bool DoingProdTransport
-        {
-            get => TransportingProduction;
-            set => TransportingProduction = value;
-        }
-
-
-        public bool DoingPassengerTransport
-        {
-            get => TransportingPassengers;
-            set => TransportingPassengers = value;
         }
 
         public bool DoingExplore

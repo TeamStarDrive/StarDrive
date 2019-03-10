@@ -478,7 +478,7 @@ namespace Ship_Game
 
         private void CreateStartingShips()
         {
-            if (StarDate > 1000f) // new game
+            if (StarDate > 1000f) // not a new game
                 return;
 
             foreach (Empire empire in EmpireManager.Empires)
