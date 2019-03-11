@@ -684,6 +684,7 @@ namespace Ship_Game
             Array.Clear(Items, Count, count);
         }
 
+
         public int IndexOf(Predicate<T> match)
         {
             unchecked
@@ -790,6 +791,22 @@ namespace Ship_Game
         {
             if (!list.ContainsRef(item))
                 list.Add(item);
+        }
+
+        public static void RemoveInActiveObjects<T>(this Array<T> list) where T : GameplayObject
+        {
+            int size = 0;
+            int count = list.Count;
+            T[] items = list.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                if (items[i].Active)
+                {
+                    items[size] = items[i];
+                    ++size;
+                }
+            }
+            list.Resize(size);
         }
 
         public static int IndexOfRef<T>(this Array<T> list, T item) where T : class

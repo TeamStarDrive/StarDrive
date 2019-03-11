@@ -498,16 +498,13 @@ namespace Ship_Game
 
         void UpdatePlanetaryProjectiles(float elapsedTime)
         {
+            if (elapsedTime <= 0f) return;
             for (int i = Projectiles.Count - 1; i >= 0; --i)
             {
-                Projectile projectile = Projectiles[i];
-                if (projectile.Active)
-                {
-                    if (elapsedTime > 0f)
-                        projectile.Update(elapsedTime);
-                }
-                else Projectiles.RemoveAtSwapLast(i);
+                Projectile p = Projectiles[i];
+                if (p.Active) p.Update(elapsedTime);
             }
+            Projectiles.RemoveInActiveObjects();
         }
 
         public void TerraformExternal(float amount)

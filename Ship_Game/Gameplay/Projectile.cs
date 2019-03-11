@@ -9,6 +9,7 @@ using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -22,7 +23,7 @@ namespace Ship_Game.Gameplay
         public int ArmorPiercing;
         public bool IgnoresShields;
         public string WeaponType;
-        private MissileAI MissileAI;
+        MissileAI MissileAI;
         public float VelocityMax;
         public float Speed;
         public float Range;        
@@ -33,22 +34,22 @@ namespace Ship_Game.Gameplay
         public bool Explodes;
         public ShipModule Module;
         public string WeaponEffectType;
-        private ParticleEmitter TrailEmitter;
-        private ParticleEmitter FiretrailEmitter;
-        private SceneObject ProjSO; // this is null for sprite based projectiles
+        ParticleEmitter TrailEmitter;
+        ParticleEmitter FiretrailEmitter;
+        SceneObject ProjSO; // this is null for sprite based projectiles
         public Matrix WorldMatrix { get; private set; }
         public string InFlightCue = "";
         public AudioEmitter Emitter = new AudioEmitter();
         public bool Miss;
         public Empire Loyalty;
-        private float InitialDuration;
+        float InitialDuration;
         public float RotationRadsPerSecond;
         public DroneAI DroneAI { get; private set; }
         public Weapon Weapon;
         public string ModelPath;
-        private float ZStart = -25f;
-        private float ParticleDelay;
-        private PointLight Light;
+        float ZStart = -25f;
+        float ParticleDelay;
+        PointLight Light;
         public bool FirstRun = true;
 
         SpriteAnimation Animation;
@@ -58,13 +59,13 @@ namespace Ship_Game.Gameplay
         public bool DieSound;
         readonly AudioHandle InFlightSfx = new AudioHandle();
         public string DieCueName = "";
-        private bool LightWasAddedToSceneGraph;
-        private bool UsesVisibleMesh;
-        private bool MuzzleFlashAdded;
+        bool LightWasAddedToSceneGraph;
+        bool UsesVisibleMesh;
+        bool MuzzleFlashAdded;
         public Vector2 FixedError;
         public bool ErrorSet = false;
         public bool FlashExplode;
-        private bool InFrustrum;
+        bool InFrustum;
    
 
         public Ship Owner { get; protected set; }
@@ -119,6 +120,7 @@ namespace Ship_Game.Gameplay
             };
             projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false);
             projectile.Duration = pdata.Duration; // apply duration from save data
+            projectile.FirstRun = false;
             return projectile;
         }
 
@@ -196,7 +198,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private void LoadContent()
+        void LoadContent()
         {
             if (Weapon.Animated == 1)
             {
@@ -252,7 +254,6 @@ namespace Ship_Game.Gameplay
             if (MissileAI != null &&  Loyalty?.data.MissileDodgeChance >0 )
             {
                 jitter += RandomMath2.Vector2D(Loyalty.data.MissileDodgeChance * 80f);
-                
             }
             if ((Weapon?.Module?.WeaponECM ?? 0) > 0)
                 jitter += RandomMath2.Vector2D((Weapon?.Module.WeaponECM ?? 0) * 80f);
@@ -268,49 +269,46 @@ namespace Ship_Game.Gameplay
             if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade
                 && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(Owner))
                 return true;
-           
+            
             return false;
         }
 
-        bool ShouldDrawAsProjectile()
+        int LastDrawId;
+
+        public void Draw(SpriteBatch batch, GameScreen screen)
         {
-            // if not using visible mesh (rockets, etc), we draw a transparent mesh manually
-            InFrustrum = Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView 
+            int thisFrame = StarDriveGame.Instance.FrameId;
+            if (LastDrawId == thisFrame)
+            {
+                Log.Warning("Projectile.Draw called twice per frame!");
+                return;
+            }
+            LastDrawId = thisFrame;
+
+            InFrustum = Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView 
                          && Empire.Universe.Frustum.Contains(Center, Radius*100f);
-            return !UsesVisibleMesh && Active && InFrustrum;
-        }
+            if (!InFrustum)
+                return;
 
-        void DrawProjectile(UniverseScreen us, SpriteBatch batch)
-        {
-            if (Animation != null)
+            if (!UsesVisibleMesh)
             {
-                us.ProjectToScreenCoords(Center, -ZStart, 20f*Weapon.ProjectileRadius*Weapon.Scale,
-                    out Vector2 pos, out float size);
-
-                Animation.Draw(batch, pos, new Vector2(size), Rotation, 1f);
-            }
-            else
-            {
-                var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
-                us.DrawTransparentModel(projMesh, WorldMatrix, ProjectileTexture, Weapon.Scale);
-            }
-        }
-
-        public static void DrawList(UniverseScreen us, SpriteBatch batch, 
-                                    IReadOnlyList<Projectile> projectiles)
-        {
-            int count = projectiles.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                Projectile p = projectiles[i];
-                if (p.ShouldDrawAsProjectile())
+                if (Animation != null)
                 {
-                    p.DrawProjectile(us, batch);
+                    screen.ProjectToScreenCoords(Center, -ZStart, 20f*Weapon.ProjectileRadius*Weapon.Scale,
+                                                 out Vector2 pos, out float size);
+
+                    Animation.Draw(batch, pos, new Vector2(size), Rotation, 1f);
                 }
-                if (p.MissileAI != null && p.MissileAI.Jammed)
+                else
                 {
-                    us.DrawStringProjected(p.Center + new Vector2(16), 50f, Color.Red, "Jammed");
+                    var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
+                    screen.DrawTransparentModel(projMesh, WorldMatrix, ProjectileTexture, Weapon.Scale);
                 }
+            }
+
+            if (MissileAI != null && MissileAI.Jammed)
+            {
+                screen.DrawStringProjected(Center + new Vector2(16), 50f, Color.Red, "Jammed");
             }
         }
 
@@ -325,6 +323,12 @@ namespace Ship_Game.Gameplay
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
+            if (!Active)
+            {
+                Log.Error("Projectile.Die() called twice!");
+                return;
+            }
+
             ++DebugInfoScreen.ProjDied;
             if (Active)
             {
@@ -335,6 +339,7 @@ namespace Ship_Game.Gameplay
                     InFlightSfx.Stop();
 
                 ExplodeProjectile(cleanupOnly);
+
                 if (ProjSO != null)
                 {
                     Empire.Universe.RemoveObject(ProjSO);
@@ -353,6 +358,128 @@ namespace Ship_Game.Gameplay
             base.Die(source, cleanupOnly);
             Owner = null;
         }
+
+        public override void Update(float elapsedTime)
+        {
+            if (!Active)
+            {
+                Log.Error("Projectile.Update() called when dead!");
+                return;
+            }
+
+            if (DieNextFrame)
+            {
+                Die(this, false);
+                return;
+            }
+            
+            Position += Velocity * elapsedTime;
+            if (Weapon.Animated == 1 && InFrustum)
+            {
+                Animation.Update(elapsedTime);
+            }
+
+            if (InFlightSfx.IsStopped)
+                InFlightSfx.PlaySfxAsync(InFlightCue, Emitter);
+
+            ParticleDelay -= elapsedTime;
+            if (Duration > 0f)
+            {
+                Duration -= elapsedTime;
+                if (Duration < 0f)
+                {
+                    Health = 0f;
+                    Die(null, false);
+                    return;
+                }
+            }
+            MissileAI?.Think(elapsedTime);
+            DroneAI?.Think(elapsedTime);
+            if (FirstRun && Module != null)
+            {
+                Position = Module.Center;
+                Center = Module.Center;
+                FirstRun = false;
+            }
+            else Center = Position;
+            Emitter.Position = new Vector3(Center, 0.0f);
+            if (InFrustum)
+            {
+                if (ZStart < -25.0)
+                    ZStart += VelocityMax * elapsedTime;
+                else
+                    ZStart = -25f;
+
+                WorldMatrix = Matrix.CreateScale(Weapon.Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Center.X, Center.Y, -ZStart);
+
+                if (UsesVisibleMesh) // lazy init rocket projectile meshes
+                {
+                    if (ProjSO == null)
+                    {
+                        ProjSO = new SceneObject(ResourceManager.ProjectileMeshDict[ModelPath])
+                        {
+                            Visibility = ObjectVisibility.Rendered,
+                            ObjectType = ObjectType.Dynamic
+                        };
+                        Empire.Universe.AddObject(ProjSO);
+                    }
+                    ProjSO.World = WorldMatrix;
+                }
+            }
+            var newPosition = new Vector3(Center.X, Center.Y, -ZStart);
+
+            if (FiretrailEmitter != null && InFrustum)
+            {
+                if (ParticleDelay <= 0.0f && Duration > 0.5)
+                {
+                    FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + Velocity.Normalized() * Speed * 1.75f);
+                }
+            }
+            if (TrailEmitter != null && InFrustum)
+            {
+                if (ParticleDelay <= 0.0f && Duration > 0.5)
+                {
+                    TrailEmitter.Update(elapsedTime, newPosition);
+                }
+            }
+
+            if (InFrustum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
+            {
+                LightWasAddedToSceneGraph = true;
+                var pos = new Vector3(Center.X, Center.Y, -25f);
+                Light = new PointLight
+                {
+                    Position   = pos,
+                    Radius     = 100f,
+                    World      = Matrix.CreateTranslation(pos),
+                    ObjectType = ObjectType.Dynamic,
+                    Intensity  = 1.7f,
+                    FillLight  = true,
+                    Enabled    = true
+                };
+                switch (Weapon.Light)
+                {
+                    case "Green":  Light.DiffuseColor = new Vector3(0.0f, 0.8f, 0.0f);  break;
+                    case "Red":    Light.DiffuseColor = new Vector3(1f, 0.0f, 0.0f);    break;
+                    case "Orange": Light.DiffuseColor = new Vector3(0.9f, 0.7f, 0.0f);  break;
+                    case "Purple": Light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f); break;
+                    case "Blue":   Light.DiffuseColor = new Vector3(0.0f, 0.8f, 1f);    break;
+                }
+                Empire.Universe.AddLight(Light);
+            }
+            else if (Weapon.Light != null && LightWasAddedToSceneGraph)
+            {
+                Light.Position = new Vector3(Center.X, Center.Y, -25f);
+                Light.World = Matrix.CreateTranslation(Light.Position);
+            }
+            if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon.MuzzleFlash != null && InFrustum)
+            {
+                MuzzleFlashAdded = true;
+                MuzzleFlashManager.AddFlash(this);
+            }
+            base.Update(elapsedTime);
+        }
+
 
         bool CloseEnoughForExplosion    => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SectorView;
         bool CloseEnoughForFlashExplode => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView;
@@ -548,12 +675,12 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        private void DebugTargetCircle()
+        void DebugTargetCircle()
         {
             Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
-        private void ArmourPiercingTouch(ShipModule module, Ship parent)
+        void ArmourPiercingTouch(ShipModule module, Ship parent)
         {
             // Doc: If module has resistance to Armour Piercing effects, 
             // deduct that from the projectile's AP before starting AP and damage checks
@@ -592,125 +719,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public override void Update(float elapsedTime)
-        {
-            if (!Active)
-                return;
-
-            if (DieNextFrame)
-            {
-                Die(this, false);
-                return;
-            }
-            
-            Position += Velocity * elapsedTime;
-            if (Weapon.Animated == 1 && InFrustrum)
-            {
-                Animation.Update(elapsedTime);
-            }
-
-            if (InFlightSfx.IsStopped)
-                InFlightSfx.PlaySfxAsync(InFlightCue, Emitter);
-
-            ParticleDelay -= elapsedTime;
-            if (Duration > 0f)
-            {
-                Duration -= elapsedTime;
-                if (Duration < 0f)
-                {
-                    Health = 0f;
-                    Die(null, false);
-                    return;
-                }
-            }
-            MissileAI?.Think(elapsedTime);
-            DroneAI?.Think(elapsedTime);
-            if (FirstRun && Module != null)
-            {
-                Position = Module.Center;
-                Center = Module.Center;
-                FirstRun = false;
-            }
-            else
-                Center = Position;
-            Emitter.Position = new Vector3(Center, 0.0f);
-            if (InFrustrum)
-            {
-                if (ZStart < -25.0)
-                    ZStart += VelocityMax * elapsedTime;
-                else
-                    ZStart = -25f;
-
-                WorldMatrix = Matrix.CreateScale(Weapon.Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Center.X, Center.Y, -ZStart);
-
-                if (UsesVisibleMesh) // lazy init rocket projectile meshes
-                {
-                    if (ProjSO == null)
-                    {
-                        ProjSO = new SceneObject(ResourceManager.ProjectileMeshDict[ModelPath])
-                        {
-                            Visibility = ObjectVisibility.Rendered,
-                            ObjectType = ObjectType.Dynamic
-                        };
-                        Empire.Universe.AddObject(ProjSO);
-                    }
-                    ProjSO.World = WorldMatrix;
-                }
-            }
-            var newPosition = new Vector3(Center.X, Center.Y, -ZStart);
-
-            if (FiretrailEmitter != null && InFrustrum)
-            {
-                if (ParticleDelay <= 0.0f && Duration > 0.5)
-                {
-                    FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + Velocity.Normalized() * Speed * 1.75f);
-                }
-            }
-            if (TrailEmitter != null && InFrustrum)
-            {
-                if (ParticleDelay <= 0.0f && Duration > 0.5)
-                {
-                    TrailEmitter.Update(elapsedTime, newPosition);
-                }
-            }
-
-            if (InFrustrum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
-            {
-                LightWasAddedToSceneGraph = true;
-                var pos = new Vector3(Center.X, Center.Y, -25f);
-                Light = new PointLight
-                {
-                    Position   = pos,
-                    Radius     = 100f,
-                    World      = Matrix.CreateTranslation(pos),
-                    ObjectType = ObjectType.Dynamic,
-                    Intensity  = 1.7f,
-                    FillLight  = true,
-                    Enabled    = true
-                };
-                switch (Weapon.Light)
-                {
-                    case "Green":  Light.DiffuseColor = new Vector3(0.0f, 0.8f, 0.0f);  break;
-                    case "Red":    Light.DiffuseColor = new Vector3(1f, 0.0f, 0.0f);    break;
-                    case "Orange": Light.DiffuseColor = new Vector3(0.9f, 0.7f, 0.0f);  break;
-                    case "Purple": Light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f); break;
-                    case "Blue":   Light.DiffuseColor = new Vector3(0.0f, 0.8f, 1f);    break;
-                }
-                Empire.Universe.AddLight(Light);
-            }
-            else if (Weapon.Light != null && LightWasAddedToSceneGraph)
-            {
-                Light.Position = new Vector3(Center.X, Center.Y, -25f);
-                Light.World = Matrix.CreateTranslation(Light.Position);
-            }
-            if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon.MuzzleFlash != null && InFrustrum)
-            {
-                MuzzleFlashAdded = true;
-                MuzzleFlashManager.AddFlash(this);
-            }
-            base.Update(elapsedTime);
-        }
-
         public void Dispose()
         {
             Dispose(true);
@@ -733,7 +741,7 @@ namespace Ship_Game.Gameplay
             AddEnergyParticleHitEffects(damageAmount, center);
         }
 
-        private void AddKineticParticleHitEffects(float damageAmount, Vector3 center)
+        void AddKineticParticleHitEffects(float damageAmount, Vector3 center)
         {
             if (Weapon?.Tag_Kinetic != true) return;
 
@@ -748,7 +756,7 @@ namespace Ship_Game.Gameplay
                 Empire.Universe.beamflashes.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
         }
 
-        private void AddEnergyParticleHitEffects(float damageAmount, Vector3 center)
+        void AddEnergyParticleHitEffects(float damageAmount, Vector3 center)
         {
             if (Weapon?.Tag_Energy != true) return;
             float flashChance  = GetHitProjectileFlashEmitChance(damageAmount);
@@ -776,14 +784,14 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
+        static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
 
-        private static float GetHitProjectileFlashEmitChance(float damage) => damage >= 1000f ? 100f : damage / 10f;
+        static float GetHitProjectileFlashEmitChance(float damage) => damage >= 1000f ? 100f : damage / 10f;
 
-        private static float GetHitProjectileBeamFlashEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
+        static float GetHitProjectileBeamFlashEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
 
-        private static float GetHitProjectileSparksEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
+        static float GetHitProjectileSparksEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
 
-        private static Vector3 GetBackgroundPos(Vector3 pos) => new Vector3(pos.X, pos.Y, pos.Z - 50f);
+        static Vector3 GetBackgroundPos(Vector3 pos) => new Vector3(pos.X, pos.Y, pos.Z - 50f);
     }
 }

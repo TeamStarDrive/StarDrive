@@ -132,17 +132,6 @@ namespace Ship_Game.Ships
             SubTexture symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
             SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
             SubTexture lightningBolt = ResourceManager.Texture("UI/lightningBolt");
-                        
-            if (false && us.DebugWin != null)
-            {
-                for (int i = 0; i < Projectiles.Count; i++)
-                {
-                    Projectile projectile = Projectiles[i];
-                    if (projectile == null) continue;
-                    us.DebugWin.DrawCircle(DebugModes.Targeting, projectile.Center, projectile.Radius, 1.5f);
-                    //us.DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
-                }
-            }
 
             float shipDegrees = (float)Math.Round(Rotation.ToDegrees());
             float shipRotation = shipDegrees.ToRadians();
@@ -157,9 +146,6 @@ namespace Ship_Game.Ships
                 float w = us.ProjectToScreenSize(moduleWidth);
                 float h = us.ProjectToScreenSize(moduleHeight);
                 Vector2 posOnScreen = us.ProjectToScreenPosition(slot.Center);
-                //us.ProjectToScreenCoords(slot.Center, moduleWidth, moduleHeight,
-                //                         out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen);
-
 
                 // round all the values to TRY prevent module flickering on screen
                 // it helps by a noticeable amount
@@ -317,52 +303,6 @@ namespace Ship_Game.Ships
             float size = ScaleIconSize(screenRadius, 16f, 16f);
             us.DrawTextureSized(statusIcon, screenPos + offSet, 0f, size, size, color);
             offSet.X += size * 1.2f;
-        }
-
-        public void DrawRepairDrones(UniverseScreen screen)
-        {
-            if (projectiles == null) return;
-            try //very bad but the UI thread calls this and it is occasionally null. 
-            {                
-                for (int i = projectiles.Count - 1; i >= 0; i--)
-                {
-                    //I am thinking this is very bad but im not sure. is it faster than a lock? whats the right way to handle this.
-                    Projectile projectile = projectiles[i];
-                    if (projectile?.Active != true) continue;
-                    if (projectile.DroneAI == null || projectile.Weapon?.IsRepairDrone == false) continue;
-                    for (int k = 0; k < projectile.DroneAI.Beams.Count; ++k)
-                        projectile.DroneAI.Beams[k]?.Draw(screen.ScreenManager);
-                }
-
-            }
-            catch
-            {
-                string projectilesCount = projectiles?.Count.ToString() ?? "Null";
-                Log.Error($"Goes with Bug #1404 : Repair Drone died while rendering");
-            }
-        }
-
-        public void DrawBeams(UniverseScreen screen)
-        {
-            if (Beams == null) return;
-            try
-            {
-                for (int i = Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
-                {
-                    Beam beam = Beams[i];
-                    if (beam?.Active != true) continue;
-                    if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
-                        beam.Draw(screen.ScreenManager);
-                    else
-                    {
-                        beam.Die(null, true);
-                    }
-                }
-            }
-            catch
-            {
-                Log.Warning("Goes with Bug #1404 : Beam Killed while rendering ");
-            }
         }
 
         public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, bool showModules, bool moduleHealthColor = true)
