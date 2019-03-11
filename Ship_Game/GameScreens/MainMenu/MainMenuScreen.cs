@@ -155,7 +155,7 @@ namespace Ship_Game.GameScreens.MainMenu
             //const float MinTimeInDeepSpace = 10;
             const float FirstWarpInDelay = 2;
             const float MinTimeCoasting = 5;
-            const float MinTimeInDeepSpace = 4;
+            const float MinTimeInDeepSpace = 2;
 
             float Random(float value, float variance)
             {
