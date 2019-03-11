@@ -552,8 +552,9 @@ namespace Ship_Game
                     for (int j = player.KnownShips.Count - 1; j >= 0; j--)
                     {
                         Ship ship = player.KnownShips[j];
-                        if (ship?.InFrustum != true || ship?.Active != true) continue;
-                        ship.DrawRepairDrones(this);
+                        if (ship?.InFrustum != true || ship?.Active != true)
+                            continue;
+                        ship.DrawDroneBeams(this);
                         ship.DrawBeams(this);                        
                     }
             }

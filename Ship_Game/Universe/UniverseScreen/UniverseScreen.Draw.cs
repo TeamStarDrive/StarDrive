@@ -429,18 +429,8 @@ namespace Ship_Game
             if (LookingAtPlanet && SelectedPlanet != null)
                 workersPanel?.Draw(batch);
 
-            DrawShipsInRange();
-
-            foreach (SolarSystem solarSystem in SolarSystemList)
-            {
-                if (!solarSystem.isVisible)
-                    continue;
-                for (int i = 0; i < solarSystem.PlanetList.Count; i++)
-                {
-                    Planet planet = solarSystem.PlanetList[i];
-                    Projectile.DrawList(this, batch, planet.Projectiles);
-                }
-            }
+            DrawShipsInRange(batch);
+            DrawPlanetProjectiles(batch);
 
             DrawTacticalPlanetIcons(batch);
             if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
@@ -638,6 +628,7 @@ namespace Ship_Game
             DrawCompletedEvt.Set();
         }
 
+
         private UILabel DebugText;
 
         private void HideDebugGameInfo()
@@ -724,7 +715,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawTacticalPlanetIcons(SpriteBatch batch)
+        void DrawTacticalPlanetIcons(SpriteBatch batch)
         {
             if (LookingAtPlanet || viewState <= UnivScreenState.SystemView 
                 ||viewState >= UnivScreenState.GalaxyView)
@@ -777,14 +768,14 @@ namespace Ship_Game
             }
         }
 
-        private void DrawItemInfoForUI()
+        void DrawItemInfoForUI()
         {
             var goal = SelectedItem?.AssociatedGoal;
             if (goal == null) return;
             DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);            
         }
 
-        private void DrawShipUI(GameTime gameTime)
+        void DrawShipUI(GameTime gameTime)
         {            
             lock (GlobalStats.FleetButtonLocker)
             {
@@ -842,7 +833,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawShipsInRange()
+        void DrawShipsInRange(SpriteBatch batch)
         {
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -858,8 +849,10 @@ namespace Ship_Game
             {
                 foreach (Ship ship in player.KnownShips)
                 {
-                    if (!ship.Active) continue;
-                    DrawShipProjectilesInRange(ship);
+                    if (viewState <= UnivScreenState.SystemView)
+                    {
+                        ship.DrawProjectiles(batch, this);
+                    }
                 }
             }
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
@@ -932,8 +925,30 @@ namespace Ship_Game
                 DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, .3f), Color.Orange, 2f); //
             }
         }
+        
+        void DrawPlanetProjectiles(SpriteBatch batch)
+        {
+            foreach (SolarSystem sys in SolarSystemList)
+            {
+                if (!sys.isVisible)
+                    continue;
 
-        private void DrawProjectedGroup()
+                Array<Planet> planets = sys.PlanetList;
+                for (int i = 0; i < planets.Count; i++)
+                {
+                    Planet planet = planets[i];
+                    using (planet.Projectiles.AcquireReadLock())
+                    {
+                        foreach (Projectile p in planets[i].Projectiles)
+                        {
+                            if (p.Active) p.Draw(batch, this);
+                        }
+                    }
+                }
+            }
+        }
+
+        void DrawProjectedGroup()
         {
             if (!Project.Started || CurrentGroup == null)
                 return;
@@ -989,7 +1004,7 @@ namespace Ship_Game
             ship.DrawTacticalIcon(this, viewState);
         }
 
-        private void DrawBombs()
+        void DrawBombs()
         {
             using (BombList.AcquireReadLock())
             {
@@ -1001,14 +1016,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawShipProjectilesInRange(Ship ship)
-        {
-            if (viewState > UnivScreenState.SystemView || !ship.InFrustum)
-                return;
-            Projectile.DrawList(this, ScreenManager.SpriteBatch, ship.Projectiles);
-        }
-
-        private void DrawShipLines(Ship ship, byte alpha)
+        void DrawShipLines(Ship ship, byte alpha)
         {
             if (ship == null)
                 return;
@@ -1240,12 +1248,6 @@ namespace Ship_Game
             posOffSet.Y += yOffSet;
             HelperFunctions.ClampVectorToInt(ref posOffSet);
             ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
-        }
-
-        public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)
-        {
-            DrawModelMesh(model, Matrix.CreateScale(scale) * world, View, new Vector3(1f, 1f, 1f), Projection, projTex);
-            Device.RenderState.DepthBufferWriteEnable = true;
         }
 
     }
