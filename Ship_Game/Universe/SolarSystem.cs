@@ -137,32 +137,14 @@ namespace Ship_Game
             if (Sun.RadiationDamage > 0f)
                 UpdateSolarRadiationDebug(elapsedTime);
 
-            for (int i = ShipList.Count - 1; i >= 0; --i)
+            for (int i = 0; i < ShipList.Count; ++i)
             {
                 Ship ship = ShipList[i];
-                if (!ship.ShipInitialized) continue;
-                if (ship.System == null)
-                    continue;
-
-                // added by gremlin ghost ship killer
-                if (!ship.Active || ship.ModuleSlotsDestroyed)
+                if (radiation && ship.Active)
                 {
-                    ship.Die(null, true);
+                    ApplySolarRadiationDamage(ship);
                 }
-                else
-                {
-                    if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
-                    {
-                        ship.Inhibited = true;
-                        ship.InhibitedTimer = 10f;
-                    }
-                    if (radiation)
-                    {
-                        ApplySolarRadiationDamage(ship);
-                    }
-
-                    ship.Update(elapsedTime);
-                }
+                ship.Update(elapsedTime);
             }
         }
 
