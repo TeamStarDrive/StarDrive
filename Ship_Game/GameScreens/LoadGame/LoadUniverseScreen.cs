@@ -309,11 +309,6 @@ namespace Ship_Game
             ship.AI.SystemToDefend = data.FindSystemOrNull(ship.AI.SystemToDefendGuid);
             ship.AI.EscortTarget   = data.FindShipOrNull(ship.AI.EscortTargetGuid);
             ship.AI.Target         = data.FindShipOrNull(ship.AI.TargetGuid);
-
-            foreach (Projectile p in ship.Projectiles)
-            {
-                p.FirstRun = false;
-            }
         }
     }
 }

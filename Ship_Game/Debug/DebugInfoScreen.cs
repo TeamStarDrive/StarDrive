@@ -312,7 +312,7 @@ namespace Ship_Game.Debug
                         Screen.DrawLineProjected(impactNoError, weapon.DebugLastImpactPredict, Color.DarkKhaki, 2f);
                     }
 
-                    Projectile projectile = ship.Projectiles.FirstOrDefault(p => p.Weapon == weapon);
+                    Projectile projectile = ship.CopyProjectiles().FirstOrDefault(p => p.Weapon == weapon);
                     if (projectile != null)
                     {
                         Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);
