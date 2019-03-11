@@ -213,7 +213,7 @@ namespace Ship_Game
         public float screenDelay    = 0f;
         public SubSpaceProjectors SubSpaceProjectors;
 
-        // for really specific debuggingD
+        // for really specific debugging
         public static int FrameId;
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
@@ -839,7 +839,7 @@ namespace Ship_Game
         //This will likely only work with "this UI\planetNamePointer" texture
         //Other textures might work but would need the x and y offset adjusted.
 
-        public void QueueGameplayObjectRemoval (GameplayObject gameplayObject)
+        public void QueueGameplayObjectRemoval(GameplayObject gameplayObject)
         {
             if (gameplayObject == null) return;
             GamePlayObjectToRemove.Add(gameplayObject);
@@ -847,8 +847,8 @@ namespace Ship_Game
 
         public void TotallyRemoveGameplayObjects()
         {
-            while (!GamePlayObjectToRemove.IsEmpty)
-                GamePlayObjectToRemove.PopLast().RemoveFromUniverseUnsafe();
+            while (GamePlayObjectToRemove.TryPopLast(out GameplayObject toRemove))
+                toRemove.RemoveFromUniverseUnsafe();
         }
 
         public void QueueShipToWorldScene(Ship ship)
@@ -858,19 +858,17 @@ namespace Ship_Game
 
         void AddShipSceneObjectsFromQueue()
         {
-            while (!ShipsToAddToWorld.IsEmpty)
+            while (ShipsToAddToWorld.TryPopLast(out Ship ship))
             {
-                var ship = ShipsToAddToWorld.PopLast();
-                if (!ship.Active) continue;
                 try
                 {
-                    ship.InitializeShipScene();
+                    if (ship.Active)
+                        ship.InitializeShipScene();
                 }
                 catch(Exception ex)
                 {
-                    Log.Error(ex,$"Crash attempting to create sceneobject. Destroying");
+                    Log.Error(ex, $"Ship '{ship.Name}' InitializeShipScene() failed. Abandoning ship.");
                     ship.RemoveFromUniverseUnsafe();
-
                 }
             }
         }
