@@ -36,7 +36,6 @@ namespace Ship_Game.Gameplay
             So.AffineTransform(Position3D, RotationRadians, Scale);
         }
 
-        //private static int LogicFlip = 0;
         public override void Update(float elapsedTime)
         {
              if (!Active
