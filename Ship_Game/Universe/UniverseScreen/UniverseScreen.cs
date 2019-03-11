@@ -867,7 +867,7 @@ namespace Ship_Game
                 }
                 catch(Exception ex)
                 {
-                    Log.Error(ex, $"Ship '{ship.Name}' InitializeShipScene() failed. Abandoning ship.");
+                    Log.Error(ex, $"Ship.InitializeShipScene() failed. Abandoning ship.");
                     ship.RemoveFromUniverseUnsafe();
                 }
             }
