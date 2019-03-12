@@ -42,9 +42,9 @@ namespace Ship_Game.GameScreens.MainMenu
                 }
                 else
                 {
-                    Current = null;
                     ++State;
                 }
+                Current = null;
 
                 // if out of bounds, then we're done
                 if (State >= States.Length)
@@ -113,28 +113,28 @@ namespace Ship_Game.GameScreens.MainMenu
         }
     }
 
-    class CoastingForward : ShipState
+    class FreighterCoast : ShipState
     {
-        bool Spooling;
-        bool EnteringFTL;
-        public CoastingForward(float duration) : base(duration)
+        public FreighterCoast(float duration) : base(duration)
+        {
+        }
+        public override bool Update(float deltaTime)
+        {
+            Ship.Position += deltaTime * Ship.Forward * Ship.Speed;
+            return base.Update(deltaTime);
+        }
+    }
+
+    class CoastWithRotate : ShipState
+    {
+        public CoastWithRotate(float duration) : base(duration)
         {
         }
         public override bool Update(float deltaTime)
         {
             // slow moves the ship across the screen
-            Ship.Rotation.Y += deltaTime * 0.06f;
+            Ship.Rotation.Y += deltaTime * 0.24f;
             Ship.Position += deltaTime * Ship.Forward * Ship.Speed;
-            if (!Spooling && Remaining < 3.2f)
-            {
-                Ship.PlaySfx("sd_warp_start_large");
-                Spooling = true;
-            }
-            if (!EnteringFTL && Remaining < 0.5f)
-            {
-                FTLManager.EnterFTL(Ship.Position, Ship.Forward, Ship.HalfLength);
-                EnteringFTL = true;
-            }
             return base.Update(deltaTime);
         }
     }
@@ -169,8 +169,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
             if (base.Update(deltaTime))
             {
-                
-                Ship.PlaySfx("sd_warp_stop");
+                if (!Ship.Spawn.DisableJumpSfx)
+                    Ship.PlaySfx("sd_warp_stop");
                 Ship.Position = End;
                 Ship.Scale = Vector3.One;
                 return true;
@@ -184,6 +184,8 @@ namespace Ship_Game.GameScreens.MainMenu
         Vector3 Start; // far right foreground
         Vector3 End;
         readonly Vector3 WarpScale = new Vector3(1, 4, 1);
+        float SpoolTimer;
+        bool EnteringFTL;
 
         public WarpingOut() : base(1f)
         {
@@ -192,10 +194,27 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             Start = ship.Position;
             End   = ship.Position + ship.Forward * 50000f;
+            if (!ship.Spawn.DisableJumpSfx)
+                ship.PlaySfx("sd_warp_start_large");
             base.Initialize(ship);
         }
         public override bool Update(float deltaTime)
         {
+            SpoolTimer += deltaTime;
+            if (SpoolTimer < 3.2f)
+            {
+                Ship.Position += deltaTime * Ship.Forward * Ship.Speed;
+
+                float remaining = 3.2f - SpoolTimer;
+                if (!EnteringFTL && remaining < 0.5f)
+                {
+                    FTLManager.EnterFTL(Ship.Position, Ship.Forward, Ship.HalfLength);
+                    EnteringFTL = true;
+                }
+                return false;
+            }
+
+            // spooling finished, begin warping and updating main timer:
             Ship.Position = Start.LerpTo(End, RelativeTime);
             Ship.Scale = WarpScale;
             if (base.Update(deltaTime))
