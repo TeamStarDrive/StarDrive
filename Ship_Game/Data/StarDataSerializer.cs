@@ -39,14 +39,12 @@ namespace Ship_Game.Data
     // And turn it into usable game objects
     internal class StarDataSerializer : TypeConverter
     {
-
-
         class Info
         {
             readonly Type Type;
             readonly PropertyInfo Prop;
             readonly FieldInfo Field;
-            public readonly TypeConverter Converter;
+            readonly TypeConverter Converter;
             readonly Type ListType; // this is an Array<ListType>
 
             public Info(Converters converters, PropertyInfo prop, FieldInfo field)
@@ -69,7 +67,23 @@ namespace Ship_Game.Data
                 return Field != null ? Field.GetValue(instance) : Prop.GetValue(instance);
             }
 
-            public void SetValue(object instance, object value)
+            object Deserialize(StarDataNode node, bool recursiveDeserialize)
+            {
+                if (recursiveDeserialize && node.HasItems) // we have sub-nodes, delegate to deserialize
+                {
+                    return Converter.Deserialize(node);
+                }
+
+                object value = node.Value;
+                if (value == null) // allow null, sometimes it's an override
+                    return null;
+                Type sourceT = value.GetType();
+                if (Type == sourceT)
+                    return value;
+                return Converter.Convert(value); // direct convert
+            }
+
+            public void SetValue(object instance, StarDataNode node, bool recursiveDeserialize)
             {
                 if (ListType != null)
                 {
@@ -78,17 +92,12 @@ namespace Ship_Game.Data
                         list = ArrayHelper.NewArrayOfT(ListType);
                         Set(instance, list);
                     }
-                    list.Add(value);
-                    return;
+                    list.Add(Deserialize(node, recursiveDeserialize));
                 }
-                
-                if (value != null)
+                else
                 {
-                    Type sourceT = value.GetType();
-                    if (Type != sourceT)
-                        value = Converter.Convert(value);
+                    Set(instance, Deserialize(node, recursiveDeserialize));
                 }
-                Set(instance, value); // allow setting null, sometimes it's an override
             }
         }
 
@@ -143,33 +152,26 @@ namespace Ship_Game.Data
             return null;
         }
 
-        public object Deserialize(StarDataNode node)
+        public override object Deserialize(StarDataNode node)
         {
             object item = Activator.CreateInstance(TheType);
             if (node.Value != null && PrimaryName != null)
             {
-                PrimaryInfo.SetValue(item, node.Value);
+                PrimaryInfo.SetValue(item, node, recursiveDeserialize: false);
             }
-            if (!node.HasItems)
-                return item;
 
-            foreach (StarDataNode leaf in node.Items)
+            if (node.HasItems)
             {
-                if (leaf.HasItems) // it appears to be an array M'Lord
+                foreach (StarDataNode leaf in node.Items)
                 {
-                    if (Mapping.TryGetValue(leaf.Key, out Info inf) && inf.Converter is StarDataSerializer s)
+                    if (Mapping.TryGetValue(leaf.Key, out Info info))
                     {
-                        object subItem = s.Deserialize(leaf);
-                        inf.SetValue(item, subItem);
+                        info.SetValue(item, leaf, recursiveDeserialize: true);
                     }
-                }
-                else
-                {
-                    object value = leaf.Value;
-                    if (value == null || !Mapping.TryGetValue(leaf.Key, out Info info))
-                        continue;
-
-                    info.SetValue(item, value);
+                    else
+                    {
+                        Log.Warning($"StarDataSerializer no mapping for '{leaf.Key}': '{leaf.Value}'");
+                    }
                 }
             }
             return item;

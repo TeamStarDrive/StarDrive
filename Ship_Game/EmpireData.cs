@@ -205,6 +205,8 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
 
+        public override string ToString() => $"Name: {Name} ShipType: {ShipType}";
+
         [XmlIgnore][JsonIgnore]
         public string ScoutShip => CurrentAutoScout.NotEmpty() ? CurrentAutoScout
                                  : StartingScout.NotEmpty()    ? StartingScout
