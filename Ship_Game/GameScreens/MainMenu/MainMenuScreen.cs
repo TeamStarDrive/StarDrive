@@ -168,13 +168,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             foreach (MenuFleet fleet in Fleets)
             {
-                foreach (var ship in fleet.FleetShips)
-                    ship.Update(gameTime, this);
-            
-                // if all ship AI's have finished, create a new one
-                fleet.FleetShips.RemoveAllIf(ship => ship.AI.Finished);
-                if (fleet.FleetShips.IsEmpty)
-                    fleet.CreateShips();
+                fleet.Update(gameTime, this);
             }
         }
         
