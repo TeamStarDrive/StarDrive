@@ -30,7 +30,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            bool freighterTooBig      = false;
+            bool freighterTooSmall = false;
             switch (g.Trade.Goods)
             {
                 case Goods.Food:
@@ -48,14 +48,14 @@ namespace Ship_Game.AI
                     }
 
                     exportPlanet.FoodHere -= Owner.LoadFood(maxFoodLoad);
-                    freighterTooBig        = Owner.CargoSpaceUsed.GreaterOrEqual(maxFoodLoad);
+                    freighterTooSmall      = Owner.CargoSpaceMax.Less(maxFoodLoad);
                     break;
                 case Goods.Production:
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
                     float maxProdLoad        = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 0.25f);
                     exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
-                    freighterTooBig          = Owner.CargoSpaceUsed.GreaterOrEqual(maxProdLoad);
+                    freighterTooSmall        = Owner.CargoSpaceMax.Less(maxProdLoad);
                     break;
                 case Goods.Colonists:
                     exportPlanet.ProdHere += Owner.UnloadProduction();
@@ -65,14 +65,13 @@ namespace Ship_Game.AI
                     exportPlanet.Population -= Owner.LoadColonists(exportPlanet.Population * 0.2f);
                     break;
             }
-            if (freighterTooBig)
-                Owner.loyalty.IncreaseFastVsBigFreighterRatio(0.005f);
+            float fasterFreighter = freighterTooSmall ? -0.005f : +0.01f;
+            Owner.loyalty.IncreaseFastVsBigFreighterRatio(fasterFreighter);
 
             AI.SetTradePlan(ShipAI.Plan.DropOffGoods, exportPlanet, importPlanet, g.Trade.Goods);
         }
     }
 
-    
     internal sealed class DropOffGoods : ShipAIPlan
     {
         public DropOffGoods(ShipAI ai) : base(ai)
