@@ -208,7 +208,7 @@ namespace Ship_Game
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, int colonyRank)
         {
-            float orbitalsBudget = Money.NetRevenue + colonyRank - OrbitalsMaintenance;
+            float orbitalsBudget = (Owner.Money / 1000) / Owner.GetPlanets().Count + colonyRank - OrbitalsMaintenance;
             Ship orbital         = GetBestOrbital(role, orbitalsBudget);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"Orbitals Budget: {orbitalsBudget}");

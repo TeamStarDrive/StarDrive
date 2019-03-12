@@ -69,7 +69,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (!degraded)
                 return;
 
-            if (!Owner.isPlayer)
+            if (Owner != null && !Owner.isPlayer)
                 return;
 
             // Notify player that planet was degraded
