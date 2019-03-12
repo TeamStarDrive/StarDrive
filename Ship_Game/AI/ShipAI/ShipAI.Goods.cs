@@ -30,6 +30,7 @@ namespace Ship_Game.AI
                 return;
             }
 
+            bool freighterTooBig      = false;
             switch (g.Trade.Goods)
             {
                 case Goods.Food:
@@ -47,12 +48,14 @@ namespace Ship_Game.AI
                     }
 
                     exportPlanet.FoodHere -= Owner.LoadFood(maxFoodLoad);
+                    freighterTooBig        = Owner.CargoSpaceUsed.GreaterOrEqual(maxFoodLoad);
                     break;
                 case Goods.Production:
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
-                    float maxProdLoad = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 0.25f);
+                    float maxProdLoad        = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 0.25f);
                     exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
+                    freighterTooBig          = Owner.CargoSpaceUsed.GreaterOrEqual(maxProdLoad);
                     break;
                 case Goods.Colonists:
                     exportPlanet.ProdHere += Owner.UnloadProduction();
@@ -62,6 +65,9 @@ namespace Ship_Game.AI
                     exportPlanet.Population -= Owner.LoadColonists(exportPlanet.Population * 0.2f);
                     break;
             }
+            if (freighterTooBig)
+                Owner.loyalty.IncreaseFastVsBigFreighterRatio(0.005f);
+
             AI.SetTradePlan(ShipAI.Plan.DropOffGoods, exportPlanet, importPlanet, g.Trade.Goods);
         }
     }
@@ -83,13 +89,14 @@ namespace Ship_Game.AI
             if (!Owner.Center.InRadius(importPlanet.Center, importPlanet.ObjectRadius + 300f))
                 return;
 
+            bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
             Owner.loyalty.TaxGoodsIfMercantile(Owner.CargoSpaceUsed);
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
 
             // If we did not unload all cargo, its better to build faster smaller cheaper freighters
-            float fasterFreighters     = Owner.CargoSpaceUsed.NotZero() ? 0.02f : -0.005f;
+            float fasterFreighters = fullBeforeUnload && Owner.CargoSpaceUsed.AlmostZero() ? -0.005f : 0.02f;
             Owner.loyalty.IncreaseFastVsBigFreighterRatio(fasterFreighters);
             Planet toOrbit = importPlanet.TradeBlocked ? Owner.loyalty.FindNearestRallyPoint(Owner.Center)
                                                        : importPlanet;
