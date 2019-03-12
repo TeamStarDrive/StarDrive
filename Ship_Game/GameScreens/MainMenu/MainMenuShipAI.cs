@@ -42,9 +42,9 @@ namespace Ship_Game.GameScreens.MainMenu
                 }
                 else
                 {
-                    Current = null;
                     ++State;
                 }
+                Current = null;
 
                 // if out of bounds, then we're done
                 if (State >= States.Length)
