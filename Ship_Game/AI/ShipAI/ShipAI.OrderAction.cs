@@ -184,7 +184,6 @@ namespace Ship_Game.AI
             WayPoints.Enqueue(position);
 
             MovePosition = position;
-            DesiredDirection = finalDirection;
 
             Vector2[] wayPoints = WayPoints.ToArray();
             for (int i = 0; i < wayPoints.Length; ++i)
@@ -474,7 +473,6 @@ namespace Ship_Game.AI
                 ClearWayPoints();
                 ClearOrders();
             }
-            DesiredDirection = direction;
             OrderMoveTowardsPosition(position, direction, true, null);
         }
 
