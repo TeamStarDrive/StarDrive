@@ -356,7 +356,7 @@ namespace Ship_Game.Ships
 
         public void CreateSceneObject()
         {
-            shipData.LoadModel(out ShipSO, out ShipMeshAnim);
+            shipData.LoadModel(out ShipSO, out ShipMeshAnim, Empire.Universe);
 
             Radius            = ShipSO.WorldBoundingSphere.Radius;
             ShipSO.Visibility = ObjectVisibility.Rendered;

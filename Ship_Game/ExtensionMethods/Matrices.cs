@@ -55,31 +55,31 @@ namespace Ship_Game
         public static Matrix AffineTransform(in Vector3 position, in Vector3 rotationRadians, float scale)
         {
             return Matrix.CreateScale(scale)
-                   * rotationRadians.RadiansToRotMatrix()
-                   * Matrix.CreateTranslation(position);
+                 * rotationRadians.RadiansToRotMatrix()
+                 * Matrix.CreateTranslation(position);
         }
 
         // Sets the Affine World transformation Matrix for this SceneObject
         public static void AffineTransform(this SceneObject so, in Vector3 position, in Vector3 rotationRadians, float scale)
         {
             so.World = Matrix.CreateScale(scale)
-                       * rotationRadians.RadiansToRotMatrix()
-                       * Matrix.CreateTranslation(position);
+                     * rotationRadians.RadiansToRotMatrix()
+                     * Matrix.CreateTranslation(position);
         }
 
         // Sets the Affine World transformation Matrix for this SceneObject
         public static void AffineTransform(this SceneObject so, in Vector3 position, in Vector3 rotationRadians, in Vector3 scale)
         {
             so.World = Matrix.CreateScale(scale)
-                       * rotationRadians.RadiansToRotMatrix()
-                       * Matrix.CreateTranslation(position);
+                     * rotationRadians.RadiansToRotMatrix()
+                     * Matrix.CreateTranslation(position);
         }
 
         public static Matrix RadiansToRotMatrix(this Vector3 rotation)
         {
             return Matrix.CreateRotationX(rotation.X)
-                   * Matrix.CreateRotationY(rotation.Y)
-                   * Matrix.CreateRotationZ(rotation.Z);
+                 * Matrix.CreateRotationY(rotation.Y)
+                 * Matrix.CreateRotationZ(rotation.Z);
         }
 
 

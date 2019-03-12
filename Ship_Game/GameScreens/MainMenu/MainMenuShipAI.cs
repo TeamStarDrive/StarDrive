@@ -14,7 +14,6 @@ namespace Ship_Game.GameScreens.MainMenu
         ShipState Current;
         int State;
         public bool Finished { get; private set; }
-        public bool Looping;
 
         public MainMenuShipAI(params Func<ShipState>[] states)
         {
@@ -37,15 +36,20 @@ namespace Ship_Game.GameScreens.MainMenu
 
             if (Current.Update(deltaTime))
             {
-                Current = null;
-                ++State;
+                if (Current is GoToState goTo)
+                {
+                    State = goTo.State;
+                }
+                else
+                {
+                    Current = null;
+                    ++State;
+                }
+
+                // if out of bounds, then we're done
                 if (State >= States.Length)
                 {
-                    // loop?
-                    if (Looping)
-                        State = 1; // but always skip the first (default) state
-                    else
-                        Finished = true;
+                    Finished = true;
                 }
             }
         }
@@ -83,6 +87,20 @@ namespace Ship_Game.GameScreens.MainMenu
         }
     }
 
+    class GoToState : ShipState
+    {
+        public readonly int State;
+        public GoToState(float delay, int state) : base(delay)
+        {
+            State = state;
+        }
+        public override bool Update(float deltaTime)
+        {
+            Ship.Position += deltaTime * Ship.Forward * Ship.Speed;
+            return base.Update(deltaTime);
+        }
+    }
+
     class IdlingInDeepSpace : ShipState
     {
         public IdlingInDeepSpace(float duration) : base(duration)
@@ -95,19 +113,18 @@ namespace Ship_Game.GameScreens.MainMenu
         }
     }
 
-    class CoastingAcrossScreen : ShipState
+    class CoastingForward : ShipState
     {
-        float Speed = 10f; // forward speed in units/s
         bool Spooling;
         bool EnteringFTL;
-        public CoastingAcrossScreen(float duration) : base(duration)
+        public CoastingForward(float duration) : base(duration)
         {
         }
         public override bool Update(float deltaTime)
         {
             // slow moves the ship across the screen
             Ship.Rotation.Y += deltaTime * 0.06f;
-            Ship.Position += deltaTime * Ship.Forward * Speed;
+            Ship.Position += deltaTime * Ship.Forward * Ship.Speed;
             if (!Spooling && Remaining < 3.2f)
             {
                 Ship.PlaySfx("sd_warp_start_large");
@@ -115,7 +132,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             if (!EnteringFTL && Remaining < 0.5f)
             {
-                FTLManager.EnterFTL(Ship.Position, Ship.Forward, 266);
+                FTLManager.EnterFTL(Ship.Position, Ship.Forward, Ship.HalfLength);
                 EnteringFTL = true;
             }
             return base.Update(deltaTime);
@@ -133,9 +150,9 @@ namespace Ship_Game.GameScreens.MainMenu
         }
         public override void Initialize(MainMenuShip ship)
         {
-            ship.Rotation = ship.InitialRotation; // reset direction
+            ship.Rotation = ship.Spawn.Rotation; // reset direction
             ship.Scale = WarpScale;
-            End = ship.InitialPosition;
+            End = ship.Spawn.Position;
             Start = End - ship.Forward*100000f;
             ship.Position = Start;
             base.Initialize(ship);
@@ -146,7 +163,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
             if (!ExitingFTL && Remaining < 0.15f)
             {
-                FTLManager.ExitFTL(() => Ship.Position, Ship.Forward, 266);
+                FTLManager.ExitFTL(() => Ship.Position, Ship.Forward, Ship.HalfLength);
                 ExitingFTL = true;
             }
 
