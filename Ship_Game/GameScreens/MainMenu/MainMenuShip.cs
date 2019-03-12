@@ -108,15 +108,20 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
-        void CreateShip(ShipSpawnInfo spawn, GameScreen screen)
+        public void DestroyShip()
         {
-            if (ShipObj != null) // Allow multiple init
+            if (ShipObj != null)
             {
-                screen.RemoveObject(ShipObj);
+                ScreenManager.Instance.RemoveObject(ShipObj);
                 ShipObj.Clear();
                 ShipObj = null;
                 ShipAnim = null;
             }
+        }
+
+        void CreateShip(ShipSpawnInfo spawn, GameScreen screen)
+        {
+            DestroyShip(); // Allow multiple init
 
             // FrostHand: do we actually need to show Model/Ships/speeder/ship07 in base version? Or could show random ship for base and modded version?
             if (GlobalStats.HasMod && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
@@ -150,7 +155,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 HalfLength *= 4;
             }
 
-            screen.AddObject(ShipObj);
+            ScreenManager.Instance.AddObject(ShipObj);
             UpdateTransform();
         }
 

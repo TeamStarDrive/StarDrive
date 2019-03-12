@@ -99,7 +99,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ScreenManager.RemoveAllLights();
             ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
-            var topRightInBackground = new Vector3(1000,-1000,1000);
+            var topRightInBackground = new Vector3(26000,-26000,32000);
             var lightYellow = new Color(255,254,224);
             AddLight("MainMenu Sun", lightYellow, 2.0f, topRightInBackground);
 
@@ -168,13 +168,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             foreach (MenuFleet fleet in Fleets)
             {
-                foreach (var ship in fleet.FleetShips)
-                    ship.Update(gameTime, this);
-            
-                // if all ship AI's have finished, create a new one
-                fleet.FleetShips.RemoveAllIf(ship => ship.AI.Finished);
-                if (fleet.FleetShips.IsEmpty)
-                    fleet.CreateShips();
+                fleet.Update(gameTime, this);
             }
         }
         
