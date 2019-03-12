@@ -89,10 +89,11 @@ namespace Ship_Game
                 return false;
             }
 
-            public void Draw(SpriteBatch batch, GameScreen screen)
+            public void Draw(SpriteBatch batch, GameScreen screen, float radius)
             {
+                float flashSize = Math.Min(radius * 0.75f, 200f);
                 Vector2 pos  = screen.ProjectTo2D(WorldPos);
-                Vector2 edge = screen.ProjectTo2D(WorldPos + new Vector3(125,0,0));
+                Vector2 edge = screen.ProjectTo2D(WorldPos + new Vector3(flashSize, 0, 0));
 
                 float relSizeOnScreen = (edge.X - pos.X) / screen.Width;
                 float sizeScaleOnScreen = Scale * relSizeOnScreen;
@@ -115,10 +116,12 @@ namespace Ship_Game
             readonly FTLLayer[] Layers;
             readonly Func<Vector3> GetPosition;
             Vector3 Position;
+            float Radius;
 
-            public FTLInstance(Func<Vector3> getPosition, in Vector3 offset)
+            public FTLInstance(Func<Vector3> getPosition, in Vector3 offset, float radius)
             {
                 GetPosition = getPosition;
+                Radius = radius;
                 Layers = new FTLLayer[FTLLayers.Length];
                 for (int i = 0; i < Layers.Length; ++i)
                 {
@@ -154,7 +157,7 @@ namespace Ship_Game
             {
                 for (int i = 0; i < Layers.Length; ++i)
                 {
-                    Layers[i]?.Draw(batch, screen);
+                    Layers[i]?.Draw(batch, screen, Radius);
                 }
             }
         }
@@ -191,14 +194,14 @@ namespace Ship_Game
 
         public static void EnterFTL(Vector3 position, in Vector3 forward, float radius)
         {
-            var f = new FTLInstance(() => position, forward*(radius*2f));
+            var f = new FTLInstance(() => position, forward*(radius*1.5f), radius);
             using (Lock.AcquireWriteLock())
                 Effects.Add(f);
         }
 
         public static void ExitFTL(Func<Vector3> getPosition, in Vector3 forward, float radius)
         {
-            var f = new FTLInstance(getPosition, forward*(radius*-2f));
+            var f = new FTLInstance(getPosition, forward*(radius*-2f), radius);
             using (Lock.AcquireWriteLock())
                 Effects.Add(f);
         }

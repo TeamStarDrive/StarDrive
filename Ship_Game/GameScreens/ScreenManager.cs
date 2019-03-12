@@ -13,7 +13,7 @@ namespace Ship_Game
 {
     public sealed class ScreenManager : IDisposable
     {
-        readonly Array<GameScreen> Screens = new Array<GameScreen>();
+        readonly Array<GameScreen> GameScreens = new Array<GameScreen>();
         readonly IGraphicsDeviceService GraphicsDeviceService;
         SubTexture BlankTexture;
         readonly SceneState GameSceneState;
@@ -35,8 +35,9 @@ namespace Ship_Game
         }
 
         public Rectangle TitleSafeArea { get; private set; }
-        public int NumScreens => Screens.Count;
-        public GameScreen Current => Screens[Screens.Count-1];
+        public int NumScreens => GameScreens.Count;
+        public GameScreen Current => GameScreens[GameScreens.Count-1];
+        public IReadOnlyList<GameScreen> Screens => GameScreens;
 
         public static ScreenManager Instance { get; private set; }
         public static GameScreen CurrentScreen => Instance.Current;
@@ -69,18 +70,18 @@ namespace Ship_Game
 
         public void UpdateViewports()
         {
-            for (int i = 0; i < Screens.Count; ++i)
-                Screens[i].UpdateViewport();
+            for (int i = 0; i < GameScreens.Count; ++i)
+                GameScreens[i].UpdateViewport();
         }
 
         public void AddScreen(GameScreen screen)
         {
             // @todo What is this hack doing here?
-            foreach (GameScreen gs in Screens)
+            foreach (GameScreen gs in GameScreens)
                 if (gs is DiplomacyScreen)
                     return;
 
-            Screens.Add(screen);
+            GameScreens.Add(screen);
 
             // @note LoadContent is allowed to remove current screen as well
             if (GraphicsDeviceService?.GraphicsDevice != null)
@@ -97,15 +98,15 @@ namespace Ship_Game
         public void AddScreenNoLoad(GameScreen screen)
         {
             // @todo What is this hack doing here?
-            foreach (GameScreen gs in Screens)
+            foreach (GameScreen gs in GameScreens)
                 if (gs is DiplomacyScreen)
                     return;
-            Screens.Add(screen);
+            GameScreens.Add(screen);
         }
 
         public bool IsShowing<T>() where T : GameScreen
         {
-            foreach (GameScreen gs in Screens)
+            foreach (GameScreen gs in GameScreens)
                 if (gs is T) return true;
             return false;
         }
@@ -218,11 +219,11 @@ namespace Ship_Game
             SpriteBatch batch = SpriteBatch;
             try
             {
-                for (int i = 0; i < Screens.Count; ++i)
+                for (int i = 0; i < GameScreens.Count; ++i)
                 {
-                    if (Screens[i].Visible)
+                    if (GameScreens[i].Visible)
                     {
-                        Screens[i].Draw(batch);
+                        GameScreens[i].Draw(batch);
                     }
                 }
             }
@@ -235,7 +236,7 @@ namespace Ship_Game
 
         public void ExitAll(bool clear3DObjects)
         {
-            foreach (GameScreen screen in Screens.ToArray()/*grab an atomic copy*/)
+            foreach (GameScreen screen in GameScreens.ToArray()/*grab an atomic copy*/)
                 screen.ExitScreen();
 
             if (clear3DObjects)
@@ -247,7 +248,7 @@ namespace Ship_Game
 
         public void ExitAllExcept(GameScreen except)
         {
-            foreach (GameScreen screen in Screens.ToArray()/*grab an atomic copy*/)
+            foreach (GameScreen screen in GameScreens.ToArray()/*grab an atomic copy*/)
                 if (screen != except)
                     screen.ExitScreen();
         }
@@ -267,7 +268,7 @@ namespace Ship_Game
 
             BlankTexture = ResourceManager.Texture("blank");
 
-            foreach (GameScreen screen in Screens)
+            foreach (GameScreen screen in GameScreens)
             {
                 screen.LoadContent();
             }
@@ -283,7 +284,7 @@ namespace Ship_Game
         // @warning This unloads ALL game content and is designed to be called only from ResourceManager!
         public void UnloadAllGameContent()
         {
-            foreach (GameScreen screen in Screens)
+            foreach (GameScreen screen in GameScreens)
             {
                 screen.UnloadContent();
             }
@@ -294,7 +295,7 @@ namespace Ship_Game
         {
             if (GraphicsDeviceService?.GraphicsDevice != null)
                 screen.UnloadContent();            
-            Screens.Remove(screen);
+            GameScreens.Remove(screen);
             exitScreenTimer = 0.25f;
         }
 
@@ -382,9 +383,9 @@ namespace Ship_Game
             bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;
             bool coveredByOtherScreen = false;
 
-            for (int i = Screens.Count-1; i >= 0; --i)
+            for (int i = GameScreens.Count-1; i >= 0; --i)
             {
-                GameScreen screen = Screens[i];
+                GameScreen screen = GameScreens[i];
                 screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 
                 if (screen.ScreenState == ScreenState.TransitionOn || screen.ScreenState == ScreenState.Active)

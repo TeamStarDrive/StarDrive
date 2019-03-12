@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -556,5 +557,33 @@ namespace Ship_Game
             return max;
         }
 
+
+        public static T RandItem<T>(this T[] items)
+        {
+            return RandomMath.RandItem(items);
+        }
+
+        public static T RandItem<T>(this Array<T> items)
+        {
+            return RandomMath.RandItem(items);
+        }
+
+        public static T RandItem<T>(this IReadOnlyList<T> items)
+        {
+            return RandomMath.RandItem(items);
+        }
+
+        // applies selector to gather a unique
+        public static Array<T> Unique<T, TKey>(this ICollection<T> items, Func<T, TKey> keySelector)
+        {
+            var unique = new Map<TKey, T>();
+            foreach (T item in items)
+            {
+                TKey key = keySelector(item);
+                if (!unique.ContainsKey(key))
+                    unique.Add(key, item);
+            }
+            return unique.Values.ToArrayList();
+        }
     }
 }

@@ -1018,10 +1018,11 @@ namespace Ship_Game
             }
         }
 
-        static readonly Array<IEmpireData> Empires = new Array<IEmpireData>();
+        static readonly Array<IEmpireData> Empires      = new Array<IEmpireData>();
         static readonly Array<IEmpireData> MajorEmpires = new Array<IEmpireData>();
         static readonly Array<IEmpireData> MinorEmpires = new Array<IEmpireData>(); // IsFactionOrMinorRace
-
+        
+        public static IReadOnlyList<IEmpireData> AllRaces   => Empires;
         public static IReadOnlyList<IEmpireData> MajorRaces => MajorEmpires;
         public static IReadOnlyList<IEmpireData> MinorRaces => MinorEmpires;
 
@@ -1045,8 +1046,8 @@ namespace Ship_Game
                 RacialTrait t = ((EmpireData) e).Traits;
                 if (t.ShipType.IsEmpty())
                 {
-                    t.ShipType = e.Name;
-                    Log.Warning($"Empire {e.Name} invalid ShipType ''. Using '{e.Name}' instead.");
+                    t.ShipType = e.Singular;
+                    Log.Warning($"Empire {e.Name} invalid ShipType ''. Using '{e.Singular}' instead.");
                 }
             }
         }
