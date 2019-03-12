@@ -99,7 +99,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ScreenManager.RemoveAllLights();
             ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
-            var topRightInBackground = new Vector3(1000,-1000,1000);
+            var topRightInBackground = new Vector3(26000,-26000,32000);
             var lightYellow = new Color(255,254,224);
             AddLight("MainMenu Sun", lightYellow, 2.0f, topRightInBackground);
 

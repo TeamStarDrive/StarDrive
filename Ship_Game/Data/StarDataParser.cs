@@ -216,7 +216,7 @@ namespace Ship_Game.Data
             {
                 char c = line[i];
                 if      (c == ' ')  ++depth;
-                else if (c == '\t') depth += 4;
+                else if (c == '\t') depth += 2;
                 else break;
             }
             return (depth, i);
