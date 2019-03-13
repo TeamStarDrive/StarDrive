@@ -98,7 +98,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public Array<MainMenuShip> FleetShips = new Array<MainMenuShip>();
 
-        public void CreateShips()
+        public void CreateShips(GameScreen screen)
         {
             foreach (var ship in FleetShips)
                 ship.DestroyShip();
@@ -146,6 +146,7 @@ namespace Ship_Game.GameScreens.MainMenu
                     empire = GetEmpire();
 
                 var ship = new MainMenuShip(spawn);
+                ship.LoadContent(screen);
                 FleetShips.Add(ship);
             }
         }
@@ -158,7 +159,7 @@ namespace Ship_Game.GameScreens.MainMenu
             // if all ship AI's have finished, create a new one
             FleetShips.RemoveAllIf(ship => ship.AI.Finished);
             if (FleetShips.IsEmpty)
-                CreateShips();
+                CreateShips(screen);
         }
 
         public void HandleInput(InputState input, GameScreen screen)
