@@ -208,7 +208,7 @@ namespace Ship_Game
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, int colonyRank)
         {
-            float orbitalsBudget = (Owner.Money / 1000) / Owner.GetPlanets().Count + colonyRank - OrbitalsMaintenance;
+            float orbitalsBudget = Money.NetRevenue + colonyRank / 2 - OrbitalsMaintenance;
             Ship orbital         = GetBestOrbital(role, orbitalsBudget);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"Orbitals Budget: {orbitalsBudget}");
@@ -269,27 +269,27 @@ namespace Ship_Game
             {
                 switch (rank)
                 {
-                    case 1:  Platforms = 0;  Stations = 0;  Shipyards = 0; break;
-                    case 2:  Platforms = 0;  Stations = 0;  Shipyards = 0; break;
-                    case 3:  Platforms = 3;  Stations = 0;  Shipyards = 0; break;
-                    case 4:  Platforms = 6;  Stations = 1;  Shipyards = 0; break;
-                    case 5:  Platforms = 6;  Stations = 1;  Shipyards = 1; break;
-                    case 6:  Platforms = 5;  Stations = 2;  Shipyards = 1; break;
-                    case 7:  Platforms = 5;  Stations = 2;  Shipyards = 1; break;
-                    case 8:  Platforms = 4;  Stations = 3;  Shipyards = 1; break;
-                    case 9:  Platforms = 6;  Stations = 3;  Shipyards = 1; break;
-                    case 10: Platforms = 8;  Stations = 4;  Shipyards = 2; break;
-                    case 11: Platforms = 8;  Stations = 5;  Shipyards = 2; break;
-                    case 12: Platforms = 9;  Stations = 6;  Shipyards = 2; break;
-                    case 13: Platforms = 9;  Stations = 7;  Shipyards = 2; break;
-                    case 14: Platforms = 12; Stations = 8;  Shipyards = 2; break;
-                    case 15: Platforms = 15; Stations = 10; Shipyards = 2; break;
-                    default: Platforms = 0;  Stations = 0;  Shipyards = 0; break;
+                    case 1:  Platforms = 0;  Stations  = 0;  Shipyards = 0; break;
+                    case 2:  Platforms = 0;  Stations  = 0;  Shipyards = 0; break;
+                    case 3:  Platforms = 3;  Stations  = 0;  Shipyards = 0; break;
+                    case 4:  Platforms = 5;  Stations  = 0;  Shipyards = 0; break;
+                    case 5:  Platforms = 7;  Stations  = 0;  Shipyards = 0; break;
+                    case 6:  Platforms = 2;  Stations  = 1;  Shipyards = 1; break;
+                    case 7:  Platforms = 3;  Stations  = 2;  Shipyards = 1; break;
+                    case 8:  Platforms = 5;  Stations  = 2;  Shipyards = 1; break;
+                    case 9:  Platforms = 7;  Stations  = 3;  Shipyards = 1; break;
+                    case 10: Platforms = 8;  Stations  = 3;  Shipyards = 2; break;
+                    case 11: Platforms = 8;  Stations  = 4;  Shipyards = 2; break;
+                    case 12: Platforms = 10; Stations  = 5;  Shipyards = 2; break;
+                    case 13: Platforms = 10; Stations  = 6;  Shipyards = 2; break;
+                    case 14: Platforms = 12; Stations  = 7;  Shipyards = 2; break;
+                    case 15: Platforms = 15; Stations  = 8;  Shipyards = 2; break;
+                    default: Platforms = 0;  Stations  = 0;  Shipyards = 0; break;
                 }
             }
         }
 
-        // FB - gives a value from 1 to 10 based on the max colony value in the empire
+        // FB - gives a value from 1 to 15 based on the max colony value in the empire
         private int FindColonyRank()
         {
             int rank = (int)(ColonyValue / Owner.MaxColonyValue * 10);
