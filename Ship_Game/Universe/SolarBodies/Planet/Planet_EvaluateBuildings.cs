@@ -754,7 +754,7 @@ namespace Ship_Game
             float colonyIncome  = Money.NetRevenue;
             colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
             float debtTolerance = (5 - PopulationBillion).Clamped(-3,5); // the bigger the colony, the less debt tolerance it has, it should be earning money 
-            debtTolerance      += Owner.Money / 1000; // FB this will ensure AI wont get stuck with no colony budget
+            debtTolerance      += Owner.Money / 2000; // FB this will ensure AI wont get stuck with no colony budget
             return colonyIncome + debtTolerance;
         }
 
