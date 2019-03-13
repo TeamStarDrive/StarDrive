@@ -635,7 +635,7 @@ namespace Ship_Game.Ships
             if (shipData.HasFixedCost)
                 return shipData.FixedCost * CurrentGame.Pace;
 
-            float cost = BaseCost;
+            float cost = BaseCost * CurrentGame.Pace;
 
             if (empire == null)
                 return (int) cost;
