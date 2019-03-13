@@ -92,35 +92,33 @@ namespace Ship_Game.Utils
             }
         }
 
-        void GrowRingBuffer(int length)
-        {
-            // heavily optimized:
-            int cap = length < 4 ? 4 : length * 3 / 2;
-            int rem = cap % 4;
-            if (rem != 0) cap += 4 - rem;
-
-            var newArray = new T[cap];
-            if (length > 0)
-            { 
-                // reorder the ringbuffer to a clean layout
-                for (int j = 0, i = Head; j < length;)
-                {
-                    newArray[j++] = Items[i++];
-                    if (i == length) i = 0;
-                }
-                Head = 0;
-            }
-            Items = newArray;
-        }
-
         // Adds an item to the end of the queue
         // Could by also named PushToEnd. This Enqueued item will be
         // the last item you get when calling Dequeue()
         public void Enqueue(T item)
         {
             ThisLock.EnterWriteLock();
-            if (Count == Items.Length)
-                GrowRingBuffer(Items.Length);
+            int length = Items.Length;
+            if (Count == length)
+            {
+                int cap = length < 4 ? 4 : length * 3 / 2;
+                int rem = cap % 4;
+                if (rem != 0) cap += 4 - rem;
+
+                var newArray = new T[cap];
+                if (length > 0)
+                { 
+                    // @note This is different from PushToFront
+                    // reorder the ring buffer to a clean layout
+                    for (int j = 0, i = Head; j < length;)
+                    {
+                        newArray[j++] = Items[i++];
+                        if (i == length) i = 0;
+                    }
+                    Head = 0;
+                }
+                Items = newArray;
+            }
 
             Items[(Head + Count) % Items.Length] = item;
             ++Count;
@@ -136,9 +134,25 @@ namespace Ship_Game.Utils
         {
             ThisLock.EnterWriteLock();
             int length = Items.Length;
-            if (Count == length)
+            if (Count == length) // grow
             {
-                GrowRingBuffer(length);
+                int cap = length < 4 ? 4 : length * 3 / 2;
+                int rem = cap % 4;
+                if (rem != 0) cap += 4 - rem;
+
+                var newArray = new T[cap];
+                if (length > 0)
+                {
+                    // @note This is different from ENQUEUE grow
+                    // reorder the ring buffer to a clean layout
+                    for (int j = 1, i = Head, n = length+1; j < n;)
+                    {
+                        newArray[j++] = Items[i++];
+                        if (i == length) i = 0;
+                    }
+                    Head = 0;
+                }
+                Items = newArray;
             }
             else
             {

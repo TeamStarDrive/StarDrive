@@ -241,7 +241,7 @@ namespace Ship_Game
         public void Insert(int index, T item)
         {
             int count = Count;
-            if ((uint)index >= (uint)count)
+            if ((uint)index > (uint)count)
                 ThrowIndexOutOfBounds(index);
 
             if (count == Items.Length)
