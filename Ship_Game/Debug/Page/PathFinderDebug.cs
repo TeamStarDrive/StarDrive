@@ -3,12 +3,12 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Debug.Page
 {
-    internal class PathDebug : DebugPage
+    internal class PathFinderDebug : DebugPage
     {
         readonly UniverseScreen Screen;
         int EmpireID = 1;
 
-        public PathDebug(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Pathing)
+        public PathFinderDebug(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.PathFinder)
         {
             Screen = screen;
             if (TextColumns.Count <= 1)
@@ -44,18 +44,7 @@ namespace Ship_Game.Debug.Page
 
         void DrawPathInfo()
         {
-            Empire e = EmpireManager.GetEmpireById(EmpireID);
-            int width = e.grid.GetLength(0);
-            int height = e.grid.GetLength(1);
-            for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-            {
-                byte weight = e.grid[x, y];
-                Color color = weight == 80 ? Color.Black : e.EmpireColor;
-                var translated = new Vector2((x - e.granularity) * Screen.PathMapReducer, 
-                                             (y - e.granularity) * Screen.PathMapReducer);
-                Screen.DrawCircleProjected(translated, Screen.PathMapReducer * 0.5f, weight + 5, color);
-            }
+
         }
     }
 }

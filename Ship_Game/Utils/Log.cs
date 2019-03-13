@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 using SharpRaven;
 using SharpRaven.Data;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {

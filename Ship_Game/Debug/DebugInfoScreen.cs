@@ -19,7 +19,7 @@ namespace Ship_Game.Debug
     {
         Normal,
         Targeting,
-        Pathing,
+        PathFinder,
         DefenseCo,
         Trade,
         Planets,
@@ -160,7 +160,7 @@ namespace Ship_Game.Debug
             {
                 switch (Mode)
                 {
-                    case DebugModes.Pathing: Page = Add(new PathDebug(Screen,  this)); break;
+                    case DebugModes.PathFinder: Page = Add(new PathFinderDebug(Screen,  this)); break;
                     case DebugModes.Trade:   Page = Add(new TradeDebug(Screen, this)); break;
                     case DebugModes.Planets: Page = Add(new PlanetDebug(Screen,this)); break;
                     case DebugModes.Solar:   Page = Add(new SolarDebug(Screen, this)); break;
