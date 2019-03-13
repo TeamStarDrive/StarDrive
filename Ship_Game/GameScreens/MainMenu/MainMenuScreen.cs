@@ -157,7 +157,7 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 foreach (MenuFleet fleet in parser.DeserializeArray<MenuFleet>())
                 {
-                    fleet.CreateShips();
+                    fleet.CreateShips(this);
                     if (fleet.FleetShips.NotEmpty)
                         Fleets.Add(fleet);
                 }
