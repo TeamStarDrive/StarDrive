@@ -28,7 +28,7 @@ namespace Ship_Game
     [DebuggerDisplay("Count = {Count}  Capacity = {Capacity}")]
     [Serializable]
     [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
-    public class Array<T> : IList<T>, IReadOnlyList<T>, ICollection, IList
+    public class Array<T> : IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerable<T>, IList, ICollection, IEnumerable
     {
         protected T[] Items;
         public int Count { get; protected set; }
@@ -73,34 +73,28 @@ namespace Ship_Game
         /// <summary>Array capacity is reserved exactly, CopyTo is used if list is ICollection and indexing operator is used for element access (kinda slow, but ok)</summary>
         public Array(IReadOnlyList<T> list)
         {
-            unchecked
-            {
-                Items = Empty<T>.Array;
-                int count = list.Count;
-                if ((Count = count) <= 0) return;
-                Items = new T[count];
-                if (list is ICollection<T> c)
-                    c.CopyTo(Items, 0);
-                else for (int i = 0; i < count; ++i)
-                    Items[i] = list[i];
-            }
+            Items = Empty<T>.Array;
+            int count = list.Count;
+            if ((Count = count) <= 0) return;
+            Items = new T[count];
+            if (list is ICollection<T> c)
+                c.CopyTo(Items, 0);
+            else for (int i = 0; i < count; ++i)
+                Items[i] = list[i];
         }
         /// <summary>Array capacity is reserved exactly, but dynamic enumeration is used if collection is not an ICollection (very slow)</summary>
         public Array(IReadOnlyCollection<T> collection)
         {
-            unchecked
-            {
-                Items = Empty<T>.Array;
-                int count = collection.Count;
-                if ((Count = count) <= 0)
-                    return;
-                Items = new T[count];
-                if (collection is ICollection<T> c)
-                    c.CopyTo(Items, 0);
-                else using (IEnumerator<T> e = collection.GetEnumerator())
-                    for (int i = 0; i < count && e.MoveNext(); ++i)
-                        Items[i] = e.Current;
-            }
+            Items = Empty<T>.Array;
+            int count = collection.Count;
+            if ((Count = count) <= 0)
+                return;
+            Items = new T[count];
+            if (collection is ICollection<T> c)
+                c.CopyTo(Items, 0);
+            else using (IEnumerator<T> e = collection.GetEnumerator())
+                for (int i = 0; i < count && e.MoveNext(); ++i)
+                    Items[i] = e.Current;
         }
         /// <summary>The slowest way to construct an new ArrayT.
         /// This will check for multiple subtypes to try and optimize creation, dynamic enumeration would be too slow
@@ -109,36 +103,33 @@ namespace Ship_Game
         /// If </summary>
         public Array(IEnumerable<T> sequence)
         {
-            unchecked
+            Items = Empty<T>.Array;
+            if (sequence is ICollection<T> c) // might also call this.CopyTo(), best case scenario
             {
-                Items = Empty<T>.Array;
-                if (sequence is ICollection<T> c) // might also call this.CopyTo(), best case scenario
-                {
-                    if ((Count = c.Count) > 0)
-                        c.CopyTo(Items = new T[Count], 0);
-                }
-                else if (sequence is IReadOnlyList<T> rl)
-                {
-                    int count = rl.Count;
-                    if ((Count = count) <= 0) return;
-                    Items = new T[count];
-                    for (int i = 0; i < count; ++i)
-                        Items[i] = rl[i];
-                }
-                else if (sequence is IReadOnlyCollection<T> rc)
-                {
-                    int count = rc.Count;
-                    if ((Count = count) <= 0) return;
-                    Items = new T[count];
-                    using (IEnumerator<T> e = rc.GetEnumerator())
-                        for (int i = 0; i < count && e.MoveNext(); ++i)
-                            Items[i] = e.Current;
-                }
-                else // fall back to epicly slow enumeration
-                {
-                    using (IEnumerator<T> e = sequence.GetEnumerator())
-                        while (e.MoveNext()) Add(e.Current);
-                }
+                if ((Count = c.Count) > 0)
+                    c.CopyTo(Items = new T[Count], 0);
+            }
+            else if (sequence is IReadOnlyList<T> rl)
+            {
+                int count = rl.Count;
+                if ((Count = count) <= 0) return;
+                Items = new T[count];
+                for (int i = 0; i < count; ++i)
+                    Items[i] = rl[i];
+            }
+            else if (sequence is IReadOnlyCollection<T> rc)
+            {
+                int count = rc.Count;
+                if ((Count = count) <= 0) return;
+                Items = new T[count];
+                using (IEnumerator<T> e = rc.GetEnumerator())
+                    for (int i = 0; i < count && e.MoveNext(); ++i)
+                        Items[i] = e.Current;
+            }
+            else // fall back to epicly slow enumeration
+            {
+                using (IEnumerator<T> e = sequence.GetEnumerator())
+                    while (e.MoveNext()) Add(e.Current);
             }
         }
 
@@ -151,7 +142,7 @@ namespace Ship_Game
         public T[] GetInternalArrayItems() => Items;
 
         // Separated throw from this[] to enable MSIL inlining
-        private void ThrowIndexOutOfBounds(int index)
+        void ThrowIndexOutOfBounds(int index)
         {
             throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
         }
@@ -160,21 +151,15 @@ namespace Ship_Game
         {
             get
             {
-                unchecked
-                {
-                    if ((uint)index >= (uint)Count)
-                        ThrowIndexOutOfBounds(index);
-                    return Items[index];
-                }
+                if ((uint)index >= (uint)Count)
+                    ThrowIndexOutOfBounds(index);
+                return Items[index];
             }
             set
             {
-                unchecked
-                {
-                    if ((uint)index >= (uint)Count)
-                        ThrowIndexOutOfBounds(index);
-                    Items[index] = value;
-                }
+                if ((uint)index >= (uint)Count)
+                    ThrowIndexOutOfBounds(index);
+                Items[index] = value;
             }
         }
 
@@ -199,8 +184,7 @@ namespace Ship_Game
             }
         }
 
-
-        private void Grow(int capacity)
+        void Grow(int capacity)
         {
             if (capacity >= 4)
             {
@@ -214,7 +198,8 @@ namespace Ship_Game
             else capacity = 4;
 
             var newArray = new T[capacity];
-            Array.Copy(Items, 0, newArray, 0, Items.Length);
+            if (Count != 0)
+                Array.Copy(Items, 0, newArray, 0, Count);
             Items = newArray;
         }
 
@@ -239,15 +224,12 @@ namespace Ship_Game
 
         public void Add(T item)
         {
-            unchecked
-            {
-                int capacity = Items.Length;
-                int count    = Count;
-                if (count == capacity)
-                    Grow(capacity);
-                Items[count] = item;
-                Count = count + 1;
-            }
+            int capacity = Items.Length;
+            int count = Count;
+            if (count == capacity)
+                Grow(capacity);
+            Items[count] = item;
+            Count = count + 1;
         }
 
         public void AddUnique(T item)
@@ -258,16 +240,16 @@ namespace Ship_Game
 
         public void Insert(int index, T item)
         {
-            unchecked
-            {
-                int capacity = Items.Length;
-                int count    = Count;
-                if (count == capacity)
-                    Grow(capacity);
-                if (index < count) Array.Copy(Items, index, Items, index + 1, count - index);
-                Items[index] = item;
-                Count = count + 1;
-            }
+            int count = Count;
+            if ((uint)index >= (uint)count)
+                ThrowIndexOutOfBounds(index);
+
+            if (count == Items.Length)
+                Grow(Items.Length);
+
+            if (index < count) Array.Copy(Items, index, Items, index + 1, count - index);
+            Items[index] = item;
+            Count = count + 1;
         }
 
         public void Clear()
@@ -295,24 +277,21 @@ namespace Ship_Game
         // This is slower than ContainsRef if T is a class
         public bool Contains(T item)
         {
-            unchecked
-            {
-                int count = Count;
-                if (count == 0)
-                    return false;
+            int count = Count;
+            if (count == 0)
+                return false;
 
-                T[] items = Items;
-                if (item == null)
-                {
-                    for (int i = 0; i < count; ++i)
-                        if (items[i] == null) return true;
-                    return false;
-                }
-                EqualityComparer<T> c = EqualityComparer<T>.Default;
+            T[] items = Items;
+            if (item == null)
+            {
                 for (int i = 0; i < count; ++i)
-                    if (c.Equals(items[i], item)) return true;
+                    if (items[i] == null) return true;
                 return false;
             }
+            EqualityComparer<T> c = EqualityComparer<T>.Default;
+            for (int i = 0; i < count; ++i)
+                if (c.Equals(items[i], item)) return true;
+            return false;
         }
 
         public void CopyTo(T[] array, int arrayIndex = 0)
@@ -321,13 +300,13 @@ namespace Ship_Game
             if (count != 0) Memory.HybridCopy(array, arrayIndex, Items, count);
         }
 
-        public void CopyTo(Array array, int arrayIndex)
+        void ICollection.CopyTo(Array array, int arrayIndex)
         {
             int count = Count;
             if (count != 0) Memory.HybridCopy((T[])array, arrayIndex, Items, count);
         }
 
-        // Removes a single occurance of item
+        // Removes a single occurence of an item
         public bool Remove(T item)
         {
             int i = IndexOf(item);
@@ -362,77 +341,64 @@ namespace Ship_Game
         // does a fast removal by swapping the item with the last element in the array
         public bool RemoveSwapLast(T item)
         {
-            unchecked
-            {
-                int i = IndexOf(item);
-                if (i < 0) return false;
+            int i = IndexOf(item);
+            if (i < 0) return false;
 
-                int last = --Count;
-                Items[i]    = Items[last];
-                Items[last] = default(T);
-                return true;
-            }
+            int last = --Count;
+            Items[i]    = Items[last];
+            Items[last] = default(T);
+            return true;
         }
 
         // This is slower than IndexOfRef if T is a class
         public int IndexOf(T item)
         {
-            unchecked
-            {
-                int count = Count;
-                T[] items = Items;
-                EqualityComparer<T> c = EqualityComparer<T>.Default;
-                for (int i = 0; i < count; ++i)
-                    if (c.Equals(items[i], item)) return i;
-                return -1;
-            }
+            int count = Count;
+            T[] items = Items;
+            EqualityComparer<T> c = EqualityComparer<T>.Default;
+            for (int i = 0; i < count; ++i)
+                if (c.Equals(items[i], item)) return i;
+            return -1;
         }
 
         public int FirstIndexOf(Predicate<T> predicate)
         {
-            unchecked
-            {
-                int count = Count;
-                T[] items = Items;
-                for (int i = 0; i < count; ++i)
-                    if (predicate(items[i])) return i;
-                return -1;
-            }
+            int count = Count;
+            T[] items = Items;
+            for (int i = 0; i < count; ++i)
+                if (predicate(items[i])) return i;
+            return -1;
         }
 
         public void RemoveAt(int index)
         {
-            unchecked
-            {
-                int count = Count;
-                if ((uint)index >= (uint)count)
-                    ThrowIndexOutOfBounds(index);
-                Count = --count;
-                if (index < count) Array.Copy(Items, index + 1, Items, index, count - index);
-                Items[count] = default(T);
-            }
+            int count = Count;
+            if ((uint)index >= (uint)count)
+                ThrowIndexOutOfBounds(index);
+
+            Count = --count;
+            if (index < count) Array.Copy(Items, index + 1, Items, index, count - index);
+            Items[count] = default;
         }
 
         // does a fast removal by swapping the item at index with the last element in the array
         // if index is outside bounds, an OOB exception will throw
         public void RemoveAtSwapLast(int index)
         {
-            unchecked
-            {
-                if ((uint)index >= (uint)Count)
-                    ThrowIndexOutOfBounds(index);
-                int last = --Count;
-                Items[index] = Items[last];
-                Items[last]  = default(T);
-            }
+            if ((uint)index >= (uint)Count)
+                ThrowIndexOutOfBounds(index);
+            int last = --Count;
+            Items[index] = Items[last];
+            Items[last]  = default(T);
         }
 
         public T PopLast()
         {
             if (Count == 0)
                 ThrowIndexOutOfBounds(0);
-            T item       = Items[--Count];
-            Items[Count] = default(T);
+            --Count;
+            T item = Items[Count];
+            Items[Count] = default;
             return item;
         }
 
@@ -482,13 +448,10 @@ namespace Ship_Game
         /// <param name="end">End of range (exclusive)</param>
         public ArrayView<T> SubRange(int start, int end)
         {
-            unchecked
-            {
-                int count = Count;
-                if ((uint)start >= (uint)count) ThrowIndexOutOfBounds(start);
-                if ((uint)end   >  (uint)count) ThrowIndexOutOfBounds(end);
-                return new ArrayView<T>(start, end, Items);
-            }
+            int count = Count;
+            if ((uint)start >= (uint)count) ThrowIndexOutOfBounds(start);
+            if ((uint)end   >  (uint)count) ThrowIndexOutOfBounds(end);
+            return new ArrayView<T>(start, end, Items);
         }
 
         public override string ToString()
@@ -498,9 +461,9 @@ namespace Ship_Game
 
         public struct Enumerator : IEnumerator<T>
         {
-            private int Index;
-            private readonly int Count;
-            private readonly T[] Items;
+            int Index;
+            readonly int Count;
+            readonly T[] Items;
             public T Current { get; private set; }
             object IEnumerator.Current => Current;
 
@@ -516,13 +479,10 @@ namespace Ship_Game
             }
             public bool MoveNext()
             {
-                unchecked
-                {
-                    if (Index >= Count)
-                        return false;
-                    Current = Items[Index++];
-                    return true;
-                }
+                if (Index >= Count)
+                    return false;
+                Current = Items[Index++];
+                return true;
             }
             public void Reset()
             {
@@ -545,13 +505,10 @@ namespace Ship_Game
 
         public void AddRange(ICollection<T> collection)
         {
-            unchecked
-            {
-                int n = collection.Count;
-                int i = Count;
-                Resize(i + n);
-                collection.CopyTo(Items, i);
-            }
+            int n = collection.Count;
+            int i = Count;
+            Resize(i + n);
+            collection.CopyTo(Items, i);
         }
 
         public void AddRange(IEnumerable<T> enumerable)
@@ -577,7 +534,7 @@ namespace Ship_Game
 
         internal struct Comparer : IComparer<T>
         {
-            private readonly Comparison<T> Comparison;
+            readonly Comparison<T> Comparison;
             public Comparer(Comparison<T> comparison)
             {
                 Comparison = comparison;
@@ -655,20 +612,17 @@ namespace Ship_Game
 
         public void RemoveAll(Predicate<T> match)
         {
-            unchecked
+            int oldCount = Count;
+            int newCount = 0;
+            for (int i = 0; i < oldCount; ++i) // stable erasure, O(n)
             {
-                int oldCount = Count;
-                int newCount = 0;
-                for (int i = 0; i < oldCount; ++i) // stable erasure, O(n)
-                {
-                    T item = Items[i];
-                    if (!match(item)) // rebuild list from non-removing items
-                        Items[newCount++] = item;
-                }
-                // throw away any remaining references
-                Array.Clear(Items, newCount, oldCount - newCount);
-                Count = newCount;
+                T item = Items[i];
+                if (!match(item)) // rebuild list from non-removing items
+                    Items[newCount++] = item;
             }
+            // throw away any remaining references
+            Array.Clear(Items, newCount, oldCount - newCount);
+            Count = newCount;
         }
 
         public void RemoveRange(int index, int count)
@@ -687,36 +641,27 @@ namespace Ship_Game
 
         public int IndexOf(Predicate<T> match)
         {
-            unchecked
-            {
-                int count = Count;
-                for (int i = 0; i < count; ++i)
-                    if (match(Items[i])) return i;
-                return -1;
-            }
+            int count = Count;
+            for (int i = 0; i < count; ++i)
+                if (match(Items[i])) return i;
+            return -1;
         }
 
         public void Reverse()
         {
-            unchecked
+            for (int i = 0, j = Count - 1; i < j; ++i, --j)
             {
-                for (int i = 0, j = Count - 1; i < j; ++i, --j)
-                {
-                    T temp = Items[i];
-                    Items[i] = Items[j];
-                    Items[j] = temp;
-                }
+                T temp = Items[i];
+                Items[i] = Items[j];
+                Items[j] = temp;
             }
         }
 
         public void ForEach(Action<T> action)
         {
-            unchecked
-            {
-                int count = Count;
-                for (int i = 0; i < count; ++i)
-                    action(Items[i]);
-            }
+            int count = Count;
+            for (int i = 0; i < count; ++i)
+                action(Items[i]);
         }
 
         public T[] ToArray()
@@ -730,27 +675,24 @@ namespace Ship_Game
             return arr;
         }
 
-        // So you accidentally called ToArrayList() which is an Array<T> as well, are you trying to clone the Array<T> ?
+        // So you accidentally called ToArrayList() which is an Array<T> as well,
+        // are you trying to clone the Array<T> ? Use new Array<T>(other) instead.
         public Array<T> ToArrayList()
         {
             throw new InvalidOperationException("You are trying to convert Array<T> to Array<T>. Are you trying to Clone() the Array<T>?");
         }
-
-        // IList interface
+        
+        /////////// IList interface /////////
         
         object IList.this[int index]  { get => this[index]; set => this[index] = (T)value; }
-
         int IList.Add(object value)
         {
-            int insertedAt = Count;
-            Add((T)value);
-            return insertedAt;
+            int insertedAt = Count; Add((T)value); return insertedAt;
         }
-
-        bool IList.Contains(object value) { return Contains((T)value); }
-        int IList.IndexOf(object value) { return IndexOf((T)value); }
-        void IList.Insert(int index, object value) { Insert(index, (T)value); }
-        void IList.Remove(object value) { Remove((T)value); }
+        bool IList.Contains(object value) => Contains((T)value);
+        int IList.IndexOf(object value)   => IndexOf((T)value);
+        void IList.Remove(object value)   => Remove((T)value);
+        void IList.Insert(int index, object value) => Insert(index, (T)value);
     }
 
     public static class ArrayHelper
@@ -768,23 +710,20 @@ namespace Ship_Game
     {
         public static bool ContainsRef<T>(this Array<T> list, T item) where T : class
         {
-            unchecked
-            {
-                int count = list.Count;
-                if (count == 0)
-                    return false;
+            int count = list.Count;
+            if (count == 0)
+                return false;
 
-                T[] items = list.GetInternalArrayItems();
-                if (item == null)
-                {
-                    for (int i = 0; i < count; ++i)
-                        if (items[i] == null) return true;
-                    return false;
-                }
+            T[] items = list.GetInternalArrayItems();
+            if (item == null)
+            {
                 for (int i = 0; i < count; ++i)
-                    if (items[i] == item) return true;
+                    if (items[i] == null) return true;
                 return false;
             }
+            for (int i = 0; i < count; ++i)
+                if (items[i] == item) return true;
+            return false;
         }
 
         public static void AddUniqueRef<T>(this Array<T> list, T item) where T : class
@@ -811,14 +750,11 @@ namespace Ship_Game
 
         public static int IndexOfRef<T>(this Array<T> list, T item) where T : class
         {
-            unchecked
-            {
-                int count = list.Count;
-                T[] items = list.GetInternalArrayItems();
-                for (int i = 0; i < count; ++i)
-                    if (items[i] == item) return i;
-                return -1;
-            }
+            int count = list.Count;
+            T[] items = list.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+                if (items[i] == item) return i;
+            return -1;
         }
 
         public static void RemoveRef<T>(this Array<T> list, T item) where T : class
@@ -853,7 +789,7 @@ namespace Ship_Game
 
     internal sealed class CollectionDebugView<T>
     {
-        private readonly ICollection<T> Collection;
+        readonly ICollection<T> Collection;
 
         public CollectionDebugView(ICollection<T> collection)
         {
@@ -874,9 +810,10 @@ namespace Ship_Game
 
     public struct ArrayView<T> : IReadOnlyList<T>
     {
-        private readonly int Start;
+        readonly int Start;
         public           int Count { get; }
-        private readonly T[] Items;
+
+        readonly T[] Items;
         // start (inclusive), end (exclusive)
         public ArrayView(int start, int end, T[] items)
         {
@@ -891,26 +828,23 @@ namespace Ship_Game
         {
             get
             {
-                unchecked
-                {
-                    int idx = Start + index;
-                    if ((uint)index >= (uint)Count)
-                        ThrowIndexOutOfRange(idx);
-                    return Items[idx];
-                }
+                int idx = Start + index;
+                if ((uint)index >= (uint)Count)
+                    ThrowIndexOutOfRange(idx);
+                return Items[idx];
             }
         }
 
-        private void ThrowIndexOutOfRange(int index)
+        void ThrowIndexOutOfRange(int index)
         {
             throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
         }
 
         public struct Enumerator : IEnumerator<T>
         {
-            private int Index;
-            private readonly int End;
-            private readonly T[] Items;
+            int Index;
+            readonly int End;
+            readonly T[] Items;
             public T Current { get; private set; }
             object IEnumerator.Current => Current;
 
@@ -926,13 +860,10 @@ namespace Ship_Game
             }
             public bool MoveNext()
             {
-                unchecked
-                {
-                    if (Index >= End) // end index is considered invalid, since it's exclusive
-                        return false;
-                    Current = Items[Index++];
-                    return true;
-                }
+                if (Index >= End) // end index is considered invalid, since it's exclusive
+                    return false;
+                Current = Items[Index++];
+                return true;
             }
             public void Reset()
             {
