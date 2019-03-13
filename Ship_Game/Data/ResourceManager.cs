@@ -185,6 +185,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadPlanetEdicts();
             LoadPlanetTypes();
+            LoadSunZoneData();
             SunType.LoadAll();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
@@ -1697,10 +1698,8 @@ namespace Ship_Game
             }
         }
 
-
-
-
         static Array<PlanetType> PlanetTypes;
+        static Array<SunZoneData> SunZones;
         static Map<int, PlanetType> PlanetTypeMap;
 
         public static PlanetType RandomPlanet() => RandomMath.RandItem(PlanetTypes);
@@ -1726,6 +1725,14 @@ namespace Ship_Game
             PlanetTypeMap = new Map<int, PlanetType>(PlanetTypes.Count);
             foreach (PlanetType type in PlanetTypes)
                 PlanetTypeMap[type.Id] = type;
+        }
+
+        static void LoadSunZoneData()
+        {
+            using (var parser = new Data.StarDataParser("SunZoneData.yaml"))
+            {
+                SunZones = parser.DeserializeArray<SunZoneData>();
+            }
         }
 
 
