@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Ship_Game
+namespace Ship_Game.Utils
 {
     /// <summary>
     /// A thread-safe Queue, optimized for Enqueue and Dequeue operations
