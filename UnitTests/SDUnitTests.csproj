@@ -65,12 +65,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertExtensions.cs" />
+    <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="ImpactSimulation.cs" />
-    <Compile Include="TestArrayT.cs" />
-    <Compile Include="TestCollectionExt.cs" />
+    <Compile Include="Collections\TestArrayT.cs" />
+    <Compile Include="Collections\TestCollectionExt.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="TestMathExt.cs" />
-    <Compile Include="TestSafeQueueT.cs" />
+    <Compile Include="Collections\TestSafeQueueT.cs" />
     <Compile Include="TestSerialization.cs" />
     <Compile Include="TestSpatialManager.cs" />
     <Compile Include="TestThreadExt.cs" />
