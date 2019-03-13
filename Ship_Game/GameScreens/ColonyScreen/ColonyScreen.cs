@@ -276,8 +276,8 @@ namespace Ship_Game
             {
                 if (P.HasSpacePort)
                     DrawBuildableShipsList(batch);
-                else if 
-                    (P.AllowInfantry) DrawBuildTroopsList(batch);
+                else if (P.AllowInfantry)
+                    DrawBuildTroopsList(batch);
             }
             else if (P.AllowInfantry && build.Tabs[2].Selected)
             {
