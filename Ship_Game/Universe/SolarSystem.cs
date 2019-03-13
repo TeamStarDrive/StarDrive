@@ -567,7 +567,7 @@ namespace Ship_Game
             Name              = name;
             int starRadius    = (int)(RandomMath.IntBetween(250, 500) * systemScale);
             float ringMax     = starRadius * 300;
-            float ringbase    = ringMax * .1f;
+            float ringBase    = ringMax * .1f;
             int bonusP        = GlobalStats.ExtraPlanets > 0 ? (int)Math.Ceiling(GlobalStats.ExtraPlanets  / 2f) : 0;            
             int minR          = RandomMath.IntBetween(0 + bonusP > 0 ? 1 : 0, 3 + GlobalStats.ExtraPlanets);
             int maxR          = RandomMath.IntBetween(minR, 6 + minR);
@@ -583,11 +583,11 @@ namespace Ship_Game
             
             for (int i = 1; i < NumberOfRings + 1; i++)
             {
-                ringbase += 5000;
-                float ringRadius = ringbase + RandomMath.RandomBetween(0, ringSpace / (1 + NumberOfRings - i));
+                ringBase += 5000;
+                float ringRadius = ringBase + RandomMath.RandomBetween(0, ringSpace / (1 + NumberOfRings - i));
                 if (RandomMath.IntBetween(1, 100) > 80)
                 {
-                    float spread = ringRadius - ringbase;
+                    float spread = ringRadius - ringBase;
 
                     if (!GlobalStats.DisableAsteroids) GenerateAsteroidRing(ringRadius + spread *.25f, spread: spread *.5f);
                     ringRadius += spread / 2;
@@ -613,7 +613,7 @@ namespace Ship_Game
                     };
                     RingList.Add(ring);
                 }
-                ringbase = ringRadius;
+                ringBase = ringRadius;
             }
 
             // now, if number of planets is <= 2 and they are barren,
