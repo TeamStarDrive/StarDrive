@@ -173,12 +173,12 @@ namespace Ship_Game.Data
             //     Position: ...
             //   Ship: ship2
             //     Position: ...
-            if (node.HasItems)
+            if (node.HasSubNodes)
             {
                 Array converted = Array.CreateInstance(ElemType, node.Count);
                 for (int i = 0; i < node.Count; ++i)
                 {
-                    converted.SetValue(Converter.Deserialize(node.Items[i]), i);
+                    converted.SetValue(Converter.Deserialize(node.SubNodes[i]), i);
                 }
                 return converted;
             }

@@ -101,20 +101,17 @@ namespace Ship_Game.Data
 
                 if (isSequence)
                 {
-                    var sequence = root.Value as Array<StarDataNode>;
-                    if (sequence == null)
-                    {
-                        if (root.Value != null)
-                        {
-                            Error(view, $"Sequence Error: key {root.Name} cannot have key:value entries and -sequence entries! Discarding key:values.");
-                        }
-                        root.Value = sequence = new Array<StarDataNode>();
-                    }
-                    sequence.Add(node);
+                    // we got a sequence element
+                    // root:
+                    //   - node
+                    root.AddSequenceElement(node);
                 }
                 else
                 {
-                    root.AddItem(node);
+                    // we got a sub node
+                    // root:
+                    //   node
+                    root.AddSubNode(node);
                 }
 
                 depth = newDepth;
@@ -137,36 +134,6 @@ namespace Ship_Game.Data
             }
             var node = new StarDataNode { Key = "" };
             return ParseTokenAsNode(node, ref view);
-        }
-
-        static StringView NextToken(ref StringView view)
-        {
-            view.TrimStart();
-
-            int start = view.Start;
-            int current = start;
-            int eos = start + view.Length;
-            string str = view.Str;
-            while (current < eos)
-            {
-                switch (str[current])
-                {
-                    case ':':  case '\'': case '"': case '#': case ',':
-                    case '{':  case '}': case '[':  case ']':
-                        if (start == current)
-                        {
-                            view.Skip(1);
-                            return new StringView(start, 1, str);
-                        }
-                        goto finished;
-                }
-                ++current;
-            }
-
-        finished:
-            int length = current - start;
-            view.Skip(length);
-            return new StringView(start, length, str);
         }
 
         StarDataNode ParseTokenAsNode(StarDataNode node, ref StringView view)
@@ -268,7 +235,7 @@ namespace Ship_Game.Data
 
                 var child = new StarDataNode();
                 ParseTokenAsNode(child, ref view);
-                node.AddItem(child);
+                node.AddSubNode(child);
 
                 StringView separator = NextToken(ref view);
                 if (separator.Length == 0)
@@ -276,6 +243,7 @@ namespace Ship_Game.Data
                     Error(separator, "Parse Error: map expected '}' before end of line");
                     break;
                 }
+
                 if (separator.Char0 == '}')
                     break; // end of map
 
@@ -361,6 +329,36 @@ namespace Ship_Game.Data
                 }
             }
             return StrBuilder.ToString();
+        }
+
+        static StringView NextToken(ref StringView view)
+        {
+            view.TrimStart();
+
+            int start = view.Start;
+            int current = start;
+            int eos = start + view.Length;
+            string str = view.Str;
+            while (current < eos)
+            {
+                switch (str[current])
+                {
+                    case ':': case '\'': case '"': case '#': case ',':
+                    case '{': case '}':  case '[': case ']':
+                        if (start == current)
+                        {
+                            view.Skip(1);
+                            return new StringView(start, 1, str);
+                        }
+                        goto finished;
+                }
+                ++current;
+            }
+
+            finished:
+            int length = current - start;
+            view.Skip(length);
+            return new StringView(start, length, str);
         }
 
         void Error(in StringView view, string what)
