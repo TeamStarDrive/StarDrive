@@ -1698,15 +1698,27 @@ namespace Ship_Game
             }
         }
 
+        public static Array<PlanetCategory> SunZoneNearWeights    = new Array<PlanetCategory>();  
+        public static Array<PlanetCategory> SunZoneHabitalWeights = new Array<PlanetCategory>();
+        public static Array<PlanetCategory> SunZoneFarWeights     = new Array<PlanetCategory>();
+        public static Array<PlanetCategory> SunZoneVeryFarWeights = new Array<PlanetCategory>();
+
         static Array<PlanetType> PlanetTypes;
         static Array<SunZoneData> SunZones;
         static Map<int, PlanetType> PlanetTypeMap;
 
         public static PlanetType RandomPlanet() => RandomMath.RandItem(PlanetTypes);
+
         public static PlanetType RandomPlanet(PlanetCategory category)
         {
             return RandomMath.RandItem(PlanetTypes.Filter(p => p.Category == category));
         }
+
+        public static PlanetCategory RandomPlanetCategory(Array<PlanetCategory> categoryList)
+        {
+            return RandomMath.RandItem(categoryList);
+        }
+
         public static PlanetType PlanetOrRandom(int planetId)
         {
             return PlanetTypeMap.TryGetValue(planetId, out PlanetType type)
@@ -1732,9 +1744,12 @@ namespace Ship_Game
             using (var parser = new Data.StarDataParser("SunZoneData.yaml"))
             {
                 SunZones = parser.DeserializeArray<SunZoneData>();
+                SunZoneNearWeights    = SunZoneData.CreateWeights(SunZones, SunZone.Near);
+                SunZoneHabitalWeights = SunZoneData.CreateWeights(SunZones, SunZone.Habital);
+                SunZoneFarWeights     = SunZoneData.CreateWeights(SunZones, SunZone.Far);
+                SunZoneVeryFarWeights = SunZoneData.CreateWeights(SunZones, SunZone.VeryFar);
             }
         }
-
 
         // Added by RedFox
         private static void LoadBlackboxSpecific()
