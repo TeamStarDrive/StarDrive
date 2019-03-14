@@ -2416,16 +2416,20 @@ namespace Ship_Game
 
             foreach (Planet importPlanet in importingPlanets)
             {
-                Ship closestIdleFreighter;
+                // check if the closest freighter has the goods we need
+                Ship closestIdleFreighter = OpportunistFreighter(importPlanet, goods);
+                if (closestIdleFreighter != null)
+                {
+                    closestIdleFreighter.AI.SetupFreighterPlan(importPlanet, goods);
+                    continue;
+                }
+
+                // Check export planets
                 Planet exportPlanet = exportingPlanets.FindClosestTo(importPlanet);
                 if (exportPlanet == null) // no more exporting planets
                     break;
 
-                if (!isPlayer || AutoFreighters)
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet);
-                else
-                    closestIdleFreighter = ClosestIdleFreighterManual(exportPlanet, goods);
-
+                closestIdleFreighter = FindClosestIdleFreighter(exportPlanet, goods);
                 if (closestIdleFreighter == null) // no more available freighters
                     break;
 
@@ -2433,19 +2437,39 @@ namespace Ship_Game
             }
         }
 
-        private Ship ClosestIdleFreighterManual(Planet exportPlanet, Goods goods)
+        private Ship FindClosestIdleFreighter(Planet planet, Goods goods)
+        {
+            Ship freighter;
+            if (!isPlayer || AutoFreighters)
+                freighter = IdleFreighters.FindClosestTo(planet);
+            else
+                freighter = ClosestIdleFreighterManual(planet, goods);
+
+            return freighter;
+        }
+
+        private Ship OpportunistFreighter(Planet planet, Goods goods)
+        {
+            Ship freighter = FindClosestIdleFreighter(planet,goods);
+            if (freighter != null && freighter.GetCargo(goods) > 5f)
+                return freighter;
+
+            return null;
+        }
+
+        private Ship ClosestIdleFreighterManual(Planet planet, Goods goods)
         {
             Ship closestIdleFreighter = null;
             switch (goods)
             {
                 case Goods.Production:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingProduction);
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(planet, s => s.TransportingProduction);
                     break;
                 case Goods.Food:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingFood);
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(planet, s => s.TransportingFood);
                     break;
                 case Goods.Colonists:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingColonists);
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(planet, s => s.TransportingColonists);
                     break;
             }
             return closestIdleFreighter;
