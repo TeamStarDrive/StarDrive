@@ -61,7 +61,7 @@ namespace Ship_Game.UI
             }
 
             MainContainer.Size = size;
-            if (Root.FindChild("Screen", out StarDataNode screen))
+            if (Root.FindSubNode("Screen", out StarDataNode screen))
             {
                 var info = (ScreenInfo)new StarDataSerializer(typeof(ScreenInfo)).Deserialize(screen);
                 Name = info.Name;
@@ -83,11 +83,11 @@ namespace Ship_Game.UI
 
         void CreateElements(UIElementContainer parent, StarDataNode node)
         {
-            if (!node.HasItems)
+            if (!node.HasSubNodes)
                 return;
-            for (int i = 0; i < node.Items.Count; ++i)
+            for (int i = 0; i < node.SubNodes.Count; ++i)
             {
-                CreateElement(parent, node.Items[i]);
+                CreateElement(parent, node.SubNodes[i]);
             }
         }
 
@@ -354,7 +354,7 @@ namespace Ship_Game.UI
                 container.DebugDraw = info.DebugDraw;
             }
 
-            if (node.FindChild("Children", out StarDataNode children))
+            if (node.FindSubNode("Children", out StarDataNode children))
             {
                 if (container != null)
                 {

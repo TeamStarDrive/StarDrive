@@ -78,7 +78,7 @@ namespace Ship_Game.Data
 
             object Deserialize(StarDataNode node, bool recursiveDeserialize)
             {
-                if (recursiveDeserialize && node.HasItems) // we have sub-nodes, delegate to deserialize
+                if (recursiveDeserialize && node.HasSubNodes) // we have sub-nodes, delegate to deserialize
                 {
                     return Converter.Deserialize(node);
                 }
@@ -175,9 +175,9 @@ namespace Ship_Game.Data
                 PrimaryInfo.SetValue(item, node, recursiveDeserialize: false);
             }
 
-            if (node.HasItems)
+            if (node.HasSubNodes)
             {
-                foreach (StarDataNode leaf in node.Items)
+                foreach (StarDataNode leaf in node.SubNodes)
                 {
                     if (Mapping.TryGetValue(leaf.Name, out Info info))
                     {
