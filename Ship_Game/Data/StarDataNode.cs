@@ -7,43 +7,65 @@ namespace Ship_Game.Data
     // StarDrive data object node with key, value and child items
     public class StarDataNode : IEnumerable<StarDataNode>
     {
-        public object Key;
-        public object Value;
-        public Array<StarDataNode> Items;
+        public object Key, Value;
+        public Array<StarDataNode> SubNodes; // SubNode tree,  ie. This: { SubNode1: Value1, SubNode2: Value2 }
+        public Array<StarDataNode> Sequence; // Sequence list, ie. This: [ Element1, Element2, Element3 ]
 
         public override string ToString() => SerializedText();
 
-        public bool HasItems => Items != null && Items.Count > 0;
-        public int Count => Items?.Count ?? 0;
-        public StarDataNode this[int index] => Items[index];
+        public bool HasSubNodes => SubNodes != null && SubNodes.NotEmpty;
+        public bool HasSequence => Sequence != null && Sequence.NotEmpty;
+
+        public int Count
+        {
+            get
+            {
+                if (SubNodes != null) return SubNodes.Count;
+                if (Sequence != null) return Sequence.Count;
+                return 0;
+            }
+        }
+
+        // SubNode indexing
+        public StarDataNode this[int index] => SubNodes[index];
+
+        // Sequence indexing
+        public StarDataNode GetElement(int index) => Sequence[index];
 
         public string Name => Key as string;
         public string ValueText => Value as string;
         public object[] ValueArray => Value as object[];
-        public int ValueInt => (int)Value;
+        public int   ValueInt   => (int)Value;
         public float ValueFloat => (float)Value;
 
-        public void AddItem(StarDataNode item)
+        public void AddSubNode(StarDataNode item)
         {
-            if (Items == null)
-                Items = new Array<StarDataNode>();
-            Items.Add(item);
+            if (SubNodes == null)
+                SubNodes = new Array<StarDataNode>();
+            SubNodes.Add(item);
         }
 
-        public StarDataNode GetChild(string key)
+        public void AddSequenceElement(StarDataNode element)
         {
-            if (!FindChild(key, out StarDataNode found))
+            if (Sequence == null)
+                Sequence = new Array<StarDataNode>();
+            Sequence.Add(element);
+        }
+
+        public StarDataNode GetSubNode(string key)
+        {
+            if (!FindSubNode(key, out StarDataNode found))
                 throw new KeyNotFoundException($"StarDataNode {key} not found!");
             return found;
         }
 
         // finds a direct child element
-        public bool FindChild(string key, out StarDataNode found)
+        public bool FindSubNode(string key, out StarDataNode found)
         {
-            if (Items != null)
+            if (SubNodes != null)
             {
-                int count = Items.Count;
-                StarDataNode[] fast = Items.GetInternalArrayItems();
+                int count = SubNodes.Count;
+                StarDataNode[] fast = SubNodes.GetInternalArrayItems();
                 for (int i = 0; i < count; ++i)
                 {
                     StarDataNode node = fast[i];
@@ -60,32 +82,41 @@ namespace Ship_Game.Data
 
         // recursively searches child elements
         // this can be quite slow if Node tree has hundreds of elements
-        public bool FindChildRecursive(string key, out StarDataNode found)
+        public bool FindSubNodeRecursive(string key, out StarDataNode found)
         {
             // first check direct children
-            if (FindChild(key, out found))
+            if (FindSubNode(key, out found))
                 return true;
 
             // then go recursive
-            if (Items != null)
+            if (SubNodes != null)
             {
-                int count = Items.Count;
-                StarDataNode[] fast = Items.GetInternalArrayItems();
+                int count = SubNodes.Count;
+                StarDataNode[] fast = SubNodes.GetInternalArrayItems();
                 for (int i = 0; i < count; ++i)
-                    if (fast[i].FindChildRecursive(key, out found))
+                    if (fast[i].FindSubNodeRecursive(key, out found))
                         return true;
             }
             return false;
         }
-
+        
+        // Safe SubNode enumerator
         public IEnumerator<StarDataNode> GetEnumerator()
         {
-            if (Items == null) yield break;
-            foreach (StarDataNode node in Items)
+            if (SubNodes == null) yield break;
+            foreach (StarDataNode node in SubNodes)
                 yield return node;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        // Safe sequence enumerator
+        public IEnumerator<object> GetSequence()
+        {
+            if (Sequence == null) yield break;
+            foreach (object value in Sequence)
+                yield return value;
+        }
 
         public string SerializedText()
         {
@@ -123,8 +154,8 @@ namespace Ship_Game.Data
             Append(sb, Key).Append(": ");
             Append(sb, Value).AppendLine();
 
-            if (Items != null)
-                foreach (StarDataNode child in Items)
+            if (SubNodes != null)
+                foreach (StarDataNode child in SubNodes)
                     child.SerializeTo(sb, depth+2);
         }
     }
