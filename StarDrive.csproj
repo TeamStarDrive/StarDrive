@@ -232,6 +232,7 @@
     <Compile Include="Ship_Game\Data\StarDataSerializer.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
     <Compile Include="Ship_Game\Data\StarDataParser.cs" />
+    <Compile Include="Ship_Game\Data\StringView.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DebugText.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Debug\DebugTextBlock.cs" />

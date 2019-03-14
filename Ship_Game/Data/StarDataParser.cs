@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -10,49 +9,40 @@ namespace Ship_Game.Data
     // Simplified text parser for StarDrive data files
     public class StarDataParser : IDisposable
     {
-        StreamReader Reader;
+        TextReader Reader;
         public StarDataNode Root { get; }
-        static readonly char[] Colon = { ':' };
-        static readonly char[] Array = { '[', ']' };
-        static readonly char[] Commas = { ',' };
+        int Line;
+        readonly StringBuilder StrBuilder = new StringBuilder();
 
-        public StarDataParser(string file)
+        public StarDataParser(string file) : this(ResourceManager.GetModOrVanillaFile(file))
         {
-            FileInfo f = ResourceManager.GetModOrVanillaFile(file);
-            if (f == null)
-                throw new FileNotFoundException($"Required StarData file not found! {file}");
-            Reader = OpenStream(f);
-            Root = new StarDataNode
-            {
-                Key = f.NameNoExt(),
-                Value = "",
-            };
-            Parse();
         }
-        public StarDataParser(FileInfo f)
+
+        public StarDataParser(FileInfo f) : this(f?.NameNoExt(), OpenStream(f))
         {
-            if (f == null || !f.Exists)
-                throw new FileNotFoundException($"Required StarData file not found! {f?.FullName}");
-            Reader = OpenStream(f);
-            Root = new StarDataNode
-            {
-                Key = f.NameNoExt(),
-                Value = "",
-            };
+        }
+
+        public StarDataParser(string name, TextReader reader)
+        {
+            Reader = reader;
+            Root = new StarDataNode { Key = name ?? "", Value = null };
             Parse();
         }
         
-        static StreamReader OpenStream(FileInfo f)
+        static StreamReader OpenStream(FileInfo f, string nameInfo = null)
         {
+            if (f == null || !f.Exists)
+                throw new FileNotFoundException($"Required StarData file not found! {nameInfo ?? f?.FullName}");
             try
             {
                 return new StreamReader(f.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Encoding.UTF8);
             }
             catch (UnauthorizedAccessException e) // file is still open?
             {
-                Log.Warning($"Open failed: {e.Message}");
+                Log.Warning(ConsoleColor.DarkRed, $"Open failed: {e.Message} {nameInfo ?? f.FullName}");
                 Thread.Sleep(1); // wait a bit
             }
+            // try again or throw
             return new StreamReader(f.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Encoding.UTF8);
         }
 
@@ -66,28 +56,31 @@ namespace Ship_Game.Data
             public int Depth;
             public StarDataNode Node;
         }
-
+        
         void Parse()
         {
+            Line = 0;
             int depth = 0;
-            string line;
+            string currentLine;
             var saved = new Stack<DepthSave>();
 
             StarDataNode root = Root;
             StarDataNode prev = Root;
 
-            while ((line = Reader.ReadLine()) != null)
+            while ((currentLine = Reader.ReadLine()) != null)
             {
-                if (line.Length == 0 || line[0] == '#')
-                    continue;
+                Line += 1;
+                var view = new StringView(currentLine);
+                view.SkipWhiteSpace(out int newDepth);
 
-                (int newDepth, int index) = Depth(line);
                 // "      " -- line is all spaces
                 // "  # comment after spaces "
-                if (index >= line.Length || line[index] == '#')
-                    continue; 
+                if (view.Length == 0 || view.Char0 == '#')
+                    continue;
 
-                StarDataNode node = ParseLineAsNode(line, out bool isSequence);
+                StarDataNode node = ParseLineAsNode(ref view, ref newDepth, out bool isSequence);
+                if (node == null)
+                    continue;
 
                 if (newDepth > depth)
                 {
@@ -109,10 +102,14 @@ namespace Ship_Game.Data
                 if (isSequence)
                 {
                     var sequence = root.Value as Array<StarDataNode>;
-                    if (root.Value == null)
-                        root.Value = sequence = new Array<StarDataNode>();
                     if (sequence == null)
-                        throw new InvalidOperationException($"Attempted to create sequence on root with non-sequence Value: {root.Value}");
+                    {
+                        if (root.Value != null)
+                        {
+                            Error(view, $"Sequence Error: key {root.Name} cannot have key:value entries and -sequence entries! Discarding key:values.");
+                        }
+                        root.Value = sequence = new Array<StarDataNode>();
+                    }
                     sequence.Add(node);
                 }
                 else
@@ -125,103 +122,251 @@ namespace Ship_Game.Data
             }
         }
 
-        static string RemoveComment(string text)
+        StarDataNode ParseLineAsNode(ref StringView view, ref int newDepth, out bool isSequence)
         {
-            int comment = text.IndexOf('#');
-            return comment == -1 ? text : text.Substring(0, comment);
-        }
-
-        static StarDataNode ParseLineAsNode(string line, out bool isSequence)
-        {
-            line = line.TrimStart();
-            isSequence = line[0] == '-' && line[1] == ' ';
+            isSequence = view.StartsWith("- ");
             if (isSequence)
             {
-                line = line.Substring(2);
-                string[] parts = line.Split(Colon, 2, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length == 1)
+                newDepth += 2;
+                view.Skip(2);
+                if (view.Length == 0)
                 {
-                    return new StarDataNode
-                    {
-                        Key   = null,
-                        Value = BoxValue(RemoveComment(parts[0]))
-                    };
+                    Error(view, "Syntax Error: expected a value");
+                    return null;
                 }
-                else
+            }
+            var node = new StarDataNode { Key = "" };
+            return ParseTokenAsNode(node, ref view);
+        }
+
+        static StringView NextToken(ref StringView view)
+        {
+            view.TrimStart();
+
+            int start = view.Start;
+            int current = start;
+            int eos = start + view.Length;
+            string str = view.Str;
+            while (current < eos)
+            {
+                switch (str[current])
                 {
-                    return new StarDataNode
-                    {
-                        Key   = parts[0].Trim(),
-                        Value = BoxValue(RemoveComment(parts[1]))
-                    };
+                    case ':':  case '\'': case '"': case '#': case ',':
+                    case '{':  case '}': case '[':  case ']':
+                        if (start == current)
+                        {
+                            view.Skip(1);
+                            return new StringView(start, 1, str);
+                        }
+                        goto finished;
                 }
+                ++current;
+            }
+
+        finished:
+            int length = current - start;
+            view.Skip(length);
+            return new StringView(start, length, str);
+        }
+
+        StarDataNode ParseTokenAsNode(StarDataNode node, ref StringView view)
+        {
+            StringView first = NextToken(ref view);
+            if (first.Length == 0)
+                return node; // completely empty node (allowed by YAML spec)
+
+            if (first.Char0 == '{')
+            {
+                ParseObject(node, ref view);
+                return node;
+            }
+
+            StringView second = NextToken(ref view);
+            if (second.Length == 0) // only value!
+            {
+                node.Value = ParseKey(first, ref view);
+                return node;
+            }
+            if (second != ":")
+            {
+                Error(second, $"Syntax Error: expected ':' for key:value entry but got {second.Text} instead");
+                return node;
+            }
+
+            node.Key = ParseKey(first, ref view);
+
+            StringView third = NextToken(ref view);
+            third.TrimEnd();
+            if (third.Length == 0) // no value! (probably a sequence will follow)
+                return node;
+            
+            if (third.Char0 == '{')
+            {
+                ParseObject(node, ref view);
             }
             else
             {
-                string[] parts = line.Split(Colon, 2, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length == 1) // no value
+                node.Value = ParseValue(third, ref view);
+            }
+            return node;
+        }
+
+        object ParseKey(in StringView token, ref StringView view)
+        {
+            switch (token.Char0)
+            {
+                // because I don't want to support this extra complexity
+                case '{': Error(token, "Syntax Restriction: maps not allowed as keys");   return null;
+                case '[': Error(token, "Syntax Restriction: arrays not allowed as keys"); return null;
+                default: return ParseValue(token, ref view);
+            }
+        }
+
+        object ParseValue(StringView token, ref StringView view)
+        {
+            if (token.Length == 0) return null;
+            if (token == "null")   return null;
+            if (token == "true")   return true;
+            if (token == "false")  return false;
+            char c = token.Char0;
+            if (('0' <= c && c <= '9') || c == '-' || c == '+')
+            {
+                if (token.IndexOf('.') != -1)
+                    return token.ToDouble();
+                return token.ToInt();
+            }
+            if (c == '\'' || c == '"')
+            {
+                return ParseString(ref view, terminator: c);
+            }
+            if (c == '[')
+            {
+                return ParseArray(ref view);
+            }
+            if (c == '{')
+            {
+                Error(token, "Parse Error: map not supported in this context");
+                return null;
+            }
+            token.TrimEnd();
+            return token.Text; // probably some text
+        }
+        
+        void ParseObject(StarDataNode node, ref StringView view)
+        {
+            for (;;)
+            {
+                view.TrimStart();
+                if (view.Length == 0)
                 {
-                    return new StarDataNode
+                    Error(view, "Parse Error: map expected '}' before end of line");
+                    break;
+                }
+
+                if (view.Char0 == '}')
+                    break; // end of map
+
+                var child = new StarDataNode();
+                ParseTokenAsNode(child, ref view);
+                node.AddItem(child);
+
+                StringView separator = NextToken(ref view);
+                if (separator.Length == 0)
+                {
+                    Error(separator, "Parse Error: map expected '}' before end of line");
+                    break;
+                }
+                if (separator.Char0 == '}')
+                    break; // end of map
+
+                if (separator.Char0 != ',')
+                {
+                    Error(separator, "Parse Error: map expected ',' separator after value entry");
+                    break;
+                }
+            }
+        }
+
+        object ParseArray(ref StringView view)
+        {
+            var arrayItems = new Array<object>();
+
+            for (;;)
+            {
+                StringView token = NextToken(ref view);
+                if (token.Length == 0)
+                {
+                    Error(token, "Parse Error: array expected ']' before end of line");
+                    break;
+                }
+                
+                if (token.Char0 == ']')
+                    break; // end of array
+
+                object o = ParseValue(token, ref view);
+                arrayItems.Add(o);
+
+                StringView separator = NextToken(ref view);
+                if (separator.Length == 0)
+                {
+                    Error(separator, "Parse Error: array expected ']' before end of line");
+                    break;
+                }
+
+                if (separator.Char0 == ']')
+                    break; // end of array
+
+                if (separator.Char0 != ',')
+                {
+                    Error(separator, "Parse Error: array expected ',' separator after an entry");
+                    break;
+                }
+            }
+            return arrayItems.ToArray();
+        }
+
+        string ParseString(ref StringView view, char terminator)
+        {
+            StrBuilder.Clear();
+            while (view.Length > 0)
+            {
+                char c = view.PopFirst();
+                if (c == terminator)
+                    break;
+
+                if (c == '\\')
+                {
+                    if (view.Length > 0)
                     {
-                        Key   = RemoveComment(parts[0]).Trim(),
-                        Value = null
-                    };
+                        c = view.PopFirst();
+                        switch (c)
+                        {
+                            case '\\': StrBuilder.Append('\\'); break;
+                            case 't':  StrBuilder.Append('\t'); break;
+                            case 'n':  StrBuilder.Append('\n'); break;
+                            case 'r':  StrBuilder.Append('\r'); break;
+                            case '\'': StrBuilder.Append('\''); break;
+                            case '"':  StrBuilder.Append('"');  break;
+                        }
+                    }
+                    else
+                    {
+                        Error(view, "Parse Error: unexpected end of string");
+                        break;
+                    }
                 }
                 else
                 {
-                    return new StarDataNode
-                    {
-                        Key   = parts[0].Trim(),
-                        Value = BoxValue(RemoveComment(parts[1]))
-                    };
+                    StrBuilder.Append(c);
                 }
             }
+            return StrBuilder.ToString();
         }
 
-        static object BoxValue(string value)
+        void Error(in StringView view, string what)
         {
-            value = value.Trim();
-            if (value.Length == 0) return null;
-            if (value == "null")   return null;
-            if (value == "true")   return true;
-            if (value == "false")  return false;
-            char c = value[0];
-            if (c == '[')
-            {
-                if (value[1] == '[')
-                    throw new InvalidDataException($"Cannot parse nested arrays, use a sequence instead: '{value}'");
-                string trimmed = value.Trim(Array);
-                string[] elements = trimmed.Split(Commas, StringSplitOptions.None);
-
-                // now individually box each element into an object array
-                var array = new object[elements.Length];
-                for (int i = 0; i < elements.Length; ++i)
-                    array[i] = BoxValue(elements[i]);
-                return array;
-            }
-            if (('0' <= c && c <= '9') || c == '-' || c == '+')
-            {
-                if (value.IndexOf('.') != -1 && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float f))
-                    return f;
-                if (int.TryParse(value, out int i))
-                    return i;
-            }
-            return value; // probably some sort of text?
+            Log.Error($"{Root.Key}:{Line}:{view.Start} {what}");
         }
-
-        static (int,int) Depth(string line)
-        {
-            int depth = 0, i = 0;
-            for (; i < line.Length; ++i)
-            {
-                char c = line[i];
-                if      (c == ' ')  ++depth;
-                else if (c == '\t') depth += 2;
-                else break;
-            }
-            return (depth, i);
-        }
-
 
         public Array<T> DeserializeArray<T>() where T : new()
         {

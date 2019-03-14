@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 
@@ -7,12 +8,17 @@ namespace Ship_Game.Data
 {
     // Note: StarDataParser is opt-in, so properties/fields
     //       must be marked with [StarData]
-    [AttributeUsage(AttributeTargets.Property|AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class StarDataAttribute : Attribute
     {
+        public string Id;
         public bool IsPrimaryKey;
-        public StarDataAttribute(bool key=false)
+        public StarDataAttribute()
         {
+        }
+        public StarDataAttribute(string id, bool key = false)
+        {
+            Id = id;
             IsPrimaryKey = key;
         }
     }
@@ -20,13 +26,16 @@ namespace Ship_Game.Data
     // Note: This can be used for Key attributes
     public sealed class StarDataKeyAttribute : StarDataAttribute
     {
-        public StarDataKeyAttribute() : base(true)
+        public StarDataKeyAttribute() : base(null, true)
+        {
+        }
+        public StarDataKeyAttribute(string id) : base(id, true)
         {
         }
     }
 
     // Note: This can be applied to classes, so StarData classes could have nested types
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class StarDataTypeAttribute : Attribute
     {
         public StarDataTypeAttribute()
@@ -119,7 +128,10 @@ namespace Ship_Game.Data
             {
                 FieldInfo f = fields[i];
                 if (f.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
-                    AddMapping(f.Name, a, new Info(types, null, f));
+                {
+                    string id = a.Id.NotEmpty() ? a.Id : f.Name;
+                    AddMapping(id, a, new Info(types, null, f));
+                }
             }
             
             for (int i = 0; i < props.Length; ++i)
@@ -128,8 +140,11 @@ namespace Ship_Game.Data
                 if (p.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
                 {
                     MethodInfo setter = p.GetSetMethod(nonPublic: true);
-                    if (setter == null) throw new Exception($"Property {p.Name} has no setter!");
-                    AddMapping(p.Name, a, new Info(types, p, null));
+                    if (setter == null)
+                        throw new Exception($"StarDataSerializer Class {type.Name} Property {p.Name} has no setter!");
+
+                    string id = a.Id.NotEmpty() ? a.Id : p.Name;
+                    AddMapping(id, a, new Info(types, p, null));
                 }
             }
         }
@@ -164,7 +179,7 @@ namespace Ship_Game.Data
             {
                 foreach (StarDataNode leaf in node.Items)
                 {
-                    if (Mapping.TryGetValue(leaf.Key, out Info info))
+                    if (Mapping.TryGetValue(leaf.Name, out Info info))
                     {
                         info.SetValue(item, leaf, recursiveDeserialize: true);
                     }
