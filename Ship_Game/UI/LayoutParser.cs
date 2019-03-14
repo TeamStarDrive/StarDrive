@@ -69,7 +69,7 @@ namespace Ship_Game.UI
             }
             else
             {
-                Name = Root.Key;
+                Name = Root.Name;
                 virtualSize = size; // default to current screen size
             }
             VirtualXForm = size / virtualSize;
@@ -252,7 +252,7 @@ namespace Ship_Game.UI
                 info.Spr = LoadSpriteAnim(info.SpriteAnim);
 
                 // init texture for size information, so buttons can be auto-resized
-                if (info.Tex == null && node.Key == "Button")
+                if (info.Tex == null && node.Name == "Button")
                 {
                     info.Tex = UIButton.StyleTexture(info.ButtonStyle);
                 }
@@ -264,7 +264,7 @@ namespace Ship_Game.UI
 
         void CreateElement(UIElementContainer parent, StarDataNode node)
         {
-            if (node.Key == "Screen")
+            if (node.Name == "Screen")
                 return; // ignore layout descriptor
 
             bool newElement = true;
@@ -273,11 +273,11 @@ namespace Ship_Game.UI
             if (info == null)
                 return; // meh
             
-            if (node.Key == "Panel")
+            if (node.Name == "Panel")
             {
                 element = new UIPanel();
             }
-            else if (node.Key == "List")
+            else if (node.Name == "List")
             {
                 element = new UIList
                 {
@@ -285,11 +285,11 @@ namespace Ship_Game.UI
                     LayoutStyle = info.ListLayout,
                 };
             }
-            else if (node.Key == "Label")
+            else if (node.Name == "Label")
             {
                 element = new UILabel(info.Title.Text);
             }
-            else if (node.Key == "Button")
+            else if (node.Name == "Button")
             {
                 element = new UIButton(info.ButtonStyle)
                 {
@@ -298,12 +298,12 @@ namespace Ship_Game.UI
                     ClickSfx = info.ClickSfx,
                 };
             }
-            else if (node.Key == "Checkbox")
+            else if (node.Name == "Checkbox")
             {
                 bool dummy = false;
                 element = new UICheckBox(() => dummy, Fonts.Arial12Bold, info.Title.Text, info.Tooltip.Text);
             }
-            else if (node.Key == "Override")
+            else if (node.Name == "Override")
             {
                 if (!parent.Find(info.ElementName, out element))
                 {
