@@ -18,7 +18,7 @@ namespace Ship_Game
 
             if (colonyType == ColonyType.Colony) return; // No Governor? Nevermind!
 
-            float budget = BuildingBudget();
+            float budget    = BuildingBudget();
             bool noResearch = string.IsNullOrEmpty(Owner.ResearchTopic);
 
             // Switch to Core if there is nothing in the research queue (Does not actually change assigned Governor)
@@ -27,7 +27,7 @@ namespace Ship_Game
 
             Food.Percent = 0;
             Prod.Percent = 0;
-            Res.Percent = 0;
+            Res.Percent  = 0;
 
             switch (colonyType) // New resource management by Gretman 
             {
