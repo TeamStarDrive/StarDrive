@@ -33,6 +33,7 @@ namespace Ship_Game
 
         public float DeltaTime { get; private set; }
         public GameTime GameTime;
+        public float TotalElapsed => (float)GameTime.TotalGameTime.TotalSeconds;
         public int FrameId { get; private set; }
 
         public StarDriveGame()
