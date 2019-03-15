@@ -61,16 +61,25 @@ namespace Ship_Game
         void AssignCoreWorldWorkers()
         {
             if (IsCybernetic) // Filthy Opteris
-            {
                 AssignCoreWorldProduction(1f);
-                Res.AutoBalanceWorkers(); // rest goes to research
-            }
             else // Strategy for Flesh-bags:
             {
                 AssignCoreWorldFarmers(1f); 
                 AssignCoreWorldProduction(1f - Food.Percent); // then we optimize production
-                Res.AutoBalanceWorkers(); // and rest goes to research
             }
+
+            Res.AutoBalanceWorkers(); // rest goes to research
+        }
+
+        // Work for Anything that is not a Core World or Trade Hub is dealt here
+        void AssignOtherWorldsWorkers(float percentFood, float percentProd)
+        {
+            Food.Percent = FarmToPercentage(percentFood);
+            Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(percentProd));
+            if (ConstructionQueue.Count > 0)
+                Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
+
+            Res.AutoBalanceWorkers(); // rest goes to research
         }
 
         float MinIncomePerTurn(float storage, ColonyResource res)
