@@ -202,7 +202,6 @@ namespace Ship_Game.AI
                 platform.TetherToPlanet(Empire.Universe.PlanetsDict[g.Goal.TetherTarget]);
                 platform.TetherOffset = g.Goal.TetherOffset;
             }
-            Owner.loyalty.GetEmpireAI().Goals.Remove(g.Goal);
             Owner.QueueTotalRemoval();
         }
 
