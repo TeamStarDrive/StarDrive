@@ -336,17 +336,26 @@ namespace Ship_Game
             return false;
         }
         
-        bool GetMirrorSlot(SlotStruct slot, out MirrorSlot mirrored)
+        bool GetMirrorSlotStruct(SlotStruct slot, out SlotStruct mirrored)
         {
             SlotStruct root = slot.Root;
-            return GetMirrorSlot(root, root.Module.XSIZE, root.Orientation, out mirrored);
+            if (GetMirrorSlot(root, root.Module.XSIZE, root.Orientation, out MirrorSlot ms))
+            {
+                if (ms.Slot?.Module != null)
+                {
+                    mirrored = ms.Slot;
+                    return true;
+                }
+            }
+            mirrored = null;
+            return false;
         }
 
         bool GetMirrorModule(SlotStruct slot, out ShipModule module)
         {
-            if (GetMirrorSlot(slot, out MirrorSlot mirrored))
+            if (GetMirrorSlotStruct(slot, out SlotStruct mirrored))
             {
-                module = mirrored.Slot?.Root.Module;
+                module = mirrored.Root.Module;
                 if (module != null
                     && module.UID == slot.Module.UID
                     && module.XSIZE == slot.Module.XSIZE

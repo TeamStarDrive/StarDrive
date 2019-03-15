@@ -219,11 +219,8 @@ namespace Ship_Game
 
         void InstallActiveModule(SlotInstall active)
         {
-            if (!active.CanInstallTo(ModuleGrid))
-                return;
-
             SlotInstall mirror = CreateMirrorInstall(active);
-            if (!mirror.CanInstallTo(ModuleGrid))
+            if (!active.CanInstallTo(ModuleGrid) && !mirror.CanInstallTo(ModuleGrid))
                 return;
 
             ModuleGrid.StartUndoableAction();
@@ -268,10 +265,10 @@ namespace Ship_Game
 
             if (IsSymmetricDesignMode)
             {
-                if (GetMirrorSlot(slot, out MirrorSlot mirrored)
-                    && mirrored.Slot.Root != slot.Root)
+                if (GetMirrorSlotStruct(slot, out SlotStruct mirrored)
+                    && mirrored.Root != slot.Root)
                 {
-                    ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module);
+                    ModuleGrid.ClearSlots(mirrored.Root, mirrored.Root.Module);
                 }
             }
             ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
