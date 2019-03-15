@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Algorithms;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -11,7 +10,6 @@ namespace Ship_Game.AI
     public sealed partial class ShipAI
     {
         public Vector2 MovePosition;
-        Vector2 DesiredDirection;
         public Planet OrbitTarget;
 
         float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
