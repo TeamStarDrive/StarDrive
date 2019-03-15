@@ -163,16 +163,6 @@ namespace Ship_Game
             HighlightedModule = null;
         }
 
-        bool IfItFitsISits(SlotStruct slot, ShipModule module)
-        {
-            if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
-            {
-                PlayNegativeSound();
-                return false;
-            }
-            return true;
-        }
-
         class SlotInstall
         {
             public readonly SlotStruct Slot;
