@@ -84,32 +84,17 @@ namespace Ship_Game
 
 		public void DrawWithShadowCaps(SpriteBatch batch)
 		{
-			Color white;
 			Color color;
-			string str = capT;
-			Vector2 capitalPos = CapitalPos;
-			SpriteFont cap = Cap;
-			if (ToggleOn)
-			{
-				white = Color.White;
-			}
-			else
-			{
-				white = (Hover ? Color.White : Color.DarkGray);
-			}
-			HelperFunctions.DrawDropShadowText(batch, str, capitalPos, cap, white);
-			string str1 = smallT;
-			Vector2 textPos = TextPos;
-			SpriteFont small = Small;
-			if (ToggleOn)
-			{
-				color = Color.White;
-			}
-			else
-			{
-				color = (Hover ? Color.White : Color.DarkGray);
-			}
-			HelperFunctions.DrawDropShadowText(batch, str1, textPos, small, color);
+            if (ToggleOn)
+            {
+                color = Color.DarkOrange;
+            }
+            else
+            {
+                color = (Hover ? Color.White : Color.DarkGray);
+            }
+			HelperFunctions.DrawDropShadowText(batch, capT, CapitalPos, Cap, color);
+			HelperFunctions.DrawDropShadowText(batch, smallT, TextPos, Small, color);
 		}
 
 		public bool HandleInput(InputState input)

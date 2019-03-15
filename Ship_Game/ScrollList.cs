@@ -34,7 +34,7 @@ namespace Ship_Game
         private readonly int EntryHeight = 40;
         private int ScrollBarHover;
         private int StartDragPos;
-        private bool DraggingScrollBar;
+        public bool DraggingScrollBar { get; private set; }
         private float ScrollBarStartDragPos;
         private float ClickTimer;
         private float TimerDelay = 0.05f;
