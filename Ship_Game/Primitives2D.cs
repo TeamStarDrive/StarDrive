@@ -133,10 +133,14 @@ namespace Ship_Game
 
         public static void DrawRectangle(this SpriteBatch spriteBatch, Rectangle rect, Color color, float thickness = 1f)
         {
-            DrawLine(spriteBatch, new Vector2(rect.X, rect.Y), new Vector2(rect.Right, rect.Y), color, thickness);
-            DrawLine(spriteBatch, new Vector2(rect.X, rect.Y), new Vector2(rect.X, rect.Bottom), color, thickness);
-            DrawLine(spriteBatch, new Vector2(rect.X - thickness, rect.Bottom), new Vector2(rect.Right, rect.Bottom), color, thickness);
-            DrawLine(spriteBatch, new Vector2(rect.Right, rect.Y), new Vector2(rect.Right, rect.Bottom), color, thickness);
+            var tl = new Vector2(rect.X, rect.Y);
+            var bl = new Vector2(rect.X, rect.Bottom);
+            var tr = new Vector2(rect.Right, rect.Y);
+            var br = new Vector2(rect.Right, rect.Bottom);
+            DrawLine(spriteBatch, tl, tr, color, thickness); // ---- top
+            DrawLine(spriteBatch, tr, br, color, thickness); //    | right
+            DrawLine(spriteBatch, br, bl, color, thickness); // ____ bottom
+            DrawLine(spriteBatch, bl, tl, color, thickness); // |    left
         }
 
         public static void DrawRectangle(this SpriteBatch spriteBatch, Vector2 center, Vector2 size, float rotation, Color color, float thickness = 1f)
@@ -146,10 +150,10 @@ namespace Ship_Game
             Vector2 tr = new Vector2(center.X + halfSize.X, center.Y - halfSize.Y).RotateAroundPoint(center, rotation);
             Vector2 br = new Vector2(center.X + halfSize.X, center.Y + halfSize.Y).RotateAroundPoint(center, rotation);
             Vector2 bl = new Vector2(center.X - halfSize.X, center.Y + halfSize.Y).RotateAroundPoint(center, rotation);
-            DrawLine(spriteBatch, tl, tr, color, thickness);
-            DrawLine(spriteBatch, tr, br, color, thickness);
-            DrawLine(spriteBatch, br, bl, color, thickness);
-            DrawLine(spriteBatch, bl, tl, color, thickness);
+            DrawLine(spriteBatch, tl, tr, color, thickness); // ---- top
+            DrawLine(spriteBatch, tr, br, color, thickness); //    | right
+            DrawLine(spriteBatch, br, bl, color, thickness); // ____ bottom
+            DrawLine(spriteBatch, bl, tl, color, thickness); // |    left
         }
 
         public static void DrawRectangleGlow(this SpriteBatch spriteBatch, Rectangle r)
