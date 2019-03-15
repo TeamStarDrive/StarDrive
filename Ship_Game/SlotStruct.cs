@@ -116,11 +116,14 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Point IntSize => new Point(PQ.W/16, PQ.H/16);
         [XmlIgnore][JsonIgnore] public Rectangle IntRect => new Rectangle(PQ.X/16, PQ.Y/16, PQ.W/16, PQ.H/16);
 
-        public Vector2 Center()
+        [XmlIgnore][JsonIgnore] public Vector2 Center
         {
-            if (Module?.UID.IsEmpty() ?? true)
-                return Vector2.Zero;
-            return new Vector2(PQ.X + Module.XSIZE*8, PQ.Y + Module.YSIZE*8);
+            get
+            {
+                if (Module?.UID.IsEmpty() ?? true)
+                    return Vector2.Zero;
+                return new Vector2(PQ.X + Module.XSIZE * 8, PQ.Y + Module.YSIZE * 8);
+            }
         }
 
         public Rectangle ModuleRect => new Rectangle(PQ.X, PQ.Y, Module.XSIZE * 16, Module.YSIZE * 16);
