@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Audio;
@@ -38,7 +37,6 @@ namespace Ship_Game
         private Vector2 StartDragPos;
         private ShipData Changeto;
         private string ScreenToLaunch;
-        private ShipModule HoveredModule;
         private float TransitionZoom = 1f;
         private SlotModOperation Operation;
         public ShipModule ActiveModule;
@@ -57,11 +55,10 @@ namespace Ship_Game
         private Rectangle DesignRoleRect;
         public bool IsSymmetricDesignMode = true;
 
-        private struct MirrorSlot
+        struct MirrorSlot
         {
             public SlotStruct Slot;
             public ModuleOrientation Orientation;
-            public Vector2 Center => Slot.Center();
         }
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
@@ -163,52 +160,83 @@ namespace Ship_Game
             GameAudio.SmallServo();
 
             SpawnActiveModule(template, orientation, facing);
-
             HighlightedModule = null;
-            HoveredModule     = null;
         }
 
-        private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
+        bool IfItFitsISits(SlotStruct slot, ShipModule module)
         {
             if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
             {
                 PlayNegativeSound();
-                return;
+                return false;
             }
-
-            ModuleGrid.StartUndoableAction();
-
-            bool same = slot.IsSame(module, orientation, module.Facing);
-
-            if (IsSymmetricDesignMode)
-            {
-                MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
-                if (IsMirrorSlotPresent(mirrored, slot))
-                {
-                    if (!ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, module))
-                    {
-                        PlayNegativeSound();
-                        return;
-                    }
-
-                    float mirroredFacing = ConvertOrientationToFacing(mirrored.Orientation);
-                    ShipModule mirroredModule = CreateDesignModule(module, mirrored.Orientation, mirroredFacing);
-                    
-                    if (same && mirrored.Slot.IsSame(mirroredModule, mirrored.Orientation, mirroredFacing))
-                        return; // both same
-                    ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
-                }
-            }
-            else if (same)
-                return;
-
-            ModuleGrid.InstallModule(slot, module, orientation);
-            ModuleGrid.RecalculatePower();
-            ShipSaved = false;
-            SpawnActiveModule(module, orientation, slot.Facing);
+            return true;
         }
 
-        private void ReplaceModulesWith(SlotStruct slot, ShipModule template)
+        class SlotInstall
+        {
+            public readonly SlotStruct Slot;
+            public readonly ShipModule Mod;
+            public readonly ModuleOrientation Ori;
+            public readonly bool AlreadyInstalled;
+            bool CanInstall;
+            public SlotInstall() {}
+            public SlotInstall(SlotStruct slot, ShipModule mod, ModuleOrientation ori)
+            {
+                Slot = slot;
+                Mod = mod;
+                Ori = ori;
+                AlreadyInstalled = Slot.IsSame(Mod, Ori, Mod.Facing);
+            }
+            public bool CanInstallTo(DesignModuleGrid grid)
+            {
+                if (Slot == null || !grid.ModuleFitsAtSlot(Slot, Mod))
+                {
+                    PlayNegativeSound();
+                    return (CanInstall = false);
+                }
+                return (CanInstall = !AlreadyInstalled);
+            }
+            public void TryInstallTo(DesignModuleGrid designGrid)
+            {
+                if (CanInstall)
+                    designGrid.InstallModule(Slot, Mod, Ori);
+            }
+        }
+
+        SlotInstall CreateMirrorInstall(SlotInstall install)
+        {
+            if (IsSymmetricDesignMode &&
+                GetMirrorSlot(install.Slot, install.Mod.XSIZE, install.Ori, out MirrorSlot mirrored))
+            {
+                ModuleOrientation mOri = mirrored.Orientation;
+                float mFacing = ConvertOrientationToFacing(mOri);
+                ShipModule mModule = CreateDesignModule(install.Mod, mOri, mFacing);
+                return new SlotInstall(mirrored.Slot, mModule, mOri);
+            }
+            return new SlotInstall();
+        }
+
+        void InstallActiveModule(SlotInstall active)
+        {
+            if (!active.CanInstallTo(ModuleGrid))
+                return;
+
+            SlotInstall mirror = CreateMirrorInstall(active);
+            if (!mirror.CanInstallTo(ModuleGrid))
+                return;
+
+            ModuleGrid.StartUndoableAction();
+            {
+                active.TryInstallTo(ModuleGrid);
+                mirror.TryInstallTo(ModuleGrid);
+            }
+            ModuleGrid.RecalculatePower();
+            ShipSaved = false;
+            SpawnActiveModule(active.Mod, active.Ori, active.Slot.Facing);
+        }
+
+        void ReplaceModulesWith(SlotStruct slot, ShipModule template)
         {
             if (!slot.IsModuleReplaceableWith(template))
             {
@@ -231,7 +259,7 @@ namespace Ship_Game
             ShipSaved = false;
         }
 
-        private void DeleteModuleAtSlot(SlotStruct slot)
+        void DeleteModuleAtSlot(SlotStruct slot)
         {
             if (slot.Module == null && slot.Parent == null)
                 return;
@@ -240,10 +268,8 @@ namespace Ship_Game
 
             if (IsSymmetricDesignMode)
             {
-                MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
-                if (IsMirrorSlotPresent(mirrored, slot) 
-                    && mirrored.Slot.Root != slot.Root 
-                    && IsMirrorSlotValid(slot.Root, mirrored))
+                if (GetMirrorSlot(slot, out MirrorSlot mirrored)
+                    && mirrored.Slot.Root != slot.Root)
                 {
                     ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module);
                 }
@@ -288,7 +314,7 @@ namespace Ship_Game
         }
 
 
-        public void PlayNegativeSound() => GameAudio.NegativeClick();
+        public static void PlayNegativeSound() => GameAudio.NegativeClick();
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
