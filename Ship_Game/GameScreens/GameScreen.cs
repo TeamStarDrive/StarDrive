@@ -367,15 +367,15 @@ namespace Ship_Game
 
         // Just draws a given rectangle with a color fill
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawRectangle(Rectangle rectangle, Color edgeColor, Color fillColor)
+        public void DrawRectangle(Rectangle rectangle, Color edgeColor, Color fillColor, float thickness = 1f)
         {
             ScreenManager.SpriteBatch.FillRectangle(rectangle, fillColor);
-            DrawRectangle(rectangle, edgeColor);               
+            DrawRectangle(rectangle, edgeColor, thickness);               
         }
 
         // Just draws a given rectangle
-        public void DrawRectangle(Rectangle rectangle, Color edgeColor)
-            => ScreenManager.SpriteBatch.DrawRectangle(rectangle, edgeColor);
+        public void DrawRectangle(Rectangle rectangle, Color edgeColor, float thickness = 1f)
+            => ScreenManager.SpriteBatch.DrawRectangle(rectangle, edgeColor, thickness);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawRectangle(Vector2 center, Vector2 size, float rotation, Color color, float thickness = 1f)

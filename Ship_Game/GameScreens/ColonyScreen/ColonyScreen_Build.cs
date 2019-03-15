@@ -479,8 +479,6 @@ namespace Ship_Game
             GameAudio.AcceptClick();
         }
 
-        #region Handle Inputs
-
 
         bool HandleBuildListClicks(InputState input)
         {
@@ -491,11 +489,11 @@ namespace Ship_Game
                     if (header.HandleInput(input, e)) // try to open Ship category header
                         return true;
                 }
-                else if (e.CheckHover(input))
+                else if (!buildSL.DraggingScrollBar && e.CheckHover(input))
                 {
                     Selector = e.CreateSelector();
 
-                    if (ActiveBuildingEntry == null && input.LeftMouseHeld(0.05f) && e.item is Building)
+                    if (ActiveBuildingEntry == null && input.LeftMouseHeld(0.1f) && e.item is Building)
                         ActiveBuildingEntry = e;
                     
                     if (e.CheckEdit(input))
@@ -527,7 +525,7 @@ namespace Ship_Game
                         else if (e.TryGet(out Troop t))    Build(t);
                         return true;
                     }
-
+                    break;
                 }
             }
             return false;
@@ -563,8 +561,6 @@ namespace Ship_Game
 
             return ActiveBuildingEntry != null && b.Unique && P.BuildingBuiltOrQueued(b);
         }
-
-
         
         void HandleConstructionQueueInput(InputState input)
         {
@@ -646,8 +642,5 @@ namespace Ship_Game
             CQueue.HandleInput(input, P);
         }
 
-
-
-        #endregion
     }
 }
