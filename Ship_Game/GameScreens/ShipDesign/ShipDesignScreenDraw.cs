@@ -64,9 +64,9 @@ namespace Ship_Game
 
                 if (Input.LeftMouseHeld())
                 {
-                    if (GetMirrorSlot(highlighted, out MirrorSlot mirrored))
+                    if (GetMirrorSlotStruct(highlighted, out SlotStruct mirrored))
                     {
-                        DrawRectangle(highlighted.ModuleRect, Color.DarkOrange.Alpha(0.33f), 1.25f);
+                        DrawRectangle(mirrored.ModuleRect, Color.DarkOrange.Alpha(0.33f), 1.25f);
                     }
                 }
             }
@@ -182,9 +182,9 @@ namespace Ship_Game
 
                 DrawWeaponArcs(batch, s);
 
-                if (IsSymmetricDesignMode && GetMirrorSlot(s, out MirrorSlot mirrored))
+                if (IsSymmetricDesignMode && GetMirrorSlotStruct(s, out SlotStruct mirrored))
                 {
-                    DrawTacticalOverlays(mirrored.Slot);
+                    DrawTacticalOverlays(mirrored);
                 }
             }
 
@@ -258,7 +258,7 @@ namespace Ship_Game
             Vector2 end = start + direction * w.Range*0.75f;
             batch.DrawLine(start, end, color.Alpha(0.1f), 5);
 
-            Vector2 textPos = start.LerpTo(end, 0.2f);
+            Vector2 textPos = start.LerpTo(end, 0.16f);
             float textRot = radians + (float)(Math.PI/2);
             Vector2 offset = direction.RightVector() * 14f;
             if (direction.X > 0f)
