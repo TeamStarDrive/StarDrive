@@ -680,7 +680,7 @@ namespace Ship_Game
             return bio != null;
         }
 
-        bool ScrapBuilding(float budget, float scoreThreshold = float.MaxValue)
+        bool ScrapBuilding(float budget, float scoreThreshold = Single.MaxValue)
         {
             Building worstBuilding = ChooseWorstBuilding(BuildingList, budget, out float worstWeHave, scoreThreshold);
             if (worstBuilding == null)
@@ -697,7 +697,7 @@ namespace Ship_Game
                 return false;
 
             Building bestBuilding  = ChooseBestBuilding(BuildingsCanBuild, budget, out float bestValue);
-            Building worstBuilding = ChooseWorstBuilding(BuildingList, budget, out float worstValue, float.MaxValue);
+            Building worstBuilding = ChooseWorstBuilding(BuildingList, budget, out float worstValue, Single.MaxValue);
             if (bestBuilding == null || worstBuilding == null || bestValue.LessOrEqual(worstValue))
                 return false;
 

@@ -2353,37 +2353,6 @@ namespace Ship_Game.Ships
 
         private ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
 
-        public void CreateColonizationBuildingFor(Planet colonizeTarget)
-        {
-            // @TODO create building placement methods in planet.cs that take into account the below logic.
-
-            foreach (ShipModule slot in ModuleSlotList)
-            {
-                if (slot?.HasColonyBuilding != true)
-                    continue;
-
-                Building template = ResourceManager.GetBuildingTemplate(slot.DeployBuildingOnColonize);
-                if (template.Unique && colonizeTarget.BuildingBuiltOrQueued(template))
-                    continue;
-
-                Building building = ResourceManager.CreateBuilding(template);
-                colonizeTarget.BuildingList.Add(building);
-                building.AssignBuildingToTileOnColonize(colonizeTarget);
-            }
-        }
-
-        public void UnloadColonizationResourcesAt(Planet colonizeTarget)
-        {
-            foreach (ShipModule slot in ModuleSlotList)
-            {
-                if (slot?.HasColonyBuilding != true)
-                    continue;
-                colonizeTarget.FoodHere   += slot.numberOfFood;
-                colonizeTarget.ProdHere   += slot.numberOfEquipment;
-                colonizeTarget.Population += slot.numberOfColonists;
-            }
-        }
-
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {
             empire.canBuildBombers      = empire.canBuildBombers      || DesignRole == ShipData.RoleName.bomber;

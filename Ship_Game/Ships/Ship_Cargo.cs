@@ -208,5 +208,26 @@ namespace Ship_Game.Ships
         public float UnloadColonists(float maxAmount = 9999999f)  => Cargo?.UnloadCargoRef(ref Cargo.Colonists, maxAmount) * PassengerModifier ?? 0f;
         public float UnloadProduction(float maxAmount = 9999999f) => Cargo?.UnloadCargoRef(ref Cargo.Production, maxAmount) ?? 0f;
         public float UnloadFood(float maxAmount = 9999999f)       => Cargo?.UnloadCargoRef(ref Cargo.Food, maxAmount)       ?? 0f;
+
+
+        // FB - for colony ships when a planet is colonized
+        public ColonyEquipment StartingEquipment()
+        {
+            float addFood = 0;
+            float addProd = 0;
+            float addColonists = 0;
+            string buildingId = string.Empty;
+
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                addFood += module.numberOfFood;
+                addProd += module.numberOfEquipment;
+                addColonists += module.numberOfColonists;
+                if (buildingId.IsEmpty())
+                    buildingId = module.DeployBuildingOnColonize;
+            }
+
+            return new ColonyEquipment(addFood, addProd, addColonists, buildingId);
+        }
     }
 }
