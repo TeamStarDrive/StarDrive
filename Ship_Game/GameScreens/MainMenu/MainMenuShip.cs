@@ -22,7 +22,7 @@ namespace Ship_Game.GameScreens.MainMenu
         public float Radius { get; private set; }
         public float HalfLength { get; private set; }
         public float Speed;
-        float BaseScale = 1f;
+        float BaseScale = 0.8f;
 
         // StarDrive Meshes are oriented towards -Y, which is Vector3.Down 
         public Vector3 Forward => Rotation.DegsToRad().RotateVector(Vector3.Down);
@@ -95,7 +95,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
                 // if new keypress, spawn random ship
                 if (input.KeyPressed(Keys.Space))
-                    CreateShip(Spawn, screen);
+                    LoadContent(screen);
 
                 if (input.WasAnyKeyPressed)
                 {
@@ -119,7 +119,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
-        void CreateShip(ShipSpawnInfo spawn, GameScreen screen)
+        public void LoadContent(GameScreen screen)
         {
             DestroyShip(); // Allow multiple init
 
@@ -137,7 +137,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             else
             {
-                ShipData hull = ChooseShip(spawn.Empire, spawn.Role);
+                ShipData hull = ChooseShip(Spawn.Empire, Spawn.Role);
                 hull.LoadModel(out ShipObj, out ShipAnim, screen);
                 if (ShipAnim != null)
                 {
@@ -199,9 +199,6 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public void Update(GameTime gameTime, GameScreen screen)
         {
-            if (ShipObj == null) // first time init
-                CreateShip(Spawn, screen);
-
             if (DebugMeshInspect)
             {
                 Position = Vector3.Zero;
