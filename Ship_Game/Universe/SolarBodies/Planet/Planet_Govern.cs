@@ -19,79 +19,61 @@ namespace Ship_Game
             if (colonyType == ColonyType.Colony) return; // No Governor? Nevermind!
 
             float budget = BuildingBudget();
-            bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
+            bool noResearch = string.IsNullOrEmpty(Owner.ResearchTopic);
 
-            //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
-            // FB - ignoring this if the owner is the player, or all of his research colonies will build stuff like
-            // deep core mines if he forgets to add research
-            if (colonyType == ColonyType.Research && notResearching && !Owner.isPlayer)
+            // Switch to Core if there is nothing in the research queue (Does not actually change assigned Governor)
+            if (colonyType == ColonyType.Research && noResearch)
                 colonyType = ColonyType.Core;
 
             Food.Percent = 0;
             Prod.Percent = 0;
             Res.Percent = 0;
 
-            switch (colonyType) //New resource management by Gretman 
+            switch (colonyType) // New resource management by Gretman 
             {
                 case ColonyType.TradeHub:
                     AssignCoreWorldWorkers();
-                    DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
+                    DetermineFoodState(0.15f, 0.95f); // Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
                     DetermineProdState(0.15f, 0.95f);
                     break;
                 case ColonyType.Core:
                     AssignCoreWorldWorkers();
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.2f, 0.5f);   //these will evaluate to: Start Importing if stores drop below 20%, and stop importing once stores are above 50%.
-                    DetermineProdState(0.2f, 0.5f);   //                        Start Exporting if stores are above 50%, but dont stop exporting unless stores drop below 33%.
+                    DetermineFoodState(0.2f, 0.5f); // Start Importing if stores drop below 20%, and stop importing once stores are above 50%.
+                    DetermineProdState(0.2f, 0.5f); // Start Exporting if stores are above 50%, but dont stop exporting unless stores drop below 33%.
                     break;
                 case ColonyType.Industrial:
-                    //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
-                    Food.Percent = FarmToPercentage(0.333f);
-                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(1));
-                    if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
-                    Res.AutoBalanceWorkers();
-
+                    // Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
+                    AssignOtherWorldsWorkers(0.333f, 1);
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.5f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
-                    DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                    DetermineFoodState(0.5f, 1.0f);    // Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
+                    DetermineProdState(0.15f, 0.666f); // Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     break;
-                case ColonyType.Research: 
+                case ColonyType.Research:
                     //This governor will rely on imports, focusing on research as long as no one is starving
-                    Food.Percent = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
-                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.333f));        //Save a little production too
-                    if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
-                    Res.AutoBalanceWorkers();
-
+                    AssignOtherWorldsWorkers(0.333f, 0.333f);
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.5f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
-                    DetermineProdState(0.5f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
+                    DetermineFoodState(0.5f, 1); // Import if either drops below 50%, and stop importing once stores reach 100%.
+                    DetermineProdState(0.5f, 1); // This planet will only export Food or Prod if there is excess FlatFood or FlatProd
                     break;
                 case ColonyType.Agricultural:
-                    Food.Percent = FarmToPercentage(1);     //Farm all you can
-                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.333f));    //Then work to a small savings
-                    if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
-                    Res.AutoBalanceWorkers();
-
+                    AssignOtherWorldsWorkers(1, 0.333f);
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.15f, 0.5f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
-                    DetermineProdState(0.5f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
+                    DetermineFoodState(0.15f, 0.5f);  // Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                    DetermineProdState(0.5f, 1); // Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
                     break;
                 case ColonyType.Military:
-                    Food.Percent = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
-                    Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(0.5f));    //Keep some prod handy
-                    if (ConstructionQueue.Count > 0) Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
-                    Res.AutoBalanceWorkers();
-                    
+                    AssignOtherWorldsWorkers(0.5f, 0.5f);
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.5f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
-                    DetermineProdState(0.5f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
+                    DetermineFoodState(0.5f, 1); // Import if either drops below 40%, and stop importing once stores reach 80%.
+                    DetermineProdState(0.5f, 1); // This planet will only export Food or Prod due to excess FlatFood or FlatProd
                     break;
-            } //End Gov type Switch
+            } // End Gov type Switch
 
             BuildPlatformsAndStations();
         }
 
-        private void BuildPlatformsAndStations()
+        private void BuildPlatformsAndStations() // Rewritten by Fat Bastard
         {
             if (Owner.isPlayer && !GovOrbitals)
                 return;
