@@ -162,7 +162,7 @@ namespace Ship_Game
                 {
                     Troop t = ResourceManager.CreateTroop(troopname, triggerer);
                     t.SetOwner(triggerer);
-                    if (t.AssignTroopToNearestAvailableTile(t, eventLocation, p))
+                    if (t.AssignTroopToNearestAvailableTile(eventLocation, p))
                     {
                         continue;
                     }
@@ -175,7 +175,7 @@ namespace Ship_Game
                 {
                     Troop t = ResourceManager.CreateTroop(troopname, EmpireManager.Unknown);
                     t.SetOwner(EmpireManager.Unknown);
-                    if (t.AssignTroopToNearestAvailableTile(t, eventLocation,p))
+                    if (t.AssignTroopToNearestAvailableTile(eventLocation,p))
                     {
                         continue;
                     }

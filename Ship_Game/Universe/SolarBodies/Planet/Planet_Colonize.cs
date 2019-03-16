@@ -100,7 +100,6 @@ namespace Ship_Game
             Population += startingEquipment.AddColonists;
         }
 
-
         void SpawnNewColonyBuilding(Building template)
         {
             Building building = ResourceManager.CreateBuilding(template);
