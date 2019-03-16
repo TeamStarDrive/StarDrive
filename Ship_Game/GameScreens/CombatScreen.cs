@@ -236,7 +236,7 @@ namespace Ship_Game
 
                         int xTotalDistance = Math.Abs(pgs.x - nearby.x);
                         int yTotalDistance = Math.Abs(pgs.y - nearby.y);
-                        if (xTotalDistance > pgs.SingleTroop.Range || yTotalDistance > pgs.SingleTroop.Range || nearby.TroopsAreOnTile || nearby.building != null && (nearby.building == null || nearby.building.CombatStrength != 0))
+                        if (xTotalDistance > pgs.SingleTroop.Range || yTotalDistance > pgs.SingleTroop.Range || nearby.TroopsAreOnTile || nearby.BuildingOnTile && (nearby.NoBuildingOnTile || nearby.building.CombatStrength != 0))
                             continue;
 
                         nearby.CanMoveTo = true;
@@ -391,7 +391,7 @@ namespace Ship_Game
                 width = 64f;
 
             pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - (int)width / 2, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - (int)width / 2, (int)width, (int)width);
-            if (pgs.TroopsHere.Count > 0)
+            if (pgs.TroopsAreOnTile)
             {
                 Troop troop = pgs.SingleTroop;
                 Rectangle troopClickRect = pgs.TroopClickRect;
@@ -444,13 +444,13 @@ namespace Ship_Game
                         foreach (PlanetGridSquare nearby in p.TilesList)
                         {
                             if (nearby == pgs || !nearby.CanAttack)
-                            {
                                 continue;
-                            }
+
                             batch.Draw(ResourceManager.Texture("Ground_UI/GC_Potential_Attack"), nearby.ClickRect, Color.White);
                         }
                     }
-                    if (ActiveTile.SingleTroop.AvailableMoveActions > 0)
+
+                    if (ActiveTile.SingleTroop.CanMove)
                     {
                         foreach (PlanetGridSquare nearby in p.TilesList)
                         {
@@ -775,7 +775,7 @@ namespace Ship_Game
                             selectedSomethingThisFrame = true;
                         }
                     }
-                    if (ActiveTile == null || !pgs.CanMoveTo || ActiveTile.NoTroopsOnTile || !pgs.ClickRect.HitTest(Input.CursorPosition) || ActiveTile.SingleTroop.Loyalty != EmpireManager.Player || Input.LeftMouseReleased || !ActiveTile.SingleTroop.CanAttack)
+                    if (ActiveTile == null || !pgs.CanMoveTo || ActiveTile.NoTroopsOnTile || !pgs.ClickRect.HitTest(Input.CursorPosition) || ActiveTile.SingleTroop.Loyalty != EmpireManager.Player || Input.LeftMouseReleased || !ActiveTile.SingleTroop.CanMove)
                         continue;
 
                     if (pgs.x > ActiveTile.x)
@@ -810,6 +810,7 @@ namespace Ship_Game
             {
                 if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
                         return true;
+
                     popup = false;
             }
             else if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
