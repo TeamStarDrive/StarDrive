@@ -108,6 +108,11 @@ namespace Ship_Game
             yDiff = (target.y - y).Clamped(-1, 1);
         }
 
+        public void CheckAndTriggerEvent(Planet planet, Empire empire)
+        {
+            if (EventOnTile && TroopsAreOnTile && !SingleTroop.Loyalty.isFaction)
+                ResourceManager.Event(building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
+        }
 
         public TileDirection GetDirectionTo(PlanetGridSquare target)
         {

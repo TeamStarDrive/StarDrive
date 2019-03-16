@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public sealed class Troop
+    public sealed class Troop // Initial refactor by Fat Bastard - March 16, 2019
     {
         [Serialize(0)] public string Name;
         [Serialize(1)] public string RaceType;
@@ -57,7 +57,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
         [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
 
-        [XmlIgnore][JsonIgnore] private float UpdateTimer;        
+        [XmlIgnore][JsonIgnore] private float UpdateTimer;
         [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);
         [XmlIgnore] [JsonIgnore] public float ActualCost     => Cost * CurrentGame.Pace;
         [XmlIgnore] [JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
@@ -66,6 +66,20 @@ namespace Ship_Game
         [XmlIgnore] [JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
         [XmlIgnore] [JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
         [XmlIgnore] [JsonIgnore] public int ActualRange      => Level < 3   ? Range : Range + 1;  // veterans have bigger range
+
+        [XmlIgnore] [JsonIgnore] public SubTexture TextureDefault => ResourceManager.Texture("Troops/" + TexturePath);
+
+        private string WhichFrameString => WhichFrame.ToString("00");
+
+        //@HACK the animation index and firstframe value are coming up with bad values for some reason. i could not figure out why
+        //so here i am forcing it to draw troop template first frame if it hits a problem. in the update method i am refreshing the firstframe value as well. 
+        private SubTexture TextureIdleAnim => ResourceManager.TextureOrDefault(
+            "Troops/" + idle_path + WhichFrameString,
+            "Troops/" + idle_path + ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
+
+        private SubTexture TextureAttackAnim => ResourceManager.TextureOrDefault(
+            "Troops/" + attack_path + WhichFrameString,
+            "Troops/" + idle_path + ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
         public string DisplayNameEmpire(Empire empire = null)
         {
@@ -128,21 +142,6 @@ namespace Ship_Game
         {
             Launchtimer = MoveTimerBase; // FB -  yup, MoveTimerBase
         }
-
-        private string WhichFrameString => WhichFrame.ToString("00");
-
-        [XmlIgnore][JsonIgnore]
-        public SubTexture TextureDefault => ResourceManager.Texture("Troops/"+TexturePath);
-
-        //@HACK the animation index and firstframe value are coming up with bad values for some reason. i could not figure out why
-        //so here i am forcing it to draw troop template first frame if it hits a problem. in the update method i am refreshing the firstframe value as well. 
-        private SubTexture TextureIdleAnim   => ResourceManager.TextureOrDefault(
-            "Troops/" + idle_path+WhichFrameString, 
-            "Troops/" + idle_path+ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
-
-        private SubTexture TextureAttackAnim => ResourceManager.TextureOrDefault(
-            "Troops/" + attack_path + WhichFrameString, 
-            "Troops/" + idle_path + ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
         public string StrengthText => $"Strength: {Strength:0.}";
 
@@ -335,13 +334,13 @@ namespace Ship_Game
             }
         }
 
-        public bool AssignTroopToNearestAvailableTile(Troop t, PlanetGridSquare tile, Planet planet )
+        public bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet )
         {
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare pgs in planet.TilesList)
             {
                 if (pgs.TroopsHere.Count < pgs.MaxAllowedTroops
-                    && (pgs.NoBuildingOnTile || pgs.BuildingOnTile && pgs.building.CombatStrength == 0)
+                    && !pgs.CombatBuildingOnTile
                     && tile.InRangeOf(pgs, 1))
                     list.Add(pgs);
             }
@@ -349,53 +348,40 @@ namespace Ship_Game
             if (list.Count <= 0)
                 return false;
 
-            int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
-            PlanetGridSquare planetGridSquare1 = list[index];
-            foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
-            {
-                if (planetGridSquare2 != planetGridSquare1)
-                    continue;
-
-                planetGridSquare2.TroopsHere.Add(t);
-                planet.TroopsHere.Add(t);
-                t.SetPlanet(planet);
-                return true;
-            }
-            return false;
-
+            int index = (int)RandomMath.RandomBetween(0, list.Count);
+            AssignTroop(planet, list[index]);
+            return true;
         }
 
         public bool AssignTroopToTile(Planet planet = null)
         {
-            planet = planet ?? HostPlanet;
+            planet   = planet ?? HostPlanet;
             var list = new Array<PlanetGridSquare>();
-            foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
+            foreach (PlanetGridSquare pgs in planet.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count < planetGridSquare.MaxAllowedTroops 
-                    && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0))
-                    list.Add(planetGridSquare);
+                if (pgs.TroopsHere.Count < pgs.MaxAllowedTroops && !pgs.CombatBuildingOnTile)
+                    list.Add(pgs);
             }
-            if (list.Count > 0)
-            {
-                int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
-                PlanetGridSquare planetGridSquare = list[index];
-                foreach (PlanetGridSquare eventLocation in planet.TilesList)
-                {
-                    if (eventLocation != planetGridSquare) continue;
 
-                    eventLocation.TroopsHere.Add(this);
-                    planet.TroopsHere.Add(this);
-                    if (Owner != planet.Owner)
-                        Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, ActualStrengthMax);
+            if (list.Count <= 0)
+                return false;
 
-                    SetPlanet(planet);
-                    if (!eventLocation.EventOnTile || eventLocation.NoTroopsOnTile || eventLocation.SingleTroop.Loyalty.isFaction)
-                        return true;
-                    ResourceManager.Event(eventLocation.building.EventTriggerUID).TriggerPlanetEvent(planet, eventLocation.SingleTroop.Loyalty, eventLocation, Empire.Universe);
-                }
-            }
-            return false;
+            int index = (int)RandomMath.RandomBetween(0, list.Count);
+            PlanetGridSquare tile = list[index];
+            AssignTroop(planet, tile);
+            // some buildings can injure landing troops
+            if (Owner != planet.Owner)
+                DamageTroop(planet.TotalInvadeInjure);
+
+            tile.CheckAndTriggerEvent(planet, Loyalty);
+            return true;
         }
 
+        void AssignTroop(Planet planet, PlanetGridSquare tile)
+        {
+            tile.TroopsHere.Add(this);
+            planet.TroopsHere.Add(this);
+            SetPlanet(planet);
+        }
     }
 }

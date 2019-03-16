@@ -13,13 +13,13 @@ namespace Ship_Game
             triggeredOutcome.CheckOutComes(null , null, triggerer,null);
         }
 
-        public void TriggerPlanetEvent(Planet p, Empire triggerer, PlanetGridSquare eventLocation,
+        public void TriggerPlanetEvent(Planet p, Empire trigger, PlanetGridSquare eventLocation,
             UniverseScreen screen)
         {
             int random = 0;
             foreach (Outcome outcome in PotentialOutcomes)
             {
-                if (outcome.InValidOutcome(triggerer)) continue;
+                if (outcome.InValidOutcome(trigger)) continue;
                 random += outcome.Chance;
             }            
             random = RandomMath.InRange(random);
@@ -27,19 +27,19 @@ namespace Ship_Game
             int cursor = 0;
             foreach (Outcome outcome in PotentialOutcomes)
             {
-                if (outcome.InValidOutcome(triggerer)) continue;
+                if (outcome.InValidOutcome(trigger)) continue;
                 cursor = cursor + outcome.Chance;
                 if (random > cursor) continue;
                 triggeredOutcome = outcome;
-                if (triggerer.isPlayer) outcome.AlreadyTriggered = true;
+                if (trigger.isPlayer) outcome.AlreadyTriggered = true;
                 break;
             }
             if (triggeredOutcome != null)
             {
                 EventPopup popup = null;
-                if (triggerer == EmpireManager.Player)
-                    popup = new EventPopup(screen, triggerer, this, triggeredOutcome,false);
-                triggeredOutcome.CheckOutComes(p, eventLocation, triggerer,popup);
+                if (trigger == EmpireManager.Player)
+                    popup = new EventPopup(screen, trigger, this, triggeredOutcome,false);
+                triggeredOutcome.CheckOutComes(p, eventLocation, trigger,popup);
                 if (popup != null)
                 {
                     screen.ScreenManager.AddScreen(popup);
@@ -47,9 +47,5 @@ namespace Ship_Game
                 }
             }
         }
-
-        
-
-        
     }
 }
