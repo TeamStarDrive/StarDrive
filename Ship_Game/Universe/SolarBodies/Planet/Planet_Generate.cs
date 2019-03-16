@@ -82,17 +82,8 @@ namespace Ship_Game
         // this reduces chances of terran planets and its configurable via SunZoneData.yaml
         static PlanetType ChooseTypeByWeight(SunZone sunZone)
         {
-            Array<PlanetCategory> planetCategoryList; 
-            switch (sunZone)
-            {
-                case SunZone.Near:    planetCategoryList = ResourceManager.SunZoneNearWeights;    break;
-                case SunZone.Habital: planetCategoryList = ResourceManager.SunZoneHabitalWeights; break;
-                case SunZone.Far:     planetCategoryList = ResourceManager.SunZoneFarWeights;     break;
-                default:
-                case SunZone.VeryFar: planetCategoryList = ResourceManager.SunZoneVeryFarWeights; break;
-            }
-
-            PlanetCategory chosenCategory = ResourceManager.RandomPlanetCategory(planetCategoryList);
+            IReadOnlyList<PlanetCategory> categoryWeights = ResourceManager.GetSunZoneWeights(sunZone);
+            PlanetCategory chosenCategory                 = ResourceManager.RandomPlanetCategory(categoryWeights);
             return ResourceManager.RandomPlanet(chosenCategory);
         }
 
