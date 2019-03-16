@@ -209,7 +209,6 @@ namespace Ship_Game.Ships
         public float UnloadProduction(float maxAmount = 9999999f) => Cargo?.UnloadCargoRef(ref Cargo.Production, maxAmount) ?? 0f;
         public float UnloadFood(float maxAmount = 9999999f)       => Cargo?.UnloadCargoRef(ref Cargo.Food, maxAmount)       ?? 0f;
 
-
         // FB - for colony ships when a planet is colonized
         public ColonyEquipment StartingEquipment()
         {
