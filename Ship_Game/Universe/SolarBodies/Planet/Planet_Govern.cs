@@ -19,7 +19,7 @@ namespace Ship_Game
             if (colonyType == ColonyType.Colony) return; // No Governor? Nevermind!
 
             float budget    = BuildingBudget();
-            bool noResearch = String.IsNullOrEmpty(Owner.ResearchTopic);
+            bool noResearch = Owner.ResearchTopic.IsEmpty();
 
             // Switch to Core if there is nothing in the research queue (Does not actually change assigned Governor)
             if (colonyType == ColonyType.Research && noResearch)
