@@ -691,10 +691,7 @@ namespace Ship_Game
                         pgs.SingleTroop.ResetMoveTimer();
                         p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
                         (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
-                        if (pgs.EventOnTile && pgs.TroopsAreOnTile && !pgs.SingleTroop.Loyalty.isFaction)
-                        {
-                            ResourceManager.EventsDict[pgs.building?.EventTriggerUID].TriggerPlanetEvent(p, pgs.SingleTroop.Loyalty, pgs, Empire.Universe);
-                        }
+                        pgs.CheckAndTriggerEvent(p, pgs.SingleTroop.Loyalty);
                         OrbitSL.Remove(draggedTroop);
                         (draggedTroop.item as Ship).QueueTotalRemoval();
                         foundPlace = true;
@@ -707,6 +704,7 @@ namespace Ship_Game
                     GameAudio.NegativeClick();
                 }
             }
+
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
                 if (!pgs.ClickRect.HitTest(Input.CursorPosition))
