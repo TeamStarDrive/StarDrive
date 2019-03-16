@@ -547,7 +547,8 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (!Empire.Universe.GravityWells || System == null || IsInFriendlySpace)
+                // FB - should add an option in rules option for friendlies to ignore gravity wells (|| IsInFriendlySpace && FriendliesIgnoreWells) 
+                if (!Empire.Universe.GravityWells || System == null) 
                     return false;
 
                 for (int i = 0; i < System.PlanetList.Count; i++)
