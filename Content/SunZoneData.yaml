@@ -1,0 +1,88 @@
+SunZoneData: Near 
+  Weights:
+    TypeWeight: Barren
+      Value: 20
+    TypeWeight: Desert
+      Value: 10
+    TypeWeight: Steppe
+      Value: 1
+    TypeWeight: Tundra
+      Value: 0
+    TypeWeight: Terran
+      Value: 3
+    TypeWeight: Volcanic
+      Value: 20
+    TypeWeight: Ice
+      Value: 0
+    TypeWeight: Swamp
+      Value: 5
+    TypeWeight: Oceanic
+      Value: 1
+    TypeWeight: GasGiant
+      Value: 2
+SunZoneData: Habital
+  Weights:
+    TypeWeight: Barren
+      Value: 15
+    TypeWeight: Desert
+      Value: 3
+    TypeWeight: Steppe
+      Value: 3
+    TypeWeight: Tundra
+      Value: 2
+    TypeWeight: Terran
+      Value: 3
+    TypeWeight: Volcanic
+      Value: 5
+    TypeWeight: Ice
+      Value: 1
+    TypeWeight: Swamp
+      Value: 5
+    TypeWeight: Oceanic
+      Value: 5
+    TypeWeight: GasGiant
+      Value: 5
+SunZoneData: Far
+  Weights:
+    TypeWeight: Barren
+      Value: 15
+    TypeWeight: Desert
+      Value: 2
+    TypeWeight: Steppe
+      Value: 3
+    TypeWeight: Tundra
+      Value: 4
+    TypeWeight: Terran
+      Value: 2
+    TypeWeight: Volcanic
+      Value: 15
+    TypeWeight: Ice
+      Value: 5
+    TypeWeight: Swamp
+      Value: 3
+    TypeWeight: Oceanic
+      Value: 3
+    TypeWeight: GasGiant
+      Value: 15
+SunZoneData: VeryFar
+  Weights:
+    TypeWeight: Barren
+      Value: 15
+    TypeWeight: Desert
+      Value: 2
+    TypeWeight: Steppe
+      Value: 1
+    TypeWeight: Tundra
+      Value: 2
+    TypeWeight: Terran
+      Value: 0
+    TypeWeight: Volcanic
+      Value: 10
+    TypeWeight: Ice
+      Value: 5
+    TypeWeight: Swamp
+      Value: 1
+    TypeWeight: Oceanic
+      Value: 1
+    TypeWeight: GasGiant
+      Value: 30

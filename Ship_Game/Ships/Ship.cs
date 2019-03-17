@@ -260,6 +260,9 @@ namespace Ship_Game.Ships
             if (DesignRole == ShipData.RoleName.support)
                 return ResourceManager.Texture("TacticalIcons/symbol_supply");
 
+            if (isConstructor)
+                return ResourceManager.Texture("TacticalIcons/symbol_construction");
+
             string roleName = DesignRole.ToString();
             string iconName = "TacticalIcons/symbol_";
             return ResourceManager.TextureOrNull(iconName + roleName) ??
@@ -544,17 +547,24 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (!Empire.Universe.GravityWells || System == null || IsInFriendlySpace)
-                    return false;
-
-                for (int i = 0; i < System.PlanetList.Count; i++)
-                {
-                    Planet planet = System.PlanetList[i];
-                    if (Position.InRadius(planet.Center, planet.GravityWellRadius))
-                        return true;
-                }
-                return false;
+                Planet planet = System?.IdentifyGravityWell(this);
+                return planet != null;
             }
+        }
+
+        // calculates estimated trip time by turns
+        public float GetAstrograteTimeTo(Planet destination)
+        {
+            float distance    = Center.Distance(destination.Center);
+            float distanceSTL = destination.GravityWellForEmpire(loyalty);
+            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner
+            if (planet != null)
+                distanceSTL += planet.GravityWellRadius;
+
+            float distanceFTL = Math.Max(distance - distanceSTL, 0);
+            float travelSTL   = distanceSTL / GetSTLSpeed();
+            float travelFTL   = distanceFTL / GetmaxFTLSpeed;
+            return (travelFTL + travelSTL) / GlobalStats.TurnTimer;
         }
 
         public float AvgProjectileSpeed
@@ -635,7 +645,7 @@ namespace Ship_Game.Ships
             if (shipData.HasFixedCost)
                 return shipData.FixedCost * CurrentGame.Pace;
 
-            float cost = BaseCost;
+            float cost = BaseCost * CurrentGame.Pace;
 
             if (empire == null)
                 return (int) cost;
@@ -2349,37 +2359,6 @@ namespace Ship_Game.Ships
         }
 
         private ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
-
-        public void CreateColonizationBuildingFor(Planet colonizeTarget)
-        {
-            // @TODO create building placement methods in planet.cs that take into account the below logic.
-
-            foreach (ShipModule slot in ModuleSlotList)
-            {
-                if (slot?.HasColonyBuilding != true)
-                    continue;
-
-                Building template = ResourceManager.GetBuildingTemplate(slot.DeployBuildingOnColonize);
-                if (template.Unique && colonizeTarget.BuildingBuiltOrQueued(template))
-                    continue;
-
-                Building building = ResourceManager.CreateBuilding(template);
-                colonizeTarget.BuildingList.Add(building);
-                building.AssignBuildingToTileOnColonize(colonizeTarget);
-            }
-        }
-
-        public void UnloadColonizationResourcesAt(Planet colonizeTarget)
-        {
-            foreach (ShipModule slot in ModuleSlotList)
-            {
-                if (slot?.HasColonyBuilding != true)
-                    continue;
-                colonizeTarget.FoodHere   += slot.numberOfFood;
-                colonizeTarget.ProdHere   += slot.numberOfEquipment;
-                colonizeTarget.Population += slot.numberOfColonists;
-            }
-        }
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {

@@ -54,14 +54,6 @@ namespace Ship_Game
 
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
-        public int NumIncomingFreighters => IncomingFreighters.Count;
-        public int NumOutgoingFreighters => OutgoingFreighters.Count;
-        readonly Array<Ship> IncomingFreighters = new Array<Ship>();
-        readonly Array<Ship> OutgoingFreighters = new Array<Ship>();
-
-        public Guid[] IncomingFreighterIds => IncomingFreighters.Select(s => s.guid);
-        public Guid[] OutgoingFreighterIds => OutgoingFreighters.Select(s => s.guid);
-
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
@@ -82,131 +74,6 @@ namespace Ship_Game
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
         public bool TradeBlocked  => RecentCombat || ParentSystem.HostileForcesPresent(Owner);
-
-        public int IncomingFoodFreighters      => FreighterTraffic(IncomingFreighters, Goods.Food);
-        public int IncomingProdFreighters      => FreighterTraffic(IncomingFreighters, Goods.Production);
-        public int IncomingColonistsFreighters => FreighterTraffic(IncomingFreighters, Goods.Colonists);
-
-        public int OutgoingFoodFreighters      => FreighterTraffic(OutgoingFreighters, Goods.Food);
-        public int OutgoingProdFreighters      => FreighterTraffic(OutgoingFreighters, Goods.Production);
-        public int OutGoingColonistsFreighters => FreighterTraffic(OutgoingFreighters, Goods.Colonists);
-
-        public int FreeFoodExportSlots     => FreeFreighterSlots(FoodExportSlots, OutgoingFoodFreighters);
-        public int FreeProdExportSlots     => FreeFreighterSlots(ProdExportSlots, OutgoingProdFreighters);
-        public int FreeColonistExportSlots => FreeFreighterSlots(ColonistsExportSlots, OutGoingColonistsFreighters);
-
-        public int FreeFoodImportSlots     => FreeFreighterSlots(FoodImportSlots, IncomingFoodFreighters);
-        public int FreeProdImportSlots     => FreeFreighterSlots(ProdImportSlots, IncomingProdFreighters);
-        public int FreeColonistImportSlots => FreeFreighterSlots(ColonistsImportSlots, IncomingColonistsFreighters);
-
-        public int FoodExportSlots
-        {
-            get
-            {
-                if (TradeBlocked || !ExportFood)
-                    return 0;
-
-                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(0, 5);
-            }
-        }
-
-        public int ProdExportSlots
-        {
-            get
-            {
-                if (TradeBlocked || !ExportProd)
-                    return 0;
-
-                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50) + 1).Clamped(0, 5);
-            }
-        }
-
-        public int ColonistsExportSlots
-        {
-            get
-            {
-                if (TradeBlocked || ColonistsTradeState != GoodState.EXPORT)
-                    return 0;
-
-                return (int)(PopulationBillion / 2);
-            }
-        }
-
-        public int FoodImportSlots
-        {
-            get
-            {
-                if (TradeBlocked || !ImportFood || !ShortOnFood())
-                    return 0;
-
-                return ((int)(1 - Food.NetIncome)).Clamped(0, 5);
-            }
-        }
-
-        public int ProdImportSlots
-        {
-            get
-            {
-                if (TradeBlocked || !ImportProd)
-                    return 0;
-
-                if (Owner.NonCybernetic)
-                {
-                    if (ConstructionQueue.Count > 0 && Storage.ProdRatio.AlmostEqual(1))
-                        return 0; // for non governor cases when all full and not constructing
-
-                    return (int)((Storage.Max - Storage.Prod) / 50) + 1;
-                }
-
-                if (ShortOnFood()) // cybernetics consume production
-                    return ((int)(2 - Prod.NetIncome)).Clamped(0, 5);
-
-                return 0;
-            }
-        }
-
-        public int ColonistsImportSlots
-        {
-            get
-            {
-                if (TradeBlocked || ColonistsTradeState != GoodState.IMPORT)
-                    return 0;
-
-                return (int)(MaxPopulationBillion - PopulationBillion).Clamped(0, 5);
-            }
-        }
-
-        public int FreeFreighterSlots(int slots, int freighters)
-        {
-            return Math.Max(slots - freighters, 0);
-        }
-
-        public int FreighterTraffic(Array <Ship> freighterList, Goods goods)
-        {
-            return freighterList.Count(s => s.AI.HasTradeGoal(goods));
-        }
-
-        public int FreeGoodsImportSlots(Goods goods)
-        {
-            switch (goods)
-            {
-                case Goods.Food:       return FreeFoodImportSlots;
-                case Goods.Production: return FreeProdImportSlots;
-                case Goods.Colonists:  return FreeColonistImportSlots;
-                default:               return 0;
-            }
-        }
-
-        public int FreeGoodsExportSlots(Goods goods)
-        {
-            switch (goods)
-            {
-                case Goods.Food:       return FreeFoodExportSlots;
-                case Goods.Production: return FreeProdExportSlots;
-                case Goods.Colonists:  return FreeColonistExportSlots;
-                default:               return 0;
-            }
-        }
 
         public float OrbitalsMaintenance;
 
@@ -282,35 +149,18 @@ namespace Ship_Game
             }
         }
 
-        public void AddToIncomingFreighterList(Ship ship)
+        public float GravityWellForEmpire(Empire empire)
         {
-            IncomingFreighters.AddUniqueRef(ship);
-        }
+            if (!Empire.Universe.GravityWells)
+                return 0;
 
-        public void AddToOutgoingFreighterList(Ship ship)
-        {
-            OutgoingFreighters.AddUniqueRef(ship);
-        }
+            if (Owner == null)
+                return GravityWellRadius;
 
-        public void RemoveFromIncomingFreighterList(Ship ship)
-        {
-            IncomingFreighters.Remove(ship);
-        }
+            if (Owner == empire || Owner.GetRelations(empire).Treaty_Alliance)
+                return 0;
 
-        public void RemoveFromOutgoingFreighterList(Ship ship)
-        {
-            OutgoingFreighters.Remove(ship);
-        }
-
-        static void RemoveInvalidFreighters(Array<Ship> list)
-        {
-            for (int i = list.Count-1; i >= 0; --i)
-            {
-                if (!list[i].Active || list[i].AI.State != AIState.SystemTrader)
-                {
-                    list.RemoveAt(i);
-                }
-            }
+            return GravityWellRadius;
         }
 
         public float ColonyWorth(Empire toEmpire)
