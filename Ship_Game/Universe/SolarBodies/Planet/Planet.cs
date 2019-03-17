@@ -149,6 +149,20 @@ namespace Ship_Game
             }
         }
 
+        public float GravityWellForEmpire(Empire empire)
+        {
+            if (!Empire.Universe.GravityWells)
+                return 0;
+
+            if (Owner == null)
+                return GravityWellRadius;
+
+            if (Owner == empire || Owner.GetRelations(empire).Treaty_Alliance)
+                return 0;
+
+            return GravityWellRadius;
+        }
+
         public float ColonyWorth(Empire toEmpire)
         {
             float worth = PopulationBillion + MaxPopulationBillion;
