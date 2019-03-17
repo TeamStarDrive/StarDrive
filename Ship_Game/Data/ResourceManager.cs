@@ -45,39 +45,39 @@ namespace Ship_Game
     {
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
-        private static readonly Map<string, SubTexture> Textures  = new Map<string, SubTexture>();
-        public static Map<string, Ship> ShipsDict                 = new Map<string, Ship>();
-        public static Map<string, Technology> TechTree            = new Map<string, Technology>(GlobalStats.CaseControl);
-        private static readonly Array<Model> RoidsModels          = new Array<Model>();
-        private static readonly Array<Model> JunkModels           = new Array<Model>();
-        private static readonly Array<ToolTip> ToolTips           = new Array<ToolTip>();
-        public static Array<Encounter> Encounters                 = new Array<Encounter>();
-        public static Map<string, Building> BuildingsDict         = new Map<string, Building>();
-        public static Map<string, Good> GoodsDict                 = new Map<string, Good>();
-        public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>();
+        private static readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
+        public static Map<string, Ship> ShipsDict                = new Map<string, Ship>();
+        public static Map<string, Technology> TechTree           = new Map<string, Technology>(GlobalStats.CaseControl);
+        private static readonly Array<Model> RoidsModels         = new Array<Model>();
+        private static readonly Array<Model> JunkModels          = new Array<Model>();
+        private static readonly Array<ToolTip> ToolTips          = new Array<ToolTip>();
+        public static Array<Encounter> Encounters                = new Array<Encounter>();
+        public static Map<string, Building> BuildingsDict        = new Map<string, Building>();
+        public static Map<string, Good> GoodsDict                = new Map<string, Good>();
+        public static Map<string, Weapon> WeaponsDict            = new Map<string, Weapon>();
         private static readonly Map<string, ShipModule> ModuleTemplates = new Map<string, ShipModule>(GlobalStats.CaseControl);
-        public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>();
+        public static Map<string, Texture2D> ProjTextDict               = new Map<string, Texture2D>();
 
-        public static Array<RandomItem> RandomItemsList           = new Array<RandomItem>();
-        private static readonly Map<string, Troop> TroopsDict     = new Map<string, Troop>();
-        private static Array<string> TroopsDictKeys               = new Array<string>();
-        public static IReadOnlyList<string> TroopTypes            => TroopsDictKeys;
-        public static Map<string, DiplomacyDialog> DDDict         = new Map<string, DiplomacyDialog>();
+        public static Array<RandomItem> RandomItemsList       = new Array<RandomItem>();
+        private static readonly Map<string, Troop> TroopsDict = new Map<string, Troop>();
+        private static Array<string> TroopsDictKeys           = new Array<string>();
+        public static IReadOnlyList<string> TroopTypes        => TroopsDictKeys;
+        public static Map<string, DiplomacyDialog> DDDict     = new Map<string, DiplomacyDialog>();
 
-        public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
-        public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
-        public static XmlSerializer HeaderSerializer              = new XmlSerializer(typeof(HeaderData));
+        public static Map<string, Artifact> ArtifactsDict      = new Map<string, Artifact>();
+        public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
+        public static XmlSerializer HeaderSerializer           = new XmlSerializer(typeof(HeaderData));
 
         private static Map<string, SoundEffect> SoundEffectDict;
 
         // Added by McShooterz
-        public static HostileFleets HostileFleets                 = new HostileFleets();
-        public static ShipNames ShipNames                         = new ShipNames();
-        public static AgentMissionData AgentMissionData           = new AgentMissionData();
-        public static MainMenuShipList MainMenuShipList           = new MainMenuShipList();
-        public static Map<ShipData.RoleName, ShipRole> ShipRoles  = new Map<ShipData.RoleName, ShipRole>();
-        public static Map<string, HullBonus> HullBonuses          = new Map<string, HullBonus>();
-        public static Map<string, PlanetEdict> PlanetaryEdicts    = new Map<string, PlanetEdict>();
+        public static HostileFleets HostileFleets                = new HostileFleets();
+        public static ShipNames ShipNames                        = new ShipNames();
+        public static AgentMissionData AgentMissionData          = new AgentMissionData();
+        public static MainMenuShipList MainMenuShipList          = new MainMenuShipList();
+        public static Map<ShipData.RoleName, ShipRole> ShipRoles = new Map<ShipData.RoleName, ShipRole>();
+        public static Map<string, HullBonus> HullBonuses         = new Map<string, HullBonus>();
+        public static Map<string, PlanetEdict> PlanetaryEdicts   = new Map<string, PlanetEdict>();
         public static Map<string, EconomicResearchStrategy> EconStrats = new Map<string, EconomicResearchStrategy>();
 
         private static RacialTraits RacialTraits;
@@ -119,7 +119,7 @@ namespace Ship_Game
             {
                 if (mod == null)
                     throw;
-                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", isFatal:false);
+                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", isFatal: false);
                 GlobalStats.ClearActiveMod();
                 LoadAllResources(manager, null, true);
             }
@@ -148,8 +148,10 @@ namespace Ship_Game
 
             if (reset) Reset(manager);
 
-            if (mod != null) GlobalStats.SetActiveModNoSave(mod);
-            else             GlobalStats.ClearActiveMod();
+            if (mod != null)
+                GlobalStats.SetActiveModNoSave(mod);
+            else
+                GlobalStats.ClearActiveMod();
 
             Log.Write($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage(); // @todo Slower than expected [0.36]
@@ -185,6 +187,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadPlanetEdicts();
             LoadPlanetTypes();
+            LoadSunZoneData();
             SunType.LoadAll();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
@@ -195,7 +198,7 @@ namespace Ship_Game
 
             ++ContentId; // LoadContent will see a new content id
             if (reset) // now reload manager content, otherwise we're fked as soon as game calls Draw
-                manager.LoadContent(); 
+                manager.LoadContent();
 
             // Load non-critical resources:
             void LoadNonCritical()
@@ -205,7 +208,7 @@ namespace Ship_Game
                 LoadNonEssentialAtlases(BackgroundLoad);
                 Log.Write("Finished loading non-critical resources");
             }
-            
+
             //LoadNonCritical();
             BackgroundLoad = Parallel.Run(LoadNonCritical);
 
@@ -240,7 +243,7 @@ namespace Ship_Game
 
             // Texture caches MUST be cleared before triggering content reload!
             Textures.Clear();
-            
+
             // This is a destructive operation that invalidates ALL game resources!
             // @note It HAS to be done after clearing all ResourceManager texture caches!
             manager.UnloadAllGameContent();
@@ -260,7 +263,7 @@ namespace Ship_Game
 
         private static void TestHullLoad()
         {
-            if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes:true))
+            if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes: true))
                 return;
 
             bool oldValue = RootContent.EnableLoadInfoLog;
@@ -359,7 +362,7 @@ namespace Ship_Game
         // This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
         public static FileInfo[] GatherFilesUnified(string dir, string ext, bool recursive = true)
         {
-            string pattern = "*."+ext;
+            string pattern = "*." + ext;
             SearchOption search = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             if (!GlobalStats.HasMod)
                 return Dir.GetFiles("Content/" + dir, pattern, search);
@@ -820,7 +823,7 @@ namespace Ship_Game
 
         public static FileInfo[] GatherTextureFiles(string dir, bool recursive)
         {
-            string[] extensions = {"png", "gif", "jpg", "xnb", "dds"};
+            string[] extensions = { "png", "gif", "jpg", "xnb", "dds" };
             var allFiles = new Array<FileInfo>();
             foreach (string ext in extensions)
             {
@@ -832,18 +835,18 @@ namespace Ship_Game
         // Any non-trivial 3D-models can't handle texture atlases
         // It's a significant limitation :(
         // This is a HACK to circumvent the issue
-        public static readonly HashSet<string> AtlasExcludeTextures = new HashSet<string>(new []
+        public static readonly HashSet<string> AtlasExcludeTextures = new HashSet<string>(new[]
         {
             "Atmos", "clouds"
         });
-        public static readonly HashSet<string> AtlasExcludeFolder = new HashSet<string>(new []
+        public static readonly HashSet<string> AtlasExcludeFolder = new HashSet<string>(new[]
         {
             "Beams", "Ships"
         });
 
         static void LoadAtlas(string folder)
         {
-            var atlas = RootContent.LoadTextureAtlas(folder, useCache:true);
+            var atlas = RootContent.LoadTextureAtlas(folder, useCache: true);
             if (atlas == null) Log.Warning($"LoadAtlas {folder} failed");
         }
 
@@ -862,7 +865,7 @@ namespace Ship_Game
         {
             Stopwatch s = Stopwatch.StartNew();
             // these are non-critical and can be loaded in background
-            var atlases = new []
+            var atlases = new[]
             {
                 // Main Menu
                 "Textures/Races",     // NewGame screen
@@ -972,14 +975,14 @@ namespace Ship_Game
                 BuildingsDict[string.Intern(b.Name)] = b;
                 switch (b.Name)
                 {
-                    case "Capital City": Building.CapitalId    = b.BID; break;
-                    case "Outpost":      Building.OutpostId    = b.BID; break;
-                    case "Biospheres":   Building.BiospheresId = b.BID; break;
-                    case "Space Port":   Building.SpacePortId  = b.BID; break;
-                    case "Terraformer":  Building.TerraformerId = b.BID; break;
-                    case "Fissionables": Building.FissionablesId = b.BID; break;
+                    case "Capital City":      Building.CapitalId          = b.BID; break;
+                    case "Outpost":           Building.OutpostId          = b.BID; break;
+                    case "Biospheres":        Building.BiospheresId       = b.BID; break;
+                    case "Space Port":        Building.SpacePortId        = b.BID; break;
+                    case "Terraformer":       Building.TerraformerId      = b.BID; break;
+                    case "Fissionables":      Building.FissionablesId     = b.BID; break;
                     case "Mine Fissionables": Building.MineFissionablesId = b.BID; break;
-                    case "Fuel Refinery":     Building.FuelRefineryId = b.BID; break;
+                    case "Fuel Refinery":     Building.FuelRefineryId     = b.BID; break;
                 }
             }
         }
@@ -1021,7 +1024,7 @@ namespace Ship_Game
         static readonly Array<IEmpireData> Empires      = new Array<IEmpireData>();
         static readonly Array<IEmpireData> MajorEmpires = new Array<IEmpireData>();
         static readonly Array<IEmpireData> MinorEmpires = new Array<IEmpireData>(); // IsFactionOrMinorRace
-        
+
         public static IReadOnlyList<IEmpireData> AllRaces   => Empires;
         public static IReadOnlyList<IEmpireData> MajorRaces => MajorEmpires;
         public static IReadOnlyList<IEmpireData> MinorRaces => MinorEmpires;
@@ -1039,11 +1042,13 @@ namespace Ship_Game
 
             foreach (IEmpireData e in Empires)
             {
-                if (e.IsFactionOrMinorRace) MinorEmpires.Add(e);
-                else                        MajorEmpires.Add(e);
+                if (e.IsFactionOrMinorRace)
+                    MinorEmpires.Add(e);
+                else
+                    MajorEmpires.Add(e);
 
                 // HACK: Fix empires with invalid ShipType
-                RacialTrait t = ((EmpireData) e).Traits;
+                RacialTrait t = ((EmpireData)e).Traits;
                 if (t.ShipType.IsEmpty())
                 {
                     t.ShipType = e.Singular;
@@ -1111,18 +1116,18 @@ namespace Ship_Game
         {
             foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
             {
-                Good good = pair.Entity;
-                good.UID = string.Intern(pair.Info.NameNoExt());
+                Good good           = pair.Entity;
+                good.UID            = string.Intern(pair.Info.NameNoExt());
                 GoodsDict[good.UID] = good;
             }
         }
 
         static readonly Map<string, ShipData> HullsDict = new Map<string, ShipData>();
-        static readonly Array<ShipData>       HullsList = new Array<ShipData>();
-        
+        static readonly Array<ShipData> HullsList       = new Array<ShipData>();
+
         public static bool Hull(string shipHull, out ShipData hullData) => HullsDict.Get(shipHull, out hullData);
-        public static ShipData Hull(string shipHull) => HullsDict[shipHull];
-        public static IReadOnlyList<ShipData> Hulls => HullsList;
+        public static ShipData Hull(string shipHull)                    => HullsDict[shipHull];
+        public static IReadOnlyList<ShipData> Hulls                     => HullsList;
 
         static void LoadHullBonuses()
         {
@@ -1152,7 +1157,7 @@ namespace Ship_Game
                         ShipData shipData  = ShipData.Parse(info);
                         shipData.Hull      = dirName + "/" + shipData.Hull;
                         shipData.ShipStyle = dirName;
-                        shipData.Role = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
+                        shipData.Role      = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
                         shipData.UpdateBaseHull();
                         hulls[i] = shipData;
                     }
@@ -1176,8 +1181,8 @@ namespace Ship_Game
         {
             return JunkModels[idx];
         }
-        public static int NumJunkModels => JunkModels.Count;
 
+        public static int NumJunkModels     => JunkModels.Count;
         public static int NumAsteroidModels => RoidsModels.Count;
         public static Model GetAsteroidModel(int roidId)
         {
@@ -1242,7 +1247,7 @@ namespace Ship_Game
 
 
         public static TextureAtlas SmallStars, MediumStars, LargeStars;
-        
+
         static void LoadStars()
         {
             SmallStars  = RootContent.LoadTextureAtlas("SmallStars");
@@ -1270,8 +1275,8 @@ namespace Ship_Game
             });
             foreach (Texture2D tex in nebulae)
             {
-                if      (tex.Width >= 2048) { BigNebulae.Add(tex);   }
-                else if (tex.Width >= 1024) { MedNebulae.Add(tex);   }
+                if      (tex.Width >= 2048) { BigNebulae.Add(tex); }
+                else if (tex.Width >= 1024) { MedNebulae.Add(tex); }
                 else                        { SmallNebulae.Add(tex); }
             }
         }
@@ -1294,8 +1299,8 @@ namespace Ship_Game
 
 
         // Refactored by RedFox
-        public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
-        public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
+        public static Map<string, ModelMesh> ProjectileMeshDict = new Map<string, ModelMesh>();
+        public static Map<string, Model> ProjectileModelDict    = new Map<string, Model>();
         private static void LoadProjectileMesh(string projectileDir, string nameNoExt)
         {
             string path = projectileDir + nameNoExt;
@@ -1323,7 +1328,7 @@ namespace Ship_Game
             LoadProjectileMesh(projectileDir, "missile");
             LoadProjectileMesh(projectileDir, "spacemine");
             if (GlobalStats.HasMod)
-             LoadCustomProjectileMeshes($"{projectileDir}custom");
+                LoadCustomProjectileMeshes($"{projectileDir}custom");
         }
 
         private static void LoadCustomProjectileMeshes(string modelFolder)
@@ -1643,7 +1648,6 @@ namespace Ship_Game
             return ToolTips[tipId - 1];
         }
 
-        
         // Refactored by RedFox, gets a new weapon instance based on weapon UID
         public static Weapon CreateWeapon(string uid)
         {
@@ -1662,8 +1666,8 @@ namespace Ship_Game
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaWeapons;
             foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly))
             {
-                Weapon wep = pair.Entity;
-                wep.UID = string.Intern(pair.Info.NameNoExt());
+                Weapon wep           = pair.Entity;
+                wep.UID              = string.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
                 wep.InitializeTemplate();
             }
@@ -1697,17 +1701,23 @@ namespace Ship_Game
             }
         }
 
-
-
-
+        static readonly Map<SunZone, Array<PlanetCategory>> SunZoneWeights = new Map<SunZone, Array<PlanetCategory>>();
         static Array<PlanetType> PlanetTypes;
+        static Array<SunZoneData> SunZones;
         static Map<int, PlanetType> PlanetTypeMap;
 
         public static PlanetType RandomPlanet() => RandomMath.RandItem(PlanetTypes);
+
         public static PlanetType RandomPlanet(PlanetCategory category)
         {
             return RandomMath.RandItem(PlanetTypes.Filter(p => p.Category == category));
         }
+
+        public static PlanetCategory RandomPlanetCategory(IReadOnlyList<PlanetCategory> categoryList)
+        {
+            return RandomMath.RandItem(categoryList);
+        }
+
         public static PlanetType PlanetOrRandom(int planetId)
         {
             return PlanetTypeMap.TryGetValue(planetId, out PlanetType type)
@@ -1728,6 +1738,22 @@ namespace Ship_Game
                 PlanetTypeMap[type.Id] = type;
         }
 
+        static void LoadSunZoneData()
+        {
+            using (var parser = new Data.StarDataParser("SunZoneData.yaml"))
+            {
+                SunZones = parser.DeserializeArray<SunZoneData>();
+                SunZoneWeights[SunZone.Near]    = SunZoneData.CreateWeights(SunZones, SunZone.Near);
+                SunZoneWeights[SunZone.Habital] = SunZoneData.CreateWeights(SunZones, SunZone.Habital);
+                SunZoneWeights[SunZone.Far]     = SunZoneData.CreateWeights(SunZones, SunZone.Far);
+                SunZoneWeights[SunZone.VeryFar] = SunZoneData.CreateWeights(SunZones, SunZone.VeryFar);
+            }
+        }
+
+        public static Array<PlanetCategory> GetSunZoneWeights(SunZone sunZone)
+        {
+            return SunZoneWeights[sunZone];
+        }
 
         // Added by RedFox
         private static void LoadBlackboxSpecific()

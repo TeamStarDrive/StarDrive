@@ -2383,16 +2383,16 @@ namespace Ship_Game
                 Ship freighter = ownedFreighters[i];
                 if (freighter.IsIdleFreighter)
                 {
-                    freighter.TradeTimer -= 5; // each turn is 5 seconds
+                    freighter.TradeTimer -= GlobalStats.TurnTimer;
                     if (freighter.TradeTimer < 0)
                     {
                         freighter.AI.OrderScrapShip();
-                        freighter.TradeTimer = 300;
+                        freighter.TradeTimer = GlobalStats.TurnTimer * 60;
                     }
                 }
                 else
                 {
-                    freighter.TradeTimer = 300;
+                    freighter.TradeTimer = GlobalStats.TurnTimer * 60;
                 }
             }
         }
@@ -2416,16 +2416,20 @@ namespace Ship_Game
 
             foreach (Planet importPlanet in importingPlanets)
             {
-                Ship closestIdleFreighter;
+                // check if the closest freighter has the goods we need
+                Ship closestIdleFreighter = OpportunistFreighter(importPlanet, goods);
+                if (closestIdleFreighter != null)
+                {
+                    closestIdleFreighter.AI.SetupFreighterPlan(importPlanet, goods);
+                    continue;
+                }
+
+                // Check export planets
                 Planet exportPlanet = exportingPlanets.FindClosestTo(importPlanet);
                 if (exportPlanet == null) // no more exporting planets
                     break;
 
-                if (!isPlayer || AutoFreighters)
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet);
-                else
-                    closestIdleFreighter = ClosestIdleFreighterManual(exportPlanet, goods);
-
+                closestIdleFreighter = FindClosestIdleFreighter(exportPlanet, goods);
                 if (closestIdleFreighter == null) // no more available freighters
                     break;
 
@@ -2433,19 +2437,39 @@ namespace Ship_Game
             }
         }
 
-        private Ship ClosestIdleFreighterManual(Planet exportPlanet, Goods goods)
+        private Ship FindClosestIdleFreighter(Planet planet, Goods goods)
+        {
+            Ship freighter;
+            if (!isPlayer || AutoFreighters)
+                freighter = IdleFreighters.FindClosestTo(planet);
+            else
+                freighter = ClosestIdleFreighterManual(planet, goods);
+
+            return freighter;
+        }
+
+        private Ship OpportunistFreighter(Planet planet, Goods goods)
+        {
+            Ship freighter = FindClosestIdleFreighter(planet,goods);
+            if (freighter != null && freighter.GetCargo(goods) > 5f)
+                return freighter;
+
+            return null;
+        }
+
+        private Ship ClosestIdleFreighterManual(Planet planet, Goods goods)
         {
             Ship closestIdleFreighter = null;
             switch (goods)
             {
                 case Goods.Production:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingProduction);
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(planet, s => s.TransportingProduction);
                     break;
                 case Goods.Food:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingFood);
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(planet, s => s.TransportingFood);
                     break;
                 case Goods.Colonists:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(exportPlanet, s => s.TransportingColonists);
+                    closestIdleFreighter = IdleFreighters.FindClosestTo(planet, s => s.TransportingColonists);
                     break;
             }
             return closestIdleFreighter;
@@ -2473,6 +2497,22 @@ namespace Ship_Game
                 EmpireAI.Goals.RemoveAtSwapLast(index);
                 break;
             }
+        }
+
+        // centralized method to deal with freighter priority ratio (fast or big)
+        public void IncreaseFastVsBigFreighterRatio(FreighterPriority reason)
+        {
+            float ratioDiff = 0;
+            switch (reason)
+            {
+                case FreighterPriority.TooSmall:         ratioDiff = -0.005f; break;
+                case FreighterPriority.TooBig:           ratioDiff = +0.01f;  break;
+                case FreighterPriority.TooSlow:          ratioDiff = +0.02f;  break;
+                case FreighterPriority.ExcessCargoLeft:  ratioDiff = +0.02f;  break;
+                case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.005f; break;
+            }
+
+            IncreaseFastVsBigFreighterRatio(ratioDiff);
         }
 
         public void IncreaseFastVsBigFreighterRatio(float amount)

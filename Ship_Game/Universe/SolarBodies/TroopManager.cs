@@ -118,15 +118,13 @@ namespace Ship_Game
                 MoveTowardsTarget(t, ourTile, nearestTargetTile);
 
             // resolve possible events 
-            ResolveEvents(ourTile, nearestTargetTile);
+            ResolveEvents(ourTile, nearestTargetTile, t.Loyalty);
         }
 
-        private void ResolveEvents(PlanetGridSquare troopTile, PlanetGridSquare eventTile)
+        private void ResolveEvents(PlanetGridSquare troopTile, PlanetGridSquare possibleEventTile, Empire empire)
         {
-            if (!eventTile.EventOnTile || troopTile != eventTile)
-                return;
-
-            ResourceManager.EventsDict[eventTile.building.EventTriggerUID].TriggerPlanetEvent(Ground, eventTile.SingleTroop.Loyalty, eventTile, Empire.Universe);
+            if (troopTile == possibleEventTile)
+                possibleEventTile.CheckAndTriggerEvent(Ground, empire);
         }
 
         private void MoveTowardsTarget(Troop t, PlanetGridSquare ourTile, PlanetGridSquare targetTile)

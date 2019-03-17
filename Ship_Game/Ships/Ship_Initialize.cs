@@ -617,7 +617,7 @@ namespace Ship_Game.Ships
 
         private float GetBaseCost()
         {
-            return ModuleSlotList.Sum(module => module.ActualCost);
+            return ModuleSlotList.Sum(module => module.Cost);
         }
 
         private float GetMaxBank(float mBank)

@@ -81,76 +81,8 @@ namespace Ship_Game.AI
             }
 
             ColonizeTarget = targetPlanet;
-            ColonizeTarget.Owner = Owner.loyalty;
-            ColonizeTarget.ParentSystem.OwnerList.Add(Owner.loyalty);
-            if (Owner.loyalty.isPlayer)
-            {
-                ColonizeTarget.colonyType = Owner.loyalty.AutoColonize
-                    ? Owner.loyalty.AssessColonyNeeds(ColonizeTarget)
-                    : Planet.ColonyType.Colony;
-                Empire.Universe.NotificationManager.AddColonizedNotification(ColonizeTarget, EmpireManager.Player);
-            }
-            else
-            {
-                ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
-            }
-
-            Owner.loyalty.AddPlanet(ColonizeTarget);
-            ColonizeTarget.InitializeWorkerDistribution(Owner.loyalty);
-            ColonizeTarget.SetExploredBy(Owner.loyalty);
-
-            Owner.CreateColonizationBuildingFor(ColonizeTarget);
-
-            ColonizeTarget.AddMaxFertility(Owner.loyalty.data.EmpireFertilityBonus);
-            ColonizeTarget.CrippledTurns = 0;
-            StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, Empire.Universe);
-
-            Owner.loyalty.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == ColonizeTarget);
-
-            if (ColonizeTarget.ParentSystem.OwnerList.Count > 1)
-            {
-                foreach (Planet p in ColonizeTarget.ParentSystem.PlanetList)
-                {
-                    if (p.Owner == ColonizeTarget.Owner || p.Owner == null)
-                        continue;
-                    if (p.Owner.TryGetRelations(Owner.loyalty, out Relationship rel) && !rel.Treaty_OpenBorders)
-                        p.Owner.DamageRelationship(Owner.loyalty, "Colonized Owned System", 20f, p);
-                }
-            }
-
-            Owner.UnloadColonizationResourcesAt(ColonizeTarget);
-
-            bool troopsRemoved = false;
-            bool playerTroopsRemoved = false;
-
-            foreach (Troop t in targetPlanet.TroopsHere)
-            {
-                Empire owner = t?.Loyalty;
-                if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != ColonizeTarget.Owner &&
-                    ColonizeTarget.Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
-                {
-                    t.Launch();
-                    troopsRemoved = true;
-                    playerTroopsRemoved |= t.Loyalty.isPlayer;
-                }
-            }
-
+            ColonizeTarget.Colonize(Owner);
             Owner.QueueTotalRemoval();
-
-            if (troopsRemoved)
-                OnTroopsRemoved(playerTroopsRemoved);
-        }
-
-        void OnTroopsRemoved(bool playerTroopsRemoved)
-        {
-            if (playerTroopsRemoved)
-            {
-                Empire.Universe.NotificationManager.AddTroopsRemovedNotification(ColonizeTarget);
-            }
-            else if (ColonizeTarget.Owner.isPlayer)
-            {
-                Empire.Universe.NotificationManager.AddForeignTroopsRemovedNotification(ColonizeTarget);
-            }
         }
 
         bool ExploreEmptySystem(float elapsedTime, SolarSystem system)
@@ -600,15 +532,8 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)
-        {
-            // if ship has this cargo type on board, proceed to drop it off at destination
-            Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f
-                      ? Plan.DropOffGoods : Plan.PickupGoods;
-            SetTradePlan(plan, exportPlanet, importPlanet, goods);
-        }
-
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
+
         public bool ClearOrdersConditional(Plan plan)
         {
             bool clearOrders = false;
