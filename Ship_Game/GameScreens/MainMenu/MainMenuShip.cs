@@ -156,6 +156,9 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             ScreenManager.Instance.AddObject(ShipObj);
+            // Do a first dummy update with deltaTime 0
+            // to make sure we have correct position at first frame
+            AI.Update(this, 0f);
             UpdateTransform();
         }
 
