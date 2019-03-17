@@ -773,10 +773,9 @@ namespace Ship_Game.AI
                 try
                 {
                     //restrict to racial ships or otherwise unlocked ships. 
-                    if (shortTermBest.shipData.ShipStyle==null  ||
-                        shortTermBest.shipData.ShipStyle !="Platforms" && shortTermBest.shipData.ShipStyle != "Misc"
+                    if (shortTermBest.shipData.ShipStyle == null  ||
+                        shortTermBest.shipData.ShipStyle != "Platforms" && shortTermBest.shipData.ShipStyle != "Misc"
                          && shortTermBest.shipData.ShipStyle != OwnerEmpire.data.Traits.ShipType)
-                        //|| !OwnerEmpire.IsHullUnlocked(shortTermBest.shipData.Hull))
                         continue;
                     
                     if (shortTermBest.shipData.TechsNeeded.Count == 0)

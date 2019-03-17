@@ -32,15 +32,7 @@ namespace Ship_Game
                         ++FrameId;
 
                         UpdateAllSystems(0.0f);
-                        foreach (Ship ship in MasterShipList)
-                        {
-                            if (!ship.ShipInitialized) continue;
-                            if (ship.UpdateVisibility())
-                            {
-                                ship.UpdateWorldTransform();
-                            }
-                            ship.Update(0);
-                        }
+                        DeepSpaceThread(0.0f);
                     }
                     else
                     {
@@ -178,7 +170,7 @@ namespace Ship_Game
             UpdateShipsAndFleets(elapsedTime);
 
             // this will update all ship Center coordinates
-            ProcessTurnShipsAndSystems();
+            ProcessTurnShipsAndSystems(elapsedTime);
 
             // update spatial manager after ships have moved.
             // all the collisions will be triggered here:
@@ -187,36 +179,26 @@ namespace Ship_Game
             ProcessTurnUpdateMisc(elapsedTime);
 
             // bulk remove all dead projectiles to prevent their update next frame
-            ProcessProjectileDeaths();
+            RemoveDeadProjectiles();
 
             perfavg5.Stop();
             Lag = perfavg5.AvgTime;
         }
 
-        private static void ProcessProjectileDeaths(Ship ship)
-        {
-            for (int i = 0; i < ship.Projectiles.Count; ++i)
-            {
-                Projectile projectile = ship.Projectiles[i];
-                if (projectile.DieNextFrame)
-                    projectile.Die(projectile, false);
-            }
-        }
-
-        private void ProcessProjectileDeaths()
+        void RemoveDeadProjectiles()
         {
             for (int i = 0; i < DeepSpaceShips.Count; i++)
-                ProcessProjectileDeaths(DeepSpaceShips[i]);
+                DeepSpaceShips[i].RemoveDyingProjectiles();
 
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
                 SolarSystem system = SolarSystemList[i];
                 for (int j = 0; j < system.ShipList.Count; ++j)
-                    ProcessProjectileDeaths(system.ShipList[j]);
+                    system.ShipList[j].RemoveDyingProjectiles();
             }
         }
 
-        private void ProcessTurnUpdateMisc(float elapsedTime)
+        void ProcessTurnUpdateMisc(float elapsedTime)
         {
             UpdateClickableItems();
             if (LookingAtPlanet)
@@ -312,8 +294,7 @@ namespace Ship_Game
                 );
                 globalshipCount = MasterShipList.Filter(ship => (ship.loyalty != null && ship.loyalty != player) &&
                                                                   ship.shipData.Role != ShipData.RoleName.troop &&
-                                                                  ship.Mothership == null)
-                    .Length;
+                                                                  ship.Mothership == null).Length;
             }
         }
 
@@ -362,11 +343,11 @@ namespace Ship_Game
             perfavg4.Stop();
         }
 
-        private void ProcessTurnShipsAndSystems()
+        private void ProcessTurnShipsAndSystems(float elapsedTime)
         {
             Perfavg2.Start();
 #if !PLAYERONLY
-            DeepSpaceThread();
+            DeepSpaceThread(elapsedTime);
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
                 SolarSystemList[i].Update(!Paused ? 0.01666667f : 0.0f, this);
@@ -576,29 +557,12 @@ namespace Ship_Game
             }
         }
 
-        private void DeepSpaceThread()
+        private void DeepSpaceThread(float elapsedTime)
         {
-            float elapsedTime = !Paused ? 0.01666667f : 0.0f;
-
             SpaceManager.GetDeepSpaceShips(DeepSpaceShips);
 
             for (int i = 0; i < DeepSpaceShips.Count; i++)
             {
-                if (!DeepSpaceShips[i].ShipInitialized)
-                    continue;
-
-                if (DeepSpaceShips[i].Active && !DeepSpaceShips[i].ModuleSlotsDestroyed)
-                {
-                    if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-                    {
-                        DeepSpaceShips[i].Inhibited = true;
-                        DeepSpaceShips[i].InhibitedTimer = 10f;
-                    }
-                }
-                else
-                {
-                    DeepSpaceShips[i].Die(null, true);
-                }
                 DeepSpaceShips[i].Update(elapsedTime);
             }
         }

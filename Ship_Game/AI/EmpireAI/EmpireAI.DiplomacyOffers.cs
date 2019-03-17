@@ -439,12 +439,8 @@ namespace Ship_Game.AI
                 {
                     TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
                     {
-                        if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
-                            task.TargetPlanet.Owner != Them)
-                        {
-                            return;
-                        }
-                        task.EndTask();
+                        if (task.TargetPlanet?.Owner != null && task.TargetPlanet.Owner == Them)
+                            task.EndTask();
                     });
                 }
                 OwnerEmpire.GetRelations(Them).ActiveWar = null;

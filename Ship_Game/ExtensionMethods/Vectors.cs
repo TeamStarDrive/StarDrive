@@ -85,6 +85,16 @@ namespace Ship_Game
         }
 
 
+        public static bool AlmostZero(this Vector3 v)
+        {
+            return v.X.AlmostZero() && v.Y.AlmostZero() && v.Z.AlmostZero();
+        }
+        public static bool NotZero(this Vector3 v)
+        {
+            return v.X.NotZero() || v.Y.NotZero() || v.Z.NotZero();
+        }
+
+
         public static bool IsUnitVector(this Vector2 v)
         {
             return v.Length().AlmostEqual(1f);
@@ -157,6 +167,39 @@ namespace Ship_Game
         public static Vector3 RotateVector(this Vector3 radians, in Vector3 point)
         {
             return Vector3.Transform(point, radians.RadiansToRotMatrix());
+        }
+
+        // "ArcDot" ?
+        public static float RadiansFromAxis(this Vector3 dir, in Vector3 axis)
+        {
+            float theta = (float)Acos( dir.Dot(axis) );
+            return theta;
+        }
+
+        // Deconstructs a direction vector to Angle-Axis
+        public static Vector3 ToEulerAngles(this Vector3 dir)
+        {
+            return new Vector3(
+                dir.RadiansFromAxis(Vector3.UnitX),
+                dir.RadiansFromAxis(Vector3.UnitY),
+                dir.RadiansFromAxis(Vector3.UnitZ));
+        }
+
+        /**
+         * @return Assuming this is a direction vector, gives XYZ Euler rotation in RADIANS
+         * X: Roll
+         * Y: Pitch
+         * Z: Yaw
+         */
+        public static Vector3 ToEulerAngles2(this Vector3 dir)
+        {
+            double x = dir.X;
+            double y = dir.Y;
+            double z = dir.Z;
+            double pitchAdjacent = Sqrt(x*x + z*z); 
+            double pitch = Atan2(pitchAdjacent, y);
+            double yaw   = Atan2(x, z);
+            return new Vector3(/*roll:*/0f, (float)pitch, (float)yaw);
         }
 
         

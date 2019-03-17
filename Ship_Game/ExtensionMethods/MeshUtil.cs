@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -6,6 +7,18 @@ namespace Ship_Game
 {
     public static class MeshUtil
     {
+        public static float Radius(this BoundingBox bounds)
+        {
+            // get all diameters of the BB
+            float dx = bounds.Max.X - bounds.Min.X;
+            float dy = bounds.Max.Y - bounds.Min.Y;
+            float dz = bounds.Max.Z - bounds.Min.Z;
+
+            // and pick the largest diameter
+            float maxDiameter = Math.Max(dx, Math.Max(dy, dz));
+            return maxDiameter / 2f;
+        }
+
         public static BoundingBox GetMeshBoundingBox(this SceneObject obj)
         {
             foreach (RenderableMesh mesh in obj.RenderableMeshes)

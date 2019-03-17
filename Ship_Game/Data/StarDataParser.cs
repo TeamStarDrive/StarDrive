@@ -84,10 +84,11 @@ namespace Ship_Game.Data
                 (int newDepth, int index) = Depth(line);
                 // "      " -- line is all spaces
                 // "  # comment after spaces "
-                if (index >= line.Length || line[newDepth] == '#')
+                if (index >= line.Length || line[index] == '#')
                     continue; 
 
                 StarDataNode node = ParseLineAsNode(line, out bool isSequence);
+
                 if (newDepth > depth)
                 {
                     saved.Push(new DepthSave{ Depth=depth, Node=root });
@@ -142,7 +143,7 @@ namespace Ship_Game.Data
                 {
                     return new StarDataNode
                     {
-                        Key  = null,
+                        Key   = null,
                         Value = BoxValue(RemoveComment(parts[0]))
                     };
                 }
@@ -150,7 +151,7 @@ namespace Ship_Game.Data
                 {
                     return new StarDataNode
                     {
-                        Key  = parts[0].Trim(),
+                        Key   = parts[0].Trim(),
                         Value = BoxValue(RemoveComment(parts[1]))
                     };
                 }
@@ -162,7 +163,7 @@ namespace Ship_Game.Data
                 {
                     return new StarDataNode
                     {
-                        Key  = RemoveComment(parts[0]).Trim(),
+                        Key   = RemoveComment(parts[0]).Trim(),
                         Value = null
                     };
                 }
@@ -170,7 +171,7 @@ namespace Ship_Game.Data
                 {
                     return new StarDataNode
                     {
-                        Key  = parts[0].Trim(),
+                        Key   = parts[0].Trim(),
                         Value = BoxValue(RemoveComment(parts[1]))
                     };
                 }
@@ -215,7 +216,7 @@ namespace Ship_Game.Data
             {
                 char c = line[i];
                 if      (c == ' ')  ++depth;
-                else if (c == '\t') depth += 4;
+                else if (c == '\t') depth += 2;
                 else break;
             }
             return (depth, i);

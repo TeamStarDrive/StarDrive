@@ -111,7 +111,7 @@ namespace Ship_Game
                 basicEffect.TextureEnabled                  = true;
                 basicEffect.Projection                      = Projection;
                 basicEffect.LightingEnabled                 = true;
-                basicEffect.DirectionalLight0.DiffuseColor  = new Vector3(1f, 1f, 1f);
+                basicEffect.DirectionalLight0.DiffuseColor  = new Vector3(1f, 1f, 1f);                
                 basicEffect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
                 basicEffect.SpecularPower                   = 4;
                 if (UseRealLights)
@@ -213,7 +213,7 @@ namespace Ship_Game
 
 
         private void DrawColoredEmpireBorders()
-        {
+        {            
             var spriteBatch = ScreenManager.SpriteBatch;
             var graphics = ScreenManager.GraphicsDevice;
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
@@ -255,7 +255,7 @@ namespace Ship_Game
                             if (influ.Position == influ2.Position || influ.Radius > influ2.Radius ||
                                 influ.Position.OutsideRadius(influ2.Position, influ.Radius + influ2.Radius + 150000.0f))
                                 continue;
-
+                            
                             Vector2 endPos = ProjectToScreenPosition(influ2.Position);
 
 
@@ -339,7 +339,7 @@ namespace Ship_Game
 
                 Rectangle fogRect = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
                     (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
-                ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0,
+                ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, 
                         ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
                         ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight),
                     new Color(0, 0, 0, 170));
@@ -429,18 +429,8 @@ namespace Ship_Game
             if (LookingAtPlanet && SelectedPlanet != null)
                 workersPanel?.Draw(batch);
 
-            DrawShipsInRange();
-
-            foreach (SolarSystem solarSystem in SolarSystemList)
-            {
-                if (!solarSystem.isVisible)
-                    continue;
-                for (int i = 0; i < solarSystem.PlanetList.Count; i++)
-                {
-                    Planet planet = solarSystem.PlanetList[i];
-                    Projectile.DrawList(this, batch, planet.Projectiles);
-                }
-            }
+            DrawShipsInRange(batch);
+            DrawPlanetProjectiles(batch);
 
             DrawTacticalPlanetIcons(batch);
             if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
@@ -484,7 +474,7 @@ namespace Ship_Game
                         Color color = (ship.shipToClick.loyalty == EmpireManager.Player)
                             ? new Color(0, 200, 0, 30)
                             : new Color(200, 0, 0, 30);
-                        float radius = ship.shipToClick.RangeForOverlay;
+                        float radius = ship.shipToClick.RangeForOverlay;                        
                         DrawTextureProjected(shipRangeTex, ship.shipToClick.Position, radius, color);
                     }
                 }
@@ -638,6 +628,7 @@ namespace Ship_Game
             DrawCompletedEvt.Set();
         }
 
+
         private UILabel DebugText;
 
         private void HideDebugGameInfo()
@@ -695,7 +686,7 @@ namespace Ship_Game
 
                     SubTexture icon = ResourceManager.Texture("FleetIcons/" + fleet.FleetIconIndex);
                     Vector2 fleetCenterOnScreen = ProjectToScreenPosition(averagePos);
-
+                  
                     FleetIconLines(fleet, fleetCenterOnScreen);
                     ClickableFleetsList.Add(new ClickableFleet
                     {
@@ -724,9 +715,9 @@ namespace Ship_Game
             }
         }
 
-        private void DrawTacticalPlanetIcons(SpriteBatch batch)
+        void DrawTacticalPlanetIcons(SpriteBatch batch)
         {
-            if (LookingAtPlanet || viewState <= UnivScreenState.SystemView
+            if (LookingAtPlanet || viewState <= UnivScreenState.SystemView 
                 ||viewState >= UnivScreenState.GalaxyView)
                 return;
 
@@ -754,7 +745,7 @@ namespace Ship_Game
                             wellKnown = true;
 
                     }
-
+                   
                     float fIconScale = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
 
                     Vector3 vector3 = Viewport.Project(new Vector3(planet.Center, 2500f), Projection, View, Matrix.Identity);
@@ -777,15 +768,15 @@ namespace Ship_Game
             }
         }
 
-        private void DrawItemInfoForUI()
+        void DrawItemInfoForUI()
         {
             var goal = SelectedItem?.AssociatedGoal;
             if (goal == null) return;
-            DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);
+            DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);            
         }
 
-        private void DrawShipUI(GameTime gameTime)
-        {
+        void DrawShipUI(GameTime gameTime)
+        {            
             lock (GlobalStats.FleetButtonLocker)
             {
                 foreach (FleetButton fleetButton in FleetButtons)
@@ -794,7 +785,7 @@ namespace Ship_Game
                     var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
                         fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
 
-                    bool inCombat = false;
+                    bool inCombat = false;                   
                     for (int ship = 0; ship < fleetButton.Fleet.Ships.Count; ++ship)
                     {
                         try
@@ -817,7 +808,7 @@ namespace Ship_Game
                         EmpireManager.Player.EmpireColor);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, fleetButton.Key.ToString(),
                         new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4), Color.Orange);
-
+                    
                     //draw ship icons to right of button
                     Vector2 shipSpacingH = new Vector2( fleetButton.ClickRect.X + 50, fleetButton.ClickRect.Y);
                     for (int x = 0; x < fleetButton.Fleet.Ships.Count; ++x)
@@ -832,7 +823,7 @@ namespace Ship_Game
                             {
                                 shipSpacingH.X = fleetButton.ClickRect.X + 50f;
                                 shipSpacingH.Y += 15f;
-                            }
+                            }                            
                             ScreenManager.SpriteBatch.Draw(ship.GetTacticalIcon(), iconHousing,
                                 fleetButton.Fleet.Owner.EmpireColor);
                         }
@@ -842,7 +833,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawShipsInRange()
+        void DrawShipsInRange(SpriteBatch batch)
         {
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -858,8 +849,10 @@ namespace Ship_Game
             {
                 foreach (Ship ship in player.KnownShips)
                 {
-                    if (!ship.Active) continue;
-                    DrawShipProjectilesInRange(ship);
+                    if (viewState <= UnivScreenState.SystemView)
+                    {
+                        ship.DrawProjectiles(batch, this);
+                    }
                 }
             }
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
@@ -932,8 +925,30 @@ namespace Ship_Game
                 DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, .3f), Color.Orange, 2f); //
             }
         }
+        
+        void DrawPlanetProjectiles(SpriteBatch batch)
+        {
+            foreach (SolarSystem sys in SolarSystemList)
+            {
+                if (!sys.isVisible)
+                    continue;
 
-        private void DrawProjectedGroup()
+                Array<Planet> planets = sys.PlanetList;
+                for (int i = 0; i < planets.Count; i++)
+                {
+                    Planet planet = planets[i];
+                    using (planet.Projectiles.AcquireReadLock())
+                    {
+                        foreach (Projectile p in planets[i].Projectiles)
+                        {
+                            if (p.Active) p.Draw(batch, this);
+                        }
+                    }
+                }
+            }
+        }
+
+        void DrawProjectedGroup()
         {
             if (!Project.Started || CurrentGroup == null)
                 return;
@@ -943,7 +958,7 @@ namespace Ship_Game
                 if (!ship.Active)
                     continue;
 
-                var symbol = ship.GetTacticalIcon();
+                var symbol = ship.GetTacticalIcon();                
 
                 float num = ship.SurfaceArea / (30f + symbol.Width);
                 float scale = num * 4000f / CamHeight;
@@ -989,7 +1004,7 @@ namespace Ship_Game
             ship.DrawTacticalIcon(this, viewState);
         }
 
-        private void DrawBombs()
+        void DrawBombs()
         {
             using (BombList.AcquireReadLock())
             {
@@ -1001,14 +1016,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawShipProjectilesInRange(Ship ship)
-        {
-            if (viewState > UnivScreenState.SystemView || !ship.InFrustum)
-                return;
-            Projectile.DrawList(this, ScreenManager.SpriteBatch, ship.Projectiles);
-        }
-
-        private void DrawShipLines(Ship ship, byte alpha)
+        void DrawShipLines(Ship ship, byte alpha)
         {
             if (ship == null)
                 return;
@@ -1027,7 +1035,7 @@ namespace Ship_Game
                     if (ship.Mothership != null)
                         DrawLineProjected(start, ship.Mothership.Center, color);
                     else
-                        ship.AI.State = AIState.AwaitingOrders; //@todo this looks like bug fix hack. investigate and fix.
+                        ship.AI.State = AIState.AwaitingOrders; //@todo this looks like bug fix hack. investigate and fix. 
                     return;
                 }
                 if (ship.AI.State == AIState.Escort && ship.AI.EscortTarget != null)
@@ -1105,7 +1113,7 @@ namespace Ship_Game
                     ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Critical!", spots);
                 }
                 DrawWayPointLines(ship, new Color(Color.Lime, alpha));
-
+                
                 return;
             }
 
@@ -1240,12 +1248,6 @@ namespace Ship_Game
             posOffSet.Y += yOffSet;
             HelperFunctions.ClampVectorToInt(ref posOffSet);
             ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
-        }
-
-        public void DrawTransparentModel(Model model, in Matrix world, SubTexture projTex, float scale)
-        {
-            DrawModelMesh(model, Matrix.CreateScale(scale) * world, View, new Vector3(1f, 1f, 1f), Projection, projTex);
-            Device.RenderState.DepthBufferWriteEnable = true;
         }
 
     }

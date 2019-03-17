@@ -191,6 +191,10 @@ namespace Ship_Game.Ships
             TroopsLaunched   = save.TroopsLaunched;
             FightersLaunched = save.FightersLaunched;
 
+            TransportingFood       = save.TransportingFood;
+            TransportingProduction = save.TransportingProduction;
+            TransportingColonists  = save.TransportingColonists;
+
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.Name;
 
@@ -224,7 +228,9 @@ namespace Ship_Game.Ships
             LoadColonists(save.PopCount);
 
             foreach (SavedGame.ProjectileSaveData pdata in save.Projectiles)
+            {
                 Projectile.Create(this, pdata);
+            }
         }
 
 
@@ -350,7 +356,7 @@ namespace Ship_Game.Ships
 
         public void CreateSceneObject()
         {
-            shipData.LoadModel(out ShipSO, out ShipMeshAnim);
+            shipData.LoadModel(out ShipSO, out ShipMeshAnim, Empire.Universe);
 
             Radius            = ShipSO.WorldBoundingSphere.Radius;
             ShipSO.Visibility = ObjectVisibility.Rendered;

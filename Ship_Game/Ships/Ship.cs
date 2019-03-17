@@ -33,8 +33,7 @@ namespace Ship_Game.Ships
 
         public Vector2 projectedPosition;
         private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
-        private Array<Projectile> projectiles = new Array<Projectile>();
-        private Array<Beam> beams             = new Array<Beam>();
+
         public Array<Weapon> Weapons          = new Array<Weapon>();
         private float JumpTimer               = 3f;
         public AudioEmitter SoundEmitter      = new AudioEmitter();
@@ -162,8 +161,11 @@ namespace Ship_Game.Ships
         public Array<Empire> BorderCheck  = new Array<Empire>();
 
         public float FTLModifier { get; private set; } = 1f;
-        public float BaseCost { get; private set; }
+        public float BaseCost    { get; private set; }
         public Planet HomePlanet { get; private set; }
+        public bool TransportingColonists  { get; set; }
+        public bool TransportingFood       { get; set; }
+        public bool TransportingProduction { get; set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
@@ -185,9 +187,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsIdleFreighter => IsFreighter
-                                       && AI != null
-                                       && !AI.HasPriorityOrder
+        public bool IsIdleFreighter => IsFreighter 
+                                       && AI != null 
+                                       && !AI.HasPriorityOrder 
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit;
@@ -397,34 +399,6 @@ namespace Ship_Game.Ships
 
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;
 
-        public IReadOnlyList<Projectile> Projectiles => projectiles.ToArray();
-        public IReadOnlyList<Beam> Beams => beams;
-
-        public void AddBeam(Beam beam)
-        {
-            if (beam == null || beams.ContainsRef(beam)) {
-                Log.Error($"Invalid beam: {beam}");
-                return;
-            }
-            beams.Add(beam);
-        }
-        public void RemoveBeam(Beam beam)
-        {
-            if (beam == null || !beams.ContainsRef(beam)) {
-                Log.Error($"Invalid beam: {beam}");
-                return;
-            }
-            beams.RemoveRef(beam);
-        }
-        public void AddProjectile(Projectile projectile)
-        {
-            if (projectile == null || beams.ContainsRef(projectile)) {
-                Log.Error($"Invalid projectile: {projectile}");
-                return;
-            }
-            projectiles.Add(projectile);
-        }
-
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > ShipStatus.Critical
                                                                  && OrdnanceStatus != ShipStatus.NotApplicable;
 
@@ -446,7 +420,7 @@ namespace Ship_Game.Ships
             }
 
         }
-
+        
         public int BombsUseful
         {
             get
@@ -507,56 +481,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool DoingTransport
-        {
-            get => AI.State == AIState.SystemTrader;
-            set
-            {
-                TransportingProduction = value;
-                TransportingFood = value;
-            }
-        }
-
-        public bool DoingFoodTransport => TransportingFood;
-        public bool DoingProdTransport => TransportingProduction;
-        public bool DoingPassengerTransport => TransportingPassengers;
-
-        private bool TPassengers;
-        public bool TransportingPassengers
-        {
-            get => TPassengers;
-            set
-            {
-                TPassengers = value;
-                if (!value)
-                    AI.State = AIState.AwaitingOrders;
-            }
-        }
-
-        private bool TFood;
-        public bool TransportingFood
-        {
-            get => TFood;
-            set
-            {
-                TFood = value;
-                if (!value)
-                    AI.State = AIState.AwaitingOrders;
-            }
-        }
-
-        private bool TProd;
-        public bool TransportingProduction
-        {
-            get => TProd;
-            set
-            {
-                TProd = value;
-                if (!value)
-                    AI.State = AIState.AwaitingOrders;
-            }
-        }
-
         public bool DoingExplore
         {
             get => AI.State == AIState.Explore;
@@ -614,39 +538,6 @@ namespace Ship_Game.Ships
         {
             get => AI.State == AIState.Refit;
             set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
-        }
-
-        public void ShipRecreate()
-        {
-            Active = false;
-            AI.Target = null;
-            AI.ColonizeTarget = null;
-            AI.EscortTarget = null;
-            AI.PotentialTargets.Clear();
-            AI.NearByShips.Clear();
-            AI.FriendliesNearby.Clear();
-
-            if (Mothership != null)
-            {
-                foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
-                {
-                    if (shipModule.GetHangarShip() == this)
-                        shipModule.SetHangarShip(null);
-                }
-            }
-
-            for (int i = 0; i < projectiles.Count; ++i)
-                projectiles[i].Die(this, false);
-            projectiles.Clear();
-
-            ModuleSlotList = Empty<ShipModule>.Array;
-            TroopList.Clear();
-            ClearFleet();
-            ShipSO.Clear();
-
-            loyalty.RemoveShip(this);
-            SetSystem(null);
-            TetheredTo = null;
         }
 
         public bool IsWithinPlanetaryGravityWell
@@ -1125,7 +1016,7 @@ namespace Ship_Game.Ships
                 Center.InRadius(Empire.Universe.CamPos.ToVec2(), 100000f) && Empire.Universe.CamHeight < 250000)
             {
                 GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
-
+                
                 FTLManager.ExitFTL(GetPosition3D, Direction3D, Radius);
             }
 
@@ -2001,7 +1892,7 @@ namespace Ship_Game.Ships
 
         public bool IsCandidateFreighterBuild()
         {
-            if (shipData.Role != ShipData.RoleName.freighter
+            if (shipData.Role != ShipData.RoleName.freighter 
                 || CargoSpaceMax < 1f
                 || isColonyShip
                 || isConstructor)
@@ -2231,12 +2122,7 @@ namespace Ship_Game.Ships
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            for (int i = 0; i < beams.Count; i++)
-            {
-                Beam beam = beams[i];
-                beam.Die(this, true);
-                beams.RemoveRef(beam);
-            }
+            RemoveBeams();
 
             ++DebugInfoScreen.ShipsDied;
             Projectile psource = source as Projectile;
@@ -2340,16 +2226,15 @@ namespace Ship_Game.Ships
         public void QueueTotalRemoval()
         {
             SetSystem(null);
-
             Empire.Universe.QueueGameplayObjectRemoval(this);
         }
 
         public override void RemoveFromUniverseUnsafe()
         {
-            Active                           = false;
-            AI.Target                        = null;
-            AI.ColonizeTarget                = null;
-            AI.EscortTarget                  = null;
+            Active            = false;
+            AI.Target         = null;
+            AI.ColonizeTarget = null;
+            AI.EscortTarget   = null;
             AI.PotentialTargets.Clear();
             AI.TrackProjectiles.Clear();
             AI.NearByShips.Clear();
@@ -2375,17 +2260,8 @@ namespace Ship_Game.Ships
                 empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
 
-            foreach (Projectile projectile in projectiles)
-                projectile.Die(this, false);
-            if (beams != null)
-                for (int i = 0; i < beams.Count; i++)
-                {
-                    Beam beam = beams[i];
-                    beam.Die(this, true);
-                    beams.RemoveRef(beam);
-
-                }
-            projectiles.Clear();
+            RemoveProjectiles();
+            RemoveBeams();
 
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
@@ -2407,21 +2283,13 @@ namespace Ship_Game.Ships
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
 
-        public ShipStatus ShipReadyForWarp()
+        public bool ShipReadyForWarp()
         {
-            if (Inhibited)
-                return ShipStatus.Poor;
-            if (!isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) < 0.2f)
-                return ShipStatus.Critical;
-            if (Carrier.RecallingFighters())
-                return ShipStatus.Poor;
-            if (engineState == MoveState.Warp)
-                return ShipStatus.Good;
-            if (AI.State == AIState.FormationWarp)
-                return ShipStatus.Good;
-            return ShipStatus.Excellent;
+            if (AI.State != AIState.FormationWarp ) return true;
+            if (!isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) < 0.2f) return false;
+            if (engineState == MoveState.Warp) return true;
+            return !Carrier.RecallingFighters();
         }
-
         public void Dispose()
         {
             Dispose(true);
@@ -2434,9 +2302,7 @@ namespace Ship_Game.Ships
         {
             supplyLock?.Dispose(ref supplyLock);
             AI?.Dispose();
-            AI               = null;
-            projectiles      = null;
-            beams            = null;
+            AI = null;
         }
 
         public void UpdateShields()

@@ -8,6 +8,7 @@
 "..\..\StarDrive\Microsoft.Xna.Framework.Game.dll"
 "..\..\StarDrive\Microsoft.Xna.Framework.Game.pdb"
 "..\..\StarDrive\SDNative.dll"
+"..\..\StarDrive\NAudio.dll"
 "..\..\StarDrive\SharpRaven.pdb"
 "..\..\StarDrive\SharpRaven.xml"
 "..\..\StarDrive\SharpRaven.dll"

@@ -25,10 +25,14 @@ namespace Ship_Game.Audio
         }
         public bool IsPlaying => Sfx?.State == SoundState.Playing;
         public bool IsPaused  => Sfx?.State == SoundState.Paused;
-        public bool IsStopped => Sfx?.State == SoundState.Stopped;
+        public bool IsStopped => Sfx == null || Sfx.IsDisposed || Sfx.State == SoundState.Stopped;
         public void Pause()   => Sfx?.Pause();
         public void Resume()  => Sfx?.Resume();
-        public void Stop()    => Sfx?.Stop(immediate: true);
+        public void Stop()
+        {
+            if (!IsStopped)
+                Sfx.Stop(immediate: true);
+        }
         void Destroy()
         {
             if (Sfx != null) { Sfx.Dispose(); Sfx = null; }
@@ -51,10 +55,14 @@ namespace Ship_Game.Audio
         }
         public bool IsPlaying => Cue?.IsPlaying == true;
         public bool IsPaused  => Cue?.IsPaused  == true;
-        public bool IsStopped => Cue?.IsStopped == true;
+        public bool IsStopped => Cue == null || Cue.IsDisposed || Cue.IsStopped;
         public void Pause()   => Cue?.Pause();
         public void Resume()  => Cue?.Resume();
-        public void Stop()    => Cue?.Stop(AudioStopOptions.Immediate);
+        public void Stop()
+        {
+            if (!IsStopped)
+                Cue.Stop(AudioStopOptions.Immediate);
+        } 
         void Destroy()
         {
             if (Cue != null) { Cue.Dispose(); Cue = null; }
@@ -95,10 +103,14 @@ namespace Ship_Game.Audio
         }
         public bool IsPlaying => Player?.PlaybackState == PlaybackState.Playing;
         public bool IsPaused  => Player?.PlaybackState == PlaybackState.Paused;
-        public bool IsStopped => Player?.PlaybackState == PlaybackState.Stopped;
+        public bool IsStopped => Player == null || (!IsPaused && !IsPlaying);
         public void Pause()   => Player?.Pause();
         public void Resume()  => Player?.Play();
-        public void Stop()    => Player?.Stop();
+        public void Stop()
+        {
+            if (!IsStopped)
+                Player.Stop();
+        }
         void Destroy()
         {
             if (Player != null) { Player.Dispose(); Player = null; }

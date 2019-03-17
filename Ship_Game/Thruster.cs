@@ -132,16 +132,6 @@ namespace Ship_Game
             WorldPos = new Vector3(ThrusterCenter, zPos);
         }
 
-        public void SetPosition(Vector2 center)
-        {
-            double angle = offsetAngle.ToRadians() + Parent.Rotation + 1.57079637f;
-            float distance = distanceToParentCenter;
-            ThrusterCenter.Y = center.Y + distance * -(float)Math.Sin(angle);
-            ThrusterCenter.X = center.X + distance * -(float)Math.Cos(angle);
-            float zPos = -(float)Math.Sin(Parent.yRotation / distance) + 10f;
-            WorldPos = new Vector3(ThrusterCenter, zPos);
-        }
-
         public void Update(Vector3 direction, float thrustsize, float thrustspeed, Vector3 camera_position)
         {
             var scaleFactors = new Vector3(tscale);

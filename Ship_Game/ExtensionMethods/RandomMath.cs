@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace Ship_Game
@@ -53,6 +54,11 @@ namespace Ship_Game
         public static bool RollDice(float percent)
         {
             return RandomBetween(0f, 100f) < percent;
+        }
+        
+        public static T RandItem<T>(IReadOnlyList<T> items)
+        {
+            return items[InRange(items.Count)];
         }
 
         public static T RandItem<T>(Array<T> items)

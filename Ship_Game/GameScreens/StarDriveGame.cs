@@ -33,6 +33,7 @@ namespace Ship_Game
 
         public float DeltaTime { get; private set; }
         public GameTime GameTime;
+        public float TotalElapsed => (float)GameTime.TotalGameTime.TotalSeconds;
         public int FrameId { get; private set; }
 
         public StarDriveGame()
@@ -110,7 +111,7 @@ namespace Ship_Game
         {
             Window.Title = "StarDrive BlackBox";
             ResourceManager.ScreenManager = ScreenManager = new ScreenManager(this, Graphics);
-            GameAudio.Initialize("Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
+            GameAudio.Initialize(null, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
 
             Instance = this;
             base.Initialize();
