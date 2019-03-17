@@ -310,10 +310,11 @@ namespace Ship_Game
             }
             foreach (PlanetGridSquare pgs in ReversedList)
             {
-                if (pgs.building == null)
-                    continue;
-                var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                batch.Draw(ResourceManager.Texture($"Buildings/icon_{pgs.building.Icon}_64x64"), bRect, Color.White);
+                if (pgs.BuildingOnTile)
+                {
+                    var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                    batch.Draw(ResourceManager.Texture($"Buildings/icon_{pgs.building.Icon}_64x64"), bRect, Color.White);
+                }
             }
             foreach (PlanetGridSquare pgs in ReversedList)
             {
@@ -466,7 +467,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (pgs.building != null)
+            else if (pgs.BuildingOnTile)
             {
                 if (pgs.building.CombatStrength <= 0)
                 {

@@ -553,7 +553,7 @@ namespace Ship_Game.Ships
         }
 
         // calculates estimated trip time by turns
-        public float Astrogate(Planet destination)
+        public float GetAstrograteTimeTo(Planet destination)
         {
             float distance    = Center.Distance(destination.Center);
             float distanceSTL = destination.GravityWellForEmpire(loyalty);
