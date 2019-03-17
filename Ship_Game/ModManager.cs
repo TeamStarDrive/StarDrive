@@ -179,14 +179,18 @@ namespace Ship_Game
                 string modFile = $"Mods/{info.Name}/{info.Name}.xml";
                 try
                 {                    
-                    var modInfo = new FileInfo(modFile);
-                    var e = new ModEntry(ser.Deserialize<ModInformation>(modInfo));
+                    var file = new FileInfo(modFile);
+                    var modInfo = ser.Deserialize<ModInformation>(file);
+                    if (modInfo == null)
+                        throw new FileNotFoundException($"Mod XML not found: {modFile}");
+
+                    var e = new ModEntry(modInfo);
                     e.LoadPortrait(mmscreen);
                     ModsSL.AddItem(e);
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning($"Load error in file {modFile}");
+                    Log.Warning($"Load error in file {modFile}: {ex.Message}");
                     ex.Data.Add("Load Error in file", modFile);
                 }
             }
