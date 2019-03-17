@@ -541,33 +541,51 @@ namespace Ship_Game.AI
             }
         }
 
-        void IdleFleetAI(float elapsedTime)
+        bool DoNearFleetOffset(float elapsedTime)
         {
-            bool nearFleetOffSet = Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75);
-            if (nearFleetOffSet)
+            if (Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75))
             {
                 ReverseThrustUntilStopped(elapsedTime);
                 RotateToDirection(Owner.fleet.Direction, elapsedTime, 0.02f);
+                return true;
             }
-            else
-            if (State == AIState.FormationWarp || State == AIState.Orbit || (!Owner.loyalty.isPlayer && State == AIState.AwaitingOrders) ||
-                    (!HasPriorityOrder && !HadPO && State != AIState.HoldPosition))
+            return false;
+        }
+
+        bool ShouldReturnToFleet()
+        {
+            //seperated for clarity as this section can be very confusing.
+            //we might need a toggle for the player action here.
+            if (State == AIState.FormationWarp) return true;
+            if (Owner.loyalty.isPlayer) return false;
+            if (HasPriorityOrder || HadPO || State == AIState.HoldPosition) return false;
+            if (State == AIState.Orbit || State == AIState.AwaitingOffenseOrders) return true;
+            return false;
+        }
+
+        void IdleFleetAI(float elapsedTime)
+        {
+            if (DoNearFleetOffset(elapsedTime))
+                return;
+
+            if (ShouldReturnToFleet())
             {
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
-                {
                     ThrustOrWarpToPosCorrected(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
-                }
                 else
-                {
-                    ClearWayPoints();
-                    WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
-                    State = AIState.AwaitingOrders;
-                    if (Owner.fleet?.GoalStack.Count > 0)
-                        WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
-                    else
-                        OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, Owner.fleet.Direction, true, null);
-                }
+                    ReturnToFleet();
             }
+        }
+
+        private void ReturnToFleet()
+        {
+            ClearWayPoints();
+            WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
+            State = AIState.AwaitingOrders;
+            if (Owner.fleet?.GoalStack.Count > 0)
+                WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
+            else
+                OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, Owner.fleet.Direction, true, null);
         }
 
         public bool HasTradeGoal(Goods goods)
