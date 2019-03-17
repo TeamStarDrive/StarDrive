@@ -547,18 +547,24 @@ namespace Ship_Game.Ships
         {
             get
             {
-                // FB - should add an option in rules option for friendlies to ignore gravity wells (|| IsInFriendlySpace && FriendliesIgnoreWells) 
-                if (!Empire.Universe.GravityWells || System == null) 
-                    return false;
-
-                for (int i = 0; i < System.PlanetList.Count; i++)
-                {
-                    Planet planet = System.PlanetList[i];
-                    if (Position.InRadius(planet.Center, planet.GravityWellRadius))
-                        return true;
-                }
-                return false;
+                Planet planet = System?.IdentifyGravityWell(this);
+                return planet != null;
             }
+        }
+
+        // calculates estimated trip time by turns
+        public float Astrogate(Planet destination)
+        {
+            float distance    = Center.Distance(destination.Center);
+            float distanceSTL = destination.GravityWellForEmpire(loyalty);
+            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner
+            if (planet != null)
+                distanceSTL += planet.GravityWellRadius;
+
+            float distanceFTL = Math.Max(distance - distanceSTL, 0);
+            float travelSTL   = distanceSTL / GetSTLSpeed();
+            float travelFTL   = distanceFTL / GetmaxFTLSpeed;
+            return (travelFTL + travelSTL) / GlobalStats.TurnTimer;
         }
 
         public float AvgProjectileSpeed

@@ -532,21 +532,8 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)
-        {
-            // if ship has this cargo type on board, proceed to drop it off at destination
-            Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f
-                      ? Plan.DropOffGoods : Plan.PickupGoods;
-            SetTradePlan(plan, exportPlanet, importPlanet, goods);
-        }
-
-        public void SetupFreighterPlan(Planet importPlanet, Goods goods)
-        {
-            Plan plan = Plan.DropOffGoods; // found close freighter with the goods we need so we don't need an export planet
-            SetTradePlan(plan, importPlanet, importPlanet, goods); // this planet takes care of itself this trade
-        }
-
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
+
         public bool ClearOrdersConditional(Plan plan)
         {
             bool clearOrders = false;

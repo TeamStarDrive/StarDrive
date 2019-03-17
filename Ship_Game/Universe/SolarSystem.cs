@@ -194,6 +194,23 @@ namespace Ship_Game
             }
         }
 
+        public Planet IdentifyGravityWell(Ship ship)
+        {
+            // FB - should add an option in rules option for friendlies to not ignore gravity wells
+            // for instance - (|| IsInFriendlySpace && !FriendliesIgnoreWells)  or something like that
+            if (!Empire.Universe.GravityWells || ship.IsInFriendlySpace)
+                return null;
+
+            for (int i = 0; i < PlanetList.Count; i++)
+            {
+                Planet planet = PlanetList[i];
+                if (Position.InRadius(planet.Center, planet.GravityWellRadius))
+                    return planet;
+            }
+
+            return null;
+        }
+
         readonly Map<Empire, EmpireSolarSystemStatus> Status = new Map<Empire, EmpireSolarSystemStatus>();
 
         EmpireSolarSystemStatus GetStatus(Empire empire)
