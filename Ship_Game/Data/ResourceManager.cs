@@ -1153,11 +1153,11 @@ namespace Ship_Game
                     FileInfo info = hullFiles[i];
                     try
                     {
-                        string dirName = info.Directory?.Name ?? "";
-                        ShipData shipData = ShipData.Parse(info);
-                        shipData.Hull = dirName + "/" + shipData.Hull;
+                        string dirName     = info.Directory?.Name ?? "";
+                        ShipData shipData  = ShipData.Parse(info);
+                        shipData.Hull      = dirName + "/" + shipData.Hull;
                         shipData.ShipStyle = dirName;
-                        shipData.Role = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
+                        shipData.Role      = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
                         shipData.UpdateBaseHull();
                         hulls[i] = shipData;
                     }
