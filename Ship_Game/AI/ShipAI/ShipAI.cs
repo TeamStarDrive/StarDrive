@@ -554,11 +554,11 @@ namespace Ship_Game.AI
 
         bool ShouldReturnToFleet()
         {
-            //seperated for clarity as this section can be very confusing.
+            //separated for clarity as this section can be very confusing.
             //we might need a toggle for the player action here.
             if (State == AIState.FormationWarp) return true;
             if (Owner.loyalty.isPlayer) return false;
-            if (HasPriorityOrder || HadPO || State == AIState.HoldPosition) return false;
+            if (HasPriorityOrder || HadPO || State == AIState.HoldPosition || State == AIState.Resupply) return false;
             if (State == AIState.Orbit || State == AIState.AwaitingOffenseOrders) return true;
             return false;
         }
@@ -570,14 +570,15 @@ namespace Ship_Game.AI
 
             if (ShouldReturnToFleet())
             {
+                //check if inside minimum warp jump range. If not do a full warp process.
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                     ThrustOrWarpToPosCorrected(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
                 else
-                    ReturnToFleet();
+                    WarpToFleet();
             }
         }
 
-        private void ReturnToFleet()
+        void WarpToFleet()
         {
             ClearWayPoints();
             WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
