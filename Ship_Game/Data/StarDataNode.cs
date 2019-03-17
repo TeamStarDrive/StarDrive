@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace Ship_Game.Data
@@ -27,16 +28,42 @@ namespace Ship_Game.Data
         }
 
         // SubNode indexing
-        public StarDataNode this[int index] => SubNodes[index];
+        // ThisNode:
+        //   SubNode0: Value0
+        //   SubNode1: Value1
+        // this[0] => StarDataNode Key=SubNode0 Value=Value0
+        public StarDataNode this[int subNodeIndex] => SubNodes[subNodeIndex];
+
+        // SubNode access by name (throws exception if not found)
+        // ThisNode:
+        //   SubNode0: Value0
+        // this["SubNode0"] => StarDataNode Key=SubNode0 Value=Value0
+        public StarDataNode this[string subNodeKey] => GetSubNode(subNodeKey);
 
         // Sequence indexing
+        // ThisNode:
+        //   - Element0: Value0
+        //   - Element1: Value1
+        // this.GetElement(0) => StarDataNode Key=Element0 Value=Value0
         public StarDataNode GetElement(int index) => Sequence[index];
 
+        // Name: ...
         public string Name => Key as string;
+        
+        // Key: ValueText
         public string ValueText => Value as string;
+
+        // Key: true
+        public bool ValueBool => Value is bool b && b;
+
+        // Key: 1234
+        public int ValueInt => Value is int i ? i : 0;
+
+        // Key: 33.14
+        public float ValueFloat => Value is float f ? f : float.NaN;
+
+        // Key: [Elem1, Elem2, Elem3]
         public object[] ValueArray => Value as object[];
-        public int   ValueInt   => (int)Value;
-        public float ValueFloat => (float)Value;
 
         public void AddSubNode(StarDataNode item)
         {
@@ -52,15 +79,15 @@ namespace Ship_Game.Data
             Sequence.Add(element);
         }
 
-        public StarDataNode GetSubNode(string key)
+        public StarDataNode GetSubNode(string subNodeKey)
         {
-            if (!FindSubNode(key, out StarDataNode found))
-                throw new KeyNotFoundException($"StarDataNode {key} not found!");
+            if (!FindSubNode(subNodeKey, out StarDataNode found))
+                throw new KeyNotFoundException($"StarDataNode '{subNodeKey}' not found in node '{Name}'!");
             return found;
         }
 
         // finds a direct child element
-        public bool FindSubNode(string key, out StarDataNode found)
+        public bool FindSubNode(string subNodeKey, out StarDataNode found)
         {
             if (SubNodes != null)
             {
@@ -69,7 +96,7 @@ namespace Ship_Game.Data
                 for (int i = 0; i < count; ++i)
                 {
                     StarDataNode node = fast[i];
-                    if (node.Name == key)
+                    if (node.Name == subNodeKey)
                     {
                         found = node;
                         return true;
@@ -82,10 +109,10 @@ namespace Ship_Game.Data
 
         // recursively searches child elements
         // this can be quite slow if Node tree has hundreds of elements
-        public bool FindSubNodeRecursive(string key, out StarDataNode found)
+        public bool FindSubNodeRecursive(string subNodeKey, out StarDataNode found)
         {
             // first check direct children
-            if (FindSubNode(key, out found))
+            if (FindSubNode(subNodeKey, out found))
                 return true;
 
             // then go recursive
@@ -94,7 +121,7 @@ namespace Ship_Game.Data
                 int count = SubNodes.Count;
                 StarDataNode[] fast = SubNodes.GetInternalArrayItems();
                 for (int i = 0; i < count; ++i)
-                    if (fast[i].FindSubNodeRecursive(key, out found))
+                    if (fast[i].FindSubNodeRecursive(subNodeKey, out found))
                         return true;
             }
             return false;
@@ -110,13 +137,10 @@ namespace Ship_Game.Data
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        // Safe sequence enumerator
-        public IEnumerator<object> GetSequence()
-        {
-            if (Sequence == null) yield break;
-            foreach (object value in Sequence)
-                yield return value;
-        }
+        static readonly IReadOnlyList<StarDataNode> EmptyNodes = new ReadOnlyCollection<StarDataNode>(Empty<StarDataNode>.Array);
+
+        // Null-Safe sequence enumerator
+        public IReadOnlyList<StarDataNode> SequenceNodes => Sequence ?? EmptyNodes;
 
         public string SerializedText()
         {
@@ -125,13 +149,44 @@ namespace Ship_Game.Data
             return sb.ToString();
         }
 
+        static bool IsAlphaNumeric(string text)
+        {
+            foreach (char ch in text)
+                if (!char.IsLetterOrDigit(ch))
+                    return false;
+            return true;
+        }
+
+        static StringBuilder EscapeString(StringBuilder sb, string text)
+        {
+            sb.Append('"');
+            foreach (char ch in text)
+            {
+                switch (ch)
+                {
+                    case '\\': sb.Append("\\\\"); break;
+                    case '\r': sb.Append("\\r");  break;
+                    case '\n': sb.Append("\\n");  break;
+                    case '\t': sb.Append("\\t");  break;
+                    case '\'': sb.Append("\\'");  break;
+                    case '"':  sb.Append("\\\""); break;
+                    default:   sb.Append(ch);     break;
+                }
+            }
+            return sb.Append('"');
+        }
+
         static StringBuilder Append(StringBuilder sb, object o)
         {
             switch (o)
             {
-                case string str:   return sb.Append('"').Append(str).Append('"');
+                case bool boolean: return sb.Append(boolean ? "true" : "false");
                 case int integer:  return sb.Append(integer);
                 case float number: return sb.Append(number);
+                case string str:
+                    if (IsAlphaNumeric(str))
+                        return sb.Append(str);
+                    return EscapeString(sb, str);
                 case object[] arr:
                     sb.Append('[');
                     for (int i = 0; i < arr.Length; ++i)
@@ -140,23 +195,39 @@ namespace Ship_Game.Data
                         if (i != arr.Length-1)
                             sb.Append(", ");
                     }
-                    sb.Append(']');
-                    break;
+                    return sb.Append(']');
+                //case null:
+                //    return sb.Append("null");
             }
             return sb;
         }
 
-        public void SerializeTo(StringBuilder sb, int depth = 0)
+        public void SerializeTo(StringBuilder sb, int depth = 0, bool sequenceElement = false)
         {
             for (int i = 0; i < depth; ++i)
                 sb.Append(' ');
 
-            Append(sb, Key).Append(": ");
+            if (sequenceElement)
+                sb.Append("- ");
+
+            if (Key != null)
+            {
+                Append(sb, Key).Append(": ");
+            }
             Append(sb, Value).AppendLine();
 
             if (SubNodes != null)
+            {
                 foreach (StarDataNode child in SubNodes)
                     child.SerializeTo(sb, depth+2);
+            }
+            if (Sequence != null)
+            {
+                foreach (StarDataNode element in Sequence)
+                {
+                    element.SerializeTo(sb, depth+2, sequenceElement: true);
+                }
+            }
         }
     }
 }
