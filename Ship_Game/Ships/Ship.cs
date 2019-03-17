@@ -187,9 +187,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsIdleFreighter => IsFreighter 
-                                       && AI != null 
-                                       && !AI.HasPriorityOrder 
+        public bool IsIdleFreighter => IsFreighter
+                                       && AI != null
+                                       && !AI.HasPriorityOrder
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit;
@@ -420,7 +420,7 @@ namespace Ship_Game.Ships
             }
 
         }
-        
+
         public int BombsUseful
         {
             get
@@ -1016,7 +1016,7 @@ namespace Ship_Game.Ships
                 Center.InRadius(Empire.Universe.CamPos.ToVec2(), 100000f) && Empire.Universe.CamHeight < 250000)
             {
                 GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
-                
+
                 FTLManager.ExitFTL(GetPosition3D, Direction3D, Radius);
             }
 
@@ -1129,6 +1129,9 @@ namespace Ship_Game.Ships
             }
 
             Speed = velocityMaximum;
+            if (AI.State == AIState.FormationWarp)
+                Speed = Math.Min(Speed, fleet.SpeedLimiter(this));
+
             rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             rotationRadiansPerSecond += rotationRadiansPerSecond * Level * 0.05f;
             yBankAmount = GetyBankAmount(rotationRadiansPerSecond * elapsedTime);
@@ -1892,7 +1895,7 @@ namespace Ship_Game.Ships
 
         public bool IsCandidateFreighterBuild()
         {
-            if (shipData.Role != ShipData.RoleName.freighter 
+            if (shipData.Role != ShipData.RoleName.freighter
                 || CargoSpaceMax < 1f
                 || isColonyShip
                 || isConstructor)
@@ -2283,13 +2286,21 @@ namespace Ship_Game.Ships
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
 
-        public bool ShipReadyForWarp()
+        public ShipStatus ShipReadyForWarp()
         {
-            if (AI.State != AIState.FormationWarp ) return true;
-            if (!isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) < 0.2f) return false;
-            if (engineState == MoveState.Warp) return true;
-            return !Carrier.RecallingFighters();
+            if (maxFTLSpeed < 1) return ShipStatus.NotApplicable;
+            if (!isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) < 0.2f) return ShipStatus.Critical;
+            if (engineState == MoveState.Warp) return ShipStatus.Good;
+            if (Carrier.RecallingFighters()) return ShipStatus.Poor;
+            return ShipStatus.Excellent;
         }
+
+        public ShipStatus ShipReadyForFormationWarp()
+        {
+            if (AI.State != AIState.FormationWarp) return ShipStatus.Good;
+            return ShipReadyForWarp();
+        }
+
         public void Dispose()
         {
             Dispose(true);
