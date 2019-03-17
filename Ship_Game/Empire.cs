@@ -2499,6 +2499,22 @@ namespace Ship_Game
             }
         }
 
+        // centralized method to deal with freighter priority ratio (fast or big)
+        public void IncreaseFastVsBigFreighterRatio(FreighterPriority reason)
+        {
+            float ratioDiff = 0;
+            switch (reason)
+            {
+                case FreighterPriority.TooSmall:         ratioDiff = -0.005f; break;
+                case FreighterPriority.TooBig:           ratioDiff = +0.01f;  break;
+                case FreighterPriority.TooSlow:          ratioDiff = +0.02f;  break;
+                case FreighterPriority.ExcessCargoLeft:  ratioDiff = +0.02f;  break;
+                case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.005f; break;
+            }
+
+            IncreaseFastVsBigFreighterRatio(ratioDiff);
+        }
+
         public void IncreaseFastVsBigFreighterRatio(float amount)
         {
             FastVsBigFreighterRatio = (FastVsBigFreighterRatio + amount).Clamped(0.1f, 1);

@@ -187,7 +187,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadPlanetEdicts();
             LoadPlanetTypes();
-            LoadSunZoneData(); //FB - waiting for complete yaml parser
+            LoadSunZoneData();
             SunType.LoadAll();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
