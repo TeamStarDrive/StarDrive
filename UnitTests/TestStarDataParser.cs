@@ -47,10 +47,10 @@ namespace UnitTests
             using (var parser = new StarDataParser(">ValidateMaps<", new StringReader(yaml)))
             {
                 var root = parser.Root;
-                Assert.AreEqual(-1234567, root.GetSubNode("Int1").Value);
-                Assert.AreEqual(+1234567, root.GetSubNode("Int2").Value);
-                Assert.AreEqual(-123.4567, root.GetSubNode("Float1").Value);
-                Assert.AreEqual(+123.4567, root.GetSubNode("Float2").Value);
+                Assert.AreEqual(-1234567, root.GetSubNode("Int1").ValueInt);
+                Assert.AreEqual(+1234567, root.GetSubNode("Int2").ValueInt);
+                Assert.AreEqual(-123.4567, root.GetSubNode("Float1").ValueFloat);
+                Assert.AreEqual(+123.4567, root.GetSubNode("Float2").ValueFloat);
 
                 Console.WriteLine(parser.Root.SerializedText());
             }
@@ -80,23 +80,28 @@ namespace UnitTests
         public void ValidateMaps()
         {
             const string yaml = @"
-                Map1: { A: 0 , B: Value , C: 'String value:' } # comment
-                Map2: Key
+                Map0: { A: 0 , B: Value , C: 'String value:' } # comment
+                Map1: Key
                   A: 0
                   B: Value
                   C: 'String value:'
-                Map3: { A: [1,2], { X: Y } }
+                  D: true
+                Map2: { A: [1,2], B: { X: Y } }
                 ";
             using (var parser = new StarDataParser(">ValidateMaps<", new StringReader(yaml)))
             {
                 var root = parser.Root;
-                Assert.AreEqual(0,       root[0].GetSubNode("A").Value);
-                Assert.AreEqual("Value", root[0].GetSubNode("B").Value);
-                Assert.AreEqual("String value:", root[0].GetSubNode("C").Value);
+                Assert.AreEqual(0,       root[0]["A"].ValueInt);
+                Assert.AreEqual("Value", root[0]["B"].ValueText);
+                Assert.AreEqual("String value:", root[0]["C"].ValueText);
 
-                Assert.AreEqual(0,       root[1].GetSubNode("A").Value);
-                Assert.AreEqual("Value", root[1].GetSubNode("B").Value);
-                Assert.AreEqual("String value:", root[1].GetSubNode("C").Value);
+                Assert.AreEqual(0,       root[1]["A"].ValueInt);
+                Assert.AreEqual("Value", root[1]["B"].ValueText);
+                Assert.AreEqual("String value:", root[1]["C"].ValueText);
+                Assert.AreEqual(true, root[1]["D"].ValueBool);
+
+                Assert.That.Equal(Array(1,2),  root[2]["A"].ValueArray);
+                Assert.AreEqual("Y", root[2]["B"]["X"].Value);
 
                 Console.WriteLine(parser.Root.SerializedText());
             }
@@ -112,59 +117,76 @@ namespace UnitTests
                   - abc
                 Seq2:
                   - elem1:
-                    - a: 0
-                    - b: 1
+                    - a: 1
+                    - b: 2
                   - elem2:
-                    - a: 2
-                    - b: 3
+                    - c: 3
+                    - d: 4
+                Seq3:
+                  - subseq1: [0, 1, 2]
+                    - [3, 4, 5]
+                  - subseq2: [5, 6, 7]
+                    - [8, 9, 10]
                 ";
             using (var parser = new StarDataParser(">ValidateMaps<", new StringReader(yaml)))
             {
                 var root = parser.Root;
                 var seq1 = root.GetSubNode("Seq1");
                 var seq2 = root.GetSubNode("Seq2");
+                var seq3 = root.GetSubNode("Seq3");
                 Assert.IsTrue(seq1.HasSequence);
                 Assert.IsTrue(seq2.HasSequence);
+                Assert.IsTrue(seq3.HasSequence);
+                Assert.AreEqual(3, seq1.Count);
+                Assert.AreEqual(2, seq2.Count);
+                Assert.AreEqual(2, seq3.Count);
 
-                Assert.AreEqual(1234,    seq1.GetElement(0).Value);
-                Assert.AreEqual("hello", seq1.GetElement(1).Value);
-                Assert.AreEqual("abc",   seq1.GetElement(2).Value);
-
-                var elem1 = seq2.GetElement(0);
-                var elem2 = seq2.GetElement(1);
-                Assert.IsTrue(elem1.HasSequence);
-                Assert.IsTrue(elem2.HasSequence);
-                Assert.AreEqual(2, elem1.Count);
-                Assert.AreEqual(2, elem2.Count);
-                Assert.AreEqual("elem1", elem1.Name);
-                Assert.AreEqual("elem2", elem2.Name);
-                Assert.AreEqual("a", elem1.GetElement(0).Name);
-                Assert.AreEqual("b", elem1.GetElement(1).Name);
-
-                Assert.That.Equal(0,       root[1].GetSubNode("A").Value);
-                Assert.That.Equal("Value", root[1].GetSubNode("B").Value);
-                Assert.That.Equal("String value:", root[1].GetSubNode("C").Value);
-
-                Console.WriteLine(parser.Root.SerializedText());
-            }
-        }
-
-        [TestMethod]
-        public void ParsePlanetTypes()
-        {
-            using (var parser = new StarDataParser("PlanetTypes.yaml"))
-            {
-                Array<PlanetType> planets = parser.DeserializeArray<PlanetType>();
-                planets.Sort(p => p.Id);
-                foreach (PlanetType type in planets)
                 {
-                    Console.WriteLine(type.ToString());
+                    Assert.AreEqual(1234,    seq1.SequenceNodes[0].Value);
+                    Assert.AreEqual("hello", seq1.SequenceNodes[1].Value);
+                    Assert.AreEqual("abc",   seq1.SequenceNodes[2].Value);
                 }
+
+                {
+                    var elem1 = seq2.GetElement(0);
+                    var elem2 = seq2.GetElement(1);
+                    Assert.IsTrue(elem1.HasSequence);
+                    Assert.IsTrue(elem2.HasSequence);
+                    Assert.AreEqual(2, elem1.Count);
+                    Assert.AreEqual("elem1", elem1.Name);
+                    Assert.AreEqual("a", elem1.GetElement(0).Name);
+                    Assert.AreEqual("b", elem1.GetElement(1).Name);
+                    Assert.AreEqual(1, elem1.GetElement(0).Value);
+                    Assert.AreEqual(2, elem1.GetElement(1).Value);
+
+                    Assert.AreEqual(2, elem2.Count);
+                    Assert.AreEqual("elem2", elem2.Name);
+                    Assert.AreEqual("c", elem2.GetElement(0).Name);
+                    Assert.AreEqual("d", elem2.GetElement(1).Name);
+                    Assert.AreEqual(3, elem2.GetElement(0).Value);
+                    Assert.AreEqual(4, elem2.GetElement(1).Value);
+                }
+
+                {
+                    var subseq1 = seq3.GetElement(0);
+                    var subseq2 = seq3.GetElement(1);
+                    Assert.IsTrue(subseq1.HasSequence);
+                    Assert.IsTrue(subseq2.HasSequence);
+                    Assert.AreEqual(1, subseq1.Count);
+                    Assert.AreEqual(1, subseq2.Count);
+
+                    Assert.That.Equal(Array(0,1,2), subseq1.ValueArray);
+                    Assert.That.Equal(Array(3,4,5), subseq1.SequenceNodes[0].ValueArray);
+
+                    Assert.That.Equal(Array(5,6,7), subseq2.ValueArray);
+                    Assert.That.Equal(Array(8,9,10), subseq2.SequenceNodes[0].ValueArray);
+                }
+
                 Console.WriteLine(parser.Root.SerializedText());
             }
         }
 
-        
+
         [TestMethod]
         public void ValidateCombinedSyntax()
         {
@@ -186,6 +208,22 @@ namespace UnitTests
                 ";
             using (var parser = new StarDataParser(">BasicSyntax<", new StringReader(yaml)))
             {
+                Console.WriteLine(parser.Root.SerializedText());
+            }
+        }
+
+
+        [TestMethod]
+        public void ParsePlanetTypes()
+        {
+            using (var parser = new StarDataParser("PlanetTypes.yaml"))
+            {
+                Array<PlanetType> planets = parser.DeserializeArray<PlanetType>();
+                planets.Sort(p => p.Id);
+                foreach (PlanetType type in planets)
+                {
+                    Console.WriteLine(type.ToString());
+                }
                 Console.WriteLine(parser.Root.SerializedText());
             }
         }
