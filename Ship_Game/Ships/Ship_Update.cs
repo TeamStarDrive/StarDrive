@@ -14,7 +14,8 @@ namespace Ship_Game.Ships
         {
             bool inFrustrum = (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                && (Empire.Universe.Frustum.Contains(Position, 2000f) ||AI.Target != null && Empire.Universe.Frustum.Contains(AI.Target.Position, maxWeaponsRange)) ;
+                && (Empire.Universe.Frustum.Contains(Position, 2000f) ||AI.Target != null
+                && Empire.Universe.Frustum.Contains(AI.Target.Position, maxWeaponsRange)) ;
 
             InFrustum = inFrustrum;
             ShipSO.Visibility = inFrustrum ? ObjectVisibility.Rendered : ObjectVisibility.None;
@@ -24,14 +25,28 @@ namespace Ship_Game.Ships
         public void UpdateWorldTransform()
         {
             ShipSO.World = Matrix.CreateRotationY(yRotation)
-                           * Matrix.CreateRotationZ(Rotation)
-                           * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+                         * Matrix.CreateRotationZ(Rotation)
+                         * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
         }
 
         public override void Update(float elapsedTime)
         {
+            if (!ShipInitialized)
+                return;
+
+            if (Active && ModuleSlotsDestroyed)
+            {
+                Die(null, true);
+            }
+
             if (!Active)
                 return;
+
+            if (RandomEventManager.ActiveEvent?.InhibitWarp == true)
+            {
+                Inhibited = true;
+                InhibitedTimer = 10f;
+            }
 
             if (ScuttleTimer > -1f || ScuttleTimer < -1f)
             {
@@ -60,47 +75,9 @@ namespace Ship_Game.Ships
             else       UpdateAlive(elapsedTime);
         }
 
-        private void UpdateAlive(float elapsedTime)
+        void UpdateAlive(float elapsedTime)
         {
-            if (System != null && elapsedTime > 0f && loyalty?.isFaction == false && !System.IsFullyExploredBy(loyalty)
-                && System.PlanetList != null)  //Added easy out for fully explorered systems
-            {
-                foreach (Planet p in System.PlanetList)
-                {
-                    if (p.IsExploredBy(loyalty)) // already explored
-                        continue;
-                    if (p.Center.OutsideRadius(Center, 3000f))
-                        continue;
-
-                    if (loyalty == EmpireManager.Player)
-                    {
-                        for (int index = 0; index < p.BuildingList.Count; index++)
-                        {
-                            Building building = p.BuildingList[index];
-                            if (building.EventHere)
-                                Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
-                        }
-                    }
-                    p.SetExploredBy(loyalty);
-                    System.UpdateFullyExploredBy(loyalty);
-                    for (int i = 0; i < p.BuildingList.Count; i++)
-                    {
-                        Building building = p.BuildingList[i];
-                        if (!building.EventHere ||
-                            loyalty == EmpireManager.Player || p.Owner != null) continue;
-
-                        var militaryTask = new MilitaryTask
-                        {
-                            AO = p.Center,
-                            AORadius = 50000f,
-                            type = MilitaryTask.TaskType.Exploration
-                        };
-                        militaryTask.SetTargetPlanet(p);
-                        militaryTask.SetEmpire(loyalty);
-                        loyalty.GetEmpireAI().TaskList.Add(militaryTask);
-                    }
-                }
-            }
+            ExploreCurrentSystem(elapsedTime);
 
             if (EMPdisabled)
             {
@@ -119,14 +96,12 @@ namespace Ship_Game.Ships
             if (!isSpooling && Afterburner.IsPlaying)
                 Afterburner.Stop();
 
-            //ClickTimer -= elapsedTime;    //This is the only place ClickTimer is ever used, and thus is a waste of memory and CPU -Gretman
-            //if (ClickTimer < 0f) ClickTimer = 10f;
-
             if (elapsedTime > 0f)
             {
                 UpdateProjectiles(elapsedTime);
                 UpdateBeams(elapsedTime);
-                if (!EMPdisabled && Active) AI.Update(elapsedTime);
+                if (!EMPdisabled && Active)
+                    AI.Update(elapsedTime);
             }
 
             if (!Active) return;
@@ -168,13 +143,58 @@ namespace Ship_Game.Ships
             SoundEmitter.Position = new Vector3(Center, 0);
         }
 
-        private void UpdateThrusters()
+        void ExploreCurrentSystem(float elapsedTime)
+        {
+            if (System != null && elapsedTime > 0f && loyalty?.isFaction == false
+                && !System.IsFullyExploredBy(loyalty)
+                && System.PlanetList != null) // Added easy out for fully explored systems
+            {
+                foreach (Planet p in System.PlanetList)
+                {
+                    if (p.IsExploredBy(loyalty)) // already explored
+                        continue;
+                    if (p.Center.OutsideRadius(Center, 3000f))
+                        continue;
+
+                    if (loyalty == EmpireManager.Player)
+                    {
+                        for (int index = 0; index < p.BuildingList.Count; index++)
+                        {
+                            Building building = p.BuildingList[index];
+                            if (building.EventHere)
+                                Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
+                        }
+                    }
+
+                    p.SetExploredBy(loyalty);
+                    System.UpdateFullyExploredBy(loyalty);
+                    for (int i = 0; i < p.BuildingList.Count; i++)
+                    {
+                        Building building = p.BuildingList[i];
+                        if (!building.EventHere ||
+                            loyalty == EmpireManager.Player || p.Owner != null) continue;
+
+                        var militaryTask = new MilitaryTask
+                        {
+                            AO = p.Center,
+                            AORadius = 50000f,
+                            type = MilitaryTask.TaskType.Exploration
+                        };
+                        militaryTask.SetTargetPlanet(p);
+                        militaryTask.SetEmpire(loyalty);
+                        loyalty.GetEmpireAI().TaskList.Add(militaryTask);
+                    }
+                }
+            }
+        }
+
+        void UpdateThrusters()
         {
             foreach (Thruster thruster in ThrusterList)
                 UpdateThruster(thruster);
         }
 
-        private void UpdateThruster(Thruster thruster)
+        void UpdateThruster(Thruster thruster)
         {
             thruster.SetPosition();
             float velocityPercent = Velocity.Length() / velocityMaximum;
@@ -202,7 +222,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private void UpdateDying(float elapsedTime)
+        void UpdateDying(float elapsedTime)
         {
             ThrusterList.Clear();
             dietimer -= elapsedTime;
@@ -249,6 +269,7 @@ namespace Ship_Game.Ships
 
             if (ShipSO == null)
                 return;
+
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && inSensorRange)
             {
                 ShipSO.World = Matrix.CreateRotationY(yRotation)
@@ -261,67 +282,18 @@ namespace Ship_Game.Ships
                     ShipMeshAnim.Update(StarDriveGame.Instance.TargetElapsedTime, Matrix.Identity);
                 }
             }
-            for (int i = 0; i < projectiles.Count; ++i)
-            {
-                Projectile projectile = projectiles[i];
-                if (projectile == null)
-                    continue;
-                if (projectile.Active)
-                    projectile.Update(elapsedTime);
-                else
-                    projectiles.RemoveRef(projectile);
-            }
+
+            UpdateProjectiles(elapsedTime);
+
             SoundEmitter.Position = new Vector3(Center, 0);
+
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ModuleSlotList[i].UpdateWhileDying(elapsedTime);
             }
         }
 
-
-
-        private void UpdateProjectiles(float elapsedTime)
-        {
-            for (int i = projectiles.Count - 1; i >= 0; --i)
-            {
-                if (projectiles[i]?.Active == true)
-                    projectiles[i].Update(elapsedTime);
-                else
-                    projectiles.RemoveAtSwapLast(i);
-            }
-        }
-
-        private void UpdateBeams(float elapsedTime)
-        {
-            for (int i = 0; i < beams.Count; i++)
-            {
-                Beam beam = beams[i];
-                if (beam.Module != null)
-                {
-                    ShipModule shipModule = beam.Module;
-
-                    Vector2 slotForward  = (beam.Owner.Rotation + shipModule.Rotation.ToRadians()).RadiansToDirection();
-                    Vector2 muzzleOrigin = shipModule.Center + slotForward * (shipModule.YSIZE * 8f);
-                    int thickness = (int)UniverseRandom.RandomBetween(beam.Thickness*0.75f, beam.Thickness*1.1f);
-
-                    beam.Update(muzzleOrigin, thickness, elapsedTime);
-
-                    if (beam.Duration < 0f && !beam.Infinite)
-                    {
-                        beam.Die(null, false);
-                        beams.RemoveRef(beam);
-                    }
-                }
-                else
-                {
-                    beam.Die(null, false);
-                }
-            }
-        }
-
-
-
-        private void CheckAndPowerConduit(ShipModule module)
+        void CheckAndPowerConduit(ShipModule module)
         {
             if (!module.Active)
                 return;

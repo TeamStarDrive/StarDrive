@@ -312,7 +312,7 @@ namespace Ship_Game.Debug
                         Screen.DrawLineProjected(impactNoError, weapon.DebugLastImpactPredict, Color.DarkKhaki, 2f);
                     }
 
-                    Projectile projectile = ship.Projectiles.FirstOrDefault(p => p.Weapon == weapon);
+                    Projectile projectile = ship.CopyProjectiles().FirstOrDefault(p => p.Weapon == weapon);
                     if (projectile != null)
                     {
                         Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);
@@ -676,12 +676,12 @@ namespace Ship_Game.Debug
         {
             DrawString($"Mouse Moved {Screen.Input.MouseMoved}");
 
-            DrawString($"RightHold Held  {Screen.Input.RightHold.Holding}");
+            DrawString($"RightHold Held  {Screen.Input.RightHold.IsHolding}");
             DrawString($"RightHold Time  {Screen.Input.RightHold.Time}");
             DrawString($"RightHold Start {Screen.Input.RightHold.StartPos}");
             DrawString($"RightHold End   {Screen.Input.RightHold.EndPos}");
 
-            DrawString($"LeftHold Held   {Screen.Input.LeftHold.Holding}");
+            DrawString($"LeftHold Held   {Screen.Input.LeftHold.IsHolding}");
             DrawString($"LeftHold Time   {Screen.Input.LeftHold.Time}");
             DrawString($"LeftHold Start  {Screen.Input.LeftHold.StartPos}");
             DrawString($"LeftHold End    {Screen.Input.LeftHold.EndPos}");

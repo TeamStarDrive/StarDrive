@@ -15,9 +15,6 @@ namespace Ship_Game
         {
             PendingRemovals = new ConcurrentStack<T>();
         }
-        public BatchRemovalCollection(bool noQueueForRemoval)
-        {
-        }
         public BatchRemovalCollection(ICollection<T> listToCopy, bool noRemoveQueue = false)
         {
             base.AddRange(listToCopy);
@@ -55,30 +52,12 @@ namespace Ship_Game
                 }
             }
         }
-        public void ApplyPendingRemovals(bool saveForPooling)
-        {
-            using (AcquireWriteLock())
-            {
-                if (saveForPooling)
-                {
-                    foreach (T item in PendingRemovals.ToArray())
-                    {
-                        Remove(item);
-                    }
-                    return;
-                }
-                while (!PendingRemovals.IsEmpty)
-                {
-                    PendingRemovals.TryPop(out var result);
-                    Remove(result);
-                }
-            }
-        }
 
         public void QueuePendingRemoval(T item)
         {
             PendingRemovals.Push(item);
         }
+
         public void ClearPendingRemovals()
         {
             PendingRemovals.Clear();
@@ -89,14 +68,13 @@ namespace Ship_Game
             return PendingRemovals.Contains(item);
         }
 
-        public int PendingRemovalCount => PendingRemovals.Count;
-        
         public new void Add(T item)
         {
             ThisLock.EnterWriteLock();
             base.Add(item);
             ThisLock.ExitWriteLock();
         }
+
         public new void Clear()
         {
             ThisLock.EnterWriteLock();
@@ -104,6 +82,7 @@ namespace Ship_Game
             ThisLock.ExitWriteLock();
             PendingRemovals?.Clear();
         }
+
         public void ClearAndRecycle()
         {
             ThisLock.EnterWriteLock();
@@ -111,6 +90,7 @@ namespace Ship_Game
             base.Clear();
             ThisLock.ExitWriteLock();
         }
+
         public void ClearAll()
         {
             ThisLock.EnterWriteLock();
@@ -118,6 +98,7 @@ namespace Ship_Game
             ThisLock.ExitWriteLock();
             PendingRemovals?.Clear();
         }
+
         public new bool Remove(T item)
         {
             ThisLock.EnterWriteLock();
@@ -125,14 +106,15 @@ namespace Ship_Game
             ThisLock.ExitWriteLock();
             return found;
         }
+
         public void ClearAdd(IEnumerable<T> item)
         {
             ThisLock.EnterWriteLock();
             base.Clear();
             base.AddRange(item);
             ThisLock.ExitWriteLock();
-            
         }
+
         public new bool Contains(T item)
         {
             ThisLock.EnterReadLock();
@@ -140,15 +122,6 @@ namespace Ship_Game
             ThisLock.ExitReadLock();
             return result;
         }
-        //Contains<TSource>(this IEnumerable<TSource> source, TSource value);
-        //Contains<TSource>(this IEnumerable<TSource> source, TSource value);
-        //public bool Contains<T>(T item)
-        //{
-        //    thisLock.EnterReadLock();
-        //    var result = Contains<T>(item ); //.Contains<T>(item);
-        //    thisLock.ExitReadLock();
-        //    return result;
-        //}
 
         public new void AddRange(ICollection<T> collection)
         {
@@ -163,6 +136,7 @@ namespace Ship_Game
             base.AddRange(enumerable);
             ThisLock.ExitWriteLock();
         }
+
         // to use this:
         // somelist.foreach(action => { do some action with action},false,false,false);
         // to enable parallel mode set the last false to "true'
@@ -186,7 +160,7 @@ namespace Ship_Game
             if (performActionOnClones)
             {
                 ThisLock.EnterReadLock();
-                var clones = Clone(asParallel: asParallel);
+                var clones = Clone();
                 if (asParallel)
                 {
                     clones.AsParallel().ForAll(wrapper);
@@ -222,63 +196,10 @@ namespace Ship_Game
             }
         }
 
-        public void ForAll(Action<T> action, bool performActionOnClones = true, bool asParallel = true, bool inParallel = false)
-        {
-            if (action == null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
-            var wrapper = new Action<T>(obj =>
-            {
-                try
-                {
-                    action(obj);
-                }
-                catch (ArgumentNullException)
-                {
-                    //if a null gets into the list then swallow an ArgumentNullException so we can continue adding
-                }
-            });
-            if (performActionOnClones)
-            {
-                var clones = Clone(asParallel: asParallel);
-                if (asParallel)
-                {
-                    clones.AsParallel().ForAll(wrapper);
-                }
-                else if (inParallel)
-                {
-                    System.Threading.Tasks.Parallel.ForEach(clones, wrapper);
-                }
-                else
-                {
-                    clones.ForEach(wrapper);
-                }
-            }
-            else
-            {
-                ThisLock.EnterReadLock();
-                {
-                    if (asParallel)
-                    {
-                        this.AsParallel().ForAll(wrapper);
-                    }
-                    else if (inParallel)
-                    {
-                        System.Threading.Tasks.Parallel.ForEach(this, wrapper);
-                    }
-                    else
-                    {
-                        ForEach(wrapper);
-                    }
-                }
-                ThisLock.ExitReadLock();
-            }
-        }
-        public Array<T> Clone(bool asParallel = true)
+        public new Array<T> Clone()
         {
             ThisLock.EnterReadLock();
-            var copy = asParallel ? new Array<T>(this.AsParallel()) : new Array<T>(this);
+            var copy = new Array<T>(this);
             ThisLock.ExitReadLock();
             return copy;
         }
@@ -291,14 +212,6 @@ namespace Ship_Game
             var arr = ToArray();
             ThisLock.ExitReadLock();
             return arr;
-        }
-        
-        public bool TryReuseItem(out T item)
-        {
-            if (!PendingRemovals.TryPop(out item))
-                return false;
-            (item as Empire.InfluenceNode)?.Wipe();
-            return true;
         }
 
         public T RecycleObject()

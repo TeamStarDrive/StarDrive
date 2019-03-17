@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using NAudio.CoreAudioApi;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.UI;
@@ -92,6 +93,7 @@ namespace Ship_Game
         readonly UniverseScreen Universe;
         readonly GameplayMMScreen UniverseMainMenu; // the little menu in universe view
         DropOptions<DisplayMode> ResolutionDropDown;
+        DropOptions<MMDevice> SoundDevices;
         Rectangle LeftArea;
         Rectangle RightArea;
 
@@ -194,13 +196,13 @@ namespace Ship_Game
         void Add(UIList graphics, string title, Func<UILabel, string> getText, Action<UILabel> onClick)
         {
             graphics.AddSplit(new UILabel($"{title}:"), new UILabel(getText, onClick))
-                .Split = graphics.Width*0.5f;
+                .Split = graphics.Width*0.4f;
         }
 
         void Add(UIList graphics, string title, UIElementV2 second)
         {
             graphics.AddSplit(new UILabel($"{title}:"), second)
-                .Split = graphics.Width*0.5f;
+                .Split = graphics.Width*0.4f;
         }
 
         void InitScreen()
@@ -227,11 +229,15 @@ namespace Ship_Game
 
             UIList botLeft = List(new Vector2(LeftArea.X, LeftArea.Y + 180), LeftArea.Size());
             botLeft.Padding = new Vector2(2f, 8f);
+            SoundDevices = new DropOptions<MMDevice>(180, 18);
+            botLeft.AddSplit(new UILabel("Sound Device:  "), SoundDevices);
             MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Music Volume",   0f, 1f, GlobalStats.MusicVolume));
             EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume));
             IconSize            = botLeft.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "Icon Sizes",     0f,30f, GlobalStats.IconSize));
             AutoSaveFreq        = botLeft.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "AutoSave Frequency", 60, 540, GlobalStats.AutoSaveFreq));
             AutoSaveFreq.LocalizeTooltipId = 4100;
+
+            botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
 
             UIList botRight = List(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
             botRight.Padding = new Vector2(2f, 8f);
@@ -260,12 +266,13 @@ namespace Ship_Game
 
             this.RefreshZOrder();
             CreateResolutionDropOptions();
+            CreateSoundDevicesDropOptions();
         }
 
         void CreateResolutionDropOptions()
         {
-            int screenWidth  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            int screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            int screenWidth  = ScreenWidth;
+            int screenHeight = ScreenHeight;
 
             DisplayModeCollection displayModes = GraphicsAdapter.DefaultAdapter.SupportedDisplayModes;
             foreach (DisplayMode mode in displayModes)
@@ -281,6 +288,38 @@ namespace Ship_Game
                     ResolutionDropDown.ActiveIndex = ResolutionDropDown.Count-1;
             }
         }
+
+        void CreateSoundDevicesDropOptions()
+        {
+            MMDevice defaultDevice = AudioDevices.DefaultDevice;
+            Array<MMDevice> devices = AudioDevices.Devices;
+
+            SoundDevices.Clear();
+            SoundDevices.AddOption("Default", null/*because it might change*/);
+
+            foreach (MMDevice device in devices)
+            {
+                string isDefault = (device.ID == defaultDevice.ID) ? "* " : "";
+                SoundDevices.AddOption($"{isDefault}{device.FriendlyName}", device);
+                if (!AudioDevices.UserPrefersDefaultDevice && device.ID == AudioDevices.CurrentDevice.ID)
+                    SoundDevices.ActiveIndex = devices.IndexOf(device) + 1;
+            }
+
+            SoundDevices.OnValueChange = OnAudioDeviceDropDownChange;
+        }
+
+        void OnAudioDeviceDropDownChange(MMDevice newDevice)
+        {
+            if (newDevice == null)
+                newDevice = AudioDevices.DefaultDevice;
+
+            AudioDevices.SetUserPreference(newDevice);
+            GameAudio.ReloadAfterDeviceChange(newDevice);
+
+            GameAudio.SmallServo();
+            GameAudio.TacticalPause();
+        }
+
 
         void ReloadGameContent()
         {
