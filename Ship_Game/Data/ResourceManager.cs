@@ -187,7 +187,7 @@ namespace Ship_Game
             LoadArtifacts();
             LoadPlanetEdicts();
             LoadPlanetTypes();
-            //LoadSunZoneData(); //FB - waiting for complete yaml parser
+            LoadSunZoneData(); //FB - waiting for complete yaml parser
             SunType.LoadAll();
             LoadEconomicResearchStrats();
             LoadBlackboxSpecific();
@@ -1701,7 +1701,7 @@ namespace Ship_Game
             }
         }
 
-        static Map<SunZone, Array<PlanetCategory>> SunZoneWeights;
+        static readonly Map<SunZone, Array<PlanetCategory>> SunZoneWeights = new Map<SunZone, Array<PlanetCategory>>();
         static Array<PlanetType> PlanetTypes;
         static Array<SunZoneData> SunZones;
         static Map<int, PlanetType> PlanetTypeMap;
