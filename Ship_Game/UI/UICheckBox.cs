@@ -99,7 +99,7 @@ namespace Ship_Game
             int h = Math.Max(10, Font.LineSpacing);
             int th = Font.LineSpacing / 2;
             Size = new Vector2(h + Font.TextWidth(Text), h+1);
-            TextPos  = new Vector2(Pos.X + 15, (int)CenterY - th);
+            TextPos  = new Vector2(Pos.X + 25, (int)CenterY - th);
             CheckPos = new Vector2(Pos.X + 6 - Font.TextWidth("x") / 2, 
                                    Pos.Y + 5 - th);
         }

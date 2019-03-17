@@ -2,6 +2,8 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.Data;
+using Ship_Game.Ships;
 using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Core;
@@ -12,14 +14,14 @@ namespace Ship_Game.GameScreens.MainMenu
 {
     public sealed class MainMenuScreen : GameScreen
     {
-        readonly MainMenuShip Ship;
+        readonly Array<MenuFleet> Fleets = new Array<MenuFleet>();
         UIElementContainer VersionArea;
+        Vector3 CamPos;
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
             TransitionOnTime  = 1.0f;
             TransitionOffTime = 0.5f;
-            Ship = new MainMenuShip(this);
         }
         
         static void OnModChanged(FileInfo info)
@@ -70,11 +72,12 @@ namespace Ship_Game.GameScreens.MainMenu
             list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
             
-            Ship.InitRandomShip();
+            FTLManager.LoadContent(this);
+            CreateMainMenuFleet();
 
-            var camPos = new Vector3(0f, 0f, -1000f);
+            CamPos = new Vector3(0f, 0f, -1000f);
             var lookAt = new Vector3(0f, 0f, 10000f);
-            View = Matrix.CreateLookAt(camPos, lookAt, Vector3.Down);
+            View = Matrix.CreateLookAt(CamPos, lookAt, Vector3.Down);
             Projection = Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f);
 
             if (Find("blacbox_animated_logo", out UIPanel logo))
@@ -96,7 +99,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ScreenManager.RemoveAllLights();
             ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
-            var topRightInBackground = new Vector3(1000,-1000,1000);
+            var topRightInBackground = new Vector3(26000,-26000,32000);
             var lightYellow = new Color(255,254,224);
             AddLight("MainMenu Sun", lightYellow, 2.0f, topRightInBackground);
 
@@ -147,6 +150,44 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
+        void CreateMainMenuFleet()
+        {
+            Fleets.Clear();
+            using (var parser = new StarDataParser("MainMenuFleets.yaml"))
+            {
+                foreach (MenuFleet fleet in parser.DeserializeArray<MenuFleet>())
+                {
+                    fleet.CreateShips(this);
+                    if (fleet.FleetShips.NotEmpty)
+                        Fleets.Add(fleet);
+                }
+            }
+        }
+        
+        void UpdateMainMenuShips(GameTime gameTime)
+        {
+            foreach (MenuFleet fleet in Fleets)
+            {
+                fleet.Update(gameTime, this);
+            }
+        }
+        
+        public void ResetMusic()
+        {
+            GameAudio.ConfigureAudioSettings();
+            GameAudio.StopGenericMusic();
+            ScreenManager.Music.Stop();
+
+            if (GlobalStats.HasMod && GlobalStats.ActiveMod.MainMenuMusic.NotEmpty())
+            {
+                ScreenManager.Music = GameAudio.PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
+            }
+            else if (ScreenManager.Music.IsStopped)
+            {
+                ScreenManager.Music = GameAudio.PlayMusic("SD_Theme_Reprise_06");
+            }
+        }
+
         void NewGame_Clicked(UIButton button)   => ScreenManager.AddScreen(new RaceDesignScreen(this));
         void Tutorials_Clicked(UIButton button) => ScreenManager.AddScreen(new TutorialScreen(this));
         void LoadGame_Clicked(UIButton button)  => ScreenManager.AddScreen(new LoadSaveScreen(this));
@@ -158,18 +199,14 @@ namespace Ship_Game.GameScreens.MainMenu
         void DevSandbox_Clicked(UIButton button)=> ScreenManager.GoToScreen(new DeveloperSandbox(), clear3DObjects: true);
         void Exit_Clicked(UIButton button)      => ExitScreen();
 
-        public override void Draw(SpriteBatch batch)
-        {
-            DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
-            Ship?.Draw(batch);
-        }
 
         public override bool HandleInput(InputState input)
         {
             if (!IsActive)
                 return false;
 
-            Ship?.HandleInput(input);
+            foreach (var fleet in Fleets)
+                fleet.HandleInput(input, this);
 
             // handle buttons and stuff
             if (base.HandleInput(input))
@@ -197,27 +234,13 @@ namespace Ship_Game.GameScreens.MainMenu
             return false;
         }
 
-        public void ResetMusic()
-        {
-            GameAudio.ConfigureAudioSettings();
-            GameAudio.StopGenericMusic();
-            ScreenManager.Music.Stop();
-
-            if (GlobalStats.HasMod && GlobalStats.ActiveMod.MainMenuMusic.NotEmpty())
-            {
-                ScreenManager.Music = GameAudio.PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
-            }
-            else if (ScreenManager.Music.IsStopped)
-            {
-                ScreenManager.Music = GameAudio.PlayMusic("SD_Theme_Reprise_06");
-            }
-        }
-
-
-
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            Ship?.Update(gameTime);
+            UpdateMainMenuShips(gameTime);
+
+            GameAudio.Update3DSound(CamPos);
+            FTLManager.Update(this, DeltaTime);
+
             ScreenManager.UpdateSceneObjects(gameTime);
             
             if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
@@ -226,11 +249,8 @@ namespace Ship_Game.GameScreens.MainMenu
                 c.SetDirection(new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f));
             }
 
-            if (!GlobalStats.HasMod || GlobalStats.ActiveMod.MainMenuMusic.IsEmpty())
-            {
-                if (!IsExiting && ScreenManager.Music.IsStopped)
-                    ResetMusic();
-            }
+            if (!IsExiting && ScreenManager.Music.IsStopped)
+                ResetMusic();
 
             if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
             {
@@ -238,6 +258,16 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+        }
+
+        public override void Draw(SpriteBatch batch)
+        {
+            DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
+
+            foreach (var fleet in Fleets)
+                fleet.Draw(batch, this);
+
+            FTLManager.DrawFTLModels(batch, this);
         }
     }
 }

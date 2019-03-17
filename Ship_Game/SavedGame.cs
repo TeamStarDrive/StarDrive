@@ -296,12 +296,14 @@ namespace Ship_Game
                     sdata.TroopList        = ship.TroopList;
                     sdata.FightersLaunched = ship.FightersLaunched;
                     sdata.TroopsLaunched   = ship.TroopsLaunched;
-
-                    sdata.AreaOfOperation = ship.AreaOfOperation.Select(r => new RectangleData(r));
+                    sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
 
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
 
+                    sdata.TransportingFood       = ship.TransportingFood;
+                    sdata.TransportingProduction = ship.TransportingProduction;
+                    sdata.TransportingColonists  = ship.TransportingColonists;
                     sdata.AISave = new ShipAISave
                     {
                         State      = ship.AI.State
@@ -357,19 +359,16 @@ namespace Ship_Game
                     {
                         sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
                     }
-                    sdata.Projectiles = new Array<ProjectileSaveData>();
-                    foreach (Projectile p in ship.Projectiles)
+
+                    sdata.Projectiles = ship.CopyProjectiles().Select(p => new ProjectileSaveData
                     {
-                        var pdata = new ProjectileSaveData
-                        {
-                            Velocity = p.Velocity,
-                            Rotation = p.Rotation,
-                            Weapon   = p.Weapon.UID,
-                            Position = p.Center,
-                            Duration = p.Duration
-                        };
-                        sdata.Projectiles.Add(pdata);
-                    }
+                        Velocity = p.Velocity,
+                        Rotation = p.Rotation,
+                        Weapon   = p.Weapon.UID,
+                        Position = p.Center,
+                        Duration = p.Duration
+                    });
+
                     empireToSave.OwnedShips.Add(sdata);
                 }
 
@@ -405,7 +404,7 @@ namespace Ship_Game
                         ActiveWayPoints = new Array<Vector2>(),
                         ShipGoalsList   = new Array<ShipGoalSave>()
                     };
-                    sd.Projectiles = new Array<ProjectileSaveData>();
+                    sd.Projectiles = Empty<ProjectileSaveData>.Array;
                     empireToSave.OwnedShips.Add(sd);
                 }
 
@@ -752,10 +751,13 @@ namespace Ship_Game
             [Serialize(20)] public float PopCount;
             [Serialize(21)] public Guid TetheredTo;
             [Serialize(22)] public Vector2 TetherOffset;
-            [Serialize(23)] public Array<ProjectileSaveData> Projectiles;
+            [Serialize(23)] public ProjectileSaveData[] Projectiles;
             [Serialize(24)] public bool FightersLaunched;
             [Serialize(25)] public bool TroopsLaunched;
             [Serialize(26)] public Guid HomePlanetGuid;
+            [Serialize(27)] public bool TransportingFood;
+            [Serialize(28)] public bool TransportingProduction;
+            [Serialize(29)] public bool TransportingColonists;
         }
 
         public class SolarSystemSaveData

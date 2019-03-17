@@ -87,11 +87,7 @@ namespace Ship_Game
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            if (Owner != null)
-            {
-                Owner.RemoveBeam(this);
-            }
-            else if (Weapon.drowner != null)
+            if (Weapon.drowner != null)
             {
                 (Weapon.drowner as Projectile)?.DroneAI.Beams.QueuePendingRemoval(this);
                 SetSystem(Weapon.drowner.System);
@@ -100,8 +96,12 @@ namespace Ship_Game
             base.Die(source, cleanupOnly);
         }
 
-        public void Draw(ScreenManager screenMgr)
+        public void Draw(GameScreen screen)
         {
+            if (!Source.InRadius(ActualHitDestination, Range + 10.0f))
+                return;
+
+            GraphicsDevice device = screen.Device;
             lock (GlobalStats.BeamEffectLocker)
             {
                 Empire.Universe.beamflashes.AddParticleThreadA(new Vector3(Source, BeamZ), Vector3.Zero);
@@ -119,7 +119,7 @@ namespace Ship_Game
                     Empire.Universe.sparks.AddParticleThreadA(hit, Vector3.Zero);
                 }
 
-                screenMgr.GraphicsDevice.VertexDeclaration = QuadVertexDecl;
+                device.VertexDeclaration = QuadVertexDecl;
                 BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
                 BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
                 string beamTexPath = "Beams/" + Weapon.BeamTexture;
@@ -130,14 +130,14 @@ namespace Ship_Game
 
                 BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, Displacement));
                 BeamEffect.Begin();
-                var rs = screenMgr.GraphicsDevice.RenderState;
+                var rs = device.RenderState;
                 rs.AlphaTestEnable = true;
                 rs.AlphaFunction   = CompareFunction.GreaterEqual;
                 rs.ReferenceAlpha  = 200;
                 foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
                 {
                     pass.Begin();
-                    screenMgr.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
+                    device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
                     pass.End();
                 }
                 rs.DepthBufferWriteEnable = false;
@@ -150,7 +150,7 @@ namespace Ship_Game
                 foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
                 {
                     pass.Begin();
-                    screenMgr.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
+                    device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
                     pass.End();
                 }
                 rs.AlphaBlendEnable = false;
@@ -216,8 +216,21 @@ namespace Ship_Game
             return true;
         }
 
-        public void Update(Vector2 srcCenter, int thickness, float elapsedTime)
+        public override void Update(float elapsedTime)
         {
+            if (Module == null)
+            {
+                Die(null, false);
+                return;
+            }
+
+            Vector2 slotForward  = (Owner.Rotation + Module.Rotation.ToRadians()).RadiansToDirection();
+            Vector2 muzzleOrigin = Module.Center + slotForward * (Module.YSIZE * 8f);
+
+            // @todo Varying beam width
+            //int thickness = (int)UniverseRandom.RandomBetween(Thickness*0.75f, Thickness*1.1f);
+
+
             Owner.PowerCurrent -= PowerCost * elapsedTime;
             if (Owner.PowerCurrent < 0f)
             {
@@ -237,7 +250,7 @@ namespace Ship_Game
             }
 
             Duration -= elapsedTime;
-            Source = srcCenter;
+            Source = muzzleOrigin;
 
             // always update Destination to ensure beam stays in range
             Vector2 newDestination = (Target?.Center ?? Destination);
@@ -245,7 +258,7 @@ namespace Ship_Game
             // old destination adjusted to same distance as newDestination,
             // so we get two equal length lines \/
             Vector2 oldAdjusted = Source.OffsetTowards(Destination, Source.Distance(newDestination));
-            float sweepSpeed = (Module?.WeaponRotationSpeed ?? 1f) * 48f * elapsedTime;
+            float sweepSpeed = Module.WeaponRotationSpeed * 48f * elapsedTime;
             Vector2 newPosition = oldAdjusted.OffsetTowards(newDestination, sweepSpeed);
 
             if (Owner.IsInsideFiringArc(Weapon, newPosition))

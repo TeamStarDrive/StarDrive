@@ -1,6 +1,9 @@
 using System;
+using System.Management;
 using System.Threading;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using NAudio.CoreAudioApi;
 using Cue = Microsoft.Xna.Framework.Audio.Cue;
 
 namespace Ship_Game.Audio
@@ -11,7 +14,7 @@ namespace Ship_Game.Audio
         static AudioEngine AudioEngine;
         static SoundBank SoundBank;
         static WaveBank WaveBank;
-
+        static AudioListener Listener;
         static bool AudioDisabled;
         static bool EffectsDisabled;
         static bool MusicDisabled;
@@ -36,14 +39,37 @@ namespace Ship_Game.Audio
         static Array<QueuedSfx> SfxQueue;
         static Thread SfxThread;
 
-        public static void Initialize(string settingsFile, string waveBankFile, string soundBankFile)
+        static string SettingsFile, WaveBankFile, SoundBankFile;
+
+        public static void ReloadAfterDeviceChange(MMDevice newDevice)
+        {
+            Initialize(newDevice, SettingsFile, WaveBankFile, SoundBankFile);
+        }
+
+        public static void Initialize(MMDevice device, string settingsFile, string waveBankFile, string soundBankFile)
         {
             try
             {
-                TrackedInstances = new Array<IAudioInstance>();
-                AudioEngine  = new AudioEngine(settingsFile);
+                Destroy(); // just in case
+
+                // try selecting an audio device if no argument given
+                if (device == null && !AudioDevices.PickAudioDevice(out device))
+                {
+                    Log.Warning("GameAudio is disabled since audio device selection failed.");
+                    return;
+                }
+
+                Log.Info($"GameAudio.Device: {device.FriendlyName}");
+                AudioDevices.CurrentDevice = device; // make sure it's always properly in sync
+
+                SettingsFile = settingsFile;
+                WaveBankFile = waveBankFile;
+                SoundBankFile = soundBankFile;
+
+                AudioEngine  = new AudioEngine(settingsFile, TimeSpan.FromMilliseconds(250), device.ID);
                 WaveBank     = new WaveBank(AudioEngine, waveBankFile, 0, 16);
                 SoundBank    = new SoundBank(AudioEngine, soundBankFile);
+                TrackedInstances = new Array<IAudioInstance>();
 
                 while (!WaveBank.IsPrepared)
                     AudioEngine.Update();
@@ -59,6 +85,8 @@ namespace Ship_Game.Audio
                 SfxQueue  = new Array<QueuedSfx>(16);
                 SfxThread = new Thread(SfxEnqueueThread) {Name = "GameAudioSfx"};
                 SfxThread.Start();
+
+                Listener = new AudioListener();
             }
             catch (Exception ex)
             {
@@ -97,7 +125,14 @@ namespace Ship_Game.Audio
             ThisFrameSfxCount = 0;
             DisposeStoppedInstances();
 
+            AudioDevices.HandleEvents();
+
             AudioEngine?.Update();
+        }
+
+        public static void Update3DSound(in Vector3 listenerPosition)
+        {
+            Listener.Position = listenerPosition;
         }
 
         // Configures GameAudio from GlobalStats MusicVolume and EffectsVolume
@@ -200,7 +235,7 @@ namespace Ship_Game.Audio
             {
                 SoundEffectInstance inst = sfx.CreateInstance();
                 if (emitter != null)
-                    inst.Apply3D(Empire.Universe.Listener, emitter);
+                    inst.Apply3D(Listener, emitter);
                 inst.Volume = GlobalStats.EffectsVolume;
                 instance = new SfxInstance(inst);
             }
@@ -208,7 +243,7 @@ namespace Ship_Game.Audio
             {
                 Cue cue = SoundBank.GetCue(cueName);
                 if (emitter != null)
-                    cue.Apply3D(Empire.Universe.Listener, emitter);
+                    cue.Apply3D(Listener, emitter);
                 instance = new CueInstance(cue);
             }
 

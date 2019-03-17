@@ -302,9 +302,11 @@ namespace Ship_Game.Ships
             ResourceManager.PreloadModel(content, HullModel, Animated);
         }
 
-        public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim)
+        public void LoadModel(out SceneObject shipSO,
+                              out AnimationController shipMeshAnim,
+                              GameScreen screen)
         {
-            var content = Empire.Universe?.TransientContent ?? ResourceManager.RootContent;
+            var content = screen?.TransientContent ?? ResourceManager.RootContent;
 
             shipSO = ResourceManager.GetSceneMesh(content, HullModel, Animated);
 
@@ -315,11 +317,15 @@ namespace Ship_Game.Ships
             }
 
             shipMeshAnim = null;
-            if (Animated)
+            if (Animated) // Support animated meshes if we use them at all
             {
                 SkinnedModel skinned = content.LoadSkinnedModel(ModelPath);
                 shipMeshAnim = new AnimationController(skinned.SkeletonBones);
-                shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
+                shipMeshAnim.TranslationInterpolation = InterpolationMode.Linear;
+                shipMeshAnim.OrientationInterpolation = InterpolationMode.Linear;
+                shipMeshAnim.ScaleInterpolation = InterpolationMode.Linear;
+                shipMeshAnim.Speed = 0.5f;
+                shipMeshAnim.StartClip(skinned.AnimationClips.Values[0]);
             }
         }
 

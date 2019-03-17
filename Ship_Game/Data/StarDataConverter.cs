@@ -42,6 +42,7 @@ namespace Ship_Game.Data
         {
             Types = new Map<Type, TypeConverter>
             {
+                (typeof(object),  new ObjectConverter()),
                 (typeof(Range),   new RangeConverter()),
                 (typeof(LocText), new LocTextConverter()),
                 (typeof(Color),   new ColorConverter()),
@@ -118,12 +119,17 @@ namespace Ship_Game.Data
     public abstract class TypeConverter
     {
         public abstract object Convert(object value);
+
+        public virtual object Deserialize(StarDataNode node)
+        {
+            return Convert(node.Value);
+        }
     }
 
     public class RawArrayConverter : TypeConverter
     {
         readonly Type ElemType;
-        readonly TypeConverter Converter;
+        public readonly TypeConverter Converter;
         public RawArrayConverter(Type elemType, TypeConverter converter)
         {
             ElemType = elemType;
@@ -140,7 +146,7 @@ namespace Ship_Game.Data
                 converted = Array.CreateInstance(ElemType, sequence.Count);
                 for (int i = 0; i < sequence.Count; ++i)
                 {
-                    converted.SetValue(Converter.Convert(sequence[i].Value), i);
+                    converted.SetValue(Converter.Deserialize(sequence[i]), i);
                 }
                 return converted;
             }
@@ -157,6 +163,26 @@ namespace Ship_Game.Data
 
             ConvertTo.Error(value, "Array convert failed -- expected a list of values [*, *, *]");
             return value;
+        }
+        public override object Deserialize(StarDataNode node)
+        {
+            // it's object mapping which is converted to an array:
+            // [StarData] Ship[] Ships;
+            // Ships: my_ships
+            //   Ship: ship1
+            //     Position: ...
+            //   Ship: ship2
+            //     Position: ...
+            if (node.HasItems)
+            {
+                Array converted = Array.CreateInstance(ElemType, node.Count);
+                for (int i = 0; i < node.Count; ++i)
+                {
+                    converted.SetValue(Converter.Deserialize(node.Items[i]), i);
+                }
+                return converted;
+            }
+            return Convert(node.Value);
         }
     }
 
@@ -176,6 +202,14 @@ namespace Ship_Game.Data
 
             ConvertTo.Error(value, $"Enum '{ToEnum.Name}' -- expected a string or int");
             return ToEnum.GetEnumValues().GetValue(0);
+        }
+    }
+
+    public class ObjectConverter : TypeConverter
+    {
+        public override object Convert(object value)
+        {
+            return value;
         }
     }
 

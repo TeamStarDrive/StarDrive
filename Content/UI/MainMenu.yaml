@@ -110,14 +110,16 @@ Panel: vignette
   Rect: [0, 0, 1, 1] # fill entire Screen
   DrawDepth: Foreground # on top of everything
 
-Panel: corner_TL
+Panel: corner_top_left
+  Visible: False
   Texture: MMenu/corner_TL2.png
   Rect: [16, 16, 0.2, 0]
   Animation: [2, 6, 9, 1, 1] # delay, duration, end-time, fadein, fadeout
     Alpha: [0.5, 1.0]
     Pattern: Sine
 
-Panel: corner_BR
+Panel: corner_bottom_right
+  Visible: False
   Texture: MMenu/corner_BR2.png
   Rect: [-16, -16, 0.15, 0]
   AxisAlign: BottomRight
@@ -127,18 +129,21 @@ Panel: corner_BR
 
 # logo text elements are automatically translated to logo center
 Panel: logo_text_1
+  Visible: False
   Texture: MainMenu/moon_1
   Pos: [-385,-170]
   Animation: [1.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
     Alpha: [0.0, 1.0]
 
 Panel: logo_text_2
+  Visible: False
   Texture: MainMenu/moon_2
   Pos: [-350,10]
   Animation: [5.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
     Alpha: [0.0, 1.0]
 
 Panel: logo_text_3
+  Visible: False
   Texture: MainMenu/moon_3
   Pos: [45, 10]
   Animation: [7.5, 2, 12, 0.4, 0.7] # delay, duration, end-time, fadein, fadeout
