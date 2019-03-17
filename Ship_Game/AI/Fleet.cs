@@ -418,7 +418,7 @@ namespace Ship_Game.AI
         {
             bool eventBuildingFound = task.TargetPlanet.EventsOnBuildings();
 
-            if (EndInvalidTask(!StillMissionEffective(task)) || !StillCombatEffective(task))
+            if (EndInvalidTask(!StillInvasionEffective(task)) || !StillCombatEffective(task))
             {
                 task.IsCoreFleetTask = false;
                 FleetTask = null;
@@ -524,7 +524,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (EndInvalidTask(!StillMissionEffective(task)) | !StillCombatEffective(task))
+            if (EndInvalidTask(!StillInvasionEffective(task)) | !StillCombatEffective(task))
             {
                 task.IsCoreFleetTask = false;
                 FleetTask = null;
@@ -1116,11 +1116,11 @@ namespace Ship_Game.AI
             return false;
         }
 
-        bool StillMissionEffective(MilitaryTask task)
+        bool StillInvasionEffective(MilitaryTask task)
         {
             bool troopsOnPlanet        = task.TargetPlanet.AnyOfOurTroops(Owner);
-            bool noShips               = Ships.Any(troops => troops.Carrier.AnyPlanetAssaultAvailable);
-            bool stillMissionEffective = troopsOnPlanet || noShips;
+            bool invasionTroops               = Ships.Any(troops => troops.Carrier.AnyPlanetAssaultAvailable);
+            bool stillMissionEffective = troopsOnPlanet || invasionTroops;
             if (!stillMissionEffective)
                 DebugInfo(task, $" No Troops on Planet and No Ships.");
             return stillMissionEffective;

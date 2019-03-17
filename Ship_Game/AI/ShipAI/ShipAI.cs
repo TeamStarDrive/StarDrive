@@ -550,7 +550,7 @@ namespace Ship_Game.AI
                 RotateToDirection(Owner.fleet.Direction, elapsedTime, 0.02f);
             }
             else
-            if (State == AIState.FormationWarp || State == AIState.Orbit || State == AIState.AwaitingOrders ||
+            if (State == AIState.FormationWarp || State == AIState.Orbit || (!Owner.loyalty.isPlayer && State == AIState.AwaitingOrders) ||
                     (!HasPriorityOrder && !HadPO && State != AIState.HoldPosition))
             {
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
