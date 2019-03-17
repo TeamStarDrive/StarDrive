@@ -2383,16 +2383,16 @@ namespace Ship_Game
                 Ship freighter = ownedFreighters[i];
                 if (freighter.IsIdleFreighter)
                 {
-                    freighter.TradeTimer -= 5; // each turn is 5 seconds
+                    freighter.TradeTimer -= GlobalStats.TurnTimer;
                     if (freighter.TradeTimer < 0)
                     {
                         freighter.AI.OrderScrapShip();
-                        freighter.TradeTimer = 300;
+                        freighter.TradeTimer = GlobalStats.TurnTimer * 60;
                     }
                 }
                 else
                 {
-                    freighter.TradeTimer = 300;
+                    freighter.TradeTimer = GlobalStats.TurnTimer * 60;
                 }
             }
         }
