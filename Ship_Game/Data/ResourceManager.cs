@@ -1116,8 +1116,8 @@ namespace Ship_Game
         {
             foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
             {
-                Good good = pair.Entity;
-                good.UID = string.Intern(pair.Info.NameNoExt());
+                Good good           = pair.Entity;
+                good.UID            = string.Intern(pair.Info.NameNoExt());
                 GoodsDict[good.UID] = good;
             }
         }
@@ -1126,8 +1126,8 @@ namespace Ship_Game
         static readonly Array<ShipData> HullsList       = new Array<ShipData>();
 
         public static bool Hull(string shipHull, out ShipData hullData) => HullsDict.Get(shipHull, out hullData);
-        public static ShipData Hull(string shipHull) => HullsDict[shipHull];
-        public static IReadOnlyList<ShipData> Hulls  => HullsList;
+        public static ShipData Hull(string shipHull)                    => HullsDict[shipHull];
+        public static IReadOnlyList<ShipData> Hulls                     => HullsList;
 
         static void LoadHullBonuses()
         {
@@ -1181,8 +1181,8 @@ namespace Ship_Game
         {
             return JunkModels[idx];
         }
-        public static int NumJunkModels => JunkModels.Count;
 
+        public static int NumJunkModels     => JunkModels.Count;
         public static int NumAsteroidModels => RoidsModels.Count;
         public static Model GetAsteroidModel(int roidId)
         {
@@ -1275,9 +1275,9 @@ namespace Ship_Game
             });
             foreach (Texture2D tex in nebulae)
             {
-                if (tex.Width >= 2048) { BigNebulae.Add(tex); }
+                if      (tex.Width >= 2048) { BigNebulae.Add(tex); }
                 else if (tex.Width >= 1024) { MedNebulae.Add(tex); }
-                else { SmallNebulae.Add(tex); }
+                else                        { SmallNebulae.Add(tex); }
             }
         }
         public static SubTexture SmallNebulaRandom()
@@ -1666,8 +1666,8 @@ namespace Ship_Game
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaWeapons;
             foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly))
             {
-                Weapon wep = pair.Entity;
-                wep.UID = string.Intern(pair.Info.NameNoExt());
+                Weapon wep           = pair.Entity;
+                wep.UID              = string.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
                 wep.InitializeTemplate();
             }

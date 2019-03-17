@@ -348,8 +348,8 @@ namespace Ship_Game
             if (list.Count <= 0)
                 return false;
 
-            int index = (int)RandomMath.RandomBetween(0, list.Count);
-            AssignTroop(planet, list[index]);
+            PlanetGridSquare selectedTile = list.RandItem();
+            AssignTroop(planet, selectedTile);
             return true;
         }
 
@@ -366,14 +366,13 @@ namespace Ship_Game
             if (list.Count <= 0)
                 return false;
 
-            int index = (int)RandomMath.RandomBetween(0, list.Count);
-            PlanetGridSquare tile = list[index];
-            AssignTroop(planet, tile);
+            PlanetGridSquare selectedTile = list.RandItem();
+            AssignTroop(planet, selectedTile);
             // some buildings can injure landing troops
             if (Owner != planet.Owner)
                 DamageTroop(planet.TotalInvadeInjure);
 
-            tile.CheckAndTriggerEvent(planet, Loyalty);
+            selectedTile.CheckAndTriggerEvent(planet, Loyalty);
             return true;
         }
 
