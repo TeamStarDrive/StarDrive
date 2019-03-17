@@ -78,7 +78,7 @@ namespace Ship_Game.Data
                 if (view.Length == 0 || view.Char0 == '#')
                     continue;
 
-                StarDataNode node = ParseLineAsNode(ref view, ref newDepth, out bool isSequence);
+                StarDataNode node = ParseLineAsNode(view, ref newDepth, out bool isSequence);
                 if (node == null)
                     continue;
 
@@ -119,7 +119,7 @@ namespace Ship_Game.Data
             }
         }
 
-        StarDataNode ParseLineAsNode(ref StringView view, ref int newDepth, out bool isSequence)
+        StarDataNode ParseLineAsNode(StringView view, ref int newDepth, out bool isSequence)
         {
             isSequence = view.StartsWith("- ");
             if (isSequence)
@@ -132,61 +132,77 @@ namespace Ship_Game.Data
                     return null;
                 }
             }
-            var node = new StarDataNode { Key = "" };
-            return ParseTokenAsNode(node, ref view);
+            var node = new StarDataNode();
+            return ParseTokenAsNode(node, ref view, isSequence);
         }
 
-        StarDataNode ParseTokenAsNode(StarDataNode node, ref StringView view)
+        StarDataNode ParseTokenAsNode(StarDataNode node, ref StringView view, bool isSequence)
         {
             StringView first = NextToken(ref view);
             if (first.Length == 0)
                 return node; // completely empty node (allowed by YAML spec)
 
-            if (first.Char0 == '{')
+            if (first.Char0 == '{') // anonymous inline Map { X: Y }
             {
                 ParseObject(node, ref view);
                 return node;
             }
+
+            // parse first token as a value
+            object firstValue = ParseValue(first, ref view);
+
+            // see if we can get another token?
+            StringView separator = NextToken(ref view);
+            if (separator.Length == 0) // no token, so only value!
+            {
+                node.Value = firstValue;
+                return node;
+            }
+            if (separator != ":") // and now we expect `:`, otherwise the syntax is too bogus
+            {
+                Error(separator, $"Syntax Error: expected ':' for key:value entry but got {separator.Text} instead");
+                return node;
+            }
+
+            node.Key = firstValue;
 
             StringView second = NextToken(ref view);
-            if (second.Length == 0) // only value!
-            {
-                node.Value = ParseKey(first, ref view);
-                return node;
-            }
-            if (second != ":")
-            {
-                Error(second, $"Syntax Error: expected ':' for key:value entry but got {second.Text} instead");
-                return node;
-            }
-
-            node.Key = ParseKey(first, ref view);
-
-            StringView third = NextToken(ref view);
-            third.TrimEnd();
-            if (third.Length == 0) // no value! (probably a sequence will follow)
+            second.TrimEnd();
+            if (second.Length == 0) // no value! (probably a sequence will follow)
                 return node;
             
-            if (third.Char0 == '{')
+            if (second.Char0 == '{') // anonymous inline Map { X: Y }
             {
                 ParseObject(node, ref view);
+                return node;
             }
-            else
-            {
-                node.Value = ParseValue(third, ref view);
-            }
+            
+            // parse second token as a value
+            node.Value = ParseValue(second, ref view);
             return node;
         }
 
-        object ParseKey(in StringView token, ref StringView view)
+        object TryParseValue(StringView token, ref StringView view)
         {
-            switch (token.Char0)
+            if (token == "null")   return null;
+            if (token == "true")   return true;
+            if (token == "false")  return false;
+            char c = token.Char0;
+            if (('0' <= c && c <= '9') || c == '-' || c == '+')
             {
-                // because I don't want to support this extra complexity
-                case '{': Error(token, "Syntax Restriction: maps not allowed as keys");   return null;
-                case '[': Error(token, "Syntax Restriction: arrays not allowed as keys"); return null;
-                default: return ParseValue(token, ref view);
+                if (token.IndexOf('.') != -1)
+                    return token.ToDouble();
+                return token.ToInt();
             }
+            if (c == '\'' || c == '"')
+            {
+                return ParseString(ref view, terminator: c);
+            }
+            if (c == '[')
+            {
+                return ParseArray(ref view);
+            }
+            return null;
         }
 
         object ParseValue(StringView token, ref StringView view)
@@ -234,7 +250,7 @@ namespace Ship_Game.Data
                     break; // end of map
 
                 var child = new StarDataNode();
-                ParseTokenAsNode(child, ref view);
+                ParseTokenAsNode(child, ref view, isSequence: true);
                 node.AddSubNode(child);
 
                 StringView separator = NextToken(ref view);
@@ -302,7 +318,7 @@ namespace Ship_Game.Data
                 if (c == terminator)
                     break;
 
-                if (c == '\\')
+                if (c == '\\') //  "   \\  \r  \n  \t  \'  \"   "
                 {
                     if (view.Length > 0)
                     {
@@ -310,9 +326,9 @@ namespace Ship_Game.Data
                         switch (c)
                         {
                             case '\\': StrBuilder.Append('\\'); break;
-                            case 't':  StrBuilder.Append('\t'); break;
-                            case 'n':  StrBuilder.Append('\n'); break;
                             case 'r':  StrBuilder.Append('\r'); break;
+                            case 'n':  StrBuilder.Append('\n'); break;
+                            case 't':  StrBuilder.Append('\t'); break;
                             case '\'': StrBuilder.Append('\''); break;
                             case '"':  StrBuilder.Append('"');  break;
                         }
@@ -343,7 +359,7 @@ namespace Ship_Game.Data
             {
                 switch (str[current])
                 {
-                    case ':': case '\'': case '"': case '#': case ',':
+                    case ':': case '#': case '\'': case '"': case ',':
                     case '{': case '}':  case '[': case ']':
                         if (start == current)
                         {
