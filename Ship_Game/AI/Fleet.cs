@@ -1377,7 +1377,27 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public float SpeedLimiter(Ship ship)
+        {
+            float distance = ship.Center.Distance(Position);
 
+            float distanceFleetCenterToDistance = StoredFleetDistanceToMove
+                                                  - Position.Distance(Position + ship.FleetOffset);
+            float shipSpeedLimit = Speed;
+            if (distance <= distanceFleetCenterToDistance)
+            {
+                float reduction = distanceFleetCenterToDistance - distance;
+                shipSpeedLimit = Math.Max(1, Speed - reduction);
+                if (shipSpeedLimit > Speed)
+                    shipSpeedLimit = Speed;
+            }
+            else if (distance > distanceFleetCenterToDistance)
+            {
+                float speedIncrease = distance - distanceFleetCenterToDistance;
+                shipSpeedLimit = Speed + speedIncrease;
+            }
+            return shipSpeedLimit;
+        }
         public void Update(float elapsedTime)
         {
             HasRepair = false;
@@ -1393,9 +1413,10 @@ namespace Ship_Game.AI
                 if (ship.AI.State == AIState.FormationWarp)
                 {
                     SetCombatMoveAtPosition(ship, Position, 7500);
+                    Empire.Universe.DebugWin?.DrawCircle(DebugModes.Pathing, Position, 100000, Color.Yellow);
                 }
                 AddShip(ship, true);
-                ReadyForWarp = ReadyForWarp && ship.ShipReadyForWarp() > ShipStatus.Poor;
+                ReadyForWarp = ReadyForWarp && ship.ShipReadyForFormationWarp() > ShipStatus.Poor;
             }
             Ships.ApplyPendingRemovals();
 

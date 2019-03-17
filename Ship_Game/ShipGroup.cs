@@ -279,8 +279,8 @@ namespace Ship_Game
             }
             float avgDistance = distances.Average();
             float sum = distances.Sum(d => (d - avgDistance)*(d - avgDistance));
-            float stddev = (float)Math.Sqrt(sum / (distances.Count - 1));
-            StoredFleetDistanceToMove = distances.Where(distance => distance <= avgDistance + stddev).Average();
+            float stddev = (float)Math.Sqrt(sum / (distances.Count - 1)) + Speed;
+            StoredFleetDistanceToMove = distances.Filter(distance => distance <= avgDistance + stddev).Average();
         }
 
         protected bool IsFleetSupplied(float wantedSupplyRatio =.1f)
