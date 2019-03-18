@@ -316,7 +316,13 @@ namespace Ship_Game.AI
             }
             else // In a fleet
             {
-                speedLimit = FormationWarp(deltaTime, distance, speedLimit);
+                if (distance > 7500f) // Not near destination
+                {
+                    EngageFormationWarp();
+                }
+                else
+                    DisEngageFormationWarp();
+                speedLimit = FormationWarpSpeed(speedLimit);
                 Owner.SubLightAccelerate(deltaTime, speedLimit);
             }
         }
@@ -377,35 +383,26 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public float FormationWarp(float elapsedTime, float distance, float speedLimit)
+        public void EngageFormationWarp()
         {
-            // initialize default speed limit:
-            speedLimit = Owner.AdjustedSpeedLimit(speedLimit);
-
-            float fleetSpeed = Owner.fleet.Speed;
-            if (distance > 7500f) // Not near destination
+            if (Owner.fleet.ReadyForWarp)
             {
-                fleetSpeed = Owner.fleet.SpeedLimiter(Owner);
-
-                if (Owner.fleet.ReadyForWarp)
-                {
-                    Owner.EngageStarDrive(); // Fleet is ready to Go into warp
-                }
-                else if (Owner.engineState == Ship.MoveState.Warp)
-                {
-                    Owner.HyperspaceReturn(); // Fleet is not ready for warp
-                }
+                if (Owner.engineState == Ship.MoveState.Sublight)
+                    Owner.EngageStarDrive();
             }
-            else if (Owner.engineState == Ship.MoveState.Warp)
-            {
-                Owner.HyperspaceReturn(); // Near Destination
-                HasPriorityOrder = false;
-            }
-
-            speedLimit = Math.Min(fleetSpeed, speedLimit);
-            return speedLimit;
-
+            else if(Owner.engineState == Ship.MoveState.Warp)
+                Owner.HyperspaceReturn();
         }
 
+        public void DisEngageFormationWarp()
+        {
+            if (Owner.engineState == Ship.MoveState.Warp)
+            {
+                HasPriorityOrder = false;
+                Owner.HyperspaceReturn();
+            }
+        }
+
+        public float FormationWarpSpeed(float currentSpeedLimit) => Math.Min(Owner.fleet.FormationWarpSpeed(Owner), currentSpeedLimit);
     }
 }
