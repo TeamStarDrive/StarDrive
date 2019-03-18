@@ -151,7 +151,7 @@ namespace Ship_Game
         public T[] GetInternalArrayItems() => Items;
 
         // Separated throw from this[] to enable MSIL inlining
-        private void ThrowIndexOutOfBounds(int index)
+        void ThrowIndexOutOfBounds(int index)
         {
             throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
         }
