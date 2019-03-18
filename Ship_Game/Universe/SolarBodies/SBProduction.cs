@@ -164,12 +164,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (!ResourceManager.ShipTemplateExists(q.sData.Name))
                 return false;
 
-            Ship shipAt;
-            if (q.isRefit)
-                shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true, q.RefitName, q.ShipLevel);
-            else
-                shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true);
-
+            Ship shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true);
             if (q.sData.Role == ShipData.RoleName.station || q.sData.Role == ShipData.RoleName.platform)
             {
                 shipAt.Position = FindNewStationLocation();
