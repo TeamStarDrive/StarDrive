@@ -2286,10 +2286,20 @@ namespace Ship_Game.Ships
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
 
+        public ShipStatus WarpDuration(float neededRange = 300000)
+        {
+            float powerDuration = NetPower.PowerDuration(this, MoveState.Warp);
+            if (powerDuration.AlmostEqual(float.MaxValue))
+                return ShipStatus.Excellent;
+            if (powerDuration * maxFTLSpeed < neededRange)
+                return ShipStatus.Critical;
+            return ShipStatus.Good;
+        }
+
         public ShipStatus ShipReadyForWarp()
         {
-            if (maxFTLSpeed < 1) return ShipStatus.NotApplicable;
-            if (!isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) < 0.2f) return ShipStatus.Critical;
+            if (maxFTLSpeed < 1 || Inhibited || EnginesKnockedOut || !Active) return ShipStatus.NotApplicable;
+            if (!isSpooling && WarpDuration() < ShipStatus.Good ) return ShipStatus.Critical;
             if (engineState == MoveState.Warp) return ShipStatus.Good;
             if (Carrier.RecallingFighters()) return ShipStatus.Poor;
             return ShipStatus.Excellent;
@@ -2297,8 +2307,14 @@ namespace Ship_Game.Ships
 
         public ShipStatus ShipReadyForFormationWarp()
         {
-            if (AI.State != AIState.FormationWarp) return ShipStatus.Good;
-            return ShipReadyForWarp();
+            //the original logic here was confusing. If aistate was formation warp it ignored all other 
+            //cases and returned good. I am guessing that once the state is formation warp it is 
+            //expecting it has passes all other cases. But i can not verify that as the logic is spread out. 
+            //I believe what we need here is to centralize the engine and navigation logic. 
+            ShipStatus warpStatus = ShipReadyForWarp();
+            if (warpStatus > ShipStatus.Poor && warpStatus != ShipStatus.NotApplicable)
+                if (AI.State != AIState.FormationWarp) return ShipStatus.Good;
+            return warpStatus;
         }
 
         public void Dispose()

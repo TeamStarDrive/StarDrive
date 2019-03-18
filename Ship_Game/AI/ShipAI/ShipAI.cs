@@ -556,9 +556,14 @@ namespace Ship_Game.AI
         {
             //separated for clarity as this section can be very confusing.
             //we might need a toggle for the player action here.
-            if (State == AIState.FormationWarp) return true;
-            if (HasPriorityOrder || HadPO) return false;
-            if (State == AIState.Orbit || State == AIState.AwaitingOffenseOrders) return true;
+            if (State == AIState.FormationWarp) 
+                return true;
+            if (HasPriorityOrder || HadPO) 
+                return false;
+            if (BadGuysNear) 
+                return false;
+            if (State == AIState.Orbit || State == AIState.AwaitingOffenseOrders || State == AIState.AwaitingOrders) 
+                return true;
             return false;
         }
 

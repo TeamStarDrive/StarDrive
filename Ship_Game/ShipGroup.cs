@@ -465,7 +465,7 @@ namespace Ship_Game
                 // Modified this so speed of a fleet is only set in one place -Gretman
             {
                 Ship ship = Ships[i];
-                if (ship.Inhibited || ship.EnginesKnockedOut || !ship.Active || ship.AI.State != AIState.FormationWarp)
+                if (!ShipFleetMoveReady(ship))
                     continue;
                 if (ship.Speed < slowestSpeed)
                     slowestSpeed = ship.Speed;
@@ -473,6 +473,16 @@ namespace Ship_Game
             if (slowestSpeed < 200)
                 slowestSpeed = 200;
             Speed = slowestSpeed;
+        }
+
+        bool ShipFleetMoveReady(Ship ship)
+        {
+            var warpStatus = ship.ShipReadyForWarp();
+            if (warpStatus < ShipStatus.Good || warpStatus == ShipStatus.NotApplicable)
+                return false;
+            return true;
+
+
         }
     }
 }
