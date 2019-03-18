@@ -202,7 +202,14 @@ namespace Ship_Game.Commands.Goals
         Ship FindIdleColonyShip()
         {
             if (FinishedShip != null)
-                return FinishedShip;
+            {
+                if (!FinishedShip.Active)
+                {
+                    FinishedShip = null;
+                }
+                    return FinishedShip;
+
+            }
 
             foreach (Ship ship in empire.GetShips())
                 if (ship.isColonyShip && ship.AI != null && ship.AI.State != AIState.Colonize)
