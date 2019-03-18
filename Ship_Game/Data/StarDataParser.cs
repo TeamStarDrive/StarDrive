@@ -14,6 +14,9 @@ namespace Ship_Game.Data
         int Line;
         readonly StringBuilder StrBuilder = new StringBuilder();
 
+        readonly Array<Error> LoggedErrors = new Array<Error>();
+        public IReadOnlyList<Error> Errors => LoggedErrors;
+
         public StarDataParser(string file) : this(ResourceManager.GetModOrVanillaFile(file))
         {
         }
@@ -78,7 +81,7 @@ namespace Ship_Game.Data
                 if (view.Length == 0 || view.Char0 == '#')
                     continue;
 
-                StarDataNode node = ParseLineAsNode(view, ref newDepth, out bool isSequence);
+                StarDataNode node = ParseLineAsNode(view, out bool isSequence);
                 if (node == null)
                     continue;
 
@@ -119,24 +122,23 @@ namespace Ship_Game.Data
             }
         }
 
-        StarDataNode ParseLineAsNode(StringView view, ref int newDepth, out bool isSequence)
+        StarDataNode ParseLineAsNode(StringView view, out bool isSequence)
         {
             isSequence = view.StartsWith("- ");
             if (isSequence)
             {
-                newDepth += 2;
                 view.Skip(2);
                 if (view.Length == 0)
                 {
-                    Error(view, "Syntax Error: expected a value");
+                    LogError(view, "Syntax Error: expected a value");
                     return null;
                 }
             }
             var node = new StarDataNode();
-            return ParseTokenAsNode(node, ref view, isSequence);
+            return ParseTokenAsNode(node, ref view);
         }
 
-        StarDataNode ParseTokenAsNode(StarDataNode node, ref StringView view, bool isSequence)
+        StarDataNode ParseTokenAsNode(StarDataNode node, ref StringView view)
         {
             StringView first = NextToken(ref view);
             if (first.Length == 0)
@@ -160,7 +162,7 @@ namespace Ship_Game.Data
             }
             if (separator != ":") // and now we expect `:`, otherwise the syntax is too bogus
             {
-                Error(separator, $"Syntax Error: expected ':' for key:value entry but got {separator.Text} instead");
+                LogError(separator, $"Syntax Error: expected ':' for key:value entry but got {separator.Text} instead");
                 return node;
             }
 
@@ -182,29 +184,6 @@ namespace Ship_Game.Data
             return node;
         }
 
-        object TryParseValue(StringView token, ref StringView view)
-        {
-            if (token == "null")   return null;
-            if (token == "true")   return true;
-            if (token == "false")  return false;
-            char c = token.Char0;
-            if (('0' <= c && c <= '9') || c == '-' || c == '+')
-            {
-                if (token.IndexOf('.') != -1)
-                    return token.ToDouble();
-                return token.ToInt();
-            }
-            if (c == '\'' || c == '"')
-            {
-                return ParseString(ref view, terminator: c);
-            }
-            if (c == '[')
-            {
-                return ParseArray(ref view);
-            }
-            return null;
-        }
-
         object ParseValue(StringView token, ref StringView view)
         {
             if (token.Length == 0) return null;
@@ -215,7 +194,7 @@ namespace Ship_Game.Data
             if (('0' <= c && c <= '9') || c == '-' || c == '+')
             {
                 if (token.IndexOf('.') != -1)
-                    return token.ToDouble();
+                    return token.ToFloat();
                 return token.ToInt();
             }
             if (c == '\'' || c == '"')
@@ -228,7 +207,7 @@ namespace Ship_Game.Data
             }
             if (c == '{')
             {
-                Error(token, "Parse Error: map not supported in this context");
+                LogError(token, "Parse Error: map not supported in this context");
                 return null;
             }
             token.TrimEnd();
@@ -242,7 +221,7 @@ namespace Ship_Game.Data
                 view.TrimStart();
                 if (view.Length == 0)
                 {
-                    Error(view, "Parse Error: map expected '}' before end of line");
+                    LogError(view, "Parse Error: map expected '}' before end of line");
                     break;
                 }
 
@@ -250,13 +229,13 @@ namespace Ship_Game.Data
                     break; // end of map
 
                 var child = new StarDataNode();
-                ParseTokenAsNode(child, ref view, isSequence: true);
+                ParseTokenAsNode(child, ref view);
                 node.AddSubNode(child);
 
                 StringView separator = NextToken(ref view);
                 if (separator.Length == 0)
                 {
-                    Error(separator, "Parse Error: map expected '}' before end of line");
+                    LogError(separator, "Parse Error: map expected '}' before end of line");
                     break;
                 }
 
@@ -265,7 +244,7 @@ namespace Ship_Game.Data
 
                 if (separator.Char0 != ',')
                 {
-                    Error(separator, "Parse Error: map expected ',' separator after value entry");
+                    LogError(separator, "Parse Error: map expected ',' separator after value entry");
                     break;
                 }
             }
@@ -280,7 +259,7 @@ namespace Ship_Game.Data
                 StringView token = NextToken(ref view);
                 if (token.Length == 0)
                 {
-                    Error(token, "Parse Error: array expected ']' before end of line");
+                    LogError(token, "Parse Error: array expected ']' before end of line");
                     break;
                 }
                 
@@ -293,7 +272,7 @@ namespace Ship_Game.Data
                 StringView separator = NextToken(ref view);
                 if (separator.Length == 0)
                 {
-                    Error(separator, "Parse Error: array expected ']' before end of line");
+                    LogError(separator, "Parse Error: array expected ']' before end of line");
                     break;
                 }
 
@@ -302,7 +281,7 @@ namespace Ship_Game.Data
 
                 if (separator.Char0 != ',')
                 {
-                    Error(separator, "Parse Error: array expected ',' separator after an entry");
+                    LogError(separator, "Parse Error: array expected ',' separator after an entry");
                     break;
                 }
             }
@@ -335,7 +314,7 @@ namespace Ship_Game.Data
                     }
                     else
                     {
-                        Error(view, "Parse Error: unexpected end of string");
+                        LogError(view, "Parse Error: unexpected end of string");
                         break;
                     }
                 }
@@ -377,9 +356,24 @@ namespace Ship_Game.Data
             return new StringView(start, length, str);
         }
 
-        void Error(in StringView view, string what)
+        public struct Error
         {
-            Log.Error($"{Root.Key}:{Line}:{view.Start} {what}");
+            public int Line;
+            public int Column;
+            public string Message;
+            public string Document;
+
+            public override string ToString()
+            {
+                return $"{Document}:{Line}:{Column} {Message}";
+            }
+        }
+
+        void LogError(in StringView view, string what)
+        {
+            var e = new Error{ Line=Line, Column=view.Start, Message=what, Document=Root.Name};
+            Log.Error(e.ToString());
+            LoggedErrors.Add(e);
         }
 
         public Array<T> DeserializeArray<T>() where T : new()
