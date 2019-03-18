@@ -204,7 +204,7 @@ namespace Ship_Game
             for (int i = 0; i < PlanetList.Count; i++)
             {
                 Planet planet = PlanetList[i];
-                if (Position.InRadius(planet.Center, planet.GravityWellRadius))
+                if (ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
                     return planet;
             }
 
