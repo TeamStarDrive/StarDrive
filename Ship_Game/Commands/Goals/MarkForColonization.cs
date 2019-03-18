@@ -207,6 +207,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     FinishedShip = null;
                 }
+                else
                     return FinishedShip;
 
             }

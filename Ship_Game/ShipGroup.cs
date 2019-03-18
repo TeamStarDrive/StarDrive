@@ -180,7 +180,7 @@ namespace Ship_Game
 
             // center offset, this makes our Ad-Hoc group be centered
             // to mouse position
-            float cx = w * 0.5f - 0.5f; 
+            float cx = w * 0.5f - 0.5f;
             int i = 0;
             for (int y = 0; y < h; ++y)
             {
@@ -460,19 +460,15 @@ namespace Ship_Game
         {
             if (Ships.Count == 0)
                 return;
-            float slowestSpeed = Ships[0].Speed;
+            float slowestSpeed = float.MaxValue;
             for (int i = 0; i < Ships.Count; i++)
-                // Modified this so speed of a fleet is only set in one place -Gretman
             {
                 Ship ship = Ships[i];
-                if (!ShipFleetMoveReady(ship))
-                    continue;
-                if (ship.Speed < slowestSpeed)
-                    slowestSpeed = ship.Speed;
+
+                if (ShipFleetMoveReady(ship))
+                    slowestSpeed = Math.Min(ship.Speed, slowestSpeed);
             }
-            if (slowestSpeed < 200)
-                slowestSpeed = 200;
-            Speed = slowestSpeed;
+            Speed = Math.Max(200, slowestSpeed);
         }
 
         bool ShipFleetMoveReady(Ship ship)
