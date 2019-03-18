@@ -1130,7 +1130,7 @@ namespace Ship_Game.Ships
 
             Speed = velocityMaximum;
             if (AI.State == AIState.FormationWarp)
-                Speed = Math.Min(Speed, fleet.SpeedLimiter(this));
+                Speed = AI.FormationWarpSpeed(Speed);
 
             rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             rotationRadiansPerSecond += rotationRadiansPerSecond * Level * 0.05f;

@@ -1377,7 +1377,7 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public float SpeedLimiter(Ship ship)
+        public float FormationWarpSpeed(Ship ship)
         {
             float distance = ship.Center.Distance(Position);
 
