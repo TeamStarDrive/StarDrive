@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
@@ -32,7 +33,22 @@ namespace Ship_Game.Data
         //   SubNode0: Value0
         //   SubNode1: Value1
         // this[0] => StarDataNode Key=SubNode0 Value=Value0
-        public StarDataNode this[int subNodeIndex] => SubNodes[subNodeIndex];
+        public StarDataNode this[int subNodeIndex]
+        {
+            get
+            {
+                if (SubNodes == null || (uint)subNodeIndex >= SubNodes.Count)
+                    ThrowSubNodeIndexOutOfBounds(subNodeIndex);
+                return SubNodes[subNodeIndex];
+            }
+        }
+
+        // Separated throw from this[] to enable MSIL inlining
+        void ThrowSubNodeIndexOutOfBounds(int index)
+        {
+            throw new IndexOutOfRangeException(
+                $"StarDataNode Key('{Key}') SUB-NODE Index [{index}] out of range({SubNodes?.Count??0})");
+        }
 
         // SubNode access by name (throws exception if not found)
         // ThisNode:
@@ -45,7 +61,19 @@ namespace Ship_Game.Data
         //   - Element0: Value0
         //   - Element1: Value1
         // this.GetElement(0) => StarDataNode Key=Element0 Value=Value0
-        public StarDataNode GetElement(int index) => Sequence[index];
+        public StarDataNode GetElement(int index)
+        {
+            if (Sequence == null || (uint)index > (uint)Sequence.Count)
+                ThrowSequenceIndexOutOfBounds(index);
+            return Sequence[index];
+        }
+
+        // Separated throw from this[] to enable MSIL inlining
+        void ThrowSequenceIndexOutOfBounds(int index)
+        {
+            throw new IndexOutOfRangeException(
+                $"StarDataNode Key('{Key}') SEQUENCE Index [{index}] out of range({Sequence?.Count??0})");
+        }
 
         // Name: ...
         public string Name => Key as string;
