@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
@@ -6,7 +7,6 @@ using Ship_Game.Ships;
 using System;
 using System.Linq;
 using System.Text;
-using Ship_Game.Audio;
 
 namespace Ship_Game.AI
 {
@@ -123,29 +123,30 @@ namespace Ship_Game.AI
                 if (Owner.Carrier.HasHangars && !Owner.ManualHangarOverride)
                     Owner.Carrier.ScrambleFighters();
             }
-            else if (FleetNode != null && Owner.fleet != null)
+            else
             {
-                if (Target == null)
-                    Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
-                Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-                if (Target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
-                {
-                    if (Owner.Center.OutsideRadius(nodePos, 1000f))
+                if (FleetNode != null && Owner.fleet != null)
+                { if (Target == null)
+                        Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
+                    Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                    if (Target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                     {
-                        ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
+                        if (Owner.Center.OutsideRadius(nodePos, 1000f))
+                        {
+                            ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
+                        }
+                        else
+                            DoHoldPositionCombat(elapsedTime);
                         return;
                     }
-                    DoHoldPositionCombat(elapsedTime);
+                }
+                if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
+                {
+                    if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 prediction) == false)
+                        prediction = Target.Center;
+                    ThrustOrWarpToPosCorrected(prediction, elapsedTime);
                     return;
                 }
-            }
-            // out of range and not holding pos / evading:
-            else if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
-            {
-                if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 prediction) == false)
-                    prediction = Target.Center;
-                ThrustOrWarpToPosCorrected(prediction, elapsedTime);
-                return;
             }
 
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
@@ -397,7 +398,7 @@ namespace Ship_Game.AI
             {
                 if (Owner.loyalty.isPlayer)
                     HadPO = true;
-                
+
                 ClearOrders(DefaultAIState);
                 Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
             }
@@ -430,7 +431,7 @@ namespace Ship_Game.AI
             else
             {
                 float minDistance = Math.Max(adjustedRange * 0.25f + Target.Radius, adjustedRange * 0.5f);
-                
+
                 // slow down
                 if (distanceToTarget < minDistance)
                     Owner.Velocity -= Owner.Direction * elapsedTime * Owner.GetSTLSpeed();
@@ -503,7 +504,7 @@ namespace Ship_Game.AI
                 float distanceToOrbitSpot = Owner.Center.Distance(OrbitPos);
                 if (distanceToOrbitSpot <= radius || Owner.Speed < 1f)
                 {
-                    OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount * 10f)).ToDegrees();
+                    OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount )).ToDegrees() * 10f;
                     OrbitalAngle = OrbitalAngle.NormalizedAngle();
                 }
                 FindNewPosTimer = elapsedTime * 10f;
