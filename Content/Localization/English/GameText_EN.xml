@@ -5994,7 +5994,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2288</Index>
-      <Text>Enables Planetary Gravity Wells, which prevent ships from warping when close to a planet</Text>
+      <Text>Enables Planetary Gravity Wells, which prevent ships from warping when close to a planet. Note that ships in friendly space ignore Gravity Wells.</Text>
     </Token>
     <Token>
       <Index>2289</Index>
