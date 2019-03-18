@@ -357,20 +357,12 @@ namespace Ship_Game.AI
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
-        public void OrderRefitTo(Ship toRefit)
+        public void OrderRefitTo(Planet refitPlanet, Ship toRefit)
         {
-            OrbitTarget = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
-            if (OrbitTarget == null)
-            {
-                ClearOrders();
-                return;
-            }
-
-            OrderMoveTowardsPosition(OrbitTarget.Center, Vectors.Up, true, OrbitTarget);
-            AddShipGoal(Plan.Refit, OrbitTarget, toRefit.Name);
-
+            OrderMoveTowardsPosition(refitPlanet.Center, Vectors.Up, true, refitPlanet);
+            AddShipGoal(Plan.Refit, refitPlanet, toRefit.Name);
             IgnoreCombat = true;
-            State = AIState.Refit;
+            State        = AIState.Refit;
             SetPriorityOrder(clearOrders: false);
         }
 

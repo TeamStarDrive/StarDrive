@@ -17,7 +17,8 @@ namespace Ship_Game.AI
         BuildTroop,
         BuildShips,
         BuildScout,
-        FleetRequisition
+        FleetRequisition,
+        Refit
     }
 
     public enum GoalStep
@@ -41,10 +42,13 @@ namespace Ship_Game.AI
         public bool Held;
         public Vector2 BuildPosition;
         public string ToBuildUID;
+        public string VanityName;
+        public int ShipLevel;
         public Planet PlanetBuildingAt;
         public Planet ColonizationTarget { get; set; }
         public Ship ShipToBuild;  // this is a template
         public Ship FinishedShip; // this is the actual ship that was built
+        public Ship OldShip;      // this is the ship which need refit
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
