@@ -35,14 +35,7 @@ namespace Ship_Game
         Oceanic,
         GasGiant,
     }
-    public enum Richness
-    {
-        UltraPoor,
-        Poor,
-        Average,
-        Rich,
-        UltraRich
-    }
+
     public class OrbitalDrop
     {
         public Vector2 Position;
