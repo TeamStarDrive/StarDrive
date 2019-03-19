@@ -30,6 +30,7 @@ namespace Ship_Game
             public TextureAtlas Animation;
         }
 
+        [StarDataType]
         sealed class Explosion
         {
             #pragma warning disable 649 // They are serialized

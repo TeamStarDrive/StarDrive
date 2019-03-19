@@ -48,81 +48,26 @@ namespace Ship_Game.Data
     // And turn it into usable game objects
     internal class StarDataSerializer : TypeConverter
     {
-        class Info
-        {
-            readonly Type Type;
-            readonly PropertyInfo Prop;
-            readonly FieldInfo Field;
-            readonly TypeConverter Converter;
-            readonly Type ListType; // this is an Array<ListType>
-
-            public Info(Converters converters, PropertyInfo prop, FieldInfo field)
-            {
-                Prop = prop;
-                Field = field;
-                Type = prop != null ? prop.PropertyType : field.FieldType;
-                ListType = converters.GetListType(Type);
-                Converter = converters.Get(Type);
-            }
-
-            void Set(object instance, object value)
-            {
-                if (Field != null) Field.SetValue(instance, value);
-                else               Prop.SetValue(instance, value);
-            }
-
-            object Get(object instance)
-            {
-                return Field != null ? Field.GetValue(instance) : Prop.GetValue(instance);
-            }
-
-            object Deserialize(StarDataNode node, bool recursiveDeserialize)
-            {
-                if (recursiveDeserialize && node.HasSubNodes) // we have sub-nodes, delegate to deserialize
-                {
-                    return Converter.Deserialize(node);
-                }
-
-                object value = node.Value;
-                if (value == null) // allow null, sometimes it's an override
-                    return null;
-                Type sourceT = value.GetType();
-                if (Type == sourceT)
-                    return value;
-                return Converter.Convert(value); // direct convert
-            }
-
-            public void SetValue(object instance, StarDataNode node, bool recursiveDeserialize)
-            {
-                if (ListType != null)
-                {
-                    if (!(Get(instance) is IList list))
-                    {
-                        list = ArrayHelper.NewArrayOfT(ListType);
-                        Set(instance, list);
-                    }
-                    list.Add(Deserialize(node, recursiveDeserialize));
-                }
-                else
-                {
-                    Set(instance, Deserialize(node, recursiveDeserialize));
-                }
-            }
-        }
-
-        readonly Map<string, Info> Mapping = new Map<string, Info>();
-        string PrimaryName;
+        Map<string, Info> Mapping;
         Info PrimaryInfo;
         readonly Type TheType;
+        public override string ToString() => $"StarDataSerializer {TheType.GenericName()}";
 
-        public StarDataSerializer(Type type, Converters types = null)
+        public StarDataSerializer(Type type)
         {
             TheType = type;
+            if (type.GetCustomAttribute<StarDataTypeAttribute>() == null)
+                throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
+        }
+
+        internal void ResolveTypes(Converters types)
+        {
+            Mapping = new Map<string, Info>();
             types = types ?? new Converters();
 
             Type shouldSerialize = typeof(StarDataAttribute);
-            PropertyInfo[] props = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            FieldInfo[]   fields = type.GetFields(    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            PropertyInfo[] props = TheType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo[]   fields = TheType.GetFields(    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             
             for (int i = 0; i < fields.Length; ++i)
             {
@@ -141,7 +86,7 @@ namespace Ship_Game.Data
                 {
                     MethodInfo setter = p.GetSetMethod(nonPublic: true);
                     if (setter == null)
-                        throw new Exception($"StarDataSerializer Class {type.Name} Property {p.Name} has no setter!");
+                        throw new Exception($"StarDataSerializer Class {TheType.Name} Property {p.Name} has no setter!");
 
                     string id = a.Id.NotEmpty() ? a.Id : p.Name;
                     AddMapping(id, a, new Info(types, p, null));
@@ -151,45 +96,76 @@ namespace Ship_Game.Data
 
         void AddMapping(string name, StarDataAttribute a, Info info)
         {
+            Mapping.Add(name, info);
             if (a.IsPrimaryKey)
-            {
-                PrimaryName = name;
                 PrimaryInfo = info;
-            }
-            else
-            {
-                Mapping.Add(name, info);
-            }
-        }
-
-        public override object Convert(object value)
-        {
-            return null;
         }
 
         public override object Deserialize(StarDataNode node)
         {
+            if (Mapping == null)
+                ResolveTypes(null);
+
             object item = Activator.CreateInstance(TheType);
-            if (node.Value != null && PrimaryName != null)
+            bool hasPrimaryValue = (node.Value != null);
+            if (hasPrimaryValue && PrimaryInfo != null)
             {
-                PrimaryInfo.SetValue(item, node, recursiveDeserialize: false);
+                // @note this is a hack to prevent recursive serialization of primary nodes
+                var primaryNode = new StarDataNode { Key = node.Key, Value = node.Value };
+                object primaryValue = PrimaryInfo.Converter.Deserialize(primaryNode);
+                PrimaryInfo.Set(item, primaryValue);
+            }
+
+            if (node.HasSubNodes && node.HasSequence)
+            {
+                Log.Warning(ConsoleColor.DarkRed, $"StarDataSerializer '{node.Key}' has both Sub-Nodes and Sequence elements. But only one can exist. Preferring SubNodes.");
             }
 
             if (node.HasSubNodes)
             {
-                foreach (StarDataNode leaf in node.SubNodes)
+                foreach (StarDataNode leaf in node.Nodes)
                 {
-                    if (Mapping.TryGetValue(leaf.Name, out Info info))
+                    if (!Mapping.TryGetValue(leaf.Name, out Info leafInfo))
                     {
-                        info.SetValue(item, leaf, recursiveDeserialize: true);
+                        Log.Warning(ConsoleColor.DarkRed, $"StarDataSerializer no OBJECT mapping for '{leaf.Key}': '{leaf.Value}'");
+                        continue;
                     }
-                    else
-                    {
-                        Log.Warning($"StarDataSerializer no mapping for '{leaf.Key}': '{leaf.Value}'");
-                    }
+
+                    if (hasPrimaryValue && leafInfo == PrimaryInfo)
+                        continue; // ignore primary key if we already set it
+
+                    object leafValue = leafInfo.Converter.Deserialize(leaf);
+                    leafInfo.Set(item, leafValue);
                 }
             }
+            else if (node.HasSequence)
+            {
+                Log.Warning(ConsoleColor.DarkRed, $"StarDataSerializer no SEQUENCE mapping for '{node.Key}': '{node.Value}'");
+            }
             return item;
+        }
+
+        class Info
+        {
+            readonly PropertyInfo Prop;
+            readonly FieldInfo Field;
+            public readonly TypeConverter Converter;
+
+            public override string ToString() => Prop?.ToString() ?? Field?.ToString() ?? "invalid";
+
+            public Info(Converters converters, PropertyInfo prop, FieldInfo field)
+            {
+                Prop = prop;
+                Field = field;
+                Type type = prop != null ? prop.PropertyType : field.FieldType;
+                Converter = converters.Get(type);
+            }
+
+            public void Set(object instance, object value)
+            {
+                if (Field != null) Field.SetValue(instance, value);
+                else               Prop.SetValue(instance, value);
+            }
         }
     }
 }

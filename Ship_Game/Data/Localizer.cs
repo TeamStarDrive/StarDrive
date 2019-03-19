@@ -42,22 +42,8 @@ namespace Ship_Game
                 return;
             }
 
-            if (text[0] != '"')
-            {
-                Log.Error($"Missing string format BEGIN character '\"' -- LocText not parsed!: {text}");
-                Text = text;
-                return;
-            }
-
-            if (text[text.Length-1] != '"')
-            {
-                Log.Warning($"Missing string format END character '\"' -- LocText may miss some characters!: {text}");
-                Text = text;
-                return;
-            }
-
             var sb = new StringBuilder(text.Length);
-            for (int i = 1; i < text.Length-1; ++i)
+            for (int i = 0; i < text.Length; ++i)
             {
                 char c = text[i];
                 if (c == '{')
@@ -84,11 +70,8 @@ namespace Ship_Game
                 else if (c == '\\') // escape character
                 {
                     c = text[i++];
-                    if      (c == 'n') sb.Append('\n');
-                    else if (c == 't') sb.Append('\t');
-                    else if (c == '{') sb.Append('{');
+                    if      (c == '{') sb.Append('{');
                     else if (c == '}') sb.Append('}');
-                    else if (c == '"') sb.Append('"');
                     else sb.Append('\\').Append(c); // unrecognized
                 }
                 else
