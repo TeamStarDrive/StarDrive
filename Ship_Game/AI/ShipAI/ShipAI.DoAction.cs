@@ -549,6 +549,12 @@ namespace Ship_Game.AI
 
         void DoRefit(ShipGoal goal)
         {
+            if (goal.Goal == null) // empire goal was removed or planet was compromised 
+                ClearOrders();
+
+            ClearOrders(AIState.HoldPosition);
+
+            /*
             Ship template = ResourceManager.GetShipTemplate(goal.VariableString, throwIfError: false);
 
             if (template == null)
@@ -557,25 +563,14 @@ namespace Ship_Game.AI
                 Log.Warning($"Refit {Owner.Name} failed: {goal.VariableString} is not a valid ship template!");
                 return;
             }
-
+            
             if (Owner.fleet != null)
             {
                 var refitGoal = new FleetRequisition(goal, this);
                 FleetNode.GoalGUID = refitGoal.guid;
                 Owner.loyalty.GetEmpireAI().Goals.Add(refitGoal);
                 return; // Construction is handled by FleetRequisition
-            }
-
-            var qi = new QueueItem(OrbitTarget);
-            qi.sData = template.shipData;
-            qi.Cost = Owner.RefitCost(qi.sData.Name);
-            qi.isShip = true;
-            qi.isRefit = true;
-            qi.RefitName = Owner.VanityName;
-            qi.ShipLevel = Owner.Level;
-
-            OrbitTarget.ConstructionQueue.Add(qi);
-            Owner.QueueTotalRemoval();
+            }*/
         }
 
         void DoRepairDroneLogic(Weapon w)
