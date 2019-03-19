@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Text;
 
 namespace Ship_Game.Data
@@ -9,24 +10,23 @@ namespace Ship_Game.Data
     // StarDrive data object node with key, value and child items
     public class StarDataNode : IEnumerable<StarDataNode>
     {
+        static readonly IReadOnlyList<StarDataNode> EmptyNodes = new ReadOnlyCollection<StarDataNode>(Empty<StarDataNode>.Array);
+
         public object Key, Value;
-        public Array<StarDataNode> SubNodes; // SubNode tree,  ie. This: { SubNode1: Value1, SubNode2: Value2 }
-        public Array<StarDataNode> Sequence; // Sequence list, ie. This: [ Element1, Element2, Element3 ]
+
+        // SubNode tree,  ie. This: { SubNode1: Value1, SubNode2: Value2 }
+        public IReadOnlyList<StarDataNode> Nodes => SubNodes ?? EmptyNodes;
+        Array<StarDataNode> SubNodes;
+
+        // Sequence list, ie. This: [ Element1, Element2, Element3 ]
+        public IReadOnlyList<StarDataNode> Sequence => SeqNodes ?? EmptyNodes;
+        Array<StarDataNode> SeqNodes;
 
         public override string ToString() => SerializedText();
 
         public bool HasSubNodes => SubNodes != null && SubNodes.NotEmpty;
-        public bool HasSequence => Sequence != null && Sequence.NotEmpty;
-
-        public int Count
-        {
-            get
-            {
-                if (SubNodes != null) return SubNodes.Count;
-                if (Sequence != null) return Sequence.Count;
-                return 0;
-            }
-        }
+        public bool HasSequence => SeqNodes != null && SeqNodes.NotEmpty;
+        public int Count => SubNodes?.Count ?? SeqNodes?.Count ?? 0;
 
         // SubNode indexing
         // ThisNode:
@@ -63,16 +63,16 @@ namespace Ship_Game.Data
         // this.GetElement(0) => StarDataNode Key=Element0 Value=Value0
         public StarDataNode GetElement(int index)
         {
-            if (Sequence == null || (uint)index > (uint)Sequence.Count)
+            if (SeqNodes == null || (uint)index > (uint)SeqNodes.Count)
                 ThrowSequenceIndexOutOfBounds(index);
-            return Sequence[index];
+            return SeqNodes[index];
         }
 
         // Separated throw from this[] to enable MSIL inlining
         void ThrowSequenceIndexOutOfBounds(int index)
         {
             throw new IndexOutOfRangeException(
-                $"StarDataNode Key('{Key}') SEQUENCE Index [{index}] out of range({Sequence?.Count??0})");
+                $"StarDataNode Key('{Key}') SEQUENCE Index [{index}] out of range({SeqNodes?.Count??0})");
         }
 
         // Name: ...
@@ -102,9 +102,9 @@ namespace Ship_Game.Data
 
         public void AddSequenceElement(StarDataNode element)
         {
-            if (Sequence == null)
-                Sequence = new Array<StarDataNode>();
-            Sequence.Add(element);
+            if (SeqNodes == null)
+                SeqNodes = new Array<StarDataNode>();
+            SeqNodes.Add(element);
         }
 
         public StarDataNode GetSubNode(string subNodeKey)
@@ -165,11 +165,6 @@ namespace Ship_Game.Data
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        static readonly IReadOnlyList<StarDataNode> EmptyNodes = new ReadOnlyCollection<StarDataNode>(Empty<StarDataNode>.Array);
-
-        // Null-Safe sequence enumerator
-        public IReadOnlyList<StarDataNode> SequenceNodes => Sequence ?? EmptyNodes;
-
         public string SerializedText()
         {
             var sb = new StringBuilder();
@@ -177,10 +172,24 @@ namespace Ship_Game.Data
             return sb.ToString();
         }
 
-        static bool IsAlphaNumeric(string text)
+        public bool IsLeafNode => Count == 0;
+
+        public bool NodesAreLeafNodes
+        {
+            get
+            {
+                if (SubNodes == null) return true;
+                foreach (StarDataNode node in SubNodes)
+                    if (node.Count > 0) return false;
+                return true;
+            }
+        }
+
+        // @return TRUE if string escape quotes are not needed
+        static bool EscapeNotNeeded(string text)
         {
             foreach (char ch in text)
-                if (!char.IsLetterOrDigit(ch))
+                if (!char.IsLetterOrDigit(ch) && ch != '_')
                     return false;
             return true;
         }
@@ -210,9 +219,9 @@ namespace Ship_Game.Data
             {
                 case bool boolean: return sb.Append(boolean ? "true" : "false");
                 case int integer:  return sb.Append(integer);
-                case float number: return sb.Append(number);
+                case float number: return sb.Append(number.ToString(CultureInfo.InvariantCulture));
                 case string str:
-                    if (IsAlphaNumeric(str))
+                    if (EscapeNotNeeded(str))
                         return sb.Append(str);
                     return EscapeString(sb, str);
                 case object[] arr:
@@ -230,10 +239,16 @@ namespace Ship_Game.Data
             return sb;
         }
 
+        static void AppendSpaces(StringBuilder sb, int numSpaces)
+        {
+            for (; numSpaces >= 4; numSpaces -= 4) sb.Append("    ");
+            for (; numSpaces >= 2; numSpaces -= 2) sb.Append("  ");
+            for (; numSpaces > 0; --numSpaces) sb.Append(' ');
+        }
+
         public void SerializeTo(StringBuilder sb, int depth = 0, bool sequenceElement = false)
         {
-            for (int i = 0; i < depth; ++i)
-                sb.Append(' ');
+            AppendSpaces(sb, depth);
 
             if (sequenceElement)
                 sb.Append("- ");
@@ -242,19 +257,44 @@ namespace Ship_Game.Data
             {
                 Append(sb, Key).Append(": ");
             }
-            Append(sb, Value).AppendLine();
+            if (Value != null)
+            {
+                Append(sb, Value);
+            }
 
             if (SubNodes != null)
             {
-                foreach (StarDataNode child in SubNodes)
-                    child.SerializeTo(sb, depth+2);
+                if (Value == null && SubNodes.Count <= 2 && NodesAreLeafNodes)
+                {
+                    sb.Append("{ ");
+                    for (int i = 0; i < SubNodes.Count; ++i)
+                    {
+                        StarDataNode node = SubNodes[i];
+                        Append(sb, node.Key).Append(": ");
+                        Append(sb, node.Value);
+                        if (i != SubNodes.Count-1)
+                            sb.Append(',');
+                    }
+                    sb.AppendLine(" }");
+                }
+                else
+                {
+                    sb.AppendLine();
+                    foreach (StarDataNode child in SubNodes)
+                        child.SerializeTo(sb, depth+2);
+                }
             }
-            if (Sequence != null)
+            else if (SeqNodes != null)
             {
-                foreach (StarDataNode element in Sequence)
+                sb.AppendLine();
+                foreach (StarDataNode element in SeqNodes)
                 {
                     element.SerializeTo(sb, depth+2, sequenceElement: true);
                 }
+            }
+            else
+            {
+                sb.AppendLine();
             }
         }
     }
