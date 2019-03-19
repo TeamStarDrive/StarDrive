@@ -30,7 +30,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             ToBuildUID  = toBuildName;
             Fleet       = oldShip.fleet;
             empire      = owner;
-            if (VanityName != oldShip.Name)
+            if (oldShip.VanityName != oldShip.Name)
                 VanityName = oldShip.VanityName;
 
             Evaluate();
@@ -80,6 +80,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 Goal   = this,
                 isShip = true
             };
+
             PlanetBuildingAt.ConstructionQueue.Add(qi);
             OldShip.QueueTotalRemoval();
             return GoalStep.GoToNextStep;
@@ -90,9 +91,17 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (FinishedShip == null)
                 return GoalStep.GoalFailed;
 
-            FinishedShip.VanityName = VanityName;
-            FinishedShip.Level      = ShipLevel;
-            Fleet?.AddExistingShip(FinishedShip);
+            if (VanityName != null)
+                FinishedShip.VanityName = VanityName;
+
+            FinishedShip.Level = ShipLevel;
+            if (Fleet != null)
+            {
+                Fleet.AddExistingShip(FinishedShip);
+                FinishedShip.AI.SetPriorityOrder(false);
+                FinishedShip.AI.OrderMoveTowardsPosition(Fleet.Position + FinishedShip.FleetOffset, FinishedShip.fleet.Direction, true, null);
+            }
+
             return GoalStep.GoalComplete;
         }
 
