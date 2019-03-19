@@ -237,6 +237,25 @@ namespace Ship_Game.AI
             return false;
         }
 
+        // @return TRUE if fully stopped
+        internal bool SublightSlowToStop(float elapsedTime)
+        {            
+            if (Owner.Velocity.AlmostZero())
+                return true;
+
+            float deceleration = Owner.velocityMaximum * elapsedTime;
+            if (Owner.Velocity.Length() < deceleration)
+            {
+                Owner.Velocity = Vector2.Zero;
+                return true; // stopped
+            }
+
+            // continue breaking velocity
+            Owner.Velocity = Owner.Velocity.Normalized() * deceleration;
+            return false;
+        }
+
+
         // thrust offset used by ThrustOrWarpTowardsPosition
         public Vector2 ThrustTarget { get; private set; }
 
