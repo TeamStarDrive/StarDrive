@@ -160,16 +160,16 @@ namespace Ship_Game.AI
 
             switch (CombatState)
             {
-                case CombatState.Artillery:      DoNonFleetArtillery(elapsedTime); break;
-                case CombatState.OrbitLeft:      OrbitShip((Ship)Target, elapsedTime, Orbit.Left);  break;
-                case CombatState.OrbitRight:     OrbitShip((Ship)Target, elapsedTime, Orbit.Right); break;
-                case CombatState.BroadsideLeft:  DoNonFleetBroadside(elapsedTime, Orbit.Left);  break;
-                case CombatState.BroadsideRight: DoNonFleetBroadside(elapsedTime, Orbit.Left); break;
+                case CombatState.Artillery:      Artillery.Execute(elapsedTime, null); break;
+                case CombatState.OrbitLeft:      OrbitTargetLeft.Execute(elapsedTime, null);  break;
+                case CombatState.OrbitRight:     OrbitTargetRight.Execute(elapsedTime, null); break;
+                case CombatState.BroadsideLeft:  BroadSidesLeft.Execute(elapsedTime, null);  break;
+                case CombatState.BroadsideRight: BroadSidesRight.Execute(elapsedTime, null); break;
                 case CombatState.AttackRuns:     AttackRun.Execute(elapsedTime, null); break;
                 case CombatState.HoldPosition:   DoHoldPositionCombat(elapsedTime); break;
                 case CombatState.Evade:          DoEvadeCombat(elapsedTime);        break;
-                case CombatState.AssaultShip:    DoAssaultShipCombat(elapsedTime);  break;
-                case CombatState.ShortRange:     DoNonFleetArtillery(elapsedTime);  break;
+                case CombatState.AssaultShip:    AssaultShipCombat.Execute(elapsedTime, null); break;
+                case CombatState.ShortRange:     Artillery.Execute(elapsedTime, null); break;
             }
 
             // Target was modified by one of the CombatStates (?)
@@ -470,19 +470,25 @@ namespace Ship_Game.AI
 
         const float OrbitalSpeedLimit = 500f;
 
-        enum Orbit { Left, Right }
+        public enum Orbit { Left, Right }
 
         // Orbit drones around a ship
         void OrbitShip(Ship ship, float elapsedTime, Orbit direction)
         {
-            OrbitPos = ship.Center.PointOnCircle(OrbitalAngle, 1500f);
-            if (OrbitPos.Distance(Owner.Center) < 1500f)
+            SetNextOrbitPoint(ship.Center, direction, 2500f);
+            ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, OrbitalSpeedLimit);
+        }
+
+        public Vector2 SetNextOrbitPoint(Vector2 target, Orbit direction, float orbitDistance, float newPointDistance = 1500f)
+        {
+            float orbitPointDistance = OrbitPos.Distance(Owner.Center);
+            if (orbitPointDistance < newPointDistance || orbitDistance * 10 < target.Distance(OrbitPos))
             {
                 float deltaAngle = direction == Orbit.Left ? -15f : +15f;
                 OrbitalAngle = (OrbitalAngle + deltaAngle).NormalizedAngle();
-                OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
+                OrbitPos = target.PointOnCircle(OrbitalAngle, orbitDistance);
             }
-            ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, OrbitalSpeedLimit);
+            return OrbitPos;
         }
 
         // orbit around a planet
