@@ -60,20 +60,30 @@ namespace Ship_Game.Data
             public YamlNode Node;
         }
         
+        bool ReadLine(out StringView view)
+        {
+            string line = Reader.ReadLine();
+            if (line != null)
+            {
+                view = new StringView(line);
+                return true;
+            }
+            view = default;
+            return false;
+        }
+
         void Parse()
         {
             Line = 0;
             int depth = 0;
-            string currentLine;
             var saved = new Stack<DepthSave>();
 
             YamlNode root = Root;
             YamlNode prev = Root;
 
-            while ((currentLine = Reader.ReadLine()) != null)
+            while (ReadLine(out StringView view))
             {
                 Line += 1;
-                var view = new StringView(currentLine);
                 view.SkipWhiteSpace(out int newDepth);
 
                 // "      " -- line is all spaces
