@@ -66,7 +66,7 @@ namespace Ship_Game
                 Rectangle moneyRect = new Rectangle(e.X + 165, e.Y, 21, 20);
                 Vector2 moneyText = new Vector2((moneyRect.X + 25), (moneyRect.Y - 2));
                 batch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
-                int refitCost = ShipToRefit.RefitCost(ship.Name);
+                int refitCost = ShipToRefit.RefitCost(ship);
                 batch.DrawString(Fonts.Arial12Bold, refitCost.ToString(), moneyText, Color.White);
             }
             if (RefitTo != null)
@@ -91,7 +91,7 @@ namespace Ship_Game
 
         private void OnRefitOneClicked(UIButton b)
         {
-            Goal refitShip = new RefitShip(ShipToRefit, RefitTo, EmpireManager.Player);
+            Goal refitShip = new RefitShip(ShipToRefit, RefitTo.Name, EmpireManager.Player);
             EmpireManager.Player.GetEmpireAI().Goals.Add(refitShip);
             GameAudio.EchoAffirmative();
             ExitScreen();
@@ -103,7 +103,7 @@ namespace Ship_Game
             {
                 if (ship.Name == ShipToRefit.Name)
                 {
-                    Goal refitShip = new RefitShip(ShipToRefit, RefitTo, EmpireManager.Player);
+                    Goal refitShip = new RefitShip(ship, RefitTo.Name, EmpireManager.Player);
                     EmpireManager.Player.GetEmpireAI().Goals.Add(refitShip);
                 }
             }
