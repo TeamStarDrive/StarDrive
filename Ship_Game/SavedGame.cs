@@ -237,7 +237,9 @@ namespace Ship_Game
                         ToBuildUID    = g.ToBuildUID,
                         type          = g.type,
                         GoalGuid      = g.guid,
-                        GoalName      = g.UID
+                        GoalName      = g.UID,
+                        ShipLevel     = g.ShipLevel,
+                        VanityName    = g.VanityName
                     };
                     if (g.FinishedShip != null)
                     {
@@ -258,6 +260,10 @@ namespace Ship_Game
                     if (g.ShipToBuild != null)
                     {
                         gdata.beingBuiltGUID = g.ShipToBuild.guid;
+                    }
+                    if (g.OldShip != null)
+                    {
+                        gdata.OldShipGuid = g.OldShip.guid;
                     }
                     return gdata;
                 });
@@ -593,6 +599,9 @@ namespace Ship_Game
             [Serialize(8)] public Guid beingBuiltGUID;
             [Serialize(9)] public Guid fleetGuid;
             [Serialize(10)] public Guid GoalGuid;
+            [Serialize(11)] public Guid OldShipGuid;
+            [Serialize(12)] public string VanityName;
+            [Serialize(13)] public int ShipLevel;
         }
 
         public class GSAISAVE
