@@ -35,13 +35,25 @@ namespace Ship_Game.AI
         readonly AttackRun AttackRun;
         readonly DropOffGoods DropOffGoods;
         readonly PickupGoods PickupGoods;
+        readonly CombatTactics.Artillery Artillery;
+        readonly CombatTactics.AssaultShipCombat AssaultShipCombat;
+        readonly CombatTactics.OrbitTarget OrbitTargetLeft;
+        readonly CombatTactics.OrbitTarget OrbitTargetRight;
+        readonly CombatTactics.BroadSides BroadSidesLeft;
+        readonly CombatTactics.BroadSides BroadSidesRight;
 
         public ShipAI(Ship owner)
         {
-            Owner = owner;
-            AttackRun = new AttackRun(this);
-            DropOffGoods = new DropOffGoods(this);
-            PickupGoods = new PickupGoods(this);
+            Owner             = owner;
+            AttackRun         = new AttackRun(this);
+            DropOffGoods      = new DropOffGoods(this);
+            PickupGoods       = new PickupGoods(this);
+            Artillery         = new CombatTactics.Artillery(this);
+            AssaultShipCombat = new CombatTactics.AssaultShipCombat(this);
+            OrbitTargetLeft   = new CombatTactics.OrbitTarget(this, Orbit.Left);
+            OrbitTargetRight  = new CombatTactics.OrbitTarget(this, Orbit.Right);
+            BroadSidesLeft    = new CombatTactics.BroadSides(this, Orbit.Left);
+            BroadSidesRight    = new CombatTactics.BroadSides(this, Orbit.Right);
         }
 
         public Vector2 GoalTarget
