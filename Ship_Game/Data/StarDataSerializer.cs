@@ -1,32 +1,14 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 
 namespace Ship_Game.Data
 {
-    // Note: StarDataParser is opt-in, so properties/fields
-    //       must be marked with [StarData]
-    [AttributeUsage(AttributeTargets.Property|AttributeTargets.Field)]
-    public class StarDataAttribute : Attribute
-    {
-        public bool IsPrimaryKey;
-        public StarDataAttribute(bool key=false)
-        {
-            IsPrimaryKey = key;
-        }
-    }
-
-    // Note: This can be used for Key attributes
-    public sealed class StarDataKeyAttribute : StarDataAttribute
-    {
-        public StarDataKeyAttribute() : base(true)
-        {
-        }
-    }
-
-    // Note: This can be applied to classes, so StarData classes could have nested types
-    [AttributeUsage(AttributeTargets.Class)]
+    
+    // Note: This MUST be applied to classes that are serialized with StarDataSerializer
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class StarDataTypeAttribute : Attribute
     {
         public StarDataTypeAttribute()
@@ -35,91 +17,79 @@ namespace Ship_Game.Data
     }
 
 
+    // Note: StarDataParser is opt-in, so properties/fields must be marked with [StarData]
+    //       The name of the FIELD is used for the mapping.
+    // 
+    // [StarData] public string Style;
+    //
+    // Ship:
+    //   Style: Kulrathi
+    //
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public class StarDataAttribute : Attribute
+    {
+        public string Id;
+        public bool IsPrimaryKey;
+        public StarDataAttribute()
+        {
+        }
+        public StarDataAttribute(string id, bool key = false)
+        {
+            Id = id;
+            IsPrimaryKey = key;
+        }
+    }
+
+    // Note: This can be used for Key attributes. The name of the field
+    //       is IRRELEVANT. The mapping is resolved by this attribute.
+    //
+    // [StarDataKey] public string Name;
+    //
+    // Ship: my_ship_name
+    //   Style: xxx
+    public sealed class StarDataKeyAttribute : StarDataAttribute
+    {
+        public StarDataKeyAttribute() : base(null, true)
+        {
+        }
+        public StarDataKeyAttribute(string id) : base(id, true)
+        {
+        }
+    }
+
     // This class has the ability to take parsed StarData tree
     // And turn it into usable game objects
     internal class StarDataSerializer : TypeConverter
     {
-        class Info
-        {
-            readonly Type Type;
-            readonly PropertyInfo Prop;
-            readonly FieldInfo Field;
-            readonly TypeConverter Converter;
-            readonly Type ListType; // this is an Array<ListType>
-
-            public Info(Converters converters, PropertyInfo prop, FieldInfo field)
-            {
-                Prop = prop;
-                Field = field;
-                Type = prop != null ? prop.PropertyType : field.FieldType;
-                ListType = converters.GetListType(Type);
-                Converter = converters.Get(Type);
-            }
-
-            void Set(object instance, object value)
-            {
-                if (Field != null) Field.SetValue(instance, value);
-                else               Prop.SetValue(instance, value);
-            }
-
-            object Get(object instance)
-            {
-                return Field != null ? Field.GetValue(instance) : Prop.GetValue(instance);
-            }
-
-            object Deserialize(StarDataNode node, bool recursiveDeserialize)
-            {
-                if (recursiveDeserialize && node.HasItems) // we have sub-nodes, delegate to deserialize
-                {
-                    return Converter.Deserialize(node);
-                }
-
-                object value = node.Value;
-                if (value == null) // allow null, sometimes it's an override
-                    return null;
-                Type sourceT = value.GetType();
-                if (Type == sourceT)
-                    return value;
-                return Converter.Convert(value); // direct convert
-            }
-
-            public void SetValue(object instance, StarDataNode node, bool recursiveDeserialize)
-            {
-                if (ListType != null)
-                {
-                    if (!(Get(instance) is IList list))
-                    {
-                        list = ArrayHelper.NewArrayOfT(ListType);
-                        Set(instance, list);
-                    }
-                    list.Add(Deserialize(node, recursiveDeserialize));
-                }
-                else
-                {
-                    Set(instance, Deserialize(node, recursiveDeserialize));
-                }
-            }
-        }
-
-        readonly Map<string, Info> Mapping = new Map<string, Info>();
-        string PrimaryName;
+        Map<string, Info> Mapping;
         Info PrimaryInfo;
         readonly Type TheType;
+        public override string ToString() => $"StarDataSerializer {TheType.GenericName()}";
 
-        public StarDataSerializer(Type type, Converters types = null)
+        public StarDataSerializer(Type type)
         {
             TheType = type;
+            if (type.GetCustomAttribute<StarDataTypeAttribute>() == null)
+                throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
+        }
+
+        internal void ResolveTypes(Converters types)
+        {
+            Mapping = new Map<string, Info>();
             types = types ?? new Converters();
 
             Type shouldSerialize = typeof(StarDataAttribute);
-            PropertyInfo[] props = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            FieldInfo[]   fields = type.GetFields(    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            PropertyInfo[] props = TheType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo[]   fields = TheType.GetFields(    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             
             for (int i = 0; i < fields.Length; ++i)
             {
                 FieldInfo f = fields[i];
                 if (f.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
-                    AddMapping(f.Name, a, new Info(types, null, f));
+                {
+                    string id = a.Id.NotEmpty() ? a.Id : f.Name;
+                    AddMapping(id, a, new Info(types, null, f));
+                }
             }
             
             for (int i = 0; i < props.Length; ++i)
@@ -128,53 +98,91 @@ namespace Ship_Game.Data
                 if (p.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
                 {
                     MethodInfo setter = p.GetSetMethod(nonPublic: true);
-                    if (setter == null) throw new Exception($"Property {p.Name} has no setter!");
-                    AddMapping(p.Name, a, new Info(types, p, null));
+                    if (setter == null)
+                        throw new Exception($"StarDataSerializer Class {TheType.Name} Property {p.Name} has no setter!");
+
+                    string id = a.Id.NotEmpty() ? a.Id : p.Name;
+                    AddMapping(id, a, new Info(types, p, null));
                 }
             }
         }
 
         void AddMapping(string name, StarDataAttribute a, Info info)
         {
+            Mapping.Add(name, info);
             if (a.IsPrimaryKey)
             {
-                PrimaryName = name;
+                if (PrimaryInfo != null)
+                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKey] attributes! Original {PrimaryInfo}, New {info}");
                 PrimaryInfo = info;
             }
-            else
-            {
-                Mapping.Add(name, info);
-            }
         }
 
-        public override object Convert(object value)
+        public override object Deserialize(YamlNode node)
         {
-            return null;
-        }
+            if (Mapping == null)
+                ResolveTypes(null);
 
-        public override object Deserialize(StarDataNode node)
-        {
             object item = Activator.CreateInstance(TheType);
-            if (node.Value != null && PrimaryName != null)
+            bool hasPrimaryValue = (node.Value != null);
+            if (hasPrimaryValue && PrimaryInfo != null)
             {
-                PrimaryInfo.SetValue(item, node, recursiveDeserialize: false);
+                // @note this is a hack to prevent recursive serialization of primary nodes
+                var primaryNode = new YamlNode { Key = node.Key, Value = node.Value };
+                object primaryValue = PrimaryInfo.Converter.Deserialize(primaryNode);
+                PrimaryInfo.Set(item, primaryValue);
             }
 
-            if (node.HasItems)
+            if (node.HasSubNodes && node.HasSequence)
             {
-                foreach (StarDataNode leaf in node.Items)
+                Log.Warning(ConsoleColor.DarkRed, $"StarDataSerializer '{node.Key}' has both Sub-Nodes and Sequence elements. But only one can exist. Preferring SubNodes.");
+            }
+
+            if (node.HasSubNodes)
+            {
+                foreach (YamlNode leaf in node.Nodes)
                 {
-                    if (Mapping.TryGetValue(leaf.Key, out Info info))
+                    if (!Mapping.TryGetValue(leaf.Name, out Info leafInfo))
                     {
-                        info.SetValue(item, leaf, recursiveDeserialize: true);
+                        Log.Warning(ConsoleColor.DarkRed, $"StarDataSerializer no OBJECT mapping for '{leaf.Key}': '{leaf.Value}'");
+                        continue;
                     }
-                    else
-                    {
-                        Log.Warning($"StarDataSerializer no mapping for '{leaf.Key}': '{leaf.Value}'");
-                    }
+
+                    if (hasPrimaryValue && leafInfo == PrimaryInfo)
+                        continue; // ignore primary key if we already set it
+
+                    object leafValue = leafInfo.Converter.Deserialize(leaf);
+                    leafInfo.Set(item, leafValue);
                 }
             }
+            else if (node.HasSequence)
+            {
+                Log.Warning(ConsoleColor.DarkRed, $"StarDataSerializer no SEQUENCE mapping for '{node.Key}': '{node.Value}'");
+            }
             return item;
+        }
+
+        class Info
+        {
+            readonly PropertyInfo Prop;
+            readonly FieldInfo Field;
+            public readonly TypeConverter Converter;
+
+            public override string ToString() => Prop?.ToString() ?? Field?.ToString() ?? "invalid";
+
+            public Info(Converters converters, PropertyInfo prop, FieldInfo field)
+            {
+                Prop = prop;
+                Field = field;
+                Type type = prop != null ? prop.PropertyType : field.FieldType;
+                Converter = converters.Get(type);
+            }
+
+            public void Set(object instance, object value)
+            {
+                if (Field != null) Field.SetValue(instance, value);
+                else               Prop.SetValue(instance, value);
+            }
         }
     }
 }

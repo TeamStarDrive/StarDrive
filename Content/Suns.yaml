@@ -5,22 +5,23 @@
   LightColor: [255,160,122] # LightSalmon, light source color, default: White
   Habitable: true
   Layers:
-    TexturePath: Suns/star_red.png # path to texture, please add .png suffix or .xnb suffix to avoid conflicts
-    TextureColor: [255,255,255,255] # Overrides existing texture color tint
-    LayerScale: 1.0  # customizable scale for this layer
-    BlendMode: AlphaBlend # AlphaBlend or Additive or None
-    RotationSpeed: 0.03 # rotation speed and direction, default is 0.03
-    RotationStart: [-1.0,1.0] # <--- default, randomized initial rotation; 0 to disable
-    PulsePeriod: 5.0 # period of pulses in seconds; default: 0 (disabled)
-    PulseScale: [1.0,1.0] # if pulse enabled, controls the scale variation; [1.0,1.0] to disable
-    PulseColor: [1.0,1.20] # if pulse enabled, controls the layer color intensity; [1.0,1.0] do disable; I don't recommend < 1.0
-  Layers:
-    TexturePath: Suns/star_red.png
-    BlendMode: AlphaBlend # AlphaBlend or Additive or None
-    RotationSpeed: -0.015
-    PulsePeriod: 5.0
-    PulseScale: [1,1]
-    PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_red.png # path to texture, please add .png suffix or .xnb suffix to avoid conflicts
+      TextureColor: [255,255,255,255] # Overrides existing texture color tint
+      LayerScale: 1.0  # customizable scale for this layer
+      BlendMode: AlphaBlend # AlphaBlend or Additive or None
+      RotationSpeed: 0.03 # rotation speed and direction, default is 0.03
+      RotationStart: [-1.0,1.0] # <--- default, randomized initial rotation; 0 to disable
+      PulsePeriod: 5.0 # period of pulses in seconds; default: 0 (disabled)
+      PulseScale: [1.0,1.0] # if pulse enabled, controls the scale variation; [1.0,1.0] to disable
+      PulseColor: [1.0,1.20] # if pulse enabled, controls the layer color intensity; [1.0,1.0] do disable; I don't recommend < 1.0
+    - Layer:
+      TexturePath: Suns/star_red.png
+      BlendMode: AlphaBlend # AlphaBlend or Additive or None
+      RotationSpeed: -0.015
+      PulsePeriod: 5.0
+      PulseScale: [1,1]
+      PulseColor: [1.0,1.20]
 
 Sun: star_red2 # Yellowish Giant?
   IconPath: Suns/star_red2_icon.png
@@ -31,42 +32,43 @@ Sun: star_red2 # Yellowish Giant?
   LightColor: [255,160,122] # LightSalmon
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow.png
-    TextureColor: [1.0,0.8,0.8,0.5]
-    BlendMode: Additive
-    LayerScale: 2.5
-    RotationSpeed: -0.015
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.08]
-    PulseColor: [1.1,1.1]
-  Layers:
-    AnimationPath: sd_explosion_12a_bb
-    AnimationSpeed: 0.1
-    LayerScale: 1.0
-    TextureColor: 0.5
-    BlendMode: Additive
-    RotationSpeed: 0.05
-    PulsePeriod: 5
-    PulseScale: [0.96,1.04]
-    PulseColor: [0.5,0.9]
-  Layers:
-    TexturePath: Suns/star_red2.png
-    LayerScale: 0.6
-    BlendMode: AlphaBlend
-    RotationSpeed: 0.01
-    RotationStart: 0
-    PulsePeriod: 15.0
-    PulseScale: [1.0,1.0]
-    PulseColor: [1.0,1.80]
-  Layers:
-    TexturePath: Suns/star_red2.png
-    LayerScale: 0.6
-    BlendMode: Additive
-    RotationSpeed: 0.01
-    RotationStart: 0
-    PulsePeriod: 15.0
-    PulseScale: [1.0,1.0]
-    PulseColor: [0.2,0.5]
+    - Layer:
+      TexturePath: Suns/star_yellow.png
+      TextureColor: [1.0,0.8,0.8,0.5]
+      BlendMode: Additive
+      LayerScale: 2.5
+      RotationSpeed: -0.015
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.08]
+      PulseColor: [1.1,1.1]
+    - Layer:
+      AnimationPath: sd_explosion_12a_bb
+      AnimationSpeed: 0.1
+      LayerScale: 1.0
+      TextureColor: 0.5
+      BlendMode: Additive
+      RotationSpeed: 0.05
+      PulsePeriod: 5
+      PulseScale: [0.96,1.04]
+      PulseColor: [0.5,0.9]
+    - Layer:
+      TexturePath: Suns/star_red2.png
+      LayerScale: 0.6
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.01
+      RotationStart: 0
+      PulsePeriod: 15.0
+      PulseScale: [1.0,1.0]
+      PulseColor: [1.0,1.80]
+    - Layer:
+      TexturePath: Suns/star_red2.png
+      LayerScale: 0.6
+      BlendMode: Additive
+      RotationSpeed: 0.01
+      RotationStart: 0
+      PulsePeriod: 15.0
+      PulseScale: [1.0,1.0]
+      PulseColor: [0.2,0.5]
 
 Sun: star_red3
   IconPath: Suns/red_giant_icon.png
@@ -77,42 +79,43 @@ Sun: star_red3
   LightColor: [255,160,122] # LightSalmon
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow.png
-    TextureColor: [1.0,0.6,0.6,1.0]
-    BlendMode: AlphaBlend
-    LayerScale: 3.5
-    RotationSpeed: -0.015
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.08]
-    PulseColor: [1.1,1.1]
-  Layers:
-    AnimationPath: sd_explosion_12a_bb
-    AnimationSpeed: 0.1
-    LayerScale: 2
-    TextureColor: 0.5
-    BlendMode: Additive
-    RotationSpeed: 0.05
-    PulsePeriod: 5
-    PulseScale: [0.96,1.04]
-    PulseColor: [0.5,0.9]
-  Layers:
-    TexturePath: Suns/red_giant.png
-    LayerScale: 0.3
-    BlendMode: AlphaBlend
-    RotationSpeed: 0.01
-    RotationStart: 0
-    PulsePeriod: 15.0
-    PulseScale: [1.0,1.0]
-    PulseColor: [1.0,1.80]
-  Layers:
-    TexturePath: Suns/red_giant.png
-    LayerScale: 0.3
-    BlendMode: Additive
-    RotationSpeed: 0.01
-    RotationStart: 0
-    PulsePeriod: 15.0
-    PulseScale: [1.0,1.0]
-    PulseColor: [0.1,0.4]
+    - Layer:
+      TexturePath: Suns/star_yellow.png
+      TextureColor: [1.0,0.6,0.6,1.0]
+      BlendMode: AlphaBlend
+      LayerScale: 3.5
+      RotationSpeed: -0.015
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.08]
+      PulseColor: [1.1,1.1]
+    - Layer:
+      AnimationPath: sd_explosion_12a_bb
+      AnimationSpeed: 0.1
+      LayerScale: 2
+      TextureColor: 0.5
+      BlendMode: Additive
+      RotationSpeed: 0.05
+      PulsePeriod: 5
+      PulseScale: [0.96,1.04]
+      PulseColor: [0.5,0.9]
+    - Layer:
+      TexturePath: Suns/red_giant.png
+      LayerScale: 0.3
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.01
+      RotationStart: 0
+      PulsePeriod: 15.0
+      PulseScale: [1.0,1.0]
+      PulseColor: [1.0,1.80]
+    - Layer:
+      TexturePath: Suns/red_giant.png
+      LayerScale: 0.3
+      BlendMode: Additive
+      RotationSpeed: 0.01
+      RotationStart: 0
+      PulsePeriod: 15.0
+      PulseScale: [1.0,1.0]
+      PulseColor: [0.1,0.4]
 
 # default yellowish-orange star
 Sun: star_yellow
@@ -122,17 +125,18 @@ Sun: star_yellow
   LightColor: [255,255,224] # LightYellow
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow.png
-    RotationSpeed: 0.03
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
-  Layers:
-    TexturePath: Suns/star_yellow.png
-    RotationSpeed: -0.015
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_yellow.png
+      RotationSpeed: 0.03
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_yellow.png
+      RotationSpeed: -0.015
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
 
 Sun: star_yellow3
   IconPath: Suns/star_yellow.png
@@ -141,28 +145,29 @@ Sun: star_yellow3
   LightColor: [255,255,224] # LightYellow
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow.png
-    RotationSpeed: 0.03
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
-  Layers:
-    TexturePath: Suns/star_yellow.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.015
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
-  Layers:
-    AnimationPath: sd_explosion_12a_bb
-    AnimationSpeed: 0.1
-    LayerScale: 0.5
-    TextureColor: 0.5
-    BlendMode: Additive
-    RotationSpeed: 0.05
-    PulsePeriod: 5
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.01,1.2]
+    - Layer:
+      TexturePath: Suns/star_yellow.png
+      RotationSpeed: 0.03
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_yellow.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.015
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
+    - Layer:
+      AnimationPath: sd_explosion_12a_bb
+      AnimationSpeed: 0.1
+      LayerScale: 0.5
+      TextureColor: 0.5
+      BlendMode: Additive
+      RotationSpeed: 0.05
+      PulsePeriod: 5
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.01,1.2]
 
 # 6-pointed yellow star
 Sun: star_yellow2
@@ -172,19 +177,20 @@ Sun: star_yellow2
   LightColor: [255,255,255] # White
   Habitable: true
   Layers:
-    TexturePath: Suns/star_yellow2.png
-    BlendMode: AlphaBlend
-    RotationSpeed: 0.03
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
-  Layers:
-    TexturePath: Suns/star_yellow2.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.015
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_yellow2.png
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.03
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_yellow2.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.015
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
 
 Sun: star_green
   IconPath: Suns/star_green.png
@@ -193,19 +199,20 @@ Sun: star_green
   LightColor: [144,238,144] # LightGreen
   Habitable: true
   Layers:
-    TexturePath: Suns/star_green.png
-    BlendMode: AlphaBlend
-    RotationSpeed: 0.03
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
-  Layers:
-    TexturePath: Suns/star_green.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.015
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_green.png
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.03
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_green.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.015
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
 
 Sun: star_blue
   IconPath: Suns/star_blue.png
@@ -214,19 +221,20 @@ Sun: star_blue
   LightColor: [173,216,230] # LightBlue
   Habitable: true
   Layers:
-    TexturePath: Suns/star_blue.png
-    BlendMode: AlphaBlend
-    RotationSpeed: 0.03
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
-  Layers:
-    TexturePath: Suns/star_blue.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.015
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_blue.png
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.03
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_blue.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.015
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
 
 Sun: star_binary
   IconPath: Suns/star_binary.png
@@ -235,12 +243,13 @@ Sun: star_binary
   LightColor: [255,255,255] # White
   Habitable: true
   Layers:
-    TexturePath: Suns/star_binary.png
-    BlendMode: AlphaBlend
-    RotationSpeed: 0.03
-    PulsePeriod: 5.0
-    PulseScale: [0.96,1.04]
-    PulseColor: [1.0,1.20]
+    - Layer:
+      TexturePath: Suns/star_binary.png
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.03
+      PulsePeriod: 5.0
+      PulseScale: [0.96,1.04]
+      PulseColor: [1.0,1.20]
 
 
 # more docile neutron star, not emitting a pulsar beam
@@ -255,49 +264,50 @@ Sun: star_neutron
   RadiationDamage: 10 # per second, falls off depending on RadiationRadius
   RadiationRadius: 25000
   Layers: # huge radiation layer
-    TexturePath: Suns/radiation_purple.png
-    BlendMode: Additive
-    TextureColor: [0.2,0.6,1.0,1.0] # blue tint
-    LayerScale: 0.8
-    RotationSpeed: 0.005
-    PulsePeriod: 10.0
-    PulseScale: [1.0,1.01]
-    PulseColor: [0.4,0.6]
-  Layers: # huge radiation layer
-    TexturePath: Suns/radiation_purple.png
-    BlendMode: Additive
-    TextureColor: [0.2,0.6,1.0,1.0] # blue tint
-    LayerScale: 0.8
-    RotationSpeed: -0.005
-    RotationStart: 1.57
-    PulsePeriod: 10.0
-    PulseScale: [1.0,1.02]
-    PulseColor: [0.4,0.6]
-  Layers: # background glow flare
-    TexturePath: Suns/neutron_blast.png
-    BlendMode: AlphaBlend
-    RotationSpeed: 0.1
-    RotationStart: 0.0
-    LayerScale: 0.9
-    PulsePeriod: 2
-    PulseScale: [1.0,1.025]
-  Layers: # rotating white core with cloud
-    TexturePath: Suns/star_neutron1.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -6
-    RotationStart: 0.0
-    LayerScale: 0.15
-    PulsePeriod: 5.0
-    PulseColor: [1.1,1.5]
-  Layers: # additive glow flare
-    TexturePath: Suns/neutron_blast.png
-    BlendMode: Additive
-    RotationSpeed: 0.1
-    RotationStart: 0.0
-    LayerScale: 0.9
-    PulsePeriod: 2
-    PulseScale: [1.0,1.025]
-    PulseColor: [0.5,0.9]
+    - Layer:
+      TexturePath: Suns/radiation_purple.png
+      BlendMode: Additive
+      TextureColor: [0.2,0.6,1.0,1.0] # blue tint
+      LayerScale: 0.8
+      RotationSpeed: 0.005
+      PulsePeriod: 10.0
+      PulseScale: [1.0,1.01]
+      PulseColor: [0.4,0.6]
+    - Layer: # huge radiation layer
+      TexturePath: Suns/radiation_purple.png
+      BlendMode: Additive
+      TextureColor: [0.2,0.6,1.0,1.0] # blue tint
+      LayerScale: 0.8
+      RotationSpeed: -0.005
+      RotationStart: 1.57
+      PulsePeriod: 10.0
+      PulseScale: [1.0,1.02]
+      PulseColor: [0.4,0.6]
+    - Layer: # background glow flare
+      TexturePath: Suns/neutron_blast.png
+      BlendMode: AlphaBlend
+      RotationSpeed: 0.1
+      RotationStart: 0.0
+      LayerScale: 0.9
+      PulsePeriod: 2
+      PulseScale: [1.0,1.025]
+    - Layer: # rotating white core with cloud
+      TexturePath: Suns/star_neutron1.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -6
+      RotationStart: 0.0
+      LayerScale: 0.15
+      PulsePeriod: 5.0
+      PulseColor: [1.1,1.5]
+    - Layer: # additive glow flare
+      TexturePath: Suns/neutron_blast.png
+      BlendMode: Additive
+      RotationSpeed: 0.1
+      RotationStart: 0.0
+      LayerScale: 0.9
+      PulsePeriod: 2
+      PulseScale: [1.0,1.025]
+      PulseColor: [0.5,0.9]
 
 # more intense neutron pulsar, with a massive beam
 Sun: star_pulsar
@@ -310,73 +320,74 @@ Sun: star_pulsar
   RadiationDamage: 10 # per second, falls off depending on RadiationRadius
   RadiationRadius: 30000
   Layers: # huge radiation layer
-    TexturePath: Suns/radiation_purple.png
-    BlendMode: Additive
-    TextureColor: [0.2,0.6,1.0,1.0] # blue tint
-    LayerScale: 0.8
-    RotationSpeed: 0.005
-    PulsePeriod: 10.0
-    PulseScale: [1.0,1.01]
-    PulseColor: [0.4,0.6]
-  Layers: # huge radiation layer
-    TexturePath: Suns/radiation_purple.png
-    BlendMode: Additive
-    TextureColor: [0.2,0.6,1.0,1.0] # blue tint
-    LayerScale: 0.8
-    RotationSpeed: -0.005
-    RotationStart: 1.57
-    PulsePeriod: 10.0
-    PulseScale: [1.0,1.02]
-    PulseColor: [0.4,0.6]
-  Layers: # big outer disk
-    TexturePath: Suns/x3.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.5
-    RotationStart: 0.0
-    LayerScale: 0.35
-    PulsePeriod: 2
-    PulseColor: [0.5,0.6]
-  Layers: # small faster inner disk
-    TexturePath: Suns/x3.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -2.3
-    RotationStart: 0.0
-    LayerScale: 0.25
-    PulsePeriod: 2
-    PulseColor: [0.9,1.0]
-  Layers: # animated neutron beam
-    AnimationPath: neutron
-    AnimationSpeed: 5
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.02
-    RotationStart: 0.0
-    LayerScale: 0.45
-    PulsePeriod: 2
-    PulseColor: [1.0,1.5]
-  Layers: # rotating core
-    TexturePath: Suns/kronos.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -4
-    RotationStart: 0.0
-    LayerScale: 0.065
-  Layers: # medium foreground additive neutron beam
-    AnimationPath: neutron
-    AnimationSpeed: 5
-    BlendMode: Additive
-    RotationSpeed: -0.02
-    RotationStart: 0.0
-    LayerScale: 0.75
-    PulsePeriod: 5.0
-    PulseColor: [0.1,0.25]
-  Layers: # large foreground additive neutron beam
-    AnimationPath: neutron
-    AnimationSpeed: 5
-    BlendMode: Additive
-    RotationSpeed: -0.02
-    RotationStart: 0.0
-    LayerScale: 1.0
-    PulsePeriod: 5.0
-    PulseColor: [0.05,0.2]
+    - Layer:
+      TexturePath: Suns/radiation_purple.png
+      BlendMode: Additive
+      TextureColor: [0.2,0.6,1.0,1.0] # blue tint
+      LayerScale: 0.8
+      RotationSpeed: 0.005
+      PulsePeriod: 10.0
+      PulseScale: [1.0,1.01]
+      PulseColor: [0.4,0.6]
+    - Layer: # huge radiation layer
+      TexturePath: Suns/radiation_purple.png
+      BlendMode: Additive
+      TextureColor: [0.2,0.6,1.0,1.0] # blue tint
+      LayerScale: 0.8
+      RotationSpeed: -0.005
+      RotationStart: 1.57
+      PulsePeriod: 10.0
+      PulseScale: [1.0,1.02]
+      PulseColor: [0.4,0.6]
+    - Layer: # big outer disk
+      TexturePath: Suns/x3.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.5
+      RotationStart: 0.0
+      LayerScale: 0.35
+      PulsePeriod: 2
+      PulseColor: [0.5,0.6]
+    - Layer: # small faster inner disk
+      TexturePath: Suns/x3.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -2.3
+      RotationStart: 0.0
+      LayerScale: 0.25
+      PulsePeriod: 2
+      PulseColor: [0.9,1.0]
+    - Layer: # animated neutron beam
+      AnimationPath: neutron
+      AnimationSpeed: 5
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.02
+      RotationStart: 0.0
+      LayerScale: 0.45
+      PulsePeriod: 2
+      PulseColor: [1.0,1.5]
+    - Layer: # rotating core
+      TexturePath: Suns/kronos.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -4
+      RotationStart: 0.0
+      LayerScale: 0.065
+    - Layer: # medium foreground additive neutron beam
+      AnimationPath: neutron
+      AnimationSpeed: 5
+      BlendMode: Additive
+      RotationSpeed: -0.02
+      RotationStart: 0.0
+      LayerScale: 0.75
+      PulsePeriod: 5.0
+      PulseColor: [0.1,0.25]
+    - Layer: # large foreground additive neutron beam
+      AnimationPath: neutron
+      AnimationSpeed: 5
+      BlendMode: Additive
+      RotationSpeed: -0.02
+      RotationStart: 0.0
+      LayerScale: 1.0
+      PulsePeriod: 5.0
+      PulseColor: [0.05,0.2]
 
 
 # a black hole of epic proportions
@@ -391,54 +402,55 @@ Sun: gargantua_black_hole
   RadiationDamage: 20 # per second, falls off depending on RadiationRadius
   RadiationRadius: 40000
   Layers: # big outer disk
-    TexturePath: Suns/x3.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.2
-    RotationStart: 0.0
-    LayerScale: 0.35
-    PulsePeriod: 2
-    PulseColor: [0.5,0.6]
-  Layers: # small faster inner disk
-    TexturePath: Suns/x3.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.4
-    RotationStart: 0.0
-    LayerScale: 0.25
-    PulsePeriod: 2
-    PulseColor: [0.9,1.0]
-  Layers: # huge radiation layer
-    TexturePath: Suns/radiation_purple.png
-    BlendMode: Additive
-    TextureColor: 0.4
-    LayerScale: 0.9
-    RotationSpeed: 0.005
-    PulsePeriod: 10.0
-    PulseScale: [1.0,1.01]
-    PulseColor: [0.8,1.0]
-  Layers: # huge radiation layer
-    TexturePath: Suns/radiation_purple.png
-    BlendMode: Additive
-    TextureColor: 0.4
-    LayerScale: 0.9
-    RotationSpeed: -0.005
-    RotationStart: 1.57
-    PulsePeriod: 10.0
-    PulseScale: [1.0,1.02]
-    PulseColor: [0.8,1.0]
-  Layers: # rotating refraction effect
-    TexturePath: Suns/gargantua_core.png
-    BlendMode: Additive
-    TextureColor: 1.0
-    RotationSpeed: -1.5
-    RotationStart: 0.0
-    LayerScale: 0.065
-    PulsePeriod: 5.0
-    PulseColor: [0.8,1.0]
-    PulseScale: [1.0,1.03]
-  Layers: # rotating core
-    TexturePath: Suns/gargantua_core.png
-    BlendMode: AlphaBlend
-    RotationSpeed: -0.5
-    RotationStart: 0.0
-    LayerScale: 0.065
+    - Layer:
+      TexturePath: Suns/x3.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.2
+      RotationStart: 0.0
+      LayerScale: 0.35
+      PulsePeriod: 2
+      PulseColor: [0.5,0.6]
+    - Layer: # small faster inner disk
+      TexturePath: Suns/x3.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.4
+      RotationStart: 0.0
+      LayerScale: 0.25
+      PulsePeriod: 2
+      PulseColor: [0.9,1.0]
+    - Layer: # huge radiation layer
+      TexturePath: Suns/radiation_purple.png
+      BlendMode: Additive
+      TextureColor: 0.4
+      LayerScale: 0.9
+      RotationSpeed: 0.005
+      PulsePeriod: 10.0
+      PulseScale: [1.0,1.01]
+      PulseColor: [0.8,1.0]
+    - Layer: # huge radiation layer
+      TexturePath: Suns/radiation_purple.png
+      BlendMode: Additive
+      TextureColor: 0.4
+      LayerScale: 0.9
+      RotationSpeed: -0.005
+      RotationStart: 1.57
+      PulsePeriod: 10.0
+      PulseScale: [1.0,1.02]
+      PulseColor: [0.8,1.0]
+    - Layer: # rotating refraction effect
+      TexturePath: Suns/gargantua_core.png
+      BlendMode: Additive
+      TextureColor: 1.0
+      RotationSpeed: -1.5
+      RotationStart: 0.0
+      LayerScale: 0.065
+      PulsePeriod: 5.0
+      PulseColor: [0.8,1.0]
+      PulseScale: [1.0,1.03]
+    - Layer: # rotating core
+      TexturePath: Suns/gargantua_core.png
+      BlendMode: AlphaBlend
+      RotationSpeed: -0.5
+      RotationStart: 0.0
+      LayerScale: 0.065
 
