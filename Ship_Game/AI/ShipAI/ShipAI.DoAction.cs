@@ -553,24 +553,6 @@ namespace Ship_Game.AI
                 ClearOrders();
 
             ClearOrders(AIState.HoldPosition);
-
-            /*
-            Ship template = ResourceManager.GetShipTemplate(goal.VariableString, throwIfError: false);
-
-            if (template == null)
-            {
-                ClearOrders();
-                Log.Warning($"Refit {Owner.Name} failed: {goal.VariableString} is not a valid ship template!");
-                return;
-            }
-            
-            if (Owner.fleet != null)
-            {
-                var refitGoal = new FleetRequisition(goal, this);
-                FleetNode.GoalGUID = refitGoal.guid;
-                Owner.loyalty.GetEmpireAI().Goals.Add(refitGoal);
-                return; // Construction is handled by FleetRequisition
-            }*/
         }
 
         void DoRepairDroneLogic(Weapon w)
