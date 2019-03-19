@@ -6,12 +6,12 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
-    class RefitShips : Goal
+    class RefitShip : Goal
     {
         public const string ID = "RefitShips";
         public override string UID => ID;
 
-        public RefitShips() : base(GoalType.Refit)
+        public RefitShip() : base(GoalType.Refit)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,7 +23,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitShips(Ship oldShip, Ship shipToBuild, Empire owner) : this()
+        public RefitShip(Ship oldShip, Ship shipToBuild, Empire owner) : this()
         {
             OldShip     = oldShip;
             ShipLevel   = oldShip.Level;
@@ -47,7 +47,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             }
 
             OldShip.ClearFleet();
-            OldShip.AI.OrderRefitTo(PlanetBuildingAt, ShipToBuild);
+            OldShip.AI.OrderRefitTo(PlanetBuildingAt, ShipToBuild, this);
             return GoalStep.GoToNextStep;
         }
 
@@ -64,7 +64,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep BuildNewShip()
         {
-            if (!OldShipOnPlan)
+            if (!OldShipWaitingForRefit)
                 return GoalStep.GoalFailed;
 
             var qi  = new QueueItem(PlanetBuildingAt) {sData = ShipToBuild.shipData};
@@ -94,10 +94,18 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 if (!OldShip.Active)
                     return false; // Ship was removed from game, probably destroyed
 
-                if (OldShip.AI.State != AIState.Refit)
-                    return false; // Someone gave this ship new orders, maybe the player
+                return OldShip.AI.State == AIState.Refit;
+            }
+        }
 
-                return true;
+        bool OldShipWaitingForRefit
+        {
+            get
+            {
+                if (!OldShip.Active)
+                    return false; // Ship was removed from game, probably destroyed
+
+                return OldShip.AI.State == AIState.HoldPosition || OldShip.AI.State == AIState.Refit;
             }
         }
     }
