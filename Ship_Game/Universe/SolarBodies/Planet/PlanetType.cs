@@ -8,6 +8,7 @@ using Ship_Game.Data;
 namespace Ship_Game
 {
     // @note This is parsed from PlanetTypes.yaml; All fields are immutable.
+    [StarDataType]
     public class PlanetType
     {
         [StarDataKey] public readonly int Id;

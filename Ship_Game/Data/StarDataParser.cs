@@ -146,7 +146,7 @@ namespace Ship_Game.Data
 
             if (first.Char0 == '{') // anonymous inline Map { X: Y }
             {
-                ParseObject(node, ref view);
+                ParseObject(node, ref view, mapSelfToKey: true);
                 return node;
             }
 
@@ -173,9 +173,9 @@ namespace Ship_Game.Data
             if (second.Length == 0) // no value! (probably a sequence will follow)
                 return node;
             
-            if (second.Char0 == '{') // anonymous inline Map { X: Y }
+            if (second.Char0 == '{') // KEY: anonymous inline Map { X: Y }
             {
-                ParseObject(node, ref view);
+                ParseObject(node, ref view, mapSelfToKey: false);
                 return node;
             }
             
@@ -214,7 +214,7 @@ namespace Ship_Game.Data
             return token.Text; // probably some text
         }
         
-        void ParseObject(StarDataNode node, ref StringView view)
+        void ParseObject(StarDataNode node, ref StringView view, bool mapSelfToKey)
         {
             for (;;)
             {
@@ -228,9 +228,22 @@ namespace Ship_Game.Data
                 if (view.Char0 == '}')
                     break; // end of map
 
-                var child = new StarDataNode();
-                ParseTokenAsNode(child, ref view);
-                node.AddSubNode(child);
+                // In the case of:
+                // - { X: 0, Y: 1 }
+                // We map self to a key-value object:
+                // X: 0
+                //   Y: 1
+                if (mapSelfToKey)
+                {
+                    mapSelfToKey = false;
+                    ParseTokenAsNode(node, ref view);
+                }
+                else
+                {
+                    var child = new StarDataNode();
+                    ParseTokenAsNode(child, ref view);
+                    node.AddSubNode(child);
+                }
 
                 StringView separator = NextToken(ref view);
                 if (separator.Length == 0)
@@ -385,6 +398,16 @@ namespace Ship_Game.Data
                 items.Add((T)ser.Deserialize(child));
             }
             return items;
+        }
+
+        public T DeserializeOne<T>() where T : new()
+        {
+            var ser = new StarDataSerializer(typeof(T));
+            foreach (StarDataNode child in Root)
+            {
+                return (T)ser.Deserialize(child);
+            }
+            return default;
         }
     }
 }

@@ -22,6 +22,29 @@ namespace UnitTests
             throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
         }
 
+        public static void Equal(this Assert assert, float tolerance, in Vector3 expected, in Vector3 actual)
+        {
+            if (expected.X.AlmostEqual(actual.X, tolerance) &&
+                expected.Y.AlmostEqual(actual.Y, tolerance) &&
+                expected.Z.AlmostEqual(actual.Z, tolerance))
+            {
+                return; // OK
+            }
+            throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
+        }
+
+        public static void Equal(this Assert assert, float tolerance, in Vector4 expected, in Vector4 actual)
+        {
+            if (expected.X.AlmostEqual(actual.X, tolerance) &&
+                expected.Y.AlmostEqual(actual.Y, tolerance) &&
+                expected.Z.AlmostEqual(actual.Z, tolerance) &&
+                expected.W.AlmostEqual(actual.W, tolerance))
+            {
+                return; // OK
+            }
+            throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
+        }
+
         public static void Equal(this Assert assert, object expected, object actual)
         {
             if (expected == null)

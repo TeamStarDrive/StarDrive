@@ -159,7 +159,7 @@ namespace Ship_Game.Data
             int end = Start + Length;
             for (int i = Start; i < end; ++i)
                 if (Str[i] == c)
-                    return Start - i;
+                    return i - Start;
             return -1;
         }
 

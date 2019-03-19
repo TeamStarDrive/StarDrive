@@ -85,9 +85,9 @@ namespace Ship_Game.UI
         {
             if (!node.HasSubNodes)
                 return;
-            for (int i = 0; i < node.SubNodes.Count; ++i)
+            for (int i = 0; i < node.Nodes.Count; ++i)
             {
-                CreateElement(parent, node.SubNodes[i]);
+                CreateElement(parent, node.Nodes[i]);
             }
         }
 
