@@ -14,11 +14,13 @@ namespace Ship_Game.AI
     {
         void DoAssaultShipCombat(float elapsedTime)
         {
-            if (Owner.isSpooling || !Owner.Carrier.HasTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
+            if (Owner.isSpooling)
                 return;
 
             DoNonFleetArtillery(elapsedTime);
-            if (!Owner.loyalty.isFaction && (Target as Ship).shipData.Role <= ShipData.RoleName.drone)
+            if (!Owner.Carrier.HasTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
+                return;
+            if (!Owner.loyalty.isFaction && ((Ship) Target).shipData.Role <= ShipData.RoleName.drone)
                 return;
 
             float totalTroopStrengthToCommit = Owner.Carrier.MaxTroopStrengthInShipToCommit + Owner.Carrier.MaxTroopStrengthInSpaceToCommit;
