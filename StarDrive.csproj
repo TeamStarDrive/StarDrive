@@ -228,10 +228,11 @@
     <Compile Include="Ship_Game\Data\ImageUtils.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
     <Compile Include="Ship_Game\Data\StarDataConverter.cs" />
-    <Compile Include="Ship_Game\Data\StarDataNode.cs" />
+    <Compile Include="Ship_Game\Data\YamlNode.cs" />
     <Compile Include="Ship_Game\Data\StarDataSerializer.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
-    <Compile Include="Ship_Game\Data\StarDataParser.cs" />
+    <Compile Include="Ship_Game\Data\YamlParser.cs" />
+    <Compile Include="Ship_Game\Data\StringView.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DebugText.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Debug\DebugTextBlock.cs" />
