@@ -33,6 +33,7 @@ namespace Ship_Game.GameScreens.MainMenu
         #pragma warning restore 649
     }
 
+    [StarDataType]
     class MenuFleet
     {
         #pragma warning disable 649

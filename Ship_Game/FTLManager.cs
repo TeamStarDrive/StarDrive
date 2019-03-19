@@ -15,6 +15,7 @@ namespace Ship_Game
         static bool EnableDebugGraph = false;
         static UIGraphView DebugGraph;
 
+        [StarDataType]
         class FTLLayerData
         {
             #pragma warning disable 649
@@ -116,7 +117,7 @@ namespace Ship_Game
             readonly FTLLayer[] Layers;
             readonly Func<Vector3> GetPosition;
             Vector3 Position;
-            float Radius;
+            readonly float Radius;
 
             public FTLInstance(Func<Vector3> getPosition, in Vector3 offset, float radius)
             {
@@ -181,7 +182,7 @@ namespace Ship_Game
                     LoadContent(screen);
                 });
 
-                using (var parser = new StarDataParser(file))
+                using (var parser = new YamlParser(file))
                 {
                     FTLLayers = parser.DeserializeArray<FTLLayerData>().ToArray();
                     foreach (FTLLayerData layerData in FTLLayers)

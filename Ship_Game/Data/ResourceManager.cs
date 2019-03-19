@@ -1727,7 +1727,7 @@ namespace Ship_Game
 
         static void LoadPlanetTypes()
         {
-            using (var parser = new Data.StarDataParser("PlanetTypes.yaml"))
+            using (var parser = new Data.YamlParser("PlanetTypes.yaml"))
             {
                 PlanetTypes = parser.DeserializeArray<PlanetType>();
             }
