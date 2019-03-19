@@ -61,7 +61,7 @@ namespace Ship_Game
             ExplosionPixel = ResourceManager.Texture("blank");
             if (ResourceManager.IsLoadCancelRequested) return;
 
-            using (var parser = new StarDataParser("Explosions.yaml"))
+            using (var parser = new YamlParser("Explosions.yaml"))
             {
                 Array<Explosion> explosions = parser.DeserializeArray<Explosion>();
                 foreach (Explosion e in explosions)

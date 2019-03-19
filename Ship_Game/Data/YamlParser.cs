@@ -7,28 +7,28 @@ using System.Threading;
 namespace Ship_Game.Data
 {
     // Simplified text parser for StarDrive data files
-    public class StarDataParser : IDisposable
+    public class YamlParser : IDisposable
     {
         TextReader Reader;
-        public StarDataNode Root { get; }
+        public YamlNode Root { get; }
         int Line;
         readonly StringBuilder StrBuilder = new StringBuilder();
 
         readonly Array<Error> LoggedErrors = new Array<Error>();
         public IReadOnlyList<Error> Errors => LoggedErrors;
 
-        public StarDataParser(string file) : this(ResourceManager.GetModOrVanillaFile(file))
+        public YamlParser(string file) : this(ResourceManager.GetModOrVanillaFile(file))
         {
         }
 
-        public StarDataParser(FileInfo f) : this(f?.NameNoExt(), OpenStream(f))
+        public YamlParser(FileInfo f) : this(f?.NameNoExt(), OpenStream(f))
         {
         }
 
-        public StarDataParser(string name, TextReader reader)
+        public YamlParser(string name, TextReader reader)
         {
             Reader = reader;
-            Root = new StarDataNode { Key = name ?? "", Value = null };
+            Root = new YamlNode { Key = name ?? "", Value = null };
             Parse();
         }
         
@@ -57,7 +57,7 @@ namespace Ship_Game.Data
         struct DepthSave
         {
             public int Depth;
-            public StarDataNode Node;
+            public YamlNode Node;
         }
         
         void Parse()
@@ -67,8 +67,8 @@ namespace Ship_Game.Data
             string currentLine;
             var saved = new Stack<DepthSave>();
 
-            StarDataNode root = Root;
-            StarDataNode prev = Root;
+            YamlNode root = Root;
+            YamlNode prev = Root;
 
             while ((currentLine = Reader.ReadLine()) != null)
             {
@@ -81,7 +81,7 @@ namespace Ship_Game.Data
                 if (view.Length == 0 || view.Char0 == '#')
                     continue;
 
-                StarDataNode node = ParseLineAsNode(view, out bool isSequence);
+                YamlNode node = ParseLineAsNode(view, out bool isSequence);
                 if (node == null)
                     continue;
 
@@ -122,7 +122,7 @@ namespace Ship_Game.Data
             }
         }
 
-        StarDataNode ParseLineAsNode(StringView view, out bool isSequence)
+        YamlNode ParseLineAsNode(StringView view, out bool isSequence)
         {
             isSequence = view.StartsWith("- ");
             if (isSequence)
@@ -134,11 +134,11 @@ namespace Ship_Game.Data
                     return null;
                 }
             }
-            var node = new StarDataNode();
+            var node = new YamlNode();
             return ParseTokenAsNode(node, ref view);
         }
 
-        StarDataNode ParseTokenAsNode(StarDataNode node, ref StringView view)
+        YamlNode ParseTokenAsNode(YamlNode node, ref StringView view)
         {
             StringView first = NextToken(ref view);
             if (first.Length == 0)
@@ -214,7 +214,7 @@ namespace Ship_Game.Data
             return token.Text; // probably some text
         }
         
-        void ParseObject(StarDataNode node, ref StringView view, bool mapSelfToKey)
+        void ParseObject(YamlNode node, ref StringView view, bool mapSelfToKey)
         {
             for (;;)
             {
@@ -240,7 +240,7 @@ namespace Ship_Game.Data
                 }
                 else
                 {
-                    var child = new StarDataNode();
+                    var child = new YamlNode();
                     ParseTokenAsNode(child, ref view);
                     node.AddSubNode(child);
                 }
@@ -393,7 +393,7 @@ namespace Ship_Game.Data
         {
             var items = new Array<T>();
             var ser = new StarDataSerializer(typeof(T));
-            foreach (StarDataNode child in Root)
+            foreach (YamlNode child in Root)
             {
                 items.Add((T)ser.Deserialize(child));
             }
@@ -403,7 +403,7 @@ namespace Ship_Game.Data
         public T DeserializeOne<T>() where T : new()
         {
             var ser = new StarDataSerializer(typeof(T));
-            foreach (StarDataNode child in Root)
+            foreach (YamlNode child in Root)
             {
                 return (T)ser.Deserialize(child);
             }

@@ -182,7 +182,7 @@ namespace Ship_Game
                     LoadContent(screen);
                 });
 
-                using (var parser = new StarDataParser(file))
+                using (var parser = new YamlParser(file))
                 {
                     FTLLayers = parser.DeserializeArray<FTLLayerData>().ToArray();
                     foreach (FTLLayerData layerData in FTLLayers)
