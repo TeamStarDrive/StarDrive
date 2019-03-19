@@ -122,7 +122,7 @@ namespace Ship_Game.Data
             return null;
         }
 
-        public virtual object Deserialize(StarDataNode node)
+        public virtual object Deserialize(YamlNode node)
         {
             object value = node.Value;
             if (value == null)
@@ -162,7 +162,7 @@ namespace Ship_Game.Data
             return value;
         }
 
-        public override object Deserialize(StarDataNode node)
+        public override object Deserialize(YamlNode node)
         {
             // [StarData] Ship[] Ships;
             // Ships: my_ships
@@ -217,7 +217,7 @@ namespace Ship_Game.Data
             return value;
         }
 
-        public override object Deserialize(StarDataNode node)
+        public override object Deserialize(YamlNode node)
         {
             // [StarData] Array<Ship> Ships;
             // Ships: my_ships

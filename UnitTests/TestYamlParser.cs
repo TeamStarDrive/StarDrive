@@ -11,17 +11,17 @@ namespace UnitTests
 {
     [TestClass]
     [SuppressMessage("ReSharper", "UnassignedReadonlyField")]
-    public class TestStarDataParser
+    public class TestYamlParser
     {
-        static TestStarDataParser()
+        static TestYamlParser()
         {
             Directory.SetCurrentDirectory("/Projects/BlackBox");
         }
 
-        void ParserDump(StarDataParser parser)
+        void ParserDump(YamlParser parser)
         {
             Console.WriteLine(parser.Root.SerializedText());
-            foreach (StarDataParser.Error error in parser.Errors)
+            foreach (YamlParser.Error error in parser.Errors)
                 Console.WriteLine(error.ToString());
             if (parser.Errors.Count > 0)
                 throw new InvalidDataException($"Parser failed with {parser.Errors.Count} error(s)");
@@ -35,7 +35,7 @@ namespace UnitTests
                 Key2: 'String Text # with : characters[{:\r\n\t' #comment
                 Key3: Value Text # comment
                 ";
-            using (var parser = new StarDataParser(">ValidateKeyValue<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">ValidateKeyValue<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
@@ -55,7 +55,7 @@ namespace UnitTests
                 Float1: -123.4567 # comment
                 Float2: +123.4567
                 ";
-            using (var parser = new StarDataParser(">ValidateMaps<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">ValidateMaps<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
@@ -78,7 +78,7 @@ namespace UnitTests
                 Array3: [3, 2, 1, '{:#takeoff:[' ]
                 Array4: [20, -20.22, +15.5, 14.4]
                 ";
-            using (var parser = new StarDataParser(">ValidateArrays<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">ValidateArrays<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
@@ -102,7 +102,7 @@ namespace UnitTests
                   D: true
                 Map2: { A: [1,2], B: { X: Y } }
                 ";
-            using (var parser = new StarDataParser(">ValidateMaps<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">ValidateMaps<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
@@ -131,7 +131,7 @@ namespace UnitTests
                   - abc
                   - key: value
                 ";
-            using (var parser = new StarDataParser(">SequenceSimple<", new StringReader(yaml1)))
+            using (var parser = new YamlParser(">SequenceSimple<", new StringReader(yaml1)))
             {
                 ParserDump(parser);
 
@@ -160,7 +160,7 @@ namespace UnitTests
                     - e: 5
                       f: 6
                 ";
-            using (var parser = new StarDataParser(">SequenceNested<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">SequenceNested<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
@@ -201,7 +201,7 @@ namespace UnitTests
                   - seq2: [5, 6, 7]
                     - [8, 9, 10]
                 ";
-            using (var parser = new StarDataParser(">SequenceOfArrays<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">SequenceOfArrays<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
@@ -232,7 +232,7 @@ namespace UnitTests
                   - { Id: 0, Size: 5 }
                   - { Id: 1, Size: 10 }
                 ";
-            using (var parser = new StarDataParser(">SequenceOfInlineMaps<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">SequenceOfInlineMaps<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
@@ -269,7 +269,7 @@ namespace UnitTests
                     - Name: ':Lisa:'
                       Age: 19
                 ";
-            using (var parser = new StarDataParser(">CombinedSyntax<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">CombinedSyntax<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
@@ -305,7 +305,7 @@ namespace UnitTests
             const string yaml = @"
                 InvalidArray1: [ OkSyntax, { InvalidMap: Syntax } ]
                 ";
-            using (var parser = new StarDataParser(">HandleInvalidArraySyntax<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">HandleInvalidArraySyntax<", new StringReader(yaml)))
             {
                 ParserDump(parser);
             }

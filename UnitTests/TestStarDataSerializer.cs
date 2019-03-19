@@ -16,10 +16,10 @@ namespace UnitTests
             Directory.SetCurrentDirectory("/Projects/BlackBox");
         }
 
-        void ParserDump(StarDataParser parser)
+        void ParserDump(YamlParser parser)
         {
             Console.WriteLine(parser.Root.SerializedText());
-            foreach (StarDataParser.Error error in parser.Errors)
+            foreach (YamlParser.Error error in parser.Errors)
                 Console.WriteLine(error.ToString());
             if (parser.Errors.Count > 0)
                 throw new InvalidDataException($"Parser failed with {parser.Errors.Count} error(s)");
@@ -28,7 +28,7 @@ namespace UnitTests
         [TestMethod]
         public void DeserializePlanetTypes()
         {
-            using (var parser = new StarDataParser("PlanetTypes.yaml"))
+            using (var parser = new YamlParser("PlanetTypes.yaml"))
             {
                 ParserDump(parser);
 
@@ -67,11 +67,11 @@ namespace UnitTests
                     - {Type: Tundra, Weight: 0}
                 ";
 
-            using (var parser = new StarDataParser(">SunZones<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">SunZones<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
-                StarDataNode zone = parser.Root["SunZone"];
+                YamlNode zone = parser.Root["SunZone"];
                 Assert.AreEqual("SunZone", zone.Name);
                 Assert.AreEqual("Weights", zone["Weights"].Name);
                 Assert.AreEqual(4, zone["Weights"].Count);
@@ -126,7 +126,7 @@ namespace UnitTests
                       Rect: [0, 50, 1.0, 0]
                       AxisAlign: CenterRight
                 ";
-            using (var parser = new StarDataParser(">LayoutElement<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">LayoutElement<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 
@@ -188,7 +188,7 @@ namespace UnitTests
                     PulseScale: [0.96,1.04]
                     PulseColor: [0.5,0.9]
                 ";
-            using (var parser = new StarDataParser(">SunLayers<", new StringReader(yaml)))
+            using (var parser = new YamlParser(">SunLayers<", new StringReader(yaml)))
             {
                 ParserDump(parser);
 

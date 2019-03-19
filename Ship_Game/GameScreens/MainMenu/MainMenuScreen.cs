@@ -153,7 +153,7 @@ namespace Ship_Game.GameScreens.MainMenu
         void CreateMainMenuFleet()
         {
             Fleets.Clear();
-            using (var parser = new StarDataParser("MainMenuFleets.yaml"))
+            using (var parser = new YamlParser("MainMenuFleets.yaml"))
             {
                 Array<MenuFleet> fleets = parser.DeserializeArray<MenuFleet>();
                 foreach (MenuFleet fleet in fleets)

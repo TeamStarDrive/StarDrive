@@ -45,7 +45,7 @@ namespace Ship_Game.UI
 
         readonly UIElementContainer MainContainer;
         readonly GameContentManager Content;
-        readonly StarDataNode Root;
+        readonly YamlNode Root;
         readonly string Name;
         readonly Vector2 VirtualXForm; // multiplier to transform virtual coordinates to actual coordinates
         readonly StarDataSerializer ElementSerializer = new StarDataSerializer(typeof(ElementInfo));
@@ -55,13 +55,13 @@ namespace Ship_Game.UI
             Vector2 virtualSize;
             MainContainer = mainContainer;
             Content = mainContainer.ContentManager;
-            using (var parser = new StarDataParser(file))
+            using (var parser = new YamlParser(file))
             {
                 Root = parser.Root;
             }
 
             MainContainer.Size = size;
-            if (Root.FindSubNode("Screen", out StarDataNode screen))
+            if (Root.FindSubNode("Screen", out YamlNode screen))
             {
                 var info = (ScreenInfo)new StarDataSerializer(typeof(ScreenInfo)).Deserialize(screen);
                 Name = info.Name;
@@ -81,7 +81,7 @@ namespace Ship_Game.UI
             MainContainer.Name = Name; // override the name
         }
 
-        void CreateElements(UIElementContainer parent, StarDataNode node)
+        void CreateElements(UIElementContainer parent, YamlNode node)
         {
             if (!node.HasSubNodes)
                 return;
@@ -91,7 +91,7 @@ namespace Ship_Game.UI
             }
         }
 
-        ElementInfo DeserializeElementInfo(StarDataNode node)
+        ElementInfo DeserializeElementInfo(YamlNode node)
         {
             try
             {
@@ -243,7 +243,7 @@ namespace Ship_Game.UI
             return sa;
         }
 
-        ElementInfo ParseInfo(UIElementV2 parent, StarDataNode node)
+        ElementInfo ParseInfo(UIElementV2 parent, YamlNode node)
         {
             ElementInfo info = DeserializeElementInfo(node);
             if (info != null)
@@ -262,7 +262,7 @@ namespace Ship_Game.UI
             return info;
         }
 
-        void CreateElement(UIElementContainer parent, StarDataNode node)
+        void CreateElement(UIElementContainer parent, YamlNode node)
         {
             if (node.Name == "Screen")
                 return; // ignore layout descriptor
@@ -354,7 +354,7 @@ namespace Ship_Game.UI
                 container.DebugDraw = info.DebugDraw;
             }
 
-            if (node.FindSubNode("Children", out StarDataNode children))
+            if (node.FindSubNode("Children", out YamlNode children))
             {
                 if (container != null)
                 {

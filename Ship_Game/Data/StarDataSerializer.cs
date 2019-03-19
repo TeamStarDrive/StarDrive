@@ -6,8 +6,25 @@ using System.Reflection;
 
 namespace Ship_Game.Data
 {
-    // Note: StarDataParser is opt-in, so properties/fields
-    //       must be marked with [StarData]
+    
+    // Note: This MUST be applied to classes that are serialized with StarDataSerializer
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public sealed class StarDataTypeAttribute : Attribute
+    {
+        public StarDataTypeAttribute()
+        {
+        }
+    }
+
+
+    // Note: StarDataParser is opt-in, so properties/fields must be marked with [StarData]
+    //       The name of the FIELD is used for the mapping.
+    // 
+    // [StarData] public string Style;
+    //
+    // Ship:
+    //   Style: Kulrathi
+    //
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class StarDataAttribute : Attribute
     {
@@ -23,7 +40,13 @@ namespace Ship_Game.Data
         }
     }
 
-    // Note: This can be used for Key attributes
+    // Note: This can be used for Key attributes. The name of the field
+    //       is IRRELEVANT. The mapping is resolved by this attribute.
+    //
+    // [StarDataKey] public string Name;
+    //
+    // Ship: my_ship_name
+    //   Style: xxx
     public sealed class StarDataKeyAttribute : StarDataAttribute
     {
         public StarDataKeyAttribute() : base(null, true)
@@ -33,16 +56,6 @@ namespace Ship_Game.Data
         {
         }
     }
-
-    // Note: This can be applied to classes, so StarData classes could have nested types
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public sealed class StarDataTypeAttribute : Attribute
-    {
-        public StarDataTypeAttribute()
-        {
-        }
-    }
-
 
     // This class has the ability to take parsed StarData tree
     // And turn it into usable game objects
@@ -98,10 +111,14 @@ namespace Ship_Game.Data
         {
             Mapping.Add(name, info);
             if (a.IsPrimaryKey)
+            {
+                if (PrimaryInfo != null)
+                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKey] attributes! Original {PrimaryInfo}, New {info}");
                 PrimaryInfo = info;
+            }
         }
 
-        public override object Deserialize(StarDataNode node)
+        public override object Deserialize(YamlNode node)
         {
             if (Mapping == null)
                 ResolveTypes(null);
@@ -111,7 +128,7 @@ namespace Ship_Game.Data
             if (hasPrimaryValue && PrimaryInfo != null)
             {
                 // @note this is a hack to prevent recursive serialization of primary nodes
-                var primaryNode = new StarDataNode { Key = node.Key, Value = node.Value };
+                var primaryNode = new YamlNode { Key = node.Key, Value = node.Value };
                 object primaryValue = PrimaryInfo.Converter.Deserialize(primaryNode);
                 PrimaryInfo.Set(item, primaryValue);
             }
@@ -123,7 +140,7 @@ namespace Ship_Game.Data
 
             if (node.HasSubNodes)
             {
-                foreach (StarDataNode leaf in node.Nodes)
+                foreach (YamlNode leaf in node.Nodes)
                 {
                     if (!Mapping.TryGetValue(leaf.Name, out Info leafInfo))
                     {
