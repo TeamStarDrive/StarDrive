@@ -2,6 +2,8 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 
@@ -10,7 +12,7 @@ namespace Ship_Game
     public sealed class RefitToWindow : GameScreen
     {
         private readonly ShipListScreen Screen;
-        private readonly Ship Shiptorefit;
+        private readonly Ship ShipToRefit;
         private Submenu sub_ships;
         private ScrollList ShipSL;
         private UIButton RefitOne;
@@ -22,7 +24,7 @@ namespace Ship_Game
         public RefitToWindow(ShipListScreen screen, ShipListScreenEntry entry) : base(screen)
         {
             Screen = screen;
-            Shiptorefit = entry.ship;
+            ShipToRefit = entry.ship;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
@@ -30,7 +32,7 @@ namespace Ship_Game
 
         public RefitToWindow(GameScreen parent, Ship ship) : base(parent)
         {
-            Shiptorefit = ship;
+            ShipToRefit = ship;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
@@ -64,13 +66,13 @@ namespace Ship_Game
                 Rectangle moneyRect = new Rectangle(e.X + 165, e.Y, 21, 20);
                 Vector2 moneyText = new Vector2((moneyRect.X + 25), (moneyRect.Y - 2));
                 batch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
-                int refitCost = Shiptorefit.RefitCost(ship.Name);
+                int refitCost = ShipToRefit.RefitCost(ship.Name);
                 batch.DrawString(Fonts.Arial12Bold, refitCost.ToString(), moneyText, Color.White);
             }
             if (RefitTo != null)
             {
                 var cursor = new Vector2(ConfirmRefit.r.X, (ConfirmRefit.r.Y + 30));
-                string text = Fonts.Arial12Bold.ParseText($"Refit {Shiptorefit.Name} to {RefitTo.Name}", 270f);
+                string text = Fonts.Arial12Bold.ParseText($"Refit {ShipToRefit.Name} to {RefitTo.Name}", 270f);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
             }
             if (IsActive)
@@ -89,7 +91,8 @@ namespace Ship_Game
 
         private void OnRefitOneClicked(UIButton b)
         {
-            Shiptorefit.AI.OrderRefitTo(RefitTo);
+            Goal refitShip = new RefitShip(ShipToRefit, RefitTo, EmpireManager.Player);
+            EmpireManager.Player.GetEmpireAI().Goals.Add(refitShip);
             GameAudio.EchoAffirmative();
             ExitScreen();
         }
@@ -98,8 +101,11 @@ namespace Ship_Game
         {
             foreach (Ship ship in EmpireManager.Player.GetShips())
             {
-                if (ship.Name == Shiptorefit.Name)
-                    ship.AI.OrderRefitTo(RefitTo);
+                if (ship.Name == ShipToRefit.Name)
+                {
+                    Goal refitShip = new RefitShip(ShipToRefit, RefitTo, EmpireManager.Player);
+                    EmpireManager.Player.GetEmpireAI().Goals.Add(refitShip);
+                }
             }
             GameAudio.EchoAffirmative();
             ExitScreen();
@@ -139,11 +145,11 @@ namespace Ship_Game
             sub_ships = new Submenu(shipDesignsRect);
             ShipSL = new ScrollList(sub_ships, 40);
             sub_ships.AddTab("Refit to...");
-            foreach (string shipname in Shiptorefit.loyalty.ShipsWeCanBuild)
+            foreach (string shipname in ShipToRefit.loyalty.ShipsWeCanBuild)
             {
                 Ship weCanBuild = ResourceManager.GetShipTemplate(shipname);
-                if (weCanBuild.shipData.Hull != Shiptorefit.shipData.Hull
-                    || shipname == Shiptorefit.Name 
+                if (weCanBuild.shipData.Hull != ShipToRefit.shipData.Hull
+                    || shipname == ShipToRefit.Name 
                     || weCanBuild.shipData.ShipRole.Protected)
                 {
                     continue;
