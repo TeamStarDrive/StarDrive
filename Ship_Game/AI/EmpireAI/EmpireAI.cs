@@ -295,9 +295,8 @@ namespace Ship_Game.AI
                     continue;
 
                 Ship newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
-
                 if (newShip != null)
-                    Goals.Add(new RefitShip(ship, newShip, OwnerEmpire));
+                    Goals.Add(new RefitShip(ship, newShip.Name, OwnerEmpire));
             }
         }
 

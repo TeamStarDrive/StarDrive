@@ -23,20 +23,22 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitShip(Ship oldShip, Ship shipToBuild, Empire owner) : this()
+        public RefitShip(Ship oldShip, string toBuildName, Empire owner) : this()
         {
             OldShip     = oldShip;
             ShipLevel   = oldShip.Level;
-            VanityName  = oldShip.VanityName;
-            ShipToBuild = shipToBuild;
+            ToBuildUID  = toBuildName;
             Fleet       = oldShip.fleet;
             empire      = owner;
+            if (VanityName != oldShip.Name)
+                VanityName = oldShip.VanityName;
+
             Evaluate();
         }
 
         GoalStep FindShipAndPlanetToRefit()
         {
-            if (ShipToBuild == null)
+            if (ToBuildUID == null)
                 return GoalStep.GoalFailed;  // No better ship is available
 
             PlanetBuildingAt = empire.RallyShipYardNearestTo(OldShip.Center);
@@ -47,7 +49,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             }
 
             OldShip.ClearFleet();
-            OldShip.AI.OrderRefitTo(PlanetBuildingAt, ShipToBuild, this);
+            OldShip.AI.OrderRefitTo(PlanetBuildingAt, this);
             return GoalStep.GoToNextStep;
         }
 
@@ -67,9 +69,17 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipWaitingForRefit)
                 return GoalStep.GoalFailed;
 
-            var qi  = new QueueItem(PlanetBuildingAt) {sData = ShipToBuild.shipData};
-            qi.Cost = ShipToBuild.RefitCost(qi.sData.Name);
-            qi.Goal = this;
+            ResourceManager.ShipsDict.TryGetValue(ToBuildUID, out Ship newShip);
+            if (newShip == null)
+                return GoalStep.GoalFailed; // Could not find ship to build in ship dictionary
+
+            var qi = new QueueItem(PlanetBuildingAt)
+            {
+                sData  = newShip.shipData,
+                Cost   = OldShip.RefitCost(newShip),
+                Goal   = this,
+                isShip = true
+            };
             PlanetBuildingAt.ConstructionQueue.Add(qi);
             OldShip.QueueTotalRemoval();
             return GoalStep.GoToNextStep;
@@ -82,8 +92,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             FinishedShip.VanityName = VanityName;
             FinishedShip.Level      = ShipLevel;
-            // not completed yet
-            // add to fleet back here - something.blabla == Fleet; if not null
+            Fleet?.AddExistingShip(FinishedShip);
             return GoalStep.GoalComplete;
         }
 
