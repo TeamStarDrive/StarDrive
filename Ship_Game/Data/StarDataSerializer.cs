@@ -8,6 +8,12 @@ namespace Ship_Game.Data
 {
     
     // Note: This MUST be applied to classes that are serialized with StarDataSerializer
+    //
+    // [StarDataType]
+    // class ShipData
+    // {
+    // }
+    //
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class StarDataTypeAttribute : Attribute
     {
