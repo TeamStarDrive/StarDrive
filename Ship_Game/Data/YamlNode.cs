@@ -8,19 +8,19 @@ using System.Text;
 namespace Ship_Game.Data
 {
     // StarDrive data object node with key, value and child items
-    public class StarDataNode : IEnumerable<StarDataNode>
+    public class YamlNode : IEnumerable<YamlNode>
     {
-        static readonly IReadOnlyList<StarDataNode> EmptyNodes = new ReadOnlyCollection<StarDataNode>(Empty<StarDataNode>.Array);
+        static readonly IReadOnlyList<YamlNode> EmptyNodes = new ReadOnlyCollection<YamlNode>(Empty<YamlNode>.Array);
 
         public object Key, Value;
 
         // SubNode tree,  ie. This: { SubNode1: Value1, SubNode2: Value2 }
-        public IReadOnlyList<StarDataNode> Nodes => SubNodes ?? EmptyNodes;
-        Array<StarDataNode> SubNodes;
+        public IReadOnlyList<YamlNode> Nodes => SubNodes ?? EmptyNodes;
+        Array<YamlNode> SubNodes;
 
         // Sequence list, ie. This: [ Element1, Element2, Element3 ]
-        public IReadOnlyList<StarDataNode> Sequence => SeqNodes ?? EmptyNodes;
-        Array<StarDataNode> SeqNodes;
+        public IReadOnlyList<YamlNode> Sequence => SeqNodes ?? EmptyNodes;
+        Array<YamlNode> SeqNodes;
 
         public override string ToString() => SerializedText();
 
@@ -32,8 +32,8 @@ namespace Ship_Game.Data
         // ThisNode:
         //   SubNode0: Value0
         //   SubNode1: Value1
-        // this[0] => StarDataNode Key=SubNode0 Value=Value0
-        public StarDataNode this[int subNodeIndex]
+        // this[0] => YamlNode Key=SubNode0 Value=Value0
+        public YamlNode this[int subNodeIndex]
         {
             get
             {
@@ -47,21 +47,21 @@ namespace Ship_Game.Data
         void ThrowSubNodeIndexOutOfBounds(int index)
         {
             throw new IndexOutOfRangeException(
-                $"StarDataNode Key('{Key}') SUB-NODE Index [{index}] out of range({SubNodes?.Count??0})");
+                $"YamlNode Key('{Key}') SUB-NODE Index [{index}] out of range({SubNodes?.Count??0})");
         }
 
         // SubNode access by name (throws exception if not found)
         // ThisNode:
         //   SubNode0: Value0
-        // this["SubNode0"] => StarDataNode Key=SubNode0 Value=Value0
-        public StarDataNode this[string subNodeKey] => GetSubNode(subNodeKey);
+        // this["SubNode0"] => YamlNode Key=SubNode0 Value=Value0
+        public YamlNode this[string subNodeKey] => GetSubNode(subNodeKey);
 
         // Sequence indexing
         // ThisNode:
         //   - Element0: Value0
         //   - Element1: Value1
-        // this.GetElement(0) => StarDataNode Key=Element0 Value=Value0
-        public StarDataNode GetElement(int index)
+        // this.GetElement(0) => YamlNode Key=Element0 Value=Value0
+        public YamlNode GetElement(int index)
         {
             if (SeqNodes == null || (uint)index > (uint)SeqNodes.Count)
                 ThrowSequenceIndexOutOfBounds(index);
@@ -72,7 +72,7 @@ namespace Ship_Game.Data
         void ThrowSequenceIndexOutOfBounds(int index)
         {
             throw new IndexOutOfRangeException(
-                $"StarDataNode Key('{Key}') SEQUENCE Index [{index}] out of range({SeqNodes?.Count??0})");
+                $"YamlNode Key('{Key}') SEQUENCE Index [{index}] out of range({SeqNodes?.Count??0})");
         }
 
         // Name: ...
@@ -93,37 +93,37 @@ namespace Ship_Game.Data
         // Key: [Elem1, Elem2, Elem3]
         public object[] ValueArray => Value as object[];
 
-        public void AddSubNode(StarDataNode item)
+        public void AddSubNode(YamlNode item)
         {
             if (SubNodes == null)
-                SubNodes = new Array<StarDataNode>();
+                SubNodes = new Array<YamlNode>();
             SubNodes.Add(item);
         }
 
-        public void AddSequenceElement(StarDataNode element)
+        public void AddSequenceElement(YamlNode element)
         {
             if (SeqNodes == null)
-                SeqNodes = new Array<StarDataNode>();
+                SeqNodes = new Array<YamlNode>();
             SeqNodes.Add(element);
         }
 
-        public StarDataNode GetSubNode(string subNodeKey)
+        public YamlNode GetSubNode(string subNodeKey)
         {
-            if (!FindSubNode(subNodeKey, out StarDataNode found))
-                throw new KeyNotFoundException($"StarDataNode '{subNodeKey}' not found in node '{Name}'!");
+            if (!FindSubNode(subNodeKey, out YamlNode found))
+                throw new KeyNotFoundException($"YamlNode '{subNodeKey}' not found in node '{Name}'!");
             return found;
         }
 
         // finds a direct child element
-        public bool FindSubNode(string subNodeKey, out StarDataNode found)
+        public bool FindSubNode(string subNodeKey, out YamlNode found)
         {
             if (SubNodes != null)
             {
                 int count = SubNodes.Count;
-                StarDataNode[] fast = SubNodes.GetInternalArrayItems();
+                YamlNode[] fast = SubNodes.GetInternalArrayItems();
                 for (int i = 0; i < count; ++i)
                 {
-                    StarDataNode node = fast[i];
+                    YamlNode node = fast[i];
                     if (node.Name == subNodeKey)
                     {
                         found = node;
@@ -137,7 +137,7 @@ namespace Ship_Game.Data
 
         // recursively searches child elements
         // this can be quite slow if Node tree has hundreds of elements
-        public bool FindSubNodeRecursive(string subNodeKey, out StarDataNode found)
+        public bool FindSubNodeRecursive(string subNodeKey, out YamlNode found)
         {
             // first check direct children
             if (FindSubNode(subNodeKey, out found))
@@ -147,7 +147,7 @@ namespace Ship_Game.Data
             if (SubNodes != null)
             {
                 int count = SubNodes.Count;
-                StarDataNode[] fast = SubNodes.GetInternalArrayItems();
+                YamlNode[] fast = SubNodes.GetInternalArrayItems();
                 for (int i = 0; i < count; ++i)
                     if (fast[i].FindSubNodeRecursive(subNodeKey, out found))
                         return true;
@@ -156,10 +156,10 @@ namespace Ship_Game.Data
         }
         
         // Safe SubNode enumerator
-        public IEnumerator<StarDataNode> GetEnumerator()
+        public IEnumerator<YamlNode> GetEnumerator()
         {
             if (SubNodes == null) yield break;
-            foreach (StarDataNode node in SubNodes)
+            foreach (YamlNode node in SubNodes)
                 yield return node;
         }
 
@@ -179,7 +179,7 @@ namespace Ship_Game.Data
             get
             {
                 if (SubNodes == null) return true;
-                foreach (StarDataNode node in SubNodes)
+                foreach (YamlNode node in SubNodes)
                     if (node.Count > 0) return false;
                 return true;
             }
@@ -269,7 +269,7 @@ namespace Ship_Game.Data
                     sb.Append("{ ");
                     for (int i = 0; i < SubNodes.Count; ++i)
                     {
-                        StarDataNode node = SubNodes[i];
+                        YamlNode node = SubNodes[i];
                         Append(sb, node.Key).Append(": ");
                         Append(sb, node.Value);
                         if (i != SubNodes.Count-1)
@@ -280,14 +280,14 @@ namespace Ship_Game.Data
                 else
                 {
                     sb.AppendLine();
-                    foreach (StarDataNode child in SubNodes)
+                    foreach (YamlNode child in SubNodes)
                         child.SerializeTo(sb, depth+2);
                 }
             }
             else if (SeqNodes != null)
             {
                 sb.AppendLine();
-                foreach (StarDataNode element in SeqNodes)
+                foreach (YamlNode element in SeqNodes)
                 {
                     element.SerializeTo(sb, depth+2, sequenceElement: true);
                 }

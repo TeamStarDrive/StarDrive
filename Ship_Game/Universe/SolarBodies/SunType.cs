@@ -75,7 +75,7 @@ namespace Ship_Game.Universe.SolarBodies
         static void LoadSuns(FileInfo file)
         {
             Array<SunType> all;
-            using (var parser = new StarDataParser(file))
+            using (var parser = new YamlParser(file))
                 all = parser.DeserializeArray<SunType>();
             
             Map.Clear();
