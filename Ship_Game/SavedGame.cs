@@ -288,8 +288,8 @@ namespace Ship_Game
                         sdata.TetheredTo   = ship.GetTether().guid;
                         sdata.TetherOffset = ship.TetherOffset;
                     }
-                    sdata.Name       = ship.Name;
-                    sdata.VanityName = ship.VanityName;
+                    sdata.Name             = ship.Name;
+                    sdata.VanityName       = ship.VanityName;
                     sdata.Hull             = ship.shipData.Hull;
                     sdata.Power            = ship.PowerCurrent;
                     sdata.Ordnance         = ship.Ordinance;
