@@ -20,7 +20,7 @@ namespace Ship_Game.Data
         {
             if (value is int i)   return i;
             if (value is float f) return f;
-            Error(value, "Float -- expected float");
+            Error(value, "Float -- expected int or float");
             return 0f;
         }
 
@@ -28,7 +28,7 @@ namespace Ship_Game.Data
         {
             if (value is int i)   return (byte)i;
             if (value is float f) return (byte)(int)f;
-            Error(value, "Byte -- expected float");
+            Error(value, "Byte -- expected int or float");
             return 0;
         }
     }
@@ -56,18 +56,6 @@ namespace Ship_Game.Data
             };
         }
 
-        public bool IsListType(Type type)
-        {
-            if (type.IsGenericType)
-            {
-                if (type.GetGenericTypeDefinition() == typeof(Array<>))
-                    return true;
-                if (type.GetInterfaces().Contains(typeof(IList)))
-                    return true;
-            }
-            return false;
-        }
-
         public Type GetListType(Type type)
         {
             if (type.IsGenericType)
@@ -78,6 +66,16 @@ namespace Ship_Game.Data
                     return type.GenericTypeArguments[0];
             }
             return null;
+        }
+
+        TypeConverter AddStarDataSerializer(Type mappedType, Type underlyingType)
+        {
+            // @note We can have recursive deserialization, so resolving must happen in several steps
+            // 1. create serializer instance
+            var serializer = new StarDataSerializer(underlyingType);
+            // 2. record the mapping reference, so ResolveTypes can see this instance
+            Add(mappedType, serializer);
+            return serializer;
         }
 
         public TypeConverter Get(Type type)
@@ -91,21 +89,22 @@ namespace Ship_Game.Data
                 return Add(type, new RawArrayConverter(elemType, Get(elemType)));
             }
 
-            if (IsListType(type))
-                return Add(type, new StarDataSerializer(type.GenericTypeArguments[0], this));
-            
+            Type listElemType = GetListType(type);
+            if (listElemType != null)
+                return Add(type, new ArrayListConverter(listElemType, Get(listElemType)));
+
             if (type.IsEnum)
                 return Add(type, new EnumConverter(type));
 
             if (type.GetCustomAttribute<StarDataTypeAttribute>() != null)
-                return Add(type, new StarDataSerializer(type, this));
+                return AddStarDataSerializer(type, type);
 
             // Nullable<T>, ex: `[StarData] Color? MinColor;`
             Type nullableType = Nullable.GetUnderlyingType(type);
             if (nullableType != null)
                 return Add(type, Get(nullableType));
 
-            throw new InvalidDataException($"Unsupported type {type} - is it missing [StarDataType] attribute?");
+            throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
         }
 
         TypeConverter Add(Type type, TypeConverter converter)
@@ -115,14 +114,20 @@ namespace Ship_Game.Data
         }
     }
 
-
     public abstract class TypeConverter
     {
-        public abstract object Convert(object value);
-
-        public virtual object Deserialize(StarDataNode node)
+        public virtual object Convert(object value)
         {
-            return Convert(node.Value);
+            Log.Error($"Direct Convert not supported for {ToString()}. Value: {value}");
+            return null;
+        }
+
+        public virtual object Deserialize(YamlNode node)
+        {
+            object value = node.Value;
+            if (value == null)
+                return null;
+            return Convert(value);
         }
     }
 
@@ -130,30 +135,22 @@ namespace Ship_Game.Data
     {
         readonly Type ElemType;
         public readonly TypeConverter Converter;
+        public override string ToString() => $"RawArrayConverter {ElemType.GenericName()}";
+
         public RawArrayConverter(Type elemType, TypeConverter converter)
         {
             ElemType = elemType;
             Converter = converter;
         }
+
         public override object Convert(object value)
         {
             if (value == null)
                 return null;
 
-            Array converted;
-            if (value is Array<StarDataNode> sequence)
-            {
-                converted = Array.CreateInstance(ElemType, sequence.Count);
-                for (int i = 0; i < sequence.Count; ++i)
-                {
-                    converted.SetValue(Converter.Deserialize(sequence[i]), i);
-                }
-                return converted;
-            }
-
             if (value is object[] array)
             {
-                converted = Array.CreateInstance(ElemType, array.Length);
+                Array converted = Array.CreateInstance(ElemType, array.Length);
                 for (int i = 0; i < array.Length; ++i)
                 {
                     converted.SetValue(Converter.Convert(array[i]), i);
@@ -164,49 +161,117 @@ namespace Ship_Game.Data
             ConvertTo.Error(value, "Array convert failed -- expected a list of values [*, *, *]");
             return value;
         }
-        public override object Deserialize(StarDataNode node)
+
+        public override object Deserialize(YamlNode node)
         {
-            // it's object mapping which is converted to an array:
             // [StarData] Ship[] Ships;
             // Ships: my_ships
-            //   Ship: ship1
+            //   - Ship: ship1
             //     Position: ...
-            //   Ship: ship2
+            //   - Ship: ship2
             //     Position: ...
-            if (node.HasItems)
+            var nodes = node.HasSequence ? node.Sequence :
+                        node.HasSubNodes ? node.Nodes : null;
+            if (nodes?.Count > 0)
             {
-                Array converted = Array.CreateInstance(ElemType, node.Count);
-                for (int i = 0; i < node.Count; ++i)
+                Array converted = Array.CreateInstance(ElemType, nodes.Count);
+                for (int i = 0; i < nodes.Count; ++i)
                 {
-                    converted.SetValue(Converter.Deserialize(node.Items[i]), i);
+                    converted.SetValue(Converter.Deserialize(nodes[i]), i);
                 }
                 return converted;
             }
-            return Convert(node.Value);
+
+            return base.Deserialize(node); // try to deserialize value as Array
+        }
+    }
+
+    public class ArrayListConverter : TypeConverter
+    {
+        readonly Type ElemType;
+        public readonly TypeConverter Converter;
+        public override string ToString() => $"ArrayListConverter {ElemType.GenericName()}";
+
+        public ArrayListConverter(Type elemType, TypeConverter converter)
+        {
+            ElemType = elemType;
+            Converter = converter;
+        }
+
+        public override object Convert(object value)
+        {
+            if (value == null)
+                return null;
+
+            if (value is object[] array)
+            {
+                IList list = ArrayHelper.NewArrayOfT(ElemType);
+                for (int i = 0; i < array.Length; ++i)
+                {
+                    list.Add(Converter.Convert(array[i]));
+                }
+                return list;
+            }
+
+            ConvertTo.Error(value, "Array convert failed -- expected a list of values [*, *, *]");
+            return value;
+        }
+
+        public override object Deserialize(YamlNode node)
+        {
+            // [StarData] Array<Ship> Ships;
+            // Ships: my_ships
+            //   - Ship: ship1
+            //     Position: ...
+            //   - Ship: ship2
+            //     Position: ...
+            var nodes = node.HasSequence ? node.Sequence :
+                        node.HasSubNodes ? node.Nodes : null;
+            if (nodes?.Count > 0)
+            {
+                IList list = ArrayHelper.NewArrayOfT(ElemType);
+                for (int i = 0; i < nodes.Count; ++i)
+                {
+                    list.Add(Converter.Deserialize(nodes[i]));
+                }
+                return list;
+            }
+
+            return base.Deserialize(node); // try to deserialize value as Array
         }
     }
 
     public class EnumConverter : TypeConverter
     {
         readonly Type ToEnum;
+        public override string ToString() => $"EnumConverter {ToEnum.GenericName()}";
+
         public EnumConverter(Type enumType)
         {
             ToEnum = enumType;
         }
         public override object Convert(object value)
         {
-            if (value is string s)
-                return Enum.Parse(ToEnum, s, ignoreCase:true);
-            if (value is int i)
-                return Enum.ToObject(ToEnum, i);
-
-            ConvertTo.Error(value, $"Enum '{ToEnum.Name}' -- expected a string or int");
+            try
+            {
+                if (value is string enumLiteral)
+                    return Enum.Parse(ToEnum, enumLiteral, ignoreCase:true);
+                if (value is int enumIndex)
+                    return Enum.ToObject(ToEnum, enumIndex);
+                ConvertTo.Error(value, $"Enum '{ToEnum.Name}' -- expected a string or int");
+            }
+            catch (Exception e)
+            {
+                ConvertTo.Error(value, $"Enum '{ToEnum.Name}' -- {e.Message}");
+            }
             return ToEnum.GetEnumValues().GetValue(0);
         }
     }
 
     public class ObjectConverter : TypeConverter
     {
+        public override string ToString() => "ObjectConverter";
+
         public override object Convert(object value)
         {
             return value;
@@ -215,11 +280,15 @@ namespace Ship_Game.Data
 
     public class RangeConverter : TypeConverter
     {
+        public override string ToString() => "RangeConverter";
+
         static float Number(object value)
         {
             if (value is float f) return f;
-            if (value is int i) return i;
-            return float.Parse((string)value, CultureInfo.InvariantCulture);
+            if (value is int i)   return i;
+            if (value is string s) return StringView.ToFloat(s);
+            ConvertTo.Error(value, "Float -- expected string or int");
+            return 0f;
         }
         public override object Convert(object value)
         {
@@ -236,14 +305,12 @@ namespace Ship_Game.Data
 
     public class LocTextConverter : TypeConverter
     {
+        public override string ToString() => "LocTextConverter";
+
         public override object Convert(object value)
         {
-            if (value is int id)
-                return new LocText(id);
-
-            if (value is string s)
-                return new LocText(s);
-
+            if (value is int id)   return new LocText(id);
+            if (value is string s) return new LocText(s);
             ConvertTo.Error(value, "LocText -- expected int or format string");
             return new LocText("INVALID TEXT");
         }
@@ -251,6 +318,8 @@ namespace Ship_Game.Data
     
     public class ColorConverter : TypeConverter
     {
+        public override string ToString() => "ColorConverter";
+
         public override object Convert(object value)
         {
             if (value is object[] objects)
@@ -284,7 +353,6 @@ namespace Ship_Game.Data
                 f = f.Clamped(0f, 1f);
                 return new Color(f, f, f, f);
             }
-            
             ConvertTo.Error(value, "Color -- expected [int,int,int,int] or [float,float,float,float] or int or number");
             return Color.Red;
         }
@@ -292,17 +360,13 @@ namespace Ship_Game.Data
 
     public class IntConverter : TypeConverter
     {
+        public override string ToString() => "IntConverter";
+
         public override object Convert(object value)
         {
-            if (value is string s)
-            {
-                int.TryParse(s, out int i);
-                return i;
-            }
-
-            if (value is float f)
-                return (int)f;
-
+            if (value is int)      return value;
+            if (value is float f)  return (int)f;
+            if (value is string s) return StringView.ToInt(s);
             ConvertTo.Error(value, "Int -- expected string or float");
             return 0;
         }
@@ -310,31 +374,29 @@ namespace Ship_Game.Data
 
     public class FloatConverter : TypeConverter
     {
+        public override string ToString() => "FloatConverter";
+
         public override object Convert(object value)
         {
-            if (value is string s)
-            {
-                float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float f);
-                return f;
-            }
-
+            if (value is float)    return value;
             if (value is int i)    return (float)i;
-            if (value is float ff) return ff;
-            
+            if (value is string s) return StringView.ToFloat(s);
             ConvertTo.Error(value, "Float -- expected string or int");
-            return 0.0f;
+            return 0f;
         }
     }
 
     public class BoolConverter : TypeConverter
     {
+        public override string ToString() => "BoolConverter";
+
         public override object Convert(object value)
         {
+            if (value is bool) return value;
             if (value is string s)
             {
                 return s == "true" || s == "True";
             }
-            
             ConvertTo.Error(value, "Bool -- expected string 'true' or 'false'");
             return false;
         }
@@ -342,14 +404,18 @@ namespace Ship_Game.Data
 
     public class StringConverter : TypeConverter
     {
+        public override string ToString() => "StringConverter";
+
         public override object Convert(object value)
         {
-            return value.ToString();
+            return value?.ToString();
         }
     }
 
     public class Vector2Converter : TypeConverter
     {
+        public override string ToString() => "Vector2Converter";
+
         public override object Convert(object value)
         {
             if (value is object[] objects)
@@ -359,7 +425,6 @@ namespace Ship_Game.Data
                 if (objects.Length >= 2) v.Y = ConvertTo.Float(objects[1]);
                 return v;
             }
-            
             ConvertTo.Error(value, "Vector2 -- expected [float,float]");
             return Vector2.Zero;
         }
@@ -367,6 +432,8 @@ namespace Ship_Game.Data
 
     public class Vector3Converter : TypeConverter
     {
+        public override string ToString() => "Vector3Converter";
+
         public override object Convert(object value)
         {
             if (value is object[] objects)
@@ -377,7 +444,6 @@ namespace Ship_Game.Data
                 if (objects.Length >= 3) v.Z = ConvertTo.Float(objects[2]);
                 return v;
             }
-            
             ConvertTo.Error(value, "Vector3 -- expected [float,float,float]");
             return Vector3.Zero;
         }
@@ -385,6 +451,8 @@ namespace Ship_Game.Data
 
     public class Vector4Converter : TypeConverter
     {
+        public override string ToString() => "Vector4Converter";
+
         public override object Convert(object value)
         {
             if (value is object[] objects)
@@ -396,7 +464,6 @@ namespace Ship_Game.Data
                 if (objects.Length >= 4) v.W = ConvertTo.Float(objects[3]);
                 return v;
             }
-            
             ConvertTo.Error(value, "Vector4 -- expected [float,float,float,float]");
             return Vector4.Zero;
         }

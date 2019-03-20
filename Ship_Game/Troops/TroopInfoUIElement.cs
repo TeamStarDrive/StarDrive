@@ -10,27 +10,27 @@ namespace Ship_Game
     {
         private Rectangle SliderRect;
         private Rectangle ClickRect;
-        private UniverseScreen screen;
-        private Rectangle LeftRect;
+        private readonly UniverseScreen screen;
+        private readonly Rectangle LeftRect;
         private Rectangle RightRect;
         private Rectangle FlagRect;
-        private Rectangle DefenseRect;
-        private Rectangle SoftAttackRect;
-        private Rectangle HardAttackRect;
-        private Rectangle RangeRect;
+        private readonly Rectangle DefenseRect;
+        private readonly Rectangle SoftAttackRect;
+        private readonly Rectangle HardAttackRect;
+        private readonly Rectangle RangeRect;
         private Rectangle ItemDisplayRect;
         private DanButton LaunchTroop;
-        private Selector sel;
+        private readonly Selector Sel;
         private ScrollList DescriptionSL;
         public PlanetGridSquare pgs;
-        private Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+        private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
 
         public TroopInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
             this.screen       = screen;
             ScreenManager     = sm;
             ElementRect       = r;
-            sel               = new Selector(r, Color.Black);
+            Sel               = new Selector(r, Color.Black);
             TransitionOnTime  = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
             SliderRect        = new Rectangle(r.X + r.Width - 100, r.Y + r.Height - 40, 500, 40);
@@ -50,22 +50,22 @@ namespace Ship_Game
 
             ToolTipItems.Add(new TippedItem
             {
-                r = DefenseRect,
+                R = DefenseRect,
                 TIP_ID = 33
             });
             ToolTipItems.Add(new TippedItem
             {
-                r = SoftAttackRect,
+                R = SoftAttackRect,
                 TIP_ID = 34
             });
             ToolTipItems.Add(new TippedItem
             {
-                r = HardAttackRect,
+                R = HardAttackRect,
                 TIP_ID = 35
             });
             ToolTipItems.Add(new TippedItem
             {
-                r = RangeRect,
+                R = RangeRect,
                 TIP_ID = 251
             });
         }
@@ -79,14 +79,14 @@ namespace Ship_Game
                 return;
 
             MathHelper.SmoothStep(0f, 1f, TransitionPosition);
-            ScreenManager.SpriteBatch.FillRectangle(sel.Rect, Color.Black);
+            ScreenManager.SpriteBatch.FillRectangle(Sel.Rect, Color.Black);
 
             float x          = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 mousePos = new Vector2(x, state.Y);
             string slantText = pgs.TroopsHere.Count > 0 ? pgs.SingleTroop.Name : Localizer.Token(pgs.building.NameTranslationIndex);
-            Header slant     = new Header(new Rectangle(sel.Rect.X, sel.Rect.Y, sel.Rect.Width, 41), slantText);
-            Body body        = new Body(new Rectangle(slant.leftRect.X, sel.Rect.Y + 44, sel.Rect.Width, sel.Rect.Height - 44));
+            Header slant     = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), slantText);
+            Body body        = new Body(new Rectangle(slant.leftRect.X, Sel.Rect.Y + 44, Sel.Rect.Width, Sel.Rect.Height - 44));
             Color color      = Color.White;
 
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
@@ -187,7 +187,7 @@ namespace Ship_Game
             }
             foreach (TippedItem ti in ToolTipItems)
             {
-                if (!ti.r.HitTest(input.CursorPosition))
+                if (!ti.R.HitTest(input.CursorPosition))
                 {
                     continue;
                 }
@@ -198,7 +198,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(67);
                 if (LaunchTroop.HandleInput(input))
                 {
-                    if ((screen.workersPanel as CombatScreen).ActiveTroop.SingleTroop.AvailableMoveActions < 1)
+                    if (((CombatScreen) screen.workersPanel).ActiveTile.SingleTroop.AvailableMoveActions < 1)
                     {
                         GameAudio.NegativeClick();                        
                         return true;
@@ -208,7 +208,7 @@ namespace Ship_Game
                     using (pgs.TroopsHere.AcquireWriteLock())
                         if (pgs.TroopsHere.Count > 0) pgs.SingleTroop.Launch();
 
-                    (screen.workersPanel as CombatScreen).ActiveTroop = null;
+                    ((CombatScreen) screen.workersPanel).ActiveTile = null;
                 }
             }            
             return false;
@@ -218,25 +218,25 @@ namespace Ship_Game
         {
             this.pgs = pgs;
             if (this.pgs == null)
-            {
                 return;
-            }
+
             if (pgs.TroopsHere.Count != 0)
             {
                 DescriptionSL.Reset();
                 HelperFunctions.parseTextToSL(pgs.SingleTroop.Description, (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
                 return;
             }
-            if (pgs.building != null)
-            {
-                DescriptionSL.Reset();
-                HelperFunctions.parseTextToSL(Localizer.Token(pgs.building.DescriptionIndex), (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
-            }
+
+            if (pgs.building == null)
+                return;
+
+            DescriptionSL.Reset();
+            HelperFunctions.parseTextToSL(Localizer.Token(pgs.building.DescriptionIndex), (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
         }
 
         private struct TippedItem
         {
-            public Rectangle r;
+            public Rectangle R;
             public int TIP_ID;
         }
     }

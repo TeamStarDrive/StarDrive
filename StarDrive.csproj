@@ -220,18 +220,23 @@
     <Compile Include="Ship_Game\Commands\Goals\BuildOffensiveShips.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildScout.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildTroop.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\RefitShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\IncreaseFreighters.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
+    <Compile Include="Ship_Game\Data\Binary\BinaryConverter.cs" />
+    <Compile Include="Ship_Game\Data\Binary\BinaryConverters.cs" />
+    <Compile Include="Ship_Game\Data\Binary\StarDataBinarySerializer.cs" />
     <Compile Include="Ship_Game\Data\DDSReader.cs" />
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
     <Compile Include="Ship_Game\Data\ImageUtils.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
     <Compile Include="Ship_Game\Data\StarDataConverter.cs" />
-    <Compile Include="Ship_Game\Data\StarDataNode.cs" />
+    <Compile Include="Ship_Game\Data\YamlNode.cs" />
     <Compile Include="Ship_Game\Data\StarDataSerializer.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
-    <Compile Include="Ship_Game\Data\StarDataParser.cs" />
+    <Compile Include="Ship_Game\Data\YamlParser.cs" />
+    <Compile Include="Ship_Game\Data\StringView.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DebugText.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Debug\DebugTextBlock.cs" />
@@ -360,6 +365,11 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Colonize.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\SunZoneData.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_ConstructionQueue.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_EvaluateBuildings.cs" />
@@ -1522,6 +1532,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Nebulas\nebula_512x512_08.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\SunZoneData.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Suns.yaml">

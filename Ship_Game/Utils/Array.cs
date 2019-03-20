@@ -697,10 +697,10 @@ namespace Ship_Game
 
     public static class ArrayHelper
     {
-        public static IList NewArrayOfT(Type type)
+        public static IList NewArrayOfT(Type elementType)
         {
             var arrayType = typeof(Array<>);
-            var genericArray = arrayType.MakeGenericType(type);
+            var genericArray = arrayType.MakeGenericType(elementType);
             return Activator.CreateInstance(genericArray) as IList;
         }
     }

@@ -196,7 +196,7 @@ namespace Ship_Game.Ships
             TransportingColonists  = save.TransportingColonists;
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
-                            ? save.TroopList[0].Name : save.Name;
+                            ? save.TroopList[0].Name : save.VanityName;
 
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
@@ -617,7 +617,7 @@ namespace Ship_Game.Ships
 
         private float GetBaseCost()
         {
-            return ModuleSlotList.Sum(module => module.ActualCost);
+            return ModuleSlotList.Sum(module => module.Cost);
         }
 
         private float GetMaxBank(float mBank)
