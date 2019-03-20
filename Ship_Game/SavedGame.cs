@@ -241,30 +241,13 @@ namespace Ship_Game
                         ShipLevel     = g.ShipLevel,
                         VanityName    = g.VanityName
                     };
-                    if (g.FinishedShip != null)
-                    {
-                        gdata.colonyShipGuid = g.FinishedShip.guid;
-                    }
-                    if (g.ColonizationTarget != null)
-                    {
-                        gdata.markedPlanetGuid = g.ColonizationTarget.guid;
-                    }
-                    if (g.PlanetBuildingAt != null)
-                    {
-                        gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
-                    }
-                    if (g.Fleet != null)
-                    {
-                        gdata.fleetGuid = g.Fleet.Guid;
-                    }
-                    if (g.ShipToBuild != null)
-                    {
-                        gdata.beingBuiltGUID = g.ShipToBuild.guid;
-                    }
-                    if (g.OldShip != null)
-                    {
-                        gdata.OldShipGuid = g.OldShip.guid;
-                    }
+                    if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
+                    if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
+                    if (g.PlanetBuildingAt != null)   gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
+                    if (g.Fleet != null)              gdata.fleetGuid                 = g.Fleet.Guid;
+                    if (g.ShipToBuild != null)        gdata.beingBuiltGUID            = g.ShipToBuild.guid;
+                    if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
+
                     return gdata;
                 });
                 empireToSave.GSAIData = gsaidata;
