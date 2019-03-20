@@ -78,7 +78,7 @@ namespace Ship_Game.Universe.SolarBodies
                 notificationText, SolarSystemBody.Type.IconPath, "SnapToPlanet", SolarSystemBody);
         }
 
-        public void DropBomb(Bomb bomb)
+        public void DropBomb(Bomb bomb) // FB - @todo this stuff needs refactor
         {
             if (bomb.Owner == Owner)
                 return;
@@ -209,34 +209,8 @@ namespace Ship_Game.Universe.SolarBodies
                 }
                 if (Population <= 0f)
                 {
-                    SolarSystemBody.Population = 0f;
-                    if (Owner != null)
-                    {
-                        Owner.RemovePlanet(SolarSystemBody);
-                        if (SolarSystemBody.IsExploredBy(Empire.Universe.PlayerEmpire))
-                        {
-                            Empire.Universe.NotificationManager.AddPlanetDiedNotification(SolarSystemBody, Empire.Universe.PlayerEmpire);
-                        }
-                        bool removeowner = true;
-                        if (Owner != null)
-                        {
-                            foreach (Planet other in ParentSystem.PlanetList)
-                            {
-                                if (other.Owner != Owner || other == SolarSystemBody)
-                                {
-                                    continue;
-                                }
-                                removeowner = false;
-                            }
-                            if (removeowner)
-                            {
-                                ParentSystem.OwnerList.Remove(Owner);
-                            }
-                        }
-                        SolarSystemBody.ConstructionQueue.Clear();
-                        SolarSystemBody.Owner = null;
-                        return;
-                    }
+                    SolarSystemBody.WipeOutColony();
+                    return;
                 }
                 if (ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction != null)
                 {
