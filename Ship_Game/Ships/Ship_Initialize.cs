@@ -196,7 +196,7 @@ namespace Ship_Game.Ships
             TransportingColonists  = save.TransportingColonists;
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
-                            ? save.TroopList[0].Name : save.Name;
+                            ? save.TroopList[0].Name : save.VanityName;
 
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
