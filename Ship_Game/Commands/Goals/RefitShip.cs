@@ -112,7 +112,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 if (!OldShip.Active)
                     return false; // Ship was removed from game, probably destroyed
 
-                return OldShip.AI.State == AIState.Refit;
+                return OldShip.DoingRefit;
             }
         }
 
@@ -123,7 +123,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 if (!OldShip.Active)
                     return false; // Ship was removed from game, probably destroyed
 
-                return OldShip.AI.State == AIState.HoldPosition || OldShip.AI.State == AIState.Refit;
+                return OldShip.AI.State == AIState.HoldPosition || OldShip.DoingRefit;
             }
         }
     }

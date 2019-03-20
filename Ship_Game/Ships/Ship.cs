@@ -531,13 +531,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool doingScrap
+        public bool DoingScrap
         {
             get => AI.State == AIState.Scrap;
             set => AI.OrderScrapShip();
         }
 
-        public bool doingRefit
+        public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
             set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
