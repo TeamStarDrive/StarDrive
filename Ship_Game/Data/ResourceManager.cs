@@ -1701,9 +1701,8 @@ namespace Ship_Game
             }
         }
 
-        static readonly Map<SunZone, Array<PlanetCategory>> SunZoneWeights = new Map<SunZone, Array<PlanetCategory>>();
+        static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new Map<SunZone, Array<PlanetCategory>>();
         static Array<PlanetType> PlanetTypes;
-        static Array<SunZoneData> SunZones;
         static Map<int, PlanetType> PlanetTypeMap;
 
         public static PlanetType RandomPlanet() => RandomMath.RandItem(PlanetTypes);
@@ -1711,11 +1710,6 @@ namespace Ship_Game
         public static PlanetType RandomPlanet(PlanetCategory category)
         {
             return RandomMath.RandItem(PlanetTypes.Filter(p => p.Category == category));
-        }
-
-        public static PlanetCategory RandomPlanetCategory(IReadOnlyList<PlanetCategory> categoryList)
-        {
-            return RandomMath.RandItem(categoryList);
         }
 
         public static PlanetType PlanetOrRandom(int planetId)
@@ -1727,7 +1721,7 @@ namespace Ship_Game
 
         static void LoadPlanetTypes()
         {
-            using (var parser = new Data.StarDataParser("PlanetTypes.yaml"))
+            using (var parser = new Data.YamlParser("PlanetTypes.yaml"))
             {
                 PlanetTypes = parser.DeserializeArray<PlanetType>();
             }
@@ -1740,19 +1734,19 @@ namespace Ship_Game
 
         static void LoadSunZoneData()
         {
-            using (var parser = new Data.StarDataParser("SunZoneData.yaml"))
+            using (var parser = new Data.YamlParser("SunZoneData.yaml"))
             {
-                SunZones = parser.DeserializeArray<SunZoneData>();
-                SunZoneWeights[SunZone.Near]    = SunZoneData.CreateWeights(SunZones, SunZone.Near);
-                SunZoneWeights[SunZone.Habital] = SunZoneData.CreateWeights(SunZones, SunZone.Habital);
-                SunZoneWeights[SunZone.Far]     = SunZoneData.CreateWeights(SunZones, SunZone.Far);
-                SunZoneWeights[SunZone.VeryFar] = SunZoneData.CreateWeights(SunZones, SunZone.VeryFar);
+                var zones = parser.DeserializeArray<SunZoneData>();
+                ZoneDistribution[SunZone.Near]    = SunZoneData.CreateDistribution(zones, SunZone.Near);
+                ZoneDistribution[SunZone.Habital] = SunZoneData.CreateDistribution(zones, SunZone.Habital);
+                ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
+                ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
             }
         }
 
-        public static Array<PlanetCategory> GetSunZoneWeights(SunZone sunZone)
+        public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)
         {
-            return SunZoneWeights[sunZone];
+            return ZoneDistribution[sunZone].RandItem();
         }
 
         // Added by RedFox
