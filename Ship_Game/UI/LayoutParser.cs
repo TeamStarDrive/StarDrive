@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
+using Ship_Game.Data.YamlSerializer;
 using Ship_Game.SpriteSystem;
 
 namespace Ship_Game.UI
@@ -48,7 +49,7 @@ namespace Ship_Game.UI
         readonly YamlNode Root;
         readonly string Name;
         readonly Vector2 VirtualXForm; // multiplier to transform virtual coordinates to actual coordinates
-        readonly StarDataSerializer ElementSerializer = new StarDataSerializer(typeof(ElementInfo));
+        readonly YamlSerializer ElementSerializer = new YamlSerializer(typeof(ElementInfo));
 
         LayoutParser(UIElementContainer mainContainer, Vector2 size, FileInfo file)
         {
@@ -63,7 +64,7 @@ namespace Ship_Game.UI
             MainContainer.Size = size;
             if (Root.FindSubNode("Screen", out YamlNode screen))
             {
-                var info = (ScreenInfo)new StarDataSerializer(typeof(ScreenInfo)).Deserialize(screen);
+                var info = (ScreenInfo)new YamlSerializer(typeof(ScreenInfo)).Deserialize(screen);
                 Name = info.Name;
                 virtualSize = info.VirtualSize;
             }

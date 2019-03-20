@@ -5,7 +5,7 @@ using Ship_Game;
 using Ship_Game.Gameplay;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace SDUnitTests
+namespace UnitTests.Collections
 {
     [TestClass]
     public class TestArrayT

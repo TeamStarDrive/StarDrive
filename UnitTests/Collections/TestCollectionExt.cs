@@ -3,7 +3,7 @@ using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Microsoft.VisualStudio.TestTools.UnitTesting.CollectionAssert;
 
-namespace SDUnitTests
+namespace UnitTests.Collections
 {
     [TestClass]
     public class TestCollectionExt
