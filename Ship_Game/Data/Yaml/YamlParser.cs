@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using Ship_Game.Data.YamlSerializer;
 
 namespace Ship_Game.Data
 {
@@ -441,7 +442,7 @@ namespace Ship_Game.Data
         public Array<T> DeserializeArray<T>() where T : new()
         {
             var items = new Array<T>();
-            var ser = new StarDataSerializer(typeof(T));
+            var ser = new YamlSerializer.YamlSerializer(typeof(T));
             foreach (YamlNode child in Root)
             {
                 items.Add((T)ser.Deserialize(child));
@@ -451,7 +452,7 @@ namespace Ship_Game.Data
 
         public T DeserializeOne<T>() where T : new()
         {
-            var ser = new StarDataSerializer(typeof(T));
+            var ser = new YamlSerializer.YamlSerializer(typeof(T));
             foreach (YamlNode child in Root)
             {
                 return (T)ser.Deserialize(child);

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data.Binary
 {
-    class BinaryConverters
+    class BinarySerializers
     {
         readonly Map<Type, TypeSerializer> Serializers = new Map<Type, TypeSerializer>
         {
