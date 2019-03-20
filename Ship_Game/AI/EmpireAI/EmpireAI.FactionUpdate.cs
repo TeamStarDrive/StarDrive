@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -122,7 +123,10 @@ namespace Ship_Game.AI
                             else if (assimilate.SurfaceArea >= 100) shipName = "Remnant Exterminator";
                             ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template);
                             if (template != null)
-                                assimilate.AI.OrderRefitTo(template);
+                            {
+                                Goal refitShip = new RefitShip(assimilate, template.Name, OwnerEmpire);
+                                OwnerEmpire.GetEmpireAI().Goals.Add(refitShip);
+                            }
                         }
                     }
                     else
