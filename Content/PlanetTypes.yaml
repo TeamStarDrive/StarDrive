@@ -283,7 +283,7 @@ PlanetType: 15 # Polyphemus, Uranus, Cyan/LightBlue giant
   Composition: 1711
   IconPath: Planets/15
   MeshPath: Model/SpaceObjects/planet_15
-    Scale: 2.5
+  Scale: 2.5
 
 PlanetType: 26 # Neptune, Blue giant
   Category: GasGiant
