@@ -6,7 +6,7 @@ using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Ships;
 
-namespace SDUnitTests
+namespace UnitTests.Serialization
 {
     [TestClass]
     public class TestSerialization

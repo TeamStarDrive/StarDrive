@@ -6,7 +6,7 @@ using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Universe.SolarBodies;
 
-namespace UnitTests
+namespace UnitTests.Serialization
 {
     [TestClass]
     public class TestStarDataSerializer
