@@ -63,19 +63,6 @@ namespace Ship_Game
             AddEventsAndCommodities();
         }
 
-        static PlanetType ChooseType(SunZone sunZone)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                PlanetType type = ResourceManager.RandomPlanet();
-                if (type.Zone == sunZone 
-                || (type.Zone == SunZone.Any && sunZone == SunZone.Near)
-                || (x > 2 && type.Zone == SunZone.Any))
-                    return type;
-            }
-            return ResourceManager.RandomPlanet();
-        }
-
         // FB - this is a more comprehensive method of choosing planet type.
         // It gets the planet category by weights based on sun zone and then
         // randomize relevant planet types from the chose category
@@ -102,7 +89,6 @@ namespace Ship_Game
             MaxPopBase = type.MaxPop.Generate();
             Fertility  = type.Fertility.Generate().Clamped(type.MinFertility, 100.0f);
             MaxFertility = Fertility;
-            Zone         = type.Zone;
             TilesList.Clear();
 
             if (Habitable)
