@@ -531,13 +531,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool doingScrap
+        public bool DoingScrap
         {
             get => AI.State == AIState.Scrap;
             set => AI.OrderScrapShip();
         }
 
-        public bool doingRefit
+        public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
             set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
@@ -1916,17 +1916,15 @@ namespace Ship_Game.Ships
                    shipData.ShipCategory == ShipData.Category.Unclassified;
         }
 
-        public int RefitCost(string newShipName)
+        public int RefitCost(Ship newShip)
         {
             if (loyalty.isFaction)
                 return 0;
 
             float oldShipCost = GetCost(loyalty);
-            float newShipCost = ResourceManager.ShipsDict[newShipName].GetCost(loyalty);
-
-            int cost = Math.Max((int)(newShipCost - oldShipCost), 0);
-            cost    += (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace
-            return cost;
+            float newShipCost = newShip.GetCost(loyalty);
+            int cost          = Math.Max((int)(newShipCost - oldShipCost), 0);
+            return cost + (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace;
         }
 
         public ShipStatus HealthStatus

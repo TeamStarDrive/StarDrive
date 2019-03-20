@@ -237,28 +237,17 @@ namespace Ship_Game
                         ToBuildUID    = g.ToBuildUID,
                         type          = g.type,
                         GoalGuid      = g.guid,
-                        GoalName      = g.UID
+                        GoalName      = g.UID,
+                        ShipLevel     = g.ShipLevel,
+                        VanityName    = g.VanityName
                     };
-                    if (g.FinishedShip != null)
-                    {
-                        gdata.colonyShipGuid = g.FinishedShip.guid;
-                    }
-                    if (g.ColonizationTarget != null)
-                    {
-                        gdata.markedPlanetGuid = g.ColonizationTarget.guid;
-                    }
-                    if (g.PlanetBuildingAt != null)
-                    {
-                        gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
-                    }
-                    if (g.Fleet != null)
-                    {
-                        gdata.fleetGuid = g.Fleet.Guid;
-                    }
-                    if (g.ShipToBuild != null)
-                    {
-                        gdata.beingBuiltGUID = g.ShipToBuild.guid;
-                    }
+                    if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
+                    if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
+                    if (g.PlanetBuildingAt != null)   gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
+                    if (g.Fleet != null)              gdata.fleetGuid                 = g.Fleet.Guid;
+                    if (g.ShipToBuild != null)        gdata.beingBuiltGUID            = g.ShipToBuild.guid;
+                    if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
+
                     return gdata;
                 });
                 empireToSave.GSAIData = gsaidata;
@@ -282,8 +271,8 @@ namespace Ship_Game
                         sdata.TetheredTo   = ship.GetTether().guid;
                         sdata.TetherOffset = ship.TetherOffset;
                     }
-                    sdata.Name       = ship.Name;
-                    sdata.VanityName = ship.VanityName;
+                    sdata.Name             = ship.Name;
+                    sdata.VanityName       = ship.VanityName;
                     sdata.Hull             = ship.shipData.Hull;
                     sdata.Power            = ship.PowerCurrent;
                     sdata.Ordnance         = ship.Ordinance;
@@ -593,6 +582,9 @@ namespace Ship_Game
             [Serialize(8)] public Guid beingBuiltGUID;
             [Serialize(9)] public Guid fleetGuid;
             [Serialize(10)] public Guid GoalGuid;
+            [Serialize(11)] public Guid OldShipGuid;
+            [Serialize(12)] public string VanityName;
+            [Serialize(13)] public int ShipLevel;
         }
 
         public class GSAISAVE

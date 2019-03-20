@@ -220,6 +220,7 @@
     <Compile Include="Ship_Game\Commands\Goals\BuildOffensiveShips.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildScout.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildTroop.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\RefitShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\IncreaseFreighters.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
