@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Ship_Game.Commands.Goals;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -294,9 +295,8 @@ namespace Ship_Game.AI
                     continue;
 
                 Ship newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
-
-                if (newShip == null) continue;
-                ship.AI.OrderRefitTo(newShip);
+                if (newShip != null)
+                    Goals.Add(new RefitShip(ship, newShip.Name, OwnerEmpire));
             }
         }
 

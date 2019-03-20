@@ -411,6 +411,9 @@ namespace Ship_Game
                 if (value < belowFertility && Category == from)
                 {
                     Terraform(to);
+                    if (MaxPopulation.AlmostZero())
+                        WipeOutColony();
+
                     return true;
                 }
             }
@@ -794,6 +797,32 @@ namespace Ship_Game
                 Population += repRate;
 
             Population = Population.Clamped(100f, MaxPopulation);
+        }
+
+        public void WipeOutColony()
+        {
+            Population = 0f;
+            if (Owner == null)
+                return;
+
+            Owner.RemovePlanet(this);
+            if (IsExploredBy(Empire.Universe.PlayerEmpire))
+                Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
+
+            bool removeOwner = true;
+            foreach (Planet other in ParentSystem.PlanetList)
+            {
+                if (other.Owner != Owner || other == this)
+                    continue;
+
+                removeOwner = false;
+            }
+
+            if (removeOwner)
+                ParentSystem.OwnerList.Remove(Owner);
+
+            ConstructionQueue.Clear();
+            Owner = null;
         }
 
         public bool EventsOnBuildings()
