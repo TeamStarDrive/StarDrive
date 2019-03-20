@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Ship_Game.Data.Binary
 {
-    internal class BinaryConverter
+    public class BinarySerializer
     {
+
     }
 }

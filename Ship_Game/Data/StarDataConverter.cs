@@ -34,7 +34,7 @@ namespace Ship_Game.Data
     }
     
     // type mapping cache for converters
-    internal class Converters
+    class Converters
     {
         readonly Map<Type, TypeConverter> Types;
 
