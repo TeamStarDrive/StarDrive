@@ -17,7 +17,8 @@ namespace Ship_Game.AI
         BuildTroop,
         BuildShips,
         BuildScout,
-        FleetRequisition
+        FleetRequisition,
+        Refit
     }
 
     public enum GoalStep
@@ -41,10 +42,13 @@ namespace Ship_Game.AI
         public bool Held;
         public Vector2 BuildPosition;
         public string ToBuildUID;
+        public string VanityName;
+        public int ShipLevel;
         public Planet PlanetBuildingAt;
         public Planet ColonizationTarget { get; set; }
         public Ship ShipToBuild;  // this is a template
         public Ship FinishedShip; // this is the actual ship that was built
+        public Ship OldShip;      // this is the ship which needs refit
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
@@ -65,6 +69,7 @@ namespace Ship_Game.AI
                 case FleetRequisition.ID:       return new FleetRequisition();
                 case IncreaseFreighters.ID:     return new IncreaseFreighters();
                 case MarkForColonization.ID:    return new MarkForColonization();
+                case RefitShip.ID:              return new RefitShip();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
@@ -77,6 +82,8 @@ namespace Ship_Game.AI
             g.Step          = gsave.GoalStep;
             g.guid          = gsave.GoalGuid;
             g.BuildPosition = gsave.BuildPosition;
+            g.VanityName    = gsave.VanityName;
+            g.ShipLevel     = gsave.ShipLevel;
             return g;
         }
 
