@@ -40,7 +40,7 @@ namespace Ship_Game.AI.CombatTactics
             // when doing broadside to Right, wanted forward dir is 90 degrees left
             // when doing broadside to Left, wanted forward dir is 90 degrees right
             dir = (OrbitDirection == ShipAI.Orbit.Right) ? dir.LeftVector() : dir.RightVector();
-            AI.SublightSlowToStop(elapsedTime);
+            AI.ReverseThrustUntilStopped(elapsedTime);
             AI.RotateTowardsPosition(AI.Owner.Center + dir, elapsedTime, 0.02f);
 
         }

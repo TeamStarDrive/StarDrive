@@ -1,7 +1,7 @@
-using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game.AI
 {
@@ -16,6 +16,8 @@ namespace Ship_Game.AI
         public float PirateWeight;
         private float AssistWeight;
         public Ship Owner;
+        ShipAIPlan CombatTactic;
+        CombatState CurrentCombatStance;
 
         public CombatAI()
         {
@@ -24,10 +26,12 @@ namespace Ship_Game.AI
         public CombatAI(Ship ship)
         {
             Owner = ship;
-            UpdateCombatAI(ship);
+            UpdateTargetPriorities(ship);
+            CurrentCombatStance = ship.AI.CombatState;
+            SetCombatTactics(ship.AI.CombatState);
         }
 
-        public void UpdateCombatAI(Ship ship)
+        public void UpdateTargetPriorities(Ship ship)
         {
             if (ship.SurfaceArea <= 0)
                 return;
@@ -46,36 +50,15 @@ namespace Ship_Game.AI
             if (ship.Weapons.Count > 0)
                 fireRate /= ship.Weapons.Count;
 
-            LargeAttackWeight  = mains > 2 ? 3 : fireRate > 0.5 ? 2 : 0;            
-            SmallAttackWeight  = mains == 0 && fireRate < .1 && pd > 1 ? 3 : 0;                        
+            LargeAttackWeight  = mains > 2 ? 3 : fireRate > 0.5 ? 2 : 0;
+            SmallAttackWeight  = mains == 0 && fireRate < .1 && pd > 1 ? 3 : 0;
             MediumAttackWeight = mains < 3 && fireRate > .1 ? 3 : 0;
             if (ship.loyalty.isFaction || ship.velocityMaximum > 500)
                 VultureWeight  = 2;
             if (ship.loyalty.isFaction)
                 PirateWeight   = 3;
             AssistWeight = 0;
-           // SetFleetWeights();
         }
-
-        //public void SetFleetWeights()
-        //{
-        //    var ship = Owner;
-        //    FleetDataNode node = Owner?.AI.FleetNode;
-        //    if (Owner?.fleet == null || node == null)
-        //    {
-        //        PreferredEngagementDistance = ship.maxWeaponsRange * 0.75f;
-        //        return;
-        //    }
-
-        //    VultureWeight               = node.VultureWeight;
-        //    PreferredEngagementDistance = node.OrdersRadius;
-        //    SelfDefenseWeight           = node.DefenderWeight;
-        //    LargeAttackWeight          += LargeAttackWeight * node.SizeWeight;
-        //    SmallAttackWeight          += SmallAttackWeight * (1 - node.SizeWeight);
-        //    MediumAttackWeight         += MediumAttackWeight * -Math.Abs(node.SizeWeight);
-        //    PirateWeight               -= node.DPSWeight;
-        //    AssistWeight               += node.AssistWeight;
-        //}
 
         public float ApplyWeight(Ship nearbyShip)
         {
@@ -110,8 +93,8 @@ namespace Ship_Game.AI
                 }
             }
             if (surfaceArea > 30 && surfaceArea < 100)
-            {                
-                weight += Owner.shipData.ShipCategory == ShipData.Category.Neutral ?  MediumAttackWeight *= 1.5f : MediumAttackWeight;                
+            {
+                weight += Owner.shipData.ShipCategory == ShipData.Category.Neutral ?  MediumAttackWeight *= 1.5f : MediumAttackWeight;
             }
             if (surfaceArea > 100)
             {
@@ -134,7 +117,7 @@ namespace Ship_Game.AI
                 weight += (int)Math.Ceiling(5 * ((PreferredEngagementDistance -
                                                         Vector2.Distance(Owner.Center, nearbyShip.Center))
                                                        / PreferredEngagementDistance));
-                    
+
             }
             else if (rangeToTarget > PreferredEngagementDistance + Owner.velocityMaximum * 5)
             {
@@ -168,5 +151,57 @@ namespace Ship_Game.AI
             }
             return weight;
         }
+
+        public void SetCombatTactics(CombatState combatState)
+        {
+            if (CurrentCombatStance != combatState)
+            {
+                CurrentCombatStance = combatState;
+                CombatTactic = null;
+            }
+
+            if (CombatTactic == null)
+            {
+                switch (combatState)
+                {
+                    case CombatState.Artillery:
+                        CombatTactic = new CombatTactics.Artillery(Owner.AI);
+                        break;
+                    case CombatState.BroadsideLeft:
+                        CombatTactic = new CombatTactics.BroadSides(Owner.AI, ShipAI.Orbit.Left);
+                        break;
+                    case CombatState.BroadsideRight:
+                        CombatTactic = new CombatTactics.BroadSides(Owner.AI, ShipAI.Orbit.Right);
+                        break;
+                    case CombatState.OrbitLeft:
+                        CombatTactic = new CombatTactics.OrbitTarget(Owner.AI, ShipAI.Orbit.Left);
+                        break;
+                    case CombatState.OrbitRight:
+                        CombatTactic = new CombatTactics.OrbitTarget(Owner.AI, ShipAI.Orbit.Right);
+                        break;
+                    case CombatState.AttackRuns:
+                        CombatTactic = new CombatTactics.AttackRun(Owner.AI);
+                        break;
+                    case CombatState.HoldPosition:
+                        CombatTactic = new CombatTactics.HoldPosition(Owner.AI);
+                        break;
+                    case CombatState.Evade:
+                        CombatTactic = new CombatTactics.Evade(Owner.AI);
+                        break;
+                    case CombatState.AssaultShip:
+                        CombatTactic = new CombatTactics.AssaultShipCombat(Owner.AI);
+                        break;
+                    case CombatState.OrbitalDefense:
+                        break;
+                    case CombatState.ShortRange:
+                        CombatTactic = new CombatTactics.Artillery(Owner.AI);
+                        break;
+                }
+
+            }
+        }
+
+        public void ExecuteCombatTactic(float elapsedTime) => CombatTactic.Execute(elapsedTime, null);
+
     }
 }
