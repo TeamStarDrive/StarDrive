@@ -12,16 +12,16 @@ SunZoneData: Near
     - {Type: GasGiant, Count: 2 }
 SunZoneData: Habital
   Distribution:
-    - {Type: Barren, Count: 15 }
+    - {Type: Barren, Count: 20 }
     - {Type: Desert, Count: 3 }
     - {Type: Steppe, Count: 3 }
-    - {Type: Tundra, Count: 2 }
-    - {Type: Terran, Count: 2 }
+    - {Type: Tundra, Count: 3 }
+    - {Type: Terran, Count: 3 }
     - {Type: Volcanic, Count: 5 }
     - {Type: Ice, Count: 2 }
     - {Type: Swamp, Count: 3 }
     - {Type: Oceanic, Count: 3 }
-    - {Type: GasGiant, Count: 15 }
+    - {Type: GasGiant, Count: 5 }
 SunZoneData: Far
   Distribution:
     - {Type: Barren, Count: 15 }
