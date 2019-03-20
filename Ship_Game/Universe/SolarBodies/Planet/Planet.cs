@@ -126,7 +126,8 @@ namespace Ship_Game
             }
             else
             {
-                InitNewMinorPlanet(ChooseType(sunZone));
+                PlanetType chosenType = ChooseTypeByWeight(sunZone);
+                InitNewMinorPlanet(chosenType);
             }
 
             float zoneBonus = ((int)sunZone + 1) * .2f * ((int)sunZone + 1);
