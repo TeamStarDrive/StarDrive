@@ -241,7 +241,7 @@
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DrawPrimitives.cs" />
     <Compile Include="Ship_Game\Debug\DebugTextBlock.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugPage.cs" />
-    <Compile Include="Ship_Game\Debug\Page\PathDebug.cs" />
+    <Compile Include="Ship_Game\Debug\Page\PathFinderDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\SolarDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\TradeDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\PlanetDebug.cs" />
@@ -295,6 +295,9 @@
     <Compile Include="Ship_Game\Input\InputState_DoubleClick.cs" />
     <Compile Include="Ship_Game\Input\InputState_Holding.cs" />
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
+    <Compile Include="Ship_Game\PathFinder\Astar.cs" />
+    <Compile Include="Ship_Game\PathFinder\Node.cs" />
+    <Compile Include="Ship_Game\PathFinder\NodeVector.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\IShipTemplate.cs" />
@@ -398,6 +401,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.ShipGroupMove.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.StressTestShipLoading.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.UpdateGame.cs" />
+    <Compile Include="Ship_Game\Utils\Deque.cs" />
     <Compile Include="Ship_Game\Utils\ReadRestAPI.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs">
@@ -435,7 +439,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\SafeQueue.cs" />
+    <Compile Include="Ship_Game\Utils\SafeQueue.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveSetupScreen.cs" />
     <Compile Include="Ship_Game\SetupSave.cs" />
     <Compile Include="Ship_Game\Data\ShipNames.cs" />
