@@ -493,13 +493,13 @@ namespace Ship_Game
 
                 foreach (Ship s in data.MasterShipList)
                 {
-                    if (gsave.colonyShipGuid      == s.guid) g.FinishedShip = s;
+                    if      (gsave.colonyShipGuid == s.guid) g.FinishedShip = s;
                     else if (gsave.beingBuiltGUID == s.guid) g.ShipToBuild  = s;
                     else if (gsave.OldShipGuid    == s.guid) g.OldShip      = s;
                 }
                 if (g.type == GoalType.Refit && gsave.ToBuildUID != null)
                 {
-                    ResourceManager.ShipsDict.TryGetValue(gsave.ToBuildUID, out Ship shipToBuild);
+                    Ship shipToBuild = ResourceManager.GetShipTemplate(gsave.ToBuildUID, false);
                     if (shipToBuild != null)
                         g.ShipToBuild = shipToBuild;
                     else

@@ -69,7 +69,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipWaitingForRefit)
                 return GoalStep.GoalFailed;
 
-            ResourceManager.ShipsDict.TryGetValue(ToBuildUID, out Ship newShip);
+            Ship newShip = ResourceManager.GetShipTemplate(ToBuildUID, false);
             if (newShip == null)
                 return GoalStep.GoalFailed; // Could not find ship to build in ship dictionary
 
