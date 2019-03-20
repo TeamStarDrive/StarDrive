@@ -151,7 +151,7 @@ namespace Ship_Game
         public T[] GetInternalArrayItems() => Items;
 
         // Separated throw from this[] to enable MSIL inlining
-        private void ThrowIndexOutOfBounds(int index)
+        void ThrowIndexOutOfBounds(int index)
         {
             throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
         }
@@ -755,10 +755,10 @@ namespace Ship_Game
 
     public static class ArrayHelper
     {
-        public static IList NewArrayOfT(Type type)
+        public static IList NewArrayOfT(Type elementType)
         {
             var arrayType = typeof(Array<>);
-            var genericArray = arrayType.MakeGenericType(type);
+            var genericArray = arrayType.MakeGenericType(elementType);
             return Activator.CreateInstance(genericArray) as IList;
         }
     }
