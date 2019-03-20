@@ -512,7 +512,12 @@ namespace Ship_Game.AI
                 float distanceToOrbitSpot = Owner.Center.Distance(OrbitPos);
                 if (distanceToOrbitSpot <= radius || Owner.Speed < 1f)
                 {
+<<<<<<< working copy
                     OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount )).ToDegrees() * 10f;
+=======
+                    //this works but... i dont think its right.
+                    OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount.Clamped(-1f,1f))).ToDegrees() * 10f;
+>>>>>>> merge rev
                     OrbitalAngle = OrbitalAngle.NormalizedAngle();
                 }
                 FindNewPosTimer = elapsedTime * 10f;
