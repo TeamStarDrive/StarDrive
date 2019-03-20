@@ -5,7 +5,9 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -27,8 +29,9 @@ namespace Ship_Game
                 batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
                 DrawEmptySlots(batch);
                 DrawModules(batch);
-                DrawTacticalData(batch);
                 DrawUnpoweredTex(batch);
+                DrawTacticalOverlays(batch);
+                DrawModuleSelections(batch);
                 batch.End();
             }
 
@@ -47,7 +50,29 @@ namespace Ship_Game
             ScreenManager.EndFrameRendering();
         }
 
-        void DrawEmptySlots(SpriteBatch spriteBatch)
+        bool GetSlotForModule(ShipModule module, out SlotStruct slot)
+        {
+            slot = module == null ? null : ModuleGrid.SlotsList.FirstOrDefault(s => s.Module == module);
+            return slot != null;
+        }
+
+        void DrawModuleSelections(SpriteBatch batch)
+        {
+            if (GetSlotForModule(HighlightedModule, out SlotStruct highlighted))
+            {
+                DrawRectangle(highlighted.ModuleRect, Color.DarkOrange, 1.25f);
+
+                if (Input.LeftMouseHeld())
+                {
+                    if (GetMirrorSlotStruct(highlighted, out SlotStruct mirrored))
+                    {
+                        DrawRectangle(mirrored.ModuleRect, Color.DarkOrange.Alpha(0.33f), 1.25f);
+                    }
+                }
+            }
+        }
+
+        void DrawEmptySlots(SpriteBatch batch)
         {
             SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
 
@@ -55,7 +80,7 @@ namespace Ship_Game
             {
                 if (slot.Module != null)
                 {
-                    slot.Draw(spriteBatch, concreteGlass, Color.Gray);
+                    slot.Draw(batch, concreteGlass, Color.Gray);
                     continue;
                 }
 
@@ -64,13 +89,13 @@ namespace Ship_Game
 
                 bool valid        = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
                 Color activeColor = valid ? Color.LightGreen : Color.Red;
-                slot.Draw(spriteBatch, concreteGlass, activeColor);
+                slot.Draw(batch, concreteGlass, activeColor);
                 if (slot.InPowerRadius)
                 {
                     Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
-                    slot.Draw(spriteBatch, concreteGlass, yellow);
+                    slot.Draw(batch, concreteGlass, yellow);
                 }
-                spriteBatch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions, slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                batch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions, slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
             }
         }
 
@@ -78,18 +103,8 @@ namespace Ship_Game
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                if (slot.ModuleUID == null || slot.Tex == null)
-                    continue;
-
-                DrawModuleTex(slot.Orientation, spriteBatch, slot, slot.ModuleRect);
-
-                if (slot.Module != HoveredModule)
-                {
-                    if (!Input.LeftMouseHeld() || !Input.IsAltKeyDown || slot.Module.ModuleType != ShipModuleType.Turret
-                            || (HighlightedModule?.Facing.AlmostEqual(slot.Module.Facing) ?? false))
-                        continue;
-                }
-                spriteBatch.DrawRectangle(slot.ModuleRect, Color.White, 2f);
+                if (slot.ModuleUID != null && slot.Tex != null)
+                    DrawModuleTex(slot.Orientation, spriteBatch, slot, slot.ModuleRect);
             }
         }
 
@@ -139,31 +154,49 @@ namespace Ship_Game
             spriteBatch.Draw(texture, r, Color.White, rotation, Vector2.Zero, effects, 1f);
         }
 
-        void DrawTacticalData(SpriteBatch spriteBatch)
+        void DrawTacticalOverlays(SpriteBatch batch)
         {
-            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            // if ShowAllArcs is enabled, then we can accidentally render
+            // tactical overlays twice. This helps avoid that
+            var alreadyDrawn = new HashSet<SlotStruct>();
+
+            void DrawTacticalOverlays(SlotStruct s)
             {
-                if (slot.ModuleUID  == null
-                    || slot.Tex     == null
-                    || slot.Module  != HighlightedModule
-                    && !ShowAllArcs)
-                     continue;
+                if (s.ModuleUID == null || s.Tex == null || alreadyDrawn.Contains(s))
+                    return;
 
-                Vector2 center = slot.Center();
-                var mirrored = new MirrorSlot();
-                if (IsSymmetricDesignMode)
-                    mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
+                alreadyDrawn.Add(s);
 
-                if (slot.Module.shield_power_max > 0f)
-                    DrawShieldRadius(center, slot, spriteBatch, mirrored);
+                if (s.Module.shield_power_max > 0f)
+                    DrawShieldRadius(batch, s);
 
-                if (slot.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
-                    DrawFireArcText(center, slot, mirrored);
+                if (s.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
+                {
+                    DrawFireArcText(s);
+                    if (IsSymmetricDesignMode)
+                        ToolTip.ShipYardArcTip();
+                }
 
-                if (slot.Module.ModuleType == ShipModuleType.Hangar)
-                    DrawHangarShipText(center, slot, mirrored);
+                if (s.Module.ModuleType == ShipModuleType.Hangar)
+                    DrawHangarShipText(s);
 
-                DrawWeaponArcs(center, slot, spriteBatch, mirrored);
+                DrawWeaponArcs(batch, s);
+
+                if (IsSymmetricDesignMode && GetMirrorSlotStruct(s, out SlotStruct mirrored))
+                {
+                    DrawTacticalOverlays(mirrored);
+                }
+            }
+
+            // we need to draw highlighted module first to get correct focus color
+            foreach (SlotStruct s in ModuleGrid.SlotsList)
+                if (s.Module == HighlightedModule)
+                    DrawTacticalOverlays(s);
+
+            if (ShowAllArcs) // draw all the rest
+            {
+                foreach (SlotStruct s in ModuleGrid.SlotsList)
+                    DrawTacticalOverlays(s);
             }
         }
 
@@ -183,74 +216,75 @@ namespace Ship_Game
                     || slot.Module.ModuleType == ShipModuleType.PowerConduit)
                         continue;
                 spriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
-                    slot.Center(), Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
+                    slot.Center, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
             }
         }
 
-        void DrawShieldRadius(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
+        void DrawShieldRadius(SpriteBatch batch, SlotStruct slot)
         {
-            spriteBatch.DrawCircle(center, slot.Module.ShieldHitRadius, Color.LightGreen);
-            if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
-                return;
-
-            spriteBatch.DrawCircle(mirrored.Center, mirrored.Slot.Module.ShieldHitRadius, Color.LightGreen);
+            batch.DrawCircle(slot.Center, slot.Module.ShieldHitRadius, Color.LightGreen);
         }
 
-        void DrawFireArcText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
+        void DrawFireArcText(SlotStruct slot)
         {
-            Color color = Color.Black;
-            color.A     = 140;
-
-            DrawRectangle(slot.ModuleRect, Color.White, color);
-            DrawString(center, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
-            if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
-                return;
-
-            DrawRectangle(mirrored.Slot.ModuleRect, Color.White, color);
-            DrawString(mirrored.Center, 0, 1, Color.Orange, mirrored.Slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
-
-            ToolTip.ShipYardArcTip();
+            Color fill = Color.Black.Alpha(0.33f);
+            Color edge = (slot.Module == HighlightedModule) ? Color.DarkOrange : fill;
+            DrawRectangle(slot.ModuleRect, edge, fill);
+            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
         }
 
-        void DrawHangarShipText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
+        void DrawHangarShipText(SlotStruct s)
         {
-            Color color         = Color.Black;
-            color.A             = 100;
-            Color shipNameColor = ShipBuilder.GetHangarTextColor(slot.Module.hangarShipUID);
-            DrawRectangle(slot.ModuleRect, shipNameColor, color);
-            DrawString(center, 0, 0.4f, shipNameColor, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
-            if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
-                return;
-
-            shipNameColor = ShipBuilder.GetHangarTextColor(mirrored.Slot.Module.hangarShipUID);
-            DrawRectangle(mirrored.Slot.ModuleRect, shipNameColor, color);
-            DrawString(mirrored.Center, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
+            Color color = Color.Black.Alpha(0.33f);
+            Color textC = ShipBuilder.GetHangarTextColor(s.Module.hangarShipUID);
+            DrawRectangle(s.ModuleRect, textC, color);
+            DrawString(s.Center, 0, 0.4f, textC, s.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
-        void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
+        void DrawArc(SpriteBatch batch, Weapon w, SlotStruct slot, Color color)
         {
             SubTexture arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
-            var origin           = new Vector2(250f, 250f);
-            Rectangle toDraw     = center.ToRect(500, 500);
 
-            spriteBatch.Draw(arcTexture, toDraw, drawcolor, slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
-            if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
-                return;
+            float multiplier = w.Range / 2500f;
+            var texOrigin = new Vector2(250f, 250f);
+            var size = new Vector2(500f, 500f) * multiplier;
+            Rectangle rect = slot.Center.ToRect((int)size.X, (int)size.Y);
 
-            Rectangle mirrorRect = mirrored.Center.ToRect(500, 500);
-            spriteBatch.Draw(arcTexture, mirrorRect, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
+            float radians = slot.Module.Facing.ToRadians();
+            batch.Draw(arcTexture, rect, color.Alpha(0.75f), radians, texOrigin, SpriteEffects.None, 1f);
+
+            Vector2 direction = radians.RadiansToDirection();
+            Vector2 start = slot.Center;
+            Vector2 end = start + direction * w.Range*0.75f;
+            batch.DrawLine(start, end, color.Alpha(0.1f), 5);
+
+            Vector2 textPos = start.LerpTo(end, 0.16f);
+            float textRot = radians + (float)(Math.PI/2);
+            Vector2 offset = direction.RightVector() * 14f;
+            if (direction.X > 0f)
+            {
+                textRot -= (float)Math.PI;
+                offset = -offset;
+            }
+
+            string rangeText = $"Range: {w.Range.String(0)}";
+            float textWidth = Fonts.Arial20Bold.TextWidth(rangeText);
+
+            batch.DrawString(Fonts.Arial20Bold, rangeText,
+                textPos+offset, color.Alpha(0.2f),
+                textRot, new Vector2(textWidth/2, 10f), 1f, SpriteEffects.None, 1f);
         }
 
-        void DrawWeaponArcs(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
+        void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot)
         {
             Weapon w = slot.Module.InstalledWeapon;
             if (w == null)
                 return;
-            if (w.Tag_Cannon && !w.Tag_Energy)        DrawArc(center, slot, new Color(255, 255, 0, 255), spriteBatch, mirrored);
-            else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(center, slot, new Color(255, 0, 255, 255), spriteBatch, mirrored);
-            else if (w.Tag_Cannon)                    DrawArc(center, slot, new Color(0, 255, 0, 255), spriteBatch, mirrored);
-            else if (!w.isBeam)                       DrawArc(center, slot, new Color(255, 0, 0, 255), spriteBatch, mirrored);
-            else                                      DrawArc(center, slot, new Color(0, 0, 255, 255), spriteBatch, mirrored);
+            if (w.Tag_Cannon && !w.Tag_Energy)        DrawArc(batch, w, slot, new Color(255, 255, 0, 255));
+            else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(batch, w, slot, new Color(255, 0, 255, 255));
+            else if (w.Tag_Cannon)                    DrawArc(batch, w, slot, new Color(0, 255, 0, 255));
+            else if (!w.isBeam)                       DrawArc(batch, w, slot, new Color(255, 0, 0, 255));
+            else                                      DrawArc(batch, w, slot, new Color(0, 0, 255, 255));
         }
 
         void DrawActiveModule(SpriteBatch spriteBatch)

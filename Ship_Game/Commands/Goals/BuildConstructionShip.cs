@@ -16,7 +16,8 @@ namespace Ship_Game.Commands.Goals
             {
                 FindPlanetToBuildAt,
                 WaitMainGoalCompletion,
-                OrderDeepSpaceBuild
+                OrderDeepSpaceBuild,
+                WaitForDeployment
             };
         }
 
@@ -58,7 +59,12 @@ namespace Ship_Game.Commands.Goals
             FinishedShip.AI.OrderDeepSpaceBuild(this);
             FinishedShip.isConstructor = true;
             FinishedShip.VanityName = "Construction Ship";
-            return GoalStep.GoalComplete;
+            return GoalStep.GoToNextStep;
+        }
+
+        GoalStep WaitForDeployment()
+        {
+            return FinishedShip.Active ? GoalStep.TryAgain : GoalStep.GoalComplete;
         }
 
     }

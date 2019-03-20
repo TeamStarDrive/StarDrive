@@ -187,9 +187,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool IsIdleFreighter => IsFreighter 
-                                       && AI != null 
-                                       && !AI.HasPriorityOrder 
+        public bool IsIdleFreighter => IsFreighter
+                                       && AI != null
+                                       && !AI.HasPriorityOrder
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit;
@@ -259,6 +259,9 @@ namespace Ship_Game.Ships
         {
             if (DesignRole == ShipData.RoleName.support)
                 return ResourceManager.Texture("TacticalIcons/symbol_supply");
+
+            if (isConstructor)
+                return ResourceManager.Texture("TacticalIcons/symbol_construction");
 
             string roleName = DesignRole.ToString();
             string iconName = "TacticalIcons/symbol_";
@@ -420,7 +423,7 @@ namespace Ship_Game.Ships
             }
 
         }
-        
+
         public int BombsUseful
         {
             get
@@ -528,13 +531,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool doingScrap
+        public bool DoingScrap
         {
             get => AI.State == AIState.Scrap;
             set => AI.OrderScrapShip();
         }
 
-        public bool doingRefit
+        public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
             set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
@@ -544,17 +547,24 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (!Empire.Universe.GravityWells || System == null || IsInFriendlySpace)
-                    return false;
-
-                for (int i = 0; i < System.PlanetList.Count; i++)
-                {
-                    Planet planet = System.PlanetList[i];
-                    if (Position.InRadius(planet.Center, planet.GravityWellRadius))
-                        return true;
-                }
-                return false;
+                Planet planet = System?.IdentifyGravityWell(this);
+                return planet != null;
             }
+        }
+
+        // calculates estimated trip time by turns
+        public float GetAstrograteTimeTo(Planet destination)
+        {
+            float distance    = Center.Distance(destination.Center);
+            float distanceSTL = destination.GravityWellForEmpire(loyalty);
+            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner
+            if (planet != null)
+                distanceSTL += planet.GravityWellRadius;
+
+            float distanceFTL = Math.Max(distance - distanceSTL, 0);
+            float travelSTL   = distanceSTL / GetSTLSpeed();
+            float travelFTL   = distanceFTL / GetmaxFTLSpeed;
+            return (travelFTL + travelSTL) / GlobalStats.TurnTimer;
         }
 
         public float AvgProjectileSpeed
@@ -635,7 +645,7 @@ namespace Ship_Game.Ships
             if (shipData.HasFixedCost)
                 return shipData.FixedCost * CurrentGame.Pace;
 
-            float cost = BaseCost;
+            float cost = BaseCost * CurrentGame.Pace;
 
             if (empire == null)
                 return (int) cost;
@@ -1016,7 +1026,7 @@ namespace Ship_Game.Ships
                 Center.InRadius(Empire.Universe.CamPos.ToVec2(), 100000f) && Empire.Universe.CamHeight < 250000)
             {
                 GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
-                
+
                 FTLManager.ExitFTL(GetPosition3D, Direction3D, Radius);
             }
 
@@ -1129,6 +1139,9 @@ namespace Ship_Game.Ships
             }
 
             Speed = velocityMaximum;
+            if (AI.State == AIState.FormationWarp)
+                Speed = AI.FormationWarpSpeed(Speed);
+
             rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             rotationRadiansPerSecond += rotationRadiansPerSecond * Level * 0.05f;
             yBankAmount = GetyBankAmount(rotationRadiansPerSecond * elapsedTime);
@@ -1892,7 +1905,7 @@ namespace Ship_Game.Ships
 
         public bool IsCandidateFreighterBuild()
         {
-            if (shipData.Role != ShipData.RoleName.freighter 
+            if (shipData.Role != ShipData.RoleName.freighter
                 || CargoSpaceMax < 1f
                 || isColonyShip
                 || isConstructor)
@@ -1903,17 +1916,15 @@ namespace Ship_Game.Ships
                    shipData.ShipCategory == ShipData.Category.Unclassified;
         }
 
-        public int RefitCost(string newShipName)
+        public int RefitCost(Ship newShip)
         {
             if (loyalty.isFaction)
                 return 0;
 
             float oldShipCost = GetCost(loyalty);
-            float newShipCost = ResourceManager.ShipsDict[newShipName].GetCost(loyalty);
-
-            int cost = Math.Max((int)(newShipCost - oldShipCost), 0);
-            cost    += (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace
-            return cost;
+            float newShipCost = newShip.GetCost(loyalty);
+            int cost          = Math.Max((int)(newShipCost - oldShipCost), 0);
+            return cost + (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace;
         }
 
         public ShipStatus HealthStatus
@@ -2283,13 +2294,37 @@ namespace Ship_Game.Ships
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
 
-        public bool ShipReadyForWarp()
+        public ShipStatus WarpDuration(float neededRange = 300000)
         {
-            if (AI.State != AIState.FormationWarp ) return true;
-            if (!isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) < 0.2f) return false;
-            if (engineState == MoveState.Warp) return true;
-            return !Carrier.RecallingFighters();
+            float powerDuration = NetPower.PowerDuration(this, MoveState.Warp);
+            if (powerDuration.AlmostEqual(float.MaxValue))
+                return ShipStatus.Excellent;
+            if (powerDuration * maxFTLSpeed < neededRange)
+                return ShipStatus.Critical;
+            return ShipStatus.Good;
         }
+
+        public ShipStatus ShipReadyForWarp()
+        {
+            if (maxFTLSpeed < 1 || Inhibited || EnginesKnockedOut || !Active) return ShipStatus.NotApplicable;
+            if (!isSpooling && WarpDuration() < ShipStatus.Good ) return ShipStatus.Critical;
+            if (engineState == MoveState.Warp) return ShipStatus.Good;
+            if (Carrier.RecallingFighters()) return ShipStatus.Poor;
+            return ShipStatus.Excellent;
+        }
+
+        public ShipStatus ShipReadyForFormationWarp()
+        {
+            //the original logic here was confusing. If aistate was formation warp it ignored all other 
+            //cases and returned good. I am guessing that once the state is formation warp it is 
+            //expecting it has passes all other cases. But i can not verify that as the logic is spread out. 
+            //I believe what we need here is to centralize the engine and navigation logic. 
+            ShipStatus warpStatus = ShipReadyForWarp();
+            if (warpStatus > ShipStatus.Poor && warpStatus != ShipStatus.NotApplicable)
+                if (AI.State != AIState.FormationWarp) return ShipStatus.Good;
+            return warpStatus;
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -2349,37 +2384,6 @@ namespace Ship_Game.Ships
         }
 
         private ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
-
-        public void CreateColonizationBuildingFor(Planet colonizeTarget)
-        {
-            // @TODO create building placement methods in planet.cs that take into account the below logic.
-
-            foreach (ShipModule slot in ModuleSlotList)
-            {
-                if (slot?.HasColonyBuilding != true)
-                    continue;
-
-                Building template = ResourceManager.GetBuildingTemplate(slot.DeployBuildingOnColonize);
-                if (template.Unique && colonizeTarget.BuildingBuiltOrQueued(template))
-                    continue;
-
-                Building building = ResourceManager.CreateBuilding(template);
-                colonizeTarget.BuildingList.Add(building);
-                building.AssignBuildingToTileOnColonize(colonizeTarget);
-            }
-        }
-
-        public void UnloadColonizationResourcesAt(Planet colonizeTarget)
-        {
-            foreach (ShipModule slot in ModuleSlotList)
-            {
-                if (slot?.HasColonyBuilding != true)
-                    continue;
-                colonizeTarget.FoodHere   += slot.numberOfFood;
-                colonizeTarget.ProdHere   += slot.numberOfEquipment;
-                colonizeTarget.Population += slot.numberOfColonists;
-            }
-        }
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {

@@ -82,76 +82,8 @@ namespace Ship_Game.AI
             }
 
             ColonizeTarget = targetPlanet;
-            ColonizeTarget.Owner = Owner.loyalty;
-            ColonizeTarget.ParentSystem.OwnerList.Add(Owner.loyalty);
-            if (Owner.loyalty.isPlayer)
-            {
-                ColonizeTarget.colonyType = Owner.loyalty.AutoColonize
-                    ? Owner.loyalty.AssessColonyNeeds(ColonizeTarget)
-                    : Planet.ColonyType.Colony;
-                Empire.Universe.NotificationManager.AddColonizedNotification(ColonizeTarget, EmpireManager.Player);
-            }
-            else
-            {
-                ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
-            }
-
-            Owner.loyalty.AddPlanet(ColonizeTarget);
-            ColonizeTarget.InitializeWorkerDistribution(Owner.loyalty);
-            ColonizeTarget.SetExploredBy(Owner.loyalty);
-
-            Owner.CreateColonizationBuildingFor(ColonizeTarget);
-
-            ColonizeTarget.AddMaxFertility(Owner.loyalty.data.EmpireFertilityBonus);
-            ColonizeTarget.CrippledTurns = 0;
-            StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, Empire.Universe);
-
-            Owner.loyalty.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == ColonizeTarget);
-
-            if (ColonizeTarget.ParentSystem.OwnerList.Count > 1)
-            {
-                foreach (Planet p in ColonizeTarget.ParentSystem.PlanetList)
-                {
-                    if (p.Owner == ColonizeTarget.Owner || p.Owner == null)
-                        continue;
-                    if (p.Owner.TryGetRelations(Owner.loyalty, out Relationship rel) && !rel.Treaty_OpenBorders)
-                        p.Owner.DamageRelationship(Owner.loyalty, "Colonized Owned System", 20f, p);
-                }
-            }
-
-            Owner.UnloadColonizationResourcesAt(ColonizeTarget);
-
-            bool troopsRemoved = false;
-            bool playerTroopsRemoved = false;
-
-            foreach (Troop t in targetPlanet.TroopsHere)
-            {
-                Empire owner = t?.Loyalty;
-                if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != ColonizeTarget.Owner &&
-                    ColonizeTarget.Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
-                {
-                    t.Launch();
-                    troopsRemoved = true;
-                    playerTroopsRemoved |= t.Loyalty.isPlayer;
-                }
-            }
-
+            ColonizeTarget.Colonize(Owner);
             Owner.QueueTotalRemoval();
-
-            if (troopsRemoved)
-                OnTroopsRemoved(playerTroopsRemoved);
-        }
-
-        void OnTroopsRemoved(bool playerTroopsRemoved)
-        {
-            if (playerTroopsRemoved)
-            {
-                Empire.Universe.NotificationManager.AddTroopsRemovedNotification(ColonizeTarget);
-            }
-            else if (ColonizeTarget.Owner.isPlayer)
-            {
-                Empire.Universe.NotificationManager.AddForeignTroopsRemovedNotification(ColonizeTarget);
-            }
         }
 
         bool ExploreEmptySystem(float elapsedTime, SolarSystem system)
@@ -542,33 +474,56 @@ namespace Ship_Game.AI
             }
         }
 
-        void IdleFleetAI(float elapsedTime)
+        bool DoNearFleetOffset(float elapsedTime)
         {
-            bool nearFleetOffSet = Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75);
-            if (nearFleetOffSet)
+            if (Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75))
             {
                 ReverseThrustUntilStopped(elapsedTime);
                 RotateToDirection(Owner.fleet.Direction, elapsedTime, 0.02f);
+                return true;
             }
-            else
-            if (State == AIState.FormationWarp || State == AIState.Orbit || State == AIState.AwaitingOrders ||
-                    (!HasPriorityOrder && !HadPO && State != AIState.HoldPosition))
+            return false;
+        }
+
+        bool ShouldReturnToFleet()
+        {
+            //separated for clarity as this section can be very confusing.
+            //we might need a toggle for the player action here.
+            if (State == AIState.FormationWarp) 
+                return true;
+            if (HasPriorityOrder || HadPO) 
+                return false;
+            if (BadGuysNear) 
+                return false;
+            if (State == AIState.Orbit || State == AIState.AwaitingOffenseOrders || State == AIState.AwaitingOrders) 
+                return true;
+            return false;
+        }
+
+        void IdleFleetAI(float elapsedTime)
+        {
+            if (DoNearFleetOffset(elapsedTime))
+                return;
+
+            if (ShouldReturnToFleet())
             {
+                //check if inside minimum warp jump range. If not do a full warp process.
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
-                {
                     ThrustOrWarpToPosCorrected(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
-                }
                 else
-                {
-                    ClearWayPoints();
-                    WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
-                    State = AIState.AwaitingOrders;
-                    if (Owner.fleet?.GoalStack.Count > 0)
-                        WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
-                    else
-                        OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, Owner.fleet.Direction, true, null);
-                }
+                    WarpToFleet();
             }
+        }
+
+        void WarpToFleet()
+        {
+            ClearWayPoints();
+            WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
+            State = AIState.AwaitingOrders;
+            if (Owner.fleet?.GoalStack.Count > 0)
+                WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
+            else
+                OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, Owner.fleet.Direction, true, null);
         }
 
         public bool HasTradeGoal(Goods goods)
@@ -601,15 +556,8 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public void SetupFreighterPlan(Planet exportPlanet, Planet importPlanet, Goods goods)
-        {
-            // if ship has this cargo type on board, proceed to drop it off at destination
-            Plan plan = Owner.GetCargo(goods) / Owner.CargoSpaceMax > 0.5f
-                      ? Plan.DropOffGoods : Plan.PickupGoods;
-            SetTradePlan(plan, exportPlanet, importPlanet, goods);
-        }
-
         public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
+
         public bool ClearOrdersConditional(Plan plan)
         {
             bool clearOrders = false;
