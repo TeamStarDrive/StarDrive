@@ -11,14 +11,14 @@ namespace Ship_Game.Data.Binary
     {
         readonly PropertyInfo Prop;
         readonly FieldInfo Field;
-        readonly TypeSerializer Converter;
+        readonly TypeSerializer Serializer;
 
-        public DataField(BinaryConverters converters, PropertyInfo prop, FieldInfo field)
+        public DataField(BinarySerializers serializers, PropertyInfo prop, FieldInfo field)
         {
             Prop = prop;
             Field = field;
             Type type = prop != null ? prop.PropertyType : field.FieldType;
-            Converter = converters.Get(type);
+            Serializer = serializers.Get(type);
         }
 
         public void Set(object instance, object value)

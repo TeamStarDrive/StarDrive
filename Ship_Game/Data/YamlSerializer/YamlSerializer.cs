@@ -1,32 +1,30 @@
 ﻿using System;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 
-namespace Ship_Game.Data
+namespace Ship_Game.Data.YamlSerializer
 {
 
     // This class has the ability to take parsed StarData tree
     // And turn it into usable game objects
-    internal class StarDataSerializer : TypeConverter
+    internal class YamlSerializer : YamlConverter
     {
         Map<string, Info> Mapping;
         Info PrimaryInfo;
         readonly Type TheType;
         public override string ToString() => $"StarDataSerializer {TheType.GenericName()}";
 
-        public StarDataSerializer(Type type)
+        public YamlSerializer(Type type)
         {
             TheType = type;
             if (type.GetCustomAttribute<StarDataTypeAttribute>() == null)
                 throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
         }
 
-        internal void ResolveTypes(Converters types)
+        internal void ResolveTypes(YamlConverters types)
         {
             Mapping = new Map<string, Info>();
-            types = types ?? new Converters();
+            types = types ?? new YamlConverters();
 
             Type shouldSerialize = typeof(StarDataAttribute);
             PropertyInfo[] props = TheType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -77,9 +75,7 @@ namespace Ship_Game.Data
             bool hasPrimaryValue = (node.Value != null);
             if (hasPrimaryValue && PrimaryInfo != null)
             {
-                // @note this is a hack to prevent recursive serialization of primary nodes
-                var primaryNode = new YamlNode { Key = node.Key, Value = node.Value };
-                object primaryValue = PrimaryInfo.Converter.Deserialize(primaryNode);
+                object primaryValue = PrimaryInfo.Converter.Convert(node.Value);
                 PrimaryInfo.Set(item, primaryValue);
             }
 
@@ -116,16 +112,16 @@ namespace Ship_Game.Data
         {
             readonly PropertyInfo Prop;
             readonly FieldInfo Field;
-            public readonly TypeConverter Converter;
+            public readonly YamlConverter Converter;
 
             public override string ToString() => Prop?.ToString() ?? Field?.ToString() ?? "invalid";
 
-            public Info(Converters converters, PropertyInfo prop, FieldInfo field)
+            public Info(YamlConverters yamlConverters, PropertyInfo prop, FieldInfo field)
             {
                 Prop = prop;
                 Field = field;
                 Type type = prop != null ? prop.PropertyType : field.FieldType;
-                Converter = converters.Get(type);
+                Converter = yamlConverters.Get(type);
             }
 
             public void Set(object instance, object value)
