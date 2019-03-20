@@ -223,6 +223,9 @@
     <Compile Include="Ship_Game\Commands\Goals\IncreaseFreighters.cs" />
     <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
+    <Compile Include="Ship_Game\Data\Binary\BinaryConverter.cs" />
+    <Compile Include="Ship_Game\Data\Binary\BinaryConverters.cs" />
+    <Compile Include="Ship_Game\Data\Binary\StarDataBinarySerializer.cs" />
     <Compile Include="Ship_Game\Data\DDSReader.cs" />
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
     <Compile Include="Ship_Game\Data\ImageUtils.cs" />

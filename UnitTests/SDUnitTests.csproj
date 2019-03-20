@@ -81,6 +81,7 @@
     <Compile Include="TestVectorMath.cs" />
     <Compile Include="TestImpactPredictor.cs" />
     <Compile Include="TestStarDataSerializer.cs" />
+    <Compile Include="TestStarDataBinarySerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
