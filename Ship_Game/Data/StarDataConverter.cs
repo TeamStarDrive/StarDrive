@@ -254,10 +254,10 @@ namespace Ship_Game.Data
         {
             try
             {
-                if (value is string s)
-                    return Enum.Parse(ToEnum, s, ignoreCase:true);
-                if (value is int i)
-                    return Enum.ToObject(ToEnum, i);
+                if (value is string enumLiteral)
+                    return Enum.Parse(ToEnum, enumLiteral, ignoreCase:true);
+                if (value is int enumIndex)
+                    return Enum.ToObject(ToEnum, enumIndex);
                 ConvertTo.Error(value, $"Enum '{ToEnum.Name}' -- expected a string or int");
             }
             catch (Exception e)
@@ -286,7 +286,7 @@ namespace Ship_Game.Data
         {
             if (value is float f) return f;
             if (value is int i)   return i;
-            if (value is string s) return new StringView(s).ToFloat();
+            if (value is string s) return StringView.ToFloat(s);
             ConvertTo.Error(value, "Float -- expected string or int");
             return 0f;
         }
@@ -366,7 +366,7 @@ namespace Ship_Game.Data
         {
             if (value is int)      return value;
             if (value is float f)  return (int)f;
-            if (value is string s) return new StringView(s).ToInt();
+            if (value is string s) return StringView.ToInt(s);
             ConvertTo.Error(value, "Int -- expected string or float");
             return 0;
         }
@@ -380,7 +380,7 @@ namespace Ship_Game.Data
         {
             if (value is float)    return value;
             if (value is int i)    return (float)i;
-            if (value is string s) return new StringView(s).ToFloat();
+            if (value is string s) return StringView.ToFloat(s);
             ConvertTo.Error(value, "Float -- expected string or int");
             return 0f;
         }
