@@ -1,9 +1,4 @@
 ﻿using Ship_Game.Ships;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.AI.CombatTactics
 {
@@ -34,29 +29,11 @@ namespace Ship_Game.AI.CombatTactics
             if (totalTroopStrengthToCommit <= 0)
                 return;
 
-            bool boarding = false;
-            if (Target is Ship shipTarget)
-            {
-                float enemyStrength = shipTarget.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
+            if (Owner.Carrier.AssaultTargetShip(Target))
+                return;
 
-                if (totalTroopStrengthToCommit > enemyStrength &&
-                    (Owner.loyalty.isFaction || shipTarget.GetStrength() > 0f))
-                {
-                    if (Owner.Carrier.MaxTroopStrengthInSpaceToCommit < enemyStrength && Target.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
-                        Owner.Carrier.ScrambleAssaultShips(enemyStrength); // This will launch salvos of assault shuttles if possible
-
-                    for (int i = 0; i < Owner.Carrier.AllTroopBays.Length; i++)
-                    {
-                        ShipModule hangar = Owner.Carrier.AllTroopBays[i];
-                        if (hangar.GetHangarShip() == null)
-                            continue;
-                        hangar.GetHangarShip().AI.OrderTroopToBoardShip(shipTarget);
-                    }
-                    boarding = true;
-                }
-            }
             //This is the auto invade feature. FB: this should be expanded to check for building stength and compare troops in ship vs planet
-            if (boarding || Owner.TroopsAreBoardingShip)
+            if (Owner.TroopsAreBoardingShip)
                 return;
 
             Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(

@@ -271,7 +271,7 @@ namespace Ship_Game.Ships
 
         // Added by McShooterz: for refit to keep name
         // Refactored by RedFox
-        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit, 
+        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit,
                                         string refitName, int refitLevel)
         {
             Ship ship = CreateShipAt(shipName, owner, p, doOrbit);
