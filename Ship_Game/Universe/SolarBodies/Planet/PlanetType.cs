@@ -8,6 +8,7 @@ using Ship_Game.Data;
 namespace Ship_Game
 {
     // @note This is parsed from PlanetTypes.yaml; All fields are immutable.
+    [StarDataType]
     public class PlanetType
     {
         [StarDataKey] public readonly int Id;
@@ -23,7 +24,6 @@ namespace Ship_Game
         [StarData] public readonly Range MaxPop;
         [StarData] public readonly Range Fertility;
         [StarData] public readonly float MinFertility; // Clamp(MinFertility, float.Max)
-        [StarData] public readonly SunZone Zone = SunZone.Any;
         [StarData] public readonly float Scale = 0f;
 
         public override string ToString() => $"PlanetType {Id} {Category} {IconPath} {MeshPath}";

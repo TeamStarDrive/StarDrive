@@ -114,7 +114,7 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, Owner, blockadeTimer));
         }
 
-        bool AddShipGoal(Plan plan, Planet target, string variableString = "")
+        bool AddShipGoal(Plan plan, Planet target, Goal theGoal)
         {
             if (target == null)
             {
@@ -123,15 +123,15 @@ namespace Ship_Game.AI
             }
 
             OrderQueue.Enqueue(new ShipGoal(plan, target.Center, Vectors.Up, 
-                               target, null, 0f, variableString, 0f));
+                               target, theGoal, 0f, "", 0f));
             return true;
         }
 
         void AddPlanetGoal(Plan plan, Planet planet, AIState newState, bool priority = false)
         {
-            if (AddShipGoal(plan, planet))
+            if (AddShipGoal(plan, planet, null))
             {
-                State = newState;
+                State       = newState;
                 OrbitTarget = planet;
                 if (priority)
                     SetPriorityOrder(false);

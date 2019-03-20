@@ -13,13 +13,13 @@ namespace Ship_Game
             triggeredOutcome.CheckOutComes(null , null, triggerer,null);
         }
 
-        public void TriggerPlanetEvent(Planet p, Empire triggerer, PlanetGridSquare eventLocation,
+        public void TriggerPlanetEvent(Planet p, Empire triggeredBy, PlanetGridSquare eventLocation,
             UniverseScreen screen)
         {
             int random = 0;
             foreach (Outcome outcome in PotentialOutcomes)
             {
-                if (outcome.InValidOutcome(triggerer)) continue;
+                if (outcome.InValidOutcome(triggeredBy)) continue;
                 random += outcome.Chance;
             }            
             random = RandomMath.InRange(random);
@@ -27,19 +27,19 @@ namespace Ship_Game
             int cursor = 0;
             foreach (Outcome outcome in PotentialOutcomes)
             {
-                if (outcome.InValidOutcome(triggerer)) continue;
+                if (outcome.InValidOutcome(triggeredBy)) continue;
                 cursor = cursor + outcome.Chance;
                 if (random > cursor) continue;
                 triggeredOutcome = outcome;
-                if (triggerer.isPlayer) outcome.AlreadyTriggered = true;
+                if (triggeredBy.isPlayer) outcome.AlreadyTriggered = true;
                 break;
             }
             if (triggeredOutcome != null)
             {
                 EventPopup popup = null;
-                if (triggerer == EmpireManager.Player)
-                    popup = new EventPopup(screen, triggerer, this, triggeredOutcome,false);
-                triggeredOutcome.CheckOutComes(p, eventLocation, triggerer,popup);
+                if (triggeredBy == EmpireManager.Player)
+                    popup = new EventPopup(screen, triggeredBy, this, triggeredOutcome,false);
+                triggeredOutcome.CheckOutComes(p, eventLocation, triggeredBy,popup);
                 if (popup != null)
                 {
                     screen.ScreenManager.AddScreen(popup);
@@ -47,9 +47,5 @@ namespace Ship_Game
                 }
             }
         }
-
-        
-
-        
     }
 }

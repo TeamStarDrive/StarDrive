@@ -1,4 +1,6 @@
-﻿namespace Ship_Game.Ships
+﻿using System;
+
+namespace Ship_Game.Ships
 {
     public struct Power
     {
@@ -62,6 +64,25 @@
                 NetWarpPowerDraw = warpPowerDraw
             };
         }
+        public float PowerDuration(Ship ship, Ship.MoveState moveState)
+        {
+            float powerDraw = 0;
+            switch (moveState)
+            {
+                case Ship.MoveState.Sublight:
+                    powerDraw = NetSubLightPowerDraw;
+                    break;
+                case Ship.MoveState.Warp:
+                    powerDraw = NetWarpPowerDraw;
+                    break;
+            }
+            powerDraw = powerDraw.Clamped(1, float.MaxValue);
+            float powerRatio = (ship.PowerFlowMax / powerDraw).Clamped(.01f, 1f);
+            if (powerRatio < 1)
+                return ship.PowerStoreMax * powerRatio;
+            return float.MaxValue;
+
+        }        
     }
     public enum ShieldsWarpBehavior
     {

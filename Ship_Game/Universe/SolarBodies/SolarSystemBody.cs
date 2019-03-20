@@ -35,14 +35,7 @@ namespace Ship_Game
         Oceanic,
         GasGiant,
     }
-    public enum Richness
-    {
-        UltraPoor,
-        Poor,
-        Average,
-        Rich,
-        UltraRich
-    }
+
     public class OrbitalDrop
     {
         public Vector2 Position;
@@ -285,30 +278,39 @@ namespace Ship_Game
                 Description = Name + " " + Type.Composition.Text + ". ";
                 if (MaxFertility > 2)
                 {
-                    if      (Type.Id == 21) Description += Localizer.Token(1729);
-                    else if (Type.Id == 13
-                          || Type.Id == 22) Description += Localizer.Token(1730);
-                    else                    Description += Localizer.Token(1731);
+                    switch (Type.Id)
+                    {
+                        case 21: Description += Localizer.Token(1729); break;
+                        case 13:
+                        case 22: Description += Localizer.Token(1730); break;
+                        default: Description += Localizer.Token(1731); break;
+                    }
                 }
                 else if (MaxFertility > 1)
                 {
-                    if      (Type.Id == 19) Description += Localizer.Token(1732);
-                    else if (Type.Id == 21) Description += Localizer.Token(1733);
-                    else if (Type.Id == 13
-                          || Type.Id == 22) Description += Localizer.Token(1734);
-                    else                       Description += Localizer.Token(1735);
+                    switch (Type.Id)
+                    {
+                        case 19: Description += Localizer.Token(1732); break;
+                        case 21: Description += Localizer.Token(1733); break;
+                        case 13:
+                        case 22: Description += Localizer.Token(1734); break;
+                        default: Description += Localizer.Token(1735); break;
+                    }
                 }
                 else if (MaxFertility > 0.6f)
                 {
-                    if      (Type.Id == 14) Description += Localizer.Token(1736);
-                    else if (Type.Id == 21) Description += Localizer.Token(1737);
-                    else if (Type.Id == 17) Description += Localizer.Token(1738);
-                    else if (Type.Id == 19) Description += Localizer.Token(1739);
-                    else if (Type.Id == 18) Description += Localizer.Token(1740);
-                    else if (Type.Id == 11) Description += Localizer.Token(1741);
-                    else if (Type.Id == 13 
-                          || Type.Id == 22) Description += Localizer.Token(1742);
-                    else                       Description += Localizer.Token(1743);
+                    switch (Type.Id)
+                    {
+                        case 14: Description += Localizer.Token(1736); break;
+                        case 21: Description += Localizer.Token(1737); break;
+                        case 17: Description += Localizer.Token(1738); break;
+                        case 19: Description += Localizer.Token(1739); break;
+                        case 18: Description += Localizer.Token(1740); break;
+                        case 11: Description += Localizer.Token(1741); break;
+                        case 13:
+                        case 22: Description += Localizer.Token(1742); break;
+                        default: Description += Localizer.Token(1743); break;
+                    }
                 }
                 else
                 {
