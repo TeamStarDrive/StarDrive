@@ -18,35 +18,35 @@ Fleet: WarpingPatrolFleet
     - [WarpingOut, 1, 1]
     - [IdlingInDeepSpace, 15, 18]
   Ships:
-    Ship: capital
+    - Ship: capital
       Position: [-250, -200, 1250]
       Speed: 10
-    Ship: frigate
+    - Ship: frigate
       Position: [-500, -50, 250]
       Speed: 20
-    Ship: cruiser
+    - Ship: cruiser
       Position: [-1200, 100, 1450]
       Speed: 10
 
     # corvette wing
-    Ship: corvette
+    - Ship: corvette
       Position: [-900, -300, 1550]
       Speed: 30
-    Ship: corvette
+    - Ship: corvette
       Position: [-1000, -450, 1500]
       Speed: 30
-    Ship: corvette
+    - Ship: corvette
       Position: [-1100, -350, 1400]
       Speed: 30
 
     # fighter wing
-    Ship: fighter
+    - Ship: fighter
       Position: [-1000, -500, 1250]
       Speed: 65
-    Ship: fighter
+    - Ship: fighter
       Position: [-1100, -450, 1300]
       Speed: 60
-    Ship: fighter
+    - Ship: fighter
       Position: [-900, -500, 1150]
       Speed: 55
 
@@ -64,9 +64,9 @@ Fleet: BackgroundFreighters_LeftToRight
     - [WarpingIn, 1, 1]
     - [GoToState, 0, 0]
   ShipGroups:
-    ShipGroup: freighter
+    - ShipGroup: freighter
       Count: 42
-    ShipGroup: fighter
+    - ShipGroup: fighter
       Count: 16
 
 
@@ -84,7 +84,7 @@ Fleet: BackgroundFreighters_RightToLeft
     - [WarpingIn, 1, 1]
     - [GoToState, 0, 0]
   ShipGroups:
-    ShipGroup: freighter
+    - ShipGroup: freighter
       Count: 42
-    ShipGroup: fighter
+    - ShipGroup: fighter
       Count: 16
