@@ -313,7 +313,7 @@ PlanetType: 30
   Fertility: [-0.8, 0.8]
   MinFertility: 0.3
 
-  # Ice, better pop but less tiles, terraforms to Swamp
+# Ice, better pop but less tiles, terraforms to Swamp
 PlanetType: 31 
   Category: Ice
   Composition: 1713
@@ -324,7 +324,7 @@ PlanetType: 31
   HabitableTileChance: [10, 30]
   MaxPop: [100, 800]
 
-    # Ice, almost baren terraforms to Swamp
+# Ice, almost baren terraforms to Swamp
 PlanetType: 32 
   Category: Ice
   Composition: 1713
@@ -334,7 +334,7 @@ PlanetType: 32
   Habitable: true
   MaxPop: [100, 300]
 
-  # Desert, big (tatooine style) terraforms to Tundra
+# Desert, big (tatooine style) terraforms to Tundra
 PlanetType: 33
   Category: Desert
   Composition: 1710
