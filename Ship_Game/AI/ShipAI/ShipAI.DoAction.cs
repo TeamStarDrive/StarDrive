@@ -11,54 +11,7 @@ using System.Text;
 namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
-    {
-        void DoAssaultShipCombat(float elapsedTime)
-        {
-            if (Owner.isSpooling)
-                return;
-
-            DoNonFleetArtillery(elapsedTime);
-            if (!Owner.Carrier.HasTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
-                return;
-            if (!Owner.loyalty.isFaction && ((Ship) Target).shipData.Role <= ShipData.RoleName.drone)
-                return;
-
-            float totalTroopStrengthToCommit = Owner.Carrier.MaxTroopStrengthInShipToCommit + Owner.Carrier.MaxTroopStrengthInSpaceToCommit;
-            if (totalTroopStrengthToCommit <= 0)
-                return;
-
-            bool boarding = false;
-            if (Target is Ship shipTarget)
-            {
-                float enemyStrength = shipTarget.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
-
-                if (totalTroopStrengthToCommit > enemyStrength &&
-                    (Owner.loyalty.isFaction || shipTarget.GetStrength() > 0f))
-                {
-                    if (Owner.Carrier.MaxTroopStrengthInSpaceToCommit < enemyStrength && Target.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
-                        Owner.Carrier.ScrambleAssaultShips(enemyStrength); // This will launch salvos of assault shuttles if possible
-
-                    for (int i = 0; i < Owner.Carrier.AllTroopBays.Length; i++)
-                    {
-                        ShipModule hangar = Owner.Carrier.AllTroopBays[i];
-                        if (hangar.GetHangarShip() == null)
-                            continue;
-                        hangar.GetHangarShip().AI.OrderTroopToBoardShip(shipTarget);
-                    }
-                    boarding = true;
-                }
-            }
-            //This is the auto invade feature. FB: this should be expanded to check for building stength and compare troops in ship vs planet
-            if (boarding || Owner.TroopsAreBoardingShip)
-                return;
-
-            Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
-                                owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.GetRelations(owner.Owner).AtWar,
-                                troops => troops.TroopsHere.Count);
-            if (invadeThis != null)
-                Owner.Carrier.AssaultPlanet(invadeThis);
-        }
-
+    {       
         void DoBoardShip(float elapsedTime)
         {
             HasPriorityTarget = true;
@@ -138,7 +91,11 @@ namespace Ship_Game.AI
                             ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
                         }
                         else
-                            DoHoldPositionCombat(elapsedTime);
+                        {
+                            ReverseThrustUntilStopped(elapsedTime);
+                            Vector2 interceptPoint = Owner.PredictImpact(Target);
+                            RotateTowardsPosition(interceptPoint, elapsedTime, 0.2f);
+                        }
                         return;
                     }
                 }
@@ -158,19 +115,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            switch (CombatState)
-            {
-                case CombatState.Artillery:      Artillery.Execute(elapsedTime, null); break;
-                case CombatState.OrbitLeft:      OrbitTargetLeft.Execute(elapsedTime, null);  break;
-                case CombatState.OrbitRight:     OrbitTargetRight.Execute(elapsedTime, null); break;
-                case CombatState.BroadsideLeft:  BroadSidesLeft.Execute(elapsedTime, null);  break;
-                case CombatState.BroadsideRight: BroadSidesRight.Execute(elapsedTime, null); break;
-                case CombatState.AttackRuns:     AttackRun.Execute(elapsedTime, null); break;
-                case CombatState.HoldPosition:   DoHoldPositionCombat(elapsedTime); break;
-                case CombatState.Evade:          DoEvadeCombat(elapsedTime);        break;
-                case CombatState.AssaultShip:    AssaultShipCombat.Execute(elapsedTime, null); break;
-                case CombatState.ShortRange:     Artillery.Execute(elapsedTime, null); break;
-            }
+            CombatAI.ExecuteCombatTactic(elapsedTime);
 
             // Target was modified by one of the CombatStates (?)
             Owner.InCombat = Target != null;
@@ -221,26 +166,6 @@ namespace Ship_Game.AI
                         return;
                     }
                 }
-            }
-        }
-
-        void DoEvadeCombat(float elapsedTime)
-        {
-            Vector2 avgDir = Vector2.Zero;
-            int count = 0;
-            foreach (ShipWeight ship in NearByShips)
-            {
-                if (ship.Ship.loyalty == Owner.loyalty ||
-                    !ship.Ship.loyalty.isFaction && !Owner.loyalty.GetRelations(ship.Ship.loyalty).AtWar)
-                    continue;
-                avgDir += Owner.Center.DirectionToTarget(ship.Ship.Center);
-                count += 1;
-            }
-            if (count != 0)
-            {
-                avgDir /= count;
-                Vector2 evadeOffset = avgDir.Normalized() * -7500f;
-                ThrustOrWarpToPosCorrected(Owner.Center + evadeOffset, elapsedTime);
             }
         }
 
@@ -414,60 +339,7 @@ namespace Ship_Game.AI
             else if (distCenter < radius)  // STSA with transpoters - this should be checked wit STSA active
                 Owner.Carrier.AssaultPlanetWithTransporters(goal.TargetPlanet);
         }
-
-        void DoNonFleetArtillery(float elapsedTime)
-        {
-            Vector2 predictedImpact = Owner.PredictImpact(Target);
-            Vector2 wantedDirection = Owner.Center.DirectionToTarget(predictedImpact);
-
-            float distanceToTarget = Owner.Center.Distance(Target.Center);
-            float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius);
-
-            if (distanceToTarget > adjustedRange)
-            {
-                if (distanceToTarget > 7500f)
-                    ThrustOrWarpToPosNoCorrections(predictedImpact, elapsedTime);
-                else
-                    SubLightContinuousMoveInDirection(wantedDirection, elapsedTime);
-            }
-            else
-            {
-                float minDistance = Math.Max(adjustedRange * 0.25f + Target.Radius, adjustedRange * 0.5f);
-
-                // slow down
-                if (distanceToTarget < minDistance)
-                    Owner.Velocity -= Owner.Direction * elapsedTime * Owner.GetSTLSpeed();
-                else
-                    Owner.Velocity *= 0.95f; // Small propensity to not drift
-
-                RotateToDirection(wantedDirection, elapsedTime, 0.02f);
-            }
-        }
-
-        void DoNonFleetBroadside(float elapsedTime, Orbit orbit)
-        {
-            float distance = Owner.Center.Distance(Target.Center);
-            if (distance > Owner.maxWeaponsRange)
-            {
-                ThrustOrWarpToPosCorrected(Target.Center, elapsedTime);
-                return; // we're still way far away from target
-            }
-
-            if (distance < (Owner.maxWeaponsRange * 0.70f)) // within suitable range
-            {
-                Vector2 ourPosNextFrame = Owner.Center + Owner.Velocity*elapsedTime;
-                if (ourPosNextFrame.InRadius(Target.Center, distance))
-                    ReverseThrustUntilStopped(elapsedTime); // stop for stability?? hmm, maybe we should orbit target?
-            }
-
-            Vector2 dir = Owner.Center.DirectionToTarget(Target.Center);
-            // when doing broadside to Right, wanted forward dir is 90 degrees left
-            // when doing broadside to Left, wanted forward dir is 90 degrees right
-            dir = (orbit == Orbit.Right) ? dir.LeftVector() : dir.RightVector();
-
-            RotateToDirection(dir, elapsedTime, 0.02f);
-        }
-
+        
         const float OrbitalSpeedLimit = 500f;
 
         public enum Orbit { Left, Right }
@@ -486,6 +358,7 @@ namespace Ship_Game.AI
             {
                 float deltaAngle = direction == Orbit.Left ? -15f : +15f;
                 OrbitalAngle = (OrbitalAngle + deltaAngle).NormalizedAngle();
+                OrbitalAngle = OrbitalAngle.NormalizedAngle();
                 OrbitPos = target.PointOnCircle(OrbitalAngle, orbitDistance);
             }
             return OrbitPos;
@@ -512,12 +385,8 @@ namespace Ship_Game.AI
                 float distanceToOrbitSpot = Owner.Center.Distance(OrbitPos);
                 if (distanceToOrbitSpot <= radius || Owner.Speed < 1f)
                 {
-<<<<<<< working copy
-                    OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount )).ToDegrees() * 10f;
-=======
                     //this works but... i dont think its right.
                     OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount.Clamped(-1f,1f))).ToDegrees() * 10f;
->>>>>>> merge rev
                     OrbitalAngle = OrbitalAngle.NormalizedAngle();
                 }
                 FindNewPosTimer = elapsedTime * 10f;
