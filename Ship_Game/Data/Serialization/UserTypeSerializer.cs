@@ -13,6 +13,7 @@ namespace Ship_Game.Data.Serialization
         public override string ToString() => $"UserTypeSerializer {TheType.GenericName()}";
 
         protected Map<string, DataField> Mapping;
+        protected TypeSerializerMap TypeMap;
         protected Array<DataField> Index;
         protected DataField Primary;
         protected readonly Type TheType;
@@ -30,7 +31,7 @@ namespace Ship_Game.Data.Serialization
         {
             Mapping = new Map<string, DataField>();
             Index   = new Array<DataField>();
-            TypeSerializerMap typeMap = CreateTypeMap();
+            TypeMap = CreateTypeMap();
 
             Type shouldSerialize = typeof(StarDataAttribute);
             PropertyInfo[] props = TheType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -41,7 +42,7 @@ namespace Ship_Game.Data.Serialization
                 FieldInfo f = fields[i];
                 if (f.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
                 {
-                    AddMapping(typeMap, a, null, f);
+                    AddMapping(a, null, f);
                 }
             }
             
@@ -53,16 +54,16 @@ namespace Ship_Game.Data.Serialization
                     MethodInfo setter = p.GetSetMethod(nonPublic: true);
                     if (setter == null)
                         throw new Exception($"StarDataSerializer Class {TheType.Name} Property {p.Name} has no setter!");
-                    AddMapping(typeMap, a, p, null);
+                    AddMapping(a, p, null);
                 }
             }
         }
 
-        void AddMapping(TypeSerializerMap typeMap, StarDataAttribute a, PropertyInfo p, FieldInfo f)
+        void AddMapping(StarDataAttribute a, PropertyInfo p, FieldInfo f)
         {
             string name = a.NameId.NotEmpty() ? a.NameId : (p?.Name ?? f.Name);
             int id = a.Id != 0 ? a.Id : Index.Count;
-            var field = new DataField(id, typeMap, p, f);
+            var field = new DataField(id, TypeMap, p, f);
 
             Mapping.Add(name, field);
             Index.Add(field);

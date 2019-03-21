@@ -21,5 +21,25 @@ namespace Ship_Game.Data.Binary
         {
             return new BinarySerializerMap();
         }
+
+        void BuildObjectMap()
+        {
+            ResolveTypes();
+
+
+        }
+
+        public override void Serialize(BinaryWriter writer, object obj)
+        {
+            if (Mapping == null)
+            {
+                BuildObjectMap();
+            }
+        }
+        
+        public override object Deserialize(BinaryReader reader)
+        {
+            return null;
+        }
     }
 }
