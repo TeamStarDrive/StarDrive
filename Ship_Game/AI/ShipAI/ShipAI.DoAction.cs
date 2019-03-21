@@ -11,7 +11,7 @@ using System.Text;
 namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
-    {       
+    {
         void DoBoardShip(float elapsedTime)
         {
             HasPriorityTarget = true;
@@ -80,6 +80,7 @@ namespace Ship_Game.AI
             }
             else
             {
+                //need to move this into fleet.
                 if (FleetNode != null && Owner.fleet != null)
                 { if (Target == null)
                         Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
@@ -92,9 +93,7 @@ namespace Ship_Game.AI
                         }
                         else
                         {
-                            ReverseThrustUntilStopped(elapsedTime);
-                            Vector2 interceptPoint = Owner.PredictImpact(Target);
-                            RotateTowardsPosition(interceptPoint, elapsedTime, 0.2f);
+                            DoHoldPositionCombat(elapsedTime);
                         }
                         return;
                     }
@@ -339,7 +338,7 @@ namespace Ship_Game.AI
             else if (distCenter < radius)  // STSA with transpoters - this should be checked wit STSA active
                 Owner.Carrier.AssaultPlanetWithTransporters(goal.TargetPlanet);
         }
-        
+
         const float OrbitalSpeedLimit = 500f;
 
         public enum Orbit { Left, Right }
