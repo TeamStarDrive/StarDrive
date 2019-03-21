@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.Data;
+using Ship_Game.Data.Serialization;
+
 #pragma warning disable 649
 // ReSharper disable UnassignedReadonlyField
 
