@@ -41,8 +41,9 @@ namespace Ship_Game.Data.Serialization
 
         public void Serialize(BinaryWriter writer, object instance)
         {
+            TypeSerializer.WriteFieldId(writer, Id);
             object value = Get(instance);
-            Serializer.Serialize(writer, Id, value);
+            Serializer.Serialize(writer, value);
         }
 
         public void Deserialize(BinaryReader reader, object instance)
