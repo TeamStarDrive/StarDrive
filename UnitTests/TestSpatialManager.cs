@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace SDUnitTests
+namespace UnitTests
 {
     [TestClass]
     public class TestSpatialManager

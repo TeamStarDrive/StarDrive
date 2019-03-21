@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data;
+using Ship_Game.Data.Yaml;
 using Ship_Game.Ships;
 using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
