@@ -4,9 +4,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
+using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Yaml;
 using Ship_Game.Universe.SolarBodies;
 
-namespace UnitTests
+namespace UnitTests.Serialization
 {
     [TestClass]
     public class TestStarDataSerializer

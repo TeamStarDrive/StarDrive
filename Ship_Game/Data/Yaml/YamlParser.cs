@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace Ship_Game.Data
+namespace Ship_Game.Data.Yaml
 {
     // Simplified text parser for StarDrive data files
     public class YamlParser : IDisposable
@@ -12,7 +12,7 @@ namespace Ship_Game.Data
         TextReader Reader;
         public YamlNode Root { get; }
         int Line;
-        readonly StringBuilder StrBuilder = new StringBuilder();
+        StringBuilder StrBuilder;
 
         readonly Array<Error> LoggedErrors = new Array<Error>();
         public IReadOnlyList<Error> Errors => LoggedErrors;
@@ -59,39 +59,29 @@ namespace Ship_Game.Data
             public int Depth;
             public YamlNode Node;
         }
-        
-        bool ReadLine(out StringView view)
-        {
-            string line = Reader.ReadLine();
-            if (line != null)
-            {
-                view = new StringView(line);
-                return true;
-            }
-            view = default;
-            return false;
-        }
 
         void Parse()
         {
             Line = 0;
+            StrBuilder = new StringBuilder();
+
+            var buffer = new char[4096];
             int depth = 0;
             var saved = new Stack<DepthSave>();
 
             YamlNode root = Root;
             YamlNode prev = Root;
 
-            while (ReadLine(out StringView view))
+            while (ReadLineWithDepth(buffer, out StringView line, out int newDepth))
             {
                 Line += 1;
-                view.SkipWhiteSpace(out int newDepth);
 
                 // "      " -- line is all spaces
                 // "  # comment after spaces "
-                if (view.Length == 0 || view.Char0 == '#')
+                if (line.Length == 0 || line.Char0 == '#')
                     continue;
 
-                YamlNode node = ParseLineAsNode(view, out bool isSequence);
+                YamlNode node = ParseLineAsNode(line, out bool isSequence);
                 if (node == null)
                     continue;
 
@@ -130,6 +120,9 @@ namespace Ship_Game.Data
                 depth = newDepth;
                 prev = node;
             }
+
+            // Cleanup crew
+            StrBuilder = null;
         }
 
         YamlNode ParseLineAsNode(StringView view, out bool isSequence)
@@ -356,27 +349,73 @@ namespace Ship_Game.Data
             int start = view.Start;
             int current = start;
             int eos = start + view.Length;
-            string str = view.Str;
+            char[] chars = view.Chars;
             while (current < eos)
             {
-                switch (str[current])
+                switch (chars[current])
                 {
                     case ':': case '#': case '\'': case '"': case ',':
                     case '{': case '}':  case '[': case ']':
                         if (start == current)
                         {
                             view.Skip(1);
-                            return new StringView(start, 1, str);
+                            return new StringView(chars, start, 1);
                         }
                         goto finished;
                 }
                 ++current;
             }
 
-            finished:
+        finished:
             int length = current - start;
             view.Skip(length);
-            return new StringView(start, length, str);
+            return new StringView(chars, start, length);
+        }
+
+        // @note The most efficient way to read .NET TextReader
+        //       Also combines YAML specific whitespace skipping logic
+        bool ReadLineWithDepth(char[] buffer, out StringView line, out int outDepth)
+        {
+            int depth = 0;
+            int length = 0;
+            for (;;)
+            {
+                int ch = Reader.Read();
+                switch (ch)
+                {
+                    case -1: goto end_of_stream;
+                    case 10: goto newline;
+                    case 13: goto carriage;
+                    default:
+                        if (length == 0) // still leading whitespace
+                        {
+                            if (ch == ' ')  { depth += 1; continue; }
+                            if (ch == '\t') { depth += 2; continue; }
+                        }
+                        buffer[length++] = (char)ch;
+                        continue;
+                }
+            }
+
+        carriage:
+            if (Reader.Peek() == 10) // skip newline
+                Reader.Read();
+
+        newline:
+            line = new StringView(buffer, 0, length); // allow 0 length
+            outDepth = depth;
+            return true;
+
+        end_of_stream:
+            if (length > 0)
+            {
+                line = new StringView(buffer, 0, length);
+                outDepth = depth;
+                return true;
+            }
+            line = default;
+            outDepth = 0;
+            return false;
         }
 
         public struct Error
@@ -402,7 +441,7 @@ namespace Ship_Game.Data
         public Array<T> DeserializeArray<T>() where T : new()
         {
             var items = new Array<T>();
-            var ser = new StarDataSerializer(typeof(T));
+            var ser = new YamlSerializer.YamlSerializer(typeof(T));
             foreach (YamlNode child in Root)
             {
                 items.Add((T)ser.Deserialize(child));
@@ -412,7 +451,7 @@ namespace Ship_Game.Data
 
         public T DeserializeOne<T>() where T : new()
         {
-            var ser = new StarDataSerializer(typeof(T));
+            var ser = new YamlSerializer.YamlSerializer(typeof(T));
             foreach (YamlNode child in Root)
             {
                 return (T)ser.Deserialize(child);

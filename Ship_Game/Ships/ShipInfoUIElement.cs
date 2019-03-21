@@ -740,14 +740,14 @@ namespace Ship_Game.Ships
             {
                 var rf = new OrdersButton(Ship, Vector2.Zero, OrderType.Refit, 158)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.doingRefit, x => Ship.doingRefit = x),
+                    ValueToModify = new Ref<bool>(() => Ship.DoingRefit, x => Ship.DoingRefit = x),
                     Active = false
                 };
                 Orders.Add(rf);
                 //Added by McShooterz: scrap order
                 var sc = new OrdersButton(Ship, Vector2.Zero, OrderType.Scrap, 157)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.doingScrap, x => Ship.doingScrap = x),
+                    ValueToModify = new Ref<bool>(() => Ship.DoingScrap, x => Ship.DoingScrap = x),
                     Active = false
                 };
                 Orders.Add(sc);
