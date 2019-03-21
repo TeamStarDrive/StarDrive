@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections;
+using System.IO;
+using System.Reflection;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data.Serialization;
+
+namespace Ship_Game.Data.YamlSerializer
+{
+    // type mapping cache for converters
+    class YamlSerializerMap : TypeSerializerMap
+    {
+        public YamlSerializerMap()
+        {
+            Add<ObjectSerializer>(typeof(object));
+        }
+
+        protected override TypeSerializer AddUserTypeSerializer(Type type)
+        {
+            return new YamlSerializer(type);
+        }
+    }
+}
