@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Serialization.Types;
 
 namespace Ship_Game.Data.YamlSerializer
 {

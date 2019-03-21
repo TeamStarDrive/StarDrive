@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Ships;
 
 namespace Ship_Game.GameScreens.MainMenu

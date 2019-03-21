@@ -46,8 +46,8 @@ namespace Ship_Game.Data.Serialization
 
         public static float Float(object value)
         {
-            if (value is int i)    return i;
             if (value is float f)  return f;
+            if (value is int i)    return i;
             if (value is string s) return StringView.ToFloat(s);
             Error(value, "Float -- expected int or float or string");
             return 0f;
