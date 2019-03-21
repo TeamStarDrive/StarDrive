@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data;
+using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Yaml;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
@@ -30,6 +32,7 @@ namespace Ship_Game
             public TextureAtlas Animation;
         }
 
+        [StarDataType]
         sealed class Explosion
         {
             #pragma warning disable 649 // They are serialized
@@ -60,7 +63,7 @@ namespace Ship_Game
             ExplosionPixel = ResourceManager.Texture("blank");
             if (ResourceManager.IsLoadCancelRequested) return;
 
-            using (var parser = new StarDataParser("Explosions.yaml"))
+            using (var parser = new YamlParser("Explosions.yaml"))
             {
                 Array<Explosion> explosions = parser.DeserializeArray<Explosion>();
                 foreach (Explosion e in explosions)

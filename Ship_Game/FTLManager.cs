@@ -5,6 +5,8 @@ using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
+using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Yaml;
 using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
@@ -15,6 +17,7 @@ namespace Ship_Game
         static bool EnableDebugGraph = false;
         static UIGraphView DebugGraph;
 
+        [StarDataType]
         class FTLLayerData
         {
             #pragma warning disable 649
@@ -116,7 +119,7 @@ namespace Ship_Game
             readonly FTLLayer[] Layers;
             readonly Func<Vector3> GetPosition;
             Vector3 Position;
-            float Radius;
+            readonly float Radius;
 
             public FTLInstance(Func<Vector3> getPosition, in Vector3 offset, float radius)
             {
@@ -181,7 +184,7 @@ namespace Ship_Game
                     LoadContent(screen);
                 });
 
-                using (var parser = new StarDataParser(file))
+                using (var parser = new YamlParser(file))
                 {
                     FTLLayers = parser.DeserializeArray<FTLLayerData>().ToArray();
                     foreach (FTLLayerData layerData in FTLLayers)

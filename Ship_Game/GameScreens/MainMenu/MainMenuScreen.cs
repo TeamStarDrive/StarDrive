@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data;
+using Ship_Game.Data.Yaml;
 using Ship_Game.Ships;
 using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
@@ -153,9 +154,10 @@ namespace Ship_Game.GameScreens.MainMenu
         void CreateMainMenuFleet()
         {
             Fleets.Clear();
-            using (var parser = new StarDataParser("MainMenuFleets.yaml"))
+            using (var parser = new YamlParser("MainMenuFleets.yaml"))
             {
-                foreach (MenuFleet fleet in parser.DeserializeArray<MenuFleet>())
+                Array<MenuFleet> fleets = parser.DeserializeArray<MenuFleet>();
+                foreach (MenuFleet fleet in fleets)
                 {
                     fleet.CreateShips(this);
                     if (fleet.FleetShips.NotEmpty)

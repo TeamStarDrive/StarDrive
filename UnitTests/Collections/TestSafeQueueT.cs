@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ship_Game.Utils;
 
-namespace SDUnitTests
+namespace UnitTests.Collections
 {
     [TestClass]
     public class TestSafeQueueT

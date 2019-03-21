@@ -4,7 +4,7 @@ using Ship_Game;
 using static System.Math;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace SDUnitTests
+namespace UnitTests
 {
     [TestClass]
     public class TestMathExt
