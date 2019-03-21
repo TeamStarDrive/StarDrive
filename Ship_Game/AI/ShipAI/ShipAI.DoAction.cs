@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
@@ -6,7 +7,6 @@ using Ship_Game.Ships;
 using System;
 using System.Linq;
 using System.Text;
-using Ship_Game.Audio;
 
 namespace Ship_Game.AI
 {
@@ -112,7 +112,7 @@ namespace Ship_Game.AI
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 CombatState = CombatState.Evade;
 
-            if (!Owner.loyalty.isFaction && Owner.System != null && Owner.Carrier.HasTroopBays) //|| Owner.hasTransporter)
+            if (Owner.System != null && Owner.Carrier.HasTroopBays)
                 CombatState = CombatState.AssaultShip;
 
             // in range:
@@ -397,7 +397,7 @@ namespace Ship_Game.AI
             {
                 if (Owner.loyalty.isPlayer)
                     HadPO = true;
-                
+
                 ClearOrders(DefaultAIState);
                 Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
             }
@@ -430,7 +430,7 @@ namespace Ship_Game.AI
             else
             {
                 float minDistance = Math.Max(adjustedRange * 0.25f + Target.Radius, adjustedRange * 0.5f);
-                
+
                 // slow down
                 if (distanceToTarget < minDistance)
                     Owner.Velocity -= Owner.Direction * elapsedTime * Owner.GetSTLSpeed();
@@ -503,7 +503,8 @@ namespace Ship_Game.AI
                 float distanceToOrbitSpot = Owner.Center.Distance(OrbitPos);
                 if (distanceToOrbitSpot <= radius || Owner.Speed < 1f)
                 {
-                    OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount * 10f)).ToDegrees();
+                    //this works but... i dont think its right.
+                    OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount.Clamped(-1f,1f))).ToDegrees() * 10f;
                     OrbitalAngle = OrbitalAngle.NormalizedAngle();
                 }
                 FindNewPosTimer = elapsedTime * 10f;
@@ -549,33 +550,10 @@ namespace Ship_Game.AI
 
         void DoRefit(ShipGoal goal)
         {
-            Ship template = ResourceManager.GetShipTemplate(goal.VariableString, throwIfError: false);
-
-            if (template == null)
-            {
+            if (goal.Goal == null) // empire goal was removed or planet was compromised 
                 ClearOrders();
-                Log.Warning($"Refit {Owner.Name} failed: {goal.VariableString} is not a valid ship template!");
-                return;
-            }
 
-            if (Owner.fleet != null)
-            {
-                var refitGoal = new FleetRequisition(goal, this);
-                FleetNode.GoalGUID = refitGoal.guid;
-                Owner.loyalty.GetEmpireAI().Goals.Add(refitGoal);
-                return; // Construction is handled by FleetRequisition
-            }
-
-            var qi = new QueueItem(OrbitTarget);
-            qi.sData = template.shipData;
-            qi.Cost = Owner.RefitCost(qi.sData.Name);
-            qi.isShip = true;
-            qi.isRefit = true;
-            qi.RefitName = Owner.VanityName;
-            qi.ShipLevel = Owner.Level;
-
-            OrbitTarget.ConstructionQueue.Add(qi);
-            Owner.QueueTotalRemoval();
+            ClearOrders(AIState.HoldPosition);
         }
 
         void DoRepairDroneLogic(Weapon w)

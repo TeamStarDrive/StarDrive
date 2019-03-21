@@ -9,10 +9,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game;
+using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Yaml;
 using Ship_Game.SpriteSystem;
 
 namespace Ship_Game.Universe.SolarBodies
 {
+    [StarDataType]
     public class SunLayerInfo
     {
         [StarData] public readonly string TexturePath; // REQUIRED
@@ -27,7 +30,8 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly Range PulseScale = new Range(1.0f);
         [StarData] public readonly Range PulseColor = new Range(1.0f);
     }
-
+    
+    [StarDataType]
     public class SunType
     {
         [StarDataKey] public string Id;
@@ -73,7 +77,7 @@ namespace Ship_Game.Universe.SolarBodies
         static void LoadSuns(FileInfo file)
         {
             Array<SunType> all;
-            using (var parser = new StarDataParser(file))
+            using (var parser = new YamlParser(file))
                 all = parser.DeserializeArray<SunType>();
             
             Map.Clear();

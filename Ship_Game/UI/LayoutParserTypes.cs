@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.UI
 {
+    [StarDataType]
     internal class ScreenInfo
     {
         #pragma warning disable 649
@@ -17,6 +19,7 @@ namespace Ship_Game.UI
         #pragma warning restore 649
     }
 
+    [StarDataType]
     internal class ElementInfo // generic info for all elements (I'm just lazy)
     {
         #pragma warning disable 649
