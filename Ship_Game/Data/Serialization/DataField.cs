@@ -11,14 +11,16 @@ namespace Ship_Game.Data.Serialization
 {
     public class DataField
     {
+        public int Id;
         readonly PropertyInfo Prop;
         readonly FieldInfo Field;
         readonly TypeSerializer Serializer;
         
         public override string ToString() => Prop?.ToString() ?? Field?.ToString() ?? "invalid";
 
-        public DataField(TypeSerializerMap typeMap, PropertyInfo prop, FieldInfo field)
+        public DataField(int id, TypeSerializerMap typeMap, PropertyInfo prop, FieldInfo field)
         {
+            Id = id;
             Prop  = prop;
             Field = field;
             Type type = prop != null ? prop.PropertyType : field.FieldType;
@@ -37,15 +39,15 @@ namespace Ship_Game.Data.Serialization
             else               return Prop.GetValue(instance);
         }
 
-        public void Serialize(MemoryStream ms, object instance)
+        public void Serialize(BinaryWriter writer, object instance)
         {
             object value = Get(instance);
-            Serializer.Serialize(ms, value);
+            Serializer.Serialize(writer, Id, value);
         }
 
-        public void Deserialize(MemoryStream ms, object instance)
+        public void Deserialize(BinaryReader reader, object instance)
         {
-            object value = Serializer.Deserialize(ms);
+            object value = Serializer.Deserialize(reader);
             Set(instance, value);
         }
 
