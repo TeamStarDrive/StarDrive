@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-using Ship_Game.Data.YamlSerializer;
 
-namespace Ship_Game.Data
+namespace Ship_Game.Data.Yaml
 {
     // Simplified text parser for StarDrive data files
     public class YamlParser : IDisposable
