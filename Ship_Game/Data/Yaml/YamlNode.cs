@@ -28,6 +28,10 @@ namespace Ship_Game.Data.Yaml
         public bool HasSequence => SeqNodes != null && SeqNodes.NotEmpty;
         public int Count => SubNodes?.Count ?? SeqNodes?.Count ?? 0;
 
+        // Prefers sequence, but if it's empty,
+        // chooses subnodes instead
+        public Array<YamlNode> SequenceOrSubNodes => SeqNodes ?? SubNodes;
+
         // SubNode indexing
         // ThisNode:
         //   SubNode0: Value0

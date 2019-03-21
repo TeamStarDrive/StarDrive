@@ -225,6 +225,11 @@
     <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerMap.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\ArrayListSerializer.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\ColorSerializer.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\EnumSerializer.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\FloatTypes.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\IntegerTypes.cs" />
     <Compile Include="Ship_Game\Data\Serialization\TypeSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\TypeSerializerMap.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializer.cs" />
@@ -233,7 +238,9 @@
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
     <Compile Include="Ship_Game\Data\ImageUtils.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
-    <Compile Include="Ship_Game\Data\Serialization\TypeSerializers.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\RawArraySerializer.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\TypeSerializers.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\VectorTypes.cs" />
     <Compile Include="Ship_Game\Data\Serialization\UserTypeSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\StarDataTypeAttribute.cs" />
     <Compile Include="Ship_Game\Data\YamlSerializer\YamlSerializerMap.cs" />
