@@ -1413,7 +1413,7 @@ namespace Ship_Game.AI
                 if (ship.AI.State == AIState.FormationWarp)
                 {
                     SetCombatMoveAtPosition(ship, Position, 7500);
-                    Empire.Universe.DebugWin?.DrawCircle(DebugModes.Pathing, Position, 100000, Color.Yellow);
+                    Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, Position, 100000, Color.Yellow);
                 }
                 AddShip(ship, true);
                 ReadyForWarp = ReadyForWarp && ship.ShipReadyForFormationWarp() > ShipStatus.Poor;

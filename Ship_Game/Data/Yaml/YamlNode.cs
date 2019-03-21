@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text;
 
-namespace Ship_Game.Data
+namespace Ship_Game.Data.Yaml
 {
     // StarDrive data object node with key, value and child items
     public class YamlNode : IEnumerable<YamlNode>
@@ -27,6 +27,10 @@ namespace Ship_Game.Data
         public bool HasSubNodes => SubNodes != null && SubNodes.NotEmpty;
         public bool HasSequence => SeqNodes != null && SeqNodes.NotEmpty;
         public int Count => SubNodes?.Count ?? SeqNodes?.Count ?? 0;
+
+        // Prefers sequence, but if it's empty,
+        // chooses subnodes instead
+        public Array<YamlNode> SequenceOrSubNodes => SeqNodes ?? SubNodes;
 
         // SubNode indexing
         // ThisNode:

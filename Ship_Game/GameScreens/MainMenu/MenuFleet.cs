@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
+using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Ships;
 
 namespace Ship_Game.GameScreens.MainMenu
@@ -50,7 +52,7 @@ namespace Ship_Game.GameScreens.MainMenu
         [StarData] readonly ShipGroupInfo[] ShipGroups = Empty<ShipGroupInfo>.Array;
         #pragma warning restore 649
 
-        readonly FloatConverter Floater = new FloatConverter();
+        readonly FloatSerializer Floater = new FloatSerializer();
 
         ShipState CreateState(object[] descriptor)
         {

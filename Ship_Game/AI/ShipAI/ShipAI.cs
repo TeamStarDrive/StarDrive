@@ -4,7 +4,7 @@ using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
 using System;
 using System.Linq;
-using Ship_Game.AI.CombatTactics;
+using Ship_Game.Utils;
 
 namespace Ship_Game.AI
 {
@@ -33,14 +33,16 @@ namespace Ship_Game.AI
         public Array<ShipWeight>   NearByShips = new Array<ShipWeight>();
         public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
+        readonly AttackRun AttackRun;
         readonly DropOffGoods DropOffGoods;
         readonly PickupGoods PickupGoods;
 
         public ShipAI(Ship owner)
         {
-            Owner             = owner;
-            DropOffGoods      = new DropOffGoods(this);
-            PickupGoods       = new PickupGoods(this);
+            Owner = owner;
+            AttackRun = new AttackRun(this);
+            DropOffGoods = new DropOffGoods(this);
+            PickupGoods = new PickupGoods(this);
         }
 
         public Vector2 GoalTarget
