@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
+using Ship_Game.Data.Yaml;
 using Ship_Game.Data.YamlSerializer;
 using Ship_Game.SpriteSystem;
 

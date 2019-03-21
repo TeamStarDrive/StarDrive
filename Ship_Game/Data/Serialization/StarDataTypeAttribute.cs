@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Ship_Game.Data
+namespace Ship_Game.Data.Serialization
 {
     
     // Note: This MUST be applied to classes that are serialized with StarDataSerializer
