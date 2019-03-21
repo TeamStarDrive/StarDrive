@@ -73,7 +73,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     Target = RandomMath.RandItem(TilesList),
                     Surface = P
                 };
-                orbitalDrop.DamageColonySurface(P, bomb);
+                orbitalDrop.DamageColonySurface(bomb);
                 bomb.PlayCombatScreenEffects(P, orbitalDrop);
                 if (Population <= 0f)
                 {
