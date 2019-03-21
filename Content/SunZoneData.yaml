@@ -1,88 +1,48 @@
 SunZoneData: Near 
-  Weights:
-    TypeWeight: Barren
-      Value: 20
-    TypeWeight: Desert
-      Value: 10
-    TypeWeight: Steppe
-      Value: 1
-    TypeWeight: Tundra
-      Value: 0
-    TypeWeight: Terran
-      Value: 3
-    TypeWeight: Volcanic
-      Value: 20
-    TypeWeight: Ice
-      Value: 0
-    TypeWeight: Swamp
-      Value: 5
-    TypeWeight: Oceanic
-      Value: 1
-    TypeWeight: GasGiant
-      Value: 2
+  Distribution:
+    - {Type: Barren, Count: 20 }
+    - {Type: Desert, Count: 10 }
+    - {Type: Steppe, Count: 1 }
+    - {Type: Tundra, Count: 0 }
+    - {Type: Terran, Count: 1 }
+    - {Type: Volcanic, Count: 20 }
+    - {Type: Ice, Count: 0 }
+    - {Type: Swamp, Count: 5 }
+    - {Type: Oceanic, Count: 1 }
+    - {Type: GasGiant, Count: 2 }
 SunZoneData: Habital
-  Weights:
-    TypeWeight: Barren
-      Value: 15
-    TypeWeight: Desert
-      Value: 3
-    TypeWeight: Steppe
-      Value: 3
-    TypeWeight: Tundra
-      Value: 2
-    TypeWeight: Terran
-      Value: 3
-    TypeWeight: Volcanic
-      Value: 5
-    TypeWeight: Ice
-      Value: 1
-    TypeWeight: Swamp
-      Value: 5
-    TypeWeight: Oceanic
-      Value: 5
-    TypeWeight: GasGiant
-      Value: 5
+  Distribution:
+    - {Type: Barren, Count: 20 }
+    - {Type: Desert, Count: 3 }
+    - {Type: Steppe, Count: 3 }
+    - {Type: Tundra, Count: 3 }
+    - {Type: Terran, Count: 3 }
+    - {Type: Volcanic, Count: 5 }
+    - {Type: Ice, Count: 2 }
+    - {Type: Swamp, Count: 3 }
+    - {Type: Oceanic, Count: 3 }
+    - {Type: GasGiant, Count: 5 }
 SunZoneData: Far
-  Weights:
-    TypeWeight: Barren
-      Value: 15
-    TypeWeight: Desert
-      Value: 2
-    TypeWeight: Steppe
-      Value: 3
-    TypeWeight: Tundra
-      Value: 4
-    TypeWeight: Terran
-      Value: 2
-    TypeWeight: Volcanic
-      Value: 15
-    TypeWeight: Ice
-      Value: 5
-    TypeWeight: Swamp
-      Value: 3
-    TypeWeight: Oceanic
-      Value: 3
-    TypeWeight: GasGiant
-      Value: 15
+  Distribution:
+    - {Type: Barren, Count: 15 }
+    - {Type: Desert, Count: 2 }
+    - {Type: Steppe, Count: 1 }
+    - {Type: Tundra, Count: 3 }
+    - {Type: Terran, Count: 1 }
+    - {Type: Volcanic, Count: 15 }
+    - {Type: Ice, Count: 5 }
+    - {Type: Swamp, Count: 2 }
+    - {Type: Oceanic, Count: 2 }
+    - {Type: GasGiant, Count: 40 }
 SunZoneData: VeryFar
-  Weights:
-    TypeWeight: Barren
-      Value: 15
-    TypeWeight: Desert
-      Value: 2
-    TypeWeight: Steppe
-      Value: 1
-    TypeWeight: Tundra
-      Value: 2
-    TypeWeight: Terran
-      Value: 0
-    TypeWeight: Volcanic
-      Value: 10
-    TypeWeight: Ice
-      Value: 5
-    TypeWeight: Swamp
-      Value: 1
-    TypeWeight: Oceanic
-      Value: 1
-    TypeWeight: GasGiant
-      Value: 30
+  Distribution:
+    - {Type: Barren, Count: 15 }
+    - {Type: Desert, Count: 1 }
+    - {Type: Steppe, Count: 0 }
+    - {Type: Tundra, Count: 1 }
+    - {Type: Terran, Count: 0 }
+    - {Type: Volcanic, Count: 5 }
+    - {Type: Ice, Count: 10}
+    - {Type: Swamp, Count: 1 }
+    - {Type: Oceanic, Count: 1 }
+    - {Type: GasGiant, Count: 70 }

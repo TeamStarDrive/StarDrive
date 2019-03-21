@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
+using Ship_Game.Data.Yaml;
+using Ship_Game.Data.YamlSerializer;
 using Ship_Game.SpriteSystem;
 
 namespace Ship_Game.UI
@@ -45,31 +47,31 @@ namespace Ship_Game.UI
 
         readonly UIElementContainer MainContainer;
         readonly GameContentManager Content;
-        readonly StarDataNode Root;
+        readonly YamlNode Root;
         readonly string Name;
         readonly Vector2 VirtualXForm; // multiplier to transform virtual coordinates to actual coordinates
-        readonly StarDataSerializer ElementSerializer = new StarDataSerializer(typeof(ElementInfo));
+        readonly YamlSerializer ElementSerializer = new YamlSerializer(typeof(ElementInfo));
 
         LayoutParser(UIElementContainer mainContainer, Vector2 size, FileInfo file)
         {
             Vector2 virtualSize;
             MainContainer = mainContainer;
             Content = mainContainer.ContentManager;
-            using (var parser = new StarDataParser(file))
+            using (var parser = new YamlParser(file))
             {
                 Root = parser.Root;
             }
 
             MainContainer.Size = size;
-            if (Root.FindChild("Screen", out StarDataNode screen))
+            if (Root.FindSubNode("Screen", out YamlNode screen))
             {
-                var info = (ScreenInfo)new StarDataSerializer(typeof(ScreenInfo)).Deserialize(screen);
+                var info = (ScreenInfo)new YamlSerializer(typeof(ScreenInfo)).Deserialize(screen);
                 Name = info.Name;
                 virtualSize = info.VirtualSize;
             }
             else
             {
-                Name = Root.Key;
+                Name = Root.Name;
                 virtualSize = size; // default to current screen size
             }
             VirtualXForm = size / virtualSize;
@@ -81,17 +83,17 @@ namespace Ship_Game.UI
             MainContainer.Name = Name; // override the name
         }
 
-        void CreateElements(UIElementContainer parent, StarDataNode node)
+        void CreateElements(UIElementContainer parent, YamlNode node)
         {
-            if (!node.HasItems)
+            if (!node.HasSubNodes)
                 return;
-            for (int i = 0; i < node.Items.Count; ++i)
+            for (int i = 0; i < node.Nodes.Count; ++i)
             {
-                CreateElement(parent, node.Items[i]);
+                CreateElement(parent, node.Nodes[i]);
             }
         }
 
-        ElementInfo DeserializeElementInfo(StarDataNode node)
+        ElementInfo DeserializeElementInfo(YamlNode node)
         {
             try
             {
@@ -243,7 +245,7 @@ namespace Ship_Game.UI
             return sa;
         }
 
-        ElementInfo ParseInfo(UIElementV2 parent, StarDataNode node)
+        ElementInfo ParseInfo(UIElementV2 parent, YamlNode node)
         {
             ElementInfo info = DeserializeElementInfo(node);
             if (info != null)
@@ -252,7 +254,7 @@ namespace Ship_Game.UI
                 info.Spr = LoadSpriteAnim(info.SpriteAnim);
 
                 // init texture for size information, so buttons can be auto-resized
-                if (info.Tex == null && node.Key == "Button")
+                if (info.Tex == null && node.Name == "Button")
                 {
                     info.Tex = UIButton.StyleTexture(info.ButtonStyle);
                 }
@@ -262,9 +264,9 @@ namespace Ship_Game.UI
             return info;
         }
 
-        void CreateElement(UIElementContainer parent, StarDataNode node)
+        void CreateElement(UIElementContainer parent, YamlNode node)
         {
-            if (node.Key == "Screen")
+            if (node.Name == "Screen")
                 return; // ignore layout descriptor
 
             bool newElement = true;
@@ -273,11 +275,11 @@ namespace Ship_Game.UI
             if (info == null)
                 return; // meh
             
-            if (node.Key == "Panel")
+            if (node.Name == "Panel")
             {
                 element = new UIPanel();
             }
-            else if (node.Key == "List")
+            else if (node.Name == "List")
             {
                 element = new UIList
                 {
@@ -285,11 +287,11 @@ namespace Ship_Game.UI
                     LayoutStyle = info.ListLayout,
                 };
             }
-            else if (node.Key == "Label")
+            else if (node.Name == "Label")
             {
                 element = new UILabel(info.Title.Text);
             }
-            else if (node.Key == "Button")
+            else if (node.Name == "Button")
             {
                 element = new UIButton(info.ButtonStyle)
                 {
@@ -298,12 +300,12 @@ namespace Ship_Game.UI
                     ClickSfx = info.ClickSfx,
                 };
             }
-            else if (node.Key == "Checkbox")
+            else if (node.Name == "Checkbox")
             {
                 bool dummy = false;
                 element = new UICheckBox(() => dummy, Fonts.Arial12Bold, info.Title.Text, info.Tooltip.Text);
             }
-            else if (node.Key == "Override")
+            else if (node.Name == "Override")
             {
                 if (!parent.Find(info.ElementName, out element))
                 {
@@ -354,7 +356,7 @@ namespace Ship_Game.UI
                 container.DebugDraw = info.DebugDraw;
             }
 
-            if (node.FindChild("Children", out StarDataNode children))
+            if (node.FindSubNode("Children", out YamlNode children))
             {
                 if (container != null)
                 {
