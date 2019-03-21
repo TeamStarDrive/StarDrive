@@ -18,11 +18,10 @@ namespace Ship_Game.Data.Serialization.Types
             return false;
         }
 
-        public override void Serialize(BinaryWriter writer, int fieldId, object obj)
+        public override void Serialize(BinaryWriter writer, object obj)
         {
-            SerializeId(writer, fieldId);
-            if (obj is bool boolean)
-                writer.Write((byte)(boolean ? 1 : 0));
+            bool value = (bool)obj;
+            writer.Write((byte)(value ? 1 : 0));
         }
 
         public override object Deserialize(BinaryReader reader)
@@ -36,11 +35,10 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "ByteSerializer";
 
-        public override void Serialize(BinaryWriter writer, int fieldId, object obj)
+        public override void Serialize(BinaryWriter writer, object obj)
         {
-            SerializeId(writer, fieldId);
-            if (obj is byte value)
-                writer.Write(value);
+            byte value = (byte)obj;
+            writer.Write(value);
         }
 
         public override object Deserialize(BinaryReader reader)
@@ -54,11 +52,10 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "ShortSerializer";
 
-        public override void Serialize(BinaryWriter writer, int fieldId, object obj)
+        public override void Serialize(BinaryWriter writer, object obj)
         {
-            SerializeId(writer, fieldId);
-            if (obj is short value)
-                writer.Write(value);
+            short value = (short)obj;
+            writer.Write(value);
         }
 
         public override object Deserialize(BinaryReader reader)
@@ -72,11 +69,10 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "UShortSerializer";
         
-        public override void Serialize(BinaryWriter writer, int fieldId, object obj)
+        public override void Serialize(BinaryWriter writer, object obj)
         {
-            SerializeId(writer, fieldId);
-            if (obj is ushort value)
-                writer.Write(value);
+            ushort value = (ushort)obj;
+            writer.Write(value);
         }
 
         public override object Deserialize(BinaryReader reader)
@@ -99,11 +95,10 @@ namespace Ship_Game.Data.Serialization.Types
             return 0;
         }
 
-        public override void Serialize(BinaryWriter writer, int fieldId, object obj)
+        public override void Serialize(BinaryWriter writer, object obj)
         {
-            SerializeId(writer, fieldId);
-            if (obj is int value)
-                writer.Write(value);
+            int value = (int)obj;
+            writer.Write(value);
         }
 
         public override object Deserialize(BinaryReader reader)
@@ -117,11 +112,10 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "UIntSerializer";
 
-        public override void Serialize(BinaryWriter writer, int fieldId, object obj)
+        public override void Serialize(BinaryWriter writer, object obj)
         {
-            SerializeId(writer, fieldId);
-            if (obj is uint value)
-                writer.Write(value);
+            uint value = (uint)obj;
+            writer.Write(value);
         }
 
         public override object Deserialize(BinaryReader reader)
@@ -135,11 +129,10 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "LongSerializer";
 
-        public override void Serialize(BinaryWriter writer, int fieldId, object obj)
+        public override void Serialize(BinaryWriter writer, object obj)
         {
-            SerializeId(writer, fieldId);
-            if (obj is long value)
-                writer.Write(value);
+            long value = (long)obj;
+            writer.Write(value);
         }
 
         public override object Deserialize(BinaryReader reader)
@@ -153,11 +146,10 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => "ULongSerializer";
 
-        public override void Serialize(BinaryWriter writer, int fieldId, object obj)
+        public override void Serialize(BinaryWriter writer, object obj)
         {
-            SerializeId(writer, fieldId);
-            if (obj is ulong value)
-                writer.Write(value);
+            ulong value = (ulong)obj;
+            writer.Write(value);
         }
 
         public override object Deserialize(BinaryReader reader)
