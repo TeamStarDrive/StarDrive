@@ -26,6 +26,8 @@ namespace Ship_Game.Data.Serialization
             Add<UShortSerializer> (typeof(ushort) );
             Add<IntSerializer>    (typeof(int)    );
             Add<UIntSerializer>   (typeof(uint)   );
+            Add<LongSerializer>   (typeof(long)   );
+            Add<ULongSerializer>  (typeof(ulong)  );
             Add<FloatSerializer>  (typeof(float)  );
             Add<DoubleSerializer> (typeof(double) );
             Add<Vector2Serializer>(typeof(Vector2));

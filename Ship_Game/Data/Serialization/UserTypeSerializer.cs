@@ -13,6 +13,7 @@ namespace Ship_Game.Data.Serialization
         public override string ToString() => $"UserTypeSerializer {TheType.GenericName()}";
 
         protected Map<string, DataField> Mapping;
+        protected Array<DataField> Index;
         protected DataField Primary;
         protected readonly Type TheType;
 
@@ -28,6 +29,7 @@ namespace Ship_Game.Data.Serialization
         protected void ResolveTypes()
         {
             Mapping = new Map<string, DataField>();
+            Index   = new Array<DataField>();
             TypeSerializerMap typeMap = CreateTypeMap();
 
             Type shouldSerialize = typeof(StarDataAttribute);
@@ -39,8 +41,7 @@ namespace Ship_Game.Data.Serialization
                 FieldInfo f = fields[i];
                 if (f.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
                 {
-                    string id = a.Id.NotEmpty() ? a.Id : f.Name;
-                    AddMapping(id, a, new DataField(typeMap, null, f));
+                    AddMapping(typeMap, a, null, f);
                 }
             }
             
@@ -52,21 +53,25 @@ namespace Ship_Game.Data.Serialization
                     MethodInfo setter = p.GetSetMethod(nonPublic: true);
                     if (setter == null)
                         throw new Exception($"StarDataSerializer Class {TheType.Name} Property {p.Name} has no setter!");
-
-                    string id = a.Id.NotEmpty() ? a.Id : p.Name;
-                    AddMapping(id, a, new DataField(typeMap, p, null));
+                    AddMapping(typeMap, a, p, null);
                 }
             }
         }
 
-        void AddMapping(string name, StarDataAttribute a, DataField info)
+        void AddMapping(TypeSerializerMap typeMap, StarDataAttribute a, PropertyInfo p, FieldInfo f)
         {
-            Mapping.Add(name, info);
+            string name = a.NameId.NotEmpty() ? a.NameId : (p?.Name ?? f.Name);
+            int id = a.Id != 0 ? a.Id : Index.Count;
+            var field = new DataField(id, typeMap, p, f);
+
+            Mapping.Add(name, field);
+            Index.Add(field);
+
             if (a.IsPrimaryKey)
             {
                 if (Primary != null)
-                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKey] attributes! Original {Primary}, New {info}");
-                Primary = info;
+                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKey] attributes! Original {Primary}, New {field}");
+                Primary = field;
             }
         }
     }

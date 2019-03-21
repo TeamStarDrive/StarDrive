@@ -27,16 +27,23 @@ namespace Ship_Game.Data.Serialization
             return Convert(value);
         }
 
-        public virtual void Serialize(MemoryStream ms, object obj)
+        public virtual void Serialize(BinaryWriter writer, int fieldId, object obj)
         {
-            
+            Log.Error($"Serialize not supported for field[{fieldId}] {ToString()}");
         }
 
-        public virtual object Deserialize(MemoryStream ms)
+        public virtual object Deserialize(BinaryReader reader)
         {
+            Log.Error($"Deserialize not supported for {ToString()}");
             return null;
         }
 
+        protected void SerializeId(BinaryWriter writer, int fieldId)
+        {
+            if (fieldId > 255)
+                throw new IndexOutOfRangeException($"TypeSerializer could not handle so many fields: {fieldId} > 255");
+            writer.Write((byte)fieldId);
+        }
 
         public static void Error(object value, string couldNotConvertToWhat)
         {
