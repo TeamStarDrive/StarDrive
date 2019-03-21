@@ -14,6 +14,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Universe.SolarBodies;
 
@@ -1721,7 +1722,7 @@ namespace Ship_Game
 
         static void LoadPlanetTypes()
         {
-            using (var parser = new Data.YamlParser("PlanetTypes.yaml"))
+            using (var parser = new YamlParser("PlanetTypes.yaml"))
             {
                 PlanetTypes = parser.DeserializeArray<PlanetType>();
             }
@@ -1734,7 +1735,7 @@ namespace Ship_Game
 
         static void LoadSunZoneData()
         {
-            using (var parser = new Data.YamlParser("SunZoneData.yaml"))
+            using (var parser = new YamlParser("SunZoneData.yaml"))
             {
                 var zones = parser.DeserializeArray<SunZoneData>();
                 ZoneDistribution[SunZone.Near]    = SunZoneData.CreateDistribution(zones, SunZone.Near);
