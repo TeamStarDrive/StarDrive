@@ -58,9 +58,9 @@ namespace Ship_Game
             if (this != planet.Owner) // Inter Empire Trade (very effective)
                 taxedGoods += goods;
 
-            taxedGoods += MercantileTax(goods);
+            taxedGoods              += MercantileTax(goods);
             TradeMoneyAddedThisTurn += taxedGoods;
-            AllTimeTradeIncome += (int)taxedGoods;
+            AllTimeTradeIncome      += (int)taxedGoods;
         }
 
         private float MercantileTax(float goods)
@@ -216,10 +216,10 @@ namespace Ship_Game
             float ratioDiff = 0;
             switch (reason)
             {
-                case FreighterPriority.TooSmall: ratioDiff = -0.005f; break;
-                case FreighterPriority.TooBig: ratioDiff = +0.01f; break;
-                case FreighterPriority.TooSlow: ratioDiff = +0.02f; break;
-                case FreighterPriority.ExcessCargoLeft: ratioDiff = +0.02f; break;
+                case FreighterPriority.TooSmall: ratioDiff         = -0.005f; break;
+                case FreighterPriority.TooBig: ratioDiff           = +0.01f;  break;
+                case FreighterPriority.TooSlow: ratioDiff          = +0.02f;  break;
+                case FreighterPriority.ExcessCargoLeft: ratioDiff  = +0.02f;  break;
                 case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.005f; break;
             }
 
