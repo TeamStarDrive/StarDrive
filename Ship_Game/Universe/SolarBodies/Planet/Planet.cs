@@ -225,8 +225,6 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
             UpdateColonyValue();
-            RemoveInvalidFreighters(IncomingFreighters);
-            RemoveInvalidFreighters(OutgoingFreighters);
 
             if (ParentSystem.HostileForcesPresent(Owner))
                 UpdateSpaceCombatBuildings(elapsedTime);
@@ -469,6 +467,8 @@ namespace Ship_Game
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
             DoTerraforming();
+            RemoveInvalidFreighters(IncomingFreighters);
+            RemoveInvalidFreighters(OutgoingFreighters);
             UpdateFertility();
             InitResources(); // must be done before Governing
             UpdateIncomes(false);

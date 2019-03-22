@@ -170,8 +170,8 @@ namespace Ship_Game
                 else if (ship.loyalty != Owner && !Owner.GetRelations(ship.loyalty).Treaty_Trade)
                 {
                     // cancel trade plan and remove from list if trade treaty was canceled
-                    ship.AI.CancelTradePlan();
                     list.RemoveAt(i);
+                    ship.AI.CancelTradePlan(ship.loyalty.FindNearestRallyPoint(ship.Center));
                 }
             }
         }
