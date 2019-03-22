@@ -11,9 +11,9 @@ using Ship_Game.Universe.SolarBodies;
 namespace UnitTests.Serialization
 {
     [TestClass]
-    public class TestStarDataSerializer
+    public class TestYamlSerializer
     {
-        static TestStarDataSerializer()
+        static TestYamlSerializer()
         {
             Directory.SetCurrentDirectory("/Projects/BlackBox");
         }
