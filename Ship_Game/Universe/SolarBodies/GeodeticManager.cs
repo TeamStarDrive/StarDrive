@@ -2,7 +2,6 @@
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using Ship_Game.Audio;
 
 namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2019
 {
@@ -17,8 +16,8 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private SceneObject SO    => P.SO;
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
-        Map<Guid,Ship> Stations   => P.OrbitalStations;
-        float RepairPerTurn       => P.RepairPerTurn;
+        private Map<Guid,Ship> Stations      => P.OrbitalStations;
+        private float RepairPerTurn          => P.RepairPerTurn;
         private SolarSystem ParentSystem     => P.ParentSystem;
         private int TurnsSinceTurnover       => P.TurnsSinceTurnover;
         private float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
