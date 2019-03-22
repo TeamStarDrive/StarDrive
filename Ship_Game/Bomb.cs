@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
 using Ship_Game.Audio;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -12,7 +13,7 @@ namespace Ship_Game
         private Planet TargetPlanet;
         public Matrix World { get; private set; }
 
-        public string WeaponName;
+        public Weapon Weapon;
         private const string TextureName = "projBall_02_orange";
         private const string ModelName   = "projBall";
 
@@ -37,15 +38,14 @@ namespace Ship_Game
             Texture     = ResourceManager.ProjTexture(TextureName);
             Model       = ResourceManager.ProjectileModelDict[ModelName];
             Position    = position;
-            if (weaponName == null)
-                WeaponName = "NuclearBomb";
+            Weapon      = ResourceManager.GetWeaponTemplate(weaponName) ?? ResourceManager.GetWeaponTemplate("NuclearBomb");
 
-            TroopDamageMin = ResourceManager.WeaponsDict[weaponName].BombTroopDamage_Min;
-            TroopDamageMax = ResourceManager.WeaponsDict[weaponName].BombTroopDamage_Max;
-            HardDamageMin  = ResourceManager.WeaponsDict[weaponName].BombHardDamageMin;
-            HardDamageMax  = ResourceManager.WeaponsDict[weaponName].BombHardDamageMax;
-            PopKilled      = ResourceManager.WeaponsDict[weaponName].BombPopulationKillPerHit;
-            SpecialAction  = ResourceManager.WeaponsDict[weaponName].HardCodedAction;
+            TroopDamageMin = Weapon.BombTroopDamage_Min;
+            TroopDamageMax = Weapon.BombTroopDamage_Max;
+            HardDamageMin  = Weapon.BombHardDamageMin;
+            HardDamageMax  = Weapon.BombHardDamageMax;
+            PopKilled      = Weapon.BombPopulationKillPerHit;
+            SpecialAction  = Weapon.HardCodedAction;
         }
 
         public void DoImpact()

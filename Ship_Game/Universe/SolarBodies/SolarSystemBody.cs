@@ -60,9 +60,9 @@ namespace Ship_Game
                 return;
 
             // Biospheres could not withstand damage
-            Target.Habitable = false;
+            Target.Habitable   = false;
             Target.Highlighted = false;
-            Target.Biosphere = false;
+            Target.Biosphere   = false;
             if (Target.BuildingOnTile)
             {
                 // Building under biospheres is also destroyed
