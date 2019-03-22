@@ -45,7 +45,7 @@ namespace Ship_Game
             HardDamageMin  = ResourceManager.WeaponsDict[weaponName].BombHardDamageMin;
             HardDamageMax  = ResourceManager.WeaponsDict[weaponName].BombHardDamageMax;
             PopKilled      = ResourceManager.WeaponsDict[weaponName].BombPopulationKillPerHit;
-            SpecialAction  = ResourceManager.WeaponsDict[WeaponName].HardCodedAction;
+            SpecialAction  = ResourceManager.WeaponsDict[weaponName].HardCodedAction;
         }
 
         public void DoImpact()
