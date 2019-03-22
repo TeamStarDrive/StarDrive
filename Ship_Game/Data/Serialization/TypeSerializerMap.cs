@@ -16,40 +16,39 @@ namespace Ship_Game.Data.Serialization
     {
         ushort NextId;
         readonly Map<Type, TypeSerializer> Serializers = new Map<Type, TypeSerializer>();
-        Array<TypeSerializer> Index;
+        readonly Array<TypeSerializer> Index = new Array<TypeSerializer>();
+        public IReadOnlyList<TypeSerializer> TypesList => Index;
 
         protected TypeSerializerMap()
         {
-            Add<BoolSerializer>   (typeof(bool)   );
-            Add<ByteSerializer>   (typeof(byte)   );
-            Add<ShortSerializer>  (typeof(short)  );
-            Add<UShortSerializer> (typeof(ushort) );
-            Add<IntSerializer>    (typeof(int)    );
-            Add<UIntSerializer>   (typeof(uint)   );
-            Add<LongSerializer>   (typeof(long)   );
-            Add<ULongSerializer>  (typeof(ulong)  );
-            Add<FloatSerializer>  (typeof(float)  );
-            Add<DoubleSerializer> (typeof(double) );
-            Add<Vector2Serializer>(typeof(Vector2));
-            Add<Vector3Serializer>(typeof(Vector3));
-            Add<Vector4Serializer>(typeof(Vector4));
-            Add<ColorSerializer>  (typeof(Color)  );
-            Add<StringSerializer> (typeof(string) );
-            Add<RangeSerializer>  (typeof(Range)  );
-            Add<LocTextSerializer>(typeof(LocText));
+            Add(typeof(bool),   new BoolSerializer()  );
+            Add(typeof(byte),   new ByteSerializer()  );
+            Add(typeof(short),  new ShortSerializer() );
+            Add(typeof(ushort), new UShortSerializer());
+            Add(typeof(int),    new IntSerializer()   );
+            Add(typeof(uint),   new UIntSerializer()  );
+            Add(typeof(long),   new LongSerializer()  );
+            Add(typeof(ulong),  new ULongSerializer() );
+            Add(typeof(float),  new FloatSerializer() );
+            Add(typeof(double),  new DoubleSerializer() );
+            Add(typeof(Vector2), new Vector2Serializer());
+            Add(typeof(Vector3), new Vector3Serializer());
+            Add(typeof(Vector4), new Vector4Serializer());
+            Add(typeof(Color),   new ColorSerializer()  );
+            Add(typeof(string),  new StringSerializer() );
+            Add(typeof(Range),   new RangeSerializer()  );
+            Add(typeof(LocText), new LocTextSerializer());
         }
 
         protected abstract TypeSerializer AddUserTypeSerializer(Type type); 
 
-        protected void Add<T>(Type type) where T : TypeSerializer, new()
+        protected TypeSerializer Add(Type type, TypeSerializer ser)
         {
-            Serializers[type] = new T { Id = ++NextId };
-        }
-
-        TypeSerializer Add(Type type, TypeSerializer serializer)
-        {
-            Serializers[type] = serializer;
-            return serializer;
+            ser.Id   = ++NextId;
+            ser.Type = type;
+            Serializers[type] = ser;
+            Index.Add(ser);
+            return ser;
         }
 
         static Type GetListType(Type type)

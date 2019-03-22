@@ -13,10 +13,12 @@ namespace Ship_Game.Data.Serialization
         public override string ToString() => $"UserTypeSerializer {TheType.GenericName()}";
 
         protected Map<string, DataField> Mapping;
-        protected TypeSerializerMap TypeMap;
+        public TypeSerializerMap TypeMap { get; private set; }
         protected Array<DataField> Index;
         protected DataField Primary;
         protected readonly Type TheType;
+
+        public IReadOnlyList<DataField> Fields => Index;
 
         protected UserTypeSerializer(Type type)
         {
