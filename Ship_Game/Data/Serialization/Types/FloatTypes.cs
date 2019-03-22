@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,18 @@ namespace Ship_Game.Data.Serialization.Types
             Error(value, "Float -- expected int or float or string");
             return 0.0f;
         }
+
+        public override void Serialize(BinaryWriter writer, object obj)
+        {
+            float value = (float)obj;
+            writer.Write(value);
+        }
+
+        public override object Deserialize(BinaryReader reader)
+        {
+            float value = reader.ReadSingle();
+            return value;
+        }
     }
 
     internal class DoubleSerializer : TypeSerializer
@@ -33,6 +46,18 @@ namespace Ship_Game.Data.Serialization.Types
             if (value is string s) return StringView.ToDouble(s);
             Error(value, "Double -- expected int or float or string");
             return 0.0;
+        }
+
+        public override void Serialize(BinaryWriter writer, object obj)
+        {
+            double value = (double)obj;
+            writer.Write(value);
+        }
+
+        public override object Deserialize(BinaryReader reader)
+        {
+            double value = reader.ReadDouble();
+            return value;
         }
     }
 }

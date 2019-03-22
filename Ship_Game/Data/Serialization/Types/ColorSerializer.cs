@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System.IO;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -41,6 +42,18 @@ namespace Ship_Game.Data.Serialization.Types
             }
             Error(value, "Color -- expected [int,int,int,int] or [float,float,float,float] or int or number");
             return Color.Red;
+        }
+
+        public override void Serialize(BinaryWriter writer, object obj)
+        {
+            var color = (Color)obj;
+            writer.Write(color.PackedValue);
+        }
+        
+        public override object Deserialize(BinaryReader reader)
+        {
+            var color = new Color { PackedValue = reader.ReadUInt32() };
+            return color;
         }
     }
 }

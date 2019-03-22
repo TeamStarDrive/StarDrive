@@ -33,7 +33,7 @@ namespace Ship_Game
 
         public Bomb(Vector3 position, Empire empire, string weaponName)
         {
-            Owner = empire;
+            Owner       = empire;
             Texture     = ResourceManager.ProjTexture(TextureName);
             Model       = ResourceManager.ProjectileModelDict[ModelName];
             Position    = position;

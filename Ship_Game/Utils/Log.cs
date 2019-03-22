@@ -236,6 +236,13 @@ namespace Ship_Game
         {
             Error(string.Format(format, args));
         }
+
+        class StackTraceEx : Exception
+        {
+            public override string StackTrace { get; }
+            public StackTraceEx(string stackTrace) { StackTrace = stackTrace; }
+        }
+
         public static void Error(string error)
         {
             if (!HasDebugger && ShouldIgnoreErrorText(error))
@@ -245,7 +252,8 @@ namespace Ship_Game
             WriteToLog(text);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
-                CaptureEvent(text, ErrorLevel.Error);
+                var ex = new StackTraceEx(new StackTrace(1).ToString());
+                CaptureEvent(text, ErrorLevel.Error, ex);
                 return;
             }
 
@@ -261,6 +269,7 @@ namespace Ship_Game
         {
             Error(ex, string.Format(format, args));
         }
+
         public static void Error(Exception ex, string error = null, ErrorLevel errorLevel = ErrorLevel.Error)
         {
             string text = CurryExceptionMessage(ex, error);
