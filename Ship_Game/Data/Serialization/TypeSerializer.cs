@@ -12,6 +12,7 @@ namespace Ship_Game.Data.Serialization
     {
         // Id which is valid in a single serialization context
         internal ushort Id;
+        internal Type Type;
 
         public virtual object Convert(object value)
         {
@@ -43,7 +44,6 @@ namespace Ship_Game.Data.Serialization
             if (serializerId > ushort.MaxValue)
                 throw new IndexOutOfRangeException($"TypeSerializer could not handle so many serializers: {serializerId} > 65535");
             writer.Write((ushort)serializerId);
-
         }
 
         public static void Error(object value, string couldNotConvertToWhat)
