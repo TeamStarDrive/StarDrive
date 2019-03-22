@@ -16,6 +16,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private SceneObject SO    => P.SO;
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
+        private int NumShipYards  => Stations.Values.Count(s => s.shipData.IsShipyard);
         private Map<Guid,Ship> Stations      => P.OrbitalStations;
         private float RepairPerTurn          => P.RepairPerTurn;
         private SolarSystem ParentSystem     => P.ParentSystem;
@@ -27,23 +28,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         public GeodeticManager (Planet planet)
         {
             P = planet;
-        }
-
-        private int NumShipYards
-        {
-            get
-            {
-                int shipYardCount = 0;
-                foreach (var shipYard in Stations)
-                {
-                    if (!shipYard.Value.shipData.IsShipyard)
-                        continue;
-
-                    shipYardCount++;
-                }
-
-                return shipYardCount;
-            }
         }
 
         public void Update(float elapsedTime)
@@ -89,14 +73,18 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             if (Owner != null && !Owner.GetRelations(bomb.Owner).AtWar
                               && TurnsSinceTurnover > 10
                               && Empire.Universe.PlayerEmpire == bomb.Owner)
+            {
                 Owner.GetEmpireAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
+            }
         }
 
         private void DamageColonyShields(Bomb bomb)
         {
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView 
+            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
                 && Empire.Universe.Frustum.Contains(P.Center, P.OrbitalRadius * 2))
-                    Shield.HitShield(P, bomb, Center, SO.WorldBoundingSphere.Radius + 100f);
+            {
+                Shield.HitShield(P, bomb, Center, SO.WorldBoundingSphere.Radius + 100f);
+            }
 
             P.ShieldStrengthCurrent = Math.Max(P.ShieldStrengthCurrent - bomb.HardDamageMax, 0);
         }
