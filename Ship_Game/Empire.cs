@@ -17,7 +17,7 @@ namespace Ship_Game
 {
     using static ShipBuilder;
 
-    public sealed class Empire : IDisposable
+    public sealed partial class Empire : IDisposable
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
             throw new InvalidOperationException(
@@ -136,6 +136,31 @@ namespace Ship_Game
         public float NetIncome                => GrossIncome - BuildingAndShipMaint;
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
+
+        [XmlIgnore][JsonIgnore]
+        public Array<Empire> TradeTreaties
+        {
+            get
+            {
+                var tradeTreaties = new Array<Empire>();
+                foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+                    if (kv.Value.Treaty_Trade)
+                        tradeTreaties.Add(kv.Key);
+                return tradeTreaties;
+            }
+        }
+
+        public BatchRemovalCollection<Planet> TradingEmpiresPlanetList()
+        {
+            var list = new BatchRemovalCollection<Planet>();
+            foreach (Empire empire in TradeTreaties)
+            {
+                foreach (Planet planet in empire.OwnedPlanets)
+                    list.Add(planet);
+            }
+
+            return list;
+        }
 
         public void AddMoney(float moneyDiff)
         {
@@ -570,14 +595,23 @@ namespace Ship_Game
             OwnedSolarSystems.AddUniqueRef(planet.ParentSystem);
         }
 
-        public void TaxGoodsIfMercantile(float goods)
+        public void TaxGoods(float goods, Planet planet)
         {
-            if (data.Traits.Mercantile.LessOrEqual(0))
-                return;
+            float taxedGoods = 0;
+            if (this != planet.Owner) // Inter Empire Trade (very effective)
+                taxedGoods += goods;
 
-            float taxedGoods         = goods * data.Traits.Mercantile * data.TaxRate;
+            taxedGoods              += MercantileTax(goods);
             TradeMoneyAddedThisTurn += taxedGoods;
             AllTimeTradeIncome      += (int)taxedGoods;
+        }
+
+        private float MercantileTax(float goods)
+        {
+            if (data.Traits.Mercantile.LessOrEqual(0))
+                return 0;
+
+            return goods * data.Traits.Mercantile * data.TaxRate;
         }
 
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
@@ -2365,10 +2399,21 @@ namespace Ship_Game
         {
             // Cybernetic factions never touch Food trade. Filthy Opteris are disgusted by protein-bugs. Ironic.
             if (NonCybernetic)
-                DispatchOrBuildFreighters(Goods.Food);
+                DispatchOrBuildFreighters(Goods.Food, OwnedPlanets);
 
-            DispatchOrBuildFreighters(Goods.Production);
-            DispatchOrBuildFreighters(Goods.Colonists);
+            DispatchOrBuildFreighters(Goods.Production, OwnedPlanets);
+            DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets);
+
+            var interTradePlanets = TradingEmpiresPlanetList(); 
+            if (interTradePlanets.Count > 0)
+            {
+                // export stuff to Empires which have trade treaties with us
+                if (NonCybernetic)
+                    DispatchOrBuildFreighters(Goods.Food, interTradePlanets);
+
+                DispatchOrBuildFreighters(Goods.Production, interTradePlanets);
+            }
+
             UpdateFreighterTimersAndScrap();
         }
 
@@ -2397,9 +2442,9 @@ namespace Ship_Game
             }
         }
 
-        private void DispatchOrBuildFreighters(Goods goods)
+        private void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList)
         {
-            Planet[] importingPlanets = OwnedPlanets.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
+            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
             if (importingPlanets.Length == 0)
                 return;
 
