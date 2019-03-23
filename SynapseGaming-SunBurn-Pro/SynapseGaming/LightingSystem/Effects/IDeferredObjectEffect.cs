@@ -56,6 +56,6 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <summary>
     /// Sets scene ambient lighting (used during the Final rendering pass).
     /// </summary>
-    void SetAmbientLighting(IAmbientSource light, Vector3 directionhint);
+    void SetAmbientLighting(IAmbientSource light, Vector3 directionHint);
   }
 }

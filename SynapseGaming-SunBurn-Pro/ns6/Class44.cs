@@ -17,7 +17,7 @@ namespace EmbeddedResources
     public Texture2D BloomTexture
     {
       get => this.texture2D_2;
-        set => EffectHelper.SetParam(value, ref this.texture2D_2, this.effectParameter_17);
+        set => EffectHelper.Update(value, ref this.texture2D_2, this.effectParameter_17);
     }
 
     public float BloomAmount
