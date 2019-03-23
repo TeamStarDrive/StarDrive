@@ -12,185 +12,206 @@ using ns3;
 
 namespace SynapseGaming.LightingSystem.Core
 {
-  /// <summary>
-  /// Provides user and hardware specific preferences to the Lighting System.
-  /// </summary>
-  [Serializable]
-  public class LightingSystemPreferences : IPreferences, ISerializable, ILightingSystemPreferences
-  {
-    private SamplingPreference samplingPreference_0 = SamplingPreference.Trilinear;
-    private int int_0 = 4;
-    private DetailPreference detailPreference_1 = DetailPreference.Medium;
-    private float float_0 = 1f;
-    private DetailPreference detailPreference_0;
-    private DetailPreference detailPreference_2;
-    private DetailPreference detailPreference_3;
-    private static SerializeTypeDictionary serializeTypeDictionary_0;
-
     /// <summary>
-    /// Sets the user preferred balance of texture sampling quality and performance.
+    /// Provides user and hardware specific preferences to the Lighting System.
     /// </summary>
-    public SamplingPreference TextureSampling
+    [Serializable]
+    public class LightingSystemPreferences : IPreferences, ISerializable, ILightingSystemPreferences, IEquatable<LightingSystemPreferences>
     {
-      get => this.samplingPreference_0;
-        set => this.samplingPreference_0 = value;
-    }
+        SamplingPreference textureSampling = SamplingPreference.Trilinear;
+        int maxAnisotropy = 4;
+        DetailPreference shadowDetail = DetailPreference.Medium;
+        float shadowQuality = 1f;
+        DetailPreference textureQuality;
+        DetailPreference effectDetail;
+        DetailPreference postProcessingDetail;
+        static SerializeTypeDictionary serializeTypeDictionary_0;
 
-    /// <summary>
-    /// Sets the user preferred balance of texture resolution and performance.
-    /// </summary>
-    public DetailPreference TextureQuality
-    {
-      get => this.detailPreference_0;
-        set => this.detailPreference_0 = value;
-    }
-
-    /// <summary>
-    /// Sets the maximum anisotropy level when TextureSampling is set to Anisotropic.
-    /// </summary>
-    public int MaxAnisotropy
-    {
-      get => this.int_0;
-        set => this.int_0 = value;
-    }
-
-    /// <summary>
-    /// Sets the user preferred balance of shadow filtering quality and performance.
-    /// </summary>
-    public DetailPreference ShadowDetail
-    {
-      get => this.detailPreference_1;
-        set => this.detailPreference_1 = value;
-    }
-
-    /// <summary>
-    /// Sets the user preferred balance of shadow resolution and performance.
-    /// </summary>
-    public float ShadowQuality
-    {
-      get => this.float_0;
-        set => this.float_0 = value;
-    }
-
-    /// <summary>
-    /// Sets the user preferred balance of LightingEffect detail and performance.
-    /// </summary>
-    public DetailPreference EffectDetail
-    {
-      get => this.detailPreference_2;
-        set => this.detailPreference_2 = value;
-    }
-
-    /// <summary>
-    /// Sets the user preferred balance of post-processing effect detail and performance.
-    /// </summary>
-    public DetailPreference PostProcessingDetail
-    {
-      get => this.detailPreference_3;
-        set => this.detailPreference_3 = value;
-    }
-
-    /// <summary>
-    /// Used to support serializing user defined preferences. Register any additional
-    /// classes and their xml element names to support persisting custom preference objects.
-    /// </summary>
-    public static SerializeTypeDictionary SerializeTypeDictionary
-    {
-      get
-      {
-        if (serializeTypeDictionary_0 == null)
+        /// <summary>
+        /// Sets the user preferred balance of texture sampling quality and performance.
+        /// </summary>
+        public SamplingPreference TextureSampling
         {
-          serializeTypeDictionary_0 = new SerializeTypeDictionary();
-          serializeTypeDictionary_0.RegisterType("Preferences", typeof (LightingSystemPreferences));
-          serializeTypeDictionary_0.RegisterType("Sampling", typeof (SamplingPreference));
-          serializeTypeDictionary_0.RegisterType("Detail", typeof (DetailPreference));
+            get => textureSampling;
+            set => textureSampling = value;
         }
-        return serializeTypeDictionary_0;
-      }
-    }
 
-    /// <summary>Creates a new LightingSystemPreferences object.</summary>
-    public LightingSystemPreferences()
-    {
-    }
-
-    /// <summary />
-    protected LightingSystemPreferences(SerializationInfo serializationInfo_0, StreamingContext streamingContext_0)
-    {
-      foreach (SerializationEntry serializationEntry in serializationInfo_0)
-      {
-        switch (serializationEntry.Name)
+        /// <summary>
+        /// Sets the user preferred balance of texture resolution and performance.
+        /// </summary>
+        public DetailPreference TextureQuality
         {
-          case "TextureSampling":
-            serializationInfo_0.GetEnum("TextureSampling", out this.samplingPreference_0);
-            continue;
-          case "TextureQuality":
-            serializationInfo_0.GetEnum("TextureQuality", out this.detailPreference_0);
-            continue;
-          case "MaxAnisotropy":
-            serializationInfo_0.GetValue("MaxAnisotropy", out this.int_0);
-            continue;
-          case "ShadowDetail":
-            serializationInfo_0.GetEnum("ShadowDetail", out this.detailPreference_1);
-            continue;
-          case "ShadowQuality":
-            serializationInfo_0.GetValue("ShadowQuality", out this.float_0);
-            continue;
-          case "EffectDetail":
-            serializationInfo_0.GetEnum("EffectDetail", out this.detailPreference_2);
-            continue;
-          case "PostProcessingDetail":
-            serializationInfo_0.GetEnum("PostProcessingDetail", out this.detailPreference_3);
-            continue;
-          default:
-            continue;
+            get => textureQuality;
+            set => textureQuality = value;
         }
-      }
-    }
 
-    /// <summary>
-    /// Loads preferences from file (available on Windows only – Xbox 360 implementations
-    /// using LightingSystemPreferences should set preferences via code as all target
-    /// hardware is the same).
-    /// </summary>
-    /// <param name="filename">Path and name of file.</param>
-    public void LoadFromFile(string filename)
-    {
-      FileStream fileStream = File.OpenRead(filename);
-      object object_0 = new Class29(SerializeTypeDictionary).Deserialize(fileStream);
-      if (object_0 != null)
-        Class12.smethod_1(object_0, this);
-      fileStream.Flush();
-      fileStream.Close();
-      fileStream.Dispose();
-    }
+        /// <summary>
+        /// Sets the maximum anisotropy level when TextureSampling is set to Anisotropic.
+        /// </summary>
+        public int MaxAnisotropy
+        {
+            get => maxAnisotropy;
+            set => maxAnisotropy = value;
+        }
 
-    /// <summary>
-    /// Saves preferences to file (available on Windows only – Xbox 360 implementations
-    /// using LightingSystemPreferences should set preferences via code as all target
-    /// hardware is the same).
-    /// </summary>
-    /// <param name="filename">Path and name of file.</param>
-    public void SaveToFile(string filename)
-    {
-      FileStream fileStream = File.Create(filename);
-      new Class29(SerializeTypeDictionary).Serialize(fileStream, this);
-      fileStream.Flush();
-      fileStream.Close();
-      fileStream.Dispose();
-    }
+        /// <summary>
+        /// Sets the user preferred balance of shadow filtering quality and performance.
+        /// </summary>
+        public DetailPreference ShadowDetail
+        {
+            get => shadowDetail;
+            set => shadowDetail = value;
+        }
 
-    /// <summary />
-    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("TextureSampling", this.samplingPreference_0);
-      info.AddValue("TextureQuality", this.detailPreference_0);
-      info.AddValue("MaxAnisotropy", this.int_0);
-      info.AddValue("ShadowDetail", this.detailPreference_1);
-      info.AddValue("ShadowQuality", this.float_0);
-      info.AddValue("EffectDetail", this.detailPreference_2);
-      info.AddValue("PostProcessingDetail", this.detailPreference_3);
+        /// <summary>
+        /// Sets the user preferred balance of shadow resolution and performance.
+        /// </summary>
+        public float ShadowQuality
+        {
+            get => shadowQuality;
+            set => shadowQuality = value;
+        }
+
+        /// <summary>
+        /// Sets the user preferred balance of LightingEffect detail and performance.
+        /// </summary>
+        public DetailPreference EffectDetail
+        {
+            get => effectDetail;
+            set => effectDetail = value;
+        }
+
+        /// <summary>
+        /// Sets the user preferred balance of post-processing effect detail and performance.
+        /// </summary>
+        public DetailPreference PostProcessingDetail
+        {
+            get => postProcessingDetail;
+            set => postProcessingDetail = value;
+        }
+
+        /// <summary>
+        /// Used to support serializing user defined preferences. Register any additional
+        /// classes and their xml element names to support persisting custom preference objects.
+        /// </summary>
+        public static SerializeTypeDictionary SerializeTypeDictionary
+        {
+            get
+            {
+                if (serializeTypeDictionary_0 == null)
+                {
+                    serializeTypeDictionary_0 = new SerializeTypeDictionary();
+                    serializeTypeDictionary_0.RegisterType("Preferences", typeof(LightingSystemPreferences));
+                    serializeTypeDictionary_0.RegisterType("Sampling", typeof(SamplingPreference));
+                    serializeTypeDictionary_0.RegisterType("Detail", typeof(DetailPreference));
+                }
+                return serializeTypeDictionary_0;
+            }
+        }
+
+        /// <summary>Creates a new LightingSystemPreferences object.</summary>
+        public LightingSystemPreferences()
+        {
+        }
+
+        /// <summary />
+        protected LightingSystemPreferences(SerializationInfo info, StreamingContext context)
+        {
+            foreach (SerializationEntry serializationEntry in info)
+            {
+                switch (serializationEntry.Name)
+                {
+                    case "TextureSampling": info.GetEnum("TextureSampling", out textureSampling); continue;
+                    case "TextureQuality":  info.GetEnum("TextureQuality",  out textureQuality);  continue;
+                    case "MaxAnisotropy":   info.GetValue("MaxAnisotropy",  out maxAnisotropy);           continue;
+                    case "ShadowDetail":    info.GetEnum("ShadowDetail",    out shadowDetail);    continue;
+                    case "ShadowQuality":   info.GetValue("ShadowQuality",  out shadowQuality);   continue;
+                    case "EffectDetail":    info.GetEnum("EffectDetail",    out effectDetail);    continue;
+                    case "PostProcessingDetail": info.GetEnum("PostProcessingDetail", out postProcessingDetail); continue;
+                    default: continue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads preferences from file (available on Windows only – Xbox 360 implementations
+        /// using LightingSystemPreferences should set preferences via code as all target
+        /// hardware is the same).
+        /// </summary>
+        /// <param name="filename">Path and name of file.</param>
+        public void LoadFromFile(string filename)
+        {
+            FileStream fileStream = File.OpenRead(filename);
+            object object_0 = new Class29(SerializeTypeDictionary).Deserialize(fileStream);
+            if (object_0 != null)
+                Class12.smethod_1(object_0, this);
+            fileStream.Flush();
+            fileStream.Close();
+            fileStream.Dispose();
+        }
+
+        /// <summary>
+        /// Saves preferences to file (available on Windows only – Xbox 360 implementations
+        /// using LightingSystemPreferences should set preferences via code as all target
+        /// hardware is the same).
+        /// </summary>
+        /// <param name="filename">Path and name of file.</param>
+        public void SaveToFile(string filename)
+        {
+            FileStream fileStream = File.Create(filename);
+            new Class29(SerializeTypeDictionary).Serialize(fileStream, this);
+            fileStream.Flush();
+            fileStream.Close();
+            fileStream.Dispose();
+        }
+
+        /// <summary />
+        [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("TextureSampling", textureSampling);
+            info.AddValue("TextureQuality", textureQuality);
+            info.AddValue("MaxAnisotropy", maxAnisotropy);
+            info.AddValue("ShadowDetail", shadowDetail);
+            info.AddValue("ShadowQuality", shadowQuality);
+            info.AddValue("EffectDetail", effectDetail);
+            info.AddValue("PostProcessingDetail", postProcessingDetail);
+        }
+
+        public bool Equals(LightingSystemPreferences other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return textureSampling == other.textureSampling
+                && maxAnisotropy == other.maxAnisotropy
+                && shadowDetail == other.shadowDetail
+                && shadowQuality.Equals(other.shadowQuality)
+                && textureQuality == other.textureQuality
+                && effectDetail == other.effectDetail
+                && postProcessingDetail == other.postProcessingDetail;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((LightingSystemPreferences) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = (int) textureSampling;
+                hashCode = (hashCode * 397) ^ maxAnisotropy;
+                hashCode = (hashCode * 397) ^ (int) shadowDetail;
+                hashCode = (hashCode * 397) ^ shadowQuality.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) textureQuality;
+                hashCode = (hashCode * 397) ^ (int) effectDetail;
+                hashCode = (hashCode * 397) ^ (int) postProcessingDetail;
+                return hashCode;
+            }
+        }
     }
-  }
 }

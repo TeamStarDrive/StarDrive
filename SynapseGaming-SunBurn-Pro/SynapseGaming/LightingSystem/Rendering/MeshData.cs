@@ -13,10 +13,10 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// </summary>
     public class MeshData : IDisposable
     {
-        private VertexDeclaration VertexDeclr;
-        private VertexBuffer VertexBuf;
-        private IndexBuffer IndexBuf;
-        private Effect ShaderEffect;
+        VertexDeclaration VertexDeclr;
+        VertexBuffer VertexBuf;
+        IndexBuffer IndexBuf;
+        Effect ShaderEffect;
 
         public string Name { get; set; }
 

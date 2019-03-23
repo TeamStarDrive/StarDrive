@@ -113,7 +113,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public Texture2D DiffuseMapLayer1Texture
     {
       get => this.texture2D_3;
-        set => EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_3, ref this.effectParameter_12);
+        set => EffectHelper.Update(value, this.texture2D_1, ref this.texture2D_3, ref this.effectParameter_12);
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ namespace SynapseGaming.LightingSystem.Effects
       get => this.texture2D_4;
         set
       {
-        EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_4, ref this.effectParameter_13);
+        EffectHelper.Update(value, this.texture2D_1, ref this.texture2D_4, ref this.effectParameter_13);
         this.method_3();
       }
     }
@@ -149,7 +149,7 @@ namespace SynapseGaming.LightingSystem.Effects
       get => this.texture2D_5;
         set
       {
-        EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_5, ref this.effectParameter_14);
+        EffectHelper.Update(value, this.texture2D_1, ref this.texture2D_5, ref this.effectParameter_14);
         this.method_3();
       }
     }
@@ -168,7 +168,7 @@ namespace SynapseGaming.LightingSystem.Effects
       get => this.texture2D_6;
         set
       {
-        EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_6, ref this.effectParameter_15);
+        EffectHelper.Update(value, this.texture2D_1, ref this.texture2D_6, ref this.effectParameter_15);
         this.method_3();
       }
     }
@@ -185,7 +185,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public Texture2D NormalMapLayer1Texture
     {
       get => this.texture2D_7;
-        set => EffectHelper.smethod_9(value, this.texture2D_2, ref this.texture2D_7, ref this.effectParameter_16);
+        set => EffectHelper.Update(value, this.texture2D_2, ref this.texture2D_7, ref this.effectParameter_16);
     }
 
     /// <summary>
@@ -202,7 +202,7 @@ namespace SynapseGaming.LightingSystem.Effects
       get => this.texture2D_8;
         set
       {
-        EffectHelper.smethod_9(value, this.texture2D_2, ref this.texture2D_8, ref this.effectParameter_17);
+        EffectHelper.Update(value, this.texture2D_2, ref this.texture2D_8, ref this.effectParameter_17);
         this.method_3();
       }
     }
@@ -221,7 +221,7 @@ namespace SynapseGaming.LightingSystem.Effects
       get => this.texture2D_9;
         set
       {
-        EffectHelper.smethod_9(value, this.texture2D_2, ref this.texture2D_9, ref this.effectParameter_18);
+        EffectHelper.Update(value, this.texture2D_2, ref this.texture2D_9, ref this.effectParameter_18);
         this.method_3();
       }
     }
@@ -240,7 +240,7 @@ namespace SynapseGaming.LightingSystem.Effects
       get => this.texture2D_10;
         set
       {
-        EffectHelper.smethod_9(value, this.texture2D_2, ref this.texture2D_10, ref this.effectParameter_19);
+        EffectHelper.Update(value, this.texture2D_2, ref this.texture2D_10, ref this.effectParameter_19);
         this.method_3();
       }
     }
@@ -256,10 +256,10 @@ namespace SynapseGaming.LightingSystem.Effects
       get => this.texture2D_11;
         set
       {
-        EffectHelper.smethod_9(value, this.texture2D_0, ref this.texture2D_11, ref this.effectParameter_20);
+        EffectHelper.Update(value, this.texture2D_0, ref this.texture2D_11, ref this.effectParameter_20);
         if (this.texture2D_11 == null)
           return;
-        EffectHelper.smethod_5(this.texture2D_11.Width / 3, ref this.int_2, ref this.effectParameter_23);
+        EffectHelper.Update(this.texture2D_11.Width / 3, ref this.int_2, ref this.effectParameter_23);
       }
     }
 
@@ -273,7 +273,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public Texture2D BlendMapTexture
     {
       get => this.texture2D_12;
-        set => EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_12, ref this.effectParameter_21);
+        set => EffectHelper.Update(value, this.texture2D_1, ref this.texture2D_12, ref this.effectParameter_21);
     }
 
     /// <summary>
@@ -284,7 +284,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public float NormalMapStrength
     {
       get => this.float_1;
-        set => EffectHelper.smethod_6(value, ref this.float_1, ref this.effectParameter_24);
+        set => EffectHelper.Update(value, ref this.float_1, ref this.effectParameter_24);
     }
 
     /// <summary>
@@ -296,7 +296,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public float DiffuseScale
     {
       get => this.float_2;
-        set => EffectHelper.smethod_6(value, ref this.float_2, ref this.effectParameter_25);
+        set => EffectHelper.Update(value, ref this.float_2, ref this.effectParameter_25);
     }
 
     /// <summary>Adjusts the terrain displacement magnitude.</summary>
@@ -305,7 +305,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public float HeightScale
     {
       get => this.float_3;
-        set => EffectHelper.smethod_6(value, ref this.float_3, ref this.effectParameter_26);
+        set => EffectHelper.Update(value, ref this.float_3, ref this.effectParameter_26);
     }
 
     /// <summary>
@@ -317,7 +317,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public float Tiling
     {
       get => this.float_4;
-        set => EffectHelper.smethod_6(value, ref this.float_4, ref this.effectParameter_27);
+        set => EffectHelper.Update(value, ref this.float_4, ref this.effectParameter_27);
     }
 
     /// <summary>
@@ -328,7 +328,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public float SpecularPower
     {
       get => this.float_5;
-        set => EffectHelper.smethod_6(value, ref this.float_5, ref this.effectParameter_28);
+        set => EffectHelper.Update(value, ref this.float_5, ref this.effectParameter_28);
     }
 
     /// <summary>
@@ -339,7 +339,7 @@ namespace SynapseGaming.LightingSystem.Effects
     public float SpecularAmount
     {
       get => this.float_6;
-        set => EffectHelper.smethod_6(value, ref this.float_6, ref this.effectParameter_29);
+        set => EffectHelper.Update(value, ref this.float_6, ref this.effectParameter_29);
     }
 
     /// <summary>Color applied to material specular reflections.</summary>
@@ -347,14 +347,14 @@ namespace SynapseGaming.LightingSystem.Effects
     public Vector3 SpecularColor
     {
       get => this.vector3_0;
-        set => EffectHelper.smethod_4(value, ref this.vector3_0, ref this.effectParameter_30);
+        set => EffectHelper.Update(value, ref this.vector3_0, ref this.effectParameter_30);
     }
 
     /// <summary>Density or tessellation of the terrain mesh.</summary>
     public int MeshSegments
     {
       get => this.int_1;
-        set => EffectHelper.smethod_5(value, ref this.int_1, ref this.effectParameter_22);
+        set => EffectHelper.Update(value, ref this.int_1, ref this.effectParameter_22);
     }
 
     /// <summary>Creates a new BaseTerrainEffect instance.</summary>
@@ -400,7 +400,7 @@ namespace SynapseGaming.LightingSystem.Effects
       }
       else
         int_0 = 4;
-      EffectHelper.smethod_5(int_0, ref this.int_0, ref this.effectParameter_11);
+      EffectHelper.Update(int_0, ref this.int_0, ref this.effectParameter_11);
     }
 
     private void method_4(GraphicsDevice graphicsDevice_0, bool bool_3)
