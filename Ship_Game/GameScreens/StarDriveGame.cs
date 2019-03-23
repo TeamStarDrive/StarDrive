@@ -100,7 +100,8 @@ namespace Ship_Game
             else
             { Log.Warning("Steam not initialized"); }
         }
-        private void GameExiting(object sender, EventArgs e)
+
+        void GameExiting(object sender, EventArgs e)
         {
             IsExiting = true;
             ScreenManager.ExitAll(clear3DObjects:true);
@@ -121,9 +122,6 @@ namespace Ship_Game
         {
             if (IsLoaded)
                 return;
-
-            GraphicsSettings defaults = GraphicsSettings.FromGlobalStats();
-            UpdateRendererPreferences(ref defaults);
 
             ScreenManager.LoadContent();
             Fonts.LoadContent(Content);
@@ -161,7 +159,7 @@ namespace Ship_Game
 
         void UpdateRendererPreferences(ref GraphicsSettings settings)
         {
-            ScreenManager?.UpdatePreferences(new LightingSystemPreferences
+            var p = new LightingSystemPreferences
             {
                 ShadowQuality   = settings.ShadowQuality,
                 MaxAnisotropy   = settings.MaxAnisotropy,
@@ -169,11 +167,21 @@ namespace Ship_Game
                 EffectDetail    = (DetailPreference) settings.EffectDetail,
                 TextureQuality  = (DetailPreference) settings.TextureQuality,
                 TextureSampling = (SamplingPreference) settings.TextureSampling
-            });
+            };
+
+            Log.Write(ConsoleColor.Magenta, "Apply 3D Graphics Preferences:");
+            Log.Write(ConsoleColor.Magenta, $"  ShadowQuality: {p.ShadowQuality}");
+            Log.Write(ConsoleColor.Magenta, $"  ShadowDetail: {p.ShadowDetail}");
+            Log.Write(ConsoleColor.Magenta, $"  EffectDetail: {p.EffectDetail}");
+            Log.Write(ConsoleColor.Magenta, $"  TextureQuality: {p.TextureQuality}");
+            Log.Write(ConsoleColor.Magenta, $"  TextureSampling: {p.TextureSampling}");
+            Log.Write(ConsoleColor.Magenta, $"  MaxAnisotropy: {p.MaxAnisotropy}");
+
+            ScreenManager?.UpdatePreferences(p);
         }
 
 
-        private void ApplySettings(ref GraphicsSettings settings)
+        void ApplySettings(ref GraphicsSettings settings)
         {
             Graphics.ApplyChanges();
 
@@ -189,7 +197,7 @@ namespace Ship_Game
         }
 
 
-        private static void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
+        static void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
             GraphicsAdapter a = e.GraphicsDeviceInformation.Adapter;
             PresentationParameters p = e.GraphicsDeviceInformation.PresentationParameters;

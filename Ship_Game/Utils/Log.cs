@@ -141,7 +141,6 @@ namespace Ship_Game
             WriteToConsole(color, text);
         }
 
-
         // write a warning to logfile and debug console
         public static void WarningVerbose(string warning)
         {
@@ -207,7 +206,7 @@ namespace Ship_Game
             return false;
         }
 
-        private static ulong Fnv64(string text)
+        static ulong Fnv64(string text)
         {
             ulong hash = 0xcbf29ce484222325UL;
             for (int i = 0; i < text.Length; ++i)
@@ -218,7 +217,7 @@ namespace Ship_Game
             return hash;
         }
 
-        private static bool ShouldIgnoreErrorText(string error)
+        static bool ShouldIgnoreErrorText(string error)
         {
             ulong hash = Fnv64(error);
             if (ReportedErrors.TryGetValue(hash, out int count)) // already seen this error?
@@ -317,7 +316,7 @@ namespace Ship_Game
             if (trueCondition != true) Error(message);
         }
 
-        private static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
+        static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
         {
             var evt = new SentryEvent(ex)
             {
@@ -332,7 +331,7 @@ namespace Ship_Game
             Raven.CaptureAsync(evt);
         }
 
-        private static string CurryExceptionMessage(Exception ex, string moreInfo = null)
+        static string CurryExceptionMessage(Exception ex, string moreInfo = null)
         {
             IDictionary evt = ex.Data;
             if (evt.Count == 0)
@@ -369,7 +368,7 @@ namespace Ship_Game
             return sb.ToString();
         }
 
-        private static void AppendMessages(StringBuilder sb, Exception ex)
+        static void AppendMessages(StringBuilder sb, Exception ex)
         {
             Exception inner = ex.InnerException;
             if (inner != null)
@@ -380,7 +379,7 @@ namespace Ship_Game
             sb.Append(ex.Message);
         }
 
-        private static void CollectStackTraces(StringBuilder trace, Exception ex)
+        static void CollectStackTraces(StringBuilder trace, Exception ex)
         {
             Exception inner = ex.InnerException;
             if (inner != null)
@@ -391,7 +390,7 @@ namespace Ship_Game
             trace.AppendLine(ex.StackTrace ?? "");
         }
 
-        private static string CleanStackTrace(Exception ex)
+        static string CleanStackTrace(Exception ex)
         {
             var trace = new StringBuilder(4096);
             CollectStackTraces(trace, ex);
@@ -430,14 +429,19 @@ namespace Ship_Game
             }
         }
 
-        [DllImport("kernel32.dll")] private static extern bool AllocConsole();
-        [DllImport("kernel32.dll")] private static extern IntPtr GetConsoleWindow();
-        [DllImport("user32.dll")]   private static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
-        [DllImport("user32.dll")]   private static extern IntPtr SetWindowPos(IntPtr hwnd, int hwndAfter, int x, int y, int cx, int cy, int wFlags);
-        [DllImport("user32.dll")]   private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+        [DllImport("kernel32.dll")]
+        static extern bool AllocConsole();
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
+        [DllImport("user32.dll")]
+        static extern IntPtr SetWindowPos(IntPtr hwnd, int hwndAfter, int x, int y, int cx, int cy, int wFlags);
+        [DllImport("user32.dll")]
+        static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
+        struct RECT
         {
             public int Left;        // x position of upper-left corner
             public int Top;         // y position of upper-left corner
@@ -482,7 +486,7 @@ namespace Ship_Game
             ShowWindow(GetConsoleWindow(), 0/*SW_HIDE*/);
         }
 
-        private static ConsoleColor ImportanceColor(Importance importance)
+        static ConsoleColor ImportanceColor(Importance importance)
         {
             switch (importance)
             {
