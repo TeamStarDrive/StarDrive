@@ -23,7 +23,7 @@ namespace SDNative
 
     struct SDMaterial
     {
-        // all publicly visible in C#
+        // publicly visible in C#
         strview Name; // name of the material instance
         strview DiffusePath;
         strview AlphaPath;
@@ -37,7 +37,10 @@ namespace SDNative
         float Specular = 1.0f;
         float Alpha    = 1.0f;
 
-        explicit SDMaterial(const shared_ptr<Material>& mat)
+        // not mapped to C#
+        shared_ptr<Nano::Material> Mat;
+
+        explicit SDMaterial(const shared_ptr<Material>& mat) : Mat{mat}
         {
             if (!mat) return;
             Material& m = *mat;
@@ -87,35 +90,24 @@ namespace SDNative
         MeshGroup& GetGroup() const;
     };
 
-    struct SDMaterialMapping
-    {
-        SDMaterial Mapped;
-        shared_ptr<Nano::Material> Actual;
-        SDMaterialMapping(shared_ptr<Nano::Material> mat)
-            : Mapped{mat}, Actual{std::move(mat)} { }
-    };
-
     struct SDMesh
     {
         // publicly visible in C#
         strview Name  = "";
         int NumGroups = 0;
         int NumFaces  = 0;
-        int NumMaterials = 0;
 
         // not mapped to C#
         Mesh Data;
         vector<unique_ptr<SDMeshGroup>> Groups;
-        vector<unique_ptr<SDMaterialMapping>> Materials;
+        vector<unique_ptr<SDMaterial>> Materials;
 
         SDMesh();
         explicit SDMesh(strview path);
         SDMeshGroup* GetGroup(int groupId);
         SDMeshGroup* AddGroup(string groupName);
-        SDMaterial* GetMaterial(int materialId);
         SDMaterial* GetOrCreateMat(const shared_ptr<Nano::Material>& mat);
 
-        void RemoveStaleMaterials();
         void SyncStats();
     };
 
@@ -126,7 +118,6 @@ namespace SDNative
     DLLAPI(SDMesh*) SDMeshOpen(const wchar_t* fileName);
     DLLAPI(void)    SDMeshClose(SDMesh* mesh);
     DLLAPI(SDMeshGroup*) SDMeshGetGroup(SDMesh* mesh, int groupId);
-    DLLAPI(SDMaterial*) SDMeshGetMaterial(SDMesh* mesh, int materialId);
 
     DLLAPI(SDMesh*) SDMeshCreateEmpty(const wchar_t* meshName);
     DLLAPI(bool)    SDMeshSave(SDMesh* mesh, const wchar_t* fileName);
@@ -137,28 +128,27 @@ namespace SDNative
                     int numVertices, ushort* indices, int numIndices);
 
     /**
-     * Create a completely new material for group
+     * Create a new material instance
+     * This instance is stored inside SDMesh and is automatically freed
+     * during SDMeshClose
      */
-    DLLAPI(SDMaterial*) SDMeshGroupSetMaterial(
-                    SDMeshGroup* group,
-                    const wchar_t* name,
-                    const wchar_t* materialFile,
-                    const wchar_t* diffusePath,
-                    const wchar_t* alphaPath,
-                    const wchar_t* specularPath,
-                    const wchar_t* normalPath,
-                    const wchar_t* emissivePath,
-                    Color3 ambientColor,
-                    Color3 diffuseColor,
-                    Color3 specularColor,
-                    Color3 emissiveColor,
-                    float specular,
-                    float alpha);
+    DLLAPI(SDMaterial*) SDMeshCreateMaterial(
+            SDMesh* mesh,
+            const wchar_t* name,
+            const wchar_t* diffusePath,
+            const wchar_t* alphaPath,
+            const wchar_t* specularPath,
+            const wchar_t* normalPath,
+            const wchar_t* emissivePath,
+            Color3 ambientColor,
+            Color3 diffuseColor,
+            Color3 specularColor,
+            Color3 emissiveColor,
+            float specular,
+            float alpha);
 
-    /**
-     * Attempt to find existing `material` and set it to this group
-     */
-    DLLAPI(void) SDMeshGroupSetExistingMaterial(SDMeshGroup* group, SDMaterial* material);
+    DLLAPI(void) SDMeshGroupSetMaterial(SDMeshGroup* group, SDMaterial* material);
+
 
     ////////////////////////////////////////////////////////////////////////////////////
 }
