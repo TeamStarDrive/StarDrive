@@ -215,7 +215,7 @@ namespace Ship_Game
                 LoadedEffects.Clear();
             }
 
-            if (totalMemSaved > 0f)
+            if (count > 0)
             {
                 Log.Info($"Unloaded '{Name}' ({count} assets, {totalMemSaved:0.0}MB)");
             }

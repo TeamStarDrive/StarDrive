@@ -277,7 +277,8 @@ namespace Ship_Game
             Add(new UIButton(this, new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
                 .OnClick = button => ApplyGraphicsSettings();
 
-            this.RefreshZOrder();
+            RefreshZOrder();
+            PerformLayout();
             CreateResolutionDropOptions();
             CreateSoundDevicesDropOptions();
         }
