@@ -784,34 +784,38 @@ namespace Ship_Game.Ships
         }
 
         //added by gremlin boarding parties
-        public void LaunchBoardingParty(Troop troop)
+        public bool LaunchBoardingParty(Troop troop)
         {
-            if (IsTroopBay && Powered)
-            {
-                if (hangarShip != null)
-                {
-                    //this.hangarShip.GetAI().State == AIState.AssaultPlanet || this.hangarShip.GetAI().State == AIState.Boarding ||
-                    if (hangarShip.AI.State == AIState.ReturnToHangar || hangarShip.AI.EscortTarget != null || hangarShip.AI.OrbitTarget != null)
-                        return;
-                    hangarShip.DoEscort(Parent);
-                    return;
-                }
-                if (Parent.loyalty.BoardingShuttle.ShipOrdLaunchCost > Parent.Ordinance)  //fbedard: New spawning cost
-                    return;
-                if (hangarTimer <= 0f && hangarShip == null)
-                {
-                    hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
-                    hangarShip.Mothership = Parent;
-                    hangarShip.DoEscort(Parent);
-                    hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
-                    if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-                        hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
+            if (!IsTroopBay || !Powered)
+                return false;
 
-                    HangarShipGuid = hangarShip.guid;
-                    hangarTimer = hangarTimerConstant;
-                    Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
+            if (hangarShip != null) // this bay's ship is already out
+            {
+                if (hangarShip.AI.State == AIState.ReturnToHangar
+                    || hangarShip.AI.State == AIState.AssaultPlanet
+                    || hangarShip.AI.EscortTarget != null
+                    || hangarShip.AI.OrbitTarget != null)
+                {
+                    return false;
                 }
+                hangarShip.DoEscort(Parent);
+                return false;
             }
+
+            if (hangarTimer <= 0f && hangarShip == null) // launch the troopship
+            {
+                hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
+                hangarShip.Mothership = Parent;
+                hangarShip.DoEscort(Parent);
+                hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
+                if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
+                    hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
+
+                HangarShipGuid = hangarShip.guid;
+                hangarTimer = hangarTimerConstant;
+                return true;
+            }
+            return false;
         }
 
         //added by gremlin fighter rearm fix

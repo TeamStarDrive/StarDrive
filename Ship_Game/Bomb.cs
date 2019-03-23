@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
+using Ship_Game.Audio;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -11,13 +13,18 @@ namespace Ship_Game
         private Planet TargetPlanet;
         public Matrix World { get; private set; }
 
-        public string WeaponName;
+        public Weapon Weapon;
         private const string TextureName = "projBall_02_orange";
         private const string ModelName   = "projBall";
 
         private ParticleEmitter TrailEmitter;
-        private ParticleEmitter FiretrailEmitter;
-
+        private ParticleEmitter FireTrailEmitter;
+        public readonly int TroopDamageMin;
+        public readonly int TroopDamageMax;
+        public readonly int HardDamageMin;
+        public readonly int HardDamageMax;
+        public readonly float PopKilled;
+        public readonly string SpecialAction;
         public Empire Owner;
         //public float Facing;
         private float PlanetRadius;
@@ -25,19 +32,68 @@ namespace Ship_Game
         public SubTexture Texture { get; }
         public Model      Model   { get; }
 
-        public Bomb(Vector3 position, Empire empire)
+        public Bomb(Vector3 position, Empire empire, string weaponName)
         {
-            Owner = empire;
+            Owner       = empire;
             Texture     = ResourceManager.ProjTexture(TextureName);
             Model       = ResourceManager.ProjectileModelDict[ModelName];
-            WeaponName  = "NuclearBomb";
             Position    = position;
+            Weapon      = ResourceManager.GetWeaponTemplate(weaponName) ?? ResourceManager.GetWeaponTemplate("NuclearBomb");
+
+            TroopDamageMin = Weapon.BombTroopDamage_Min;
+            TroopDamageMax = Weapon.BombTroopDamage_Max;
+            HardDamageMin  = Weapon.BombHardDamageMin;
+            HardDamageMax  = Weapon.BombHardDamageMax;
+            PopKilled      = Weapon.BombPopulationKillPerHit;
+            SpecialAction  = Weapon.HardCodedAction;
         }
 
         public void DoImpact()
         {
             TargetPlanet.DropBomb(this);
             Empire.Universe.BombList.QueuePendingRemoval(this);
+        }
+
+        public void SurfaceImpactEffects()
+        {
+            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && TargetPlanet.ParentSystem.isVisible)
+            {
+                TargetPlanet.PlayPlanetSfx("sd_bomb_impact_01", Position);
+                ExplosionManager.AddExplosionNoFlames(Position, 200f, 7.5f);
+                Empire.Universe.flash.AddParticleThreadB(Position, Vector3.Zero);
+                for (int i = 0; i < 50; i++)
+                    Empire.Universe.explosionParticles.AddParticleThreadB(Position, Vector3.Zero);
+            }
+        }
+
+        public void PlayCombatScreenEffects(Planet planet, OrbitalDrop od)
+        {
+            if (Empire.Universe.IsViewingCombatScreen(planet))
+            {
+                GameAudio.PlaySfxAsync("Explo1");
+                ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(od.Target.ClickRect, 4);
+            }
+        }
+
+        public void ResolveSpecialBombActions(Planet planet)
+        {
+            if (SpecialAction.IsEmpty() || SpecialAction != "Free Owlwoks")
+                return;
+
+            if (planet.Owner == null || planet.Owner != EmpireManager.Cordrazine)
+                return;
+
+            for (int i = 0; i < planet.TroopsHere.Count; i++)
+            {
+                Troop troop = planet.TroopsHere[i];
+                if (troop.Loyalty == EmpireManager.Cordrazine && troop.TargetType == TargetType.Soft)
+                {
+                    StarDriveGame.Instance.SetSteamAchievement("Owlwoks_Freed");
+                    troop.SetOwner(Owner);
+                    troop.Name = Localizer.Token(EmpireManager.Cordrazine.data.TroopNameIndex);
+                    troop.Description = Localizer.Token(EmpireManager.Cordrazine.data.TroopDescriptionIndex);
+                }
+            }
         }
 
         public void SetTarget(Planet p)
@@ -72,10 +128,10 @@ namespace Ship_Game
             {
                 Velocity *= 0.65f;
                 TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Position);
-                FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Position);
+                FireTrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Position);
             }
             TrailEmitter.Update(deltaTime, Position);
-            FiretrailEmitter.Update(deltaTime, Position);
+            FireTrailEmitter.Update(deltaTime, Position);
         }
     }
 }
