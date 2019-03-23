@@ -62,7 +62,7 @@ namespace Ship_Game
             if (c.LockedByUser) // only one is locked, eaaasy and perfect accuracy
             {
                 a.Value += difference.Clamped(-a.Value, b.Value);
-                b.Resource.AutoBalanceWorkers();
+                b.Resource.AutoBalanceWorkers(a.Value + c.Value);
             }
             else // all 3 unlocked
             {
@@ -80,7 +80,7 @@ namespace Ship_Game
                 ApplyDelta(c, -move/2);
 
                 // @note There is always a tiny chance for a float error
-                c.Resource.AutoBalanceWorkers();
+                c.Resource.AutoBalanceWorkers(a.Value + b.Value);
             }
 
             float sum = Sliders.Sum(s => s.Value);

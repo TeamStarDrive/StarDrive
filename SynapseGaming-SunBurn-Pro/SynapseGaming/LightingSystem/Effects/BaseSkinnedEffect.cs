@@ -9,73 +9,72 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace SynapseGaming.LightingSystem.Effects
 {
-  /// <summary>Provides basic skinned animation rendering support.</summary>
-  public abstract class BaseSkinnedEffect : BaseRenderableEffect, ISkinnedEffect
-  {
-    private Matrix[] matrix_10 = new Matrix[1];
-    private bool bool_2;
-    private Matrix[] matrix_9;
-    private EffectParameter effectParameter_11;
-
-    /// <summary>
-    /// Array of bone transforms for the skeleton's current pose. The matrix index is the
-    /// same as the bone order used in the model or vertex buffer.
-    /// </summary>
-    public Matrix[] SkinBones
+    /// <summary>Provides basic skinned animation rendering support.</summary>
+    public abstract class BaseSkinnedEffect : BaseRenderableEffect, ISkinnedEffect
     {
-      get
-      {
-        return this.matrix_9;
-      }
-      set
-      {
-        if (value != null)
+        private Matrix[] SkinBonesCache = new Matrix[1];
+        private bool IsSkinned;
+        private Matrix[] SkinBonesArray;
+        private EffectParameter SkinBonesParam;
+
+        /// <summary>
+        /// Array of bone transforms for the skeleton's current pose. The matrix index is the
+        /// same as the bone order used in the model or vertex buffer.
+        /// </summary>
+        public Matrix[] SkinBones
         {
-          this._UpdatedByBatch = true;
-          EffectHelper.smethod_1(value, ref this.matrix_9, ref this.effectParameter_11);
+            get => SkinBonesArray;
+            set
+            {
+                if (value != null)
+                {
+                    _UpdatedByBatch = true;
+                    EffectHelper.Update(value, ref SkinBonesArray, ref SkinBonesParam);
+                }
+                else
+                {
+                    if (!IsSkinned || SkinBonesParam == null)
+                        return;
+
+                    if (SkinBonesCache.Length < SkinBonesParam.Elements.Count)
+                    {
+                        SkinBonesCache = new Matrix[SkinBonesParam.Elements.Count];
+                        for (int index = 0; index < SkinBonesCache.Length; ++index)
+                            SkinBonesCache[index] = Matrix.Identity;
+                    }
+
+                    if (SkinBonesArray != SkinBonesCache)
+                    {
+                        _UpdatedByBatch = true;
+                        SkinBonesArray = SkinBonesCache;
+                        SkinBonesParam.SetArrayRange(0, SkinBonesArray.Length);
+                        SkinBonesParam.SetValue(SkinBonesArray);
+                    }
+                }
+            }
         }
-        else
+
+        /// <summary>
+        /// Determines if the effect is currently rendering skinned objects.
+        /// </summary>
+        public bool Skinned
         {
-          if (!this.bool_2 || this.effectParameter_11 == null)
-            return;
-          if (this.matrix_10.Length < this.effectParameter_11.Elements.Count)
-          {
-            this.matrix_10 = new Matrix[this.effectParameter_11.Elements.Count];
-            for (int index = 0; index < this.matrix_10.Length; ++index)
-              this.matrix_10[index] = Matrix.Identity;
-          }
-          if (this.matrix_9 == this.matrix_10)
-            return;
-          this._UpdatedByBatch = true;
-          this.matrix_9 = this.matrix_10;
-          this.effectParameter_11.SetArrayRange(0, this.matrix_9.Length);
-          this.effectParameter_11.SetValue(this.matrix_9);
+            get => IsSkinned;
+            set
+            {
+                if (value == IsSkinned)
+                    return;
+                IsSkinned = value;
+                SetTechnique();
+                if (!IsSkinned || SkinBonesArray != null)
+                    return;
+                SkinBones = null;
+            }
         }
-      }
-    }
 
-    /// <summary>
-    /// Determines if the effect is currently rendering skinned objects.
-    /// </summary>
-    public bool Skinned
-    {
-      get => this.bool_2;
-        set
-      {
-        if (value == this.bool_2)
-          return;
-        this.bool_2 = value;
-        this.SetTechnique();
-        if (!this.bool_2 || this.matrix_9 != null)
-          return;
-        this.SkinBones = null;
-      }
+        internal BaseSkinnedEffect(GraphicsDevice device, string effectName) : base(device, effectName)
+        {
+            SkinBonesParam = Parameters["_SkinBones"];
+        }
     }
-
-    internal BaseSkinnedEffect(GraphicsDevice device, string string_0)
-      : base(device, string_0)
-    {
-      this.effectParameter_11 = this.Parameters["_SkinBones"];
-    }
-  }
 }
