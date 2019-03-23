@@ -111,6 +111,11 @@ namespace Ship_Game
             RecordDisposableObject(effect);
         }
 
+        public void LogEffectError(Exception ex, string error)
+        {
+            Log.Error(ex, error);
+        }
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -430,18 +435,6 @@ namespace Ship_Game
 
         public Model LoadModel(string modelName)
         {
-            // special backwards compatibility with mods...
-            // basically, all old mods put their models into "Mod Models/" folder because
-            // the old model loading system didn't handle Unified resource paths...                
-            if (GlobalStats.HasMod && !modelName.StartsWith("Model"))
-            {
-                string modModelPath = GlobalStats.ModPath + "Mod Models/" + modelName + ".xnb";
-                if (File.Exists(modModelPath))
-                {
-                    var model = Load<Model>(modModelPath);
-                    if (model != null) return model;
-                }
-            }
             return Load<Model>(modelName);
         }
 

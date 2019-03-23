@@ -17,28 +17,28 @@ namespace SynapseGaming.LightingSystem.Effects
     public abstract class BaseRenderableEffect : Effect, IRenderableEffect
     {
         internal Class46 class46_0 = new Class46();
-        private bool bool_0;
-        private DetailPreference detailPreference_0;
-        private Matrix matrix_0;
-        private Matrix matrix_1;
-        private Matrix matrix_2;
-        private Matrix matrix_3;
-        private Matrix matrix_4;
-        private Matrix matrix_6;
-        private Matrix matrix_7;
-        private Matrix matrix_8;
-        private float float_0;
-        private EffectParameter effectParameter_0;
-        private EffectParameter effectParameter_1;
-        private EffectParameter effectParameter_2;
-        private EffectParameter effectParameter_3;
-        private EffectParameter effectParameter_4;
-        private EffectParameter effectParameter_5;
-        private EffectParameter effectParameter_6;
-        private EffectParameter effectParameter_7;
-        private EffectParameter effectParameter_8;
-        private EffectParameter effectParameter_9;
-        private EffectParameter effectParameter_10;
+        bool HasWorldMatrix;
+        DetailPreference detailPreference_0;
+        Matrix world;
+        Matrix worldToObject;
+        Matrix view;
+        Matrix viewToWorld;
+        Matrix matrix_4;
+        Matrix matrix_6;
+        Matrix matrix_7;
+        Matrix matrix_8;
+        float float_0;
+        EffectParameter FxWorld;
+        EffectParameter FxWorldToObject;
+        EffectParameter FxView;
+        EffectParameter FxViewToWorld;
+        EffectParameter FxProjection;
+        EffectParameter FxProjectionToView;
+        EffectParameter FxViewProjection;
+        EffectParameter FxWorldView;
+        EffectParameter FxWorldViewProjection;
+        EffectParameter FxWindingDirection;
+        EffectParameter FxFarClippingDistance;
         /// <summary>
         /// Set value to true when changes to a property cause calls to EffectParameter.SetValue.
         /// This tells the renderer to commit changes made during Effect Begin/End.
@@ -48,58 +48,59 @@ namespace SynapseGaming.LightingSystem.Effects
         /// <summary>World matrix applied to geometry using this effect.</summary>
         public Matrix World
         {
-            get => this.matrix_0;
+            get => world;
             set
             {
-                if (this.method_1(ref value))
-                    return;
-                EffectHelper.smethod_2(value, ref this.matrix_0, ref this.matrix_1, ref this.effectParameter_0, ref this.effectParameter_1);
-                this.SetWorldViewProjection(false, true);
+                if (!SetWorldMatrix(ref value))
+                {
+                    EffectHelper.UpdateWithInverse(value, ref world, ref worldToObject,
+                                                   ref FxWorld, ref FxWorldToObject);
+                    SetWorldViewProjection(false, true);
+                }
             }
         }
 
         /// <summary>
         /// Inverse world matrix applied to geometry using this effect.
         /// </summary>
-        public Matrix WorldToObject => this.matrix_1;
+        public Matrix WorldToObject => worldToObject;
 
         /// <summary>View matrix applied to geometry using this effect.</summary>
         public Matrix View
         {
-            get => this.matrix_2;
+            get => view;
             set
             {
-                EffectHelper.smethod_2(value, ref this.matrix_2, ref this.matrix_3, ref this.effectParameter_2, ref this.effectParameter_3);
-                this.SetWorldViewProjection(true, true);
+                EffectHelper.UpdateWithInverse(value, ref view, ref viewToWorld,
+                                               ref FxView, ref FxViewToWorld);
+                SetWorldViewProjection(true, true);
             }
         }
 
         /// <summary>
         /// Inverse view matrix applied to geometry using this effect.
         /// </summary>
-        public Matrix ViewToWorld => this.matrix_3;
+        public Matrix ViewToWorld => viewToWorld;
 
         /// <summary>
         /// Projection matrix applied to geometry using this effect.
         /// </summary>
         public Matrix Projection
         {
-            get => this.matrix_4;
+            get => matrix_4;
             set
             {
-                if (value != this.matrix_4)
+                if (value != matrix_4)
                 {
-                    this.matrix_4 = value;
-                    if (this.effectParameter_4 != null)
-                        this.effectParameter_4.SetValue(this.matrix_4);
-                    if (this.effectParameter_5 != null || this.effectParameter_10 != null)
+                    matrix_4 = value;
+                    FxProjection?.SetValue(matrix_4);
+                    if (FxProjectionToView != null || FxFarClippingDistance != null)
                     {
-                        this.ProjectionToView = Matrix.Invert(this.matrix_4);
-                        if (this.effectParameter_5 != null)
-                            this.effectParameter_5.SetValue(this.ProjectionToView);
+                        ProjectionToView = Matrix.Invert(matrix_4);
+                        FxProjectionToView?.SetValue(ProjectionToView);
                     }
                 }
-                this.SetWorldViewProjection(true, true);
+                SetWorldViewProjection(true, true);
             }
         }
 
@@ -128,13 +129,13 @@ namespace SynapseGaming.LightingSystem.Effects
         /// </summary>
         public DetailPreference EffectDetail
         {
-            get => this.detailPreference_0;
+            get => detailPreference_0;
             set
             {
-                if (value == this.detailPreference_0)
+                if (value == detailPreference_0)
                     return;
-                this.detailPreference_0 = value;
-                this.SetTechnique();
+                detailPreference_0 = value;
+                SetTechnique();
             }
         }
 
@@ -145,8 +146,8 @@ namespace SynapseGaming.LightingSystem.Effects
         /// </summary>
         public bool UpdatedByBatch
         {
-            get => this._UpdatedByBatch;
-            set => this._UpdatedByBatch = false;
+            get => _UpdatedByBatch;
+            set => _UpdatedByBatch = false;
         }
 
         //private static int NumEffectsCreated;
@@ -155,22 +156,22 @@ namespace SynapseGaming.LightingSystem.Effects
             : base(device, LightingSystemManager.Instance.EmbeddedEffect(embeddedEffect))
         {
             //Console.WriteLine("Creating embedded effect: {0} {1}", embeddedEffect, ++NumEffectsCreated);
-            this.effectParameter_0 = this.Parameters["_World"];
-            this.effectParameter_1 = this.Parameters["_WorldToObject"];
-            this.effectParameter_2 = this.Parameters["_View"];
-            this.effectParameter_3 = this.Parameters["_ViewToWorld"];
-            this.effectParameter_4 = this.Parameters["_Projection"];
-            this.effectParameter_5 = this.Parameters["_ProjectionToView"];
-            this.effectParameter_6 = this.Parameters["_ViewProjection"];
-            this.effectParameter_7 = this.Parameters["_WorldView"];
-            this.effectParameter_8 = this.Parameters["_WorldViewProjection"];
-            this.effectParameter_9 = this.Parameters["_WindingDirection"];
-            this.effectParameter_10 = this.Parameters["_FarClippingDistance"];
+            FxWorld               = Parameters["_World"];
+            FxWorldToObject       = Parameters["_WorldToObject"];
+            FxView                = Parameters["_View"];
+            FxViewToWorld         = Parameters["_ViewToWorld"];
+            FxProjection          = Parameters["_Projection"];
+            FxProjectionToView    = Parameters["_ProjectionToView"];
+            FxViewProjection      = Parameters["_ViewProjection"];
+            FxWorldView           = Parameters["_WorldView"];
+            FxWorldViewProjection = Parameters["_WorldViewProjection"];
+            FxWindingDirection    = Parameters["_WindingDirection"];
+            FxFarClippingDistance = Parameters["_FarClippingDistance"];
         }
 
-        private float method_0()
+        float GetWinding()
         {
-            return (double) this.matrix_8.Determinant() < 0.0 ? 1f : -1f;
+            return matrix_8.Determinant() < 0.0 ? 1f : -1f;
         }
 
         /// <summary>
@@ -182,67 +183,65 @@ namespace SynapseGaming.LightingSystem.Effects
         /// Recalculates the combination view-projection and world-view-projection matrix
         /// based on the individual world, view, and projection.
         /// </summary>
-        protected virtual void SetWorldViewProjection(bool viewprojectionchanged, bool setslowwindingdirection)
+        protected virtual void SetWorldViewProjection(bool viewProjChanged, bool setSlowWindingDir)
         {
-            if (this.effectParameter_8 == null && this.effectParameter_7 == null && (this.effectParameter_6 == null && this.effectParameter_9 == null) && this.effectParameter_10 == null)
+            if (FxWorldViewProjection == null && FxWorldView == null && (FxViewProjection == null && FxWindingDirection == null) && FxFarClippingDistance == null)
                 return;
-            if (this.effectParameter_7 != null)
+            if (FxWorldView != null)
             {
-                Matrix result;
-                Matrix.Multiply(ref this.matrix_0, ref this.matrix_2, out result);
-                if (!result.Equals(this.matrix_7))
+                Matrix.Multiply(ref world, ref view, out Matrix result);
+                if (!result.Equals(matrix_7))
                 {
-                    this.matrix_7 = result;
-                    this.effectParameter_7.SetValue(this.matrix_7);
-                    this._UpdatedByBatch = true;
-                    ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                    matrix_7 = result;
+                    FxWorldView.SetValue(matrix_7);
+                    _UpdatedByBatch = true;
+                    ++class46_0.lightingSystemStatistic_1.AccumulationValue;
                 }
             }
-            if (this.effectParameter_6 != null || this.effectParameter_8 != null || this.effectParameter_9 != null)
+            if (FxViewProjection != null || FxWorldViewProjection != null || FxWindingDirection != null)
             {
-                if (viewprojectionchanged)
+                if (viewProjChanged)
                 {
-                    Matrix.Multiply(ref this.matrix_2, ref this.matrix_4, out this.matrix_6);
-                    if (this.effectParameter_6 != null)
+                    Matrix.Multiply(ref view, ref matrix_4, out matrix_6);
+                    if (FxViewProjection != null)
                     {
-                        this.effectParameter_6.SetValue(this.matrix_6);
-                        this._UpdatedByBatch = true;
-                        ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                        FxViewProjection.SetValue(matrix_6);
+                        _UpdatedByBatch = true;
+                        ++class46_0.lightingSystemStatistic_1.AccumulationValue;
                     }
                 }
-                if (this.effectParameter_8 != null || this.effectParameter_9 != null)
+                if (FxWorldViewProjection != null || FxWindingDirection != null)
                 {
-                    Matrix result;
-                    Matrix.Multiply(ref this.matrix_0, ref this.matrix_6, out result);
-                    if (!result.Equals(this.matrix_8))
+                    Matrix.Multiply(ref world, ref matrix_6, out Matrix result);
+                    if (!result.Equals(matrix_8))
                     {
-                        this.matrix_8 = result;
-                        if (this.effectParameter_8 != null)
+                        matrix_8 = result;
+                        if (FxWorldViewProjection != null)
                         {
-                            this.effectParameter_8.SetValue(this.matrix_8);
-                            this._UpdatedByBatch = true;
-                            ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                            FxWorldViewProjection.SetValue(matrix_8);
+                            _UpdatedByBatch = true;
+                            ++class46_0.lightingSystemStatistic_1.AccumulationValue;
                         }
-                        if (setslowwindingdirection && this.effectParameter_9 != null)
+                        if (setSlowWindingDir && FxWindingDirection != null)
                         {
-                            this.effectParameter_9.SetValue(this.method_0());
-                            this._UpdatedByBatch = true;
-                            ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                            FxWindingDirection.SetValue(GetWinding());
+                            _UpdatedByBatch = true;
+                            ++class46_0.lightingSystemStatistic_1.AccumulationValue;
                         }
                     }
                 }
             }
-            if (!viewprojectionchanged || this.effectParameter_10 == null)
+            if (!viewProjChanged || FxFarClippingDistance == null)
                 return;
-            Vector4 vector4 = Vector4.Transform(new Vector4(0.0f, 0.0f, 1f, 1f), this.ProjectionToView);
+            Vector4 vector4 = Vector4.Transform(new Vector4(0.0f, 0.0f, 1f, 1f), ProjectionToView);
             float num = 0.0f;
             if (vector4.W != 0.0)
                 num = Math.Abs(vector4.Z / vector4.W);
-            if (this.float_0 == (double) num)
+            if (float_0 == (double) num)
                 return;
-            this.float_0 = num;
-            this.effectParameter_10.SetValue(num);
-            this._UpdatedByBatch = true;
+            float_0 = num;
+            FxFarClippingDistance.SetValue(num);
+            _UpdatedByBatch = true;
         }
 
         /// <summary>
@@ -258,52 +257,52 @@ namespace SynapseGaming.LightingSystem.Effects
         public void SetViewAndProjection(Matrix view, Matrix viewtoworld, Matrix projection, Matrix projectiontoview)
         {
             bool flag = false;
-            if (view != this.matrix_2)
+            if (view != this.view)
             {
-                this.matrix_2 = view;
-                if (this.effectParameter_2 != null)
+                this.view = view;
+                if (FxView != null)
                 {
-                    this.effectParameter_2.SetValue(this.matrix_2);
-                    ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                    FxView.SetValue(this.view);
+                    ++class46_0.lightingSystemStatistic_1.AccumulationValue;
                 }
-                if (this.effectParameter_3 != null)
+                if (FxViewToWorld != null)
                 {
-                    this.matrix_3 = viewtoworld;
-                    this.effectParameter_3.SetValue(this.matrix_3);
-                    ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                    viewToWorld = viewtoworld;
+                    FxViewToWorld.SetValue(viewToWorld);
+                    ++class46_0.lightingSystemStatistic_1.AccumulationValue;
                 }
                 flag = true;
             }
-            if (projection != this.matrix_4)
+            if (projection != matrix_4)
             {
-                this.matrix_4 = projection;
-                if (this.effectParameter_4 != null)
+                matrix_4 = projection;
+                if (FxProjection != null)
                 {
-                    this.effectParameter_4.SetValue(this.matrix_4);
-                    ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                    FxProjection.SetValue(matrix_4);
+                    ++class46_0.lightingSystemStatistic_1.AccumulationValue;
                 }
-                if (this.effectParameter_5 != null || this.effectParameter_10 != null)
+                if (FxProjectionToView != null || FxFarClippingDistance != null)
                 {
-                    this.ProjectionToView = projectiontoview;
-                    if (this.effectParameter_5 != null)
+                    ProjectionToView = projectiontoview;
+                    if (FxProjectionToView != null)
                     {
-                        this.effectParameter_5.SetValue(this.ProjectionToView);
-                        ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                        FxProjectionToView.SetValue(ProjectionToView);
+                        ++class46_0.lightingSystemStatistic_1.AccumulationValue;
                     }
                 }
                 flag = true;
             }
             if (!flag)
                 return;
-            this.SetWorldViewProjection(true, true);
+            SetWorldViewProjection(true, true);
         }
 
-        private bool method_1(ref Matrix matrix_9)
+        bool SetWorldMatrix(ref Matrix newWorldMat)
         {
-            if (!this.bool_0)
-                return matrix_9.Equals(this.matrix_0);
-            this.matrix_0 = Matrix.Identity;
-            this.bool_0 = false;
+            if (!HasWorldMatrix)
+                return newWorldMat.Equals(world);
+            world = Matrix.Identity;
+            HasWorldMatrix = false;
             return false;
         }
 
@@ -315,24 +314,24 @@ namespace SynapseGaming.LightingSystem.Effects
         /// </summary>
         /// <param name="world">World matrix applied to geometry using this effect.</param>
         /// <param name="worldtoobj">Inverse world matrix applied to geometry using this effect.</param>
-        public void SetWorldAndWorldToObject(Matrix world, Matrix worldtoobj)
+        public void SetWorldAndWorldToObject(Matrix world, in Matrix worldtoobj)
         {
-            if (this.method_1(ref world))
+            if (SetWorldMatrix(ref world))
                 return;
-            this._UpdatedByBatch = true;
-            this.matrix_0 = world;
-            if (this.effectParameter_0 != null)
+            _UpdatedByBatch = true;
+            this.world = world;
+            if (FxWorld != null)
             {
-                this.effectParameter_0.SetValue(this.matrix_0);
-                ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                FxWorld.SetValue(this.world);
+                ++class46_0.lightingSystemStatistic_1.AccumulationValue;
             }
-            if (this.effectParameter_1 != null)
+            if (FxWorldToObject != null)
             {
-                this.matrix_1 = worldtoobj;
-                this.effectParameter_1.SetValue(this.matrix_1);
-                ++this.class46_0.lightingSystemStatistic_1.AccumulationValue;
+                worldToObject = worldtoobj;
+                FxWorldToObject.SetValue(worldToObject);
+                ++class46_0.lightingSystemStatistic_1.AccumulationValue;
             }
-            this.SetWorldViewProjection(false, true);
+            SetWorldViewProjection(false, true);
         }
 
         /// <summary>
@@ -352,32 +351,32 @@ namespace SynapseGaming.LightingSystem.Effects
         /// <param name="worldtoobjtranspose">Transposed inverse world matrix applied to geometry using this effect.</param>
         public void SetWorldAndWorldToObject(ref Matrix world, ref Matrix worldtranspose, ref Matrix worldtoobj, ref Matrix worldtoobjtranspose)
         {
-            if (this.effectParameter_0 != null)
-                this.GraphicsDevice.SetVertexShaderConstant(0, worldtranspose);
-            if (this.effectParameter_1 != null)
+            if (FxWorld != null)
+                GraphicsDevice.SetVertexShaderConstant(0, worldtranspose);
+            if (FxWorldToObject != null)
             {
-                if (this.effectParameter_1.RowCount >= 4)
+                if (FxWorldToObject.RowCount >= 4)
                 {
-                    this.GraphicsDevice.SetVertexShaderConstant(4, worldtoobjtranspose);
+                    GraphicsDevice.SetVertexShaderConstant(4, worldtoobjtranspose);
                 }
                 else
                 {
-                    this.GraphicsDevice.SetVertexShaderConstant(4, worldtoobjtranspose.Right);
-                    this.GraphicsDevice.SetVertexShaderConstant(5, worldtoobjtranspose.Up);
-                    this.GraphicsDevice.SetVertexShaderConstant(6, worldtoobjtranspose.Backward);
+                    GraphicsDevice.SetVertexShaderConstant(4, worldtoobjtranspose.Right);
+                    GraphicsDevice.SetVertexShaderConstant(5, worldtoobjtranspose.Up);
+                    GraphicsDevice.SetVertexShaderConstant(6, worldtoobjtranspose.Backward);
                 }
             }
-            this.bool_0 = true;
-            if (!world.Equals(this.matrix_0))
+            HasWorldMatrix = true;
+            if (!world.Equals(this.world))
             {
-                this.matrix_0 = world;
-                if (this.effectParameter_1 != null)
-                    this.matrix_1 = worldtoobj;
-                this.SetWorldViewProjection(false, false);
+                this.world = world;
+                if (FxWorldToObject != null)
+                    worldToObject = worldtoobj;
+                SetWorldViewProjection(false, false);
             }
-            if (this.effectParameter_9 == null)
+            if (FxWindingDirection == null)
                 return;
-            this.GraphicsDevice.SetPixelShaderConstant(0, new Vector2(this.method_0()));
+            GraphicsDevice.SetPixelShaderConstant(0, new Vector2(GetWinding()));
         }
 
         /// <summary>
@@ -387,7 +386,7 @@ namespace SynapseGaming.LightingSystem.Effects
         /// <returns></returns>
         public override Effect Clone(GraphicsDevice device)
         {
-            Effect effect = this.Create(device);
+            Effect effect = Create(device);
             Class12.smethod_1(this, effect);
             return effect;
         }

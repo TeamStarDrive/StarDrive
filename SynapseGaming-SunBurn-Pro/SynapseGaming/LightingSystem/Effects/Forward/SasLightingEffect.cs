@@ -42,16 +42,16 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// Creates a new SasLightingEffect instance from an effect containing an SAS shader
     /// (often loaded through the content pipeline or from disk).
     /// </summary>
-    /// <param name="graphicsdevice"></param>
+    /// <param name="device"></param>
     /// <param name="effect">Source effect containing an SAS shader.</param>
-    public SasLightingEffect(GraphicsDevice graphicsdevice, Effect effect)
-      : base(graphicsdevice, effect)
+    public SasLightingEffect(GraphicsDevice device, Effect effect)
+      : base(device, effect)
     {
       this.FindMaxLightCount();
     }
 
-    internal SasLightingEffect(GraphicsDevice graphicsDevice_0, Effect effect_0, bool bool_5)
-      : base(graphicsDevice_0, effect_0, bool_5)
+    internal SasLightingEffect(GraphicsDevice device, Effect effect_0, bool bool_5)
+      : base(device, effect_0, bool_5)
     {
       this.FindMaxLightCount();
     }
@@ -103,43 +103,43 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
         ILight light = this.list_0[0];
         if (light is AmbientLight)
         {
-          EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_AmbientLight_Color[index1]), new Vector4(light.CompositeColorAndIntensity, 1f));
+          EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_AmbientLight_Color[index1]), new Vector4(light.CompositeColorAndIntensity, 1f));
           ++index1;
         }
         else if (light is IPointSource)
         {
-          EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_PointLight_Color[index3]), new Vector4(light.CompositeColorAndIntensity, 1f));
-          EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_PointLight_Position[index3]), new Vector4((light as IPointSource).Position, 1f));
-          EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_PointLight_Range[index3]), new Vector4((light as IPointSource).Radius));
+          EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_PointLight_Color[index3]), new Vector4(light.CompositeColorAndIntensity, 1f));
+          EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_PointLight_Position[index3]), new Vector4((light as IPointSource).Position, 1f));
+          EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_PointLight_Range[index3]), new Vector4((light as IPointSource).Radius));
           ++index3;
         }
         else if (light is IDirectionalSource)
         {
           if (flag)
           {
-            EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_DirectionalLight_Color[index2]), new Vector4(light.CompositeColorAndIntensity, 1f));
-            EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_DirectionalLight_Direction[index2]), new Vector4((light as IDirectionalSource).Direction, 1f));
+            EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_DirectionalLight_Color[index2]), new Vector4(light.CompositeColorAndIntensity, 1f));
+            EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_DirectionalLight_Direction[index2]), new Vector4((light as IDirectionalSource).Direction, 1f));
             ++index2;
           }
           else
           {
-            EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_PointLight_Color[index3]), new Vector4(light.CompositeColorAndIntensity, 1f));
-            EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_PointLight_Position[index3]), new Vector4((light as IShadowSource).ShadowPosition, 1f));
-            EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_PointLight_Range[index3]), new Vector4(1E+09f));
+            EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_PointLight_Color[index3]), new Vector4(light.CompositeColorAndIntensity, 1f));
+            EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_PointLight_Position[index3]), new Vector4((light as IShadowSource).ShadowPosition, 1f));
+            EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_PointLight_Range[index3]), new Vector4(1E+09f));
             ++index3;
           }
         }
       }
       int length = SASAddress_AmbientLight_Color.Length;
       for (int index4 = index1; index4 < length; ++index4)
-        EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_AmbientLight_Color[index4]), new Vector4(0.0f));
+        EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_AmbientLight_Color[index4]), new Vector4(0.0f));
       for (int index4 = index2; index4 < length; ++index4)
-        EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_DirectionalLight_Color[index4]), new Vector4(0.0f));
+        EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_DirectionalLight_Color[index4]), new Vector4(0.0f));
       for (int index4 = index3; index4 < length; ++index4)
-        EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_PointLight_Color[index4]), new Vector4(0.0f));
-      EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.NumAmbientLights"), new Vector4(index1));
-      EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.NumDirectionalLights"), new Vector4(index2));
-      EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.NumPointLights"), new Vector4(index3));
+        EffectHelper.Update(this.SasAutoBindTable.method_1(SASAddress_PointLight_Color[index4]), new Vector4(0.0f));
+      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.NumAmbientLights"), new Vector4(index1));
+      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.NumDirectionalLights"), new Vector4(index2));
+      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.NumPointLights"), new Vector4(index3));
     }
 
     /// <summary>

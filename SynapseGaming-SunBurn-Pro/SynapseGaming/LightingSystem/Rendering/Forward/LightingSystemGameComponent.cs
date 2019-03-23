@@ -18,13 +18,13 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
     /// </summary>
     public class LightingSystemGameComponent : DrawableGameComponent
     {
-        private Matrix matrix_1 = Matrix.Identity;
-        private SceneState sceneState_0 = new SceneState();
-        private LightingSystemPreferences lightingSystemPreferences_0 = new LightingSystemPreferences();
-        private GraphicsDeviceManager graphicsDeviceManager_0;
-        private LightingSystemManager lightingSystemManager_0;
-        private SceneInterface sceneInterface_0;
-        private ShadowMapManager shadowMapManager_0;
+        Matrix view = Matrix.Identity;
+        SceneState sceneState = new SceneState();
+        LightingSystemPreferences lightingSystemPreferences_0 = new LightingSystemPreferences();
+        GraphicsDeviceManager graphicsDeviceManager_0;
+        LightingSystemManager lightingSystemManager;
+        SceneInterface sceneInterface;
+        ShadowMapManager shadowMapManager_0;
 
         /// <summary>
         /// Rendering environment's RenderManager. Use to add models and scene objects for rendering.
@@ -64,20 +64,20 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         public LightingSystemGameComponent(Game game, GraphicsDeviceManager graphicsdevicemanager)
             : base(game)
         {
-            this.graphicsDeviceManager_0 = graphicsdevicemanager;
-            this.lightingSystemManager_0 = new LightingSystemManager(this.Game.Services);
-            this.sceneInterface_0 = new SceneInterface(graphicsdevicemanager);
-            this.RenderManager = new RenderManager(graphicsdevicemanager, this.sceneInterface_0);
-            this.LightManager = new LightManager(graphicsdevicemanager);
-            this.shadowMapManager_0 = new ShadowMapManager(graphicsdevicemanager);
-            this.sceneInterface_0.AddManager(this.RenderManager);
-            this.sceneInterface_0.AddManager(this.LightManager);
-            this.sceneInterface_0.AddManager(this.shadowMapManager_0);
-            this.Editor = new LightingSystemEditor(this.Game.Services, this.graphicsDeviceManager_0, this.Game);
-            this.sceneInterface_0.AddManager(this.Editor);
-            this.PostProcessManager = new PostProcessManager(this.graphicsDeviceManager_0);
-            this.sceneInterface_0.AddManager(this.PostProcessManager);
-            this.sceneInterface_0.ApplyPreferences(this.lightingSystemPreferences_0);
+            graphicsDeviceManager_0 = graphicsdevicemanager;
+            lightingSystemManager = new LightingSystemManager(Game.Services);
+            sceneInterface = new SceneInterface(graphicsdevicemanager);
+            RenderManager = new RenderManager(graphicsdevicemanager, sceneInterface);
+            LightManager = new LightManager(graphicsdevicemanager);
+            shadowMapManager_0 = new ShadowMapManager(graphicsdevicemanager);
+            sceneInterface.AddManager(RenderManager);
+            sceneInterface.AddManager(LightManager);
+            sceneInterface.AddManager(shadowMapManager_0);
+            Editor = new LightingSystemEditor(Game.Services, graphicsDeviceManager_0, Game);
+            sceneInterface.AddManager(Editor);
+            PostProcessManager = new PostProcessManager(graphicsDeviceManager_0);
+            sceneInterface.AddManager(PostProcessManager);
+            sceneInterface.ApplyPreferences(lightingSystemPreferences_0);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         /// <param name="preferences"></param>
         public void ApplyPreferences(ILightingSystemPreferences preferences)
         {
-            this.sceneInterface_0.ApplyPreferences(preferences);
+            sceneInterface.ApplyPreferences(preferences);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         /// </summary>
         public void Clear()
         {
-            this.sceneInterface_0.Clear();
+            sceneInterface.Clear();
         }
 
         /// <summary>
@@ -103,8 +103,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         /// </summary>
         public void Unload()
         {
-            this.sceneInterface_0.Unload();
-            this.lightingSystemManager_0.Unload();
+            sceneInterface.Unload();
+            lightingSystemManager.Unload();
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         /// </summary>
         protected override void UnloadContent()
         {
-            this.Unload();
+            Unload();
             base.UnloadContent();
         }
 
@@ -124,7 +124,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            this.Unload();
+            Unload();
             base.Dispose(disposing);
         }
 
@@ -135,7 +135,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         /// <param name="gameTime"></param>
         public override void Update(GameTime gameTime)
         {
-            this.sceneInterface_0.Update(gameTime);
+            sceneInterface.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -149,11 +149,11 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             if (SplashScreenGameComponent.DisplayComplete)
             {
                 Matrix projection = Projection;
-                this.sceneState_0.BeginFrameRendering(ref this.matrix_1, ref projection, gameTime, this.Environment, true);
-                this.sceneInterface_0.BeginFrameRendering(this.sceneState_0);
-                this.RenderManager.Render();
-                this.sceneInterface_0.EndFrameRendering();
-                this.sceneState_0.EndFrameRendering();
+                sceneState.BeginFrameRendering(ref view, ref projection, gameTime, Environment, true);
+                sceneInterface.BeginFrameRendering(sceneState);
+                RenderManager.Render();
+                sceneInterface.EndFrameRendering();
+                sceneState.EndFrameRendering();
             }
             base.Draw(gameTime);
         }
