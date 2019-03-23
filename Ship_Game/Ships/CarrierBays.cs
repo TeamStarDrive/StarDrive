@@ -195,7 +195,7 @@ namespace Ship_Game.Ships
             if (Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling || RecallingShipsBeforeWarp)
                 return;
 
-            bool limitAssaultSize = strengthNeeded > 0; // if Strendthneeded is 0,  this will be false and the ship will launch all troops
+            bool limitAssaultSize = strengthNeeded > 0; // if Strength needed is 0,  this will be false and the ship will launch all troops
 
             foreach (ShipModule hangar in AllActiveTroopBays)
             {
@@ -203,9 +203,12 @@ namespace Ship_Game.Ships
                 {
                     if (limitAssaultSize && strengthNeeded < 0)
                         break;
-                    strengthNeeded -= Owner.TroopList[0].Strength;
-                    hangar.LaunchBoardingParty(Owner.TroopList[0]);
-                    Owner.TroopList.RemoveAt(0);
+
+                    if (hangar.LaunchBoardingParty(Owner.TroopList[0]))
+                    {
+                        strengthNeeded -= Owner.TroopList[0].Strength;
+                        Owner.TroopList.RemoveAt(0);
+                    }
                 }
             }
         }
