@@ -124,7 +124,10 @@ namespace SDNative
                     Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
                     ushort* indices, int numIndices);
 
-    DLLAPI(void) SDMeshGroupSetMaterial(
+	/**
+	 * Create a completely new material for group
+	 */
+    DLLAPI(SDMaterial*) SDMeshGroupSetMaterial(
                     SDMeshGroup* group,
                     const wchar_t* name,
                     const wchar_t* materialFile,
@@ -139,6 +142,11 @@ namespace SDNative
                     Color3 emissiveColor,
                     float specular,
                     float alpha);
+
+	/**
+	 * Attempt to find existing `material` and set it to this group
+	 */
+	DLLAPI(void) SDMeshGroupSetExistingMaterial(SDMeshGroup* group, SDMaterial* material);
 
     ////////////////////////////////////////////////////////////////////////////////////
 }

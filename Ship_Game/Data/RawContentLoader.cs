@@ -231,34 +231,49 @@ namespace Ship_Game
             }
         }
 
-        [DllImport("SDNative.dll")] static extern unsafe SDMesh* SDMeshOpen([MarshalAs(UnmanagedType.LPWStr)] string filename);
-        [DllImport("SDNative.dll")] static extern unsafe void SDMeshClose(SDMesh* mesh);
-        [DllImport("SDNative.dll")] static extern unsafe SDMeshGroup* SDMeshGetGroup(SDMesh* mesh, int groupId);
+        [DllImport("SDNative.dll")] static extern unsafe
+            SDMesh* SDMeshOpen([MarshalAs(UnmanagedType.LPWStr)] string filename);
 
-        [DllImport("SDNative.dll")] static extern unsafe SDMesh* SDMeshCreateEmpty([MarshalAs(UnmanagedType.LPWStr)] string meshname);
-        [DllImport("SDNative.dll")] static extern unsafe bool SDMeshSave(SDMesh* mesh, [MarshalAs(UnmanagedType.LPWStr)] string filename);
-        [DllImport("SDNative.dll")] static extern unsafe SDMeshGroup* SDMeshNewGroup(SDMesh* mesh,
-                                                            [MarshalAs(UnmanagedType.LPWStr)] string groupname,
-                                                            Matrix* transform);
+        [DllImport("SDNative.dll")] static extern unsafe
+            void SDMeshClose(SDMesh* mesh);
 
-        [DllImport("SDNative.dll")] static extern unsafe void SDMeshGroupSetData(SDMeshGroup* group, 
-                                                            Vector3* verts, Vector3* normals, Vector2* coords, int numVertices,
-                                                            ushort* indices, int numIndices);
+        [DllImport("SDNative.dll")] static extern unsafe
+            SDMeshGroup* SDMeshGetGroup(SDMesh* mesh, int groupId);
 
-        [DllImport("SDNative.dll")] static extern unsafe void SDMeshGroupSetMaterial(SDMeshGroup* group, 
-                                                            [MarshalAs(UnmanagedType.LPWStr)] string name,
-                                                            [MarshalAs(UnmanagedType.LPWStr)] string materialFile,
-                                                            [MarshalAs(UnmanagedType.LPWStr)] string diffusePath,
-                                                            [MarshalAs(UnmanagedType.LPWStr)] string alphaPath,
-                                                            [MarshalAs(UnmanagedType.LPWStr)] string specularPath,
-                                                            [MarshalAs(UnmanagedType.LPWStr)] string normalPath,
-                                                            [MarshalAs(UnmanagedType.LPWStr)] string emissivePath,
-                                                            Vector3 ambientColor,
-                                                            Vector3 diffuseColor,
-                                                            Vector3 specularColor,
-                                                            Vector3 emissiveColor,
-                                                            float specular,
-                                                            float alpha);
+        [DllImport("SDNative.dll")] static extern unsafe
+            SDMesh* SDMeshCreateEmpty([MarshalAs(UnmanagedType.LPWStr)] string meshname);
+
+        [DllImport("SDNative.dll")] static extern unsafe
+            bool SDMeshSave(SDMesh* mesh, [MarshalAs(UnmanagedType.LPWStr)] string filename);
+
+        [DllImport("SDNative.dll")] static extern unsafe
+            SDMeshGroup* SDMeshNewGroup(SDMesh* mesh, 
+                [MarshalAs(UnmanagedType.LPWStr)] string groupname,
+                Matrix* transform);
+
+        [DllImport("SDNative.dll")] static extern unsafe
+            void SDMeshGroupSetData(SDMeshGroup* group, 
+                Vector3* verts, Vector3* normals, Vector2* coords, 
+                int numVertices, ushort* indices, int numIndices);
+
+        [DllImport("SDNative.dll")] static extern unsafe 
+            SDMaterial* SDMeshGroupSetMaterial(SDMeshGroup* group, 
+                                            [MarshalAs(UnmanagedType.LPWStr)] string name,
+                                            [MarshalAs(UnmanagedType.LPWStr)] string materialFile,
+                                            [MarshalAs(UnmanagedType.LPWStr)] string diffusePath,
+                                            [MarshalAs(UnmanagedType.LPWStr)] string alphaPath,
+                                            [MarshalAs(UnmanagedType.LPWStr)] string specularPath,
+                                            [MarshalAs(UnmanagedType.LPWStr)] string normalPath,
+                                            [MarshalAs(UnmanagedType.LPWStr)] string emissivePath,
+                                            Vector3 ambientColor,
+                                            Vector3 diffuseColor,
+                                            Vector3 specularColor,
+                                            Vector3 emissiveColor,
+                                            float specular,
+                                            float alpha);
+
+        [DllImport("SDNative.dll")] static extern unsafe
+            void SDMeshGroupSetExistingMaterial(SDMeshGroup* group, SDMaterial* material);
 
         static VertexDeclaration Layout;
 
@@ -360,6 +375,12 @@ namespace Ship_Game
             foreach (ModelMesh modelMesh in model.Meshes)
             {
                 Matrix transform = modelMesh.ParentBone.Transform;
+                bool useIndexNames = modelMesh.MeshParts.Count > 1;
+
+                for (int i = 0; i < modelMesh.MeshParts.Count; ++i)
+                {
+
+                }
                 SDMeshGroup* group = SDMeshNewGroup(sdmesh, modelMesh.Name, &transform);
                 VertexBuffer vbo = modelMesh.VertexBuffer;
                 IndexBuffer  ibo = modelMesh.IndexBuffer;
@@ -411,7 +432,7 @@ namespace Ship_Game
             if (textureName.IsEmpty() || texture == null)
                 return "";
 
-            string name = Path.ChangeExtension(Path.GetFileName(textureName), "png");
+            string name = Path.ChangeExtension(Path.GetFileName(textureName), "dds");
             string writeTo = Path.Combine(modelExportDir, name);
 
             lock (texture) // Texture2D.Save will crash if 2 threads try to save the same texture
@@ -419,7 +440,7 @@ namespace Ship_Game
                 if (!File.Exists(writeTo))
                 {
                     Log.Warning($"  ExportTexture: {writeTo}");
-                    texture.Save(writeTo, ImageFileFormat.Png);
+                    texture.Save(writeTo, ImageFileFormat.Dds);
                 }
             }
             return name;
