@@ -9,96 +9,96 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
-  /// <summary>
-  /// Class that represents one surface in a shadow map, which can be
-  /// used for multi-part rendering and level-of-detail. The surface
-  /// contains its own section within a render target.
-  /// </summary>
-  public class ShadowMapSurface
-  {
-      private Matrix matrix_0 = Matrix.Identity;
-    private Matrix matrix_1 = Matrix.Identity;
-    private bool bool_1 = true;
-    private BoundingFrustum boundingFrustum_0 = new BoundingFrustum(Matrix.Identity);
-    private Viewport viewport_0;
-      private Rectangle rectangle_0;
-
     /// <summary>
-    /// View transform used to project the scene into the
-    /// surface and the surface onto the scene.
+    /// Class that represents one surface in a shadow map, which can be
+    /// used for multi-part rendering and level-of-detail. The surface
+    /// contains its own section within a render target.
     /// </summary>
-    public Matrix WorldToSurfaceView
+    public class ShadowMapSurface
     {
-      get => this.matrix_0;
-        set
-      {
-        this.matrix_0 = value;
-        this.bool_1 = true;
-      }
-    }
+        private Matrix worldToSurfaceView = Matrix.Identity;
+        private Matrix projection = Matrix.Identity;
+        private bool bool_1 = true;
+        private BoundingFrustum frustum = new BoundingFrustum(Matrix.Identity);
+        private Viewport viewport;
+        private Rectangle rectangle_0;
 
-    /// <summary>
-    /// Projection transform used to project the scene into
-    /// the surface and the surface onto the scene.
-    /// </summary>
-    public Matrix Projection
-    {
-      get => this.matrix_1;
-        set
-      {
-        this.matrix_1 = value;
-        this.bool_1 = true;
-      }
-    }
-
-    /// <summary>The surface projection frustum.</summary>
-    public BoundingFrustum Frustum
-    {
-      get
-      {
-        if (this.bool_1)
+        /// <summary>
+        /// View transform used to project the scene into the
+        /// surface and the surface onto the scene.
+        /// </summary>
+        public Matrix WorldToSurfaceView
         {
-          this.boundingFrustum_0.Matrix = this.matrix_0 * this.matrix_1;
-          this.bool_1 = false;
+            get => worldToSurfaceView;
+            set
+            {
+                worldToSurfaceView = value;
+                bool_1 = true;
+            }
         }
-        return this.boundingFrustum_0;
-      }
+
+        /// <summary>
+        /// Projection transform used to project the scene into
+        /// the surface and the surface onto the scene.
+        /// </summary>
+        public Matrix Projection
+        {
+            get => projection;
+            set
+            {
+                projection = value;
+                bool_1 = true;
+            }
+        }
+
+        /// <summary>The surface projection frustum.</summary>
+        public BoundingFrustum Frustum
+        {
+            get
+            {
+                if (bool_1)
+                {
+                    frustum.Matrix = worldToSurfaceView * projection;
+                    bool_1 = false;
+                }
+                return frustum;
+            }
+        }
+
+        /// <summary>
+        /// Viewport used when rendering to the surface render target location.
+        /// </summary>
+        public Viewport Viewport => viewport;
+
+        /// <summary>Level-of-detail applied to the surface.</summary>
+        public float LevelOfDetail { get; set; } = 1f;
+
+        /// <summary>The surface location in the render target.</summary>
+        public Rectangle RenderTargetLocation
+        {
+            get => rectangle_0;
+            set
+            {
+                rectangle_0 = value;
+                viewport.X = rectangle_0.X;
+                viewport.Y = rectangle_0.Y;
+                viewport.Width = rectangle_0.Width;
+                viewport.Height = rectangle_0.Height;
+                viewport.MinDepth = 0.0f;
+                viewport.MaxDepth = 1f;
+            }
+        }
+
+        internal bool Enabled { get; set; } = true;
+
+        internal Rectangle method_0(int int_0)
+        {
+            return new Rectangle(rectangle_0.X + int_0, rectangle_0.Y + int_0, rectangle_0.Width - int_0 * 2, rectangle_0.Height - int_0 * 2);
+        }
+
+        internal void method_1(Vector3 vector3_0)
+        {
+            worldToSurfaceView.Translation = vector3_0;
+        }
     }
-
-    /// <summary>
-    /// Viewport used when rendering to the surface render target location.
-    /// </summary>
-    public Viewport Viewport => this.viewport_0;
-
-      /// <summary>Level-of-detail applied to the surface.</summary>
-    public float LevelOfDetail { get; set; } = 1f;
-
-      /// <summary>The surface location in the render target.</summary>
-    public Rectangle RenderTargetLocation
-    {
-      get => this.rectangle_0;
-          set
-      {
-        this.rectangle_0 = value;
-        this.viewport_0.X = this.rectangle_0.X;
-        this.viewport_0.Y = this.rectangle_0.Y;
-        this.viewport_0.Width = this.rectangle_0.Width;
-        this.viewport_0.Height = this.rectangle_0.Height;
-        this.viewport_0.MinDepth = 0.0f;
-        this.viewport_0.MaxDepth = 1f;
-      }
-    }
-
-    internal bool Enabled { get; set; } = true;
-
-      internal Rectangle method_0(int int_0)
-    {
-      return new Rectangle(this.rectangle_0.X + int_0, this.rectangle_0.Y + int_0, this.rectangle_0.Width - int_0 * 2, this.rectangle_0.Height - int_0 * 2);
-    }
-
-    internal void method_1(Vector3 vector3_0)
-    {
-      this.matrix_0.Translation = vector3_0;
-    }
-  }
 }

@@ -193,14 +193,8 @@ namespace Ship_Game
                     };
                     foreach (RoadNode node in road.RoadNodesList)
                     {
-                        RoadNodeSave ndata = new RoadNodeSave
-                        {
-                            Position = node.Position
-                        };
-                        if (node.Platform != null)
-                        {
-                            ndata.Guid_Platform = node.Platform.guid;
-                        }
+                        var ndata = new RoadNodeSave { Position = node.Position };
+                        if (node.Platform != null) ndata.Guid_Platform = node.Platform.guid;
                         rdata.RoadNodes.Add(ndata);
                     }
                     empireToSave.SpaceRoadData.Add(rdata);
@@ -220,11 +214,7 @@ namespace Ship_Game
                 foreach (MilitaryTask task in e.GetEmpireAI().TaskList)
                 {
                     gsaidata.MilitaryTaskList.Add(task);
-                    if (task.TargetPlanet == null)
-                    {
-                        continue;
-                    }
-                    task.TargetPlanetGuid = task.TargetPlanet.guid;
+                    if (task.TargetPlanet != null) task.TargetPlanetGuid = task.TargetPlanet.guid;
                 }
 
                 Array<Goal> goals = e.GetEmpireAI().Goals;

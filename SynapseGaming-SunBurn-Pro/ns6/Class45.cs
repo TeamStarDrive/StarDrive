@@ -30,13 +30,13 @@ namespace EmbeddedResources
     public Vector3 Color
     {
       get => this.vector3_2;
-        set => EffectHelper.smethod_4(value, ref this.vector3_2, ref this.effectParameter_13);
+        set => EffectHelper.Update(value, ref this.vector3_2, ref this.effectParameter_13);
     }
 
     public Texture2D BeamTexture
     {
       get => this.texture2D_0;
-        set => EffectHelper.SetParam(value, ref this.texture2D_0, this.effectParameter_15);
+        set => EffectHelper.Update(value, ref this.texture2D_0, this.effectParameter_15);
     }
 
     public Texture2D SceneDepthMap
@@ -44,9 +44,9 @@ namespace EmbeddedResources
       get => this.texture2D_1;
         set
       {
-        EffectHelper.SetParam(value, ref this.texture2D_1, this.effectParameter_16);
+        EffectHelper.Update(value, ref this.texture2D_1, this.effectParameter_16);
         if (this.effectParameter_14 != null && this.texture2D_1 != null)
-          EffectHelper.smethod_7(new Vector2(this.texture2D_1.Width, this.texture2D_1.Height), ref this.vector2_0, ref this.effectParameter_14);
+          EffectHelper.Update(new Vector2(this.texture2D_1.Width, this.texture2D_1.Height), ref this.vector2_0, ref this.effectParameter_14);
         this.SetTechnique();
       }
     }
@@ -70,7 +70,7 @@ namespace EmbeddedResources
         return;
       float_1 = MathHelper.ToRadians(MathHelper.Clamp(float_1, 0.1f, 90f));
       float num = (float) Math.Sin(float_1) * float_2;
-      EffectHelper.smethod_4(new Vector3(num, num, float_2), ref this.vector3_0, ref this.effectParameter_11);
+      EffectHelper.Update(new Vector3(num, num, float_2), ref this.vector3_0, ref this.effectParameter_11);
     }
 
     public void method_3(Matrix matrix_9)
@@ -87,7 +87,7 @@ namespace EmbeddedResources
       float num = vector3_0.Y - vector3_0.X;
       if (num != 0.0)
         vector3_0.Z = 10000f / num;
-      EffectHelper.smethod_4(vector3_0, ref this.vector3_1, ref this.effectParameter_12);
+      EffectHelper.Update(vector3_0, ref this.vector3_1, ref this.effectParameter_12);
     }
 
     protected override void SetTechnique()

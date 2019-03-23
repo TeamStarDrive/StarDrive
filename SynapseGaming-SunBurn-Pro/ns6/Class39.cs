@@ -22,10 +22,10 @@ namespace EmbeddedResources
       get => this.texture2D_0;
         set
       {
-        EffectHelper.SetParam(value, ref this.texture2D_0, this.effectParameter_12);
+        EffectHelper.Update(value, ref this.texture2D_0, this.effectParameter_12);
         if (value == null)
           return;
-        EffectHelper.smethod_7(new Vector2(1f / value.Width, 1f / value.Height), ref this.vector2_0, ref this.effectParameter_11);
+        EffectHelper.Update(new Vector2(1f / value.Width, 1f / value.Height), ref this.vector2_0, ref this.effectParameter_11);
       }
     }
 

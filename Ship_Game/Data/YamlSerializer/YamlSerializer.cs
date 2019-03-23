@@ -60,5 +60,16 @@ namespace Ship_Game.Data.YamlSerializer
             }
             return item;
         }
+
+        public override void Serialize(BinaryWriter writer, object obj)
+        {
+            Log.Error($"Serialize not supported for {ToString()}");
+        }
+
+        public override object Deserialize(BinaryReader reader)
+        {
+            Log.Error($"Deserialize not supported for {ToString()}");
+            return null;
+        }
     }
 }
