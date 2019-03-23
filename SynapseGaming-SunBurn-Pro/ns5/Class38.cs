@@ -16,7 +16,7 @@ using SynapseGaming.LightingSystem.Shadows;
 
 namespace ns5
 {
-    internal class Class38 : BaseRenderableEffect, Interface2, ILightingEffect, Interface3
+    internal class Class38 : BaseRenderableEffect, Interface2, ILightingEffect, IShadowEffect
     {
         private static Matrix[] matrix_10 = new Matrix[3];
         private static Vector4[] vector4_7 = new Vector4[3];

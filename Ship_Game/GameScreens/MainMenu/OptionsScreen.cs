@@ -6,6 +6,7 @@ using NAudio.CoreAudioApi;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.UI;
+using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
 {
@@ -148,6 +149,11 @@ namespace Ship_Game
             return (uint)parameter <= 3 ? new[]{ "High", "Normal", "Low", "Ultra-Low" }[parameter] : "None";
         }
 
+        static string ShadowQualStr(int parameter)
+        {
+            return ((DetailPreference)parameter).ToString();
+        }
+
         void AntiAliasing_OnClick(UILabel label)
         {
             New.AntiAlias = New.AntiAlias == 0 ? 2 : New.AntiAlias * 2;
@@ -177,8 +183,14 @@ namespace Ship_Game
 
         void ShadowQuality_OnClick(UILabel label)
         {
-            New.ShadowDetail = New.ShadowDetail == 3 ? 0 : New.ShadowDetail + 1;
-            New.ShadowQuality = 1.0f - (0.33f * New.ShadowDetail);
+            New.ShadowDetail = New.ShadowDetail >= 3 ? 0 : New.ShadowDetail + 1;
+            switch (New.ShadowDetail)
+            {
+                case 0: New.ShadowQuality = 1.00f; break;
+                case 1: New.ShadowQuality = 0.66f; break;
+                case 2: New.ShadowQuality = 0.33f; break;
+                case 3: New.ShadowQuality = 0.00f; break;
+            }
         }
 
         void Fullscreen_OnClick(UILabel label)
@@ -219,7 +231,7 @@ namespace Ship_Game
             Add(graphics, "Anti Aliasing",     l => AntiAliasString(),                 AntiAliasing_OnClick);
             Add(graphics, "Texture Quality",   l => QualityString(New.TextureQuality), TextureQuality_OnClick);
             Add(graphics, "Texture Filtering", l => TextureFilterString(),             TextureFiltering_OnClick);
-            Add(graphics, "Shadow Quality",    l => QualityString(New.ShadowDetail),   ShadowQuality_OnClick);
+            Add(graphics, "Shadow Quality",    l => ShadowQualStr(New.ShadowDetail),   ShadowQuality_OnClick);
             Add(graphics, "Effects Quality",   l => QualityString(New.EffectDetail),   EffectsQuality_OnClick);
             graphics.AddCheckbox(() => New.RenderBloom, "Bloom", 
                 "Disabling bloom effect will increase performance on low-end devices");
