@@ -11,7 +11,5 @@ namespace SynapseGaming.LightingSystem.Processors
     {
         bool TryGetEffect<T>(string assetName, out T asset) where T : Effect;
         void AddEffect(string assetName, Effect effect);
-
-        void LogEffectError(Exception ex, string error);
     }
 }

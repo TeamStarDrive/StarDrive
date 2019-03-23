@@ -5,6 +5,7 @@
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -23,28 +24,23 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public class LightingSystemManager
     {
-        private static LightingSystemManager instance;
+        static LightingSystemManager instance;
 
-        private Texture3D texture3D_0;
+        Texture3D texture3D_0;
+        Texture2D texture2D_0;
+        Texture2D SplashTex;
 
-        private Texture2D texture2D_0;
+        TextureCube textureCube_0;
+        TextureCube textureCube_1;
 
-        private Texture2D texture2D_1;
+        SpriteFont consoleFont;
+        SpriteBatch spriteBatch_0;
 
-        private TextureCube textureCube_0;
+        VertexDeclaration vertexDeclaration_0;
+        GraphicsDeviceSupport graphicsDeviceSupport_0;
 
-        private TextureCube textureCube_1;
-
-        private SpriteFont consoleFont;
-
-        private SpriteBatch spriteBatch_0;
-
-        private VertexDeclaration vertexDeclaration_0;
-
-        private GraphicsDeviceSupport graphicsDeviceSupport_0;
-
-        private IServiceProvider Service;
-        private ResourceContentManager Content;
+        IServiceProvider Service;
+        ResourceContentManager Content;
 
 
         internal static LightingSystemManager Instance
@@ -58,24 +54,17 @@ namespace SynapseGaming.LightingSystem.Core
         }
 
         /// <summary>Returns the edition of the loaded SunBurn assembly.</summary>
-
-
         public static string Edition => "BlackBox";
 
         /// <summary>
         /// Returns the public key token of the loaded SunBurn assembly.
         /// </summary>
-
-
         public static string PublicKeyToken => "c23c60523565dbfd";
 
         /// <summary>Returns the version of the loaded SunBurn assembly.</summary>
-
-
         public static string Version => "0.1.0.0";
 
-
-        private static System.Resources.ResourceManager ResourceManager => EmbeddedResourceBuilder.ResourceManager;
+        static System.Resources.ResourceManager ResourceManager => EmbeddedResourceBuilder.ResourceManager;
 
         /// <summary>Creates a new LightingSystemManager instance.</summary>
         /// <param name="service"></param>
@@ -106,31 +95,39 @@ namespace SynapseGaming.LightingSystem.Core
         }
 
         // Embedded resources are linked from SynapseGaming/LightingSystem/Effects/Resources.resx
-        private ResourceContentManager EmbeddedContent => Content ?? (Content = new ResourceContentManager(Service, ResourceManager));
+        ResourceContentManager EmbeddedContent => Content ?? (Content = new ResourceContentManager(Service, ResourceManager));
 
         internal Effect EmbeddedEffect(string effectName)
         {
-            return EmbeddedContent.Load<Effect>(effectName);
+            var effect = EmbeddedContent.Load<Effect>(effectName);
+            if (effect.IsDisposed)
+            {
+                if (Debugger.IsAttached)
+                    Debugger.Break();
+            }
+            return effect;
         }
 
         internal Model EmbeddedModel(string modelName)
         {
-            return EmbeddedContent.Load<Model>(modelName);
+            var model = EmbeddedContent.Load<Model>(modelName);
+            return model;
         }
 
         internal Texture2D EmbeddedTexture(string textureName)
         {
-            return EmbeddedContent.Load<Texture2D>(textureName);
+            var texture = EmbeddedContent.Load<Texture2D>(textureName);
+            return texture;
         }
 
-        internal Texture2D method_3(GraphicsDevice device)
+        internal Texture2D CreateSplashTexture(GraphicsDevice device)
         {
-            if (texture2D_1 == null)
+            if (SplashTex == null)
             {
                 using (var memoryStream = new MemoryStream(EmbeddedResourceBuilder.SplashScreen))
-                    texture2D_1 = Texture2D.FromFile(device, memoryStream);
+                    SplashTex = Texture2D.FromFile(device, memoryStream);
             }
-            return texture2D_1;
+            return SplashTex;
         }
 
         internal Texture3D method_4(GraphicsDevice graphicsDevice_0)
@@ -347,7 +344,7 @@ namespace SynapseGaming.LightingSystem.Core
             Disposable.Free(ref spriteBatch_0);
             Disposable.Free(ref texture3D_0);
             Disposable.Free(ref texture2D_0);
-            Disposable.Free(ref texture2D_1);
+            Disposable.Free(ref SplashTex);
             Disposable.Free(ref textureCube_0);
             Disposable.Free(ref textureCube_1);
             Disposable.Free(ref vertexDeclaration_0);

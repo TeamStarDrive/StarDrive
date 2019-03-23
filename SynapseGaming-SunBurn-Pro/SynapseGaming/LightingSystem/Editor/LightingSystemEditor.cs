@@ -90,8 +90,8 @@ namespace SynapseGaming.LightingSystem.Editor
         }
 
         /// <summary>Sets up the object prior to rendering.</summary>
-        /// <param name="scenestate"></param>
-        public void BeginFrameRendering(ISceneState scenestate)
+        /// <param name="state"></param>
+        public void BeginFrameRendering(ISceneState state)
         {
         }
 
