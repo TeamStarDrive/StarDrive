@@ -189,6 +189,7 @@ namespace Ship_Game
                 case 0: New.ShadowQuality = 1.00f; break;
                 case 1: New.ShadowQuality = 0.66f; break;
                 case 2: New.ShadowQuality = 0.33f; break;
+                default:
                 case 3: New.ShadowQuality = 0.00f; break;
             }
         }

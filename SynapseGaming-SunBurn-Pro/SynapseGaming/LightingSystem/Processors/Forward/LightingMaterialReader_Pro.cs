@@ -26,16 +26,7 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
             GraphicsDevice device = service.GraphicsDevice;
             
             //Console.WriteLine($"Read LightningEffect {input.AssetName}");
-            try
-            {
-                fx = new LightingEffect(device);
-            }
-            catch (Exception e) // Insufficient memory to continue the execution of the program?
-            {
-                cache?.LogEffectError(e, "SunBurn FX create failed. Forcing full Garbage Collection.");
-                GC.Collect(4, GCCollectionMode.Forced, true);
-                fx = new LightingEffect(device);
-            }
+            fx = new LightingEffect(device);
             fx.MaterialName             = input.ReadString();
             fx.MaterialFile             = input.ReadString();
             fx.ProjectFile              = input.ReadString();
