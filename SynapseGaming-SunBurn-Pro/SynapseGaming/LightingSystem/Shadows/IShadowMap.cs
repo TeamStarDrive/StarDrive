@@ -60,24 +60,24 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// group, visibility, and quality.
     /// </summary>
     /// <param name="device"></param>
-    /// <param name="scenestate"></param>
-    /// <param name="shadowgroup">Shadow group used as the source for the shadow map.</param>
-    /// <param name="shadowvisibility"></param>
-    /// <param name="shadowquality">Shadow quality from 1.0 (highest) to 0.0 (lowest).</param>
-    void Build(GraphicsDevice device, ISceneState scenestate, ShadowGroup shadowgroup, IShadowMapVisibility shadowvisibility, float shadowquality);
+    /// <param name="sceneState"></param>
+    /// <param name="shadowGroup">Shadow group used as the source for the shadow map.</param>
+    /// <param name="visibility"></param>
+    /// <param name="shadowQuality">Shadow quality from 1.0 (highest) to 0.0 (lowest).</param>
+    void Build(GraphicsDevice device, ISceneState sceneState, ShadowGroup shadowGroup, IShadowMapVisibility visibility, float shadowQuality);
 
     /// <summary>
     /// Sets up the shadow map for rendering shadows to the scene.
     /// </summary>
-    /// <param name="shadowmap"></param>
-    void BeginRendering(Texture shadowmap);
+    /// <param name="shadowMap"></param>
+    void BeginRendering(Texture shadowMap);
 
     /// <summary>
     /// Sets up the shadow map for rendering shadows to the scene.
     /// </summary>
-    /// <param name="shadowmap"></param>
-    /// <param name="shadoweffect">Custom shadow effect used in rendering.</param>
-    void BeginRendering(Texture shadowmap, Effect shadoweffect);
+    /// <param name="shadowMap"></param>
+    /// <param name="shadowFx">Custom shadow effect used in rendering.</param>
+    void BeginRendering(Texture shadowMap, Effect shadowFx);
 
     /// <summary>Finalizes rendering.</summary>
     void EndRendering();
@@ -107,8 +107,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// Sets up the shadow map surface for generating the shadow map depth buffer.
     /// </summary>
     /// <param name="surface">Shadow map surface index.</param>
-    /// <param name="shadoweffect">Custom shadow effect used in rendering.</param>
-    void BeginSurfaceRendering(int surface, Effect shadoweffect);
+    /// <param name="shadowFx">Custom shadow effect used in rendering.</param>
+    void BeginSurfaceRendering(int surface, Effect shadowFx);
 
     /// <summary>Finalizes rendering.</summary>
     void EndSurfaceRendering();

@@ -77,8 +77,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         }
 
         /// <summary>Sets up the object prior to rendering.</summary>
-        /// <param name="scenestate"></param>
-        public virtual void BeginFrameRendering(ISceneState scenestate)
+        /// <param name="state"></param>
+        public virtual void BeginFrameRendering(ISceneState state)
         {
             if (!EnablePostProcess)
                 return;
@@ -86,7 +86,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             if (!PostProcessorsAreCompatible)
                 return;
             for (int i = 0; i < ActivePostProcessors.Count; ++i)
-                ActivePostProcessors[i].BeginFrameRendering(scenestate);
+                ActivePostProcessors[i].BeginFrameRendering(state);
         }
 
         /// <summary>Finalizes rendering and applies all post processing.</summary>

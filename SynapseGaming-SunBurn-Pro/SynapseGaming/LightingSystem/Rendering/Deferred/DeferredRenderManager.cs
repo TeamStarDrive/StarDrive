@@ -120,8 +120,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     /// Deprecated overload which is no longer used in deferred rendering.  This is only maintained
     /// due to the requirement by IRenderableManager.  Calling this method will throw an exception.
     /// </summary>
-    /// <param name="scenestate"></param>
-    public override void BeginFrameRendering(ISceneState scenestate)
+    /// <param name="state"></param>
+    public override void BeginFrameRendering(ISceneState state)
     {
       throw new Exception("This overload not compatible with deferred rendering. Instead use an overload that accepts a DeferredBuffers object.");
     }
@@ -130,9 +130,9 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     /// Builds all object batches, shadow maps, and cached information before rendering.
     /// Any object added to the RenderManager after this call will not be visible during the frame.
     /// </summary>
-    /// <param name="scenestate"></param>
+    /// <param name="state"></param>
     /// <param name="deferredbuffers">Manager containing deferred g-buffers properly sized to the current render target or viewport.</param>
-    public virtual void BeginFrameRendering(ISceneState scenestate, DeferredBuffers deferredbuffers)
+    public virtual void BeginFrameRendering(ISceneState state, DeferredBuffers deferredbuffers)
     {
       GraphicsDevice graphicsDevice = this.GraphicsDeviceManager.GraphicsDevice;
       this.deferredBuffers_0 = deferredbuffers;
@@ -149,8 +149,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       }
       this.class65_0.method_0();
       this.class67_0.Clear();
-      this.deferredBuffers_0.BeginFrameRendering(scenestate);
-      base.BeginFrameRendering(scenestate);
+      this.deferredBuffers_0.BeginFrameRendering(state);
+      base.BeginFrameRendering(state);
       this.list_3.Clear();
       this.list_4.Clear();
       IObjectManager manager1 = (IObjectManager) this.ServiceProvider.GetManager(SceneInterface.ObjectManagerType, false);
@@ -172,7 +172,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
               if (renderableMesh.effect != null)
               {
                 if (renderableMesh.effect is BaseSasBindEffect)
-                  (renderableMesh.effect as BaseSasBindEffect).GameTime = scenestate.GameTime;
+                  (renderableMesh.effect as BaseSasBindEffect).GameTime = state.GameTime;
                 if (this.MaxLoadedMipLevelEnabled)
                 {
                   if (renderableMesh.effect is BasicEffect)

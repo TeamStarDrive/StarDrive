@@ -85,8 +85,8 @@ namespace SynapseGaming.LightingSystem.Effects
 
     internal Dictionary<string, object> Properties { get; } = new Dictionary<string, object>();
 
-      internal ParameteredEffect(GraphicsDevice graphicsDevice_0, Effect effect_0)
-      : base(graphicsDevice_0, effect_0)
+      internal ParameteredEffect(GraphicsDevice device, Effect effect_0)
+      : base(device, effect_0)
     {
       for (int index = 0; index < this.Parameters.Count; ++index)
       {

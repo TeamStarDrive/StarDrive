@@ -10,7 +10,7 @@ using SynapseGaming.LightingSystem.Core;
 
 namespace EmbeddedResources
 {
-  internal interface Interface3
+  internal interface IShadowEffect
   {
     TextureCube ShadowFaceMap { get; set; }
 

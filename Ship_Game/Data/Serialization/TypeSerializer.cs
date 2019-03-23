@@ -8,10 +8,11 @@ using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization
 {
-    public class TypeSerializer
+    public abstract class TypeSerializer
     {
         // Id which is valid in a single serialization context
         internal ushort Id;
+        internal Type Type;
 
         public virtual object Convert(object value)
         {
@@ -27,22 +28,22 @@ namespace Ship_Game.Data.Serialization
             return Convert(value);
         }
 
-        public virtual void Serialize(BinaryWriter writer, int fieldId, object obj)
-        {
-            Log.Error($"Serialize not supported for field[{fieldId}] {ToString()}");
-        }
+        public abstract void Serialize(BinaryWriter writer, object obj);
+        
+        public abstract object Deserialize(BinaryReader reader);
 
-        public virtual object Deserialize(BinaryReader reader)
-        {
-            Log.Error($"Deserialize not supported for {ToString()}");
-            return null;
-        }
-
-        protected void SerializeId(BinaryWriter writer, int fieldId)
+        public static void WriteFieldId(BinaryWriter writer, int fieldId)
         {
             if (fieldId > 255)
                 throw new IndexOutOfRangeException($"TypeSerializer could not handle so many fields: {fieldId} > 255");
             writer.Write((byte)fieldId);
+        }
+
+        public static void WriteSerializerId(BinaryWriter writer, int serializerId)
+        {
+            if (serializerId > ushort.MaxValue)
+                throw new IndexOutOfRangeException($"TypeSerializer could not handle so many serializers: {serializerId} > 65535");
+            writer.Write((ushort)serializerId);
         }
 
         public static void Error(object value, string couldNotConvertToWhat)

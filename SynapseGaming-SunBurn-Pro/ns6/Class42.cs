@@ -32,7 +32,7 @@ namespace EmbeddedResources
     public Texture2D IntensityTexture
     {
       get => this.texture2D_1;
-        set => EffectHelper.SetParam(value, ref this.texture2D_1, this.effectParameter_14);
+        set => EffectHelper.Update(value, ref this.texture2D_1, this.effectParameter_14);
     }
 
     public Class42(GraphicsDevice graphicsdevice)

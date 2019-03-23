@@ -43,7 +43,7 @@ namespace SynapseGaming.LightingSystem.Effects
     /// an alternate point of view (for instance during shadow map and cube map generation).
     /// </summary>
     /// <param name="view">Camera view matrix applied to geometry using this effect.</param>
-    /// <param name="viewtoworld">Camera inverse view matrix applied to geometry using this effect.</param>
-    void SetCameraView(Matrix view, Matrix viewtoworld);
+    /// <param name="viewToWorld">Camera inverse view matrix applied to geometry using this effect.</param>
+    void SetCameraView(in Matrix view, in Matrix viewToWorld);
   }
 }
