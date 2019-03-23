@@ -99,9 +99,9 @@ namespace SDNative
     }
 
     void SDMeshGroup::SetData(Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
-                              const rpp::ushort* indices, int numIndices)
+                              const ushort* indices, int numIndices)
     {
-		Nano::MeshGroup& group = GetGroup();
+		MeshGroup& group = GetGroup();
         Matrix4 transform = Transform.inverse();
         if (vertices)
         {
@@ -265,7 +265,7 @@ namespace SDNative
         group->SetData(vertices, normals, coords, numVertices, indices, numIndices);
     }
 
-    DLLAPI(void) SDMeshGroupSetMaterial(
+    DLLAPI(SDMaterial*) SDMeshGroupSetMaterial(
                     SDMeshGroup* group, 
                     const wchar_t* name, 
                     const wchar_t* materialFile, 
@@ -294,6 +294,33 @@ namespace SDNative
         mat.EmissiveColor = emissiveColor;
         mat.Specular      = specular;
         mat.Alpha         = alpha;
+
+		// update the Reflected SDMaterial view
+		group->Mat = SDMaterial{group->GetGroup().Mat};
+		return &group->Mat;
+    }
+
+	DLLAPI(void) SDMeshGroupSetExistingMaterial(SDMeshGroup* group, SDMaterial* material)
+    {
+		shared_ptr<Nano::Material> existingMat;
+
+		// find the existing material
+		for (int i = 0; i < group->TheMesh.NumGroups; ++i)
+		{
+			SDMeshGroup* materialOwner = group->TheMesh.GetGroup(i);
+			if (materialOwner != group && material == &materialOwner->Mat)
+		    {
+			    existingMat = materialOwner->GetGroup().Mat;
+				break;
+		    }
+		}
+
+		if (existingMat)
+		{
+			// update the underlying material and also the Reflected SDMaterial view
+			group->GetGroup().Mat = existingMat;
+			group->Mat = SDMaterial{existingMat};
+		}
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
