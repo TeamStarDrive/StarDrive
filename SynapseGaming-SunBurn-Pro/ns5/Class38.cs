@@ -16,7 +16,7 @@ using SynapseGaming.LightingSystem.Shadows;
 
 namespace ns5
 {
-    internal class Class38 : BaseRenderableEffect, Interface2, ILightingEffect, Interface3
+    internal class Class38 : BaseRenderableEffect, Interface2, ILightingEffect, IShadowEffect
     {
         private static Matrix[] matrix_10 = new Matrix[3];
         private static Vector4[] vector4_7 = new Vector4[3];
@@ -69,17 +69,17 @@ namespace ns5
             get => texture2D_0;
             set
             {
-                EffectHelper.SetParam(value, ref texture2D_0, effectParameter_13);
+                EffectHelper.Update(value, ref texture2D_0, effectParameter_13);
                 if (effectParameter_12 == null || texture2D_0 == null)
                     return;
-                EffectHelper.smethod_7(new Vector2(texture2D_0.Width, texture2D_0.Height), ref vector2_0, ref effectParameter_12);
+                EffectHelper.Update(new Vector2(texture2D_0.Width, texture2D_0.Height), ref vector2_0, ref effectParameter_12);
             }
         }
 
         public Texture2D SceneNormalSpecularMap
         {
             get => texture2D_1;
-            set => EffectHelper.SetParam(value, ref texture2D_1, effectParameter_14);
+            set => EffectHelper.Update(value, ref texture2D_1, effectParameter_14);
         }
 
         public int MaxLightSources => 10;
@@ -96,13 +96,13 @@ namespace ns5
         public float LightGroupDebugAmount
         {
             get => float_1;
-            set => EffectHelper.smethod_6(value, ref float_1, ref effectParameter_16);
+            set => EffectHelper.Update(value, ref float_1, ref effectParameter_16);
         }
 
         public Texture2D MicrofacetTexture
         {
             get => texture2D_2;
-            set => EffectHelper.SetParam(value, ref texture2D_2, effectParameter_15);
+            set => EffectHelper.Update(value, ref texture2D_2, effectParameter_15);
         }
 
         public TextureCube ShadowFaceMap
@@ -141,7 +141,7 @@ namespace ns5
             set
             {
                 value.W = Math.Min(value.Z * 0.99f, value.W);
-                EffectHelper.smethod_3(value, ref vector4_5, ref effectParameter_27);
+                EffectHelper.Update(value, ref vector4_5, ref effectParameter_27);
             }
         }
 
@@ -218,7 +218,7 @@ namespace ns5
 
         public BoundingSphere WorldClippingSphere
         {
-            set => EffectHelper.smethod_3(new Vector4(value.Center, value.Radius), ref vector4_4, ref effectParameter_11);
+            set => EffectHelper.Update(new Vector4(value.Center, value.Radius), ref vector4_4, ref effectParameter_11);
         }
 
         internal static int MaxLightSourcesInternal => 10;
@@ -262,7 +262,7 @@ namespace ns5
                 effectParameter_23.SetValue(shadowmap.Width);
                 float_2 = shadowmap.Width;
             }
-            EffectHelper.SetParam(shadowmap, ref texture2D_3, effectParameter_24);
+            EffectHelper.Update(shadowmap, ref texture2D_3, effectParameter_24);
             enum5_0 = type;
             method_3();
         }

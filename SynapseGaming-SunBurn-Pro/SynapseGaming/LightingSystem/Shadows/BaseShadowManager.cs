@@ -47,10 +47,10 @@ namespace SynapseGaming.LightingSystem.Shadows
         /// <summary>
         /// Sets up frame information necessary for scene shadowing.
         /// </summary>
-        public virtual void BeginFrameRendering(ISceneState scenestate)
+        public virtual void BeginFrameRendering(ISceneState state)
         {
             //SplashScreen.CheckProductActivation();
-            SceneState = scenestate;
+            SceneState = state;
         }
 
         /// <summary>Cleans up frame information.</summary>
