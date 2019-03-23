@@ -616,23 +616,17 @@ namespace Ship_Game
         //////////////////////////////////////////////////////////////////////////////////////////
 
 
-        private static int SubmeshCount(int maxSubmeshes, int meshSubmeshCount)
+        static int SubmeshCount(int maxSubmeshes, int meshSubmeshCount)
         {
             return maxSubmeshes == 0 ? meshSubmeshCount : Math.Min(maxSubmeshes, meshSubmeshCount);
         }
 
-
-
-        private static SceneObject DynamicObject(string modelName)
+        static SceneObject DynamicObject(string modelName)
         {
-            return new SceneObject(modelName)
-            {
-                ObjectType = ObjectType.Dynamic
-            };
-
+            return new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
         }
 
-        private static SceneObject SceneObjectFromStaticMesh(GameContentManager content, string modelName, int maxSubmeshes = 0)
+        static SceneObject SceneObjectFromStaticMesh(GameContentManager content, string modelName, int maxSubmeshes = 0)
         {
             StaticMesh staticMesh = content.LoadStaticMesh(modelName);
             if (staticMesh == null)
@@ -645,8 +639,7 @@ namespace Ship_Game
             {
                 MeshData mesh = staticMesh.Meshes[i];
 
-                var renderable = new RenderableMesh(
-                    so,
+                var renderable = new RenderableMesh(so,
                     mesh.Effect,
                     mesh.MeshToObject,
                     mesh.ObjectSpaceBoundingSphere,
@@ -662,7 +655,7 @@ namespace Ship_Game
             return so;
         }
 
-        private static SceneObject SceneObjectFromModel(GameContentManager content, string modelName, int maxSubmeshes = 0)
+        static SceneObject SceneObjectFromModel(GameContentManager content, string modelName, int maxSubmeshes = 0)
         {
             Model model = content.LoadModel(modelName);
             if (model == null)
@@ -678,7 +671,7 @@ namespace Ship_Game
             return so;
         }
 
-        private static SceneObject SceneObjectFromSkinnedModel(GameContentManager content, string modelName)
+        static SceneObject SceneObjectFromSkinnedModel(GameContentManager content, string modelName)
         {
             SkinnedModel skinned = content.LoadSkinnedModel(modelName);
             if (skinned == null)

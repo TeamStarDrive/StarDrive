@@ -26,16 +26,18 @@ namespace SynapseGaming.LightingSystem.Effects
     {
         /// <summary />
         protected List<ILight> _LightSources = new List<ILight>();
-        private float float_1 = 0.5f;
-        private bool bool_3;
-        private TransparencyMode transparencyMode_0;
-        private Texture3D texture3D_0;
+
+        float float_1 = 0.5f;
+        bool bool_3;
+        TransparencyMode transparencyMode_0;
+        Texture3D texture3D_0;
         /// <summary />
         protected Texture2D _NormalMapTexture;
         /// <summary />
         protected Texture2D _DiffuseMapTexture;
-        private Texture2D texture2D_0;
-        private Texture2D texture2D_1;
+
+        Texture2D texture2D_0;
+        Texture2D texture2D_1;
         /// <summary />
         protected Texture2D _EmissiveMapTexture;
         /// <summary />
@@ -46,13 +48,14 @@ namespace SynapseGaming.LightingSystem.Effects
         protected Texture2D _DefaultDiffuseMapTexture;
         /// <summary />
         protected Texture2D _DefaultNormalMapTexture;
-        private Texture2D texture2D_2;
-        private EffectParameter effectParameter_12;
-        private EffectParameter effectParameter_13;
-        private EffectParameter effectParameter_14;
-        private EffectParameter effectParameter_15;
-        private EffectParameter effectParameter_16;
-        private EffectParameter effectParameter_17;
+
+        Texture2D texture2D_2;
+        EffectParameter effectParameter_12;
+        EffectParameter effectParameter_13;
+        EffectParameter effectParameter_14;
+        EffectParameter effectParameter_15;
+        EffectParameter effectParameter_16;
+        EffectParameter effectParameter_17;
         /// <summary />
         protected EffectParameter _DiffuseColorIndirectParam;
         /// <summary />
@@ -65,16 +68,17 @@ namespace SynapseGaming.LightingSystem.Effects
         protected Vector4 _DiffuseColorCached;
         /// <summary />
         protected Vector4 _EmissiveColor;
-        private EffectParameter effectParameter_18;
-        private float float_2;
-        private float float_3;
-        private EffectParameter effectParameter_19;
-        private float float_4;
-        private float float_5;
-        private float float_6;
-        private Vector4 vector4_0;
-        private EffectParameter effectParameter_20;
-        private EffectParameter effectParameter_21;
+
+        EffectParameter effectParameter_18;
+        float float_2;
+        float float_3;
+        EffectParameter effectParameter_19;
+        float float_4;
+        float float_5;
+        float float_6;
+        Vector4 vector4_0;
+        EffectParameter effectParameter_20;
+        EffectParameter effectParameter_21;
 
         /// <summary>
         /// Notifies the editor that this object is partially controlled via code. The editor
@@ -177,7 +181,7 @@ namespace SynapseGaming.LightingSystem.Effects
             get => texture2D_1;
             set
             {
-                EffectHelper.SetParam(value, ref texture2D_1, effectParameter_14);
+                EffectHelper.Update(value, ref texture2D_1, effectParameter_14);
                 SetTechnique();
             }
         }
@@ -193,7 +197,7 @@ namespace SynapseGaming.LightingSystem.Effects
             get => _EmissiveMapTexture;
             set
             {
-                EffectHelper.SetParam(value, ref _EmissiveMapTexture, effectParameter_15);
+                EffectHelper.Update(value, ref _EmissiveMapTexture, effectParameter_15);
                 SetTechnique();
             }
         }
@@ -210,7 +214,7 @@ namespace SynapseGaming.LightingSystem.Effects
             get => _SpecularColorMapTexture;
             set
             {
-                EffectHelper.SetParam(value ?? texture2D_2, ref _SpecularColorMapTexture, effectParameter_16);
+                EffectHelper.Update(value ?? texture2D_2, ref _SpecularColorMapTexture, effectParameter_16);
                 SetTechnique();
             }
         }
@@ -226,7 +230,7 @@ namespace SynapseGaming.LightingSystem.Effects
             get => _ParallaxMapTexture;
             set
             {
-                EffectHelper.SetParam(value, ref _ParallaxMapTexture, effectParameter_17);
+                EffectHelper.Update(value, ref _ParallaxMapTexture, effectParameter_17);
                 SetTechnique();
             }
         }
@@ -248,7 +252,7 @@ namespace SynapseGaming.LightingSystem.Effects
         public Vector3 EmissiveColor
         {
             get => new Vector3(_EmissiveColor.X, _EmissiveColor.Y, _EmissiveColor.Z);
-            set => EffectHelper.smethod_3(new Vector4(value.X, value.Y, value.Z, 1f), ref _EmissiveColor, ref effectParameter_18);
+            set => EffectHelper.Update(new Vector4(value.X, value.Y, value.Z, 1f), ref _EmissiveColor, ref effectParameter_18);
         }
 
         /// <summary>
@@ -334,7 +338,7 @@ namespace SynapseGaming.LightingSystem.Effects
         public float ParallaxScale
         {
             get => vector4_0.X;
-            set => EffectHelper.smethod_3(new Vector4(value, vector4_0.Y, vector4_0.Z, vector4_0.W), ref vector4_0, ref effectParameter_21);
+            set => EffectHelper.Update(new Vector4(value, vector4_0.Y, vector4_0.Z, vector4_0.W), ref vector4_0, ref effectParameter_21);
         }
 
         /// <summary>
@@ -345,7 +349,7 @@ namespace SynapseGaming.LightingSystem.Effects
         public float ParallaxOffset
         {
             get => vector4_0.Y;
-            set => EffectHelper.smethod_3(new Vector4(vector4_0.X, value, vector4_0.Z, vector4_0.W), ref vector4_0, ref effectParameter_21);
+            set => EffectHelper.Update(new Vector4(vector4_0.X, value, vector4_0.Z, vector4_0.W), ref vector4_0, ref effectParameter_21);
         }
 
         /// <summary>
@@ -418,22 +422,20 @@ namespace SynapseGaming.LightingSystem.Effects
         }
 
         /// <summary>Creates a new BaseMaterialEffect instance.</summary>
-        /// <param name="graphicsdevice"></param>
-        /// <param name="effectname"></param>
-        public BaseMaterialEffect(GraphicsDevice graphicsdevice, string effectname)
-            : base(graphicsdevice, effectname)
+        /// <param name="device"></param>
+        /// <param name="effectName"></param>
+        protected BaseMaterialEffect(GraphicsDevice device, string effectName) : base(device, effectName)
         {
-            method_4(graphicsdevice, true);
+            InitializeParameters(device, true);
         }
 
         /// <summary>Creates a new BaseMaterialEffect instance.</summary>
-        /// <param name="graphicsdevice"></param>
-        /// <param name="effectname"></param>
-        /// <param name="trackeffect"></param>
-        internal BaseMaterialEffect(GraphicsDevice device, string string_9, bool bool_5)
-            : base(device, string_9)
+        /// <param name="device"></param>
+        /// <param name="effectName"></param>
+        /// <param name="trackEffect"></param>
+        internal BaseMaterialEffect(GraphicsDevice device, string effectName, bool trackEffect) : base(device, effectName)
         {
-            method_4(device, bool_5);
+            InitializeParameters(device, trackEffect);
         }
 
         /// <summary>Returns the texture at a specific index.</summary>
@@ -441,19 +443,16 @@ namespace SynapseGaming.LightingSystem.Effects
         /// <returns></returns>
         public Texture GetTexture(int index)
         {
-            if (index == 0)
-                return _DiffuseMapTexture;
-            if (index == 1)
-                return _NormalMapTexture;
-            if (index == 2)
-                return texture2D_1;
-            if (index == 3)
-                return _SpecularColorMapTexture;
-            if (index == 4)
-                return _ParallaxMapTexture;
-            if (index == 5)
-                return _EmissiveMapTexture;
-            return null;
+            switch (index)
+            {
+                case 0: return _DiffuseMapTexture;
+                case 1: return _NormalMapTexture;
+                case 2: return texture2D_1;
+                case 3: return _SpecularColorMapTexture;
+                case 4: return _ParallaxMapTexture;
+                case 5: return _EmissiveMapTexture;
+                default: return null;
+            }
         }
 
         /// <summary>
@@ -492,23 +491,23 @@ namespace SynapseGaming.LightingSystem.Effects
             _DiffuseColorOriginal = diffusecolor;
             if (diffusemap != null && diffusemap != _DefaultDiffuseMapTexture)
             {
-                EffectHelper.SetParam(diffusemap, ref _DiffuseMapTexture, _DiffuseMapTextureIndirectParam);
-                EffectHelper.smethod_3(Vector4.One, ref _DiffuseColorCached, ref _DiffuseColorIndirectParam);
+                EffectHelper.Update(diffusemap, ref _DiffuseMapTexture, _DiffuseMapTextureIndirectParam);
+                EffectHelper.Update(Vector4.One, ref _DiffuseColorCached, ref _DiffuseColorIndirectParam);
             }
             else
             {
-                EffectHelper.SetParam(_DefaultDiffuseMapTexture, ref _DiffuseMapTexture, _DiffuseMapTextureIndirectParam);
-                EffectHelper.smethod_3(diffusecolor, ref _DiffuseColorCached, ref _DiffuseColorIndirectParam);
+                EffectHelper.Update(_DefaultDiffuseMapTexture, ref _DiffuseMapTexture, _DiffuseMapTextureIndirectParam);
+                EffectHelper.Update(diffusecolor, ref _DiffuseColorCached, ref _DiffuseColorIndirectParam);
             }
             if (normalmap != null && normalmap != _DefaultNormalMapTexture)
-                EffectHelper.SetParam(normalmap, ref _NormalMapTexture, _NormalMapTextureIndirectParam);
+                EffectHelper.Update(normalmap, ref _NormalMapTexture, _NormalMapTextureIndirectParam);
             else if (float_3 > 0.0 && float_2 > 0.0)
-                EffectHelper.SetParam(_DefaultNormalMapTexture, ref _NormalMapTexture, _NormalMapTextureIndirectParam);
+                EffectHelper.Update(_DefaultNormalMapTexture, ref _NormalMapTexture, _NormalMapTextureIndirectParam);
             else
-                EffectHelper.SetParam(null, ref _NormalMapTexture, _NormalMapTextureIndirectParam);
+                EffectHelper.Update(null, ref _NormalMapTexture, _NormalMapTextureIndirectParam);
         }
 
-        private void method_2(float float_7, float float_8)
+        void method_2(float float_7, float float_8)
         {
             if (float_2 == (double) float_7 && float_3 == (double) float_8 || effectParameter_19 == null)
                 return;
@@ -520,7 +519,7 @@ namespace SynapseGaming.LightingSystem.Effects
                 effectParameter_19.SetValue(new Vector4(10000f, 0.0f, 0.0f, 0.0f));
         }
 
-        private void method_3(float float_7, float float_8, float float_9)
+        void method_3(float float_7, float float_8, float float_9)
         {
             if (float_4 == (double) float_7 && float_5 == (double) float_8 && float_6 == (double) float_9 || effectParameter_20 == null)
                 return;
@@ -573,7 +572,7 @@ namespace SynapseGaming.LightingSystem.Effects
                     TechniquNames.Enum4 enum4_0 = TechniquNames.Enum4.Diffuse;
                     bool flag6 = _SpecularColorMapTexture != null && _SpecularColorMapTexture != texture2D_2;
                     if (_NormalMapTexture != null)
-                        enum4_0 = !flag4 || _ParallaxMapTexture == null ? (!flag5 || (double)float_2 <= 0.0 || (double)float_3 <= 0.0 ? TechniquNames.Enum4.DiffuseBump : (!flag3 || (double)float_4 <= 0.0 || (double)float_5 <= 0.0 ? (!flag6 ? TechniquNames.Enum4.DiffuseBumpSpecular : TechniquNames.Enum4.DiffuseBumpSpecularColor) : (!flag6 ? TechniquNames.Enum4.DiffuseBumpFresnel : TechniquNames.Enum4.DiffuseBumpFresnelColor))) : (!flag5 || (double)float_2 <= 0.0 || (double)float_3 <= 0.0 ? TechniquNames.Enum4.DiffuseParallax : (!flag3 || (double)float_4 <= 0.0 || (double)float_5 <= 0.0 ? (!flag6 ? TechniquNames.Enum4.DiffuseParallaxSpecular : TechniquNames.Enum4.DiffuseParallaxSpecularColor) : (!flag6 ? TechniquNames.Enum4.DiffuseParallaxFresnel : TechniquNames.Enum4.DiffuseParallaxFresnelColor)));
+                        enum4_0 = !flag4 || _ParallaxMapTexture == null ? (!flag5 || float_2 <= 0f || float_3 <= 0f ? TechniquNames.Enum4.DiffuseBump : (!flag3 || (double)float_4 <= 0.0 || (double)float_5 <= 0.0 ? (!flag6 ? TechniquNames.Enum4.DiffuseBumpSpecular : TechniquNames.Enum4.DiffuseBumpSpecularColor) : (!flag6 ? TechniquNames.Enum4.DiffuseBumpFresnel : TechniquNames.Enum4.DiffuseBumpFresnelColor))) : (!flag5 || (double)float_2 <= 0.0 || (double)float_3 <= 0.0 ? TechniquNames.Enum4.DiffuseParallax : (!flag3 || (double)float_4 <= 0.0 || (double)float_5 <= 0.0 ? (!flag6 ? TechniquNames.Enum4.DiffuseParallaxSpecular : TechniquNames.Enum4.DiffuseParallaxSpecularColor) : (!flag6 ? TechniquNames.Enum4.DiffuseParallaxFresnel : TechniquNames.Enum4.DiffuseParallaxFresnelColor)));
                     CurrentTechnique = Techniques[TechniquNames.Get(TechniquNames.Enum3.Lighting, enum4_0, int_0, bool_0, false, Skinned, false)];
                 }
             }
@@ -581,7 +580,7 @@ namespace SynapseGaming.LightingSystem.Effects
                 CurrentTechnique = Techniques[TechniquNames.Get(TechniquNames.Enum3.Lighting, TechniquNames.Enum4.DiffuseAmbientEmissive, 1, false, false, Skinned, false)];
         }
 
-        private void method_4(GraphicsDevice graphicsDevice_0, bool bool_5)
+        void InitializeParameters(GraphicsDevice graphicsDevice_0, bool trackeffect)
         {
             bool_3 = LightingSystemManager.Instance.GetGraphicsDeviceSupport(graphicsDevice_0).PixelShaderMajorVersion >= 3;
             effectParameter_19 = Parameters["_SpecularPower_And_Amount"];
@@ -618,9 +617,8 @@ namespace SynapseGaming.LightingSystem.Effects
             EmissiveMapFile = string.Empty;
             SpecularColorMapFile = string.Empty;
             ParallaxMapFile = string.Empty;
-            if (!bool_5)
-                return;
-            LightingSystemEditor.OnCreateResource(this);
+            if (trackeffect)
+                LightingSystemEditor.OnCreateResource(this);
         }
 
         /// <summary>
