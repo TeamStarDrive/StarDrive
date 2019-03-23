@@ -52,7 +52,7 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     /// <param name="world">World matrix applied to geometry using this effect.</param>
     /// <param name="worldtoobj">Inverse world matrix applied to geometry using this effect.</param>
-    void SetWorldAndWorldToObject(Matrix world, Matrix worldtoobj);
+    void SetWorldAndWorldToObject(Matrix world, in Matrix worldtoobj);
 
     /// <summary>
     /// Used internally by SunBurn - not recommended for external use.
