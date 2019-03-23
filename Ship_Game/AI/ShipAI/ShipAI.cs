@@ -13,7 +13,6 @@ namespace Ship_Game.AI
         Planet AwaitClosest;
         Planet PatrolTarget;
         Vector2 OrbitPos;
-        float FindNewPosTimer;
         float UtilityModuleCheckTimer;
         SolarSystem SystemToPatrol;
         readonly Array<Planet> PatrolRoute = new Array<Planet>();

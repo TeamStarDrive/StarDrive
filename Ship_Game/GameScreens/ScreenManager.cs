@@ -63,9 +63,9 @@ namespace Ship_Game
             SceneInter.AddManager(editor);
         }
 
-        public void UpdatePreferences(LightingSystemPreferences prefs)
+        public void UpdatePreferences(LightingSystemPreferences preferences)
         {
-            SceneInter.ApplyPreferences(prefs);
+            SceneInter.ApplyPreferences(preferences);
         }
 
         public void UpdateViewports()

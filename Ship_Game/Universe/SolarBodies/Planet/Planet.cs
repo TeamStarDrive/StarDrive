@@ -210,6 +210,25 @@ namespace Ship_Game
         // added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb) => GeodeticManager.DropBomb(bomb);
 
+        public void ApplyBombEnvEffects(float amount) // added by Fat Bastard
+        {
+            Population -= 1000f * amount;
+            AddFertility(amount * -0.5f);
+            if (Fertility > 0 || !RandomMath.RollDice(amount * 250))
+                return; // environment suffers only temp damage
+
+            // permanent damage to Max Fertility and possibly changing planet type
+            AddMaxFertility(-0.02f);
+            bool degraded = DegradePlanetType(MaxFertility);
+            if (degraded || Owner != null && Owner.isPlayer)
+            {
+                // Notify player that planet was degraded
+                string notificationText = Name + " " + Localizer.Token(1973);
+                Empire.Universe.NotificationManager.AddRandomEventNotification(
+                    notificationText, Type.IconPath, "SnapToPlanet", this);
+            }
+        }
+
         public void Update(float elapsedTime)
         {
             RefreshOrbitalStations();

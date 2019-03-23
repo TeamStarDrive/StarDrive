@@ -135,29 +135,29 @@ namespace SynapseGaming.LightingSystem.Core
         }
 
         /// <summary>Sets up the object prior to rendering.</summary>
-        /// <param name="scenestate"></param>
-        public void BeginFrameRendering(ISceneState scenestate)
+        /// <param name="state"></param>
+        public void BeginFrameRendering(ISceneState state)
         {
             if (this.targetType_0 != TargetType.Standard)
                 throw new Exception("Non standard targets require a world reflection plane, please use another overload for this method.");
-            this.BeginFrameRendering(scenestate, this.plane_0);
+            this.BeginFrameRendering(state, this.plane_0);
         }
 
         /// <summary>Sets up the object prior to rendering.</summary>
-        /// <param name="scenestate"></param>
+        /// <param name="state"></param>
         /// <param name="worldreflectionplane">World space plane used as the reflection surface.</param>
-        public void BeginFrameRendering(ISceneState scenestate, Plane worldreflectionplane)
+        public void BeginFrameRendering(ISceneState state, Plane worldreflectionplane)
         {
-            this.BeginFrameRendering(scenestate, worldreflectionplane, worldreflectionplane);
+            this.BeginFrameRendering(state, worldreflectionplane, worldreflectionplane);
         }
 
         /// <summary>Sets up the object prior to rendering.</summary>
-        /// <param name="scenestate"></param>
+        /// <param name="state"></param>
         /// <param name="worldreflectionplane">World space plane used as the reflection surface.</param>
         /// <param name="worldclippingplane">World space plane used for object clipping.  This is normally
         /// the reflection plane, however providing a separate adjusted clipping plane can help remove artifacts
         /// where objects and the reflection surface intersect.</param>
-        public void BeginFrameRendering(ISceneState scenestate, Plane worldreflectionplane, Plane worldclippingplane)
+        public void BeginFrameRendering(ISceneState state, Plane worldreflectionplane, Plane worldclippingplane)
         {
             GraphicsDevice graphicsDevice = this.GraphicsDeviceManager.GraphicsDevice;
             if (this.renderTarget2D_0 == null)
@@ -188,31 +188,31 @@ namespace SynapseGaming.LightingSystem.Core
             graphicsDevice.Viewport = this.viewport_0;
             if (this.targetType_0 != TargetType.Standard)
             {
-                if (worldclippingplane.DotCoordinate(scenestate.ViewToWorld.Translation) > 0.0)
+                if (worldclippingplane.DotCoordinate(state.ViewToWorld.Translation) > 0.0)
                 {
                     worldclippingplane.Normal *= -1f;
                     worldclippingplane.D *= -1f;
                 }
-                Plane plane = Plane.Transform(worldclippingplane, scenestate.ViewProjection);
+                Plane plane = Plane.Transform(worldclippingplane, state.ViewProjection);
                 graphicsDevice.ClipPlanes[0].Plane = plane;
                 graphicsDevice.ClipPlanes[0].IsEnabled = true;
             }
             if (this.targetType_0 != TargetType.Reflection)
             {
-                Matrix view = scenestate.View;
+                Matrix view = state.View;
                 Matrix projection = SceneState.Projection;
-                this.sceneState_0.BeginFrameRendering(ref view, ref projection, scenestate.GameTime, scenestate.Environment, scenestate.RenderingToScreen);
+                this.sceneState_0.BeginFrameRendering(ref view, ref projection, state.GameTime, state.Environment, state.RenderingToScreen);
             }
             else
             {
-                if (worldreflectionplane.DotCoordinate(scenestate.ViewToWorld.Translation) > 0.0)
+                if (worldreflectionplane.DotCoordinate(state.ViewToWorld.Translation) > 0.0)
                 {
                     worldreflectionplane.Normal *= -1f;
                     worldreflectionplane.D *= -1f;
                 }
-                Matrix view = Matrix.CreateReflection(worldreflectionplane) * scenestate.View;
+                Matrix view = Matrix.CreateReflection(worldreflectionplane) * state.View;
                 Matrix projection = SceneState.Projection;
-                this.sceneState_0.BeginFrameRendering(ref view, ref projection, scenestate.GameTime, scenestate.Environment, scenestate.RenderingToScreen);
+                this.sceneState_0.BeginFrameRendering(ref view, ref projection, state.GameTime, state.Environment, state.RenderingToScreen);
             }
         }
 
