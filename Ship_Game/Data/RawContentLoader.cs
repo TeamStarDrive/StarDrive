@@ -123,13 +123,13 @@ namespace Ship_Game
             public readonly CStrView Name;
             public readonly int NumGroups;
             public readonly int NumFaces;
+            public readonly int NumMaterials;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         struct SDMaterial
         {
             public readonly CStrView Name; // name of the material instance
-            public readonly CStrView MaterialFile;
             public readonly CStrView DiffusePath;
             public readonly CStrView AlphaPath;
             public readonly CStrView SpecularPath;
@@ -158,7 +158,7 @@ namespace Ship_Game
         {
             public readonly int GroupId;
             public readonly CStrView Name;
-            public readonly SDMaterial Mat;
+            public readonly SDMaterial* Mat;
             public readonly int NumTriangles;
             public readonly int NumVertices;
             public readonly int NumIndices;
@@ -189,18 +189,20 @@ namespace Ship_Game
                 return buf;
             }
 
-            public LightingEffect CreateMaterialEffect(GraphicsDevice device, GameContentManager content)
+            public LightingEffect CreateMaterialEffect(GraphicsDevice device, GameContentManager content, string materialFile)
             {
                 var fx = new LightingEffect(device);
-                fx.MaterialName             = Mat.Name.AsString;
-                fx.MaterialFile             = Mat.MaterialFile.AsString;
-                fx.ProjectFile              = "Ship_Game/Data/RawContentLoader.cs";
-                fx.DiffuseMapFile           = Mat.DiffusePath.AsString;
-                fx.EmissiveMapFile          = Mat.EmissivePath.AsString;
-                fx.NormalMapFile            = Mat.NormalPath.AsString;
-                fx.SpecularColorMapFile     = Mat.SpecularPath.AsString;
-                fx.DiffuseAmbientMapFile    = "";
-                fx.ParallaxMapFile          = "";
+                if (Mat == null)
+                    return fx;
+                fx.MaterialName          = Mat->Name.AsString;
+                fx.MaterialFile          = materialFile;
+                fx.ProjectFile           = "Ship_Game/Data/RawContentLoader.cs";
+                fx.DiffuseMapFile        = Mat->DiffusePath.AsString;
+                fx.EmissiveMapFile       = Mat->EmissivePath.AsString;
+                fx.NormalMapFile         = Mat->NormalPath.AsString;
+                fx.SpecularColorMapFile  = Mat->SpecularPath.AsString;
+                fx.DiffuseAmbientMapFile = "";
+                fx.ParallaxMapFile       = "";
                 if (fx.DiffuseMapFile.NotEmpty())        fx.DiffuseMapTexture        = content.Load<Texture2D>(fx.DiffuseMapFile);
                 if (fx.EmissiveMapFile.NotEmpty())       fx.EmissiveMapTexture       = content.Load<Texture2D>(fx.EmissiveMapFile);
                 if (fx.NormalMapFile.NotEmpty())         fx.NormalMapTexture         = content.Load<Texture2D>(fx.NormalMapFile);
@@ -210,20 +212,20 @@ namespace Ship_Game
                 fx.Skinned         = false;
                 fx.DoubleSided     = false;
 
-                Texture2D alphaMap = Mat.AlphaPath.NotEmpty
-                    ? content.Load<Texture2D>(Mat.AlphaPath.AsString)
+                Texture2D alphaMap = Mat->AlphaPath.NotEmpty
+                    ? content.Load<Texture2D>(Mat->AlphaPath.AsString)
                     : fx.DiffuseMapTexture;
 
-                fx.SetTransparencyModeAndMap(TransparencyMode.None, Mat.Alpha, alphaMap);
-                fx.SpecularPower                 = 14.0f * Mat.Specular;
-                fx.SpecularAmount                = 6.0f * Mat.Specular;
+                fx.SetTransparencyModeAndMap(TransparencyMode.None, Mat->Alpha, alphaMap);
+                fx.SpecularPower                 = 14.0f * Mat->Specular;
+                fx.SpecularAmount                = 6.0f * Mat->Specular;
                 fx.FresnelReflectBias            = 0.0f;
                 fx.FresnelReflectOffset          = 0.0f;
                 fx.FresnelMicrofacetDistribution = 0.0f;
                 fx.ParallaxScale                 = 0.0f;
                 fx.ParallaxOffset                = 0.0f;
-                fx.DiffuseColor  = Mat.DiffuseColor;
-                fx.EmissiveColor = Mat.EmissiveColor;
+                fx.DiffuseColor  = Mat->DiffuseColor;
+                fx.EmissiveColor = Mat->EmissiveColor;
                 fx.AddressModeU  = TextureAddressMode.Wrap;
                 fx.AddressModeV  = TextureAddressMode.Wrap;
                 fx.AddressModeW  = TextureAddressMode.Wrap;
@@ -232,7 +234,7 @@ namespace Ship_Game
         }
 
         [DllImport("SDNative.dll")] static extern unsafe
-            SDMesh* SDMeshOpen([MarshalAs(UnmanagedType.LPWStr)] string filename);
+            SDMesh* SDMeshOpen([MarshalAs(UnmanagedType.LPWStr)] string fileName);
 
         [DllImport("SDNative.dll")] static extern unsafe
             void SDMeshClose(SDMesh* mesh);
@@ -241,14 +243,14 @@ namespace Ship_Game
             SDMeshGroup* SDMeshGetGroup(SDMesh* mesh, int groupId);
 
         [DllImport("SDNative.dll")] static extern unsafe
-            SDMesh* SDMeshCreateEmpty([MarshalAs(UnmanagedType.LPWStr)] string meshname);
+            SDMesh* SDMeshCreateEmpty([MarshalAs(UnmanagedType.LPWStr)] string meshName);
 
         [DllImport("SDNative.dll")] static extern unsafe
-            bool SDMeshSave(SDMesh* mesh, [MarshalAs(UnmanagedType.LPWStr)] string filename);
+            bool SDMeshSave(SDMesh* mesh, [MarshalAs(UnmanagedType.LPWStr)] string fileName);
 
         [DllImport("SDNative.dll")] static extern unsafe
             SDMeshGroup* SDMeshNewGroup(SDMesh* mesh, 
-                [MarshalAs(UnmanagedType.LPWStr)] string groupname,
+                [MarshalAs(UnmanagedType.LPWStr)] string groupName,
                 Matrix* transform);
 
         [DllImport("SDNative.dll")] static extern unsafe
@@ -296,26 +298,26 @@ namespace Ship_Game
 
         unsafe StaticMesh StaticMeshFromFile(string modelName)
         {
-            SDMesh* sdmesh = null;
+            SDMesh* mesh = null;
             try
             {
                 string meshPath = GetContentPath(modelName);
-                sdmesh = SDMeshOpen(meshPath);
-                if (sdmesh == null)
+                mesh = SDMeshOpen(meshPath);
+                if (mesh == null)
                 {
                     if (!File.Exists(meshPath))
                         throw new InvalidDataException($"Failed to load mesh '{meshPath}' because the file does not exist!");
                     throw new InvalidDataException($"Failed to load mesh '{meshPath}' because the data format is invalid!");
                 }
 
-                Log.Info(ConsoleColor.Green, $"SDStaticMesh {sdmesh->Name} | faces:{sdmesh->NumFaces} | groups:{sdmesh->NumGroups}");
+                Log.Info(ConsoleColor.Green, $"SDStaticMesh {mesh->Name} | faces:{mesh->NumFaces} | groups:{mesh->NumGroups}");
 
                 GraphicsDevice device = Device;
-                var staticMesh = new StaticMesh { Name = sdmesh->Name.AsString };
+                var staticMesh = new StaticMesh { Name = mesh->Name.AsString };
 
-                for (int i = 0; i < sdmesh->NumGroups; ++i)
+                for (int i = 0; i < mesh->NumGroups; ++i)
                 {
-                    SDMeshGroup* g = SDMeshGetGroup(sdmesh, i);
+                    SDMeshGroup* g = SDMeshGetGroup(mesh, i);
                     if (g->NumVertices == 0 || g->NumIndices == 0)
                         continue;
 
@@ -324,7 +326,7 @@ namespace Ship_Game
                     var meshData = new MeshData
                     {
                         Name                      = g->Name.AsString,
-                        Effect                    = g->CreateMaterialEffect(device, Content),
+                        Effect                    = g->CreateMaterialEffect(device, Content, modelName),
                         ObjectSpaceBoundingSphere = g->Bounds,
                         IndexBuffer               = g->CopyIndices(device),
                         VertexBuffer              = g->CopyVertices(device),
@@ -345,7 +347,7 @@ namespace Ship_Game
             }
             finally
             {
-                SDMeshClose(sdmesh);
+                SDMeshClose(mesh);
             }
         }
 
@@ -370,9 +372,18 @@ namespace Ship_Game
 
             string modelExportDir = Path.GetDirectoryName(modelFilePath) ?? "";
             Directory.CreateDirectory(modelExportDir);
-            SDMesh* sdmesh = SDMeshCreateEmpty(name);
+            SDMesh* mesh = SDMeshCreateEmpty(name);
 
-            foreach (ModelMesh modelMesh in model.Meshes)
+            CreateMeshGroups(mesh, modelExportDir, model.Meshes);
+
+            bool success = SDMeshSave(mesh, modelFilePath);
+            SDMeshClose(mesh);
+            return success;
+        }
+
+        static unsafe void CreateMeshGroups(SDMesh* mesh, string modelExportDir, ModelMeshCollection meshes)
+        {
+            foreach (ModelMesh modelMesh in meshes)
             {
                 Matrix transform = modelMesh.ParentBone.Transform;
                 bool useIndexNames = modelMesh.MeshParts.Count > 1;
@@ -381,7 +392,7 @@ namespace Ship_Game
                 {
 
                 }
-                SDMeshGroup* group = SDMeshNewGroup(sdmesh, modelMesh.Name, &transform);
+                SDMeshGroup* group = SDMeshNewGroup(mesh, modelMesh.Name, &transform);
                 VertexBuffer vbo = modelMesh.VertexBuffer;
                 IndexBuffer  ibo = modelMesh.IndexBuffer;
 
@@ -406,9 +417,10 @@ namespace Ship_Game
                     SDMeshGroupSetData(group, pVerts, pNormals, pCoords, numVertices, pIndices, numIndices);
                 }
 
+                string name = mesh->Name.AsString;
                 for (int i = 0; i < modelMesh.Effects.Count; ++i)
                 {
-                    string materialName = i == 0 ? name : name + i;
+                    string materialName = (i == 0) ? name : name + i;
                     Effect effect = modelMesh.Effects[i];
 
                     if (effect is BaseMaterialEffect sunburnMaterial)
@@ -421,10 +433,6 @@ namespace Ship_Game
                     }
                 }
             }
-
-            bool success = SDMeshSave(sdmesh, modelFilePath);
-            SDMeshClose(sdmesh);
-            return success;
         }
 
         static string TrySaveTexture(string modelExportDir, string textureName, Texture2D texture)
@@ -454,16 +462,17 @@ namespace Ship_Game
             string emissivePath = TrySaveTexture(modelExportDir, fx.EmissiveMapFile,      fx.EmissiveMapTexture);
 
             SDMeshGroupSetMaterial(
-                group, name, 
+                group,
+                name, 
                 name+".mtl", 
                 diffusePath, 
-                "", 
+                "", // alphaPath
                 specularPath, 
                 normalPath, 
                 emissivePath, 
-                Vector3.One, 
+                Vector3.One, // ambientColor
                 fx.DiffuseColor, 
-                Vector3.One, 
+                Vector3.One, // specularColor
                 fx.EmissiveColor, 
                 fx.SpecularAmount / 16f, 
                 fx.Transparency);
