@@ -111,11 +111,6 @@ namespace Ship_Game
             RecordDisposableObject(effect);
         }
 
-        public void LogEffectError(Exception ex, string error)
-        {
-            Log.Error(ex, error);
-        }
-
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

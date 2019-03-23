@@ -288,6 +288,7 @@ namespace Ship_Game
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }
+
         public static void Fatal(Exception ex, string error = null) => Error(ex, error, ErrorLevel.Fatal);
 
         public static void ErrorDialog(Exception ex, string error = null, bool isFatal = true)

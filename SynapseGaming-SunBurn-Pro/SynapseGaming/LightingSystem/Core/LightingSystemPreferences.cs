@@ -16,7 +16,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// Provides user and hardware specific preferences to the Lighting System.
     /// </summary>
     [Serializable]
-    public class LightingSystemPreferences : IPreferences, ISerializable, ILightingSystemPreferences
+    public class LightingSystemPreferences : IPreferences, ISerializable, ILightingSystemPreferences, IEquatable<LightingSystemPreferences>
     {
         SamplingPreference textureSampling = SamplingPreference.Trilinear;
         int maxAnisotropy = 4;
@@ -176,6 +176,42 @@ namespace SynapseGaming.LightingSystem.Core
             info.AddValue("ShadowQuality", shadowQuality);
             info.AddValue("EffectDetail", effectDetail);
             info.AddValue("PostProcessingDetail", postProcessingDetail);
+        }
+
+        public bool Equals(LightingSystemPreferences other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return textureSampling == other.textureSampling
+                && maxAnisotropy == other.maxAnisotropy
+                && shadowDetail == other.shadowDetail
+                && shadowQuality.Equals(other.shadowQuality)
+                && textureQuality == other.textureQuality
+                && effectDetail == other.effectDetail
+                && postProcessingDetail == other.postProcessingDetail;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((LightingSystemPreferences) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = (int) textureSampling;
+                hashCode = (hashCode * 397) ^ maxAnisotropy;
+                hashCode = (hashCode * 397) ^ (int) shadowDetail;
+                hashCode = (hashCode * 397) ^ shadowQuality.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) textureQuality;
+                hashCode = (hashCode * 397) ^ (int) effectDetail;
+                hashCode = (hashCode * 397) ^ (int) postProcessingDetail;
+                return hashCode;
+            }
         }
     }
 }

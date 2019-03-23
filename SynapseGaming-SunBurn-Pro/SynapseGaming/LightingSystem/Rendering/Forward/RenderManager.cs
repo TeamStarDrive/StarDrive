@@ -75,14 +75,14 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         /// Builds all object batches, shadow maps, and cached information before rendering.
         /// Any object added to the RenderManager after this call will not be visible during the frame.
         /// </summary>
-        /// <param name="scenestate"></param>
-        public override void BeginFrameRendering(ISceneState scenestate)
+        /// <param name="state"></param>
+        public override void BeginFrameRendering(ISceneState state)
         {
             LightingSystemPerformance.Begin("RenderManager.BeginFrameRendering");
             class65_0.method_0();
             ShaderMesh.Clear();
-            base.BeginFrameRendering(scenestate);
-            Matrix viewToWorld = scenestate.ViewToWorld;
+            base.BeginFrameRendering(state);
+            Matrix viewToWorld = state.ViewToWorld;
             GraphicsDevice graphicsDevice = GraphicsDeviceManager.GraphicsDevice;
             FillMode fillMode = graphicsDevice.RenderState.FillMode;
             graphicsDevice.RenderState.FillMode = FillMode.Solid;
@@ -109,7 +109,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                         case null:
                             continue;
                         case BaseSasBindEffect sasBind:
-                            sasBind.GameTime = scenestate.GameTime;
+                            sasBind.GameTime = state.GameTime;
                             break;
                     }
 
@@ -165,7 +165,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             }
             if (ClearBackBufferEnabled)
             {
-                Color color = new Color(scenestate.Environment.FogColor);
+                Color color = new Color(state.Environment.FogColor);
                 ClearOptions options = ClearOptions.Target | ClearOptions.DepthBuffer;
                 if (MultiPassEdgeCleanupEnabled && bool_3)
                     options |= ClearOptions.Stencil;

@@ -284,12 +284,12 @@ namespace SynapseGaming.LightingSystem.Rendering
     }
 
     /// <summary>Sets up the object prior to rendering.</summary>
-    /// <param name="scenestate"></param>
-    public void BeginFrameRendering(ISceneState scenestate)
+    /// <param name="state"></param>
+    public void BeginFrameRendering(ISceneState state)
     {
-      this.isceneState_0 = scenestate;
+      this.isceneState_0 = state;
       this.list_1.Clear();
-      this.Find(this.list_1, scenestate.ViewFrustum, ObjectFilter.All);
+      this.Find(this.list_1, state.ViewFrustum, ObjectFilter.All);
     }
 
     /// <summary>Finalizes rendering.</summary>
