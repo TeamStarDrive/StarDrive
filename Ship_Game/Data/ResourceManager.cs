@@ -197,7 +197,7 @@ namespace Ship_Game
             BackgroundItem.QuadEffect = new BasicEffect(ScreenManager.GraphicsDevice, null) { TextureEnabled = true };
             TestLoad();
 
-            ExportXnbMesh(new FileInfo("Content/Model/Ships/Opteris/ship19b.xnb"), alwaysOverwrite:true);
+            //ExportXnbMesh(new FileInfo("Content/Model/Ships/Opteris/ship19b.xnb"), alwaysOverwrite:true);
             //ExportAllXnbMeshes();
 
             ++ContentId; // LoadContent will see a new content id
