@@ -64,6 +64,9 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep WaitForDeployment()
         {
+            if (FinishedShip == null)
+                return GoalStep.RestartGoal;
+
             return FinishedShip.Active ? GoalStep.TryAgain : GoalStep.GoalComplete;
         }
 
