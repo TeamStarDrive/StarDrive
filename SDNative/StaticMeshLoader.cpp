@@ -196,36 +196,17 @@ namespace SDNative
         return g;
     }
 
-    SDMaterial* SDMesh::GetMaterial(int materialId)
-    {
-        if (materialId >= NumMaterials)
-            return nullptr;
-        return &Materials[materialId]->Mapped;
-    }
-
     SDMaterial* SDMesh::GetOrCreateMat(const shared_ptr<Nano::Material>& mat)
     {
         if (!mat)
             return nullptr;
 
-        for (unique_ptr<SDMaterialMapping>& mapping : Materials)
-            if (mapping->Actual == mat)
-                return &mapping->Mapped;
+        for (unique_ptr<SDMaterial>& mapping : Materials)
+            if (mapping->Mat == mat)
+                return mapping.get();
 
-        Materials.push_back(std::make_unique<SDMaterialMapping>(mat)); // add new
-        return &Materials.back()->Mapped;
-    }
-
-    void SDMesh::RemoveStaleMaterials()
-    {
-        // remove materials that no longer exist
-        rpp::erase_if(Materials, [this](const unique_ptr<SDMaterialMapping>& mapping)
-        {
-            for (Nano::MeshGroup& group : Data.Groups)
-                if (group.Mat == mapping->Actual)
-                    return false;
-            return true; // doesn't exist anymore
-        });
+        Materials.push_back(std::make_unique<SDMaterial>(mat)); // add new
+        return Materials.back().get();
     }
 
     void SDMesh::SyncStats()
@@ -233,7 +214,6 @@ namespace SDNative
         Name      = Data.Name;
         NumGroups = Data.NumGroups();
         NumFaces  = Data.TotalTris();
-        NumMaterials = (int)Materials.size();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -263,11 +243,6 @@ namespace SDNative
         return mesh ? mesh->GetGroup(groupId) : nullptr;
     }
 
-    DLLAPI(SDMaterial*) SDMeshGetMaterial(SDMesh* mesh, int materialId)
-    {
-        return mesh ? mesh->GetMaterial(materialId) : nullptr;
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////
 
     DLLAPI(SDMesh*) SDMeshCreateEmpty(const wchar_t* meshName)
@@ -291,30 +266,30 @@ namespace SDNative
     }
 
     DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group,
-                                    Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
-                                    ushort* indices, int numIndices)
+        Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
+        ushort* indices, int numIndices)
     {
         group->SetData(vertices, normals, coords, numVertices, indices, numIndices);
     }
 
-    DLLAPI(SDMaterial*) SDMeshGroupSetMaterial(
-                    SDMeshGroup* group, 
-                    const wchar_t* name, 
-                    const wchar_t* materialFile, 
-                    const wchar_t* diffusePath, 
-                    const wchar_t* alphaPath, 
-                    const wchar_t* specularPath, 
-                    const wchar_t* normalPath, 
-                    const wchar_t* emissivePath, 
-                    Color3 ambientColor, 
-                    Color3 diffuseColor, 
-                    Color3 specularColor, 
-                    Color3 emissiveColor, 
-                    float specular, 
-                    float alpha)
+    DLLAPI(SDMaterial*) SDMeshCreateMaterial(
+        SDMesh* mesh,
+        const wchar_t* name, 
+        const wchar_t* diffusePath, 
+        const wchar_t* alphaPath, 
+        const wchar_t* specularPath, 
+        const wchar_t* normalPath, 
+        const wchar_t* emissivePath, 
+        Color3 ambientColor, 
+        Color3 diffuseColor, 
+        Color3 specularColor, 
+        Color3 emissiveColor, 
+        float specular, 
+        float alpha)
     {
-        // create a brand new material
-        Material& mat = group->GetGroup().CreateMaterial(to_string(name));
+        shared_ptr<Nano::Material> matPtr = std::make_shared<Nano::Material>();
+        Material& mat = *matPtr;
+        mat.Name          = to_string(name);
         mat.DiffusePath   = to_string(diffusePath);
         mat.AlphaPath     = to_string(alphaPath);
         mat.SpecularPath  = to_string(specularPath);
@@ -327,33 +302,15 @@ namespace SDNative
         mat.Specular      = specular;
         mat.Alpha         = alpha;
 
-        // update the Reflected SDMaterial view
-        SDMesh& mesh = group->TheMesh;
-        mesh.RemoveStaleMaterials();
-        group->Mat = mesh.GetOrCreateMat(group->GetGroup().Mat);
-        mesh.SyncStats();
-        return group->Mat;
+        SDMaterial* sdMat = mesh->GetOrCreateMat(matPtr);
+        mesh->SyncStats();
+        return sdMat;
     }
 
-    DLLAPI(void) SDMeshGroupSetExistingMaterial(SDMeshGroup* group, SDMaterial* material)
+    DLLAPI(void) SDMeshGroupSetMaterial(SDMeshGroup* group, SDMaterial* material)
     {
-        // find the existing material
-        SDMesh& mesh = group->TheMesh;
-        for (int i = 0; i < mesh.NumGroups; ++i)
-        {
-            SDMeshGroup* owner = mesh.GetGroup(i);
-            if (owner != group && material == owner->Mat)
-            {
-                if (auto& mat = owner->GetGroup().Mat)
-                {
-                    // update the underlying material and also the Reflected SDMaterial view
-                    group->GetGroup().Mat = mat;
-                    group->Mat = mesh.GetOrCreateMat(mat);
-                    mesh.SyncStats();
-                }
-                break;
-            }
-        }
+        group->Mat = material;
+        group->GetGroup().Mat = material ? material->Mat : nullptr;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
