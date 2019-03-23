@@ -464,13 +464,20 @@ namespace Ship_Game
             }
         }
 
+        static bool IsShipGoalInvalid(SavedGame.GoalSave g)
+        {
+            if (g.type != GoalType.BuildDefensiveShips &&
+                g.type != GoalType.BuildOffensiveShips &&
+                g.type != GoalType.IncreaseFreighters)
+                return false;
+            return g.ToBuildUID != null && !ResourceManager.ShipTemplateExists(g.ToBuildUID);
+        }
         
         static void CreateGoals(SavedGame.EmpireSaveData esd, Empire e, UniverseData data)
         {
             foreach (SavedGame.GoalSave gsave in esd.GSAIData.Goals)
             {
-                if (gsave.type == GoalType.BuildShips && gsave.ToBuildUID != null
-                                                      && !ResourceManager.ShipsDict.ContainsKey(gsave.ToBuildUID))
+                if (IsShipGoalInvalid(gsave))
                     continue;
 
                 Goal g = Goal.Deserialize(gsave.GoalName, e, gsave);

@@ -82,6 +82,11 @@ namespace Ship_Game
             Text = sb.ToString();
         }
 
+        public LocText(string serializedText, bool serializationOverride)
+        {
+            Text = serializedText;
+        }
+
         public static implicit operator LocText(int id)
         {
             return new LocText(id);

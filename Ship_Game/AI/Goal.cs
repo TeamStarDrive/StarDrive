@@ -15,7 +15,9 @@ namespace Ship_Game.AI
         Colonize,
         DeepSpaceConstruction,
         BuildTroop,
-        BuildShips,
+        BuildDefensiveShips,
+        BuildOffensiveShips,
+        IncreaseFreighters,
         BuildScout,
         FleetRequisition,
         Refit
@@ -57,7 +59,7 @@ namespace Ship_Game.AI
         public abstract string UID { get; }
         public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
 
-        private static Goal CreateInstance(string uid)
+        static Goal CreateInstance(string uid)
         {
             switch (uid)
             {
@@ -84,6 +86,11 @@ namespace Ship_Game.AI
             g.BuildPosition = gsave.BuildPosition;
             g.VanityName    = gsave.VanityName;
             g.ShipLevel     = gsave.ShipLevel;
+            if ((uint)g.Step >= g.Steps.Length)
+            {
+                Log.Error($"Deserialize {g.type} invalid Goal.Step: {g.Step}, Steps.Length: {g.Steps.Length}");
+                g.Step = g.Steps.Length-1;
+            }
             return g;
         }
 

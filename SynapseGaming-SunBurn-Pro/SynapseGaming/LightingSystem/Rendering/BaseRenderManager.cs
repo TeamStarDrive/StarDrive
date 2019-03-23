@@ -216,11 +216,11 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// Builds all object batches, shadow maps, and cached information before rendering.
         /// Any object added to the RenderManager after this call will not be visible during the frame.
         /// </summary>
-        /// <param name="scenestate"></param>
-        public virtual void BeginFrameRendering(ISceneState scenestate)
+        /// <param name="state"></param>
+        public virtual void BeginFrameRendering(ISceneState state)
         {
             //SplashScreen.CheckProductActivation();
-            SceneState = scenestate;
+            SceneState = state;
             GraphicsDevice graphicsDevice = GraphicsDeviceManager.GraphicsDevice;
             int num1 = Math.Max(Math.Min(MaxAnisotropy, LightingSystemManager.Instance.GetGraphicsDeviceSupport(graphicsDevice).MaxAnisotropy), 1);
             for (int index = 0; index < 8; ++index)
@@ -229,7 +229,7 @@ namespace SynapseGaming.LightingSystem.Rendering
                 samplerState.MaxAnisotropy = num1;
                 samplerState.MaxMipLevel = MaxMipLevel;
             }
-            class71_0.BeginFrameRendering(scenestate);
+            class71_0.BeginFrameRendering(state);
             FrameLights.Clear();
             FrameAmbientLights.Clear();
             ILightManager manager = (ILightManager)ServiceProvider.GetManager(SceneInterface.LightManagerType, false);
@@ -245,7 +245,7 @@ namespace SynapseGaming.LightingSystem.Rendering
                 FrameAmbientLight.Intensity = 1f;
                 int num2 = 0;
                 float num3 = 0.0f;
-                Matrix viewToWorld = scenestate.ViewToWorld;
+                Matrix viewToWorld = state.ViewToWorld;
                 for (int index = 0; index < FrameLights.Count; ++index)
                 {
                     ILight light = FrameLights[index];

@@ -290,11 +290,11 @@ namespace SynapseGaming.LightingSystem.Shadows
         /// <summary>
         /// Sets up frame information necessary for scene shadowing.
         /// </summary>
-        public override void BeginFrameRendering(ISceneState scenestate)
+        public override void BeginFrameRendering(ISceneState state)
         {
             if (GraphicsDeviceMonitor0.Changed)
                 Unload();
-            base.BeginFrameRendering(scenestate);
+            base.BeginFrameRendering(state);
         }
 
         /// <summary>

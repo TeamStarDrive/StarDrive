@@ -51,12 +51,12 @@ namespace EmbeddedResources
 
     protected void SetBloomData(float sharp, float soft, float threshold, float colorburn)
     {
-      EffectHelper.smethod_3(new Vector4(sharp, soft, threshold, colorburn), ref this._BloomAmount_None_Threshold_Burn, ref this.effectParameter_15);
+      EffectHelper.Update(new Vector4(sharp, soft, threshold, colorburn), ref this._BloomAmount_None_Threshold_Burn, ref this.effectParameter_15);
     }
 
     protected void SetExposureTransitionData(float exposure, float maxscale, float minscale)
     {
-      EffectHelper.smethod_3(new Vector4(exposure, maxscale, minscale, 0.0f), ref this._ExposureAmount_TransitionMax_TransitionMin, ref this.effectParameter_16);
+      EffectHelper.Update(new Vector4(exposure, maxscale, minscale, 0.0f), ref this._ExposureAmount_TransitionMax_TransitionMin, ref this.effectParameter_16);
     }
   }
 }

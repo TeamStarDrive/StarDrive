@@ -108,8 +108,8 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     protected GClass0 SasAutoBindTable { get; } = new GClass0();
 
-      internal BaseSasBindEffect(GraphicsDevice graphicsDevice_0, Effect effect_0)
-      : base(graphicsDevice_0, effect_0)
+      internal BaseSasBindEffect(GraphicsDevice device, Effect effect_0)
+      : base(device, effect_0)
     {
       this.BindAllByPartialSasAddress("Sas.");
       this.BindBySasAddress(this.FindBySemantic("MODEL"), "Sas.Camera.World");
@@ -276,9 +276,9 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     protected void SyncTimeEffectData()
     {
-      EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.Time.Now"), new Vector4((float) this.gameTime_0.TotalRealTime.TotalMilliseconds));
-      EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.Time.Last"), new Vector4((float) this.gameTime_1.TotalRealTime.TotalMilliseconds));
-      EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.Time.FrameNumber"), new Vector4(this.int_0));
+      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.Time.Now"), new Vector4((float) this.gameTime_0.TotalRealTime.TotalMilliseconds));
+      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.Time.Last"), new Vector4((float) this.gameTime_1.TotalRealTime.TotalMilliseconds));
+      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.Time.FrameNumber"), new Vector4(this.int_0));
     }
 
     protected class GClass0

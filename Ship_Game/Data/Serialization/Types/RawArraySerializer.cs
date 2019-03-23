@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.IO;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
@@ -25,7 +27,8 @@ namespace Ship_Game.Data.Serialization.Types
                 Array converted = Array.CreateInstance(ElemType, array.Length);
                 for (int i = 0; i < array.Length; ++i)
                 {
-                    converted.SetValue(ElemSerializer.Convert(array[i]), i);
+                    object element = ElemSerializer.Convert(array[i]);
+                    converted.SetValue(element, i);
                 }
                 return converted;
             }
@@ -48,12 +51,36 @@ namespace Ship_Game.Data.Serialization.Types
                 Array converted = Array.CreateInstance(ElemType, nodes.Count);
                 for (int i = 0; i < nodes.Count; ++i)
                 {
-                    converted.SetValue(ElemSerializer.Deserialize(nodes[i]), i);
+                    object element = ElemSerializer.Deserialize(nodes[i]);
+                    converted.SetValue(element, i);
                 }
                 return converted;
             }
-
             return base.Deserialize(node); // try to deserialize value as Array
+        }
+
+        public override void Serialize(BinaryWriter writer, object obj)
+        {
+            var array = (Array)obj;
+            int count = array.Length;
+            writer.Write(count);
+            for (int i = 0; i < count; ++i)
+            {
+                object element = array.GetValue(i);
+                ElemSerializer.Serialize(writer, element);
+            }
+        }
+        
+        public override object Deserialize(BinaryReader reader)
+        {
+            int count = reader.ReadInt32();
+            Array converted = Array.CreateInstance(ElemType, count);
+            for (int i = 0; i < count; ++i)
+            {
+                object element = ElemSerializer.Deserialize(reader);
+                converted.SetValue(element, i);
+            }
+            return converted;
         }
     }
 }
