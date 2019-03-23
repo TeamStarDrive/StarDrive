@@ -46,22 +46,22 @@ namespace Ship_Game
     {
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
-        private static readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
+        static readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
         public static Map<string, Ship> ShipsDict                = new Map<string, Ship>();
         public static Map<string, Technology> TechTree           = new Map<string, Technology>(GlobalStats.CaseControl);
-        private static readonly Array<Model> RoidsModels         = new Array<Model>();
-        private static readonly Array<Model> JunkModels          = new Array<Model>();
-        private static readonly Array<ToolTip> ToolTips          = new Array<ToolTip>();
+        static readonly Array<Model> RoidsModels         = new Array<Model>();
+        static readonly Array<Model> JunkModels          = new Array<Model>();
+        static readonly Array<ToolTip> ToolTips          = new Array<ToolTip>();
         public static Array<Encounter> Encounters                = new Array<Encounter>();
         public static Map<string, Building> BuildingsDict        = new Map<string, Building>();
         public static Map<string, Good> GoodsDict                = new Map<string, Good>();
         public static Map<string, Weapon> WeaponsDict            = new Map<string, Weapon>();
-        private static readonly Map<string, ShipModule> ModuleTemplates = new Map<string, ShipModule>(GlobalStats.CaseControl);
+        static readonly Map<string, ShipModule> ModuleTemplates = new Map<string, ShipModule>(GlobalStats.CaseControl);
         public static Map<string, Texture2D> ProjTextDict               = new Map<string, Texture2D>();
 
         public static Array<RandomItem> RandomItemsList       = new Array<RandomItem>();
-        private static readonly Map<string, Troop> TroopsDict = new Map<string, Troop>();
-        private static Array<string> TroopsDictKeys           = new Array<string>();
+        static readonly Map<string, Troop> TroopsDict = new Map<string, Troop>();
+        static Array<string> TroopsDictKeys           = new Array<string>();
         public static IReadOnlyList<string> TroopTypes        => TroopsDictKeys;
         public static Map<string, DiplomacyDialog> DDDict     = new Map<string, DiplomacyDialog>();
 
@@ -69,7 +69,7 @@ namespace Ship_Game
         public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
         public static XmlSerializer HeaderSerializer           = new XmlSerializer(typeof(HeaderData));
 
-        private static Map<string, SoundEffect> SoundEffectDict;
+        static Map<string, SoundEffect> SoundEffectDict;
 
         // Added by McShooterz
         public static HostileFleets HostileFleets                = new HostileFleets();
@@ -81,8 +81,8 @@ namespace Ship_Game
         public static Map<string, PlanetEdict> PlanetaryEdicts   = new Map<string, PlanetEdict>();
         public static Map<string, EconomicResearchStrategy> EconStrats = new Map<string, EconomicResearchStrategy>();
 
-        private static RacialTraits RacialTraits;
-        private static DiplomaticTraits DiplomacyTraits;
+        static RacialTraits RacialTraits;
+        static DiplomaticTraits DiplomacyTraits;
 
         // @todo These are all hacks caused by bad design and tight coupling
         public static ScreenManager ScreenManager;
@@ -197,6 +197,9 @@ namespace Ship_Game
             BackgroundItem.QuadEffect = new BasicEffect(ScreenManager.GraphicsDevice, null) { TextureEnabled = true };
             TestLoad();
 
+            //ExportXnbMesh(new FileInfo("Content/Model/Ships/Opteris/ship19b.xnb"), alwaysOverwrite:true);
+            //ExportAllXnbMeshes();
+
             ++ContentId; // LoadContent will see a new content id
             if (reset) // now reload manager content, otherwise we're fked as soon as game calls Draw
                 manager.LoadContent();
@@ -251,7 +254,7 @@ namespace Ship_Game
         }
 
 
-        private static void TestLoad()
+        static void TestLoad()
         {
             if (!GlobalStats.TestLoad) return;
 
@@ -262,7 +265,7 @@ namespace Ship_Game
             Log.HideConsoleWindow();
         }
 
-        private static void TestHullLoad()
+        static void TestHullLoad()
         {
             if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes: true))
                 return;
@@ -287,7 +290,7 @@ namespace Ship_Game
             RootContent.EnableLoadInfoLog = oldValue;
         }
 
-        private static void TestTechTextures()
+        static void TestTechTextures()
         {
             if (!Log.TestMessage("Test - Checking For Tech Texture Existence \n", waitForYes: true))
                 return;
@@ -582,7 +585,7 @@ namespace Ship_Game
         }
 
         // Added by RedFox
-        private static void DeleteShipFromDir(string dir, string shipName)
+        static void DeleteShipFromDir(string dir, string shipName)
         {
             foreach (FileInfo info in Dir.GetFiles(dir, shipName + ".xml", SearchOption.TopDirectoryOnly))
             {
@@ -715,10 +718,13 @@ namespace Ship_Game
 
         public static FileInfo[] GetAllXnbModelFiles(string folder)
         {
-            FileInfo[] files = GatherFilesUnified("Model", "xnb");
-            var modelFiles = new Array<FileInfo>();
+            var files = new Array<FileInfo>();
+            files.AddRange(Dir.GetFiles("Content/", "*.xnb", SearchOption.AllDirectories));
+            if (GlobalStats.HasMod)
+                files.AddRange(Dir.GetFiles(GlobalStats.ModPath, "*.xnb", SearchOption.AllDirectories));
 
-            for (int i = 0; i < files.Length; ++i)
+            var modelFiles = new Array<FileInfo>();
+            for (int i = 0; i < files.Count; ++i)
             {
                 FileInfo file = files[i];
                 string name = file.Name;
@@ -734,37 +740,48 @@ namespace Ship_Game
             return modelFiles.ToArray();
         }
 
+        static bool ExportXnbMesh(FileInfo file, bool alwaysOverwrite = false)
+        {
+            try
+            {
+                string relativePath = file.RelPath();
+                Log.Info(relativePath);
+
+                if (relativePath.StartsWith("Content\\"))
+                    relativePath = relativePath.Substring(8);
+
+                string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "fbx");
+
+                if (alwaysOverwrite || !File.Exists(savePath))
+                {
+                    var model = RootContent.LoadModel(relativePath); // @note This may throw if it's not a mesh
+                    Log.Info($"ExportMesh: {savePath}");
+
+                    string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
+                    RawContentLoader.SaveModel(model, nameNoExt, savePath);
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                // just ignore resources that are not static models
+                return false;
+            }
+        }
+
         public static void ExportAllXnbMeshes()
         {
             FileInfo[] files = GetAllXnbModelFiles("Model");
 
-            void ExportXnbMesh(int start, int end)
+            void ExportMeshes(int start, int end)
             {
                 for (int i = start; i < end; ++i)
                 {
-                    try
-                    {
-                        FileInfo file = files[i];
-                        string relativePath = file.RelPath().Replace("Content\\", "");
-                        string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "fbx");
-
-                        if (!File.Exists(savePath))
-                        {
-                            var model = RootContent.Load<Model>(relativePath); // @note This may throw if it's not a mesh
-                            Log.Info($"ExportMesh: {savePath}");
-
-                            string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
-                            RawContentLoader.SaveModel(model, nameNoExt, savePath);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // just ignore resources that are not static models
-                    }
+                    ExportXnbMesh(files[i]);
                 }
             }
-            //Parallel.For(files.Length, ExportXnbMesh, Parallel.NumPhysicalCores * 2);
-            ExportXnbMesh(0, files.Length);
+            Parallel.For(files.Length, ExportMeshes, Parallel.NumPhysicalCores * 2);
+            //ExportMeshes(0, files.Length);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -931,7 +948,7 @@ namespace Ship_Game
             return adviceList?[RandomMath.InRange(adviceList.Count)] ?? "Advice.xml missing";
         }
 
-        private static void LoadArtifacts() // Refactored by RedFox
+        static void LoadArtifacts() // Refactored by RedFox
         {
             foreach (var arts in LoadEntities<Array<Artifact>>("Artifacts", "LoadArtifacts"))
             {
@@ -1005,7 +1022,7 @@ namespace Ship_Game
             return newB;
         }
 
-        private static void LoadDialogs() // Refactored by RedFox
+        static void LoadDialogs() // Refactored by RedFox
         {
             string dir = "DiplomacyDialogs/" + GlobalStats.Language + "/";
             foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
@@ -1074,7 +1091,7 @@ namespace Ship_Game
             }
         }
 
-        private static void LoadExpEvents() // Refactored by RedFox
+        static void LoadExpEvents() // Refactored by RedFox
         {
             foreach (var pair in LoadEntitiesWithInfo<ExplorationEvent>("Exploration Events", "LoadExpEvents"))
             {
@@ -1106,7 +1123,7 @@ namespace Ship_Game
             FlagTextures = RootContent.LoadTextureAtlas("Flags");
         }
 
-        private static void LoadGoods() // Refactored by RedFox
+        static void LoadGoods() // Refactored by RedFox
         {
             foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
             {
@@ -1184,7 +1201,7 @@ namespace Ship_Game
         }
 
         // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
-        private static void LoadNumberedModels(Array<Model> models, string modelFolder, string modelPrefix, string id)
+        static void LoadNumberedModels(Array<Model> models, string modelFolder, string modelPrefix, string id)
         {
             models.Clear();
             foreach (FileInfo info in GatherFilesModOrVanilla(modelFolder, "xnb"))
@@ -1204,16 +1221,17 @@ namespace Ship_Game
             }
         }
 
-        private static void LoadJunk() // Refactored by RedFox
+        static void LoadJunk() // Refactored by RedFox
         {
             LoadNumberedModels(JunkModels, "Model/SpaceJunk/", "spacejunk", "LoadJunk");
         }
-        private static void LoadAsteroids()
+
+        static void LoadAsteroids()
         {
             LoadNumberedModels(RoidsModels, "Model/Asteroids/", "asteroid", "LoadAsteroids");
         }
 
-        private static void LoadLanguage() // Refactored by RedFox
+        static void LoadLanguage() // Refactored by RedFox
         {
             foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
                 Localizer.AddTokens(loc.TokenList);
@@ -1295,7 +1313,8 @@ namespace Ship_Game
         // Refactored by RedFox
         public static Map<string, ModelMesh> ProjectileMeshDict = new Map<string, ModelMesh>();
         public static Map<string, Model> ProjectileModelDict    = new Map<string, Model>();
-        private static void LoadProjectileMesh(string projectileDir, string nameNoExt)
+
+        static void LoadProjectileMesh(string projectileDir, string nameNoExt)
         {
             string path = projectileDir + nameNoExt;
             try
@@ -1312,7 +1331,7 @@ namespace Ship_Game
             }
         }
 
-        private static void LoadProjectileMeshes()
+        static void LoadProjectileMeshes()
         {
             const string projectileDir = "Model/Projectiles/";
             LoadProjectileMesh(projectileDir, "projLong");
@@ -1325,7 +1344,7 @@ namespace Ship_Game
                 LoadCustomProjectileMeshes($"{projectileDir}custom");
         }
 
-        private static void LoadCustomProjectileMeshes(string modelFolder)
+        static void LoadCustomProjectileMeshes(string modelFolder)
         {
             foreach (FileInfo info in GatherFilesModOrVanilla(modelFolder, "xnb"))
             {
@@ -1347,7 +1366,7 @@ namespace Ship_Game
         }
 
 
-        private static void LoadProjTexts()
+        static void LoadProjTexts()
         {
             foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb"))
             {
@@ -1363,12 +1382,12 @@ namespace Ship_Game
         //}
 
 
-        private static void LoadRandomItems()
+        static void LoadRandomItems()
         {
             RandomItemsList = LoadEntities<RandomItem>("RandomStuff", "LoadRandomItems");
         }
 
-        private static void LoadShipModules()
+        static void LoadShipModules()
         {
             foreach (var pair in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules"))
             {
@@ -1412,7 +1431,7 @@ namespace Ship_Game
         }
 
 
-        private struct ShipDesignInfo
+        struct ShipDesignInfo
         {
             public FileInfo File;
             public bool IsPlayerDesign;
@@ -1435,7 +1454,7 @@ namespace Ship_Game
             return shipTemplate;
         }
 
-        private static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
+        static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
         {
             void LoadShips(int start, int end)
             {
@@ -1627,7 +1646,7 @@ namespace Ship_Game
             }
         }
 
-        private static readonly HashSet<int> MissingTooltips = new HashSet<int>();
+        static readonly HashSet<int> MissingTooltips = new HashSet<int>();
         public static ToolTip GetToolTip(int tipId)
         {
             if (tipId > ToolTips.Count)
@@ -1655,7 +1674,7 @@ namespace Ship_Game
             return WeaponsDict[uid];
         }
 
-        private static void LoadWeapons() // Refactored by RedFox
+        static void LoadWeapons() // Refactored by RedFox
         {
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaWeapons;
             foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly))
@@ -1679,13 +1698,13 @@ namespace Ship_Game
                 Log.Error("Failed to load any ShipRoles! Make sure Content/ShipRoles/*.xml exist!");
         }
 
-        private static void LoadPlanetEdicts()
+        static void LoadPlanetEdicts()
         {
             foreach (var planetEdict in LoadEntities<PlanetEdict>("PlanetEdicts", "LoadPlanetEdicts"))
                 PlanetaryEdicts[planetEdict.Name] = planetEdict;
         }
 
-        private static void LoadEconomicResearchStrats()
+        static void LoadEconomicResearchStrats()
         {
             foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
             {
@@ -1744,7 +1763,7 @@ namespace Ship_Game
         }
 
         // Added by RedFox
-        private static void LoadBlackboxSpecific()
+        static void LoadBlackboxSpecific()
         {
             TryDeserialize("HostileFleets/HostileFleets.xml",    ref HostileFleets);
             TryDeserialize("ShipNames/ShipNames.xml",            ref ShipNames);
