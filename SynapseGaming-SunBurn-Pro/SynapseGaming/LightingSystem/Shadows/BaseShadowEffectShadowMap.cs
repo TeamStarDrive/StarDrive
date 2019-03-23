@@ -11,75 +11,75 @@ using SynapseGaming.LightingSystem.Core;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
-  /// <summary>
-  /// Base shadow map class that provides support for the built-in ShadowEffect.
-  /// </summary>
-  public abstract class BaseShadowEffectShadowMap : BaseShadowMap
-  {
-    private Vector4[] vector4_0 = new Vector4[6];
-    private Matrix[] matrix_0 = new Matrix[6];
-    private Effect effect_0;
-
-    /// <summary>Effect used for shadow map rendering.</summary>
-    public override Effect ShadowEffect => this.effect_0;
-
-      /// <summary>
-    /// Creates a new effect that performs rendering specific to the shadow
-    /// mapping implementation used by this object.
-    /// </summary>
-    /// <returns></returns>
-    protected abstract Effect CreateEffect();
-
     /// <summary>
-    /// Builds the shadow map information based on the provided scene state and shadow
-    /// group, visibility, and quality.
+    /// Base shadow map class that provides support for the built-in ShadowEffect.
     /// </summary>
-    /// <param name="device"></param>
-    /// <param name="scenestate"></param>
-    /// <param name="shadowgroup">Shadow group used as the source for the shadow map.</param>
-    /// <param name="shadowvisibility"></param>
-    /// <param name="shadowquality">Shadow quality from 1.0 (highest) to 0.0 (lowest).</param>
-    public override void Build(GraphicsDevice device, ISceneState scenestate, ShadowGroup shadowgroup, IShadowMapVisibility shadowvisibility, float shadowquality)
+    public abstract class BaseShadowEffectShadowMap : BaseShadowMap
     {
-      base.Build(device, scenestate, shadowgroup, shadowvisibility, shadowquality);
-      if (this.effect_0 != null)
-        return;
-      this.effect_0 = this.CreateEffect();
-    }
+        Vector4[] vector4_0 = new Vector4[6];
+        Matrix[] matrix_0 = new Matrix[6];
+        Effect shadowFx;
 
-    /// <summary>Releases resources allocated by this object.</summary>
-    public override void Dispose()
-    {
-      Disposable.Free(ref this.effect_0);
-      base.Dispose();
-    }
+        /// <summary>Effect used for shadow map rendering.</summary>
+        public override Effect ShadowEffect => shadowFx;
 
-    /// <summary>
-    /// Creates packed surface information used by the built-in ShadowEffect.
-    /// </summary>
-    /// <param name="shadowmap"></param>
-    /// <param name="padding">Width of pixel padding used to avoid edge artifacts.</param>
-    /// <returns></returns>
-    protected Vector4[] GetPackedRenderTargetLocationAndSpan(Texture2D shadowmap, int padding)
-    {
-      Vector4 vector4 = new Vector4(1f / shadowmap.Width, 1f / shadowmap.Height, 1f / shadowmap.Width, 1f / shadowmap.Height);
-      for (int index = 0; index < this.Surfaces.Length; ++index)
-      {
-        Rectangle rectangle = this.Surfaces[index].method_0(padding);
-        this.vector4_0[index] = new Vector4(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height) * vector4;
-      }
-      return this.vector4_0;
-    }
+        /// <summary>
+        /// Creates a new effect that performs rendering specific to the shadow
+        /// mapping implementation used by this object.
+        /// </summary>
+        /// <returns></returns>
+        protected abstract Effect CreateEffect();
 
-    /// <summary>
-    /// Creates packed surface transforms used by the built-in ShadowEffect.
-    /// </summary>
-    /// <returns></returns>
-    protected Matrix[] GetPackedSurfaceViewProjection()
-    {
-      for (int index = 0; index < this.Surfaces.Length; ++index)
-        this.matrix_0[index] = this.Surfaces[index].WorldToSurfaceView * this.Surfaces[index].Projection;
-      return this.matrix_0;
+        /// <summary>
+        /// Builds the shadow map information based on the provided scene state and shadow
+        /// group, visibility, and quality.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="sceneState"></param>
+        /// <param name="shadowGroup">Shadow group used as the source for the shadow map.</param>
+        /// <param name="visibility"></param>
+        /// <param name="shadowQuality">Shadow quality from 1.0 (highest) to 0.0 (lowest).</param>
+        public override void Build(GraphicsDevice device, ISceneState sceneState, ShadowGroup shadowGroup, IShadowMapVisibility visibility, float shadowQuality)
+        {
+            base.Build(device, sceneState, shadowGroup, visibility, shadowQuality);
+            if (shadowFx != null)
+                return;
+            shadowFx = CreateEffect();
+        }
+
+        /// <summary>Releases resources allocated by this object.</summary>
+        public override void Dispose()
+        {
+            Disposable.Free(ref shadowFx);
+            base.Dispose();
+        }
+
+        /// <summary>
+        /// Creates packed surface information used by the built-in ShadowEffect.
+        /// </summary>
+        /// <param name="shadowmap"></param>
+        /// <param name="padding">Width of pixel padding used to avoid edge artifacts.</param>
+        /// <returns></returns>
+        protected Vector4[] GetPackedRenderTargetLocationAndSpan(Texture2D shadowmap, int padding)
+        {
+            var vector4 = new Vector4(1f / shadowmap.Width, 1f / shadowmap.Height, 1f / shadowmap.Width, 1f / shadowmap.Height);
+            for (int i = 0; i < Surfaces.Length; ++i)
+            {
+                Rectangle r = Surfaces[i].method_0(padding);
+                vector4_0[i] = new Vector4(r.X, r.Y, r.Width, r.Height) * vector4;
+            }
+            return vector4_0;
+        }
+
+        /// <summary>
+        /// Creates packed surface transforms used by the built-in ShadowEffect.
+        /// </summary>
+        /// <returns></returns>
+        protected Matrix[] GetPackedSurfaceViewProjection()
+        {
+            for (int i = 0; i < Surfaces.Length; ++i)
+                matrix_0[i] = Surfaces[i].WorldToSurfaceView * Surfaces[i].Projection;
+            return matrix_0;
+        }
     }
-  }
 }

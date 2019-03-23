@@ -11,7 +11,7 @@ using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 
-internal class ShadowEffect : BaseSkinnedEffect, IAddressableEffect, ITransparentEffect, ITerrainEffect, Interface3, IShadowGenerateEffect
+internal class ShadowEffect : BaseSkinnedEffect, IAddressableEffect, ITransparentEffect, ITerrainEffect, IShadowEffect, IShadowGenerateEffect
 {
     static Matrix[] matrix_12 = new Matrix[3];
     static Vector4[] vector4_2 = new Vector4[3];

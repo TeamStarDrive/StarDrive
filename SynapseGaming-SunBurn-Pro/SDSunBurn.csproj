@@ -268,7 +268,7 @@
     <Compile Include="ns4\Class30.cs" />
     <Compile Include="ns6\Interface1.cs" />
     <Compile Include="ns6\Interface2.cs" />
-    <Compile Include="ns6\Interface3.cs" />
+    <Compile Include="ns6\IShadowEffect.cs" />
     <Compile Include="ns6\TechniquNames.cs" />
     <Compile Include="ns6\Class39.cs" />
     <Compile Include="ns6\Class40.cs" />

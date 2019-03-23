@@ -14,238 +14,216 @@ using SynapseGaming.LightingSystem.Effects;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
-  /// <summary>
-  /// Shadow map class that implements cascading level-of-detail
-  /// directional shadows. Used for directional lights.
-  /// </summary>
-  public abstract class BaseShadowDirectionalMap : BaseShadowEffectShadowMap
-  {
-    private float[] float_0 = new float[4];
-    private float float_1 = 250f;
-    private float float_2 = 300f;
-    private float float_3 = 300f;
-    private ShadowMapSurface[] shadowMapSurface_0 = new ShadowMapSurface[3];
-    private BoundingFrustum boundingFrustum_0 = new BoundingFrustum(Matrix.Identity);
-    private Vector3[] vector3_0 = new Vector3[8];
-    private const int int_0 = 3;
-    private Vector4 vector4_1;
-
-    /// <summary>Array of the level-of-detail surfaces.</summary>
-    public override ShadowMapSurface[] Surfaces => this.shadowMapSurface_0;
-
-      /// <summary>
-    /// Unused, this object supports render targets from the ShadowMapCache.
-    /// </summary>
-    public override RenderTarget CustomRenderTarget => null;
-
-      /// <summary>Creates a new ShadowDirectionalMap instance.</summary>
-    public BaseShadowDirectionalMap()
-    {
-      for (int index = 0; index < this.shadowMapSurface_0.Length; ++index)
-        this.shadowMapSurface_0[index] = new ShadowMapSurface();
-    }
-
     /// <summary>
-    /// Builds the shadow map information based on the provided scene state and shadow
-    /// group, visibility, and quality.
+    /// Shadow map class that implements cascading level-of-detail
+    /// directional shadows. Used for directional lights.
     /// </summary>
-    /// <param name="device"></param>
-    /// <param name="scenestate"></param>
-    /// <param name="shadowgroup">Shadow group used as the source for the shadow map.</param>
-    /// <param name="shadowvisibility"></param>
-    /// <param name="shadowquality">Shadow quality from 1.0 (highest) to 0.0 (lowest).</param>
-    public override void Build(GraphicsDevice device, ISceneState scenestate, ShadowGroup shadowgroup, IShadowMapVisibility shadowvisibility, float shadowquality)
+    public abstract class BaseShadowDirectionalMap : BaseShadowEffectShadowMap
     {
-      base.Build(device, scenestate, shadowgroup, shadowvisibility, shadowquality);
-      this.float_1 = scenestate.Environment.ShadowFadeStartDistance;
-      this.float_2 = scenestate.Environment.ShadowFadeEndDistance;
-      this.float_3 = scenestate.Environment.ShadowCasterDistance;
-      this.vector4_1.W = scenestate.Environment.ShadowFadeStartDistance;
-      int num = Math.Min(this.float_0.Length - 1, shadowvisibility.ShadowLODRangeHints.Length);
-      for (int index = 0; index < num; ++index)
-        this.float_0[index + 1] = shadowvisibility.ShadowLODRangeHints[index];
-      for (int index = 0; index < this.shadowMapSurface_0.Length; ++index)
-        this.shadowMapSurface_0[index].LevelOfDetail = 1f;
-    }
+        float[] float_0 = new float[4];
+        float fadeStartDist = 250f;
+        float fadeEndDist = 300f;
+        float casterDist = 300f;
+        ShadowMapSurface[] shadowSurfaces = new ShadowMapSurface[3];
+        BoundingFrustum boundingFrustum_0 = new BoundingFrustum(Matrix.Identity);
+        Vector3[] vector3_0 = new Vector3[8];
+        Vector4 vector4_1;
 
-    private BoundingBox method_0(Vector3[] vector3_1, Matrix matrix_1)
-    {
-      if (vector3_1.Length < 1)
-        return new BoundingBox();
-      Vector3 vector3_2 = Vector3.Transform(vector3_1[0], matrix_1);
-      BoundingBox boundingBox = new BoundingBox(vector3_2, vector3_2);
-      for (int index = 1; index < vector3_1.Length; ++index)
-      {
-        Vector3 vector3_3 = Vector3.Transform(vector3_1[index], matrix_1);
-        boundingBox.Min = Vector3.Min(boundingBox.Min, vector3_3);
-        boundingBox.Max = Vector3.Max(boundingBox.Max, vector3_3);
-      }
-      return boundingBox;
-    }
+        /// <summary>Array of the level-of-detail surfaces.</summary>
+        public override ShadowMapSurface[] Surfaces => shadowSurfaces;
 
-    /// <summary>
-    /// Sets the location in the shadow map render target the surface renders to.
-    /// </summary>
-    /// <param name="surface">Shadow map surface index.</param>
-    /// <param name="location">Texel region used by the shadow map surface.</param>
-    public override void SetSurfaceRenderTargetLocation(int surface, Rectangle location)
-    {
-      IShadowSource shadowSource = this.ShadowGroup.ShadowSource;
-      ShadowMapSurface shadowMapSurface = this.shadowMapSurface_0[surface];
-      shadowMapSurface.RenderTargetLocation = location;
-      float d1 = this.float_2 * this.float_0[surface];
-      float d2 = this.float_2 * this.float_0[surface + 1];
-      if (surface == 0)
-        this.vector4_1.X = d2;
-      else if (surface == 1)
-        this.vector4_1.Y = d2;
-      else
-        this.vector4_1.Z = d2;
-      this.boundingFrustum_0.Matrix = this.SceneState.Projection;
-      this.boundingFrustum_0.GetCorners(this.vector3_0);
-      Plane plane_0_1 = new Plane(0.0f, 0.0f, 1f, d1);
-      Plane plane_0_2 = new Plane(0.0f, 0.0f, 1f, d2);
-      Vector3 vector3_3 = new Vector3();
-      for (int index = 0; index < 4; ++index)
-      {
-        Vector3 vector3_1 = this.vector3_0[index];
-        Vector3 vector3_2 = this.vector3_0[index + 4];
-        if (CoreUtils.smethod_10(vector3_1, vector3_2, plane_0_1, ref vector3_3))
-          this.vector3_0[index] = vector3_3;
-        if (CoreUtils.smethod_10(vector3_1, vector3_2, plane_0_2, ref vector3_3))
-          this.vector3_0[index + 4] = vector3_3;
-      }
-      Vector3 vector3_4 = this.vector3_0[0];
-      for (int index = 1; index < 8; ++index)
-        vector3_4 += this.vector3_0[index];
-      Vector3 position1 = vector3_4 / 8f;
-      Matrix viewToWorld = this.SceneState.ViewToWorld;
-      Vector3 vector3_5 = Vector3.Transform(position1, viewToWorld);
-      float float3 = this.float_3;
-      Vector3 position2 = vector3_5 - shadowSource.World.Forward * float3;
-      Matrix matrix1 = Matrix.Invert(Matrix.CreateTranslation(position2)) * Matrix.Invert(shadowSource.World);
-      Matrix matrix2 = viewToWorld * matrix1;
-      for (int index = 0; index < 8; ++index)
-        this.vector3_0[index] = Vector3.Transform(this.vector3_0[index], matrix2);
-      float num = Math.Max(Vector3.Distance(this.vector3_0[0], this.vector3_0[2]), Vector3.Distance(this.vector3_0[0], this.vector3_0[6]));
-      CoreUtils.smethod_11(this.vector3_0);
-      shadowMapSurface.WorldToSurfaceView = matrix1;
-      shadowMapSurface.Projection = Matrix.CreateOrthographic(num, num, float3 * 0.25f, float3 * 1.75f) * Matrix.CreateScale(-1f, 1f, 1f);
-      int width = location.Width;
-      Vector4 vector = (Vector4.Transform(new Vector4(position2, 1f), shadowMapSurface.Frustum.Matrix) + Vector4.One) * 0.5f * new Vector4(width);
-      Vector4 vector4 = (Vector4.Transform(new Vector4(Vector3.Zero, 1f), shadowMapSurface.Frustum.Matrix) + Vector4.One) * 0.5f * new Vector4(width);
-      vector.X += vector4.X % 1f;
-      vector.Y += vector4.Y % 1f;
-      vector /= new Vector4(width);
-      vector = vector * 2f - Vector4.One;
-      vector = Vector4.Transform(vector, Matrix.Invert(shadowMapSurface.Frustum.Matrix));
-      Matrix matrix3 = Matrix.Invert(matrix1);
-      matrix3.Translation = new Vector3(vector.X, vector.Y, vector.Z);
-      shadowMapSurface.WorldToSurfaceView = Matrix.Invert(matrix3);
-    }
+        /// <summary>
+        /// Unused, this object supports render targets from the ShadowMapCache.
+        /// </summary>
+        public override RenderTarget CustomRenderTarget => null;
 
-    /// <summary>
-    /// Determines if the shadow map surface is visible to the provided view frustum.
-    /// </summary>
-    /// <param name="surface">Shadow map surface index.</param>
-    /// <param name="viewfrustum"></param>
-    /// <returns></returns>
-    public override bool IsSurfaceVisible(int surface, BoundingFrustum viewfrustum)
-    {
-      return true;
-    }
-
-    private int method_1(float float_4, int int_1, int int_2)
-    {
-      return (int) MathHelper.Clamp((float) (float_4 * 0.5 + 0.5) * int_1 + int_2, 0.0f, int_1);
-    }
-
-    /// <summary>
-    /// Sets up the shadow map for rendering shadows to the scene.
-    /// </summary>
-    /// <param name="shadowmap"></param>
-    public override void BeginRendering(Texture shadowmap)
-    {
-      this.BeginRendering(shadowmap, this.ShadowEffect);
-    }
-
-    /// <summary>
-    /// Sets up the shadow map for rendering shadows to the scene.
-    /// </summary>
-    /// <param name="shadowmap"></param>
-    /// <param name="shadoweffect">Custom shadow effect used in rendering.</param>
-    public override void BeginRendering(Texture shadowmap, Effect shadoweffect)
-    {
-      if (!(shadowmap is Texture2D))
-      {
-        (shadoweffect as Interface3).SetShadowMapAndType(null, Enum5.const_1);
-      }
-      else
-      {
-        Texture2D shadowmap1 = shadowmap as Texture2D;
-        IRenderableEffect renderableEffect = shadoweffect as IRenderableEffect;
-        Interface3 nterface3 = shadoweffect as Interface3;
-        IShadowGenerateEffect shadowGenerateEffect = shadoweffect as IShadowGenerateEffect;
-        nterface3.SetShadowMapAndType(shadowmap1, Enum5.const_1);
-        nterface3.ShadowViewDistance = this.vector4_1;
-        if (renderableEffect != null)
-          renderableEffect.SetViewAndProjection(this.SceneState.View, this.SceneState.ViewToWorld, this.SceneState.Projection, this.SceneState.ProjectionToView);
-        if (shadowGenerateEffect != null)
+        /// <summary>Creates a new ShadowDirectionalMap instance.</summary>
+        protected BaseShadowDirectionalMap()
         {
-          shadowGenerateEffect.ShadowPrimaryBias = this.ShadowGroup.ShadowSource.ShadowPrimaryBias;
-          shadowGenerateEffect.ShadowSecondaryBias = this.ShadowGroup.ShadowSource.ShadowSecondaryBias;
+            for (int index = 0; index < shadowSurfaces.Length; ++index)
+                shadowSurfaces[index] = new ShadowMapSurface();
         }
-        nterface3.ShadowArea = this.ShadowGroup.BoundingSphereCentered;
-        nterface3.ShadowMapLocationAndSpan = this.GetPackedRenderTargetLocationAndSpan(shadowmap1, 0);
-        nterface3.ShadowViewProjection = this.GetPackedSurfaceViewProjection();
-      }
-    }
 
-    /// <summary>Finalizes rendering.</summary>
-    public override void EndRendering()
-    {
-    }
+        /// <summary>
+        /// Builds the shadow map information based on the provided scene state and shadow
+        /// group, visibility, and quality.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="sceneState"></param>
+        /// <param name="shadowGroup">Shadow group used as the source for the shadow map.</param>
+        /// <param name="visibility"></param>
+        /// <param name="shadowQuality">Shadow quality from 1.0 (highest) to 0.0 (lowest).</param>
+        public override void Build(GraphicsDevice device, ISceneState sceneState, ShadowGroup shadowGroup, IShadowMapVisibility visibility, float shadowQuality)
+        {
+            base.Build(device, sceneState, shadowGroup, visibility, shadowQuality);
+            fadeStartDist = sceneState.Environment.ShadowFadeStartDistance;
+            fadeEndDist = sceneState.Environment.ShadowFadeEndDistance;
+            casterDist = sceneState.Environment.ShadowCasterDistance;
+            vector4_1.W = sceneState.Environment.ShadowFadeStartDistance;
+            int num = Math.Min(float_0.Length - 1, visibility.ShadowLODRangeHints.Length);
+            for (int i = 0; i < num; ++i)
+                float_0[i + 1] = visibility.ShadowLODRangeHints[i];
+            for (int index = 0; index < shadowSurfaces.Length; ++index)
+                shadowSurfaces[index].LevelOfDetail = 1f;
+        }
 
-    /// <summary>
-    /// Sets up the shadow map surface for generating the shadow map depth buffer.
-    /// </summary>
-    /// <param name="surface">Shadow map surface index.</param>
-    public override void BeginSurfaceRendering(int surface)
-    {
-      this.BeginSurfaceRendering(surface, this.ShadowEffect);
-    }
+        /// <summary>
+        /// Sets the location in the shadow map render target the surface renders to.
+        /// </summary>
+        /// <param name="surface">Shadow map surface index.</param>
+        /// <param name="location">Texel region used by the shadow map surface.</param>
+        public override void SetSurfaceRenderTargetLocation(int surface, Rectangle location)
+        {
+            IShadowSource shadowSource = ShadowGroup.ShadowSource;
+            ShadowMapSurface shadowMapSurface = shadowSurfaces[surface];
+            shadowMapSurface.RenderTargetLocation = location;
+            float d1 = fadeEndDist * float_0[surface];
+            float d2 = fadeEndDist * float_0[surface + 1];
+            if (surface == 0)
+                vector4_1.X = d2;
+            else if (surface == 1)
+                vector4_1.Y = d2;
+            else
+                vector4_1.Z = d2;
+            boundingFrustum_0.Matrix = SceneState.Projection;
+            boundingFrustum_0.GetCorners(vector3_0);
+            Plane plane_0_1 = new Plane(0.0f, 0.0f, 1f, d1);
+            Plane plane_0_2 = new Plane(0.0f, 0.0f, 1f, d2);
+            Vector3 vector3_3 = new Vector3();
+            for (int index = 0; index < 4; ++index)
+            {
+                Vector3 vector3_1 = vector3_0[index];
+                Vector3 vector3_2 = vector3_0[index + 4];
+                if (CoreUtils.smethod_10(vector3_1, vector3_2, plane_0_1, ref vector3_3))
+                    vector3_0[index] = vector3_3;
+                if (CoreUtils.smethod_10(vector3_1, vector3_2, plane_0_2, ref vector3_3))
+                    vector3_0[index + 4] = vector3_3;
+            }
+            Vector3 vector3_4 = vector3_0[0];
+            for (int index = 1; index < 8; ++index)
+                vector3_4 += vector3_0[index];
+            Vector3 position1 = vector3_4 / 8f;
+            Matrix viewToWorld = SceneState.ViewToWorld;
+            Vector3 vector3_5 = Vector3.Transform(position1, viewToWorld);
+            float float3 = casterDist;
+            Vector3 position2 = vector3_5 - shadowSource.World.Forward * float3;
+            Matrix matrix1 = Matrix.Invert(Matrix.CreateTranslation(position2)) * Matrix.Invert(shadowSource.World);
+            Matrix matrix2 = viewToWorld * matrix1;
+            for (int index = 0; index < 8; ++index)
+                vector3_0[index] = Vector3.Transform(vector3_0[index], matrix2);
+            float num = Math.Max(Vector3.Distance(vector3_0[0], vector3_0[2]), Vector3.Distance(vector3_0[0], vector3_0[6]));
+            CoreUtils.smethod_11(vector3_0);
+            shadowMapSurface.WorldToSurfaceView = matrix1;
+            shadowMapSurface.Projection = Matrix.CreateOrthographic(num, num, float3 * 0.25f, float3 * 1.75f) * Matrix.CreateScale(-1f, 1f, 1f);
+            int width = location.Width;
+            Vector4 vector = (Vector4.Transform(new Vector4(position2, 1f), shadowMapSurface.Frustum.Matrix) + Vector4.One) * 0.5f * new Vector4(width);
+            Vector4 vector4 = (Vector4.Transform(new Vector4(Vector3.Zero, 1f), shadowMapSurface.Frustum.Matrix) + Vector4.One) * 0.5f * new Vector4(width);
+            vector.X += vector4.X % 1f;
+            vector.Y += vector4.Y % 1f;
+            vector /= new Vector4(width);
+            vector = vector * 2f - Vector4.One;
+            vector = Vector4.Transform(vector, Matrix.Invert(shadowMapSurface.Frustum.Matrix));
+            Matrix matrix3 = Matrix.Invert(matrix1);
+            matrix3.Translation = new Vector3(vector.X, vector.Y, vector.Z);
+            shadowMapSurface.WorldToSurfaceView = Matrix.Invert(matrix3);
+        }
 
-    /// <summary>
-    /// Sets up the shadow map surface for generating the shadow map depth buffer.
-    /// </summary>
-    /// <param name="surface">Shadow map surface index.</param>
-    /// <param name="shadoweffect">Custom shadow effect used in rendering.</param>
-    public override void BeginSurfaceRendering(int surface, Effect shadoweffect)
-    {
-      ShadowMapSurface shadowMapSurface = this.shadowMapSurface_0[surface];
-      IRenderableEffect renderableEffect = shadoweffect as IRenderableEffect;
-      Interface3 nterface3 = shadoweffect as Interface3;
-      IShadowGenerateEffect shadowGenerateEffect = shadoweffect as IShadowGenerateEffect;
-      if (nterface3 != null)
-        nterface3.SetShadowMapAndType(null, Enum5.const_1);
-      if (renderableEffect != null)
-        renderableEffect.SetViewAndProjection(shadowMapSurface.WorldToSurfaceView, Matrix.Identity, shadowMapSurface.Projection, this.SceneState.ProjectionToView);
-      if (shadowGenerateEffect != null)
-      {
-        shadowGenerateEffect.ShadowPrimaryBias = this.ShadowGroup.ShadowSource.ShadowPrimaryBias;
-        shadowGenerateEffect.ShadowSecondaryBias = this.ShadowGroup.ShadowSource.ShadowSecondaryBias;
-        shadowGenerateEffect.ShadowArea = this.ShadowGroup.BoundingSphereCentered;
-        shadowGenerateEffect.SetCameraView(this.SceneState.View, this.SceneState.ViewToWorld);
-      }
-      else if (nterface3 != null)
-        nterface3.ShadowArea = this.ShadowGroup.BoundingSphereCentered;
-      this.Device.Viewport = this.shadowMapSurface_0[surface].Viewport;
-      this.Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer | ClearOptions.Stencil, Color.White, 1f, 0);
-    }
+        /// <summary>
+        /// Determines if the shadow map surface is visible to the provided view frustum.
+        /// </summary>
+        /// <param name="surface">Shadow map surface index.</param>
+        /// <param name="viewfrustum"></param>
+        /// <returns></returns>
+        public override bool IsSurfaceVisible(int surface, BoundingFrustum viewfrustum)
+        {
+            return true;
+        }
 
-    /// <summary>Finalizes rendering.</summary>
-    public override void EndSurfaceRendering()
-    {
+        /// <summary>
+        /// Sets up the shadow map for rendering shadows to the scene.
+        /// </summary>
+        /// <param name="shadowMap"></param>
+        public override void BeginRendering(Texture shadowMap)
+        {
+            BeginRendering(shadowMap, ShadowEffect);
+        }
+
+        /// <summary>
+        /// Sets up the shadow map for rendering shadows to the scene.
+        /// </summary>
+        /// <param name="shadowMap"></param>
+        /// <param name="shadowFx">Custom shadow effect used in rendering.</param>
+        public override void BeginRendering(Texture shadowMap, Effect shadowFx)
+        {
+            var shadow = (IShadowEffect)shadowFx;
+            if (shadowMap is Texture2D shadowTex)
+            {
+                var render = shadowFx as IRenderableEffect;
+                var generate = shadowFx as IShadowGenerateEffect;
+                shadow.SetShadowMapAndType(shadowTex, Enum5.const_1);
+                shadow.ShadowViewDistance = vector4_1;
+                render?.SetViewAndProjection(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView);
+                if (generate != null)
+                {
+                    generate.ShadowPrimaryBias = ShadowGroup.ShadowSource.ShadowPrimaryBias;
+                    generate.ShadowSecondaryBias = ShadowGroup.ShadowSource.ShadowSecondaryBias;
+                }
+
+                shadow.ShadowArea = ShadowGroup.BoundingSphereCentered;
+                shadow.ShadowMapLocationAndSpan = GetPackedRenderTargetLocationAndSpan(shadowTex, 0);
+                shadow.ShadowViewProjection = GetPackedSurfaceViewProjection();
+            }
+            else
+            {
+                shadow.SetShadowMapAndType(null, Enum5.const_1);
+            }
+        }
+
+        /// <summary>Finalizes rendering.</summary>
+        public override void EndRendering()
+        {
+        }
+
+        /// <summary>
+        /// Sets up the shadow map surface for generating the shadow map depth buffer.
+        /// </summary>
+        /// <param name="surface">Shadow map surface index.</param>
+        public override void BeginSurfaceRendering(int surface)
+        {
+            BeginSurfaceRendering(surface, ShadowEffect);
+        }
+
+        /// <summary>
+        /// Sets up the shadow map surface for generating the shadow map depth buffer.
+        /// </summary>
+        /// <param name="surface">Shadow map surface index.</param>
+        /// <param name="shadowFx">Custom shadow effect used in rendering.</param>
+        public override void BeginSurfaceRendering(int surface, Effect shadowFx)
+        {
+            ShadowMapSurface mapSurface = shadowSurfaces[surface];
+            var render = shadowFx as IRenderableEffect;
+            var shadow = shadowFx as IShadowEffect;
+            var generate = shadowFx as IShadowGenerateEffect;
+            shadow?.SetShadowMapAndType(null, Enum5.const_1);
+            render?.SetViewAndProjection(mapSurface.WorldToSurfaceView, Matrix.Identity, mapSurface.Projection, SceneState.ProjectionToView);
+            if (generate != null)
+            {
+                generate.ShadowPrimaryBias = ShadowGroup.ShadowSource.ShadowPrimaryBias;
+                generate.ShadowSecondaryBias = ShadowGroup.ShadowSource.ShadowSecondaryBias;
+                generate.ShadowArea = ShadowGroup.BoundingSphereCentered;
+                generate.SetCameraView(SceneState.View, SceneState.ViewToWorld);
+            }
+            else if (shadow != null)
+            {
+                shadow.ShadowArea = ShadowGroup.BoundingSphereCentered;
+            }
+            Device.Viewport = shadowSurfaces[surface].Viewport;
+            Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer | ClearOptions.Stencil, Color.White, 1f, 0);
+        }
+
+        /// <summary>Finalizes rendering.</summary>
+        public override void EndSurfaceRendering()
+        {
+        }
     }
-  }
 }
