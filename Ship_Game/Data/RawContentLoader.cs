@@ -225,7 +225,7 @@ namespace Ship_Game
             fx.ParallaxScale                 = 0.0f;
             fx.ParallaxOffset                = 0.0f;
             fx.DiffuseColor  = mat->DiffuseColor;
-            fx.EmissiveColor = mat->EmissiveColor;
+            //fx.EmissiveColor = mat->EmissiveColor;
             fx.AddressModeU  = TextureAddressMode.Wrap;
             fx.AddressModeV  = TextureAddressMode.Wrap;
             fx.AddressModeW  = TextureAddressMode.Wrap;
@@ -400,17 +400,23 @@ namespace Ship_Game
             {
                 for (int i = 0; i < modelMesh.Effects.Count; ++i)
                 {
-                    string matName = (i == 0) ? name : name + i;
                     Effect effect = modelMesh.Effects[i];
                     if (!exported.ContainsKey(effect))
                     {
                         if (effect is BaseMaterialEffect sunburn)
                         {
+                            string matName = sunburn.MaterialName.NotEmpty() ? sunburn.MaterialName : name+i;
                             exported[effect] = (long)ExportMaterial(mesh, sunburn, matName, exportDir);
                         }
                         else if (effect is BasicEffect basic)
                         {
+                            string matName = basic.Texture != null && basic.Texture.Name.NotEmpty()
+                                ? basic.Texture.Name : name+i;
                             exported[effect] = (long)ExportMaterial(mesh, basic, matName, exportDir);
+                        }
+                        else
+                        {
+                            exported[effect] = 0;
                         }
                     }
                 }
@@ -470,7 +476,8 @@ namespace Ship_Game
                     if (modelMesh.Effects[0] != null)
                     {
                         var material = (SDMaterial*)materials[modelMesh.Effects[0]];
-                        SDMeshGroupSetMaterial(group, material);
+                        if (material != null)
+                            SDMeshGroupSetMaterial(group, material);
                     }
                 }
             }
@@ -513,7 +520,7 @@ namespace Ship_Game
                 Vector3.One, // ambientColor
                 fx.DiffuseColor, 
                 Vector3.One, // specularColor
-                fx.EmissiveColor, 
+                Vector3.Zero, 
                 fx.SpecularAmount / 16f, 
                 fx.Transparency);
         }
