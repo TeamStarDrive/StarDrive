@@ -39,7 +39,7 @@ namespace Ship_Game.AI
             Owner.isThrusting = false;
         }
 
-        bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
+        internal bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
             if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
                 Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
@@ -240,7 +240,7 @@ namespace Ship_Game.AI
         // thrust offset used by ThrustOrWarpTowardsPosition
         public Vector2 ThrustTarget { get; private set; }
 
-        Vector2 PredictThrustPosition(Vector2 targetPos)
+        internal Vector2 PredictThrustPosition(Vector2 targetPos)
         {
             // because or ship is actively moving, it needs to correct its thrusting direction
             // this reduces drift and prevents stupidly missing targets with naive "thrust toward target"

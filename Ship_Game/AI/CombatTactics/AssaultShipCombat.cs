@@ -4,12 +4,12 @@ namespace Ship_Game.AI.CombatTactics
 {
     internal sealed class AssaultShipCombat : ShipAIPlan
     {
-        readonly ShipAIPlan SecondaryPlan;
+        readonly ShipAIPlan Artillery;
         Ship Target;
 
         public AssaultShipCombat(ShipAI ai) : base(ai)
         {
-            SecondaryPlan = new Artillery(ai);
+            Artillery = new Artillery(ai);
         }
 
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
@@ -19,7 +19,7 @@ namespace Ship_Game.AI.CombatTactics
 
             Target = AI.Target as Ship;
 
-            SecondaryPlan.Execute(elapsedTime, null);
+            Artillery.Execute(elapsedTime, null);
             if (!Owner.Carrier.HasTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;
             if (!Owner.loyalty.isFaction && Target?.shipData.Role <= ShipData.RoleName.drone)
