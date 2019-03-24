@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.AI.ShipMovement;
 using System;
 
 namespace Ship_Game.AI
@@ -168,16 +169,16 @@ namespace Ship_Game.AI
                         CombatTactic = new CombatTactics.Artillery(Owner.AI);
                         break;
                     case CombatState.BroadsideLeft:
-                        CombatTactic = new CombatTactics.BroadSides(Owner.AI, ShipAI.Orbit.Left);
+                        CombatTactic = new CombatTactics.BroadSides(Owner.AI, OrbitObject.OrbitDirection.Left);
                         break;
                     case CombatState.BroadsideRight:
-                        CombatTactic = new CombatTactics.BroadSides(Owner.AI, ShipAI.Orbit.Right);
+                        CombatTactic = new CombatTactics.BroadSides(Owner.AI, OrbitObject.OrbitDirection.Right);
                         break;
                     case CombatState.OrbitLeft:
-                        CombatTactic = new CombatTactics.OrbitTarget(Owner.AI, ShipAI.Orbit.Left);
+                        CombatTactic = new CombatTactics.OrbitTarget(Owner.AI, OrbitObject.OrbitDirection.Left);
                         break;
                     case CombatState.OrbitRight:
-                        CombatTactic = new CombatTactics.OrbitTarget(Owner.AI, ShipAI.Orbit.Right);
+                        CombatTactic = new CombatTactics.OrbitTarget(Owner.AI, OrbitObject.OrbitDirection.Right);
                         break;
                     case CombatState.AttackRuns:
                         CombatTactic = new CombatTactics.AttackRun(Owner.AI);
