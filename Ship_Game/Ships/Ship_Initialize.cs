@@ -99,16 +99,17 @@ namespace Ship_Game.Ships
 
         public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool isTemplate = false)
         {
-            var internalPositions = new Array<Vector2>();
+            bool hasLegacyDummySlots = false;
             int count = 0;
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slot = templateSlots[i];
-                if (slot.Restrictions == Restrictions.I)
-                    internalPositions.Add(slot.Position);
                 string uid = slot.InstalledModuleUID;
                 if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
+                {
+                    hasLegacyDummySlots = true;
                     continue;
+                }
                 if (!ResourceManager.ModuleExists(uid))
                 {
                     Log.Warning($"Failed to load ship '{Name}' due to invalid Module '{uid}'!");
@@ -122,6 +123,7 @@ namespace Ship_Game.Ships
                 Log.Warning($"Failed to load ship '{Name}' due to all dummy modules!");
                 return false;
             }
+
             ModuleSlotList = new ShipModule[count];
 
             count = 0;
@@ -133,26 +135,14 @@ namespace Ship_Game.Ships
                     continue;
 
                 ShipModule module = ShipModule.Create(uid, this, slotData, isTemplate, fromSave);
-
-                // @todo PERFORMANCE BOTTLENECK during game load
-                for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x += 16)
-                {
-                    for (float y = module.XMLPosition.Y; y < module.XMLPosition.Y + module.YSIZE * 16; y += 16)
-                    {
-                        if (internalPositions.Contains(new Vector2(x, y)))
-                        {
-                            module.Restrictions = Restrictions.I;
-                            break;
-                        }
-                    }
-                }
-
                 module.HangarShipGuid   = slotData.HangarshipGuid;
                 module.hangarShipUID    = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;
             }
 
             CreateModuleGrid();
+            if (hasLegacyDummySlots)
+                FixLegacyInternalRestrictions(templateSlots);
             return true;
         }
 
@@ -367,23 +357,11 @@ namespace Ship_Game.Ships
             manager.AddObject(ShipSO);
         }
 
-        public void InitializeShipScene()
-        {
-            CreateSceneObject();
-            ShipInitialized = true;
-        }
-
         public void InitializeShip(bool loadingFromSavegame = false)
         {
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
 
-            //bool worldInit = loadingFromSavegame || Empire.Universe == null;
-            bool worldInit = true; // FB - temp fix - this is not setting ship radius currectly
-            if (worldInit)
-                CreateSceneObject();
-            else
-                Empire.Universe.QueueShipToWorldScene(this);
-
+            CreateSceneObject();
 
             if (VanityName.IsEmpty())
                 VanityName = Name;
@@ -419,8 +397,7 @@ namespace Ship_Game.Ships
             InitializeThrusters();
             SetmaxFTLSpeed();
             DesignRole = GetDesignRole();
-            if (worldInit)
-                ShipInitialized = true;
+            ShipInitialized = true;
         }
 
         private void InitDefendingTroopStrength()
@@ -566,7 +543,8 @@ namespace Ship_Game.Ships
                     hasRepairBeam = true;
                 }
 
-                if (module.HasInternalRestrictions) InternalSlotCount += module.XSIZE * module.YSIZE;
+                if (module.HasInternalRestrictions)
+                    InternalSlotCount += module.XSIZE * module.YSIZE;
                 HasRepairModule |= module.IsRepairModule;
 
                 float massModifier = 1f;

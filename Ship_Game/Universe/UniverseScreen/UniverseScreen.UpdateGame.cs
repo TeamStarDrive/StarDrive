@@ -403,10 +403,6 @@ namespace Ship_Game
             //clear out general object removal.
             TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();
-            //Create New Ship SceneObjecst
-            AddShipSceneObjectsFromQueue();
-
-
 
             if (Paused)
             {
