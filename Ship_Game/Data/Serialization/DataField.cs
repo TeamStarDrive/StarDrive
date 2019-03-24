@@ -14,7 +14,7 @@ namespace Ship_Game.Data.Serialization
         public int Id;
         readonly PropertyInfo Prop;
         readonly FieldInfo Field;
-        readonly TypeSerializer Serializer;
+        public readonly TypeSerializer Serializer;
         
         public override string ToString() => Prop?.ToString() ?? Field?.ToString() ?? "invalid";
 
@@ -42,7 +42,7 @@ namespace Ship_Game.Data.Serialization
         public void Serialize(BinaryWriter writer, object instance)
         {
             object value = Get(instance);
-            Serializer.Serialize(writer, Id, value);
+            Serializer.Serialize(writer, value);
         }
 
         public void Deserialize(BinaryReader reader, object instance)

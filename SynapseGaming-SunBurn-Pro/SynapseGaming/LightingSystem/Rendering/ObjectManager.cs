@@ -76,8 +76,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         }
 
         /// <summary>Sets up the object prior to rendering.</summary>
-        /// <param name="scenestate"></param>
-        public virtual void BeginFrameRendering(ISceneState scenestate)
+        /// <param name="state"></param>
+        public virtual void BeginFrameRendering(ISceneState state)
         {
             this.MoveDynamicObjects();
         }

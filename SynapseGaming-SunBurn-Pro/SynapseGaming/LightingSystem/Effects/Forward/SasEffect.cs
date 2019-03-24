@@ -17,15 +17,15 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// Creates a new SasEffect instance from an effect containing an SAS shader
     /// (often loaded through the content pipeline or from disk).
     /// </summary>
-    /// <param name="graphicsdevice"></param>
+    /// <param name="device"></param>
     /// <param name="effect">Source effect containing an SAS shader.</param>
-    public SasEffect(GraphicsDevice graphicsdevice, Effect effect)
-      : base(graphicsdevice, effect)
+    public SasEffect(GraphicsDevice device, Effect effect)
+      : base(device, effect)
     {
     }
 
-    internal SasEffect(GraphicsDevice graphicsDevice_0, Effect effect_0, bool bool_5)
-      : base(graphicsDevice_0, effect_0, bool_5)
+    internal SasEffect(GraphicsDevice device, Effect effect_0, bool bool_5)
+      : base(device, effect_0, bool_5)
     {
     }
 
