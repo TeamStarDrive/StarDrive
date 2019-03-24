@@ -32,14 +32,12 @@ namespace Ship_Game.AI
         public Array<ShipWeight>   NearByShips = new Array<ShipWeight>();
         public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
-        readonly AttackRun AttackRun;
         readonly DropOffGoods DropOffGoods;
         readonly PickupGoods PickupGoods;
 
         public ShipAI(Ship owner)
         {
-            Owner = owner;
-            AttackRun = new AttackRun(this);
+            Owner = owner;       
             DropOffGoods = new DropOffGoods(this);
             PickupGoods = new PickupGoods(this);
         }
