@@ -6,9 +6,10 @@ namespace SDNative
     ////////////////////////////////////////////////////////////////////////////////////
 
     SDMeshGroup::SDMeshGroup(SDMesh& mesh, int groupId)
-		: GroupId{ groupId }, Mat{ mesh.Data[groupId].Mat }, TheMesh{ mesh }
+        : GroupId{ groupId }, TheMesh{ mesh }
     {
         Name = mesh.Data[groupId].Name;
+        Mat = mesh.GetOrCreateMat(GetGroup().Mat);
         InitVertices();
     }
 
@@ -39,12 +40,12 @@ namespace SDNative
 
     void SDMeshGroup::InitVertices()
     {
-		Nano::MeshGroup& group = GetGroup();
+        Nano::MeshGroup& group = GetGroup();
         if (group.IsEmpty())
             return;
 
         // Sunburn expects ClockWise
-		group.SetFaceWinding(FaceWinding::CW);
+        group.SetFaceWinding(FaceWinding::CW);
 
         vector<int> indices;
         group.OptimizedFlatten(); // force numVertices == numCoords == numNormals
@@ -81,7 +82,7 @@ namespace SDNative
             sdv.Normal = pNormals[i];
         }
 
-		Vector3 tangent{}, biNormal{};
+        Vector3 tangent{}, biNormal{};
         for (int i = 0; i < numIndices; i += 3)
         {
             SDVertex& v0 = outVertices[outIndices[i]];
@@ -99,9 +100,9 @@ namespace SDNative
     }
 
     void SDMeshGroup::SetData(Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
-                              const rpp::ushort* indices, int numIndices)
+                              const ushort* indices, int numIndices)
     {
-		Nano::MeshGroup& group = GetGroup();
+        MeshGroup& group = GetGroup();
         Matrix4 transform = Transform.inverse();
         if (vertices)
         {
@@ -126,7 +127,7 @@ namespace SDNative
                 dst[i] = { uv.x, 1.0f - uv.y };
             }
         }
-		group.CoordsMapping = coords ? MapPerVertex : MapNone;
+        group.CoordsMapping = coords ? MapPerVertex : MapNone;
 
         if (normals)
         {
@@ -139,13 +140,13 @@ namespace SDNative
                 dst[i] = {normal.x, -normal.z, -normal.y};
             }
         }
-		group.NormalsMapping = coords ? MapPerVertex : MapNone;
+        group.NormalsMapping = coords ? MapPerVertex : MapNone;
 
         const bool hasCoords  = !group.Coords.empty();
         const bool hasNormals = !group.Normals.empty();
 
         int numTriangles = numIndices / 3;
-		group.Tris.resize(numTriangles);
+        group.Tris.resize(numTriangles);
         auto* destFaces = group.Tris.data();
 
         for (int i = 0, faceId = 0; i < numIndices; i += 3, ++faceId)
@@ -159,18 +160,11 @@ namespace SDNative
             tri.c = { v2, hasCoords?v2:-1, hasNormals?v2:-1 };
         }
 
-		TheMesh.SyncStats();
+        TheMesh.SyncStats();
     }
 
-    Mesh& SDMeshGroup::GetMesh() const
-    {
-		return TheMesh.Data;
-    }
-
-    MeshGroup& SDMeshGroup::GetGroup() const
-    {
-		return GetMesh()[GroupId];
-    }
+    Mesh&      SDMeshGroup::GetMesh()  const { return TheMesh.Data; }
+    MeshGroup& SDMeshGroup::GetGroup() const { return TheMesh.Data[GroupId]; }
 
     ////////////////////////////////////////////////////////////////////////////////////
 
@@ -178,34 +172,47 @@ namespace SDNative
 
     SDMesh::SDMesh(strview path) : Data{ path }
     {
-        Groups.resize(Data.NumGroups());
         Name = Data.Name;
-		SyncStats();
+        Groups.resize(Data.NumGroups());
+        for (int i = 0; i < Data.NumGroups(); ++i)
+        {
+            Groups[i] = std::make_unique<SDMeshGroup>(*this, i);
+        }
+        SyncStats();
     }
 
     SDMeshGroup* SDMesh::GetGroup(int groupId)
     {
-        if (!Data.IsValidGroup(groupId))
-            return nullptr;
-
-        if (auto* groupMesh = Groups[groupId].get())
-            return groupMesh;
-
-        Groups[groupId] = std::make_unique<SDMeshGroup>(*this, groupId);
-        return Groups[groupId].get();
+        if (Data.IsValidGroup(groupId))
+            return Groups[groupId].get();
+        return nullptr;
     }
 
     SDMeshGroup* SDMesh::AddGroup(string groupName)
     {
         MeshGroup& group = Data.CreateGroup(move(groupName));
         auto* g = Groups.emplace_back(std::make_unique<SDMeshGroup>(*this, group.GroupId)).get();
-		SyncStats();
-		return g;
+        SyncStats();
+        return g;
+    }
+
+    SDMaterial* SDMesh::GetOrCreateMat(const shared_ptr<Nano::Material>& mat)
+    {
+        if (!mat)
+            return nullptr;
+
+        for (unique_ptr<SDMaterial>& mapping : Materials)
+            if (mapping->Mat == mat)
+                return mapping.get();
+
+        Materials.push_back(std::make_unique<SDMaterial>(mat)); // add new
+        return Materials.back().get();
     }
 
     void SDMesh::SyncStats()
     {
-		NumGroups = Data.NumGroups();
+        Name      = Data.Name;
+        NumGroups = Data.NumGroups();
         NumFaces  = Data.TotalTris();
     }
 
@@ -246,9 +253,9 @@ namespace SDNative
         return mesh;
     }
 
-    DLLAPI(bool) SDMeshSave(SDMesh* mesh, const wchar_t* filename)
+    DLLAPI(bool) SDMeshSave(SDMesh* mesh, const wchar_t* fileName)
     {
-        return mesh->Data.SaveAs(to_string(filename));
+        return mesh->Data.SaveAs(to_string(fileName));
     }
 
     DLLAPI(SDMeshGroup*) SDMeshNewGroup(SDMesh* mesh, const wchar_t* groupName, Matrix4* transform)
@@ -259,30 +266,30 @@ namespace SDNative
     }
 
     DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group,
-                                    Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
-                                    ushort* indices, int numIndices)
+        Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
+        ushort* indices, int numIndices)
     {
         group->SetData(vertices, normals, coords, numVertices, indices, numIndices);
     }
 
-    DLLAPI(void) SDMeshGroupSetMaterial(
-                    SDMeshGroup* group, 
-                    const wchar_t* name, 
-                    const wchar_t* materialFile, 
-                    const wchar_t* diffusePath, 
-                    const wchar_t* alphaPath, 
-                    const wchar_t* specularPath, 
-                    const wchar_t* normalPath, 
-                    const wchar_t* emissivePath, 
-                    Color3 ambientColor, 
-                    Color3 diffuseColor, 
-                    Color3 specularColor, 
-                    Color3 emissiveColor, 
-                    float specular, 
-                    float alpha)
+    DLLAPI(SDMaterial*) SDMeshCreateMaterial(
+        SDMesh* mesh,
+        const wchar_t* name, 
+        const wchar_t* diffusePath, 
+        const wchar_t* alphaPath, 
+        const wchar_t* specularPath, 
+        const wchar_t* normalPath, 
+        const wchar_t* emissivePath, 
+        Color3 ambientColor, 
+        Color3 diffuseColor, 
+        Color3 specularColor, 
+        Color3 emissiveColor, 
+        float specular, 
+        float alpha)
     {
-        Material& mat = group->GetGroup().CreateMaterial(to_string(name));
-        mat.MaterialFile  = to_string(materialFile);
+        shared_ptr<Nano::Material> matPtr = std::make_shared<Nano::Material>();
+        Material& mat = *matPtr;
+        mat.Name          = to_string(name);
         mat.DiffusePath   = to_string(diffusePath);
         mat.AlphaPath     = to_string(alphaPath);
         mat.SpecularPath  = to_string(specularPath);
@@ -294,6 +301,16 @@ namespace SDNative
         mat.EmissiveColor = emissiveColor;
         mat.Specular      = specular;
         mat.Alpha         = alpha;
+
+        SDMaterial* sdMat = mesh->GetOrCreateMat(matPtr);
+        mesh->SyncStats();
+        return sdMat;
+    }
+
+    DLLAPI(void) SDMeshGroupSetMaterial(SDMeshGroup* group, SDMaterial* material)
+    {
+        group->Mat = material;
+        group->GetGroup().Mat = material ? material->Mat : nullptr;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
