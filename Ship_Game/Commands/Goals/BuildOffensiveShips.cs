@@ -10,7 +10,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "BuildOffensiveShips";
         public override string UID => ID;
 
-        public BuildOffensiveShips() : base(GoalType.BuildShips)
+        public BuildOffensiveShips() : base(GoalType.BuildOffensiveShips)
         {
             Steps = new Func<GoalStep>[]
             {

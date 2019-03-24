@@ -523,11 +523,7 @@ namespace Ship_Game.AI
             {
                 if (bombBay.InstalledWeapon.CooldownTimer > 0f)
                     continue;
-                var bomb = new Bomb(new Vector3(Owner.Center, 0f), Owner.loyalty)
-                {
-                    WeaponName = bombBay.BombType
-                };
-
+                var bomb = new Bomb(new Vector3(Owner.Center, 0f), Owner.loyalty, bombBay.BombType);
                 if (Owner.Ordinance > bombBay.InstalledWeapon.OrdinanceRequiredToFire)
                 {
                     Owner.ChangeOrdnance(-bombBay.InstalledWeapon.OrdinanceRequiredToFire);

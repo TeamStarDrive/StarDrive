@@ -168,7 +168,6 @@ namespace Ship_Game
             public readonly SlotStruct Slot;
             public readonly ShipModule Mod;
             public readonly ModuleOrientation Ori;
-            public readonly bool AlreadyInstalled;
             bool CanInstall;
             public SlotInstall() {}
             public SlotInstall(SlotStruct slot, ShipModule mod, ModuleOrientation ori)
@@ -176,16 +175,18 @@ namespace Ship_Game
                 Slot = slot;
                 Mod = mod;
                 Ori = ori;
-                AlreadyInstalled = Slot.IsSame(Mod, Ori, Mod.Facing);
             }
-            public bool CanInstallTo(DesignModuleGrid grid)
+            public bool UpdateCanInstallTo(DesignModuleGrid grid)
             {
-                if (Slot == null || !grid.ModuleFitsAtSlot(Slot, Mod))
+                if (Slot == null)
+                    return false;
+                if (!grid.ModuleFitsAtSlot(Slot, Mod))
                 {
                     PlayNegativeSound();
-                    return (CanInstall = false);
+                    return false;
                 }
-                return (CanInstall = !AlreadyInstalled);
+                CanInstall = !Slot.IsSame(Mod, Ori, Mod.Facing);
+                return CanInstall;
             }
             public void TryInstallTo(DesignModuleGrid designGrid)
             {
@@ -210,17 +211,19 @@ namespace Ship_Game
         void InstallActiveModule(SlotInstall active)
         {
             SlotInstall mirror = CreateMirrorInstall(active);
-            if (!active.CanInstallTo(ModuleGrid) && !mirror.CanInstallTo(ModuleGrid))
-                return;
-
-            ModuleGrid.StartUndoableAction();
+            bool canInstall  = active.UpdateCanInstallTo(ModuleGrid);
+                 canInstall |= mirror.UpdateCanInstallTo(ModuleGrid);
+            if (canInstall)
             {
-                active.TryInstallTo(ModuleGrid);
-                mirror.TryInstallTo(ModuleGrid);
+                ModuleGrid.StartUndoableAction();
+                {
+                    active.TryInstallTo(ModuleGrid);
+                    mirror.TryInstallTo(ModuleGrid);
+                }
+                ModuleGrid.RecalculatePower();
+                ShipSaved = false;
+                SpawnActiveModule(active.Mod, active.Ori, active.Slot.Facing);
             }
-            ModuleGrid.RecalculatePower();
-            ShipSaved = false;
-            SpawnActiveModule(active.Mod, active.Ori, active.Slot.Facing);
         }
 
         void ReplaceModulesWith(SlotStruct slot, ShipModule template)
