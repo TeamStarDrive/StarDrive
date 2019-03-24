@@ -1,10 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using Ship_Game.Ships;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game.AI.CombatTactics
 {
@@ -17,8 +13,11 @@ namespace Ship_Game.AI.CombatTactics
         }
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
-             Vector2 nextOrbitPoint = AI.SetNextOrbitPoint(AI.Target.Center, OrbitDirection, AI.Owner.MaxWeaponRange *.75f);
-            AI.SubLightContinuousMoveInDirection(AI.Owner.Center.DirectionToTarget(nextOrbitPoint), elapsedTime, 0);
+            float radius = AI.Owner.MaxWeaponRange - AI.Owner.Radius - AI.Target.Radius;
+            float velocityCheck = (Owner.Velocity.Length() + AI.Target.Velocity.Length()) * 3 ;
+            Vector2 predictedOrbitPoint = AI.Owner.PredictImpact(AI.Target);
+            AI.UpdateOrbitPos(predictedOrbitPoint, radius, OrbitDirection, velocityCheck);
+            AI.ThrustOrWarpToPosCorrected(AI.GetOrbitPos, elapsedTime);
         }
     }
 }

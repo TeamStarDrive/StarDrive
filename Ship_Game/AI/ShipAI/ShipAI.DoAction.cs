@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
-using Ship_Game.Commands.Goals;
-using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
@@ -342,44 +340,42 @@ namespace Ship_Game.AI
         const float OrbitalSpeedLimit = 500f;
 
         public enum Orbit { Left, Right }
-
+        public Vector2 GetOrbitPos => OrbitPos;
         // Orbit drones around a ship
         void OrbitShip(Ship ship, float elapsedTime, Orbit direction)
         {
-<<<<<<< working copy
-            SetNextOrbitPoint(ship.Center, direction, 2500f);
-            ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, OrbitalSpeedLimit);
+            float accuracy = (Owner.Velocity.Length() + ship.Velocity.Length()) * 3;
+            Vector2 predictedSpot = PredictThrustPosition(ship.Center);
+            UpdateOrbitPos(ship.Center, 1500f, direction, accuracy);
+            ThrustOrWarpToPosCorrected(predictedSpot, elapsedTime, OrbitalSpeedLimit);
         }
 
-        public Vector2 SetNextOrbitPoint(Vector2 target, Orbit direction, float orbitDistance, float newPointDistance = 1500f)
+        internal void UpdateOrbitPos(Vector2 orbitAround, float orbitRadius, Orbit direction, float orbitAccuracy)
         {
-            float orbitPointDistance = OrbitPos.Distance(Owner.Center);
-            if (orbitPointDistance < newPointDistance || orbitDistance * 10 < target.Distance(OrbitPos))
-=======
-            UpdateOrbitPos(ship.Center, 1500f, direction);
-            ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, OrbitalSpeedLimit);
-        }
 
-        void UpdateOrbitPos(Vector2 orbitAround, float orbitRadius, Orbit direction)
-        {
             OrbitPos = orbitAround.PointOnCircle(OrbitalAngle, orbitRadius);
-            if (Owner.Center.InRadius(OrbitPos, orbitRadius))
->>>>>>> merge rev
+            //These calculations are to check if the orbit target is behind the ship
+            //This prevents the ship from chasing an orbit position that it cant reach due to the orbit target
+            //speed being faster or the same speed as the ship.
+            //also helps get a smoother orbit start on planets.
+            Owner.RotationNeededForTarget(OrbitPos, 0f, out float angleToOrbitPos, out float rotationDirToOrbitPos);
+            Owner.RotationNeededForTarget(orbitAround, 0f, out float angleToTarget, out float rotationDirToTarget);
+
+            bool inSideNewOrbitPoint = Owner.Center.Distance(OrbitPos) < orbitAccuracy;
+
+            if (inSideNewOrbitPoint || angleToTarget > 2 && angleToOrbitPos < 1.25f)
             {
                 float deltaAngle = direction == Orbit.Left ? -15f : +15f;
                 OrbitalAngle = (OrbitalAngle + deltaAngle).NormalizedAngle();
-<<<<<<< working copy
-                OrbitalAngle = OrbitalAngle.NormalizedAngle();
-                OrbitPos = target.PointOnCircle(OrbitalAngle, orbitDistance);
-=======
 
                 OrbitPos = orbitAround.PointOnCircle(OrbitalAngle, orbitRadius);
->>>>>>> merge rev
             }
-<<<<<<< working copy
-            return OrbitPos;
-=======
->>>>>>> merge rev
+
+            if (Empire.Universe.SelectedShip == Owner)
+            {
+                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.PathFinder, OrbitPos, orbitAccuracy, .5f);
+                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.PathFinder, orbitAround, orbitRadius, 1);
+            }
         }
 
         // orbit around a planet
@@ -396,18 +392,25 @@ namespace Ship_Game.AI
                 return;
             }
 
-            float radius = orbitTarget.ObjectRadius + Owner.Radius + 1200f;
-            UpdateOrbitPos(orbitTarget.Center, radius, Orbit.Right);
-
             if (Owner.engineState == Ship.MoveState.Warp && distance < 7500f) // exit warp if we're getting close
                 Owner.HyperspaceReturn();
 
+            float radius = orbitTarget.ObjectRadius + Owner.Radius ;
+
+            //This sets the threshold to where a new Orbit point is created.
+            float orbitAccuracy = Owner.Velocity.Length() + Owner.Radius * 2;
+
+            UpdateOrbitPos(orbitTarget.Center, radius, Orbit.Right, orbitAccuracy);
+
             // precision move, this fixes uneven thrusting while orbiting
-            float precisionSpeed = Owner.velocityMaximum * 0.5f;
+            float precisionSpeed = Owner.velocityMaximum;
 
             // We are within orbit radius, so do actual orbiting:
-            if (distance < (1500f + orbitTarget.ObjectRadius))
+            if (OrbitPos.Distance(Owner.Center) <= radius *1.2f) //(+ orbitTarget.ObjectRadius))
             {
+                if (State != AIState.Bombard)
+                    HasPriorityOrder = false;
+                precisionSpeed = Math.Min(Owner.velocityMaximum, 200);
                 Vector2 direction = Owner.Center.DirectionToTarget(OrbitPos);
                 RotateToDirection(direction, elapsedTime, 0.01f);
                 Owner.SubLightAccelerate(elapsedTime, precisionSpeed);
@@ -418,6 +421,9 @@ namespace Ship_Game.AI
             }
             else // we are still not there yet, so find a meaningful orbit position
             {
+                if (distance < radius * 2)
+                    precisionSpeed *= distance / (distance + radius * 2).Clamped(Math.Min(200,Owner.velocityMaximum), Owner.velocityMaximum);
+
                 ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, precisionSpeed);
             }
         }
@@ -441,7 +447,7 @@ namespace Ship_Game.AI
 
         void DoRefit(ShipGoal goal)
         {
-            if (goal.Goal == null) // empire goal was removed or planet was compromised 
+            if (goal.Goal == null) // empire goal was removed or planet was compromised
                 ClearOrders();
 
             ClearOrders(AIState.HoldPosition);
