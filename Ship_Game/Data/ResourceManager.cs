@@ -1463,7 +1463,6 @@ namespace Ship_Game
                     FileInfo info = shipDescriptors[i].File;
                     if (info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
                         continue;
-
                     try
                     {
                         ShipData shipData = ShipData.Parse(info);
@@ -1477,7 +1476,7 @@ namespace Ship_Game
 
                         if (info.NameNoExt() != shipData.Name)
                             Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipData.Name}'." +
-                                        $"\n This can prevent loading of ships that have this filename in the XML :" +
+                                         "\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
                         AddShipTemplate(shipData, fromSave: false,

@@ -298,6 +298,12 @@ namespace Ship_Game
             }
         }
 
+        public void RemoveEmpireFromAllShipsBorderList(Empire empire)
+        {
+            foreach (Ship ship in MasterShipList)
+                ship.BorderCheck.Remove(empire); // added by gremlin reset border stats.
+        }
+
         private void UpdateShipsAndFleets(float elapsedTime)
         {
             perfavg4.Start();
@@ -403,10 +409,6 @@ namespace Ship_Game
             //clear out general object removal.
             TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();
-            //Create New Ship SceneObjecst
-            AddShipSceneObjectsFromQueue();
-
-
 
             if (Paused)
             {
@@ -415,46 +417,17 @@ namespace Ship_Game
             }
 
             bool rebuildPathingMap = false; // REBUILD WHAT??? Pathing map.
-
-            for (int i = 0; i < EmpireManager.Empires.Count; i++)
-            {
-                var empire = EmpireManager.Empires[i];
-
-                if (!empire.isPlayer)
+            if (IsActive)
+                for (int i = 0; i < EmpireManager.Empires.Count; i++)
                 {
-                    Ship[] forcePool = empire.GetForcePool().ToArray();
-                    empire.GetForcePool().Clear();
-                    for (int j = forcePool.Length - 1; j >= 0; j--)
-                    {
-                        Ship ship = forcePool[j];
-                        empire.ForcePoolAdd(ship);
-                    }
+                    var empire = EmpireManager.Empires[i];
+
+                    empire.ResetForcePool();
+
+                    empire.AddShipsToForcePoolFromShipsToAdd();
+
+                    rebuildPathingMap = empire.UpdateContactsAndBorders(0.01666667f);
                 }
-
-                foreach (Ship s in empire.ShipsToAdd)
-                {
-                    empire.AddShip(s);
-                    if (!empire.isPlayer) empire.ForcePoolAdd(s);
-                }
-
-                empire.ShipsToAdd.Clear();
-                empire.updateContactsTimer -= 0.01666667f; //elapsedTime;
-                if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
-                {
-                    int check = empire.BorderNodes.Count;
-                    empire.ResetBorders();
-
-                    if (empire.BorderNodes.Count != check)
-                    {
-                        rebuildPathingMap = true;
-                    }
-                    foreach (Ship ship in MasterShipList)
-                        ship.BorderCheck.Remove(empire); // added by gremlin reset border stats.
-
-                    empire.UpdateKnownShips();
-                    empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
-                }
-            }
             if (rebuildPathingMap)
                 DoPathingMapRebuild();
 
