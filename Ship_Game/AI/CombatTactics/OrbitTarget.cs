@@ -16,7 +16,7 @@ namespace Ship_Game.AI.CombatTactics
         }
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
-            float radius = AI.Owner.MaxWeaponRange - AI.Owner.Radius - AI.Target.Radius;
+            float radius = AI.Owner.MaxWeaponRange *.8f - AI.Owner.Radius - AI.Target.Radius;
             float velocityCheck = (Owner.Velocity.Length() + AI.Target.Velocity.Length()) * 3 ;
             Vector2 predictedOrbitPoint = AI.Owner.PredictImpact(AI.Target);
             Orbit.UpdateOrbitPos(predictedOrbitPoint, radius, OrbitDirection, velocityCheck);
