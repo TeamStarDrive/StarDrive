@@ -16,17 +16,17 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
         {
             var service = (IGraphicsDeviceService)input.ContentManager.ServiceProvider.GetService(typeof(IGraphicsDeviceService));
 
-            LightingEffect fx;
-            if (input.ContentManager is IEffectCache cache)
+            var cache = input.ContentManager as IEffectCache;
+            if (cache != null && cache.TryGetEffect(input.AssetName, out LightingEffect fx))
             {
-                if (cache.TryGetEffect(input.AssetName, out fx))
-                {
-                    //Console.WriteLine($"Using CACHED LightingEffect {input.AssetName}");
-                    return fx;
-                }
+                //Console.WriteLine($"Using CACHED LightingEffect {input.AssetName}");
+                return fx;
             }
+
+            GraphicsDevice device = service.GraphicsDevice;
+            
             //Console.WriteLine($"Read LightningEffect {input.AssetName}");
-            fx = new LightingEffect(service.GraphicsDevice);
+            fx = new LightingEffect(device);
             fx.MaterialName             = input.ReadString();
             fx.MaterialFile             = input.ReadString();
             fx.ProjectFile              = input.ReadString();
@@ -41,7 +41,7 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
             fx.SpecularColorMapFile     = input.ReadString();
             fx.SpecularColorMapTexture  = input.ReadExternalReference<Texture2D>();
             fx.ParallaxMapFile          = input.ReadString();
-            fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
+            fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, input.ReadExternalReference<Texture2D>());
             fx.Skinned                  = input.ReadBoolean();
             fx.DoubleSided              = input.ReadBoolean();
             var mode = (TransparencyMode)input.ReadInt32();
@@ -65,8 +65,7 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
             if (input.ReadInt32() != 1234)
                 throw new Exception("Error loading asset.");
 
-            if (input.ContentManager is IEffectCache cache2)
-                cache2.AddEffect(input.AssetName, fx);
+            cache?.AddEffect(input.AssetName, fx);
 
             return fx;
         }

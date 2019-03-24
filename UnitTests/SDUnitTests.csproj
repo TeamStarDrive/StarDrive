@@ -81,8 +81,8 @@
     <Compile Include="TestProgressCounter.cs" />
     <Compile Include="TestVectorMath.cs" />
     <Compile Include="TestImpactPredictor.cs" />
-    <Compile Include="Serialization\TestStarDataSerializer.cs" />
-    <Compile Include="Serialization\TestStarDataBinarySerializer.cs" />
+    <Compile Include="Serialization\TestYamlSerializer.cs" />
+    <Compile Include="Serialization\TestBinarySerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

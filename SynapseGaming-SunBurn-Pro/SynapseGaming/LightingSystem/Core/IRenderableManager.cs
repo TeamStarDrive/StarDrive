@@ -19,8 +19,8 @@ namespace SynapseGaming.LightingSystem.Core
     IGraphicsDeviceService GraphicsDeviceManager { get; }
 
     /// <summary>Sets up the object prior to rendering.</summary>
-    /// <param name="scenestate"></param>
-    void BeginFrameRendering(ISceneState scenestate);
+    /// <param name="state"></param>
+    void BeginFrameRendering(ISceneState state);
 
     /// <summary>Finalizes rendering.</summary>
     void EndFrameRendering();

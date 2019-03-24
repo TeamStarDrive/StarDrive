@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
+using System.IO;
 
 namespace Ship_Game.Ships
 {
@@ -15,6 +16,8 @@ namespace Ship_Game.Ships
         int GridWidth;
         int GridHeight;
         Vector2 GridOrigin; // local origin, eg -32, -48
+
+        static bool EnableDebugGridExport = false;
 
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
         public bool ModuleSlotsDestroyed => ModuleSlotList.Length == 0;
@@ -59,9 +62,125 @@ namespace Ship_Game.Ships
                 if (module.shield_power_max > 0f)
                     Shields[numShields++] = module;
             }
+
+            if (EnableDebugGridExport)
+            {
+                DebugDumpGrid($"Debug/SparseGrid/{Name}.txt", SparseModuleGrid,
+                    m => new []
+                    {
+                        m != null ? $"|_{m.XSIZE}x{m.YSIZE}_": "|_____",
+                        m != null ? $"|{SafeSub(m.UID,0,5)}" : "|_____",
+                        m != null ? $"|{SafeSub(m.UID,5,5)}" : "|_____"
+                    });
+            }
         }
 
-        private void AddExternalModule(ShipModule module, int x, int y, int quadrant)
+        bool[] CreateInternalGrid(ModuleSlotData[] templateSlots)
+        {
+            // gather a sparse 2D grid of internal slots
+            var internalSlots = new bool[GridWidth * GridHeight];
+            var offset = new Vector2(264f, 264f); // @note Defined in ShipModule.Initialize
+            for (int i = 0; i < templateSlots.Length; ++i)
+            {
+                ModuleSlotData slot = templateSlots[i];
+                if (slot.Restrictions == Restrictions.I)
+                {
+                    ModulePosToGridPoint(slot.Position - offset, out int x, out int y);
+                    internalSlots[x + y * GridWidth] = true;
+                }
+            }
+            return internalSlots;
+        }
+
+        bool IsModuleOverlappingInternalSlot(ShipModule module, bool[] internalGrid)
+        {
+            ModulePosToGridPoint(module.Position, out int x, out int y);
+            int endX = x + module.XSIZE;
+            int endY = y + module.YSIZE;
+            for (; y < endY; ++y)
+            for (; x < endX; ++x)
+                if (internalGrid[x + y*GridWidth])
+                    return true;
+            return false;
+        }
+
+        void FixLegacyInternalRestrictions(ModuleSlotData[] templateSlots)
+        {
+            // gather a sparse 2D grid of internal slots
+            bool[] internalGrid = CreateInternalGrid(templateSlots);
+
+            if (EnableDebugGridExport)
+            {
+                DebugDumpGrid($"Debug/InternalGrid/{Name}.txt", internalGrid,
+                    b => new []{ b ? " I " : " - " });
+            }
+
+            // if our module is overlapping an [I] slot, then mark the whole module as internal
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                ShipModule module = ModuleSlotList[i];
+                if (!module.HasInternalRestrictions && IsModuleOverlappingInternalSlot(module, internalGrid))
+                    module.Restrictions = Restrictions.I;
+            }
+        }
+
+        static string SafeSub(string s, int start, int count)
+        {
+            if (start >= s.Length) return PadCentered("", count);
+            if (start+count >= s.Length)
+                return PadCentered(s.Substring(start), count);
+            return s.Substring(start, count);
+        }
+
+        static string PadCentered(string source, int length)
+        {
+            int spaces = length - source.Length;
+            int padLeft = spaces/2 + source.Length;
+            return source.PadLeft(padLeft).PadRight(length);
+        }
+
+        void DebugDumpGrid<T>(string fileName, T[] grid, Func<T, string[]> format)
+        {
+            string exportDir = Path.GetDirectoryName(fileName) ?? "";
+            Directory.CreateDirectory(exportDir);
+            int columnWidth = 0;
+            var formatted = new string[GridWidth * GridHeight][];
+            for (int y = 0; y < GridHeight; ++y)
+            {
+                for (int x = 0; x < GridWidth; ++x)
+                {
+                    int index = x + y * GridWidth;
+                    string[] text = format(grid[index]);
+                    formatted[index] = text;
+                    foreach (string s in text) columnWidth = Math.Max(columnWidth, s.Length);
+                }
+            }
+            using (var fs = new StreamWriter(fileName))
+            {
+                fs.Write($"W: {GridWidth} H:{GridHeight}\n");
+                fs.Write("   ");
+                for (int x = 0; x < GridWidth; ++x)
+                    fs.Write(PadCentered(x.ToString(), columnWidth));
+                fs.Write('\n');
+                for (int y = 0; y < GridHeight; ++y)
+                {
+                    fs.Write(PadCentered(y.ToString(), 3));
+                    int numLines = formatted[0].Length;
+                    for (int line = 0; line < numLines; ++line)
+                    {
+                        if (line != 0) fs.Write("   ");
+                        for (int x = 0; x < GridWidth; ++x)
+                        {
+                            string[] element = formatted[x + y * GridWidth];
+                            fs.Write(PadCentered(element[line], columnWidth));
+                        }
+                        fs.Write('\n');
+                    }
+                }
+            }
+        }
+
+        void AddExternalModule(ShipModule module, int x, int y, int quadrant)
         {
             if (module.isExternal)
                 return;
@@ -71,7 +190,7 @@ namespace Ship_Game.Ships
             UpdateGridSlot(ExternalModuleGrid, x, y, module, becameActive: true);
         }
 
-        private void RemoveExternalModule(ShipModule module, int x, int y)
+        void RemoveExternalModule(ShipModule module, int x, int y)
         {
             if (!module.isExternal)
                 return;
@@ -81,13 +200,13 @@ namespace Ship_Game.Ships
             UpdateGridSlot(ExternalModuleGrid, x, y, module, becameActive: false);
         }
 
-        private bool IsModuleInactiveAt(int x, int y)
+        bool IsModuleInactiveAt(int x, int y)
         {
             ShipModule module = (uint)x < GridWidth && (uint)y < GridHeight ? SparseModuleGrid[x + y*GridWidth] : null;
             return module == null || !module.Active;
         }
 
-        private int GetQuadrantEstimate(int x, int y)
+        int GetQuadrantEstimate(int x, int y)
         {
             Vector2 dir = new Vector2(x - (GridWidth / 2), y - (GridHeight / 2)).Normalized();
             if (dir.X <= 0f && dir.Y <= 0f)
@@ -97,7 +216,7 @@ namespace Ship_Game.Ships
             return dir.X <= 0f ? 4 /*left*/ : 2 /*right*/;
         }
 
-        private bool ShouldBeExternal(int x, int y, ShipModule module)
+        bool ShouldBeExternal(int x, int y, ShipModule module)
         {
             return module.Active &&
                 IsModuleInactiveAt(x, y - 1) ||
@@ -106,7 +225,7 @@ namespace Ship_Game.Ships
                 IsModuleInactiveAt(x, y + module.YSIZE);
         }
 
-        private bool CheckIfShouldBeExternal(int x, int y)
+        bool CheckIfShouldBeExternal(int x, int y)
         {
             if (!GetModuleAt(SparseModuleGrid, x, y, out ShipModule module))
                 return false;
@@ -123,7 +242,7 @@ namespace Ship_Game.Ships
             return false;
         }
 
-        private void InitExternalSlots()
+        void InitExternalSlots()
         {
             NumExternalSlots = 0;
             for (int y = 0; y < GridHeight; ++y)
@@ -155,20 +274,21 @@ namespace Ship_Game.Ships
             CheckIfShouldBeExternal(x, y + module.YSIZE);
         }
 
-        private void UpdateGridSlot(ShipModule[] sparseGrid, int gridX, int gridY, ShipModule module, bool becameActive)
+        void UpdateGridSlot(ShipModule[] sparseGrid, int gridX, int gridY, ShipModule module, bool becameActive)
         {
             int endX = gridX + module.XSIZE, endY = gridY + module.YSIZE;
             for (int y = gridY; y < endY; ++y)
                 for (int x = gridX; x < endX; ++x)
                     sparseGrid[x + y * GridWidth] = becameActive ? module : null;
         }
-        private void UpdateGridSlot(ShipModule[] sparseGrid, ShipModule module, bool becameActive)
+
+        void UpdateGridSlot(ShipModule[] sparseGrid, ShipModule module, bool becameActive)
         {
             ModulePosToGridPoint(module.Position, out int x, out int y);
             UpdateGridSlot(sparseGrid, x, y, module, becameActive);
         }
 
-        private void ModulePosToGridPoint(Vector2 moduleLocalPos, out int x, out int y)
+        void ModulePosToGridPoint(Vector2 moduleLocalPos, out int x, out int y)
         {
             Vector2 offset = moduleLocalPos - GridOrigin;
             x = (int)Math.Floor(offset.X / 16f);
@@ -264,14 +384,14 @@ namespace Ship_Game.Ships
             return pt;
         }
 
-        private bool LocalPointInBounds(Point point)
+        bool LocalPointInBounds(Point point)
         {
             return 0 <= point.X && point.X < GridWidth
                 && 0 <= point.Y && point.Y < GridHeight;
         }
 
         // an out of bounds clipped point would be in any of the extreme corners.
-        private bool ClippedLocalPointInBounds(Point point)
+        bool ClippedLocalPointInBounds(Point point)
         {
             return 0 <= point.X && point.X < GridWidth
                 && 0 <= point.Y && point.Y < GridHeight
@@ -638,7 +758,7 @@ namespace Ship_Game.Ships
 
         // Refactor by RedFox: Picks a random internal module in search range (squared) of the projectile
         // -- Higher crew level means the missile will pick the most optimal target module ;) --
-        private ShipModule TargetRandomInternalModule(Vector2 projPos, int level, float sqSearchRange)
+        ShipModule TargetRandomInternalModule(Vector2 projPos, int level, float sqSearchRange)
         {
             ShipModule[] modules = ModuleSlotList.Filter(m => m.Health > 0f && projPos.SqDist(m.Center) < sqSearchRange);
             if (modules.Length == 0)

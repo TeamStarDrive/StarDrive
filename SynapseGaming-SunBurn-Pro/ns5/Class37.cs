@@ -18,7 +18,7 @@ namespace ns5
     public Texture2D SceneDepthMap
     {
       get => this.texture2D_0;
-        set => EffectHelper.SetParam(value, ref this.texture2D_0, this.effectParameter_11);
+        set => EffectHelper.Update(value, ref this.texture2D_0, this.effectParameter_11);
     }
 
     public Texture2D SceneNormalSpecularMap

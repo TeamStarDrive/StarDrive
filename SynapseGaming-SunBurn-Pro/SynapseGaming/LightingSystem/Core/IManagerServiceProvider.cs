@@ -26,12 +26,12 @@ namespace SynapseGaming.LightingSystem.Core
     /// <summary>
     /// Retrieves a manager service by type from the provider.
     /// </summary>
-    /// <param name="managertype">Type used by the manager as a unique
+    /// <param name="type">Type used by the manager as a unique
     /// identifying key (IManagerService.ManagerType).</param>
     /// <param name="required">Determines whether an exception should
     /// be thrown if the manager is not found.</param>
     /// <returns></returns>
-    IManagerService GetManager(Type managertype, bool required);
+    IManagerService GetManager(Type type, bool required);
 
     /// <summary>
     /// Retrieves a manager service by type from the provider.

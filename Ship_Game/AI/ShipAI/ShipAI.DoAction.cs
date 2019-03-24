@@ -472,20 +472,26 @@ namespace Ship_Game.AI
         // Orbit drones around a ship
         void OrbitShip(Ship ship, float elapsedTime, Orbit direction)
         {
-            OrbitPos = ship.Center.PointOnCircle(OrbitalAngle, 1500f);
-            if (OrbitPos.Distance(Owner.Center) < 1500f)
+            UpdateOrbitPos(ship.Center, 1500f, direction);
+            ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, OrbitalSpeedLimit);
+        }
+
+        void UpdateOrbitPos(Vector2 orbitAround, float orbitRadius, Orbit direction)
+        {
+            OrbitPos = orbitAround.PointOnCircle(OrbitalAngle, orbitRadius);
+            if (Owner.Center.InRadius(OrbitPos, orbitRadius))
             {
                 float deltaAngle = direction == Orbit.Left ? -15f : +15f;
                 OrbitalAngle = (OrbitalAngle + deltaAngle).NormalizedAngle();
-                OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
+
+                OrbitPos = orbitAround.PointOnCircle(OrbitalAngle, orbitRadius);
             }
-            ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, OrbitalSpeedLimit);
         }
 
         // orbit around a planet
         void DoOrbit(Planet orbitTarget, float elapsedTime)
         {
-            if (Owner.velocityMaximum < 1)
+            if (Owner.velocityMaximum < 1 || Owner.EnginesKnockedOut)
                 return;
 
             float distance = orbitTarget.Center.Distance(Owner.Center);
@@ -496,20 +502,8 @@ namespace Ship_Game.AI
                 return;
             }
 
-            FindNewPosTimer -= elapsedTime;
-            if (FindNewPosTimer <= 0f)
-            {
-                float radius = orbitTarget.ObjectRadius + Owner.Radius + 1200f;
-                float distanceToOrbitSpot = Owner.Center.Distance(OrbitPos);
-                if (distanceToOrbitSpot <= radius || Owner.Speed < 1f)
-                {
-                    //this works but... i dont think its right.
-                    OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount.Clamped(-1f,1f))).ToDegrees() * 10f;
-                    OrbitalAngle = OrbitalAngle.NormalizedAngle();
-                }
-                FindNewPosTimer = elapsedTime * 10f;
-                OrbitPos = orbitTarget.Center.PointOnCircle(OrbitalAngle, radius);
-            }
+            float radius = orbitTarget.ObjectRadius + Owner.Radius + 1200f;
+            UpdateOrbitPos(orbitTarget.Center, radius, Orbit.Right);
 
             if (Owner.engineState == Ship.MoveState.Warp && distance < 7500f) // exit warp if we're getting close
                 Owner.HyperspaceReturn();
@@ -521,7 +515,10 @@ namespace Ship_Game.AI
             if (distance < (1500f + orbitTarget.ObjectRadius))
             {
                 Vector2 direction = Owner.Center.DirectionToTarget(OrbitPos);
-                SubLightContinuousMoveInDirection(direction, elapsedTime, precisionSpeed);
+                RotateToDirection(direction, elapsedTime, 0.01f);
+                Owner.SubLightAccelerate(elapsedTime, precisionSpeed);
+                Owner.RestoreYBankRotation();
+
                 if (State != AIState.Bombard)
                     HasPriorityOrder = false;
             }

@@ -111,7 +111,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
       {
         if (value == this.texture2D_1)
           return;
-        EffectHelper.SetParam(value, ref this.texture2D_1, this.effectParameter_19);
+        EffectHelper.Update(value, ref this.texture2D_1, this.effectParameter_19);
         this.SetTechnique();
       }
     }
@@ -120,7 +120,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     public float HeightScale
     {
       get => this.float_4;
-        set => EffectHelper.smethod_6(value, ref this.float_4, ref this.effectParameter_17);
+        set => EffectHelper.Update(value, ref this.float_4, ref this.effectParameter_17);
     }
 
     /// <summary>
@@ -130,14 +130,14 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     public float Tiling
     {
       get => this.float_5;
-        set => EffectHelper.smethod_6(value, ref this.float_5, ref this.effectParameter_18);
+        set => EffectHelper.Update(value, ref this.float_5, ref this.effectParameter_18);
     }
 
     /// <summary>Density or tessellation of the terrain mesh.</summary>
     public int MeshSegments
     {
       get => this.int_0;
-        set => EffectHelper.smethod_5(value, ref this.int_0, ref this.effectParameter_16);
+        set => EffectHelper.Update(value, ref this.int_0, ref this.effectParameter_16);
     }
 
     /// <summary>Creates a new FogEffect instance.</summary>
