@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.AI;
-using Ship_Game.AI.Budget;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
@@ -10,7 +9,6 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Xml.Serialization;
 
 namespace Ship_Game
@@ -69,7 +67,7 @@ namespace Ship_Game
         private float UpdateTimer;
         public bool isPlayer;
         public float TotalShipMaintenance { get; private set; }
-        public float updateContactsTimer;
+        public float updateContactsTimer = .2f;
         private bool InitialziedHostilesDict;
         public float NetPlanetIncomes { get; private set; }
         public float GrossPlanetIncome { get; private set; }
@@ -734,8 +732,8 @@ namespace Ship_Game
                     bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && kv.Value.RootNode == 0);
                     if (kv.Value.RootNode == 1 && !secret)
                         techEntry.ForceFullyResearched();
-                    else                    
-                        techEntry.ForceNeedsFullResearch();                    
+                    else
+                        techEntry.ForceNeedsFullResearch();
                     techEntry.SetDiscovered(!secret);
                 }
 
@@ -2714,6 +2712,53 @@ namespace Ship_Game
                 if (p.guid == planetGuid)
                     return p;
             return null;
+        }
+
+        public bool UpdateContactsAndBorders(float elapsedTime)
+        {
+            bool bordersChanged = false;
+            if (updateContactsTimer < 0f && !data.Defeated)
+            {
+                int check = BorderNodes.Count;
+                ResetBorders();
+                Universe.RemoveEmpireFromAllShipsBorderList(this);
+                if (BorderNodes.Count != check)
+                {
+                    bordersChanged = true;
+                }
+
+                UpdateKnownShips();
+                updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
+            }
+            updateContactsTimer -= elapsedTime;
+            return bordersChanged;
+        }
+
+        public void AddShipsToForcePoolFromShipsToAdd()
+        {
+            foreach (Ship s in ShipsToAdd)
+            {
+                AddShip(s);
+                if (!isPlayer) ForcePoolAdd(s);
+            }
+            ShipsToAdd.Clear();
+        }
+
+        public void ResetForcePool()
+        {
+            //I am guessing the point of this is to filter ships out of the forcepool
+            //that should not be in it/
+            //I think this might be a hack to cover up a bug.
+            if (!isPlayer)
+            {
+                Ship[] forcePool = ForcePool.ToArray();
+                ForcePool.Clear();
+                for (int j = forcePool.Length - 1; j >= 0; j--)
+                {
+                    Ship ship = forcePool[j];
+                    ForcePoolAdd(ship);
+                }
+            }
         }
 
         public class InfluenceNode

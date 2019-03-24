@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Audio;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System.Linq;
 using Ship_Game.Universe.SolarBodies;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -42,6 +43,72 @@ namespace Ship_Game
         public Vector2 Velocity;
         public float Rotation;
         public PlanetGridSquare Target;
+        public Planet Surface;
+
+        public void DamageColonySurface(Bomb bomb)
+        {
+            int softDamage = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
+            int hardDamage = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
+            DamageBioSpheres(hardDamage);
+            DamageTroops(softDamage);
+            DamageBuildings(hardDamage);
+        }
+
+        private void DamageBioSpheres(int damage)
+        {
+            if (!Target.Biosphere || !RandomMath.RollDice(damage * 5))
+                return;
+
+            // Biospheres could not withstand damage
+            Target.Habitable   = false;
+            Target.Highlighted = false;
+            Target.Biosphere   = false;
+            if (Target.BuildingOnTile)
+            {
+                // Building under biospheres is also destroyed
+                Surface.BuildingList.Remove(Target.building);
+                Target.building = null;
+            }
+
+            // Remove some pop and also the Biospheres from the building list
+            Building bio = Surface.BuildingList.First(b => b.IsBiospheres);
+            if (bio != null)
+            {
+                Surface.Population -= bio.MaxPopIncrease * Surface.PopulationRatio;
+                Surface.BuildingList.Remove(bio);
+            }
+        }
+
+        private void DamageTroops(int damage)
+        {
+            if (!Target.TroopsAreOnTile)
+                return;
+
+            Troop troop = Target.SingleTroop;
+            troop.DamageTroop(damage);
+            if (Target.SingleTroop.Strength <= 0)
+            {
+                Surface.TroopsHere.Remove(Target.SingleTroop);
+                Target.TroopsHere.Clear();
+            }
+        }
+
+        private void DamageBuildings(int damage)
+        {
+            if (!Target.BuildingOnTile)
+                return;
+
+            Building building = Target.building;
+            building.Strength -= damage;
+            if (building.IsAttackable)
+                building.CombatStrength = building.Strength;
+
+            if (Target.BuildingDestroyed)
+            {
+                Surface.BuildingList.Remove(building);
+                Target.building = null;
+            }
+        }
     }
 
     public enum DevelopmentLevel
