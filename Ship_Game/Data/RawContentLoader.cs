@@ -418,14 +418,14 @@ namespace Ship_Game
             return exported;
         }
 
-        static T[] VertexData<T>(VertexBuffer vbo, VertexElement[] vde, int numVerts, int stride, VertexElementUsage usage) where T : struct
+        static T[] VertexData<T>(VertexBuffer vbo, VertexElement[] vde, int start, int count, int stride, VertexElementUsage usage) where T : struct
         {
             for (int i = 0; i < vde.Length; ++i)
             {
                 if (vde[i].VertexElementUsage == usage)
                 {
-                    var data = new T[numVerts];
-                    vbo.GetData(vde[i].Offset, data, 0, numVerts, stride);
+                    var data = new T[count];
+                    vbo.GetData(vde[i].Offset + start*stride, data, 0, count, stride);
                     return data;
                 }
             }
@@ -445,26 +445,26 @@ namespace Ship_Game
 
                     string groupName = (modelMesh.MeshParts.Count > 1) ? modelMesh.Name + i : modelMesh.Name;
                     SDMeshGroup* group = SDMeshNewGroup(mesh, groupName, &transform);
-                    VertexBuffer vbo = modelMesh.VertexBuffer;
-                    IndexBuffer  ibo = modelMesh.IndexBuffer;
+                    VertexBuffer vb = modelMesh.VertexBuffer;
+                    IndexBuffer  ib = modelMesh.IndexBuffer;
 
                     int stride = part.VertexStride;
-                    VertexElement[] vde = part.VertexDeclaration.GetVertexElements();
-                    int numVertices = vbo.SizeInBytes / stride;
-                    int numIndices  = ibo.SizeInBytes / sizeof(ushort);
-
-                    Vector3[] verts   = VertexData<Vector3>(vbo, vde, numVertices, stride, VertexElementUsage.Position);
-                    Vector3[] normals = VertexData<Vector3>(vbo, vde, numVertices, stride, VertexElementUsage.Normal);
-                    Vector2[] coords  = VertexData<Vector2>(vbo, vde, numVertices, stride, VertexElementUsage.TextureCoordinate);
+                    VertexElement[] ve = part.VertexDeclaration.GetVertexElements();
+                    int vertices = part.NumVertices;
+                    Vector3[] verts   = VertexData<Vector3>(vb, ve, part.BaseVertex, vertices, stride, VertexElementUsage.Position);
+                    Vector3[] normals = VertexData<Vector3>(vb, ve, part.BaseVertex, vertices, stride, VertexElementUsage.Normal);
+                    Vector2[] coords  = VertexData<Vector2>(vb, ve, part.BaseVertex, vertices, stride, VertexElementUsage.TextureCoordinate);
+                    
+                    int numIndices = part.PrimitiveCount * 3;
                     var indexData = new ushort[numIndices];
-                    ibo.GetData(0, indexData, 0, numIndices);
+                    ib.GetData(part.StartIndex*sizeof(ushort), indexData, 0, numIndices);
 
                     fixed(Vector3* pVerts   = verts)
                     fixed(Vector3* pNormals = normals)
                     fixed(Vector2* pCoords  = coords)
                     fixed(ushort* pIndices = indexData)
                     {
-                        SDMeshGroupSetData(group, pVerts, pNormals, pCoords, numVertices, pIndices, numIndices);
+                        SDMeshGroupSetData(group, pVerts, pNormals, pCoords, vertices, pIndices, numIndices);
                     }
 
                     if (modelMesh.Effects[0] != null)
