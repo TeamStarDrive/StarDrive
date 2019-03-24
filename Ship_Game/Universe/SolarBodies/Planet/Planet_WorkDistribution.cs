@@ -51,7 +51,7 @@ namespace Ship_Game
         {
             if (percent <= 0f) return 0;
 
-            float workers = Prod.EstPercentForNetIncome(+.5f);
+            float workers = Prod.EstPercentForNetIncome(+1f);
 
             workers += CalculateMod(percent, Storage.ProdRatio).Clamped(-0.35f, 1.00f);
             return workers.Clamped(0f, 1f);
@@ -118,7 +118,7 @@ namespace Ship_Game
             float workers = Prod.EstPercentForNetIncome(minPerTurn);
 
             workers += EvaluateProductionQueue();
-            workers = workers.Clamped(.1f, 1f);
+            workers = workers.Clamped(0.1f, 1.0f);
             //    workers = 0.75f; // minimum value if construction is going on
 
             Prod.Percent = workers * labor;
@@ -222,8 +222,8 @@ namespace Ship_Game
                 workerPercentage += 0.1f;
 
             if (workerPercentage <= 0)
-                Log.Error("sanity check to make sure that no extra building production is actually wanted. remove as verified");
-            return workerPercentage.Clamped(0f,1f);
+                Log.Error($"Queue Item gave no bonus production. This is likely a bug. item: {item.DisplayName} ");
+            return workerPercentage.Clamped(0.0f,1.0f);
         }
     }
 }
