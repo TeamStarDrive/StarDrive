@@ -67,7 +67,7 @@ namespace Ship_Game
             else
                 Thread.Sleep(10); // smoother intro video
 
-            if (!IsActive || LoadingFinished())
+            if (LoadingFinished())
 				return;
 			Device.Clear(Color.Black);
             batch.Begin();
