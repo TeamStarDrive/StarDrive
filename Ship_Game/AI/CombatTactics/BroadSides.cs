@@ -1,10 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Ship_Game.Ships;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Ship_Game.AI.CombatTactics
 {
@@ -26,14 +21,10 @@ namespace Ship_Game.AI.CombatTactics
 
             if (distance < (Owner.maxWeaponsRange * 0.70f)) // within suitable range
             {
-                //Vector2 ourPosNextFrame = Owner.Center + Owner.Velocity * elapsedTime;
-                //if (ourPosNextFrame.InRadius(AI.Target.Center, distance))
-                {
-                    Vector2 nextOrbitPoint = AI.SetNextOrbitPoint(AI.Target.Center, OrbitDirection, Owner.maxWeaponsRange * .9f) ;
-                    AI.SubLightMoveTowardsPosition(AI.Owner.Center.DirectionToTarget(nextOrbitPoint), elapsedTime, 0, true);
+                float accuracy = (Owner.Velocity.Length() + AI.Owner.Velocity.Length()) * 3;
+                AI.UpdateOrbitPos(AI.Target.Center, Owner.MaxWeaponRange * .95f, OrbitDirection, accuracy);
+                    AI.SubLightMoveTowardsPosition(AI.Owner.Center.DirectionToTarget(AI.GetOrbitPos), elapsedTime, 0, true);
                     return;
-                }
-
             }
 
             Vector2 dir = Owner.Center.DirectionToTarget(AI.Target.Center);
