@@ -1,10 +1,10 @@
-using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
+using System;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -48,8 +48,8 @@ namespace Ship_Game
         private static bool popup;  //fbedard
 
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
-        {            
-            this.p                = p;            
+        {
+            this.p                = p;
             int screenWidth       = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             GridRect              = new Rectangle(screenWidth / 2 - 639, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
             Rectangle titleRect   = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
@@ -75,9 +75,9 @@ namespace Ship_Game
             LaunchAll = Button(orbitalResourcesSub.Menu.X + 20, LandAll.Rect.Y - 2 - LandAll.Rect.Height, "Launch All", OnLaunchAllClicked);
 
             using (Empire.Universe.MasterShipList.AcquireReadLock())
-            foreach (Ship ship in Empire.Universe.MasterShipList)			                        
+            foreach (Ship ship in Empire.Universe.MasterShipList)
             {
-                
+
                 if (ship == null)
                     continue;
 
@@ -113,7 +113,7 @@ namespace Ship_Game
                 pgs.ClickRect = new Rectangle(gridPos.X + pgs.x * xSize, gridPos.Y + pgs.y * ySize, xSize, ySize);
                 foreach (var troop in pgs.TroopsHere)
                 {
-                    //@TODO HACK. first frame is getting overwritten or lost somewhere. 
+                    //@TODO HACK. first frame is getting overwritten or lost somewhere.
                     troop.WhichFrame = troop.first_frame;
                 }
             }
@@ -426,14 +426,14 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), attackRect, Color.White);
                 }
 
-                var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5, 
+                var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5,
                                                  Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
                 DrawTroopData(batch, strengthRect, troop, troop.Strength.String(1), Color.White);
 
                 //Fat Bastard - show TroopLevel
                 if (pgs.SingleTroop.Level > 0)
                 {
-                    var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52, 
+                    var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52,
                                                   Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
                     DrawTroopData(batch, levelRect, troop, troop.Level.ToString(), Color.Gold);
                 }
@@ -475,7 +475,7 @@ namespace Ship_Game
                     var strengthRect = new Rectangle(bRect.X + bRect.Width + 2, bRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
                     batch.FillRectangle(strengthRect, new Color(0, 0, 0, 200));
                     batch.DrawRectangle(strengthRect, p.Owner?.EmpireColor ?? Color.Gray);
-                    var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.building.Strength.ToString()).X / 2f, 
+                    var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.building.Strength.ToString()).X / 2f,
                                              (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
                     batch.DrawString(Fonts.Arial12, pgs.building.Strength.ToString(), cursor, Color.White);
                 }
@@ -806,7 +806,7 @@ namespace Ship_Game
 
             DetermineAttackAndMove();
             hInfo.SetPGS(HoveredSquare);
-            
+
             if (popup)
             {
                 if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
@@ -821,7 +821,7 @@ namespace Ship_Game
             }
             return base.HandleInput(input);
         }
-        
+
         private void ResetTroopList()
         {
             OrbitSL.Reset();
@@ -902,10 +902,10 @@ namespace Ship_Game
                         if (planetGridSquare2 != ourTile && planetGridSquare2 == tileToAttack)
                         {
                             //Added by McShooterz: Prevent troops from firing on own buildings
-                            if (planetGridSquare2.TroopsHere.Count == 0 && 
-                                (planetGridSquare2.building == null || 
-                                 (planetGridSquare2.building != null && 
-                                  planetGridSquare2.building.CombatStrength == 0) || 
+                            if (planetGridSquare2.TroopsHere.Count == 0 &&
+                                (planetGridSquare2.building == null ||
+                                 (planetGridSquare2.building != null &&
+                                  planetGridSquare2.building.CombatStrength == 0) ||
                                  p.Owner?.IsEmpireAttackable(ourTile.SingleTroop.Loyalty) == false
                                 ))
                                 return false;
@@ -913,16 +913,16 @@ namespace Ship_Game
                             int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
                             if (planetGridSquare2.TroopsHere.Count > 0)
                             {
-                                if (planetGridSquare1.TroopsHere.Count != 0 && 
-                                    num1 <= planetGridSquare1.SingleTroop.Range && 
-                                    (num2 <= planetGridSquare1.SingleTroop.Range &&                                          
-                                     planetGridSquare2.SingleTroop.Loyalty.IsEmpireAttackable(ourTile.SingleTroop.Loyalty) 
+                                if (planetGridSquare1.TroopsHere.Count != 0 &&
+                                    num1 <= planetGridSquare1.SingleTroop.Range &&
+                                    (num2 <= planetGridSquare1.SingleTroop.Range &&
+                                     planetGridSquare2.SingleTroop.Loyalty.IsEmpireAttackable(ourTile.SingleTroop.Loyalty)
                                     ))
                                     return true;
                             }
-                            else if (planetGridSquare2.building != null && 
-                                     planetGridSquare2.building.CombatStrength > 0 && 
-                                     (num1 <= planetGridSquare1.SingleTroop.Range && 
+                            else if (planetGridSquare2.building != null &&
+                                     planetGridSquare2.building.CombatStrength > 0 &&
+                                     (num1 <= planetGridSquare1.SingleTroop.Range &&
                                       num2 <= planetGridSquare1.SingleTroop.Range))
                             {
                                 if (p.Owner == null)
@@ -951,7 +951,7 @@ namespace Ship_Game
                                 int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
                                 if (planetGridSquare2.TroopsHere.Count > 0)
                                 {
-                                    if (num1 <= 1 && num2 <= 1 && 
+                                    if (num1 <= 1 && num2 <= 1 &&
                                         p.Owner?.IsEmpireAttackable(planetGridSquare2.SingleTroop.Loyalty) == true)
                                         return true;
                                 }
@@ -1029,7 +1029,8 @@ namespace Ship_Game
                 if (Time > Duration)
                     return true;
 
-                Frame = ((int)(Time / Duration)).Clamped(0, Animation.Count-1);
+                int frame = (int)(Time / Duration * Animation.Count) ;
+                Frame = frame.Clamped(0, Animation.Count-1);
                 return false;
             }
 
