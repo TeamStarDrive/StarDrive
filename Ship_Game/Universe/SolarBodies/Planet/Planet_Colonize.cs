@@ -87,17 +87,24 @@ namespace Ship_Game
         {
             var startingEquipment  = colonyShip.StartingEquipment();
             Building outpost       = ResourceManager.GetBuildingTemplate(Building.OutpostId);
-            Building extraBuilding = ResourceManager.GetBuildingTemplate(startingEquipment.BuildingId);
+            
             // always spawn an outpost on a new colony
             if (!OutpostBuiltOrInQueue())
                 SpawnNewColonyBuilding(outpost);
-            // spawn an extra building for advanced colony modules
-            if (!extraBuilding.Unique || !BuildingBuiltOrQueued(extraBuilding))
-                SpawnNewColonyBuilding(extraBuilding);
+            if (startingEquipment.BuildingId.NotEmpty())
+                StartingEquipmentBuildings(startingEquipment);
 
             FoodHere   += startingEquipment.AddFood;
             ProdHere   += startingEquipment.AddProd;
             Population += startingEquipment.AddColonists;
+        }
+
+        void StartingEquipmentBuildings(ColonyEquipment startingEquipment)
+        {
+            Building extraBuilding = ResourceManager.GetBuildingTemplate(startingEquipment.BuildingId);
+            // spawn an extra building for advanced colony modules
+            if (!extraBuilding.Unique || !BuildingBuiltOrQueued(extraBuilding))
+                SpawnNewColonyBuilding(extraBuilding);
         }
 
         void SpawnNewColonyBuilding(Building template)
