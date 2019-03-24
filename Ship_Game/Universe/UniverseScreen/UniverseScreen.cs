@@ -201,7 +201,6 @@ namespace Ship_Game
         public int globalshipCount;
         public int empireShipCountReserve;
         Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
-        Array<Ship> ShipsToAddToWorld = new Array<Ship>();
         public float Lag = 0;
         public Ship previousSelection;
 
@@ -849,28 +848,6 @@ namespace Ship_Game
         {
             while (GamePlayObjectToRemove.TryPopLast(out GameplayObject toRemove))
                 toRemove.RemoveFromUniverseUnsafe();
-        }
-
-        public void QueueShipToWorldScene(Ship ship)
-        {
-            ShipsToAddToWorld.Add(ship);
-        }
-
-        void AddShipSceneObjectsFromQueue()
-        {
-            while (ShipsToAddToWorld.TryPopLast(out Ship ship))
-            {
-                try
-                {
-                    if (ship.Active)
-                        ship.InitializeShipScene();
-                }
-                catch(Exception ex)
-                {
-                    Log.Error(ex, $"Ship.InitializeShipScene() failed. Abandoning ship.");
-                    ship.RemoveFromUniverseUnsafe();
-                }
-            }
         }
 
         protected override void Destroy()
