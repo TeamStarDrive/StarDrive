@@ -348,7 +348,6 @@ namespace Ship_Game.Ships
                 module.ShieldUpChance = slot.ShieldUpChance;
                 module.ShieldPowerBeforeWarp = slot.ShieldPowerBeforeWarp;
             }
-
             return module;
         }
 
