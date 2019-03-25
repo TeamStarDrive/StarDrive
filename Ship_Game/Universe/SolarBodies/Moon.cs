@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Data;
+using Ship_Game.Data.Mesh;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -18,17 +19,15 @@ namespace Ship_Game.Gameplay
         [Serialize(14)] public float OrbitalAngle;
 
         [XmlIgnore][JsonIgnore] public SceneObject So;
-        [XmlIgnore][JsonIgnore] private Planet OrbitPlanet;
-        [XmlIgnore] [JsonIgnore] private readonly GameContentManager ContentManager;
+        [XmlIgnore][JsonIgnore] Planet OrbitPlanet;
 
-        public Moon(GameContentManager contentManager = null) : base(GameObjectType.Moon)
+        public Moon() : base(GameObjectType.Moon)
         {
-            ContentManager = ResourceManager.RootContent;
         }
 
         public override void Initialize()
         {
-            So = ResourceManager.GetPlanetarySceneMesh(ContentManager, "Model/SpaceObjects/planet_" + moonType);
+            So = StaticMesh.GetPlanetarySceneMesh(ResourceManager.RootContent, "Model/SpaceObjects/planet_" + moonType);
             So.ObjectType = ObjectType.Static;
             So.Visibility = ObjectVisibility.Rendered;
             So.World = Matrix.CreateScale(scale)*Matrix.CreateTranslation(new Vector3(Position, 2500f));
