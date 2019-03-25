@@ -55,7 +55,10 @@ namespace Ship_Game
         public GameContentManager TransientContent;
 
         // Current delta time between this and last game frame
-        public float DeltaTime { get; protected set; }
+        // This can vary greatly and should only be used for
+        // drawing real-time visualization.
+        // This should not be used for simulation!
+        public float FrameDeltaTime { get; protected set; }
 
         //video player
         protected AudioHandle MusicPlaying = AudioHandle.Dummy;
@@ -173,13 +176,13 @@ namespace Ship_Game
         {
             // @note If content was being loaded, we will force deltaTime to 1/60th
             //       This will prevent animations going nuts due to huge deltaTime
-            DeltaTime = DidLoadContent ? (1.0f/60.0f) : StarDriveGame.Instance.DeltaTime;
+            FrameDeltaTime = DidLoadContent ? (1.0f/60.0f) : StarDriveGame.Instance.FrameDeltaTime;
             //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
 
             Visible = ScreenState != ScreenState.Hidden;
 
             // Update new UIElementV2
-            Update(DeltaTime);
+            Update(FrameDeltaTime);
 
             OtherScreenHasFocus = otherScreenHasFocus;
             if (!IsExiting)
@@ -211,7 +214,7 @@ namespace Ship_Game
 
         bool UpdateTransition(float time, int direction)
         {
-            float transitionDelta = (time.NotZero() ? (DeltaTime / time) : 1f);
+            float transitionDelta = (time.NotZero() ? (FrameDeltaTime / time) : 1f);
             TransitionPosition += transitionDelta * direction;
             if (TransitionPosition > 0f && TransitionPosition < 1f)
                 return true;
