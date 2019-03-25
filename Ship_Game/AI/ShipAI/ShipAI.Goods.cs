@@ -106,9 +106,9 @@ namespace Ship_Game.AI
                                                     
             Owner.loyalty.IncreaseFastVsBigFreighterRatio(freighterPriority);
 
-            Planet toOrbit = importPlanet.TradeBlocked || Owner.loyalty != importPlanet.Owner
-                             ? Owner.loyalty.FindNearestRallyPoint(Owner.Center)
-                             : importPlanet;
+            Planet toOrbit = importPlanet;
+            if (toOrbit.TradeBlocked || Owner.loyalty != toOrbit.Owner)
+                toOrbit = Owner.loyalty.FindNearestRallyPoint(Owner.Center); // get out of here!
 
             AI.CancelTradePlan(toOrbit);
             CheckAndScrap1To10();
