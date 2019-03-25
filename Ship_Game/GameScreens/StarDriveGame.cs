@@ -101,7 +101,7 @@ namespace Ship_Game
         protected override void Initialize()
         {
             Window.Title = "StarDrive BlackBox";
-            ResourceManager.ScreenManager = ScreenManager = new ScreenManager(this, Graphics);
+            ScreenManager = new ScreenManager(this, Graphics);
             GameAudio.Initialize(null, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
             
             ApplyGraphics(GraphicsSettings.FromGlobalStats());
