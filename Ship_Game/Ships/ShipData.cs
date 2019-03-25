@@ -300,8 +300,7 @@ namespace Ship_Game.Ships
 
         public void PreLoadModel()
         {
-            var content = Empire.Universe?.TransientContent ?? ResourceManager.RootContent;
-            ResourceManager.PreLoadModel(content, HullModel, Animated);
+            StaticMesh.PreLoadModel(Empire.Universe?.TransientContent, HullModel, Animated);
         }
 
         public void LoadModel(out SceneObject shipSO,
@@ -310,7 +309,7 @@ namespace Ship_Game.Ships
         {
             var content = screen?.TransientContent ?? ResourceManager.RootContent;
 
-            shipSO = ResourceManager.GetSceneMesh(content, HullModel, Animated);
+            shipSO = StaticMesh.GetSceneMesh(content, HullModel, Animated);
 
             if (BaseHull.Volume.X.AlmostEqual(0f))
             {

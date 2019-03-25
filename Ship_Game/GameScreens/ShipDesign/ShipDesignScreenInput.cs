@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Audio;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesignScreen;
@@ -131,7 +132,7 @@ namespace Ship_Game
             if (shipSO != null)
                 RemoveObject(shipSO);
 
-            shipSO = ResourceManager.GetSceneMesh(TransientContent, ActiveHull.ModelPath, ActiveHull.Animated);
+            shipSO = StaticMesh.GetSceneMesh(TransientContent, ActiveHull.ModelPath, ActiveHull.Animated);
 
             AddObject(shipSO);
             SetupSlots();
