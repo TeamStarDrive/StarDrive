@@ -11,13 +11,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Yaml;
-using Ship_Game.GameScreens.NewGame;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 
@@ -79,7 +76,6 @@ namespace Ship_Game
         public static Map<ShipData.RoleName, ShipRole> ShipRoles = new Map<ShipData.RoleName, ShipRole>();
         public static Map<string, HullBonus> HullBonuses         = new Map<string, HullBonus>();
         public static Map<string, PlanetEdict> PlanetaryEdicts   = new Map<string, PlanetEdict>();
-        public static Map<string, EconomicResearchStrategy> EconStrats = new Map<string, EconomicResearchStrategy>();
 
         static RacialTraits RacialTraits;
         static DiplomaticTraits DiplomacyTraits;
@@ -187,7 +183,7 @@ namespace Ship_Game
             LoadPlanetTypes();
             LoadSunZoneData();
             SunType.LoadAll();
-            LoadEconomicResearchStrats();
+            LoadEconomicResearchStrategies();
             LoadBlackboxSpecific();
             ShieldManager.LoadContent(RootContent);
             Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
@@ -573,103 +569,6 @@ namespace Ship_Game
 
 
         //////////////////////////////////////////////////////////////////////////////////////////
-
-
-        static int SubMeshCount(int maxSubMeshes, int meshSubMeshCount)
-        {
-            return maxSubMeshes == 0 ? meshSubMeshCount : Math.Min(maxSubMeshes, meshSubMeshCount);
-        }
-
-        static SceneObject DynamicObject(string modelName)
-        {
-            return new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
-        }
-
-        static SceneObject SceneObjectFromStaticMesh(GameContentManager content, string modelName, int maxSubMeshes = 0)
-        {
-            StaticMesh staticMesh = content.LoadStaticMesh(modelName);
-            if (staticMesh == null)
-                return null;
-
-            SceneObject so = DynamicObject(modelName);
-            int count = SubMeshCount(maxSubMeshes, staticMesh.Count);
-
-            for (int i = 0; i < count; ++i)
-            {
-                MeshData mesh = staticMesh.Meshes[i];
-
-                var renderable = new RenderableMesh(so,
-                    mesh.Effect,
-                    mesh.MeshToObject,
-                    mesh.ObjectSpaceBoundingSphere,
-                    mesh.IndexBuffer,
-                    mesh.VertexBuffer,
-                    mesh.VertexDeclaration, 0,
-                    PrimitiveType.TriangleList,
-                    mesh.PrimitiveCount,
-                    0, mesh.VertexCount,
-                    0, mesh.VertexStride);
-                so.Add(renderable);
-            }
-            return so;
-        }
-
-        static SceneObject SceneObjectFromModel(GameContentManager content, string modelName, int maxSubMeshes = 0)
-        {
-            Model model = content.LoadModel(modelName);
-            if (model == null)
-                return null;
-
-            SceneObject so = DynamicObject(modelName);
-            int count = SubMeshCount(maxSubMeshes, model.Meshes.Count);
-
-            so.Visibility = ObjectVisibility.RenderedAndCastShadows;
-
-            for (int i = 0; i < count; ++i)
-                so.Add(model.Meshes[i]);
-            return so;
-        }
-
-        static SceneObject SceneObjectFromSkinnedModel(GameContentManager content, string modelName)
-        {
-            SkinnedModel skinned = content.LoadSkinnedModel(modelName);
-            if (skinned == null)
-                return null;
-
-            var so = new SceneObject(skinned.Model, modelName)
-            {
-                ObjectType = ObjectType.Dynamic
-            };
-            return so;
-        }
-
-        public static void PreLoadModel(GameContentManager content, string modelName, bool animated)
-        {
-            content = content ?? RootContent;
-            if (RawContentLoader.IsSupportedMesh(modelName))
-                content.LoadStaticMesh(modelName);
-            else if (animated)
-                content.LoadSkinnedModel(modelName);
-            else
-                content.LoadModel(modelName);
-        }
-
-        public static SceneObject GetSceneMesh(GameContentManager content, string modelName, bool animated = false)
-        {
-            content = content ?? RootContent;
-            if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(content, modelName);
-            if (animated)
-                return SceneObjectFromSkinnedModel(content, modelName);
-            return SceneObjectFromModel(content, modelName);
-        }
-
-        public static SceneObject GetPlanetarySceneMesh(GameContentManager content, string modelName)
-        {
-            if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(content, modelName, 1);
-            return SceneObjectFromModel(content, modelName, 1);
-        }
 
         public static FileInfo[] GetAllXnbModelFiles(string folder)
         {
@@ -1273,13 +1172,6 @@ namespace Ship_Game
             }
         }
 
-        //public static void ReadAllTextFromFile(string relativePath)
-        //{
-        //    var textFile = LoadEntities<>
-        //    File.ReadAllText("Content/NameGenerators/names.txt")
-        //}
-
-
         static void LoadRandomItems()
         {
             RandomItemsList = LoadEntities<RandomItem>("RandomStuff", "LoadRandomItems");
@@ -1589,16 +1481,23 @@ namespace Ship_Game
                 PlanetaryEdicts[planetEdict.Name] = planetEdict;
         }
 
-        static void LoadEconomicResearchStrats()
+
+        static readonly Map<string, EconomicResearchStrategy> EconStrategies = new Map<string, EconomicResearchStrategy>();
+        public static EconomicResearchStrategy GetEconomicStrategy(string name)
+        {
+            return EconStrategies[name];
+        }
+        static void LoadEconomicResearchStrategies()
         {
             foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
             {
                 // the story here: some mods have bugged <Name> refs, so we do manual
                 // hand holding to fix their bugs...
                 pair.Entity.Name = pair.Info.NameNoExt();
-                EconStrats[pair.Entity.Name] = pair.Entity;
+                EconStrategies[pair.Entity.Name] = pair.Entity;
             }
         }
+
 
         static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new Map<SunZone, Array<PlanetCategory>>();
         static Array<PlanetType> PlanetTypes;

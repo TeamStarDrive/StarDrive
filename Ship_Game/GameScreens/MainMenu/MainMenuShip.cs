@@ -129,12 +129,12 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
                 string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
-                ShipObj = ResourceManager.GetSceneMesh(screen.TransientContent, modelPath);
+                ShipObj = StaticMesh.GetSceneMesh(screen.TransientContent, modelPath);
             }
             else if (DebugMeshInspect)
             {
-                ShipObj = ResourceManager.GetSceneMesh(screen.TransientContent, "Model/TestShips/Soyo/Soyo.obj");
-                //ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
+                ShipObj = StaticMesh.GetSceneMesh(screen.TransientContent, "Model/TestShips/Soyo/Soyo.obj");
+                //ShipObj = StaticMesh.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
             }
             else
             {
