@@ -652,7 +652,7 @@ namespace Ship_Game
 
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
-            ResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
+            ResearchStrategy = ResourceManager.GetEconomicStrategy(data.EconomicPersonality.Name);
             data.TechDelayTime = 4;
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
@@ -782,7 +782,7 @@ namespace Ship_Game
 
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
-            ResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
+            ResearchStrategy = ResourceManager.GetEconomicStrategy(data.EconomicPersonality.Name);
             InitColonyRankModifier();
         }
 

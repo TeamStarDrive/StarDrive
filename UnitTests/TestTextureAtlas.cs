@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
+using Ship_Game.SpriteSystem;
 
 namespace UnitTests
 {
