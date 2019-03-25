@@ -657,11 +657,11 @@ namespace Ship_Game.AI
                     break;
                 case 1:
                     if (!HasArrivedAtRallySafely(5000)) break;
-                    GatherAtAO(task, 10000);
+                    GatherAtAO(task, 3000);
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!ArrivedAtCombatRally(task))
+                    if (!ArrivedAtCombatRally(10000, task.AO))
                         break;
                     TaskStep = 3;
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
@@ -977,7 +977,10 @@ namespace Ship_Game.AI
         {
             return IsFleetAssembled(5000f, task.AO) != MoveStatus.Dispersed;
         }
-
+        bool ArrivedAtCombatRally(float distanceFromRally, Vector2 rally)
+        {
+            return IsFleetAssembled(distanceFromRally, rally) != MoveStatus.Dispersed;
+        }
         Ship[] AvailableShips => AllButRearShips.Filter(ship => !ship.AI.HasPriorityOrder);
 
         bool AttackEnemyStrengthClumpsInAO(MilitaryTask task)
