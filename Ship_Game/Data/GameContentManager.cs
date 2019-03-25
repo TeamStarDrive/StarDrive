@@ -8,11 +8,13 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SgMotion;
+using Ship_Game.Data.Mesh;
 using Ship_Game.SpriteSystem;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Processors;
+// ReSharper disable UnusedMember.Local
 
-namespace Ship_Game
+namespace Ship_Game.Data
 {
     public sealed class GameContentManager : ContentManager, IEffectCache
     {
@@ -27,7 +29,7 @@ namespace Ship_Game
         // Enables verbose logging for all asset loads and disposes
         public bool EnableLoadInfoLog { get; set; } = false && Debugger.IsAttached;
 
-        RawContentLoader RawContent;
+        public RawContentLoader RawContent { get; private set; }
 
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
         readonly object LoadSync = new object();
@@ -83,7 +85,7 @@ namespace Ship_Game
                 }
                 throw new ContentLoadException($"Asset '{assetNameNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
             }
-            asset = default(T);
+            asset = default;
             return false;
         }
 
@@ -139,7 +141,7 @@ namespace Ship_Game
                 case SurfaceFormat.Dxt3: mul = 1.0f; break;
                 case SurfaceFormat.Dxt5: mul = 1.0f; break;
             }
-            try { if (tex.LevelCount > 1) mul *= 1.75f; } // mipmaps 
+            try { if (tex.LevelCount > 1) mul *= 1.75f; } // mip maps 
             catch (Exception) {}
             return (int)(tex.Width * tex.Height * mul) + 4096/*all the crap that manages this texture*/;
         }
@@ -164,7 +166,7 @@ namespace Ship_Game
                 }
                 else if (asset is Video vid)
                 {
-                    numBytes += vid.Width * vid.Height * 3/*RGB*/ * 2/*doublebuffered*/;
+                    numBytes += vid.Width * vid.Height * 3/*RGB*/ * 2/*double buffered*/;
                 }
                 else if (asset is Model mod)
                 {
@@ -233,7 +235,6 @@ namespace Ship_Game
 
         struct AssetName
         {
-            public readonly string OriginalName;
             public readonly string NoExt;     // XNA friendly name without an extension
             public readonly string Extension; // ".obj" or ".png" for raw resource loader
 
@@ -244,7 +245,6 @@ namespace Ship_Game
                 if (assetName.IsEmpty())
                     throw new ArgumentNullException(nameof(assetName));
 
-                OriginalName = assetName;
                 NoExt = assetName;
                 Extension = "";
                 if (assetName[assetName.Length - 4] == '.')
@@ -283,7 +283,7 @@ namespace Ship_Game
 
         // Load the asset with the given name or path
         // Path must be relative to project root, such as:
-        // "Textures/mytexture" or "Textures/mytexture.xnb"
+        // "Textures/myTexture" or "Textures/myTexture.xnb"
         public override T Load<T>(string assetName)
         {
             return LoadAsset<T>(assetName, useCache:true);

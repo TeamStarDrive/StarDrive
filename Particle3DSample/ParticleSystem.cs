@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game;
+using Ship_Game.Data;
 
 namespace Particle3DSample
 {

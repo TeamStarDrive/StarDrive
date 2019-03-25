@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Ship_Game
+namespace Ship_Game.Data.Texture
 {
     public static class ImageUtils
     {
@@ -17,14 +12,14 @@ namespace Ship_Game
         {
             var dxtData = new byte[tex.Width * tex.Height];
             tex.GetData(dxtData);
-            return DDSReader.DecompressData(tex.Width, tex.Height, dxtData, DDSReader.PixelFormat.DXT5);
+            return DxtReader.DecompressData(tex.Width, tex.Height, dxtData, DxtReader.PixelFormat.DXT5);
         }
 
         public static Color[] DecompressDxt1(Texture2D tex)
         {
             var dxtData = new byte[(tex.Width * tex.Height) / 2];
             tex.GetData(dxtData);
-            return DDSReader.DecompressData(tex.Width, tex.Height, dxtData, DDSReader.PixelFormat.DXT1);
+            return DxtReader.DecompressData(tex.Width, tex.Height, dxtData, DxtReader.PixelFormat.DXT1);
         }
 
         static unsafe Color[] BytesToColor(byte[] pixels)

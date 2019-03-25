@@ -5,6 +5,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
+using Ship_Game.Data.Texture;
 using Ship_Game.SpriteSystem;
 
 namespace Ship_Game

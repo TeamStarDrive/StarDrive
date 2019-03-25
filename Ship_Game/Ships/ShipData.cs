@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using Ship_Game.Data.Mesh;
 
 namespace Ship_Game.Ships
 {
