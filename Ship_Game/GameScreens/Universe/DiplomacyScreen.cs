@@ -899,7 +899,7 @@ namespace Ship_Game
                 {
                     StatementsSL.Reset();
                     dState = DialogState.Discuss;
-                    foreach (StatementSet statementSet in ResourceManager.DDDict["SharedDiplomacy"].StatementSets)
+                    foreach (StatementSet statementSet in ResourceManager.GetDiplomacyDialog("SharedDiplomacy").StatementSets)
                     {
                         if (statementSet.Name == "Ordinary Discussion")
                         {
@@ -1425,7 +1425,7 @@ namespace Ship_Game
                     dState = DialogState.Them;
                     break;
                 case "EmpireDiscuss":
-                    foreach (StatementSet set in ResourceManager.DDDict["SharedDiplomacy"].StatementSets)
+                    foreach (StatementSet set in ResourceManager.GetDiplomacyDialog("SharedDiplomacy").StatementSets)
                     {
                         if (set.Name == "EmpireDiscuss")
                         {

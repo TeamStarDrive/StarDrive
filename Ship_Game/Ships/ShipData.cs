@@ -301,7 +301,7 @@ namespace Ship_Game.Ships
         public void PreLoadModel()
         {
             var content = Empire.Universe?.TransientContent ?? ResourceManager.RootContent;
-            ResourceManager.PreloadModel(content, HullModel, Animated);
+            ResourceManager.PreLoadModel(content, HullModel, Animated);
         }
 
         public void LoadModel(out SceneObject shipSO,
