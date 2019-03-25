@@ -864,7 +864,7 @@ namespace Ship_Game
             }
         }
 
-        public static void LoadEncounters() // Refactored by RedFox
+        public static void LoadEncounters()
         {
             Encounters = LoadEntities<Encounter>("Encounter Dialogs", "LoadEncounters");
 

@@ -303,30 +303,14 @@ namespace Ship_Game.Ships
             StaticMesh.PreLoadModel(Empire.Universe?.TransientContent, HullModel, Animated);
         }
 
-        public void LoadModel(out SceneObject shipSO,
-                              out AnimationController shipMeshAnim,
-                              GameScreen screen)
+        public void LoadModel(out SceneObject shipSO, GameScreen screen)
         {
-            var content = screen?.TransientContent ?? ResourceManager.RootContent;
-
-            shipSO = StaticMesh.GetSceneMesh(content, HullModel, Animated);
+            shipSO = StaticMesh.GetSceneMesh(screen?.TransientContent, HullModel, Animated);
 
             if (BaseHull.Volume.X.AlmostEqual(0f))
             {
                 BaseHull.Volume = shipSO.GetMeshBoundingBox().Max;
                 BaseHull.ModelZ = BaseHull.Volume.Z;
-            }
-
-            shipMeshAnim = null;
-            if (Animated) // Support animated meshes if we use them at all
-            {
-                SkinnedModel skinned = content.LoadSkinnedModel(ModelPath);
-                shipMeshAnim = new AnimationController(skinned.SkeletonBones);
-                shipMeshAnim.TranslationInterpolation = InterpolationMode.Linear;
-                shipMeshAnim.OrientationInterpolation = InterpolationMode.Linear;
-                shipMeshAnim.ScaleInterpolation = InterpolationMode.Linear;
-                shipMeshAnim.Speed = 0.5f;
-                shipMeshAnim.StartClip(skinned.AnimationClips.Values[0]);
             }
         }
 

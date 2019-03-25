@@ -33,7 +33,6 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public readonly MainMenuShipAI AI;
         SceneObject ShipObj;
-        AnimationController ShipAnim;
 
         bool DebugMeshRotate = false;
         bool DebugMeshInspect = false; // for debugging mesh loader
@@ -116,7 +115,6 @@ namespace Ship_Game.GameScreens.MainMenu
                 ScreenManager.Instance.RemoveObject(ShipObj);
                 ShipObj.Clear();
                 ShipObj = null;
-                ShipAnim = null;
             }
         }
 
@@ -139,10 +137,10 @@ namespace Ship_Game.GameScreens.MainMenu
             else
             {
                 ShipData hull = ChooseShip(Spawn.Empire, Spawn.Role);
-                hull.LoadModel(out ShipObj, out ShipAnim, screen);
-                if (ShipAnim != null)
+                hull.LoadModel(out ShipObj, screen);
+                if (ShipObj.Animation != null)
                 {
-                    ShipAnim.Speed = 0.25f;
+                    ShipObj.Animation.Speed = 0.25f;
                 }
             }
 
@@ -209,7 +207,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             else
             {
-                AI.Update(this, screen.DeltaTime);
+                AI.Update(this, screen.FrameDeltaTime);
             }
 
             SoundEmitter.Position = Position;
@@ -218,13 +216,7 @@ namespace Ship_Game.GameScreens.MainMenu
             if (ShipObj != null)
             {
                 UpdateTransform();
-
-                // Added by RedFox: support animated ships
-                if (ShipAnim != null)
-                {
-                    ShipAnim.Update(gameTime.ElapsedGameTime, Matrix.Identity);
-                    ShipObj.SkinBones = ShipAnim.SkinnedBoneTransforms;
-                }
+                ShipObj.UpdateAnimation(screen.FrameDeltaTime);
             }
         }
 
