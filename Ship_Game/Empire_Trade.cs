@@ -231,7 +231,7 @@ namespace Ship_Game
             switch (goods)
             {
                 case Goods.Food: freighterTooSlow = importPlanet.FoodHere - importPlanet.Food.NetIncome * eta < 0; break;
-                default: freighterTooSlow = eta > 50; break;
+                default: freighterTooSlow         = eta > 50;                                                      break;
             }
 
             if (freighterTooSlow)
