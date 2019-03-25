@@ -132,6 +132,7 @@ namespace Ship_Game
             {
                 if (FreightersBeingBuilt < MaxFreightersInQueue)
                     BuildFreighter();
+
                 return;
             }
 
@@ -154,8 +155,17 @@ namespace Ship_Game
                 if (closestIdleFreighter == null) // no more available freighters
                     break;
 
-                closestIdleFreighter.AI.SetupFreighterPlan(exportPlanet, importPlanet, goods);
+                if (InterEmpireTradeDistanceOk(closestIdleFreighter, importPlanet, exportPlanet))
+                    closestIdleFreighter.AI.SetupFreighterPlan(exportPlanet, importPlanet, goods);
             }
+        }
+
+        private bool InterEmpireTradeDistanceOk(Ship freighter, Planet importPlanet, Planet exportPlanet)
+        {
+            if (importPlanet.Owner == this)
+                return true; // only for Inter-Empire Trade
+
+            return freighter.GetAstrograteTimeTo(importPlanet, exportPlanet) < 40;
         }
 
         private Ship FindClosestIdleFreighter(Planet planet, Goods goods)
@@ -213,6 +223,19 @@ namespace Ship_Game
             }
 
             IncreaseFastVsBigFreighterRatio(ratioDiff);
+        }
+
+        public void AffectFastVsBigFreighterByEta(Planet importPlanet, Goods goods, float eta)
+        {
+            bool freighterTooSlow;
+            switch (goods)
+            {
+                case Goods.Food: freighterTooSlow = importPlanet.FoodHere - importPlanet.Food.NetIncome * eta < 0; break;
+                default: freighterTooSlow = eta > 50; break;
+            }
+
+            if (freighterTooSlow)
+                IncreaseFastVsBigFreighterRatio(FreighterPriority.TooSlow);
         }
 
         public void IncreaseFastVsBigFreighterRatio(float amount)
