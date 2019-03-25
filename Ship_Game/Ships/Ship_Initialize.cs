@@ -353,9 +353,7 @@ namespace Ship_Game.Ships
             ShipSO.Visibility = ObjectVisibility.Rendered;
             ShipSO.World      = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
-            // Universe will be null during loading, so we need to grab the Global ScreenManager instance from somewhere else
-            ScreenManager manager = Empire.Universe?.ScreenManager ?? ResourceManager.ScreenManager;
-            manager.AddObject(ShipSO);
+            ScreenManager.Instance.AddObject(ShipSO);
         }
 
         public void InitializeShip(bool loadingFromSavegame = false)

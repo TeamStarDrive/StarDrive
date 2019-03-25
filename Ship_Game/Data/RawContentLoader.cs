@@ -120,7 +120,7 @@ namespace Ship_Game.Data
             return modelFiles.ToArray();
         }
 
-        bool ExportXnbMesh(FileInfo file, bool alwaysOverwrite = false)
+        public void ExportXnbMesh(FileInfo file, bool alwaysOverwrite = false)
         {
             try
             {
@@ -140,12 +140,10 @@ namespace Ship_Game.Data
                     string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
                     MeshExport.Export(model, nameNoExt, savePath);
                 }
-                return true;
             }
             catch (Exception)
             {
                 // just ignore resources that are not static models
-                return false;
             }
         }
 
