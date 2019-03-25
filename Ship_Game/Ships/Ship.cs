@@ -1432,13 +1432,15 @@ namespace Ship_Game.Ships
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
             if (Rotation < 0f) Rotation += 6.28318548202515f;
 
-            if (InCombat && !EMPdisabled && hasCommand)
+            if (!EMPdisabled && hasCommand)
             {
-                for (int i = 0; i < Weapons.Count; i++)
+                if (InCombat)
                 {
-                    Weapons[i].Update(deltaTime);
+                    for (int i = 0; i < Weapons.Count; i++)
+                    {
+                        Weapons[i].Update(deltaTime);
+                    }
                 }
-
                 for (int i = 0; i < BombBays.Count; i++)
                 {
                     var bomb = BombBays[i];

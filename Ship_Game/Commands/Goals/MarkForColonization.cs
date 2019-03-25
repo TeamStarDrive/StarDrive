@@ -77,8 +77,7 @@ namespace Ship_Game.Commands.Goals
             if (defendClaim != null)
                 empire.GetEmpireAI().TaskList.QueuePendingRemoval(defendClaim);
         }
-
-
+        
         TaskStatus EscortStatus(float enemyStrength)
         {
             MilitaryTask defendClaim = GetClaimTask();
@@ -97,10 +96,18 @@ namespace Ship_Game.Commands.Goals
             WaitingForEscort = HasEscort = false;
             if (empire.isPlayer || empire.isFaction)
                 return false;
+            var escortTask = GetClaimTask();
+            float radius = escortTask?.AORadius ?? 125000f;
 
-            float str = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(ColonizationTarget.Center, 150000f, empire);
-            if (str < 10)
-                return false;
+            float str = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(ColonizationTarget.Center, radius, empire);
+            
+            if (escortTask != null)
+            {
+                if (str < escortTask.GetCurrentFleetStr())
+                    return false;
+                if (escortTask.GetFleetPosition.InRadius(ColonizationTarget.Center, escortTask.AORadius))
+                    return false;
+            }
 
             WaitingForEscort = true;
             if (EscortStatus(str) == TaskStatus.Running)
@@ -201,16 +208,8 @@ namespace Ship_Game.Commands.Goals
 
         Ship FindIdleColonyShip()
         {
-            if (FinishedShip != null)
-            {
-                if (!FinishedShip.Active)
-                {
-                    FinishedShip = null;
-                }
-                else
-                    return FinishedShip;
-
-            }
+            if (GetFinishedShip() != null)
+                return FinishedShip;
 
             foreach (Ship ship in empire.GetShips())
                 if (ship.isColonyShip && ship.AI != null && ship.AI.State != AIState.Colonize)
@@ -226,26 +225,36 @@ namespace Ship_Game.Commands.Goals
 
             if (UpdateEscortNeeds() && !HasEscort)
                 return GoalStep.TryAgain;
-            if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
+            if (!FinishedShipAlive) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
                 return GoalStep.RestartGoal;
             FinishedShip.DoColonize(ColonizationTarget, this);
             return GoalStep.GoToNextStep;
         }
 
+        bool FinishedShipAlive => GetFinishedShip() != null;
+
+        Ship GetFinishedShip()
+        {
+            if (FinishedShip?.Active != true)
+                FinishedShip = null;
+
+            return FinishedShip;
+        }
+
         GoalStep WaitForColonizationComplete()
         {
-            if (!IsValid())
+             if (!IsValid())
                 return GoalStep.GoalFailed;
 
             if (UpdateEscortNeeds() && !HasEscort)
                 return GoalStep.TryAgain;
 
-            if (FinishedShip == null) // @todo This is a workaround for a bug
+            if (!FinishedShipAlive) // @todo This is a workaround for a bug
                 return GoalStep.RestartGoal;
-            if (FinishedShip != null && FinishedShip.Active && FinishedShip.AI.State != AIState.Colonize)
+            if (FinishedShip.AI.State != AIState.Colonize)
                 return GoalStep.RestartGoal;
-            if (FinishedShip != null && !FinishedShip.Active && ColonizationTarget.Owner == null)
-                return GoalStep.RestartGoal;
+            //if (ColonizationTarget.Owner == null)
+            //    return GoalStep.RestartGoal;
 
             // not colonized yet
             if (ColonizationTarget.Owner == null)
