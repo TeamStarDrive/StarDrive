@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using Ship_Game.Data.Mesh;
 
 namespace Ship_Game.Ships
 {
@@ -224,6 +225,7 @@ namespace Ship_Game.Ships
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     var slot = new ModuleSlotData();
                     slot.Position              = new Vector2(msd->PosX, msd->PosY);
+                    // @note Interning the strings saves us roughly 70MB of RAM across all UID-s
                     slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
                     slot.HangarshipGuid        = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health                = msd->Health;
@@ -298,8 +300,7 @@ namespace Ship_Game.Ships
 
         public void PreLoadModel()
         {
-            var content = Empire.Universe?.TransientContent ?? ResourceManager.RootContent;
-            ResourceManager.PreloadModel(content, HullModel, Animated);
+            StaticMesh.PreLoadModel(Empire.Universe?.TransientContent, HullModel, Animated);
         }
 
         public void LoadModel(out SceneObject shipSO,
@@ -308,7 +309,7 @@ namespace Ship_Game.Ships
         {
             var content = screen?.TransientContent ?? ResourceManager.RootContent;
 
-            shipSO = ResourceManager.GetSceneMesh(content, HullModel, Animated);
+            shipSO = StaticMesh.GetSceneMesh(content, HullModel, Animated);
 
             if (BaseHull.Volume.X.AlmostEqual(0f))
             {
