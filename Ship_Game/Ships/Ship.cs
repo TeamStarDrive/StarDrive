@@ -561,17 +561,17 @@ namespace Ship_Game.Ships
             if (planet != null)
                 distanceSTL += planet.GravityWellRadius;
 
-            return TravelTime(distance, distanceSTL);
+            return GetAstrogateTime(distance, distanceSTL);
         }
 
-        public float GetAstrograteTimeTo(Planet origin, Planet destination)
+        public float GetAstrogateTimeBetween(Planet origin, Planet destination)
         {
             float distance    = origin.Center.Distance(destination.Center);
             float distanceSTL = destination.GravityWellForEmpire(loyalty) + origin.GravityWellForEmpire(loyalty);
-            return TravelTime(distance, distanceSTL);
+            return GetAstrogateTime(distance, distanceSTL);
         }
 
-        private float TravelTime(float distance, float distanceSTL)
+        private float GetAstrogateTime(float distance, float distanceSTL)
         {
             float distanceFTL = Math.Max(distance - distanceSTL, 0);
             float travelSTL   = distanceSTL / GetSTLSpeed();
