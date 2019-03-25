@@ -165,7 +165,7 @@ namespace Ship_Game
             if (importPlanet.Owner == this)
                 return true; // only for Inter-Empire Trade
 
-            return freighter.GetAstrograteTimeTo(importPlanet, exportPlanet) < 40;
+            return freighter.GetAstrogateTimeBetween(importPlanet, exportPlanet) < 40;
         }
 
         private Ship FindClosestIdleFreighter(Planet planet, Goods goods)
@@ -230,8 +230,8 @@ namespace Ship_Game
             bool freighterTooSlow;
             switch (goods)
             {
-                case Goods.Food: freighterTooSlow = importPlanet.FoodHere - importPlanet.Food.NetIncome * eta < 0; break;
-                default: freighterTooSlow         = eta > 50;                                                      break;
+                case Goods.Food: freighterTooSlow = (importPlanet.FoodHere - importPlanet.Food.NetIncome * eta) < 0; break;
+                default: freighterTooSlow         = eta > 50;                                                        break;
             }
 
             if (freighterTooSlow)
