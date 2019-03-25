@@ -33,7 +33,9 @@ namespace Ship_Game
         public Vector2 ScreenArea { get; private set; }
         public Vector2 ScreenCenter { get; private set; }
 
-        public float DeltaTime { get; private set; }
+        // Time elapsed between 2 frames
+        // this can be used for rendering animations
+        public float FrameDeltaTime { get; private set; }
         public GameTime GameTime;
         public float TotalElapsed => (float)GameTime.TotalGameTime.TotalSeconds;
         public int FrameId { get; private set; }
@@ -129,7 +131,11 @@ namespace Ship_Game
         {
             ++FrameId;
             GameTime = gameTime;
-            DeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            
+            FrameDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (FrameDeltaTime > 0.4f) // @note Probably we were loading something heavy
+                FrameDeltaTime = 1f / 60f;
+
             GameAudio.Update();
             ScreenManager.Update(gameTime);
             base.Update(gameTime);

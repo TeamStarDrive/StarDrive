@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Graphics;
 using SgMotion;
+using SgMotion.Controllers;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -71,6 +72,15 @@ namespace Ship_Game.Data.Mesh
             {
                 ObjectType = ObjectType.Dynamic
             };
+
+            so.Animation = new AnimationController(skinned.SkeletonBones)
+            {
+                TranslationInterpolation = InterpolationMode.Linear,
+                OrientationInterpolation = InterpolationMode.Linear,
+                ScaleInterpolation = InterpolationMode.Linear,
+                Speed = 0.5f
+            };
+            so.Animation.StartClip(skinned.AnimationClips.Values[0]);
             return so;
         }
 

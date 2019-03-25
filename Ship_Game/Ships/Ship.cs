@@ -48,7 +48,6 @@ namespace Ship_Game.Ships
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
-        private AnimationController ShipMeshAnim;
         public bool IsPlayerDesign;
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
