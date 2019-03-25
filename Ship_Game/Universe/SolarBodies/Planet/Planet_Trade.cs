@@ -166,7 +166,7 @@ namespace Ship_Game
                 Ship ship = freighters[i];
                 if (!ship.Active || ship.AI.State != AIState.SystemTrader)
                 {
-                    freighters.RemoveAt(i);
+                    freighters.RemoveAtSwapLast(i);
                 }
                 else if (ship.loyalty != Owner && !Owner.GetRelations(ship.loyalty).Treaty_Trade)
                 {

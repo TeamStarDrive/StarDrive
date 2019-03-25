@@ -160,13 +160,10 @@ namespace Ship_Game
 
         private Ship FindClosestIdleFreighter(Planet planet, Goods goods)
         {
-            Ship freighter;
             if (!isPlayer || AutoFreighters)
-                freighter = IdleFreighters.FindClosestTo(planet);
-            else
-                freighter = ClosestIdleFreighterManual(planet, goods);
+                return IdleFreighters.FindClosestTo(planet);
 
-            return freighter;
+            return ClosestIdleFreighterManual(planet, goods);
         }
 
         private Ship OpportunistFreighter(Planet planet, Goods goods)
@@ -180,20 +177,12 @@ namespace Ship_Game
 
         private Ship ClosestIdleFreighterManual(Planet planet, Goods goods)
         {
-            Ship closestIdleFreighter = null;
             switch (goods)
             {
-                case Goods.Production:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(planet, s => s.TransportingProduction);
-                    break;
-                case Goods.Food:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(planet, s => s.TransportingFood);
-                    break;
-                case Goods.Colonists:
-                    closestIdleFreighter = IdleFreighters.FindClosestTo(planet, s => s.TransportingColonists);
-                    break;
+                case Goods.Production: return IdleFreighters.FindClosestTo(planet, s => s.TransportingProduction);
+                case Goods.Food:       return IdleFreighters.FindClosestTo(planet, s => s.TransportingFood);
+                default:               return IdleFreighters.FindClosestTo(planet, s => s.TransportingColonists);
             }
-            return closestIdleFreighter;
         }
 
         private void BuildFreighter()
@@ -216,10 +205,10 @@ namespace Ship_Game
             float ratioDiff = 0;
             switch (reason)
             {
-                case FreighterPriority.TooSmall: ratioDiff         = -0.005f; break;
-                case FreighterPriority.TooBig: ratioDiff           = +0.01f;  break;
-                case FreighterPriority.TooSlow: ratioDiff          = +0.02f;  break;
-                case FreighterPriority.ExcessCargoLeft: ratioDiff  = +0.02f;  break;
+                case FreighterPriority.TooSmall:         ratioDiff = -0.005f; break;
+                case FreighterPriority.TooBig:           ratioDiff = +0.01f;  break;
+                case FreighterPriority.TooSlow:          ratioDiff = +0.02f;  break;
+                case FreighterPriority.ExcessCargoLeft:  ratioDiff = +0.02f;  break;
                 case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.005f; break;
             }
 
