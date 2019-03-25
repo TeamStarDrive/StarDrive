@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Ship_Game.Audio;
+using Ship_Game.Data;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 using Point = System.Drawing.Point;
 

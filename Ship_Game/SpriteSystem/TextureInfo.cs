@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data.Texture;
 
 namespace Ship_Game.SpriteSystem
 {

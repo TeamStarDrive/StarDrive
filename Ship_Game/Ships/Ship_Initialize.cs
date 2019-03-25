@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Data;
 
 namespace Ship_Game.Ships
 {

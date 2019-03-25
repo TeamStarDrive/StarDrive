@@ -1,6 +1,6 @@
 ﻿using SynapseGaming.LightingSystem.Rendering;
 
-namespace Ship_Game
+namespace Ship_Game.Data.Mesh
 {
     public class StaticMesh
     {
