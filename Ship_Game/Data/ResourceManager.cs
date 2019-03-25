@@ -14,6 +14,8 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Ship_Game.Data;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Universe.SolarBodies;
@@ -715,73 +717,9 @@ namespace Ship_Game
             return SceneObjectFromModel(content, modelName, 1);
         }
 
-
         public static FileInfo[] GetAllXnbModelFiles(string folder)
         {
-            var files = new Array<FileInfo>();
-            files.AddRange(Dir.GetFiles("Content/", "*.xnb", SearchOption.AllDirectories));
-            if (GlobalStats.HasMod)
-                files.AddRange(Dir.GetFiles(GlobalStats.ModPath, "*.xnb", SearchOption.AllDirectories));
-
-            var modelFiles = new Array<FileInfo>();
-            for (int i = 0; i < files.Count; ++i)
-            {
-                FileInfo file = files[i];
-                string name = file.Name;
-                if (name.EndsWith("_d.xnb") || name.EndsWith("_g.xnb") ||
-                    name.EndsWith("_n.xnb") || name.EndsWith("_s.xnb") ||
-                    name.EndsWith("_d_0.xnb") || name.EndsWith("_g_0.xnb") ||
-                    name.EndsWith("_n_0.xnb") || name.EndsWith("_s_0.xnb"))
-                {
-                    continue;
-                }
-                modelFiles.Add(file);
-            }
-            return modelFiles.ToArray();
-        }
-
-        static bool ExportXnbMesh(FileInfo file, bool alwaysOverwrite = false)
-        {
-            try
-            {
-                string relativePath = file.RelPath();
-                Log.Info(relativePath);
-
-                if (relativePath.StartsWith("Content\\"))
-                    relativePath = relativePath.Substring(8);
-
-                string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "fbx");
-
-                if (alwaysOverwrite || !File.Exists(savePath))
-                {
-                    var model = RootContent.LoadModel(relativePath); // @note This may throw if it's not a mesh
-                    Log.Info($"ExportMesh: {savePath}");
-
-                    string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
-                    RawContentLoader.SaveModel(model, nameNoExt, savePath);
-                }
-                return true;
-            }
-            catch (Exception)
-            {
-                // just ignore resources that are not static models
-                return false;
-            }
-        }
-
-        public static void ExportAllXnbMeshes()
-        {
-            FileInfo[] files = GetAllXnbModelFiles("Model");
-
-            void ExportMeshes(int start, int end)
-            {
-                for (int i = start; i < end; ++i)
-                {
-                    ExportXnbMesh(files[i]);
-                }
-            }
-            Parallel.For(files.Length, ExportMeshes, Parallel.NumPhysicalCores * 2);
-            //ExportMeshes(0, files.Length);
+            return RootContent.RawContent.GetAllXnbModelFiles(folder);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////

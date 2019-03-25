@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Rendering;
 
-namespace Ship_Game
+namespace Ship_Game.Data.Mesh
 {
     public static class MeshUtil
     {
@@ -83,6 +83,26 @@ namespace Ship_Game
                 if (p.Z > bb.Max.Z) bb.Max.Z = p.Z;
             }
             return bb;
+        }
+
+        public static T[] GetArray<T>(
+            this VertexBuffer vbo, ModelMeshPart part, VertexElementUsage usage) where T : struct
+        {
+            VertexElement[] elements = part.VertexDeclaration.GetVertexElements();
+            int count  = part.NumVertices;
+            int start  = part.BaseVertex;
+            int stride = part.VertexStride;
+
+            for (int i = 0; i < elements.Length; ++i)
+            {
+                if (elements[i].VertexElementUsage == usage)
+                {
+                    var data = new T[count];
+                    vbo.GetData(elements[i].Offset + start*stride, data, 0, count, stride);
+                    return data;
+                }
+            }
+            return null;
         }
     }
 }
