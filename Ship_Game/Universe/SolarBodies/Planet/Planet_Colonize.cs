@@ -24,6 +24,7 @@ namespace Ship_Game
             Owner.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
             NewColonyAffectRelations();
             NewColonyAffectPresentTroops();
+            SetupCyberneticsWorkerAllocations();
             StatTracker.StatAddColony(this, Owner, Empire.Universe);
         }
 
@@ -87,17 +88,24 @@ namespace Ship_Game
         {
             var startingEquipment  = colonyShip.StartingEquipment();
             Building outpost       = ResourceManager.GetBuildingTemplate(Building.OutpostId);
-            Building extraBuilding = ResourceManager.GetBuildingTemplate(startingEquipment.BuildingId);
+            
             // always spawn an outpost on a new colony
             if (!OutpostBuiltOrInQueue())
                 SpawnNewColonyBuilding(outpost);
-            // spawn an extra building for advanced colony modules
-            if (!extraBuilding.Unique || !BuildingBuiltOrQueued(extraBuilding))
-                SpawnNewColonyBuilding(extraBuilding);
+            if (startingEquipment.BuildingId.NotEmpty())
+                StartingEquipmentBuildings(startingEquipment);
 
             FoodHere   += startingEquipment.AddFood;
             ProdHere   += startingEquipment.AddProd;
             Population += startingEquipment.AddColonists;
+        }
+
+        void StartingEquipmentBuildings(ColonyEquipment startingEquipment)
+        {
+            Building extraBuilding = ResourceManager.GetBuildingTemplate(startingEquipment.BuildingId);
+            // spawn an extra building for advanced colony modules
+            if (!extraBuilding.Unique || !BuildingBuiltOrQueued(extraBuilding))
+                SpawnNewColonyBuilding(extraBuilding);
         }
 
         void SpawnNewColonyBuilding(Building template)
@@ -106,6 +114,16 @@ namespace Ship_Game
             BuildingList.Add(building);
             building.AssignBuildingToTileOnColonize(this);
             Storage.Max = Math.Max(Storage.Max, building.StorageAdded); // so starting resources could be added
+        }
+
+        void SetupCyberneticsWorkerAllocations() 
+        {
+            if (Owner.IsCybernetic)
+            {
+                Food.Percent = 0;
+                Prod.Percent = 0.5f;
+                Res.Percent  = 0.5f;
+            }
         }
     }
 
@@ -118,10 +136,10 @@ namespace Ship_Game
 
         public ColonyEquipment(float addFood, float addProd, float addColonists, string buildingId)
         {
-            AddFood = addFood;
-            AddProd = addProd;
+            AddFood      = addFood;
+            AddProd      = addProd;
             AddColonists = addColonists;
-            BuildingId = buildingId;
+            BuildingId   = buildingId;
         }
     }
 }
