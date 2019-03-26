@@ -71,7 +71,6 @@ namespace Ship_Game
         private bool InitializedHostilesDict;
         public float NetPlanetIncomes { get; private set; }
         public float GrossPlanetIncome { get; private set; }
-        public float TradeMoneyAddedThisTurn { get; private set; }
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
         public float MoneyLastTurn;
         public int AllTimeTradeIncome;
@@ -122,7 +121,7 @@ namespace Ship_Game
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
         // Income this turn before deducting ship maintenance
-        public float GrossIncome              => GrossPlanetIncome + TradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
+        public float GrossIncome              => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
         public float NetIncome                => GrossIncome - BuildingAndShipMaint;
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
@@ -1347,26 +1346,6 @@ namespace Ship_Game
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
                     planet.UpdateOwnedPlanet();
-        }
-
-        public float TotalAvgTradeIncome => GetTotalTradeIncome() + GetAverageTradeIncome();
-
-        public int GetAverageTradeIncome()
-        {
-            return AllTimeTradeIncome / TurnCount;
-        }
-
-        public float GetTotalTradeIncome()
-        {
-            float total = 0f;
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
-                if (kv.Value.Treaty_Trade) total += kv.Value.TradeIncome();
-            return total;
-        }
-
-        void UpdateTradeIncome()
-        {
-            TradeMoneyAddedThisTurn = GetTotalTradeIncome();
         }
 
         private void UpdateShipMaintenance()
