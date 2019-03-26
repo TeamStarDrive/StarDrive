@@ -8,6 +8,9 @@ namespace SDNative
     using rpp::BoundingSphere;
     using rpp::Matrix4;
     using std::unique_ptr;
+
+    struct SDMesh;
+    struct SDMeshGroup;
     ////////////////////////////////////////////////////////////////////////////////////
 
     struct SDVertex
@@ -16,7 +19,7 @@ namespace SDNative
         Vector3 Normal;
         Vector2 Coords;
         Vector3 Tangent;
-        Vector3 Binormal;
+        Vector3 BiNormal;
     };
 
     static_assert(sizeof(SDVertex) == 56, "SDVertex size mismatch. Sunburn requires a specific vertex layout");
@@ -59,7 +62,37 @@ namespace SDNative
         }
     };
 
-    struct SDMesh;
+    struct SDBonePose
+    {
+        Vector3 Translation;
+        Vector4 Orientation; // Quaternion
+        Vector3 Scale;
+    };
+
+    struct SDModelBone
+    {
+        // publicly visible in C#
+        strview Name;
+        int BoneIndex;
+        int ParentBone;
+        SDBonePose Pose;
+
+        // not mapped to C#
+        SDMeshGroup& Group;
+        string TheName;
+    };
+
+    struct SDVertexData
+    {
+        int NumIndices;
+        int NumVertices;
+        const ushort*  Indices;
+        const Vector3* Vertices;
+        const Vector3* Normals;
+        const Vector2* Coords;
+        const Vector4* BlendWeights;
+        const BlendIndices* BlendIndices;
+    };
 
     struct SDMeshGroup
     {
@@ -79,12 +112,13 @@ namespace SDNative
         SDMesh& TheMesh;
         vector<SDVertex> VertexData;
         vector<ushort>   IndexData;
+        vector<SDModelBone> Bones;
+        vector<SDModelBone> SkinnedBones; // subset of Bones, does not contain static bones
 
         explicit SDMeshGroup(SDMesh& mesh, int groupId);
         void InitVertices();
 
-        void SetData(Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
-                     const ushort* indices, int numIndices);
+        void SetData(SDVertexData vd);
 
         Nano::Mesh& GetMesh() const;
         MeshGroup& GetGroup() const;
@@ -123,9 +157,7 @@ namespace SDNative
     DLLAPI(bool)    SDMeshSave(SDMesh* mesh, const wchar_t* fileName);
     DLLAPI(SDMeshGroup*) SDMeshNewGroup(SDMesh* mesh, const wchar_t* groupName, Matrix4* transform);
 
-    DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group,
-                    Vector3* vertices, Vector3* normals, Vector2* coords,
-                    int numVertices, ushort* indices, int numIndices);
+    DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group, SDVertexData vertexData);
 
     /**
      * Create a new material instance
@@ -149,6 +181,7 @@ namespace SDNative
 
     DLLAPI(void) SDMeshGroupSetMaterial(SDMeshGroup* group, SDMaterial* material);
 
+    DLLAPI(void) SDMeshGroupSetSkeleton(SDMeshGroup* group);
 
     ////////////////////////////////////////////////////////////////////////////////////
 }

@@ -13,12 +13,15 @@ namespace Ship_Game.Data.Mesh
         public Array<MeshData> Meshes { get; set; } = new Array<MeshData>();
         public int Count => Meshes.Count;
 
+        public SkinnedModelBoneCollection Skeleton;
+        public AnimationClipDictionary AnimationClips;
+
         static int SubMeshCount(int maxSubMeshes, int meshSubMeshCount)
         {
             return maxSubMeshes == 0 ? meshSubMeshCount : Math.Min(maxSubMeshes, meshSubMeshCount);
         }
 
-        static SceneObject SceneObjectFromStaticMesh(GameContentManager content, string modelName, int maxSubMeshes = 0)
+        static SceneObject FromFbx(GameContentManager content, string modelName, int maxSubMeshes = 0)
         {
             StaticMesh staticMesh = content.LoadStaticMesh(modelName);
             if (staticMesh == null)
@@ -99,7 +102,7 @@ namespace Ship_Game.Data.Mesh
         {
             content = content ?? ResourceManager.RootContent;
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(content, modelName);
+                return FromFbx(content, modelName);
             if (animated)
                 return SceneObjectFromSkinnedModel(content, modelName);
             return SceneObjectFromModel(content, modelName);
@@ -108,7 +111,7 @@ namespace Ship_Game.Data.Mesh
         public static SceneObject GetPlanetarySceneMesh(GameContentManager content, string modelName)
         {
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(content, modelName, 1);
+                return FromFbx(content, modelName, 1);
             return SceneObjectFromModel(content, modelName, 1);
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Texture;
@@ -96,12 +97,12 @@ namespace Ship_Game.Data
             return MeshImport.Import(meshPath, meshName);
         }
 
-        public FileInfo[] GetAllXnbModelFiles(string folder)
+        public Array<FileInfo> GetAllXnbModelFiles(string folder)
         {
             var files = new Array<FileInfo>();
-            files.AddRange(Dir.GetFiles("Content/", "*.xnb", SearchOption.AllDirectories));
+            files.AddRange(Dir.GetFiles($"Content/{folder}", "*.xnb", SearchOption.AllDirectories));
             if (GlobalStats.HasMod)
-                files.AddRange(Dir.GetFiles(GlobalStats.ModPath, "*.xnb", SearchOption.AllDirectories));
+                files.AddRange(Dir.GetFiles($"{GlobalStats.ModPath}/{folder}", "*.xnb", SearchOption.AllDirectories));
 
             var modelFiles = new Array<FileInfo>();
             for (int i = 0; i < files.Count; ++i)
@@ -117,39 +118,51 @@ namespace Ship_Game.Data
                 }
                 modelFiles.Add(file);
             }
-            return modelFiles.ToArray();
+            return modelFiles;
         }
 
         public void ExportXnbMesh(FileInfo file, bool alwaysOverwrite = false)
         {
+            string relativePath = file.RelPath();
+            Log.Info(relativePath);
+
+            if (relativePath.StartsWith("Content\\"))
+                relativePath = relativePath.Substring(8);
+
+            string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "fbx");
+            if (!alwaysOverwrite && File.Exists(savePath))
+                return;
+
+            string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
             try
             {
-                string relativePath = file.RelPath();
-                Log.Info(relativePath);
-
-                if (relativePath.StartsWith("Content\\"))
-                    relativePath = relativePath.Substring(8);
-
-                string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "fbx");
-
-                if (alwaysOverwrite || !File.Exists(savePath))
-                {
-                    var model = Content.LoadModel(relativePath); // @note This may throw if it's not a mesh
-                    Log.Info($"ExportMesh: {savePath}");
-
-                    string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
-                    MeshExport.Export(model, nameNoExt, savePath);
-                }
+                var model = Content.LoadModel(relativePath);
+                Log.Info($"  Export StaticMesh: {savePath}");
+                MeshExport.Export(model, nameNoExt, savePath);
+                return;
             }
-            catch (Exception)
+            catch
             {
-                // just ignore resources that are not static models
+            }
+            try
+            {
+                var model = Content.LoadSkinnedModel(relativePath);
+                Log.Info($"  Export AnimatedMesh: {savePath}");
+                MeshExport.Export(model, nameNoExt, savePath);
+            }
+            catch (ContentLoadException e)
+            {
+                Log.Warning($"Failed to export {relativePath}: {e.Message}");
             }
         }
 
         public void ExportAllXnbMeshes()
         {
-            FileInfo[] files = GetAllXnbModelFiles("Model");
+            var files = new Array<FileInfo>();
+            files.AddRange(GetAllXnbModelFiles("Effects"));
+            files.AddRange(GetAllXnbModelFiles("Model"));
+            files.AddRange(GetAllXnbModelFiles("mod models"));
+            files.AddRange(GetAllXnbModelFiles("model"));
 
             void ExportMeshes(int start, int end)
             {
@@ -158,8 +171,8 @@ namespace Ship_Game.Data
                     ExportXnbMesh(files[i]);
                 }
             }
-            Parallel.For(files.Length, ExportMeshes, Parallel.NumPhysicalCores * 2);
-            //ExportMeshes(0, files.Length);
+            //Parallel.For(files.Count, ExportMeshes, Parallel.NumPhysicalCores * 2);
+            ExportMeshes(0, files.Count);
         }
     }
 }
