@@ -1447,6 +1447,8 @@ namespace Ship_Game.Ships
                     bomb.InstalledWeapon.Update(deltaTime);
                 }
             }
+            
+            AI.CombatAI.SetCombatTactics(AI.CombatState);
 
             if (updateTimer <= 0)
             {
@@ -1460,7 +1462,7 @@ namespace Ship_Game.Ships
 
                 if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
                 {
-                    AI.CombatAI.UpdateCombatAI(this);
+                    AI.CombatAI.UpdateTargetPriorities(this);
 
                     foreach (Weapon weapon in Weapons)
                     {
