@@ -91,69 +91,79 @@ namespace SDNative
             ComputeTangentBasis(v0.Position, v1.Position, v2.Position,
                 v0.Coords, v1.Coords, v2.Coords, tangent, biNormal);
             v0.Tangent  = tangent;
-            v0.Binormal = biNormal;
+            v0.BiNormal = biNormal;
             v1.Tangent  = tangent;
-            v1.Binormal = biNormal;
+            v1.BiNormal = biNormal;
             v2.Tangent  = tangent;
-            v2.Binormal = biNormal;
+            v2.BiNormal = biNormal;
         }
     }
 
-    void SDMeshGroup::SetData(Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
-                              const ushort* indices, int numIndices)
+    void SDMeshGroup::SetData(SDVertexData vd)
     {
         MeshGroup& group = GetGroup();
         Matrix4 transform = Transform.inverse();
-        if (vertices)
+        if (vd.Vertices)
         {
-            group.Verts.resize(numVertices);
+            group.Verts.resize(vd.NumVertices);
             auto* dst = group.Verts.data();
 
-            for (int i = 0; i < numVertices; ++i) {
-                Vector3 pos = transform * vertices[i];
+            for (int i = 0; i < vd.NumVertices; ++i) {
+                Vector3 pos = transform * vd.Vertices[i];
                 //dst[i] = pos;
                 dst[i] = {pos.x, -pos.z, -pos.y};
             }
-            Bounds = BoundingSphere::create(dst, numVertices);
+            Bounds = BoundingSphere::create(dst, vd.NumVertices);
         }
 
-        if (coords)
+        if (vd.Coords)
         {
-            group.Coords.resize(numVertices);
+            group.Coords.resize(vd.NumVertices);
             auto* dst = group.Coords.data();
 
-            for (int i = 0; i < numVertices; ++i) {
-                Vector2 uv = coords[i];
+            for (int i = 0; i < vd.NumVertices; ++i) {
+                Vector2 uv = vd.Coords[i];
                 dst[i] = { uv.x, 1.0f - uv.y };
             }
         }
-        group.CoordsMapping = coords ? MapPerVertex : MapNone;
+        group.CoordsMapping = vd.Coords && vd.NumVertices > 0 ? MapPerVertex : MapNone;
 
-        if (normals)
+        if (vd.Normals)
         {
-            group.Normals.resize(numVertices);
+            group.Normals.resize(vd.NumVertices);
             auto* dst = group.Normals.data();
 
-            for (int i = 0; i < numVertices; ++i) {
-                Vector3 normal = transform * normals[i];
+            for (int i = 0; i < vd.NumVertices; ++i) {
+                Vector3 normal = transform * vd.Normals[i];
                 //dst[i] = normal;
                 dst[i] = {normal.x, -normal.z, -normal.y};
             }
         }
-        group.NormalsMapping = coords ? MapPerVertex : MapNone;
+        group.NormalsMapping = vd.Normals && vd.NumVertices > 0 ? MapPerVertex : MapNone;
+
+        if (vd.BlendWeights && vd.BlendIndices)
+        {
+            group.BlendWeights.resize(vd.NumVertices);
+            group.BlendIndices.resize(vd.NumVertices);
+            auto* blendWeights = (Nano::BlendWeights*)group.BlendWeights.data();
+            auto* blendIndices = (Nano::BlendIndices*)group.BlendIndices.data();
+            memcpy(blendWeights, vd.BlendWeights, vd.NumVertices * sizeof(*blendWeights));
+            memcpy(blendIndices, vd.BlendIndices, vd.NumVertices * sizeof(*blendIndices));
+        }
+        group.BlendMapping = vd.BlendWeights && vd.BlendIndices && vd.NumVertices > 0 ? MapPerVertex : MapNone;
 
         const bool hasCoords  = !group.Coords.empty();
         const bool hasNormals = !group.Normals.empty();
 
-        int numTriangles = numIndices / 3;
+        int numTriangles = vd.NumIndices / 3;
         group.Tris.resize(numTriangles);
         auto* destFaces = group.Tris.data();
 
-        for (int i = 0, faceId = 0; i < numIndices; i += 3, ++faceId)
+        for (int i = 0, faceId = 0; i < vd.NumIndices; i += 3, ++faceId)
         {
-            int v0 = indices[i];
-            int v1 = indices[i+1];
-            int v2 = indices[i+2];
+            int v0 = vd.Indices[i];
+            int v1 = vd.Indices[i+1];
+            int v2 = vd.Indices[i+2];
             Triangle& tri = destFaces[faceId];
             tri.a = { v0, hasCoords?v0:-1, hasNormals?v0:-1 };
             tri.b = { v1, hasCoords?v1:-1, hasNormals?v1:-1 };
@@ -265,11 +275,9 @@ namespace SDNative
         return group;
     }
 
-    DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group,
-        Vector3* vertices, Vector3* normals, Vector2* coords, int numVertices,
-        ushort* indices, int numIndices)
+    DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group, SDVertexData vertexData)
     {
-        group->SetData(vertices, normals, coords, numVertices, indices, numIndices);
+        group->SetData(vertexData);
     }
 
     DLLAPI(SDMaterial*) SDMeshCreateMaterial(
@@ -311,6 +319,10 @@ namespace SDNative
     {
         group->Mat = material;
         group->GetGroup().Mat = material ? material->Mat : nullptr;
+    }
+
+    DLLAPI(void) SDMeshGroupSetSkeleton(SDMeshGroup* group)
+    {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////

@@ -190,8 +190,9 @@ namespace Ship_Game
             BackgroundItem.QuadEffect = new BasicEffect(ScreenManager.Instance.GraphicsDevice, null) { TextureEnabled = true };
             TestLoad();
 
-            RootContent.RawContent.ExportXnbMesh(new FileInfo("Content/Model/Ships/Opteris/ship19b.xnb"), alwaysOverwrite:true);
-            //ExportAllXnbMeshes();
+            //RootContent.RawContent.ExportXnbMesh(new FileInfo("Content/Model/Ships/Opteris/ship19b.xnb"), alwaysOverwrite:true);
+            //RootContent.RawContent.ExportXnbMesh(new FileInfo("Content/Model/Ships/Ralyeh/ship17a.xnb"), alwaysOverwrite:true);
+            //RootContent.RawContent.ExportAllXnbMeshes();
 
             ++ContentId; // LoadContent will see a new content id
             if (reset) // now reload manager content, otherwise we're f**ked as soon as game calls Draw
@@ -567,10 +568,9 @@ namespace Ship_Game
             }
         }
 
-
         //////////////////////////////////////////////////////////////////////////////////////////
 
-        public static FileInfo[] GetAllXnbModelFiles(string folder)
+        public static Array<FileInfo> GetAllXnbModelFiles(string folder)
         {
             return RootContent.RawContent.GetAllXnbModelFiles(folder);
         }

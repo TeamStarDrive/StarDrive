@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SgMotion;
 using SynapseGaming.LightingSystem.Effects;
 
 namespace Ship_Game.Data.Mesh
@@ -12,23 +13,45 @@ namespace Ship_Game.Data.Mesh
         {
         }
 
-        public unsafe bool Export(Model model, string name, string modelFilePath)
+        public bool Export(Model model, string name, string modelFilePath)
+        {
+            return Export(model, null, null, name, modelFilePath);
+        }
+
+        public bool Export(SkinnedModel model, string name, string modelFilePath)
+        {
+            return Export(model.Model, model.SkeletonBones, model.AnimationClips, name, modelFilePath);
+        }
+
+        public unsafe bool Export(Model model,
+                                  SkinnedModelBoneCollection animBones, // animated bones
+                                  AnimationClipDictionary animClips, // animation clips, each clip channel maps to 1 bone
+                                  string name, string modelFilePath)
         {
             if (model.Meshes.Count == 0)
                 return false;
 
             string exportDir = Path.GetDirectoryName(modelFilePath) ?? "";
             Directory.CreateDirectory(exportDir);
+
             SdMesh* mesh = SDMeshCreateEmpty(name);
             try
             {
                 CreateMeshGroups(mesh, exportDir, model.Meshes);
+                CreateBones(mesh, model, animBones, animClips);
                 return SDMeshSave(mesh, modelFilePath);
             }
             finally
             {
                 SDMeshClose(mesh);
             }
+        }
+
+        unsafe void CreateBones(SdMesh* mesh, Model model, 
+                                SkinnedModelBoneCollection animBones,
+                                AnimationClipDictionary animClips)
+        {
+            
         }
 
         unsafe void CreateMeshGroups(SdMesh* mesh, string modelExportDir, ModelMeshCollection meshes)
@@ -50,17 +73,30 @@ namespace Ship_Game.Data.Mesh
                     Vector3[] vertices = vb.GetArray<Vector3>(part, VertexElementUsage.Position);
                     Vector3[] normals  = vb.GetArray<Vector3>(part, VertexElementUsage.Normal);
                     Vector2[] coords   = vb.GetArray<Vector2>(part, VertexElementUsage.TextureCoordinate);
-                    
-                    int numIndices = part.PrimitiveCount * 3;
-                    var indexData = new ushort[numIndices];
-                    ib.GetData(part.StartIndex*sizeof(ushort), indexData, 0, numIndices);
+                    Vector4[] weights  = vb.GetArray<Vector4>(part, VertexElementUsage.BlendWeight);
+                    SdBlendIndices[] blendIndices = vb.GetArray<SdBlendIndices>(part, VertexElementUsage.BlendIndices);
 
+                    SdVertexData data;
+                    data.NumIndices = part.PrimitiveCount * 3;
+                    data.NumVertices = part.NumVertices;
+
+                    var indexData = new ushort[data.NumIndices];
+                    ib.GetData(part.StartIndex*sizeof(ushort), indexData, 0, data.NumIndices);
+
+                    fixed(ushort* pIndices = indexData)
                     fixed(Vector3* pVertices = vertices)
                     fixed(Vector3* pNormals = normals)
                     fixed(Vector2* pCoords  = coords)
-                    fixed(ushort* pIndices = indexData)
+                    fixed(Vector4* pWeights = weights)
+                    fixed(SdBlendIndices* pBlends = blendIndices)
                     {
-                        SDMeshGroupSetData(group, pVertices, pNormals, pCoords, part.NumVertices, pIndices, numIndices);
+                        data.Indices = pIndices;
+                        data.Vertices = pVertices;
+                        data.Normals = pNormals;
+                        data.Coords = pCoords;
+                        data.Weights = pWeights;
+                        data.BlendIndices = pBlends;
+                        SDMeshGroupSetData(group, data);
                     }
 
                     if (modelMesh.Effects[0] != null)
