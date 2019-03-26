@@ -159,13 +159,20 @@ namespace Ship_Game
             OutgoingFreighters.Remove(ship);
         }
 
-        static void RemoveInvalidFreighters(Array<Ship> list)
+        private void RemoveInvalidFreighters(Array<Ship> freighters)
         {
-            for (int i = list.Count - 1; i >= 0; --i)
+            for (int i = freighters.Count - 1; i >= 0; --i)
             {
-                if (!list[i].Active || list[i].AI.State != AIState.SystemTrader)
+                Ship ship = freighters[i];
+                if (!ship.Active || ship.AI.State != AIState.SystemTrader)
                 {
-                    list.RemoveAt(i);
+                    freighters.RemoveAtSwapLast(i);
+                }
+                else if (ship.loyalty != Owner && !Owner.GetRelations(ship.loyalty).Treaty_Trade)
+                {
+                    // cancel trade plan and remove from list if trade treaty was canceled
+                    freighters.RemoveAtSwapLast(i);
+                    ship.AI.CancelTradePlan(ship.loyalty.FindNearestRallyPoint(ship.Center));
                 }
             }
         }
