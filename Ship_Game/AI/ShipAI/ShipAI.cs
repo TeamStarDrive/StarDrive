@@ -1,10 +1,10 @@
 using Microsoft.Xna.Framework;
+using Ship_Game.AI.ShipMovement;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.Ships.AI;
+using Ship_Game.Utils;
 using System;
 using System.Linq;
-using Ship_Game.Utils;
 
 namespace Ship_Game.AI
 {
@@ -12,7 +12,6 @@ namespace Ship_Game.AI
     {
         Planet AwaitClosest;
         Planet PatrolTarget;
-        Vector2 OrbitPos;
         float UtilityModuleCheckTimer;
         SolarSystem SystemToPatrol;
         readonly Array<Planet> PatrolRoute = new Array<Planet>();
@@ -32,16 +31,17 @@ namespace Ship_Game.AI
         public Array<ShipWeight>   NearByShips = new Array<ShipWeight>();
         public BatchRemovalCollection<Ship> FriendliesNearby = new BatchRemovalCollection<Ship>();
 
-        readonly AttackRun AttackRun;
         readonly DropOffGoods DropOffGoods;
         readonly PickupGoods PickupGoods;
+
+        readonly OrbitObject DoOrbit;
 
         public ShipAI(Ship owner)
         {
             Owner = owner;
-            AttackRun = new AttackRun(this);
             DropOffGoods = new DropOffGoods(this);
             PickupGoods = new PickupGoods(this);
+            DoOrbit = new OrbitObject(this);
         }
 
         public Vector2 GoalTarget
@@ -120,7 +120,7 @@ namespace Ship_Game.AI
         {
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius * 3)
             {
-                DoOrbit(goal.TargetPlanet, elapsedTime);
+                DoOrbit.Orbit(goal.TargetPlanet, elapsedTime);
                 return;
             }
 
@@ -394,7 +394,7 @@ namespace Ship_Game.AI
                         ClearOrders();
                         AddOrbitPlanetGoal(toEvaluate.TargetPlanet); // Stay in Orbit
                     }
-                    DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                    DoOrbit.Orbit(toEvaluate.TargetPlanet, elapsedTime);
                     float radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
                     if (toEvaluate.TargetPlanet.Owner == Owner.loyalty)
                     {
@@ -404,7 +404,7 @@ namespace Ship_Game.AI
                     DropBombsAtGoal(toEvaluate, radius);
                     break;
                 case Plan.Exterminate:
-                    DoOrbit(planet, elapsedTime);
+                    DoOrbit.Orbit(planet, elapsedTime);
                     radius = planet.ObjectRadius + Owner.Radius + 1500;
                     if (planet.Owner == Owner.loyalty || planet.Owner == null)
                     {
@@ -419,7 +419,7 @@ namespace Ship_Game.AI
                 case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, toEvaluate);         break;
                 case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, toEvaluate);        break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);             break;
-                case Plan.Orbit:        DoOrbit(planet, elapsedTime); break;
+                case Plan.Orbit:        DoOrbit.Orbit(planet, elapsedTime); break;
                 case Plan.Colonize:     Colonize(planet, toEvaluate); break;
                 case Plan.Explore:      DoExplore(elapsedTime);       break;
                 case Plan.Rebase:       DoRebase(toEvaluate);         break;
@@ -460,7 +460,7 @@ namespace Ship_Game.AI
                     default:
                         if (Target != null)
                         {
-                            OrbitShip(Target as Ship, elapsedTime, Orbit.Right);
+                            DoOrbit.Orbit(Target as Ship, elapsedTime, OrbitObject.OrbitDirection.Right);
                         }
                         break;
                 }
@@ -488,13 +488,13 @@ namespace Ship_Game.AI
         {
             //separated for clarity as this section can be very confusing.
             //we might need a toggle for the player action here.
-            if (State == AIState.FormationWarp) 
+            if (State == AIState.FormationWarp)
                 return true;
-            if (HasPriorityOrder || HadPO) 
+            if (HasPriorityOrder || HadPO)
                 return false;
-            if (BadGuysNear) 
+            if (BadGuysNear)
                 return false;
-            if (State == AIState.Orbit || State == AIState.AwaitingOffenseOrders || State == AIState.AwaitingOrders) 
+            if (State == AIState.Orbit || State == AIState.AwaitingOffenseOrders || State == AIState.AwaitingOrders)
                 return true;
             return false;
         }
@@ -712,7 +712,7 @@ namespace Ship_Game.AI
                 Owner.Mothership == null || !Owner.Mothership.AI.BadGuysNear ||
                 EscortTarget != Owner.Mothership)
             {
-                OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
+                DoOrbit.Orbit(EscortTarget, elapsedTime);
                 return;
             }
             // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
@@ -722,14 +722,14 @@ namespace Ship_Game.AI
             // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own.
             if(!Owner.InCombat )
             {
-                OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
+                DoOrbit.Orbit(EscortTarget, elapsedTime);
                 return;
             }
 
             if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
             {
                 Owner.AI.HasPriorityOrder = true;
-                OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
+                DoOrbit.Orbit(EscortTarget, elapsedTime);
             }
         }
 

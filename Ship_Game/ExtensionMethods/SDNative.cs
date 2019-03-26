@@ -9,8 +9,8 @@ namespace Ship_Game
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public unsafe struct CStrView
     {
-        private readonly sbyte* Str;
-        private readonly int Len;
+        readonly sbyte* Str;
+        readonly int Len;
         public string AsString         => Len != 0 ? new string(Str, 0, Len) : string.Empty;
         public string AsInterned       => Len != 0 ? string.Intern(new string(Str, 0, Len)) : string.Empty;
         public string AsInternedOrNull => Len != 0 ? string.Intern(new string(Str, 0, Len)) : null;
