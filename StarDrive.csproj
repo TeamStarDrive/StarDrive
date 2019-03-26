@@ -223,6 +223,7 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\Empire_Trade.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildDefensiveShips.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOffensiveShips.cs" />
