@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -58,6 +59,43 @@ namespace Ship_Game.Data.Mesh
             public Vector3 Tangent;
             public Vector3 BiNormal;
         }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [DebuggerDisplay("BoneIndices=[{A}, {B}, {C}, {D}]")]
+        protected struct SdBlendIndices
+        {
+            public byte A, B, C, D;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdBonePose
+        {
+            public Vector3 Translation;
+            public Quaternion Orientation;
+            public Vector3 Scale;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdModelBone
+        {
+            public CStrView Name;
+            public int BoneIndex;
+            public int ParentBone;
+            public SdBonePose Pose;
+        }
+        
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected unsafe struct SdVertexData
+        {
+            public int NumIndices;
+            public int NumVertices;
+            public ushort*  Indices;
+            public Vector3* Vertices;
+            public Vector3* Normals;
+            public Vector2* Coords;
+            public Vector4* Weights;
+            public SdBlendIndices* BlendIndices;
+        };
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         protected unsafe struct SdMeshGroup
@@ -160,9 +198,7 @@ namespace Ship_Game.Data.Mesh
                 Matrix* transform);
 
         [DllImport("SDNative.dll")] protected static extern unsafe
-            void SDMeshGroupSetData(SdMeshGroup* group, 
-                Vector3* vertices, Vector3* normals, Vector2* coords, 
-                int numVertices, ushort* indices, int numIndices);
+            void SDMeshGroupSetData(SdMeshGroup* group, SdVertexData vertexData);
 
         [DllImport("SDNative.dll")] protected static extern unsafe 
             SdMaterial* SDMeshCreateMaterial(SdMesh* mesh, 
