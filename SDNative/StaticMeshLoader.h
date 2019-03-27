@@ -13,17 +13,6 @@ namespace SDNative
     struct SDMeshGroup;
     ////////////////////////////////////////////////////////////////////////////////////
 
-    struct SDVertex
-    {
-        Vector3 Position;
-        Vector3 Normal;
-        Vector2 Coords;
-        Vector3 Tangent;
-        Vector3 BiNormal;
-    };
-
-    static_assert(sizeof(SDVertex) == 56, "SDVertex size mismatch. Sunburn requires a specific vertex layout");
-
     struct SDMaterial
     {
         // publicly visible in C#
@@ -62,6 +51,44 @@ namespace SDNative
         }
     };
 
+    enum class SDElementFormat : rpp::byte
+    {
+        Single,
+        Vector2,
+        Vector3,
+        Vector4,
+        Color,
+        Byte4,
+        Short2,
+        Short4,
+        Rgba32,
+    };
+    
+    enum class SDElementUsage : rpp::byte
+    {
+        Position = 0,
+        BlendWeight = 1,
+        BlendIndices = 2,
+        Normal = 3,
+        PointSize = 4,
+        Coordinate = 5,
+        Tangent = 6,
+        BiNormal = 7,
+        TessellateFactor = 8,
+        Color = 10, // 0x0A
+        Fog = 11, // 0x0B
+        Depth = 12, // 0x0C
+        Sample = 13, // 0x0D
+    };
+
+    struct SDVertexElement
+    {
+        rpp::byte Offset = 0; // element offset in vertex buffer data
+        rpp::byte Size   = 0; // element size in bytes
+        SDElementFormat Format {};
+        SDElementUsage  Usage  {};
+    };
+
     struct SDBonePose
     {
         Vector3 Translation;
@@ -84,15 +111,23 @@ namespace SDNative
 
     struct SDVertexData
     {
-        int NumIndices;
-        int NumVertices;
-        const ushort*  Indices;
-        const Vector3* Vertices;
-        const Vector3* Normals;
-        const Vector2* Coords;
-        const Vector4* BlendWeights;
-        const BlendIndices* BlendIndices;
+        int VertexStride = 0;
+        int LayoutCount  = 0;
+        int IndexCount   = 0;
+        int VertexCount  = 0;
+        const SDVertexElement* Layout = nullptr;
+        const ushort*    IndexData  = nullptr;
+        const rpp::byte* VertexData = nullptr;
+
+        template<class T> const T* GetOffset(SDElementUsage usage) const
+        {
+            for (int i = 0; i < LayoutCount; ++i)
+                if (Layout[i].Usage == usage)
+                    return (const T*)(VertexData + Layout[i].Offset);
+            return nullptr;
+        }
     };
+
 
     struct SDMeshGroup
     {
@@ -100,25 +135,21 @@ namespace SDNative
         int GroupId = -1;
         strview Name;
         SDMaterial* Mat = nullptr;
-        int NumTriangles = 0;
-        int NumVertices  = 0;
-        int NumIndices   = 0;
-        SDVertex* Vertices = nullptr;
-        ushort*   Indices  = nullptr;
         BoundingSphere Bounds;
         Matrix4 Transform = Matrix4::Identity();
 
         // not mapped to C#
         SDMesh& TheMesh;
-        vector<SDVertex> VertexData;
-        vector<ushort>   IndexData;
-        vector<SDModelBone> Bones;
-        vector<SDModelBone> SkinnedBones; // subset of Bones, does not contain static bones
+        vector<SDVertexElement> Layout;
+        vector<ushort> IndexData;
+        vector<rpp::byte> VertexData;
 
         explicit SDMeshGroup(SDMesh& mesh, int groupId);
         void InitVertices();
 
         void SetData(SDVertexData vd);
+        SDVertexData CreateCachedVertexData();
+        void AddVertexElement(int& stride, SDElementFormat format, SDElementUsage usage);
 
         Nano::Mesh& GetMesh() const;
         MeshGroup& GetGroup() const;
@@ -157,7 +188,8 @@ namespace SDNative
     DLLAPI(bool)    SDMeshSave(SDMesh* mesh, const wchar_t* fileName);
     DLLAPI(SDMeshGroup*) SDMeshNewGroup(SDMesh* mesh, const wchar_t* groupName, Matrix4* transform);
 
-    DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group, SDVertexData vertexData);
+    DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group, SDVertexData data);
+    DLLAPI(SDVertexData) SDMeshGroupGetData(SDMeshGroup* group);
 
     /**
      * Create a new material instance

@@ -11,14 +11,14 @@ namespace UnitTests
     {
         // double vs float math will have a tiny difference in accuracy
         // this is the max deviation we allow
-        private const double MaxErr = 0.0005;
-        private const float Radius = 20f;
-        private static readonly Vector2 A = RandomMath.Vector2D(Radius);
-        private static readonly Vector2 B = RandomMath.Vector2D(Radius);
+        const double MaxErr = 0.0005;
+        const float Radius = 20f;
+        static readonly Vector2 A = RandomMath.Vector2D(Radius);
+        static readonly Vector2 B = RandomMath.Vector2D(Radius);
 
-        private static readonly Vector2 Center  = RandomMath.Vector2D(Radius); // some center position
-        private static readonly Vector2 Inside  = Center / 2;
-        private static readonly Vector2 Outside = Center + new Vector2(Radius)*3;
+        static readonly Vector2 Center  = RandomMath.Vector2D(Radius); // some center position
+        static readonly Vector2 Inside  = Center / 2;
+        static readonly Vector2 Outside = Center + new Vector2(Radius)*3;
 
         [TestMethod]
         public void TestDistance()
@@ -41,14 +41,14 @@ namespace UnitTests
         }
 
         // StarDrive +Y is South and -Y is North
-        private static readonly Vector2 N  = Center + new Vector2(0f, -50f);
-        private static readonly Vector2 S  = Center + new Vector2(0f, +50f);
-        private static readonly Vector2 E  = Center + new Vector2(+50f, 0f);
-        private static readonly Vector2 W  = Center + new Vector2(-50f, 0f);
-        private static readonly Vector2 NE = Center + new Vector2(+50f, -50f);
-        private static readonly Vector2 NW = Center + new Vector2(-50f, -50f);
-        private static readonly Vector2 SE = Center + new Vector2(+50f, +50f);
-        private static readonly Vector2 SW = Center + new Vector2(-50f, +50f);
+        static readonly Vector2 N  = Center + new Vector2(0f, -50f);
+        static readonly Vector2 S  = Center + new Vector2(0f, +50f);
+        static readonly Vector2 E  = Center + new Vector2(+50f, 0f);
+        static readonly Vector2 W  = Center + new Vector2(-50f, 0f);
+        static readonly Vector2 NE = Center + new Vector2(+50f, -50f);
+        static readonly Vector2 NW = Center + new Vector2(-50f, -50f);
+        static readonly Vector2 SE = Center + new Vector2(+50f, +50f);
+        static readonly Vector2 SW = Center + new Vector2(-50f, +50f);
 
         [TestMethod]
         public void TestAngleToTarget()

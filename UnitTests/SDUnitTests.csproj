@@ -62,10 +62,15 @@
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="XNAnimation, Version=0.7.0.0, Culture=neutral, PublicKeyToken=0c21691816f8c6d0, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\StarDrive\XNAnimation.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertExtensions.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
+    <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="Collections\TestArrayT.cs" />
     <Compile Include="Collections\TestCollectionExt.cs" />
@@ -96,6 +101,10 @@
     <ProjectReference Include="..\StarDrive.csproj">
       <Project>{8071e07a-300e-485d-b139-066e15e82178}</Project>
       <Name>StarDrive</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SynapseGaming-SunBurn-Pro\SDSunBurn.csproj">
+      <Project>{bb003976-4764-4f4e-9a98-ddfb8449eccd}</Project>
+      <Name>SDSunBurn</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

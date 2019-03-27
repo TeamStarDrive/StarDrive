@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
+using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
 {
@@ -17,6 +18,7 @@ namespace Ship_Game
     {
         public GraphicsDeviceManager Graphics;
         public new GameContentManager Content { get; }
+        LightingSystemManager LightSysManager;
 
         PresentationParameters Presentation => Graphics.GraphicsDevice.PresentationParameters;
         public Vector2 ScreenSize => new Vector2(Presentation.BackBufferWidth, Presentation.BackBufferHeight);
@@ -62,6 +64,7 @@ namespace Ship_Game
         {
             var manager = Services.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
             manager?.CreateDevice();
+            LightSysManager = new LightingSystemManager(Services);
             base.Initialize();
         }
     }
