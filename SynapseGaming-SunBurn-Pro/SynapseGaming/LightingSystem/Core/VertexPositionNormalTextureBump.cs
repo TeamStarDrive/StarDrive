@@ -16,7 +16,14 @@ namespace SynapseGaming.LightingSystem.Core
   public struct VertexPositionNormalTextureBump
   {
     /// <summary>An array of vertex elements describing this vertex.</summary>
-    public static readonly VertexElement[] VertexElements = new VertexElement[5]{ new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0), new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0), new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0), new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0), new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0) };
+    public static readonly VertexElement[] VertexElements = new VertexElement[5]
+    {
+        new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0),
+        new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0),
+        new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0),
+        new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0),
+        new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0)
+    };
     /// <summary>The vertex position.</summary>
     public Vector3 Position;
     /// <summary>The vertex normal.</summary>
@@ -38,47 +45,46 @@ namespace SynapseGaming.LightingSystem.Core
       /// <summary>
     /// Generates tangent space data (used for bump and specular mapping) from the provided vertex information.
     /// </summary>
-    /// <param name="indices">Indices that describe a list of triangles to generate tangent space
+    /// <param name="triangleIndices">Indices that describe a list of triangles to generate tangent space
     /// information for.  WARNING: this method requires triangle lists (not fans or strips).</param>
     /// <param name="vertices">Array of vertices.</param>
-    public static void BuildTangentSpaceDataForTriangleList(short[] indices, VertexPositionNormalTextureBump[] vertices)
+    public static void BuildTangentSpaceDataForTriangleList(
+          short[] triangleIndices, VertexPositionNormalTextureBump[] vertices)
     {
-      int index1 = 0;
-      while (index1 < indices.Length)
+      for (int i = 0; i < triangleIndices.Length; i += 3)
       {
-        int index2 = indices[index1];
-        int index3 = indices[index1 + 1];
-        int index4 = indices[index1 + 2];
-        Vector2 textureCoordinate1 = vertices[index2].TextureCoordinate;
-        Vector2 textureCoordinate2 = vertices[index3].TextureCoordinate;
-        Vector2 textureCoordinate3 = vertices[index4].TextureCoordinate;
-        float num1 = textureCoordinate2.X - textureCoordinate1.X;
-        float num2 = textureCoordinate3.X - textureCoordinate1.X;
-        float num3 = textureCoordinate2.Y - textureCoordinate1.Y;
-        float num4 = textureCoordinate3.Y - textureCoordinate1.Y;
-        float num5 = (float) (num1 * (double) num4 - num2 * (double) num3);
-        if (num5 != 0.0)
+        int in0 = triangleIndices[i];
+        int in1 = triangleIndices[i + 1];
+        int in2 = triangleIndices[i + 2];
+        Vector2 uv0 = vertices[in0].TextureCoordinate;
+        Vector2 uv1 = vertices[in1].TextureCoordinate;
+        Vector2 uv2 = vertices[in2].TextureCoordinate;
+        float xuv1 = uv1.X - uv0.X;
+        float xuv2 = uv2.X - uv0.X;
+        float yuv1 = uv1.Y - uv0.Y;
+        float yuv2 = uv2.Y - uv0.Y;
+        float num5 = (xuv1 * yuv2 - xuv2 *  yuv1);
+        if (num5 != 0.0f)
         {
           float num6 = 1f / num5;
-          Vector3 position1 = vertices[index2].Position;
-          Vector3 position2 = vertices[index3].Position;
-          Vector3 position3 = vertices[index4].Position;
+          Vector3 position1 = vertices[in0].Position;
+          Vector3 position2 = vertices[in1].Position;
+          Vector3 position3 = vertices[in2].Position;
           float num7 = position2.X - position1.X;
           float num8 = position3.X - position1.X;
           float num9 = position2.Y - position1.Y;
           float num10 = position3.Y - position1.Y;
           float num11 = position2.Z - position1.Z;
           float num12 = position3.Z - position1.Z;
-          Vector3 vector3_1 = new Vector3((float) (num4 * (double) num7 - num3 * (double) num8) * num6, (float) (num4 * (double) num9 - num3 * (double) num10) * num6, (float) (num4 * (double) num11 - num3 * (double) num12) * num6);
-          Vector3 vector3_2 = new Vector3((float) (num1 * (double) num8 - num2 * (double) num7) * num6, (float) (num1 * (double) num10 - num2 * (double) num9) * num6, (float) (num1 * (double) num12 - num2 * (double) num11) * num6);
-          vertices[index2].Tangent += vector3_1;
-          vertices[index3].Tangent += vector3_1;
-          vertices[index4].Tangent += vector3_1;
-          vertices[index2].Binormal += vector3_2;
-          vertices[index3].Binormal += vector3_2;
-          vertices[index4].Binormal += vector3_2;
+          var vector3_1 = new Vector3((yuv2 * num7 - yuv1 * num8) * num6, (yuv2 * num9 - yuv1 * num10) * num6, (yuv2 * num11 - yuv1 * num12) * num6);
+          var vector3_2 = new Vector3((xuv1 * num8 - xuv2 * num7) * num6, (xuv1 * num10 - xuv2 * num9) * num6, (xuv1 * num12 - xuv2 * num11) * num6);
+          vertices[in0].Tangent += vector3_1;
+          vertices[in1].Tangent += vector3_1;
+          vertices[in2].Tangent += vector3_1;
+          vertices[in0].Binormal += vector3_2;
+          vertices[in1].Binormal += vector3_2;
+          vertices[in2].Binormal += vector3_2;
         }
-        index1 += 3;
       }
       for (int index2 = 0; index2 < vertices.Length; ++index2)
       {

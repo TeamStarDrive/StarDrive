@@ -59,36 +59,36 @@ namespace ns7
     private void method_0(List<VertexPositionNormalTextureBump> list_1, Matrix matrix_0)
     {
       int count = list_1.Count;
-      for (int index = 0; index < count; ++index)
+      for (int i = 0; i < count; ++i)
       {
-        VertexPositionNormalTextureBump normalTextureBump = list_1[index];
-        normalTextureBump.Position = Vector3.Transform(normalTextureBump.Position, matrix_0);
-        normalTextureBump.Normal = Vector3.TransformNormal(normalTextureBump.Normal, matrix_0);
-        list_1.Add(normalTextureBump);
+        VertexPositionNormalTextureBump vertex = list_1[i];
+        vertex.Position = Vector3.Transform(vertex.Position, matrix_0);
+        vertex.Normal = Vector3.TransformNormal(vertex.Normal, matrix_0);
+        list_1.Add(vertex);
       }
     }
 
     private void method_1(List<VertexPositionNormalTextureBump> list_1, float float_0, float float_1, float float_2, float float_3)
     {
-      VertexPositionNormalTextureBump normalTextureBump = new VertexPositionNormalTextureBump();
-      Vector3 point2 = new Vector3(float_1, float_0, -float_2);
-      Vector3 point3 = new Vector3(-float_1, float_0, -float_2);
+      var vertex = new VertexPositionNormalTextureBump();
+      var point2 = new Vector3(float_1, float_0, -float_2);
+      var point3 = new Vector3(-float_1, float_0, -float_2);
       Vector3 normal = new Plane(Vector3.Zero, point2, point3).Normal;
-      normalTextureBump.Position = Vector3.Zero;
-      normalTextureBump.Normal = normal;
-      normalTextureBump.TextureCoordinate = Vector2.Zero;
-      normalTextureBump.Tangent = Vector3.One * float_3;
-      list_1.Add(normalTextureBump);
-      normalTextureBump.Position = point2;
-      normalTextureBump.Normal = normal;
-      normalTextureBump.TextureCoordinate = new Vector2(1f, 0.0f);
-      normalTextureBump.Tangent = Vector3.Zero;
-      list_1.Add(normalTextureBump);
-      normalTextureBump.Position = point3;
-      normalTextureBump.Normal = normal;
-      normalTextureBump.TextureCoordinate = new Vector2(0.0f, 1f);
-      normalTextureBump.Tangent = Vector3.Zero;
-      list_1.Add(normalTextureBump);
+      vertex.Position = Vector3.Zero;
+      vertex.Normal = normal;
+      vertex.TextureCoordinate = Vector2.Zero;
+      vertex.Tangent = Vector3.One * float_3;
+      list_1.Add(vertex);
+      vertex.Position = point2;
+      vertex.Normal = normal;
+      vertex.TextureCoordinate = new Vector2(1f, 0.0f);
+      vertex.Tangent = Vector3.Zero;
+      list_1.Add(vertex);
+      vertex.Position = point3;
+      vertex.Normal = normal;
+      vertex.TextureCoordinate = new Vector2(0.0f, 1f);
+      vertex.Tangent = Vector3.Zero;
+      list_1.Add(vertex);
     }
   }
 }

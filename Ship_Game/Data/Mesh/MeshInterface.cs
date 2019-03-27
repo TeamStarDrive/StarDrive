@@ -83,18 +83,61 @@ namespace Ship_Game.Data.Mesh
             public int ParentBone;
             public SdBonePose Pose;
         }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [DebuggerDisplay("Offset={Offset} Size={Size} Format={Format} Usage={Usage}")]
+        protected struct SdVertexElement
+        {
+            public byte Offset; // element offset in vertex buffer data
+            public byte Size;   // element size in bytes
+            public VertexElementFormat Format;
+            public VertexElementUsage  Usage;
+        };
         
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         protected unsafe struct SdVertexData
         {
-            public int NumIndices;
-            public int NumVertices;
-            public ushort*  Indices;
-            public Vector3* Vertices;
-            public Vector3* Normals;
-            public Vector2* Coords;
-            public Vector4* Weights;
-            public SdBlendIndices* BlendIndices;
+            public int VertexStride;
+            public int LayoutCount;
+            public int IndexCount;
+            public int VertexCount;
+            public SdVertexElement* Layout;
+            public ushort* IndexData;
+            public byte* VertexData;
+
+            public IndexBuffer CopyIndices(GraphicsDevice device)
+            {
+                ushort* src = IndexData;
+                var dst = new ushort[IndexCount];
+                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
+
+                var buf = new IndexBuffer(device, sizeof(ushort)*IndexCount, BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
+                buf.SetData(dst);
+                return buf;
+            }
+
+            public VertexBuffer CopyVertices(GraphicsDevice device)
+            {
+                byte* src = VertexData;
+                var dst = new byte[VertexStride*VertexCount];
+                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
+
+                var buf = new VertexBuffer(device, dst.Length, BufferUsage.WriteOnly);
+                buf.SetData(dst);
+                return buf;
+            }
+
+            public VertexDeclaration CreateDeclaration(GraphicsDevice device)
+            {
+                var elements = new Array<VertexElement>();
+                for (int i = 0; i < LayoutCount; ++i)
+                {
+                    var e = new VertexElement(0, Layout[i].Offset, Layout[i].Format,
+                        VertexElementMethod.Default, Layout[i].Usage, 0);
+                    elements.Add(e);
+                }
+                return new VertexDeclaration(device, elements.ToArray());
+            }
         };
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -103,35 +146,8 @@ namespace Ship_Game.Data.Mesh
             public readonly int GroupId;
             public readonly CStrView Name;
             public readonly SdMaterial* Mat;
-            public readonly int NumTriangles;
-            public readonly int NumVertices;
-            public readonly int NumIndices;
-            public readonly SdVertex* Vertices;
-            public readonly ushort*   Indices;
             public readonly BoundingSphere Bounds;
             public readonly Matrix Transform;
-
-            public IndexBuffer CopyIndices(GraphicsDevice device)
-            {
-                ushort* src = Indices;
-                var dst = new ushort[NumIndices];
-                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
-
-                var buf = new IndexBuffer(device, sizeof(ushort)*NumIndices, BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
-                buf.SetData(dst);
-                return buf;
-            }
-
-            public VertexBuffer CopyVertices(GraphicsDevice device)
-            {
-                SdVertex* src = Vertices;
-                var dst = new SdVertex[NumVertices];
-                for (int i = 0; i < dst.Length; ++i) dst[i] = src[i];
-
-                var buf = new VertexBuffer(device, sizeof(SdVertex)*NumVertices, BufferUsage.WriteOnly);
-                buf.SetData(dst);
-                return buf;
-            }
         }
 
         protected static unsafe LightingEffect CreateMaterialEffect(
@@ -199,6 +215,9 @@ namespace Ship_Game.Data.Mesh
 
         [DllImport("SDNative.dll")] protected static extern unsafe
             void SDMeshGroupSetData(SdMeshGroup* group, SdVertexData vertexData);
+        
+        [DllImport("SDNative.dll")] protected static extern unsafe
+            SdVertexData SDMeshGroupGetData(SdMeshGroup* group);
 
         [DllImport("SDNative.dll")] protected static extern unsafe 
             SdMaterial* SDMeshCreateMaterial(SdMesh* mesh, 
@@ -218,18 +237,97 @@ namespace Ship_Game.Data.Mesh
         [DllImport("SDNative.dll")] protected static extern unsafe
             void SDMeshGroupSetMaterial(SdMeshGroup* group, SdMaterial* material);
 
-
-        protected static VertexDeclaration Layout;
-        protected static VertexDeclaration VertexLayout(GraphicsDevice device)
+        
+        protected static SdVertexElement[] CreateVertexElements(VertexDeclaration vd)
         {
-            return Layout ?? (Layout = new VertexDeclaration(device, new[]
+            VertexElement[] vertexElements = vd.GetVertexElements();
+            var elements = new SdVertexElement[vertexElements.Length];
+            for (int i = 0; i < vertexElements.Length; ++i)
             {
-                new VertexElement(0, 0,  VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0),
-                new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0),
-                new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0),
-                new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0),
-                new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0)
-            }));
+                VertexElement e = vertexElements[i];
+                elements[i] = new SdVertexElement
+                {
+                    Offset = (byte)e.Offset,
+                    Size   = (byte)ElementSizeInBytes(e.VertexElementFormat),
+                    Format = e.VertexElementFormat,
+                    Usage  = e.VertexElementUsage
+                };
+            }
+            return elements;
+        }
+
+        protected static int ElementSizeInBytes(VertexElementFormat format)
+        {
+            switch (format)
+            {
+                case VertexElementFormat.Single:  return sizeof(float);
+                case VertexElementFormat.Vector2: return sizeof(float)*2;
+                case VertexElementFormat.Vector3: return sizeof(float)*3;
+                case VertexElementFormat.Vector4: return sizeof(float)*4;
+                case VertexElementFormat.Color:   return sizeof(int); // packed color RGBA
+                case VertexElementFormat.Byte4:   return 4;
+                case VertexElementFormat.Short2:  return 4;
+                case VertexElementFormat.Short4:  return 8;
+                case VertexElementFormat.Rgba32:  return 4;
+            }
+            return 4;
+        }
+
+        /// <summary>
+        /// Generates tangent space data (used for bump and specular mapping) from the provided vertex information.
+        /// </summary>
+        /// <param name="triangleIndices">Indices that describe a list of triangles to generate tangent space
+        /// information for.  WARNING: this method requires triangle lists (not fans or strips).</param>
+        /// <param name="vertices">Array of vertices.</param>
+        public static void BuildTangentSpaceDataForTriangleList(
+              short[] triangleIndices, VertexPositionNormalTextureBump[] vertices)
+        {
+            for (int i = 0; i < triangleIndices.Length; i += 3)
+            {
+                int in0 = triangleIndices[i];
+                int in1 = triangleIndices[i + 1];
+                int in2 = triangleIndices[i + 2];
+                Vector2 uv0 = vertices[in0].TextureCoordinate;
+                Vector2 uv1 = vertices[in1].TextureCoordinate;
+                Vector2 uv2 = vertices[in2].TextureCoordinate;
+                float s1 = uv1.X - uv0.X;
+                float t1 = uv1.Y - uv0.Y;
+                float s2 = uv2.X - uv0.X;
+                float t2 = uv2.Y - uv0.Y;
+                float st = (s1 * t2 - s2 * t1);
+                if (st != 0.0f)
+                {
+                    float tmp = 1f / st;
+                    Vector3 p0 = vertices[in0].Position;
+                    Vector3 p1 = vertices[in1].Position;
+                    Vector3 p2 = vertices[in2].Position;
+                    float Px = p1.X - p0.X;
+                    float Py = p1.Y - p0.Y;
+                    float Pz = p1.Z - p0.Z;
+                    float Qx = p2.X - p0.X;
+                    float Qy = p2.Y - p0.Y;
+                    float Qz = p2.Z - p0.Z;
+                    var tangent = new Vector3(
+                        (t2 * Px - t1 * Qx) * tmp,
+                        (t2 * Py - t1 * Qy) * tmp,
+                        (t2 * Pz - t1 * Qz) * tmp);
+                    var biNormal = new Vector3(
+                        (s1 * Qx - s2 * Px) * tmp,
+                        (s1 * Qy - s2 * Py) * tmp,
+                        (s1 * Qz - s2 * Pz) * tmp);
+                    vertices[in0].Tangent += tangent;
+                    vertices[in1].Tangent += tangent;
+                    vertices[in2].Tangent += tangent;
+                    vertices[in0].Binormal += biNormal;
+                    vertices[in1].Binormal += biNormal;
+                    vertices[in2].Binormal += biNormal;
+                }
+            }
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+                vertices[i].Tangent  = Vector3.Normalize(vertices[i].Tangent);
+                vertices[i].Binormal = Vector3.Normalize(vertices[i].Binormal);
+            }
         }
     }
 }

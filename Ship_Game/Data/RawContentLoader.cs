@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using SgMotion;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Texture;
 
@@ -136,7 +137,7 @@ namespace Ship_Game.Data
             string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
             try
             {
-                var model = Content.LoadModel(relativePath);
+                Model model = Content.LoadModel(relativePath);
                 Log.Info($"  Export StaticMesh: {savePath}");
                 MeshExport.Export(model, nameNoExt, savePath);
                 return;
@@ -144,9 +145,10 @@ namespace Ship_Game.Data
             catch
             {
             }
+
             try
             {
-                var model = Content.LoadSkinnedModel(relativePath);
+                SkinnedModel model = Content.LoadSkinnedModel(relativePath);
                 Log.Info($"  Export AnimatedMesh: {savePath}");
                 MeshExport.Export(model, nameNoExt, savePath);
             }
