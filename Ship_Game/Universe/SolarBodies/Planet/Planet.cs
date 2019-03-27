@@ -213,8 +213,8 @@ namespace Ship_Game
         public void ApplyBombEnvEffects(float amount) // added by Fat Bastard
         {
             Population -= 1000f * amount;
-            AddFertility(amount * -0.5f);
-            if (Fertility > 0 || !RandomMath.RollDice(amount * 250))
+            AddFertility(amount * -0.25f);
+            if (Fertility > 0 || !RandomMath.RollDice(amount * 200))
                 return; // environment suffers only temp damage
 
             // permanent damage to Max Fertility and possibly changing planet type
