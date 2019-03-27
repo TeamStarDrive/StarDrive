@@ -19,13 +19,18 @@ namespace Ship_Game
     {
         public bool AutoFreighters;
         public bool AutoPickBestFreighter;
-        public float FastVsBigFreighterRatio { get; private set; } = 0.5f;
+        public float FastVsBigFreighterRatio      { get; private set; } = 0.5f;
+        public float TradeMoneyAddedThisTurn      { get; private set; }
+        public float TotalTradeMoneyAddedThisTurn { get; private set; }
 
         [XmlIgnore][JsonIgnore] public int FreighterCap         => OwnedPlanets.Count * 3 + ResearchStrategy.ExpansionPriority;
         [XmlIgnore][JsonIgnore] public int FreightersBeingBuilt => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
         [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue => 1 + ResearchStrategy.IndustryPriority;
         [XmlIgnore][JsonIgnore] public int TotalFreighters      => OwnedShips.Count(s => s.IsFreighter);
         [XmlIgnore][JsonIgnore] public Ship[] IdleFreighters    => OwnedShips.Filter(s => s.IsIdleFreighter);
+        [XmlIgnore][JsonIgnore] public int AverageTradeIncome   => AllTimeTradeIncome / TurnCount;
+
+        public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
 
         [XmlIgnore][JsonIgnore]
         public Array<Empire> TradeTreaties
@@ -241,6 +246,20 @@ namespace Ship_Game
         public void IncreaseFastVsBigFreighterRatio(float amount)
         {
             FastVsBigFreighterRatio = (FastVsBigFreighterRatio + amount).Clamped(0.1f, 1);
+        }
+
+        public float TotalTradeTreatiesIncome()
+        {
+            float total = 0f;
+            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+                if (kv.Value.Treaty_Trade) total += kv.Value.TradeIncome();
+            return total;
+        }
+
+        void UpdateTradeIncome()
+        {
+            TotalTradeMoneyAddedThisTurn = TotalTradeTreatiesIncome() + TradeMoneyAddedThisTurn;
+            TradeMoneyAddedThisTurn = 0; // Reset Trade Money for the next turn.
         }
     }
 }
