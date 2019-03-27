@@ -106,8 +106,8 @@ namespace Ship_Game.GameScreens
 
             // Trade tab
             SummaryPanel trade  = Add(new SummaryPanel(315, tradeRect, new Color(30, 26, 19)));
-            trade.AddItem(322, () => Player.GetAverageTradeIncome()); // "Mercantilism (Avg)"
-            trade.AddItem(323, () => Player.GetTotalTradeIncome());   // "Trade Treaties"
+            trade.AddItem(322, () => Player.AverageTradeIncome); // "Mercantilism (Avg)"
+            trade.AddItem(323, () => Player.TotalTradeTreatiesIncome());   // "Trade Treaties"
             var traders = Player.AllRelations.Where(kv => kv.Value.Treaty_Trade)
                                             .Select(kv => (Empire:kv.Key, Relation:kv.Value));
             foreach ((Empire e, Relationship r) in traders)
