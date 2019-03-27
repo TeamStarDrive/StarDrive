@@ -87,7 +87,7 @@ namespace Ship_Game
         public static void RemoveShieldLights(ShipModule[] shields)
         {
             foreach (ShipModule module in shields)
-                module.GetShield.RemoveLight();
+                module.Shield.RemoveLight();
         }
 
         public static void Update()

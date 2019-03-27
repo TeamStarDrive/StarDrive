@@ -1342,7 +1342,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
-                if (shield.ShieldPower >= 1f)
+                if (shield.ShieldsAreActive)
                     shield.Damage(damageSource, damageAmount);
             }
         }
