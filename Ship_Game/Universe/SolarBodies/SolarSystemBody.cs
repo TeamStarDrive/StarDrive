@@ -48,8 +48,8 @@ namespace Ship_Game
 
         public void DamageColonySurface(Bomb bomb)
         {
-            int softDamage = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
-            int hardDamage = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
+            int softDamage = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
+            int hardDamage = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
             DamageBioSpheres(hardDamage);
             DamageTroops(softDamage);
             DamageBuildings(hardDamage);
