@@ -128,7 +128,7 @@ namespace Ship_Game
             float ra = Radius, rb = target.Radius;
             if ((dx*dx + dy*dy) >= (ra*ra + rb*rb)) // filter out by target Ship or target Projectile radius
                 return false;
-
+            // NOTE: this is for Projectile<->Projectile collision!
             if ((target.Type & GameObjectType.Ship) == 0) // target not a ship, collision success
                 return true;
 
@@ -458,7 +458,8 @@ namespace Ship_Game
                     proj.HitTestProj(ref ship, out ShipModule hitModule))
                 {
                     var projectile = proj.Obj as Projectile;
-                    HandleProjCollision(projectile, hitModule ?? ship.Obj);
+                    if (!HandleProjCollision(projectile, hitModule ?? ship.Obj))
+                        continue; // there was no collision
 
                     if (projectile.DieNextFrame) FastRemoval(projectile, node, ref i);
                 }
@@ -486,7 +487,8 @@ namespace Ship_Game
                     (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(ref item, out ShipModule hitModule))
                 {
-                    HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj);
+                    if (!HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj)) // module OR projectile
+                        continue; // there was no collision
 
                     if ((item.Type & GameObjectType.Proj) != 0 && (item.Obj as Projectile).DieNextFrame)
                         FastRemoval(item.Obj, node, ref i);
@@ -587,7 +589,11 @@ namespace Ship_Game
         static void HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
         {
             if (!beam.Touch(victim))
+            {
+                Log.Warning($"Beam touch failed: {beam}\n  victim: {victim}");
                 return;
+            }
+
             if (victim is ShipModule module) // for ships we get the actual ShipModule that was hit, not the ship itself
                 module.GetParent().MoveModulesTimer = 2f;
             
@@ -603,12 +609,15 @@ namespace Ship_Game
             beam.ActualHitDestination = hitPos;
         }
 
-        static void HandleProjCollision(Projectile projectile, GameplayObject victim)
+        static bool HandleProjCollision(Projectile projectile, GameplayObject victim)
         {
             if (!projectile.Touch(victim))
-                return;
+                return false;
+
             if (victim is ShipModule module) // for ships we get the actual ShipModule that was hit, not the ship itself
                 module.GetParent().MoveModulesTimer = 2f;
+
+            return true;
         }
 
         static void FindNearbyAtNode(Node node, ref SpatialObj nearbyDummy, GameObjectType filter, 
@@ -750,23 +759,23 @@ namespace Ship_Game
 
             Array.Clear(DebugDrawBuffer, 0, DebugDrawBuffer.Length); // prevent zombie objects
 
-            for (int i = 0; i < DebugFindNearby.Count; ++i)
-            {
-                FindNearbyDebug debug = DebugFindNearby[i];
-                if (debug.Obj == null) continue;
-                screen.DrawCircleProjected(debug.Obj.Center, debug.Radius, 36, Golden);
-                for (int j = 0; j < debug.Nearby.Length; ++j)
-                {
-                    GameplayObject nearby = debug.Nearby[j];
-                    screen.DrawLineProjected(debug.Obj.Center, nearby.Center, GetRelationColor(debug.Obj, nearby));
-                }
+            //for (int i = 0; i < DebugFindNearby.Count; ++i)
+            //{
+            //    FindNearbyDebug debug = DebugFindNearby[i];
+            //    if (debug.Obj == null) continue;
+            //    screen.DrawCircleProjected(debug.Obj.Center, debug.Radius, 36, Golden);
+            //    for (int j = 0; j < debug.Nearby.Length; ++j)
+            //    {
+            //        GameplayObject nearby = debug.Nearby[j];
+            //        screen.DrawLineProjected(debug.Obj.Center, nearby.Center, GetRelationColor(debug.Obj, nearby));
+            //    }
 
-                debug.Timer -= screen.SimulationDeltaTime;
-                if (debug.Timer > 0f)
-                    DebugFindNearby[i] = debug;
-                else
-                    DebugFindNearby.RemoveAtSwapLast(i--);
-            }
+            //    debug.Timer -= screen.SimulationDeltaTime;
+            //    if (debug.Timer > 0f)
+            //        DebugFindNearby[i] = debug;
+            //    else
+            //        DebugFindNearby.RemoveAtSwapLast(i--);
+            //}
         }
     }
 }

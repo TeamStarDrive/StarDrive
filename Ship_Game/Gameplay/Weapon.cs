@@ -739,56 +739,13 @@ namespace Ship_Game.Gameplay
                 return;
             if (FireTarget is Ship targetShip)
             {
-                FireAtAssignedTargetNonVisible(targetShip);
-                return;
+                Log.Warning($"FireAtAssignedTarget SHIP is deprecated: {targetShip}");
             }
             if (isBeam) FireBeam(Module.Center, FireTarget.Center, FireTarget);
             else        FireAtTarget(FireTarget.Center, FireTarget);
         }
 
-        void FireAtAssignedTargetNonVisible(Ship targetShip)
-        {
-            if (!CanFireWeapon())
-                return;
-            CooldownTimer = fireDelay;
-            if (IsRepairDrone)
-                return;
-            if (targetShip?.Active != true
-                || targetShip.dying
-                || targetShip.engineState == Ship.MoveState.Warp
-                || !Owner.IsShipInFireArcRange(this, targetShip))
-                return;
-
-            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
-            Owner.PowerCurrent -= PowerRequiredToFire;
-            Owner.PowerCurrent -= BeamPowerCostPerSecond * BeamDuration;
-            Owner.InCombatTimer = 15f;
-
-            if (FireTarget is Projectile)
-            {
-                FireTarget.Damage(Owner, DamageAmount);
-                return;
-            }
-
-            CooldownTimer = fireDelay;
-            if (targetShip.NumExternalSlots == 0)
-            {
-                targetShip.Die(null, true);
-                return;
-            } //@todo invisible ecm and such should match visible
-
-
-            if (targetShip.AI.CombatState == CombatState.Evade) // fbedard: firing on evading ship can miss !
-                if (RandomMath.RandomBetween(0f, 100f) < 5f + targetShip.experience)
-                    return;
-
-            if (targetShip.shield_power > 0f)
-                targetShip.DamageShieldInvisible(Owner, InvisibleDamageAmount);
-            else
-                targetShip.FindClosestUnshieldedModule(Owner.Center)?.Damage(Owner, InvisibleDamageAmount);
-        }
-
-        // @todo This requires optimiziation
+        // @todo This requires optimization
         public void ModifyProjectile(Projectile projectile)
         {
             if (Owner == null)
