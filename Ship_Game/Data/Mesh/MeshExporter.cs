@@ -70,32 +70,27 @@ namespace Ship_Game.Data.Mesh
                     VertexBuffer vb = modelMesh.VertexBuffer;
                     IndexBuffer  ib = modelMesh.IndexBuffer;
 
-                    Vector3[] vertices = vb.GetArray<Vector3>(part, VertexElementUsage.Position);
-                    Vector3[] normals  = vb.GetArray<Vector3>(part, VertexElementUsage.Normal);
-                    Vector2[] coords   = vb.GetArray<Vector2>(part, VertexElementUsage.TextureCoordinate);
-                    Vector4[] weights  = vb.GetArray<Vector4>(part, VertexElementUsage.BlendWeight);
-                    SdBlendIndices[] blendIndices = vb.GetArray<SdBlendIndices>(part, VertexElementUsage.BlendIndices);
+                    SdVertexElement[] layout = CreateVertexElements(part.VertexDeclaration);
 
                     SdVertexData data;
-                    data.NumIndices = part.PrimitiveCount * 3;
-                    data.NumVertices = part.NumVertices;
+                    data.VertexStride = part.VertexStride;
+                    data.LayoutCount  = layout.Length;
+                    data.IndexCount   = part.PrimitiveCount * 3;
+                    data.VertexCount  = part.NumVertices;
 
-                    var indexData = new ushort[data.NumIndices];
-                    ib.GetData(part.StartIndex*sizeof(ushort), indexData, 0, data.NumIndices);
+                    var indexData = new ushort[data.IndexCount];
+                    ib.GetData(part.StartIndex*sizeof(ushort), indexData, 0, data.IndexCount);
 
-                    fixed(ushort* pIndices = indexData)
-                    fixed(Vector3* pVertices = vertices)
-                    fixed(Vector3* pNormals = normals)
-                    fixed(Vector2* pCoords  = coords)
-                    fixed(Vector4* pWeights = weights)
-                    fixed(SdBlendIndices* pBlends = blendIndices)
+                    var vertexData = new byte[data.VertexCount * data.VertexStride];
+                    vb.GetData(part.BaseVertex * part.VertexStride, vertexData, 0, vertexData.Length, 0);
+
+                    fixed(ushort* pIndexData = indexData)
+                    fixed(byte* pVertexData = vertexData)
+                    fixed(SdVertexElement* pLayout = layout)
                     {
-                        data.Indices = pIndices;
-                        data.Vertices = pVertices;
-                        data.Normals = pNormals;
-                        data.Coords = pCoords;
-                        data.Weights = pWeights;
-                        data.BlendIndices = pBlends;
+                        data.IndexData = pIndexData;
+                        data.VertexData = pVertexData;
+                        data.Layout = pLayout;
                         SDMeshGroupSetData(group, data);
                     }
 

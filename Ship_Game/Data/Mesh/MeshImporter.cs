@@ -51,8 +51,6 @@ namespace Ship_Game.Data.Mesh
             for (int i = 0; i < mesh->NumGroups; ++i)
             {
                 SdMeshGroup* g = SDMeshGetGroup(mesh, i);
-                if (g->NumVertices == 0 || g->NumIndices == 0)
-                    continue;
                 long ptr = (long)g->Mat;
                 if (!materials.ContainsKey(ptr))
                 {
@@ -72,22 +70,24 @@ namespace Ship_Game.Data.Mesh
             for (int i = 0; i < mesh->NumGroups; ++i)
             {
                 SdMeshGroup* g = SDMeshGetGroup(mesh, i);
-                if (g->NumVertices == 0 || g->NumIndices == 0)
+                SdVertexData data = SDMeshGroupGetData(g);
+                if (data.VertexCount == 0 || data.IndexCount == 0)
                     continue;
 
-                Log.Info(ConsoleColor.Green, $"  group {g->GroupId}: {g->Name}  verts:{g->NumVertices}  ids:{g->NumIndices}");
-
+                Log.Info(ConsoleColor.Green,
+                    $"  group {g->GroupId}: {g->Name}  verts:{data.VertexCount}  ids:{data.IndexCount}");
+                
                 var meshData = new MeshData
                 {
-                    Name                      = g->Name.AsString,
-                    Effect                    = materials[(long)g->Mat],
+                    Name              = g->Name.AsString,
+                    Effect            = materials[(long)g->Mat],
+                    IndexBuffer       = data.CopyIndices(Device),
+                    VertexBuffer      = data.CopyVertices(Device),
+                    VertexDeclaration = data.CreateDeclaration(Device),
+                    PrimitiveCount    = data.IndexCount/3,
+                    VertexCount       = data.VertexCount,
+                    VertexStride      = data.VertexStride,
                     ObjectSpaceBoundingSphere = g->Bounds,
-                    IndexBuffer               = g->CopyIndices(Device),
-                    VertexBuffer              = g->CopyVertices(Device),
-                    VertexDeclaration         = VertexLayout(Device),
-                    PrimitiveCount            = g->NumTriangles,
-                    VertexCount               = g->NumVertices,
-                    VertexStride              = sizeof(SdVertex)
                 };
                 staticMesh.Meshes.Add(meshData);
             }
