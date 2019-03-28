@@ -32,7 +32,7 @@ namespace Ship_Game.AI
             readonly EmpireAI AI;
             readonly EconomicResearchStrategy ResStrat;
             readonly Map<string, float> Priority;
-            public string TechCategoryPrioritized;
+            public readonly string TechCategoryPrioritized;
 
             public ResearchPriorities(Empire empire)
             {
@@ -40,20 +40,26 @@ namespace Ship_Game.AI
                 ResStrat = empire.ResearchStrategy;
                 Wars = 0;
                 ShipBuildBonus = 0;
-                if (++empire.data.TechDelayTime % 3 == 0)
+                //create a booster for some values when things are slack.
+                //so the empire will keep building new ships and researching new science.
+                if (empire.data.TechDelayTime % 3 == 0)
                     ShipBuildBonus = 0.5f;
 
                 float enemyThreats = empire.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireThreats(empire);
-                Wars               = enemyThreats / (empire.currentMilitaryStrength + 1);
-                Wars               = Wars.Clamped(0, 1);
-                Wars              += ShipBuildBonus;
-                var availableTechs = AI.AvailableTechs();
-                float cheapestTech = availableTechs.Average(cost => cost.TechCost);
-                ResearchDebt       = cheapestTech - empire.MaxResearchPotential *10;
-                ResearchDebt       = ResearchDebt / cheapestTech;
-                ResearchDebt       = ResearchDebt.Clamped(0, 1);
+                Wars = enemyThreats / (empire.currentMilitaryStrength + 1);
+                Wars = Wars.Clamped(0, 1);
+                if (Wars < 0.5f)
+                    Wars = ShipBuildBonus;
 
-                Economics = empire.data.TaxRate;
+                var availableTechs = AI.AvailableTechs();
+                float avgTechCost = availableTechs.Average(cost => cost.TechCost);
+                ResearchDebt       = avgTechCost - empire.MaxResearchPotential *10;
+                ResearchDebt       = ResearchDebt / avgTechCost;
+                ResearchDebt       = ResearchDebt.Clamped(0, 1);
+                if (ResearchDebt < 0.5f)
+                    ResearchDebt = ShipBuildBonus;
+
+                Economics = empire.data.TaxRate * 2f;
                 FoodNeeds = 0;
                 if (!empire.IsCybernetic)
                 {
@@ -75,7 +81,7 @@ namespace Ship_Game.AI
 
                 TechCategoryPrioritized = string.Empty;
                 int max = 0;
-                foreach (var pWeighted in Priority)
+                foreach (var pWeighted in Priority.OrderByDescending(weight => weight.Value))
                 {
                     if (max > 4)
                         break;
@@ -105,6 +111,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.ResearchTopic.NotEmpty())
                 return;
             Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
+            OwnerEmpire.data.TechDelayTime++;
             var researchPriorities = new ResearchPriorities(OwnerEmpire);
 
             bool cybernetic = OwnerEmpire.IsCybernetic;
@@ -385,7 +392,8 @@ namespace Ship_Game.AI
             if (BestCombatShip != null)
             {
                 if (OwnerEmpire.ShipsWeCanBuild.Contains(GetBestCombatShip.Name)
-                || OwnerEmpire.structuresWeCanBuild.Contains(GetBestCombatShip.Name))
+                || OwnerEmpire.structuresWeCanBuild.Contains(GetBestCombatShip.Name)
+                || BestCombatShip.shipData.IsShipyard)
                     BestCombatShip = null;
                 else
                 if (!BestCombatShip.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Any())
@@ -794,8 +802,8 @@ namespace Ship_Game.AI
                 try
                 {
                     //restrict to racial ships or otherwise unlocked ships.
-                    if (shortTermBest.shipData.ShipStyle == null  ||
-                        shortTermBest.shipData.ShipStyle != "Platforms" && shortTermBest.shipData.ShipStyle != "Misc"
+                    if (shortTermBest.shipData.ShipStyle == null
+                        || shortTermBest.shipData.ShipStyle != "Platforms" && shortTermBest.shipData.ShipStyle != "Misc"
                          && shortTermBest.shipData.ShipStyle != OwnerEmpire.data.Traits.ShipType)
                         continue;
 
