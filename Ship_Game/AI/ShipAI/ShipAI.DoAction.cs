@@ -43,9 +43,8 @@ namespace Ship_Game.AI
 
         void DoCombat(float elapsedTime)
         {
-            var ctarget = Target as Ship;
-            if (Target?.Active != true || ctarget?.engineState != Ship.MoveState.Sublight
-                                       || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), ctarget))
+            if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight
+                                       || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), Target))
             {
                 Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&
                                                               t.Center.InRadius(Owner.Center, Owner.SensorRange));
@@ -78,7 +77,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                //need to move this into fleet.
+                // need to move this into fleet.
                 if (FleetNode != null && Owner.fleet != null)
                 { if (Target == null)
                         Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
@@ -337,13 +336,13 @@ namespace Ship_Game.AI
                 Owner.Carrier.AssaultPlanetWithTransporters(goal.TargetPlanet);
         }
 
-        void DoRebase(ShipGoal Goal)
+        void DoRebase(ShipGoal goal)
         {
             if (Owner.TroopList.Count == 0)
             {
                 Owner.QueueTotalRemoval(); // vanish the ship
             }
-            else if (Owner.TroopList[0].AssignTroopToTile(Goal.TargetPlanet))
+            else if (Owner.TroopList[0].AssignTroopToTile(goal.TargetPlanet))
             {
                 Owner.TroopList.Clear();
                 Owner.QueueTotalRemoval(); // vanish the ship
@@ -386,9 +385,9 @@ namespace Ship_Game.AI
             if (repairMe != null) w.FireTargetedBeam(repairMe);
         }
 
-        bool ShipNeedsRepair(Ship target, float maxDistance, Ship dontHealSelf = null)
+        bool ShipNeedsRepair(Ship target, float maxDistance, Ship doNotHealSelf = null)
         {
-            return target.Active && target != dontHealSelf
+            return target.Active && target != doNotHealSelf
                     && target.HealthPercent < ShipResupply.RepairDroneThreshold
                     && Owner.Center.Distance(target.Center) <= maxDistance;
         }
@@ -421,12 +420,12 @@ namespace Ship_Game.AI
             ShipWeight ship = NearByShips.Where(
                     s => s.Ship.loyalty != null && s.Ship.loyalty != Owner.loyalty && s.Ship.shield_power <= 0
                          && Owner.Center.Distance(s.Ship.Center) <= module.TransporterRange + 500f)
-                .OrderBy(Ship => Owner.Center.SqDist(Ship.Ship.Center)).First();
+                .OrderBy(sw => Owner.Center.SqDist(sw.Ship.Center)).First();
             if (ship.Ship == null) return;
 
-            byte TroopCount = 0;
-            var Transported = false;
-            for (byte i = 0; i < Owner.TroopList.Count(); i++)
+            int troopCount = 0;
+            bool transported = false;
+            for (int i = 0; i < Owner.TroopList.Count; ++i)
             {
                 if (Owner.TroopList[i] == null)
                     continue;
@@ -434,13 +433,13 @@ namespace Ship_Game.AI
                 {
                     ship.Ship.TroopList.Add(Owner.TroopList[i]);
                     Owner.TroopList.Remove(Owner.TroopList[i]);
-                    TroopCount++;
-                    Transported = true;
+                    troopCount++;
+                    transported = true;
                 }
-                if (TroopCount == module.TransporterTroopAssault)
+                if (troopCount == module.TransporterTroopAssault)
                     break;
             }
-            if (Transported) //@todo audio should not be here
+            if (transported) //@todo audio should not be here
             {
                 module.TransporterTimer = module.TransporterTimerConstant;
                 if (Owner.InFrustum)
