@@ -37,7 +37,7 @@ namespace Ship_Game.Ships
         public bool IsShipyard;
         public bool IsOrbitalDefense;
         public string IconPath;
-        public CombatState CombatState = CombatState.AttackRuns;
+        public CombatState CombatState;
         public float MechanicalBoardingDefense;
 
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
