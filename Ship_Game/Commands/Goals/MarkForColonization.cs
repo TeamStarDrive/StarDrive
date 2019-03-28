@@ -99,7 +99,7 @@ namespace Ship_Game.Commands.Goals
             var escortTask = GetClaimTask();
             if (escortTask != null)
             {
-                if (escortTask?.Step > 0 && escortTask.Fleet != null)
+                if (escortTask.Fleet != null)
                 {
                     var fleet = escortTask.Fleet;
                     if (fleet.TaskStep < 3)
@@ -112,6 +112,7 @@ namespace Ship_Game.Commands.Goals
             float radius = escortTask?.AORadius ?? 125000f;
 
             float str = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(ColonizationTarget.Center, radius, empire);
+            if (str < 100) return false;
 
             WaitingForEscort = true;
 
