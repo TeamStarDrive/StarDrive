@@ -365,7 +365,7 @@ namespace Ship_Game.Ships
                 return true;
             }
 
-            if (isColonyShip && System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
+            if (System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
                 return true;
 
             if ((DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troop)
