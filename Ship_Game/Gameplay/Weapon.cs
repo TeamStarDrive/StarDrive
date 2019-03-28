@@ -168,17 +168,6 @@ namespace Ship_Game.Gameplay
         private GameplayObject SalvoTarget;
         public float ECM = 0;
 
-        // When ships are off-screen, we do cheap and dirty invisible damage calculation
-        [XmlIgnore][JsonIgnore]
-        public float InvisibleDamageAmount
-        {
-            get
-            {
-                float damage = DamageAmount;
-                return damage + damage * SalvoCount * ProjectileCount + damage *(isBeam ? 90f : 0f);
-            }
-        }
-
         public void InitializeTemplate()
         {
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
@@ -211,11 +200,11 @@ namespace Ship_Game.Gameplay
         public Weapon Clone()
         {
             var wep = (Weapon)MemberwiseClone();
-            wep.SalvoTarget      = null;
-            wep.FireTarget       = null;
-            wep.Module           = null;
-            wep.Owner            = null;
-            wep.drowner          = null;
+            wep.SalvoTarget = null;
+            wep.FireTarget  = null;
+            wep.Module      = null;
+            wep.Owner       = null;
+            wep.drowner     = null;
             return wep;
         }
 
@@ -258,10 +247,11 @@ namespace Ship_Game.Gameplay
 
         public void FireDrone(Vector2 direction)
         {
-            if (!CanFireWeaponCooldown())
-                return;
-            PrepareToFire();
-            Projectile.Create(this, Module.Center, direction, null, playSound: true);
+            if (CanFireWeaponCooldown())
+            {
+                PrepareToFire();
+                Projectile.Create(this, Module.Center, direction, null, playSound: true);
+            }
         }
 
         public Vector2 GetFireConeSpread(Vector2 direction)
@@ -325,7 +315,7 @@ namespace Ship_Game.Gameplay
 
         bool CanFireWeapon()
         {
-            return Module.Active
+            return Module.Active && Module.Powered
                 && Owner.engineState  != Ship.MoveState.Warp
                 && Owner.PowerCurrent >= PowerRequiredToFire
                 && Owner.Ordinance    >= OrdinanceRequiredToFire;
@@ -402,8 +392,6 @@ namespace Ship_Game.Gameplay
 
         bool FireAtTarget(Vector2 targetPos, GameplayObject target = null)
         {
-            if (!CanFireWeaponCooldown())
-                return false;
             if (!PrepareFirePos(target, targetPos, out Vector2 firePos))
                 return false;
 
@@ -550,58 +538,81 @@ namespace Ship_Game.Gameplay
             pip = AdjustedImpactPoint(origin, pip, GetTargetError(target));
             return true;
         }
-
-        public void UpdatePrimaryFireTarget(GameplayObject prevTarget,
+        
+        // Prioritizes mainTarget
+        // But if mainTarget is not viable, will pick a new Target using ships/projectiles lists
+        public void UpdateAndFireAtTarget(Ship mainTarget,
             Array<Projectile> enemyProjectiles, Array<Ship> enemyShips)
         {
             TargetChangeTimer -= 0.0167f;
-            if (!CanTargetWeapon(prevTarget))
-                return;
+            if (!CanFireWeaponCooldown())
+                return; // we can't fire, so don't bother checking targets
 
-            if (!PickProjectileTarget(enemyProjectiles))
-                PickShipTarget(prevTarget, enemyShips);
+            if (ShouldPickNewTarget())
+            {
+                ClearFireTarget();
+                if (!PickProjectileTarget(enemyProjectiles))
+                {
+                    PickShipTarget(mainTarget, enemyShips);
+                }
+            }
+            
+            if (FireTarget != null)
+            {
+                if (isBeam)
+                    FireBeam(Module.Center, FireTarget.Center, FireTarget);
+                else
+                    FireAtTarget(FireTarget.Center, FireTarget);
+            }
         }
 
-        bool CanTargetWeapon(GameplayObject prevTarget)
+        bool IsTargetAliveAndInRange(GameplayObject target)
         {
-            // Reasons for this weapon not to fire
-            if (TargetChangeTimer > 0f
-                || !Module.Active
-                || CooldownTimer > 0f
-                || !Module.Powered || IsRepairDrone || isRepairBeam
-                || PowerRequiredToFire > Owner.PowerCurrent)
+            if (target == null || !target.Active || (target is Ship ship && ship.dying))
+                return false;
+            return Owner.IsTargetInFireArcRange(this, target);
+        }
+
+        bool ShouldPickNewTarget()
+        {
+            // Reasons for this weapon not to choose a new target
+            if (TargetChangeTimer > 0f // not ready yet
+                || IsRepairDrone // repair drones already have a target
+                || isRepairBeam
+                || SalvoTimer > 0f) // we are still firing salvos
                 return false;
 
-            var projTarget = FireTarget as Projectile;
-
-            // check if weapon target as a gameplay object is still a valid target
-            // and if the weapon can still fire on main target.
-            if (FireTarget != null && !Owner.IsTargetInFireArcRange(this, FireTarget)
-                || prevTarget != null && SalvoTimer <= 0f && BeamDuration <= 0f
-                && projTarget == null && Owner.IsTargetInFireArcRange(this, prevTarget)
-            )
+            if (!IsTargetAliveAndInRange(FireTarget))
             {
-                TargetChangeTimer = 0.1f * Module.XSIZE * Module.YSIZE;
-                FireTarget        = null;
-                if (isTurret) TargetChangeTimer *= .5f;
-                if (Tag_PD) TargetChangeTimer   *= .5f;
-                if (TruePD) TargetChangeTimer   *= .25f;
+                FireTarget = null;
+                TargetChangeTimer = 0.2f * Math.Max(Module.XSIZE, Module.YSIZE);
+                if    (isTurret) TargetChangeTimer *= 0.5f;
+                else if (Tag_PD) TargetChangeTimer *= 0.5f;
+                else if (TruePD) TargetChangeTimer *= 0.25f;
+                return true;
             }
+            return false; // Target is ok
+        }
 
-            // Reasons for this weapon not to fire
-            return FireTarget != null || TargetChangeTimer <= 0f;
+        public bool TargetValid(GameplayObject fireTarget)
+        {
+            if (fireTarget.Type == GameObjectType.ShipModule)
+                return TargetValid(((ShipModule)fireTarget).GetParent().shipData.HullRole);
+            if (fireTarget.Type == GameObjectType.Ship)
+                return TargetValid(((Ship)fireTarget).shipData.HullRole);
+            return true;
         }
 
         bool PickProjectileTarget(Array<Projectile> enemyProjectiles)
         {
-            if (enemyProjectiles.NotEmpty && Tag_PD)
+            if (Tag_PD && enemyProjectiles.NotEmpty)
             {
-                int maxTrackable = Owner.TrackingPower + Owner.Level;
-                for (int i = 0; i < maxTrackable && i < enemyProjectiles.Count; i++)
+                int maxTracking = Owner.TrackingPower + Owner.Level;
+                for (int i = 0; i < maxTracking && i < enemyProjectiles.Count; i++)
                 {
                     Projectile proj = enemyProjectiles[i];
-                    if (proj?.Active == true && proj.Health > 0f
-                        && proj.Weapon.Tag_Intercept // projectile is interceptable?
+                    if (proj.Active && proj.Health > 0f
+                        && proj.Weapon.Tag_Intercept // projectile can be intercepted?
                         && Owner.IsTargetInFireArcRange(this, proj))
                     {
                         FireTarget = proj;
@@ -612,41 +623,37 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        void PickShipTarget(GameplayObject prevTarget, Array<Ship> potentialTargets)
+        void PickShipTarget(Ship mainTarget, Array<Ship> potentialTargets)
         {
-            if (potentialTargets.IsEmpty || TruePD) // true PD weapons can't target ships
+            if (TruePD) // true PD weapons can't target ships
                 return;
 
-            // Is prev target still valid?
-            if (Owner.IsTargetInFireArcRange(this, prevTarget))
+            Ship newTargetShip = null;
+
+            // prefer our main target:
+            if (mainTarget != null && IsTargetAliveAndInRange(mainTarget))
             {
-                FireTarget = prevTarget; // then continue using primary target
+                newTargetShip = mainTarget;
             }
-            else if (Owner.TrackingPower > 0)
+            else // otherwise track a new target:
             {
                 // limit to one target per level.
-                int tracking = Owner.TrackingPower + Owner.Level;
-                for (int i = 0; i < potentialTargets.Count && i < tracking; i++) //
+                int maxTracking = Owner.TrackingPower + Owner.Level;
+                for (int i = 0; i < potentialTargets.Count && i < maxTracking; ++i)
                 {
                     Ship potentialTarget = potentialTargets[i];
-                    if (potentialTarget == prevTarget)
+                    if (TargetValid(potentialTarget) && IsTargetAliveAndInRange(potentialTarget))
                     {
-                        tracking++;
-                        continue;
-                    }
-                    if (Owner.IsShipInFireArcRange(this, potentialTarget))
-                    {
-                        FireTarget = potentialTarget;
+                        newTargetShip = potentialTarget;
                         break;
                     }
                 }
             }
 
-            // If a ship was found to fire on, change to target an internal module if target is visible  || weapon.Tag_Intercept
-            if (FireTarget is Ship targetShip
-                && (GlobalStats.ForceFullSim || Owner.InFrustum || targetShip.InFrustum))
+            // now choose a random module to target
+            if (newTargetShip != null)
             {
-                FireTarget = targetShip.GetRandomInternalModule(this);
+                FireTarget = newTargetShip.GetRandomInternalModule(this);
             }
         }
 
@@ -674,9 +681,6 @@ namespace Ship_Game.Gameplay
 
         bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
-            if (!CanFireWeaponCooldown())
-                return false;
-
             destination = ProjectedBeamPoint(source, destination, target);
             if (!Owner.IsInsideFiringArc(this, destination))
                 return false;
@@ -702,17 +706,19 @@ namespace Ship_Game.Gameplay
 
         public bool ManualFireTowardsPos(Vector2 targetPos)
         {
-            if (!CanFireWeapon())
-                return false;
-            if (isBeam) return FireBeam(Module.Center, targetPos, null);
-            else        return FireAtTarget(targetPos, null);
+            if (CanFireWeapon())
+            {
+                if (isBeam)
+                {
+                    return FireBeam(Module.Center, targetPos, null);
+                }
+                return FireAtTarget(targetPos, null);
+            }
+            return false;
         }
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
-            if (!TargetValid(targetShip))
-                return;
-            
             targetShip.InCombatTimer = 15f;
             GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 
@@ -729,20 +735,6 @@ namespace Ship_Game.Gameplay
                 foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
                     Projectile.Create(this, planet, fireSource.Direction, target);
             }
-        }
-
-        public void FireAtAssignedTarget()
-        {
-            if (!CanFireWeapon())
-                return;
-            if (!TargetValid(FireTarget))
-                return;
-            if (FireTarget is Ship targetShip)
-            {
-                Log.Warning($"FireAtAssignedTarget SHIP is deprecated: {targetShip}");
-            }
-            if (isBeam) FireBeam(Module.Center, FireTarget.Center, FireTarget);
-            else        FireAtTarget(FireTarget.Center, FireTarget);
         }
 
         // @todo This requires optimization
@@ -884,11 +876,6 @@ namespace Ship_Game.Gameplay
             return damageModifier;
         }
 
-        //How much total resource required to use weapon.
-        public float PowerUseMax    => isBeam ? BeamPowerCostPerSecond * BeamDuration : PowerRequiredToFire;
-        public float OrdnanceUseMax => OrdinanceRequiredToFire * SalvoCount;
-
-
         public bool TargetValid(ShipData.RoleName role)
         {
             if (Excludes_Fighters && (role == ShipData.RoleName.fighter || role == ShipData.RoleName.scout || role == ShipData.RoleName.drone))
@@ -899,15 +886,6 @@ namespace Ship_Game.Gameplay
                 return false;
             if (Excludes_Stations && (role == ShipData.RoleName.platform || role == ShipData.RoleName.station))
                 return false;
-            return true;
-        }
-
-        public bool TargetValid(GameplayObject fireTarget)
-        {
-            if (fireTarget.Type == GameObjectType.ShipModule)
-                return TargetValid(((ShipModule)fireTarget).GetParent().shipData.HullRole);
-            if (fireTarget.Type == GameObjectType.Ship)
-                return TargetValid(((Ship)fireTarget).shipData.HullRole);
             return true;
         }
 

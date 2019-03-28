@@ -23,7 +23,7 @@ namespace Ship_Game.AI
         public bool Troopsout = false;
         public Array<Projectile> TrackProjectiles = new Array<Projectile>();
         public Guid EscortTargetGuid;
-        public GameplayObject Target;
+        public Ship Target;
         public Array<Ship> TargetQueue = new Array<Ship>();
         public bool HasPriorityTarget;
         private float TriggerDelay;
@@ -37,23 +37,25 @@ namespace Ship_Game.AI
         public void FireOnTarget()
         {
             // base reasons not to fire. @TODO actions decided by loyalty like should be the same in all areas. 
-            if (!Owner.hasCommand || Owner.engineState == Ship.MoveState.Warp || Owner.EMPdisabled || Owner.Weapons.Count == 0)
+            if (!Owner.hasCommand || Owner.engineState == Ship.MoveState.Warp
+                || Owner.EMPdisabled || Owner.Weapons.Count == 0 || !BadGuysNear)
                 return;
 
-            if (BadGuysNear) // Determine if there is something to shoot at
+            int count = Owner.Weapons.Count;
+            Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
+
+            if (Target?.Active == false || Target is Ship ship && ship.dying)
             {
-                RefreshTarget();
+                Target = null;
+            }
 
-                for (int i = 0; i < Owner.Weapons.Count; i++)
-                {
-                    Owner.Weapons[i].UpdatePrimaryFireTarget(Target, TrackProjectiles, PotentialTargets);
-                }
-
-                FireWeapons();
+            for (int i = 0; i < count; ++i)
+            {
+                weapons[i].UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets);
             }
         }
 
-        private void UpdateTrackedProjectiles()
+        void UpdateTrackedProjectiles()
         {
             bool hasPointDefense = OwnerHasPointDefense();
 
@@ -82,38 +84,7 @@ namespace Ship_Game.AI
             return false;
         }
 
-        private void RefreshTarget()
-        {
-            if (Target?.Active == false || Target is Ship ship && ship.dying)
-            {
-                for (int i = 0; i < Owner.Weapons.Count; ++i)
-                {
-                    Weapon weapon = Owner.Weapons[i];
-
-                    // only clear weapons shooting at Primary Target, otherwise we would cripple PD weapons
-                    if (weapon.FireTarget == Target) 
-                        weapon.ClearFireTarget();
-                }
-                Target = null;
-            }
-        }
-
-        //this section actually fires the weapons. This whole firing section can be moved to some other area of the code. 
-        // This code is very expensive. 
-        private void FireWeapons()
-        {
-            for (int i = 0; i < Owner.Weapons.Count; ++i)
-            {
-                Weapon weapon = Owner.Weapons[i];
-
-                // note: these are all optimizations
-                if (weapon.FireTarget == null || !weapon.Module.Active || weapon.CooldownTimer > 0f || !weapon.Module.Powered )
-                    continue;
-                weapon.FireAtAssignedTarget();
-            }
-        }
-
-        public GameplayObject ScanForCombatTargets(Ship sensorShip, float radius)
+        public Ship ScanForCombatTargets(Ship sensorShip, float radius)
         {
             BadGuysNear = false;
             FriendliesNearby.Clear();
@@ -245,7 +216,7 @@ namespace Ship_Game.AI
                 return Target;
             }
 
-            GameplayObject targetShip = null;
+            Ship targetShip = null;
             if (sortedList2.Any())
                 targetShip = sortedList2.ElementAt(0).Ship;
 
@@ -394,7 +365,7 @@ namespace Ship_Game.AI
             //Vector2 senseCenter = sensorShip.Center;
             if (Owner.fleet != null)
             {
-                if (!HasPriorityTarget )
+                if (!HasPriorityTarget)
                     Target = ScanForCombatTargets(sensorShip, radius);
                 else
                     ScanForCombatTargets(sensorShip, radius);

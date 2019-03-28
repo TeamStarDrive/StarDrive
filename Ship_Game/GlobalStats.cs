@@ -117,7 +117,6 @@ namespace Ship_Game
         public static int XRES;
         public static int YRES;
         public static WindowMode WindowMode = WindowMode.Fullscreen;
-        public static bool ForceFullSim   = true;
         public static int AntiAlias       = 2;
         public static bool RenderBloom    = true;
         public static float MusicVolume   = 0.7f;
@@ -176,7 +175,6 @@ namespace Ship_Game
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf"                  , ref RestrictAIPlayerInteraction);
             GetSetting("AutoSaveFreq"          , ref AutoSaveFreq);
-            GetSetting("ForceFullSim"          , ref ForceFullSim);
             GetSetting("WindowMode"            , ref WindowMode);
             GetSetting("AntiAliasSamples"      , ref AntiAlias);
             GetSetting("PostProcessBloom"      , ref RenderBloom);
@@ -285,7 +283,6 @@ namespace Ship_Game
             WriteSetting(config, "StartingPlanetRichness", StartingPlanetRichness);
             WriteSetting(config, "perf", RestrictAIPlayerInteraction);
             WriteSetting(config, "AutoSaveFreq",     AutoSaveFreq);
-            WriteSetting(config, "ForceFullSim",     ForceFullSim);
             WriteSetting(config, "WindowMode",       WindowMode);
             WriteSetting(config, "AntiAliasSamples", AntiAlias);
             WriteSetting(config, "PostProcessBloom", RenderBloom);

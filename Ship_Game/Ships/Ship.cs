@@ -1617,7 +1617,7 @@ namespace Ship_Game.Ships
                 }
             }
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
-            if (MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim || AI.BadGuysNear
+            if (MoveModulesTimer > 0.0f || AI.BadGuysNear
                 || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) )
             {
                 if (deltaTime > 0.0f || UpdatedModulesOnce)
