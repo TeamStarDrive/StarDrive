@@ -74,8 +74,9 @@
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="Collections\TestArrayT.cs" />
     <Compile Include="Collections\TestCollectionExt.cs" />
+    <Compile Include="LinearAlgebra\TestIntersectAlgorithms.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />
-    <Compile Include="TestMathExt.cs" />
+    <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
     <Compile Include="Serialization\TestSerialization.cs" />
     <Compile Include="TestSpatialManager.cs" />
@@ -84,7 +85,7 @@
     <Compile Include="TestTextureAtlas.cs" />
     <Compile Include="Serialization\TestYamlParser.cs" />
     <Compile Include="TestProgressCounter.cs" />
-    <Compile Include="TestVectorMath.cs" />
+    <Compile Include="LinearAlgebra\TestVectorMath.cs" />
     <Compile Include="TestImpactPredictor.cs" />
     <Compile Include="Serialization\TestYamlSerializer.cs" />
     <Compile Include="Serialization\TestBinarySerializer.cs" />

@@ -1,10 +1,8 @@
-using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
-using static System.Math;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTests
+namespace UnitTests.LinearAlgebra
 {
     [TestClass]
     public class TestMathExt
@@ -79,34 +77,34 @@ namespace UnitTests
         [TestMethod]
         public void TestRadiansToTarget()
         {
-            Assert.AreEqual(PI*0.00, Center.RadiansToTarget(N),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(PI*0.25, Center.RadiansToTarget(NE), MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(PI*0.50, Center.RadiansToTarget(E),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(PI*0.75, Center.RadiansToTarget(SE), MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(PI*1.00, Center.RadiansToTarget(S),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(PI*1.25, Center.RadiansToTarget(SW), MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(PI*1.50, Center.RadiansToTarget(W),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(PI*1.75, Center.RadiansToTarget(NW), MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(System.Math.PI*0.00, Center.RadiansToTarget(N),  MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(System.Math.PI*0.25, Center.RadiansToTarget(NE), MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(System.Math.PI*0.50, Center.RadiansToTarget(E),  MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(System.Math.PI*0.75, Center.RadiansToTarget(SE), MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(System.Math.PI*1.00, Center.RadiansToTarget(S),  MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(System.Math.PI*1.25, Center.RadiansToTarget(SW), MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(System.Math.PI*1.50, Center.RadiansToTarget(W),  MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(System.Math.PI*1.75, Center.RadiansToTarget(NW), MaxErr, "Radians to target is incorrect");
         }
 
         [TestMethod]
         public void TestRadiansToTargetSigned()
         {
-            Assert.AreEqual(+PI*0.00, Center.RadiansToTargetSigned(N),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(+PI*0.25, Center.RadiansToTargetSigned(NE), MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(+PI*0.50, Center.RadiansToTargetSigned(E),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(+PI*0.75, Center.RadiansToTargetSigned(SE), MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(+PI*1.00, Center.RadiansToTargetSigned(S),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(-PI*1.25, Center.RadiansToTargetSigned(SW), MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(-PI*1.50, Center.RadiansToTargetSigned(W),  MaxErr, "Radians to target is incorrect");
-            Assert.AreEqual(-PI*1.75, Center.RadiansToTargetSigned(NW), MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(+System.Math.PI*0.00, Center.RadiansToTargetSigned(N),  MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(+System.Math.PI*0.25, Center.RadiansToTargetSigned(NE), MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(+System.Math.PI*0.50, Center.RadiansToTargetSigned(E),  MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(+System.Math.PI*0.75, Center.RadiansToTargetSigned(SE), MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(+System.Math.PI*1.00, Center.RadiansToTargetSigned(S),  MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(-System.Math.PI*1.25, Center.RadiansToTargetSigned(SW), MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(-System.Math.PI*1.50, Center.RadiansToTargetSigned(W),  MaxErr, "Radians to target is incorrect");
+            Assert.AreEqual(-System.Math.PI*1.75, Center.RadiansToTargetSigned(NW), MaxErr, "Radians to target is incorrect");
         }
 
         [TestMethod]
         public void TestDegreesAndRadians()
         {
-            Assert.AreEqual(180f, ((float)PI).ToDegrees(), MaxErr, "Radians to Degrees failed");
-            Assert.AreEqual((float)PI, 180f.ToRadians(), MaxErr, "Degrees to Radians failed");
+            Assert.AreEqual(180f, ((float)System.Math.PI).ToDegrees(), MaxErr, "Radians to Degrees failed");
+            Assert.AreEqual((float)System.Math.PI, 180f.ToRadians(), MaxErr, "Degrees to Radians failed");
         }
     }
 }

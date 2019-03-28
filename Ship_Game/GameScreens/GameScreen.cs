@@ -603,7 +603,7 @@ namespace Ship_Game
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawCapsuleProjected(Capsule capsuleInWorld, Color color, float thickness = 1f)
+        public void DrawCapsuleProjected(in Capsule capsuleInWorld, Color color, float thickness = 1f)
         {
             var capsuleOnScreen = new Capsule(
                 ProjectToScreenPosition(capsuleInWorld.Start),
