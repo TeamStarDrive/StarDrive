@@ -170,7 +170,7 @@ namespace Ship_Game
             if (importPlanet.Owner == this)
                 return true; // only for Inter-Empire Trade
 
-            return freighter.GetAstrogateTimeBetween(importPlanet, exportPlanet) < 40;
+            return freighter.GetAstrogateTimeBetween(importPlanet, exportPlanet) < 30;
         }
 
         private Ship FindClosestIdleFreighter(Planet planet, Goods goods)
@@ -183,6 +183,9 @@ namespace Ship_Game
 
         private Ship OpportunistFreighter(Planet planet, Goods goods)
         {
+            if (this != planet.Owner)
+                return null; // Not for in Inter Empire Trade
+
             Ship freighter = FindClosestIdleFreighter(planet, goods);
             if (freighter != null && freighter.GetCargo(goods) > 5f)
                 return freighter;

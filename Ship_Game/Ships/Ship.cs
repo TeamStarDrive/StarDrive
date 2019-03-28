@@ -2116,7 +2116,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void AddToShipLevel(int amountToAdd) => Level = Math.Min(255, Level + amountToAdd);
+        public void AddToShipLevel(int amountToAdd) => Level = (Level + amountToAdd).Clamped(0,10);
 
         public void UpdateEmpiresOnKill(Ship killedShip)
         {
