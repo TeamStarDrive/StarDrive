@@ -1337,16 +1337,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void DamageShieldInvisible(Ship damageSource, float damageAmount)
-        {
-            for (int i = 0; i < Shields.Length; ++i)
-            {
-                ShipModule shield = Shields[i];
-                if (shield.ShieldsAreActive)
-                    shield.Damage(damageSource, damageAmount);
-            }
-        }
-
         struct Ranger
         {
             public int Count;
