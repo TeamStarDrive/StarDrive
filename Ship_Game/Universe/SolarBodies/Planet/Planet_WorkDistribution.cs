@@ -147,12 +147,8 @@ namespace Ship_Game
             float colonyTypeBonus = 0;
             switch (colonyType)
             {
-                case ColonyType.Industrial:
-                    colonyTypeBonus = 0.05f;
-                    break;
-                case ColonyType.Military:
-                    colonyTypeBonus = 0.01f;
-                    break;
+                case ColonyType.Industrial: colonyTypeBonus = 0.05f; break;
+                case ColonyType.Military:   colonyTypeBonus = 0.01f; break;
             }
             float workerPercentage = colonyDevelopmentBonus + colonyTypeBonus;
 
@@ -203,8 +199,7 @@ namespace Ship_Game
                 switch (item.sData.Role)
                 {
                     case ShipData.RoleName.freighter:
-                        workerPercentage +=
-                            Owner.ResearchStrategy.ExpansionRatio + Owner.ResearchStrategy.IndustryRatio;
+                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio + Owner.ResearchStrategy.IndustryRatio;
                         break;
                     case ShipData.RoleName.station:
                         workerPercentage += Owner.ResearchStrategy.IndustryRatio;
@@ -216,10 +211,8 @@ namespace Ship_Game
                 }
             }
 
-            if (item.isTroop)
-                workerPercentage += Owner.ResearchStrategy.MilitaryRatio + Owner.ResearchStrategy.ExpansionRatio;
-            if (item.isOrbital)
-                workerPercentage += 0.1f;
+            if (item.isTroop)   workerPercentage += Owner.ResearchStrategy.MilitaryRatio + Owner.ResearchStrategy.ExpansionRatio;
+            if (item.isOrbital) workerPercentage += 0.1f;
 
             if (workerPercentage <= 0)
                 Log.Error($"Queue Item gave no bonus production. This is likely a bug. item: {item.DisplayName} ");
