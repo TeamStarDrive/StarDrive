@@ -31,7 +31,7 @@ namespace Ship_Game.AI
         public MilitaryTask FleetTask;
         MilitaryTask CoreFleetSubTask;
         public FleetCombatStatus Fcs;
-
+        public CombatStatus TaskCombatStatus = CombatStatus.InCombat;
 
         public int FleetIconIndex;
         public int TaskStep;
@@ -399,6 +399,9 @@ namespace Ship_Game.AI
                 return;
             if (Empire.Universe.SelectedFleet == this)
                 Empire.Universe.DebugWin?.DrawCircle(DebugModes.AO, Position, FleetTask.AORadius, Color.AntiqueWhite);
+
+            TaskCombatStatus = FleetInAreaInCombat(FleetTask.AO, FleetTask.AORadius);
+
             switch (FleetTask.type)
             {
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask); break;
@@ -674,8 +677,8 @@ namespace Ship_Game.AI
                 case 4:
                     if (!IsFleetSupplied())
                         TaskStep = 5;
-                    if (ShipsOffMission(task))
-                        TaskStep = 3;
+                    ShipsOffMission(task);
+                    TaskStep = 3;
                     break;
                 case 5:
                     SendFleetToResupply();
@@ -889,9 +892,9 @@ namespace Ship_Game.AI
         /// @return true if order successful. Fails when enemies near.
         bool DoOrbitTaskArea(MilitaryTask task)
         {
-            CombatStatus status = FleetInAreaInCombat(task.AO, task.AORadius);
+            TaskCombatStatus = FleetInAreaInCombat(task.AO, task.AORadius);
 
-            if (status < CombatStatus.ClearSpace)
+            if (TaskCombatStatus < CombatStatus.ClearSpace)
                 return false;
 
             DoOrbitAreaRestricted(task.TargetPlanet, task.AO, task.AORadius);
