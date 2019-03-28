@@ -92,7 +92,7 @@ namespace Ship_Game
             }
         }
 
-        public float HitTestBeam(ref SpatialObj target, out ShipModule hitModule)
+        public bool HitTestBeam(ref SpatialObj target, out ShipModule hitModule, out float distanceToHit)
         {
             var beam = (Beam)Obj;
             ++GlobalStats.BeamTests;
@@ -104,7 +104,12 @@ namespace Ship_Game
             {
                 var ship = (Ship)target.Obj;
                 hitModule = ship.RayHitTestSingle(beamStart, beamEnd, 8f, beam.IgnoresShields);
-                return hitModule?.RayHitTest(beamStart, beamEnd, 8f) ?? 0f;
+                if (hitModule == null)
+                {
+                    distanceToHit = float.NaN;
+                    return false;
+                }
+                return hitModule.RayHitTest(beamStart, beamEnd, 8f, out distanceToHit);
             }
 
             hitModule = null;
@@ -112,11 +117,14 @@ namespace Ship_Game
             {
                 var proj = (Projectile)target.Obj;
                 if (!proj.Weapon.Tag_Intercept) // for projectiles, make sure they are physical and can be killed
-                    return 0f;
+                {
+                    distanceToHit = float.NaN;
+                    return false;
+                }
             }
 
             // intersect projectiles or anything else that can collide
-            return target.Center.RayCircleIntersect(target.Radius, beamStart, beamEnd);
+            return target.Center.RayCircleIntersect(target.Radius, beamStart, beamEnd, out distanceToHit);
         }
 
         // assumes THIS is a projectile
@@ -521,11 +529,10 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (item.Loyalty != beam.Loyalty &&         // friendlies don't collide
-                    (item.Type & GameObjectType.Beam) == 0) // forbid beam-beam collision            
+                if (item.Loyalty != beam.Loyalty &&        // friendlies don't collide
+                   (item.Type & GameObjectType.Beam) == 0) // forbid beam-beam collision            
                 {
-                    float dist = beam.HitTestBeam(ref item, out ShipModule hitModule);
-                    if (dist > 0f)
+                    if (beam.HitTestBeam(ref item, out ShipModule hitModule, out float dist))
                     {
                         outHitResults.Add(new BeamHitResult
                         {
@@ -748,10 +755,11 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 ref SpatialObj so = ref DebugDrawBuffer[i];
-                var ocenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
-                var osize   = new Vector2(so.LastX - so.X, so.LastY - so.Y);
-                screen.DrawRectangleProjected(ocenter, osize, 0f, Violet);
-                screen.DrawLineProjected(center, ocenter, Violet);
+                var soCenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
+                var soSize   = new Vector2(so.LastX - so.X, so.LastY - so.Y);
+                screen.DrawRectangleProjected(soCenter, soSize, 0f, Violet);
+                screen.DrawCircleProjected(soCenter, so.Radius, Violet);
+                screen.DrawLineProjected(center, soCenter, Violet);
             }
             if (node.NW != null)
             {

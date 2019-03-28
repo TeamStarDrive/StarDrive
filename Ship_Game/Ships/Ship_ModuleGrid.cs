@@ -302,14 +302,38 @@ namespace Ship_Game.Ships
             return module != null;
         }
 
+        static void DebugDrawShield(ShipModule s)
+        {
+            var color = s.ShieldsAreActive ? Color.AliceBlue : Color.DarkBlue;
+            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, s.Center, s.ShieldHitRadius, color, 2f);
+        }
+
+        static void DebugDrawShieldHit(ShipModule s)
+        {
+            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, s.Center, s.ShieldHitRadius, Color.BlueViolet, 2f);
+        }
+
+        static void DebugDrawShieldHit(ShipModule s, Vector2 start, Vector2 end)
+        {
+            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, s.Center, s.ShieldHitRadius, Color.BlueViolet, 2f);
+            if (start != end)
+                Empire.Universe.DebugWin?.DrawLine(DebugModes.SpatialManager, start, end, 2f, Color.BlueViolet, 2f);
+        }
+
         // The simplest form of collision against shields. This is handled in all other HitTest functions
         ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
         {
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
+                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                    DebugDrawShield(shield);
                 if (shield.ShieldsAreActive && shield.HitTestShield(worldHitPos, hitRadius))
+                {
+                    if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                        DebugDrawShieldHit(shield);
                     return shield;
+                }
             }
             return null;
         }
@@ -322,15 +346,22 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
+                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                    DebugDrawShield(shield);
+
                 if (shield.ShieldsAreActive &&
-                    shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius, out float distance))
+                    shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius, out float distanceFromStart))
                 {
-                    if (distance < minD)
+                    if (distanceFromStart < minD)
                     {
-                        minD = distance;
+                        minD = distanceFromStart;
                         hit = shield;
                     }
                 }
+            }
+            if (hit != null && DebugInfoScreen.Mode == DebugModes.SpatialManager)
+            {
+                DebugDrawShieldHit(hit, worldStartPos, worldEndPos);
             }
             hitDistance = minD;
             return hit;
@@ -613,14 +644,14 @@ namespace Ship_Game.Ships
         void DebugGridStep(Vector2 p, Color color)
         {
             Vector2 gridWorldPos = GridLocalPointToWorld(GridLocalToPoint(p)) + new Vector2(8f);
-            Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, gridWorldPos, 4f, color.Alpha(0.33f), 2.0f);
+            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, gridWorldPos, 4f, color.Alpha(0.33f), 2.0f);
         }
 
         void DebugGridStep(Vector2 a, Vector2 b, Color color, float width = 1f)
         {
             Vector2 worldPosA = GridLocalPointToWorld(GridLocalToPoint(a)) + new Vector2(8f);
             Vector2 worldPosB = GridLocalPointToWorld(GridLocalToPoint(b)) + new Vector2(8f);
-            Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, worldPosA, worldPosB, width, color.Alpha(0.75f), 2.0f);
+            Empire.Universe.DebugWin?.DrawLine(DebugModes.SpatialManager, worldPosA, worldPosB, width, color.Alpha(0.75f), 2.0f);
         }
 
         // take one step in the module grid
@@ -634,33 +665,31 @@ namespace Ship_Game.Ships
                 return null; // we're walking out of bounds
 
             // @note We don't check grid at [pos], because we assume prev call checked it
-
             if (pos.IsDiagonalTo(end))
             {
                 // check a module at the same Y height as final point
                 // this forces us to always take an L shaped step instead of diagonal \
-                //var neighbourPos = new Vector2(start.X, endPos.Y);
-                var neighbour = new Point(pos.X, end.Y);
-                //if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                //    DebugGridStep(neighbourPos, Color.Yellow);
+                var neighbor = new Point(pos.X, end.Y);
+                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                    DebugGridStep(new Vector2(start.X, endPos.Y), Color.Yellow);
 
-                ShipModule mb = SparseModuleGrid[neighbour.X + neighbour.Y * GridWidth];
+                ShipModule mb = SparseModuleGrid[neighbor.X + neighbor.Y * GridWidth];
                 if (mb != null && mb.Active)
                 {
-                    //if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                    //    DebugGridStep(start, neighbourPos, Color.Cyan, 4f);
+                    if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                        DebugGridStep(start, new Vector2(start.X, endPos.Y), Color.Cyan, 4f);
                     return mb;
                 }
             }
 
-            //if (DebugInfoScreen.Mode == DebugModes.Targeting)
-            //    DebugGridStep(endPos, Color.LightGreen);
+            if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                DebugGridStep(endPos, Color.LightGreen);
 
             ShipModule mc = SparseModuleGrid[end.X + end.Y * GridWidth];
             if (mc != null && mc.Active)
             {
-                //if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                //    DebugGridStep(start, endPos, Color.HotPink, 4f);
+                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                    DebugGridStep(start, endPos, Color.HotPink, 4f);
                 return mc;
             }
             return null;
@@ -678,8 +707,8 @@ namespace Ship_Game.Ships
             ShipModule me = SparseModuleGrid[enter.X + enter.Y * GridWidth];
             if (me != null && me.Active)
             {
-                //if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                //    DebugGridStep(pos - step, pos, Color.DarkGoldenrod);
+                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                    DebugGridStep(pos - step, pos, Color.DarkGoldenrod);
                 return me;
             }
 
@@ -690,7 +719,7 @@ namespace Ship_Game.Ships
                 if (m != null)
                 {
                     //if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                    //    Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, m.Center, 6f, Color.IndianRed.Alpha(0.5f), 3f);
+                    //    Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, m.Center, 6f, Color.IndianRed.Alpha(0.5f), 3f);
                     return m;
                 }
             }
@@ -701,7 +730,9 @@ namespace Ship_Game.Ships
         {
             // first we find the shield overlap, however, a module might be overlapping just before the shield border
             float shieldHitDist = float.MaxValue;
-            ShipModule shield = ignoreShields ? null : RayHitTestShields(startPos, endPos, rayRadius, out shieldHitDist);
+            ShipModule shield = null;
+            if (!ignoreShields)
+                shield = RayHitTestShields(startPos, endPos, rayRadius, out shieldHitDist);
 
             ++GlobalStats.DistanceCheckTotal;
 

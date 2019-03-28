@@ -92,7 +92,7 @@ namespace Ship_Game
             DrawLine(spriteBatch, previous, start, color, thickness); // connect back to start
         }
 
-        public static void DrawCapsule(this SpriteBatch spriteBatch, Capsule capsuleOnScreen,
+        public static void DrawCapsule(this SpriteBatch spriteBatch, in Capsule capsuleOnScreen,
                                        Color color, float thickness = 1f)
         {
             Vector2 start = capsuleOnScreen.Start;
