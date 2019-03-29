@@ -364,7 +364,7 @@ namespace Ship_Game.Ships
                 return true;
             }
 
-            if (isColonyShip && System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
+            if (System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
                 return true;
 
             if ((DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troop)
@@ -1427,13 +1427,15 @@ namespace Ship_Game.Ships
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
             if (Rotation < 0f) Rotation += 6.28318548202515f;
 
-            if (InCombat && !EMPdisabled && hasCommand)
+            if (!EMPdisabled && hasCommand)
             {
-                for (int i = 0; i < Weapons.Count; i++)
+                if (InCombat)
                 {
-                    Weapons[i].Update(deltaTime);
+                    for (int i = 0; i < Weapons.Count; i++)
+                    {
+                        Weapons[i].Update(deltaTime);
+                    }
                 }
-
                 for (int i = 0; i < BombBays.Count; i++)
                 {
                     var bomb = BombBays[i];
