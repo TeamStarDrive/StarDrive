@@ -92,7 +92,7 @@ namespace Ship_Game
             }
         }
 
-        public float HitTestBeam(ref SpatialObj target, out ShipModule hitModule)
+        public bool HitTestBeam(ref SpatialObj target, out ShipModule hitModule, out float distanceToHit)
         {
             var beam = (Beam)Obj;
             ++GlobalStats.BeamTests;
@@ -104,7 +104,12 @@ namespace Ship_Game
             {
                 var ship = (Ship)target.Obj;
                 hitModule = ship.RayHitTestSingle(beamStart, beamEnd, 8f, beam.IgnoresShields);
-                return hitModule?.RayHitTest(beamStart, beamEnd, 8f) ?? 0f;
+                if (hitModule == null)
+                {
+                    distanceToHit = float.NaN;
+                    return false;
+                }
+                return hitModule.RayHitTest(beamStart, beamEnd, 8f, out distanceToHit);
             }
 
             hitModule = null;
@@ -112,11 +117,14 @@ namespace Ship_Game
             {
                 var proj = (Projectile)target.Obj;
                 if (!proj.Weapon.Tag_Intercept) // for projectiles, make sure they are physical and can be killed
-                    return 0f;
+                {
+                    distanceToHit = float.NaN;
+                    return false;
+                }
             }
 
             // intersect projectiles or anything else that can collide
-            return target.Center.RayCircleIntersect(target.Radius, beamStart, beamEnd);
+            return target.Center.RayCircleIntersect(target.Radius, beamStart, beamEnd, out distanceToHit);
         }
 
         // assumes THIS is a projectile
@@ -128,7 +136,7 @@ namespace Ship_Game
             float ra = Radius, rb = target.Radius;
             if ((dx*dx + dy*dy) >= (ra*ra + rb*rb)) // filter out by target Ship or target Projectile radius
                 return false;
-
+            // NOTE: this is for Projectile<->Projectile collision!
             if ((target.Type & GameObjectType.Ship) == 0) // target not a ship, collision success
                 return true;
 
@@ -458,7 +466,8 @@ namespace Ship_Game
                     proj.HitTestProj(ref ship, out ShipModule hitModule))
                 {
                     var projectile = proj.Obj as Projectile;
-                    HandleProjCollision(projectile, hitModule ?? ship.Obj);
+                    if (!HandleProjCollision(projectile, hitModule ?? ship.Obj))
+                        continue; // there was no collision
 
                     if (projectile.DieNextFrame) FastRemoval(projectile, node, ref i);
                 }
@@ -486,7 +495,8 @@ namespace Ship_Game
                     (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(ref item, out ShipModule hitModule))
                 {
-                    HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj);
+                    if (!HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj)) // module OR projectile
+                        continue; // there was no collision
 
                     if ((item.Type & GameObjectType.Proj) != 0 && (item.Obj as Projectile).DieNextFrame)
                         FastRemoval(item.Obj, node, ref i);
@@ -500,57 +510,80 @@ namespace Ship_Game
                 || CollideProjAtNode(node.SW, ref proj);
         }
 
-        struct BeamHitResult
+        struct BeamHitResult : IComparable<BeamHitResult>
         {
             public GameplayObject Collided;
             public float Distance;
+
+            public int CompareTo(BeamHitResult other)
+            {
+                return Distance.CompareTo(other.Distance);
+            }
         }
 
-        // for beams it's important to only collide the CLOSEST object, so the lookup is exhaustive
-        static void CollideBeamAtNode(Node node, ref SpatialObj beam, ref BeamHitResult result)
+        // we keep this list as a cache to reduce memory pressure
+        readonly Array<BeamHitResult> BeamHitCache = new Array<BeamHitResult>();
+
+        static void CollideBeamRecursive(Node node, ref SpatialObj beam, Array<BeamHitResult> outHitResults)
         {
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (item.Loyalty != beam.Loyalty &&         // friendlies don't collide
-                    (item.Type & GameObjectType.Beam) == 0) // forbid beam-beam collision            
+                if (item.Loyalty != beam.Loyalty &&        // friendlies don't collide
+                   (item.Type & GameObjectType.Beam) == 0) // forbid beam-beam collision            
                 {
-                    float dist = beam.HitTestBeam(ref item, out ShipModule hitModule);
-                    if (0f < dist && dist < result.Distance) // check if closest match
+                    if (beam.HitTestBeam(ref item, out ShipModule hitModule, out float dist))
                     {
-                        result.Distance = dist;
-                        result.Collided = hitModule ?? item.Obj;
+                        outHitResults.Add(new BeamHitResult
+                        {
+                            Distance = dist,
+                            Collided = hitModule ?? item.Obj
+                        });
                     }
                 }
             }
             if (node.NW == null) return;
-            CollideBeamAtNode(node.NW, ref beam, ref result);
-            CollideBeamAtNode(node.NE, ref beam, ref result);
-            CollideBeamAtNode(node.SE, ref beam, ref result);
-            CollideBeamAtNode(node.SW, ref beam, ref result);
+            CollideBeamRecursive(node.NW, ref beam, outHitResults);
+            CollideBeamRecursive(node.NE, ref beam, outHitResults);
+            CollideBeamRecursive(node.SE, ref beam, outHitResults);
+            CollideBeamRecursive(node.SW, ref beam, outHitResults);
         }
 
-        static void CollideBeamAtNode(Node node, ref SpatialObj beam)
+        static void CollideBeamAtNode(Node node, ref SpatialObj beam, Array<BeamHitResult> beamHitCache)
         {
-            // this whole thing is quite ugly... but we need some way to set .LastCollided
-            var hit = new BeamHitResult{Distance = 9999999f};
-            CollideBeamAtNode(node, ref beam, ref hit);
-            if (hit.Collided != null)
+            CollideBeamRecursive(node, ref beam, beamHitCache);
+            if (beamHitCache.Count > 0)
             {
-                HandleBeamCollision(beam.Obj as Beam, hit.Collided, hit.Distance);
+                // for beams it's important to only collide the CLOSEST object
+                // so we need to sort the hits by distance
+                // and then work from closest to farthest until we get a valid collision
+                // 
+                // Some missiles/projectiles have special dodge features, so we need to check all touches.
+                if (beamHitCache.Count > 1)
+                    beamHitCache.Sort();
+                for (int i = 0; i < beamHitCache.Count; ++i)
+                {
+                    BeamHitResult hit = beamHitCache[i];
+                    if (HandleBeamCollision(beam.Obj as Beam, hit.Collided, hit.Distance))
+                        break; // and we're done
+                }
+                beamHitCache.Clear();
             }
         }
 
-        public void CollideAll() => CollideAllAt(Root);
+        public void CollideAll()
+        {
+            CollideAllAt(Root, BeamHitCache);
+        }
 
-        static void CollideAllAt(Node node)
+        static void CollideAllAt(Node node, Array<BeamHitResult> beamHitCache)
         {
             if (node.NW != null) // depth first approach, to early filter LastCollided
             {
-                CollideAllAt(node.NW);
-                CollideAllAt(node.NE);
-                CollideAllAt(node.SE);
-                CollideAllAt(node.SW);
+                CollideAllAt(node.NW, beamHitCache);
+                CollideAllAt(node.NE, beamHitCache);
+                CollideAllAt(node.SE, beamHitCache);
+                CollideAllAt(node.SW, beamHitCache);
             }
             for (int i = 0; i < node.Count; ++i)
             {
@@ -559,13 +592,19 @@ namespace Ship_Game
                     continue; // already collided inside this loop
 
                 // each collision instigator type has a very specific recursive handler
-                if      ((so.Type & GameObjectType.Beam) != 0) CollideBeamAtNode(node, ref so);
+                if ((so.Type & GameObjectType.Beam) != 0)
+                {
+                    CollideBeamAtNode(node, ref so, beamHitCache);
+                }
                 else if ((so.Type & GameObjectType.Proj) != 0)
                 {
                     if (CollideProjAtNode(node, ref so) && ProjectileIsDying(ref so))
                         FastRemoval(so.Obj, node, ref i);
                 }
-                else if ((so.Type & GameObjectType.Ship) != 0) CollideShipAtNode(node, ref so);
+                else if ((so.Type & GameObjectType.Ship) != 0)
+                {
+                    CollideShipAtNode(node, ref so);
+                }
             }
         }
 
@@ -584,10 +623,11 @@ namespace Ship_Game
         }
 
 
-        static void HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
+        static bool HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
         {
             if (!beam.Touch(victim))
-                return;
+                return false;
+
             if (victim is ShipModule module) // for ships we get the actual ShipModule that was hit, not the ship itself
                 module.GetParent().MoveModulesTimer = 2f;
             
@@ -601,14 +641,18 @@ namespace Ship_Game
 
             beam.BeamCollidedThisFrame = true;
             beam.ActualHitDestination = hitPos;
+            return true;
         }
 
-        static void HandleProjCollision(Projectile projectile, GameplayObject victim)
+        static bool HandleProjCollision(Projectile projectile, GameplayObject victim)
         {
             if (!projectile.Touch(victim))
-                return;
+                return false;
+
             if (victim is ShipModule module) // for ships we get the actual ShipModule that was hit, not the ship itself
                 module.GetParent().MoveModulesTimer = 2f;
+
+            return true;
         }
 
         static void FindNearbyAtNode(Node node, ref SpatialObj nearbyDummy, GameObjectType filter, 
@@ -711,10 +755,11 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 ref SpatialObj so = ref DebugDrawBuffer[i];
-                var ocenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
-                var osize   = new Vector2(so.LastX - so.X, so.LastY - so.Y);
-                screen.DrawRectangleProjected(ocenter, osize, 0f, Violet);
-                screen.DrawLineProjected(center, ocenter, Violet);
+                var soCenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
+                var soSize   = new Vector2(so.LastX - so.X, so.LastY - so.Y);
+                screen.DrawRectangleProjected(soCenter, soSize, 0f, Violet);
+                screen.DrawCircleProjected(soCenter, so.Radius, Violet);
+                screen.DrawLineProjected(center, soCenter, Violet);
             }
             if (node.NW != null)
             {
@@ -750,23 +795,23 @@ namespace Ship_Game
 
             Array.Clear(DebugDrawBuffer, 0, DebugDrawBuffer.Length); // prevent zombie objects
 
-            for (int i = 0; i < DebugFindNearby.Count; ++i)
-            {
-                FindNearbyDebug debug = DebugFindNearby[i];
-                if (debug.Obj == null) continue;
-                screen.DrawCircleProjected(debug.Obj.Center, debug.Radius, 36, Golden);
-                for (int j = 0; j < debug.Nearby.Length; ++j)
-                {
-                    GameplayObject nearby = debug.Nearby[j];
-                    screen.DrawLineProjected(debug.Obj.Center, nearby.Center, GetRelationColor(debug.Obj, nearby));
-                }
+            //for (int i = 0; i < DebugFindNearby.Count; ++i)
+            //{
+            //    FindNearbyDebug debug = DebugFindNearby[i];
+            //    if (debug.Obj == null) continue;
+            //    screen.DrawCircleProjected(debug.Obj.Center, debug.Radius, 36, Golden);
+            //    for (int j = 0; j < debug.Nearby.Length; ++j)
+            //    {
+            //        GameplayObject nearby = debug.Nearby[j];
+            //        screen.DrawLineProjected(debug.Obj.Center, nearby.Center, GetRelationColor(debug.Obj, nearby));
+            //    }
 
-                debug.Timer -= screen.SimulationDeltaTime;
-                if (debug.Timer > 0f)
-                    DebugFindNearby[i] = debug;
-                else
-                    DebugFindNearby.RemoveAtSwapLast(i--);
-            }
+            //    debug.Timer -= screen.SimulationDeltaTime;
+            //    if (debug.Timer > 0f)
+            //        DebugFindNearby[i] = debug;
+            //    else
+            //        DebugFindNearby.RemoveAtSwapLast(i--);
+            //}
         }
     }
 }

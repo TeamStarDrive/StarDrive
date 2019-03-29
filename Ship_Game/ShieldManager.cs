@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -86,7 +87,7 @@ namespace Ship_Game
         public static void RemoveShieldLights(ShipModule[] shields)
         {
             foreach (ShipModule module in shields)
-                module.GetShield.RemoveLight();
+                module.Shield.RemoveLight();
         }
 
         public static void Update()

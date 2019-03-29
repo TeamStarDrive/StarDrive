@@ -135,9 +135,11 @@ namespace Ship_Game
             SavesSL = new ScrollList(AllSaves, 55);
             SavesSL.AddItem(new ModuleHeader("XNB Models"));
             SavesSL.AddItem(new ModuleHeader("OBJ Models"));
+            SavesSL.AddItem(new ModuleHeader("FBX Models"));
 
-            FileInfo[] xnbModels = ResourceManager.GetAllXnbModelFiles("Model/Ships");
+            Array<FileInfo> xnbModels = ResourceManager.GetAllXnbModelFiles("Model/Ships");
             FileInfo[] objModels = ResourceManager.GatherFilesUnified("Model/Ships", "obj");
+            FileInfo[] fbxModels = ResourceManager.GatherFilesUnified("Model/Ships", "fbx");
             foreach (FileInfo file in xnbModels)
             {
                 SavesSL.EntryAt(0).AddSubItem(new ModelData { Name = file.Name, FileInfo = file });
@@ -145,6 +147,10 @@ namespace Ship_Game
             foreach (FileInfo file in objModels)
             {
                 SavesSL.EntryAt(1).AddSubItem(new ModelData { Name = file.Name, FileInfo = file });
+            }
+            foreach (FileInfo file in fbxModels)
+            {
+                SavesSL.EntryAt(2).AddSubItem(new ModelData { Name = file.Name, FileInfo = file });
             }
             base.LoadContent();
         }

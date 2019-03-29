@@ -182,6 +182,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\HoldPosition.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\BroadSides.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\OrbitTarget.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\Artillery.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Budget.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\ShipBuilder.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
@@ -199,9 +204,12 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireRiskAssessment.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\FleetRatios.cs" />
     <Compile Include="Ship_Game\AI\Fleet.FleetGoal.cs" />
-    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.AttackRun.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\AssaultShipCombat.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\ShipAI.AttackRun.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goods.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAIPlan.cs" />
+    <Compile Include="Ship_Game\AI\ShipMovement\ShipAIMovement.cs" />
+    <Compile Include="Ship_Game\AI\ShipMovement\OrbitObject.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
@@ -215,6 +223,7 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\Empire_Trade.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildDefensiveShips.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOffensiveShips.cs" />
@@ -225,6 +234,9 @@
     <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerMap.cs" />
+    <Compile Include="Ship_Game\Data\Mesh\MeshExporter.cs" />
+    <Compile Include="Ship_Game\Data\Mesh\MeshInterface.cs" />
+    <Compile Include="Ship_Game\Data\Mesh\MeshImporter.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\ArrayListSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\ColorSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\EnumSerializer.cs" />
@@ -234,19 +246,22 @@
     <Compile Include="Ship_Game\Data\Serialization\TypeSerializerMap.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\DataField.cs" />
-    <Compile Include="Ship_Game\Data\DDSReader.cs" />
+    <Compile Include="Ship_Game\Data\Texture\DxtReader.cs" />
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
-    <Compile Include="Ship_Game\Data\ImageUtils.cs" />
+    <Compile Include="Ship_Game\Data\Texture\ImageUtils.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\RawArraySerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\TypeSerializers.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\VectorTypes.cs" />
     <Compile Include="Ship_Game\Data\Serialization\UserTypeSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\StarDataTypeAttribute.cs" />
+    <Compile Include="Ship_Game\Data\Texture\TextureExporter.cs" />
+    <Compile Include="Ship_Game\Data\Texture\TextureImporter.cs" />
+    <Compile Include="Ship_Game\Data\Texture\TextureInterface.cs" />
     <Compile Include="Ship_Game\Data\YamlSerializer\YamlSerializerMap.cs" />
     <Compile Include="Ship_Game\Data\Yaml\YamlNode.cs" />
     <Compile Include="Ship_Game\Data\YamlSerializer\YamlSerializer.cs" />
-    <Compile Include="Ship_Game\Data\StaticMesh.cs" />
+    <Compile Include="Ship_Game\Data\Mesh\StaticMesh.cs" />
     <Compile Include="Ship_Game\Data\Yaml\YamlParser.cs" />
     <Compile Include="Ship_Game\Data\Yaml\StringView.cs" />
     <Compile Include="Ship_Game\Debug\DebugInfoScreen_DebugText.cs" />
@@ -268,7 +283,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\ListExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Matrices.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\MeshUtil.cs" />
+    <Compile Include="Ship_Game\Data\Mesh\MeshUtil.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MiscExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NumberExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SDNative.cs" />
@@ -556,10 +571,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Disc.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\RoundLineVertex.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

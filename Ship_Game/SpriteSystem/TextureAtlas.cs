@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.SpriteSystem;
+using Ship_Game.Data;
+using Ship_Game.Data.Texture;
 
-namespace Ship_Game
+namespace Ship_Game.SpriteSystem
 {
     /// Generic TextureAtlas which is used as a container
     /// for related textures and animation sequences
@@ -119,7 +119,7 @@ namespace Ship_Game
             }
             else
             {
-                // Uncompressed DDS, lossless quality, fast loading, big size in memory :(
+                // Uncompressed DDS, loss-less quality, fast loading, big size in memory :(
                 Atlas = new Texture2D(content.Manager.GraphicsDevice, Width, Height, 1, TextureUsage.None, SurfaceFormat.Color);
                 Atlas.SetData(color);
                 Atlas.Save(texturePath, ImageFileFormat.Dds);
@@ -307,11 +307,11 @@ namespace Ship_Game
 
         class AtlasPath
         {
+            public readonly string OriginalName;
             public readonly string Texture;
             public readonly string Descriptor;
-            public readonly string CacheDir;
-            public readonly string AtlasName;
-            public readonly string OriginalName;
+            readonly string AtlasName;
+            readonly string CacheDir;
             public AtlasPath(string name)
             {
                 OriginalName = Path.GetFileName(name);

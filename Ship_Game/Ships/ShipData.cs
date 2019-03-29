@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using Ship_Game.Data.Mesh;
 
 namespace Ship_Game.Ships
 {
@@ -36,7 +37,7 @@ namespace Ship_Game.Ships
         public bool IsShipyard;
         public bool IsOrbitalDefense;
         public string IconPath;
-        public CombatState CombatState = CombatState.AttackRuns;
+        public CombatState CombatState;
         public float MechanicalBoardingDefense;
 
         public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
@@ -224,6 +225,7 @@ namespace Ship_Game.Ships
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     var slot = new ModuleSlotData();
                     slot.Position              = new Vector2(msd->PosX, msd->PosY);
+                    // @note Interning the strings saves us roughly 70MB of RAM across all UID-s
                     slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
                     slot.HangarshipGuid        = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health                = msd->Health;
@@ -298,34 +300,17 @@ namespace Ship_Game.Ships
 
         public void PreLoadModel()
         {
-            var content = Empire.Universe?.TransientContent ?? ResourceManager.RootContent;
-            ResourceManager.PreloadModel(content, HullModel, Animated);
+            StaticMesh.PreLoadModel(Empire.Universe?.TransientContent, HullModel, Animated);
         }
 
-        public void LoadModel(out SceneObject shipSO,
-                              out AnimationController shipMeshAnim,
-                              GameScreen screen)
+        public void LoadModel(out SceneObject shipSO, GameScreen screen)
         {
-            var content = screen?.TransientContent ?? ResourceManager.RootContent;
-
-            shipSO = ResourceManager.GetSceneMesh(content, HullModel, Animated);
+            shipSO = StaticMesh.GetSceneMesh(screen?.TransientContent, HullModel, Animated);
 
             if (BaseHull.Volume.X.AlmostEqual(0f))
             {
                 BaseHull.Volume = shipSO.GetMeshBoundingBox().Max;
                 BaseHull.ModelZ = BaseHull.Volume.Z;
-            }
-
-            shipMeshAnim = null;
-            if (Animated) // Support animated meshes if we use them at all
-            {
-                SkinnedModel skinned = content.LoadSkinnedModel(ModelPath);
-                shipMeshAnim = new AnimationController(skinned.SkeletonBones);
-                shipMeshAnim.TranslationInterpolation = InterpolationMode.Linear;
-                shipMeshAnim.OrientationInterpolation = InterpolationMode.Linear;
-                shipMeshAnim.ScaleInterpolation = InterpolationMode.Linear;
-                shipMeshAnim.Speed = 0.5f;
-                shipMeshAnim.StartClip(skinned.AnimationClips.Values[0]);
             }
         }
 

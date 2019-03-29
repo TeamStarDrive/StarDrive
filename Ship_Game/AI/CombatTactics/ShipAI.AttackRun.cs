@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Debug;
-using Ship_Game.Ships;
 
-namespace Ship_Game.AI
+namespace Ship_Game.AI.CombatTactics
 {
     internal sealed class AttackRun : ShipAIPlan
     {
@@ -56,15 +52,14 @@ namespace Ship_Game.AI
 
             // we are really close to attackPos?
             float distanceToAttack = Owner.Center.Distance(attackPos);
-
             if (ShouldDisengage(distanceToAttack, spacerDistance))
             {
-                // @todo Take turning factor into account!
-                float distance = distanceToAttack+50.0f;
+                float distance = (distanceToAttack*0.75f) + 50.0f;
                 PrepareToDisengage(distance);
             }
             else if (distanceToAttack < 500f)
             {
+
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
                 AI.RotateTowardsPosition(AI.Target.Center, elapsedTime, 0.05f);
                 DrawDebugTarget(AI.Target.Center, Owner.Radius);

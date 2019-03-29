@@ -16,7 +16,16 @@ namespace SynapseGaming.LightingSystem.Core
   public struct VertexPositionNormalTextureBumpSkin
   {
     /// <summary>An array of vertex elements describing this vertex.</summary>
-    public static readonly VertexElement[] VertexElements = new VertexElement[7]{ new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0), new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0), new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0), new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0), new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0), new VertexElement(0, 56, VertexElementFormat.Byte4, VertexElementMethod.Default, VertexElementUsage.BlendIndices, 0), new VertexElement(0, 60, VertexElementFormat.Vector4, VertexElementMethod.Default, VertexElementUsage.BlendWeight, 0) };
+    public static readonly VertexElement[] VertexElements = new VertexElement[7]
+    { 
+        new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0),
+        new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0), 
+        new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0),
+        new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0),
+        new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0),
+        new VertexElement(0, 56, VertexElementFormat.Byte4, VertexElementMethod.Default, VertexElementUsage.BlendIndices, 0),
+        new VertexElement(0, 60, VertexElementFormat.Vector4, VertexElementMethod.Default, VertexElementUsage.BlendWeight, 0)
+    };
     /// <summary>The vertex position.</summary>
     public Vector3 Position;
     /// <summary>The vertex normal.</summary>

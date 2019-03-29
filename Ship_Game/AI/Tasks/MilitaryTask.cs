@@ -32,7 +32,7 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] private Empire Owner;
         [XmlIgnore] [JsonIgnore] private Array<Ship> TaskForce = new Array<Ship>();
-        [XmlIgnore] [JsonIgnore] private Fleet Fleet => Owner.GetFleet(WhichFleet);        
+        [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleet(WhichFleet);
         //This file Refactored by Gretman
 
         public MilitaryTask()
@@ -95,6 +95,13 @@ namespace Ship_Game.AI.Tasks
         {
             this.Owner = Owner;
         }
+
+        public float GetCurrentFleetStr()
+        {
+            return Fleet?.GetStrength() ?? 0;
+        }
+
+        public Vector2 GetFleetPosition => Fleet?.Position ?? Owner.Capital.Center;
 
         private bool DeclareWar()
         {
@@ -395,9 +402,9 @@ namespace Ship_Game.AI.Tasks
                                             return;
                                         }
 
-                                        if (TargetPlanet.Owner != null) // &&(empire.GetFleetsDict().ContainsKey(WhichFleet)))
+                                        if (TargetPlanet.Owner != null)
                                         {
-                                        Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
+                                            Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
                                             if (rel != null && (rel.AtWar || rel.PreparingForWar))
                                             {
                                                 if (Owner.GetFleetsDict()[WhichFleet].AveragePosition().Distance(TargetPlanet.Center) < AORadius)
