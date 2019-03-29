@@ -67,7 +67,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip == null)
                 return GoalStep.RestartGoal;
 
-            return FinishedShip.Active ? GoalStep.TryAgain : GoalStep.GoalComplete;
+            return GoalStep.GoalComplete;
         }
 
     }
