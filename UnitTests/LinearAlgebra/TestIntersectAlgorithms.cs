@@ -95,30 +95,83 @@ namespace UnitTests.LinearAlgebra
         }
 
         [TestMethod]
-        public void ClosestPointOnLine()
+        public void ClosestPointOnLineSimple()
         {
             // Horizontal line, perfectly balanced for an easy picking
             //   o
             // --x->
             var start = new Vector2(-10, 10);
-            var end   = new Vector2(+10, 10);
-            Vector2 point = Vector2.Zero.FindClosestPointOnLine(start, end);
-            Assert.That.Equal(0.001f, new Vector2(0, 10), point);
+            var end   = new Vector2(+20, 10);
+            Vector2 point = new Vector2(5,0).FindClosestPointOnLine(start, end);
+            Assert.That.Equal(0.001f, new Vector2(5, 10), point);
 
-            // Horizontal line with start point as the closest
+            // Horizontal line with START point as the closest
             //   o
             //   x--->
-            start = new Vector2(0, 10);
-            end   = new Vector2(10, 10);
-            point = Vector2.Zero.FindClosestPointOnLine(start, end);
+            start = new Vector2(5, 10);
+            end   = new Vector2(15, 10);
+            point = new Vector2(5,0).FindClosestPointOnLine(start, end);
             Assert.That.Equal(0.001f, start, point);
 
-            // Horizontal line with start point as the closest
+            // Horizontal line with END point as the closest
+            //     o
+            // --->x
+            start = new Vector2(-10, 10);
+            end   = new Vector2(5, 10);
+            point = new Vector2(5,0).FindClosestPointOnLine(start, end);
+            Assert.That.Equal(0.001f, end, point);
+
+            // Horizontal line with START point as the closest
             //   o  x--->
-            start = new Vector2(10, 0);
-            end   = new Vector2(20, 0);
-            point = Vector2.Zero.FindClosestPointOnLine(start, end);
+            start = new Vector2(11, 0);
+            end   = new Vector2(23, 0);
+            point = new Vector2(5,0).FindClosestPointOnLine(start, end);
             Assert.That.Equal(0.001f, start, point);
+
+            // Horizontal line with END point as the closest
+            // --->x  o
+            start = new Vector2(-20, 0);
+            end   = new Vector2(-10, 0);
+            point = new Vector2(5,0).FindClosestPointOnLine(start, end);
+            Assert.That.Equal(0.001f, end, point);
+        }
+
+        [TestMethod]
+        public void ClosestPointOnLineIntersectCenter()
+        {
+            // Horizontal line with center itself as the closest
+            // ---o---
+            var start = new Vector2(-15, 5);
+            var end   = new Vector2(+15, 5);
+            Vector2 point = new Vector2(5).FindClosestPointOnLine(start, end);
+            Assert.That.Equal(0.001f, new Vector2(5), point);
+
+            // Vertical line with center itself as the closest
+            // |
+            // o
+            // |
+            start = new Vector2(5, -15);
+            end   = new Vector2(5, +15);
+            point = new Vector2(5).FindClosestPointOnLine(start, end);
+            Assert.That.Equal(0.001f, new Vector2(5), point);
+
+            // Diagonal line with center itself as the closest
+            // \
+            //  o
+            //   \
+            start = new Vector2(-10, -10);
+            end   = new Vector2(+20, +20);
+            point = new Vector2(5).FindClosestPointOnLine(start, end);
+            Assert.That.Equal(0.001f, new Vector2(5), point);
+
+            // Diagonal line with center itself as the closest
+            //   /
+            //  o
+            // /
+            start = new Vector2(+20, -10);
+            end   = new Vector2(-10, +20);
+            point = new Vector2(5).FindClosestPointOnLine(start, end);
+            Assert.That.Equal(0.001f, new Vector2(5), point);
         }
     }
 }
