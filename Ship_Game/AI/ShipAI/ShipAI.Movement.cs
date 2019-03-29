@@ -403,6 +403,11 @@ namespace Ship_Game.AI
             }
         }
 
-        public float FormationWarpSpeed(float currentSpeedLimit) => Math.Min(Owner.fleet.FormationWarpSpeed(Owner), currentSpeedLimit);
+        public float FormationWarpSpeed(float currentSpeedLimit)
+        {
+            if (Owner.fleet == null)
+                return currentSpeedLimit;
+            return Math.Min(Owner.fleet.FormationWarpSpeed(Owner), currentSpeedLimit);
+        }
     }
 }
