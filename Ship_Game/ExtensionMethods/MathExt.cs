@@ -372,28 +372,32 @@ namespace Ship_Game
 
             float dcx = rayStart.X - center.X;
             float dcy = rayStart.Y - center.Y;
-            float b = 2f * (dx*dcx + dy*dcy);
             float c = (dcx*dcx) + (dcy*dcy) - radius*radius;
+
+            // nasty edge case, the line segment starts inside the circle
+            // NEED to handle for proper collision detection
+            if (c < 0f)  // collision happened immediately
+            { distanceFromStart = 1f; return true; }
+
+            float b = 2f * (dx*dcx + dy*dcy);
             float det = b*b - 4f*a*c;
             if (det < 0f) // No real solutions
             { distanceFromStart = float.NaN; return false; }
 
             // Two solutions
-            det = (float)Math.Sqrt(det);
+            det = (float)Sqrt(det);
             float t2 = (-b - det) / (2f * a); // near intersect
             float t1 = (-b + det) / (2f * a); // far intersect
 
             if (t1 < 0f && t2 < 0f) // It's behind us
             { distanceFromStart = float.NaN; return false; }
 
-            float t = Math.Min(Math.Abs(t2), Math.Abs(t1));
+            float t = Min(Abs(t2), Abs(t1));
             // [-1, 0] we are inside
             // [0, +1] circle is in front of us
             if (-1f <= t && t <= 1f)
             {
-                float tdx = t * dx;
-                float tdy = t * dy;
-                distanceFromStart = (float)Math.Sqrt(tdx*tdx + tdy*tdy); // vector length
+                distanceFromStart = t * (float)Sqrt(dx*dx + dy*dy); // vector length
                 return true;
             }
 

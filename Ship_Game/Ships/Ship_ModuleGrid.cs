@@ -326,8 +326,6 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
-                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
-                    DebugDrawShield(shield);
                 if (shield.ShieldsAreActive && shield.HitTestShield(worldHitPos, hitRadius))
                 {
                     if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
@@ -346,9 +344,6 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
-                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
-                    DebugDrawShield(shield);
-
                 if (shield.ShieldsAreActive &&
                     shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius, out float distanceFromStart))
                 {
@@ -670,26 +665,26 @@ namespace Ship_Game.Ships
                 // check a module at the same Y height as final point
                 // this forces us to always take an L shaped step instead of diagonal \
                 var neighbor = new Point(pos.X, end.Y);
-                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
-                    DebugGridStep(new Vector2(start.X, endPos.Y), Color.Yellow);
+                //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                //    DebugGridStep(new Vector2(start.X, endPos.Y), Color.Yellow);
 
                 ShipModule mb = SparseModuleGrid[neighbor.X + neighbor.Y * GridWidth];
                 if (mb != null && mb.Active)
                 {
-                    if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
-                        DebugGridStep(start, new Vector2(start.X, endPos.Y), Color.Cyan, 4f);
+                    //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                    //    DebugGridStep(start, new Vector2(start.X, endPos.Y), Color.Cyan, 4f);
                     return mb;
                 }
             }
 
-            if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
-                DebugGridStep(endPos, Color.LightGreen);
+            //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+            //    DebugGridStep(endPos, Color.LightGreen);
 
             ShipModule mc = SparseModuleGrid[end.X + end.Y * GridWidth];
             if (mc != null && mc.Active)
             {
-                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
-                    DebugGridStep(start, endPos, Color.HotPink, 4f);
+                //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                //    DebugGridStep(start, endPos, Color.HotPink, 4f);
                 return mc;
             }
             return null;
@@ -707,8 +702,8 @@ namespace Ship_Game.Ships
             ShipModule me = SparseModuleGrid[enter.X + enter.Y * GridWidth];
             if (me != null && me.Active)
             {
-                if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
-                    DebugGridStep(pos - step, pos, Color.DarkGoldenrod);
+                //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                //    DebugGridStep(pos - step, pos, Color.DarkGoldenrod);
                 return me;
             }
 
