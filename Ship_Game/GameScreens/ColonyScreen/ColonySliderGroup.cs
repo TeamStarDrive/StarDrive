@@ -49,7 +49,8 @@ namespace Ship_Game
             if (p != null)
             {
                 Food.IsDisabled   = p.IsCybernetic;
-                Food.LockedByUser = p.IsCybernetic;
+                if (!Food.LockedByUser && p.IsCybernetic)
+                    Food.LockedByUser = true; // prevents food slider movement for cybernetics
             }
         }
 
