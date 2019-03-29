@@ -1,7 +1,11 @@
 ﻿$newfile = @()
 $updatefile = $false
-$ver = .\Deploy\TortoiseHg\hg.exe log -r . --template `{branch`}_`{latesttagdistance`}
-$ver = $ver.Replace("release/", "")
+
+
+$name = .\Deploy\TortoiseHg\hg.exe id -b
+$name = $name.Replace("release/", "")
+$tagdistance = .\Deploy\TortoiseHg\hg.exe log -r . --template `{latesttagdistance`}
+$ver = $name + "_" + $tagdistance
 
 $newline = "`[assembly`: AssemblyInformationalVersion(`"" + $ver + "`")`]"
 Write-Host -ForegroundColor Yellow $ver " " $newline
