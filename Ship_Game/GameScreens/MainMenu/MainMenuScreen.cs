@@ -241,7 +241,7 @@ namespace Ship_Game.GameScreens.MainMenu
             UpdateMainMenuShips(gameTime);
 
             GameAudio.Update3DSound(CamPos);
-            FTLManager.Update(this, DeltaTime);
+            FTLManager.Update(this, FrameDeltaTime);
 
             ScreenManager.UpdateSceneObjects(gameTime);
             

@@ -369,12 +369,12 @@ namespace Ship_Game.Ships
             screen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             foreach (ShipModule slot in ModuleSlotList)
             {
-                if (slot.Active && slot.Is(ShipModuleType.Shield) && slot.ShieldPower >= 1f)
+                if (slot.Active && slot.Is(ShipModuleType.Shield) && slot.ShieldsAreActive)
                 {
                     screen.ProjectToScreenCoords(slot.Center, slot.shield_radius * 2.75f, 
                         out Vector2 posOnScreen, out float radiusOnScreen);
 
-                    float shieldRate = .001f + slot.ShieldPower / slot.ActualShieldPowerMax;                    
+                    float shieldRate = 0.001f + slot.ShieldPower / slot.ActualShieldPowerMax;                    
                     screen.DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
                         Shield.GetBubbleColor(shieldRate, slot.ShieldBubbleColor));
                 }

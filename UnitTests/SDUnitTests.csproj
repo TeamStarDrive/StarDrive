@@ -62,15 +62,21 @@
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="XNAnimation, Version=0.7.0.0, Culture=neutral, PublicKeyToken=0c21691816f8c6d0, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\StarDrive\XNAnimation.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertExtensions.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
+    <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="Collections\TestArrayT.cs" />
     <Compile Include="Collections\TestCollectionExt.cs" />
+    <Compile Include="LinearAlgebra\TestIntersectAlgorithms.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />
-    <Compile Include="TestMathExt.cs" />
+    <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
     <Compile Include="Serialization\TestSerialization.cs" />
     <Compile Include="TestSpatialManager.cs" />
@@ -79,7 +85,7 @@
     <Compile Include="TestTextureAtlas.cs" />
     <Compile Include="Serialization\TestYamlParser.cs" />
     <Compile Include="TestProgressCounter.cs" />
-    <Compile Include="TestVectorMath.cs" />
+    <Compile Include="LinearAlgebra\TestVectorMath.cs" />
     <Compile Include="TestImpactPredictor.cs" />
     <Compile Include="Serialization\TestYamlSerializer.cs" />
     <Compile Include="Serialization\TestBinarySerializer.cs" />
@@ -96,6 +102,10 @@
     <ProjectReference Include="..\StarDrive.csproj">
       <Project>{8071e07a-300e-485d-b139-066e15e82178}</Project>
       <Name>StarDrive</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SynapseGaming-SunBurn-Pro\SDSunBurn.csproj">
+      <Project>{bb003976-4764-4f4e-9a98-ddfb8449eccd}</Project>
+      <Name>SDSunBurn</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
