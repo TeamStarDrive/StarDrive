@@ -428,21 +428,15 @@ namespace Ship_Game.Ships
             get
             {
                 int bombBays = BombBays.Count;
-
                 switch (Bomb60SecStatus())
                 {
-                    case ShipStatus.Critical:
-                        return bombBays / 10;
-                    case ShipStatus.Poor:
-                        return bombBays / 5;
+                    case ShipStatus.Critical:      return bombBays / 10;
+                    case ShipStatus.Poor:          return bombBays / 5;
                     case ShipStatus.Average:
-                    case ShipStatus.Good:
-                        return bombBays / 2;
+                    case ShipStatus.Good:          return bombBays / 2;
                     case ShipStatus.Excellent:
-                    case ShipStatus.Maximum:
-                        return bombBays;
-                    case ShipStatus.NotApplicable:
-                        return 0;
+                    case ShipStatus.Maximum:       return bombBays;
+                    case ShipStatus.NotApplicable: return 0;
                 }
                 return 0;
             }
@@ -1550,7 +1544,13 @@ namespace Ship_Game.Ships
                 foreach (ShipModule slot in ModuleSlotList)
                       slot.Update(1);
 
-                if (shipStatusChanged) //|| InCombat
+                if (NeedRecalculate) // must be before ShipStatusChange
+                {
+                    RecalculatePower();
+                    NeedRecalculate = false;
+                }
+
+                if (shipStatusChanged)
                 {
                     ShipStatusChange();
                 }
@@ -1610,11 +1610,6 @@ namespace Ship_Game.Ships
 
                 UpdateTroops();
                 updateTimer = 1f;
-                if (NeedRecalculate)
-                {
-                    RecalculatePower();
-                    NeedRecalculate = false;
-                }
             }
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
             if (MoveModulesTimer > 0.0f || AI.BadGuysNear
@@ -2031,7 +2026,7 @@ namespace Ship_Game.Ships
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
                     PowerStoreMax       += module.ActualPowerStoreMax;
                     PowerFlowMax        += module.ActualPowerFlowMax;
-                    FTLSpoolTime   = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
+                    FTLSpoolTime         = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
