@@ -51,7 +51,7 @@ namespace Ship_Game.Universe.SolarBodies
         protected ColonyResource(Planet planet) { Planet = planet; }
 
         protected abstract void RecalculateModifiers();
-        
+
         // Purely used for estimation
         protected virtual float AvgResourceConsumption() => 0.0f;
 
@@ -60,7 +60,7 @@ namespace Ship_Game.Universe.SolarBodies
             Initialized = true;
             FlatBonus = 0f;
             RecalculateModifiers();
-            
+
             GrossMaxPotential = YieldPerColonist * Planet.PopulationBillion;
             GrossIncome = FlatBonus + Percent * GrossMaxPotential;
 
@@ -87,7 +87,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             float grossColo = (YieldPerColonist + perCol) * Planet.PopulationBillion;
             float grossFlat = (FlatBonus + flat);
-            
+
             float netColo = AfterTax(grossColo);
             float netFlat = AfterTax(grossFlat);
 
@@ -199,7 +199,7 @@ namespace Ship_Game.Universe.SolarBodies
             YieldPerColonist = richness * (1+ plusPerColonist) * (1 + productMod);
             Tax = Planet.Owner.data.TaxRate;
         }
-        
+
         protected override float AvgResourceConsumption()
         {
             return Planet.IsCybernetic ? Planet.Consumption : 0f;
@@ -280,7 +280,7 @@ namespace Ship_Game.Universe.SolarBodies
             // And finally we adjust local TaxRate by the bonus multiplier
             TaxRate *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
-            
+
             GrossRevenue = Planet.PopulationBillion * IncomePerColonist * TaxRate;
             NetRevenue   = GrossRevenue - Maintenance;
         }

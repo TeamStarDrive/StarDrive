@@ -34,7 +34,7 @@ namespace Ship_Game
         readonly Dictionary<TechnologyType, float> TechLookAhead = new Dictionary<TechnologyType, float>();
 
         public static readonly TechEntry None = new TechEntry("");
-
+        
         public TechEntry()
         {
             foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
