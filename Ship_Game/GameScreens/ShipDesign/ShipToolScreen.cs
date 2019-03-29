@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Ships;
@@ -502,12 +503,12 @@ namespace Ship_Game
                 RemoveObject(shipSO);
             try
             {
-                shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath);
+                shipSO = StaticMesh.GetSceneMesh(TransientContent, modelPath);
 
             }
             catch (Exception)
             {
-                shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath, animated:true);
+                shipSO = StaticMesh.GetSceneMesh(TransientContent, modelPath, animated:true);
             }
             shipSO.World = worldMatrix;
             ModelPath = modelPath;

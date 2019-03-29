@@ -122,7 +122,6 @@ namespace UnitTests
             }
         }
 
-        
         static ImpactSimWindow Instance;
 
         public static ImpactSimWindow GetOrStartInstance()

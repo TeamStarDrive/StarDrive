@@ -166,7 +166,7 @@ namespace Ship_Game
 
             // Added by McShooterz: set values for alternate race file structure
             data.Traits.LoadTraitConstraints();
-            empire.dd = ResourceManager.DDDict[data.DiplomacyDialogPath];
+            empire.dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
             data.SpyModifier = data.Traits.SpyMultiplier;
             data.Traits = data.Traits;
             data.Traits.Spiritual = data.Traits.Spiritual;
