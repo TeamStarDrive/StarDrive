@@ -67,14 +67,10 @@ namespace Ship_Game
         {
             get
             {
-                if (TradeBlocked || !ImportFood)
+                if (TradeBlocked || !ImportFood || !ShortOnFood())
                     return 0;
 
-                if (ShortOnFood())
-                    return ((int)(1 - Food.NetIncome)).Clamped(0, 5);
-
-                float consumption = NonCybernetic ? Food.NetIncome : Prod.NetIncome;
-                return consumption < -0.01 ? 1 : 0;
+                return ((int)(1 - Food.NetIncome)).Clamped(0, 5);
             }
         }
 

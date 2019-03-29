@@ -173,6 +173,7 @@ namespace Ship_Game
         public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID);
         public bool IsAttackable       => CombatStrength > 0;
         public bool CanAttack          => CombatStrength > 0 && AvailableAttackActions > 0;
+        public bool IsMoneyBuilding    => CreditsPerColonist > 0 || PlusTaxPercentage > 0;
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;
