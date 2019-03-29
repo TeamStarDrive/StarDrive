@@ -548,9 +548,11 @@ namespace Ship_Game.Debug
                 DrawString($"Ship Count:    {ships.Count}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
                            $" :{ships.Count(warship=> warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
-                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser || warship?.DesignRole == ShipData.RoleName.frigate)}" +                           
+                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate)}" +
+                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser )}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
-                           $" :{ships.Count(warship => warship?.DesignRole >= ShipData.RoleName.bomber && warship?.DesignRole <= ShipData.RoleName.carrier)}"
+                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
+                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"
                            );
                 DrawString("Build Maint:   "+e.TotalBuildingMaintenance);
                 DrawString("Spy Count:     "+e.data.AgentList.Count);

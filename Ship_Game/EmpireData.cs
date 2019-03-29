@@ -190,7 +190,7 @@ namespace Ship_Game
         [Serialize(83)] public SortButton SLSort = new SortButton();
 
         //techTimers
-        [Serialize(84)] public short TechDelayTime    = 4;
+        [Serialize(84)] public short TechDelayTime    = 0;
         [Serialize(85)] public bool  SpyMute          = false;
         [Serialize(86)] public bool  SpyMissionRepeat = false;
         [Serialize(87)] public float treasuryGoal     = 0.20f;
