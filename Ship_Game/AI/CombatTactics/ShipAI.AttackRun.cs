@@ -52,15 +52,14 @@ namespace Ship_Game.AI.CombatTactics
 
             // we are really close to attackPos?
             float distanceToAttack = Owner.Center.Distance(attackPos);
-
             if (ShouldDisengage(distanceToAttack, spacerDistance))
             {
-                // @todo Take turning factor into account!
-                float distance = distanceToAttack+50.0f;
+                float distance = (distanceToAttack*0.75f) + 50.0f;
                 PrepareToDisengage(distance);
             }
             else if (distanceToAttack < 500f)
             {
+
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
                 AI.RotateTowardsPosition(AI.Target.Center, elapsedTime, 0.05f);
                 DrawDebugTarget(AI.Target.Center, Owner.Radius);
