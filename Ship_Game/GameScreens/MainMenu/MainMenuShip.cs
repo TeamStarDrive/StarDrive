@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using SgMotion;
 using SgMotion.Controllers;
 using Ship_Game.Audio;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -32,7 +33,6 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public readonly MainMenuShipAI AI;
         SceneObject ShipObj;
-        AnimationController ShipAnim;
 
         bool DebugMeshRotate = false;
         bool DebugMeshInspect = false; // for debugging mesh loader
@@ -115,7 +115,6 @@ namespace Ship_Game.GameScreens.MainMenu
                 ScreenManager.Instance.RemoveObject(ShipObj);
                 ShipObj.Clear();
                 ShipObj = null;
-                ShipAnim = null;
             }
         }
 
@@ -128,20 +127,20 @@ namespace Ship_Game.GameScreens.MainMenu
             {
                 int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
                 string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
-                ShipObj = ResourceManager.GetSceneMesh(screen.TransientContent, modelPath);
+                ShipObj = StaticMesh.GetSceneMesh(screen.TransientContent, modelPath);
             }
             else if (DebugMeshInspect)
             {
-                ShipObj = ResourceManager.GetSceneMesh(screen.TransientContent, "Model/TestShips/Soyo/Soyo.obj");
-                //ShipObj = ResourceManager.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
+                ShipObj = StaticMesh.GetSceneMesh(screen.TransientContent, "Model/TestShips/Soyo/Soyo.obj");
+                //ShipObj = StaticMesh.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
             }
             else
             {
                 ShipData hull = ChooseShip(Spawn.Empire, Spawn.Role);
-                hull.LoadModel(out ShipObj, out ShipAnim, screen);
-                if (ShipAnim != null)
+                hull.LoadModel(out ShipObj, screen);
+                if (ShipObj.Animation != null)
                 {
-                    ShipAnim.Speed = 0.25f;
+                    ShipObj.Animation.Speed = 0.25f;
                 }
             }
 
@@ -208,7 +207,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             else
             {
-                AI.Update(this, screen.DeltaTime);
+                AI.Update(this, screen.FrameDeltaTime);
             }
 
             SoundEmitter.Position = Position;
@@ -217,13 +216,7 @@ namespace Ship_Game.GameScreens.MainMenu
             if (ShipObj != null)
             {
                 UpdateTransform();
-
-                // Added by RedFox: support animated ships
-                if (ShipAnim != null)
-                {
-                    ShipAnim.Update(gameTime.ElapsedGameTime, Matrix.Identity);
-                    ShipObj.SkinBones = ShipAnim.SkinnedBoneTransforms;
-                }
+                ShipObj.UpdateAnimation(screen.FrameDeltaTime);
             }
         }
 

@@ -76,8 +76,8 @@ namespace Ship_Game
                 case "Small":       size = corners ? 32 : 30;  Data.Size = new Vector2(3500000); break;
                 case "Medium":      size = corners ? 48 : 45;  Data.Size = new Vector2(5500000); break;
                 case "Large":       size = corners ? 64 : 70;  Data.Size = new Vector2(9000000); break;
-                case "Huge":        size = corners ? 80 : 92;  Data.Size = new Vector2(13500000); break;
-                case "Epic":        size = corners ? 112: 115; Data.Size = new Vector2(20000000); break;
+                case "Huge":        size = corners ? 80 : 92;  Data.Size = new Vector2(12500000); break;
+                case "Epic":        size = corners ? 112: 115; Data.Size = new Vector2(17500000); break;
                 case "TrulyEpic":   size = corners ? 144: 160; Data.Size = new Vector2(33554423); break;
             }
 

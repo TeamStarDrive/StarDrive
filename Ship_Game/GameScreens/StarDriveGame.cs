@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Ship_Game.Audio;
+using Ship_Game.Data;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 using Point = System.Drawing.Point;
 
@@ -32,7 +33,9 @@ namespace Ship_Game
         public Vector2 ScreenArea { get; private set; }
         public Vector2 ScreenCenter { get; private set; }
 
-        public float DeltaTime { get; private set; }
+        // Time elapsed between 2 frames
+        // this can be used for rendering animations
+        public float FrameDeltaTime { get; private set; }
         public GameTime GameTime;
         public float TotalElapsed => (float)GameTime.TotalGameTime.TotalSeconds;
         public int FrameId { get; private set; }
@@ -100,7 +103,7 @@ namespace Ship_Game
         protected override void Initialize()
         {
             Window.Title = "StarDrive BlackBox";
-            ResourceManager.ScreenManager = ScreenManager = new ScreenManager(this, Graphics);
+            ScreenManager = new ScreenManager(this, Graphics);
             GameAudio.Initialize(null, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
             
             ApplyGraphics(GraphicsSettings.FromGlobalStats());
@@ -128,7 +131,11 @@ namespace Ship_Game
         {
             ++FrameId;
             GameTime = gameTime;
-            DeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            
+            FrameDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (FrameDeltaTime > 0.4f) // @note Probably we were loading something heavy
+                FrameDeltaTime = 1f / 60f;
+
             GameAudio.Update();
             ScreenManager.Update(gameTime);
             base.Update(gameTime);

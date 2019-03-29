@@ -6,6 +6,7 @@ using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Linq;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Universe.SolarBodies;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -47,8 +48,8 @@ namespace Ship_Game
 
         public void DamageColonySurface(Bomb bomb)
         {
-            int softDamage = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
-            int hardDamage = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
+            int softDamage = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
+            int hardDamage = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
             DamageBioSpheres(hardDamage);
             DamageTroops(softDamage);
             DamageBuildings(hardDamage);
@@ -323,7 +324,7 @@ namespace Ship_Game
         {
             if (SO != null)
                 screen?.RemoveObject(SO);
-            SO = ResourceManager.GetPlanetarySceneMesh(ResourceManager.RootContent, Type.MeshPath);
+            SO = StaticMesh.GetPlanetarySceneMesh(ResourceManager.RootContent, Type.MeshPath);
             SO.World = Matrix.CreateScale(Scale * 3)
                      * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 

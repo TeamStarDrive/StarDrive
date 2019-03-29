@@ -418,7 +418,7 @@ namespace Ship_Game
             float score = 0;
             if (checkCosts) // we want to also check the cost to build and maintain something we dont have yet
             {
-                if (b.ActualMaintenance(this).GreaterOrEqual(budget))
+                if (b.ActualMaintenance(this).GreaterOrEqual(budget) && !b.IsMoneyBuilding)
                     return -1; // building cannot be built since it has higher maint than budget
 
                 score = EvalMaintenance(b, budget);
@@ -429,13 +429,13 @@ namespace Ship_Game
             if (score > 0)
                 score = ConstructionCostModifier(score, b.ActualCost, highestCost);
 
-            if (!IsPlanetExtraDebugTarget())
-                return score;
-
-            if (score > 0.0f)
-                Log.Info(ConsoleColor.Cyan,    $"Eval BUILD  {b.Name,-20}  {"SUITABLE",-16} {score.SignString()}");
-            else
-                Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-20}  {"NOT GOOD",-16} {score.SignString()}");
+            if (IsPlanetExtraDebugTarget())
+            {
+                if (score > 0.0f)
+                    Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-20}  {"SUITABLE",-16} {score.SignString()}");
+                else
+                    Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-20}  {"NOT GOOD",-16} {score.SignString()}");
+            }
             return score;
         }
 
@@ -462,7 +462,7 @@ namespace Ship_Game
                     break;
                 case ColonyType.Core:
                     score += 1; // Core governors are open to different building functions
-                    score += +b.CreditsPerColonist * 5
+                    score += + b.CreditsPerColonist * 5
                              + b.PlusTaxPercentage * 10
                              + b.MaxPopIncrease / 1000 * 2
                              + b.PlusFlatPopulation / 5
@@ -731,7 +731,7 @@ namespace Ship_Game
             int totalBuildings       = TotalBuildings;
             float popRatio           = PopulationRatio;
 
-            if (budget < 0)
+            if (budget < -0.1f)
             {
                 ScrapBuilding(budget, popRatio); // we must scrap something to bring us above of our debt tolerance
                 return; 
@@ -753,11 +753,11 @@ namespace Ship_Game
             // FB this will give the budget the colony will have for building selection
             float colonyIncome  = Money.NetRevenue;
             colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
-            float debtTolerance = (5 - PopulationBillion).Clamped(-3,5); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+            float debtTolerance = (3 - PopulationBillion).Clamped(-3,3); // the bigger the colony, the less debt tolerance it has, it should be earning money 
             if (BuildingList.Any(b => b.IsCapital))
                 debtTolerance = 0; // limit negative tolerance for homeworlds
 
-            debtTolerance      += Owner.Money / 1500; // FB this will ensure AI wont get stuck with no colony budget
+            debtTolerance      += Owner.Money / 2000; // FB this will ensure AI wont get stuck with no colony budget
             return colonyIncome + debtTolerance;
         }
 

@@ -522,5 +522,30 @@ namespace Ship_Game.Ships
             }
             return selectedShip;
         }
+
+        public bool AssaultTargetShip(Ship targetShip)
+        {
+            if (CanInvadeOrBoard && targetShip != null)
+            {
+                float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
+                float enemyStrength = targetShip.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
+
+                if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
+                {
+                    if (MaxTroopStrengthInSpaceToCommit < enemyStrength && targetShip.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
+                        ScrambleAssaultShips(enemyStrength); // This will launch salvos of assault shuttles if possible
+
+                    for (int i = 0; i < AllTroopBays.Length; i++)
+                    {
+                        ShipModule hangar = AllTroopBays[i];
+                        if (hangar.GetHangarShip() == null)
+                            continue;
+                        hangar.GetHangarShip().AI.OrderTroopToBoardShip(targetShip);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

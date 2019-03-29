@@ -260,7 +260,6 @@ namespace Ship_Game
 
             UIList right = List(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
-            right.AddCheckbox(() => GlobalStats.ForceFullSim, "Force Full Simulation", tooltip: 5086);
             right.AddCheckbox(() => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
             right.AddCheckbox(() => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
             right.AddCheckbox(() => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);

@@ -209,7 +209,7 @@ namespace Ship_Game
             }
 
             var targetModule = target as ShipModule;
-            if (DamageAmount < 0f && targetModule?.ShieldPower >= 1f) // @todo Repair beam??
+            if (DamageAmount < 0f && targetModule?.ShieldsAreActive == true) // @todo Repair beam??
                 return false;
 
             targetModule?.Damage(this, DamageAmount);

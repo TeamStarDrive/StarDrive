@@ -48,7 +48,6 @@ namespace Ship_Game.Ships
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
-        private AnimationController ShipMeshAnim;
         public bool IsPlayerDesign;
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
@@ -365,7 +364,7 @@ namespace Ship_Game.Ships
                 return true;
             }
 
-            if (isColonyShip && System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
+            if (System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
                 return true;
 
             if ((DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troop)
@@ -429,21 +428,15 @@ namespace Ship_Game.Ships
             get
             {
                 int bombBays = BombBays.Count;
-
                 switch (Bomb60SecStatus())
                 {
-                    case ShipStatus.Critical:
-                        return bombBays / 10;
-                    case ShipStatus.Poor:
-                        return bombBays / 5;
+                    case ShipStatus.Critical:      return bombBays / 10;
+                    case ShipStatus.Poor:          return bombBays / 5;
                     case ShipStatus.Average:
-                    case ShipStatus.Good:
-                        return bombBays / 2;
+                    case ShipStatus.Good:          return bombBays / 2;
                     case ShipStatus.Excellent:
-                    case ShipStatus.Maximum:
-                        return bombBays;
-                    case ShipStatus.NotApplicable:
-                        return 0;
+                    case ShipStatus.Maximum:       return bombBays;
+                    case ShipStatus.NotApplicable: return 0;
                 }
                 return 0;
             }
@@ -561,6 +554,18 @@ namespace Ship_Game.Ships
             if (planet != null)
                 distanceSTL += planet.GravityWellRadius;
 
+            return GetAstrogateTime(distance, distanceSTL);
+        }
+
+        public float GetAstrogateTimeBetween(Planet origin, Planet destination)
+        {
+            float distance    = origin.Center.Distance(destination.Center);
+            float distanceSTL = destination.GravityWellForEmpire(loyalty) + origin.GravityWellForEmpire(loyalty);
+            return GetAstrogateTime(distance, distanceSTL);
+        }
+
+        private float GetAstrogateTime(float distance, float distanceSTL)
+        {
             float distanceFTL = Math.Max(distance - distanceSTL, 0);
             float travelSTL   = distanceSTL / GetSTLSpeed();
             float travelFTL   = distanceFTL / GetmaxFTLSpeed;
@@ -1326,16 +1331,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void DamageShieldInvisible(Ship damageSource, float damageAmount)
-        {
-            for (int i = 0; i < Shields.Length; ++i)
-            {
-                ShipModule shield = Shields[i];
-                if (shield.ShieldPower >= 1f)
-                    shield.Damage(damageSource, damageAmount);
-            }
-        }
-
         struct Ranger
         {
             public int Count;
@@ -1432,19 +1427,23 @@ namespace Ship_Game.Ships
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
             if (Rotation < 0f) Rotation += 6.28318548202515f;
 
-            if (InCombat && !EMPdisabled && hasCommand)
+            if (!EMPdisabled && hasCommand)
             {
-                for (int i = 0; i < Weapons.Count; i++)
+                if (InCombat)
                 {
-                    Weapons[i].Update(deltaTime);
+                    for (int i = 0; i < Weapons.Count; i++)
+                    {
+                        Weapons[i].Update(deltaTime);
+                    }
                 }
-
                 for (int i = 0; i < BombBays.Count; i++)
                 {
                     var bomb = BombBays[i];
                     bomb.InstalledWeapon.Update(deltaTime);
                 }
             }
+            
+            AI.CombatAI.SetCombatTactics(AI.CombatState);
 
             if (updateTimer <= 0)
             {
@@ -1458,7 +1457,7 @@ namespace Ship_Game.Ships
 
                 if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
                 {
-                    AI.CombatAI.UpdateCombatAI(this);
+                    AI.CombatAI.UpdateTargetPriorities(this);
 
                     foreach (Weapon weapon in Weapons)
                     {
@@ -1537,7 +1536,13 @@ namespace Ship_Game.Ships
                 foreach (ShipModule slot in ModuleSlotList)
                       slot.Update(1);
 
-                if (shipStatusChanged) //|| InCombat
+                if (NeedRecalculate) // must be before ShipStatusChange
+                {
+                    RecalculatePower();
+                    NeedRecalculate = false;
+                }
+
+                if (shipStatusChanged)
                 {
                     ShipStatusChange();
                 }
@@ -1597,14 +1602,9 @@ namespace Ship_Game.Ships
 
                 UpdateTroops();
                 updateTimer = 1f;
-                if (NeedRecalculate)
-                {
-                    RecalculatePower();
-                    NeedRecalculate = false;
-                }
             }
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
-            if (MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim || AI.BadGuysNear
+            if (MoveModulesTimer > 0.0f || AI.BadGuysNear
                 || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) )
             {
                 if (deltaTime > 0.0f || UpdatedModulesOnce)
@@ -2018,7 +2018,7 @@ namespace Ship_Game.Ships
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
                     PowerStoreMax       += module.ActualPowerStoreMax;
                     PowerFlowMax        += module.ActualPowerFlowMax;
-                    FTLSpoolTime   = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
+                    FTLSpoolTime         = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
@@ -2103,7 +2103,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void AddToShipLevel(int amountToAdd) => Level = Math.Min(255, Level + amountToAdd);
+        public void AddToShipLevel(int amountToAdd) => Level = (Level + amountToAdd).Clamped(0,10);
 
         public void UpdateEmpiresOnKill(Ship killedShip)
         {
