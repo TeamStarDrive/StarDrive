@@ -215,18 +215,19 @@ namespace Ship_Game.Ships
             float addFood = 0;
             float addProd = 0;
             float addColonists = 0;
+            var specialBuildingIDs = new Array<string>();
             string buildingId = string.Empty;
 
             foreach (ShipModule module in ModuleSlotList)
             {
-                addFood += module.numberOfFood;
-                addProd += module.numberOfEquipment;
+                addFood      += module.numberOfFood;
+                addProd      += module.numberOfEquipment;
                 addColonists += module.numberOfColonists;
-                if (buildingId.IsEmpty())
-                    buildingId = module.DeployBuildingOnColonize;
+                if (buildingId.NotEmpty())
+                    specialBuildingIDs.Add(module.DeployBuildingOnColonize);
             }
 
-            return new ColonyEquipment(addFood, addProd, addColonists, buildingId);
+            return new ColonyEquipment(addFood, addProd, addColonists, specialBuildingIDs);
         }
     }
 }
