@@ -140,7 +140,7 @@ namespace Ship_Game
 
         private void BuildOrbital(ShipData.RoleName role, int colonyRank)
         {
-            if (OrbitalsInTheWorks)
+            if (OrbitalsInTheWorks || !HasSpacePort)
                 return;
 
             Ship orbital = PickOrbitalToBuild(role, colonyRank);
