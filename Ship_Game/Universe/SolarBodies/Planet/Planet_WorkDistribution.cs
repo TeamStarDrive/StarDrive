@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -39,7 +40,7 @@ namespace Ship_Game
             if (percent <= 0f || Food.YieldPerColonist <= 0.5f || IsCybernetic)
                 return 0; // No farming here, so never mind
 
-            float farmers = Food.EstPercentForNetIncome(+1f);          
+            float farmers = Food.EstPercentForNetIncome(+1f);
 
             // modify nominal farmers by overage or underage
             farmers += CalculateMod(percent, Storage.FoodRatio).Clamped(-0.35f, 0.50f);
@@ -64,7 +65,7 @@ namespace Ship_Game
                 AssignCoreWorldProduction(1f);
             else // Strategy for Flesh-bags:
             {
-                AssignCoreWorldFarmers(1f); 
+                AssignCoreWorldFarmers(1f);
                 AssignCoreWorldProduction(1f - Food.Percent); // then we optimize production
             }
 
@@ -77,7 +78,7 @@ namespace Ship_Game
             Food.Percent = FarmToPercentage(percentFood);
             Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(percentProd));
             if (ConstructionQueue.Count > 0)
-                Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * 0.5f);
+                Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * EvaluateProductionQueue());
 
             Res.AutoBalanceWorkers(); // rest goes to research
         }
@@ -100,7 +101,7 @@ namespace Ship_Game
         // Core World aims for +1 NetIncome
         void AssignCoreWorldFarmers(float labor)
         {
-            float minPerTurn = MinIncomePerTurn(Storage.Food, Food);
+            float minPerTurn = MinIncomePerTurn(Storage.Food, Food) * (1-Owner.ResearchStrategy.ResearchRatio);
             float farmers = Food.EstPercentForNetIncome(minPerTurn);
 
             if (farmers > 0 && farmers < 0.1f)
@@ -116,11 +117,9 @@ namespace Ship_Game
             float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod);
             float workers = Prod.EstPercentForNetIncome(minPerTurn);
 
-            if (workers > 0 && workers < 0.1f)
-                workers = 0.1f; // avoid crazy small percentage of labor
-
-            if (ConstructionQueue.Count > 1 && workers < 0.75f)
-                workers = 0.75f; // minimum value if construction is going on
+            workers += EvaluateProductionQueue();
+            workers = workers.Clamped(0.1f, 1.0f);
+            //    workers = 0.75f; // minimum value if construction is going on
 
             Prod.Percent = workers * labor;
         }
@@ -134,6 +133,90 @@ namespace Ship_Game
         float LeftoverWorkerBillions()
         {
             return LeftoverWorkers() * MaxPopulationBillion;
+        }
+
+        float EvaluateProductionQueue()
+        {
+            var item = ConstructionQueue.FirstOrDefault();
+            if (item == null) return 0;
+            if (item.IsPlayerAdded) return 1;
+
+            // colony level ranges from 1 worst to 5 best.
+            // this should give a range from 0 - .25f
+            float colonyDevelopmentBonus = (5 - Level) * 0.05f;
+            float colonyTypeBonus = 0;
+            switch (colonyType)
+            {
+                case ColonyType.Industrial: colonyTypeBonus = 0.05f; break;
+                case ColonyType.Military:   colonyTypeBonus = 0.01f; break;
+            }
+            float workerPercentage = colonyDevelopmentBonus + colonyTypeBonus;
+
+            if (item.isBuilding)
+            {
+                //set base pri to industry ratio;
+                switch (item.Building.Category)
+                {
+                    case BuildingCategory.General:
+                    case BuildingCategory.Storage:
+                    case BuildingCategory.Shipyard:
+                        workerPercentage += Owner.ResearchStrategy.IndustryRatio;
+                        break;
+                    case BuildingCategory.Production:
+                    case BuildingCategory.Finance:
+                    case BuildingCategory.Food:
+                        workerPercentage += Owner.ResearchStrategy.IndustryRatio;
+                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio;
+                        break;
+                    case BuildingCategory.Defense:
+                    case BuildingCategory.Military:
+                    case BuildingCategory.Sensor:
+                        workerPercentage += Owner.ResearchStrategy.MilitaryPriority;
+                        break;
+                    case BuildingCategory.Science:
+                        workerPercentage += Owner.ResearchStrategy.ResearchRatio;
+                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio;
+                        break;
+                    case BuildingCategory.Population:
+                    case BuildingCategory.Terraforming:
+                    case BuildingCategory.Growth:
+                    case BuildingCategory.Biosphere:
+                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio;
+                        break;
+                    case BuildingCategory.Victory:
+                        workerPercentage = 0.75f;
+                        break;
+                    default:
+                        workerPercentage += 0.2f;
+                        break;
+                }
+                if (item.Building.IsCapitalOrOutpost)
+                    workerPercentage = 1.0f;
+            }
+
+            if (item.isShip)
+            {
+                switch (item.sData.Role)
+                {
+                    case ShipData.RoleName.freighter:
+                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio + Owner.ResearchStrategy.IndustryRatio;
+                        break;
+                    case ShipData.RoleName.station:
+                        workerPercentage += Owner.ResearchStrategy.IndustryRatio;
+                        break;
+                    default:
+                        workerPercentage += Owner.ResearchStrategy.MilitaryRatio;
+                        break;
+
+                }
+            }
+
+            if (item.isTroop)   workerPercentage += Owner.ResearchStrategy.MilitaryRatio + Owner.ResearchStrategy.ExpansionRatio;
+            if (item.isOrbital) workerPercentage += 0.1f;
+
+            if (workerPercentage <= 0)
+                Log.Error($"Queue Item gave no bonus production. This is likely a bug. item: {item.DisplayName} ");
+            return workerPercentage.Clamped(0.0f,1.0f);
         }
     }
 }
