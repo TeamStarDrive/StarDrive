@@ -324,50 +324,38 @@ namespace Ship_Game
                 .Predict(proj.Weapon.CanUseAdvancedTargeting);
         }
 
-        // can be used for collision detection
-        public static Vector2 FindClosestPointOnLine(this Vector2 center, Vector2 lineStart, Vector2 lineEnd)
+        /**
+         * Finds the closest point to `center` on a line AB
+         * Can be used for collision detection
+         * @param center The reference point to find closest point to
+         * @param a Start point of the line
+         * @param b End point of the line
+         * @return closest point to `center` on line A--x-->B
+         */
+        public static Vector2 FindClosestPointOnLine(this Vector2 pos, Vector2 a, Vector2 b)
         {
-            float dy = lineEnd.Y - lineStart.Y;
-            float dx = lineStart.X - lineEnd.X;
-            float c1 = dy*lineStart.X + dx*lineStart.Y;
-            float c2 = -dx*center.X + dy*center.Y;
-            float det = dy*dy + dx*dx;
-            if (det > 0.0f)
-            {
-                return new Vector2((dy*c1 -  dx*c2) / det,
-                                   (dy*c2 - -dx*c1) / det);
-            }
-            return center;
-        }
+            // https://stackoverflow.com/questions/47481774/getting-point-on-line-segment-that-is-closest-to-another-point
+            Vector2 ab = b - a;
+            Vector2 ap = pos - a;
+            // project pos onto the line segment ab
+            float abSqLen = (ab.X*ab.X + ab.Y*ab.Y);
+            float t = (ap.X*ab.X + ap.Y*ab.Y) / abSqLen; // ap.Dot(ab) / sqLen(ab)
 
-        public static Vector2 NearestPointOnFiniteLine(this Vector2 pnt,  Vector2 start, Vector2 end)
-        {
-            Vector2 line = (end - start);
-            float len = line.Length();
-            line.Normalize();
+            // clamp t to line segment:
+            if      (t < 0f) t = 0f;
+            else if (t > 1f) t = 1f;
 
-            Vector2 v = pnt - start;
-            float d = Vector2.Dot(v, line);
-            d = Clamped(d, 0f, len);
-            return start + line * d;
+            return a + t*ab; // recreate the line using clamped projection
         }
 
         // does this wide RAY collide with our Circle?
         public static bool RayHitTestCircle(this Vector2 center, float radius, Vector2 rayStart, Vector2 rayEnd, float rayRadius)
         {
-            float a1 = rayEnd.Y - rayStart.Y;
-            float b1 = rayStart.X - rayEnd.X;
-            float c1 = (rayEnd.Y - rayStart.Y) * rayStart.X + (rayStart.X - rayEnd.X) * rayStart.Y;
-            float c2 = -b1 * center.X + a1 * center.Y;
-            float det = a1*a1 + b1*b1;
-            if (det > 0.0f)
-            {
-                float r2 = radius + rayRadius;
-                float dx = center.X - ((a1*c1 - b1*c2) / det);
-                float dy = center.Y - ((a1*c2 - -b1*c1) / det);
-                return dx*dx + dy*dy <= r2*r2;
-            }
-            return true; // ray intersects center?
+            Vector2 closest = FindClosestPointOnLine(center, rayStart, rayEnd);
+            float r2 = radius + rayRadius;
+            float dx = center.X - closest.X;
+            float dy = center.Y - closest.Y;
+            return dx*dx + dy*dy <= r2*r2;
         }
 
         // @return TRUE and out distance from rayStart to the point of intersection,
