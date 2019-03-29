@@ -48,7 +48,6 @@ namespace Ship_Game.Ships
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
-        private AnimationController ShipMeshAnim;
         public bool IsPlayerDesign;
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
@@ -561,6 +560,18 @@ namespace Ship_Game.Ships
             if (planet != null)
                 distanceSTL += planet.GravityWellRadius;
 
+            return GetAstrogateTime(distance, distanceSTL);
+        }
+
+        public float GetAstrogateTimeBetween(Planet origin, Planet destination)
+        {
+            float distance    = origin.Center.Distance(destination.Center);
+            float distanceSTL = destination.GravityWellForEmpire(loyalty) + origin.GravityWellForEmpire(loyalty);
+            return GetAstrogateTime(distance, distanceSTL);
+        }
+
+        private float GetAstrogateTime(float distance, float distanceSTL)
+        {
             float distanceFTL = Math.Max(distance - distanceSTL, 0);
             float travelSTL   = distanceSTL / GetSTLSpeed();
             float travelFTL   = distanceFTL / GetmaxFTLSpeed;
@@ -1326,16 +1337,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void DamageShieldInvisible(Ship damageSource, float damageAmount)
-        {
-            for (int i = 0; i < Shields.Length; ++i)
-            {
-                ShipModule shield = Shields[i];
-                if (shield.ShieldPower >= 1f)
-                    shield.Damage(damageSource, damageAmount);
-            }
-        }
-
         struct Ranger
         {
             public int Count;
@@ -1608,7 +1609,7 @@ namespace Ship_Game.Ships
                 }
             }
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
-            if (MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim || AI.BadGuysNear
+            if (MoveModulesTimer > 0.0f || AI.BadGuysNear
                 || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) )
             {
                 if (deltaTime > 0.0f || UpdatedModulesOnce)
@@ -2107,7 +2108,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void AddToShipLevel(int amountToAdd) => Level = Math.Min(255, Level + amountToAdd);
+        public void AddToShipLevel(int amountToAdd) => Level = (Level + amountToAdd).Clamped(0,10);
 
         public void UpdateEmpiresOnKill(Ship killedShip)
         {

@@ -363,7 +363,7 @@ namespace Ship_Game
                     || module.MaximumHangarShipSize > 0
                     || module.Is(ShipModuleType.Hangar))
                     return TechnologyType.ShipWeapons;
-                if (module.ShieldPower >= 1f
+                if (module.shield_power_max >= 1f
                     || module.Is(ShipModuleType.Armor)
                     || module.Is(ShipModuleType.Countermeasure)
                     || module.Is(ShipModuleType.Shield))

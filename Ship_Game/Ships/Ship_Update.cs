@@ -104,18 +104,17 @@ namespace Ship_Game.Ships
                     AI.Update(elapsedTime);
             }
 
-            if (!Active) return;
+            if (!Active || ShipSO == null)
+                return;
 
             InCombatTimer -= elapsedTime;
             if (InCombatTimer > 0.0f)
             {
-
                 InCombat = true;
             }
             else
             {
-                if (InCombat)
-                    InCombat = false;
+                InCombat = false;
                 if (AI.State == AIState.Combat && loyalty != EmpireManager.Player)
                 {
                     AI.ClearOrders();
@@ -128,15 +127,8 @@ namespace Ship_Game.Ships
 
             if (InFrustum)
             {
-                if (ShipSO == null)
-                    return;
                 UpdateWorldTransform();
-
-                if (shipData.Animated && ShipMeshAnim != null)
-                {
-                    ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
-                    ShipMeshAnim.Update(StarDriveGame.Instance.TargetElapsedTime, Matrix.Identity);
-                }
+                ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
                 UpdateThrusters();
             }
 
@@ -276,11 +268,7 @@ namespace Ship_Game.Ships
                              * Matrix.CreateRotationX(xRotation)
                              * Matrix.CreateRotationZ(Rotation)
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
-                if (shipData.Animated)
-                {
-                    ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
-                    ShipMeshAnim.Update(StarDriveGame.Instance.TargetElapsedTime, Matrix.Identity);
-                }
+                ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
             }
 
             UpdateProjectiles(elapsedTime);

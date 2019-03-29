@@ -583,6 +583,13 @@ namespace Ship_Game.Gameplay
         {
             if (Miss || target == Owner)
                 return false;
+
+            if (!target.Active)
+            {
+                Log.Error("BUG: touching a DEAD module. No necrophilia allowed!");
+                return false;
+            }
+
             switch (target)
             {
                 case Projectile projectile:
@@ -612,14 +619,18 @@ namespace Ship_Game.Gameplay
                         DieNextFrame = true;
                         return true;
                     }
-                    // Non exploding projectiles should go through multiple modules if it has enough damage
-                    if (!Explodes && module.Active)
-                        ArmourPiercingTouch(module, parent);
-                    // else: it will do radial explode and affect whatever it cant
 
+                    // Non exploding projectiles should go through multiple modules if it has enough damage
+                    if (!Explodes)
+                    {
+                        ArmourPiercingTouch(module, parent);
+                    }
+
+                    // else: it will do radial explode and affect whatever it cant
                     Health = 0f;
                     break;
             }
+
             switch (WeaponEffectType)
             {
                 case "Plasma":
@@ -666,7 +677,6 @@ namespace Ship_Game.Gameplay
                         if (target is ShipModule shipModule && !shipModule.Is(ShipModuleType.Shield))
                             GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
                     }
-
                     break;
                 }
             }

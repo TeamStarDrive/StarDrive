@@ -1,21 +1,20 @@
 ﻿using System;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.IO;
+using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
-
+// ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
 // ReSharper disable UnusedMember.Local
 // ReSharper disable CommentTypo
 // ReSharper disable ArrangeTypeMemberModifiers
 
-namespace Ship_Game
+namespace Ship_Game.Data.Texture
 {
-    public class DDSReader
+    public class DxtReader
     {
         public Color[] DecodedImage { get; private set; } = new Color[0];
 
-        private DDSReader(byte[] ddsImage)
+        private DxtReader(byte[] ddsImage)
         {
             if (ddsImage == null) return;
             if (ddsImage.Length == 0) return;
@@ -32,7 +31,7 @@ namespace Ship_Game
             }
         }
 
-        private DDSReader(Stream ddsImage)
+        private DxtReader(Stream ddsImage)
         {
             if (ddsImage == null) return;
             if (!ddsImage.CanRead) return;
