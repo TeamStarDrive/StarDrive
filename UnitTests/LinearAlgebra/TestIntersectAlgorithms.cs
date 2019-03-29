@@ -21,6 +21,22 @@ namespace UnitTests.LinearAlgebra
             var end   = new Vector2(+30, +20);
             Assert.IsTrue(center.RayCircleIntersect(30f, start, end, out float intersect));
             Assert.AreEqual(6.05f, intersect, 0.01f);
+            //   /
+            // ( )
+            // /
+            start = new Vector2(+30, -20);
+            end   = new Vector2(-30, +20);
+            Assert.IsTrue(center.RayCircleIntersect(30f, start, end, out intersect));
+            Assert.AreEqual(6.05f, intersect, 0.01f); // we are perfectly touching the edge
+
+            // Huge radius, but the line starts from inside
+            //            )
+            //  c    /    )
+            //      /     )
+            start = new Vector2(+40, -20);
+            end   = new Vector2(+20, +20);
+            Assert.IsTrue(center.RayCircleIntersect(158, start, end, out intersect));
+            Assert.AreEqual(1f, intersect); // we are perfectly touching the edge
 
             // Intersect through the circle from OUTSIDE, HORIZONTALLY
             // a ---|  |--> b
@@ -36,7 +52,7 @@ namespace UnitTests.LinearAlgebra
             start = new Vector2(-20, 0);
             end   = new Vector2(+20, 0);
             Assert.IsTrue(center.RayCircleIntersect(40f, start, end, out intersect));
-            Assert.AreEqual(20f, intersect); // from the edge of the circle
+            Assert.AreEqual(1f, intersect);
 
             // Intersect STARTS from inside the circle, horizontally
             // ---|-->o   |
@@ -50,7 +66,7 @@ namespace UnitTests.LinearAlgebra
             start = new Vector2(10, 0);
             end   = new Vector2(40, 0);
             Assert.IsTrue(center.RayCircleIntersect(20f, start, end, out intersect));
-            Assert.AreEqual(10f, intersect);
+            Assert.AreEqual(1f, intersect);
         }
 
         [TestMethod]
