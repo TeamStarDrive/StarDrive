@@ -4,10 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
+using SgMotion.Controllers;
 using SynapseGaming.LightingSystem.Core;
 
 namespace SynapseGaming.LightingSystem.Rendering
@@ -17,9 +19,9 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// </summary>
     public class SceneObject : IMovableObject, INamedObject, ISceneObject
     {
-        private ObjectVisibility ObjVisibility = ObjectVisibility.RenderedAndCastShadows;
-        private readonly List<RenderableMesh> Meshes = new List<RenderableMesh>(16);
-        private Matrix WorldMatrix = Matrix.Identity;
+        ObjectVisibility ObjVisibility = ObjectVisibility.RenderedAndCastShadows;
+        readonly List<RenderableMesh> Meshes = new List<RenderableMesh>(16);
+        Matrix WorldMatrix = Matrix.Identity;
 
         /// <summary>World space transform of the object.</summary>
         public Matrix World
@@ -106,6 +108,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>Collection of the object's internal mesh parts.</summary>
         public RenderableMeshCollection RenderableMeshes { get; protected set; }
 
+        public AnimationController Animation;
+
         /// <summary>
         /// Default constructor for derived classes that implement their own mesh creation.
         /// </summary>
@@ -120,37 +124,44 @@ namespace SynapseGaming.LightingSystem.Rendering
         }
 
         /// <summary>Creates a new SceneObject from mesh data.</summary>
-        /// <param name="meshdata"></param>
-        public SceneObject(MeshData meshdata) : this(meshdata, "")
+        /// <param name="data"></param>
+        public SceneObject(MeshData data) : this(data, "")
         {
         }
 
         /// <summary>Creates a new SceneObject from mesh data.</summary>
-        /// <param name="meshdata"></param>
+        /// <param name="data"></param>
         /// <param name="name">Custom name for the object.</param>
-        public SceneObject(MeshData meshdata, string name) : this(name)
+        public SceneObject(MeshData data, string name) : this(name)
         {
-            InfiniteBounds = meshdata.InfiniteBounds;
-            Add(new RenderableMesh(this, meshdata.Effect, meshdata.MeshToObject, meshdata.ObjectSpaceBoundingSphere, meshdata.IndexBuffer, meshdata.VertexBuffer, meshdata.VertexDeclaration, 0, PrimitiveType.TriangleList, meshdata.PrimitiveCount, 0, meshdata.VertexCount, 0, meshdata.VertexStride));
+            InfiniteBounds = data.InfiniteBounds;
+            Add(new RenderableMesh(this, data.Effect, data.MeshToObject, 
+                data.ObjectSpaceBoundingSphere, data.IndexBuffer, data.VertexBuffer, 
+                data.VertexDeclaration, 0, PrimitiveType.TriangleList, data.PrimitiveCount, 
+                0, data.VertexCount, 0, data.VertexStride));
         }
 
         /// <summary>
         /// Creates a new SceneObject from a user defined vertex buffer.
         /// </summary>
         /// <param name="effect">Effect applied to the mesh during rendering.</param>
-        /// <param name="objectspaceboundingsphere">Smallest object space bounding sphere that
+        /// <param name="boundingSphere">Smallest object space bounding sphere that
         /// completely encloses the object.</param>
-        /// <param name="vertexbuffer">VertexBuffer that contains the mesh geometry.</param>
-        /// <param name="vertexdeclaration">Describes the mesh vertex buffer contents.</param>
+        /// <param name="buffer">VertexBuffer that contains the mesh geometry.</param>
+        /// <param name="declaration">Describes the mesh vertex buffer contents.</param>
         /// <param name="vertexstart">Index into the vertex buffer that mesh geometry begins.</param>
         /// <param name="primitivetype">Primitive format the mesh geometry is stored in.</param>
         /// <param name="primitivecount">Number of primitives in the mesh geometry.</param>
         /// <param name="vertexstreamoffset">Offset in bytes from the beginning of the vertex
         /// buffer to start reading data.</param>
         /// <param name="vertexstride">Size in bytes of the elements in the vertex buffer.</param>
-        /// <param name="objectspace">Mesh object-space matrix.</param>
-        public SceneObject(Effect effect, BoundingSphere objectspaceboundingsphere, Matrix objectspace, VertexBuffer vertexbuffer, VertexDeclaration vertexdeclaration, PrimitiveType primitivetype, int primitivecount, int vertexstart, int vertexstreamoffset, int vertexstride)
-          : this("", effect, objectspaceboundingsphere, objectspace, null, vertexbuffer, vertexdeclaration, 0, primitivetype, primitivecount, 0, 0, vertexstreamoffset, vertexstride)
+        /// <param name="objectSpace">Mesh object-space matrix.</param>
+        public SceneObject(Effect effect,
+            BoundingSphere boundingSphere, Matrix objectSpace, VertexBuffer buffer, 
+            VertexDeclaration declaration, PrimitiveType primitivetype, int primitivecount,
+            int vertexstart, int vertexstreamoffset, int vertexstride)
+          : this("", effect, boundingSphere, objectSpace, null, buffer, declaration, 0,
+              primitivetype, primitivecount, 0, 0, vertexstreamoffset, vertexstride)
         {
         }
 
@@ -159,19 +170,24 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         /// <param name="name">Custom name for the object.</param>
         /// <param name="effect">Effect applied to the mesh during rendering.</param>
-        /// <param name="objectspaceboundingsphere">Smallest object space bounding sphere that
+        /// <param name="boundingSphere">Smallest object space bounding sphere that
         /// completely encloses the object.</param>
-        /// <param name="vertexbuffer">VertexBuffer that contains the mesh geometry.</param>
-        /// <param name="vertexdeclaration">Describes the mesh vertex buffer contents.</param>
-        /// <param name="vertexstart">Index into the vertex buffer that mesh geometry begins.</param>
-        /// <param name="primitivetype">Primitive format the mesh geometry is stored in.</param>
-        /// <param name="primitivecount">Number of primitives in the mesh geometry.</param>
-        /// <param name="vertexstreamoffset">Offset in bytes from the beginning of the vertex
+        /// <param name="buffer">VertexBuffer that contains the mesh geometry.</param>
+        /// <param name="vertexDeclaration">Describes the mesh vertex buffer contents.</param>
+        /// <param name="vertexStart">Index into the vertex buffer that mesh geometry begins.</param>
+        /// <param name="type">Primitive format the mesh geometry is stored in.</param>
+        /// <param name="numPrimitives">Number of primitives in the mesh geometry.</param>
+        /// <param name="vertexOffset">Offset in bytes from the beginning of the vertex
         /// buffer to start reading data.</param>
-        /// <param name="vertexstride">Size in bytes of the elements in the vertex buffer.</param>
-        /// <param name="objectspace">Mesh object-space matrix.</param>
-        public SceneObject(string name, Effect effect, BoundingSphere objectspaceboundingsphere, Matrix objectspace, VertexBuffer vertexbuffer, VertexDeclaration vertexdeclaration, PrimitiveType primitivetype, int primitivecount, int vertexstart, int vertexstreamoffset, int vertexstride)
-          : this(name, effect, objectspaceboundingsphere, objectspace, null, vertexbuffer, vertexdeclaration, 0, primitivetype, primitivecount, 0, 0, vertexstreamoffset, vertexstride)
+        /// <param name="vertexStride">Size in bytes of the elements in the vertex buffer.</param>
+        /// <param name="objectSpace">Mesh object-space matrix.</param>
+        public SceneObject(string name, Effect effect,
+            BoundingSphere boundingSphere, Matrix objectSpace, 
+            VertexBuffer buffer, VertexDeclaration vertexDeclaration, PrimitiveType type, 
+            int numPrimitives, int vertexStart, int vertexOffset, int vertexStride)
+          : this(name, effect, boundingSphere, objectSpace, null, 
+              buffer, vertexDeclaration, 0, type,
+              numPrimitives, 0, 0, vertexOffset, vertexStride)
         {
         }
 
@@ -179,7 +195,39 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// Creates a new SceneObject from a user defined vertex and index buffer.
         /// </summary>
         /// <param name="effect">Effect applied to the mesh during rendering.</param>
-        /// <param name="objectspaceboundingsphere">Smallest object space bounding sphere that
+        /// <param name="boundingSphere">Smallest object space bounding sphere that
+        /// completely encloses the object.</param>
+        /// <param name="indexbuffer">IndexBuffer that contains the mesh geometry.</param>
+        /// <param name="buffer">VertexBuffer that contains the mesh geometry.</param>
+        /// <param name="vertexDeclaration">Describes the mesh vertex buffer contents.</param>
+        /// <param name="indexstart">Index into the index buffer that mesh geometry begins.</param>
+        /// <param name="primitivetype">Primitive format the mesh geometry is stored in.</param>
+        /// <param name="primitivecount">Number of primitives in the mesh geometry.</param>
+        /// <param name="vertexbase">Offset added to each index in the index buffer during rendering.</param>
+        /// <param name="vertexcount">Number of vertices in the vertex buffer range required to
+        /// draw the mesh.  For instance, a quad rendering vertices at indices (2, 5, 6, 9) requires
+        /// a vertex buffer range of 8 vertices (vertices 2 – 9 inclusive).</param>
+        /// <param name="vertexstreamoffset">Offset in bytes from the beginning of the vertex
+        /// buffer to start reading data.</param>
+        /// <param name="vertexstride">Size in bytes of the elements in the vertex buffer.</param>
+        /// <param name="objectSpace">Mesh object-space matrix.</param>
+        public SceneObject(Effect effect,
+            BoundingSphere boundingSphere, Matrix objectSpace, IndexBuffer indexbuffer, 
+            VertexBuffer buffer, VertexDeclaration vertexDeclaration, int indexstart, 
+            PrimitiveType primitivetype, int primitivecount, int vertexbase, int vertexcount, 
+            int vertexstreamoffset, int vertexstride)
+          : this("", effect, boundingSphere, objectSpace, indexbuffer, buffer, 
+              vertexDeclaration, indexstart, primitivetype, primitivecount, vertexbase, 
+              vertexcount, vertexstreamoffset, vertexstride)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new SceneObject from a user defined vertex and index buffer.
+        /// </summary>
+        /// <param name="name">Custom name for the object.</param>
+        /// <param name="effect">Effect applied to the mesh during rendering.</param>
+        /// <param name="boundingSphere">Smallest object space bounding sphere that
         /// completely encloses the object.</param>
         /// <param name="indexbuffer">IndexBuffer that contains the mesh geometry.</param>
         /// <param name="vertexbuffer">VertexBuffer that contains the mesh geometry.</param>
@@ -194,49 +242,18 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <param name="vertexstreamoffset">Offset in bytes from the beginning of the vertex
         /// buffer to start reading data.</param>
         /// <param name="vertexstride">Size in bytes of the elements in the vertex buffer.</param>
-        /// <param name="objectspace">Mesh object-space matrix.</param>
-        public SceneObject(Effect effect, BoundingSphere objectspaceboundingsphere, Matrix objectspace, IndexBuffer indexbuffer, VertexBuffer vertexbuffer, VertexDeclaration vertexdeclaration, int indexstart, PrimitiveType primitivetype, int primitivecount, int vertexbase, int vertexcount, int vertexstreamoffset, int vertexstride)
-          : this("", effect, objectspaceboundingsphere, objectspace, indexbuffer, vertexbuffer, vertexdeclaration, indexstart, primitivetype, primitivecount, vertexbase, vertexcount, vertexstreamoffset, vertexstride)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new SceneObject from a user defined vertex and index buffer.
-        /// </summary>
-        /// <param name="name">Custom name for the object.</param>
-        /// <param name="effect">Effect applied to the mesh during rendering.</param>
-        /// <param name="objectspaceboundingsphere">Smallest object space bounding sphere that
-        /// completely encloses the object.</param>
-        /// <param name="indexbuffer">IndexBuffer that contains the mesh geometry.</param>
-        /// <param name="vertexbuffer">VertexBuffer that contains the mesh geometry.</param>
-        /// <param name="vertexdeclaration">Describes the mesh vertex buffer contents.</param>
-        /// <param name="indexstart">Index into the index buffer that mesh geometry begins.</param>
-        /// <param name="primitivetype">Primitive format the mesh geometry is stored in.</param>
-        /// <param name="primitivecount">Number of primitives in the mesh geometry.</param>
-        /// <param name="vertexbase">Offset added to each index in the index buffer during rendering.</param>
-        /// <param name="vertexcount">Number of vertices in the vertex buffer range required to
-        /// draw the mesh.  For instance, a quad rendering vertices at indices (2, 5, 6, 9) requires
-        /// a vertex buffer range of 8 vertices (vertices 2 – 9 inclusive).</param>
-        /// <param name="vertexstreamoffset">Offset in bytes from the beginning of the vertex
-        /// buffer to start reading data.</param>
-        /// <param name="vertexstride">Size in bytes of the elements in the vertex buffer.</param>
-        /// <param name="objectspace">Mesh object-space matrix.</param>
+        /// <param name="objectSpace">Mesh object-space matrix.</param>
         public SceneObject(string name, 
-            Effect effect, 
-            BoundingSphere objectspaceboundingsphere, 
-            Matrix objectspace, 
-            IndexBuffer indexbuffer, 
-            VertexBuffer vertexbuffer, 
-            VertexDeclaration vertexdeclaration, 
-            int indexstart, 
-            PrimitiveType primitivetype, 
-            int primitivecount, 
-            int vertexbase, 
-            int vertexcount, 
-            int vertexstreamoffset, 
-            int vertexstride) : this(name)
+            Effect effect, BoundingSphere boundingSphere, Matrix objectSpace, 
+            IndexBuffer indexbuffer, VertexBuffer vertexbuffer, VertexDeclaration vertexdeclaration, 
+            int indexstart, PrimitiveType primitivetype, 
+            int primitivecount, int vertexbase, int vertexcount, 
+            int vertexstreamoffset, int vertexstride)
+          : this(name)
         {
-            Add(new RenderableMesh(this, effect, objectspace, objectspaceboundingsphere, indexbuffer, vertexbuffer, vertexdeclaration, indexstart, primitivetype, primitivecount, vertexbase, vertexcount, vertexstreamoffset, vertexstride));
+            Add(new RenderableMesh(this, effect, objectSpace, boundingSphere, indexbuffer, 
+                vertexbuffer, vertexdeclaration, indexstart, primitivetype, primitivecount, 
+                vertexbase, vertexcount, vertexstreamoffset, vertexstride));
         }
 
         /// <summary>
@@ -305,7 +322,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             Add(mesh, overrideeffect);
         }
 
-        private void SetName(string name)
+        void SetName(string name)
         {
             RenderableMeshes = new RenderableMeshCollection(Meshes);
             Name = string.IsNullOrEmpty(name) ? string.Empty : name;
@@ -349,7 +366,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             CalculateBoundingSphere();
         }
 
-        private void CalculateBoundingSphere()
+        void CalculateBoundingSphere()
         {
             if (InfiniteBounds)
                 ObjectBoundingSphere = new BoundingSphere(Vector3.Zero, 3.402823E+37f);
@@ -362,7 +379,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             CalculateWorldBounds();
         }
 
-        private void CalculateWorldBounds()
+        void CalculateWorldBounds()
         {
             WorldBoundingSphere = !InfiniteBounds ? CoreUtils.TransformSphere(ObjectBoundingSphere, WorldMatrix) : new BoundingSphere(Vector3.Zero, 3.402823E+37f);
             BoundingBox fromSphere = BoundingBox.CreateFromSphere(WorldBoundingSphere);
@@ -385,12 +402,12 @@ namespace SynapseGaming.LightingSystem.Rendering
             for (ModelBone bone = mesh.ParentBone; bone != null; bone = bone.Parent)
                 completeTransform *= bone.Transform;
 
-            BoundingSphere objectspaceboundingsphere = CoreUtils.TransformSphere(mesh.BoundingSphere, completeTransform);
+            BoundingSphere boundingSphere = CoreUtils.TransformSphere(mesh.BoundingSphere, completeTransform);
             for (int i = 0; i < mesh.MeshParts.Count; ++i)
             {
                 ModelMeshPart meshPart = mesh.MeshParts[i];
                 Effect fx = effect ?? meshPart.Effect;
-                Add(new RenderableMesh(this, fx, completeTransform, objectspaceboundingsphere, 
+                Add(new RenderableMesh(this, fx, completeTransform, boundingSphere, 
                     mesh.IndexBuffer, 
                     mesh.VertexBuffer, 
                     meshPart.VertexDeclaration, 
@@ -436,6 +453,15 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             for (int i = 0; i < model.Meshes.Count; ++i)
                 returnobjects.Add(new SceneObject(model.Meshes[i]));
+        }
+
+        public void UpdateAnimation(float elapsedTime)
+        {
+            if (Animation != null)
+            {
+                Animation.Update(TimeSpan.FromSeconds(elapsedTime), Matrix.Identity);
+                SkinBones = Animation.SkinnedBoneTransforms;
+            }
         }
     }
 }

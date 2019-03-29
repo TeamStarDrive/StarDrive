@@ -69,9 +69,7 @@ namespace Ship_Game.GameScreens.Sandbox
                     {
                         if (weapon.isBeam)
                         {
-                            weapon.UpdatePrimaryFireTarget(weapon.FireTarget, noProjectiles, nearbyShips);
-                            if (weapon.FireTarget != null)
-                                weapon.FireAtAssignedTarget();
+                            weapon.UpdateAndFireAtTarget(null, noProjectiles, nearbyShips);
                         }
                         else if (weapon.ProjectedImpactPointNoError(ship, out Vector2 pip))
                         {

@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 
-namespace UnitTests
+namespace UnitTests.LinearAlgebra
 {
     [TestClass]
     public class TestVectorMath

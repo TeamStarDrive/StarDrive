@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
-using Ship_Game.Commands.Goals;
-using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
@@ -12,51 +10,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        void DoAssaultShipCombat(float elapsedTime)
-        {
-            if (Owner.isSpooling || !Owner.Carrier.HasTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
-                return;
-
-            DoNonFleetArtillery(elapsedTime);
-            if (!Owner.loyalty.isFaction && (Target as Ship).shipData.Role <= ShipData.RoleName.drone)
-                return;
-
-            float totalTroopStrengthToCommit = Owner.Carrier.MaxTroopStrengthInShipToCommit + Owner.Carrier.MaxTroopStrengthInSpaceToCommit;
-            if (totalTroopStrengthToCommit <= 0)
-                return;
-
-            bool boarding = false;
-            if (Target is Ship shipTarget)
-            {
-                float enemyStrength = shipTarget.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
-
-                if (totalTroopStrengthToCommit > enemyStrength &&
-                    (Owner.loyalty.isFaction || shipTarget.GetStrength() > 0f))
-                {
-                    if (Owner.Carrier.MaxTroopStrengthInSpaceToCommit < enemyStrength && Target.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
-                        Owner.Carrier.ScrambleAssaultShips(enemyStrength); // This will launch salvos of assault shuttles if possible
-
-                    for (int i = 0; i < Owner.Carrier.AllTroopBays.Length; i++)
-                    {
-                        ShipModule hangar = Owner.Carrier.AllTroopBays[i];
-                        if (hangar.GetHangarShip() == null)
-                            continue;
-                        hangar.GetHangarShip().AI.OrderTroopToBoardShip(shipTarget);
-                    }
-                    boarding = true;
-                }
-            }
-            //This is the auto invade feature. FB: this should be expanded to check for building stength and compare troops in ship vs planet
-            if (boarding || Owner.TroopsAreBoardingShip)
-                return;
-
-            Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
-                                owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.GetRelations(owner.Owner).AtWar,
-                                troops => troops.TroopsHere.Count);
-            if (invadeThis != null)
-                Owner.Carrier.AssaultPlanet(invadeThis);
-        }
-
         void DoBoardShip(float elapsedTime)
         {
             HasPriorityTarget = true;
@@ -90,9 +43,8 @@ namespace Ship_Game.AI
 
         void DoCombat(float elapsedTime)
         {
-            var ctarget = Target as Ship;
-            if (Target?.Active != true || ctarget?.engineState != Ship.MoveState.Sublight
-                                       || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), ctarget))
+            if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight
+                                       || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), Target))
             {
                 Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&
                                                               t.Center.InRadius(Owner.Center, Owner.SensorRange));
@@ -123,29 +75,33 @@ namespace Ship_Game.AI
                 if (Owner.Carrier.HasHangars && !Owner.ManualHangarOverride)
                     Owner.Carrier.ScrambleFighters();
             }
-            else if (FleetNode != null && Owner.fleet != null)
+            else
             {
-                if (Target == null)
-                    Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
-                Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-                if (Target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
-                {
-                    if (Owner.Center.OutsideRadius(nodePos, 1000f))
+                // need to move this into fleet.
+                if (FleetNode != null && Owner.fleet != null)
+                { if (Target == null)
+                        Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
+                    Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                    if (Target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                     {
-                        ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
+                        if (Owner.Center.OutsideRadius(nodePos, 1000f))
+                        {
+                            ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
+                        }
+                        else
+                        {
+                            DoHoldPositionCombat(elapsedTime);
+                        }
                         return;
                     }
-                    DoHoldPositionCombat(elapsedTime);
+                }
+                if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
+                {
+                    if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 prediction) == false)
+                        prediction = Target.Center;
+                    ThrustOrWarpToPosCorrected(prediction, elapsedTime);
                     return;
                 }
-            }
-            // out of range and not holding pos / evading:
-            else if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
-            {
-                if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 prediction) == false)
-                    prediction = Target.Center;
-                ThrustOrWarpToPosCorrected(prediction, elapsedTime);
-                return;
             }
 
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
@@ -155,19 +111,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            switch (CombatState)
-            {
-                case CombatState.Artillery:      DoNonFleetArtillery(elapsedTime); break;
-                case CombatState.OrbitLeft:      OrbitShip((Ship)Target, elapsedTime, Orbit.Left);  break;
-                case CombatState.OrbitRight:     OrbitShip((Ship)Target, elapsedTime, Orbit.Right); break;
-                case CombatState.BroadsideLeft:  DoNonFleetBroadside(elapsedTime, Orbit.Left);  break;
-                case CombatState.BroadsideRight: DoNonFleetBroadside(elapsedTime, Orbit.Left); break;
-                case CombatState.AttackRuns:     AttackRun.Execute(elapsedTime, null); break;
-                case CombatState.HoldPosition:   DoHoldPositionCombat(elapsedTime); break;
-                case CombatState.Evade:          DoEvadeCombat(elapsedTime);        break;
-                case CombatState.AssaultShip:    DoAssaultShipCombat(elapsedTime);  break;
-                case CombatState.ShortRange:     DoNonFleetArtillery(elapsedTime);  break;
-            }
+            CombatAI.ExecuteCombatTactic(elapsedTime);
 
             // Target was modified by one of the CombatStates (?)
             Owner.InCombat = Target != null;
@@ -218,26 +162,6 @@ namespace Ship_Game.AI
                         return;
                     }
                 }
-            }
-        }
-
-        void DoEvadeCombat(float elapsedTime)
-        {
-            Vector2 avgDir = Vector2.Zero;
-            int count = 0;
-            foreach (ShipWeight ship in NearByShips)
-            {
-                if (ship.Ship.loyalty == Owner.loyalty ||
-                    !ship.Ship.loyalty.isFaction && !Owner.loyalty.GetRelations(ship.Ship.loyalty).AtWar)
-                    continue;
-                avgDir += Owner.Center.DirectionToTarget(ship.Ship.Center);
-                count += 1;
-            }
-            if (count != 0)
-            {
-                avgDir /= count;
-                Vector2 evadeOffset = avgDir.Normalized() * -7500f;
-                ThrustOrWarpToPosCorrected(Owner.Center + evadeOffset, elapsedTime);
             }
         }
 
@@ -373,7 +297,7 @@ namespace Ship_Game.AI
         void DoLandTroop(float elapsedTime, ShipGoal goal)
         {
             if (Owner.shipData.Role != ShipData.RoleName.troop || Owner.TroopList.Count == 0)
-                DoOrbit(goal.TargetPlanet, elapsedTime); //added by gremlin.
+                DoOrbit.Orbit(goal.TargetPlanet, elapsedTime); //added by gremlin.
 
             float radius = goal.TargetPlanet.ObjectRadius + Owner.Radius * 2;
             float distCenter = goal.TargetPlanet.Center.Distance(Owner.Center);
@@ -412,129 +336,13 @@ namespace Ship_Game.AI
                 Owner.Carrier.AssaultPlanetWithTransporters(goal.TargetPlanet);
         }
 
-        void DoNonFleetArtillery(float elapsedTime)
-        {
-            Vector2 predictedImpact = Owner.PredictImpact(Target);
-            Vector2 wantedDirection = Owner.Center.DirectionToTarget(predictedImpact);
-
-            float distanceToTarget = Owner.Center.Distance(Target.Center);
-            float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius);
-
-            if (distanceToTarget > adjustedRange)
-            {
-                if (distanceToTarget > 7500f)
-                    ThrustOrWarpToPosNoCorrections(predictedImpact, elapsedTime);
-                else
-                    SubLightContinuousMoveInDirection(wantedDirection, elapsedTime);
-            }
-            else
-            {
-                float minDistance = Math.Max(adjustedRange * 0.25f + Target.Radius, adjustedRange * 0.5f);
-
-                // slow down
-                if (distanceToTarget < minDistance)
-                    Owner.Velocity -= Owner.Direction * elapsedTime * Owner.GetSTLSpeed();
-                else
-                    Owner.Velocity *= 0.95f; // Small propensity to not drift
-
-                RotateToDirection(wantedDirection, elapsedTime, 0.02f);
-            }
-        }
-
-        void DoNonFleetBroadside(float elapsedTime, Orbit orbit)
-        {
-            float distance = Owner.Center.Distance(Target.Center);
-            if (distance > Owner.maxWeaponsRange)
-            {
-                ThrustOrWarpToPosCorrected(Target.Center, elapsedTime);
-                return; // we're still way far away from target
-            }
-
-            if (distance < (Owner.maxWeaponsRange * 0.70f)) // within suitable range
-            {
-                Vector2 ourPosNextFrame = Owner.Center + Owner.Velocity*elapsedTime;
-                if (ourPosNextFrame.InRadius(Target.Center, distance))
-                    ReverseThrustUntilStopped(elapsedTime); // stop for stability?? hmm, maybe we should orbit target?
-            }
-
-            Vector2 dir = Owner.Center.DirectionToTarget(Target.Center);
-            // when doing broadside to Right, wanted forward dir is 90 degrees left
-            // when doing broadside to Left, wanted forward dir is 90 degrees right
-            dir = (orbit == Orbit.Right) ? dir.LeftVector() : dir.RightVector();
-
-            RotateToDirection(dir, elapsedTime, 0.02f);
-        }
-
-        const float OrbitalSpeedLimit = 500f;
-
-        enum Orbit { Left, Right }
-
-        // Orbit drones around a ship
-        void OrbitShip(Ship ship, float elapsedTime, Orbit direction)
-        {
-            UpdateOrbitPos(ship.Center, 1500f, direction);
-            ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, OrbitalSpeedLimit);
-        }
-
-        void UpdateOrbitPos(Vector2 orbitAround, float orbitRadius, Orbit direction)
-        {
-            OrbitPos = orbitAround.PointOnCircle(OrbitalAngle, orbitRadius);
-            if (Owner.Center.InRadius(OrbitPos, orbitRadius))
-            {
-                float deltaAngle = direction == Orbit.Left ? -15f : +15f;
-                OrbitalAngle = (OrbitalAngle + deltaAngle).NormalizedAngle();
-
-                OrbitPos = orbitAround.PointOnCircle(OrbitalAngle, orbitRadius);
-            }
-        }
-
-        // orbit around a planet
-        void DoOrbit(Planet orbitTarget, float elapsedTime)
-        {
-            if (Owner.velocityMaximum < 1 || Owner.EnginesKnockedOut)
-                return;
-
-            float distance = orbitTarget.Center.Distance(Owner.Center);
-            if (distance > 15000f)
-            {
-                ThrustOrWarpToPosCorrected(orbitTarget.Center, elapsedTime);
-                OrbitPos = orbitTarget.Center;
-                return;
-            }
-
-            float radius = orbitTarget.ObjectRadius + Owner.Radius + 1200f;
-            UpdateOrbitPos(orbitTarget.Center, radius, Orbit.Right);
-
-            if (Owner.engineState == Ship.MoveState.Warp && distance < 7500f) // exit warp if we're getting close
-                Owner.HyperspaceReturn();
-
-            // precision move, this fixes uneven thrusting while orbiting
-            float precisionSpeed = Owner.velocityMaximum * 0.5f;
-
-            // We are within orbit radius, so do actual orbiting:
-            if (distance < (1500f + orbitTarget.ObjectRadius))
-            {
-                Vector2 direction = Owner.Center.DirectionToTarget(OrbitPos);
-                RotateToDirection(direction, elapsedTime, 0.01f);
-                Owner.SubLightAccelerate(elapsedTime, precisionSpeed);
-                Owner.RestoreYBankRotation();
-
-                if (State != AIState.Bombard)
-                    HasPriorityOrder = false;
-            }
-            else // we are still not there yet, so find a meaningful orbit position
-            {
-                ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, precisionSpeed);
-            }
-        }
-
-        void DoRebase(ShipGoal Goal)
+        void DoRebase(ShipGoal goal)
         {
             if (Owner.TroopList.Count == 0)
             {
                 Owner.QueueTotalRemoval(); // vanish the ship
             }
-            else if (Owner.TroopList[0].AssignTroopToTile(Goal.TargetPlanet))
+            else if (Owner.TroopList[0].AssignTroopToTile(goal.TargetPlanet))
             {
                 Owner.TroopList.Clear();
                 Owner.QueueTotalRemoval(); // vanish the ship
@@ -547,7 +355,7 @@ namespace Ship_Game.AI
 
         void DoRefit(ShipGoal goal)
         {
-            if (goal.Goal == null) // empire goal was removed or planet was compromised 
+            if (goal.Goal == null) // empire goal was removed or planet was compromised
                 ClearOrders();
 
             ClearOrders(AIState.HoldPosition);
@@ -577,9 +385,9 @@ namespace Ship_Game.AI
             if (repairMe != null) w.FireTargetedBeam(repairMe);
         }
 
-        bool ShipNeedsRepair(Ship target, float maxDistance, Ship dontHealSelf = null)
+        bool ShipNeedsRepair(Ship target, float maxDistance, Ship doNotHealSelf = null)
         {
-            return target.Active && target != dontHealSelf
+            return target.Active && target != doNotHealSelf
                     && target.HealthPercent < ShipResupply.RepairDroneThreshold
                     && Owner.Center.Distance(target.Center) <= maxDistance;
         }
@@ -612,12 +420,12 @@ namespace Ship_Game.AI
             ShipWeight ship = NearByShips.Where(
                     s => s.Ship.loyalty != null && s.Ship.loyalty != Owner.loyalty && s.Ship.shield_power <= 0
                          && Owner.Center.Distance(s.Ship.Center) <= module.TransporterRange + 500f)
-                .OrderBy(Ship => Owner.Center.SqDist(Ship.Ship.Center)).First();
+                .OrderBy(sw => Owner.Center.SqDist(sw.Ship.Center)).First();
             if (ship.Ship == null) return;
 
-            byte TroopCount = 0;
-            var Transported = false;
-            for (byte i = 0; i < Owner.TroopList.Count(); i++)
+            int troopCount = 0;
+            bool transported = false;
+            for (int i = 0; i < Owner.TroopList.Count; ++i)
             {
                 if (Owner.TroopList[i] == null)
                     continue;
@@ -625,13 +433,13 @@ namespace Ship_Game.AI
                 {
                     ship.Ship.TroopList.Add(Owner.TroopList[i]);
                     Owner.TroopList.Remove(Owner.TroopList[i]);
-                    TroopCount++;
-                    Transported = true;
+                    troopCount++;
+                    transported = true;
                 }
-                if (TroopCount == module.TransporterTroopAssault)
+                if (troopCount == module.TransporterTroopAssault)
                     break;
             }
-            if (Transported) //@todo audio should not be here
+            if (transported) //@todo audio should not be here
             {
                 module.TransporterTimer = module.TransporterTimerConstant;
                 if (Owner.InFrustum)
@@ -798,7 +606,7 @@ namespace Ship_Game.AI
                     Owner.QueueTotalRemoval();
                     return;
                 }
-                OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
+                DoOrbit.Orbit(EscortTarget, elapsedTime);
             }
         }
     }

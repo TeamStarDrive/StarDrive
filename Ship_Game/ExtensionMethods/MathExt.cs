@@ -324,79 +324,85 @@ namespace Ship_Game
                 .Predict(proj.Weapon.CanUseAdvancedTargeting);
         }
 
-        // can be used for collision detection
-        public static Vector2 FindClosestPointOnLine(this Vector2 center, Vector2 lineStart, Vector2 lineEnd)
+        /**
+         * Finds the closest point to `center` on a line AB
+         * Can be used for collision detection
+         * @param center The reference point to find closest point to
+         * @param a Start point of the line
+         * @param b End point of the line
+         * @return closest point to `center` on line A--x-->B
+         */
+        public static Vector2 FindClosestPointOnLine(this Vector2 pos, Vector2 a, Vector2 b)
         {
-            float a1 = lineEnd.Y - lineStart.Y;
-            float b1 = lineStart.X - lineEnd.X;
-            float c1 = (lineEnd.Y - lineStart.Y) * lineStart.X + (lineStart.X - lineEnd.X) * lineStart.Y;
-            float c2 = -b1 * center.X + a1 * center.Y;
-            float det = a1*a1 + b1*b1;
-            if (det > 0.0f)
-            {
-                return new Vector2(
-                    (a1 * c1 -  b1 * c2) / det,
-                    (a1 * c2 - -b1 * c1) / det);
-            }
-            return center;
-        }
+            // https://stackoverflow.com/questions/47481774/getting-point-on-line-segment-that-is-closest-to-another-point
+            Vector2 ab = b - a;
+            Vector2 ap = pos - a;
+            // project pos onto the line segment ab
+            float abSqLen = (ab.X*ab.X + ab.Y*ab.Y);
+            float t = (ap.X*ab.X + ap.Y*ab.Y) / abSqLen; // ap.Dot(ab) / sqLen(ab)
 
-        public static Vector2 NearestPointOnFiniteLine(this Vector2 pnt,  Vector2 start, Vector2 end)
-        {
-            Vector2 line = (end - start);
-            float len = line.Length();
-            line.Normalize();
+            // clamp t to line segment:
+            if      (t < 0f) t = 0f;
+            else if (t > 1f) t = 1f;
 
-            Vector2 v = pnt - start;
-            float d = Vector2.Dot(v, line);
-            d = Clamped(d, 0f, len);
-            return start + line * d;
+            return a + t*ab; // recreate the line using clamped projection
         }
 
         // does this wide RAY collide with our Circle?
         public static bool RayHitTestCircle(this Vector2 center, float radius, Vector2 rayStart, Vector2 rayEnd, float rayRadius)
         {
-            float a1 = rayEnd.Y - rayStart.Y;
-            float b1 = rayStart.X - rayEnd.X;
-            float c1 = (rayEnd.Y - rayStart.Y) * rayStart.X + (rayStart.X - rayEnd.X) * rayStart.Y;
-            float c2 = -b1 * center.X + a1 * center.Y;
-            float det = a1*a1 + b1*b1;
-            if (det > 0.0f)
-            {
-                float r2 = radius + rayRadius;
-                float dx = center.X - ((a1 * c1 - b1 * c2) / det);
-                float dy = center.Y - ((a1 * c2 - -b1 * c1) / det);
-                return dx * dx + dy * dy <= r2 * r2;
-            }
-            return true; // ray intersects center?
+            Vector2 closest = FindClosestPointOnLine(center, rayStart, rayEnd);
+            float r2 = radius + rayRadius;
+            float dx = center.X - closest.X;
+            float dy = center.Y - closest.Y;
+            return dx*dx + dy*dy <= r2*r2;
         }
 
-        // returns distance from rayStart to the point of intersection, OR 0 if no intersect
-        public static float RayCircleIntersect(this Vector2 center, float radius, Vector2 rayStart, Vector2 rayEnd)
+        // @return TRUE and out distance from rayStart to the point of intersection,
+        //      OR FALSE if no intersect
+        // IF [start->end] is inside the circle, returns abs distance from start to edge of the circle
+        public static bool RayCircleIntersect(this Vector2 center, float radius,
+            Vector2 rayStart, Vector2 rayEnd, out float distanceFromStart)
         {
-            Vector2 d = rayEnd - rayStart;
-            Vector2 f = rayStart - center;
+            float dx = rayEnd.X - rayStart.X;
+            float dy = rayEnd.Y - rayStart.Y;
+            float a = dx*dx + dy*dy;
+            if (a <= 0.000001f) // No real solutions
+            { distanceFromStart = float.NaN; return false; }
 
-            float a = d.Dot(d);
-            float b = 2 * f.Dot(d);
-            float c = f.Dot(f) - radius * radius;
+            float dcx = rayStart.X - center.X;
+            float dcy = rayStart.Y - center.Y;
+            float c = (dcx*dcx) + (dcy*dcy) - radius*radius;
 
-            float discriminant = b*b - 4*a*c;
-            if (discriminant < 0f)
-                return 0f; // no solutions, complete miss
+            // nasty edge case, the line segment starts inside the circle
+            // NEED to handle for proper collision detection
+            if (c < 0f)  // collision happened immediately
+            { distanceFromStart = 1f; return true; }
 
-            discriminant = (float)Sqrt(discriminant);
+            float b = 2f * (dx*dcx + dy*dcy);
+            float det = b*b - 4f*a*c;
+            if (det < 0f) // No real solutions
+            { distanceFromStart = float.NaN; return false; }
 
-            float t1 = (-b - discriminant) / (2*a);
-            if (0f <= t1 && t1 <= 1f)
-                return t1 * d.Length(); // Impale, Poke
+            // Two solutions
+            det = (float)Sqrt(det);
+            float t2 = (-b - det) / (2f * a); // near intersect
+            float t1 = (-b + det) / (2f * a); // far intersect
 
-            float t2 = (discriminant - b) / (2*a);
-            if (0f <= t2 && t2 <= 1f)
-                return t2 * d.Length(); // ExitWound
+            if (t1 < 0f && t2 < 0f) // It's behind us
+            { distanceFromStart = float.NaN; return false; }
 
-            // no intersection: FallShort, Past, CompletelyInside
-            return 0f;
+            float t = Min(Abs(t2), Abs(t1));
+            // [-1, 0] we are inside
+            // [0, +1] circle is in front of us
+            if (-1f <= t && t <= 1f)
+            {
+                distanceFromStart = t * (float)Sqrt(dx*dx + dy*dy); // vector length
+                return true;
+            }
+
+            distanceFromStart = float.NaN;
+            return false;
         }
       
         /// <summary>Attempt to intersect two line segments.</summary>

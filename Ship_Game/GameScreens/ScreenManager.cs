@@ -356,7 +356,7 @@ namespace Ship_Game
 
         void PerformHotLoadTasks()
         {
-            HotloadTimer += GameInstance.DeltaTime;
+            HotloadTimer += GameInstance.FrameDeltaTime;
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;
