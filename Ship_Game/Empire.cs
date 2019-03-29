@@ -651,13 +651,10 @@ namespace Ship_Game
 
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
-<<<<<<< working copy
-            ResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
-            data.TechDelayTime = 0;
-=======
+
             ResearchStrategy = ResourceManager.GetEconomicStrategy(data.EconomicPersonality.Name);
-            data.TechDelayTime = 4;
->>>>>>> merge rev
+            data.TechDelayTime = 0;
+
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
             InitColonyRankModifier();
