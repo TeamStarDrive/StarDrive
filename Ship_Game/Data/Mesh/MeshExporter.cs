@@ -52,6 +52,9 @@ namespace Ship_Game.Data.Mesh
                                 AnimationClipDictionary animClips)
         {
             
+            var allBones = new SdModelBone[model.Bones.Count];
+            var animatedBones = new SdModelBone[animBones.Count];
+
         }
 
         unsafe void CreateMeshGroups(SdMesh* mesh, string modelExportDir, ModelMeshCollection meshes)
