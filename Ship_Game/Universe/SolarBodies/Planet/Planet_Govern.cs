@@ -190,7 +190,7 @@ namespace Ship_Game
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, int colonyRank)
         {
-            float orbitalsBudget = Money.NetRevenue + colonyRank / 2 - OrbitalsMaintenance;
+            float orbitalsBudget = Money.NetRevenue / 4 + colonyRank / 3 - OrbitalsMaintenance;
             Ship orbital         = GetBestOrbital(role, orbitalsBudget);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"Orbitals Budget: {orbitalsBudget}");
@@ -259,13 +259,13 @@ namespace Ship_Game
                     case 6:  Platforms = 2;  Stations  = 1;  Shipyards = 1; break;
                     case 7:  Platforms = 3;  Stations  = 2;  Shipyards = 1; break;
                     case 8:  Platforms = 5;  Stations  = 2;  Shipyards = 1; break;
-                    case 9:  Platforms = 7;  Stations  = 3;  Shipyards = 1; break;
-                    case 10: Platforms = 8;  Stations  = 3;  Shipyards = 2; break;
-                    case 11: Platforms = 8;  Stations  = 4;  Shipyards = 2; break;
-                    case 12: Platforms = 10; Stations  = 5;  Shipyards = 2; break;
-                    case 13: Platforms = 10; Stations  = 6;  Shipyards = 2; break;
-                    case 14: Platforms = 12; Stations  = 7;  Shipyards = 2; break;
-                    case 15: Platforms = 15; Stations  = 8;  Shipyards = 2; break;
+                    case 9:  Platforms = 2;  Stations  = 3;  Shipyards = 1; break;
+                    case 10: Platforms = 5;  Stations  = 3;  Shipyards = 2; break;
+                    case 11: Platforms = 5;  Stations  = 4;  Shipyards = 2; break;
+                    case 12: Platforms = 2;  Stations  = 5;  Shipyards = 2; break;
+                    case 13: Platforms = 5;  Stations  = 6;  Shipyards = 2; break;
+                    case 14: Platforms = 9;  Stations  = 7;  Shipyards = 2; break;
+                    case 15: Platforms = 12; Stations  = 8;  Shipyards = 2; break;
                     default: Platforms = 0;  Stations  = 0;  Shipyards = 0; break;
                 }
             }
@@ -274,7 +274,7 @@ namespace Ship_Game
         // FB - gives a value from 1 to 15 based on the max colony value in the empire
         private int FindColonyRank()
         {
-            int rank = (int)(ColonyValue / Owner.MaxColonyValue * 10);
+            int rank = (int)Math.Round(ColonyValue / Owner.MaxColonyValue * 10, 0);
             rank     = ApplyRankModifiers(rank);
 
             if (IsPlanetExtraDebugTarget())
@@ -292,10 +292,7 @@ namespace Ship_Game
             else if (Owner.Money < 1000)
                 rank -= 1;
 
-            if (RecentCombat)
-                rank += 1;
-
-            if (MaxPopulationBillion.LessOrEqual(1))
+            if (MaxPopulationBillion.LessOrEqual(3))
                 rank -= 2;
 
             switch (colonyType)

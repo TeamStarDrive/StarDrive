@@ -3,10 +3,10 @@
 // MVID: C34284EE-F947-460F-BF1D-3C6685B19387
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
-using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game.AI
 {
@@ -49,7 +49,7 @@ namespace Ship_Game.AI
         public Planet PlanetBuildingAt;
         public Planet ColonizationTarget { get; set; }
         public Ship ShipToBuild;  // this is a template
-        public Ship FinishedShip; // this is the actual ship that was built
+        private Ship ShipBuilt; // this is the actual ship that was built
         public Ship OldShip;      // this is the ship which needs refit
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
@@ -57,6 +57,18 @@ namespace Ship_Game.AI
         protected Func<bool> Holding;
 
         public abstract string UID { get; }
+
+        public Ship FinishedShip
+        {
+            get
+            {
+                if (ShipBuilt?.Active != true)
+                    ShipBuilt = null;
+                return ShipBuilt;
+            }
+            set => ShipBuilt = value;
+        }
+
         public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
 
         static Goal CreateInstance(string uid)
@@ -122,10 +134,10 @@ namespace Ship_Game.AI
         public GoalStep Evaluate()
         {
             // CG hrmm i guess this should just be part of the goal enum.
-            // But that will require more cleanup of the goals. 
-            if (Holding?.Invoke() == true) 
+            // But that will require more cleanup of the goals.
+            if (Holding?.Invoke() == true)
                 return GoalStep.TryAgain;
-            
+
             if ((uint)Step >= Steps.Length)
             {
                 Log.Error($"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
@@ -186,7 +198,7 @@ namespace Ship_Game.AI
             public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, Vector2 empireCenter, float enemyStr)
             {
                 Planet       = planet;
-                Distance     = empireCenter.Distance(planet.Center);                
+                Distance     = empireCenter.Distance(planet.Center);
                 CantColonize = IsBadWorld(planet, canColonizeBarren, planet.Storage.CommoditiesCount);
                 float jumpRange = Math.Max(Distance / 600000, 1);
                 Value      = planet.EmpireBaseValue(empire) / jumpRange;
@@ -194,7 +206,7 @@ namespace Ship_Game.AI
 
                 if (Value < 0.3f)
                     CantColonize = true;
-                
+
                 if (enemyStr > 0)
                     Value *= (empire.currentMilitaryStrength - enemyStr) / empire.currentMilitaryStrength;
             }
