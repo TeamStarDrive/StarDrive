@@ -51,40 +51,6 @@ namespace Ship_Game.Data.Mesh
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        protected struct SdVertex
-        {
-            public Vector3 Position;
-            public Vector3 Normal;
-            public Vector2 Coords;
-            public Vector3 Tangent;
-            public Vector3 BiNormal;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        [DebuggerDisplay("BoneIndices=[{A}, {B}, {C}, {D}]")]
-        protected struct SdBlendIndices
-        {
-            public byte A, B, C, D;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        protected struct SdBonePose
-        {
-            public Vector3 Translation;
-            public Quaternion Orientation;
-            public Vector3 Scale;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        protected struct SdModelBone
-        {
-            public CStrView Name;
-            public int BoneIndex;
-            public int ParentBone;
-            public SdBonePose Pose;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
         [DebuggerDisplay("Offset={Offset} Size={Size} Format={Format} Usage={Usage}")]
         protected struct SdVertexElement
         {
@@ -150,48 +116,7 @@ namespace Ship_Game.Data.Mesh
             public readonly Matrix Transform;
         }
 
-        protected static unsafe LightingEffect CreateMaterialEffect(
-            SdMaterial* mat, GraphicsDevice device, GameContentManager content, string materialFile)
-        {
-            var fx = new LightingEffect(device);
-            fx.MaterialName          = mat->Name.AsString;
-            fx.MaterialFile          = materialFile;
-            fx.ProjectFile           = "Ship_Game/Data/RawContentLoader.cs";
-            fx.DiffuseMapFile        = mat->DiffusePath.AsString;
-            fx.EmissiveMapFile       = mat->EmissivePath.AsString;
-            fx.NormalMapFile         = mat->NormalPath.AsString;
-            fx.SpecularColorMapFile  = mat->SpecularPath.AsString;
-            fx.DiffuseAmbientMapFile = "";
-            fx.ParallaxMapFile       = "";
-            if (fx.DiffuseMapFile.NotEmpty())        fx.DiffuseMapTexture        = content.Load<Texture2D>(fx.DiffuseMapFile);
-            if (fx.EmissiveMapFile.NotEmpty())       fx.EmissiveMapTexture       = content.Load<Texture2D>(fx.EmissiveMapFile);
-            if (fx.NormalMapFile.NotEmpty())         fx.NormalMapTexture         = content.Load<Texture2D>(fx.NormalMapFile);
-            if (fx.SpecularColorMapFile.NotEmpty())  fx.SpecularColorMapTexture  = content.Load<Texture2D>(fx.SpecularColorMapFile);
-            //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
-            //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
-            fx.Skinned         = false;
-            fx.DoubleSided     = false;
-
-            Texture2D alphaMap = mat->AlphaPath.NotEmpty
-                ? content.Load<Texture2D>(mat->AlphaPath.AsString)
-                : fx.DiffuseMapTexture;
-
-            fx.SetTransparencyModeAndMap(TransparencyMode.None, mat->Alpha, alphaMap);
-            fx.SpecularPower                 = 14.0f * mat->Specular;
-            fx.SpecularAmount                = 6.0f * mat->Specular;
-            fx.FresnelReflectBias            = 0.0f;
-            fx.FresnelReflectOffset          = 0.0f;
-            fx.FresnelMicrofacetDistribution = 0.0f;
-            fx.ParallaxScale                 = 0.0f;
-            fx.ParallaxOffset                = 0.0f;
-            fx.DiffuseColor  = mat->DiffuseColor;
-            //fx.EmissiveColor = mat->EmissiveColor;
-            fx.AddressModeU  = TextureAddressMode.Wrap;
-            fx.AddressModeV  = TextureAddressMode.Wrap;
-            fx.AddressModeW  = TextureAddressMode.Wrap;
-            return fx;
-        }
-
+        /////////////////////////////////////////////////////////////////////////////
 
         [DllImport("SDNative.dll")] protected static extern unsafe
             SdMesh* SDMeshOpen([MarshalAs(UnmanagedType.LPWStr)] string fileName);
@@ -213,11 +138,15 @@ namespace Ship_Game.Data.Mesh
                 [MarshalAs(UnmanagedType.LPWStr)] string groupName,
                 Matrix* transform);
 
+        /////////////////////////////////////////////////////////////////////////////
+
         [DllImport("SDNative.dll")] protected static extern unsafe
             void SDMeshGroupSetData(SdMeshGroup* group, SdVertexData vertexData);
         
         [DllImport("SDNative.dll")] protected static extern unsafe
             SdVertexData SDMeshGroupGetData(SdMeshGroup* group);
+
+        /////////////////////////////////////////////////////////////////////////////
 
         [DllImport("SDNative.dll")] protected static extern unsafe 
             SdMaterial* SDMeshCreateMaterial(SdMesh* mesh, 
@@ -237,7 +166,71 @@ namespace Ship_Game.Data.Mesh
         [DllImport("SDNative.dll")] protected static extern unsafe
             void SDMeshGroupSetMaterial(SdMeshGroup* group, SdMaterial* material);
 
+        /////////////////////////////////////////////////////////////////////////////
+            
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdBonePose
+        {
+            public Vector3 Translation;
+            public Quaternion Orientation;
+            public Vector3 Scale;
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdModelBone
+        {
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Name;
+            public int BoneIndex;
+            public int ParentBone;
+            public Matrix Transform;
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdSkinnedBone
+        {
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Name;
+            public int BoneIndex;
+            public int ParentBone;
+            public SdBonePose BindPose;
+            public Matrix InverseBindPoseTransform;
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdBoneAnimation
+        {
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string BoneName;
+            public int FrameCount;
+        };
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected struct SdAnimationClip
+        {
+            public CStrView Name;
+            public float Duration;
+        };
+
+        [DllImport("SDNative.dll")] protected static extern unsafe
+            void SDMeshAddBone(SdMesh* mesh,
+                [MarshalAs(UnmanagedType.LPWStr)] string name,
+                int boneIndex,
+                int parentBone,
+                in Matrix transform
+            );
+
+        [DllImport("SDNative.dll")] protected static extern unsafe
+            void SDMeshAddSkinnedBone(SdMesh* mesh,
+                [MarshalAs(UnmanagedType.LPWStr)] string name,
+                int boneIndex,
+                int parentBone,
+                in SdBonePose bindPose,
+                in Matrix inverseBindPoseTransform
+            );
+
+        [DllImport("SDNative.dll")] protected static extern unsafe
+            SdAnimationClip* SDMeshCreateAnimationClip(SdMesh* mesh,
+                [MarshalAs(UnmanagedType.LPWStr)] string name, float duration);
         
+        /////////////////////////////////////////////////////////////////////////////
+
         protected static SdVertexElement[] CreateVertexElements(VertexDeclaration vd)
         {
             VertexElement[] vertexElements = vd.GetVertexElements();
@@ -329,5 +322,50 @@ namespace Ship_Game.Data.Mesh
                 vertices[i].Binormal = Vector3.Normalize(vertices[i].Binormal);
             }
         }
+
+
+        
+        protected static unsafe LightingEffect CreateMaterialEffect(
+            SdMaterial* mat, GraphicsDevice device, GameContentManager content, string materialFile)
+        {
+            var fx = new LightingEffect(device);
+            fx.MaterialName          = mat->Name.AsString;
+            fx.MaterialFile          = materialFile;
+            fx.ProjectFile           = "Ship_Game/Data/RawContentLoader.cs";
+            fx.DiffuseMapFile        = mat->DiffusePath.AsString;
+            fx.EmissiveMapFile       = mat->EmissivePath.AsString;
+            fx.NormalMapFile         = mat->NormalPath.AsString;
+            fx.SpecularColorMapFile  = mat->SpecularPath.AsString;
+            fx.DiffuseAmbientMapFile = "";
+            fx.ParallaxMapFile       = "";
+            if (fx.DiffuseMapFile.NotEmpty())        fx.DiffuseMapTexture        = content.Load<Texture2D>(fx.DiffuseMapFile);
+            if (fx.EmissiveMapFile.NotEmpty())       fx.EmissiveMapTexture       = content.Load<Texture2D>(fx.EmissiveMapFile);
+            if (fx.NormalMapFile.NotEmpty())         fx.NormalMapTexture         = content.Load<Texture2D>(fx.NormalMapFile);
+            if (fx.SpecularColorMapFile.NotEmpty())  fx.SpecularColorMapTexture  = content.Load<Texture2D>(fx.SpecularColorMapFile);
+            //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
+            //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
+            fx.Skinned         = false;
+            fx.DoubleSided     = false;
+
+            Texture2D alphaMap = mat->AlphaPath.NotEmpty
+                ? content.Load<Texture2D>(mat->AlphaPath.AsString)
+                : fx.DiffuseMapTexture;
+
+            fx.SetTransparencyModeAndMap(TransparencyMode.None, mat->Alpha, alphaMap);
+            fx.SpecularPower                 = 14.0f * mat->Specular;
+            fx.SpecularAmount                = 6.0f * mat->Specular;
+            fx.FresnelReflectBias            = 0.0f;
+            fx.FresnelReflectOffset          = 0.0f;
+            fx.FresnelMicrofacetDistribution = 0.0f;
+            fx.ParallaxScale                 = 0.0f;
+            fx.ParallaxOffset                = 0.0f;
+            fx.DiffuseColor  = mat->DiffuseColor;
+            //fx.EmissiveColor = mat->EmissiveColor;
+            fx.AddressModeU  = TextureAddressMode.Wrap;
+            fx.AddressModeV  = TextureAddressMode.Wrap;
+            fx.AddressModeW  = TextureAddressMode.Wrap;
+            return fx;
+        }
+
     }
 }

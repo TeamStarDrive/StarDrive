@@ -35,6 +35,9 @@
     <Filter Include="3rdparty\fbxsdk">
       <UniqueIdentifier>{2a76bd54-7e9d-4c60-afd1-48820e3ad4dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\SdMesh">
+      <UniqueIdentifier>{f92589a6-f7c4-4c68-a4a4-898008deb53b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShipDataSerializer.cpp">
@@ -57,9 +60,6 @@
     </ClCompile>
     <ClCompile Include="ReCpp\rpp\vec.cpp">
       <Filter>rpp</Filter>
-    </ClCompile>
-    <ClCompile Include="StaticMeshLoader.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="ReCpp\rpp\sprint.cpp">
       <Filter>rpp</Filter>
@@ -118,6 +118,18 @@
     <ClCompile Include="NanoMesh\src\MeshLoader.cpp">
       <Filter>3rdparty\nano</Filter>
     </ClCompile>
+    <ClCompile Include="SdMesh\SdAnimation.cpp">
+      <Filter>src\SdMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="SdMesh\SdMaterial.cpp">
+      <Filter>src\SdMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="SdMesh\SdMesh.cpp">
+      <Filter>src\SdMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="SdMesh\SdMeshGroup.cpp">
+      <Filter>src\SdMesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
@@ -140,9 +152,6 @@
     </ClInclude>
     <ClInclude Include="ReCpp\rpp\vec.h">
       <Filter>rpp</Filter>
-    </ClInclude>
-    <ClInclude Include="StaticMeshLoader.h">
-      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="ReCpp\rpp\sprint.h">
       <Filter>rpp</Filter>
@@ -227,6 +236,18 @@
     </ClInclude>
     <ClInclude Include="ReCpp\rpp\config.h">
       <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="SdMesh\SdMesh.h">
+      <Filter>src\SdMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="SdMesh\SdMeshGroup.h">
+      <Filter>src\SdMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="SdMesh\SdMaterial.h">
+      <Filter>src\SdMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="SdMesh\SdAnimation.h">
+      <Filter>src\SdMesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
