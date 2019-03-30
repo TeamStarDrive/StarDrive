@@ -64,8 +64,6 @@ namespace Ship_Game
                         score += farmers - 0.5f;            //Bonus if planet is spending a lot of labor feeding itself
                     if (score < b.PlusFlatFoodAmount * 0.1f)
                         score = b.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
-                    if (b.PlusFlatFoodAmount + Food.FlatBonus - 0.5f > MaxPopulationBillion)
-                        score = 0;   //Dont want this if a lot would go to waste
 
                     float jumpStart = 10 * (1 - PopulationRatio) - Food.NetMaxPotential * Food.Percent; // FB - jump start a new colony
                     jumpStart = Math.Max(jumpStart, 0);
