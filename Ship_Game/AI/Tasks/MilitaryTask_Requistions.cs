@@ -677,7 +677,7 @@ namespace Ship_Game.AI.Tasks
 
             var ships = fleetShips.GetFleetByStrength(strengthNeeded);
 
-            if (ships.Count < 3 || fleetShips.AccumulatedStrength < strengthNeeded * .25f)
+            if (ships.Count < 3 || fleetShips.AccumulatedStrength < strengthNeeded * 0.9f)
                 return false;                        
 
             CreateFleet( ships, ao, "Scout Fleet");
