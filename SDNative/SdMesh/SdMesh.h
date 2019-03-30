@@ -1,0 +1,48 @@
+#pragma once
+#include <Nano/Mesh.h>
+#include "SdMeshGroup.h"
+
+namespace SdMesh
+{
+    using rpp::strview;
+    using std::unique_ptr;
+    using std::string;
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    static std::string toString(const wchar_t* wideStr)
+    {
+        return { wideStr, wideStr + wcslen(wideStr) };
+    }
+
+    struct SDMesh
+    {
+        // publicly visible in C#
+        strview Name  = "";
+        int NumGroups = 0;
+        int NumFaces  = 0;
+
+        // not mapped to C#
+        Nano::Mesh Data;
+        vector<unique_ptr<SDMeshGroup>> Groups;
+        vector<unique_ptr<SDMaterial>> Materials;
+
+        SDMesh();
+        explicit SDMesh(strview path);
+        SDMaterial* GetOrCreateMat(const shared_ptr<Nano::Material>& mat);
+
+        void SyncStats();
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    DLLAPI(SDMesh*) SDMeshOpen(const wchar_t* fileName);
+    DLLAPI(void)    SDMeshClose(SDMesh* mesh);
+    
+    DLLAPI(SDMesh*) SDMeshCreateEmpty(const wchar_t* meshName);
+    DLLAPI(bool)    SDMeshSave(SDMesh* mesh, const wchar_t* fileName);
+
+    DLLAPI(SDMeshGroup*) SDMeshGetGroup(SDMesh* mesh, int groupId);
+    DLLAPI(SDMeshGroup*) SDMeshNewGroup(SDMesh* mesh, const wchar_t* groupName, Matrix4* transform);
+
+    ////////////////////////////////////////////////////////////////////////////////////
+}

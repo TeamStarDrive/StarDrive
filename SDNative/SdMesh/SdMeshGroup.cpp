@@ -1,7 +1,6 @@
-#include "StaticMeshLoader.h"
-#include <rpp/file_io.h>
+#include "SdMesh.h"
 
-namespace SDNative
+namespace SdMesh
 {
     ////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,6 +15,7 @@ namespace SDNative
         int numIndices  = (int)indices.size();
         const Vector3* pVertices = vertices.data();
         const ushort*  pIndices  = indices.data();
+        const Vector2* pCoords   = coords.data();
 
         tangents->resize(numVertices);
         biNormals->resize(numVertices);
@@ -27,12 +27,12 @@ namespace SDNative
             int a = pIndices[i];
             int b = pIndices[i + 1];
             int c = pIndices[i + 2];
-            Vector3 p0 = vertices[a];
-            Vector3 p1 = vertices[b];
-            Vector3 p2 = vertices[c];
-            Vector2 uv0 = coords[a];
-            Vector2 uv1 = coords[b];
-            Vector2 uv2 = coords[c];
+            Vector3 p0 = pVertices[a];
+            Vector3 p1 = pVertices[b];
+            Vector3 p2 = pVertices[c];
+            Vector2 uv0 = pCoords[a];
+            Vector2 uv1 = pCoords[b];
+            Vector2 uv2 = pCoords[c];
 
             // using Eric Lengyel's approach with a few modifications
             // from Mathematics for 3D Game Programming and Computer Graphics
@@ -55,6 +55,7 @@ namespace SDNative
             pBiNormals[b] += biNormal;
             pBiNormals[c] += biNormal;
         }
+
         for (int i = 0; i < numVertices; ++i)
         {
             pTangents[i].normalize();
@@ -68,26 +69,15 @@ namespace SDNative
         : GroupId{ groupId }, TheMesh{ mesh }
     {
         Name = mesh.Data[groupId].Name;
-        Mat = mesh.GetOrCreateMat(GetGroup().Mat);
-        InitVertices();
-    }
-
-    void SDMeshGroup::InitVertices()
-    {
         Nano::MeshGroup& group = GetGroup();
+        Mat = mesh.GetOrCreateMat(group.Mat);
         if (!group.IsEmpty())
-        {
             Bounds = rpp::BoundingSphere::create(group.VertexData(), group.NumVerts());
-        }
-        else
-        {
-            fprintf(stderr, "WARNING: No mesh data for group %d\n", GroupId);
-        }
     }
 
-    template<class T> T* Resize(vector<T>& elements, MapMode& mapMode, int vertexCount)
+    template<class T> T* Resize(vector<T>& elements, Nano::MapMode& mapMode, int vertexCount)
     {
-        mapMode = MapPerVertex;
+        mapMode = Nano::MapPerVertex;
         elements.resize(vertexCount);
         return elements.data();
     }
@@ -97,72 +87,64 @@ namespace SDNative
         return (T*)((rpp::byte*)ptr + stride);
     }
 
-    void SDMeshGroup::SetData(SDVertexData vd)
+    void SDMeshGroup::SetVertexDataFor(Nano::MeshGroup& group, const SDVertexData& vd) const
     {
-        MeshGroup& group = GetGroup();
         Matrix4 transform = Transform.inverse();
+        int numVertices = vd.VertexCount;
+        int stride = vd.VertexStride;
 
+        if (const auto* src = vd.GetOffset<Vector3>(SDElementUsage::Position)) {
+            group.Verts.resize(numVertices);
+            auto* dst = group.Verts.data();
+            for (int i = 0; i < numVertices; ++i) {
+                Vector3 pos = transform * (*src);
+                dst[i] = { pos.x, -pos.z, -pos.y };
+                src = Next(src, stride);
+            }
+        }
+        if (const auto* src = vd.GetOffset<Vector2>(SDElementUsage::Coordinate)) {
+            auto* dst = Resize(group.Coords, group.CoordsMapping, numVertices);
+            for (int i = 0; i < numVertices; ++i) {
+                Vector2 uv = *src;
+                dst[i] = { uv.x, 1.0f - uv.y };
+                src = Next(src, stride);
+            }
+        }
+        if (const auto* src = vd.GetOffset<Vector3>(SDElementUsage::Normal))
+        {
+            auto* dst = Resize(group.Normals, group.NormalsMapping, numVertices);
+            for (int i = 0; i < numVertices; ++i) {
+                Vector3 normal = transform * (*src);
+                dst[i] = { normal.x, -normal.z, -normal.y };
+                src = Next(src, stride);
+            }
+        }
+        if (const auto* src = vd.GetOffset<Nano::BlendWeights>(SDElementUsage::BlendWeight)) {
+            auto* dst = Resize(group.BlendWeights, group.BlendMapping, numVertices);
+            for (int i = 0; i < numVertices; ++i) {
+                dst[i] = *src;
+                src = Next(src, stride);
+            }
+        }
+        if (const auto* src = vd.GetOffset<Nano::BlendIndices>(SDElementUsage::BlendIndices)) {
+            auto* dst = Resize(group.BlendIndices, group.BlendMapping, numVertices);
+            for (int i = 0; i < numVertices; ++i) {
+                dst[i] = *src;
+                src = Next(src, stride);
+            }
+        }
+    }
+
+    void SDMeshGroup::SetData(const SDVertexData& vd)
+    {
+        Nano::MeshGroup& group = GetGroup();
         group.Clear();
         Layout.clear();
         IndexData.clear();
         VertexData.clear();
 
-        int numVertices = vd.VertexCount;
-        if (numVertices > 0)
-        {
-            int stride = vd.VertexStride;
-
-            if (const auto* src = vd.GetOffset<Vector3>(SDElementUsage::Position))
-            {
-                group.Verts.resize(numVertices);
-                auto* dst = group.Verts.data();
-                for (int i = 0; i < numVertices; ++i)
-                {
-                    Vector3 pos = transform * (*src);
-                    dst[i] = { pos.x, -pos.z, -pos.y };
-                    src = Next(src, stride);
-                }
-                Bounds = BoundingSphere::create(dst, numVertices);
-            }
-            if (const auto* src = vd.GetOffset<Vector2>(SDElementUsage::Coordinate))
-            {
-                auto* dst = Resize(group.Coords, group.CoordsMapping, numVertices);
-                for (int i = 0; i < numVertices; ++i)
-                {
-                    Vector2 uv = *src;
-                    dst[i] = { uv.x, 1.0f - uv.y };
-                    src = Next(src, stride);
-                }
-            }
-            if (const auto* src = vd.GetOffset<Vector3>(SDElementUsage::Normal))
-            {
-                auto* dst = Resize(group.Normals, group.NormalsMapping, numVertices);
-                for (int i = 0; i < numVertices; ++i)
-                {
-                    Vector3 normal = transform * (*src);
-                    dst[i] = { normal.x, -normal.z, -normal.y };
-                    src = Next(src, stride);
-                }
-            }
-            if (const auto* src = vd.GetOffset<BlendWeights>(SDElementUsage::BlendWeight))
-            {
-                auto* dst = Resize(group.BlendWeights, group.BlendMapping, numVertices);
-                for (int i = 0; i < numVertices; ++i)
-                {
-                    dst[i] = *src;
-                    src = Next(src, stride);
-                }
-            }
-            if (const auto* src = vd.GetOffset<BlendIndices>(SDElementUsage::BlendIndices))
-            {
-                auto* dst = Resize(group.BlendIndices, group.BlendMapping, numVertices);
-                for (int i = 0; i < numVertices; ++i)
-                {
-                    dst[i] = *src;
-                    src = Next(src, stride);
-                }
-            }
-        }
+        SetVertexDataFor(group, vd);
+        Bounds = rpp::BoundingSphere::create(group.Verts);
 
         const bool hasCoords  = !group.Coords.empty();
         const bool hasNormals = !group.Normals.empty();
@@ -174,7 +156,7 @@ namespace SDNative
             int v0 = vd.IndexData[i];
             int v1 = vd.IndexData[i+1];
             int v2 = vd.IndexData[i+2];
-            Triangle& tri = destFaces[faceId];
+            Nano::Triangle& tri = destFaces[faceId];
             tri.a = { v0, hasCoords?v0:-1, hasNormals?v0:-1 };
             tri.b = { v1, hasCoords?v1:-1, hasNormals?v1:-1 };
             tri.c = { v2, hasCoords?v2:-1, hasNormals?v2:-1 };
@@ -200,16 +182,16 @@ namespace SDNative
         IndexData.clear();
         VertexData.clear();
 
-        MeshGroup& group = GetGroup();
+        Nano::MeshGroup& group = GetGroup();
         if (group.NumVerts() == 0)
             return {};
 
         // Sunburn expects ClockWise
-        group.SetFaceWinding(FaceWinding::CW);
+        group.SetFaceWinding(Nano::FaceWinding::CW);
         group.OptimizedFlatten(); // force numVertices == numCoords == numNormals
         group.CreateIndexArray(IndexData);
 
-        SDVertexData vd;
+        SDVertexData vd {};
         vd.VertexStride = 0;
         vd.IndexCount  = (int)IndexData.size();
         vd.VertexCount = group.NumVerts();
@@ -284,107 +266,10 @@ namespace SDNative
         stride += element.Size;
     }
 
-    Mesh&      SDMeshGroup::GetMesh()  const { return TheMesh.Data; }
-    MeshGroup& SDMeshGroup::GetGroup() const { return TheMesh.Data[GroupId]; }
+    Nano::Mesh&      SDMeshGroup::GetMesh()  const { return TheMesh.Data; }
+    Nano::MeshGroup& SDMeshGroup::GetGroup() const { return TheMesh.Data[GroupId]; }
 
     ////////////////////////////////////////////////////////////////////////////////////
-
-    SDMesh::SDMesh() = default;
-
-    SDMesh::SDMesh(strview path) : Data{ path }
-    {
-        Name = Data.Name;
-        Groups.resize(Data.NumGroups());
-        for (int i = 0; i < Data.NumGroups(); ++i)
-        {
-            Groups[i] = std::make_unique<SDMeshGroup>(*this, i);
-        }
-        SyncStats();
-    }
-
-    SDMeshGroup* SDMesh::GetGroup(int groupId)
-    {
-        if (Data.IsValidGroup(groupId))
-            return Groups[groupId].get();
-        return nullptr;
-    }
-
-    SDMeshGroup* SDMesh::AddGroup(string groupName)
-    {
-        MeshGroup& group = Data.CreateGroup(move(groupName));
-        auto* g = Groups.emplace_back(std::make_unique<SDMeshGroup>(*this, group.GroupId)).get();
-        SyncStats();
-        return g;
-    }
-
-    SDMaterial* SDMesh::GetOrCreateMat(const shared_ptr<Nano::Material>& mat)
-    {
-        if (!mat)
-            return nullptr;
-
-        for (unique_ptr<SDMaterial>& mapping : Materials)
-            if (mapping->Mat == mat)
-                return mapping.get();
-
-        Materials.push_back(std::make_unique<SDMaterial>(mat)); // add new
-        return Materials.back().get();
-    }
-
-    void SDMesh::SyncStats()
-    {
-        Name      = Data.Name;
-        NumGroups = Data.NumGroups();
-        NumFaces  = Data.TotalTris();
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////
-
-    static string to_string(const wchar_t* wideStr)
-    {
-        return { wideStr, wideStr + wcslen(wideStr) };
-    }
-
-    DLLAPI(SDMesh*) SDMeshOpen(const wchar_t* fileName)
-    {
-        auto sdm = new SDMesh{ to_string(fileName) };
-        if (!sdm->Data) {
-            SDMeshClose(sdm);
-            return nullptr;
-        }
-        return sdm;
-    }
-
-    DLLAPI(void) SDMeshClose(SDMesh* mesh)
-    {
-        delete mesh;
-    }
-
-    DLLAPI(SDMeshGroup*) SDMeshGetGroup(SDMesh* mesh, int groupId)
-    {
-        return mesh ? mesh->GetGroup(groupId) : nullptr;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////
-
-    DLLAPI(SDMesh*) SDMeshCreateEmpty(const wchar_t* meshName)
-    {
-        auto* mesh = new SDMesh{};
-        mesh->Data.Name = to_string(meshName);
-        mesh->Name = mesh->Data.Name;
-        return mesh;
-    }
-
-    DLLAPI(bool) SDMeshSave(SDMesh* mesh, const wchar_t* fileName)
-    {
-        return mesh->Data.SaveAs(to_string(fileName));
-    }
-
-    DLLAPI(SDMeshGroup*) SDMeshNewGroup(SDMesh* mesh, const wchar_t* groupName, Matrix4* transform)
-    {
-        SDMeshGroup* group = mesh->AddGroup(to_string(groupName));
-        if (transform) group->Transform = *transform;
-        return group;
-    }
 
     DLLAPI(void) SDMeshGroupSetData(SDMeshGroup* group, SDVertexData data)
     {
@@ -394,51 +279,6 @@ namespace SDNative
     DLLAPI(SDVertexData) SDMeshGroupGetData(SDMeshGroup* group)
     {
         return group->CreateCachedVertexData();
-    }
-
-    DLLAPI(SDMaterial*) SDMeshCreateMaterial(
-        SDMesh* mesh,
-        const wchar_t* name, 
-        const wchar_t* diffusePath, 
-        const wchar_t* alphaPath, 
-        const wchar_t* specularPath, 
-        const wchar_t* normalPath, 
-        const wchar_t* emissivePath, 
-        Color3 ambientColor, 
-        Color3 diffuseColor, 
-        Color3 specularColor, 
-        Color3 emissiveColor, 
-        float specular, 
-        float alpha)
-    {
-        shared_ptr<Nano::Material> matPtr = std::make_shared<Nano::Material>();
-        Material& mat = *matPtr;
-        mat.Name          = to_string(name);
-        mat.DiffusePath   = to_string(diffusePath);
-        mat.AlphaPath     = to_string(alphaPath);
-        mat.SpecularPath  = to_string(specularPath);
-        mat.NormalPath    = to_string(normalPath);
-        mat.EmissivePath  = to_string(emissivePath);
-        mat.AmbientColor  = ambientColor;
-        mat.DiffuseColor  = diffuseColor;
-        mat.SpecularColor = specularColor;
-        mat.EmissiveColor = emissiveColor;
-        mat.Specular      = specular;
-        mat.Alpha         = alpha;
-
-        SDMaterial* sdMat = mesh->GetOrCreateMat(matPtr);
-        mesh->SyncStats();
-        return sdMat;
-    }
-
-    DLLAPI(void) SDMeshGroupSetMaterial(SDMeshGroup* group, SDMaterial* material)
-    {
-        group->Mat = material;
-        group->GetGroup().Mat = material ? material->Mat : nullptr;
-    }
-
-    DLLAPI(void) SDMeshGroupSetSkeleton(SDMeshGroup* group)
-    {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
