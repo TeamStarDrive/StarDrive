@@ -48,7 +48,7 @@ namespace Ship_Game
             Source                  = source;
             Destination             = destination;
             ActualHitDestination = Destination;
-            BeamCollidedThisFrame = true; // 
+            BeamCollidedThisFrame = true; //
 
             Initialize();
             weapon.ModifyProjectile(this);
@@ -89,11 +89,8 @@ namespace Ship_Game
         {
             Weapon.ResetToggleSound();
             if (Weapon.drowner != null)
-            {
-                (Weapon.drowner as Projectile)?.DroneAI.Beams.QueuePendingRemoval(this);
                 SetSystem(Weapon.drowner.System);
-            }
-            
+
             base.Die(source, cleanupOnly);
         }
 
@@ -106,7 +103,7 @@ namespace Ship_Game
             lock (GlobalStats.BeamEffectLocker)
             {
                 Empire.Universe.beamflashes.AddParticleThreadA(new Vector3(Source, BeamZ), Vector3.Zero);
-                
+
                 var hit = new Vector3(ActualHitDestination, BeamZ);
                 if (BeamCollidedThisFrame) // a cool hit effect
                 {
