@@ -52,6 +52,36 @@ namespace Ship_Game.Data.Mesh
                                 AnimationClipDictionary animClips)
         {
             
+            int allBones = model.Bones.Count;
+            for (int i = 0; i < allBones; ++i)
+            {
+                ModelBone b = model.Bones[i];
+                SDMeshAddBone(mesh, b.Name, b.Index, b.Parent?.Index ?? -1, b.Transform);
+            }
+
+            int animatedBones = animBones.Count;
+            for (int i = 0; i < animatedBones; ++i)
+            {
+                SkinnedModelBone bone = animBones[i];
+                Pose pose = bone.BindPose;
+                var sdPose = new SdBonePose
+                {
+                    Translation = pose.Translation,
+                    Orientation = pose.Orientation,
+                    Scale = pose.Scale
+                };
+                SDMeshAddSkinnedBone(mesh, bone.Name, bone.Index, bone.Parent?.Index ?? -1,
+                                     sdPose, bone.InverseBindPoseTransform);
+            }
+
+            AnimationClip[] clips = animClips.Values.Sorted(clip => clip.Name);
+            foreach (AnimationClip c in clips)
+            {
+                SdAnimationClip* clip = SDMeshCreateAnimationClip(
+                    mesh, c.Name, (float)c.Duration.TotalSeconds);
+
+                AnimationChannelDictionary channels = c.Channels;
+            }
         }
 
         unsafe void CreateMeshGroups(SdMesh* mesh, string modelExportDir, ModelMeshCollection meshes)
