@@ -223,7 +223,7 @@ namespace Ship_Game.Ships
                 addFood      += module.numberOfFood;
                 addProd      += module.numberOfEquipment;
                 addColonists += module.numberOfColonists;
-                if (buildingId.NotEmpty())
+                if (module.DeployBuildingOnColonize.NotEmpty())
                     specialBuildingIDs.Add(module.DeployBuildingOnColonize);
             }
 
