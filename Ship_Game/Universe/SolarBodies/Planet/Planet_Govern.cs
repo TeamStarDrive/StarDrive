@@ -140,7 +140,7 @@ namespace Ship_Game
 
         private void BuildOrbital(ShipData.RoleName role, int colonyRank)
         {
-            if (OrbitalsInTheWorks)
+            if (OrbitalsInTheWorks || !HasSpacePort)
                 return;
 
             Ship orbital = PickOrbitalToBuild(role, colonyRank);
@@ -274,7 +274,7 @@ namespace Ship_Game
         // FB - gives a value from 1 to 15 based on the max colony value in the empire
         private int FindColonyRank()
         {
-            int rank = (int)(ColonyValue / Owner.MaxColonyValue * 10);
+            int rank = (int)Math.Round(ColonyValue / Owner.MaxColonyValue * 10, 0);
             rank     = ApplyRankModifiers(rank);
 
             if (IsPlanetExtraDebugTarget())

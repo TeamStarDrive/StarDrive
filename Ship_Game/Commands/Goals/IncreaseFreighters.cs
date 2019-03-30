@@ -5,7 +5,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class IncreaseFreighters : Goal
+    public class IncreaseFreighters : BuildShipsGoalBase
     {
         public const string ID = "IncreaseFreighters";
         public override string UID => ID;
@@ -19,6 +19,7 @@ namespace Ship_Game.Commands.Goals
                 ReportGoalCompleteToEmpire
             };
         }
+
         public IncreaseFreighters(Empire empire) : this()
         {
             this.empire = empire;
@@ -26,11 +27,10 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            Ship freighter = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio);
-            if (freighter == null)
+            if (!GetFreighter(out Ship freighter))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, freighter, out Planet planet))
+            if (!FindPlanetToBuildShipAt(SpacePortType.Safe, freighter, out Planet planet))
                 return GoalStep.TryAgain;
 
             planet.Construction.AddShip(freighter, this, notifyOnEmpty: false);
