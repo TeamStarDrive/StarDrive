@@ -96,13 +96,6 @@ namespace Ship_Game.AI.Tasks
             this.Owner = Owner;
         }
 
-        public float GetCurrentFleetStr()
-        {
-            return Fleet?.GetStrength() ?? 0;
-        }
-
-        public Vector2 GetFleetPosition => Fleet?.Position ?? Owner.Capital.Center;
-
         private bool DeclareWar()
         {
             if (Owner.GetRelations(TargetPlanet.Owner).PreparingForWar)
