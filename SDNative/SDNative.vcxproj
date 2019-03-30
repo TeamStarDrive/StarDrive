@@ -139,8 +139,11 @@
     <ClInclude Include="ReCpp\rpp\sprint.h" />
     <ClInclude Include="ReCpp\rpp\strview.h" />
     <ClInclude Include="ReCpp\rpp\vec.h" />
+    <ClInclude Include="SdMesh\SdAnimation.h" />
+    <ClInclude Include="SdMesh\SdMaterial.h" />
+    <ClInclude Include="SdMesh\SdMesh.h" />
+    <ClInclude Include="SdMesh\SdMeshGroup.h" />
     <ClInclude Include="ShipDataSerializer.h" />
-    <ClInclude Include="StaticMeshLoader.h" />
     <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="NodeParser.h" />
   </ItemGroup>
@@ -168,8 +171,11 @@
     <ClCompile Include="ReCpp\rpp\sprint.cpp" />
     <ClCompile Include="ReCpp\rpp\strview.cpp" />
     <ClCompile Include="ReCpp\rpp\vec.cpp" />
+    <ClCompile Include="SdMesh\SdAnimation.cpp" />
+    <ClCompile Include="SdMesh\SdMaterial.cpp" />
+    <ClCompile Include="SdMesh\SdMesh.cpp" />
+    <ClCompile Include="SdMesh\SdMeshGroup.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
-    <ClCompile Include="StaticMeshLoader.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
     <ClCompile Include="util\save_image.cpp" />
   </ItemGroup>
