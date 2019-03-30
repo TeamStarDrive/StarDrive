@@ -321,7 +321,10 @@ namespace Ship_Game.Gameplay
                 && Owner.Ordinance    >= OrdinanceRequiredToFire;
         }
 
-        bool CanFireWeaponCooldown() => CooldownTimer <= 0f && CanFireWeapon();
+        bool CanFireWeaponCooldown()
+        {
+            return CooldownTimer <= 0f && CanFireWeapon();
+        }
 
         void PrepareToFire()
         {
@@ -577,9 +580,9 @@ namespace Ship_Game.Gameplay
         {
             // Reasons for this weapon not to choose a new target
             if (TargetChangeTimer > 0f // not ready yet
-                || IsRepairDrone // repair drones already have a target
-                || isRepairBeam
-                || SalvoTimer > 0f) // we are still firing salvos
+                || IsRepairDrone // TODO: is this correct?
+                || isRepairBeam  // TODO: repair beams are managed by repair drone ai?
+                || SalvosToFire > 0) // we are still firing salvos
                 return false;
 
             if (!IsTargetAliveAndInRange(FireTarget))
