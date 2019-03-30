@@ -87,12 +87,13 @@ namespace Ship_Game
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
+            Weapon.ResetToggleSound();
             if (Weapon.drowner != null)
             {
                 (Weapon.drowner as Projectile)?.DroneAI.Beams.QueuePendingRemoval(this);
                 SetSystem(Weapon.drowner.System);
             }
-            Weapon.ResetToggleSound();
+            
             base.Die(source, cleanupOnly);
         }
 

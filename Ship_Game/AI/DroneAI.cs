@@ -82,8 +82,11 @@ namespace Ship_Game.AI
                     DroneWeapon.FireDroneBeam(DroneTarget, this);                    
                 }
                 for (int i = 0; i < Beams.Count; ++i)
-                {           
-                    Beams[i].UpdateDroneBeam(Drone.Center, DroneTarget.Center, DroneWeapon.BeamThickness, elapsedTime);
+                {
+                    var droneBeam = Beams[i];
+                    droneBeam.UpdateDroneBeam(Drone.Center, DroneTarget.Center, DroneWeapon.BeamThickness, elapsedTime);
+                    if (!droneBeam.Active)
+                        Beams.RemoveAtSwapLast(i);
                     
                 }
                 OrbitShip(DroneTarget, elapsedTime);
