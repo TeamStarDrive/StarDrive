@@ -1,12 +1,10 @@
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.AI;
-using Ship_Game.Audio;
-using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -274,24 +272,6 @@ namespace Ship_Game
             }
         }
 
-        //public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, float elapsedTime)
-        //{
-        //    Duration -= elapsedTime;
-        //    Thickness = thickness;
-        //    Source    = srcCenter;
-        //    ActualHitDestination = dstCenter;
-        //    // apply drone repair effect, 5 times more if not in combat
-        //    if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
-        //    {
-        //        float repairMultiplier = targetShip.InCombat ? 1 : 5;
-        //        targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * elapsedTime, Owner?.Level ?? 0);
-        //    }
-
-        //    UpdateBeamMesh();
-        //    if (Duration < 0f && !Infinite)
-        //        Die(null, true);
-        //}
-
         protected override void Dispose(bool disposing)
         {
             QuadVertexDecl?.Dispose(ref QuadVertexDecl);
@@ -343,6 +323,8 @@ namespace Ship_Game
         }
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
+            //im confused on this setsystem. why are we doing this?
+            //pretty sure its going to be set to null later int he die process.
             SetSystem(Drone.Drone.Owner.System);
             base.Die(source, cleanupOnly);
         }
