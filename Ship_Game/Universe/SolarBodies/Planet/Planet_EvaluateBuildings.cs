@@ -755,19 +755,6 @@ namespace Ship_Game
                 debtTolerance += 2f - MaxPopulationBillion;
 
             return budget + debtTolerance;
-            /*
-            float budget = Owner.GetEmpireAI().GetBudgetFromEmpire(this)
-            // FB this will give the budget the colony will have for building selection
-            float colonyIncome  = Money.NetRevenue;
-            colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
-            float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
-            if (MaxPopulationBillion < 2)
-                debtTolerance += 2f - MaxPopulationBillion;
-            if (BuildingList.Any(b => b.IsCapital))
-                debtTolerance = 0; // limit negative tolerance for homeworlds
-
-            debtTolerance      += Owner.Money / 2000; // FB this will ensure AI wont get stuck with no colony budget
-            return colonyIncome + debtTolerance;*/
         }
 
         bool OutpostBuiltOrInQueue()
