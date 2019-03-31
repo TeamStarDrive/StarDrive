@@ -16,9 +16,9 @@ namespace Ship_Game
             RefreshBuildingsWeCanBuildHere();
             BuildOutpostIfAble();   //If there is no Outpost or Capital, build it
 
-            if (colonyType == ColonyType.Colony) return; // No Governor? Nevermind!
+            if (colonyType == ColonyType.Colony)
+                return; // No Governor? Nevermind!
 
-            float budget    = BuildingBudget();
             bool noResearch = Owner.ResearchTopic.IsEmpty();
 
             // Switch to Core if there is nothing in the research queue (Does not actually change assigned Governor)
@@ -38,33 +38,33 @@ namespace Ship_Game
                     break;
                 case ColonyType.Core:
                     AssignCoreWorldWorkers();
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings();
                     DetermineFoodState(0.2f, 0.5f); // Start Importing if stores drop below 20%, and stop importing once stores are above 50%.
                     DetermineProdState(0.2f, 0.5f); // Start Exporting if stores are above 50%, but dont stop exporting unless stores drop below 25%.
                     break;
                 case ColonyType.Industrial:
                     // Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
                     AssignOtherWorldsWorkers(0.333f, 1);
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings();
                     DetermineFoodState(0.5f, 1);    // Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     DetermineProdState(0.15f, 0.666f); // Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     break;
                 case ColonyType.Research:
                     //This governor will rely on imports, focusing on research as long as no one is starving
                     AssignOtherWorldsWorkers(0.333f, 0.333f);
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings();
                     DetermineFoodState(0.5f, 1); // Import if either drops below 50%, and stop importing once stores reach 100%.
                     DetermineProdState(0.5f, 1); // This planet will only export Food or Prod if there is excess FlatFood or FlatProd
                     break;
                 case ColonyType.Agricultural:
                     AssignOtherWorldsWorkers(1, 0.333f);
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings();
                     DetermineFoodState(0.15f, 0.5f); // Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 50%, and dont stop unless below 33%.
                     DetermineProdState(0.25f, 1);    // Start Importing if prod drops below 25%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
                     break;
                 case ColonyType.Military:
                     AssignOtherWorldsWorkers(0.5f, 0.5f);
-                    BuildAndScrapBuildings(budget);
+                    BuildAndScrapBuildings();
                     DetermineFoodState(0.5f, 0.95f); // Import if either drops below 50%, and stop importing once stores reach 95%.
                     DetermineProdState(0.75f, 1); // This planet will only export Food or Prod due to excess FlatFood or FlatProd
                     break;

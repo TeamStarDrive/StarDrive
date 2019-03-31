@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using Ship_Game.AI.Budget;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
@@ -724,11 +725,10 @@ namespace Ship_Game
         }
 
         //New Build Logic by Gretman, modified by FB
-        void BuildAndScrapBuildings(float budget)
+        void BuildAndScrapBuildings()
         {
+            float budget             = BuildingBudget();
             int totalBuildings       = TotalBuildings;
-            float popRatio           = PopulationRatio;
-
             if (budget < -0.1f)
             {
                 ScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
@@ -748,6 +748,15 @@ namespace Ship_Game
 
         float BuildingBudget()
         {
+            PlanetBudget allocatedBudget = new PlanetBudget(this);
+            float budget                 = allocatedBudget.Budget - Construction.TotalQueuedBuildingMaintenance();
+            float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+            if (MaxPopulationBillion < 2)
+                debtTolerance += 2f - MaxPopulationBillion;
+
+            return budget + debtTolerance;
+            /*
+            float budget = Owner.GetEmpireAI().GetBudgetFromEmpire(this)
             // FB this will give the budget the colony will have for building selection
             float colonyIncome  = Money.NetRevenue;
             colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
@@ -758,7 +767,7 @@ namespace Ship_Game
                 debtTolerance = 0; // limit negative tolerance for homeworlds
 
             debtTolerance      += Owner.Money / 2000; // FB this will ensure AI wont get stuck with no colony budget
-            return colonyIncome + debtTolerance;
+            return colonyIncome + debtTolerance;*/
         }
 
         bool OutpostBuiltOrInQueue()
