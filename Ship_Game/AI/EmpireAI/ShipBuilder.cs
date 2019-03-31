@@ -139,6 +139,32 @@ namespace Ship_Game.AI
             return pickedShip.Name;
         }
 
+        public static bool PickColonyShip(Empire empire, out Ship colonyShip)
+        {
+            if (empire.isPlayer)
+            {
+                ResourceManager.GetShipTemplate(empire.data.CurrentAutoColony, out colonyShip);
+            }
+            else
+            {
+                colonyShip = ShipsWeCanBuild(empire).FindMaxFiltered(s => s.isColonyShip,
+                                                                   s => s.StartingColonyGoods() 
+                                                                                + s.NumBuildingsDeployedOnColonize() * 20);
+            }
+
+            if (colonyShip == null)
+            {
+                if (!ResourceManager.GetShipTemplate(empire.data.DefaultColonyShip, out colonyShip))
+                {
+                    Log.Error($"{empire} failed to find a ColonyShip template! AutoColony:{empire.data.CurrentAutoColony}" +
+                              $"  Default:{empire.data.DefaultColonyShip}");
+
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public static Ship PickShipToRefit(Ship oldShip, Empire empire)
         {
             Ship[] ships = ShipsWeCanBuild(empire).Filter(s => s.shipData.Hull == oldShip.shipData.Hull

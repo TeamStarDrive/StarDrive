@@ -255,12 +255,14 @@ namespace Ship_Game
                     if (ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last2))
                     {
                         string goodsType = last2.Trade?.Goods.ToString();
-                        string blockade = last2.Trade?.BlockadeTimer < 120 ? Localizer.Token(1964) : "";
+                        string blockade  = last2.Trade?.BlockadeTimer < 120 ? Localizer.Token(1964) : "";
+                        string status    = "";
                         switch (last2.Plan)
                         {
-                            case ShipAI.Plan.PickupGoods:  return $"{Localizer.Token(160)} {goodsType} {blockade}";
-                            case ShipAI.Plan.DropOffGoods: return $"{Localizer.Token(163)} {goodsType} {blockade}";
+                            case ShipAI.Plan.PickupGoods:  status = Localizer.Token(160); break;
+                            case ShipAI.Plan.DropOffGoods: status = Localizer.Token(163); break;
                         }
+                        return $"{status} {goodsType} from {last2.Trade?.ExportFrom.Name} to {last2.Trade?.ImportTo.Name} {blockade}";
                     }
                     return $"{Localizer.Token(164)} \n {Localizer.Token(165)}";
                 case AIState.AttackRunner:
