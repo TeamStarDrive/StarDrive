@@ -731,7 +731,7 @@ namespace Ship_Game
 
             if (budget < -0.1f)
             {
-                ScrapBuilding(budget, popRatio); // we must scrap something to bring us above of our debt tolerance
+                ScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
                 return; 
             }
 
@@ -751,7 +751,9 @@ namespace Ship_Game
             // FB this will give the budget the colony will have for building selection
             float colonyIncome  = Money.NetRevenue;
             colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
-            float debtTolerance = (3 - PopulationBillion).Clamped(-3,3); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+            float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+            if (MaxPopulationBillion < 2)
+                debtTolerance += 2f - MaxPopulationBillion;
             if (BuildingList.Any(b => b.IsCapital))
                 debtTolerance = 0; // limit negative tolerance for homeworlds
 
