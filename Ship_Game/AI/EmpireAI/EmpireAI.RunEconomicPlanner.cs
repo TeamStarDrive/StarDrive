@@ -112,6 +112,5 @@ namespace Ship_Game.AI
         }
 
         public PlanetBudget PlanetBudget(Planet planet) => new PlanetBudget(planet);        
-
     }
 }
