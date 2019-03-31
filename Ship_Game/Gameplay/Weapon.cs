@@ -694,12 +694,10 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        public void FireDroneBeam(GameplayObject target, DroneAI droneAI)
+        public DroneBeam FireDroneBeam(DroneAI droneAI)
         {
             drowner = droneAI.Drone;
-            var beam = new Beam(this, drowner.Center, target.Center, target);
-
-            droneAI.Beams.Add(beam);
+            return new DroneBeam(droneAI);
         }
 
         public void FireTargetedBeam(GameplayObject target)

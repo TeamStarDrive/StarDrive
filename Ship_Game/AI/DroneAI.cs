@@ -1,19 +1,18 @@
-using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game.AI
 {
-    public sealed class DroneAI: IDisposable
+    public sealed class DroneAI 
     {
         public readonly Projectile Drone;
-        private Ship DroneTarget;
+        public Ship DroneTarget { get; private set; }
         private float ThinkTimer;
         public Weapon DroneWeapon;
         private float OrbitalAngle;
-        public BatchRemovalCollection<Beam> Beams = new BatchRemovalCollection<Beam>();
-
+        readonly Ship.ProjectileCollection<DroneBeam> Beams = new Ship.ProjectileCollection<DroneBeam>();
         public DroneAI(Projectile drone)
         {
             Drone = drone;
@@ -23,19 +22,19 @@ namespace Ship_Game.AI
         public void ChooseTarget()
         {
             var target = Drone.Owner?.AI.FriendliesNearby
-                .FindMinFiltered(ship => ship.Active && ship.Mothership == null 
+                .FindMinFiltered(ship => ship.Active && ship.Mothership == null
                                                      && ship.Health < ship.HealthMax
                                                      && ship.Center.InRadius(Drone.Owner.Center, 10000)
                 , ship =>
-                {                                        
+                {
                     var ownerCenter      = Drone.Owner.Center;
                     var distance         = ship.Center.Distance(ownerCenter);
-                    var distanceWieght   = 1 + (int)(10 * distance / DroneWeapon.Range);                    
-                    var repairWeight     = (int)ship.HealthStatus;                    
+                    var distanceWieght   = 1 + (int)(10 * distance / DroneWeapon.Range);
+                    var repairWeight     = (int)ship.HealthStatus;
                     float weight         = distanceWieght * repairWeight ;
                     return weight;
                 });
-            
+
             DroneTarget = target;
         }
 
@@ -58,7 +57,6 @@ namespace Ship_Game.AI
         {
             DroneWeapon.CooldownTimer -= elapsedTime;
 
-            Beams.ApplyPendingRemovals();
             ThinkTimer -= elapsedTime;
             if (ThinkTimer <= 0f && (DroneTarget == null || !DroneTarget.Active || DroneTarget.HealthStatus < ShipStatus.NotApplicable))
             {
@@ -68,41 +66,40 @@ namespace Ship_Game.AI
 
             if (DroneTarget == null)
             {
-                for (int i = 0; i < Beams.Count; ++i)
-                    Beams[i].Die(null, true);
+                Beams.KillActive(true, true);
                 if (Drone.Owner != null)
                     OrbitShip(Drone.Owner, elapsedTime);
             }
             else
             {
-                if (Beams.Count ==0 && DroneTarget.Health < DroneTarget.HealthMax
-                    && DroneWeapon.CooldownTimer <= 0f
-                    && DroneTarget != null && Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.Range)
-                {
-                    DroneWeapon.FireDroneBeam(DroneTarget, this);                    
-                }
-                for (int i = 0; i < Beams.Count; ++i)
-                {
-                    var droneBeam = Beams[i];
-                    droneBeam.UpdateDroneBeam(Drone.Center, DroneTarget.Center, DroneWeapon.BeamThickness, elapsedTime);
-                    if (!droneBeam.Active)
-                        Beams.RemoveAtSwapLast(i);
-                    
-                }
+                TryFireDroneBeam();
+                if (Beams.NotEmpty) 
+                    Beams.Update(elapsedTime);
                 OrbitShip(DroneTarget, elapsedTime);
             }
         }
 
-        public void Dispose()
+        private void TryFireDroneBeam()
         {
-            Destroy();
-            GC.SuppressFinalize(this);
+            if (Beams.Count == 0 && DroneTarget.Health < DroneTarget.HealthMax
+                                 && DroneWeapon.CooldownTimer <= 0f
+                                 && DroneTarget != null && Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.Range)
+            {
+                DroneBeam droneBeam = DroneWeapon.FireDroneBeam(this);
+                Beams.Add(droneBeam);
+            }
         }
-        ~DroneAI() { Destroy(); }
 
-        private void Destroy()
+        public void KillAllBeams() => Beams.KillActive(true, true);
+
+        public void DrawBeams(GameScreen screen)
         {
-            Beams?.Dispose(ref Beams);
-        }
+            using (Beams.AcquireReadLock())
+                for (int i = 0; i < Beams.Count; i++)
+                {
+                    DroneBeam beam = Beams[i];
+                    beam.Draw(screen);
+                }
+        }      
     }
 }
