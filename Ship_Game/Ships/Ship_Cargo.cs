@@ -212,18 +212,17 @@ namespace Ship_Game.Ships
         // FB - for colony ships when a planet is colonized
         public ColonyEquipment StartingEquipment()
         {
-            float addFood = 0;
-            float addProd = 0;
-            float addColonists = 0;
+            float addFood          = 0;
+            float addProd          = 0;
+            float addColonists     = 0;
             var specialBuildingIDs = new Array<string>();
-            string buildingId = string.Empty;
 
             foreach (ShipModule module in ModuleSlotList)
             {
                 addFood      += module.numberOfFood;
                 addProd      += module.numberOfEquipment;
                 addColonists += module.numberOfColonists;
-                if (buildingId.NotEmpty())
+                if (module.DeployBuildingOnColonize.NotEmpty())
                     specialBuildingIDs.Add(module.DeployBuildingOnColonize);
             }
 
