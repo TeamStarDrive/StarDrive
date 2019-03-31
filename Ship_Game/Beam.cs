@@ -2,6 +2,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
@@ -9,7 +10,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public sealed class Beam : Projectile
+    public class Beam : Projectile
     {
         public float PowerCost;
         public Vector2 Source;
@@ -88,9 +89,6 @@ namespace Ship_Game
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
             Weapon.ResetToggleSound();
-            if (Weapon.drowner != null)
-                SetSystem(Weapon.drowner.System);
-
             base.Die(source, cleanupOnly);
         }
 
@@ -172,7 +170,7 @@ namespace Ship_Game
             Indexes[5] = 3;
         }
 
-        private void UpdateBeamMesh()
+        protected void UpdateBeamMesh()
         {
             Vector2 src = Source;
             Vector2 dst = ActualHitDestination;
@@ -276,23 +274,23 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, float elapsedTime)
-        {
-            Duration -= elapsedTime;
-            Thickness = thickness;
-            Source    = srcCenter;
-            ActualHitDestination = dstCenter;
-            // apply drone repair effect, 5 times more if not in combat
-            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
-            {
-                float repairMultiplier = targetShip.InCombat ? 1 : 5;
-                targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * elapsedTime, Owner?.Level ?? 0);
-            }
+        //public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, float elapsedTime)
+        //{
+        //    Duration -= elapsedTime;
+        //    Thickness = thickness;
+        //    Source    = srcCenter;
+        //    ActualHitDestination = dstCenter;
+        //    // apply drone repair effect, 5 times more if not in combat
+        //    if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
+        //    {
+        //        float repairMultiplier = targetShip.InCombat ? 1 : 5;
+        //        targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * elapsedTime, Owner?.Level ?? 0);
+        //    }
 
-            UpdateBeamMesh();
-            if (Duration < 0f && !Infinite)
-                Die(null, true);
-        }
+        //    UpdateBeamMesh();
+        //    if (Duration < 0f && !Infinite)
+        //        Die(null, true);
+        //}
 
         protected override void Dispose(bool disposing)
         {
@@ -316,5 +314,37 @@ namespace Ship_Game
         }
 
         private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
+    }
+    public sealed class DroneBeam : Beam
+    {
+        readonly DroneAI Drone;
+        public DroneBeam(DroneAI drone) :
+            base(drone.DroneWeapon, drone.Drone.Center, drone.DroneTarget.Center, drone.DroneTarget)
+        {
+            Drone = drone;
+            Owner = drone.Drone.Owner;
+        }
+
+        public override void Update(float elapsedTime)
+        {
+            Duration -= elapsedTime;
+            Source = Drone.Drone.Center;
+            ActualHitDestination = Drone.DroneTarget.Center;
+            // apply drone repair effect, 5 times more if not in combat
+            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
+            {
+                float repairMultiplier = targetShip.InCombat ? 1 : 5;
+                targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * elapsedTime, Owner?.Level ?? 0);
+            }
+
+            UpdateBeamMesh();
+            if (Duration < 0f && !Infinite)
+                Die(null, true);
+        }
+        public override void Die(GameplayObject source, bool cleanupOnly)
+        {
+            SetSystem(Drone.Drone.Owner.System);
+            base.Die(source, cleanupOnly);
+        }
     }
 }
