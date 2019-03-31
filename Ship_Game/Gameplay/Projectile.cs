@@ -325,7 +325,7 @@ namespace Ship_Game.Gameplay
         {
             if (!Active)
             {
-                Log.Error("Projectile.Die() called twice!");
+                Log.Error("Projectile.Die() was called on an already dead object");
                 return;
             }
 
@@ -345,15 +345,10 @@ namespace Ship_Game.Gameplay
                     Empire.Universe.RemoveObject(ProjSO);
                     ProjSO.Clear();
                 }
-            }            
-            if (DroneAI != null)
-            {
-                foreach (Beam beam in DroneAI.Beams)
-                {
-                    beam.Die(this, true);
-                }
-                DroneAI.Beams.Clear();
             }
+
+            DroneAI?.KillAllBeams();
+
             SetSystem(null);
             base.Die(source, cleanupOnly);
             Owner = null;
@@ -738,8 +733,7 @@ namespace Ship_Game.Gameplay
         ~Projectile() { Dispose(false); }
 
         protected virtual void Dispose(bool disposing)
-        {
-            DroneAI?.Dispose();
+        {            
             DroneAI = null;
         }
 

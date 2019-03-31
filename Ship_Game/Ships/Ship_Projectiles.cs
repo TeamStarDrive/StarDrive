@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
+using System.Threading;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-        class ProjectileCollection<T> : Array<T> where T : Projectile
+        public class ProjectileCollection<T> : Array<T> where T : Projectile
         {
             readonly ReaderWriterLockSlim Locker = new ReaderWriterLockSlim();
 
@@ -69,7 +63,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        
+
         readonly ProjectileCollection<Projectile> Projectiles = new ProjectileCollection<Projectile>();
         readonly ProjectileCollection<Beam> Beams             = new ProjectileCollection<Beam>();
 
@@ -106,7 +100,7 @@ namespace Ship_Game.Ships
         {
             Projectiles.Update(elapsedTime);
         }
-        
+
         void UpdateBeams(float elapsedTime)
         {
             Beams.Update(elapsedTime);
@@ -129,11 +123,8 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < Projectiles.Count; ++i)
                 {
                     Projectile p = Projectiles[i];
-                    if (p.Active && p.DroneAI != null && p.Weapon?.IsRepairDrone != false)
-                    {
-                        for (int k = 0; k < p.DroneAI.Beams.Count; ++k)
-                            p.DroneAI.Beams[k]?.Draw(screen);
-                    }
+                    if (p.Active && p.Weapon?.IsRepairDrone != false)
+                        p.DroneAI?.DrawBeams(screen);
                 }
             }
         }
