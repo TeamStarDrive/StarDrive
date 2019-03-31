@@ -148,8 +148,8 @@ namespace Ship_Game.AI
             else
             {
                 colonyShip = ShipsWeCanBuild(empire).FindMaxFiltered(s => s.isColonyShip,
-                                                                   s => s.StartingColonyGoods() 
-                                                                                + s.NumBuildingsDeployedOnColonize() * 20);
+                                                                     s => s.StartingColonyGoods() + 
+                                                                          s.NumBuildingsDeployedOnColonize() * 20);
             }
 
             if (colonyShip == null)
