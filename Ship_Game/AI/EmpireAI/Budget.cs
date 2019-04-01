@@ -55,9 +55,12 @@ namespace Ship_Game.AI.Budget
         public void DrawBudgetInfo(UniverseScreen screen)
         {
             if (!screen.Debug) return;
-            string drawText = $"<\nBudget: {(int)Budget}\nImportance: {EmpireRatio.ToString("#.00")}\nSystemBudget: {(int)SystemBudget}\nSysTem Rank: {SystemRank}";
-            screen.DrawStringProjected(Planet.Center + new Vector2(1000, 0), 0f, 1f, Color.LightGray, drawText);
+            string drawText = $"<\nBudget: {Budget.String(2)}" +
+                              $"\nImportance: {EmpireRatio.String(2)}" +
+                              $"\nSystemBudget: {SystemBudget.String(2)}" +
+                              $"\nSysTem Rank: {SystemRank}";
 
+            screen.DrawStringProjected(Planet.Center + new Vector2(1000, 0), 0f, 1f, Color.LightGray, drawText);
         }
     }
 }
