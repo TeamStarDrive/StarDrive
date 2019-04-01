@@ -297,19 +297,19 @@ namespace Ship_Game
     }
     public sealed class DroneBeam : Beam
     {
-        readonly DroneAI Drone;
-        public DroneBeam(DroneAI drone) :
-            base(drone.DroneWeapon, drone.Drone.Center, drone.DroneTarget.Center, drone.DroneTarget)
+        readonly DroneAI AI;
+        public DroneBeam(DroneAI ai) :
+            base(ai.DroneWeapon, ai.Drone.Center, ai.DroneTarget.Center, ai.DroneTarget)
         {
-            Drone = drone;
-            Owner = drone.Drone.Owner;
+            AI = ai;
+            Owner = ai.Drone.Owner;
         }
 
         public override void Update(float elapsedTime)
         {
             Duration -= elapsedTime;
-            Source = Drone.Drone.Center;
-            ActualHitDestination = Drone.DroneTarget.Center;
+            Source = AI.Drone.Center;
+            ActualHitDestination = AI.DroneTarget.Center;
             // apply drone repair effect, 5 times more if not in combat
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
@@ -325,7 +325,7 @@ namespace Ship_Game
         {
             //im confused on this setsystem. why are we doing this?
             //pretty sure its going to be set to null later int he die process.
-            SetSystem(Drone.Drone.Owner.System);
+            SetSystem(AI.Drone.Owner.System);
             base.Die(source, cleanupOnly);
         }
     }
