@@ -21,34 +21,26 @@ namespace Ship_Game.AI
 
         private void RunEconomicPlanner()
         {
-            float risk = GetRisk();
-            float money = OwnerEmpire.Money;
-            money = money < 1 ? 1 : money;
+            float risk         = GetRisk();
+            float money        = Math.Max(OwnerEmpire.Money, 1);
             float treasuryGoal = TreasuryGoal();
+            float goal         = (money / treasuryGoal).Clamped(0, 1); 
+            var resStrat       = OwnerEmpire.ResearchStrategy;
+            float buildRatio   = (resStrat.MilitaryRatio + resStrat.IndustryRatio + resStrat.ExpansionRatio) /2f;
 
-
-            float goal = money / treasuryGoal;
             AutoSetTaxes(treasuryGoal);
+            SetBudgetForeArea(goal * .01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
+            SetBudgetForeArea(goal * .01f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(goal * .01f, ref BuildCapacity, Math.Max(risk, buildRatio));           
+            SetBudgetForeArea(goal * .1f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
+            SetBudgetForeArea(goal * .01f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
 
-            float goalClamped = goal.Clamped(0, 1);
-            var resStrat = OwnerEmpire.ResearchStrategy;
-            float buildRatio = (resStrat.MilitaryRatio + resStrat.IndustryRatio + resStrat.ExpansionRatio) /2f;
-            
-            SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
-            SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
-            SetBudgetForeArea(goalClamped * .01f, ref BuildCapacity, Math.Max(risk, buildRatio));           
-            SetBudgetForeArea(goalClamped * .1f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
-            SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
 #if DEBUG
             var pBudgets = new Array<PlanetBudget>();
-            foreach (var empire in EmpireManager.Empires)
+            foreach (var planet in OwnerEmpire.GetPlanets())
             {
-             
-                foreach (var planet in empire.GetPlanets())
-                {
-                    var pinfo = new PlanetBudget(planet);
-                    pBudgets.Add(pinfo);
-                }
+                var planetBudget = new PlanetBudget(planet);
+                pBudgets.Add(planetBudget);
             }
             PlanetBudgets = pBudgets;
 #endif
@@ -65,12 +57,12 @@ namespace Ship_Game.AI
             if (!OwnerEmpire.isPlayer || OwnerEmpire.data.AutoTaxes)
             {
                 //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
-                treasuryGoal = OwnerEmpire.NetPlanetIncomes 
+                treasuryGoal = Math.Max(OwnerEmpire.NetPlanetIncomes, 0)
                                + OwnerEmpire.TradeMoneyAddedThisTurn 
                                + OwnerEmpire.data.FlatMoneyBonus
                                + OwnerEmpire.TotalShipMaintenance; //more savings than GDP 
             }
-            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 500;
+            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 750;
             treasuryGoal = Math.Max(1000, treasuryGoal);
             return treasuryGoal;
         }
@@ -81,7 +73,7 @@ namespace Ship_Game.AI
                 return;
 
             const float normalTaxRate = 0.25f;
-            float treasuryGoalRatio   = OwnerEmpire.Money / treasuryGoal;
+            float treasuryGoalRatio   = (Math.Max(OwnerEmpire.Money, 100)) / treasuryGoal;
             float taxRateModifer = 0;
             if (treasuryGoalRatio > 1)
                 taxRateModifer = -(float)Math.Round((treasuryGoalRatio -1) / 10, 2); // this will decrease tax based on ratio
@@ -90,9 +82,11 @@ namespace Ship_Game.AI
 
             OwnerEmpire.data.TaxRate  = (normalTaxRate + taxRateModifer).Clamped(0.05f,0.95f);
         }
+
 #if DEBUG
         public Array<PlanetBudget> PlanetBudgets;
-#endif 
+#endif
+
         private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
         {
             float budget = OwnerEmpire.Money * percentOfIncome * risk;
@@ -112,6 +106,5 @@ namespace Ship_Game.AI
         }
 
         public PlanetBudget PlanetBudget(Planet planet) => new PlanetBudget(planet);        
-
     }
 }

@@ -275,7 +275,9 @@ namespace Ship_Game.Universe.SolarBodies
                     if (P.BuildingBuiltOrQueued(terraFormer))
                         return false;
                     if (Owner.IsBuildingUnlocked(terraFormer.Name) && P.WeCanAffordThis(terraFormer, P.colonyType))
-                        return AddBuilding(ResourceManager.CreateBuilding(terraFormer.BID));
+                        // @todo HACK added playerAdded: true to stop the recursive overflow,
+                        // anyway terraformers are removed automatically when done
+                        return AddBuilding(ResourceManager.CreateBuilding(terraFormer.BID), playerAdded: true);
                 }
             }
 
