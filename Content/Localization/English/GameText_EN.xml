@@ -1012,7 +1012,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
 
     <Token>
       <Index>249</Index>
-      <Text>Add this item to the colony's build queue</Text>
+      <Text>Add this item to the colony's build queue. Holding Shift will add it 5 times. Holding Ctrl will add it 10 times.</Text>
     </Token>
     <Token>
       <Index>250</Index>
