@@ -184,7 +184,7 @@ namespace Ship_Game.Commands.Goals
             if (PlanetBuildingAt == null)
                 return false;
             foreach (QueueItem queueItem in PlanetBuildingAt.ConstructionQueue)
-                if (queueItem.isShip && ResourceManager.ShipsDict[queueItem.sData.Name].isColonyShip)
+                if (queueItem.isShip && ResourceManager.GetShipTemplate(queueItem.sData.Name).isColonyShip)
                     return true;
             return false;
         }
