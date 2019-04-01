@@ -300,25 +300,6 @@ namespace Ship_Game.AI
             }
         }
 
-        // FB - scrap idle freighter to make room for improved ones
-        public void TriggerFreightersScrap()
-        {
-            if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoFreighters)
-                return;
-
-            Ship betterFreighter = ShipBuilder.PickFreighter(OwnerEmpire, OwnerEmpire.FastVsBigFreighterRatio);
-            if (betterFreighter == null)
-                return;
-
-            foreach (Ship idleFreighter in OwnerEmpire.IdleFreighters)
-            {
-                if (betterFreighter.Name == idleFreighter.Name)
-                    continue;
-
-                idleFreighter.AI.OrderScrapShip();
-            }
-        }
-
         public void Update()
         {		    
             DefStr = DefensiveCoordinator.GetForcePoolStrength();
