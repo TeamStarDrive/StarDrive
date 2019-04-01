@@ -2393,7 +2393,7 @@ namespace Ship_Game.Ships
 
         public int NumBuildingsDeployedOnColonize()
         {
-            return ModuleSlotList.Sum(m => m.DeployBuildingOnColonize.NotEmpty() ? 1 : 0);
+            return ModuleSlotList.Count(m => m.DeployBuildingOnColonize.NotEmpty());
         }
 
         private ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
