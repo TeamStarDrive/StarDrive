@@ -264,5 +264,24 @@ namespace Ship_Game
             TotalTradeMoneyAddedThisTurn = TotalTradeTreatiesIncome() + TradeMoneyAddedThisTurn;
             TradeMoneyAddedThisTurn = 0; // Reset Trade Money for the next turn.
         }
+
+        // FB - scrap idle freighter to make room for improved ones
+        public void TriggerFreightersScrap()
+        {
+            if (isPlayer && !AutoFreighters)
+                return;
+
+            Ship betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
+            if (betterFreighter == null)
+                return;
+
+            foreach (Ship idleFreighter in IdleFreighters)
+            {
+                if (betterFreighter.Name == idleFreighter.Name)
+                    continue;
+
+                idleFreighter.AI.OrderScrapShip();
+            }
+        }
     }
 }
