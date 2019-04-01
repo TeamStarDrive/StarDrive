@@ -27,30 +27,30 @@ namespace Ship_Game
         [Serialize(19)] public short Robberies;
         [Serialize(20)] public short Rebellions;
 
-        public void AssignMission(AgentMission mission, Empire Owner, string empname)
+        public void AssignMission(AgentMission mission, Empire owner, string targetEmpire)
         {
-            Initialize(mission, Owner);
+            Initialize(mission, owner);
             if (Mission == AgentMission.Undercover)
             {
-                foreach (Mole m in Owner.data.MoleList)
+                foreach (Mole m in owner.data.MoleList)
                 {
                     if (m.PlanetGuid != TargetGUID)
                     {
                         continue;
                     }
-                    Owner.data.MoleList.QueuePendingRemoval(m);
+                    owner.data.MoleList.QueuePendingRemoval(m);
                     break;
                 }
             }
-            Owner.data.MoleList.ApplyPendingRemovals();
+            owner.data.MoleList.ApplyPendingRemovals();
             Mission = mission;
-            TargetEmpire = empname;
+            TargetEmpire = targetEmpire;
         }
 
         //added by gremlin Domission from devek mod.
-        public void DoMission(Empire Owner)
+        public void DoMission(Empire us)
         {
-            spyMute = Owner.data.SpyMute;
+            spyMute = us.data.SpyMute;
             Planet target;
             Empire Target = EmpireManager.GetEmpireByName(TargetEmpire);
             AgentMission startingmission = Mission;
@@ -66,8 +66,8 @@ namespace Ship_Game
             float DiceRoll = RandomMath.RandomBetween(Level * ResourceManager.AgentMissionData.MinRollPerLevel, ResourceManager.AgentMissionData.MaxRoll);
             float DefensiveRoll = 0f;
             DiceRoll += Level * RandomMath.RandomBetween(1f, ResourceManager.AgentMissionData.RandomLevelBonus);
-            DiceRoll += Owner.data.SpyModifier;
-            DiceRoll += Owner.data.OffensiveSpyBonus;
+            DiceRoll += us.data.SpyModifier;
+            DiceRoll += us.data.OffensiveSpyBonus;
             if (Target != null)
             {
                 for (int i = 0; i < Target.data.AgentList.Count; i++)
@@ -77,7 +77,7 @@ namespace Ship_Game
                         DefensiveRoll += Target.data.AgentList[i].Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
                     }
                 }
-                DefensiveRoll /= Owner.GetPlanets().Count / 3 + 1;
+                DefensiveRoll /= us.GetPlanets().Count / 3 + 1;
                 DefensiveRoll += Target.data.SpyModifier;
                 DefensiveRoll += Target.data.DefensiveSpyBonus;
 
@@ -94,8 +94,8 @@ namespace Ship_Game
                     if (DiceRoll >= ResourceManager.AgentMissionData.TrainingRollPerfect)
                     {
                         //Added by McShooterz
-                        AddExperience(ResourceManager.AgentMissionData.TrainingExpPerfect, Owner);
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6025)), Owner);
+                        AddExperience(ResourceManager.AgentMissionData.TrainingExpPerfect, us);
+                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6025)), us);
                         Training++;
                         break;
                     }
@@ -103,8 +103,8 @@ namespace Ship_Game
                     if (DiceRoll > ResourceManager.AgentMissionData.TrainingRollGood)
                     {
                         //Added by McShooterz
-                        AddExperience(ResourceManager.AgentMissionData.TrainingExpGood, Owner);
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6026)), Owner);
+                        AddExperience(ResourceManager.AgentMissionData.TrainingExpGood, us);
+                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6026)), us);
                         Training++;
                         break;
                     }
@@ -113,17 +113,17 @@ namespace Ship_Game
                     {
                         if (DiceRoll >= ResourceManager.AgentMissionData.TrainingRollWorst)
                         {
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6027)), Owner);
-                            AssignMission(AgentMission.Recovering, Owner, "");
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6027)), us);
+                            AssignMission(AgentMission.Recovering, us, "");
                             PrevisousMission = AgentMission.Training;
                             break;
                         }
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6028)), Owner);
-                        Owner.data.AgentList.QueuePendingRemoval(this);
+                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6028)), us);
+                        us.data.AgentList.QueuePendingRemoval(this);
                         break;
                     }
 
-                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6029)), Owner);
+                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6029)), us);
                     break;
                 }
                 #endregion
@@ -141,10 +141,10 @@ namespace Ship_Game
                             Mission = AgentMission.Undercover;
                             MissionNameIndex = 2201;
                             //Added by McShooterz
-                            AddExperience(ResourceManager.AgentMissionData.InfiltrateExpGood, Owner);
-                            Mole m = Mole.PlantMole(Owner, Target);
+                            AddExperience(ResourceManager.AgentMissionData.InfiltrateExpGood, us);
+                            Mole m = Mole.PlantMole(us, Target);
                             TargetGUID = m.PlanetGuid;
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6030), " ", Empire.Universe.PlanetsDict[m.PlanetGuid].Name, Localizer.Token(6031)), Owner);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6030), " ", Empire.Universe.PlanetsDict[m.PlanetGuid].Name, Localizer.Token(6031)), us);
                             Infiltrations++;
                             break;
                         }
@@ -155,40 +155,40 @@ namespace Ship_Game
                             {
                                 Mission = AgentMission.Defending;
                                 MissionNameIndex = 2183;
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6032)), Owner);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6032)), us);
                                 if (Target == EmpireManager.Player)
                                 {
-                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6033), " ", Owner.data.Traits.Name), Target);
+                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6033), " ", us.data.Traits.Name), Target);
                                 }
-                                AssignMission(AgentMission.Recovering, Owner, "");
+                                AssignMission(AgentMission.Recovering, us, "");
                                 PrevisousMission = AgentMission.Infiltrate;
                                 PreviousTarget = TargetEmpire;
                                 break;
                             }
                             Mission = AgentMission.Defending;
                             MissionNameIndex = 2183;
-                            Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying Failed", 20f, null);
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6034)), Owner);
-                            Owner.data.AgentList.QueuePendingRemoval(this);
+                            Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying Failed", 20f, null);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6034)), us);
+                            us.data.AgentList.QueuePendingRemoval(this);
                             if (Target != EmpireManager.Player)
                             {
                                 break;
                             }
 
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6035), " ", Owner.data.Traits.Name), Target);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6035), " ", us.data.Traits.Name), Target);
                             break;
                         }
 
                         //Added by McShooterz
-                        AddExperience(ResourceManager.AgentMissionData.InfiltrateExp, Owner);
+                        AddExperience(ResourceManager.AgentMissionData.InfiltrateExp, us);
                         Mission = AgentMission.Defending;
                         MissionNameIndex = 2183;
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6036)), Owner);
+                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6036)), us);
                         if (Target != EmpireManager.Player)
                         {
                             break;
                         }
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6033), " ", Owner.data.Traits.Name), Target);
+                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6033), " ", us.data.Traits.Name), Target);
                         break;
                     }
                 #endregion
@@ -199,33 +199,33 @@ namespace Ship_Game
                         MissionNameIndex = 2183;
                         if (Target == null || Target.data.AgentList.Count == 0)
                         {
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6038)), Owner);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6038)), us);
                             return;
                         }
                         if (DiceRoll >= ResourceManager.AgentMissionData.AssassinateRollPerfect)
                         {
                             //Added by McShooterz
-                            AddExperience(ResourceManager.AgentMissionData.AssassinateExpPerfect, Owner);
+                            AddExperience(ResourceManager.AgentMissionData.AssassinateExpPerfect, us);
                             Agent m = Target.data.AgentList[RandomMath.InRange(Target.data.AgentList.Count)];
                             Target.data.AgentList.Remove(m);
                             if (m.Mission == AgentMission.Undercover)
                             {
-                                foreach (Mole mole in Owner.data.MoleList)
+                                foreach (Mole mole in us.data.MoleList)
                                 {
                                     if (mole.PlanetGuid != m.TargetGUID)
                                     {
                                         continue;
                                     }
-                                    Owner.data.MoleList.QueuePendingRemoval(mole);
+                                    us.data.MoleList.QueuePendingRemoval(mole);
                                     break;
                                 }
                             }
-                            Owner.data.MoleList.ApplyPendingRemovals();
+                            us.data.MoleList.ApplyPendingRemovals();
                             if (Target == EmpireManager.Player)
                             {
                                 //if (!GremlinAgentComponent.AutoTrain) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat("One of our Agents was mysteriously assassinated: ", m.Name), Target);
                             }
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6039), " ", m.Name, Localizer.Token(6040)), Owner);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6039), " ", m.Name, Localizer.Token(6040)), us);
                             Assassinations++;
                             break;
                         }
@@ -236,24 +236,24 @@ namespace Ship_Game
                             Target.data.AgentList.Remove(m);
                             if (m.Mission == AgentMission.Undercover)
                             {
-                                foreach (Mole mole in Owner.data.MoleList)
+                                foreach (Mole mole in us.data.MoleList)
                                 {
                                     if (mole.PlanetGuid != m.TargetGUID)
                                     {
                                         continue;
                                     }
-                                    Owner.data.MoleList.QueuePendingRemoval(mole);
+                                    us.data.MoleList.QueuePendingRemoval(mole);
                                     break;
                                 }
                             }
                             //Added by McShooterz
-                            AddExperience(ResourceManager.AgentMissionData.AssassinateExpGood, Owner);
-                            Owner.data.MoleList.ApplyPendingRemovals();
+                            AddExperience(ResourceManager.AgentMissionData.AssassinateExpGood, us);
+                            us.data.MoleList.ApplyPendingRemovals();
                             if (Target == EmpireManager.Player)
                             {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6037), " ", m.Name, Localizer.Token(6041), " ", Owner.data.Traits.Name), Target);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6037), " ", m.Name, Localizer.Token(6041), " ", us.data.Traits.Name), Target);
                             }
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6039), " ", m.Name, Localizer.Token(6042)), Owner);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6039), " ", m.Name, Localizer.Token(6042)), us);
                             Assassinations++;
                             break;
                         }
@@ -264,33 +264,33 @@ namespace Ship_Game
                             {
                                 if (Target == EmpireManager.Player)
                                 {
-                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6043), " ", Owner.data.Traits.Name), Target);
+                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6043), " ", us.data.Traits.Name), Target);
                                 }
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6044)), Owner);
-                                AssignMission(AgentMission.Recovering, Owner, "");
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6044)), us);
+                                AssignMission(AgentMission.Recovering, us, "");
                                 PrevisousMission = AgentMission.Assassinate;
                                 PreviousTarget = TargetEmpire;
                                 break;
                             }
                             Mission = AgentMission.Defending;
                             MissionNameIndex = 2183;
-                            Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying Failed", 20f, null);
+                            Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying Failed", 20f, null);
                             if (Target == EmpireManager.Player)
                             {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6045), " ", Owner.data.Traits.Name), Target);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6045), " ", us.data.Traits.Name), Target);
                             }
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6046)), Owner);
-                            Owner.data.AgentList.QueuePendingRemoval(this);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6046)), us);
+                            us.data.AgentList.QueuePendingRemoval(this);
                             break;
                         }
 
                         //Added by McShooterz
-                        AddExperience(ResourceManager.AgentMissionData.AssassinateExp, Owner);
+                        AddExperience(ResourceManager.AgentMissionData.AssassinateExp, us);
                         if (Target == EmpireManager.Player)
                         {
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6043), " ", Owner.data.Traits.Name), Target);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6043), " ", us.data.Traits.Name), Target);
                         }
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6047)), Owner);
+                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6047)), us);
                         break;
                     }
                 #endregion
@@ -321,9 +321,9 @@ namespace Ship_Game
                             name[3] = " " + Localizer.Token(6085) + " ";
                             name[4] = target.Name;
                             name[5] = Localizer.Token(6031);
-                            if (!spyMute) notificationManager.AddAgentResultNotification(true, string.Concat(name), Owner);
+                            if (!spyMute) notificationManager.AddAgentResultNotification(true, string.Concat(name), us);
                             //Added by McShooterz
-                            AddExperience(ResourceManager.AgentMissionData.SabotageExpPerfect, Owner);
+                            AddExperience(ResourceManager.AgentMissionData.SabotageExpPerfect, us);
                             Sabotages++;
                             break;
                         }
@@ -334,7 +334,7 @@ namespace Ship_Game
                             planet.CrippledTurns = planet.CrippledTurns + 5 + Level * 3;
                             if (Target == EmpireManager.Player)
                             {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6048), " ", target.Name, Localizer.Token(6049),  " ", Owner.data.Traits.Name), Target);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6048), " ", target.Name, Localizer.Token(6049),  " ", us.data.Traits.Name), Target);
                             }
                             NotificationManager notificationManager1 = Empire.Universe.NotificationManager;
                             string[] str = { Name, " " + Localizer.Token(6084) + " ", null, null, null, null };
@@ -343,9 +343,9 @@ namespace Ship_Game
                             str[3] = " " + Localizer.Token(6085) + " ";
                             str[4] = target.Name;
                             str[5] = Localizer.Token(6031);
-                            if (!spyMute) notificationManager1.AddAgentResultNotification(true, string.Concat(str), Owner);
+                            if (!spyMute) notificationManager1.AddAgentResultNotification(true, string.Concat(str), us);
                             //Added by McShooterz
-                            AddExperience(ResourceManager.AgentMissionData.SabotageExpGood, Owner);
+                            AddExperience(ResourceManager.AgentMissionData.SabotageExpGood, us);
                             Sabotages++;
                             break;
                         }
@@ -356,33 +356,33 @@ namespace Ship_Game
                             {
                                 if (Target == EmpireManager.Player)
                                 {
-                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6051), " ", target.Name, Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6051), " ", target.Name, Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                                 }
-                                Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6052), " ", target.Name), Owner);
-                                AssignMission(AgentMission.Recovering, Owner, "");
+                                Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6052), " ", target.Name), us);
+                                AssignMission(AgentMission.Recovering, us, "");
                                 PrevisousMission = AgentMission.Sabotage;
                                 PreviousTarget = TargetEmpire;
                                 break;
                             }
                             if (Target == EmpireManager.Player)
                             {
-                                if (!Owner.data.SpyMissionRepeat) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6053), " ", target.Name, Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                if (!us.data.SpyMissionRepeat) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6053), " ", target.Name, Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                             }
-                            Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying Failed", 20f, null);
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6054)), Owner);
-                            Owner.data.AgentList.QueuePendingRemoval(this);
+                            Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying Failed", 20f, null);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6054)), us);
+                            us.data.AgentList.QueuePendingRemoval(this);
                             break;
                         }
 
                         //Added by McShooterz
-                        AddExperience(ResourceManager.AgentMissionData.SabotageExp, Owner);
+                        AddExperience(ResourceManager.AgentMissionData.SabotageExp, us);
                         if (Target == EmpireManager.Player)
                         {
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6051)," ", target.Name, Localizer.Token(6049)," ", Owner.data.Traits.Name), Target);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6051)," ", target.Name, Localizer.Token(6049)," ", us.data.Traits.Name), Target);
                         }
-                        Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6055), " ", target.Name), Owner);
+                        Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
+                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6055), " ", target.Name), us);
                         break;
                     }
                 #endregion
@@ -398,8 +398,8 @@ namespace Ship_Game
                         foreach (TechEntry tech in Target.TechEntries)
                         {
                             //Added by McShooterz: Root nodes cannot be stolen
-                            if (tech.Unlocked && Owner.HavePreReq(tech.UID) &&
-                                !Owner.HasUnlocked(tech) &&
+                            if (tech.Unlocked && us.HavePreReq(tech.UID) &&
+                                !us.HasUnlocked(tech) &&
                                 tech.Tech.RootNode != 1)
                             {
                                 potentialUIDs.Add(tech.UID);
@@ -412,15 +412,15 @@ namespace Ship_Game
                             if (DiceRoll >= ResourceManager.AgentMissionData.StealTechRollPerfect)
                             {
                                 //Added by McShooterz
-                                AddExperience(ResourceManager.AgentMissionData.StealTechExpPerfect, Owner);
+                                AddExperience(ResourceManager.AgentMissionData.StealTechExpPerfect, us);
                                 if (Target == EmpireManager.Player)
                                 {
                                     if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, Localizer.Token(6056), Target);
                                 }
                                 //Added by McShooterz: new acquire method, unlocks targets bonuses as well
                                 //Owner.UnlockTech(theUID);
-                                Owner.AcquireTech(theUID, Target);
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6031)), Owner);
+                                us.AcquireTech(theUID, Target);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6031)), us);
                                 TechStolen++;
                                 break;
                             }
@@ -428,16 +428,16 @@ namespace Ship_Game
                             if (DiceRoll > ResourceManager.AgentMissionData.StealTechRollGood)
                             {
                                 //Added by McShooterz
-                                AddExperience(ResourceManager.AgentMissionData.StealTechExpGood, Owner);
+                                AddExperience(ResourceManager.AgentMissionData.StealTechExpGood, us);
                                 if (Target == EmpireManager.Player)
                                 {
-                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6058), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6058), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                                 }
                                 //Added by McShooterz: new acquire method, unlocks targets bonuses as well
                                 //Owner.UnlockTech(theUID);
-                                Owner.AcquireTech(theUID, Target);
-                                Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6042)), Owner);
+                                us.AcquireTech(theUID, Target);
+                                Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6042)), us);
                                 TechStolen++;
                                 break;
                             }
@@ -448,37 +448,37 @@ namespace Ship_Game
                                 {
                                     if (Target == EmpireManager.Player)
                                     {
-                                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6059), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6059), Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                                     }
-                                    Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6050)), Owner);
-                                    AssignMission(AgentMission.Recovering, Owner, "");
+                                    Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
+                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6050)), us);
+                                    AssignMission(AgentMission.Recovering, us, "");
                                     PrevisousMission = AgentMission.StealTech;
                                     PreviousTarget = TargetEmpire;
                                     break;
                                 }
                                 if (Target == EmpireManager.Player)
                                 {
-                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6060), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6060), Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                                 }
-                                Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying Failed", 20f, null);
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6061)), Owner);
-                                Owner.data.AgentList.QueuePendingRemoval(this);
+                                Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying Failed", 20f, null);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6061)), us);
+                                us.data.AgentList.QueuePendingRemoval(this);
                                 break;
                             }
 
                             if (Target == EmpireManager.Player)
                             {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6059), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6059), Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                             }
-                            Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6062)), Owner);
+                            Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6062)), us);
                             break;
                         }
 
-                        AddExperience(ResourceManager.AgentMissionData.StealTechExp, Owner);
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6063), " ", (ResourceManager.AgentMissionData.StealTechCost / 2).ToString(), " ", Localizer.Token(6064)), Owner);
-                        Empire owner = Owner;
+                        AddExperience(ResourceManager.AgentMissionData.StealTechExp, us);
+                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6063), " ", (ResourceManager.AgentMissionData.StealTechCost / 2).ToString(), " ", Localizer.Token(6064)), us);
+                        Empire owner = us;
                         owner.AddMoney((float)ResourceManager.AgentMissionData.StealTechCost / 2);
                         break;
                     }
@@ -497,20 +497,20 @@ namespace Ship_Game
                         }
                         else if (Target.Money <= 0f)
                         {
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6066), " ", TargetEmpire, Localizer.Token(6067)), Owner);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6066), " ", TargetEmpire, Localizer.Token(6067)), us);
                             return;
                         }
                         if (DiceRoll >= ResourceManager.AgentMissionData.RobberyRollPerfect)
                         {
                             //Added by McShooterz
-                            AddExperience(ResourceManager.AgentMissionData.RobberyExpPerfect, Owner);
+                            AddExperience(ResourceManager.AgentMissionData.RobberyExpPerfect, us);
                             Empire money = Target;
                             money.AddMoney(-amount);
-                            Empire empire = Owner;
+                            Empire empire = us;
                             empire.AddMoney(amount);
                             NotificationManager notificationManager2 = Empire.Universe.NotificationManager;
                             object[] objArray = { Name, " ", Localizer.Token(6068), " ", amount, " ", Localizer.Token(6069), " ", TargetEmpire, Localizer.Token(6031) };
-                            if (!spyMute) notificationManager2.AddAgentResultNotification(true, string.Concat(objArray), Owner);
+                            if (!spyMute) notificationManager2.AddAgentResultNotification(true, string.Concat(objArray), us);
                             if (Target != EmpireManager.Player)
                             {
                                 break;
@@ -523,19 +523,19 @@ namespace Ship_Game
                         if (DiceRoll > ResourceManager.AgentMissionData.RobberyRollGood)
                         {
                             //Added by McShooterz
-                            AddExperience(ResourceManager.AgentMissionData.RobberyExpGood, Owner);
+                            AddExperience(ResourceManager.AgentMissionData.RobberyExpGood, us);
                             Empire money1 = Target;
                             money1.AddMoney(-amount);
-                            Empire owner1 = Owner;
+                            Empire owner1 = us;
                             owner1.AddMoney(amount);
                             if (Target == EmpireManager.Player)
                             {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(amount, " ", Localizer.Token(6070), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(amount, " ", Localizer.Token(6070), Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                             }
-                            Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
+                            Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
                             NotificationManager notificationManager3 = Empire.Universe.NotificationManager;
                             object[] name1 = { Name, " ", Localizer.Token(6068), " ", amount, " ", Localizer.Token(6069), " ", TargetEmpire, Localizer.Token(6042) };
-                            if (!spyMute) notificationManager3.AddAgentResultNotification(true, string.Concat(name1), Owner);
+                            if (!spyMute) notificationManager3.AddAgentResultNotification(true, string.Concat(name1), us);
                             Robberies++;
                             break;
                         }
@@ -546,32 +546,32 @@ namespace Ship_Game
                             {
                                 if (Target == EmpireManager.Player)
                                 {
-                                    if (!Owner.data.SpyMissionRepeat && !spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6071), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                    if (!us.data.SpyMissionRepeat && !spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6071), Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                                 }
-                                Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                                if (!spyMute) if (!Owner.data.SpyMissionRepeat) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6072)), Owner);
-                                AssignMission(AgentMission.Recovering, Owner, "");
+                                Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
+                                if (!spyMute) if (!us.data.SpyMissionRepeat) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6072)), us);
+                                AssignMission(AgentMission.Recovering, us, "");
                                 PrevisousMission = AgentMission.Robbery;
                                 PreviousTarget = TargetEmpire;
                                 break;
                             }
                             if (Target == EmpireManager.Player)
                             {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6073), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6073), Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                             }
-                            Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying Failed", 20f, null);
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6074), " ", TargetEmpire), Owner);
-                            Owner.data.AgentList.QueuePendingRemoval(this);
+                            Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying Failed", 20f, null);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6074), " ", TargetEmpire), us);
+                            us.data.AgentList.QueuePendingRemoval(this);
                             break;
                         }
 
-                        AddExperience(ResourceManager.AgentMissionData.RobberyExp, Owner);
+                        AddExperience(ResourceManager.AgentMissionData.RobberyExp, us);
                         if (Target == EmpireManager.Player)
                         {
-                            if (!Owner.data.SpyMissionRepeat && !spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6071), Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                            if (!us.data.SpyMissionRepeat && !spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6071), Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                         }
-                        Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                        if (!spyMute) if (!Owner.data.SpyMissionRepeat) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6075)), Owner);
+                        Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
+                        if (!spyMute) if (!us.data.SpyMissionRepeat) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6075)), us);
                         break;
                     }
                 #endregion
@@ -590,7 +590,7 @@ namespace Ship_Game
                         target = targetEmpire.GetPlanets()[RandomMath.InRange(targetEmpire.GetPlanets().Count)];
                         if (DiceRoll >= ResourceManager.AgentMissionData.RebellionRollPerfect)
                         {
-                            AddExperience(ResourceManager.AgentMissionData.RebellionExpPerfect, Owner);
+                            AddExperience(ResourceManager.AgentMissionData.RebellionExpPerfect, us);
                             if (!targetEmpire.data.RebellionLaunched)
                             {
                                 Empire rebels = EmpireManager.CreateRebelsFromEmpireData(targetEmpire.data, targetEmpire);
@@ -625,19 +625,19 @@ namespace Ship_Game
                             {
                                 if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6078), " ", target.Name), Target);
                             }
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6077), " ", target.Name, Localizer.Token(6031)), Owner);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6077), " ", target.Name, Localizer.Token(6031)), us);
                             Rebellions++;
                             break;
                         }
 
                         if (DiceRoll > ResourceManager.AgentMissionData.RebellionRollGood)
                         {
-                            AddExperience(ResourceManager.AgentMissionData.RebellionExpGood, Owner);
+                            AddExperience(ResourceManager.AgentMissionData.RebellionExpGood, us);
                             if (Target == EmpireManager.Player)
                             {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6078), " ", target.Name, Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6078), " ", target.Name, Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                             }
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6077), " ", target.Name, Localizer.Token(6079)), Owner);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6077), " ", target.Name, Localizer.Token(6079)), us);
                             Rebellions++;
                             break;
                         }
@@ -648,32 +648,32 @@ namespace Ship_Game
                             {
                                 if (Target == EmpireManager.Player)
                                 {
-                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6076), " ", target.Name, Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6076), " ", target.Name, Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                                 }
-                                Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6080), " ", target.Name), Owner);
-                                AssignMission(AgentMission.Recovering, Owner, "");
+                                Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6080), " ", target.Name), us);
+                                AssignMission(AgentMission.Recovering, us, "");
                                 PrevisousMission = AgentMission.InciteRebellion;
                                 PreviousTarget = TargetEmpire;
                                 break;
                             }
                             if (Target == EmpireManager.Player)
                             {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6081), " ", target.Name, Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6081), " ", target.Name, Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                             }
-                            Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying Failed", 20f, null);
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6082), " ", target.Name), Owner);
-                            Owner.data.AgentList.QueuePendingRemoval(this);
+                            Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying Failed", 20f, null);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6082), " ", target.Name), us);
+                            us.data.AgentList.QueuePendingRemoval(this);
                             break;
                         }
 
-                        AddExperience(ResourceManager.AgentMissionData.RebellionExp, Owner);
+                        AddExperience(ResourceManager.AgentMissionData.RebellionExp, us);
                         if (Target == EmpireManager.Player)
                         {
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6076), " ", target.Name, Localizer.Token(6049), " ", Owner.data.Traits.Name), Target);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6076), " ", target.Name, Localizer.Token(6049), " ", us.data.Traits.Name), Target);
                         }
-                        Target.GetRelations(Owner).DamageRelationship(Target, Owner, "Caught Spying", 20f, null);
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6083), " ", target.Name), Owner);
+                        Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
+                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6083), " ", target.Name), us);
                         break;
                     }
                 #endregion
@@ -684,18 +684,18 @@ namespace Ship_Game
                             startingmission = PrevisousMission;
                             TargetEmpire = PreviousTarget;
                             MissionNameIndex = 2183;
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6086)), Owner);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6086)), us);
                             break;
                         }
                 #endregion
             }
             #region Mission Repeat
-            if (Owner == EmpireManager.Player 
+            if (us == EmpireManager.Player 
                 && Mission == AgentMission.Defending //&& Owner.data.SpyBudget > 500
-                && Owner.data.SpyMissionRepeat
+                && us.data.SpyMissionRepeat
                 && (startingmission != AgentMission.Training || startingmission == AgentMission.Training && Level < 10))
             {
-                AssignMission(startingmission, Owner, TargetEmpire);
+                AssignMission(startingmission, us, TargetEmpire);
                 return;
             }
             TargetEmpire = "";
