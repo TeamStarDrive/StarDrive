@@ -92,20 +92,21 @@ namespace Ship_Game
             // always spawn an outpost on a new colony
             if (!OutpostBuiltOrInQueue())
                 SpawnNewColonyBuilding(outpost);
-            if (startingEquipment.BuildingId.NotEmpty())
-                StartingEquipmentBuildings(startingEquipment);
 
+            SpawnExtraBuildings(startingEquipment);
             FoodHere   += startingEquipment.AddFood;
             ProdHere   += startingEquipment.AddProd;
             Population += startingEquipment.AddColonists;
         }
 
-        void StartingEquipmentBuildings(ColonyEquipment startingEquipment)
+        void SpawnExtraBuildings(ColonyEquipment startingEquipment)
         {
-            Building extraBuilding = ResourceManager.GetBuildingTemplate(startingEquipment.BuildingId);
-            // spawn an extra building for advanced colony modules
-            if (!extraBuilding.Unique || !BuildingBuiltOrQueued(extraBuilding))
-                SpawnNewColonyBuilding(extraBuilding);
+            foreach (string buildingId in startingEquipment.SpecialBuildingIDs)
+            {
+                Building extraBuilding = ResourceManager.GetBuildingTemplate(buildingId);
+                if (!extraBuilding.Unique || !BuildingBuiltOrQueued(extraBuilding))
+                    SpawnNewColonyBuilding(extraBuilding);
+            }
         }
 
         void SpawnNewColonyBuilding(Building template)
@@ -132,14 +133,14 @@ namespace Ship_Game
         public readonly float AddFood;
         public readonly float AddProd;
         public readonly float AddColonists;
-        public readonly string BuildingId;
+        public readonly Array<string> SpecialBuildingIDs;
 
-        public ColonyEquipment(float addFood, float addProd, float addColonists, string buildingId)
+        public ColonyEquipment(float addFood, float addProd, float addColonists, Array<string> specialBuildingIDs)
         {
-            AddFood      = addFood;
-            AddProd      = addProd;
-            AddColonists = addColonists;
-            BuildingId   = buildingId;
+            AddFood            = addFood;
+            AddProd            = addProd;
+            AddColonists       = addColonists;
+            SpecialBuildingIDs = specialBuildingIDs;
         }
     }
 }

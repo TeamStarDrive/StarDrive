@@ -5,7 +5,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class BuildOffensiveShips : Goal
+    public class BuildOffensiveShips : BuildShipsGoalBase
     {
         public const string ID = "BuildOffensiveShips";
         public override string UID => ID;
@@ -29,14 +29,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            if (!ResourceManager.GetShipTemplate(ToBuildUID, out Ship template))
-                return GoalStep.GoalFailed;
-
-            if (!empire.TryFindSpaceportToBuildShipAt(template, out Planet planet))
-                return GoalStep.TryAgain;
-
-            planet.Construction.AddShip(template, this);
-            return GoalStep.GoToNextStep;
+            return FindPlanetToBuildAt(SpacePortType.Any);
         }
 
         GoalStep MainGoalKeepRushingProductionOfOurShip()
