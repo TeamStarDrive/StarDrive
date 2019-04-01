@@ -216,8 +216,11 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < BorderCheck.Count; ++i)
                 {
                     Empire e = BorderCheck[i];
-                    if (e == loyalty || loyalty.GetRelations(e).Treaty_Alliance)
+                    if (e == loyalty || (IsFreighter && loyalty.GetRelations(e).Treaty_Trade)
+                                     || loyalty.GetRelations(e).Treaty_Alliance)
+                    {
                         return true;
+                    }
                 }
                 return false;
             }
@@ -2381,6 +2384,16 @@ namespace Ship_Game.Ships
         public bool AnyModulesOf(ShipModuleType moduleType)
         {
             return ModuleSlotList.Any(moduleType);
+        }
+
+        public float StartingColonyGoods()
+        {
+            return ModuleSlotList.Sum(m => m.numberOfEquipment + m.numberOfFood);
+        }
+
+        public int NumBuildingsDeployedOnColonize()
+        {
+            return ModuleSlotList.Count(m => m.DeployBuildingOnColonize.NotEmpty());
         }
 
         private ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
