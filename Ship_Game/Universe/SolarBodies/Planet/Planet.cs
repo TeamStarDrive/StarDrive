@@ -34,6 +34,7 @@ namespace Ship_Game
 
         public bool GovBuildings = true;
         public bool GovOrbitals  = true;
+        public bool GovMilitia   = false;
         public bool AllowInfantry;
 
         public int CrippledTurns;

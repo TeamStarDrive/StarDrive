@@ -4695,6 +4695,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1956</Index>
+      <Text>Governor Builds Militia</Text>
+    </Token>
+    <Token>
+      <Index>1957</Index>
+      <Text>The Governor will create a small militia for the planet. 4 Troops for Research colonies, 6 Troops for Core colonies, 7 Troops for Military colonies and 5 for other colonies.</Text>
+    </Token>
+    <Token>
       <Index>1958</Index>
       <Text>Auto Pick Freighter</Text>
     </Token>

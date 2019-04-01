@@ -64,12 +64,9 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep WaitForDeployment()
         {
-            if (FinishedShip == null)
-                return GoalStep.RestartGoal;
-
             // FB - must keep this goal until the ship deployed it's structure. 
             // If the goal is not kept, load game construction ships loses the empire goal and get stuck
-            return FinishedShip.Active ? GoalStep.TryAgain : GoalStep.GoalComplete;
+            return FinishedShip == null ? GoalStep.GoalComplete : GoalStep.TryAgain;
         }
 
     }
