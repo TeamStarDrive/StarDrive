@@ -181,23 +181,30 @@ namespace Ship_Game.AI
 
         public static Ship PickFreighter(Empire empire, float fastVsBig)
         {
-            if (empire.isPlayer && empire.AutoFreighters && !EmpireManager.Player.AutoPickBestFreighter &&
-                ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out Ship freighter))
+            if (empire.isPlayer && empire.AutoFreighters
+                                && !EmpireManager.Player.AutoPickBestFreighter
+                                && ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out Ship freighter))
+            {
                 return freighter;
+            }
 
             var freighters = new Array<Ship>();
             foreach (string shipId in empire.ShipsWeCanBuild)
             {
-                Ship ship = ResourceManager.GetShipTemplate(shipId);
-                if (!ship.IsCandidateFreighterBuild())
-                    continue;
-
-                freighters.Add(ship);
-                if (Empire.Universe?.Debug == true)
+                if (ResourceManager.GetShipTemplate(shipId, out Ship ship))
                 {
-                    Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: " +
-                                                $"Value: {ship.BestFreighterValue(empire, fastVsBig)}");
+                    if (!ship.IsCandidateFreighterBuild())
+                        continue;
+
+                    freighters.Add(ship);
+                    if (Empire.Universe?.Debug == true)
+                    {
+                        Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: " +
+                                                    $"Value: {ship.BestFreighterValue(empire, fastVsBig)}");
+                    }
                 }
+                else
+                    Log.Warning($"Could not find shipID '{shipId}' in ship dictionary");
             }
 
             freighter = freighters
