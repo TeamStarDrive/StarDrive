@@ -4,7 +4,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class BuildDefensiveShips : Goal
+    public class BuildDefensiveShips : BuildShipsGoalBase
     {
         public const string ID = "BuildDefensiveShips";
         public override string UID => ID;
@@ -21,14 +21,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildDefensiveShipsAt()
         {
-            if (!ResourceManager.GetShipTemplate(ToBuildUID, out Ship template))
-                return GoalStep.GoalFailed;
-
-            if (!empire.TryFindSpaceportToBuildShipAt(template, out Planet spacePort))
-                return GoalStep.TryAgain;
-
-            spacePort.Construction.AddShip(template, this);
-            return GoalStep.GoToNextStep;
+            return FindPlanetToBuildAt(SpacePortType.Any);
         }
 
         GoalStep OrderBuiltShipToDefend()
@@ -36,6 +29,5 @@ namespace Ship_Game.Commands.Goals
             FinishedShip.DoDefense();
             return GoalStep.GoalComplete;
         }
-
     }
 }

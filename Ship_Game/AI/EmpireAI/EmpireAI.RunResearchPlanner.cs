@@ -51,21 +51,34 @@ namespace Ship_Game.AI
                 if (Wars < 0.5f)
                     Wars = ShipBuildBonus;
 
+                ResearchDebt = 0;
                 var availableTechs = AI.AvailableTechs();
-                float avgTechCost = availableTechs.Average(cost => cost.TechCost);
-                ResearchDebt       = avgTechCost - empire.MaxResearchPotential *10;
-                ResearchDebt       = ResearchDebt / avgTechCost;
-                ResearchDebt       = ResearchDebt.Clamped(0, 1);
-                if (ResearchDebt < 0.5f)
-                    ResearchDebt = ShipBuildBonus;
+                float workerEfficiency = empire.Research / empire.MaxResearchPotential;
+                if (availableTechs.NotEmpty)
+                {
+                //calculate standard deviation of tech costs.
+                    float avgTechCost = availableTechs.Average(cost => cost.TechCost);
+                    avgTechCost       = availableTechs.Sum(cost => (float)Math.Pow(cost.TechCost - avgTechCost, 2));
+                    avgTechCost      /= availableTechs.Count;
+                    avgTechCost       = (float)Math.Sqrt(avgTechCost);
+                    //use stddev of techcost to determine how behind we are in tech
 
-                Economics = empire.data.TaxRate * 2f;
+                    float techCostRatio = avgTechCost / empire.MaxResearchPotential;
+                    ResearchDebt        = techCostRatio / 100f; //divide by 100 turns.
+
+                    ResearchDebt        = ResearchDebt.Clamped(0, 1);
+                }
+                if (ResearchDebt < 0.5f)
+                    ResearchDebt += 0.5f - ShipBuildBonus;
+
+
+                Economics = empire.data.TaxRate + workerEfficiency;
                 FoodNeeds = 0;
                 if (!empire.IsCybernetic)
                 {
                     foreach (Planet hunger in empire.GetPlanets())
                         FoodNeeds += hunger.ShortOnFood() ? 1 : 0;
-                    FoodNeeds /= empire.GetPlanets().Count;
+                    FoodNeeds /= empire.GetPlanets().Count + workerEfficiency;
                 }
 
                 Priority = new Map<string, float>
@@ -78,7 +91,13 @@ namespace Ship_Game.AI
                     {"General"     , AI.randomizer(ResStrat.ResearchRatio, 0)},
                     {"GroundCombat", AI.randomizer(ResStrat.MilitaryRatio, Wars * .5f)}
                 };
+                int maxNameLength = Priority.Keys.Max(name => name.Length);
+                maxNameLength += 5;
+                foreach(var kv in Priority)
+                {
 
+                    AI.DebugLog($"{kv.Key.PadRight(maxNameLength,'.')} {kv.Value}");
+                }
                 TechCategoryPrioritized = string.Empty;
                 int max = 0;
                 foreach (var pWeighted in Priority.OrderByDescending(weight => weight.Value))
@@ -113,13 +132,6 @@ namespace Ship_Game.AI
             Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
             OwnerEmpire.data.TechDelayTime++;
             var researchPriorities = new ResearchPriorities(OwnerEmpire);
-
-            bool cybernetic = OwnerEmpire.IsCybernetic;
-            DebugLog($"wars : {researchPriorities.Wars}");
-            DebugLog($"researchDebt : {researchPriorities.ResearchDebt}");
-            DebugLog($"cybernetic : {cybernetic}");
-            DebugLog($"needsFood : {researchPriorities.FoodNeeds}");
-            DebugLog($"economics : {researchPriorities.Economics}");
 
             DebugLog($"ResearchStrategy : {res_strat.ToString()}");
 
@@ -436,19 +448,16 @@ namespace Ship_Game.AI
 
                             if (command1 == "CHEAPEST" && currentCost < previousCost)
                             {
-                                DebugLog($"BetterChoice : {researchTopic}");
                                 researchTopic = testResearchTopic;
                                 previousCost = currentCost;
                                 CostNormalizer += .005f;
                             }
                             else if (command1 == "EXPENSIVE" && currentCost > previousCost)
                             {
-                                DebugLog($"BetterChoice : {researchTopic}");
                                 researchTopic = testResearchTopic;
                                 previousCost = currentCost;
                                 CostNormalizer *= .25f;
                             }
-                            else DebugLog($"command {command1} did not choose a tech");
                         }
 
                         break;

@@ -48,8 +48,10 @@ namespace Ship_Game
                 s.P = p;
             if (p != null)
             {
-                Food.IsDisabled   = p.IsCybernetic;
-                Food.LockedByUser = p.IsCybernetic;
+                Food.IsDisabled = p.IsCybernetic;
+                // Force lock if cybernetic, otherwise keep the lock the same as user setting
+                if (p.IsCybernetic)
+                    Food.LockedByUser = true;
             }
         }
 

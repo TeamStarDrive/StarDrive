@@ -41,24 +41,29 @@ namespace Ship_Game.Ships
                         maint *= numShipYards - 3;
                 }
             }
-            float repairMaintModifier =  ship.HealthMax > 0 ? (2 - ship.HealthPercent).Clamped(1,1.5f) : 1;
-            maint *= repairMaintModifier;
             return maint;
         }
 
         private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, Empire empire)
         {
             float maint = shipCost * BaseMaintModifier;
-            if (role == ShipData.RoleName.platform || role == ShipData.RoleName.station)
-                maint *= 0.25f;
 
-            if (role != ShipData.RoleName.freighter && role != ShipData.RoleName.platform)
-                return maint;
+            switch (role)
+            {
+                case ShipData.RoleName.station:
+                case ShipData.RoleName.platform: maint *= 0.4f;  break;
+                case ShipData.RoleName.corvette: maint *= 0.9f;  break;
+                case ShipData.RoleName.frigate:  maint *= 0.8f;  break;
+                case ShipData.RoleName.cruiser:  maint *= 0.7f;  break;
+                case ShipData.RoleName.capital:  maint *= 0.5f;  break;
+            }
 
-            maint *= empire.data.CivMaintMod;
-            if (empire.data.Privatization)
-                maint *= 0.5f;
-
+            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)
+            {
+                maint *= empire.data.CivMaintMod;
+                if (empire.data.Privatization)
+                    maint *= 0.5f;
+            }
             return maint;
         }
     }
