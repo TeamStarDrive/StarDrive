@@ -147,7 +147,7 @@ namespace Ship_Game
 
 	        if (agent.Mission != AgentMission.Defending)
 	        {
-	            if (!string.IsNullOrEmpty(agent.TargetEmpire) && agent.Mission != AgentMission.Training &&
+	            if (agent.TargetEmpire.NotEmpty() && agent.Mission != AgentMission.Training &&
 	                agent.Mission != AgentMission.Undercover)
 	            {
 	                Vector2 targetCursor = namecursor;
