@@ -10,7 +10,6 @@ namespace Ship_Game.AI
         private ResearchStrategy res_strat = ResearchStrategy.Scripted;
         private int ScriptIndex;
         Ship BestCombatShip;
-        private string PreviousResearchedTech = string.Empty;
 
         public Ship GetBestCombatShip
         {
