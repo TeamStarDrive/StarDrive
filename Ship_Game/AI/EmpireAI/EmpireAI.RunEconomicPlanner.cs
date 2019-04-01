@@ -62,7 +62,7 @@ namespace Ship_Game.AI
                                + OwnerEmpire.data.FlatMoneyBonus
                                + OwnerEmpire.TotalShipMaintenance; //more savings than GDP 
             }
-            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 1000;
+            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 750;
             treasuryGoal = Math.Max(1000, treasuryGoal);
             return treasuryGoal;
         }
