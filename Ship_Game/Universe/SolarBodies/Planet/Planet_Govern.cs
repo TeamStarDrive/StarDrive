@@ -71,11 +71,12 @@ namespace Ship_Game
             } // End Gov type Switch
 
             BuildPlatformsAndStations();
+            BuildMilitia();
         }
 
         private void BuildPlatformsAndStations() // Rewritten by Fat Bastard
         {
-            if (Owner.isPlayer && !GovOrbitals)
+            if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals)
                 return;
 
             var currentPlatforms      = FilterOrbitals(ShipData.RoleName.platform);
@@ -306,7 +307,7 @@ namespace Ship_Game
 
         public void BuildShipyardIfAble(int numWantedShipyards)
         {
-            if (numWantedShipyards == 0 || RecentCombat || !HasSpacePort)
+            if (numWantedShipyards == 0 || RecentCombat || !HasSpacePort || OrbitalsInTheWorks)
                 return;
 
             if (NumShipyards >= numWantedShipyards
@@ -327,6 +328,39 @@ namespace Ship_Game
                     Cost      = cost
                 });
             }
+        }
+
+        public void BuildMilitia()
+        {
+            // Only for player empires, if they choose to build militia
+            if (!Owner.isPlayer || !GovMilitia || colonyType == ColonyType.Colony)
+                return;
+
+            int troopsWeWant = TroopsWeWant();
+            int troopsWeHave = TroopsHere.Count + NumTroopsInTheWorks;
+
+            if (troopsWeHave < troopsWeWant)
+                BuildTroop();
+        }
+
+        private int TroopsWeWant()
+        {
+            switch (colonyType)
+            {
+                case ColonyType.Research: return 4;
+                case ColonyType.Core:     return 6;
+                case ColonyType.Military: return 7;
+                default:                  return 5;
+            }
+        }
+
+        private void BuildTroop()
+        {
+            if (TroopsInTheWorks)
+                return;  // Build one militia at a time
+
+            Troop template = ResourceManager.GetTroopTemplates().FindMinFiltered(t => Owner.WeCanBuildTroop(t.Name), t => t.ActualCost);
+            Construction.AddTroop(template);
         }
     }
 }
