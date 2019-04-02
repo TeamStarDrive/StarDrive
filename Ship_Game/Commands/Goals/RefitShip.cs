@@ -109,7 +109,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             get
             {
-                if (!OldShip.Active)
+                if (OldShip == null)
                     return false; // Ship was removed from game, probably destroyed
 
                 return OldShip.DoingRefit;
@@ -120,7 +120,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             get
             {
-                if (!OldShip.Active)
+                if (OldShip == null)
                     return false; // Ship was removed from game, probably destroyed
 
                 return OldShip.AI.State == AIState.HoldPosition || OldShip.DoingRefit;
