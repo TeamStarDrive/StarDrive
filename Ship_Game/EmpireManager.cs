@@ -73,6 +73,8 @@ namespace Ship_Game
 
         public static Empire GetEmpireByName(string name)
         {
+            if (name.IsEmpty())
+                return null;
             if (EmpireDict.TryGetValue(name, out Empire e))
                 return e;
             foreach (Empire empire in EmpireList)
