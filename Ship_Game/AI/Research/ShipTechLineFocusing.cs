@@ -30,8 +30,7 @@ namespace Ship_Game.AI.Research
                     BestCombatShip = null;
             }
             HashSet<string> allAvailableShipTechs = FindBestShip(modifier, availableTechs, scriptedOrRandom);
-            DebugLog(
-                $"Best Ship : {BestCombatShip?.shipData.HullRole} : {BestCombatShip?.GetStrength()}");
+            DebugLog($"Best Ship : {BestCombatShip?.shipData.HullRole} : {BestCombatShip?.GetStrength()}");
             DebugLog($" : {BestCombatShip?.Name}");
 
             //now that we have a target ship to build filter out all the current techs that are not needed to build it.
@@ -238,9 +237,10 @@ namespace Ship_Game.AI.Research
                 OrderByDescending(ship => ship.shipData.TechsNeeded.Count));
             for (int x = 1; x <= ships.Count; x++)
             {
-                var ship = ships[x - 1];
+                var ship     = ships[x - 1];
                 float chance = (float)x / ships.Count;
-                float rand = RandomMath.RandomBetween(.01f, 1f);
+                float rand   = RandomMath.RandomBetween(.01f, 1f);
+
                 if (rand > chance)
                     continue;
                 return (BestCombatShip = ship) != null;
