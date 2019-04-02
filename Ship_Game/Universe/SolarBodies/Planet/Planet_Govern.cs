@@ -335,12 +335,14 @@ namespace Ship_Game
             // Only for player empires, if they choose to build militia
             if (!Owner.isPlayer || !GovMilitia || colonyType == ColonyType.Colony)
                 return;
+            if (CanBuildInfantry)
+            {
+                int troopsWeWant = TroopsWeWant();
+                int troopsWeHave = TroopsHere.Count + NumTroopsInTheWorks;
 
-            int troopsWeWant = TroopsWeWant();
-            int troopsWeHave = TroopsHere.Count + NumTroopsInTheWorks;
-
-            if (troopsWeHave < troopsWeWant)
-                BuildTroop();
+                if (troopsWeHave < troopsWeWant)
+                    BuildTroop();
+            }
         }
 
         private int TroopsWeWant()
