@@ -118,7 +118,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             if (P.GovMilitia && P.colonyType != Planet.ColonyType.Colony)
                 return 0; // Player Governor will replace garrisoned troops with new ones
 
-            return 5;
+            return 5; // Default value for non Governor Player Colonies 
         }
 
         private void SupplyShip(Ship ship)
