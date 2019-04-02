@@ -10,7 +10,7 @@ namespace Ship_Game.AI.Research
         readonly Empire OwnerEmpire;
         public Ship BestCombatShip { get; private set; }
 
-        private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
+        void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
         public ShipTechLineFocusing (Empire empire)
         {
@@ -34,7 +34,7 @@ namespace Ship_Game.AI.Research
                 $"Best Ship : {BestCombatShip?.shipData.HullRole} : {BestCombatShip?.GetStrength()}");
             DebugLog($" : {BestCombatShip?.Name}");
 
-            //now that we have a target ship to buiild filter out all the current techs that are not needed to build it.
+            //now that we have a target ship to build filter out all the current techs that are not needed to build it.
 
             if (!GlobalStats.HasMod || !GlobalStats.ActiveModInfo.UseManualScriptedResearch)
                 availableTechs = BestShipTechs(allAvailableShipTechs, availableTechs);
@@ -100,8 +100,9 @@ namespace Ship_Game.AI.Research
             return false;
         }
 
-        private void GetResearchableShips(Array<Ship> racialShips, Array<Ship> researchableShips)
+        private Array<Ship> GetResearchableShips(Array<Ship> racialShips)
         {
+            var researchableShips = new Array<Ship>();
             foreach (Ship shortTermBest in racialShips)
             {
                 //filter Hullroles....
@@ -116,9 +117,12 @@ namespace Ship_Game.AI.Research
                 if (ShipHasUndiscoveredTech(shortTermBest)) continue;
                 researchableShips.Add(shortTermBest);
             }
+            return researchableShips;
         }
-        private void FilterRacialShips(Array<Ship> racialShips)
+
+        private Array<Ship> FilterRacialShips()
         {
+            var racialShips = new Array<Ship>();
             foreach (Ship shortTermBest in ResourceManager.ShipsDict.Values.OrderBy(tech => tech.shipData.TechScore))
             {
                 try
@@ -145,6 +149,7 @@ namespace Ship_Game.AI.Research
                 }
                 racialShips.Add(shortTermBest);
             }
+            return racialShips;
         }
 
         private int ChooseRole(Array<Ship> ships, SortedList<int, Array<Ship>> roleSorter, Func<Ship, int> func)
@@ -155,7 +160,7 @@ namespace Ship_Game.AI.Research
              */
             foreach (Ship ship in ships)
             {
-                int key = func(ship); // ship.DesignRole;
+                int key = func(ship);
                 if (roleSorter.TryGetValue(key, out Array<Ship> test))
                     test.Add(ship);
                 else
@@ -226,12 +231,11 @@ namespace Ship_Game.AI.Research
             int keyChosen = ChooseRole(techSorter[techSorter.Keys.First()], hullSorter, h => (int)h.shipData.HullRole);
             //sort roles
             var roleSorter = new SortedList<int, Array<Ship>>();
-            keyChosen = ChooseRole(hullSorter[keyChosen], roleSorter,
-                s => (int)s.DesignRole); // s.DesignRole < ShipData.RoleName.fighter ? (int)ShipData.RoleName.fighter -1 : (int) s.DesignRole);
+            keyChosen = ChooseRole(hullSorter[keyChosen], roleSorter,s => (int)s.DesignRole);
 
             //choose Ship
             Array<Ship> ships = new Array<Ship>(roleSorter[keyChosen].
-                OrderByDescending(ship => ship.shipData.TechsNeeded.Count)); //ship.GetStrength()));//
+                OrderByDescending(ship => ship.shipData.TechsNeeded.Count));
             for (int x = 1; x <= ships.Count; x++)
             {
                 var ship = ships[x - 1];
@@ -287,11 +291,8 @@ namespace Ship_Game.AI.Research
             }
 
             //now look through are cheapest to research designs that get use closer to the goal ship using pretty much the same logic.
-            var racialShips = new Array<Ship>();
-            FilterRacialShips(racialShips);
-            var shipsReasearchable = new Array<Ship>();
-
-            GetResearchableShips(racialShips, shipsReasearchable);
+            Array<Ship> racialShips        = FilterRacialShips();
+            Array<Ship> shipsReasearchable = GetResearchableShips(racialShips);
 
             if (shipsReasearchable.Count <= 0) return nonShipTechs;
 
@@ -309,12 +310,14 @@ namespace Ship_Game.AI.Research
             // use the shiptech choosers which just chooses tech in the list.
             TechEntry[] repeatingTechs = OwnerEmpire.TechEntries.Filter(t => t.MaxLevel > 1);
 
-            foreach (string shiptech in shipTechs)
+            foreach (string shipTech in shipTechs)
             {
-                if (OwnerEmpire.TryGetTechEntry(shiptech, out TechEntry test))
+                if (OwnerEmpire.TryGetTechEntry(shipTech, out TechEntry test))
                 {
                     bool skipRepeater = false;
-                    // repeater compensator. This needs some deeper logic. I current just say if you research one level. Dont research any more.
+                    // repeater compensator. This needs some deeper logic.
+                    // I current just say if you research one level.
+                    // Dont research any more.
                     if (test.MaxLevel > 1)
                     {
                         foreach (TechEntry repeater in repeatingTechs)
