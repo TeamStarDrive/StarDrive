@@ -24,16 +24,16 @@ namespace Ship_Game.AI
             float risk         = GetRisk();
             float money        = Math.Max(OwnerEmpire.Money, 1);
             float treasuryGoal = TreasuryGoal();
-            float goal         = (money / treasuryGoal).Clamped(0, 1); 
+            float goal         = Math.Max(money / treasuryGoal, 0);
             var resStrat       = OwnerEmpire.ResearchStrategy;
             float buildRatio   = (resStrat.MilitaryRatio + resStrat.IndustryRatio + resStrat.ExpansionRatio) /2f;
 
             AutoSetTaxes(treasuryGoal);
-            SetBudgetForeArea(goal * .01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
-            SetBudgetForeArea(goal * .01f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
-            SetBudgetForeArea(goal * .01f, ref BuildCapacity, Math.Max(risk, buildRatio));           
-            SetBudgetForeArea(goal * .1f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
-            SetBudgetForeArea(goal * .01f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(goal * 0.01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
+            SetBudgetForeArea(goal * 0.01f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(goal * 0.02f, ref BuildCapacity, Math.Max(risk, buildRatio));           
+            SetBudgetForeArea(goal * 0.1f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
+            SetBudgetForeArea(goal * 0.01f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
 
 #if DEBUG
             var pBudgets = new Array<PlanetBudget>();

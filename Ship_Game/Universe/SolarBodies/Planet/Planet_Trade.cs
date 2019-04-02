@@ -70,7 +70,9 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportFood || !ShortOnFood())
                     return 0;
 
-                return ((int)(1 - Food.NetIncome)).Clamped(0, 5);
+                int foodIncomeSlots  = ((int)(1 - Food.NetIncome));
+                int foodStorageRatio = (int)((1 - Storage.FoodRatio) * 3);
+                return (foodIncomeSlots + foodStorageRatio).Clamped(0, 5);
             }
         }
 
