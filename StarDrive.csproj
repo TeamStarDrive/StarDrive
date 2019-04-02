@@ -206,6 +206,7 @@
     <Compile Include="Ship_Game\AI\Fleet.FleetGoal.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\AssaultShipCombat.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\ShipAI.AttackRun.cs" />
+    <Compile Include="Ship_Game\AI\Research\ShipTechLineFocusing.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goods.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAIPlan.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\ShipAIMovement.cs" />
