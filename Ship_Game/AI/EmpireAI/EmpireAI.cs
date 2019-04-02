@@ -39,9 +39,10 @@ namespace Ship_Game.AI
             OwnerEmpire                               = e;
             DefensiveCoordinator                      = new DefensiveCoordinator(e);
             OffensiveForcePoolManager                 = new OffensiveForcePoolManager(e);
-            if (OwnerEmpire.data.EconomicPersonality != null)            
+            LineFocus                                 = new Research.ShipTechLineFocusing(e);
+
+            if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals                     = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
-            
         }
 
         public void AddToTaskList(MilitaryTask task) => TaskList.Add(task);
