@@ -84,14 +84,14 @@ namespace Ship_Game
 
             if (input.LeftMouseDoubleClick)
                 InputClickableItems(input);
-            
+
             if (!LookingAtPlanet)
             {
                 LeftClickOnClickableItem(input);
                 ShipPieMenuClear();
                 HandleSelectionBox(input);
             }
-            
+
             HandleScrolls(input);
         }
 
@@ -103,8 +103,8 @@ namespace Ship_Game
 
             if (input.SpawnShip)
                 Ship.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
-            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt("Fleet 2", empire, mouseWorldPos, CombatState.Artillery);
-            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt("Fleet 1", empire, mouseWorldPos, CombatState.AttackRuns);
+            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt("Fleet 2", empire, mouseWorldPos);
+            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt("Fleet 1", empire, mouseWorldPos);
 
             if (SelectedShip != null)
             {
@@ -113,7 +113,7 @@ namespace Ship_Game
                     var damage = 1f;
                     if (input.IsShiftKeyDown)
                         damage = .9f;
-                    //Apply damage as a percent of module health to all modules. 
+                    //Apply damage as a percent of module health to all modules.
                     SelectedShip.DebugDamage(damage);
                 }
             }
@@ -246,7 +246,7 @@ namespace Ship_Game
                 }
                 GlobalStats.LimitSpeed = GlobalStats.LimitSpeed || Debug;
             }
-            
+
             if (Debug)
             {
                 if (input.ShowDebugWindow)
@@ -267,14 +267,14 @@ namespace Ship_Game
                 DefineAO(input);
                 return false;
             }
-                        
+
             for (int index = SelectedShipList.Count - 1; index >= 0; --index)
             {
                 Ship ship = SelectedShipList[index];
                 if (ship?.Active != true)
                     SelectedShipList.RemoveSwapLast(ship);
             }
-            // CG: previous target code. 
+            // CG: previous target code.
             if (previousSelection != null && input.PreviousTarget)
                 PreviousTargetSelection(input);
 
@@ -297,10 +297,10 @@ namespace Ship_Game
             if (input.SendKudos)
             {
                 Paused = true;
-                Log.OpenURL("http://steamcommunity.com/id/v-danbe/recommended/220660");                
+                Log.OpenURL("http://steamcommunity.com/id/v-danbe/recommended/220660");
             }
 
-            
+
             HandleGameSpeedChange(input);
 
             // fbedard: Click button to Cycle through ships in Combat
@@ -339,7 +339,7 @@ namespace Ship_Game
 
             if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.empire == player))
                 HandleInputScrap(input);
-      
+
             pickedSomethingThisFrame = false;
 
             ShipsInCombat.Visible   = !LookingAtPlanet;
@@ -526,14 +526,14 @@ namespace Ship_Game
 
         SolarSystem CheckSolarSystemClick()
         {
-            lock (GlobalStats.ClickableSystemsLock)            
+            lock (GlobalStats.ClickableSystemsLock)
                 for (int x = 0; x < ClickableSystems.Count; ++x)
                 {
                     ClickableSystem clickableSystem = ClickableSystems[x];
                     if (!clickableSystem.Touched(Input.CursorPosition)) continue;
-                    return clickableSystem.systemToClick;                    
+                    return clickableSystem.systemToClick;
                 }
-            
+
             return null;
         }
 
@@ -542,22 +542,22 @@ namespace Ship_Game
             foreach(ClickableFleet clickableFleet in ClickableFleetsList)
             {
                 if (!Input.CursorPosition.InRadius(clickableFleet.ScreenPos, clickableFleet.ClickRadius)) continue;
-                return clickableFleet.fleet;                
+                return clickableFleet.fleet;
             }
             return null;
         }
 
         ClickableItemUnderConstruction CheckBuildItemClicked()
         {
-            lock (GlobalStats.ClickableItemLocker)            
+            lock (GlobalStats.ClickableItemLocker)
                 for (int x = 0; x < ItemsToBuild.Count; ++x)
                 {
                     ClickableItemUnderConstruction buildItem = ItemsToBuild[x];
-                    if (buildItem == null || !Input.CursorPosition.InRadius(buildItem.ScreenPos,buildItem.Radius)) 
-                        continue;                    
+                    if (buildItem == null || !Input.CursorPosition.InRadius(buildItem.ScreenPos,buildItem.Radius))
+                        continue;
                     return buildItem;
                 }
-            
+
             return null;
         }
 
@@ -611,7 +611,7 @@ namespace Ship_Game
         {
             if (shipToAttack == null || shipToAttack.loyalty == player)
                 return false;
-            
+
             fleet.Position = shipToAttack.Center;
             fleet.AssignPositions(Vectors.Up);
             foreach (Ship fleetShip in fleet.Ships)
@@ -629,15 +629,15 @@ namespace Ship_Game
                     ship.AI.ClearOrderIfCombat();
 
             fleet.FormationWarpTo(movePosition, direction, true);
-            return true; 
+            return true;
         }
 
         void MoveFleetToLocation(Ship shipClicked, Planet planetClicked, Vector2 movePosition, Vector2 facingDir, ShipGroup fleet = null)
-        {            
-            fleet = fleet ?? SelectedFleet;            
+        {
+            fleet = fleet ?? SelectedFleet;
             fleet?.FleetTargetList.Clear();
             GameAudio.AffirmativeClick();
-            
+
             using (fleet.Ships.AcquireReadLock())
                 foreach (var ship in fleet.Ships)
                 {
@@ -659,9 +659,9 @@ namespace Ship_Game
                 foreach (var ship in fleet.Ships)
                     ship.AI.ClearOrders();
 
-            if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))            
-                fleet.MoveToNow(movePosition, facingDir);            
-            else                
+            if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))
+                fleet.MoveToNow(movePosition, facingDir);
+            else
                 fleet.FormationWarpTo(movePosition, facingDir, Input.QueueAction);
         }
 
@@ -753,11 +753,11 @@ namespace Ship_Game
                     {
                         SelectedShipList.Remove(clickableShip.shipToClick);
                         return true;
-                    }                        
+                    }
                     SelectedShipList.AddUnique(clickableShip.shipToClick);
                     return false;
                 }
-                
+
                 SelectedShipList.Clear();
                 SelectedShipList.AddUnique(clickableShip.shipToClick);
                 SelectedShip = clickableShip.shipToClick;
@@ -795,11 +795,11 @@ namespace Ship_Game
             {
                 if ((SelectedSystem = CheckSolarSystemClick()) != null)
                 {
-                    sInfoUI.SetSystem(SelectedSystem);                        
+                    sInfoUI.SetSystem(SelectedSystem);
                     return;
                 }
             }
-                
+
             if ((SelectedFleet = CheckFleetClicked()) != null)
             {
                 SelectedShipList.Clear();
@@ -809,7 +809,7 @@ namespace Ship_Game
                 SelectedShipList.AddRange(SelectedFleet.Ships);
                 shipListInfoUI.SetShipList(SelectedShipList, false);
                 return;
-            }                
+            }
 
             SelectShipClicks(input);
 
@@ -817,7 +817,7 @@ namespace Ship_Game
                 ShipInfoUIElement.SetShip(SelectedShip);
             else if (SelectedShipList.Count > 1)
                 shipListInfoUI.SetShipList(SelectedShipList, false);
-            
+
             if (SelectedShipList.Count == 1)
             {
                 LoadShipMenuNodes(SelectedShipList[0].loyalty == player ? 1 : 0);
@@ -869,7 +869,7 @@ namespace Ship_Game
             if (SelectingWithBox) // trigger! mouse released after selecting
                 SelectingWithBox = false;
 
-            if (!GetAllShipsInArea(SelectionBox, out Array<Ship> ships, 
+            if (!GetAllShipsInArea(SelectionBox, out Array<Ship> ships,
                 out bool purgeLoyalty, out bool purgeSupply, out Fleet fleet))
             {
                 SelectionBox = new Rectangle(0, 0, -1, -1);
@@ -888,7 +888,7 @@ namespace Ship_Game
             {
                 isFleet = false;
                 foreach (Ship ship in SelectedShipList)
-                {                    
+                {
                     if (ship.loyalty != player)
                     {
                         SelectedShipList.QueuePendingRemoval(ship);
@@ -961,7 +961,7 @@ namespace Ship_Game
                 ships.Add(ship);
                 playerShips    += ship.loyalty == player ? 1 : 0;
                 nonCombatShips += NonCombatShip(ship) ? 1 : 0;
-                
+
                 if (fleet == null)
                     fleet = ship.fleet;
                 if (fleet != null && fleet == ship.fleet)
@@ -1083,7 +1083,7 @@ namespace Ship_Game
                 Goal goal = player.GetEmpireAI().Goals[index];
                 if (!(goal is BuildConstructionShip))
                     continue;
-                const float radius = 100f;                    
+                const float radius = 100f;
                 Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), Projection, View, Matrix.Identity).ToVec2();
                 Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), Projection, View, Matrix.Identity);
                 float num = Vector2.Distance(new Vector2(buildOffSet.X, buildOffSet.Y), buildPos) + 10f;
@@ -1150,7 +1150,7 @@ namespace Ship_Game
             if (AORect.Width <= 5000 || AORect.Height <= 5000) return;
 
             GameAudio.EchoAffirmative();
-            SelectedShip.AreaOfOperation.Add(AORect);            
+            SelectedShip.AreaOfOperation.Add(AORect);
         }
 
         void InputClickableItems(InputState input)
@@ -1413,7 +1413,7 @@ namespace Ship_Game
                 {
                     ship.ClearFleet();
                     if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
-                    {                        
+                    {
                         ship.AI.ClearOrdersAndWayPoints();
                         ship.AI.ClearPriorityOrder();
                         fleet.AddShip(ship);
@@ -1437,8 +1437,8 @@ namespace Ship_Game
                 SelectedShipList.Add(ship);
                 ship.fleet = fleet;
             }
-            
-            shipListInfoUI.SetShipList(SelectedShipList, true);  //fbedard:display new fleet in UI            
+
+            shipListInfoUI.SetShipList(SelectedShipList, true);  //fbedard:display new fleet in UI
         }
 
         public void RecomputeFleetButtons(bool now)
@@ -1575,7 +1575,7 @@ namespace Ship_Game
             if (CamHeight <= 450.0f)
                 CamHeight = 450f;
             float camDestinationZ = CamDestination.Z;
-            
+
             //fbedard: add a scroll on selected object
             if ((!input.IsShiftKeyDown && GlobalStats.ZoomTracking) || (input.IsShiftKeyDown && !GlobalStats.ZoomTracking))
             {
@@ -1587,7 +1587,7 @@ namespace Ship_Game
                 if (SelectedPlanet != null)
                 {
                     CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, camDestinationZ);
-                }  
+                }
                 else
                 if (SelectedFleet != null && SelectedFleet.Ships.Count > 0)
                 {
