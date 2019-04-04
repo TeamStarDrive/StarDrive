@@ -39,7 +39,7 @@ namespace Ship_Game
                 return;
             }
 
-            ScrapBuilding(budget, scoreThreshold: 0); // scrap a negative value building
+            ScrapBuilding(budget, scoreThreshold: -0.1f); // scrap a negative value building
             if (OpenTiles > 0)
             {
                 SimpleBuild(budget); // lets try to build something within our debt tolerance
