@@ -245,7 +245,7 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
-            if (ParentSystem.HostileForcesPresent(Owner))
+            if (EnemyInRange())
                 UpdateSpaceCombatBuildings(elapsedTime);
 
             UpdatePlanetaryProjectiles(elapsedTime);
