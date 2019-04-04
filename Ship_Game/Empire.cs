@@ -154,7 +154,7 @@ namespace Ship_Game
         public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
 
         public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p =>
-            p.HasSpacePort && !p.ParentSystem.HostileForcesPresent(this)
+            p.HasSpacePort && !p.EnemyInRange()
         );
 
         public bool FindClosestSpacePort(Vector2 position, out Planet closest)
@@ -269,13 +269,10 @@ namespace Ship_Game
 
             foreach (SolarSystem system in OwnedSolarSystems)
             {
-                if (!system.HostileForcesPresent(this))
+                foreach (Planet planet in system.PlanetList)
                 {
-                    foreach (Planet planet in system.PlanetList)
-                    {
-                        if (planet.Owner == this)
-                            rallyPlanets.Add(planet);
-                    }
+                    if (planet.Owner == this && !planet.EnemyInRange())
+                        rallyPlanets.Add(planet);
                 }
             }
 
@@ -1769,7 +1766,7 @@ namespace Ship_Game
                 influenceNode3.Position      = planet.Center;
                 influenceNode3.Radius        = isFaction ? 1f : data.SensorModifier;
                 influenceNode3.Known         = known;
-                foreach (Building t in planet.BuildingList)
+                foreach (Building t in planet.BuildingList) // FB - change this to the planet sensorRange
                 {
                     if (t.SensorRange * data.SensorModifier > influenceNode3.Radius)
                     {

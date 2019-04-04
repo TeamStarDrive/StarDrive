@@ -38,7 +38,7 @@ namespace Ship_Game.Universe
                 if (ship.loyalty == Owner)
                     continue;
 
-                if (ship.loyalty.isFaction || Owner.GetRelations(ship.loyalty).AtWar)
+                if (ship.loyalty.isFaction || Owner.IsEmpireAttackable(ship.loyalty))
                 {
                     HostileForcesPresent = true;
                     CombatTimer = 5f;
