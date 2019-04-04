@@ -497,6 +497,21 @@ namespace Ship_Game
             return TechnologyDict.TryGetValue(uid, out techEntry);
         }
 
+        public Array<TechEntry> CurrentTechsResearchable()
+        {
+            var availableTechs = new Array<TechEntry>();
+
+            foreach (TechEntry tech in TechEntries)
+            {
+                if (tech.Discovered && tech.shipDesignsCanuseThis && !tech.Unlocked && HavePreReq(tech.UID))
+                {
+                    availableTechs.Add(tech);
+                    tech.SetLookAhead(this);
+                }
+            }
+            return availableTechs;
+        }
+
         public bool HasUnlocked(string uid)       => GetTechEntry(uid).Unlocked;
         public bool HasUnlocked(TechEntry tech)   => GetTechEntry(tech).Unlocked;
         public bool HasDiscovered(string techId)  => GetTechEntry(techId).Discovered;
