@@ -170,7 +170,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
             using (TroopsHere.AcquireWriteLock())
             {
-                if ((ship.InCombat && ParentSystem.HostileForcesPresent(ship.loyalty)) 
+                if ((ship.InCombat && P.EnemyInRange()) 
                     || TroopsHere.IsEmpty
                     || TroopsHere.Any(troop => troop.Loyalty != Owner))
                     return;
