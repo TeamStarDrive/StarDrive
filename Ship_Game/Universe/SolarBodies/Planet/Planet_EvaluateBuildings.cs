@@ -28,6 +28,28 @@ namespace Ship_Game
                     $"Eval VALUE  {b.Name,-20}  {what,-16} {(+score).SignString()}");
         }
 
+        //New Build Logic by Gretman, modified by FB
+        void BuildAndScrapBuildings()
+        {
+            float budget       = BuildingBudget();
+            int totalBuildings = TotalBuildings;
+            if (budget < -0.1f)
+            {
+                ScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
+                return;
+            }
+
+            ScrapBuilding(budget, scoreThreshold: 0); // scrap a negative value building
+            if (OpenTiles > 0)
+            {
+                SimpleBuild(budget); // lets try to build something within our debt tolerance
+                return;
+            }
+
+            BuildBiospheres(budget, totalBuildings); // lets build biospheres if we can, since we have no open tiles
+            ReplaceBuilding(budget); // we dont have room for expansion. Let's see if we can replace to a better value building
+        }
+
         float EvalMaintenance(Building b, float budget)
         {
             if (b.Maintenance.AlmostZero())
@@ -64,8 +86,6 @@ namespace Ship_Game
                         score += farmers - 0.5f;            //Bonus if planet is spending a lot of labor feeding itself
                     if (score < b.PlusFlatFoodAmount * 0.1f)
                         score = b.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
-                    if (b.PlusFlatFoodAmount + Food.FlatBonus - 0.5f > MaxPopulationBillion)
-                        score = 0;   //Dont want this if a lot would go to waste
 
                     float jumpStart = 10 * (1 - PopulationRatio) - Food.NetMaxPotential * Food.Percent; // FB - jump start a new colony
                     jumpStart = Math.Max(jumpStart, 0);
@@ -714,51 +734,25 @@ namespace Ship_Game
         bool MilitaryApprovesReplacement(Building toScrap, Building toBuild)  // by FB
         {
             if (!toScrap.IsMilitary)
-                return true; // Military does not interfere with cilivian buildings
+                return true; // Military does not interfere with civilian buildings
 
             if (toScrap.IsMilitary && toBuild.IsMilitary)
                 return true; // Military always likes to upgrade it's buildings
 
             if (DesiredMilitaryBuildings < ExistingMilitaryBuildings)
-                return true; // Militray has too many buildings (probably after Recent Combat)
+                return true; // Military has too many buildings
 
             return false; //Military won't replace it's buildings with civilian ones
         }
 
-        //New Build Logic by Gretman, modified by FB
-        void BuildAndScrapBuildings(float budget)
-        {
-            int totalBuildings       = TotalBuildings;
-            float popRatio           = PopulationRatio;
-
-            if (budget < -0.1f)
-            {
-                ScrapBuilding(budget, popRatio); // we must scrap something to bring us above of our debt tolerance
-                return; 
-            }
-
-            ScrapBuilding(budget,  scoreThreshold: 0); // scrap a negative value building
-            if (OpenTiles > 0)
-            {
-                SimpleBuild(budget); // lets try to build something within our debt tolerance
-                return;
-            }
-
-            BuildBiospheres(budget, totalBuildings); // lets build biospheres if we can, since we have no open tiles
-            ReplaceBuilding(budget); // we dont have room for expansion. Let's see if we can replace to a better value building
-        }
-
         float BuildingBudget()
         {
-            // FB this will give the budget the colony will have for building selection
-            float colonyIncome  = Money.NetRevenue;
-            colonyIncome       -= Construction.TotalQueuedBuildingMaintenance(); // take into account buildings maint in queue
-            float debtTolerance = (3 - PopulationBillion).Clamped(-3,3); // the bigger the colony, the less debt tolerance it has, it should be earning money 
-            if (BuildingList.Any(b => b.IsCapital))
-                debtTolerance = 0; // limit negative tolerance for homeworlds
+            float budget        = Owner.GetEmpireAI().PlanetBudget(this).Budget - Construction.TotalQueuedBuildingMaintenance();
+            float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+            if (MaxPopulationBillion < 2)
+                debtTolerance += 2f - MaxPopulationBillion;
 
-            debtTolerance      += Owner.Money / 2000; // FB this will ensure AI wont get stuck with no colony budget
-            return colonyIncome + debtTolerance;
+            return budget + debtTolerance;
         }
 
         bool OutpostBuiltOrInQueue()

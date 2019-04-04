@@ -148,13 +148,6 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
-        bool GetColonyShipTemplate(out Ship colonyShip)
-        {
-            if (empire.isPlayer && ResourceManager.GetShipTemplate(empire.data.CurrentAutoColony, out colonyShip))
-                return true;
-            return ResourceManager.GetShipTemplate(empire.data.DefaultColonyShip, out colonyShip);
-        }
-
         GoalStep OrderShipForColonization()
         {
             if (!IsValid())
@@ -166,16 +159,13 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
                 return GoalStep.GoToNextStep;
 
-            if (!GetColonyShipTemplate(out Ship colonyShipType))
-            {
-                Log.Error($"{empire} failed to find a ColonyShip template! AutoColony:{empire.data.CurrentAutoColony}  Default:{empire.data.DefaultColonyShip}");
+            if (!ShipBuilder.PickColonyShip(empire, out Ship colonyShip))
                 return GoalStep.GoalFailed;
-            }
 
-            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, colonyShipType, out Planet planet))
+            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
-            planet.Construction.AddShip(colonyShipType, this, notifyOnEmpty:empire.isPlayer);
+            planet.Construction.AddShip(colonyShip, this, notifyOnEmpty:empire.isPlayer);
             return GoalStep.GoToNextStep;
         }
 
