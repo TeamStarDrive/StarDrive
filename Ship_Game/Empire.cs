@@ -266,25 +266,9 @@ namespace Ship_Game
             }
 
             rallyPlanets = new Array<Planet>();
-
-            foreach (SolarSystem system in OwnedSolarSystems)
-            {
-                foreach (Planet planet in system.PlanetList)
-                {
-                    if (planet.Owner == this && !planet.EnemyInRange())
-                        rallyPlanets.Add(planet);
-                }
-            }
-
-            if (rallyPlanets.Count > 0)
-            {
-                RallyPoints = rallyPlanets.ToArray();
-                return;
-            }
-
             foreach (Planet planet in OwnedPlanets)
             {
-                if (planet.HasSpacePort)
+                if (planet.HasSpacePort && !planet.EnemyInRange())
                     rallyPlanets.Add(planet);
             }
 
@@ -293,6 +277,9 @@ namespace Ship_Game
                 RallyPoints = rallyPlanets.ToArray();
                 return;
             }
+
+            // Could not find any planet with space port and with no enemies in sensor range
+            // So get the most producing planet and hope for the best
             rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.Prod.GrossIncome));
             RallyPoints = rallyPlanets.ToArray();
             if (RallyPoints.Length == 0)
