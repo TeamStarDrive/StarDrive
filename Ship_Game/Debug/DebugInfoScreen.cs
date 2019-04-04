@@ -268,7 +268,7 @@ namespace Ship_Game.Debug
                 {
                     DrawString($"Research: {e.CurrentResearch.Progress:0}/{e.CurrentResearch.TechCost:0} ({e.GetProjectedResearchNextTurn().String()} / {e.MaxResearchPotential.String()})");
                     DrawString("   --" + e.ResearchTopic);
-                    Ship bestShip = e.GetEmpireAI().GetBestCombatShip;
+                    Ship bestShip = e.GetEmpireAI().TechChooser.LineFocus.BestCombatShip;
                     if (bestShip != null)
                     {
                         DrawString($"Ship : {bestShip.Name}");
