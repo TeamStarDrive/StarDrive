@@ -35,13 +35,15 @@ namespace Ship_Game.AI
         public float DefStr;        
         public EmpireAI(Empire e)
         {
-            EmpireName                                = e.data.Traits.Name;
-            OwnerEmpire                               = e;
-            DefensiveCoordinator                      = new DefensiveCoordinator(e);
-            OffensiveForcePoolManager                 = new OffensiveForcePoolManager(e);
-            if (OwnerEmpire.data.EconomicPersonality != null)            
+            EmpireName                = e.data.Traits.Name;
+            OwnerEmpire               = e;
+            DefensiveCoordinator      = new DefensiveCoordinator(e);
+            OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
+            TechChooser               = new Research.ChooseTech(e);
+
+
+            if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals                     = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
-            
         }
 
         public void AddToTaskList(MilitaryTask task) => TaskList.Add(task);
@@ -297,25 +299,6 @@ namespace Ship_Game.AI
                 Ship newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
                 if (newShip != null)
                     Goals.Add(new RefitShip(ship, newShip.Name, OwnerEmpire));
-            }
-        }
-
-        // FB - scrap idle freighter to make room for improved ones
-        public void TriggerFreightersScrap()
-        {
-            if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoFreighters)
-                return;
-
-            Ship betterFreighter = ShipBuilder.PickFreighter(OwnerEmpire, OwnerEmpire.FastVsBigFreighterRatio);
-            if (betterFreighter == null)
-                return;
-
-            foreach (Ship idleFreighter in OwnerEmpire.IdleFreighters)
-            {
-                if (betterFreighter.Name == idleFreighter.Name)
-                    continue;
-
-                idleFreighter.AI.OrderScrapShip();
             }
         }
 
