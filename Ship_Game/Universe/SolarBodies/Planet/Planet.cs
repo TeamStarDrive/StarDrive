@@ -49,6 +49,7 @@ namespace Ship_Game
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
+        public float SensorRange { get; private set; }
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
@@ -74,7 +75,6 @@ namespace Ship_Game
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
-        public bool TradeBlocked  => RecentCombat || ParentSystem.HostileForcesPresent(Owner);
 
         public float OrbitalsMaintenance;
 
@@ -685,13 +685,14 @@ namespace Ship_Game
             if (Owner == null)
                 return;
 
-            bool shipyard = false;
-            AllowInfantry = false;
+            bool spacePort = false;
+            AllowInfantry  = false;
             RepairPerTurn        = 0;
             TerraformToAdd       = 0;
             ShieldStrengthMax    = 0;
             ShipBuildingModifier = 0;
             NumShipyards         = 0;
+            SensorRange          = 0;
             TotalDefensiveStrength     = 0;
             PlusFlatPopulationPerTurn  = 0;
             float totalStorage         = 0;
@@ -732,12 +733,15 @@ namespace Ship_Game
                 TerraformToAdd            += b.PlusTerraformPoints;
                 totalStorage              += b.StorageAdded;
                 RepairPerTurn             += b.ShipRepair;
+
+                if (b.SensorRange > SensorRange)
+                    SensorRange = b.SensorRange;
                 if (b.AllowInfantry)
                     AllowInfantry = true;
                 if (b.WinsGame)
                     HasWinBuilding = true;
                 if (b.AllowShipBuilding || b.IsSpacePort)
-                    shipyard = true;
+                    spacePort = true;
             }
 
             UpdateMaxPopulation();
@@ -745,7 +749,7 @@ namespace Ship_Game
 
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
-            HasSpacePort          = shipyard && (colonyType != ColonyType.Research || Owner.isPlayer);
+            HasSpacePort          = spacePort && (colonyType != ColonyType.Research || Owner.isPlayer);
 
             // greedy bastards
             Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
@@ -762,7 +766,7 @@ namespace Ship_Game
 
         private void UpdateHomeDefenseHangars(Building b)
         {
-            if (ParentSystem.HostileForcesPresent(Owner) || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
+            if (EnemyInRange() || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
                 return;
 
             if (ParentSystem.ShipList.Any(t => t.HomePlanet != null))
@@ -795,6 +799,20 @@ namespace Ship_Game
             // production surplus is sent to auto-construction
             float prodSurplus = Math.Max(prodRemainder, 0f);
             Construction.AutoApplyProduction(prodSurplus);
+        }
+
+        public bool EnemyInRange()
+        {
+            if (!ParentSystem.HostileForcesPresent(Owner))
+                return false;
+
+            foreach (Ship ship in ParentSystem.ShipList)
+            {
+                if (Owner.IsEmpireAttackable(ship.loyalty) && ship.InRadius(Center, SensorRange))
+                    return true;
+
+            }
+            return false;
         }
 
         private void GrowPopulation()
