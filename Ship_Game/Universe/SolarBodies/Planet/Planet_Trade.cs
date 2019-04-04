@@ -90,7 +90,7 @@ namespace Ship_Game
                     if (ConstructionQueue.Count > 0 && Storage.ProdRatio.AlmostEqual(1))
                         return 0; // for non governor cases when all full and not constructing
 
-                    return (int)((Storage.Max - Storage.Prod) / 50) + 1;
+                    return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0,5);
                 }
 
                 if (ShortOnFood()) // cybernetics consume production
