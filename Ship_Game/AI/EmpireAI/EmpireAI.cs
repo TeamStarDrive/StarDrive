@@ -35,13 +35,15 @@ namespace Ship_Game.AI
         public float DefStr;        
         public EmpireAI(Empire e)
         {
-            EmpireName                                = e.data.Traits.Name;
-            OwnerEmpire                               = e;
-            DefensiveCoordinator                      = new DefensiveCoordinator(e);
-            OffensiveForcePoolManager                 = new OffensiveForcePoolManager(e);
-            if (OwnerEmpire.data.EconomicPersonality != null)            
+            EmpireName                = e.data.Traits.Name;
+            OwnerEmpire               = e;
+            DefensiveCoordinator      = new DefensiveCoordinator(e);
+            OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
+            TechChooser               = new Research.ChooseTech(e);
+
+
+            if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals                     = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
-            
         }
 
         public void AddToTaskList(MilitaryTask task) => TaskList.Add(task);
