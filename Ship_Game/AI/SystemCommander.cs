@@ -11,7 +11,7 @@ namespace Ship_Game.AI
     {
         public SolarSystem System;
         public float ValueToUs;
-        public int IdealTroopCount;
+        public int IdealTroopCount = 1;
         public float TroopStrengthNeeded;
         public int IdealShipStrength;
         public bool IsEnoughShipStrength => GetOurStrength() >= IdealShipStrength;
@@ -192,24 +192,25 @@ namespace Ship_Game.AI
             return str;
         }
 
+        public Planet[] OurPlanets => System.PlanetList.Filter(p => p.Owner == Us);
+
+        int MinPlanetTroopLevel => ((int)RankImportance + (int)CurrentGame.Difficulty + 1) * 2;
+
+        public int PlanetTroopMin(Planet planet) => MinPlanetTroopLevel * planet.Level / (int)SystemDevelopmentlevel;
+
         public void CalculateTroopNeeds()
         {
-            int minTroopLevel = (int)RankImportance + ((int)CurrentGame.Difficulty + 1) * 2;
-
             // find max number of troops for system.
-            Planet[] ourPlanets = System.PlanetList.Filter(p => p.Owner == Us);
+            Planet[] ourPlanets = OurPlanets;
             SystemDevelopmentlevel = ourPlanets.Sum(p => p.Level);
 
-            int maxTroops = ourPlanets.Sum(planet => planet.GetPotentialGroundTroops());
-            IdealTroopCount = (minTroopLevel + (int)RankImportance) * ourPlanets.Length;
-            if (IdealTroopCount > maxTroops)
-                IdealTroopCount = maxTroops;
+            int idealTroopCount = ourPlanets.Sum(PlanetTroopMin);
 
-            TroopCount = 0;
-            int currentTroops = ourPlanets.Sum(planet => planet.GetDefendingTroopCount());
-            TroopCount += currentTroops;
-
-            TroopStrengthNeeded = IdealTroopCount - currentTroops;
+            TroopCount          = 0;
+            int currentTroops   = ourPlanets.Sum(planet => planet.GetDefendingTroopCount());
+            TroopCount         += currentTroops;
+            IdealTroopCount     = idealTroopCount;
+            TroopStrengthNeeded = idealTroopCount - currentTroops;
         }
 
         public void CalculateShipNeeds()

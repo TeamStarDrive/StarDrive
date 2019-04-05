@@ -316,6 +316,18 @@ namespace Ship_Game.AI
             Goals.ApplyPendingRemovals();
         }
 
+        public IReadOnlyList<Goal> SearchForGoals(GoalType type)
+        {
+            var goals = new Array<Goal>();
+            for (int i = 0; i < Goals.Count; i++)
+            {
+                Goal goal = Goals[i];
+                if (goal.type == type)
+                    goals.Add(goal);
+            }
+            return goals;
+        }
+
         public bool HasGoal(GoalType type)
         {
             for (int i = 0; i < Goals.Count; ++i)

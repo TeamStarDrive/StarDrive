@@ -8,7 +8,10 @@ namespace Ship_Game.AI
     {
         void RunGroundPlanner()
         {
-            if (DefensiveCoordinator.UniverseWants > .8)
+            if (DefensiveCoordinator.UniverseWants > 0.9f)
+                return;
+            var troopGoal = SearchForGoals(GoalType.BuildTroop);
+            if (troopGoal.Count > 3) 
                 return;
 
             Troop[] troops = ResourceManager.GetTroopTemplates()
@@ -28,13 +31,13 @@ namespace Ship_Game.AI
                     || commander.TroopStrengthNeeded <= 0f)
                     continue;
                 totalWanted += commander.TroopStrengthNeeded;
-                totalIdeal  += commander.IdealTroopCount; 
+                totalIdeal  += commander.IdealTroopCount;
             }
 
             float requiredRatio = totalWanted / totalIdeal;
             if (requiredRatio <= 0.1f)
                 return;
-            
+
             Troop loCost = troops.First();
             Troop hiCost = troops.Last();
             Troop chosenTroop = requiredRatio > 0.5f ? hiCost : loCost;
