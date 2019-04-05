@@ -364,5 +364,58 @@ namespace Ship_Game
             Troop template = ResourceManager.GetTroopTemplates().FindMinFiltered(t => Owner.WeCanBuildTroop(t.Name), t => t.ActualCost);
             Construction.AddTroop(template);
         }
+
+        // returns the amount of production to spend in the build queue based on import/export state
+        public float LimitedProductionExpenditure()
+        {
+            float prodToSpend;
+            if (colonyType == ColonyType.Colony)
+            {
+                switch (PS)
+                {
+                    default: // Importing
+                        prodToSpend = ProdHere; // we are manually importing, so let's spend it all
+                        break;
+                    case GoodState.STORE:
+                        if (Storage.ProdRatio.AlmostEqual(1))
+                            prodToSpend = Prod.NetIncome; // Spend all our Income since storage is full
+                        else
+                            prodToSpend = Prod.NetIncome * 0.8f; // Store 20% of our prod income
+                        break;
+                    case GoodState.EXPORT:
+                        if (OutgoingProdFreighters > 0)
+                            prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
+                        else
+                            prodToSpend = ProdHere * 0.5f; // Spend 50% from our current stores and net production
+                        break;
+                }
+            }
+            else // Governor is auto managing good state
+            {
+                switch (PS)
+                {
+                    default: // Importing
+                        if (IncomingProdFreighters > 0)
+                            prodToSpend = ProdHere * 0.5f; // We have incoming prod, so we can spend more now
+                        else
+                            prodToSpend = Prod.NetIncome * Storage.ProdRatio; // Spend less since nothing is coming
+                        break;
+                    case GoodState.STORE:
+                        if (Storage.ProdRatio.AlmostEqual(1))
+                            prodToSpend = Prod.NetIncome; // Spend all our Income since storage is full (very rare with Governors)
+                        else
+                            prodToSpend = Prod.NetIncome * 0.8f; // Store 20% of our prod income
+                        break;
+                    case GoodState.EXPORT:
+                        if (OutgoingProdFreighters > 0)
+                            prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
+                        else
+                            prodToSpend = ProdHere; // We are exporting but there is no demand, so let's spend it ourselves
+                        break;
+                }
+            }
+
+            return prodToSpend;
+        }
     }
 }
