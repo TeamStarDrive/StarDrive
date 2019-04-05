@@ -29,21 +29,15 @@ namespace Ship_Game.Commands.Goals
         GoalStep FindPlanetToBuildAt()
         {
             // find a planet
-            Planet planet = empire.GetPlanets()
-                .Filter(p => p.AllowInfantry && p.colonyType != Planet.ColonyType.Research
-                     && p.Prod.NetMaxPotential > 5f
-                     &&(p.ProdHere - 2*p.TotalCostOfTroopsInQueue()) > 0)
-                .OrderBy(p => !p.HasSpacePort)
-                .ThenByDescending(p => p.Prod.GrossIncome)
-                .FirstOrDefault();
-
-            if (planet == null)
-                return GoalStep.GoalFailed;
-
-            // submit troop into queue
             Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
-            planet.Construction.AddTroop(troopTemplate, this);
-            return GoalStep.GoToNextStep;
+            if (empire.FindPlanetToBuildAt(empire.SpacePorts, troopTemplate, out Planet planet))
+            {
+                // submit troop into queue
+                planet.Construction.AddTroop(troopTemplate, this);
+                PlanetBuildingAt = planet;
+                return GoalStep.GoToNextStep;
+            }
+            return GoalStep.GoalFailed;
         }
     }
 }

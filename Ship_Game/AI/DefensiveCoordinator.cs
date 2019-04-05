@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game.AI
 {
@@ -218,7 +218,7 @@ namespace Ship_Game.AI
                 shipsAvailableForAssignment.AddRange(kv.Value.RemoveExtraShips());
             }
 
-            //Add available force to pool:            
+            //Add available force to pool:
             for (int x = DefensiveForcePool.Count - 1; x >= 0; x--)
             {
                 Ship ship = DefensiveForcePool[x];
@@ -281,23 +281,21 @@ namespace Ship_Game.AI
             );
         }
 
+        int TroopsEnroute(SolarSystem system)
+        {
+            int troopCount = 0;
+            foreach (var troop in Us.GetShips())
+            {
+                if (troop.AI.OrbitTarget?.ParentSystem == system)
+                {
+                    troopCount++;
+                }
+            }
+            return troopCount;
+        }
+
         void ManageTroops()
         {
-            if (Us.isPlayer)
-            {
-                bool flag = false;
-                foreach (Planet planet in Us.GetPlanets())
-                {
-                    if (planet.colonyType != Planet.ColonyType.Military)
-                        continue;
-                    flag = true;
-                    break;
-                }
-
-                if (!flag)
-                    return;
-            }
-
             Array<Ship> troopShips = Us.GetAvailableTroopShips();
             int totalTroopWanted = 0;
             int totalCurrentTroops = 0;
@@ -312,14 +310,14 @@ namespace Ship_Game.AI
 
                     if (troop == null || troop.TroopList.Count <= 0)
                     {
-                        troopShips.Remove(troop);
+                        troopShips.RemoveAtSwapLast(i);
                         continue;
                     }
 
                     ShipAI troopAI = troop.AI;
                     if (troopAI == null)
                     {
-                        troopShips.Remove(troop);
+                        troopShips.RemoveAtSwapLast(i);
                         continue;
                     }
 
@@ -330,17 +328,18 @@ namespace Ship_Game.AI
                     {
                         currentTroops++;
                         kv.Value.TroopStrengthNeeded--;
-                        troopShips.Remove(troop);
+                        troopShips.RemoveAtSwapLast(i);
                     }
                 }
 
                 kv.Value.TroopCount = currentTroops;
                 totalCurrentTroops += currentTroops;
-                totalTroopWanted += kv.Value.TroopsWanted;
+                totalTroopWanted += kv.Value.IdealTroopCount;
             }
 
 
             UniverseWants = totalCurrentTroops / (float) totalTroopWanted;
+            int troopsRebasing = 0;
 
             for (int x = troopShips.Count - 1; x >= 0; x--)
             {
@@ -357,11 +356,15 @@ namespace Ship_Game.AI
                 troopShips.Remove(troopShip);
 
                 Planet target = solarSystem.PlanetList
-                    .FindMinFiltered(p => p.Owner == troopShip.loyalty && p.GetGroundLandingSpots() > 0,
+                    .FindMinFiltered(p =>
+                        {
+                            return p.Owner == troopShip.loyalty && p.GetGroundLandingSpots() > 0;
+                        },
                         planet => planet.CountEmpireTroops(planet.Owner));
 
                 if (target == null) continue;
                 troopShip.AI.OrderRebase(target, true);
+                troopsRebasing++;
             }
 
             EmpireTroopRatio = UniverseWants;
@@ -375,19 +378,19 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (UniverseWants > .8f) return;
-
             foreach (var kv in DefenseDict)
-            foreach (Planet p in kv.Key.PlanetList)
             {
-                if (Us.isPlayer && p.colonyType != Planet.ColonyType.Military) continue;
-                float devratio = (p.Level + 1) / (kv.Value.SystemDevelopmentlevel + 1);
-                if (!kv.Key.HostileForcesPresent(Us)
-                    && p.GetDefendingTroopCount() > kv.Value.IdealTroopCount * devratio)
+                foreach (Planet p in kv.Value.OurPlanets)
                 {
-                    Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.Loyalty == Us);
-                    l?.Launch();
+                    if (Us.isPlayer) continue;
+                    if (!kv.Key.HostileForcesPresent(Us) && p.GetDefendingTroopCount() - troopsRebasing > kv.Value.PlanetTroopMin(p))
+                    {
+                        Troop l = p.TroopsHere.Find(loyalty => loyalty.Loyalty == Us);
+                        l?.Launch();
+                        troopsRebasing++;
+                    }
                 }
+
             }
         }
 
