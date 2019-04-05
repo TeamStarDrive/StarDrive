@@ -39,7 +39,7 @@ namespace Ship_Game
                 return;
             }
 
-            ScrapBuilding(budget, scoreThreshold: -0.1f); // scrap a negative value building
+            ScrapBuilding(budget, scoreThreshold: 0); // scrap a negative value building
             if (OpenTiles > 0)
             {
                 SimpleBuild(budget); // lets try to build something within our debt tolerance
@@ -47,7 +47,7 @@ namespace Ship_Game
             }
 
             BuildBiospheres(budget, totalBuildings); // lets build biospheres if we can, since we have no open tiles
-            ReplaceBuilding(budget); // we dont have room for expansion. Let's see if we can replace to a better value building
+            ReplaceBuilding(budget); // we don't have room for expansion. Let's see if we can replace to a better value building
         }
 
         float EvalMaintenance(Building b, float budget)
@@ -55,7 +55,7 @@ namespace Ship_Game
             if (b.Maintenance.AlmostZero())
                 return 0;
 
-            float score = b.Maintenance * 2;  //Base of 2x maintenance -- Also, I realize I am not calculating MaintMod here. It throws the algorithm off too much
+            float score = b.Maintenance * 2;  // Base of 2x maintenance -- Also, I realize I am not calculating MaintMod here. It throws the algorithm off too much
             float maint = b.Maintenance + b.Maintenance * Owner.data.Traits.MaintMod;
             if (budget < maint)
                 score += maint * 10;   // Really don't want this if we cant afford it, since the scraping minister might scrap something else next turn
@@ -168,14 +168,8 @@ namespace Ship_Game
             if (b.PlusProdPerRichness.AlmostZero())
                 return 0;
 
-            float score = 0;
-            if (b.PlusProdPerRichness < 0)
-                score = b.PlusProdPerRichness * MineralRichness * 2;
-            else
-            {
-                score += b.PlusProdPerRichness * MineralRichness; // Production this would generate
-                if (!HasSpacePort) score *= 0.75f; // Do we have a use for all this production?
-            }
+            float multiplier = b.PlusProdPerRichness < 0 ? 2 : 1;
+            float score      = b.PlusProdPerRichness * MineralRichness * multiplier;
             DebugEvalBuild(b, "ProdPerRich", score);
             return score;
         }
@@ -548,9 +542,7 @@ namespace Ship_Game
             if (!b.IsMilitary || b.IsCapitalOrOutpost)
                 return 0;
 
-            float panic      = (float)Math.Pow(desiredMilitary - existingMilitary,2) * (RecentCombat ? 1.5f : 0.8f)
-                                                                                      * (existingMilitary == 0 ? 2 : 1);
-
+            float panic       = (float)Math.Pow(desiredMilitary - existingMilitary, 2) * (existingMilitary == 0 ? 2 : 1);
             float combatScore = (b.Strength + b.Defense + b.CombatStrength + b.SoftAttack + b.HardAttack) / 100f;
             float dps         = 0;
             if (b.isWeapon && b.Weapon.NotEmpty())
@@ -668,8 +660,8 @@ namespace Ship_Game
             }
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Magenta, worst == null
-                    ? $"-- Planet {Name}: No Worst Buidling was found --"
-                    : $"-- Planet {Name}: Worst Buidling is  {worst.Name} with score of {worstValue} -- ");
+                    ? $"-- Planet {Name}: No Worst Building was found --"
+                    : $"-- Planet {Name}: Worst Building is  {worst.Name} with score of {worstValue} -- ");
 
             value = worstValue;
             return worst;
@@ -747,12 +739,14 @@ namespace Ship_Game
 
         float BuildingBudget()
         {
-            float budget        = Owner.GetEmpireAI().PlanetBudget(this).Budget - Construction.TotalQueuedBuildingMaintenance();
+            float budget         = Owner.GetEmpireAI().PlanetBudget(this).Budget;
+            float buildingsMaint = Money.Maintenance + Construction.TotalQueuedBuildingMaintenance();
+            
             float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
             if (MaxPopulationBillion < 2)
                 debtTolerance += 2f - MaxPopulationBillion;
 
-            return budget + debtTolerance;
+            return (float) Math.Round(budget + debtTolerance - buildingsMaint, 2);
         }
 
         bool OutpostBuiltOrInQueue()
