@@ -589,12 +589,22 @@ namespace Ship_Game
 
                     DrawMultiLine(ref bCursor, desc);
                     desc = "";
-                    switch (P.PS)
+                    if (P.colonyType == Planet.ColonyType.Colony)
                     {
-                        case Planet.GoodState.EXPORT: desc = Localizer.Token(345); break;
-                        case Planet.GoodState.IMPORT: desc = Localizer.Token(346); break;
-                        case Planet.GoodState.STORE:  desc = Localizer.Token(347); break;
+                        switch (P.PS)
+                        {
+                            case Planet.GoodState.EXPORT: desc = Localizer.Token(345); break;
+                            case Planet.GoodState.IMPORT: desc = Localizer.Token(346); break;
+                            case Planet.GoodState.STORE:  desc = Localizer.Token(347); break;
+                        }
                     }
+                    else
+                        switch (P.PS)
+                        {
+                            case Planet.GoodState.EXPORT: desc = Localizer.Token(1953); break;
+                            case Planet.GoodState.IMPORT: desc = Localizer.Token(1954); break;
+                            case Planet.GoodState.STORE:  desc = Localizer.Token(1955); break;
+                        }
                     DrawMultiLine(ref bCursor, desc);
                     if (P.IsStarving)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
