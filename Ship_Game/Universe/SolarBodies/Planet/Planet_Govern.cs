@@ -380,7 +380,7 @@ namespace Ship_Game
                         if (Storage.ProdRatio.AlmostEqual(1))
                             prodToSpend = Prod.NetIncome; // Spend all our Income since storage is full
                         else
-                            prodToSpend = Prod.NetIncome * 0.8f; // Store 20% of our prod income
+                            prodToSpend = Prod.NetIncome * 0.5f; // Store 50% of our prod income
                         break;
                     case GoodState.EXPORT:
                         if (OutgoingProdFreighters > 0)
@@ -404,7 +404,7 @@ namespace Ship_Game
                         if (Storage.ProdRatio.AlmostEqual(1))
                             prodToSpend = Prod.NetIncome; // Spend all our Income since storage is full (very rare with Governors)
                         else
-                            prodToSpend = Prod.NetIncome * 0.8f; // Store 20% of our prod income
+                            prodToSpend = Prod.NetIncome * 0.5f; // Store 50% of our prod income
                         break;
                     case GoodState.EXPORT:
                         if (OutgoingProdFreighters > 0)
