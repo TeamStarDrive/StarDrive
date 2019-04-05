@@ -220,20 +220,11 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
             
             float percentToApply = 1f;
-            if (P.CrippledTurns > 0) // massive sabotage to planetary facilities
-            {
-                percentToApply = 0.05f;
-            }
-            else if (P.RecentCombat) // ongoing combat is hindering logistics
-            {
-                percentToApply = 0.2f;
-            }
-            else if (P.colonyType != Planet.ColonyType.Colony)
-            {
-                if (P.PS == Planet.GoodState.STORE && P.Storage.ProdRatio < 0.66f)
-                    percentToApply = 0.5f; // only apply 50% if AI is trying to store goods
-            }
-            ApplyProductionToQueue(maxAmount: ProductionHere*percentToApply, 0);
+            if      (P.CrippledTurns > 0) percentToApply = 0.05f; // massive sabotage to planetary facilities
+            else if (P.RecentCombat)      percentToApply = 0.2f;  // ongoing combat is hindering logistics
+
+            float limitSpentProd = P.LimitedProductionExpenditure();
+            ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0);
         }
 
         // @return TRUE if building was added to CQ,
