@@ -1217,6 +1217,7 @@ namespace Ship_Game
                     empireShipTotal++;
                 }
                 UpdateTimer = GlobalStats.TurnTimer;
+                UpdateAI(); // Must be done before DoMoney to get budgets for colonies
                 DoMoney();
                 TakeTurn();
             }
@@ -1991,11 +1992,8 @@ namespace Ship_Game
 
             UpdateRelationships();
 
-            if (isFaction)
-                EmpireAI.FactionUpdate();
-            else if (!data.Defeated)
+            if (!isFaction && !data.Defeated)
             {
-                EmpireAI.Update();
                 UpdateMaxColonyValue();
                 UpdateBestOrbitals();
             }
@@ -2016,6 +2014,14 @@ namespace Ship_Game
 
             DispatchBuildAndScrapFreighters();
             AssignExplorationTasks();
+        }
+
+        void UpdateAI()
+        {
+            if (isFaction)
+               EmpireAI.FactionUpdate();
+            else if (!data.Defeated)
+                EmpireAI.Update();
         }
 
         void Bankruptcy()
