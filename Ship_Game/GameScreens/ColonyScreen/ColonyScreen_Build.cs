@@ -455,27 +455,40 @@ namespace Ship_Game
             return false;
         }
 
-        void Build(Ship ship)
+        void Build(Ship ship, int repeat = 1)
         {
-            if (IsOutOfOrbitalsLimit(ship))
+            for (int i = 0; i < repeat; i++)
             {
-                GameAudio.NegativeClick();
-                return;
-            }
+                if (IsOutOfOrbitalsLimit(ship))
+                {
+                    GameAudio.NegativeClick();
+                    return;
+                }
 
-            P.ConstructionQueue.Add(new QueueItem(P)
-            {
-                isShip = true, isOrbital = ship.IsPlatformOrStation, sData = ship.shipData, Cost = ship.GetCost(P.Owner), ProductionSpent = 0f
-            });
+                P.ConstructionQueue.Add(new QueueItem(P)
+                {
+                    isShip          = true,
+                    isOrbital       = ship.IsPlatformOrStation,
+                    sData           = ship.shipData,
+                    Cost            = ship.GetCost(P.Owner),
+                    ProductionSpent = 0f
+                });
+            }
             GameAudio.AcceptClick();
         }
 
-        void Build(Troop troop)
+        void Build(Troop troop, int repeat = 1)
         {
-            P.ConstructionQueue.Add(new QueueItem(P)
+            for (int i = 0; i < repeat; i++)
             {
-                isTroop = true, TroopType = troop.Name, Cost = troop.ActualCost, ProductionSpent = 0f
-            });
+                P.ConstructionQueue.Add(new QueueItem(P)
+                {
+                    isTroop         = true,
+                    TroopType       = troop.Name,
+                    Cost            = troop.ActualCost,
+                    ProductionSpent = 0f
+                });
+            }
             GameAudio.AcceptClick();
         }
 
@@ -512,9 +525,17 @@ namespace Ship_Game
                         ToolTip.CreateTooltip(51);
                         if (input.LeftMouseClick)
                         {
-                            if      (e.item is Building b) Build(b);
-                            else if (e.item is Ship ship)  Build(ship);
-                            else if (e.item is Troop t)    Build(t);
+                            int repeat = 1;
+                            if (input.IsShiftKeyDown)     repeat = 5;
+                            else if (input.IsCtrlKeyDown) repeat = 10;
+
+                            switch (e.item)
+                            {
+                                case Building b: Build(b);            break;
+                                case Ship ship:  Build(ship, repeat); break;
+                                case Troop t:    Build(t, repeat);    break;
+                            }
+
                             return true;
                         }
                     }

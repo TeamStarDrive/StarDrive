@@ -634,6 +634,7 @@ namespace Ship_Game
             [Serialize(33)] public Guid[] IncomingFreighters;
             [Serialize(34)] public Guid[] OutgoingFreighters;
             [Serialize(35)] public bool GovOrbitals;
+            [Serialize(36)] public bool GovMilitia;
         }
 
         public struct ProjectileSaveData

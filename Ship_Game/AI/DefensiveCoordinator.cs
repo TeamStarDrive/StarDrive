@@ -282,6 +282,7 @@ namespace Ship_Game.AI
 
         void ManageTroops()
         {
+<<<<<<< working copy
             TroopsInSystems troops = new TroopsInSystems(Us, DefenseDict);
             int rebasedTroops      = RebaseIdleTroops(troops.TroopShips); ;
             UniverseWants          = (troops.TotalCurrentTroops + rebasedTroops) / (float) troops.TotalTroopWanted;
@@ -315,6 +316,10 @@ namespace Ship_Game.AI
                 }
             }
         }
+=======
+            if (Us.isPlayer) // Do not mess with player troops.
+                    return;
+>>>>>>> merge rev
 
         private struct TroopsInSystems
         {

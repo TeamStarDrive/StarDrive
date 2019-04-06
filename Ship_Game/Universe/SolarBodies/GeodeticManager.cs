@@ -92,11 +92,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
             float repairPool = CalcRepairPool();
-            // FB: I added here a minimum threshold of 5 troops to stay as garrison so the LoadTroops wont clean the colony
-            // But this should be made at a button for the player to decide how many troops he wants to leave as a garrison
-            // in ship colony screen (Issue #1626)
-            int garrisonSize = P.Owner.isPlayer ? 5 : 0;
-
+            int garrisonSize = GarrisonSize();
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship         = ParentSystem.ShipList[i];
@@ -112,6 +108,17 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     RepairShip(ship, repairPool);
                 }
             }
+        }
+
+        public int GarrisonSize()
+        {
+            if (!P.Owner.isPlayer)
+                return 0;  // AI manages It's own troops
+
+            if (P.GovMilitia && P.colonyType != Planet.ColonyType.Colony)
+                return 0; // Player Governor will replace garrisoned troops with new ones
+
+            return 5; // Default value for non Governor Player Colonies 
         }
 
         private void SupplyShip(Ship ship)
@@ -163,7 +170,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
             using (TroopsHere.AcquireWriteLock())
             {
-                if ((ship.InCombat && ParentSystem.HostileForcesPresent(ship.loyalty)) 
+                if ((ship.InCombat && P.EnemyInRange()) 
                     || TroopsHere.IsEmpty
                     || TroopsHere.Any(troop => troop.Loyalty != Owner))
                     return;
