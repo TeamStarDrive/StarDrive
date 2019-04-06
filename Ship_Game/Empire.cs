@@ -173,14 +173,35 @@ namespace Ship_Game
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
-                chosen = ports.Filter(p => p.NumShipsInTheWorks < 4)
-                              .FindMin(p => p.TurnsUntilQueueComplete(cost));
 
-                return chosen != null;
+                chosen = FindPlanetToBuildAt(ports, cost);
+                return true;
             }
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
             chosen = null;
             return false;
+        }
+
+        public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Troop troop, out Planet chosen)
+        {
+            if (ports.Count != 0)
+            {
+                float cost = troop.ActualCost;
+                chosen = FindPlanetToBuildAt(ports, cost);
+                return true;
+            }
+            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {troop} at! Candidates:{ports.Count}");
+            chosen = null;
+            return false;
+        }
+
+        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost)
+        {
+            if (ports.Count != 0)
+            {
+                return ports.FindMin(p => p.TurnsUntilQueueComplete(cost));
+            }
+            return null;
         }
 
         public string Name => data.Traits.Name;
@@ -2413,35 +2434,20 @@ namespace Ship_Game
             }
 
             // already building a scout? then just quit
-            for (int i = 0; i < EmpireAI.Goals.Count; i++)
-            {
-                Goal goal = EmpireAI.Goals[i];
-                if (goal.type == GoalType.BuildScout)
-                    return;
-            }
+            if (EmpireAI.HasGoal(GoalType.BuildScout))
+                return;
 
             var desiredScouts = unexplored * ResearchStrategy.ExpansionRatio * .5f;
             foreach (Ship ship in OwnedShips)
             {
-                if (ship.DesignRole != ShipData.RoleName.scout)
+                if (ship.DesignRole != ShipData.RoleName.scout || ship.fleet != null)
                     continue;
                 ship.DoExplore();
                 if (++numScouts >= desiredScouts)
                     return;
             }
 
-            bool notBuilding = true;
-            foreach (Goal goal in EmpireAI.Goals)
-            {
-                if (goal.type == GoalType.BuildScout)
-                {
-                    notBuilding = false;
-                    break;
-                }
-            }
-
-            if (notBuilding)
-                EmpireAI.Goals.Add(new BuildScout(this));
+            EmpireAI.Goals.Add(new BuildScout(this));
         }
 
         private void ApplyFertilityChange(float amount)

@@ -1445,7 +1445,7 @@ namespace Ship_Game.Ships
                     bomb.InstalledWeapon.Update(deltaTime);
                 }
             }
-            
+
             AI.CombatAI.SetCombatTactics(AI.CombatState);
 
             if (updateTimer <= 0)
@@ -2318,10 +2318,10 @@ namespace Ship_Game.Ships
 
         public ShipStatus ShipReadyForFormationWarp()
         {
-            //the original logic here was confusing. If aistate was formation warp it ignored all other 
-            //cases and returned good. I am guessing that once the state is formation warp it is 
-            //expecting it has passes all other cases. But i can not verify that as the logic is spread out. 
-            //I believe what we need here is to centralize the engine and navigation logic. 
+            //the original logic here was confusing. If aistate was formation warp it ignored all other
+            //cases and returned good. I am guessing that once the state is formation warp it is
+            //expecting it has passes all other cases. But i can not verify that as the logic is spread out.
+            //I believe what we need here is to centralize the engine and navigation logic.
             ShipStatus warpStatus = ShipReadyForWarp();
             if (warpStatus > ShipStatus.Poor && warpStatus != ShipStatus.NotApplicable)
                 if (AI.State != AIState.FormationWarp) return ShipStatus.Good;
