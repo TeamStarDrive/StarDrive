@@ -905,6 +905,7 @@ namespace Ship_Game
                     prodHere             = planet.ProdHere,
                     ColonyType           = planet.colonyType,
                     GovOrbitals          = planet.GovOrbitals,
+                    GovMilitia           = planet.GovMilitia,
                     SpecialDescription   = planet.SpecialDescription,
                     IncomingFreighters = planet.IncomingFreighterIds,
                     OutgoingFreighters = planet.OutgoingFreighterIds,

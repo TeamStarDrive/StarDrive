@@ -154,7 +154,7 @@ namespace Ship_Game
         public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
 
         public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p =>
-            p.HasSpacePort && !p.ParentSystem.HostileForcesPresent(this)
+            p.HasSpacePort && !p.EnemyInRange()
         );
 
         public bool FindClosestSpacePort(Vector2 position, out Planet closest)
@@ -173,8 +173,10 @@ namespace Ship_Game
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
-                chosen = ports.FindMin(p => p.TurnsUntilQueueComplete(cost));
-                return true;
+                chosen = ports.Filter(p => p.NumShipsInTheWorks < 4)
+                              .FindMin(p => p.TurnsUntilQueueComplete(cost));
+
+                return chosen != null;
             }
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
             chosen = null;
@@ -266,28 +268,9 @@ namespace Ship_Game
             }
 
             rallyPlanets = new Array<Planet>();
-
-            foreach (SolarSystem system in OwnedSolarSystems)
-            {
-                if (!system.HostileForcesPresent(this))
-                {
-                    foreach (Planet planet in system.PlanetList)
-                    {
-                        if (planet.Owner == this)
-                            rallyPlanets.Add(planet);
-                    }
-                }
-            }
-
-            if (rallyPlanets.Count > 0)
-            {
-                RallyPoints = rallyPlanets.ToArray();
-                return;
-            }
-
             foreach (Planet planet in OwnedPlanets)
             {
-                if (planet.HasSpacePort)
+                if (planet.HasSpacePort && !planet.EnemyInRange())
                     rallyPlanets.Add(planet);
             }
 
@@ -296,6 +279,9 @@ namespace Ship_Game
                 RallyPoints = rallyPlanets.ToArray();
                 return;
             }
+
+            // Could not find any planet with space port and with no enemies in sensor range
+            // So get the most producing planet and hope for the best
             rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.Prod.GrossIncome));
             RallyPoints = rallyPlanets.ToArray();
             if (RallyPoints.Length == 0)
@@ -1233,6 +1219,7 @@ namespace Ship_Game
                     empireShipTotal++;
                 }
                 UpdateTimer = GlobalStats.TurnTimer;
+                UpdateAI(); // Must be done before DoMoney to get budgets for colonies
                 DoMoney();
                 TakeTurn();
             }
@@ -1784,7 +1771,7 @@ namespace Ship_Game
                 influenceNode3.Position      = planet.Center;
                 influenceNode3.Radius        = isFaction ? 1f : data.SensorModifier;
                 influenceNode3.Known         = known;
-                foreach (Building t in planet.BuildingList)
+                foreach (Building t in planet.BuildingList) // FB - change this to the planet sensorRange
                 {
                     if (t.SensorRange * data.SensorModifier > influenceNode3.Radius)
                     {
@@ -2007,11 +1994,8 @@ namespace Ship_Game
 
             UpdateRelationships();
 
-            if (isFaction)
-                EmpireAI.FactionUpdate();
-            else if (!data.Defeated)
+            if (!isFaction && !data.Defeated)
             {
-                EmpireAI.Update();
                 UpdateMaxColonyValue();
                 UpdateBestOrbitals();
             }
@@ -2032,6 +2016,14 @@ namespace Ship_Game
 
             DispatchBuildAndScrapFreighters();
             AssignExplorationTasks();
+        }
+
+        void UpdateAI()
+        {
+            if (isFaction)
+               EmpireAI.FactionUpdate();
+            else if (!data.Defeated)
+                EmpireAI.Update();
         }
 
         void Bankruptcy()

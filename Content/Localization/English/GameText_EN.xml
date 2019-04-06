@@ -1012,7 +1012,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
 
     <Token>
       <Index>249</Index>
-      <Text>Add this item to the colony's build queue</Text>
+      <Text>Add this item to the colony's build queue. Holding Shift will add it 5 times. Holding Ctrl will add it 10 times.</Text>
     </Token>
     <Token>
       <Index>250</Index>
@@ -1274,15 +1274,15 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>345</Index>
-      <Text>Because this planet is exporting production, 25% of its net production is stored rather than applied to the construction queue, and the remaining amount is applied to the construction queue.</Text>
+      <Text>This planet is manually exporting production. It will only allocate some percentage of it's net production to the build queue if freighters are exporting production from this planet. If there is no demand, it will allocate it's storage to the building queue as well.</Text>
     </Token>
     <Token>
       <Index>346</Index>
-      <Text>This planet is importing production. Any production produced here will be automatically applied to the construction queue, while stored production must be applied manually to rush production.</Text>
+      <Text>This planet is manually importing production. Any storage available as well as any production produced here will be automatically applied to the construction queue</Text>
     </Token>
     <Token>
       <Index>347</Index>
-      <Text>This planet is neither importing nor exporting production. If no ships, buildings, or troops are in the construction queue, then that production will be stored for later use.</Text>
+      <Text>This planet is manually storing production. Only 50% of net production capacity will be allocated to the build queue, the rest will be stored, until the storage is full.</Text>
     </Token>
     <Token>
       <Index>348</Index>
@@ -4694,6 +4694,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Expansionists</Text>
     </Token>
     <!-- Data added in Venus -->
+    <Token>
+      <Index>1953</Index>
+      <Text>The Governor is exporting production. Only some percentage of it's net production will be allocated to the build queue if freighters are exporting production from this planet. If there is no demand, it will allocate it's storage to the building queue as well.</Text>
+    </Token>
+    <Token>
+      <Index>1954</Index>
+      <Text>The Governor is importing production. If production freighters are on the way to this planet, it will allocate much of it's storage and net production to the build queue. If there are no available freighters or import, it store some of it's net production</Text>
+    </Token>
+    <Token>
+      <Index>1955</Index>
+      <Text>The Governor is storing production. Only 50% of net production capacity will be allocated to the build queue, the rest will be stored, until the storage is full.</Text>
+    </Token>
+    <Token>
+      <Index>1956</Index>
+      <Text>Governor Builds Militia</Text>
+    </Token>
+    <Token>
+      <Index>1957</Index>
+      <Text>The Governor will create a small militia for the planet. 4 Troops for Research colonies, 6 Troops for Core colonies, 7 Troops for Military colonies and 5 for other colonies.</Text>
+    </Token>
     <Token>
       <Index>1958</Index>
       <Text>Auto Pick Freighter</Text>

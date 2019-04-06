@@ -283,20 +283,8 @@ namespace Ship_Game.AI
 
         void ManageTroops()
         {
-            if (Us.isPlayer)
-            {
-                bool flag = false;
-                foreach (Planet planet in Us.GetPlanets())
-                {
-                    if (planet.colonyType != Planet.ColonyType.Military)
-                        continue;
-                    flag = true;
-                    break;
-                }
-
-                if (!flag)
+            if (Us.isPlayer) // Do not mess with player troops.
                     return;
-            }
 
             Array<Ship> troopShips = Us.GetAvailableTroopShips();
             int totalTroopWanted = 0;
