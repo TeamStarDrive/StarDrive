@@ -4696,7 +4696,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <!-- Data added in Venus -->
     <Token>
       <Index>1953</Index>
-      <Text>The Governor is exporting production. Only some percentage of it's net production will be allocated to the build queue if freighters are exporting production from this planet. If there is no demand, it will allocate it's storage to the building queue as well.</Text>
+      <Text>The Governor is exporting production. Only some percentage of it's net production will be allocated to the build queue if freighters are exporting production from this planet. If there is no demand or this planet is building more than 5 things, it will allocate it's storage to the building queue as well.</Text>
     </Token>
     <Token>
       <Index>1954</Index>
@@ -4704,7 +4704,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1955</Index>
-      <Text>The Governor is storing production. Only 50% of net production capacity will be allocated to the build queue, the rest will be stored, until the storage is full.</Text>
+      <Text>The Governor is storing production. 50% of net production and storage capacity will be allocated to the build queue.</Text>
     </Token>
     <Token>
       <Index>1956</Index>
