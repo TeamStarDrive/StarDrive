@@ -259,23 +259,25 @@ namespace Ship_Game.AI
 
         void AddShipToDataNode(Ship ship)
         {
-            FleetDataNode node = DataNodes.Find(s => s.Ship == ship) ??
-                                 DataNodes.Find(s => s.ShipName == ship.Name);
+            FleetDataNode node = DataNodes.Find(s => s.Ship == ship);
+
             if (node == null)
             {
                 node = new FleetDataNode
                 {
                     FleetOffset  = ship.RelativeFleetOffset,
-                    OrdersOffset = ship.RelativeFleetOffset
+                    OrdersOffset = ship.RelativeFleetOffset,
+                    CombatState  = ship.AI.CombatState
                 };
                 DataNodes.Add(node);
             }
             ship.RelativeFleetOffset = node.FleetOffset;
 
-            node.Ship         = ship;
-            node.ShipName     = ship.Name;
-            node.OrdersRadius = node.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : node.OrdersRadius;
-            ship.AI.FleetNode = node;
+            node.Ship           = ship;
+            node.ShipName       = ship.Name;
+            node.OrdersRadius   = node.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : node.OrdersRadius;
+            ship.AI.FleetNode   = node;
+            ship.AI.CombatState = node.CombatState;
         }
 
         enum SquadSortType
