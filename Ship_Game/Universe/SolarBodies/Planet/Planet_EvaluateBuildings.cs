@@ -29,9 +29,8 @@ namespace Ship_Game
         }
 
         //New Build Logic by Gretman, modified by FB
-        void BuildAndScrapBuildings()
+        void BuildAndScrapBuildings(float budget)
         {
-            float budget       = BuildingBudget();
             int totalBuildings = TotalBuildings;
             if (budget < -0.1f)
             {
@@ -47,7 +46,7 @@ namespace Ship_Game
             }
 
             BuildBiospheres(budget, totalBuildings); // lets build biospheres if we can, since we have no open tiles
-            ReplaceBuilding(budget); // we dont have room for expansion. Let's see if we can replace to a better value building
+            ReplaceBuilding(budget); // we don't have room for expansion. Let's see if we can replace to a better value building
         }
 
         float EvalMaintenance(Building b, float budget)
@@ -55,7 +54,7 @@ namespace Ship_Game
             if (b.Maintenance.AlmostZero())
                 return 0;
 
-            float score = b.Maintenance * 2;  //Base of 2x maintenance -- Also, I realize I am not calculating MaintMod here. It throws the algorithm off too much
+            float score = b.Maintenance * 2;  // Base of 2x maintenance -- Also, I realize I am not calculating MaintMod here. It throws the algorithm off too much
             float maint = b.Maintenance + b.Maintenance * Owner.data.Traits.MaintMod;
             if (budget < maint)
                 score += maint * 10;   // Really don't want this if we cant afford it, since the scraping minister might scrap something else next turn
@@ -168,14 +167,8 @@ namespace Ship_Game
             if (b.PlusProdPerRichness.AlmostZero())
                 return 0;
 
-            float score = 0;
-            if (b.PlusProdPerRichness < 0)
-                score = b.PlusProdPerRichness * MineralRichness * 2;
-            else
-            {
-                score += b.PlusProdPerRichness * MineralRichness; // Production this would generate
-                if (!HasSpacePort) score *= 0.75f; // Do we have a use for all this production?
-            }
+            float multiplier = b.PlusProdPerRichness < 0 ? 2 : 1;
+            float score      = b.PlusProdPerRichness * MineralRichness * multiplier;
             DebugEvalBuild(b, "ProdPerRich", score);
             return score;
         }
@@ -323,14 +316,11 @@ namespace Ship_Game
 
             float score = 0;
             if (BuildingBuiltOrQueued(Building.CapitalId))
-                score += 4.0f; // we can't be a space-faring species if our capital doesn't have a space-port...
+                score += 10f; // we can't be a space-faring species if our capital doesn't have a space-port...
 
-            float prodFromLabor = LeftoverWorkerBillions() * (Prod.YieldPerColonist + b.PlusProdPerColonist);
-            float prodFromFlat = Prod.FlatBonus + b.PlusFlatProductionAmount + (b.PlusProdPerRichness * MineralRichness);
-            
             // Do we have enough production capability to really justify trying to build ships
-            if (prodFromLabor + prodFromFlat > 8.0f)
-                score += ((prodFromLabor + prodFromFlat) / 8.0f).Clamped(0.0f, 2.0f);
+            if (Prod.NetMaxPotential > 8.0f)
+                score += (Prod.NetMaxPotential / 8.0f).Clamped(0.0f, 2.0f);
 
             DebugEvalBuild(b, "ShipBuilding", score);
             return score;
@@ -548,9 +538,7 @@ namespace Ship_Game
             if (!b.IsMilitary || b.IsCapitalOrOutpost)
                 return 0;
 
-            float panic      = (float)Math.Pow(desiredMilitary - existingMilitary,2) * (RecentCombat ? 1.5f : 0.8f)
-                                                                                      * (existingMilitary == 0 ? 2 : 1);
-
+            float panic       = (float)Math.Pow(desiredMilitary - existingMilitary, 2) * (existingMilitary == 0 ? 2 : 1);
             float combatScore = (b.Strength + b.Defense + b.CombatStrength + b.SoftAttack + b.HardAttack) / 100f;
             float dps         = 0;
             if (b.isWeapon && b.Weapon.NotEmpty())
@@ -641,18 +629,19 @@ namespace Ship_Game
 
             Building worst   = null;
             float worstValue = threshold;
+
+            Building highestCostBuilding = BuildingsCanBuild.FindMax(building => building.ActualCost);
+            if (highestCostBuilding == null)
+            {
+                value = worstValue;
+                return null;
+            }
+
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
                 if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded) // might remove the isplayeradded
                     continue;
-
-                Building highestCostBuilding = BuildingsCanBuild.FindMax(building => building.ActualCost);
-                if (highestCostBuilding == null)
-                {
-                    value = worstValue;
-                    return worst;
-                }
 
                 int desiredMilitary  = DesiredMilitaryBuildings;
                 int existingMilitary = ExistingMilitaryBuildings;
@@ -668,8 +657,8 @@ namespace Ship_Game
             }
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Magenta, worst == null
-                    ? $"-- Planet {Name}: No Worst Buidling was found --"
-                    : $"-- Planet {Name}: Worst Buidling is  {worst.Name} with score of {worstValue} -- ");
+                    ? $"-- Planet {Name}: No Worst Building was found --"
+                    : $"-- Planet {Name}: Worst Building is  {worst.Name} with score of {worstValue} -- ");
 
             value = worstValue;
             return worst;
@@ -743,16 +732,6 @@ namespace Ship_Game
                 return true; // Military has too many buildings
 
             return false; //Military won't replace it's buildings with civilian ones
-        }
-
-        float BuildingBudget()
-        {
-            float budget        = Owner.GetEmpireAI().PlanetBudget(this).Budget - Construction.TotalQueuedBuildingMaintenance();
-            float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
-            if (MaxPopulationBillion < 2)
-                debtTolerance += 2f - MaxPopulationBillion;
-
-            return budget + debtTolerance;
         }
 
         bool OutpostBuiltOrInQueue()

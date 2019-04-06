@@ -30,6 +30,8 @@ namespace Ship_Game
         public int FreeProdImportSlots     => FreeFreighterSlots(ProdImportSlots, IncomingProdFreighters);
         public int FreeColonistImportSlots => FreeFreighterSlots(ColonistsImportSlots, IncomingColonistsFreighters);
 
+        public bool TradeBlocked           => RecentCombat || EnemyInRange();
+
         public int FoodExportSlots
         {
             get
@@ -70,7 +72,9 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportFood || !ShortOnFood())
                     return 0;
 
-                return ((int)(1 - Food.NetIncome)).Clamped(0, 5);
+                int foodIncomeSlots  = ((int)(1 - Food.NetIncome));
+                int foodStorageRatio = (int)((1 - Storage.FoodRatio) * 3);
+                return (foodIncomeSlots + foodStorageRatio).Clamped(0, 5);
             }
         }
 
@@ -86,13 +90,10 @@ namespace Ship_Game
                     if (ConstructionQueue.Count > 0 && Storage.ProdRatio.AlmostEqual(1))
                         return 0; // for non governor cases when all full and not constructing
 
-                    return (int)((Storage.Max - Storage.Prod) / 50) + 1;
+                    return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0,5);
                 }
 
-                if (ShortOnFood()) // cybernetics consume production
-                    return ((int)(2 - Prod.NetIncome)).Clamped(0, 5);
-
-                return 0;
+                return ((int)(Storage.Max - Storage.Prod / 10)).Clamped(0, 7);
             }
         }
 
