@@ -341,8 +341,8 @@ namespace Ship_Game
 
             if (P.NumIncomingFreighters > 0 && P.Owner.isPlayer)
             {
-                Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 2);
-                Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (Font12.LineSpacing + 2) * 2);
+                Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
+                Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
                 int lineDown = Font12.LineSpacing + 2;
                 batch.DrawString(Font12, "Incoming Freighters:", incomingTitle, Color.White);
                 incomingTitle.Y += lineDown;
@@ -357,6 +357,26 @@ namespace Ship_Game
                 incomingData.Y  += lineDown;
                 batch.DrawString(Font12, $"{Localizer.Token(1962)}:", incomingTitle, Color.Gray);
                 batch.DrawString(Font12, $"{P.IncomingColonistsFreighters}", incomingData, Color.White);
+            }
+
+            if (P.NumOutgoingFreighters > 0 && P.Owner.isPlayer)
+            {
+                Vector2 outgoingTitle = new Vector2(vector2_2.X + +200, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
+                Vector2 outgoingData  = new Vector2(vector2_2.X + 200 + num5, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
+                int lineDown = Font12.LineSpacing + 2;
+                batch.DrawString(Font12, "Outgoing Freighters:", outgoingTitle, Color.White);
+                outgoingTitle.Y += lineDown;
+                outgoingData.Y  += lineDown;
+                batch.DrawString(Font12, $"{Localizer.Token(161)}:", outgoingTitle, Color.Gray);
+                batch.DrawString(Font12, $"{P.OutgoingFoodFreighters}", outgoingData, Color.White);
+                outgoingTitle.Y += lineDown;
+                outgoingData.Y  += lineDown;
+                batch.DrawString(Font12, $"{Localizer.Token(162)}:", outgoingTitle, Color.Gray);
+                batch.DrawString(Font12, $"{P.OutgoingProdFreighters}", outgoingData, Color.White);
+                outgoingTitle.Y += lineDown;
+                outgoingData.Y  += lineDown;
+                batch.DrawString(Font12, $"{Localizer.Token(1962)}:", outgoingTitle, Color.Gray);
+                batch.DrawString(Font12, $"{P.OutGoingColonistsFreighters}", outgoingData, Color.White);
             }
 
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
