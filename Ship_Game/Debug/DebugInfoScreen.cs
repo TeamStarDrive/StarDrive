@@ -82,6 +82,7 @@ namespace Ship_Game.Debug
                 bool flag = false;
                 foreach (Ship ship in empire.GetShips())
                 {
+                    if (ship?.Active != true) continue;
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
                     if (empire.GetForcePool().Contains(ship)) continue;
 
