@@ -93,10 +93,7 @@ namespace Ship_Game
                     return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0,5);
                 }
 
-                if (ShortOnFood()) // cybernetics consume production
-                    return ((int)(2 - Prod.NetIncome)).Clamped(0, 5);
-
-                return 0;
+                return ((int)(Storage.Max - Storage.Prod / 10)).Clamped(0, 7);
             }
         }
 
