@@ -26,12 +26,13 @@ namespace Ship_Game.AI
         public ICollection<Ship> GetShipList => OurShips.Values;
         readonly Empire Us;
         public Map<Planet, PlanetTracker> PlanetTracker = new Map<Planet, PlanetTracker>();
-        
+        private readonly int GameDifficultyModifier;
 
         public SystemCommander(Empire e, SolarSystem system)
         {
             System = system;
             Us = e;
+            GameDifficultyModifier = (int)(((int)CurrentGame.Difficulty + 1) * 0.75f);
         }
         
         public float UpdateSystemValue()
@@ -118,7 +119,7 @@ namespace Ship_Game.AI
             }
 
             if (ship.AI.SystemToDefend != System)
-                ship.AI.OrderSystemDefense(System);            
+                ship.AI.OrderSystemDefense(System);
             return true;
         }
 
@@ -133,7 +134,7 @@ namespace Ship_Game.AI
         public Planet AssignIdleDuties(Ship ship)
         {
             PlanetTracker best = PlanetTracker.FindMinValue(p => p.Value);
-            return best.Planet;                        
+            return best.Planet;
         }
 
         public void AssignTargets()
@@ -194,7 +195,7 @@ namespace Ship_Game.AI
 
         public Planet[] OurPlanets => System.PlanetList.Filter(p => p.Owner == Us);
 
-        int MinPlanetTroopLevel => ((int)RankImportance + (int)CurrentGame.Difficulty + 1) * 2;
+        int MinPlanetTroopLevel => (int)(RankImportance * GameDifficultyModifier);
 
         public int PlanetTroopMin(Planet planet) => MinPlanetTroopLevel * planet.Level / (int)SystemDevelopmentlevel;
 
