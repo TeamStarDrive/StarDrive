@@ -624,9 +624,6 @@ namespace Ship_Game
 
         Building ChooseWorstBuilding(Array<Building> buildings, float budget, out float value, float threshold)
         {
-            if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE WORST BUILDINGS, Budget: {budget} ====");
-
             Building worst   = null;
             float worstValue = threshold;
 
@@ -636,6 +633,9 @@ namespace Ship_Game
                 value = worstValue;
                 return null;
             }
+
+            if (IsPlanetExtraDebugTarget())
+                Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE WORST BUILDINGS, Budget: {budget} ====");
 
             for (int i = 0; i < buildings.Count; i++)
             {
