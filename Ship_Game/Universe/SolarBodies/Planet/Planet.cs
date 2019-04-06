@@ -881,7 +881,7 @@ namespace Ship_Game
         public int TotalInvadeInjure   => BuildingList.Sum(b => b.InvadeInjurePoints);
         public float TotalSpaceOffense => BuildingList.Sum(b => b.Offense) + OrbitalStations.Values.Sum(o => o.BaseStrength);
         public int MaxDefenseShips     => BuildingList.Sum(b => b.DefenseShipsCapacity);
-        public int CurrentDefenseShips => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s.HomePlanet == this);
+        public int CurrentDefenseShips => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
 
         public int OpenTiles           => TilesList.Count(tile => tile.Habitable && tile.building == null);
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
