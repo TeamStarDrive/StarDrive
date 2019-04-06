@@ -410,7 +410,12 @@ namespace Ship_Game
                         break;
                     case GoodState.EXPORT:
                         if (OutgoingProdFreighters > 0)
-                            prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
+                        {
+                            if (Storage.ProdRatio > 0.9f)
+                                prodToSpend = Prod.NetIncome + Storage.Prod * 0.1f; // We are actively exporting but can afford some storage spending
+                            else
+                                prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
+                        }
                         else
                             prodToSpend = ProdHere; // We are exporting but there is no demand, so let's spend it ourselves
                         break;

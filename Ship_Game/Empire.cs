@@ -173,8 +173,10 @@ namespace Ship_Game
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
-                chosen = ports.FindMin(p => p.TurnsUntilQueueComplete(cost));
-                return true;
+                chosen = ports.Filter(p => p.NumShipsInTheWorks < 4)
+                              .FindMin(p => p.TurnsUntilQueueComplete(cost));
+
+                return chosen != null;
             }
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
             chosen = null;

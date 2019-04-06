@@ -90,7 +90,7 @@ namespace Ship_Game
                 if (Food.NetIncome <= -0.01 && Storage.FoodRatio < 0.5f)
                     return true;
             }
-            else if (Prod.NetIncome.Less(1) && Storage.ProdRatio < 0.5f)
+            else if (Prod.NetIncome.Less(0.2f) && Storage.ProdRatio < 0.5f)
                 return true;
 
             return false;
