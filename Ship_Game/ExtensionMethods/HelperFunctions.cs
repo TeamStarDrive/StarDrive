@@ -37,24 +37,24 @@ namespace Ship_Game
             return null;
         }
 
-        static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position, CombatState state)
+        static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position)
         {
             if (data == null)
                 return null;
 
             var fleet = new Fleet
             {
-                Position  = position,
-                Owner     = owner,
+                Position = position,
+                Owner = owner,
                 DataNodes = new BatchRemovalCollection<FleetDataNode>()
             };
             foreach (FleetDataNode node in data.Data)
             {
                 FleetDataNode cloned = node.Clone();
-                cloned.CombatState = state;
+                cloned.CombatState = cloned.CombatState;
                 fleet.DataNodes.Add(cloned);
             }
-            fleet.Name           = data.Name;
+            fleet.Name = data.Name;
             fleet.FleetIconIndex = data.FleetIconIndex;
 
             using (fleet.DataNodes.AcquireWriteLock())
@@ -71,13 +71,24 @@ namespace Ship_Game
             return fleet;
         }
 
+        static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position, CombatState state)
+        {
+            var fleet = CreateFleetFromData(data, owner, position);
+            if (fleet == null)
+                return null;
+            foreach (FleetDataNode node in fleet.DataNodes)
+                node.CombatState = state;
+
+            return fleet;
+        }
+
         public static Fleet CreateFleetAt(string fleetUid, Empire owner, Vector2 position, CombatState state)
         {
             return CreateFleetFromData(LoadFleetDesign(fleetUid), owner, position, state);
         }
-        public static void CreateFirstFleetAt(string fleetUid, Empire owner, Vector2 position, CombatState state)
+        public static void CreateFirstFleetAt(string fleetUid, Empire owner, Vector2 position)
         {
-            Fleet fleet = CreateFleetAt(fleetUid, owner, position, state);
+            Fleet fleet = CreateFleetFromData(LoadFleetDesign(fleetUid), owner, position);
             if (fleet != null)
                 owner.FirstFleet = fleet;
         }
