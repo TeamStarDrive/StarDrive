@@ -14,7 +14,7 @@ namespace Ship_Game.AI
         public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
         public Array<Ship> DefensiveForcePool = new Array<Ship>();
         int TotalValue;
-        public float UniverseWants;
+        public float TroopsToTroopsWantedRatio;
 
         public DefensiveCoordinator(Empire e)
         {
@@ -44,10 +44,10 @@ namespace Ship_Game.AI
         public void AddShip(Ship ship)
         {
             ship.AI.ClearOrders(AIState.SystemDefender);
-            ship.AI.SystemToDefend = null;
+            ship.AI.SystemToDefend     = null;
             ship.AI.SystemToDefendGuid = Guid.Empty;
-            ship.AI.HasPriorityOrder = false;
-            DefenseDeficit -= ship.GetStrength();
+            ship.AI.HasPriorityOrder   = false;
+            DefenseDeficit            -= ship.GetStrength();
             DefensiveForcePool.Add(ship);
         }
 
@@ -285,11 +285,11 @@ namespace Ship_Game.AI
             int rebasedTroops      = 0;
             if (!Us.isPlayer)
                 rebasedTroops      = RebaseIdleTroops(troops.TroopShips);
-            UniverseWants          = (troops.TotalCurrentTroops + rebasedTroops) / (float) troops.TotalTroopWanted;
+            TroopsToTroopsWantedRatio          = (troops.TotalCurrentTroops + rebasedTroops) / (float) troops.TotalTroopWanted;
 
             if (Us.isPlayer) return;
 
-            if (UniverseWants > 1.25f)
+            if (TroopsToTroopsWantedRatio > 1.25f)
             {
                 foreach (var troop in troops.TroopShips)
                 {
