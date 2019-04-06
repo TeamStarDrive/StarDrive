@@ -50,6 +50,7 @@ namespace Ship_Game
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
         public float SensorRange { get; private set; }
+        public bool CombatNearPlanet { get; private set; }
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
@@ -245,7 +246,8 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
-            if (EnemyInRange())
+            CombatNearPlanet = EnemyInRange();
+            if (CombatNearPlanet)
                 UpdateSpaceCombatBuildings(elapsedTime);
 
             UpdatePlanetaryProjectiles(elapsedTime);
@@ -810,7 +812,6 @@ namespace Ship_Game
             {
                 if (Owner.IsEmpireAttackable(ship.loyalty) && ship.InRadius(Center, SensorRange))
                     return true;
-
             }
             return false;
         }
