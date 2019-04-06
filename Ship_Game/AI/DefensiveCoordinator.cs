@@ -275,72 +275,99 @@ namespace Ship_Game.AI
                 com => com.TroopStrengthNeeded > 0
                        && com.System.PlanetList.Count > 0
                        && com.System.PlanetList.Sum(p => p.GetGroundLandingSpots()) > 0,
-                com => (1f - ((float)com.TroopCount / com.IdealTroopCount))
+                com => (1f - ((float)com.TroopCount / com.IdealTroopCount ))
                        * com.ValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width)
-
             );
-        }
-
-        int TroopsEnroute(SolarSystem system)
-        {
-            int troopCount = 0;
-            foreach (var troop in Us.GetShips())
-            {
-                if (troop.AI.OrbitTarget?.ParentSystem == system)
-                {
-                    troopCount++;
-                }
-            }
-            return troopCount;
         }
 
         void ManageTroops()
         {
-            Array<Ship> troopShips = Us.GetAvailableTroopShips();
-            int totalTroopWanted = 0;
-            int totalCurrentTroops = 0;
-            foreach (var kv in DefenseDict)
+            TroopsInSystems troops = new TroopsInSystems(Us, DefenseDict);
+            int rebasedTroops      = RebaseIdleTroops(troops.TroopShips); ;
+            UniverseWants          = (troops.TotalCurrentTroops + rebasedTroops) / (float) troops.TotalTroopWanted;
+
+            EmpireTroopRatio = UniverseWants;
+            if (Us.isPlayer) return;
+
+            if (UniverseWants > 1.25f)
             {
-                // find max number of troops for system.
-
-                int currentTroops = kv.Value.TroopCount;
-                for (int i = troopShips.Count - 1; i >= 0; i--)
+                foreach (var troop in troops.TroopShips)
                 {
-                    Ship troop = troopShips[i];
-
-                    if (troop == null || troop.TroopList.Count <= 0)
+                    if (troop.DesignRole != ShipData.RoleName.troop) continue;
+                    if (troop.AI.State == AIState.AwaitingOrders)
+                        troop.AI.OrderScrapShip();
+                }
+            }
+            else
+            {
+                foreach (var kv in DefenseDict)
+                {
+                    //if (kv.Key.HostileForcesPresent(Us)) continue;
+                    var sysCom = kv.Value;
+                    foreach (Planet p in kv.Value.OurPlanets)
                     {
-                        troopShips.RemoveAtSwapLast(i);
-                        continue;
-                    }
-
-                    ShipAI troopAI = troop.AI;
-                    if (troopAI == null)
-                    {
-                        troopShips.RemoveAtSwapLast(i);
-                        continue;
-                    }
-
-                    if (troopAI.State == AIState.Rebase &&
-                        troopAI.OrderQueue.NotEmpty
-                        && troopAI.OrderQueue.Any(goal =>
-                            goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.ParentSystem))
-                    {
-                        currentTroops++;
-                        kv.Value.TroopStrengthNeeded--;
-                        troopShips.RemoveAtSwapLast(i);
+                        if (p.GetDefendingTroopCount() > sysCom.PlanetTroopMin(p))
+                        {
+                            Troop l = p.TroopsHere.Find(loyalty => loyalty.Loyalty == Us);
+                            l?.Launch();
+                        }
                     }
                 }
-
-                kv.Value.TroopCount = currentTroops;
-                totalCurrentTroops += currentTroops;
-                totalTroopWanted += kv.Value.IdealTroopCount;
             }
+        }
 
+        private struct TroopsInSystems
+        {
+            public readonly int TotalTroopWanted;
+            public readonly int TotalCurrentTroops;
+            public readonly Array<Ship> TroopShips;
 
-            UniverseWants = totalCurrentTroops / (float) totalTroopWanted;
-            int troopsRebasing = 0;
+            public TroopsInSystems(Empire empire, Map<SolarSystem, SystemCommander> DefenseDict)
+            {
+                TotalCurrentTroops = 0;
+                TotalTroopWanted = 0;
+                TroopShips = empire.GetAvailableTroopShips();
+                foreach (var kv in DefenseDict)
+                {
+                    int currentTroops = kv.Value.TroopCount;
+                    for (int i = TroopShips.Count - 1; i >= 0; i--)
+                    {
+                        Ship troop = TroopShips[i];
 
+                        if (troop == null || troop.TroopList.Count <= 0)
+                        {
+                            TroopShips.RemoveAtSwapLast(i);
+                            continue;
+                        }
+
+                        ShipAI troopAI = troop.AI;
+                        if (troopAI == null)
+                        {
+                            TroopShips.RemoveAtSwapLast(i);
+                            continue;
+                        }
+
+                        if (troopAI.State == AIState.Rebase &&
+                            troopAI.OrderQueue.NotEmpty
+                            && troopAI.OrderQueue.Any(goal =>
+                                goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.ParentSystem))
+                        {
+                            currentTroops++;
+                            kv.Value.TroopStrengthNeeded--;
+                            TroopShips.RemoveAtSwapLast(i);
+                        }
+                    }
+
+                    kv.Value.TroopCount = currentTroops;
+                    TotalCurrentTroops += currentTroops;
+                    TotalTroopWanted += kv.Value.IdealTroopCount;
+                }
+            }
+        }
+
+        private int RebaseIdleTroops(Array<Ship> troopShips)
+        {
+            int totalRebasedTroops = 0;
             for (int x = troopShips.Count - 1; x >= 0; x--)
             {
                 Ship troopShip = troopShips[x];
@@ -353,45 +380,18 @@ namespace Ship_Game.AI
                 SystemCommander defenseSystem = DefenseDict[solarSystem];
 
                 defenseSystem.TroopStrengthNeeded--;
-                troopShips.Remove(troopShip);
+                defenseSystem.TroopCount++;
+                troopShips.RemoveAtSwapLast(x);
 
-                Planet target = solarSystem.PlanetList
-                    .FindMinFiltered(p =>
-                        {
-                            return p.Owner == troopShip.loyalty && p.GetGroundLandingSpots() > 0;
-                        },
-                        planet => planet.CountEmpireTroops(planet.Owner));
+                Planet target = defenseSystem.OurPlanets
+                    .FindMinFiltered(p => p.GetGroundLandingSpots() > 0,
+                        planet => planet.CountEmpireTroops(planet.Owner) / defenseSystem.PlanetTroopMin(planet));
 
                 if (target == null) continue;
                 troopShip.AI.OrderRebase(target, true);
-                troopsRebasing++;
+                totalRebasedTroops++;
             }
-
-            EmpireTroopRatio = UniverseWants;
-            if (UniverseWants > 1.25f)
-            {
-                foreach (var troop in troopShips)
-                {
-                    if (troop.DesignRole != ShipData.RoleName.troop) continue;
-                    if (troop.AI.State == AIState.AwaitingOrders)
-                        troop.AI.OrderScrapShip();
-                }
-            }
-
-            foreach (var kv in DefenseDict)
-            {
-                foreach (Planet p in kv.Value.OurPlanets)
-                {
-                    if (Us.isPlayer) continue;
-                    if (!kv.Key.HostileForcesPresent(Us) && p.GetDefendingTroopCount() - troopsRebasing > kv.Value.PlanetTroopMin(p))
-                    {
-                        Troop l = p.TroopsHere.Find(loyalty => loyalty.Loyalty == Us);
-                        l?.Launch();
-                        troopsRebasing++;
-                    }
-                }
-
-            }
+            return totalRebasedTroops;
         }
 
         public void ManageForcePool()
