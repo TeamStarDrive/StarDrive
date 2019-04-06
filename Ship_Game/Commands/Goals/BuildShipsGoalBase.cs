@@ -50,8 +50,7 @@ namespace Ship_Game.Commands.Goals
                                 ? empire.SafeSpacePorts
                                 : empire.SpacePorts;
 
-            if (empire.FindPlanetToBuildAt(spacePorts, ship, out planet)
-                && planet.NumShipsInTheWorks < 4)
+            if (empire.FindPlanetToBuildAt(spacePorts, ship, out planet))
             {
                 return true; // OK
             }

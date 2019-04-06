@@ -99,8 +99,9 @@ namespace Ship_Game
                 p.SpecialDescription = psdata.SpecialDescription;
 
             p.Scale = psdata.Scale > 0f ? psdata.Scale : RandomMath.RandomBetween(1f, 2f);
-            p.colonyType = psdata.ColonyType;
+            p.colonyType  = psdata.ColonyType;
             p.GovOrbitals = psdata.GovOrbitals;
+            p.GovMilitia  = psdata.GovMilitia;
 
             p.FS               = psdata.FoodState;
             p.PS               = psdata.ProdState;
