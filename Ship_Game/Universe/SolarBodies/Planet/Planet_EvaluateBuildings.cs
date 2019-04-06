@@ -29,9 +29,8 @@ namespace Ship_Game
         }
 
         //New Build Logic by Gretman, modified by FB
-        void BuildAndScrapBuildings()
+        void BuildAndScrapBuildings(float budget)
         {
-            float budget       = BuildingBudget();
             int totalBuildings = TotalBuildings;
             if (budget < -0.1f)
             {
@@ -317,14 +316,11 @@ namespace Ship_Game
 
             float score = 0;
             if (BuildingBuiltOrQueued(Building.CapitalId))
-                score += 4.0f; // we can't be a space-faring species if our capital doesn't have a space-port...
+                score += 10f; // we can't be a space-faring species if our capital doesn't have a space-port...
 
-            float prodFromLabor = LeftoverWorkerBillions() * (Prod.YieldPerColonist + b.PlusProdPerColonist);
-            float prodFromFlat = Prod.FlatBonus + b.PlusFlatProductionAmount + (b.PlusProdPerRichness * MineralRichness);
-            
             // Do we have enough production capability to really justify trying to build ships
-            if (prodFromLabor + prodFromFlat > 8.0f)
-                score += ((prodFromLabor + prodFromFlat) / 8.0f).Clamped(0.0f, 2.0f);
+            if (Prod.NetMaxPotential > 8.0f)
+                score += (Prod.NetMaxPotential / 8.0f).Clamped(0.0f, 2.0f);
 
             DebugEvalBuild(b, "ShipBuilding", score);
             return score;
@@ -633,18 +629,19 @@ namespace Ship_Game
 
             Building worst   = null;
             float worstValue = threshold;
+
+            Building highestCostBuilding = BuildingsCanBuild.FindMax(building => building.ActualCost);
+            if (highestCostBuilding == null)
+            {
+                value = worstValue;
+                return null;
+            }
+
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
                 if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded) // might remove the isplayeradded
                     continue;
-
-                Building highestCostBuilding = BuildingsCanBuild.FindMax(building => building.ActualCost);
-                if (highestCostBuilding == null)
-                {
-                    value = worstValue;
-                    return worst;
-                }
 
                 int desiredMilitary  = DesiredMilitaryBuildings;
                 int existingMilitary = ExistingMilitaryBuildings;
@@ -735,18 +732,6 @@ namespace Ship_Game
                 return true; // Military has too many buildings
 
             return false; //Military won't replace it's buildings with civilian ones
-        }
-
-        float BuildingBudget()
-        {
-            float budget         = Owner.GetEmpireAI().PlanetBudget(this).Budget;
-            float buildingsMaint = Money.Maintenance + Construction.TotalQueuedBuildingMaintenance();
-            
-            float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
-            if (MaxPopulationBillion < 2)
-                debtTolerance += 2f - MaxPopulationBillion;
-
-            return (float) Math.Round(budget + debtTolerance - buildingsMaint, 2);
         }
 
         bool OutpostBuiltOrInQueue()

@@ -351,40 +351,35 @@ namespace Ship_Game
                         ++num3;
                     }
 
-                    TimeSpan totalGameTime;
                     if (solarSystem.HostileForcesPresent(EmpireManager.Player))
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
-                        totalGameTime = gameTime.TotalGameTime;
+                        TimeSpan totalGameTime = gameTime.TotalGameTime;
                         Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
-                            (byte) (Math.Abs((float) Math.Sin(totalGameTime.TotalSeconds)) *
+                            (byte)(Math.Abs((float)Math.Sin(totalGameTime.TotalSeconds)) *
                                     byte.MaxValue));
-                        Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
-                            ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
-                            ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle2, color);
-                        if (rectangle2.HitTest(pos))
-                            ToolTip.CreateTooltip(122);
-                        ++num3;
-                    }
-
-                    if (solarSystem.HostileForcesPresent(EmpireManager.Player))
-                    {
-                        if (num3 == 1 || num3 == 2)
-                            vector2.X += 20f;
-                        totalGameTime = gameTime.TotalGameTime;
-                        Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
-                            (byte) (Math.Abs((float) Math.Sin(totalGameTime.TotalSeconds)) *
-                                    byte.MaxValue));
-                        Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
+                        Rectangle rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y,
                             ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                             ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
                         ScreenManager.SpriteBatch.Draw(
                             ResourceManager.Texture("Ground_UI/EnemyHere"), rectangle2, color);
                         if (rectangle2.HitTest(pos))
                             ToolTip.CreateTooltip(123);
+                        ++num3;
+
+                        if (solarSystem.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.CombatNearPlanet))
+                        {
+                            if (num3 == 1 || num3 == 2)
+                                vector2.X += 20f;
+                            Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y,
+                                ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
+                                ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
+                            ScreenManager.SpriteBatch.Draw(
+                                ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle3, color);
+                            if (rectangle3.HitTest(pos))
+                                ToolTip.CreateTooltip(122);
+                        }
                     }
                 }
                 else
@@ -456,40 +451,37 @@ namespace Ship_Game
                         ++num3;
                     }
 
-                    TimeSpan totalGameTime;
                     if (solarSystem.HostileForcesPresent(EmpireManager.Player))
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
-                        totalGameTime = gameTime.TotalGameTime;
+                        TimeSpan totalGameTime = gameTime.TotalGameTime;
                         Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
-                            (byte) (Math.Abs((float) Math.Sin(totalGameTime.TotalSeconds)) *
+                            (byte)(Math.Abs((float)Math.Sin(totalGameTime.TotalSeconds)) *
                                     byte.MaxValue));
-                        Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
+                        Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y,
                             ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                             ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle2, color);
-                        if (rectangle2.HitTest(pos))
-                            ToolTip.CreateTooltip(122);
-                        ++num3;
-                    }
-
-                    if (solarSystem.HostileForcesPresent(EmpireManager.Player))
-                    {
-                        if (num3 == 1 || num3 == 2)
-                            vector2.X += 20f;
-                        totalGameTime = gameTime.TotalGameTime;
-                        Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
-                            (byte) (Math.Abs((float) Math.Sin(totalGameTime.TotalSeconds)) *
-                                    byte.MaxValue));
-                        Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
-                            ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
-                            ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Ground_UI/EnemyHere"), rectangle2, color);
-                        if (rectangle2.HitTest(pos))
+                            ResourceManager.Texture("Ground_UI/EnemyHere"), rectangle3, color);
+                        if (rectangle3.HitTest(pos))
                             ToolTip.CreateTooltip(123);
+                        ++num3;
+
+
+                        if (solarSystem.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.CombatNearPlanet))
+                        {
+                            if (num3 == 1 || num3 == 2)
+                                vector2.X += 20f;
+                            totalGameTime = gameTime.TotalGameTime;
+                            Rectangle rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y,
+                                ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
+                                ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
+                            ScreenManager.SpriteBatch.Draw(
+                                ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle2, color);
+                            if (rectangle2.HitTest(pos))
+                                ToolTip.CreateTooltip(122);
+                        }
                     }
                 }
             }
