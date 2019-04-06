@@ -15,17 +15,11 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;            
             RunGroundPlanner();
-            NumberOfShipGoals = 0;
-            foreach (Planet p in OwnerEmpire.GetPlanets())
-            {
-                if (p.IsMeagerOrBarren || p.TurnsUntilQueueCompleted > 10)
-                    continue;
-
-                NumberOfShipGoals++;
-            }
+            NumberOfShipGoals = 3;
+            
             int shipCountLimit        = GlobalStats.ShipCountLimit;
             RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, false);
-            float goalsInConstruction = buildRatios.CountShipsUnderConstruction();
+            int goalsInConstruction = SearchForGoals(GoalType.BuildOffensiveShips).Count;
 
             while (goalsInConstruction < NumberOfShipGoals
                    && (Empire.Universe.globalshipCount < shipCountLimit + Recyclepool
@@ -39,7 +33,7 @@ namespace Ship_Game.AI
                     Recyclepool--;
 
                 Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));              
-                goalsInConstruction = goalsInConstruction + 1f;
+                goalsInConstruction++;
             }
             
             Goals.ApplyPendingRemovals();            

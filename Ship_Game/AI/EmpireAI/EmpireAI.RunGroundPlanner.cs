@@ -8,7 +8,10 @@ namespace Ship_Game.AI
     {
         void RunGroundPlanner()
         {
-            if (DefensiveCoordinator.UniverseWants > .8)
+            if (DefensiveCoordinator.TroopsToTroopsWantedRatio > 0.9f)
+                return;
+            var troopGoal = SearchForGoals(GoalType.BuildTroop);
+            if (troopGoal.Count > 2)
                 return;
 
             Troop[] troops = ResourceManager.GetTroopTemplates()
@@ -20,24 +23,9 @@ namespace Ship_Game.AI
                 return;
             }
 
-            float totalIdeal  = 0f;
-            float totalWanted = 0f;
-            foreach (SolarSystem sys in OwnerEmpire.GetOwnedSystems())
-            {
-                if (!DefensiveCoordinator.DefenseDict.Get(sys, out SystemCommander commander)
-                    || commander.TroopStrengthNeeded <= 0f)
-                    continue;
-                totalWanted += commander.TroopStrengthNeeded;
-                totalIdeal  += commander.IdealTroopCount; 
-            }
-
-            float requiredRatio = totalWanted / totalIdeal;
-            if (requiredRatio <= 0.1f)
-                return;
-            
             Troop loCost = troops.First();
             Troop hiCost = troops.Last();
-            Troop chosenTroop = requiredRatio > 0.5f ? hiCost : loCost;
+            Troop chosenTroop = DefensiveCoordinator.TroopsToTroopsWantedRatio > 0.5f ? hiCost : loCost;
             Goals.Add(new BuildTroop(chosenTroop, OwnerEmpire));
         }
     }
