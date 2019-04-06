@@ -30,6 +30,7 @@ namespace Ship_Game
         private Submenu build;
         private Submenu queue;
         private UICheckBox GovOrbitals;
+        private UICheckBox GovMilitia;
         private UITextEntry PlanetName = new UITextEntry();
         private Rectangle PlanetIcon;
         private EmpireUIOverlay eui;
@@ -188,6 +189,9 @@ namespace Ship_Game
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
                 GovOrbitals  = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + Font12.LineSpacing + 3,
                     () => p.GovOrbitals, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
+
+                GovMilitia   = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + (Font12.LineSpacing + 3) * 2,
+                    () => p.GovMilitia, Fonts.Arial12Bold, Localizer.Token(1956), 1957);
             }
             else
             {
@@ -438,7 +442,11 @@ namespace Ship_Game
             batch.DrawString(Font12, colonyTypeInfo, descCursor, Color.White);
             GovernorDropdown.Draw(batch); // draw dropdown on top of other text
             if (P.Owner.isPlayer && GovernorDropdown.ActiveIndex != 0)
-                GovOrbitals.Draw(batch); // only for non Core colonies
+            {
+                // only for non Core colonies
+                GovOrbitals.Draw(batch); 
+                GovMilitia.Draw(batch);
+            }
 
             if (GlobalStats.HardcoreRuleset)
             {
@@ -581,12 +589,22 @@ namespace Ship_Game
 
                     DrawMultiLine(ref bCursor, desc);
                     desc = "";
-                    switch (P.PS)
+                    if (P.colonyType == Planet.ColonyType.Colony)
                     {
-                        case Planet.GoodState.EXPORT: desc = Localizer.Token(345); break;
-                        case Planet.GoodState.IMPORT: desc = Localizer.Token(346); break;
-                        case Planet.GoodState.STORE:  desc = Localizer.Token(347); break;
+                        switch (P.PS)
+                        {
+                            case Planet.GoodState.EXPORT: desc = Localizer.Token(345); break;
+                            case Planet.GoodState.IMPORT: desc = Localizer.Token(346); break;
+                            case Planet.GoodState.STORE:  desc = Localizer.Token(347); break;
+                        }
                     }
+                    else
+                        switch (P.PS)
+                        {
+                            case Planet.GoodState.EXPORT: desc = Localizer.Token(1953); break;
+                            case Planet.GoodState.IMPORT: desc = Localizer.Token(1954); break;
+                            case Planet.GoodState.STORE:  desc = Localizer.Token(1955); break;
+                        }
                     DrawMultiLine(ref bCursor, desc);
                     if (P.IsStarving)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
@@ -877,6 +895,7 @@ namespace Ship_Game
         {
             pFacilities.HandleInputNoReset(input);
             GovOrbitals.HandleInput(input);
+            GovMilitia.HandleInput(input);
 
             if (HandleCycleColoniesLeftRight(input))
                 return true;
