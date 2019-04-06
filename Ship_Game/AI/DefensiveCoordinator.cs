@@ -13,7 +13,6 @@ namespace Ship_Game.AI
         public float DefenseDeficit;
         public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
         public Array<Ship> DefensiveForcePool = new Array<Ship>();
-        public float EmpireTroopRatio;
         int TotalValue;
         public float UniverseWants;
 
@@ -283,10 +282,11 @@ namespace Ship_Game.AI
         void ManageTroops()
         {
             TroopsInSystems troops = new TroopsInSystems(Us, DefenseDict);
-            int rebasedTroops      = RebaseIdleTroops(troops.TroopShips); ;
+            int rebasedTroops      = 0;
+            if (!Us.isPlayer)
+                rebasedTroops      = RebaseIdleTroops(troops.TroopShips);
             UniverseWants          = (troops.TotalCurrentTroops + rebasedTroops) / (float) troops.TotalTroopWanted;
 
-            EmpireTroopRatio = UniverseWants;
             if (Us.isPlayer) return;
 
             if (UniverseWants > 1.25f)
@@ -302,7 +302,7 @@ namespace Ship_Game.AI
             {
                 foreach (var kv in DefenseDict)
                 {
-                    //if (kv.Key.HostileForcesPresent(Us)) continue;
+                    if (kv.Key.HostileForcesPresent(Us)) continue;
                     var sysCom = kv.Value;
                     foreach (Planet p in kv.Value.OurPlanets)
                     {
