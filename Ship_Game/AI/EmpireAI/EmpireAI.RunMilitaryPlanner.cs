@@ -1,7 +1,7 @@
-using System;
-using System.Linq;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
+using System;
+using System.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -13,13 +13,37 @@ namespace Ship_Game.AI
         private void RunMilitaryPlanner()
         {
             if (OwnerEmpire.isPlayer)
-                return;            
+                return;
             RunGroundPlanner();
             NumberOfShipGoals = 3;
-            
-            int shipCountLimit        = GlobalStats.ShipCountLimit;
-            RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, false);
             int goalsInConstruction = SearchForGoals(GoalType.BuildOffensiveShips).Count;
+            if (goalsInConstruction <= NumberOfShipGoals)
+                BuildWarShips(goalsInConstruction);
+
+            Goals.ApplyPendingRemovals();
+
+            //this where the global AI attack stuff happenes.
+            using (TaskList.AcquireReadLock())
+            {
+                int toughNutCount = 0;
+
+                foreach (var task in TaskList)
+                {
+                    if (task.IsToughNut) toughNutCount++;
+                    task.Evaluate(OwnerEmpire);
+                }
+                Toughnuts = toughNutCount;
+            }
+            TaskList.AddRange(TasksToAdd);
+            TasksToAdd.Clear();
+            TaskList.ApplyPendingRemovals();
+        }
+
+        private void BuildWarShips(int goalsInConstruction)
+        {
+            int shipCountLimit = GlobalStats.ShipCountLimit;
+            RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, false);
+
 
             while (goalsInConstruction < NumberOfShipGoals
                    && (Empire.Universe.globalshipCount < shipCountLimit + Recyclepool
@@ -32,27 +56,9 @@ namespace Ship_Game.AI
                 if (Recyclepool > 0)
                     Recyclepool--;
 
-                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));              
+                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));
                 goalsInConstruction++;
             }
-            
-            Goals.ApplyPendingRemovals();            
-
-            //this where the global AI attack stuff happenes.
-            using (TaskList.AcquireReadLock())
-            {
-                int toughNutCount = 0;
-
-                foreach (var task in TaskList)
-                {             
-                    if (task.IsToughNut) toughNutCount++;
-                    task.Evaluate(OwnerEmpire);
-                }
-                Toughnuts = toughNutCount;
-            }
-            TaskList.AddRange(TasksToAdd);
-            TasksToAdd.Clear();
-            TaskList.ApplyPendingRemovals();
         }
 
         public class RoleBuildInfo
@@ -90,10 +96,10 @@ namespace Ship_Game.AI
             public float DesiredTroops;
 
             public RoleBuildInfo(float capacity, EmpireAI eAI, bool ignoreDebt)
-            {                
+            {
                 EmpireAI = eAI;
 
-                var availableShips = OwnerEmpire.GetShips().Filter(item => 
+                var availableShips = OwnerEmpire.GetShips().Filter(item =>
                     !( item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
                     || item.shipData.Role == ShipData.RoleName.prototype
                     || item.shipData.Role < ShipData.RoleName.troopShip
@@ -102,7 +108,7 @@ namespace Ship_Game.AI
                 for (int i = 0; i < availableShips.Length; i++)
                 {
                     Ship item = availableShips[i];
-             
+
                     ShipData.RoleName roleName = item.DesignRole;
                     float upkeep = item.GetMaintCost();
                     CountShips(upkeep, roleName);
@@ -118,7 +124,7 @@ namespace Ship_Game.AI
                 DesiredBombers   = ratios.ApplyRatioBombers(NumBombers, upKeepAllotment, capacity);
                 DesiredSupport   = ratios.ApplyRatioSupport(NumSupport, upKeepAllotment, capacity);
                 DesiredTroops    = ratios.ApplyRatioTroopShip(NumTroops, upKeepAllotment, capacity);
-                
+
 
                 KeepRoleRatios(DesiredFighters, DesiredCorvettes, DesiredFrigates, DesiredCruisers
                     , DesiredCarriers, DesiredBombers, DesiredCapitals, DesiredTroops, DesiredSupport);
@@ -136,7 +142,7 @@ namespace Ship_Game.AI
                     var upKeep = g.ShipToBuild.GetMaintCost();
                     var role = g.ShipToBuild.DesignRole;
                     CountShips(upKeep, role);
-                    underConstruction++;                    
+                    underConstruction++;
                 }
                 return underConstruction;
             }
@@ -191,7 +197,7 @@ namespace Ship_Game.AI
             public void IncrementShipCount(ShipData.RoleName role)
             {
                 switch (role)
-                {                   
+                {
                     case ShipData.RoleName.troopShip:
                         NumTroops++;
                         break;
@@ -203,13 +209,13 @@ namespace Ship_Game.AI
                         break;
                     case ShipData.RoleName.fighter:
                         NumFighters++;
-                        break;             
+                        break;
                     case ShipData.RoleName.corvette:
                         NumCorvettes++;
                         break;
                     case ShipData.RoleName.frigate:
                         NumFrigates++;
-                        break;                    
+                        break;
                     case ShipData.RoleName.cruiser:
                         NumCruisers++;
                         break;
@@ -283,16 +289,16 @@ namespace Ship_Game.AI
         }
 
         //fbedard: Build a ship with a random role
-        
+
         private string GetAShip(RoleBuildInfo buildRatios)
         {
-                    
+
             //Find ship to build
-           
+
             var pickRoles = new Map<ShipData.RoleName, float>();
             PickRoles(ref buildRatios.NumCarriers, buildRatios.DesiredCarriers, ShipData.RoleName.carrier, pickRoles);
             PickRoles(ref buildRatios.NumTroops, buildRatios.DesiredTroops, ShipData.RoleName.troopShip, pickRoles);
-            PickRoles(ref buildRatios.NumSupport, buildRatios.DesiredSupport, ShipData.RoleName.support, pickRoles);                        
+            PickRoles(ref buildRatios.NumSupport, buildRatios.DesiredSupport, ShipData.RoleName.support, pickRoles);
             PickRoles(ref buildRatios.NumFrigates , buildRatios.DesiredFrigates, ShipData.RoleName.frigate, pickRoles);
             PickRoles(ref buildRatios.NumBombers  , buildRatios.DesiredBombers, ShipData.RoleName.bomber, pickRoles);
             PickRoles(ref buildRatios.NumCruisers , buildRatios.DesiredCruisers, ShipData.RoleName.cruiser, pickRoles);
@@ -302,12 +308,12 @@ namespace Ship_Game.AI
 
             foreach (var kv in pickRoles.OrderBy(val => val.Value))
             {
-                string buildThis = PickFromCandidates(kv.Key, OwnerEmpire); 
+                string buildThis = PickFromCandidates(kv.Key, OwnerEmpire);
                 if (string.IsNullOrEmpty(buildThis)) continue;
                 buildRatios.IncrementShipCount(kv.Key);
                 return buildThis;
             }
-           
+
             return null;  //Find nothing to build !
         }
     }
