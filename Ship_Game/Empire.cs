@@ -1240,6 +1240,7 @@ namespace Ship_Game
                     empireShipTotal++;
                 }
                 UpdateTimer = GlobalStats.TurnTimer;
+                UpdateEmpirePlanets();
                 UpdateAI(); // Must be done before DoMoney to get budgets for colonies
                 DoMoney();
                 TakeTurn();
@@ -1344,7 +1345,6 @@ namespace Ship_Game
             MoneyLastTurn = Money;
             ++TurnCount;
 
-            UpdateEmpirePlanets();
             UpdateTradeIncome();
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();

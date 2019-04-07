@@ -223,7 +223,7 @@ namespace Ship_Game
 
         float EvalPlusMaxPopulation(Building b)
         {
-            if (b.MaxPopIncrease.AlmostZero())
+            if (b.MaxPopIncrease.AlmostZero() || PopulationRatio < 0.9f)
                 return 0;
 
             float score = 0;
@@ -624,9 +624,6 @@ namespace Ship_Game
 
         Building ChooseWorstBuilding(Array<Building> buildings, float budget, out float value, float threshold)
         {
-            if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE WORST BUILDINGS, Budget: {budget} ====");
-
             Building worst   = null;
             float worstValue = threshold;
 
@@ -636,6 +633,9 @@ namespace Ship_Game
                 value = worstValue;
                 return null;
             }
+
+            if (IsPlanetExtraDebugTarget())
+                Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE WORST BUILDINGS, Budget: {budget} ====");
 
             for (int i = 0; i < buildings.Count; i++)
             {
@@ -679,8 +679,7 @@ namespace Ship_Game
         bool BuildBiospheres(float budget, int totalBuildings)
         {
             Building bio = GetBiospheresWeCanBuild;
-            if (bio != null && !BiosphereInTheWorks && totalBuildings < MaxBuildings
-                && bio.Maintenance < budget + 0.3) // No habitable tiles and within budget plus some tolerance
+            if (bio != null && !BiosphereInTheWorks && budget - bio.ActualMaintenance(this) > 0)  // Within budget
             {
                 if (IsPlanetExtraDebugTarget())
                     Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
