@@ -492,8 +492,7 @@ namespace Ship_Game
             RemoveInvalidFreighters(IncomingFreighters);
             RemoveInvalidFreighters(OutgoingFreighters);
             UpdateFertility();
-            InitResources(); // must be done before Governing
-            UpdateIncomes(false);
+            InitResources(); // must be done before Governing            
             UpdateOrbitalsMaint();
             DoGoverning();
             NotifyEmptyQueue();

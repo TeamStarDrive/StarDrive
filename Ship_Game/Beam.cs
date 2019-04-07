@@ -1,15 +1,14 @@
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
-using Ship_Game.Audio;
-using Ship_Game.Debug;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public sealed class Beam : Projectile
+    public class Beam : Projectile
     {
         public float PowerCost;
         public Vector2 Source;
@@ -48,7 +47,7 @@ namespace Ship_Game
             Source                  = source;
             Destination             = destination;
             ActualHitDestination = Destination;
-            BeamCollidedThisFrame = true; // 
+            BeamCollidedThisFrame = true; //
 
             Initialize();
             weapon.ModifyProjectile(this);
@@ -87,11 +86,6 @@ namespace Ship_Game
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            if (Weapon.drowner != null)
-            {
-                (Weapon.drowner as Projectile)?.DroneAI.Beams.QueuePendingRemoval(this);
-                SetSystem(Weapon.drowner.System);
-            }
             Weapon.ResetToggleSound();
             base.Die(source, cleanupOnly);
         }
@@ -105,7 +99,7 @@ namespace Ship_Game
             lock (GlobalStats.BeamEffectLocker)
             {
                 Empire.Universe.beamflashes.AddParticleThreadA(new Vector3(Source, BeamZ), Vector3.Zero);
-                
+
                 var hit = new Vector3(ActualHitDestination, BeamZ);
                 if (BeamCollidedThisFrame) // a cool hit effect
                 {
@@ -174,7 +168,7 @@ namespace Ship_Game
             Indexes[5] = 3;
         }
 
-        private void UpdateBeamMesh()
+        protected void UpdateBeamMesh()
         {
             Vector2 src = Source;
             Vector2 dst = ActualHitDestination;
@@ -278,24 +272,6 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int thickness, float elapsedTime)
-        {
-            Duration -= elapsedTime;
-            Thickness = thickness;
-            Source    = srcCenter;
-            ActualHitDestination = dstCenter;
-            // apply drone repair effect, 5 times more if not in combat
-            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
-            {
-                float repairMultiplier = targetShip.InCombat ? 1 : 5;
-                targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * elapsedTime, Owner?.Level ?? 0);
-            }
-
-            UpdateBeamMesh();
-            if (Duration < 0f && !Infinite)
-                Die(null, true);
-        }
-
         protected override void Dispose(bool disposing)
         {
             QuadVertexDecl?.Dispose(ref QuadVertexDecl);
@@ -318,5 +294,39 @@ namespace Ship_Game
         }
 
         private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
+    }
+    public sealed class DroneBeam : Beam
+    {
+        readonly DroneAI AI;
+        public DroneBeam(DroneAI ai) :
+            base(ai.DroneWeapon, ai.Drone.Center, ai.DroneTarget.Center, ai.DroneTarget)
+        {
+            AI = ai;
+            Owner = ai.Drone.Owner;
+        }
+
+        public override void Update(float elapsedTime)
+        {
+            Duration -= elapsedTime;
+            Source = AI.Drone.Center;
+            ActualHitDestination = AI.DroneTarget.Center;
+            // apply drone repair effect, 5 times more if not in combat
+            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
+            {
+                float repairMultiplier = targetShip.InCombat ? 1 : 5;
+                targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * elapsedTime, Owner?.Level ?? 0);
+            }
+
+            UpdateBeamMesh();
+            if (Duration < 0f && !Infinite)
+                Die(null, true);
+        }
+        public override void Die(GameplayObject source, bool cleanupOnly)
+        {
+            //im confused on this setsystem. why are we doing this?
+            //pretty sure its going to be set to null later int he die process.
+            SetSystem(AI.Drone.Owner.System);
+            base.Die(source, cleanupOnly);
+        }
     }
 }

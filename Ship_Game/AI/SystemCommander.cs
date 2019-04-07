@@ -32,11 +32,11 @@ namespace Ship_Game.AI
         {
             System = system;
             Us = e;
-            GameDifficultyModifier = (int)(((int)CurrentGame.Difficulty + 1) * 0.75f);
+            GameDifficultyModifier = (int)(((int)CurrentGame.Difficulty + 1) * 0.75f + 0.5f);
         }
-        
+
         public float UpdateSystemValue()
-        {            
+        {
             IdealShipStrength = 0;
             PercentageOfValue = 0f;
             ValueToUs = System.HostileForcesPresent(Us) ? 5 : 0;
@@ -57,7 +57,7 @@ namespace Ship_Game.AI
                 foreach (Empire e in fiveClosestSystem.OwnerList)
                 {
                     if (e == Us) continue;
-                    bool attack = Us.IsEmpireAttackable(e);   
+                    bool attack = Us.IsEmpireAttackable(e);
                     if (attack) ValueToUs += 5f;
                     else        ValueToUs += 1f;
                     noEnemies = noEnemies || !attack;
@@ -68,11 +68,11 @@ namespace Ship_Game.AI
             }
             return ValueToUs;
         }
-        
+
         // @return Ships that were removed or empty array
         public Array<Ship> RemoveExtraShips()
         {
-            var removed = new Array<Ship>();            
+            var removed = new Array<Ship>();
             if (CurrentShipStr < IdealShipStrength)
                 return removed;
 
@@ -89,14 +89,14 @@ namespace Ship_Game.AI
         }
 
         public bool RemoveShip(Ship shipToRemove)
-        {                                   
+        {
             if (OurShips.Remove(shipToRemove.guid))
             {
                 CurrentShipStr -= (int)shipToRemove.BaseStrength;
                 shipToRemove.AI.SystemToDefend = null;
                 shipToRemove.AI.SystemToDefendGuid = Guid.Empty;
-                return true;                
-            }            
+                return true;
+            }
             return false;
         }
 
@@ -153,7 +153,7 @@ namespace Ship_Game.AI
 
                         if (!ship.InCombat && ship.System == System)
                         {
-                            if (assignedStr <= 0f || assignedStr < hostile.GetStrength() 
+                            if (assignedStr <= 0f || assignedStr < hostile.GetStrength()
                                 && ship.AI.State != AIState.Resupply)
                             {
                                 ship.AI.OrderAttackSpecificTarget(hostile);
@@ -197,7 +197,12 @@ namespace Ship_Game.AI
 
         int MinPlanetTroopLevel => (int)(RankImportance * GameDifficultyModifier);
 
-        public int PlanetTroopMin(Planet planet) => MinPlanetTroopLevel * planet.Level / (int)SystemDevelopmentlevel;
+        public float PlanetTroopMin(Planet planet)
+        {
+            float troopMin = MinPlanetTroopLevel * planet.Level / SystemDevelopmentlevel;
+
+            return troopMin;
+        }
 
         public void CalculateTroopNeeds()
         {
@@ -205,7 +210,7 @@ namespace Ship_Game.AI
             Planet[] ourPlanets = OurPlanets;
             SystemDevelopmentlevel = ourPlanets.Sum(p => p.Level);
 
-            int idealTroopCount = ourPlanets.Sum(PlanetTroopMin);
+            int idealTroopCount = (int)ourPlanets.Sum(PlanetTroopMin).Clamped(1, int.MaxValue);
 
             TroopCount          = 0;
             int currentTroops   = ourPlanets.Sum(planet => planet.GetDefendingTroopCount());
@@ -216,7 +221,7 @@ namespace Ship_Game.AI
 
         public void CalculateShipNeeds()
         {
-            int predicted = (int)Us.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);            
+            int predicted = (int)Us.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);
             int min = (int)(10f / RankImportance) * (Us.data.DiplomaticPersonality?.Territorialism ?? 50);
             min /= 4;
             IdealShipStrength = Math.Max(predicted, min);
@@ -248,9 +253,9 @@ namespace Ship_Game.AI
 
         void Destroy()
         {
-            Clear();            
+            Clear();
             PlanetTracker.Clear();
-            System = null;          
+            System = null;
         }
     }
 
@@ -284,8 +289,8 @@ namespace Ship_Game.AI
             Value += Planet.EmpireBaseValue(Owner) *.1f;
 
             if (planetOwner == null || !enemy)
-                return Value;        
-            
+                return Value;
+
             var them = Owner.GetRelations(planetOwner);
             if (them == null || !them.Known) return Value;
             if (them.Trust < 50f) Value += 2.5f;
