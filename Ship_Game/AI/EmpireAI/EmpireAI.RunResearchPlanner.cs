@@ -6,8 +6,7 @@ using Ship_Game.AI.Research;
 namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
-    {
-        private ResearchStrategy res_strat = ResearchStrategy.Scripted;
+    {        
         private int ScriptIndex;
         public ChooseTech TechChooser;
         private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
@@ -20,11 +19,12 @@ namespace Ship_Game.AI
                 return;
             Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
             OwnerEmpire.data.TechDelayTime++;
-            var researchPriorities = new ResearchPriorities(OwnerEmpire, BuildCapacity, command, res_strat.ToString());
+            var researchPriorities = new ResearchPriorities(OwnerEmpire, BuildCapacity, command
+                , TechChooser.ScriptType.ToString());
             TechChooser.InitializeNewResearchRun(researchPriorities);
-            DebugLog($"ResearchStrategy : {res_strat.ToString()}");
+            DebugLog($"ResearchStrategy : {TechChooser.ScriptType.ToString()}");
 
-            switch (res_strat)
+            switch (TechChooser.ScriptType)
             {
                 case ResearchStrategy.Random:
                     {
