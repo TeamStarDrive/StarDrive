@@ -18,7 +18,7 @@ namespace Ship_Game
         public string Name = "Random System";
         public Guid guid = Guid.NewGuid();
         public bool DontStartNearPlayer;
-        
+
         //public Array<Empire> OwnerList = new Array<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
         public Array<Ship> ShipList = new Array<Ship>();
@@ -175,10 +175,10 @@ namespace Ship_Game
                 {
                     float dist = Sun.RadiationRadius*r;
                     var color = new Color(Color.Red, Sun.DamageMultiplier(dist));
-                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar, 
+                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar,
                         Position, dist, color, 0f);
                 }
-                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar, 
+                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar,
                     Position, Sun.RadiationRadius, Color.Brown, 0f);
             }
         }
@@ -348,11 +348,11 @@ namespace Ship_Game
                 }
             }
             else
-            {   
+            {
                 //Boost the quality score for planets that are very rich, or very fertile
                 if (newOrbital.Fertility > 1.6)      quality += 1;
                 if (newOrbital.MineralRichness >1.6) quality += 1;
-                        
+
                 //Added by Gretman
                 if (GlobalStats.ExtraRemnantGS == 0)  //Rare Remnant
                 {
@@ -523,8 +523,8 @@ namespace Ship_Game
 
         public void GenerateCorsairSystem(string systemName)
         {
-            Sun = SunType.RandomHabitableSun(s => s.Id == "star_red" 
-                                      || s.Id == "star_yellow" 
+            Sun = SunType.RandomHabitableSun(s => s.Id == "star_red"
+                                      || s.Id == "star_yellow"
                                       || s.Id == "star_green");
             Name = systemName;
             NumberOfRings = 2;
@@ -585,7 +585,7 @@ namespace Ship_Game
             int starRadius    = (int)(RandomMath.IntBetween(250, 500) * systemScale);
             float ringMax     = starRadius * 300;
             float ringBase    = ringMax * .1f;
-            int bonusP        = GlobalStats.ExtraPlanets > 0 ? (int)Math.Ceiling(GlobalStats.ExtraPlanets  / 2f) : 0;            
+            int bonusP        = GlobalStats.ExtraPlanets > 0 ? (int)Math.Ceiling(GlobalStats.ExtraPlanets  / 2f) : 0;
             int minR          = RandomMath.IntBetween(0 + bonusP > 0 ? 1 : 0, 3 + GlobalStats.ExtraPlanets);
             int maxR          = RandomMath.IntBetween(minR, 6 + minR);
             NumberOfRings     = RandomMath.IntBetween(minR,maxR);
@@ -594,10 +594,10 @@ namespace Ship_Game
 
             float ringSpace = ringMax / NumberOfRings;
 
-            MarkovNameGenerator markovNameGenerator = null;            
-            if (owner != null)            
+            MarkovNameGenerator markovNameGenerator = null;
+            if (owner != null)
                 markovNameGenerator = ResourceManager.GetRandomNames(owner);
-            
+
             for (int i = 1; i < NumberOfRings + 1; i++)
             {
                 ringBase += 5000;
@@ -613,7 +613,7 @@ namespace Ship_Game
                 {
                     float randomAngle = RandomMath.RandomBetween(0f, 360f);
                     string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(i);
-                   
+
                     var newOrbital = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
 
                     if (owner == null)
@@ -804,7 +804,7 @@ namespace Ship_Game
         {
             float strength = 0f;
             foreach (Ship ship in ShipList)
-            {                
+            {
                 if (ship?.Active != true) continue;
                 if (ship.loyalty != e)
                     continue;

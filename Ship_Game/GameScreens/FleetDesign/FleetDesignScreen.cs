@@ -1713,7 +1713,7 @@ namespace Ship_Game
             {
                 Ship ship = fleet.Ships[i];
                 ship.GetSO().World =  Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-                ship?.fleet?.RemoveShip(ship);                         
+                ship?.fleet?.RemoveShip(ship);         
             }
             SelectedFleet.DataNodes.Clear();
             SelectedFleet.Ships.Clear();
