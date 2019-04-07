@@ -311,12 +311,15 @@ namespace Ship_Game
         float EvalSpacePort(Building b)
         {
             bool spacePort = b.AllowShipBuilding || b.IsSpacePort;
-            if (!spacePort || PopulationRatio < 0.5f)
+            if (!spacePort)
                 return 0;
 
             float score = 0;
             if (BuildingBuiltOrQueued(Building.CapitalId))
                 score += 10f; // we can't be a space-faring species if our capital doesn't have a space-port...
+
+            if (PopulationRatio < 0.5f || MaxPopulationBillion < 1)
+                score -= 1; // don't build space port on low population planets
 
             // Do we have enough production capability to really justify trying to build ships
             if (Prod.NetMaxPotential > 8.0f)
