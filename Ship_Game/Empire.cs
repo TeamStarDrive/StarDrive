@@ -1344,7 +1344,7 @@ namespace Ship_Game
         {
             MoneyLastTurn = Money;
             ++TurnCount;
-            
+
             UpdateTradeIncome();
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
