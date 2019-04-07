@@ -1712,11 +1712,12 @@ namespace Ship_Game
             for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = fleet.Ships[i];
-                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-                ship?.fleet?.RemoveShip(ship);         
+                ship.GetSO().World =  Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
+                ship?.fleet?.RemoveShip(ship);                         
             }
             SelectedFleet.DataNodes.Clear();
             SelectedFleet.Ships.Clear();
+            ClickableNodes.Clear();
             foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
             {
                 flank.Clear();

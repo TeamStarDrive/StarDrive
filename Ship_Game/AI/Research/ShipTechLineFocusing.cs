@@ -171,13 +171,14 @@ namespace Ship_Game.AI.Research
             //choose role
             /*
              * here set the default return to the first array in rolesorter.
-             * then iterater through the keys with an every increasing chance to choose a key.
+             * then iterate through the keys with an ever increasing chance to choose a key.
              */
-            int keyChosen = roleSorter.Keys.First();
+            int keyChosen = roleSorter.Keys.Last();
 
             int x = 0;
+
             foreach (var role in roleSorter)
-            {
+            {                
                 float chance = (float)++x / roleSorter.Count;
 
                 float rand = RandomMath.AvgRandomBetween(.01f, 1f);
@@ -227,7 +228,7 @@ namespace Ship_Game.AI.Research
             if (techSorter.Count == 0)
                 return false;
 
-            int keyChosen = ChooseRole(techSorter[techSorter.Keys.First()], hullSorter, h => (int)h.shipData.HullRole);
+            int keyChosen = ChooseRole(techSorter[techSorter.Keys.First()], hullSorter, h => (int)(h.shipData.BaseHull.TechScore /100));
             //sort roles
             var roleSorter = new SortedList<int, Array<Ship>>();
             keyChosen = ChooseRole(hullSorter[keyChosen], roleSorter,s => (int)s.DesignRole);
