@@ -345,14 +345,17 @@ namespace Ship_Game.Ships
             StatusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             int numStatus = 0;
 
-            DrawCarrierStatus(mousePos);
-            DrawResupplyReason(Ship);
-            DrawPack(batch, mousePos, ref numStatus);
+            if (HelperFunctions.DataVisibleToPlayer(Ship.loyalty, UniverseData.GameDifficulty.Easy))
+            {
+                DrawCarrierStatus(mousePos);
+                DrawResupplyReason(Ship);
+                DrawPack(batch, mousePos, ref numStatus);
+                DrawFTL(batch, mousePos, ref numStatus);
+                DrawInhibited(batch, mousePos, ref numStatus);
+                DrawEmp(batch, mousePos, ref numStatus);
+                DrawStructuralIntegrity(batch, mousePos, ref numStatus);
+            }
             DrawCargoUsed(batch, mousePos, ref numStatus);
-            DrawFTL(batch, mousePos, ref numStatus);
-            DrawInhibited(batch, mousePos, ref numStatus);
-            DrawEmp(batch, mousePos, ref numStatus);
-            DrawStructuralIntegrity(batch, mousePos, ref numStatus);
         }
 
         void DrawIconWithTooltip(SpriteBatch batch, SubTexture icon, Func<string> tooltip, Vector2 mousePos, Color color, int numStatus)
@@ -360,6 +363,7 @@ namespace Ship_Game.Ships
             var rect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
             batch.Draw(icon, rect, color);
             if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
+
         }
 
         void DrawPack(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
