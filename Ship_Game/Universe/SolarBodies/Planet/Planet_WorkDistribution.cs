@@ -163,19 +163,19 @@ namespace Ship_Game
                         workerPercentage += Owner.ResearchStrategy.IndustryRatio;
                         break;
                     case BuildingCategory.Production:
-                    case BuildingCategory.Finance:
-                    case BuildingCategory.Food:
                         workerPercentage += Owner.ResearchStrategy.IndustryRatio;
+                        break;
+                    case BuildingCategory.Finance:
+                    case BuildingCategory.Food:                        
                         workerPercentage += Owner.ResearchStrategy.ExpansionRatio;
                         break;
                     case BuildingCategory.Defense:
                     case BuildingCategory.Military:
                     case BuildingCategory.Sensor:
-                        workerPercentage += Owner.ResearchStrategy.MilitaryPriority;
+                        workerPercentage += Owner.ResearchStrategy.MilitaryRatio;
                         break;
                     case BuildingCategory.Science:
-                        workerPercentage += Owner.ResearchStrategy.ResearchRatio;
-                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio;
+                        workerPercentage += Owner.ResearchStrategy.ResearchRatio;                        
                         break;
                     case BuildingCategory.Population:
                     case BuildingCategory.Terraforming:
@@ -199,19 +199,22 @@ namespace Ship_Game
                 switch (item.sData.Role)
                 {
                     case ShipData.RoleName.freighter:
-                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio + Owner.ResearchStrategy.IndustryRatio;
-                        break;
-                    case ShipData.RoleName.station:
                         workerPercentage += Owner.ResearchStrategy.IndustryRatio;
                         break;
-                    default:
+                    case ShipData.RoleName.station:                    
+                        workerPercentage += Owner.ResearchStrategy.IndustryRatio;
+                        break;
+                    case ShipData.RoleName.construction:
+                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio;
+                        break;
+                    default:                        
                         workerPercentage += Owner.ResearchStrategy.MilitaryRatio;
                         break;
 
                 }
             }
 
-            if (item.isTroop)   workerPercentage += Owner.ResearchStrategy.MilitaryRatio + Owner.ResearchStrategy.ExpansionRatio;
+            if (item.isTroop)   workerPercentage += Owner.ResearchStrategy.MilitaryRatio;
             if (item.isOrbital) workerPercentage += 0.1f;
 
             if (workerPercentage <= 0)
