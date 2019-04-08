@@ -284,6 +284,7 @@ namespace Ship_Game.Ships
             string longName = string.Concat(Ship.Name, " - ", Ship.DesignRole);
             if (Ship.shipData.ShipCategory != ShipData.Category.Unclassified)
                 longName += string.Concat(" - ", Ship.shipData.GetCategory());
+
             batch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 
             string text;
@@ -296,14 +297,14 @@ namespace Ship_Game.Ships
             batch.Draw(ResourceManager.Texture("Modules/NuclearReactorMedium"), Power, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Shield_1KW"), Shields, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
-            PBar.Max                        = Ship.PowerStoreMax;
-            PBar.Progress                   = Ship.PowerCurrent;
+            PBar.Max      = Ship.PowerStoreMax;
+            PBar.Progress = Ship.PowerCurrent;
+            SBar.Max      = Ship.shield_max;
+            SBar.Progress = Ship.shield_power;
+            OBar.Max      = Ship.OrdinanceMax;
+            OBar.Progress = Ship.Ordinance;
             PBar.Draw(batch);
-            SBar.Max                        = Ship.shield_max;
-            SBar.Progress                   = Ship.shield_power;
             SBar.Draw(batch);
-            OBar.Max                        = Ship.OrdinanceMax;
-            OBar.Progress                   = Ship.Ordinance;
             OBar.Draw(batch);
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
             var defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -329,22 +330,22 @@ namespace Ship_Game.Ships
             Vector2 mousePos = Mouse.GetState().Pos();
 
             //Added by McShooterz: new experience level display
-            var star = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
+            var star     = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
             var levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
             batch.DrawString(Fonts.Arial12Bold, Ship.Level.ToString(), levelPos, Color.White);
             if (star.HitTest(mousePos))
-            {
                 ToolTip.CreateTooltip(161);
-            }
+
             //Added by McShooterz: kills display
-            star = new Rectangle(star.X, star.Y + 19, 22, 22);
-            levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            star       = new Rectangle(star.X, star.Y + 19, 22, 22);
+            levelPos   = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            StatusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             batch.Draw(ResourceManager.Texture("UI/icon_kills_shipUI"), star, Color.White);
             batch.DrawString(Fonts.Arial12Bold, Ship.kills.ToString(), levelPos, Color.White);
-            StatusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             int numStatus = 0;
 
+            // limit data display to non player ships
             if (HelperFunctions.DataVisibleToPlayer(Ship.loyalty, UniverseData.GameDifficulty.Easy))
             {
                 DrawCarrierStatus(mousePos);
@@ -363,7 +364,6 @@ namespace Ship_Game.Ships
             var rect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
             batch.Draw(icon, rect, color);
             if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
-
         }
 
         void DrawPack(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
@@ -375,7 +375,7 @@ namespace Ship_Game.Ships
 
             var packRect = new Rectangle((int)StatusArea.X, (int)StatusArea.Y, 48, 32);
             batch.Draw(iconPack, packRect, Color.White);
-            var textPos = new Vector2(packRect.X + 26, packRect.Y + 15);
+            var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
             float damageModifier = Ship.PackDamageModifier * 100f;
             batch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
             if (packRect.HitTest(mousePos))
@@ -411,7 +411,7 @@ namespace Ship_Game.Ships
             DrawIconWithTooltip(batch, iconDisabled, () => Localizer.Token(1975), mousePos,
                 Color.White, numStatus);
 
-            var textPos = new Vector2((int)StatusArea.X - 20 + numStatus * 53, (int)StatusArea.Y);
+            var textPos    = new Vector2((int)StatusArea.X - 20 + numStatus * 53, (int)StatusArea.Y);
             float empState = Ship.EMPDamage / Ship.EmpTolerance;
             batch.DrawString(Fonts.Arial12, empState.String(1), textPos, Color.White);
             numStatus++;
@@ -426,7 +426,7 @@ namespace Ship_Game.Ships
             DrawIconWithTooltip(batch, iconStructure, () => Localizer.Token(1976), mousePos,
                 Color.White, numStatus);
 
-            var textPos = new Vector2((int)StatusArea.X - 20 + numStatus * 53, (int)StatusArea.Y + 15);
+            var textPos              = new Vector2((int)StatusArea.X - 20 + numStatus * 53, (int)StatusArea.Y + 15);
             float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / ShipResupply.ShipDestroyThreshold) * 100;
             structureIntegrity = Math.Max(1, structureIntegrity);
             batch.DrawString(Fonts.Arial12, structureIntegrity.String(0) + "%", textPos, Color.White);
@@ -488,22 +488,22 @@ namespace Ship_Game.Ships
                 {
                     case ResupplyReason.NotNeeded:
                         if (ship.HealthPercent < ShipResupply.RepairDoneThreshold && (ship.AI.State == AIState.Resupply || ship.AI.State == AIState.ResupplyEscort))
-                        {
                             text = $"Repairing Ship by Resupply ({(int)(ship.HealthPercent * 100)}%)";
-                        }
                         else if (!ship.InCombat && ship.HealthPercent.Less(1))
                         {
                             text = $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
                             color = Color.Yellow;
                         }
-                        else return;
+                        else
+                            return;
+
                         break;
-                    case ResupplyReason.FighterReactorsDamaged: text = "Reactors Damaged"; break;
-                    case ResupplyReason.LowHealth:              text = "Structural Integrity Compromised"; break;
                     case ResupplyReason.LowOrdnanceNonCombat:
-                    case ResupplyReason.LowOrdnanceCombat: text = "Ammo Reserves Critical"; break;
-                    case ResupplyReason.LowTroops:         text = "Need Troops"; break;
-                    case ResupplyReason.NoCommand:         text = "No Command, Cannot Attack"; break;
+                    case ResupplyReason.LowOrdnanceCombat:      text = "Ammo Reserves Critical";           break;
+                    case ResupplyReason.LowTroops:              text = "Need Troops";                      break;
+                    case ResupplyReason.NoCommand:              text = "No Command, Cannot Attack";        break;
+                    case ResupplyReason.FighterReactorsDamaged: text = "Reactors Damaged";                 break;
+                    case ResupplyReason.LowHealth:              text = "Structural Integrity Compromised"; break;
                 }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, color);
