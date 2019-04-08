@@ -171,11 +171,12 @@ namespace Ship_Game.AI.Research
             //choose role
             /*
              * here set the default return to the first array in rolesorter.
-             * then iterater through the keys with an every increasing chance to choose a key.
+             * then iterate through the keys with an ever increasing chance to choose a key.
              */
-            int keyChosen = roleSorter.Keys.First();
+            int keyChosen = roleSorter.Keys.Last();
 
             int x = 0;
+
             foreach (var role in roleSorter)
             {
                 float chance = (float)++x / roleSorter.Count;
@@ -216,9 +217,7 @@ namespace Ship_Game.AI.Research
                     test = new Array<Ship> { shortTermBest };
                     techSorter.Add(key, test);
                 }
-            }
-
-            var hullSorter = new SortedList<int, Array<Ship>>();
+            }            
 
             //This is part that chooses the bestShip hull
             /* takes the first entry from the least techs needed list. then sorts it the hull role needed
@@ -226,8 +225,9 @@ namespace Ship_Game.AI.Research
             //try to fix sentry bug :https://sentry.io/blackboxmod/blackbox/issues/533939032/events/26436104750/
             if (techSorter.Count == 0)
                 return false;
-
-            int keyChosen = ChooseRole(techSorter[techSorter.Keys.First()], hullSorter, h => (int)h.shipData.HullRole);
+            var hullSorter = new SortedList<int, Array<Ship>>();
+            int keyChosen = ChooseRole(techSorter[techSorter.Keys.First()], hullSorter,
+                h => h.shipData.BaseHull.TechsNeeded.Intersect(shipTechs).Count());
             //sort roles
             var roleSorter = new SortedList<int, Array<Ship>>();
             keyChosen = ChooseRole(hullSorter[keyChosen], roleSorter,s => (int)s.DesignRole);
