@@ -273,6 +273,16 @@ namespace Ship_Game.AI.Tasks
             //}
         }
 
+        private FleetShips GetAvailableShips(AO area)
+        {
+            var fleetShips = area.GetFleetShips();
+            var ships = Owner.GetForcePool();
+            foreach (Ship ship in ships)
+                fleetShips.AddShip(ship);
+
+            return fleetShips;
+        }
+
         private Array<Ship> GetShipsFromDefense(float tfstrength, float minimumEscortStrength)
         {
             Array<Ship> elTaskForce = new Array<Ship>();
@@ -739,12 +749,8 @@ namespace Ship_Game.AI.Tasks
 
             EnemyStrength = 0f;
             EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(AO, AORadius, Owner);
-            
-            MinimumTaskForceStrength = EnemyStrength + 0.35f * EnemyStrength;
 
-            if (MinimumTaskForceStrength < 1f)
-                MinimumTaskForceStrength = Owner.currentMilitaryStrength *.05f;
-
+            MinimumTaskForceStrength = EnemyStrength;
 
             var potentialTroops = new Array<Troop>();
             potentialTroops = GetTroopsOnPlanets(potentialTroops, closestAO. GetPlanet().Center);
@@ -762,12 +768,9 @@ namespace Ship_Game.AI.Tasks
                 NeededTroopStrength = 0;
             }
 
-            var potentialAssaultShips = new Array<Ship>();
-            var potentialCombatShips = new Array<Ship>();
-            var potentialBombers = new Array<Ship>();
-            var potentialUtilityShips = new Array<Ship>();
-            GetAvailableShips(closestAO, potentialBombers, potentialCombatShips, 
-                              potentialAssaultShips, potentialUtilityShips);
+            var fleet = GetAvailableShips(closestAO);
+            var potentialAssaultShips = fleet.GetTroops(4);
+            var potentialCombatShips = fleet.GetFleetByStrength(EnemyStrength);
 
             float ourAvailableStrength = 0f;
             CountShipTroopAndStrength(potentialAssaultShips, out float troopStrength);
