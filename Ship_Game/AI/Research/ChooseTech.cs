@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Ship_Game.Ships;
+using System;
 using System.Linq;
-using Ship_Game.Ships;
 
 namespace Ship_Game.AI.Research
 {
@@ -8,7 +8,7 @@ namespace Ship_Game.AI.Research
     {
         readonly Empire OwnerEmpire;
         int ScriptIndex;
-        EmpireAI.ResearchStrategy ScriptType = EmpireAI.ResearchStrategy.Scripted;
+        public EmpireAI.ResearchStrategy ScriptType { get; private set; }
         public readonly ShipTechLineFocusing LineFocus;
         ResearchPriorities ResearchPriorities;
         readonly EconomicResearchStrategy Strategy;
@@ -18,6 +18,7 @@ namespace Ship_Game.AI.Research
             OwnerEmpire = empire;
             Strategy = OwnerEmpire.ResearchStrategy;
             LineFocus = new ShipTechLineFocusing(empire);
+            ScriptType = Strategy?.TechPath?.Count > 0 ? EmpireAI.ResearchStrategy.Scripted : EmpireAI.ResearchStrategy.Random;
         }
 
         private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
@@ -290,7 +291,7 @@ namespace Ship_Game.AI.Research
                         {
                             var techType = ConvertTechStringTechType(script[i]);
 
-                            TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, moneyNeeded);
+                            TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs);
                             if (researchTech == null) continue;
 
                             string testResearchTopic = researchTech.UID;
@@ -321,7 +322,7 @@ namespace Ship_Game.AI.Research
                 default:
                     {
                         var techType = ConvertTechStringTechType(command2);
-                        TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, moneyNeeded);
+                        TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs);
                         if (researchTech != null)
                         {
                             researchTopic = researchTech.UID;
@@ -353,7 +354,7 @@ namespace Ship_Game.AI.Research
             return techType;
         }
 
-        private TechEntry GetScriptedTech(string command1, TechnologyType techType, Array<TechEntry> availableTechs, float moneyNeeded)
+        private TechEntry GetScriptedTech(string command1, TechnologyType techType, Array<TechEntry> availableTechs)
         {
 
             DebugLog($"\nFind : {techType.ToString()}");
@@ -361,7 +362,8 @@ namespace Ship_Game.AI.Research
             TechEntry[] filteredTechs;
             TechEntry researchTech = null;
 
-            filteredTechs = availableTechs.Filter(tech => IncludeFreighters(tech, moneyNeeded) && tech.TechnologyType == techType);
+            filteredTechs = availableTechs.Filter(tech => IncludeFreighters(tech)
+                                                          && tech.TechnologyType == techType);
 
             if (filteredTechs.Length == 0)
             {
@@ -374,7 +376,7 @@ namespace Ship_Game.AI.Research
                 filteredTechs = availableTechs.Filter(tech =>
                 {
                     if (availableTechs.Count == 1) return true;
-                    if (tech.GetLookAheadType(techType) > 0 && IncludeFreighters(tech, moneyNeeded))
+                    if (tech.GetLookAheadType(techType) > 0 && IncludeFreighters(tech))
                         return true;
                     return false;
                 });
@@ -389,12 +391,12 @@ namespace Ship_Game.AI.Research
             return researchTech;
         }
 
-        bool IncludeFreighters(TechEntry tech, float moneyNeeded)
+        bool IncludeFreighters(TechEntry tech)
         {
             if (tech.TechnologyType != TechnologyType.Economic)
                 return true;
 
-            if (tech.Tech.HullsUnlocked.Count == 0 || moneyNeeded < 1f)
+            if (tech.Tech.HullsUnlocked.Count == 0 || ResearchPriorities.Economics > 0.7f)
                 return true;
 
             foreach (var hull in tech.Tech.HullsUnlocked)
