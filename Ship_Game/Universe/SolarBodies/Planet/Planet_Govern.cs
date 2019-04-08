@@ -52,7 +52,7 @@ namespace Ship_Game
                     break;
                 case ColonyType.Research:
                     //This governor will rely on imports, focusing on research as long as no one is starving
-                    AssignOtherWorldsWorkers(0.333f, 0.333f);
+                    AssignOtherWorldsWorkers(0.15f, 0.15f);
                     BuildAndScrapBuildings(budget.Buildings);
                     DetermineFoodState(0.5f, 1); // Import if either drops below 50%, and stop importing once stores reach 100%.
                     DetermineProdState(0.5f, 1); // This planet will only export Food or Prod if there is excess FlatFood or FlatProd
@@ -64,7 +64,7 @@ namespace Ship_Game
                     DetermineProdState(0.25f, 1);    // Start Importing if prod drops below 25%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
                     break;
                 case ColonyType.Military:
-                    AssignOtherWorldsWorkers(0.5f, 0.5f);
+                    AssignOtherWorldsWorkers(0.3f, 0.7f);
                     BuildAndScrapBuildings(budget.Buildings);
                     DetermineFoodState(0.5f, 0.95f); // Import if either drops below 50%, and stop importing once stores reach 95%.
                     DetermineProdState(0.75f, 1); // This planet will only export Food or Prod due to excess FlatFood or FlatProd
