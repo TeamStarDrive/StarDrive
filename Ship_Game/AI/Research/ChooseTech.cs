@@ -396,7 +396,7 @@ namespace Ship_Game.AI.Research
             if (tech.TechnologyType != TechnologyType.Economic)
                 return true;
 
-            if (tech.Tech.HullsUnlocked.Count == 0 || ResearchPriorities.Economics > 0.7f)
+            if (tech.Tech.HullsUnlocked.Count == 0 || ResearchPriorities.Economics > 0.9f)
                 return true;
 
             foreach (var hull in tech.Tech.HullsUnlocked)
