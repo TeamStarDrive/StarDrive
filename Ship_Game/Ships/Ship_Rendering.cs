@@ -275,6 +275,9 @@ namespace Ship_Game.Ships
 
         private void DrawStatusIcons(UniverseScreen us, float screenRadius, Vector2 screenPos)
         {
+            if (!HelperFunctions.DataVisibleToPlayer(loyalty, UniverseData.GameDifficulty.Easy))
+                return;
+
             Vector2 offSet = new Vector2(screenRadius * .75f, screenRadius * .75f);
 
             // display low ammo
@@ -284,7 +287,7 @@ namespace Ship_Game.Ships
                 Color color             = OrdnancePercent <= criticalThreshold ? Color.Red : Color.Yellow;
                 DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_ammo", color);
             }
-            // FB: display ressuply icons
+            // FB: display resupply icons
             switch (AI.State)
             {
                 case Ship_Game.AI.AIState.Resupply:
