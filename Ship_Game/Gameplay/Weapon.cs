@@ -588,10 +588,11 @@ namespace Ship_Game.Gameplay
             if (!IsTargetAliveAndInRange(FireTarget))
             {
                 FireTarget = null;
-                TargetChangeTimer = 0.2f * Math.Max(Module.XSIZE, Module.YSIZE);
-                if    (isTurret) TargetChangeTimer *= 0.5f;
-                else if (Tag_PD) TargetChangeTimer *= 0.5f;
-                else if (TruePD) TargetChangeTimer *= 0.25f;
+                TargetChangeTimer = 0.1f * Math.Max(Module.XSIZE, Module.YSIZE);
+                // cumulative bonuses for turrets, PD and true PD weapons
+                if (isTurret) TargetChangeTimer *= 0.5f;
+                if (Tag_PD)   TargetChangeTimer *= 0.5f;
+                if (TruePD)   TargetChangeTimer *= 0.25f;
                 return true;
             }
             return false; // Target is ok
