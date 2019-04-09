@@ -400,6 +400,7 @@ namespace Ship_Game.Ships
                     () => $"{Localizer.Token(6180)}{Ship.FTLModifier - 1f:P0}\n\nEngine State: FTL",
                     mousePos, Color.LightGreen, numStatus);
             }
+            numStatus++;
         }
 
         void DrawEmp(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
@@ -411,7 +412,7 @@ namespace Ship_Game.Ships
             DrawIconWithTooltip(batch, iconDisabled, () => Localizer.Token(1975), mousePos,
                 Color.White, numStatus);
 
-            var textPos    = new Vector2((int)StatusArea.X - 20 + numStatus * 53, (int)StatusArea.Y);
+            var textPos    = new Vector2((int)StatusArea.X + 25 + numStatus * 53, (int)StatusArea.Y);
             float empState = Ship.EMPDamage / Ship.EmpTolerance;
             batch.DrawString(Fonts.Arial12, empState.String(1), textPos, Color.White);
             numStatus++;
@@ -426,10 +427,11 @@ namespace Ship_Game.Ships
             DrawIconWithTooltip(batch, iconStructure, () => Localizer.Token(1976), mousePos,
                 Color.White, numStatus);
 
-            var textPos              = new Vector2((int)StatusArea.X - 20 + numStatus * 53, (int)StatusArea.Y + 15);
+            var textPos              = new Vector2((int)StatusArea.X + 20 + numStatus * 53, (int)StatusArea.Y + 15);
             float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / ShipResupply.ShipDestroyThreshold) * 100;
             structureIntegrity = Math.Max(1, structureIntegrity);
             batch.DrawString(Fonts.Arial12, structureIntegrity.String(0) + "%", textPos, Color.White);
+            numStatus++;
         }
 
         void DrawInhibited(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
