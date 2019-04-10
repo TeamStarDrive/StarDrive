@@ -1343,30 +1343,23 @@ namespace Ship_Game.Ships
             public void AddRange(Weapon w)
             {
                 Count++;
-                if (w.DamageAmount < 1 || w.TruePD)
-                    return;
                 if (w.isBeam)
                     DamageBase += w.DamageAmount * w.BeamDuration / Math.Max(w.fireDelay - w.BeamDuration, 1);
                 else
-                    DamageBase += w.DamageAmount * w.SalvoCount / w.fireDelay;
+                    DamageBase += w.DamageAmount * w.SalvoCount * w.ProjectileCount / w.fireDelay;
 
                 RangeBase += w.Range;
             }
-            public float GetAverageDam()
-            {
-                return DamageBase / Count;
-            }
-            public float GetAverageRange()
-            {
-                return RangeBase / Count;
-            }
+            public float AverageDamage => DamageBase / Count;
+            public float AverageRange => RangeBase / Count;
         }
+
         private float CalculateMaxWeaponsRange()
         {
+            if (Weapons.Count == 0)
+                return 7500f;
 
-
-            if (Weapons.Count == 0) return 7500f;
-            float maxRange =0;
+            float maxRange = 0;
             float minRange = float.MaxValue;
             float avgRange = 0;
             int noDamage = 0;
@@ -1374,42 +1367,57 @@ namespace Ship_Game.Ships
             {
                 maxRange = Math.Max(w.Range, maxRange);
                 minRange = Math.Min(w.Range, minRange);
-                noDamage += w.DamageAmount <1 || w.TruePD || w.Tag_PD  ? 1 :0 ;
+                if (w.DamageAmount < 1 || w.TruePD)
+                    ++noDamage;
+
                 avgRange += w.Range;
             }
+
             avgRange /= Weapons.Count;
-            if (avgRange > maxRange *.75f) return avgRange;
-            bool ignoreDamage = noDamage / (Weapons.Count + 1f) > .75f;
+
+            // FB - return the range of most weapons, if they are close to the max range of the ship, good for player ships as well as AI ships
+            if (avgRange > maxRange * 0.85f)
+                return avgRange;
+
+            if (loyalty.isPlayer)
+                return maxRange;  // FB - Don't mess with player ships
+
+            bool ignoreDamage = noDamage / (Weapons.Count + 1f) > 0.75f; // see if most weapons are PD or do not do damage
             Ranger shortRange = new Ranger();
-            Ranger longRange = new Ranger();
-            Ranger utility = new Ranger();
+            Ranger longRange  = new Ranger();
+            Ranger utility    = new Ranger();
 
             foreach (var w in Weapons)
             {
-                if (w.DamageAmount <1 || w.TruePD || w.Tag_PD)
+                if (w.DamageAmount < 1)
                 {
                     utility.AddRange(w);
                     if (ignoreDamage)
                         continue;
                 }
+
                 if (w.Range < avgRange)
                     shortRange.AddRange(w);
-                else  longRange.AddRange(w);
+                else
+                    longRange.AddRange(w);
             }
+
             if (ignoreDamage)
+                return utility.AverageRange;
+
+            float avgLongRange = longRange.AverageDamage;
+            float avgShotRange = shortRange.AverageDamage;
+
+            // FB- If the ship is set to artillery - give the best range which its most of its long range weapons can fire
+            // If the ship can do more damage in longer range, let it fire from longer range - good for AI enpires
+
+            if (AI?.CombatState == CombatState.Artillery
+                || AI?.CombatState != CombatState.ShortRange && avgLongRange > avgShotRange)
             {
-                return utility.GetAverageRange();
+                return longRange.AverageRange;
             }
 
-            float longR = longRange.GetAverageDam();
-            float shotR = shortRange.GetAverageDam();
-
-            if (AI?.CombatState == CombatState.Artillery || AI?.CombatState != CombatState.ShortRange && longR > shotR)
-            {
-                return longRange.GetAverageRange();
-            }
-            return shortRange.GetAverageRange();
-
+            return shortRange.AverageRange;
         }
 
         public void UpdateShipStatus(float deltaTime)
