@@ -1351,7 +1351,7 @@ namespace Ship_Game.Ships
                 RangeBase += w.Range;
             }
             public float AverageDamage => DamageBase / Count;
-            public float AverageRange => RangeBase / Count;
+            public float AverageRange  => RangeBase / Count;
         }
 
         private float CalculateMaxWeaponsRange()
@@ -1379,8 +1379,8 @@ namespace Ship_Game.Ships
             if (avgRange > maxRange * 0.85f)
                 return avgRange;
 
-            if (loyalty.isPlayer)
-                return maxRange;  // FB - Don't mess with player ships
+            if (loyalty.isPlayer) // FB - Don't mess with player ships)
+                return AI?.CombatState == CombatState.Artillery ? maxRange : minRange;
 
             bool ignoreDamage = noDamage / (Weapons.Count + 1f) > 0.75f; // see if most weapons are PD or do not do damage
             Ranger shortRange = new Ranger();
@@ -1410,7 +1410,6 @@ namespace Ship_Game.Ships
 
             // FB- If the ship is set to artillery - give the best range which its most of its long range weapons can fire
             // If the ship can do more damage in longer range, let it fire from longer range - good for AI enpires
-
             if (AI?.CombatState == CombatState.Artillery
                 || AI?.CombatState != CombatState.ShortRange && avgLongRangeDamage > avgShotRangeDamage)
             {
