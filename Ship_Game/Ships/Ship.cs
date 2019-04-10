@@ -1336,9 +1336,9 @@ namespace Ship_Game.Ships
 
         struct Ranger
         {
-            public int Count;
-            public float RangeBase;
-            public float DamageBase;
+            private int Count;
+            private float RangeBase;
+            private float DamageBase;
 
             public void AddRange(Weapon w)
             {
@@ -1359,10 +1359,10 @@ namespace Ship_Game.Ships
             if (Weapons.Count == 0)
                 return 7500f;
 
-            float maxRange = 0;
             float minRange = float.MaxValue;
+            float maxRange = 0;
             float avgRange = 0;
-            int noDamage = 0;
+            int noDamage   = 0;
             foreach (Weapon w in Weapons)
             {
                 maxRange = Math.Max(w.Range, maxRange);
@@ -1405,14 +1405,14 @@ namespace Ship_Game.Ships
             if (ignoreDamage)
                 return utility.AverageRange;
 
-            float avgLongRange = longRange.AverageDamage;
-            float avgShotRange = shortRange.AverageDamage;
+            float avgLongRangeDamage = longRange.AverageDamage;
+            float avgShotRangeDamage = shortRange.AverageDamage;
 
             // FB- If the ship is set to artillery - give the best range which its most of its long range weapons can fire
             // If the ship can do more damage in longer range, let it fire from longer range - good for AI enpires
 
             if (AI?.CombatState == CombatState.Artillery
-                || AI?.CombatState != CombatState.ShortRange && avgLongRange > avgShotRange)
+                || AI?.CombatState != CombatState.ShortRange && avgLongRangeDamage > avgShotRangeDamage)
             {
                 return longRange.AverageRange;
             }
