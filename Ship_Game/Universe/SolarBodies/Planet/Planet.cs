@@ -830,9 +830,10 @@ namespace Ship_Game
 
             if (IsStarving)
                 Population += Unfed * 10f; // <-- This reduces population depending on starvation severity.
-
             else if (!ShortOnFood())
                 Population += repRate;
+            else
+                Population += repRate * 0.1f;
 
             Population = Population.Clamped(100f, MaxPopulation);
         }
