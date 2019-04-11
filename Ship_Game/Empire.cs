@@ -1477,18 +1477,18 @@ namespace Ship_Game
 
         }
 
-        public bool WeCanBuildThis(string ship)
+        public bool WeCanBuildThis(string shipName)
         {
-            if (!ResourceManager.GetShipTemplate(ship, out Ship ship1))
+            if (!ResourceManager.GetShipTemplate(shipName, out Ship ship))
             {
-                Log.Warning($"Ship does not exist: {ship}");
+                Log.Warning($"Ship does not exist: {shipName}");
                 return false;
             }
 
-            ShipData shipData = ship1.shipData;
+            ShipData shipData = ship.shipData;
             if (shipData == null)
             {
-                Log.Warning($"{data.PortraitName} : shipData is null : '{ship}'");
+                Log.Warning($"{data.PortraitName} : shipData is null : '{shipName}'");
                 return false;
             }
 
@@ -1506,7 +1506,7 @@ namespace Ship_Game
                     TechEntry onlyShipTech = TechnologyDict[shipTech];
                     if (!onlyShipTech.Unlocked)
                     {
-                        //Log.Info($"Locked Tech : '{shipTech}' in design : '{ship}'");
+                        //Log.Info($"Locked Tech : '{shipTech}' in design : '{shipName}'");
                         return false;
                     }
                 }

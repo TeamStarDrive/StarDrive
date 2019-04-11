@@ -59,7 +59,7 @@ namespace Ship_Game.Ships
         private bool CanRename = true;
 
         private bool ShowModules = true;
-
+        private Vector2 StatusArea;
 
         public ShipInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
@@ -284,6 +284,7 @@ namespace Ship_Game.Ships
             string longName = string.Concat(Ship.Name, " - ", Ship.DesignRole);
             if (Ship.shipData.ShipCategory != ShipData.Category.Unclassified)
                 longName += string.Concat(" - ", Ship.shipData.GetCategory());
+
             batch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 
             string text;
@@ -296,14 +297,14 @@ namespace Ship_Game.Ships
             batch.Draw(ResourceManager.Texture("Modules/NuclearReactorMedium"), Power, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Shield_1KW"), Shields, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
-            PBar.Max                        = Ship.PowerStoreMax;
-            PBar.Progress                   = Ship.PowerCurrent;
+            PBar.Max      = Ship.PowerStoreMax;
+            PBar.Progress = Ship.PowerCurrent;
+            SBar.Max      = Ship.shield_max;
+            SBar.Progress = Ship.shield_power;
+            OBar.Max      = Ship.OrdinanceMax;
+            OBar.Progress = Ship.Ordinance;
             PBar.Draw(batch);
-            SBar.Max                        = Ship.shield_max;
-            SBar.Progress                   = Ship.shield_power;
             SBar.Draw(batch);
-            OBar.Max                        = Ship.OrdinanceMax;
-            OBar.Progress                   = Ship.Ordinance;
             OBar.Draw(batch);
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
             var defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -329,118 +330,152 @@ namespace Ship_Game.Ships
             Vector2 mousePos = Mouse.GetState().Pos();
 
             //Added by McShooterz: new experience level display
-            var star = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
+            var star     = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
             var levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
             batch.DrawString(Fonts.Arial12Bold, Ship.Level.ToString(), levelPos, Color.White);
             if (star.HitTest(mousePos))
-            {
                 ToolTip.CreateTooltip(161);
-            }
+
             //Added by McShooterz: kills display
-            star = new Rectangle(star.X, star.Y + 19, 22, 22);
-            levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            star       = new Rectangle(star.X, star.Y + 19, 22, 22);
+            levelPos   = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            StatusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             batch.Draw(ResourceManager.Texture("UI/icon_kills_shipUI"), star, Color.White);
             batch.DrawString(Fonts.Arial12Bold, Ship.kills.ToString(), levelPos, Color.White);
-            var statusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             int numStatus = 0;
 
-            void DrawIconWithTooltip(SubTexture icon, Color color, Func<string> tooltip)
+            // limit data display to non player ships
+            if (HelperFunctions.DataVisibleToPlayer(Ship.loyalty, UniverseData.GameDifficulty.Easy))
             {
-                var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                batch.Draw(icon, rect, color);
-                if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
-                ++numStatus;
+                DrawCarrierStatus(mousePos);
+                DrawResupplyReason(Ship);
+                DrawPack(batch, mousePos, ref numStatus);
+                DrawFTL(batch, mousePos, ref numStatus);
+                DrawInhibited(batch, mousePos, ref numStatus);
+                DrawEmp(batch, mousePos, ref numStatus);
+                DrawStructuralIntegrity(batch, mousePos, ref numStatus);
             }
-            void DrawIconWithTooltipId(SubTexture icon, int tooltip)
-            {
-                var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                batch.Draw(icon, rect, Color.White);
-                if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip);
-                ++numStatus;
-            }
+            DrawCargoUsed(batch, mousePos, ref numStatus);
+        }
 
-            SubTexture iconBoosted   = ResourceManager.Texture("StatusIcons/icon_boosted");
-            SubTexture iconGravwell  = ResourceManager.Texture("StatusIcons/icon_gravwell");
-            SubTexture iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
-            SubTexture iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
-            SubTexture iconDisabled  = ResourceManager.Texture("StatusIcons/icon_disabled");
-            SubTexture iconPack      = ResourceManager.Texture("StatusIcons/icon_pack");
-            SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
+        void DrawIconWithTooltip(SpriteBatch batch, SubTexture icon, Func<string> tooltip, Vector2 mousePos, Color color, int numStatus)
+        {
+            var rect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 48, 32);
+            batch.Draw(icon, rect, color);
+            if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
+        }
 
+        void DrawPack(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        {
+            SubTexture iconPack = ResourceManager.Texture("StatusIcons/icon_pack");
 
-            if (Ship.loyalty.data.Traits.Pack)
-            {
-                var packRect         = new Rectangle((int)statusArea.X, (int)statusArea.Y, 48, 32);
-                batch.Draw(iconPack, packRect, Color.White);
-                var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
-                float damageModifier = Ship.PackDamageModifier * 100f;
-                batch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
-                if (packRect.HitTest(mousePos))
-                {
-                    ToolTip.CreateTooltip(Localizer.Token(2245));
-                }
-                numStatus++;
-            }
+            if (!Ship.loyalty.data.Traits.Pack)
+                return;
 
-            DrawCarrierStatus(mousePos);
-            DrawResupplyReason(Ship);
-            if (Ship.CargoSpaceUsed > 0f)
-            {
-                foreach (Cargo cargo in Ship.EnumLoadedCargo())
-                {
-                    SubTexture texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
-                    var goodRect      = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 32, 32);
-                    batch.Draw(texture, goodRect, Color.White);
+            var packRect = new Rectangle((int)StatusArea.X, (int)StatusArea.Y, 48, 32);
+            batch.Draw(iconPack, packRect, Color.White);
+            var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
+            float damageModifier = Ship.PackDamageModifier * 100f;
+            batch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
+            if (packRect.HitTest(mousePos))
+                ToolTip.CreateTooltip(Localizer.Token(2245));
 
-                    var textPos = new Vector2(goodRect.X + 32, goodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2);
-                    batch.DrawString(Fonts.Arial12, cargo.Amount.ToString("0"), textPos, Color.White);
+            numStatus++;
+        }
 
-                    if (goodRect.HitTest(mousePos))
-                    {
-                        Good good = ResourceManager.GoodsDict[cargo.CargoId];
-                        ToolTip.CreateTooltip($"{good.Name}\n\n{good.Description}");
-                    }
-                    numStatus++;
-                }
-            }
-
+        void DrawFTL(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        {
+            SubTexture iconBoosted = ResourceManager.Texture("StatusIcons/icon_boosted");
             if (Ship.FTLModifier < 1.0f && !Ship.Inhibited)
             {
-                DrawIconWithTooltip(iconBoosted, Color.PaleVioletRed, 
-                    () => $"{Localizer.Token(6179)}{1f - Ship.FTLModifier:P0}\n\nEngine State: {Ship.WarpState}");
+                DrawIconWithTooltip(batch, iconBoosted,
+                    () => $"{Localizer.Token(6179)}{1f - Ship.FTLModifier:P0}\n\nEngine State: {Ship.WarpState}",
+                    mousePos, Color.PaleVioletRed, numStatus);
             }
 
             if (Ship.FTLModifier >= 1.0f && !Ship.Inhibited && Ship.engineState == Ship.MoveState.Warp)
             {
-                DrawIconWithTooltip(iconBoosted, Color.LightGreen, 
-                    () => $"{Localizer.Token(6180)}{Ship.FTLModifier - 1f:P0}\n\nEngine State: FTL");
+                DrawIconWithTooltip(batch, iconBoosted,
+                    () => $"{Localizer.Token(6180)}{Ship.FTLModifier - 1f:P0}\n\nEngine State: FTL",
+                    mousePos, Color.LightGreen, numStatus);
             }
+            numStatus++;
+        }
 
-            if (Ship.Inhibited)
-            {
-                if (Ship.IsWithinPlanetaryGravityWell)
-                    DrawIconWithTooltipId(iconGravwell, 2287);
-                else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp)
-                    DrawIconWithTooltipId(iconInhibited, 117);
-                else
-                    DrawIconWithTooltipId(iconFlux, 2285);
-            }
+        void DrawEmp(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        {
+            if (!Ship.EMPdisabled)
+                return;
 
-            if (Ship.EMPdisabled)
+            SubTexture iconDisabled = ResourceManager.Texture("StatusIcons/icon_disabled");
+            DrawIconWithTooltip(batch, iconDisabled, () => Localizer.Token(1975), mousePos,
+                Color.White, numStatus);
+
+            var textPos    = new Vector2((int)StatusArea.X + 25 + numStatus * 53, (int)StatusArea.Y);
+            float empState = Ship.EMPDamage / Ship.EmpTolerance;
+            batch.DrawString(Fonts.Arial12, empState.String(1), textPos, Color.White);
+            numStatus++;
+        }
+
+        void DrawStructuralIntegrity(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        {
+            if (Ship.InternalSlotsHealthPercent.AlmostEqual(1))
+                return;
+
+            SubTexture iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
+            DrawIconWithTooltip(batch, iconStructure, () => Localizer.Token(1976), mousePos,
+                Color.White, numStatus);
+
+            var textPos              = new Vector2((int)StatusArea.X + 20 + numStatus * 53, (int)StatusArea.Y + 15);
+            float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / ShipResupply.ShipDestroyThreshold) * 100;
+            structureIntegrity = Math.Max(1, structureIntegrity);
+            batch.DrawString(Fonts.Arial12, structureIntegrity.String(0) + "%", textPos, Color.White);
+            numStatus++;
+        }
+
+        void DrawInhibited(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        {
+            if (!Ship.Inhibited)
+                return;
+
+            SubTexture iconGravwell  = ResourceManager.Texture("StatusIcons/icon_gravwell");
+            SubTexture iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
+            SubTexture iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
+
+            if (Ship.IsWithinPlanetaryGravityWell)
+                DrawIconWithTooltip(batch, iconGravwell, () => Localizer.Token(2287), mousePos,
+                    Color.White, numStatus);
+            else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp)
+                DrawIconWithTooltip(batch, iconInhibited, () => Localizer.Token(117), mousePos,
+                    Color.White, numStatus);
+            else
+                DrawIconWithTooltip(batch, iconFlux, () => Localizer.Token(2285), mousePos,
+                    Color.White, numStatus);
+
+            numStatus++;
+        }
+
+        void DrawCargoUsed(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
+        {
+            if (Ship.CargoSpaceUsed.AlmostZero()) 
+                return;
+
+            foreach (Cargo cargo in Ship.EnumLoadedCargo())
             {
-                DrawIconWithTooltip(iconDisabled, Color.White, () => Localizer.Token(1975));
-                var textPos = new Vector2((int)statusArea.X - 20 + numStatus * 53, (int)statusArea.Y);
-                float empState = Ship.EMPDamage / Ship.EmpTolerance;
-                batch.DrawString(Fonts.Arial12, empState.String(1), textPos, Color.White);
-            }
-            if (Ship.InternalSlotsHealthPercent < 1f)
-            {
-                DrawIconWithTooltip(iconStructure, Color.White, () => Localizer.Token(1976));
-                var textPos = new Vector2((int)statusArea.X -20 + numStatus * 53 , (int)statusArea.Y + 15);
-                float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / ShipResupply.ShipDestroyThreshold) * 100 ;
-                structureIntegrity = Math.Max(1, structureIntegrity);
-                batch.DrawString(Fonts.Arial12, structureIntegrity.String(0)+ "%", textPos, Color.White);
+                SubTexture texture = ResourceManager.Texture("Goods/" + cargo.CargoId);
+                var goodRect = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y, 32, 32);
+                batch.Draw(texture, goodRect, Color.White);
+
+                var textPos = new Vector2(goodRect.X + 32, goodRect.Y + 16 - Fonts.Arial12.LineSpacing / 2);
+                batch.DrawString(Fonts.Arial12, cargo.Amount.ToString("0"), textPos, Color.White);
+
+                if (goodRect.HitTest(mousePos))
+                {
+                    Good good = ResourceManager.GoodsDict[cargo.CargoId];
+                    ToolTip.CreateTooltip($"{good.Name}\n\n{good.Description}");
+                }
+                numStatus++;
             }
         }
 
@@ -455,22 +490,22 @@ namespace Ship_Game.Ships
                 {
                     case ResupplyReason.NotNeeded:
                         if (ship.HealthPercent < ShipResupply.RepairDoneThreshold && (ship.AI.State == AIState.Resupply || ship.AI.State == AIState.ResupplyEscort))
-                        {
                             text = $"Repairing Ship by Resupply ({(int)(ship.HealthPercent * 100)}%)";
-                        }
                         else if (!ship.InCombat && ship.HealthPercent.Less(1))
                         {
                             text = $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
                             color = Color.Yellow;
                         }
-                        else return;
+                        else
+                            return;
+
                         break;
-                    case ResupplyReason.FighterReactorsDamaged: text = "Reactors Damaged"; break;
-                    case ResupplyReason.LowHealth:              text = "Structural Integrity Compromised"; break;
                     case ResupplyReason.LowOrdnanceNonCombat:
-                    case ResupplyReason.LowOrdnanceCombat: text = "Ammo Reserves Critical"; break;
-                    case ResupplyReason.LowTroops:         text = "Need Troops"; break;
-                    case ResupplyReason.NoCommand:         text = "No Command, Cannot Attack"; break;
+                    case ResupplyReason.LowOrdnanceCombat:      text = "Ammo Reserves Critical";           break;
+                    case ResupplyReason.LowTroops:              text = "Need Troops";                      break;
+                    case ResupplyReason.NoCommand:              text = "No Command, Cannot Attack";        break;
+                    case ResupplyReason.FighterReactorsDamaged: text = "Reactors Damaged";                 break;
+                    case ResupplyReason.LowHealth:              text = "Structural Integrity Compromised"; break;
                 }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, color);

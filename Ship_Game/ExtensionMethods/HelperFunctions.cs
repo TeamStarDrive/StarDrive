@@ -315,5 +315,13 @@ namespace Ship_Game
             if (Math.Abs(single) < 1000f) return single.ToString("0.#", invariant) + "k";  // 950.7k
             return single.ToString("#", invariant) + "k"; // 1000k
         }
+
+        public static bool DataVisibleToPlayer(Empire empire, UniverseData.GameDifficulty maxDifficulty)
+        {
+            if (empire.isPlayer || empire.GetRelations(EmpireManager.Player).Treaty_Alliance)
+                return true;
+
+            return CurrentGame.Difficulty <= maxDifficulty;
+        }
     }
 }
