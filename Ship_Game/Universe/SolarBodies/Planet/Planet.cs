@@ -817,23 +817,24 @@ namespace Ship_Game
 
         private void GrowPopulation()
         {
-            if (Owner == null) return;
-
-            float balanceGrowth = (1 - PopulationRatio).Clamped(0.1f, 1f);
-            float repRate       = Owner.data.BaseReproductiveRate * Population * balanceGrowth;
-            if (Owner.data.Traits.PopGrowthMax.NotZero())
-                repRate = Math.Min(repRate, Owner.data.Traits.PopGrowthMax * 1000f);
-
-            repRate  = Math.Max(repRate, Owner.data.Traits.PopGrowthMin * 1000f);
-            repRate += PlusFlatPopulationPerTurn;
-            repRate += repRate * Owner.data.Traits.ReproductionMod;
+            if (Owner == null)
+                return;
 
             if (IsStarving)
-                Population += Unfed * 10f; // <-- This reduces population depending on starvation severity.
-            else if (!ShortOnFood())
-                Population += repRate;
-            else
-                Population += repRate * 0.1f;
+                Population += Unfed * 10f; // Reduces population depending on starvation severity. 
+            else 
+            {
+                // population is increased
+                float balanceGrowth = (1 - PopulationRatio).Clamped(0.1f, 1f);
+                float repRate       = Owner.data.BaseReproductiveRate * Population * balanceGrowth;
+                if (Owner.data.Traits.PopGrowthMax.NotZero())
+                    repRate = Math.Min(repRate, Owner.data.Traits.PopGrowthMax * 1000f);
+
+                repRate     = Math.Max(repRate, Owner.data.Traits.PopGrowthMin * 1000f);
+                repRate    += PlusFlatPopulationPerTurn;
+                repRate    += repRate * Owner.data.Traits.ReproductionMod;
+                Population += ShortOnFood() ? repRate * 0.1f : repRate;
+            }
 
             Population = Population.Clamped(100f, MaxPopulation);
         }
