@@ -1409,7 +1409,7 @@ namespace Ship_Game.Ships
             float avgShotRangeDamage = shortRange.AverageDamage;
 
             // FB- If the ship is set to artillery - give the best range which its most of its long range weapons can fire
-            // If the ship can do more damage in longer range, let it fire from longer range - good for AI enpires
+            // If the ship can do more damage in longer range, let it fire from longer range - good for AI empires
             if (AI?.CombatState == CombatState.Artillery
                 || AI?.CombatState != CombatState.ShortRange && avgLongRangeDamage > avgShotRangeDamage)
             {
