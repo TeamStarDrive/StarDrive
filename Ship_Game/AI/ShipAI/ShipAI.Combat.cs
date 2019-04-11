@@ -64,7 +64,7 @@ namespace Ship_Game.AI
                 TrackProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
             if (Owner.TrackingPower <= 0 || !hasPointDefense) return;
             // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
-            foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.maxWeaponsRange * 2))
+            foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.maxWeaponsRange))
             {
                 var missile = (Projectile) go;
                 if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
