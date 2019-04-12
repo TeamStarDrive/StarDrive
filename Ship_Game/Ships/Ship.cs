@@ -1380,7 +1380,7 @@ namespace Ship_Game.Ships
                 return avgRange;
 
             if (loyalty.isPlayer) // FB - Don't mess with player ships)
-                return AI?.CombatState == CombatState.Artillery ? maxRange : minRange;
+                return AI?.CombatState == CombatState.Artillery ? maxRange * 0.9f : minRange * 0.9f;
 
             bool ignoreDamage = noDamage / (Weapons.Count + 1f) > 0.75f; // see if most weapons are PD or do not do damage
             Ranger shortRange = new Ranger();
