@@ -33,7 +33,7 @@ namespace Ship_Game.AI
             SetBudgetForeArea(0.01f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
             SetBudgetForeArea(0.01f, ref BuildCapacity, Math.Max(risk, buildRatio));           
             SetBudgetForeArea(0.08f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
-            SetBudgetForeArea(0.03f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(0.05f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
 
 #if DEBUG
             var pBudgets = new Array<PlanetBudget>();
