@@ -699,33 +699,31 @@ namespace Ship_Game
             float totalStorage         = 0;
             float shipBuildingModifier = 1;
 
-            if (!loadUniverse)
+
+            var deadShipyards = new Array<Guid>(); // FB @todo - why is that needed, besides calculating ShipBuildingModifier
+            float shipyards   = 1;
+            foreach (KeyValuePair<Guid, Ship> keyValuePair in OrbitalStations)
             {
-                var deadShipyards = new Array<Guid>();
-                float shipyards   = 1;
-                foreach (KeyValuePair<Guid, Ship> keyValuePair in OrbitalStations)
+                if (keyValuePair.Value == null)
+                    deadShipyards.Add(keyValuePair.Key);
+
+                else if (keyValuePair.Value.Active && keyValuePair.Value.shipData.IsShipyard)
                 {
-                    if (keyValuePair.Value == null)
-                        deadShipyards.Add(keyValuePair.Key);
+                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
+                        shipBuildingModifier *= (1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveModInfo.ShipyardBonus;
+                    else
+                        shipBuildingModifier *= (1-(.25f/shipyards));
 
-                    else if (keyValuePair.Value.Active && keyValuePair.Value.shipData.IsShipyard)
-                    {
-                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
-                            shipBuildingModifier *= (1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveModInfo.ShipyardBonus;
-                        else
-                            shipBuildingModifier *= (1-(.25f/shipyards));
-
-                        shipyards += 0.2f;
-                        NumShipyards++;
-                    }
-                    else if (!keyValuePair.Value.Active)
-                        deadShipyards.Add(keyValuePair.Key);
+                    shipyards += 0.2f;
+                    NumShipyards++;
                 }
-                foreach (Guid key in deadShipyards)
-                    OrbitalStations.Remove(key);
-                ShipBuildingModifier = shipBuildingModifier;
+                else if (!keyValuePair.Value.Active)
+                    deadShipyards.Add(keyValuePair.Key);
             }
+            foreach (Guid key in deadShipyards)
+                OrbitalStations.Remove(key);
 
+            ShipBuildingModifier = shipBuildingModifier;
             for (int i = 0; i < BuildingList.Count; ++i)
             {
                 Building b                 = BuildingList[i];
@@ -750,7 +748,7 @@ namespace Ship_Game
 
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
-            HasSpacePort          = spacePort && (colonyType != ColonyType.Research || Owner.isPlayer);
+            HasSpacePort          = spacePort && (colonyType != ColonyType.Research || Owner.isPlayer); // FB todo - why research Governor is omitted here?
 
             // greedy bastards
             Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
