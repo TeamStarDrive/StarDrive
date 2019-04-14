@@ -183,6 +183,7 @@ namespace Ship_Game
         public Planet.ColonyType colonyType;
         public int TileMaxX { get; private set; } = 7; // FB foundations to variable planet tiles
         public int TileMaxY { get; private set; } = 5; // FB foundations to variable planet tiles
+
         public void PlayPlanetSfx(string sfx, Vector3 position)
         {
             if (Emitter == null)
@@ -197,9 +198,7 @@ namespace Ship_Game
         }
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
-
         public IReadOnlyList<Building> GetBuildingsCanBuild () { return BuildingsCanBuild; }
-
 
         protected void SetTileHabitability(float habChance)
         {
