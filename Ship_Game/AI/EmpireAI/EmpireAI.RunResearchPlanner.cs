@@ -6,7 +6,7 @@ using Ship_Game.AI.Research;
 namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
-    {        
+    {
         private int ScriptIndex;
         public ChooseTech TechChooser;
         private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);

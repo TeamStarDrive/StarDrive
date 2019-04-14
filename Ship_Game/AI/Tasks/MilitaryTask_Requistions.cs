@@ -294,14 +294,17 @@ namespace Ship_Game.AI.Tasks
                         .OrderByDescending(system => system.Key.HostileForcesPresent(Owner)
                             ? 1
                             : 2 * system.Key.Position.SqDist(TargetPlanet.Center))
-                        .ThenByDescending(ship => (ship.Value.GetOurStrength() - ship.Value.IdealShipStrength) < 1000)
+                        //.ThenByDescending(ship => (ship.Value.GetOurStrength() - ship.Value.IdealShipStrength) < 1000)
                     )
                     {
-                        foreach (Ship ship in kv.Value.GetShipList)
+                        Ship[] array = kv.Value.GetShipList.ToArray();
+                        for (int i = 0; i < array.Length; i++)
                         {
+                            Ship ship = array[i];
                             if (ship.AI.BadGuysNear || ship.fleet != null || tfstrength >= minimumEscortStrength ||
                                 ship.GetStrength() <= 0f
-                                || ship.shipData.Role == ShipData.RoleName.troop || ship.Carrier.HasAssaultTransporters ||
+                                || ship.shipData.Role == ShipData.RoleName.troop ||
+                                ship.Carrier.HasAssaultTransporters ||
                                 ship.Carrier.HasTroopBays
                                 || ship.Mothership != null
                             )
@@ -735,7 +738,7 @@ namespace Ship_Game.AI.Tasks
             AO closestAO = FindClosestAO();
             if (closestAO == null || closestAO.GetOffensiveForcePool().Count < 1)
             {
-                EndTask();
+                //EndTask();
                 return;
             }
 
@@ -743,7 +746,7 @@ namespace Ship_Game.AI.Tasks
                                 .ToArrayList().FindMin(p => p.Center.SqDist(AO));
             if (rallyPoint == null)
             {
-                EndTask();
+                //EndTask();
                 return;
             }
 

@@ -47,38 +47,52 @@ namespace Ship_Game.AI.Research
                 avgTechCost = (float)Math.Sqrt(avgTechCost);
                 //use stddev of techcost to determine how behind we are in tech
 
-                float techCostRatio = avgTechCost / empire.MaxResearchPotential;
+                float techCostRatio = avgTechCost / empire.Research;
                 ResearchDebt = techCostRatio / 100f; //divide by 100 turns.
 
                 ResearchDebt = ResearchDebt.Clamped(0, 1);
             }
-            if (ResearchDebt < 0.5f)
-                ResearchDebt += 0.5f - shipBuildBonus;
-
 
             Economics = empire.data.TaxRate + workerEfficiency;
             float foodNeeds = 0;
-            if (!empire.IsCybernetic)
+            float industry = 0;
+            int planets = 0;
+
+            foreach (Planet planet in empire.GetPlanets())
             {
-                foreach (Planet hunger in empire.GetPlanets())
-                    foodNeeds += hunger.ShortOnFood() ? 1 : 0;
-                foodNeeds /= empire.GetPlanets().Count + workerEfficiency;
+                if (planet.Level < 2) continue;
+                industry += 1 - planet.Storage.ProdRatio;
+                if (!empire.IsCybernetic)
+                    foodNeeds += planet.Food.Percent;
+                else
+                    industry += planet.Prod.Percent;
+                planets++;
+            }
+
+            if (planets > 0)
+            {
+                if (!empire.IsCybernetic)
+                    foodNeeds /= planets;
+                industry /= planets;
             }
 
             TechCategoryPrioritized = "TECH";
+
+            Wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 10 : 0;
 
             var priority = new Map<string, float>();
             priority.Add("SHIPTECH"    , Randomizer(resStrat.MilitaryRatio, Wars));
             priority.Add("Research"    , Randomizer(resStrat.ResearchRatio, ResearchDebt));
             priority.Add("Colonization", Randomizer(resStrat.ExpansionRatio, foodNeeds));
             priority.Add("Economic"    , Randomizer(resStrat.ExpansionRatio, Economics));
-            priority.Add("Industry"    , Randomizer(resStrat.IndustryRatio, foodNeeds));
+            priority.Add("Industry"    , Randomizer(resStrat.IndustryRatio, industry));
             priority.Add("General"     , Randomizer(resStrat.ResearchRatio, 0));
             priority.Add("GroundCombat", Randomizer(resStrat.MilitaryRatio, Wars * .5f));
 
             int maxNameLength = priority.Keys.Max(name => name.Length);
             maxNameLength += 5;
             foreach (var kv in priority) DebugLog($"{kv.Key.PadRight(maxNameLength, '.')} {kv.Value}");
+
 
             int max = 0;
             foreach (var pWeighted in priority.OrderByDescending(weight => weight.Value))
@@ -91,7 +105,7 @@ namespace Ship_Game.AI.Research
                 TechCategoryPrioritized += ":";
                 if (pWeighted.Key == "SHIPTECH")
                 {
-                    TechCategoryPrioritized += "ShipHull:ShipWeapons:ShipDefense:ShipGeneral";
+                    TechCategoryPrioritized += "ShipWeapons:ShipDefense:ShipGeneral:ShipHull";
                     max += 3;
                 }
                 else
