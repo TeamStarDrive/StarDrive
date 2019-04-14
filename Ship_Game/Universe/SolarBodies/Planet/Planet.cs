@@ -54,6 +54,7 @@ namespace Ship_Game
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
+        public float OrbitalsMaintenance;
 
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -77,7 +78,14 @@ namespace Ship_Game
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
 
-        public float OrbitalsMaintenance;
+        public float QualityForRemnants()
+        {
+            float quality = Fertility + MineralRichness + MaxPopulationBillion;
+            //Boost the quality score for planets that are very rich, or very fertile
+            if (Fertility > 1.6)       ++quality;
+            if (MineralRichness > 1.6) ++quality;
+            return quality;
+        }
 
         void CreateManagers()
         {
