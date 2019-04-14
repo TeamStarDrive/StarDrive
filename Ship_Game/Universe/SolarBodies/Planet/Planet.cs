@@ -78,15 +78,6 @@ namespace Ship_Game
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
 
-        public float QualityForRemnants()
-        {
-            float quality = Fertility + MineralRichness + MaxPopulationBillion;
-            //Boost the quality score for planets that are very rich, or very fertile
-            if (Fertility > 1.6)       ++quality;
-            if (MineralRichness > 1.6) ++quality;
-            return quality;
-        }
-
         void CreateManagers()
         {
             TroopManager    = new TroopManager(this);
