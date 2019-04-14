@@ -209,7 +209,7 @@ namespace Ship_Game
             float quality = QualityForRemnants();
             int d100      = RollDie(100);
 
-            switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB
+            switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
             {
                 case ExtraRemnantPresence.Rare:       RareRemnantPresence(quality, d100);       break;
                 case ExtraRemnantPresence.Normal:     NormalRemnantPresence(quality, d100);     break;
@@ -222,29 +222,29 @@ namespace Ship_Game
         void RareRemnantPresence(float quality, int d100)
         {
             if (quality > 8f && d100 >= 70)
-                AddMajorRemnantPresence(); // RedFox, changed the rare remnant to Major
+                AddMajorRemnantShips(); // RedFox, changed the rare remnant to Major
         }
 
         void NormalRemnantPresence(float quality, int d100)
         {
             if (quality > 14)
             {
-                AddMajorRemnantPresence();
-                AddSupportRemnantPresence();
-                if (d100 >= 50) AddMinorRemnantPresence();
-                if (d100 >= 75) AddTorpedoRemnantPresence();
+                AddMajorRemnantShips();
+                AddSupportRemnantShips();
+                if (d100 >= 50) AddMinorRemnantShips();
+                if (d100 >= 75) AddTorpedoRemnantShips();
             }
             else if (quality > 10f)
             {
-                if (d100 >= 40) AddMajorRemnantPresence();
-                if (d100 >= 85) AddMajorRemnantPresence();
-                if (d100 >= 95) AddMajorRemnantPresence();
+                if (d100 >= 40) AddMajorRemnantShips();
+                if (d100 >= 85) AddMajorRemnantShips();
+                if (d100 >= 95) AddMajorRemnantShips();
             }
             else if (quality > 6f)
             {
-                if (d100 >= 20) AddMiniRemnantPresence();
-                if (d100 >= 50) AddMinorRemnantPresence();
-                if (d100 >= 80) AddMinorRemnantPresence();
+                if (d100 >= 20) AddMiniRemnantShips();
+                if (d100 >= 50) AddMinorRemnantShips();
+                if (d100 >= 80) AddMinorRemnantShips();
             }
         }
 
@@ -253,19 +253,19 @@ namespace Ship_Game
             NormalRemnantPresence(quality, d100);
             if (quality >= 12f)
             {
-                if (d100 >= 15) AddMinorRemnantPresence();
-                if (d100 >= 30) AddMajorRemnantPresence();
-                if (d100 >= 45) AddSupportRemnantPresence();
-                if (d100 >= 85) AddCarrierRemnantPresence();
+                if (d100 >= 15) AddMinorRemnantShips();
+                if (d100 >= 30) AddMajorRemnantShips();
+                if (d100 >= 45) AddSupportRemnantShips();
+                if (d100 >= 85) AddCarrierRemnantShips();
             }
             else if (quality >= 10f)
             {
-                if (d100 >= 35) AddMinorRemnantPresence();
-                if (d100 >= 65) AddMajorRemnantPresence();
-                if (d100 >= 85) AddSupportRemnantPresence();
+                if (d100 >= 35) AddMinorRemnantShips();
+                if (d100 >= 65) AddMajorRemnantShips();
+                if (d100 >= 85) AddSupportRemnantShips();
             }
             else if (quality >= 8f && d100 >= 50)
-                AddMinorRemnantPresence();
+                AddMinorRemnantShips();
         }
 
         void MuchMoreRemnantPresence(float quality, int d100)
@@ -273,32 +273,32 @@ namespace Ship_Game
             MoreRemnantPresence(quality, d100);
             if (quality >= 12f)
             {
-                AddMajorRemnantPresence();
-                if (d100 > 10) AddMinorRemnantPresence();
-                if (d100 > 20) AddSupportRemnantPresence();
-                if (d100 > 50) AddCarrierRemnantPresence();
-                if (d100 > 85) AddTorpedoRemnantPresence();
+                AddMajorRemnantShips();
+                if (d100 > 10) AddMinorRemnantShips();
+                if (d100 > 20) AddSupportRemnantShips();
+                if (d100 > 50) AddCarrierRemnantShips();
+                if (d100 > 85) AddTorpedoRemnantShips();
             }
             else if (quality >= 10f)
             {
-                if (d100 >= 25) AddMinorRemnantPresence();
-                if (d100 >= 30) AddSupportRemnantPresence();
-                if (d100 >= 45) AddMinorRemnantPresence();
-                if (d100 >= 80) AddMiniRemnantPresence();
+                if (d100 >= 25) AddMinorRemnantShips();
+                if (d100 >= 30) AddSupportRemnantShips();
+                if (d100 >= 45) AddMinorRemnantShips();
+                if (d100 >= 80) AddMiniRemnantShips();
             }
             else if (quality >= 8f)
             {
-                if (d100 >= 25) AddMinorRemnantPresence();
-                if (d100 >= 50) AddSupportRemnantPresence();
-                if (d100 >= 75) AddMajorRemnantPresence();
+                if (d100 >= 25) AddMinorRemnantShips();
+                if (d100 >= 50) AddSupportRemnantShips();
+                if (d100 >= 75) AddMajorRemnantShips();
             }
             else if (quality >= 6f)
             {
-                if (d100 >= 50) AddMinorRemnantPresence();
-                if (d100 >= 75) AddMiniRemnantPresence();
+                if (d100 >= 50) AddMinorRemnantShips();
+                if (d100 >= 75) AddMiniRemnantShips();
             }
             else if (quality > 4f && d100 >= 50)
-                AddMiniRemnantPresence();
+                AddMiniRemnantShips();
         }
 
         void EverywhereRemnantPresence(float quality, int d100)
@@ -306,51 +306,51 @@ namespace Ship_Game
             MuchMoreRemnantPresence(quality, d100);
             if (quality >= 12f)
             {
-                AddMajorRemnantPresence();
-                AddMinorRemnantPresence();
-                AddSupportRemnantPresence();
-                if (d100 >= 50) AddCarrierRemnantPresence();
-                if (d100 >= 70) AddTorpedoRemnantPresence();
-                if (d100 >= 90) AddCarrierRemnantPresence();
+                AddMajorRemnantShips();
+                AddMinorRemnantShips();
+                AddSupportRemnantShips();
+                if (d100 >= 50) AddCarrierRemnantShips();
+                if (d100 >= 70) AddTorpedoRemnantShips();
+                if (d100 >= 90) AddCarrierRemnantShips();
             }
             else if (quality >= 10f)
             {
-                AddMajorRemnantPresence();
-                if (d100 >= 40) AddSupportRemnantPresence();
-                if (d100 >= 60) AddCarrierRemnantPresence();
-                if (d100 >= 80) AddTorpedoRemnantPresence();
-                if (d100 >= 95) AddCarrierRemnantPresence();
+                AddMajorRemnantShips();
+                if (d100 >= 40) AddSupportRemnantShips();
+                if (d100 >= 60) AddCarrierRemnantShips();
+                if (d100 >= 80) AddTorpedoRemnantShips();
+                if (d100 >= 95) AddCarrierRemnantShips();
             }
             else if (quality >= 8f)
             {
-                AddMinorRemnantPresence();
-                if (d100 >= 50) AddSupportRemnantPresence();
-                if (d100 >= 90) AddCarrierRemnantPresence();
+                AddMinorRemnantShips();
+                if (d100 >= 50) AddSupportRemnantShips();
+                if (d100 >= 90) AddCarrierRemnantShips();
             }
             else if (quality >= 6f)
             {
-                if (d100 >= 30) AddMinorRemnantPresence();
-                if (d100 >= 50) AddMiniRemnantPresence();
-                if (d100 >= 70) AddSupportRemnantPresence();
+                if (d100 >= 30) AddMinorRemnantShips();
+                if (d100 >= 50) AddMiniRemnantShips();
+                if (d100 >= 70) AddSupportRemnantShips();
             }
             else if (quality >= 4f)
             {
-                if (d100 >= 50) AddMiniRemnantPresence();
-                if (d100 >= 90) AddMiniRemnantPresence();
+                if (d100 >= 50) AddMiniRemnantShips();
+                if (d100 >= 90) AddMiniRemnantShips();
             }
             if (quality > 2f && d100 > 50)
-                AddMiniRemnantPresence();
+                AddMiniRemnantShips();
         }
 
-        void AddMajorRemnantPresence()
+        void AddMajorRemnantShips()
         {
-            AddMinorRemnantPresence();
+            AddMinorRemnantShips();
             AddRemnantGuardians(2, "Xeno Fighter");
             AddRemnantGuardians(1, "Heavy Drone");
             AddRemnantGuardians(1, "Ancient Assimilator");
         }
 
-        void AddMinorRemnantPresence()
+        void AddMinorRemnantShips()
         {
             int numXenoFighters = RollDie(5) + 2;
             int numDrones       = RollDie(3);
@@ -359,7 +359,7 @@ namespace Ship_Game
             AddRemnantGuardians(numDrones, "Heavy Drone");
         }
 
-        void AddMiniRemnantPresence()  //Added by Gretman
+        void AddMiniRemnantShips()  //Added by Gretman
         {
             int numXenoFighters = RollDie(3);
 
@@ -367,20 +367,20 @@ namespace Ship_Game
             AddRemnantGuardians(1, "Heavy Drone");
         }
 
-        void AddSupportRemnantPresence()  //Added by Gretman
+        void AddSupportRemnantShips()  //Added by Gretman
         {
             int numSupportDrones = RollDie(4);
             AddRemnantGuardians(numSupportDrones, "Support Drone");
         }
 
-        void AddCarrierRemnantPresence()  //Added by Gretman
+        void AddCarrierRemnantShips()  //Added by Gretman
         {
             AddRemnantGuardians(1, "Ancient Carrier");
             if (RollDice(20)) // 10% chance for another carrier
                 AddRemnantGuardians(1, "Ancient Carrier");
         }
 
-        void AddTorpedoRemnantPresence()  //Added by Gretman
+        void AddTorpedoRemnantShips()  //Added by Gretman
         {
             AddRemnantGuardians(1, "Ancient Torpedo Cruiser");
             if (RollDice(10)) // 10% chance for another torpedo cruiser
