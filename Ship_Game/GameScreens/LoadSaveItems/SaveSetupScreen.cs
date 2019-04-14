@@ -9,13 +9,13 @@ namespace Ship_Game
         private RaceDesignScreen screen;
         private SetupSave SS;
 
-        public SaveSetupScreen(RaceDesignScreen screen, UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum StarEnum, RaceDesignScreen.GalSize Galaxysize, int Pacing, RaceDesignScreen.ExtraRemnantPresence ExtraRemnant, int numOpponents, RaceDesignScreen.GameMode mode) 
+        public SaveSetupScreen(RaceDesignScreen screen, UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum StarEnum, RaceDesignScreen.GalSize Galaxysize, int Pacing, ExtraRemnantPresence extraRemnant, int numOpponents, RaceDesignScreen.GameMode mode) 
             : base(screen, SLMode.Save, "New Saved Setup", "Save Setup", "Saved Setups", "Saved Setup already exists.  Overwrite?")
         {
             this.screen = screen;
             Path = Dir.StarDriveAppData + "/Saved Setups/";
             //this.selectedFile = new FileData(null, new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode), this.TitleText);            // save some extra info for filtering purposes
-            SS = new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode);
+            SS = new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, extraRemnant, numOpponents, mode);
         }
 
         public override void DoSave()

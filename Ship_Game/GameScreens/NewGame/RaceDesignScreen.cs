@@ -890,7 +890,7 @@ namespace Ship_Game
                     {
                         GameAudio.BlipClick();
                         --ExtraRemnant;
-                        if (ExtraRemnant < 0)
+                        if (ExtraRemnant < ExtraRemnantPresence.Rare)
                             ExtraRemnant = ExtraRemnantPresence.Everywhere;
                     }
                 }
@@ -1084,7 +1084,7 @@ namespace Ship_Game
             if (Mode == GameMode.Elimination) GlobalStats.EliminationMode = true;
             if (Mode == GameMode.Corners) GlobalStats.CornersGame = true;
 
-            GlobalStats.ExtraRemnantGS = (int)ExtraRemnant;
+            GlobalStats.ExtraRemnantGS = ExtraRemnant;
             Singular                   = SingEntry.Text;
             Plural                     = PlurEntry.Text;
             HomeSystemName             = HomeSystemEntry.Text;
@@ -1366,10 +1366,10 @@ namespace Ship_Game
         {
             VeryRare, Rare, Uncommon, Normal, Abundant, Crowded, Packed, SuperPacked
         }
+    }
 
-        public enum ExtraRemnantPresence
-        {
-            Rare, Normal, More, MuchMore, Everywhere
-        }
+    public enum ExtraRemnantPresence
+    {
+        Rare, Normal, More, MuchMore, Everywhere
     }
 }

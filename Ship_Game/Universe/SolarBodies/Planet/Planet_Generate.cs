@@ -211,11 +211,11 @@ namespace Ship_Game
 
             switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB
             {
-                case 0: RareRemnantPresence(quality, d100);       break;
-                case 1: NormalRemnantPresence(quality, d100);     break;
-                case 2: MoreRemnantPresence(quality, d100);       break;
-                case 3: MuchMoreRemnantPresence(quality, d100);   break;
-                case 4: EverywhereRemnantPresence(quality, d100); break;
+                case ExtraRemnantPresence.Rare:       RareRemnantPresence(quality, d100);       break;
+                case ExtraRemnantPresence.Normal:     NormalRemnantPresence(quality, d100);     break;
+                case ExtraRemnantPresence.More:       MoreRemnantPresence(quality, d100);       break;
+                case ExtraRemnantPresence.MuchMore:   MuchMoreRemnantPresence(quality, d100);   break;
+                case ExtraRemnantPresence.Everywhere: EverywhereRemnantPresence(quality, d100); break;
             }
         }
 

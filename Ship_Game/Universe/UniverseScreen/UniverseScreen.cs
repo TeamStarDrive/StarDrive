@@ -520,7 +520,7 @@ namespace Ship_Game
                     CreateDefensiveRemnantFleet(fleetUid, p.Center, 120000f);
 
             foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
-                CreateDefensiveRemnantFleet(fleetAndPos.fleetname, solarSystem.Position + fleetAndPos.Pos, 75000f);
+                CreateDefensiveRemnantFleet(fleetAndPos.FleetName, solarSystem.Position + fleetAndPos.Pos, 75000f);
 
             foreach (string key in solarSystem.ShipsToSpawn)
                 Ship.CreateShipAt(key, EmpireManager.Remnants, solarSystem.PlanetList[0], true);
