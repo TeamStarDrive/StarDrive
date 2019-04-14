@@ -526,7 +526,8 @@ namespace Ship_Game
                     }
                     else if (IntelligenceLevel(SelectedEmpire) >0)
                     {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: ", ResourceManager.TechTree[SelectedEmpire.ResearchTopic].TechnologyType.ToString()), textCursor, Color.White);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: "
+                            , ResourceManager.TechTree[SelectedEmpire.ResearchTopic].TechnologyType.ToString()), textCursor, Color.White);
                         textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                     }
                     else

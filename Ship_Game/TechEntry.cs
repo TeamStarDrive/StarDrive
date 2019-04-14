@@ -29,16 +29,17 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public Array<string> ConqueredSource = new Array<string>();
         public TechnologyType TechnologyType => Tech.TechnologyType;
+        [XmlIgnore][JsonIgnore] public Array<TechnologyType>  TechnologyTypes => Tech.TechnologyTypes;
         public int MaxLevel => Tech.MaxLevel;
         [XmlIgnore][JsonIgnore]
-        readonly Dictionary<TechnologyType, float> TechLookAhead = new Dictionary<TechnologyType, float>();
+        readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new Dictionary<TechnologyType, float>();
 
         public static readonly TechEntry None = new TechEntry("");
         
         public TechEntry()
         {
             foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
-                TechLookAhead.Add(techType, 0);
+                TechTypeCostLookAhead.Add(techType, 0);
         }
 
         public TechEntry(string uid) : this()
@@ -81,21 +82,26 @@ namespace Ship_Game
             return false;
         }
 
-        public float GetLookAheadType(TechnologyType techType) => TechLookAhead[techType];
+        public float CostOfNextTechWithType(TechnologyType techType) => TechTypeCostLookAhead[techType];
 
         public void SetLookAhead(Empire empire)
         {
             foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
             {
-                TechLookAhead[techType] = LookAheadCost(techType, empire);
+                TechTypeCostLookAhead[techType] = LookAheadCost(techType, empire);
             }
         }
 
         float LookAheadCost(TechnologyType techType, Empire empire)
         {
             if (!Discovered) return 0;
-            if (!Unlocked && Tech.TechnologyType == techType)
+
+            //if current tech == wanted type return this techs cost
+            if (!Unlocked && Tech.TechnologyTypes.Contains(techType))
                 return TechCost;
+            
+            //look through all leadtos and find a future tech with this type.
+            //return the cost to get to this tech
             float cost = 0;
             if (Tech.LeadsTo.Count == 0)
                 return 0;
@@ -150,6 +156,19 @@ namespace Ship_Game
                 if (!CheckSource(unlockedMod.Type, empire))
                     continue;
                 modulesUnlocked.Add(unlockedMod);
+            }
+            return modulesUnlocked;
+        }
+
+        public Array<Technology.UnlockedHull> GetUnlockableHulls(Empire empire)
+        {
+            var modulesUnlocked = new Array<Technology.UnlockedHull>();
+            //Added by McShooterz: Race Specific modules
+            foreach (Technology.UnlockedHull unlockedHull in Tech.HullsUnlocked)
+            {
+                if (!CheckSource(unlockedHull.ShipType, empire))
+                    continue;
+                modulesUnlocked.Add(unlockedHull);
             }
             return modulesUnlocked;
         }
