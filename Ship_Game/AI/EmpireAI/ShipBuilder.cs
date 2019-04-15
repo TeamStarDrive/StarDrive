@@ -227,7 +227,7 @@ namespace Ship_Game.AI
             else
                 modifiedStrength = offense + defense;
 
-            modifiedStrength += modifiedStrength * rotationSpeed / 100f;
+            //modifiedStrength += modifiedStrength * rotationSpeed / 100f; // FB - disabled to see if it has effects on remnant removal by AI
             return modifiedStrength;
         }
 

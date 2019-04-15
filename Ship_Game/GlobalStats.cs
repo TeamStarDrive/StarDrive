@@ -103,7 +103,7 @@ namespace Ship_Game
 
         public static int AutoSaveFreq = 300;   //Added by Gretman
         public static bool CornersGame = false;     //Also added by Gretman
-        public static int ExtraRemnantGS;
+        public static ExtraRemnantPresence ExtraRemnantGS;
 
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;

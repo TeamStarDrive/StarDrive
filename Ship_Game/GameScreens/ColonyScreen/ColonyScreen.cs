@@ -1213,14 +1213,11 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != EmpireManager.Player)
+                if (!pgs.TroopsAreOnTile || pgs.SingleTroop.Loyalty != EmpireManager.Player)
                     continue;
 
                 play = true;
-                Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.SingleTroop);
-                P.TroopsHere.Remove(pgs.SingleTroop);
-                pgs.SingleTroop.SetPlanet(null);
-                pgs.TroopsHere.Clear();
+                pgs.SingleTroop.Launch(pgs);
                 ClickedTroop = true;
                 DetailInfo = null;
             }

@@ -227,17 +227,33 @@ namespace Ship_Game
             if (HostPlanet == null)
                 return null;
 
-            foreach (PlanetGridSquare pgs in HostPlanet.TilesList)
+            foreach (PlanetGridSquare tile in HostPlanet.TilesList)
             {
-                if (!pgs.TroopsHere.Contains(this))
+                if (!tile.TroopsHere.Contains(this))
                     continue;
 
-                pgs.TroopsHere.Clear();
-                HostPlanet.TroopsHere.Remove(this);
+                return LaunchToSpace(tile);
             }
-            Ship retShip = Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, HostPlanet.Center, this);
-            HostPlanet = null;
-            return retShip;
+            // Tile not found
+            return null;
+        }
+
+        public Ship Launch(PlanetGridSquare tile)
+        {
+            if (HostPlanet == null)
+                return null;
+
+            return LaunchToSpace(tile);
+        }
+
+        private Ship LaunchToSpace(PlanetGridSquare tile)
+        {
+            tile.TroopsHere.Clear();
+            HostPlanet.TroopsHere.Remove(this);
+            Vector2 createAt = HostPlanet.Center + RandomMath.Vector2D(HostPlanet.ObjectRadius * 2);
+            Ship troopShip   = Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, createAt, this);
+            HostPlanet       = null;
+            return troopShip;
         }
 
         public void SetFromRect(Rectangle from)

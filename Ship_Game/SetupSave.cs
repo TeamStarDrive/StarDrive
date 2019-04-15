@@ -15,7 +15,7 @@ namespace Ship_Game
         public RaceDesignScreen.StarNum StarEnum;
         public RaceDesignScreen.GalSize Galaxysize;
         public int Pacing;
-        public RaceDesignScreen.ExtraRemnantPresence ExtraRemnant;
+        public ExtraRemnantPresence ExtraRemnant;
         public float FTLModifier;
         public float EnemyFTLModifier;
         public float OptionIncreaseShipMaintenance;
@@ -36,7 +36,7 @@ namespace Ship_Game
         public SetupSave(UniverseData.GameDifficulty gameDifficulty, 
             RaceDesignScreen.StarNum starNum, 
             RaceDesignScreen.GalSize galaxysize, int pacing, 
-            RaceDesignScreen.ExtraRemnantPresence extraRemnant, 
+            ExtraRemnantPresence extraRemnant, 
             int numOpponents, RaceDesignScreen.GameMode mode)
         {
             if (GlobalStats.HasMod)
