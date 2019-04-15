@@ -352,7 +352,7 @@ namespace Ship_Game
 
         void AddMinorRemnantShips()
         {
-            int numXenoFighters = RollDie(5) + 2;
+            int numXenoFighters = RollDie(5) + 1;
             int numDrones       = RollDie(3);
 
             AddRemnantGuardians(numXenoFighters, "Xeno Fighter");
