@@ -54,6 +54,7 @@ namespace Ship_Game
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
+        public float OrbitalsMaintenance;
 
         static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -76,8 +77,6 @@ namespace Ship_Game
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
-
-        public float OrbitalsMaintenance;
 
         void CreateManagers()
         {
@@ -494,7 +493,6 @@ namespace Ship_Game
             UpdateFertility();
             InitResources(); // must be done before Governing            
             UpdateOrbitalsMaint();
-            DoGoverning();
             NotifyEmptyQueue();
             RechargePlanetaryShields();
             ApplyResources();
@@ -699,7 +697,6 @@ namespace Ship_Game
             float totalStorage         = 0;
             float shipBuildingModifier = 1;
 
-
             var deadShipyards = new Array<Guid>(); // FB @todo - why is that needed, besides calculating ShipBuildingModifier
             float shipyards   = 1;
             foreach (KeyValuePair<Guid, Ship> keyValuePair in OrbitalStations)
@@ -712,7 +709,7 @@ namespace Ship_Game
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
                         shipBuildingModifier *= (1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveModInfo.ShipyardBonus;
                     else
-                        shipBuildingModifier *= (1-(.25f/shipyards));
+                        shipBuildingModifier *= (1 - (.25f / shipyards));
 
                     shipyards += 0.2f;
                     NumShipyards++;
