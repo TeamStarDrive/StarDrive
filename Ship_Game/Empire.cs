@@ -1240,8 +1240,8 @@ namespace Ship_Game
                     empireShipTotal++;
                 }
                 UpdateTimer = GlobalStats.TurnTimer;
+                UpdateAI(); // Must be done before DoMoney and UpdateEmpirePlanets to get budgets for colonies
                 UpdateEmpirePlanets();
-                UpdateAI(); // Must be done before DoMoney to get budgets for colonies
                 DoMoney();
                 TakeTurn();
             }
