@@ -232,8 +232,6 @@ namespace Ship_Game
                 if (!tile.TroopsHere.Contains(this))
                     continue;
 
-                tile.TroopsHere.Clear();
-                HostPlanet.TroopsHere.Remove(this);
                 return LaunchToSpace(tile);
             }
             // Tile not found
