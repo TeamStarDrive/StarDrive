@@ -1240,8 +1240,9 @@ namespace Ship_Game
                     empireShipTotal++;
                 }
                 UpdateTimer = GlobalStats.TurnTimer;
-                UpdateAI(); // Must be done before DoMoney and UpdateEmpirePlanets to get budgets for colonies
                 UpdateEmpirePlanets();
+                UpdateAI(); // Must be done before DoMoney
+                GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
                 TakeTurn();
             }
@@ -1371,6 +1372,19 @@ namespace Ship_Game
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
                     planet.UpdateOwnedPlanet();
+        }
+
+        public void GovernPlanets()
+        {
+            if (!isFaction && !data.Defeated)
+            {
+                UpdateMaxColonyValue();
+                UpdateBestOrbitals();
+            }
+
+            using (OwnedPlanets.AcquireReadLock())
+                foreach (Planet planet in OwnedPlanets)
+                    planet.DoGoverning();
         }
 
         private void UpdateShipMaintenance()
@@ -2015,11 +2029,6 @@ namespace Ship_Game
 
             UpdateRelationships();
 
-            if (!isFaction && !data.Defeated)
-            {
-                UpdateMaxColonyValue();
-                UpdateBestOrbitals();
-            }
             if (Money > data.CounterIntelligenceBudget)
             {
                 Money -= data.CounterIntelligenceBudget;
