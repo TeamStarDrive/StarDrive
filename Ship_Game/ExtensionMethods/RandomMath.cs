@@ -55,6 +55,12 @@ namespace Ship_Game
         {
             return RandomBetween(0f, 100f) < percent;
         }
+
+        // returns a specific die size roll, like 1d20, 1d6, etc.
+        public static int RollDie(int dieSize)
+        {
+            return IntBetween(1, dieSize);
+        }
         
         public static T RandItem<T>(IReadOnlyList<T> items)
         {

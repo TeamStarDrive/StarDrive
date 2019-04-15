@@ -379,6 +379,7 @@ namespace Ship_Game
                     {
                         foreach (string key in p.Guardians)
                             Ship.CreateShipAt(key, p.Owner, p, true);
+                        
                         continue;
                     }
                     // Added by McShooterz: alternate hostile fleets populate universe
@@ -399,7 +400,7 @@ namespace Ship_Game
                         if (EmpireManager.Remnants != null)
                         {
                             foreach (string key in p.Guardians)
-                                Ship.CreateShipAt(key, EmpireManager.Remnants, p, true);
+                                Ship.CreateShipAt(key, EmpireManager.Remnants, p, RandomMath.Vector2D(p.ObjectRadius * 2),true);
                         }
                         if (p.CorsairPresence && EmpireManager.Corsairs != null)
                         {
@@ -519,7 +520,7 @@ namespace Ship_Game
                     CreateDefensiveRemnantFleet(fleetUid, p.Center, 120000f);
 
             foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
-                CreateDefensiveRemnantFleet(fleetAndPos.fleetname, solarSystem.Position + fleetAndPos.Pos, 75000f);
+                CreateDefensiveRemnantFleet(fleetAndPos.FleetName, solarSystem.Position + fleetAndPos.Pos, 75000f);
 
             foreach (string key in solarSystem.ShipsToSpawn)
                 Ship.CreateShipAt(key, EmpireManager.Remnants, solarSystem.PlanetList[0], true);
