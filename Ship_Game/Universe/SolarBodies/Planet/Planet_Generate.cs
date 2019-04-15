@@ -376,7 +376,7 @@ namespace Ship_Game
         void AddCarrierRemnantShips()  //Added by Gretman
         {
             AddRemnantGuardians(1, "Ancient Carrier");
-            if (RollDice(20)) // 10% chance for another carrier
+            if (RollDice(20)) // 20% chance for another carrier
                 AddRemnantGuardians(1, "Ancient Carrier");
         }
 
