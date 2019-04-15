@@ -227,24 +227,26 @@ namespace Ship_Game
 
         void NormalRemnantPresence(float quality, int d100)
         {
-            if (quality > 14)
+            if (quality > 12)
             {
-                AddMajorRemnantShips();
-                AddSupportRemnantShips();
-                if (d100 >= 50) AddMinorRemnantShips();
-                if (d100 >= 75) AddTorpedoRemnantShips();
-            }
-            else if (quality > 10f)
-            {
+                if (d100 >= 10) AddMinorRemnantShips();
                 if (d100 >= 40) AddMajorRemnantShips();
-                if (d100 >= 85) AddMajorRemnantShips();
-                if (d100 >= 95) AddMajorRemnantShips();
+                if (d100 >= 45) AddSupportRemnantShips();
+                if (d100 >= 95) AddTorpedoRemnantShips();
+            }
+            else if (quality > 9f)
+            {
+                if (d100 >= 20) AddMinorRemnantShips();
+                if (d100 >= 40) AddMiniRemnantShips();
+                if (d100 >= 80) AddMajorRemnantShips();
+                if (d100 >= 85) AddSupportRemnantShips();
             }
             else if (quality > 6f)
             {
                 if (d100 >= 20) AddMiniRemnantShips();
-                if (d100 >= 50) AddMinorRemnantShips();
+                if (d100 >= 60) AddMinorRemnantShips();
                 if (d100 >= 80) AddMinorRemnantShips();
+                if (d100 >= 90) AddSupportRemnantShips();
             }
         }
 
