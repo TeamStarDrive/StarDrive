@@ -392,9 +392,6 @@ namespace Ship_Game.AI.Research
                 //this get lookahead is tricky.
                 //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
                 //otherwise it would be a simple tech matches techType formula.
-                //its also checking economy tech types for their hulls.
-                //It doesnt want to build freighters to make more money.
-                //but it does want to build stations that make more money.
                 techsTypeFiltered = availableTechs.Filter(tech =>
                 {
                     //if (availableTechs.Count == 1) return true;
