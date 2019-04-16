@@ -103,6 +103,7 @@ namespace Ship_Game
             p.GovOrbitals = psdata.GovOrbitals;
             p.GovMilitia  = psdata.GovMilitia;
 
+            p.NumShipyards     = psdata.NumShipyards;
             p.FS               = psdata.FoodState;
             p.PS               = psdata.ProdState;
             p.Food.PercentLock = psdata.FoodLock;
