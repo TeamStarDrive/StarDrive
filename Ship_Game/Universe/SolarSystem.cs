@@ -642,6 +642,7 @@ namespace Ship_Game
                     ColonyType           = planet.colonyType,
                     GovOrbitals          = planet.GovOrbitals,
                     GovMilitia           = planet.GovMilitia,
+                    NumShipyards         = planet.NumShipyards,
                     SpecialDescription   = planet.SpecialDescription,
                     IncomingFreighters = planet.IncomingFreighterIds,
                     OutgoingFreighters = planet.OutgoingFreighterIds,
