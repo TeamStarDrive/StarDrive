@@ -38,11 +38,11 @@ namespace Ship_Game
         public bool AllowInfantry;
 
         public int CrippledTurns;
-        public int TotalDefensiveStrength { get; private set; }
+        public int TotalDefensiveStrength { get; private set; } 
 
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
-        public int NumShipyards { get; private set; }
+        public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         float Unfed;
         public bool IsStarving => Unfed < 0f;
@@ -679,7 +679,9 @@ namespace Ship_Game
             Fertility  = Math.Max(0, Fertility);
         }
 
-        public void UpdateIncomes(bool loadUniverse) // FB: note that this can be called multiple times in a turn
+        // FB: note that this can be called multiple times in a turn - especially when selecting the planet or in colony screen
+        // FB: @todo - this needs refactoring - its too long
+        public void UpdateIncomes(bool loadUniverse) 
         {
             if (Owner == null)
                 return;
@@ -690,37 +692,31 @@ namespace Ship_Game
             TerraformToAdd       = 0;
             ShieldStrengthMax    = 0;
             ShipBuildingModifier = 0;
-            NumShipyards         = 0;
             SensorRange          = 0;
             TotalDefensiveStrength     = 0;
             PlusFlatPopulationPerTurn  = 0;
             float totalStorage         = 0;
-            float shipBuildingModifier = 1;
 
-            var deadShipyards = new Array<Guid>(); // FB @todo - why is that needed, besides calculating ShipBuildingModifier
-            float shipyards   = 1;
-            foreach (KeyValuePair<Guid, Ship> keyValuePair in OrbitalStations)
+            if (!loadUniverse) // FB - this is needed since OrbitalStations from save has only GUID, so we must not use this when loading a game
             {
-                if (keyValuePair.Value == null)
-                    deadShipyards.Add(keyValuePair.Key);
+                var deadShipyards = new Array<Guid>(); 
+                NumShipyards      = 0; // reset NumShipyards since we are not loading it from a save
 
-                else if (keyValuePair.Value.Active && keyValuePair.Value.shipData.IsShipyard)
+                foreach (KeyValuePair<Guid, Ship> orbitalStation in OrbitalStations)
                 {
-                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
-                        shipBuildingModifier *= (1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveModInfo.ShipyardBonus;
-                    else
-                        shipBuildingModifier *= (1 - (.25f / shipyards));
-
-                    shipyards += 0.2f;
-                    NumShipyards++;
+                    if (orbitalStation.Value == null)
+                        deadShipyards.Add(orbitalStation.Key);
+                    else if (orbitalStation.Value.Active && orbitalStation.Value.shipData.IsShipyard)
+                        NumShipyards++; // Found a shipyard, increase the number
+                    else if (!orbitalStation.Value.Active)
+                        deadShipyards.Add(orbitalStation.Key);
                 }
-                else if (!keyValuePair.Value.Active)
-                    deadShipyards.Add(keyValuePair.Key);
-            }
-            foreach (Guid key in deadShipyards)
-                OrbitalStations.Remove(key);
 
-            ShipBuildingModifier = shipBuildingModifier;
+                foreach (Guid key in deadShipyards)
+                    OrbitalStations.Remove(key);
+            }
+
+            ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
             for (int i = 0; i < BuildingList.Count; ++i)
             {
                 Building b                 = BuildingList[i];
@@ -758,6 +754,24 @@ namespace Ship_Game
                 Station.SetVisibility(HasSpacePort, Empire.Universe.ScreenManager, this);
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
+        }
+
+        private static float CalcShipBuildingModifier(int numShipyards)
+        {
+            float shipyardDiminishedReturn = 1;
+            float shipBuildingModifier     = 1;
+
+            for (int i = 0; i < numShipyards; ++i)
+            {
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
+                    shipBuildingModifier *= 1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyardDiminishedReturn); 
+                else
+                    shipBuildingModifier *= 1 - (0.25f / shipyardDiminishedReturn);
+
+                shipyardDiminishedReturn += 0.2f;
+            }
+
+            return shipBuildingModifier;
         }
 
         private void UpdateHomeDefenseHangars(Building b)
