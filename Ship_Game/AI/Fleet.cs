@@ -431,7 +431,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-             if (EndInvalidTask(eventBuildingFound || task.TargetPlanet.Owner != null
+             if (EndInvalidTask(!eventBuildingFound || task.TargetPlanet.Owner != null
                                                    && task.TargetPlanet.Owner != Owner))
                 return;
 
