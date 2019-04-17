@@ -336,11 +336,11 @@ namespace SynapseGaming.LightingSystem.Effects
 
         /// <summary>
         /// Used internally by SunBurn - not recommended for external use.
-        /// 
+        ///
         /// Quickly sets the world and inverse world matrices during an effect
         /// Begin / End block.  Values applied using this method do not persist
         /// after the Begin / End block.
-        /// 
+        ///
         /// This method is highly context sensitive.  Built-in effects that derive from
         /// BaseRenderableEffect fully support this method, however other effects merely
         /// call the non-transposed overload.

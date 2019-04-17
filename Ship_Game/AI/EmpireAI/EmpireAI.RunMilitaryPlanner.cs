@@ -1,7 +1,9 @@
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI.Tasks;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -37,6 +39,19 @@ namespace Ship_Game.AI
             TaskList.AddRange(TasksToAdd);
             TasksToAdd.Clear();
             TaskList.ApplyPendingRemovals();
+        }
+
+        public void SendExplorationFleet(Planet p)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                AO = p.Center,
+                AORadius = 50000f,
+                type = MilitaryTask.TaskType.Exploration
+            };
+            militaryTask.SetTargetPlanet(p);
+            militaryTask.SetEmpire(OwnerEmpire);
+            TaskList.Add(militaryTask);
         }
 
         private void BuildWarShips(int goalsInConstruction)
@@ -113,6 +128,15 @@ namespace Ship_Game.AI
                     float upkeep = item.GetMaintCost();
                     CountShips(upkeep, roleName);
                 }
+
+                IReadOnlyList<Goal> goals = eAI.SearchForGoals(GoalType.BuildOffensiveShips);
+                foreach (Goal goal in goals)
+                {
+                    var shipInfo = new BuildOffensiveShips.ShipInfo(goal);
+                    if (shipInfo.Role != ShipData.RoleName.disabled)
+                        CountShips(shipInfo.Upkeep, shipInfo.Role);
+                }
+
                 var ratios = new FleetRatios(OwnerEmpire);
                 float upKeepAllotment = Math.Max(TotalUpkeep, 1f) / Math.Max(TotalMilShipCount, 1);
                 DesiredFighters  = ratios.ApplyFighterRatio(NumFighters, upKeepAllotment, capacity);
@@ -125,26 +149,8 @@ namespace Ship_Game.AI
                 DesiredSupport   = ratios.ApplyRatioSupport(NumSupport, upKeepAllotment, capacity);
                 DesiredTroops    = ratios.ApplyRatioTroopShip(NumTroops, upKeepAllotment, capacity);
 
-
                 KeepRoleRatios(DesiredFighters, DesiredCorvettes, DesiredFrigates, DesiredCruisers
                     , DesiredCarriers, DesiredBombers, DesiredCapitals, DesiredTroops, DesiredSupport);
-            }
-
-            public int CountShipsUnderConstruction()
-            {
-                int underConstruction = 0;
-                foreach (Goal g in EmpireAI.Goals)
-                {
-                    if (g.UID != "BuildOffensiveShips")
-                        continue;
-                    if (g.ShipToBuild == null)
-                        continue;
-                    var upKeep = g.ShipToBuild.GetMaintCost();
-                    var role = g.ShipToBuild.DesignRole;
-                    CountShips(upKeep, role);
-                    underConstruction++;
-                }
-                return underConstruction;
             }
 
             private void CountShips(float upkeep, ShipData.RoleName roleName)
@@ -296,15 +302,15 @@ namespace Ship_Game.AI
             //Find ship to build
 
             var pickRoles = new Map<ShipData.RoleName, float>();
-            PickRoles(ref buildRatios.NumCarriers, buildRatios.DesiredCarriers, ShipData.RoleName.carrier, pickRoles);
-            PickRoles(ref buildRatios.NumTroops, buildRatios.DesiredTroops, ShipData.RoleName.troopShip, pickRoles);
-            PickRoles(ref buildRatios.NumSupport, buildRatios.DesiredSupport, ShipData.RoleName.support, pickRoles);
-            PickRoles(ref buildRatios.NumFrigates , buildRatios.DesiredFrigates, ShipData.RoleName.frigate, pickRoles);
-            PickRoles(ref buildRatios.NumBombers  , buildRatios.DesiredBombers, ShipData.RoleName.bomber, pickRoles);
-            PickRoles(ref buildRatios.NumCruisers , buildRatios.DesiredCruisers, ShipData.RoleName.cruiser, pickRoles);
-            PickRoles(ref buildRatios.NumCapitals , buildRatios.DesiredCapitals, ShipData.RoleName.capital, pickRoles);
-            PickRoles(ref buildRatios.NumFighters, buildRatios.DesiredFighters, ShipData.RoleName.fighter, pickRoles);
-            PickRoles(ref buildRatios.NumCorvettes, buildRatios.DesiredCorvettes, ShipData.RoleName.corvette, pickRoles);
+            PickRoles(ref buildRatios.NumCarriers    , buildRatios.DesiredCarriers, ShipData.RoleName.carrier, pickRoles);
+            PickRoles(ref buildRatios.NumTroops      , buildRatios.DesiredTroops, ShipData.RoleName.troopShip, pickRoles);
+            PickRoles(ref buildRatios.NumSupport     , buildRatios.DesiredSupport, ShipData.RoleName.support, pickRoles);
+            PickRoles(ref buildRatios.NumFrigates    , buildRatios.DesiredFrigates, ShipData.RoleName.frigate, pickRoles);
+            PickRoles(ref buildRatios.NumBombers     , buildRatios.DesiredBombers, ShipData.RoleName.bomber, pickRoles);
+            PickRoles(ref buildRatios.NumCruisers    , buildRatios.DesiredCruisers, ShipData.RoleName.cruiser, pickRoles);
+            PickRoles(ref buildRatios.NumCapitals    , buildRatios.DesiredCapitals, ShipData.RoleName.capital, pickRoles);
+            PickRoles(ref buildRatios.NumFighters    , buildRatios.DesiredFighters, ShipData.RoleName.fighter, pickRoles);
+            PickRoles(ref buildRatios.NumCorvettes   , buildRatios.DesiredCorvettes, ShipData.RoleName.corvette, pickRoles);
 
             foreach (var kv in pickRoles.OrderBy(val => val.Value))
             {
