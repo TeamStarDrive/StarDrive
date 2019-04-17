@@ -75,7 +75,7 @@ namespace Ship_Game.AI
         public void Remove(Ship ship)
         {
             SolarSystem sysToDefend = ship.AI.SystemToDefend;
-            if (DefensiveForcePool.Remove(ship))
+            if (DefensiveForcePool.RemoveSwapLast(ship))
             {
                 if (ship.Active && sysToDefend == null)
                     DebugInfoScreen.DefenseCoLogsSystemNull();
