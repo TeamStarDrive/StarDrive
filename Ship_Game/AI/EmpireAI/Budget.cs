@@ -5,6 +5,8 @@ namespace Ship_Game.AI.Budget
 {
     public struct PlanetBudget
     {
+        //if not initialized then it is not safe to use. 
+        public bool Initialized { get; }
         public readonly float SystemBudget;
         public readonly float Budget;
         public readonly float EmpireRatio;
@@ -22,7 +24,7 @@ namespace Ship_Game.AI.Budget
             SystemBudget = 0;
             Budget       = 0;
             EmpireRatio  = 0;
-
+            Initialized = false;
             if (planet == null) return;
 
             Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict.TryGetValue(System, out SystemCommander systemCommander);
@@ -33,7 +35,8 @@ namespace Ship_Game.AI.Budget
             float planetRatio = CreatePlanetRatio();
             EmpireRatio  = SysCom.PercentageOfValue * planetRatio;
             Budget       = EmpireColonizationBudget * EmpireRatio;
-            SystemBudget = EmpireColonizationBudget * SysCom.PercentageOfValue;            
+            SystemBudget = EmpireColonizationBudget * SysCom.PercentageOfValue;
+            Initialized = true;
         }
 
         private float CreatePlanetRatio()
