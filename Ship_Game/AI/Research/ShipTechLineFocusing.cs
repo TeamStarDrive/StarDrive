@@ -367,7 +367,9 @@ namespace Ship_Game.AI.Research
             // if we have a best ship already then use that and return.
             if (BestCombatShip != null && command == "RANDOM")
             {
+                //filter out all current shiptechs that dont match the best ships techs.
                 var bestShipTechs = shipTechs.Intersect(BestCombatShip.shipData.TechsNeeded);
+                //combine the wanted shiptechs with the nonshiptechs.
                 var generalTech = new HashSet<string>();
                 foreach (var bTech in bestShipTechs)
                     generalTech.Add(bTech);
