@@ -143,25 +143,28 @@ namespace Ship_Game
 
             foreach (Planet importPlanet in importingPlanets)
             {
-                // check if the closest freighter has the goods we need
-                Ship closestIdleFreighter = OpportunistFreighter(importPlanet, goods);
-                if (closestIdleFreighter != null)
-                {
+                if (exportingPlanets.Length == 0)
+                    return; // It's possible that the export list was updated after trade plans were allocated in this loop
+
+                // Check if the closest freighter has the goods we need
+                if (FoundFreighterWithCargo(importPlanet, goods, out Ship closestIdleFreighter))
                     closestIdleFreighter.AI.SetupFreighterPlan(importPlanet, goods);
-                    continue;
+                else
+                {
+                    // Check export planets
+                    Planet exportPlanet = exportingPlanets.FindClosestTo(importPlanet);
+                    if (exportPlanet == null) // no more exporting planets
+                        break;
+
+                    if (FindClosestIdleFreighter(exportPlanet, goods, out closestIdleFreighter)
+                        && InterEmpireTradeDistanceOk(closestIdleFreighter, importPlanet, exportPlanet))
+                    {
+                        closestIdleFreighter.AI.SetupFreighterPlan(exportPlanet, importPlanet, goods);
+                        // remove the export planet from the exporting list if no more export slots left
+                        if (exportPlanet.FreeGoodsExportSlots(goods) <= 0)
+                            exportingPlanets.Remove(exportPlanet, out exportingPlanets);
+                    }
                 }
-
-                // Check export planets
-                Planet exportPlanet = exportingPlanets.FindClosestTo(importPlanet);
-                if (exportPlanet == null) // no more exporting planets
-                    break;
-
-                closestIdleFreighter = FindClosestIdleFreighter(exportPlanet, goods);
-                if (closestIdleFreighter == null) // no more available freighters
-                    break;
-
-                if (InterEmpireTradeDistanceOk(closestIdleFreighter, importPlanet, exportPlanet))
-                    closestIdleFreighter.AI.SetupFreighterPlan(exportPlanet, importPlanet, goods);
             }
         }
 
@@ -173,24 +176,24 @@ namespace Ship_Game
             return freighter.GetAstrogateTimeBetween(importPlanet, exportPlanet) < 30;
         }
 
-        private Ship FindClosestIdleFreighter(Planet planet, Goods goods)
+        private bool FindClosestIdleFreighter(Planet planet, Goods goods, out Ship freighter)
         {
             if (!isPlayer || AutoFreighters)
-                return IdleFreighters.FindClosestTo(planet);
+                freighter = IdleFreighters.FindClosestTo(planet);
+            else
+                freighter = ClosestIdleFreighterManual(planet, goods);
 
-            return ClosestIdleFreighterManual(planet, goods);
+            return freighter != null;
         }
 
-        private Ship OpportunistFreighter(Planet planet, Goods goods)
+        private bool FoundFreighterWithCargo(Planet planet, Goods goods, out Ship freighter)
         {
+            freighter = null;
             if (this != planet.Owner)
-                return null; // Not for in Inter Empire Trade
+                return false; // Not for in Inter Empire Trade
 
-            Ship freighter = FindClosestIdleFreighter(planet, goods);
-            if (freighter != null && freighter.GetCargo(goods) > 5f)
-                return freighter;
-
-            return null;
+            FindClosestIdleFreighter(planet, goods, out freighter);
+            return freighter != null && freighter.GetCargo(goods) > 5f;
         }
 
         private Ship ClosestIdleFreighterManual(Planet planet, Goods goods)
