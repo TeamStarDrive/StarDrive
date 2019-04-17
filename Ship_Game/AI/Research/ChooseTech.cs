@@ -31,7 +31,7 @@ namespace Ship_Game.AI.Research
         public void InitializeNewResearchRun(ResearchPriorities researchPriority)
         {
             ResearchPriorities = researchPriority;
-            CostNormalizer = OwnerEmpire.MaxResearchPotential / 1000f;
+            CostNormalizer = OwnerEmpire.Research / 100f;
         }
 
         public bool ProcessScript()

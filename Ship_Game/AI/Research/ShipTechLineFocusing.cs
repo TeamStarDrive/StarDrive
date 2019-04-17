@@ -209,21 +209,13 @@ namespace Ship_Game.AI.Research
 
         private bool GetLineFocusedShip(Array<Ship> researchableShips, HashSet<string> shipTechs)
         {
-            //There is a bug here. researchable ships contains ships that have already been researched or at least
-            //have no techs that can be researched?
-
-
             // Bucket ships by how many techs they have that are not already researched
             SortedList<int, Array<Ship>> techSorter = TechSorter(researchableShips, shipTechs);
 
             //Bail if there aren't any ships to research
             if (techSorter.Count == 0)
                 return false;
-            int techKey = techSorter.First().Key;//  PickRandomKey(techSorter);
-            //SortedList<int, Array<Ship>> newHull = NewHull(shipTechs, techSorter, techKey);
-            //int newHullKey = PickRandomKey(newHull);
-            //SortedList<int, Array<Ship>> costSorter = CostSorter(techSorter, techKey);
-            //int costKey = PickRandomKey(costSorter);
+            int techKey = techSorter.First().Key;
             /* This is part that chooses the  hull
             takes the first entry from the least techs needed list.
              then sorts it by the number of techs needed for the hull
@@ -234,11 +226,11 @@ namespace Ship_Game.AI.Research
             //sort roles
             SortedList<int, Array<Ship>> roleSorter = RoleSorter(hullSorter, hullKey);
             int roleKey = PickRandomKey(roleSorter);
+            //bucket ships by techcost
             SortedList<int, Array<Ship>> costSorter = CostSorter(roleSorter, roleKey);
             int costKey = PickRandomKey(costSorter);
-            //choose Ship
-          
 
+            //choose Ship
             var ships = costSorter[costKey];
 
             for (int x = 0; x <= ships.Count -1; x++)
@@ -292,7 +284,7 @@ namespace Ship_Game.AI.Research
                         case ShipData.RoleName.carrier:
                             return 9;
                         case ShipData.RoleName.scout:
-                        case ShipData.RoleName.drone:                        
+                        case ShipData.RoleName.drone:
                             return 9;
                         case ShipData.RoleName.fighter:
                             return 0;
@@ -315,15 +307,15 @@ namespace Ship_Game.AI.Research
         }
 
         private SortedList<int, Array<Ship>> HullSorter(SortedList<int, Array<Ship>> costSorter, int key)
-        {         
+        {
             var hullSorter = BucketShips(costSorter[key],
                 hull =>
                 {
                     int countOfHullTechs = hull.shipData.BaseHull.TechsNeeded.Except(OwnerEmpire.ShipTechs).Count();
                     if (hull.DesignRole < ShipData.RoleName.troopShip)
                         countOfHullTechs += 1;
-                        return countOfHullTechs < 2 
-                            ? 0 
+                        return countOfHullTechs < 2
+                            ? 0
                             : 1;
                 });
             return hullSorter;
@@ -368,7 +360,7 @@ namespace Ship_Game.AI.Research
                 else
                     nonShipTechs.Add(techEntry.UID);
             }
-            //if not researching shiptechs then dont research any shiptechs. 
+            //if not researching shiptechs then dont research any shiptechs.
             if (!modifier.Contains("Ship"))
                 return nonShipTechs;
 
@@ -380,7 +372,7 @@ namespace Ship_Game.AI.Research
                 foreach (var bTech in bestShipTechs)
                     generalTech.Add(bTech);
                 foreach (var nonShip in nonShipTechs)
-                    generalTech.Add(nonShip);               
+                    generalTech.Add(nonShip);
                 return generalTech;
             }
 
@@ -391,7 +383,7 @@ namespace Ship_Game.AI.Research
 
             if (researchableShips.Count <= 0) return nonShipTechs;
 
-            //now find a new ship to research that uses most of the tech we already have. 
+            //now find a new ship to research that uses most of the tech we already have.
             GetLineFocusedShip(researchableShips, shipTechs);
 
             return shipTechs;
