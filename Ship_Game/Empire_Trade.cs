@@ -143,9 +143,6 @@ namespace Ship_Game
 
             foreach (Planet importPlanet in importingPlanets)
             {
-                if (exportingPlanets.Length == 0)
-                    return; // It's possible that the export list was updated after trade plans were allocated in this loop
-
                 // Check if the closest freighter has the goods we need
                 if (FoundFreighterWithCargo(importPlanet, goods, out Ship closestIdleFreighter))
                     closestIdleFreighter.AI.SetupFreighterPlan(importPlanet, goods);
@@ -154,7 +151,7 @@ namespace Ship_Game
                     // Check export planets
                     Planet exportPlanet = exportingPlanets.FindClosestTo(importPlanet);
                     if (exportPlanet == null) // no more exporting planets
-                        break;
+                        continue; // Continue since other planets might find a freighter with cargo and no need for export planet
 
                     if (FindClosestIdleFreighter(exportPlanet, goods, out closestIdleFreighter)
                         && InterEmpireTradeDistanceOk(closestIdleFreighter, importPlanet, exportPlanet))
