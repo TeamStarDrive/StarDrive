@@ -67,9 +67,9 @@ namespace Ship_Game.AI
                     ao.Update();
             }
             if (!OwnerEmpire.isFaction)
-            {
-                RunEconomicPlanner();
+            {                
                 DefensiveCoordinator.ManageForcePool();
+                RunEconomicPlanner();
                 RunExpansionPlanner();
                 RunInfrastructurePlanner();                
                 RunDiplomaticPlanner();

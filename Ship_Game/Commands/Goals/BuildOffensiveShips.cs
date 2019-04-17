@@ -59,5 +59,28 @@ namespace Ship_Game.Commands.Goals
             FinishedShip.AI.State = AIState.AwaitingOrders;
             return GoalStep.GoalComplete;
         }
+
+        public struct ShipInfo
+        {
+            public float Upkeep { get;}
+            public ShipData.RoleName Role { get;}
+
+            public ShipInfo(Goal goal) : this(goal as BuildOffensiveShips){ }
+
+            public ShipInfo(BuildOffensiveShips goal)
+            {
+                if (goal.GetShipTemplate(goal.ToBuildUID, out Ship template))
+                {
+                    Role = template.DesignRole;
+                    Upkeep = template.GetMaintCost();
+                }
+                else
+                {
+                    Role = ShipData.RoleName.disabled;
+                    Upkeep = 0;
+                }
+            }
+        }
     }
 }
+

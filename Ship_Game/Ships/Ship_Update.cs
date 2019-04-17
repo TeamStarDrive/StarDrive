@@ -157,25 +157,18 @@ namespace Ship_Game.Ships
                                 Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
                         }
                     }
+                    else
+                    {
+                        for (int i = 0; i < p.BuildingList.Count; i++)
+                        {
+                            Building building = p.BuildingList[i];
+                            if (building.EventHere && loyalty != EmpireManager.Player && p.Owner == null)
+                                loyalty.GetEmpireAI().SendExplorationFleet(p);
+                        }
+                    }
 
                     p.SetExploredBy(loyalty);
                     System.UpdateFullyExploredBy(loyalty);
-                    for (int i = 0; i < p.BuildingList.Count; i++)
-                    {
-                        Building building = p.BuildingList[i];
-                        if (!building.EventHere ||
-                            loyalty == EmpireManager.Player || p.Owner != null) continue;
-
-                        var militaryTask = new MilitaryTask
-                        {
-                            AO = p.Center,
-                            AORadius = 50000f,
-                            type = MilitaryTask.TaskType.Exploration
-                        };
-                        militaryTask.SetTargetPlanet(p);
-                        militaryTask.SetEmpire(loyalty);
-                        loyalty.GetEmpireAI().TaskList.Add(militaryTask);
-                    }
                 }
             }
         }
