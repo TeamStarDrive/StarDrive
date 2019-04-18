@@ -110,9 +110,13 @@ namespace Ship_Game.Commands.Goals
             }
 
             float radius = escortTask?.AORadius ?? 125000f;
-
-            float str = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(ColonizationTarget.Center, radius, empire);
-            if (str < 100) return false;
+            // there appears to be a bug
+            // it seems that somehow the associated fleet with get orphaned from the task. although the fleet task
+            // is still running the escort task doesnt know about it.
+            // so this just checks that we have ships near the planet.
+            float ourStr = empire.GetShips().Filter(s => s.Center.InRadius(ColonizationTarget.Center, radius)).Sum(s => s.GetStrength());
+            float str = empire.GetEmpireAI().ThreatMatrix.PingNetRadarStr(ColonizationTarget.Center, radius, empire);
+            if (str - ourStr < 100) return false;
 
             WaitingForEscort = true;
 
