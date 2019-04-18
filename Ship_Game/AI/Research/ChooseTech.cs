@@ -300,28 +300,12 @@ namespace Ship_Game.AI.Research
                             var techType = ConvertTechStringTechType(script[i]);
 
                             TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, doLookAhead);
-                            if (researchTech == null) continue;
-
-                            string testResearchTopic = researchTech.UID;
-
-                            int currentCost = 0;
-                            if (researchTech.TechnologyTypes.Contains(techType))
-                                currentCost = NormalizeTechCost(researchTech.TechCost);
-                            else
-                                currentCost = NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
-
-                            if (command1 == "CHEAPEST" && currentCost < previousCost)
-                            {
+                            bool isCheaper = command1 == "CHEAPEST";
+                            string testResearchTopic = DoesCostCompare(ref previousCost, researchTech, techType, isCheaper);
+                            if (testResearchTopic.NotEmpty())
                                 researchTopic = testResearchTopic;
-                                previousCost = currentCost;
-                                CostNormalizer += .005f;
-                            }
-                            else if (command1 == "EXPENSIVE" && currentCost > previousCost)
-                            {
-                                researchTopic = testResearchTopic;
-                                previousCost = currentCost;
-                                CostNormalizer *= .25f;
-                            }
+
+                            CostNormalizer += isCheaper ? 0.005f : 0.25f;
                         }
                         if (OwnerEmpire.data.TechDelayTime % 6 == 0 && ResearchPriorities.Wars > 2
                                                                     && LineFocus.WasBestShipHullNotChosen(researchTopic, availableTechs))
@@ -354,7 +338,35 @@ namespace Ship_Game.AI.Research
                 return false;
             return true;
         }
+        private string DoesCostCompare(ref int previousCost, TechEntry researchTech, TechnologyType techType, bool isCheaper)
+        {
 
+            string testResearchTopic = researchTech?.UID ?? string.Empty;
+            if (testResearchTopic.IsEmpty()) return testResearchTopic;
+            int currentCost = 0;
+            if (researchTech.TechnologyTypes.Contains(techType))
+                currentCost = NormalizeTechCost(researchTech.TechCost);
+            else
+                currentCost = NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
+
+            if (isCheaper)
+            {
+                if (currentCost < previousCost)
+                {
+                    previousCost = currentCost;
+                    return testResearchTopic;
+                }
+            }
+            else
+            {
+                if (currentCost > previousCost)
+                {
+                    previousCost = currentCost;
+                    return testResearchTopic;
+                }
+            }
+            return string.Empty;
+        }
         private TechnologyType ConvertTechStringTechType(string typeName)
         {
             TechnologyType techType = TechnologyType.General;
@@ -402,7 +414,7 @@ namespace Ship_Game.AI.Research
             }
             LogPossibleTechs(techsTypeFiltered);
             researchTech = TechWithWantedCost(command1, techsTypeFiltered, techType);
-            
+
             return researchTech;
         }
 

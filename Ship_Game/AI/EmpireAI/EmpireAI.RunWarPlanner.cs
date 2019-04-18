@@ -423,10 +423,8 @@ namespace Ship_Game.AI
             }
         }
 
-        private void FightDefaultWar(KeyValuePair<Empire, Relationship> r)
+        private void FightDefaultWar(KeyValuePair<Empire, Relationship> r, int warWeight)
         {
-            float warWeight = 1 + OwnerEmpire.ResearchStrategy.ExpansionPriority +
-                              OwnerEmpire.ResearchStrategy.MilitaryPriority;
             foreach (MilitaryTask militaryTask in TaskList)
             {
                 if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
@@ -436,7 +434,14 @@ namespace Ship_Game.AI
                 if (warWeight < 0)
                     return;
             }
-            switch (r.Value.ActiveWar.WarType)
+
+            WarTargets(r, warWeight);
+        }
+
+        private void WarTargets(KeyValuePair<Empire, Relationship> r, int warWeight)
+        {
+            var warType = r.Value.ActiveWar?.WarType ?? r.Value.PreparingForWarType;
+            switch (warType)
             {
                 case WarType.BorderConflict:
                     AssignTargets(r, warWeight);
@@ -510,7 +515,7 @@ namespace Ship_Game.AI
             {
                 if (!anger.Value.Known) return 0;
                 float angerMod = anger.Key.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter());
-                angerMod = (Empire.Universe.UniverseSize - angerMod) / Empire.Universe.UniverseSize;
+                angerMod = (Empire.Universe.UniverseSize * 2 - angerMod) / (Empire.Universe.UniverseSize * 2);
                 if (anger.Value.AtWar)
                     angerMod *= 100;                    
                 angerMod += anger.Key.GetPlanets().Any(p => IsInOurAOs(p.Center)) ? 1 : 0;
@@ -537,15 +542,16 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
 
-            float warWeight = 1 +
-                              OwnerEmpire.ResearchStrategy.MilitaryPriority;
+            int warWeight = (int)Math.Ceiling(1 +
+                              5 * (OwnerEmpire.ResearchStrategy.MilitaryRatio 
+                                   + OwnerEmpire.ResearchStrategy.ExpansionRatio));
             var weightedTargets = EmpireAttackWeights();
             foreach (var kv in weightedTargets)
             {
+                if (warWeight <= 0) break;
                 if (!kv.Value.Known) continue;
                 if (kv.Key.data.Defeated) continue;
                 if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;                
-                if (!(warWeight > 0)) continue;
                 if (kv.Key.isFaction)
                 {
                     foreach (var planet in kv.Key.GetPlanets())
@@ -560,29 +566,12 @@ namespace Ship_Game.AI
                 warWeight--;
                 if (kv.Value.AtWar)
                 {
-                    FightDefaultWar(kv);
-                    return;
+                    FightDefaultWar(kv, warWeight);
+                    continue;
                 }
-                
-                if (!kv.Value.PreparingForWar) continue;
 
-                switch (kv.Value.PreparingForWarType)
-                {
-                    case WarType.BorderConflict:
-                        AssignTargets(kv, warWeight);
-                        break;
-                    case WarType.ImperialistWar:
-                        AssignTargets(kv, warWeight);                        
-                        break;
-                    case WarType.GenocidalWar:
-                        break;
-                    case WarType.DefensiveWar:
-                        break;
-                    case WarType.SkirmishWar:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                if (!kv.Value.PreparingForWar) continue;
+                WarTargets(kv, warWeight);
                 return;
             }
         }
@@ -590,22 +579,31 @@ namespace Ship_Game.AI
         private void AssignTargets(KeyValuePair<Empire, Relationship> kv, float warWeight, WarType warType = WarType.BorderConflict)
         {
             Array<SolarSystem> solarSystems = new Array<SolarSystem>();
-            Array<Planet> planets = new Array<Planet>();            
-            Planet[] planetTargetPriority = PlanetTargetPriority(kv.Key);
+            Array<Planet> planets = new Array<Planet>();
+            if (warWeight <= 0) return;
+            Planet[] planetTargetPriority = PlanetTargetPriority(kv.Key, warType);
+
+            // so what this is trying to do here is take the best system and attack
+            // all planets in that system to try and completely flip the system. 
 
             for (int index = 0; index < planetTargetPriority.Length; ++index)
             {
-                Planet p =
-                    planetTargetPriority[index];
-                if (solarSystems.Count > warWeight)
-                    break;
+                Planet p = planetTargetPriority[index];
 
                 if (!solarSystems.Contains(p.ParentSystem))
-                {
                     solarSystems.Add(p.ParentSystem);
-                }
+                if (warWeight-- <= 0) break;
+            }
 
-                planets.Add(p);
+            for (int i = 0; i < solarSystems.Count; i++)
+            {
+                var system = solarSystems[i];
+                for (int x = 0; x < planetTargetPriority.Length; x++)
+                {
+                    var planet = planetTargetPriority[x];
+                    if (planet.ParentSystem == system)
+                        planets.Add(planet);
+                }
             }
 
             foreach (Planet planet in planets)
@@ -628,8 +626,24 @@ namespace Ship_Game.AI
             }
         }
 
-        private Planet[] PlanetTargetPriority(Empire empire)
+        private Planet[] PlanetTargetPriority(Empire empire, WarType warType)
         {
+            switch (warType)
+            {
+                case WarType.BorderConflict:
+                {
+                        var planets = new Array<Planet>();
+                    var targetSystems = OwnerEmpire.GetBorderSystems(empire);
+                        foreach (var s in targetSystems)
+                            foreach (var p in s.PlanetList)
+                            {
+                                if (p.Owner == empire)
+                                    planets.Add(p);
+                            }
+                        return planets.ToArray();
+                }
+            }
+            
             return empire.GetPlanets().OrderBy(insystem => !insystem.ParentSystem.OwnerList.Contains(OwnerEmpire))
                 .ThenBy(planet => GetDistanceFromOurAO(planet) / 150000f)
                 .ThenByDescending(planet => empire.GetEmpireAI()
