@@ -105,7 +105,7 @@ namespace Ship_Game.AI.Research
                 TechCategoryPrioritized += ":";
                 if (pWeighted.Key == "SHIPTECH")
                 {
-                    TechCategoryPrioritized += "ShipWeapons:ShipDefense:ShipHull:ShipGeneral";
+                    TechCategoryPrioritized += "ShipHull:ShipWeapons:ShipDefense:ShipGeneral";
                     max += 3;
                 }
                 else
