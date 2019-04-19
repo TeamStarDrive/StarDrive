@@ -40,7 +40,7 @@ namespace Ship_Game.AI
         }
         public float StrengthOfAllEmpireThreats(Empire empire) => StrengthOfAllThreats(empire, false);
         
-        public float StrengthOfAllThreats(Empire empire, bool FactionAlso)
+        public float StrengthOfAllThreats(Empire empire, bool factionAlso)
         {
             float str = 0f;
             foreach (var kv in Pins)
@@ -48,7 +48,7 @@ namespace Ship_Game.AI
                 if(kv.Value.EmpireName == string.Empty) continue;
                 
                 Empire pinEmpire = kv.Value.Ship?.loyalty ?? EmpireManager.GetEmpireByName(kv.Value.EmpireName);
-                if (!pinEmpire.isFaction || FactionAlso)
+                if (!pinEmpire.isFaction || factionAlso)
                     if (empire.IsEmpireAttackable(pinEmpire))
                         str += kv.Value.Strength;
             }
