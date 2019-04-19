@@ -286,7 +286,7 @@ namespace Ship_Game.AI.Research
             string researchTopic = "";
 
             availableTechs = LineFocus.LineFocusShipTechs(modifier, availableTechs, command2);
-
+            bool hullWasChecked = false;
             int previousCost = command1 == "CHEAPEST" ? int.MaxValue : int.MinValue;
             switch (command2)
             {
@@ -298,7 +298,7 @@ namespace Ship_Game.AI.Research
                         for (int i = 1; i < script.Count(); i++)
                         {
                             var techType = ConvertTechStringTechType(script[i]);
-
+                            hullWasChecked |= i == 1 && techType == TechnologyType.ShipHull;
                             TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, doLookAhead);
                             bool isCheaper = command1 == "CHEAPEST";
                             string testResearchTopic = DoesCostCompare(ref previousCost, researchTech, techType, isCheaper);
@@ -307,8 +307,7 @@ namespace Ship_Game.AI.Research
 
                             CostNormalizer += isCheaper ? 0.005f : 0.25f;
                         }
-                        if (OwnerEmpire.data.TechDelayTime % 6 == 0 && ResearchPriorities.Wars > 2
-                                                                    && LineFocus.WasBestShipHullNotChosen(researchTopic, availableTechs))
+                        if (hullWasChecked && LineFocus.WasBestShipHullNotChosen(researchTopic, availableTechs))
                             DebugLog($"Hull Was Too Expensive");
                         break;
                     }
