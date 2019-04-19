@@ -78,7 +78,7 @@ namespace Ship_Game.AI.Research
 
             TechCategoryPrioritized = "TECH";
 
-            Wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 10 : 0;
+           Wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f : 0;
 
             var priority = new Map<string, float>();
             priority.Add("SHIPTECH"    , Randomizer(resStrat.MilitaryRatio, Wars));
@@ -105,7 +105,7 @@ namespace Ship_Game.AI.Research
                 TechCategoryPrioritized += ":";
                 if (pWeighted.Key == "SHIPTECH")
                 {
-                    TechCategoryPrioritized += "ShipWeapons:ShipDefense:ShipGeneral:ShipHull";
+                    TechCategoryPrioritized += "ShipHull:ShipWeapons:ShipDefense:ShipGeneral";
                     max += 3;
                 }
                 else
