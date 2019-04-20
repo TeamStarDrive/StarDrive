@@ -235,7 +235,7 @@ namespace Ship_Game
             return triggered;
         }
 
-        public int CountTechsToOneInList(Array<string> techList, Empire empire)
+        public int CountTechsToOneInList(HashSet<string> techList, Empire empire)
         {
             int count = 0;
             foreach (Technology.LeadsToTech leadTo in Tech.LeadsTo)

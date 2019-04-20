@@ -2317,6 +2317,7 @@ namespace Ship_Game.Ships
         public ShipStatus ShipReadyForWarp()
         {
             if (maxFTLSpeed < 1 || Inhibited || EnginesKnockedOut || !Active) return ShipStatus.NotApplicable;
+            if (AI.HasPriorityOrder || AI.State == AIState.Resupply) return ShipStatus.NotApplicable;
             if (!isSpooling && WarpDuration() < ShipStatus.Good ) return ShipStatus.Critical;
             if (engineState == MoveState.Warp) return ShipStatus.Good;
             if (Carrier.RecallingFighters()) return ShipStatus.Poor;

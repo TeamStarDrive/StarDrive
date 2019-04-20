@@ -87,7 +87,7 @@ namespace Ship_Game
             if (GraphicsDeviceService?.GraphicsDevice != null)
                 screen.LoadContent();
         }
-        
+
         // exits all other screens and goes to specified screen
         public void GoToScreen(GameScreen screen, bool clear3DObjects)
         {
@@ -165,7 +165,7 @@ namespace Ship_Game
         }
 
         ////////////////////////////////////////////////////////////////////////////////////
-         
+
         public void ClearScene()
         {
             RemoveAllObjects();
@@ -294,7 +294,7 @@ namespace Ship_Game
         public void RemoveScreen(GameScreen screen)
         {
             if (GraphicsDeviceService?.GraphicsDevice != null)
-                screen.UnloadContent();            
+                screen.UnloadContent();
             GameScreens.Remove(screen);
             exitScreenTimer = 0.25f;
         }
@@ -326,7 +326,7 @@ namespace Ship_Game
         {
             HotLoadTargets[key] = new Hotloadable {
                 File = file,
-                LastModified = File.GetLastWriteTimeUtc(file), 
+                LastModified = File.GetLastWriteTimeUtc(file),
                 OnModified = onModified
             };
             if (screen != null)
@@ -345,7 +345,7 @@ namespace Ship_Game
         {
             HotLoadTargets[key] = new Hotloadable {
                 File = file,
-                LastModified = File.GetLastWriteTimeUtc(file), 
+                LastModified = File.GetLastWriteTimeUtc(file),
                 Screen = screen
             };
             screen.OnExit += () =>
