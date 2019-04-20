@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -322,6 +323,28 @@ namespace Ship_Game
                 return true;
 
             return CurrentGame.Difficulty <= maxDifficulty;
+        }
+
+        public static SortedList<int, Array<T>> BucketItems<T>(Array<T> items, Func<T, int> bucketSort)
+        {
+            //SortRoles
+            /*
+             * take each ship and create buckets using the bucketSort ascending.
+             */
+            var sort = new SortedList<int, Array<T>>();
+
+            foreach (T item in items)
+            {
+                int key = bucketSort(item);
+                if (sort.TryGetValue(key, out Array<T> test))
+                    test.Add(item);
+                else
+                {
+                    test = new Array<T> { item };
+                    sort.Add(key, test);
+                }
+            }
+            return sort;
         }
     }
 }

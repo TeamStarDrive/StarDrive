@@ -340,9 +340,20 @@ namespace Ship_Game.AI.Research
             var techSorter = BucketShips(researchableShips,
                 shortTermBest =>
                 {
-                    int bestTechCount = shortTermBest.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs).Count();
-                    bestTechCount += shortTermBest.DesignRole < ShipData.RoleName.troopShip ? 5 : 0;
-                    var score = bestTechCount < 9 ? 0 : 1;
+                    int maxTechJumps = 0;
+                    int totalTechJumps = 0;
+                    foreach (var tech in shipTechs)
+                    {
+                        TechEntry techEntry = OwnerEmpire.GetTechEntry(tech);
+                        int techJumps = techEntry.CountTechsToOneInList(shortTermBest.shipData.TechsNeeded, OwnerEmpire);
+                        maxTechJumps = Math.Max(techJumps, maxTechJumps);
+                        totalTechJumps += techJumps;
+                    }
+
+                    int bestTechCount = maxTechJumps;
+                 
+                    bestTechCount += shortTermBest.DesignRole < ShipData.RoleName.troopShip ? 1 : 0;
+                    var score = bestTechCount < 2 ? 0 : totalTechJumps;
                     return score;
                 });
             return techSorter;
