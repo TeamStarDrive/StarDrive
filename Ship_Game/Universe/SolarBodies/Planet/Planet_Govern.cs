@@ -424,13 +424,7 @@ namespace Ship_Game
         ColonyBudget AllocateColonyBudget()
         {
             float budget         = Owner.GetEmpireAI().PlanetBudget(this).Budget;
-            float buildingsMaint = Money.Maintenance + Construction.TotalQueuedBuildingMaintenance() + OrbitalsMaintenance;
-            float debtTolerance  = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
-            if (MaxPopulationBillion < 2)
-                debtTolerance += 2f - MaxPopulationBillion;
-
-            budget          += debtTolerance - buildingsMaint;
-            var colonyBudget = new ColonyBudget(budget, colonyType, Owner, GovOrbitals);
+            var colonyBudget     = new ColonyBudget(budget, colonyType, Owner, GovOrbitals);
             return colonyBudget;
         }
 
@@ -458,6 +452,19 @@ namespace Ship_Game
 
                 Buildings = (float)Math.Round(buildingsBudget, 2);
                 Orbitals  = (float)Math.Round(totalBudget - buildingsBudget, 2);
+            }
+        }
+
+        public float ColonyMaintenance => Money.Maintenance + Construction.TotalQueuedBuildingMaintenance() + OrbitalsMaintenance;
+        public float ColonyDebtTolerance
+        {
+            get
+            {
+                float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+                if (MaxPopulationBillion < 2)
+                    debtTolerance += 2f - MaxPopulationBillion;
+
+                return debtTolerance;
             }
         }
     }
