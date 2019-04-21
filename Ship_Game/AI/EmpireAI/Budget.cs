@@ -36,7 +36,8 @@ namespace Ship_Game.AI.Budget
             EmpireRatio  = SysCom.PercentageOfValue * planetRatio;
             Budget       = EmpireColonizationBudget * EmpireRatio;
             SystemBudget = EmpireColonizationBudget * SysCom.PercentageOfValue;
-            Initialized = true;
+            Budget      += planet.ColonyDebtTolerance - planet.ColonyMaintenance;
+            Initialized  = true;
         }
 
         private float CreatePlanetRatio()
