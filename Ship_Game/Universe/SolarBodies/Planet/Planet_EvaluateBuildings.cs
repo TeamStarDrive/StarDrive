@@ -319,7 +319,7 @@ namespace Ship_Game
                 score += 10f; // we can't be a space-faring species if our capital doesn't have a space-port...
 
             if (PopulationRatio < 0.5f || MaxPopulationBillion < 1)
-                score -= 1; // don't build space port on low population planets
+                score -= 5; // don't build space port on low population planets
 
             // Do we have enough production capability to really justify trying to build ships
             if (Prod.NetMaxPotential > 8.0f)
