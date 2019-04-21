@@ -101,11 +101,14 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 if (ship.loyalty.isFaction)
                     AddTroopsForFactions(ship);
 
-                if (loyaltyMatch && ship.Position.InRadius(Center, 5000f))
+                if (loyaltyMatch)
                 {
-                    LoadTroops(ship, garrisonSize);
-                    SupplyShip(ship);
-                    RepairShip(ship, repairPool);
+                    if (ship.Position.InRadius(Center, 5000f) || ship.GetTether() == P)
+                    {
+                        LoadTroops(ship, garrisonSize);
+                        SupplyShip(ship);
+                        RepairShip(ship, repairPool);
+                    }
                 }
             }
         }
