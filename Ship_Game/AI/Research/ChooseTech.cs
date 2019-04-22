@@ -90,27 +90,29 @@ namespace Ship_Game.AI.Research
                         ScriptIndex++;
                         if (ScriptedResearch(scriptCommand, script[1], modifier, false))
                             return true;
+
                         loopCount++;
                         goto Start;
                     case "EXPENSIVE":
-                            if (script.Length == 1)
-                            {
-                                GoRandomOnce("EXPENSIVE");
-                                ScriptIndex++;
-                                return true;
-                            }
-
-                            for (int i = 1; i < script.Length; i++)
-                            {
-                                modifiers[i - 1] = script[i];
-                            }
-
-                            modifier = string.Join(":", modifiers);
+                        if (script.Length == 1)
+                        {
+                            GoRandomOnce("EXPENSIVE");
                             ScriptIndex++;
-                            if (ScriptedResearch(scriptCommand, script[1], modifier, false))
-                                return true;
-                            loopCount++;
-                            goto Start;
+                            return true;
+                        }
+
+                        for (int i = 1; i < script.Length; i++)
+                        {
+                            modifiers[i - 1] = script[i];
+                        }
+
+                        modifier = string.Join(":", modifiers);
+                        ScriptIndex++;
+                        if (ScriptedResearch(scriptCommand, script[1], modifier, false))
+                            return true;
+
+                        loopCount++;
+                        goto Start;
                     case "IFWAR":            loopCount += ScriptBump(atWar);                    goto Start;
                     case "IFHIGHTAX":        loopCount += ScriptBump(highTaxes);                goto Start;
                     case "IFPEACE":          loopCount += ScriptBump(!atWar);                   goto Start;
@@ -239,7 +241,6 @@ namespace Ship_Game.AI.Research
                 case "RANDOM":
                 case "TECH":
                     {
-
                         string[] script = modifier.Split(':');
                         for (int i = 1; i < script.Length; i++)
                         {
@@ -257,7 +258,6 @@ namespace Ship_Game.AI.Research
                             DebugLog("Hull Was Too Expensive");
                         break;
                     }
-
                 default:
                     {
                         var techType = ConvertTechStringTechType(command2);
