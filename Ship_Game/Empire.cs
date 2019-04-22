@@ -624,7 +624,6 @@ namespace Ship_Game
 
         public void Initialize()
         {
-            EmpireAI = new EmpireAI(this);
             for (int i = 1; i < 10; ++i)
             {
                 Fleet fleet = new Fleet {Owner = this};
@@ -680,6 +679,7 @@ namespace Ship_Game
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
             InitColonyRankModifier();
+            EmpireAI = new EmpireAI(this);
         }
 
         private void ResetTechsUsableByShips(Array<Ship> ourShips, bool unlockBonuses)
