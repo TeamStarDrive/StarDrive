@@ -248,7 +248,7 @@ namespace Ship_Game.AI.Research
                         {
                             var techType = ConvertTechStringTechType(script[i]);
                             hullWasChecked |= i == 1 && techType == TechnologyType.ShipHull;
-                            TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, doLookAhead);
+                            TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, doLookAhead, lineFocus);
                             bool isCheaper = command1 == "CHEAPEST";
                             string testResearchTopic = DoesCostCompare(ref previousCost, researchTech, techType, isCheaper);
                             if (testResearchTopic.NotEmpty())
@@ -263,7 +263,7 @@ namespace Ship_Game.AI.Research
                 default:
                     {
                         var techType = ConvertTechStringTechType(command2);
-                        TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, doLookAhead);
+                        TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, doLookAhead, lineFocus);
                         if (researchTech != null)
                         {
                             researchTopic = researchTech.UID;
@@ -328,34 +328,36 @@ namespace Ship_Game.AI.Research
             return techType;
         }
 
-        private TechEntry GetScriptedTech(string command1, TechnologyType techType, Array<TechEntry> availableTechs, bool doLookAhead)
+        private TechEntry GetScriptedTech(string command1, TechnologyType techType, Array<TechEntry> availableTechs, bool doLookAhead, bool lineFocus)
         {
 
             DebugLog($"\nFind : {techType.ToString()}");
-
             TechEntry[] techsTypeFiltered = availableTechs.Filter(tech => tech.TechnologyTypes.Contains(techType));
-            if (techType.ToString().Contains("Ship"))
+            if (lineFocus)
             {
-                Array<TechEntry> filteredTech = new Array<TechEntry>();
-                foreach(var tech in techsTypeFiltered)
+                if (techType.ToString().Contains("Ship"))
                 {
-                    if (LineFocus.BestCombatShip.shipData.TechsNeeded.Contains(tech.UID))
-                        filteredTech.Add(tech);
+                    Array<TechEntry> filteredTech = new Array<TechEntry>();
+                    foreach (var tech in techsTypeFiltered)
+                    {
+                        if (LineFocus.BestCombatShip.shipData.TechsNeeded.Contains(tech.UID))
+                            filteredTech.Add(tech);
+                    }
+                    techsTypeFiltered = filteredTech.ToArray();
                 }
-                techsTypeFiltered = filteredTech.ToArray();
-            }
-            if (techsTypeFiltered.Length == 0 && doLookAhead)
-            {
-                //this get lookahead is tricky.
-                //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
-                //otherwise it would be a simple tech matches techType formula.
-                techsTypeFiltered = availableTechs.Filter(tech =>
+                if (techsTypeFiltered.Length == 0 && doLookAhead)
                 {
+                    //this get lookahead is tricky.
+                    //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
+                    //otherwise it would be a simple tech matches techType formula.
+                    techsTypeFiltered = availableTechs.Filter(tech =>
+                    {
                     //if (availableTechs.Count == 1) return true;
                     if (IncludeFreighters(tech) && tech.CostOfNextTechWithType(techType) > 0)
-                        return true;
-                    return false;
-                });
+                            return true;
+                        return false;
+                    });
+                }
             }
             LogPossibleTechs(techsTypeFiltered);
             TechEntry researchTech = TechWithWantedCost(command1, techsTypeFiltered, techType);
