@@ -166,15 +166,20 @@ namespace Ship_Game.AI
         public float PingRadarStrengthLargestCluster(Vector2 position, float radius, Empire empire, float granularity = 50000f)
         {
             var retList = new Map<Vector2, float>();
-            Array<Ship> pings = PingRadarShip(position, radius, empire);
-            float largestCluster =0;
-            var filter = new HashSet<Ship>();
+            Array<Ship> pings    = PingRadarShip(position, radius, empire);
+            var filter           = new HashSet<Ship>();
+            float largestCluster = 0;
 
             for (int index = 0; index < pings.Count; index++)
             {
                 Ship ship = pings[index];
-                if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
+                if (ship == null
+                    || filter.Contains(ship)
+                    || ship.IsGuardian
+                    || retList.ContainsKey(ship.Center))
+                {
                     continue;
+                }
 
                 Array<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
                 if (cluster.Count == 0) continue;
