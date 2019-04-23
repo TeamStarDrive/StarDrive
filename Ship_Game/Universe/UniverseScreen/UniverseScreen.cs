@@ -378,7 +378,9 @@ namespace Ship_Game
                     if (p.Owner != null)
                     {
                         foreach (string key in p.Guardians)
+                        {
                             Ship.CreateShipAt(key, p.Owner, p, true);
+                        }
                         
                         continue;
                     }
@@ -400,7 +402,10 @@ namespace Ship_Game
                         if (EmpireManager.Remnants != null)
                         {
                             foreach (string key in p.Guardians)
-                                Ship.CreateShipAt(key, EmpireManager.Remnants, p, RandomMath.Vector2D(p.ObjectRadius * 2),true);
+                            {
+                                Ship guardian = Ship.CreateShipAt(key, EmpireManager.Remnants, p, RandomMath.Vector2D(p.ObjectRadius * 2), true);
+                                guardian.IsGuardian = true;
+                            }
                         }
                         if (p.CorsairPresence && EmpireManager.Corsairs != null)
                         {

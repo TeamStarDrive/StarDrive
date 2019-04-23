@@ -71,6 +71,7 @@ namespace Ship_Game.Ships
         public bool isTurning;
         public float InhibitionRadius;
         public bool IsPlatform;
+        public bool IsGuardian; // Remnant Guardian created at game start
         private SceneObject ShipSO;
         public bool ManualHangarOverride;
         public Fleet.FleetCombatStatus FleetCombatStatus;
