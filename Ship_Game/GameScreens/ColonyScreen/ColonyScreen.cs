@@ -259,14 +259,12 @@ namespace Ship_Game
             //fbedard: Display button
             if (P.Owner == Empire.Universe.player)
             {
-                int troopsInvading = eui.empire.GetShips()
+                int troopsLanding = P.Owner.GetShips()
                     .Where(troop => troop.TroopList.Count > 0)
-                    .Where(ai => ai.AI.State != AIState.Resupply)
+                    .Where(ai => ai.AI.State != AIState.Resupply && ai.AI.State != AIState.Orbit)
                     .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
-                if (troopsInvading > 0)
-                    SendTroops.Text = "Landing: " + troopsInvading;
-                else
-                    SendTroops.Text = "Send Troops";
+
+                SendTroops.Text = troopsLanding > 0 ? "Landing: " + troopsLanding : "Send Troops";
             }
             DrawDetailInfo(new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35));
             build.Draw(batch);
@@ -1172,24 +1170,29 @@ namespace Ship_Game
 
         void OnSendTroopsClicked(UIButton b)
         {
+            // Try free troop ships first
             Array<Ship> troopShips;
             using (eui.empire.GetShips().AcquireReadLock())
                 troopShips = new Array<Ship>(eui.empire.GetShips()
-                    .Where(troop => troop.TroopList.Count > 0
-                                    && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
-                                    && troop.fleet == null && !troop.InCombat)
+                    .Where(troopship => troopship.Name == eui.empire.data.DefaultTroopShip 
+                                        && troopship.TroopList.Count > 0 
+                                        && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
+                                        && troopship.fleet == null && !troopship.InCombat)
                     .OrderBy(distance => Vector2.Distance(distance.Center, P.Center)));
-
-            Array<Planet> planetTroops = new Array<Planet>(eui.empire.GetPlanets()
-                .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, P.Center))
-                .Where(Name => Name.Name != P.Name));
 
             if (troopShips.Count > 0)
             {
                 GameAudio.EchoAffirmative();
                 troopShips.First().AI.OrderRebase(P, true);
+                return;
             }
-            else if (planetTroops.Count > 0)
+
+            // Then try planets
+            Array<Planet> planetTroops = new Array<Planet>(eui.empire.GetPlanets()
+                .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, P.Center))
+                .Where(planet => planet.Name != P.Name));
+
+            if (planetTroops.Count > 0)
             {
                 var troops = planetTroops.First().TroopsHere;
                 using (troops.AcquireWriteLock())
@@ -1203,9 +1206,7 @@ namespace Ship_Game
                 }
             }
             else
-            {
-                GameAudio.BlipClick();
-            }
+                GameAudio.NegativeClick();
         }
 
         void OnLaunchTroopsClicked(UIButton b)
