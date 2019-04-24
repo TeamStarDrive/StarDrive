@@ -23,8 +23,8 @@ namespace Ship_Game
                 if (!keyValuePair.Value)
                     continue;
                 Building b = ResourceManager.GetBuildingTemplate(keyValuePair.Key);
-                // Skip adding +food buildings for cybernetic races
-                if (IsCybernetic && (b.PlusFlatFoodAmount > 0 || b.PlusFoodPerColonist > 0))
+                // Skip adding + food buildings for cybernetic races
+                if (IsCybernetic && !b.ProducesProduction && !b.ProducesResearch && b.ProducesFood)
                     continue;
                 // Skip adding command buildings if planet already has one
                 if (!needCommandBuilding && b.IsCapitalOrOutpost)
