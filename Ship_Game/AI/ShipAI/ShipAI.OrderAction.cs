@@ -359,11 +359,11 @@ namespace Ship_Game.AI
 
         public void OrderRebaseToShip(Ship ship)
         {
-            ship.AI.EscortTarget = ship;
-            ship.AI.IgnoreCombat = true;
-            ship.AI.ClearOrders();
+            EscortTarget = ship;
+            IgnoreCombat = true;
+            ClearOrders();
             State = AIState.RebaseToShip;
-            ship.AI.AddShipGoal(Plan.RebaseToShip);
+            AddShipGoal(Plan.RebaseToShip);
         }
 
         public void OrderRefitTo(Planet refitPlanet, Goal refitGoal)
