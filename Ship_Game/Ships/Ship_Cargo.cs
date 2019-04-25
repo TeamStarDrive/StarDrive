@@ -36,8 +36,7 @@ namespace Ship_Game.Ships
         }
 
         public float ShipOrdLaunchCost => Mass / 5f;
-
-        public float ShipRetrievalOrd => Mass / 5f * HealthPercent;
+        public float ShipRetrievalOrd  => Mass / 5f * HealthPercent;
 
         private sealed class CargoContainer
         {

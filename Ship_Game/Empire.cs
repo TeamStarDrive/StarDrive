@@ -1559,6 +1559,56 @@ namespace Ship_Game
             return false;
         }
 
+        public bool GetTroopShipForRebase(out Ship troopShip, Planet planet)
+        {
+            troopShip = null;
+            // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
+            return NearestFreeTroopShip(out troopShip, planet.Center) || LaunchNearestTroopForRebase(out troopShip, planet.Center, planet.Name);
+        }
+
+        public bool GetTroopShipForRebase(out Ship troopShip, Ship ship)
+        {
+            troopShip = null;
+            // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
+            return NearestFreeTroopShip(out troopShip, ship.Center) || LaunchNearestTroopForRebase(out troopShip, ship.Center);
+        }
+
+        private bool NearestFreeTroopShip(out Ship troopShip, Vector2 objectCenter)
+        {
+            troopShip = null;
+            Array<Ship> troopShips;
+            using (OwnedShips.AcquireReadLock())
+                troopShips = new Array<Ship>(OwnedShips
+                    .Where(troopship => troopship.Name == data.DefaultTroopShip
+                                        && troopship.TroopList.Count > 0
+                                        && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
+                                        && troopship.fleet == null && !troopship.InCombat)
+                    .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
+
+            if (troopShips.Count > 0)
+                troopShip = troopShips.First();
+
+            return troopShip != null;
+        }
+
+        private bool LaunchNearestTroopForRebase(out Ship troopShip, Vector2 objectCenter, string planetName = "")
+        {
+            troopShip = null;
+            Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
+                .Where(p => p.TroopsHere.Count > 0 && !p.CombatNearPlanet &&  p.Name != planetName)
+                .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
+
+            if (candidatePlanets.Count == 0)
+                return false;
+
+            var troops = candidatePlanets.First().TroopsHere;
+            using (troops.AcquireWriteLock())
+            {
+                troopShip = troops.First().Launch();
+                return troopShip != null;
+            }
+        }
+
         public float GetTotalPop()
         {
             float num = 0.0f;

@@ -5,10 +5,9 @@ namespace Ship_Game.Ships
     public struct ShipResupply // Created by Fat Bastard to centralize all ship supply logic
     {
         private readonly Ship Ship;
-        public const float OrdnanceThresholdCombat             = 0.01f;
-        public const float OrdnanceThresholdNonCombat          = 0.1f;
+        public const float OrdnanceThresholdCombat             = 0.1f;
+        public const float OrdnanceThresholdNonCombat          = 0.2f;
         public const float OrdnanceThresholdSupplyShipsNear    = 0.5f;
-        private const float ResupplyTroopThreshold             = 0.1f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
         private const int OrdnanceProductionThresholdPriority  = 200;
@@ -49,13 +48,18 @@ namespace Ship_Game.Ships
         {
             if (Ship.DesignRole < ShipData.RoleName.colony || Ship.DesignRole == ShipData.RoleName.troop
                                                            || Ship.DesignRole == ShipData.RoleName.supply)
+            {
                 return ResupplyReason.NotNeeded;
+
+            }
 
             // this saves calculating supply again for ships already in supply states. 
             // but sometimes we want to get the reason (like displaying it to the player when he selects a ship in resupply)
             if (!forceSupplyStateCheck && (Ship.AI.State == AIState.Resupply
                                        || Ship.AI.State == AIState.ResupplyEscort))
+            {
                 return ResupplyReason.NotNeeded;
+            }
 
             if (!Ship.hasCommand)
                 return ResupplyReason.NoCommand;
@@ -79,14 +83,10 @@ namespace Ship_Game.Ships
         {
             switch (supplyType)
             {
-                default:
-                    return HealthOk() && OrdnanceOk() && TroopsOk();
-                case SupplyType.Rearm:
-                    return OrdnanceOk();
-                case SupplyType.Repair:
-                    return HealthOk();
-                case SupplyType.Troops:
-                    return TroopsOk();
+                case SupplyType.Rearm:  return OrdnanceOk();
+                case SupplyType.Repair: return HealthOk();
+                case SupplyType.Troops: return TroopsOk();
+                default:                return HealthOk() && OrdnanceOk() && TroopsOk();
             }
         }
 
@@ -102,6 +102,7 @@ namespace Ship_Game.Ships
         {
             if (Ship.InternalSlotsHealthPercent < ShipDestroyThreshold) // ship is dying or in init
                 return false;
+
             return Ship.InternalSlotsHealthPercent < DamageThreshold(Ship.shipData.ShipCategory)
                    && !Ship.AI.HasPriorityTarget;
         }
@@ -114,10 +115,14 @@ namespace Ship_Game.Ships
 
         private bool ResupplyNeededLowTroops()
         {
+            float resupplyTroopThreshold = Ship.Carrier.SendTroopsToShip ? 0.75f : 0.1f;
             if (Ship.AI.HasPriorityTarget)
                 return false;
 
-            return Ship.Carrier.TroopsMissingVsTroopCapacity < ResupplyTroopThreshold;
+            if (Ship.Carrier.AllTroopBays.Length > 0) 
+                return Ship.Carrier.TroopsMissingVsTroopCapacity < resupplyTroopThreshold;
+
+            return (float)Ship.TroopList.Count / Ship.TroopCapacity < resupplyTroopThreshold;
         }
 
         private bool OrdnanceLow()
@@ -160,6 +165,7 @@ namespace Ship_Game.Ships
             float ratio = (float)numKineticWeapons / numWeapons;
             if (Ship.AI.HasPriorityTarget && ratio < 1f)
                 return false; // if player ordered a specific attack and the ship has energy weapons, continue to fight
+
             return ratio >= ratioThreshold;
         }
 
