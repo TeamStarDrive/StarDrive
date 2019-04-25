@@ -357,6 +357,15 @@ namespace Ship_Game.AI
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
+        public void OrderRebaseToShip(Ship ship)
+        {
+            ship.AI.EscortTarget = ship;
+            ship.AI.IgnoreCombat = true;
+            ship.AI.ClearOrders();
+            State = AIState.RebaseToShip;
+            ship.AI.AddShipGoal(Plan.RebaseToShip);
+        }
+
         public void OrderRefitTo(Planet refitPlanet, Goal refitGoal)
         {
             OrderMoveTowardsPosition(refitPlanet.Center, Vectors.Up, true, refitPlanet);
