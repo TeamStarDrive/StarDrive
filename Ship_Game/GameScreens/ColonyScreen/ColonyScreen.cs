@@ -1170,40 +1170,10 @@ namespace Ship_Game
 
         void OnSendTroopsClicked(UIButton b)
         {
-            // Try free troop ships first
-            Array<Ship> troopShips;
-            using (eui.empire.GetShips().AcquireReadLock())
-                troopShips = new Array<Ship>(eui.empire.GetShips()
-                    .Where(troopship => troopship.Name == eui.empire.data.DefaultTroopShip 
-                                        && troopship.TroopList.Count > 0 
-                                        && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
-                                        && troopship.fleet == null && !troopship.InCombat)
-                    .OrderBy(distance => Vector2.Distance(distance.Center, P.Center)));
-
-            if (troopShips.Count > 0)
+            if (eui.empire.GetTroopShipForRebase(out Ship troopShip, P))
             {
                 GameAudio.EchoAffirmative();
-                troopShips.First().AI.OrderRebase(P, true);
-                return;
-            }
-
-            // Then try planets
-            Array<Planet> planetTroops = new Array<Planet>(eui.empire.GetPlanets()
-                .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, P.Center))
-                .Where(planet => planet.Name != P.Name));
-
-            if (planetTroops.Count > 0)
-            {
-                var troops = planetTroops.First().TroopsHere;
-                using (troops.AcquireWriteLock())
-                {
-                    Ship troop = troops.First().Launch();
-                    if (troop != null)
-                    {
-                        GameAudio.EchoAffirmative();
-                        troop.AI.OrderRebase(P, true);
-                    }
-                }
+                troopShip.AI.OrderRebase(P, true);
             }
             else
                 GameAudio.NegativeClick();

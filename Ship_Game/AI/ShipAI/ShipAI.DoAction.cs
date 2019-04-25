@@ -527,7 +527,30 @@ namespace Ship_Game.AI
             }
         }
 
-        void DoSupplyShip(float elapsedTime, ShipGoal goal)
+        void DoRebaseToShip(float elapsedTime)
+        {
+            if (EscortTarget == null || !EscortTarget.Active
+                                     || EscortTarget.AI.State == AIState.Scrap
+                                     || EscortTarget.AI.State == AIState.Refit)
+            {
+                OrderRebaseToNearest();
+                return;
+            }
+
+            ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
+            if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
+            {
+                if (EscortTarget.TroopCapacity == EscortTarget.TroopList.Count)
+                {
+                    OrderRebaseToNearest();
+                    return;
+                }
+                EscortTarget.TroopList.Add(Owner.TroopList[0]);
+                Owner.QueueTotalRemoval(); // vanish the ship
+            }
+        }
+
+        void DoSupplyShip(float elapsedTime)
         {
             if (EscortTarget == null || !EscortTarget.Active
                                      || EscortTarget.AI.State == AIState.Resupply
@@ -538,6 +561,7 @@ namespace Ship_Game.AI
                 OrderReturnToHangar();
                 return;
             }
+
             ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
@@ -574,8 +598,8 @@ namespace Ship_Game.AI
 
             switch (goal.VariableString)
             {
-                default:       TerminateResupplyIfDone(); break;
-                case "Rearm":  TerminateResupplyIfDone(SupplyType.Rearm); break;
+                default:       TerminateResupplyIfDone();                  break;
+                case "Rearm":  TerminateResupplyIfDone(SupplyType.Rearm);  break;
                 case "Repair": TerminateResupplyIfDone(SupplyType.Repair); break;
                 case "Troops": TerminateResupplyIfDone(SupplyType.Troops); break;
             }
