@@ -97,6 +97,8 @@ namespace Ship_Game
         public bool canBuildTroopShips;
         public bool canBuildSupportShips;
         public float currentMilitaryStrength;
+        public Color ThrustColor0;
+        public Color ThrustColor1;
         public float MaxResearchPotential    = 10;
         public float MaxColonyValue          { get; private set; }
         public Ship BestPlatformWeCanBuild   { get; private set; }
@@ -117,6 +119,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Ship SupplyShuttle       => ResourceManager.ShipsDict["Supply_Shuttle"];
         [XmlIgnore][JsonIgnore] public bool IsCybernetic        => data.Traits.Cybernetic != 0;
         [XmlIgnore][JsonIgnore] public bool NonCybernetic       => data.Traits.Cybernetic == 0;
+        //[XmlIgnore][JsonIgnore] public Color ThrusterColor0    => data.Traits.ThrustColor0;
+        //[XmlIgnore][JsonIgnore] public Color ThrusterColor1    => data.Traits.ThrustColor1;
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
@@ -679,7 +683,19 @@ namespace Ship_Game
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
             InitColonyRankModifier();
+            CreateThrusterColors();
             EmpireAI = new EmpireAI(this);
+        }
+
+        private void CreateThrusterColors()
+        {
+            ThrustColor0 = new Color(data.ThrustColor0R, data.ThrustColor0G, data.ThrustColor0B);
+            ThrustColor1 = new Color(data.ThrustColor1R, data.ThrustColor1G, data.ThrustColor1B);
+            if (ThrustColor0 == Color.Black)
+                ThrustColor0 = Color.LightBlue;
+
+            if (ThrustColor1 == Color.Black)
+                ThrustColor1 = Color.OrangeRed;
         }
 
         private void ResetTechsUsableByShips(Array<Ship> ourShips, bool unlockBonuses)
