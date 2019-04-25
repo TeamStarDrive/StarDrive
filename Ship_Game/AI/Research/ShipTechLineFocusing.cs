@@ -137,9 +137,15 @@ namespace Ship_Game.AI.Research
                     Log.Warning($"Ship {shortTermBest?.Name} Tech FilterRacialShip found a bad ship");
                     continue;
                 }
-                if (shortTermBest.shipData.ShipStyle == null) continue;
+                if (shortTermBest.shipData.ShipStyle == null)
+                    continue;
+
                 if (shortTermBest.shipData.IsShipyard)
                     continue;
+
+                if (shortTermBest.shipData.Role == ShipData.RoleName.prototype)
+                    continue; // FB - Prototypes are not buildable so don't include them
+
                 var shipStyle = shortTermBest.shipData.ShipStyle;
                 if (shipStyle != OwnerEmpire.data.Traits.ShipType)
                 {
@@ -271,37 +277,25 @@ namespace Ship_Game.AI.Research
                     {
                         case ShipData.RoleName.platform:
                         case ShipData.RoleName.station:
-                            return 9;
                         case ShipData.RoleName.colony:
                         case ShipData.RoleName.supply:
                         case ShipData.RoleName.troop:
-                            return 9;
                         case ShipData.RoleName.freighter:
-                            return 9;
                         case ShipData.RoleName.troopShip:
                         case ShipData.RoleName.support:
                         case ShipData.RoleName.bomber:
-                        case ShipData.RoleName.carrier:
-                            return 9;
+                        case ShipData.RoleName.carrier: 
                         case ShipData.RoleName.scout:
-                        case ShipData.RoleName.drone:
-                            return 9;
-                        case ShipData.RoleName.fighter:
-                            return 0;
+                        case ShipData.RoleName.drone:     return 9;
+                        case ShipData.RoleName.fighter:   return 0;
                         case ShipData.RoleName.gunboat:
-                        case ShipData.RoleName.corvette:
-                            return 1;
+                        case ShipData.RoleName.corvette:  return 1;
                         case ShipData.RoleName.frigate:
-                        case ShipData.RoleName.destroyer:
-                            return 2;
+                        case ShipData.RoleName.destroyer: return 2;
                         case ShipData.RoleName.cruiser:
-                        case ShipData.RoleName.capital:
-                            return 3;
-
-                        default:
-                            return (int)s.DesignRole;
+                        case ShipData.RoleName.capital:   return 3;
+                        default: return (int)s.DesignRole;
                     }
-                    return (int) s.DesignRole;
                 });
             return roleSorter;
         }
@@ -436,6 +430,27 @@ namespace Ship_Game.AI.Research
 
             bestShipTechs = availableTechs.Intersect(bestShipTechs).ToArrayList();
             return bestShipTechs;
+        }
+
+        // FB - Filter ship techs which are not used in any designs for this race
+        // This is used only for Scripted research, so the AI wont waste time on ship techs which no ship design uses
+        public Array<TechEntry> UsedTechsInFutureShips(Array<TechEntry> availableTechs)
+        {
+            var filteredUsedTechs = new Array<TechEntry>();
+            Array<Ship> racialShips = FilterRacialShips();
+            foreach (TechEntry tech in availableTechs)
+            {
+                if (!tech.IsShipTech() // It's not a ship tech so don't filter it
+                    || tech.Tech.ModulesUnlocked.Count == 0 // It's a ship tech but it is not unlocking modules, so don't filter
+                    || racialShips.Any(s => s.shipData.TechsNeeded.Contains(tech.UID))) // a ship contains this tech
+                {
+                    filteredUsedTechs.Add(tech);
+                }
+                else
+                    Log.Info($"Scripted Research: Filtered Ship Tech: {tech.UID}");
+            }
+
+            return filteredUsedTechs;
         }
 
         public bool BestShipNeedsHull(Array<TechEntry> availableTechs) => ShipHullTech(BestCombatShip, availableTechs) != null;

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
@@ -15,10 +16,9 @@ namespace Ship_Game.AI
             get
             {
                 float baseValue = 1.1f; // @note This value is very sensitive, don't mess around without testing
-                float diffMod = (float)CurrentGame.Difficulty * 2 * OwnerEmpire.ResearchStrategy.ExpansionRatio;
-                int plusGoals = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
-
-                float goals = (int)(baseValue + diffMod + plusGoals);
+                float diffMod   = (float)CurrentGame.Difficulty * 2.5f * OwnerEmpire.ResearchStrategy.ExpansionRatio;
+                int plusGoals   = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
+                float goals     = (float)Math.Round(baseValue + diffMod + plusGoals, 0);
                 return (int)goals.Clamped(1f, 5f);
             }
         }

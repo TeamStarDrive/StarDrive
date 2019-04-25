@@ -31,9 +31,9 @@ namespace Ship_Game.AI
             AutoSetTaxes(treasuryGoal);
             SetBudgetForeArea(0.01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
             SetBudgetForeArea(0.01f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
-            SetBudgetForeArea(0.01f, ref BuildCapacity, Math.Max(risk, buildRatio));           
-            SetBudgetForeArea(0.08f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
-            SetBudgetForeArea(0.05f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(0.02f, ref BuildCapacity, Math.Max(risk, buildRatio));           
+            SetBudgetForeArea(0.15f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
+            SetBudgetForeArea(0.1f,  ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
 
 #if DEBUG
             var pBudgets = new Array<PlanetBudget>();
@@ -62,7 +62,7 @@ namespace Ship_Game.AI
                                + OwnerEmpire.data.FlatMoneyBonus
                                + OwnerEmpire.TotalShipMaintenance; //more savings than GDP 
             }
-            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 750;
+            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 500;
             treasuryGoal = Math.Max(1000, treasuryGoal);
             return treasuryGoal;
         }
