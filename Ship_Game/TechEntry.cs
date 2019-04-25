@@ -86,15 +86,14 @@ namespace Ship_Game
         {
             if (IsTechnologyType(TechnologyType.ShipDefense)) return true;
             if (IsTechnologyType(TechnologyType.ShipGeneral)) return true;
-            if (IsTechnologyType(TechnologyType.ShipHull)) return true;
+            if (IsTechnologyType(TechnologyType.ShipHull))    return true;
             if (IsTechnologyType(TechnologyType.ShipWeapons)) return true;
             return false;
         }
 
         public bool IsTechnologyType(TechnologyType techType)
         {
-            if (TechnologyTypes.Contains(techType)) return true;
-            return false;
+            return TechnologyTypes.Contains(techType);
         }
 
         public float CostOfNextTechWithType(TechnologyType techType) => TechTypeCostLookAhead[techType];
