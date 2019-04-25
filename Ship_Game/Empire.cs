@@ -1595,7 +1595,7 @@ namespace Ship_Game
         {
             troopShip = null;
             Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
-                .Where(p => p.TroopsHere.Count > 0 && !p.CombatNearPlanet &&  p.Name != planetName)
+                .Where(p => p.TroopsHere.Count > 0 && !p.CombatNearPlanet && !p.RecentCombat && p.Name != planetName)
                 .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
             if (candidatePlanets.Count == 0)
