@@ -719,7 +719,7 @@ namespace Ship_Game.Ships
             }
             if (Ship.Carrier.AllTroopBays.Length > 0)
             {
-                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.ShieldToggle, 18)
+                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.SendTroops, 18)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.Carrier.SendTroopsToShip)
                 };

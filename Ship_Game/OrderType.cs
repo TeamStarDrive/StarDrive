@@ -4,7 +4,7 @@ namespace Ship_Game
 	{
 		FighterToggle,
 		FighterRecall,
-		ShieldToggle,
+		SendTroops,
 		DefineAO,
 		TradeFood,
 		TradeProduction,
