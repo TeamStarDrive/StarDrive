@@ -138,8 +138,6 @@ namespace Ship_Game
             var scaleFactors = new Vector3(tscale);
             heat = thrustsize.Clamped(0f, 1f);
             tick = tick + thrustspeed;
-            //colors[0] = Color.LightBlue; // END
-            //colors[1] = Color.OrangeRed; // EXHAUST
             colors[0] = thrust0;
             colors[1] = thrust1;
             world_matrix = Matrix.Identity;
