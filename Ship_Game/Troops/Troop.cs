@@ -43,14 +43,12 @@ namespace Ship_Game
         [Serialize(31)] public int HardAttack; // FB - use NetHardAttack
         [Serialize(32)] public int SoftAttack; // FB - use NetSoftAttack
         [Serialize(33)] public string Class;
-        [Serialize(34)] public int Kills;
-        [Serialize(35)] public TargetType TargetType;
-        [Serialize(36)] public int Experience;
-        [Serialize(37)] public float Cost;
-        [Serialize(38)] public string sound_attack;
-        [Serialize(39)] public int Range;
-        [Serialize(40)] public float Launchtimer = 10f; // FB - use UpdateLaunchTimer or ResetLaunchTimer
-        [Serialize(41)] public string Type;
+        [Serialize(34)] public TargetType TargetType;
+        [Serialize(35)] public float Cost;
+        [Serialize(36)] public string sound_attack;
+        [Serialize(37)] public int Range;
+        [Serialize(38)] public float Launchtimer = 10f; // FB - use UpdateLaunchTimer or ResetLaunchTimer
+        [Serialize(39)] public string Type;
 
         [XmlIgnore][JsonIgnore] public Planet HostPlanet { get; private set; }
         [XmlIgnore][JsonIgnore] private Empire Owner;
@@ -317,15 +315,10 @@ namespace Ship_Game
             }
         }
 
-        //Added by McShooterz
-        public void AddKill()
+        // Added by McShooterz, FB: changed it to level up every kill since troops are dying like flies
+        public void LevelUp()
         {
-            Kills++;
-            Experience++;
-            if (Experience != 1 + Level)
-                return;
-            Experience -= 1 + Level;
-            Level++;
+            Level = (Level +1).Clamped(0,10);
         }
 
         public void DamageTroop(float amount)
