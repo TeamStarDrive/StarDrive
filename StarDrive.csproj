@@ -1756,7 +1756,7 @@
     <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="StarDrive\Content\Textures\OrderButtons\UI_SendTroops.png">
+    <Content Include="Content\Textures\NewUI\UI_SendTroops.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Content\Explosions.yaml">
