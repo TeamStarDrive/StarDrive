@@ -135,11 +135,11 @@ namespace Ship_Game
 
         public void Update(Vector3 direction, float thrustSize, float thrustSpeed, Vector3 cameraPosition, Color thrust0, Color thrust1)
         {
-            var scaleFactors = new Vector3(tscale);
-            heat         = thrustSize.Clamped(0f, 1f);
-            tick         = tick + thrustSpeed;
-            colors[0]    = thrust0;
-            colors[1]    = thrust1;
+            var scaleFactors     = new Vector3(tscale);
+            heat                 = thrustSize.Clamped(0f, 1f);
+            tick                 = tick + thrustSpeed;
+            colors[0]            = thrust0;
+            colors[1]            = thrust1;
             world_matrix = Matrix.Identity;
             world_matrix.Forward = direction;
             dir_to_camera        = WorldPos - cameraPosition;
