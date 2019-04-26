@@ -506,10 +506,7 @@ namespace Ship_Game
                     ship.AI.OrderLandAllTroops(p);
 
                 else if (e.item is Troop troop)
-                {
-                    if (troop.AssignTroopToTile(p))
-                        troop.HostShip.TroopList.Remove(troop);
-                }
+                    troop.TryLandTroop(p);
             }
             OrbitSL.Reset();
         }
@@ -558,7 +555,7 @@ namespace Ship_Game
                 else
                 {
                     Troop troop = ResourceManager.CreateTroop("Wyvern", EmpireManager.Remnants);
-                    if (!troop.AssignTroopToTile(p))
+                    if (!troop.TryLandTroop(p))
                         return false; // eek-eek
                 }
             }
