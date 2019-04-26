@@ -885,11 +885,11 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
 
     <Token>
       <Index>217</Index>
-      <Text>Toggle ship shields on or off. Shields that are off do not drain power</Text>
+      <Text>Send Troops to this ship if it's troop number is less than 75% of the maximum. If you toggle this off, the ship will go to resupply when troop number is less than 10% of the maximum</Text>
     </Token>
     <Token>
       <Index>218</Index>
-      <Text>When active, all avaialble fighters will launch and escort the carrier. If not active, fighters will launch only for combat and return to their hangars for resupply when combat ends.</Text>
+      <Text>When active, all available fighters will launch and escort the carrier. If not active, fighters will launch only for combat and return to their hangars for resupply when combat ends.</Text>
     </Token>
     <Token>
       <Index>219</Index>

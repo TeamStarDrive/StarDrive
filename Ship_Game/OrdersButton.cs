@@ -85,10 +85,10 @@ namespace Ship_Game
                         ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_FighterRecall"), iconRect, Color.White);
                         return;
                     }
-                    case OrderType.ShieldToggle:
+                    case OrderType.SendTroops:
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_Shields"), iconRect, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_SendTroops"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.DefineAO:
@@ -189,10 +189,10 @@ namespace Ship_Game
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_FighterRecall"), iconRect, Color.White);
                     return;
                 }
-                case OrderType.ShieldToggle:
+                case OrderType.SendTroops:
                 {
                     iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_Shields"), iconRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_SendTroops"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.DefineAO:

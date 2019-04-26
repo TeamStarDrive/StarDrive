@@ -18,6 +18,7 @@ namespace Ship_Game.Ships
         public readonly bool HasTroopBays;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
+        public bool SendTroopsToShip;
         private bool RecallingShipsBeforeWarp;
 
         private CarrierBays(Ship owner, ShipModule[] slots)
@@ -35,6 +36,7 @@ namespace Ship_Game.Ships
             HasTroopBays            = AllTroopBays.Length > 0;
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
+            SendTroopsToShip        = true;
             Owner                   = owner;
         }
 
@@ -45,7 +47,7 @@ namespace Ship_Game.Ships
             ShipData.RoleName role = owner.shipData.Role;
             if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
                             || m.ModuleType == ShipModuleType.Transporter)
-                || role == ShipData.RoleName.troop)
+                            || role == ShipData.RoleName.troop)
                 return new CarrierBays(owner, slots);
             return None;
         }
@@ -217,12 +219,12 @@ namespace Ship_Game.Ships
         {
             foreach (ShipModule hangar in AllTroopBays)
             {
-                Ship hangarship = hangar.GetHangarShip();
-                if (hangarship == null || !hangarship.Active)
+                Ship hangarShip = hangar.GetHangarShip();
+                if (hangarShip == null || !hangarShip.Active)
                     continue;
 
-                if (hangarship.TroopList.Count != 0)
-                    hangarship.AI.OrderReturnToHangar();
+                if (hangarShip.TroopList.Count != 0)
+                    hangarShip.AI.OrderReturnToHangar();
             }
         }
 
@@ -230,11 +232,11 @@ namespace Ship_Game.Ships
         {
             foreach (ShipModule hangar in AllSupplyBays)
             {
-                Ship hangarship = hangar.GetHangarShip();
-                if (hangarship == null || !hangarship.Active)
+                Ship hangarShip = hangar.GetHangarShip();
+                if (hangarShip == null || !hangarShip.Active)
                     continue;
 
-                hangarship.AI.OrderReturnToHangar();
+                hangarShip.AI.OrderReturnToHangar();
             }
         }
 
@@ -242,17 +244,29 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null)
+                if (Owner == null || Owner.TroopCapacity == 0)
                     return 1f;
 
-                int troopsNotInTroopListCount = LaunchedAssaultShuttles;
-                troopsNotInTroopListCount += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
-                float troopsPresentRatio = (float)(Owner.TroopList.Count + troopsNotInTroopListCount) / Owner.TroopCapacity;
-                return troopsPresentRatio;
+                return (float)(Owner.TroopCapacity - MissingTroops) / Owner.TroopCapacity;
             }
         }
 
-        public int ReadyPlanetAssaulttTroops
+        public int MissingTroops
+        {
+            get
+            {
+                if (Owner == null)
+                    return 0;
+
+                int troopsNotInTroopListCount = LaunchedAssaultShuttles;
+                troopsNotInTroopListCount    += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
+
+                return Owner.TroopCapacity - (Owner.TroopList.Count + troopsNotInTroopListCount);
+            }
+        }
+
+
+        public int ReadyPlanetAssaultTroops
         {
             get
             {
@@ -409,7 +423,7 @@ namespace Ship_Game.Ships
             hangar.ResetHangarShipWithReturnToHangar(assaultShip);
             return true;
         }
-        
+
         private Array<Troop> LandTroops(Planet at, int maxTroopsToLand)
         {
             var landedTroops = new Array<Troop>();

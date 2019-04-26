@@ -303,6 +303,7 @@ namespace Ship_Game.AI
             Refit,
             LandTroop,
             ResupplyEscort,
+            RebaseToShip,
             ReturnHome
         }
     }

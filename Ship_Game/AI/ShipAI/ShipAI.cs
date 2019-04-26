@@ -230,6 +230,15 @@ namespace Ship_Game.AI
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 case ResupplyReason.LowTroops:
+                    if (Owner.Carrier.SendTroopsToShip)
+                    {
+                        for (int i = 0; i < Owner.Carrier.MissingTroops - Owner.NumTroopsRebasingHere; ++i)
+                        {
+                            if (Owner.loyalty.GetTroopShipForRebase(out Ship troopShip, Owner))
+                                troopShip.AI.OrderRebaseToShip(Owner);
+                        }
+                        return;
+                    }
                     nearestRallyPoint = Owner.loyalty.RallyPoints.FindMax(p => p.TroopsHere.Count);
                     break;
                 case ResupplyReason.NotNeeded:
@@ -419,23 +428,24 @@ namespace Ship_Game.AI
                 case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, toEvaluate);         break;
                 case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, toEvaluate);        break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);             break;
-                case Plan.Orbit:        DoOrbit.Orbit(planet, elapsedTime); break;
-                case Plan.Colonize:     Colonize(planet, toEvaluate); break;
-                case Plan.Explore:      DoExplore(elapsedTime);       break;
-                case Plan.Rebase:       DoRebase(toEvaluate);         break;
-                case Plan.DefendSystem: DoSystemDefense(elapsedTime); break;
-                case Plan.DoCombat:     DoCombat(elapsedTime);        break;
-                case Plan.DeployStructure:   DoDeploy(toEvaluate);                      break;
-                case Plan.PickupGoods:       PickupGoods.Execute(elapsedTime, toEvaluate);  break;
-                case Plan.DropOffGoods:      DropOffGoods.Execute(elapsedTime, toEvaluate); break;
-                case Plan.ReturnToHangar:    DoReturnToHangar(elapsedTime);             break;
-                case Plan.TroopToShip:       DoTroopToShip(elapsedTime, toEvaluate);    break;
-                case Plan.BoardShip:         DoBoardShip(elapsedTime);                  break;
-                case Plan.SupplyShip:        DoSupplyShip(elapsedTime, toEvaluate);     break;
-                case Plan.Refit:             DoRefit(toEvaluate);                       break;
-                case Plan.LandTroop:         DoLandTroop(elapsedTime, toEvaluate);      break;
-                case Plan.ResupplyEscort:    DoResupplyEscort(elapsedTime, toEvaluate); break;
-                case Plan.ReturnHome:        DoReturnHome(elapsedTime);                 break;
+                case Plan.Orbit:                    DoOrbit.Orbit(planet, elapsedTime);                break;
+                case Plan.Colonize:                 Colonize(planet, toEvaluate);                      break;
+                case Plan.Explore:                  DoExplore(elapsedTime);                            break;
+                case Plan.Rebase:                   DoRebase(toEvaluate);                              break;
+                case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                      break;
+                case Plan.DoCombat:                 DoCombat(elapsedTime);                             break;
+                case Plan.DeployStructure:          DoDeploy(toEvaluate);                              break;
+                case Plan.PickupGoods:              PickupGoods.Execute(elapsedTime, toEvaluate);      break;
+                case Plan.DropOffGoods:             DropOffGoods.Execute(elapsedTime, toEvaluate);     break;
+                case Plan.ReturnToHangar:           DoReturnToHangar(elapsedTime);                     break;
+                case Plan.TroopToShip:              DoTroopToShip(elapsedTime, toEvaluate);            break;
+                case Plan.BoardShip:                DoBoardShip(elapsedTime);                          break;
+                case Plan.SupplyShip:               DoSupplyShip(elapsedTime);                         break;
+                case Plan.Refit:                    DoRefit(toEvaluate);                               break;
+                case Plan.LandTroop:                DoLandTroop(elapsedTime, toEvaluate);              break;
+                case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, toEvaluate);         break;
+                case Plan.ReturnHome:               DoReturnHome(elapsedTime);                         break;
+                case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                       break;
             }
 
             return false;
