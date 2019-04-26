@@ -119,8 +119,6 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Ship SupplyShuttle       => ResourceManager.ShipsDict["Supply_Shuttle"];
         [XmlIgnore][JsonIgnore] public bool IsCybernetic        => data.Traits.Cybernetic != 0;
         [XmlIgnore][JsonIgnore] public bool NonCybernetic       => data.Traits.Cybernetic == 0;
-        //[XmlIgnore][JsonIgnore] public Color ThrusterColor0    => data.Traits.ThrustColor0;
-        //[XmlIgnore][JsonIgnore] public Color ThrusterColor1    => data.Traits.ThrustColor1;
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
