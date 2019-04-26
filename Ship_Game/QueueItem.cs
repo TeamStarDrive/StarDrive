@@ -65,7 +65,7 @@ namespace Ship_Game
             {
                 float cost = Cost;
                 if (isShip) cost *= Planet.ShipBuildingModifier;
-                return cost;
+                return (int)cost; // FB - int to avoid float issues in release which prevent items from being complete
             }
         }
 
