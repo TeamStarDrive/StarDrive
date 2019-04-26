@@ -216,12 +216,14 @@ namespace Ship_Game.AI.Research
         private bool GetLineFocusedShip(Array<Ship> researchableShips, HashSet<string> shipTechs)
         {
             // Bucket ships by how many techs they have that are not already researched
+            researchableShips.Sort(s => s.shipData.TechScore / ((int)OwnerEmpire.MaxResearchPotential * 100));
             SortedList<int, Array<Ship>> techSorter = TechSorter(researchableShips, shipTechs);
 
             //Bail if there aren't any ships to research
             if (techSorter.Count == 0)
                 return false;
-            int techKey = techSorter.First().Key;
+            int techKey = PickRandomKey(techSorter);
+
             /* This is part that chooses the  hull
             takes the first entry from the least techs needed list.
              then sorts it by the number of techs needed for the hull
@@ -284,7 +286,7 @@ namespace Ship_Game.AI.Research
                         case ShipData.RoleName.troopShip:
                         case ShipData.RoleName.support:
                         case ShipData.RoleName.bomber:
-                        case ShipData.RoleName.carrier: 
+                        case ShipData.RoleName.carrier:
                         case ShipData.RoleName.scout:
                         case ShipData.RoleName.drone:     return 9;
                         case ShipData.RoleName.fighter:   return 0;
@@ -344,10 +346,10 @@ namespace Ship_Game.AI.Research
                         totalTechJumps += techJumps;
                     }
 
-                    int bestTechCount = maxTechJumps;
-                 
+                    int bestTechCount = totalTechJumps + maxTechJumps * 5;
+
                     bestTechCount += shortTermBest.DesignRole < ShipData.RoleName.troopShip ? 1 : 0;
-                    var score = bestTechCount < 2 ? 0 : totalTechJumps;
+                    var score = bestTechCount;
                     return score;
                 });
             return techSorter;
