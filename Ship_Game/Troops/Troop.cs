@@ -220,40 +220,6 @@ namespace Ship_Game
             spriteBatch.Draw(iconTexture, drawRect, Color.White);
         }
 
-        public Ship Launch()
-        {
-            if (HostPlanet == null)
-                return null;
-
-            foreach (PlanetGridSquare tile in HostPlanet.TilesList)
-            {
-                if (!tile.TroopsHere.Contains(this))
-                    continue;
-
-                return LaunchToSpace(tile);
-            }
-            // Tile not found
-            return null;
-        }
-
-        public Ship Launch(PlanetGridSquare tile)
-        {
-            if (HostPlanet == null)
-                return null;
-
-            return LaunchToSpace(tile);
-        }
-
-        private Ship LaunchToSpace(PlanetGridSquare tile)
-        {
-            tile.TroopsHere.Clear();
-            HostPlanet.TroopsHere.Remove(this);
-            Vector2 createAt = HostPlanet.Center + RandomMath.Vector2D(HostPlanet.ObjectRadius * 2);
-            Ship troopShip   = Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, createAt, this);
-            HostPlanet       = null;
-            return troopShip;
-        }
-
         public void SetFromRect(Rectangle from)
         {
             FromRect = from;
@@ -343,36 +309,86 @@ namespace Ship_Game
             }
         }
 
-        public bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet )
+        // Launch a troop which it's tile location is unknown
+        public Ship Launch()
+        {
+            if (HostPlanet == null)
+                return null;
+
+            foreach (PlanetGridSquare tile in HostPlanet.TilesList)
+            {
+                if (!tile.TroopsHere.Contains(this))
+                    continue;
+
+                return LaunchToSpace(tile);
+            }
+            // Tile not found
+            return null;
+        }
+
+        // Launch a troop from a specific tile
+        public Ship Launch(PlanetGridSquare tile)
+        {
+            return HostPlanet != null ? LaunchToSpace(tile) : null;
+        }
+
+        // Launch a troop which was created in a planet but there was no room for it.
+        public Ship Launch(Planet planet)
+        {
+            return CreateShipForTroop(planet);
+        }
+
+        private Ship LaunchToSpace(PlanetGridSquare tile)
+        {
+            tile.TroopsHere.Clear();
+            HostPlanet.TroopsHere.Remove(this);
+            Ship troopShip = CreateShipForTroop(HostPlanet);
+            HostPlanet     = null;
+            return troopShip;
+        }
+
+        private Ship CreateShipForTroop(Planet planet)
+        {
+            Vector2 createAt = planet.Center + RandomMath.Vector2D(planet.ObjectRadius * 2);
+            return Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, createAt, this);
+        }
+
+        public bool TryLandTroop(Planet planet)
+        {
+            planet = planet ?? HostPlanet;
+            return planet.FreeTiles > 0 && AssignTroopToTile(planet);
+        }
+
+        public bool TryLandTroop(Planet planet, PlanetGridSquare tile)
+        {
+            planet = planet ?? HostPlanet;
+            return planet.FreeTiles > 0 && AssignTroopToNearestAvailableTile(tile, planet);
+        }
+
+        private bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet )
         {
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare pgs in planet.TilesList)
             {
-                if (pgs.TroopsHere.Count < pgs.MaxAllowedTroops
-                    && !pgs.CombatBuildingOnTile
-                    && tile.InRangeOf(pgs, 1))
+                if (pgs.IsTileFree && tile.InRangeOf(pgs, 1))
                     list.Add(pgs);
             }
 
-            if (list.Count <= 0)
-                return false;
+            if (list.Count == 0)
+                return AssignTroopToTile(planet); // Fallback to assign troop to any available tile if no close tile available
 
             PlanetGridSquare selectedTile = list.RandItem();
             AssignTroop(planet, selectedTile);
             return true;
         }
 
-        public bool AssignTroopToTile(Planet planet = null)
+        private bool AssignTroopToTile(Planet planet)
         {
-            planet = planet ?? HostPlanet;
-            if (planet.FreeTiles == 0)
-                return false;
-
             var list = new Array<PlanetGridSquare>();
-            foreach (PlanetGridSquare pgs in planet.TilesList)
+            foreach (PlanetGridSquare tile in planet.TilesList)
             {
-                if (pgs.TroopsHere.Count < pgs.MaxAllowedTroops && !pgs.CombatBuildingOnTile)
-                    list.Add(pgs);
+                if (tile.IsTileFree)
+                    list.Add(tile);
             }
 
             if (list.Count <= 0)
@@ -388,11 +404,18 @@ namespace Ship_Game
             return true;
         }
 
-        void AssignTroop(Planet planet, PlanetGridSquare tile)
+        private void AssignTroop(Planet planet, PlanetGridSquare tile)
         {
             tile.TroopsHere.Add(this);
             planet.TroopsHere.Add(this);
             SetPlanet(planet);
+            if (HostShip != null)
+            {
+                HostShip.TroopList.Remove(this);
+                // Remove the ship if it was the default troop / assault ship. They are designed to vanish once landing troop.
+                if (HostShip.IsDefaultTroopTransport)
+                    HostShip.QueueTotalRemoval(); 
+            }
         }
     }
 }
