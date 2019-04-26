@@ -152,34 +152,41 @@ namespace Ship_Game
                 SetPlanet(potentials[RandomMath.InRange(potentials.Count)]);
                 return true;
             }
+
             return false;	        
         }
+
         private void TroopActions(Empire triggerer, Planet p, PlanetGridSquare eventLocation)
         {
             if (TroopsGranted != null)
             {
-                foreach (string troopname in TroopsGranted)
+                foreach (string troopName in TroopsGranted)
                 {
-                    Troop t = ResourceManager.CreateTroop(troopname, triggerer);
+                    Troop t = ResourceManager.CreateTroop(troopName, triggerer);
                     t.SetOwner(triggerer);
-                    if (t.AssignTroopToNearestAvailableTile(eventLocation, p))
-                    {
-                        continue;
-                    }
-                    t.AssignTroopToTile(p);
+                    if (!t.TryLandTroop(p, eventLocation))
+                        t.Launch(p);
                 }
             }
+
             if (TroopsToSpawn != null)
             {
-                foreach (string troopname in TroopsToSpawn)
+                foreach (string troopName in TroopsToSpawn)
                 {
-                    Troop t = ResourceManager.CreateTroop(troopname, EmpireManager.Unknown);
-                    t.SetOwner(EmpireManager.Unknown);
-                    if (t.AssignTroopToNearestAvailableTile(eventLocation,p))
+                    if (p.FreeTiles == 0 && !p.BumpOutTroop(EmpireManager.Unknown))
                     {
-                        continue;
+                        Log.Warning($"Could not bump out any troop from {p.Name} after event");
+                        return;
                     }
-                    t.AssignTroopToTile(p);
+
+                    Troop t = ResourceManager.CreateTroop(troopName, EmpireManager.Unknown);
+                    t.SetOwner(EmpireManager.Unknown);
+                    if (!t.TryLandTroop(p, eventLocation))
+                    {
+                        t.SetOwner(EmpireManager.Remnants);
+                        t.Launch(p);
+                        Log.Warning($"Troop spawned but could not be landed on {p.Name} after event. Transformed to Remnant.");
+                    }
                 }
             }
         }
@@ -187,8 +194,8 @@ namespace Ship_Game
         public bool InValidOutcome(Empire triggerer)
         {
             return OnlyTriggerOnce && AlreadyTriggered && triggerer.isPlayer;
-
         }
+
         public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer, EventPopup popup)
         {
             //artifact setup

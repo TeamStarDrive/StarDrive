@@ -153,7 +153,7 @@ namespace Ship_Game.Universe.SolarBodies
         bool TrySpawnTroop(QueueItem q)
         {
             Troop troop = ResourceManager.CreateTroop(q.TroopType, Owner);
-            if (!troop.AssignTroopToTile(P))
+            if (!troop.TryLandTroop(P))
                 return false; // eek-eek
             q.Goal?.NotifyMainGoalCompleted();
             return true;

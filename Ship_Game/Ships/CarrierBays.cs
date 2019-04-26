@@ -433,7 +433,7 @@ namespace Ship_Game.Ships
                     break;
                 if (troop == null || troop.Loyalty != Owner.loyalty)
                     continue;
-                if (troop.AssignTroopToTile(at))
+                if (troop.TryLandTroop(at))
                 {
                     landedTroops.Add(troop);
                     --maxTroopsToLand;

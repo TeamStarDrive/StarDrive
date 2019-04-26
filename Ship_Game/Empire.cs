@@ -2142,8 +2142,11 @@ namespace Ship_Game
                         for (int index = 0; index < planet.PopulationBillion; ++index)
                         {
                             Troop troop = EmpireManager.CreateRebelTroop(rebels);
-                            troop.AssignTroopToTile(
-                                planet);
+                            if (planet.FreeTiles == 0 && !planet.BumpOutTroop(EmpireManager.Corsairs)
+                                                      && !troop.TryLandTroop(planet)) // Let's say the rebels are pirates :)
+                            {
+                                troop.Launch(planet); // launch the rebels
+                            }
                         }
                     }
 

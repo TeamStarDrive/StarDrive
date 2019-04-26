@@ -607,17 +607,22 @@ namespace Ship_Game
                                 EmpireManager.Add(rebels);
                                 targetEmpire.data.RebellionLaunched = true;
                             }
-                            Empire darebels = EmpireManager.GetEmpireByName(targetEmpire.data.RebelName);
+                            Empire daRebels = EmpireManager.GetEmpireByName(targetEmpire.data.RebelName);
                             for (int i = 0; i < 4; i++)
                             {
                                 foreach (string troopType in ResourceManager.TroopTypes)
                                 {
                                     if (!targetEmpire.WeCanBuildTroop(troopType))
                                         continue;
-                                    Troop t = ResourceManager.CreateTroop(troopType, darebels);
-                                    t.Name = Localizer.Token(darebels.data.TroopNameIndex);
-                                    t.Description = Localizer.Token(darebels.data.TroopDescriptionIndex);
-                                    t.AssignTroopToTile(target);
+                                    Troop t = ResourceManager.CreateTroop(troopType, daRebels);
+                                    t.Name = Localizer.Token(daRebels.data.TroopNameIndex);
+                                    t.Description = Localizer.Token(daRebels.data.TroopDescriptionIndex);
+                                    if (target.FreeTiles == 0 && !target.BumpOutTroop(EmpireManager.Corsairs)
+                                                              && !t.TryLandTroop(target)) // Let's say the rebels are pirates :)
+                                    {
+                                        t.Launch(target); // launch the rebels
+                                    }
+
                                     break;
                                 }
                             }

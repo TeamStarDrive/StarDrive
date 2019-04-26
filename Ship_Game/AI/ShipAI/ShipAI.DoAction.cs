@@ -311,11 +311,13 @@ namespace Ship_Game.AI
                         Owner.Speed > 200 ? Owner.Speed * 0.90f : Owner.velocityMaximum);
                 else
                     ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime);
-                if (distCenter < goal.TargetPlanet.ObjectRadius &&
-                    Owner.TroopList[0].AssignTroopToTile(goal.TargetPlanet))
-                    Owner.QueueTotalRemoval();
+
+                if (distCenter < goal.TargetPlanet.ObjectRadius)
+                    Owner.TroopList[0].TryLandTroop(goal.TargetPlanet);
+
                 return;
             }
+            // FB @todo - change to FreeTiles
             if (Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0
                 || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
             {
@@ -342,7 +344,7 @@ namespace Ship_Game.AI
             {
                 Owner.QueueTotalRemoval(); // vanish the ship
             }
-            else if (Owner.TroopList[0].AssignTroopToTile(goal.TargetPlanet))
+            else if (Owner.TroopList[0].TryLandTroop(goal.TargetPlanet))
             {
                 Owner.TroopList.Clear();
                 Owner.QueueTotalRemoval(); // vanish the ship

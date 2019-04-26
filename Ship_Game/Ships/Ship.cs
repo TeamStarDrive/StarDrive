@@ -175,6 +175,9 @@ namespace Ship_Game.Ships
             return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
         }
 
+
+        public bool IsDefaultTroopTransport => loyalty.data.DefaultAssaultShuttle == Name || loyalty.data.DefaultTroopShip == Name;
+
         public bool IsFreighter
         {
             get

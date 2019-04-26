@@ -891,6 +891,13 @@ namespace Ship_Game
             return events;
         }
 
+        // Bump out an enemy troop to make room available (usually for spawned troops via events)
+        public bool BumpOutTroop(Empire empire)
+        {
+            Troop randomEnemyTroop = TroopsHere.Filter(t => t.Loyalty != empire).RandItem();
+            return randomEnemyTroop.Launch() != null;
+        }
+
         public int TotalInvadeInjure   => BuildingList.Sum(b => b.InvadeInjurePoints);
         public float TotalSpaceOffense => BuildingList.Sum(b => b.Offense) + OrbitalStations.Values.Sum(o => o.BaseStrength);
         public int MaxDefenseShips     => BuildingList.Sum(b => b.DefenseShipsCapacity);
