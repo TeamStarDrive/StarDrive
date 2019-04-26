@@ -820,7 +820,8 @@ namespace Ship_Game
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             ResearchStrategy = ResourceManager.GetEconomicStrategy(data.EconomicPersonality.Name);
-            InitColonyRankModifier();            
+            InitColonyRankModifier();
+            CreateThrusterColors();
         }
 
         bool WeCanUseThisLater(TechEntry tech)
