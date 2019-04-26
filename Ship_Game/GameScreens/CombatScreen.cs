@@ -306,9 +306,11 @@ namespace Ship_Game
                     e.CheckHover(Input.CursorPosition);
                 }
 
-                LandAll.Visible   = OrbitSL.NumEntries > 0;
-                LaunchAll.Visible = p.TroopsHere.Any(myTroops => myTroops.Loyalty == EmpireManager.Player && myTroops.Launchtimer <= 0f);
+                LandAll.Visible = OrbitSL.NumEntries > 0;
             }
+
+            LaunchAll.Draw(batch);
+
             foreach (PlanetGridSquare pgs in ReversedList)
             {
                 if (pgs.BuildingOnTile)
@@ -546,7 +548,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
-                if (pgs.NoTroopsOnTile || pgs.SingleTroop.Loyalty != Empire.Universe.player || pgs.SingleTroop.Launchtimer >= 0)
+                if (pgs.NoTroopsOnTile || pgs.SingleTroop.Loyalty != Empire.Universe.player || !pgs.SingleTroop.CanMove)
                     continue;
 
                 try
@@ -557,10 +559,7 @@ namespace Ship_Game
                     pgs.SingleTroop.ResetAttackTimer();
                     pgs.SingleTroop.ResetMoveTimer();
                     play = true;
-                    Ship.CreateTroopShipAtPoint(pgs.SingleTroop.Loyalty.data.DefaultTroopShip, pgs.SingleTroop.Loyalty, p.Center, pgs.SingleTroop);
-                    p.TroopsHere.Remove(pgs.SingleTroop);
-                    pgs.SingleTroop.SetPlanet(null);
-                    pgs.TroopsHere.Clear();
+                    pgs.SingleTroop.Launch(pgs);
                 }
                 catch (Exception ex)
                 {
@@ -569,10 +568,12 @@ namespace Ship_Game
             }
 
             if (!play)
-                return;
-
-            GameAudio.TroopTakeOff();
-            ResetNextFrame = true;
+                GameAudio.NegativeClick();
+            else
+            {
+                GameAudio.TroopTakeOff();
+                ResetNextFrame = true;
+            }
         }
 
         public override bool HandleInput(InputState input)
@@ -605,7 +606,7 @@ namespace Ship_Game
             }
 
             LandAll.Enabled = OrbitSL.NumEntries > 0;
-            LaunchAll.Enabled = p.TroopsHere.Any(myTroops => myTroops.Loyalty == Empire.Universe.player);
+            LaunchAll.Enabled = p.TroopsHere.Any(t => t.Loyalty == Empire.Universe.player && t.CanMove);
             OrbitSL.HandleInput(input);
             foreach (ScrollList.Entry e in OrbitSL.AllExpandedEntries)
             {
@@ -780,23 +781,26 @@ namespace Ship_Game
                     if (ActiveTile == null || !pgs.CanMoveTo || ActiveTile.NoTroopsOnTile || !pgs.ClickRect.HitTest(Input.CursorPosition) || ActiveTile.SingleTroop.Loyalty != EmpireManager.Player || Input.LeftMouseReleased || !ActiveTile.SingleTroop.CanMove)
                         continue;
 
-                    if (pgs.x > ActiveTile.x)
-                        ActiveTile.SingleTroop.facingRight = true;
-                    else if (pgs.x < ActiveTile.x)
-                        ActiveTile.SingleTroop.facingRight = false;
+                    if (Input.LeftMouseClick)
+                    {
+                        if (pgs.x > ActiveTile.x)
+                            ActiveTile.SingleTroop.facingRight = true;
+                        else if (pgs.x < ActiveTile.x)
+                            ActiveTile.SingleTroop.facingRight = false;
 
-                    pgs.TroopsHere.Add(ActiveTile.SingleTroop);
-                    Troop troop = pgs.SingleTroop;
-                    troop.UpdateMoveActions(-1);
-                    pgs.SingleTroop.ResetMoveTimer();
-                    pgs.SingleTroop.MovingTimer = 0.75f;
-                    pgs.SingleTroop.SetFromRect(ActiveTile.TroopClickRect);
-                    GameAudio.PlaySfxAsync(pgs.SingleTroop.MovementCue);
-                    ActiveTile.TroopsHere.Clear();
-                    ActiveTile    = null;
-                    ActiveTile    = pgs;
-                    pgs.CanMoveTo = false;
-                    selectedSomethingThisFrame = true;
+                        pgs.TroopsHere.Add(ActiveTile.SingleTroop);
+                        Troop troop = pgs.SingleTroop;
+                        troop.UpdateMoveActions(-1);
+                        pgs.SingleTroop.ResetMoveTimer();
+                        pgs.SingleTroop.MovingTimer = 0.75f;
+                        pgs.SingleTroop.SetFromRect(ActiveTile.TroopClickRect);
+                        GameAudio.PlaySfxAsync(pgs.SingleTroop.MovementCue);
+                        ActiveTile.TroopsHere.Clear();
+                        ActiveTile = null;
+                        ActiveTile = pgs;
+                        pgs.CanMoveTo = false;
+                        selectedSomethingThisFrame = true;
+                    }
                 }
             }
             if (ActiveTile != null && !selectedSomethingThisFrame && Input.LeftMouseClick && !SelectedItemRect.HitTest(input.CursorPosition))
