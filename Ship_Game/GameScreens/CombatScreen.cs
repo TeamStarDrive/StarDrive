@@ -35,6 +35,7 @@ namespace Ship_Game
         private bool ResetNextFrame;
         public PlanetGridSquare ActiveTile;
         private Selector selector;
+        private float OrbitalAssetsTimer; // 2 seconds per update
 
         ScrollList.Entry draggedTroop;
         Array<PlanetGridSquare> ReversedList              = new Array<PlanetGridSquare>();
@@ -74,38 +75,9 @@ namespace Ship_Game
 
             LandAll   = Button(orbitalResourcesSub.Menu.X + 20, orbitalResourcesSub.Menu.Y - 2, "Land All", OnLandAllClicked);
             LaunchAll = Button(orbitalResourcesSub.Menu.X + 20, LandAll.Rect.Y - 2 - LandAll.Rect.Height, "Launch All", OnLaunchAllClicked);
+            LandAll.Tooltip   = Localizer.Token(1951);
+            LaunchAll.Tooltip = Localizer.Token(1952);
 
-            using (Empire.Universe.MasterShipList.AcquireReadLock())
-            foreach (Ship ship in Empire.Universe.MasterShipList)
-            {
-
-                if (ship == null)
-                    continue;
-
-                if (Vector2.Distance(p.Center, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f || ship.loyalty != EmpireManager.Player)
-                    continue;
-
-                if (ship.shipData.Role != ShipData.RoleName.troop)
-                {
-                    if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  //fbedard
-                        continue;
-
-                    int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                    foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1))
-                        landingLimit += module.TransporterTroopLanding;
-                    if (p.HasSpacePort && p.Owner == ship.loyalty) landingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
-                    for (int i = 0; i < ship.TroopList.Count() && landingLimit > 0; i++)
-                    {
-                        if (ship.TroopList[i] != null && ship.TroopList[i].Loyalty == ship.loyalty)
-                        {
-                            OrbitSL.AddItem(ship.TroopList[i]);
-                            landingLimit--;
-                        }
-                    }
-                }
-                else
-                    OrbitSL.AddItem(ship);
-            }
             gridPos   = new Rectangle(ColonyGrid.X + 20, ColonyGrid.Y + 20, ColonyGrid.Width - 40, ColonyGrid.Height - 40);
             int xSize = gridPos.Width / 7;
             int ySize = gridPos.Height / 5;
@@ -305,11 +277,10 @@ namespace Ship_Game
                     }
                     e.CheckHover(Input.CursorPosition);
                 }
-
-                LandAll.Visible = OrbitSL.NumEntries > 0;
             }
 
             LaunchAll.Draw(batch);
+            LandAll.Draw(batch);
 
             foreach (PlanetGridSquare pgs in ReversedList)
             {
@@ -536,8 +507,8 @@ namespace Ship_Game
 
                 else if (e.item is Troop troop)
                 {
-                    troop.HostShip.TroopList.Remove(troop);
-                    troop.AssignTroopToTile(p);
+                    if (troop.AssignTroopToTile(p))
+                        troop.HostShip.TroopList.Remove(troop);
                 }
             }
             OrbitSL.Reset();
@@ -972,6 +943,7 @@ namespace Ship_Game
 
         public override void Update(float elapsedTime)
         {
+            UpdateOrbitalAssets(elapsedTime);
             if (ResetNextFrame)
             {
                 ResetTroopList();
@@ -996,6 +968,49 @@ namespace Ship_Game
             }
             p.ActiveCombats.ApplyPendingRemovals();
             base.Update(elapsedTime);
+        }
+
+        public void UpdateOrbitalAssets(float elapsedTime)
+        {
+            OrbitalAssetsTimer += elapsedTime;
+            if (OrbitalAssetsTimer < 2)
+                return;
+
+            OrbitalAssetsTimer = 0;
+            OrbitSL.Reset();
+            using (EmpireManager.Player.GetShips().AcquireReadLock())
+                foreach (Ship ship in EmpireManager.Player.GetShips())
+                {
+
+                    if (ship == null)
+                        continue;
+
+                    if (Vector2.Distance(p.Center, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f)
+                        continue;
+
+                    if (ship.shipData.Role != ShipData.RoleName.troop) // check ships which dont have assault bays (they can land troops via spaceport)
+                    {
+                        if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  //fbedard
+                            continue;
+
+                        int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
+                        foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1))
+                            landingLimit += module.TransporterTroopLanding;
+                        if (p.HasSpacePort && p.Owner == ship.loyalty) landingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
+                        for (int i = 0; i < ship.TroopList.Count() && landingLimit > 0; i++)
+                        {
+                            if (ship.TroopList[i] != null && ship.TroopList[i].Loyalty == ship.loyalty)
+                            {
+                                OrbitSL.AddItem(ship.TroopList[i]);
+                                landingLimit--;
+                            }
+                        }
+                    }
+                    else if (ship.AI.State != AI.AIState.Rebase && ship.AI.State != AI.AIState.AssaultPlanet)
+                        OrbitSL.AddItem(ship);
+
+                    LandAll.Text = OrbitSL.NumEntries > 0 ? $"Land All ({Math.Min(OrbitSL.NumEntries, p.FreeTiles)})" : "Land All";
+                }
         }
 
         public void AddExplosion(Rectangle grid, int size)

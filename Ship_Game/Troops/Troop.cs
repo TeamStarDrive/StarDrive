@@ -364,7 +364,10 @@ namespace Ship_Game
 
         public bool AssignTroopToTile(Planet planet = null)
         {
-            planet   = planet ?? HostPlanet;
+            planet = planet ?? HostPlanet;
+            if (planet.FreeTiles == 0)
+                return false;
+
             var list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare pgs in planet.TilesList)
             {

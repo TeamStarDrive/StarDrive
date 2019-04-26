@@ -950,7 +950,7 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
     </Token>
     <Token>
       <Index>234</Index>
-      <Text>Opens a panel displaying any troops you have in orbit, whether they are on shuttles or garrisoned aboard ships. You can drag troops from this panel to the battlefield. Troops will be unable to act for 10 seconds when they land</Text>
+      <Text>Opens a panel displaying any troops you have in orbit, whether they are on shuttles. If this is your colony and you have troops garrisoned in ships (even if these ships do not have assault bays), they will be displayed here as well.</Text>
     </Token>
     <Token>
       <Index>235</Index>
@@ -4694,6 +4694,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Expansionists</Text>
     </Token>
     <!-- Data added in Venus -->
+    <Token>
+      <Index>1951</Index>
+      <Text>Land all troops listed in the orbital assets. The number in parentheses is the actual number which can currently land on this planet (free space)</Text>
+    </Token>
+    <Token>
+      <Index>1952</Index>
+      <Text>Launch to space all troops which can currently move.</Text>
+    </Token>
     <Token>
       <Index>1953</Index>
       <Text>The Governor is exporting production. Only some percentage of it's net production will be allocated to the build queue if freighters are exporting production from this planet. If there is no demand or this planet is building more than 5 things, it will allocate it's storage to the building queue as well.</Text>
