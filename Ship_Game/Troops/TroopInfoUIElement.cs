@@ -154,7 +154,20 @@ namespace Ship_Game
         {
             if (level <= 0)
                 return;
-            Color color = level < 3 ? Color.White : Color.Gold;
+            Color color;
+            switch (level)
+            {
+                default: color = Color.Gold; break;
+                case 3:
+                case 4:
+                case 5:  color = Color.SandyBrown; break;
+                case 6:
+                case 7:
+                case 9:  color = Color.DodgerBlue; break;
+                case 10: color = Color.Gold;  break;
+
+            }
+
             for (int i = 0; i < level; i++)
             {
                 var star = new Rectangle(LeftRect.X + LeftRect.Width - 20 - 12 * i, LeftRect.Y + 12, 12, 11);
