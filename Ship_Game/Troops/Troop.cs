@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public sealed class Troop // Initial refactor by Fat Bastard - March 16, 2019
+    public sealed class Troop // Initial refactor by Fat Bastard - March 16, 2019. FB: Added Launch and Land Logic - April 27, 2019
     {
         [Serialize(0)] public string Name;
         [Serialize(1)] public string RaceType;
@@ -353,12 +353,14 @@ namespace Ship_Game
             return Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, createAt, this);
         }
 
+        // FB - this is the main logic for land troops. 
         public bool TryLandTroop(Planet planet)
         {
             planet = planet ?? HostPlanet;
             return planet.FreeTiles > 0 && AssignTroopToTile(planet);
         }
 
+        // FB - this is the main logic for land troops if they need the nearest tile from a target tile 
         public bool TryLandTroop(Planet planet, PlanetGridSquare tile)
         {
             planet = planet ?? HostPlanet;
@@ -408,14 +410,29 @@ namespace Ship_Game
         {
             tile.TroopsHere.Add(this);
             planet.TroopsHere.Add(this);
+            RemoveHostShip();
             SetPlanet(planet);
-            if (HostShip != null)
+
+        }
+
+        private void RemoveHostShip()
+        {
+            if (HostShip == null)
+                return;
+
+            HostShip.TroopList.Remove(this);
+            // Remove the ship if it was the default troop / assault ship. They are designed to vanish once landing troop.
+            if (HostShip.IsDefaultTroopTransport)
             {
-                HostShip.TroopList.Remove(this);
-                // Remove the ship if it was the default troop / assault ship. They are designed to vanish once landing troop.
-                if (HostShip.IsDefaultTroopTransport)
-                    HostShip.QueueTotalRemoval(); 
+                HostShip.QueueTotalRemoval();
+                HostShip = null;
             }
+        }
+
+        public void LandOnShip(Ship ship)
+        {
+            ship.TroopList.Add(this);
+            RemoveHostShip();
         }
     }
 }

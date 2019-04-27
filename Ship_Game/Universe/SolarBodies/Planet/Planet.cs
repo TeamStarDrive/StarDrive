@@ -38,7 +38,7 @@ namespace Ship_Game
         public bool AllowInfantry;
 
         public int CrippledTurns;
-        public int TotalDefensiveStrength { get; private set; } 
+        public int TotalDefensiveStrength { get; private set; }
 
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
@@ -81,6 +81,14 @@ namespace Ship_Game
         public int FreeTiles      => (TilesList.Count(t => t.TroopsHere.Count < t.MaxAllowedTroops && !t.CombatBuildingOnTile) - 1)
                                      .Clamped(0, MaxBuildings);
 
+        public int FreeTilesWithRebaseOnTheWay
+        {
+            get {
+                int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
+                                          .Count(s => s.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this));
+                return (FreeTiles - rebasingTroops).Clamped(0, MaxBuildings);
+            }
+        }
         void CreateManagers()
         {
             TroopManager    = new TroopManager(this);
