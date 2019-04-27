@@ -470,10 +470,11 @@ namespace Ship_Game
             return enemies;
         }
 
-        public int NumGroundLandingSpots()
-        {            
-            int spotCount = TilesList.Sum(spots => spots.MaxAllowedTroops); //.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1)
-            int troops    = TroopList.Filter(owner => owner.Loyalty == Owner).Length;
+        public int NumGroundLandingSpots() // FB - this is good if we support more than 1 troop per tile, which currently we are not.
+        {
+            var nonMilitaryTiles = TilesList.Filter(t => !t.CombatBuildingOnTile);
+            int spotCount        = nonMilitaryTiles.Sum(spots => spots.MaxAllowedTroops); 
+            int troops           = TroopList.Filter(t => t.Loyalty == Owner).Length;
             return spotCount - troops;
         }
 
