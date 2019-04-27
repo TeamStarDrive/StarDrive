@@ -140,12 +140,12 @@ namespace Ship_Game
             pFacilities = new Submenu(theMenu9);
             pFacilities.AddTab(Localizer.Token(333));
 
-            LaunchAllTroops   = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Launch All Troops", OnLaunchTroopsClicked);
+            LaunchAllTroops   = Button(theMenu9.X + theMenu9.Width - 175, theMenu8.Y - 5, "Launch All Troops", OnLaunchTroopsClicked);
             LaunchSingleTroop = Button(theMenu9.X + theMenu9.Width - LaunchAllTroops.Rect.Width - 185,
-                                       theMenu9.Y - 5, "Launch Single Troop", OnLaunchSingleTroopClicked);
+                                       theMenu8.Y - 5, "Launch Single Troop", OnLaunchSingleTroopClicked);
 
             SendTroops        = Button(theMenu9.X + theMenu9.Width - LaunchSingleTroop.Rect.Width - 365,
-                                       theMenu9.Y - 5, "Send Troops", OnSendTroopsClicked);
+                                       theMenu8.Y - 5, "Send Troops", OnSendTroopsClicked);
 
             LaunchAllTroops.Tooltip   = Localizer.Token(1952);
             LaunchSingleTroop.Tooltip = Localizer.Token(1950);
@@ -273,6 +273,10 @@ namespace Ship_Game
                 SendTroops.Text   = troopsLanding > 0 ? "Troops Landing: " + troopsLanding : "Send Troops";
                 LaunchAllTroops.Text = $"Launch All Troops ({P.TroopsHere.Count(t => t.CanMove)})";
             }
+
+            SendTroops.Visible        = P.Owner == Empire.Universe.player;
+            LaunchAllTroops.Visible   = SendTroops.Visible;
+            LaunchSingleTroop.Visible = SendTroops.Visible;
 
             DrawDetailInfo(new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35));
             build.Draw(batch);
@@ -1010,12 +1014,9 @@ namespace Ship_Game
                 if (input.RightMouseClick && pgs.SingleTroop.Loyalty == EmpireManager.Player)
                 {
                     GameAudio.TroopTakeOff();
-                    Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.SingleTroop);
-                    P.TroopsHere.Remove(pgs.SingleTroop);
-                    pgs.SingleTroop.SetPlanet(null);
-                    pgs.TroopsHere.Clear();
+                    pgs.SingleTroop.Launch(pgs);
                     ClickedTroop = true;
-                    DetailInfo = null;
+                    DetailInfo   = null;
                 }
 
                 return true;
