@@ -67,7 +67,7 @@ namespace Ship_Game
             CombatField           = new Menu2(ColonyGrid);
             Rectangle OrbitalRect = new Rectangle(5, ColonyGrid.Y, (screenWidth - ColonyGrid.Width) / 2 - 20, ColonyGrid.Height+20);
             OrbitalResources      = new Menu1(OrbitalRect);
-            Rectangle psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 185, AssetsRect.Height);
+            Rectangle psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 200, AssetsRect.Height * 2);
             orbitalResourcesSub   = new Submenu(psubRect);
             OrbitSL               = new ScrollList(orbitalResourcesSub);
 
@@ -218,6 +218,16 @@ namespace Ship_Game
             }
         }
 
+        private void DrawTroopAsset(SpriteBatch batch, Vector2 bCursor, Troop t, float cursorY, Color nameColor, Color statsColor)
+        {
+            bCursor.Y = cursorY;
+            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, nameColor);
+            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+            batch.DrawString(Fonts.Arial8Bold, t.StrengthText + ", Level: " + t.Level, tCursor, statsColor);
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = StarDriveGame.Instance.GameTime;
@@ -230,50 +240,17 @@ namespace Ship_Game
                 var bCursor = new Vector2((orbitalResourcesSub.Menu.X + 25), 350f);
                 foreach (ScrollList.Entry e in OrbitSL.VisibleExpandedEntries)
                 {
-                    if (e.item is Ship ship)
+                    if (e.item is Troop t)
                     {
-                        if (ship.TroopList.Count == 0)
-                            continue;
-                        Troop t = ship.TroopList[0];
+                        Color nameColor = Color.LightGray;
+                        Color statsColor = nameColor;
                         if (e.Hovered)
                         {
-                            bCursor.Y = e.Y;
-                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
+                            nameColor  = Color.Gold;
+                            statsColor = Color.Orange;
                         }
-                        else
-                        {
-                            bCursor.Y = e.Y;
-                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
-                            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
-                        }
-                    }
-                    else if (e.item is Troop t)
-                    {
-                        if (e.Hovered)
-                        {
-                            bCursor.Y = e.Y;
-                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                            tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
-                        }
-                        else
-                        {
-                            bCursor.Y = e.Y;
-                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
-                            tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
-                        }
+
+                        DrawTroopAsset(batch, bCursor, t, e.Y, nameColor, statsColor);
                     }
                     e.CheckHover(Input.CursorPosition);
                 }
@@ -502,12 +479,10 @@ namespace Ship_Game
             GameAudio.TroopLand();
             foreach (ScrollList.Entry e in OrbitSL.AllEntries)
             {
-                if (e.item is Ship ship)
-                    ship.AI.OrderLandAllTroops(p);
-
-                else if (e.item is Troop troop)
+                if (e.item is Troop troop)
                     troop.TryLandTroop(p);
             }
+
             OrbitSL.Reset();
         }
 
@@ -573,8 +548,7 @@ namespace Ship_Game
                 HoveredSquare = pgs;
             }
 
-            LandAll.Enabled = OrbitSL.NumEntries > 0;
-            LaunchAll.Enabled = p.TroopsHere.Any(t => t.Loyalty == Empire.Universe.player && t.CanMove);
+            UpdateLaunchAllButton(p.TroopsHere.Count(t => t.Loyalty == Empire.Universe.player && t.CanMove));
             OrbitSL.HandleInput(input);
             foreach (ScrollList.Entry e in OrbitSL.AllExpandedEntries)
             {
@@ -795,35 +769,6 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        private void ResetTroopList()
-        {
-            OrbitSL.Reset();
-            for (int i = 0; i < p.ParentSystem.ShipList.Count; i++)
-            {
-                Ship ship = p.ParentSystem.ShipList[i];
-                if (p.Center.Distance(ship.Center) >= 15000f || ship.loyalty != EmpireManager.Player)
-                    continue;
-
-                if (ship.shipData.Role == ShipData.RoleName.troop && !Empire.Universe.MasterShipList.IsPendingRemoval(ship))
-                    OrbitSL.AddItem(ship);
-                else if (ship.Carrier.HasTroopBays || ship.Carrier.HasTransporters)
-                {
-                    int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                    foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
-                        landingLimit += module.TransporterTroopLanding;
-
-                    for (int x = 0; x < ship.TroopList.Count && landingLimit > 0; x++)
-                    {
-                        if (ship.TroopList[x].Loyalty == ship.loyalty)
-                        {
-                            OrbitSL.AddItem(ship.TroopList[x]);
-                            landingLimit--;
-                        }
-                    }
-                }
-            }
-        }
-
         public void StartCombat(PlanetGridSquare attacker, PlanetGridSquare defender)
         {
             Combat c = new Combat
@@ -940,12 +885,12 @@ namespace Ship_Game
 
         public override void Update(float elapsedTime)
         {
-            UpdateOrbitalAssets(elapsedTime);
             if (ResetNextFrame)
             {
-                ResetTroopList();
-                ResetNextFrame = false;
+                OrbitalAssetsTimer = 2;
+                ResetNextFrame     = false;
             }
+            UpdateOrbitalAssets(elapsedTime);
 
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
@@ -970,7 +915,7 @@ namespace Ship_Game
         public void UpdateOrbitalAssets(float elapsedTime)
         {
             OrbitalAssetsTimer += elapsedTime;
-            if (OrbitalAssetsTimer < 2)
+            if (OrbitalAssetsTimer.LessOrEqual(2))
                 return;
 
             OrbitalAssetsTimer = 0;
@@ -978,23 +923,19 @@ namespace Ship_Game
             using (EmpireManager.Player.GetShips().AcquireReadLock())
                 foreach (Ship ship in EmpireManager.Player.GetShips())
                 {
-
                     if (ship == null)
                         continue;
 
                     if (Vector2.Distance(p.Center, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f)
                         continue;
 
-                    if (ship.shipData.Role != ShipData.RoleName.troop) // check ships which dont have assault bays (they can land troops via spaceport)
+                    if (ship.shipData.Role != ShipData.RoleName.troop) 
                     {
-                        if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  //fbedard
-                            continue;
-
-                        int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                        foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1))
-                            landingLimit += module.TransporterTroopLanding;
-                        if (p.HasSpacePort && p.Owner == ship.loyalty) landingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
-                        for (int i = 0; i < ship.TroopList.Count() && landingLimit > 0; i++)
+                        if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
+                            continue; // if the ship has no troop bays and there is no other means of landing them (like a spaceport)
+                         
+                        int landingLimit = LandingLimit(ship);
+                        for (int i = 0; i < ship.TroopList.Count && landingLimit > 0; i++)
                         {
                             if (ship.TroopList[i] != null && ship.TroopList[i].Loyalty == ship.loyalty)
                             {
@@ -1004,10 +945,56 @@ namespace Ship_Game
                         }
                     }
                     else if (ship.AI.State != AI.AIState.Rebase && ship.AI.State != AI.AIState.AssaultPlanet)
-                        OrbitSL.AddItem(ship);
-
-                    LandAll.Text = OrbitSL.NumEntries > 0 ? $"Land All ({Math.Min(OrbitSL.NumEntries, p.FreeTiles)})" : "Land All";
+                        OrbitSL.AddItem(ship.TroopList[0]); // this the default 1 troop ship
                 }
+
+            UpdateLandAllButton(OrbitSL.NumEntries);
+        }
+
+        private int LandingLimit(Ship ship)
+        {
+            int landingLimit;
+            if (p.HasSpacePort && p.Owner == ship.loyalty)
+                landingLimit = ship.TroopList.Count;  // fbedard: Allows to unload all troops if there is a shipyard
+            else
+            {
+                landingLimit  = ship.Carrier.AllActiveTroopBays.Count(bay => bay.hangarTimer <= 0);
+                landingLimit += ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1).Sum(m => m.TransporterTroopLanding);
+            }
+            return landingLimit;
+        }
+
+        private void UpdateLandAllButton(int numTroops)
+        {
+            string text;
+            if (numTroops > 0)
+            {
+                LandAll.Enabled = true;
+                text            = $"Land All ({Math.Min(OrbitSL.NumEntries, p.FreeTiles)})";
+            }
+            else
+            {
+                LandAll.Enabled = false;
+                text            = "Land All";
+            }
+
+            LandAll.Text = text;
+        }
+
+        private void UpdateLaunchAllButton(int numTroopsCanLaunch)
+        {
+            string text;
+            if (numTroopsCanLaunch > 0)
+            {
+                LaunchAll.Enabled = true;
+                text              = $"Launch All ({numTroopsCanLaunch})";
+            }
+            else
+            {
+                LaunchAll.Enabled = false;
+                text              = "Launch All";
+            }
+            LaunchAll.Text = text;
         }
 
         public void AddExplosion(Rectangle grid, int size)
