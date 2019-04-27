@@ -316,11 +316,10 @@ namespace Ship_Game.AI
         {
             if (clearOrders)
                 ClearWayPoints();
+
             ClearOrders();
 
-            int troops = Owner.loyalty.GetShips()
-                .Count(ship => ship.TroopList.Count > 0 && ship.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
-            if (troops >= p.GetGroundLandingSpots())
+            if (p.FreeTilesWithRebaseOnTheWay == 0)
                 return;
 
             OrderMoveTowardsPosition(p.Center, Vectors.Up, false, p);
@@ -331,30 +330,20 @@ namespace Ship_Game.AI
         public void OrderRebaseToNearest()
         {
             ClearWayPoints();
+            Planet planet = Owner.loyalty.GetPlanets().Filter(p => p.FreeTilesWithRebaseOnTheWay > 0)
+                                                      .FindMin(p => Vector2.Distance(Owner.Center, p.Center));
 
-            var sortedList =
-                from planet in Owner.loyalty.GetPlanets()
-                // added by gremlin if the planet is full of troops dont rebase there.
-                // RERC2 I dont think the about looking at incoming troops works.
-                where Owner.loyalty.GetShips()
-                          .Where(troop => troop.TroopList.Count > 0)
-                          .Count(troopAi => troopAi.AI.OrderQueue
-                              .Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet)) <=
-                      planet.GetGroundLandingSpots()
-                orderby Vector2.Distance(Owner.Center, planet.Center)
-                select planet;
-
-            Planet p = sortedList.FirstOrDefault();
-            if (p == null)
+            if (planet == null)
             {
                 State = AIState.AwaitingOrders;
+                Log.Info($"Could not find a planet to rebase for {Owner.Name}.");
                 return;
             }
 
-            OrderMoveTowardsPosition(p.Center, Vectors.Up, false, p);
+            OrderMoveTowardsPosition(planet.Center, Vectors.Up, false, planet);
             IgnoreCombat = true;
 
-            AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
+            AddPlanetGoal(Plan.Rebase, planet, AIState.Rebase, priority: true);
         }
 
         public void OrderRebaseToShip(Ship ship)
