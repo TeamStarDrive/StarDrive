@@ -153,7 +153,8 @@ namespace Ship_Game
                 ?? FindNearestRallyPoint(position);
         }
 
-        public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
+        public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
+        public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry);
 
         public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p =>
             p.HasSpacePort && !p.EnemyInRange()

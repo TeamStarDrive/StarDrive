@@ -30,7 +30,7 @@ namespace Ship_Game.Commands.Goals
         {
             // find a planet
             Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
-            if (empire.FindPlanetToBuildAt(empire.SpacePorts, troopTemplate, out Planet planet))
+            if (empire.FindPlanetToBuildAt(empire.MilitaryOutposts, troopTemplate, out Planet planet))
             {
                 // submit troop into queue
                 planet.Construction.AddTroop(troopTemplate, this);
