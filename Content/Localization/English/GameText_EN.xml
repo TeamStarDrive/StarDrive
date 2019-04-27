@@ -4695,12 +4695,20 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1949</Index>
+      <Text>Rebase a single troop from another planet or another free troop ship to this planet. You can send multiple troops, if available, that way.</Text>
+    </Token>
+    <Token>
+      <Index>1950</Index>
+      <Text>Launch a single random troop from this planet to space. Note than you can launch any troop you want by left clicking on the troop icon in the grid above.</Text>
+    </Token>
+    <Token>
       <Index>1951</Index>
       <Text>Land all troops listed in the orbital assets. The number in parentheses is the actual number which can currently land on this planet (free space)</Text>
     </Token>
     <Token>
       <Index>1952</Index>
-      <Text>Launch to space all troops which can currently move.</Text>
+      <Text>Launch to space all troops which can currently move (total number in parentheses)</Text>
     </Token>
     <Token>
       <Index>1953</Index>
