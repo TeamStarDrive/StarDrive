@@ -36,7 +36,8 @@ namespace Ship_Game
         private EmpireUIOverlay eui;
         private ToggleButton LeftColony;
         private ToggleButton RightColony;
-        private UIButton launchTroops;
+        private UIButton LaunchAllTroops;
+        private UIButton LaunchSingleTroop;
         private UIButton SendTroops;  //fbedard
         private DropOptions<int> GovernorDropdown;
         public CloseButton close;
@@ -139,9 +140,16 @@ namespace Ship_Game
             pFacilities = new Submenu(theMenu9);
             pFacilities.AddTab(Localizer.Token(333));
 
-            launchTroops = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Launch Troops", OnLaunchTroopsClicked);
-            SendTroops = Button(theMenu9.X + theMenu9.Width - launchTroops.Rect.Width - 185,
-                                theMenu9.Y - 5, "Send Troops", OnSendTroopsClicked);
+            LaunchAllTroops   = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Launch All Troops", OnLaunchTroopsClicked);
+            LaunchSingleTroop = Button(theMenu9.X + theMenu9.Width - LaunchAllTroops.Rect.Width - 185,
+                                       theMenu9.Y - 5, "Launch Single Troop", OnLaunchSingleTroopClicked);
+
+            SendTroops        = Button(theMenu9.X + theMenu9.Width - LaunchSingleTroop.Rect.Width - 365,
+                                       theMenu9.Y - 5, "Send Troops", OnSendTroopsClicked);
+
+            LaunchAllTroops.Tooltip   = Localizer.Token(1952);
+            LaunchSingleTroop.Tooltip = Localizer.Token(1950);
+            SendTroops.Tooltip        = Localizer.Token(1949);
 
             //new ScrollList(pFacilities, 40);
             var theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (theMenu3.Height - 60)));
@@ -254,18 +262,18 @@ namespace Ship_Game
             }
 
             pFacilities.Draw(batch);
-            launchTroops.Visible = P.Owner == Empire.Universe.player && P.TroopsHere.Count > 0;
 
             //fbedard: Display button
             if (P.Owner == Empire.Universe.player)
             {
                 int troopsLanding = P.Owner.GetShips()
-                    .Where(troop => troop.TroopList.Count > 0)
-                    .Where(ai => ai.AI.State != AIState.Resupply && ai.AI.State != AIState.Orbit)
+                    .Filter(s => s.TroopList.Count > 0 && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit) 
                     .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
 
-                SendTroops.Text = troopsLanding > 0 ? "Landing: " + troopsLanding : "Send Troops";
+                SendTroops.Text   = troopsLanding > 0 ? "Troops Landing: " + troopsLanding : "Send Troops";
+                LaunchAllTroops.Text = $"Launch All Troops ({P.TroopsHere.Count(t => t.CanMove)})";
             }
+
             DrawDetailInfo(new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35));
             build.Draw(batch);
             queue.Draw(batch);
@@ -510,7 +518,6 @@ namespace Ship_Game
             if (ProfStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(74);
         }
-
 
         Color TextColor { get; } = new Color(255, 239, 208);
 
@@ -1184,7 +1191,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (!pgs.TroopsAreOnTile || pgs.SingleTroop.Loyalty != EmpireManager.Player)
+                if (!pgs.TroopsAreOnTile || pgs.SingleTroop.Loyalty != EmpireManager.Player || !pgs.SingleTroop.CanMove)
                     continue;
 
                 play = true;
@@ -1194,7 +1201,19 @@ namespace Ship_Game
             }
 
             if (play)
+                GameAudio.TroopTakeOff();
+            else
+                GameAudio.NegativeClick();
+        }
+
+        void OnLaunchSingleTroopClicked(UIButton b)
+        {
+            if (P.TroopsHere.Count == 0)
+                GameAudio.NegativeClick();
+            else
             {
+                Troop troop = P.TroopsHere.RandItem();
+                troop.Launch();
                 GameAudio.TroopTakeOff();
             }
         }
