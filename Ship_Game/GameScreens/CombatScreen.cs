@@ -63,10 +63,10 @@ namespace Ship_Game
             assetsUI              = new OrbitalAssetsUIElement(AssetsRect, ScreenManager, Empire.Universe, p);
             tInfo                 = new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe);
             hInfo                 = new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe);
-            Rectangle ColonyGrid  = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
-            CombatField           = new Menu2(ColonyGrid);
-            Rectangle OrbitalRect = new Rectangle(5, ColonyGrid.Y, (screenWidth - ColonyGrid.Width) / 2 - 20, ColonyGrid.Height+20);
-            OrbitalResources      = new Menu1(OrbitalRect);
+            Rectangle colonyGrid  = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
+            CombatField           = new Menu2(colonyGrid);
+            Rectangle orbitalRect = new Rectangle(5, colonyGrid.Y, (screenWidth - colonyGrid.Width) / 2 - 20, colonyGrid.Height+20);
+            OrbitalResources      = new Menu1(orbitalRect);
             Rectangle psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 200, AssetsRect.Height * 2);
             orbitalResourcesSub   = new Submenu(psubRect);
             OrbitSL               = new ScrollList(orbitalResourcesSub);
@@ -78,7 +78,7 @@ namespace Ship_Game
             LandAll.Tooltip   = Localizer.Token(1951);
             LaunchAll.Tooltip = Localizer.Token(1952);
 
-            gridPos   = new Rectangle(ColonyGrid.X + 20, ColonyGrid.Y + 20, ColonyGrid.Width - 40, ColonyGrid.Height - 40);
+            gridPos   = new Rectangle(colonyGrid.X + 20, colonyGrid.Y + 20, colonyGrid.Width - 40, colonyGrid.Height - 40);
             int xSize = gridPos.Width / 7;
             int ySize = gridPos.Height / 5;
             foreach (PlanetGridSquare pgs in p.TilesList)
