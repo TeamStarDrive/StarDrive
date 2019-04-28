@@ -73,6 +73,13 @@ namespace Ship_Game
             ConstructionSubMenu = new Submenu(win);
             ConstructionSubMenu.AddTab(Localizer.Token(304));
 
+            UIList rest = List(new Vector2(win.X + 10f, win.Y + 200f));
+            rest.Padding = new Vector2(2f, 10f);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title: 1958, tooltip: 1959);
+            rest.AddCheckbox(() => GlobalStats.AutoCombat,                     title: 2207, tooltip: 2230);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: 6136, tooltip: 7039);
+            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: 6138, tooltip: 7040);
+
             UIList ticks = List(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);
 
@@ -90,14 +97,6 @@ namespace Ship_Game
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
-
-            UIList rest = List(new Vector2(win.X + 10f, win.Y + 200f));
-            rest.Padding = new Vector2(2f, 10f);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title:1958, tooltip:1959);
-            rest.AddCheckbox(() => GlobalStats.AutoCombat,                     title:2207, tooltip:2230);
-            rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title:6136, tooltip:7039);
-            rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title:6138, tooltip:7040);
-
 
             UpdateDropDowns();
         }
