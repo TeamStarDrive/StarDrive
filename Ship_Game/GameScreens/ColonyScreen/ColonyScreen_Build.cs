@@ -66,9 +66,9 @@ namespace Ship_Game
             }
         }
 
-        bool IsOutOfOrbitalsLimit(Ship ship)
+        public bool IsOutOfOrbitalsLimit(Ship ship)
         {
-            int numOrbitals = P.OrbitalStations.Count + P.NumOrbitalsInTheWorks;
+            int numOrbitals  = P.OrbitalStations.Count + P.NumOrbitalsInTheWorks;
             int numShipyards = P.OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + P.NumShipYardsInTheWorks;
             if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
                 return true;

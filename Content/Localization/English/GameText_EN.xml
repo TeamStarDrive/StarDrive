@@ -199,7 +199,7 @@
     </Token>
     <Token>
       <Index>51</Index>
-      <Text>Dumb races suffer a 35% penalty to reseach efforts due to their slow grasp of complex ideas</Text>
+      <Text>Dumb races suffer a 35% penalty to research efforts due to their slow grasp of complex ideas</Text>
     </Token>
     <Token>
       <Index>52</Index>
@@ -1682,7 +1682,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>456</Index>
-      <Text>Manned and automated rovers provide indispensible labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus.</Text>
+      <Text>Manned and automated rovers provide indispensable labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus.</Text>
     </Token>
     <Token>
       <Index>457</Index>
@@ -2453,7 +2453,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>675</Index>
-      <Text>Subspatial Dynamics</Text>
+      <Text>Sub-spatial Dynamics</Text>
     </Token>
     <Token>
       <Index>676</Index>
@@ -4756,7 +4756,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1961</Index>
-      <Text>The Governor will build Stations, Shipyards and Platforms based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire. You will see a list of each orbital type (if your empire can build that type) below the colony grid specifying how many orbitals the planet has vs. how many the governor is planning to have based on colony value.</Text>
+      <Text>The Governor will build Stations, Shipyards and Platforms based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire. You will see a list of each orbital type (if your empire can build that type) below the colony grid specifying how many orbitals the planet has vs. how many the Governor is planning to have, based on colony value.</Text>
     </Token>
     <Token>
       <Index>1962</Index>
@@ -5834,7 +5834,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2227</Index>
-      <Text>Your empire will automatically create and deploy colony ships to desireable planets. Colony ships will not be dispatched to planets with a known nearby enemy presence</Text>
+      <Text>Your empire will automatically create and deploy colony ships to desirable planets. Colony ships will not be dispatched to planets with a known nearby enemy presence</Text>
     </Token>
     <Token>
       <Index>2228</Index>
@@ -7323,7 +7323,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5047</Index>
-      <Text>The pinnacle of sublight engine technology, these engines are meant for the largest of ships</Text>
+      <Text>The pinnacle of sub-light engine technology, these engines are meant for the largest of ships</Text>
     </Token>
     <Token>
       <Index>5048</Index>
@@ -7331,7 +7331,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5049</Index>
-      <Text>A monstrous and powerful engine for sublight combat maneuvers</Text>
+      <Text>A monstrous and powerful engine for sub-light combat maneuvers</Text>
     </Token>
     <Token>
       <Index>5051</Index>
@@ -7339,7 +7339,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5052</Index>
-      <Text>A titanic afterburner for sublight acceleration</Text>
+      <Text>A titanic afterburner for sub-light acceleration</Text>
     </Token>
     <Token>
       <Index>5053</Index>
