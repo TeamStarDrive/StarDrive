@@ -158,6 +158,9 @@ namespace Ship_Game
             LaunchAllTroops.Tooltip   = Localizer.Token(1952);
             LaunchSingleTroop.Tooltip = Localizer.Token(1950);
             CallTroops.Tooltip        = Localizer.Token(1949);
+            LaunchAllTroops.Style     = ButtonStyle.BigDip;
+            LaunchSingleTroop.Style   = ButtonStyle.BigDip;
+            CallTroops.Style          = ButtonStyle.BigDip;
 
             BuildShipyard = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Build Shipyard", OnBuildShipyardClick);
             BuildStation  = Button(theMenu9.X + theMenu9.Width - LaunchAllTroops.Rect.Width - 185,
@@ -166,11 +169,14 @@ namespace Ship_Game
             BuildPlatform = Button(theMenu9.X + theMenu9.Width - LaunchSingleTroop.Rect.Width - 365,
                                    theMenu9.Y - 5, "Build Platform", OnBuildPlatformClick);
 
-            UpdateGovOrbitalStats();
-            UpdateButtons();
             BuildShipyard.Tooltip = Localizer.Token(1948);
             BuildStation.Tooltip  = Localizer.Token(1947);
             BuildPlatform.Tooltip = Localizer.Token(1946);
+            BuildShipyard.Style   = ButtonStyle.BigDip;
+            BuildStation.Style    = ButtonStyle.BigDip;
+            BuildPlatform.Style   = ButtonStyle.BigDip;
+            UpdateGovOrbitalStats();
+            UpdateButtons();
 
             //new ScrollList(pFacilities, 40);
             var theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (theMenu3.Height - 60)));
@@ -1465,7 +1471,17 @@ namespace Ship_Game
                     .Filter(s => s.TroopList.Count > 0 && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
                     .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
 
-                CallTroops.Text = troopsLanding > 0 ? "Incoming Troops: " + troopsLanding : "Call Troops";
+                if (troopsLanding > 0)
+                {
+                    CallTroops.Text = $"Incoming Troops: {troopsLanding}";
+                    CallTroops.Style = ButtonStyle.Military;
+                }
+                else
+                {
+                    CallTroops.Text = "Call Troops";
+                    CallTroops.Style = ButtonStyle.BigDip;
+                }
+
                 UpdateButtonText(LaunchAllTroops, P.TroopsHere.Count(t => t.CanMove), "Launch All Troops");
                 UpdateButtonText(BuildPlatform, P.NumPlatforms, "Build Platform");
                 UpdateButtonText(BuildStation, P.NumStations, "Build Station");
