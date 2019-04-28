@@ -622,7 +622,8 @@ namespace Ship_Game
         public void OnSymmetricDesignToggle()
         {
             IsSymmetricDesignMode = !IsSymmetricDesignMode;
-            BtnSymmetricDesign.Text = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
+            BtnSymmetricDesign.Text  = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
+            BtnSymmetricDesign.Style = IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
         }
 
         static CombatState CombatStateFromAction(ToggleButton button)
@@ -817,7 +818,8 @@ namespace Ship_Game
                 OnSymmetricDesignToggle();
             });
             BtnSymmetricDesign.ClickSfx = "blip_click";
-            BtnSymmetricDesign.Tooltip = Localizer.Token(1984);
+            BtnSymmetricDesign.Tooltip  = Localizer.Token(1984);
+            BtnSymmetricDesign.Style    = ButtonStyle.Military;
 
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomList.Y, 210, 25);
             LoadContentFinish();

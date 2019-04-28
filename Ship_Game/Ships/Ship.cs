@@ -2423,6 +2423,13 @@ namespace Ship_Game.Ships
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {
+            switch (DesignRole)
+            {
+                case ShipData.RoleName.bomber: empire.canBuildBombers       = true; break;
+                case ShipData.RoleName.carrier: empire.canBuildCarriers     = true; break;
+                case ShipData.RoleName.support: empire.canBuildSupportShips = true; break;
+
+            }
             empire.canBuildBombers      = empire.canBuildBombers      || DesignRole == ShipData.RoleName.bomber;
             empire.canBuildCarriers     = empire.canBuildCarriers     || DesignRole == ShipData.RoleName.carrier;
             empire.canBuildSupportShips = empire.canBuildSupportShips || DesignRole == ShipData.RoleName.support;
