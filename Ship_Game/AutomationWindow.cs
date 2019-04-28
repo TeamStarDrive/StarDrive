@@ -187,7 +187,7 @@ namespace Ship_Game
             EmpireData playerData = Universe.player.data;
 
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
-                ship => ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && ship.CargoSpaceMax > 0f);
+                ship => ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && !ship.shipData.IsShipyard && ship.CargoSpaceMax > 0f);
 
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.isColonyShip);
