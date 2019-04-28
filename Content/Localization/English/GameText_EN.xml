@@ -4695,6 +4695,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1946</Index>
+      <Text>Build a Platform (the strongest your empire has available) orbiting this planet.The number in parentheses is the number of Platforms this planet already has in orbit.</Text>
+    </Token>
+    <Token>
+      <Index>1947</Index>
+      <Text>Build a Station (the strongest your empire has available) orbiting this planet.The number in parentheses is the number of Stations this planet already has in orbit.</Text>
+    </Token>
+    <Token>
+      <Index>1948</Index>
+      <Text>Build a Shipyard orbiting this planet.The number in parentheses is the number of Shipyards this planet already has in orbit.</Text>
+    </Token>
+    <Token>
       <Index>1949</Index>
       <Text>Rebase a single troop from another planet or another free troop ship to this planet. You can send multiple troops, if available, that way.</Text>
     </Token>
@@ -4740,11 +4752,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1960</Index>
-      <Text>Governor Manages Defense Orbitals</Text>
+      <Text>Governor Manages Orbitals</Text>
     </Token>
     <Token>
       <Index>1961</Index>
-      <Text>The Governor will build Stations, Shipyards and Platforms based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire</Text>
+      <Text>The Governor will build Stations, Shipyards and Platforms based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire. You will see a list of each orbital type (if your empire can build that type) below the colony grid specifying how many orbitals the planet has vs. how many the governor is planning to have based on colony value.</Text>
     </Token>
     <Token>
       <Index>1962</Index>

@@ -2431,6 +2431,9 @@ namespace Ship_Game.Ships
             empire.canBuildFrigates     = empire.canBuildFrigates     || DesignRole == ShipData.RoleName.frigate;
             empire.canBuildCruisers     = empire.canBuildCruisers     || DesignRole == ShipData.RoleName.cruiser;
             empire.canBuildCapitals     = empire.canBuildCapitals     || DesignRole == ShipData.RoleName.capital;
+            empire.CanBuildPlatforms    = empire.CanBuildPlatforms    || DesignRole == ShipData.RoleName.platform;
+            empire.CanBuildStations     = empire.CanBuildStations     || DesignRole == ShipData.RoleName.station;
+            empire.CanBuildShipyards    = empire.CanBuildShipyards    || shipData.IsShipyard;
         }
 
         // @todo autocalculate during ship instance init
