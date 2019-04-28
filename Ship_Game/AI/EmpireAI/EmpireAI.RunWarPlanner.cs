@@ -517,7 +517,7 @@ namespace Ship_Game.AI
                 float angerMod = anger.Key.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter());
                 angerMod = (Empire.Universe.UniverseSize * 2 - angerMod) / (Empire.Universe.UniverseSize * 2);
                 if (anger.Value.AtWar)
-                    angerMod *= 100;                    
+                    angerMod *= 100;
                 angerMod += anger.Key.GetPlanets().Any(p => IsInOurAOs(p.Center)) ? 1 : 0;
                 if (anger.Value.Treaty_Trade)
                     angerMod *= .5f;
@@ -551,7 +551,7 @@ namespace Ship_Game.AI
                 if (warWeight <= 0) break;
                 if (!kv.Value.Known) continue;
                 if (kv.Key.data.Defeated) continue;
-                if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;                
+                if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;
                 if (kv.Key.isFaction)
                 {
                     foreach (var planet in kv.Key.GetPlanets())
@@ -619,7 +619,7 @@ namespace Ship_Game.AI
                 }, false, false);
                 if (assault)
                 {
-                    var invasionTask = new MilitaryTask(planet, OwnerEmpire);                   
+                    var invasionTask = new MilitaryTask(planet, OwnerEmpire);
                     TaskList.Add(invasionTask);
 
                 }

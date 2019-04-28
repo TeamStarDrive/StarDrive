@@ -80,7 +80,7 @@ namespace Ship_Game.AI.Research
                             ScriptIndex++;
                             return true;
                         }
-                        
+
                         for (int i = 1; i < script.Length; i++)
                         {
                             modifiers[i - 1] = script[i];
@@ -88,7 +88,7 @@ namespace Ship_Game.AI.Research
 
                         modifier = string.Join(":", modifiers);
                         ScriptIndex++;
-                        if (ScriptedResearch(scriptCommand, script[1], modifier, false))
+                        if (ScriptedResearch(scriptCommand, script[1], modifier))
                             return true;
 
                         loopCount++;
@@ -108,7 +108,7 @@ namespace Ship_Game.AI.Research
 
                         modifier = string.Join(":", modifiers);
                         ScriptIndex++;
-                        if (ScriptedResearch(scriptCommand, script[1], modifier, false))
+                        if (ScriptedResearch(scriptCommand, script[1], modifier))
                             return true;
 
                         loopCount++;
@@ -221,7 +221,7 @@ namespace Ship_Game.AI.Research
             return 0;
         }
 
-        public bool ScriptedResearch(string command1, string command2, string modifier, bool lineFocus = true, bool doLookAhead = false)
+        public bool ScriptedResearch(string command1, string command2, string modifier)
         {
             Array<TechEntry> availableTechs = OwnerEmpire.CurrentTechsResearchable();
 
@@ -231,10 +231,7 @@ namespace Ship_Game.AI.Research
 
             string researchTopic = "";
 
-            if (lineFocus)
-                availableTechs = LineFocus.LineFocusShipTechs(modifier, availableTechs, command2);
-            else 
-                availableTechs = LineFocus.UsedTechsInFutureShips(availableTechs);
+            availableTechs = LineFocus.LineFocusShipTechs(modifier, availableTechs, command2);
 
             bool hullWasChecked = false;
             int previousCost = command1 == "CHEAPEST" ? int.MaxValue : int.MinValue;
@@ -248,7 +245,7 @@ namespace Ship_Game.AI.Research
                         {
                             var techType = ConvertTechStringTechType(script[i]);
                             hullWasChecked |= i == 1 && techType == TechnologyType.ShipHull;
-                            TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, doLookAhead, lineFocus);
+                            TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs);
                             bool isCheaper = command1 == "CHEAPEST";
                             string testResearchTopic = DoesCostCompare(ref previousCost, researchTech, techType, isCheaper);
                             if (testResearchTopic.NotEmpty())
@@ -256,14 +253,13 @@ namespace Ship_Game.AI.Research
 
                             CostNormalizer += isCheaper ? 0.005f : 0.25f;
                         }
-                        if (hullWasChecked && LineFocus.WasBestShipHullNotChosen(researchTopic, availableTechs))
-                            DebugLog("Hull Was Too Expensive");
+
                         break;
                     }
                 default:
                     {
                         var techType = ConvertTechStringTechType(command2);
-                        TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs, doLookAhead, lineFocus);
+                        TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs);
                         if (researchTech != null)
                         {
                             researchTopic = researchTech.UID;
@@ -275,11 +271,6 @@ namespace Ship_Game.AI.Research
             }
 
             OwnerEmpire.ResearchTopic = researchTopic;
-            //DebugLog($"Tech Chosen : {researchTopic}");
-
-            if (!doLookAhead && OwnerEmpire.ResearchTopic.IsEmpty())
-                ScriptedResearch(command1, command2, modifier, true, true);
-
 
             if (string.IsNullOrEmpty(OwnerEmpire.ResearchTopic))
                 return false;
@@ -290,28 +281,29 @@ namespace Ship_Game.AI.Research
 
             string testResearchTopic = researchTech?.UID ?? string.Empty;
             if (testResearchTopic.IsEmpty()) return testResearchTopic;
-            int currentCost;
+            int currentCost = 0;
             if (researchTech.TechnologyTypes.Contains(techType))
                 currentCost = NormalizeTechCost(researchTech.TechCost);
-            else
+            else if(!techType.ToString().Contains("Ship"))
                 currentCost = NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
 
-            if (isCheaper)
-            {
-                if (currentCost < previousCost)
+            if (currentCost > 0)
+                if (isCheaper)
                 {
-                    previousCost = currentCost;
-                    return testResearchTopic;
+                    if (currentCost < previousCost)
+                    {
+                        previousCost = currentCost;
+                        return testResearchTopic;
+                    }
                 }
-            }
-            else
-            {
-                if (currentCost > previousCost)
+                else
                 {
-                    previousCost = currentCost;
-                    return testResearchTopic;
+                    if (currentCost > previousCost)
+                    {
+                        previousCost = currentCost;
+                        return testResearchTopic;
+                    }
                 }
-            }
             return string.Empty;
         }
         private TechnologyType ConvertTechStringTechType(string typeName)
@@ -328,63 +320,34 @@ namespace Ship_Game.AI.Research
             return techType;
         }
 
-        private TechEntry GetScriptedTech(string command1, TechnologyType techType, Array<TechEntry> availableTechs, bool doLookAhead, bool lineFocus)
+        private TechEntry GetScriptedTech(string command1, TechnologyType techType, Array<TechEntry> availableTechs)
         {
 
             DebugLog($"\nFind : {techType.ToString()}");
-            TechEntry[] techsTypeFiltered = availableTechs.Filter(tech => tech.TechnologyTypes.Contains(techType));
-            if (lineFocus)
+            bool wantsShipTech = techType.ToString().Contains("Ship");
+
+            TechEntry[] techsTypeFiltered = availableTechs.Filter(tech =>
             {
-                if (techType.ToString().Contains("Ship"))
-                {
-                    Array<TechEntry> filteredTech = new Array<TechEntry>();
-                    foreach (var tech in techsTypeFiltered)
-                    {
-                        if (LineFocus.BestCombatShip.shipData.TechsNeeded.Contains(tech.UID))
-                            filteredTech.Add(tech);
-                    }
-                    techsTypeFiltered = filteredTech.ToArray();
-                }
-                if (techsTypeFiltered.Length == 0 && doLookAhead)
-                {
-                    //this get lookahead is tricky.
-                    //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
-                    //otherwise it would be a simple tech matches techType formula.
-                    techsTypeFiltered = availableTechs.Filter(tech =>
-                    {
-                    //if (availableTechs.Count == 1) return true;
-                    if (IncludeFreighters(tech) && tech.CostOfNextTechWithType(techType) > 0)
-                            return true;
-                        return false;
-                    });
-                }
+                if (!wantsShipTech && tech.IsShipTech()) return false;
+                if (wantsShipTech && !tech.IsShipTech()) return false;
+                if (tech.TechnologyTypes.Contains(techType)) return true;
+                if (tech.CostOfNextTechWithType(techType) > 0) return true;
+                return false;
+            });
+
+            if (techsTypeFiltered.Length == 0 && !wantsShipTech)
+            {
+                //this get lookahead is tricky.
+                //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
+                //otherwise it would be a simple tech matches techType formula.
+                techsTypeFiltered = availableTechs.Filter(tech =>
+                    tech.CostOfNextTechWithType(techType) > 0);
+
             }
             LogPossibleTechs(techsTypeFiltered);
             TechEntry researchTech = TechWithWantedCost(command1, techsTypeFiltered, techType);
 
             return researchTech;
-        }
-
-        bool IncludeFreighters(TechEntry tech)
-        {
-            if (tech.TechnologyType != TechnologyType.Economic)
-                return true;
-
-            if (tech.Tech.HullsUnlocked.Count == 0 || ResearchPriorities.Economics > 0.9f)
-                return true;
-
-            foreach (var hull in tech.Tech.HullsUnlocked)
-            {
-                if (!ResourceManager.Hull(hull.Name, out ShipData hullData) || hullData == null) continue;
-                switch (hullData.HullRole)
-                {
-                    case ShipData.RoleName.station:
-                    case ShipData.RoleName.platform:
-                        return true;
-                }
-            }
-            return false;
-
         }
 
         private TechEntry TechWithWantedCost(string command1, TechEntry[] filteredTechs, TechnologyType techType)
