@@ -388,7 +388,7 @@ namespace Ship_Game
                 techTypes.AddUnique(TechnologyType.ShipDefense);
                 General = false;
             }
-            if(General) techTypes.AddUnique(TechnologyType.General);
+            if(General) techTypes.AddUnique(TechnologyType.ShipGeneral);
         }
     }
 }

@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace Ship_Game
@@ -234,7 +235,7 @@ namespace Ship_Game
             return triggered;
         }
 
-        public int CountTechsToOneInList(HashSet<string> techList, Empire empire)
+        public int CountAllFutureTechsInList(IEnumerable<string> techList, Empire empire)
         {
             int count = 0;
             foreach (Technology.LeadsToTech leadTo in Tech.LeadsTo)
@@ -242,7 +243,7 @@ namespace Ship_Game
                 if (techList.Contains(leadTo.UID))
                 {
                     count++;
-                    return count + empire.GetTechEntry(leadTo.UID).CountTechsToOneInList(techList, empire);
+                    return count + empire.GetTechEntry(leadTo.UID).CountAllFutureTechsInList(techList, empire);
                 }
             }
             return count;
