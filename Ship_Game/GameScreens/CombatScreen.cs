@@ -914,11 +914,11 @@ namespace Ship_Game
 
         public void UpdateOrbitalAssets(float elapsedTime)
         {
-            OrbitalAssetsTimer += elapsedTime;
-            if (OrbitalAssetsTimer.LessOrEqual(2))
+            OrbitalAssetsTimer -= elapsedTime;
+            if (OrbitalAssetsTimer.Greater(0))
                 return;
 
-            OrbitalAssetsTimer = 0;
+            OrbitalAssetsTimer = 2;
             OrbitSL.Reset();
             using (EmpireManager.Player.GetShips().AcquireReadLock())
                 foreach (Ship ship in EmpireManager.Player.GetShips())

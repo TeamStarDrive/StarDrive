@@ -82,8 +82,8 @@ namespace Ship_Game
 
             var currentPlatforms      = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations       = FilterOrbitals(ShipData.RoleName.station);
-            int rank                  = FindColonyRank();
-            var wantedOrbitals        = new WantedOrbitals(rank, currentStations);
+            int rank                  = FindColonyRank(log: true);
+            var wantedOrbitals        = new WantedOrbitals(rank);
 
             BuildShipyardIfAble(wantedOrbitals.Shipyards);
             BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank, budget);
@@ -244,13 +244,13 @@ namespace Ship_Game
             return ratio < threshold;
         }
 
-        private struct WantedOrbitals
+        public struct WantedOrbitals
         {
             public readonly int Platforms;
             public readonly int Stations;
             public readonly int Shipyards;
 
-            public WantedOrbitals(int rank, Array<Ship> stationList)
+            public WantedOrbitals(int rank)
             {
                 switch (rank)
                 {
@@ -275,12 +275,12 @@ namespace Ship_Game
         }
 
         // FB - gives a value from 1 to 15 based on the max colony value in the empire
-        private int FindColonyRank()
+        private int FindColonyRank(bool log = false)
         {
             int rank = (int)Math.Round(ColonyValue / Owner.MaxColonyValue * 10, 0);
             rank     = ApplyRankModifiers(rank);
 
-            if (IsPlanetExtraDebugTarget())
+            if (IsPlanetExtraDebugTarget() && log)
                 Log.Info($"COLONY RANK: {rank}, Colony Value: {ColonyValue}, Empire Max Value: {Owner.MaxColonyValue}," +
                          $" Time vs Cost threshold: {TimeVsCostThreshold}");
 
@@ -466,6 +466,15 @@ namespace Ship_Game
 
                 return debtTolerance;
             }
+        }
+
+        public int NumPlatforms => FilterOrbitals(ShipData.RoleName.platform).Count;
+        public int NumStations  => FilterOrbitals(ShipData.RoleName.station).Count;
+
+        public WantedOrbitals GovernorWantedOrbitals()
+        {
+            int rank = FindColonyRank();
+            return new WantedOrbitals(rank);
         }
     }
 }
