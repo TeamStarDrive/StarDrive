@@ -369,7 +369,7 @@
     </Token>
     <Token>
       <Index>95</Index>
-      <Text>Pre-Warp races discovered an ancient alien vessel buried in the polar ice of their homeworld.  They begin the game with a powerful alien cruiser, but possess no starfaring technologies and no starbase for ship construction</Text>
+      <Text>Pre-Warp races discovered an ancient alien vessel buried in the polar ice of their homeworld.  They begin the game with a powerful alien cruiser, but possess no star faring technologies and no starbase for ship construction</Text>
     </Token>
     <Token>
       <Index>96</Index>
@@ -773,7 +773,7 @@
     <Token>
       <Index>189</Index>
       <Text>Deep Space near</Text>
-      <!-- 187 + 189 = Moving to Deep Speace Near (solar system name) -->
+      <!-- 187 + 189 = Moving to Deep Space Near (solar system name) -->
     </Token>
     <Token>
       <Index>190</Index>
@@ -991,7 +991,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>243</Index>
-      <Text>Activates all saboteurs simultaneously. The saboteurs will destroy the ship's largest powerplant, likely crippling or destroying the vessel</Text>
+      <Text>Activates all saboteurs simultaneously. The saboteurs will destroy the ship's largest power plant, likely crippling or destroying the vessel</Text>
     </Token>
     <Token>
       <Index>244</Index>
@@ -1406,7 +1406,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>379</Index>
-      <Text>Governor will focus entirely on maximimzing production, importing food and exporting production. Labor focused entirely on industry.</Text>
+      <Text>Governor will focus entirely on maximizing production, importing food and exporting production. Labor focused entirely on industry.</Text>
     </Token>
     <Token>
       <Index>380</Index>
@@ -1489,7 +1489,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>404</Index>
-      <Text>Aeroponics is the use of a hydro-atomized spray to deliver nutrients to plants suspended in the air. This technique offers excellent plant growth and elminates the need for soil while at the same time minimizing pathogen risks. +1 flat bonus to Food production.</Text>
+      <Text>Aeroponics is the use of a hydro-atomized spray to deliver nutrients to plants suspended in the air. This technique offers excellent plant growth and eliminates the need for soil while at the same time minimizing pathogen risks. +1 flat bonus to Food production.</Text>
     </Token>
     <Token>
       <Index>405</Index>
@@ -1748,7 +1748,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>474</Index>
-      <Text>Xeno mines are the first real step toward's exploiting a planet's mineral deposits, creating +0.5 production per colonist assigned to industrial tasks.</Text>
+      <Text>Xeno mines are the first real step towards exploiting a planet's mineral deposits, creating +0.5 production per colonist assigned to industrial tasks.</Text>
     </Token>
     <Token>
       <Index>475</Index>
@@ -1896,7 +1896,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>535</Index>
-      <Text>Researching this technology will allow us to build certain armored components that can take more hits than their unarmored versons.</Text>
+      <Text>Researching this technology will allow us to build certain armored components that can take more hits than their unarmored versions.</Text>
     </Token>
     <Token>
       <Index>536</Index>
@@ -1952,7 +1952,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>549</Index>
-      <Text>Grants missile weapon (such as rockets, guided missiles, and torpedos) a 25% chance to dodge intercepting fire.</Text>
+      <Text>Grants missile weapon (such as rockets, guided missiles, and torpedoes) a 25% chance to dodge intercepting fire.</Text>
     </Token>
     <Token>
       <Index>550</Index>
@@ -2000,7 +2000,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>561</Index>
-      <Text>Energy shields are a requirement for any Captain expecting to engage in combat.  These devices extend an absorbant energy field towards projectiles entering its sphere of protection. Shields 'recharge' by shedding the energy captured. Shields vary in strength, recharge rate, and protection radius</Text>
+      <Text>Energy shields are a requirement for any Captain expecting to engage in combat.  These devices extend an absorbent energy field towards projectiles entering its sphere of protection. Shields 'recharge' by shedding the energy captured. Shields vary in strength, recharge rate, and protection radius</Text>
     </Token>
     <Token>
       <Index>562</Index>
@@ -4553,7 +4553,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1775</Index>
-      <Text>This densely populated planet is covered with megacities and suburbs from one end of the globe to the other. It is a flourishing world of science and industry, though its once-majestic wildnerness has all bit disappeared in the wake of development. </Text>
+      <Text>This densely populated planet is covered with megacities and suburbs from one end of the globe to the other. It is a flourishing world of science and industry, though its once-majestic wilderness has all bit disappeared in the wake of development. </Text>
     </Token>
     <Token>
       <Index>1776</Index>
@@ -7299,7 +7299,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5041</Index>
-      <Text>A large and efficient cruiser-class afterburner engine for making long range sublight burns</Text>
+      <Text>A large and efficient cruiser-class afterburner engine for making long range sub-light burns</Text>
     </Token>
     <Token>
       <Index>5042</Index>
