@@ -307,7 +307,7 @@ namespace Ship_Game
             return rank.Clamped(0, 15);
         }
 
-        public void BuildShipyardIfAble(int numWantedShipyards)
+        private void BuildShipyardIfAble(int numWantedShipyards)
         {
             if (numWantedShipyards == 0 || RecentCombat || !HasSpacePort || OrbitalsInTheWorks)
                 return;

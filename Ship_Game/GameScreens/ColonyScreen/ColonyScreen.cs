@@ -56,9 +56,9 @@ namespace Ship_Game
         private Rectangle FoodStorageIcon;
         private Rectangle ProfStorageIcon;
         private float ButtonUpdateTimer;   // updates buttons once per second
-        private string PlatformsStats;
-        private string StationsStats;
-        private string ShipyardsStats;
+        private string PlatformsStats = "Platforms:";
+        private string StationsStats  = "Stations:";
+        private string ShipyardsStats = "Shipyards:";
 
         ColonySliderGroup Sliders;
 
@@ -159,13 +159,14 @@ namespace Ship_Game
             LaunchSingleTroop.Tooltip = Localizer.Token(1950);
             CallTroops.Tooltip        = Localizer.Token(1949);
 
-            BuildShipyard = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Build Shipyard", OnLaunchTroopsClicked);
+            BuildShipyard = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Build Shipyard", OnBuildShipyardClick);
             BuildStation  = Button(theMenu9.X + theMenu9.Width - LaunchAllTroops.Rect.Width - 185,
-                                   theMenu9.Y - 5, "Build Station", OnLaunchSingleTroopClicked);
+                                   theMenu9.Y - 5, "Build Station", OnBuildStationClick);
 
             BuildPlatform = Button(theMenu9.X + theMenu9.Width - LaunchSingleTroop.Rect.Width - 365,
-                                   theMenu9.Y - 5, "Build Platform", OnSendTroopsClicked);
+                                   theMenu9.Y - 5, "Build Platform", OnBuildPlatformClick);
 
+            UpdateGovOrbitalStats();
             UpdateButtons();
             BuildShipyard.Tooltip = Localizer.Token(1948);
             BuildStation.Tooltip  = Localizer.Token(1947);
@@ -531,25 +532,36 @@ namespace Ship_Game
 
         void DrawOrbitalStats(SpriteBatch batch)
         {
-            BuildPlatform.Visible = P.Owner.CanBuildPlatforms && !P.GovOrbitals;
-            BuildStation.Visible  = P.Owner.CanBuildStations && !P.GovOrbitals;
-            BuildShipyard.Visible = P.Owner.CanBuildShipyards && !P.GovOrbitals;
-
-            if (P.Owner != EmpireManager.Player || !P.GovOrbitals || P.colonyType == Planet.ColonyType.Colony)
+            if (P.Owner != EmpireManager.Player)
                 return;
 
-            // Draw Governor current / wanted orbitals
-            Vector2 platformsStatVec = new Vector2(BuildPlatform.X +30, BuildPlatform.Y + 5);
-            Vector2 stationsStatVec  = new Vector2(BuildStation.X + 30, BuildStation.Y +5);
-            Vector2 shipyardsStatVec = new Vector2(BuildShipyard.X + 30, BuildShipyard.Y +5);
-            if (P.Owner.CanBuildPlatforms)
-                batch.DrawString(Font12, PlatformsStats, platformsStatVec, Color.White);
+            if (P.colonyType == Planet.ColonyType.Colony || P.colonyType != Planet.ColonyType.Colony && !P.GovOrbitals)
+            {
+                // Show build buttons
+                BuildPlatform.Visible = P.Owner.CanBuildPlatforms && P.HasSpacePort;
+                BuildStation.Visible  = P.Owner.CanBuildStations && P.HasSpacePort;
+                BuildShipyard.Visible = P.Owner.CanBuildShipyards && P.HasSpacePort;
+            }
+            else if (P.GovOrbitals)
+            {
+                BuildPlatform.Visible = false;
+                BuildStation.Visible  = false;
+                BuildShipyard.Visible = false;
 
-            if (P.Owner.CanBuildStations)
-                batch.DrawString(Font12, StationsStats, stationsStatVec, Color.White);
+                // Draw Governor current / wanted orbitals
+                Vector2 platformsStatVec = new Vector2(BuildPlatform.X + 30, BuildPlatform.Y + 5);
+                Vector2 stationsStatVec  = new Vector2(BuildStation.X + 30, BuildStation.Y + 5);
+                Vector2 shipyardsStatVec = new Vector2(BuildShipyard.X + 30, BuildShipyard.Y + 5);
+                if (P.Owner.CanBuildPlatforms)
+                    batch.DrawString(Font12, PlatformsStats, platformsStatVec, Color.White);
 
-            if (P.Owner.CanBuildShipyards)
-                batch.DrawString(Font12, ShipyardsStats, shipyardsStatVec, Color.White);
+                if (P.Owner.CanBuildStations)
+                    batch.DrawString(Font12, StationsStats, stationsStatVec, Color.White);
+
+                if (P.Owner.CanBuildShipyards)
+                    batch.DrawString(Font12, ShipyardsStats, shipyardsStatVec, Color.White);
+            }
+
         }
 
         Color TextColor { get; } = new Color(255, 239, 208);
@@ -1203,6 +1215,47 @@ namespace Ship_Game
                 foreach (ThreeStateButton b in ResourceButtons)
                     b.HandleInput(input, ScreenManager);
             }
+        }
+
+        void OnBuildPlatformClick(UIButton b)
+        {
+            if (BuildOrbital(P.Owner.BestPlatformWeCanBuild))
+                GameAudio.AffirmativeClick();
+            else
+                GameAudio.NegativeClick();
+        }
+
+        void OnBuildStationClick(UIButton b)
+        {
+            if (BuildOrbital(P.Owner.BestStationWeCanBuild))
+                GameAudio.AffirmativeClick();
+            else
+                GameAudio.NegativeClick();
+        }
+
+        void OnBuildShipyardClick(UIButton b)
+        {
+            string shipyardName = ResourceManager.ShipsDict[P.Owner.data.DefaultShipyard].Name;
+            Ship shipyard = ResourceManager.GetShipTemplate(shipyardName);
+            if (BuildOrbital(shipyard))
+                GameAudio.AffirmativeClick();
+            else
+                GameAudio.NegativeClick();
+        }
+
+        bool BuildOrbital(Ship orbital)
+        {
+            if (orbital == null || IsOutOfOrbitalsLimit(orbital))
+                return false;
+            
+            P.ConstructionQueue.Add(new QueueItem(P)
+            {
+                isShip = true,
+                sData  = orbital.shipData,
+                Cost   = orbital.GetCost(P.Owner)
+            });
+
+            return true;
         }
 
         void OnSendTroopsClicked(UIButton b)
