@@ -96,6 +96,9 @@ namespace Ship_Game
         public bool canBuildBombers;
         public bool canBuildTroopShips;
         public bool canBuildSupportShips;
+        public bool CanBuildPlatforms;
+        public bool CanBuildStations;
+        public bool CanBuildShipyards;
         public float currentMilitaryStrength;
         public Color ThrustColor0;
         public Color ThrustColor1;
