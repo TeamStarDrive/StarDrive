@@ -2436,7 +2436,6 @@ namespace Ship_Game.Ships
                 case ShipData.RoleName.platform:  empire.CanBuildPlatforms     = true; break;
                 case ShipData.RoleName.station:   empire.CanBuildStations      = true; break;
                 default: if (shipData.IsShipyard) empire.CanBuildShipyards     = true; break;
-
             }
         }
 
