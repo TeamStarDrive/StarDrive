@@ -157,7 +157,7 @@ namespace Ship_Game
         }
 
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
-        public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry);
+        public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
 
         public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p =>
             p.HasSpacePort && !p.EnemyInRange()
