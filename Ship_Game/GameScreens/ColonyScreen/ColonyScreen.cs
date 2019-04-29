@@ -175,6 +175,9 @@ namespace Ship_Game
             BuildShipyard.Style   = ButtonStyle.BigDip;
             BuildStation.Style    = ButtonStyle.BigDip;
             BuildPlatform.Style   = ButtonStyle.BigDip;
+            BuildPlatform.Visible = false;
+            BuildStation.Visible  = false;
+            BuildShipyard.Visible = false;
             UpdateGovOrbitalStats();
             UpdateButtons();
 
