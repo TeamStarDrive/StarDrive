@@ -60,8 +60,8 @@ namespace Ship_Game
         [XmlIgnore] [JsonIgnore] public float ActualCost     => Cost * CurrentGame.Pace;
         [XmlIgnore] [JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
         [XmlIgnore] [JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;
-        [XmlIgnore] [JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.1f * Level * HardAttack);
-        [XmlIgnore] [JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
+        [XmlIgnore] [JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);
+        [XmlIgnore] [JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.05f * Level * SoftAttack);
         [XmlIgnore] [JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
         [XmlIgnore] [JsonIgnore] public int ActualRange      => Level < 3   ? Range : Range + 1;  // veterans have bigger range
 
@@ -369,18 +369,23 @@ namespace Ship_Game
 
         private bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet )
         {
-            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
-            foreach (PlanetGridSquare pgs in planet.TilesList)
+            if (tile.IsTileFree)
+                AssignTroop(planet, tile);
+            else
             {
-                if (pgs.IsTileFree && tile.InRangeOf(pgs, 1))
-                    list.Add(pgs);
+                Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
+                foreach (PlanetGridSquare pgs in planet.TilesList)
+                {
+                    if (pgs.IsTileFree && tile.InRangeOf(pgs, 1))
+                        list.Add(pgs);
+                }
+
+                if (list.Count == 0)
+                    return AssignTroopToTile(planet); // Fallback to assign troop to any available tile if no close tile available
+
+                PlanetGridSquare selectedTile = list.RandItem();
+                AssignTroop(planet, selectedTile);
             }
-
-            if (list.Count == 0)
-                return AssignTroopToTile(planet); // Fallback to assign troop to any available tile if no close tile available
-
-            PlanetGridSquare selectedTile = list.RandItem();
-            AssignTroop(planet, selectedTile);
             return true;
         }
 
@@ -412,7 +417,9 @@ namespace Ship_Game
             planet.TroopsHere.Add(this);
             RemoveHostShip();
             SetPlanet(planet);
-
+            UpdateMoveActions(-1);
+            ResetMoveTimer();
+            facingRight = tile.x < planet.TileMaxX / 2;
         }
 
         private void RemoveHostShip()

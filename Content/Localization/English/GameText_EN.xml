@@ -950,7 +950,7 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
     </Token>
     <Token>
       <Index>234</Index>
-      <Text>Opens a panel displaying any troops you have in orbit, whether they are on shuttles. If this is your colony and you have troops garrisoned in ships (even if these ships do not have assault bays), they will be displayed here as well.</Text>
+      <Text>Opens a panel displaying any troops you have in orbit, whether they are on shuttles. If this is your colony and you have a space port, troops garrisoned in ships (even if these ships do not have assault bays), they will be displayed here as well. You can drag a troop from this list to available tiles to land it or just double click on it to land it on a random tile.</Text>
     </Token>
     <Token>
       <Index>235</Index>

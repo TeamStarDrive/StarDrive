@@ -550,67 +550,49 @@ namespace Ship_Game
 
             UpdateLaunchAllButton(p.TroopsHere.Count(t => t.Loyalty == Empire.Universe.player && t.CanMove));
             OrbitSL.HandleInput(input);
+
             foreach (ScrollList.Entry e in OrbitSL.AllExpandedEntries)
             {
-                if (!e.CheckHover(Input.CursorPosition))
+                if (e != null && !e.CheckHover(Input.CursorPosition))
                     continue;
 
-                selector = e.CreateSelector();
-                if (input.LeftMouseClick)
+                if (input.LeftMouseHeld())
                     draggedTroop = e;
-            }
-
-            if (draggedTroop != null && input.LeftMouseClick)
-            {
-                bool foundPlace = false;
-                foreach (PlanetGridSquare pgs in p.TilesList)
+                else if (input.LeftMouseDoubleClick)
                 {
-                    if (!pgs.ClickRect.HitTest(Input.CursorPosition))
-                        continue;
-
-                    if (!(draggedTroop.item is Ship) || (draggedTroop.item as Ship).TroopList.Count <= 0)
+                    ScrollList.Entry clickedTroop = e;
+                    if (clickedTroop != null && clickedTroop.item is Troop troop && troop.TryLandTroop(p))
                     {
-                        if (!(draggedTroop.item is Troop) || (pgs.building != null || pgs.TroopsHere.Count != 0) && (pgs.building == null || pgs.building.CombatStrength != 0 || pgs.TroopsHere.Count != 0))
-                            continue;
-
                         GameAudio.TroopLand();
-                        pgs.TroopsHere.Add(draggedTroop.item as Troop);
-                        pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.UpdateMoveActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.ResetLaunchTimer();
-                        pgs.SingleTroop.ResetAttackTimer();
-                        pgs.SingleTroop.ResetMoveTimer();
-
-                        p.TroopsHere.Add(draggedTroop.item as Troop);
-                        (draggedTroop.item as Troop).SetPlanet(p);
-                        OrbitSL.Remove(draggedTroop);
-                        (draggedTroop.item as Troop).HostShip.TroopList.Remove(draggedTroop.item as Troop);
-                        foundPlace = true;
-                        draggedTroop = null;
+                        OrbitSL.Remove(clickedTroop);
+                        OrbitalAssetsTimer = 0;
                     }
                     else
-                    {
-                        if ((pgs.BuildingOnTile || pgs.TroopsAreOnTile) && (pgs.NoBuildingOnTile || pgs.CombatBuildingOnTile || pgs.TroopsAreOnTile))
-                            continue;
+                        GameAudio.NegativeClick();
+                }
 
+            }
+
+            if (draggedTroop != null && !input.LeftMouseHeld())
+            {
+                bool troopLanded = false;
+                foreach (PlanetGridSquare pgs in p.TilesList)
+                {
+                    if (!pgs.ClickRect.HitTest(Input.CursorPosition) || !pgs.NoTroopsOnTile || pgs.CombatBuildingOnTile)
+                        continue;
+
+                    if (draggedTroop.item is Troop troop && troop.TryLandTroop(p, pgs))
+                    {
                         GameAudio.TroopLand();
-                        pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
-                        pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.UpdateMoveActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.ResetLaunchTimer();
-                        pgs.SingleTroop.ResetAttackTimer();
-                        pgs.SingleTroop.ResetMoveTimer();
-                        p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
-                        (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
-                        pgs.CheckAndTriggerEvent(p, pgs.SingleTroop.Loyalty);
                         OrbitSL.Remove(draggedTroop);
-                        (draggedTroop.item as Ship).QueueTotalRemoval();
-                        foundPlace = true;
+                        troopLanded  = true;
                         draggedTroop = null;
+                        OrbitalAssetsTimer = 0;
+                        break;
                     }
                 }
 
-                if (!foundPlace)
+                if (!troopLanded)
                 {
                     draggedTroop = null;
                     GameAudio.NegativeClick();
@@ -636,7 +618,7 @@ namespace Ship_Game
 
                     if (!pgs.TroopClickRect.HitTest(Input.CursorPosition))
                         pgs.ShowAttackHover = false;
-                    else if (ActiveTile.TroopsHere.Count <= 0)
+                    else if (ActiveTile.NoTroopsOnTile)
                     {
                         if (ActiveTile.NoBuildingOnTile || ActiveTile.building.CombatStrength <= 0 || !ActiveTile.building.CanAttack || p.Owner == null || p.Owner != EmpireManager.Player)
                             continue;
@@ -771,10 +753,7 @@ namespace Ship_Game
 
         public void StartCombat(PlanetGridSquare attacker, PlanetGridSquare defender)
         {
-            Combat c = new Combat
-            {
-                AttackTile = attacker
-            };
+            Combat c = new Combat { AttackTile = attacker };
 
             if (attacker.TroopsHere.Count <= 0)
             {
@@ -793,94 +772,13 @@ namespace Ship_Game
 
         public static void StartCombat(PlanetGridSquare attacker, PlanetGridSquare defender, Planet p)
         {
-            Combat c = new Combat
-            {
-                AttackTile = attacker
-            };
+            Combat c = new Combat { AttackTile = attacker };
 
             if (attacker.TroopsAreOnTile)
                 attacker.SingleTroop.DoAttack();
 
             c.DefenseTile = defender;
             p.ActiveCombats.Add(c);
-        }
-
-        public static bool TroopCanAttackSquare(PlanetGridSquare ourTile, PlanetGridSquare tileToAttack, Planet p)
-        {
-            if (ourTile == null)
-                return false;
-
-            if (ourTile.TroopsHere.Count != 0)
-            {
-                foreach (PlanetGridSquare planetGridSquare1 in p.TilesList)
-                {
-                    if (ourTile != planetGridSquare1) continue;
-                    foreach (PlanetGridSquare planetGridSquare2 in p.TilesList)
-                    {
-                        if (planetGridSquare2 != ourTile && planetGridSquare2 == tileToAttack)
-                        {
-                            //Added by McShooterz: Prevent troops from firing on own buildings
-                            if (planetGridSquare2.TroopsHere.Count == 0 &&
-                                (planetGridSquare2.building == null ||
-                                 (planetGridSquare2.building != null &&
-                                  planetGridSquare2.building.CombatStrength == 0) ||
-                                 p.Owner?.IsEmpireAttackable(ourTile.SingleTroop.Loyalty) == false
-                                ))
-                                return false;
-                            int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
-                            int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
-                            if (planetGridSquare2.TroopsHere.Count > 0)
-                            {
-                                if (planetGridSquare1.TroopsHere.Count != 0 &&
-                                    num1 <= planetGridSquare1.SingleTroop.Range &&
-                                    (num2 <= planetGridSquare1.SingleTroop.Range &&
-                                     planetGridSquare2.SingleTroop.Loyalty.IsEmpireAttackable(ourTile.SingleTroop.Loyalty)
-                                    ))
-                                    return true;
-                            }
-                            else if (planetGridSquare2.building != null &&
-                                     planetGridSquare2.building.CombatStrength > 0 &&
-                                     (num1 <= planetGridSquare1.SingleTroop.Range &&
-                                      num2 <= planetGridSquare1.SingleTroop.Range))
-                            {
-                                if (p.Owner == null)
-                                    return false;
-                                if (p.Owner?.IsEmpireAttackable(ourTile.SingleTroop.Loyalty) == true)
-                                    return true;
-                            }
-                        }
-                    }
-                }
-            }
-            else if (ourTile.building != null && ourTile.building.CombatStrength > 0)
-            {
-                foreach (PlanetGridSquare planetGridSquare1 in p.TilesList)
-                {
-                    if (ourTile == planetGridSquare1)
-                    {
-                        foreach (PlanetGridSquare planetGridSquare2 in p.TilesList)
-                        {
-                            if (planetGridSquare2 != ourTile && planetGridSquare2 == tileToAttack)
-                            {
-                                //Added by McShooterz: Prevent buildings from firing on buildings
-                                if (planetGridSquare2.TroopsHere.Count == 0)
-                                    return false;
-                                int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
-                                int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
-                                if (planetGridSquare2.TroopsHere.Count > 0)
-                                {
-                                    if (num1 <= 1 && num2 <= 1 &&
-                                        p.Owner?.IsEmpireAttackable(planetGridSquare2.SingleTroop.Loyalty) == true)
-                                        return true;
-                                }
-                                else if (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength > 0 && (num1 <= 1 && num2 <= 1))
-                                    return p.Owner != null;
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
         }
 
         public override void Update(float elapsedTime)
