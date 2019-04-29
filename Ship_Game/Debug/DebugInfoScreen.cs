@@ -4,13 +4,13 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Debug.Page;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.Sandbox;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ship_Game.Debug.Page;
-using Ship_Game.GameScreens.Sandbox;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -124,7 +124,7 @@ namespace Ship_Game.Debug
                 ResearchText.Add(empire.Name, new Array<string> {text});
             }
         }
-        
+
         public void ClearResearchLog(Empire empire)
         {
             if (ResearchText.TryGetValue(empire.Name, out Array<string> empireTechs))
@@ -194,11 +194,11 @@ namespace Ship_Game.Debug
                 }
             }
         }
-        
+
         public void Draw(GameTime gameTime)
         {
             Page?.Draw(Screen.ScreenManager.SpriteBatch);
-            
+
             try
             {
                 TextFont = Fonts.Arial20Bold;
@@ -272,17 +272,22 @@ namespace Ship_Game.Debug
                     Ship bestShip = e.GetEmpireAI().TechChooser.LineFocus.BestCombatShip;
                     if (bestShip != null)
                     {
+                        var neededTechs = bestShip.shipData.TechsNeeded.Except(e.ShipTechs);
+                        float techCost = 0;
+                        foreach(var tech in neededTechs)
+                            techCost += e.TechCost(tech);
+
                         DrawString($"Ship : {bestShip.Name}");
-                        DrawString($"Hull : {bestShip.BaseHull.Role}");                        
+                        DrawString($"Hull : {bestShip.BaseHull.Role}");
                         DrawString($"Role : {bestShip.DesignRole}");
-                        DrawString($"Str : {(int)bestShip.BaseStrength} - Tech : {bestShip.shipData.TechScore}");
+                        DrawString($"Str : {(int)bestShip.BaseStrength} - Tech : {techCost}");
                     }
                 }
                 DrawString("");
                 if (ResearchText.TryGetValue(e.Name, out var empireLog))
                     for (int x = 0; x < empireLog.Count - 1; x++)
                     {
-                        var text = empireLog[x];                        
+                        var text = empireLog[x];
                         DrawString(text ?? "Error");
                     }
                 ++column;
@@ -300,7 +305,7 @@ namespace Ship_Game.Debug
                 {
                     var module = weapon.FireTarget as ShipModule;
                     if (module == null || module.GetParent() != ship.AI.Target || weapon.Tag_Beam || weapon.Tag_Guided)
-                        continue;                        
+                        continue;
 
                     Screen.DrawCircleProjected(module.Center, 8f, 6, Color.MediumVioletRed);
                     if (weapon.DebugLastImpactPredict.NotZero())
@@ -396,7 +401,7 @@ namespace Ship_Game.Debug
                 DrawString(ship.System == null ? "Deep Space" : $"{ship.System.Name} system");
 
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
-                           ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
+                           ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");
                 DrawString(ship.AI.HasPriorityTarget ? "Priority Target" : "No Priority Target");
                 DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
                 if (ship.IsFreighter)
@@ -638,15 +643,15 @@ namespace Ship_Game.Debug
             {
                 DefensiveCoordinator defco = e.GetEmpireAI().DefensiveCoordinator;
                 foreach (var kv in defco.DefenseDict)
-                {                    
+                {
                     Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.RankImportance * 100, e.EmpireColor, 6);
                     Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.IdealShipStrength * 10, e.EmpireColor, 3);
                     Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.TroopsWanted * 100, e.EmpireColor, 4);
                 }
-                foreach(Ship ship in defco.DefensiveForcePool)                                                        
+                foreach(Ship ship in defco.DefensiveForcePool)
                     Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 6);
-                
-                foreach(AO ao in e.GetEmpireAI().AreasOfOperations)                
+
+                foreach(AO ao in e.GetEmpireAI().AreasOfOperations)
                     Screen.DrawCircleProjectedZ(ao.Center, ao.Radius, e.EmpireColor, 16);
             }
         }
@@ -657,7 +662,7 @@ namespace Ship_Game.Debug
             {
                 if (e.isPlayer || e.isFaction)
                     continue;
-              
+
                 foreach (ThreatMatrix.Pin pin in e.GetEmpireAI().ThreatMatrix.Pins.Values.ToArray())
                 {
                     if (pin.Position == Vector2.Zero|| pin.Ship == null) continue;

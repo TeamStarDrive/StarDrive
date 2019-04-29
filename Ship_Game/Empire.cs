@@ -526,8 +526,23 @@ namespace Ship_Game
         public bool HasDiscovered(string techId)  => GetTechEntry(techId).Discovered;
         public float TechProgress(TechEntry tech) => GetTechEntry(tech).Progress;
         public float TechCost(TechEntry tech)     => GetTechEntry(tech).TechCost;
+        public float TechCost(string techID)      => GetTechEntry(techID).TechCost;
         public string AcquiredFrom(TechEntry tech) => GetTechEntry(tech).AcquiredFrom;
         public string AcquiredFrom(string techId)  => GetTechEntry(techId).AcquiredFrom;
+        public int TechCost(IEnumerable<string> techID)// => GetTechEntry(techID).TechCost;
+        {
+            float costAccumulator = 0;
+            foreach (var tech in techID)
+            {
+                costAccumulator += TechCost(tech);
+            }
+            return (int)costAccumulator;
+        }
+        public int TechCost(Ship ship)
+        {
+            float costAccumulator = 0;
+            return TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
+        }
 
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 
