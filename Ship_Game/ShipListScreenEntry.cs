@@ -315,6 +315,8 @@ namespace Ship_Game
                 case AIState.Rebase:
                     var planetName = ship.AI.OrderQueue.PeekLast?.TargetPlanet.Name;                    
                     return Localizer.Token(178) + $" to {planetName ?? "ERROR" }";  //fbedard
+                case AIState.RebaseToShip:
+                    return Localizer.Token(178) + $" to {ship.AI.EscortTarget?.VanityName ?? "ERROR" }";  
                 case AIState.Bombard:
                     if (ship.AI.OrderQueue.IsEmpty || ship.AI.OrderQueue.PeekFirst.TargetPlanet == null)
                         return "";
