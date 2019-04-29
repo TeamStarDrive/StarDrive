@@ -15,7 +15,8 @@ namespace Ship_Game
         Medium,     // empiretopbar_btn_132px
         MediumMenu, // empiretopbar_btn_132px_menu
         BigDip,     // empiretopbar_btn_168px_dip
-        Close      // NewUI/Close_Normal
+        Military,   // empiretopbar_btn_168px_military
+        Close       // NewUI/Close_Normal
     }
 
     // Refactored by RedFox
@@ -94,6 +95,7 @@ namespace Ship_Game
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_132px"),
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_132px_menu"),
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_168px_dip"),
+                new StyleTextures("EmpireTopBar/empiretopbar_btn_168px_military"),
                 new StyleTextures("NewUI/Close_Normal", "NewUI/Close_Hover")
             };
             return Styling;

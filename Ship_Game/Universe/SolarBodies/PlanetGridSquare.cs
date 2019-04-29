@@ -33,6 +33,7 @@ namespace Ship_Game
         public Troop SingleTroop         => TroopsHere[0]; //FB - multiple troops per PGS is not supported yet
         public bool FreeForMovement      => !TroopsAreOnTile && !CombatBuildingOnTile;
         public bool EventOnTile          => BuildingOnTile && building.EventHere;
+        public bool IsTileFree           => TroopsHere.Count < MaxAllowedTroops && !CombatBuildingOnTile;
 
         // FB - all these are starting multiple troops per PGS support
         public float TroopsStrength => TroopsHere.Sum(troop => troop.Strength);

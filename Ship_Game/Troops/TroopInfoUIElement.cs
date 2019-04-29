@@ -157,7 +157,7 @@ namespace Ship_Game
             Color color;
             switch (level)
             {
-                default: color = Color.Gold; break;
+                default: color = Color.White; break;
                 case 3:
                 case 4:
                 case 5:  color = Color.SandyBrown; break;

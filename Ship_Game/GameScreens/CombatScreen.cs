@@ -35,6 +35,7 @@ namespace Ship_Game
         private bool ResetNextFrame;
         public PlanetGridSquare ActiveTile;
         private Selector selector;
+        private float OrbitalAssetsTimer; // 2 seconds per update
 
         ScrollList.Entry draggedTroop;
         Array<PlanetGridSquare> ReversedList              = new Array<PlanetGridSquare>();
@@ -62,11 +63,11 @@ namespace Ship_Game
             assetsUI              = new OrbitalAssetsUIElement(AssetsRect, ScreenManager, Empire.Universe, p);
             tInfo                 = new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe);
             hInfo                 = new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe);
-            Rectangle ColonyGrid  = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
-            CombatField           = new Menu2(ColonyGrid);
-            Rectangle OrbitalRect = new Rectangle(5, ColonyGrid.Y, (screenWidth - ColonyGrid.Width) / 2 - 20, ColonyGrid.Height+20);
-            OrbitalResources      = new Menu1(OrbitalRect);
-            Rectangle psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 185, AssetsRect.Height);
+            Rectangle colonyGrid  = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
+            CombatField           = new Menu2(colonyGrid);
+            Rectangle orbitalRect = new Rectangle(5, colonyGrid.Y, (screenWidth - colonyGrid.Width) / 2 - 20, colonyGrid.Height+20);
+            OrbitalResources      = new Menu1(orbitalRect);
+            Rectangle psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 200, AssetsRect.Height * 2);
             orbitalResourcesSub   = new Submenu(psubRect);
             OrbitSL               = new ScrollList(orbitalResourcesSub);
 
@@ -74,39 +75,10 @@ namespace Ship_Game
 
             LandAll   = Button(orbitalResourcesSub.Menu.X + 20, orbitalResourcesSub.Menu.Y - 2, "Land All", OnLandAllClicked);
             LaunchAll = Button(orbitalResourcesSub.Menu.X + 20, LandAll.Rect.Y - 2 - LandAll.Rect.Height, "Launch All", OnLaunchAllClicked);
+            LandAll.Tooltip   = Localizer.Token(1951);
+            LaunchAll.Tooltip = Localizer.Token(1952);
 
-            using (Empire.Universe.MasterShipList.AcquireReadLock())
-            foreach (Ship ship in Empire.Universe.MasterShipList)
-            {
-
-                if (ship == null)
-                    continue;
-
-                if (Vector2.Distance(p.Center, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f || ship.loyalty != EmpireManager.Player)
-                    continue;
-
-                if (ship.shipData.Role != ShipData.RoleName.troop)
-                {
-                    if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  //fbedard
-                        continue;
-
-                    int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                    foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1))
-                        landingLimit += module.TransporterTroopLanding;
-                    if (p.HasSpacePort && p.Owner == ship.loyalty) landingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
-                    for (int i = 0; i < ship.TroopList.Count() && landingLimit > 0; i++)
-                    {
-                        if (ship.TroopList[i] != null && ship.TroopList[i].Loyalty == ship.loyalty)
-                        {
-                            OrbitSL.AddItem(ship.TroopList[i]);
-                            landingLimit--;
-                        }
-                    }
-                }
-                else
-                    OrbitSL.AddItem(ship);
-            }
-            gridPos   = new Rectangle(ColonyGrid.X + 20, ColonyGrid.Y + 20, ColonyGrid.Width - 40, ColonyGrid.Height - 40);
+            gridPos   = new Rectangle(colonyGrid.X + 20, colonyGrid.Y + 20, colonyGrid.Width - 40, colonyGrid.Height - 40);
             int xSize = gridPos.Width / 7;
             int ySize = gridPos.Height / 5;
             foreach (PlanetGridSquare pgs in p.TilesList)
@@ -246,6 +218,16 @@ namespace Ship_Game
             }
         }
 
+        private void DrawTroopAsset(SpriteBatch batch, Vector2 bCursor, Troop t, float cursorY, Color nameColor, Color statsColor)
+        {
+            bCursor.Y = cursorY;
+            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, nameColor);
+            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+            batch.DrawString(Fonts.Arial8Bold, t.StrengthText + ", Level: " + t.Level, tCursor, statsColor);
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = StarDriveGame.Instance.GameTime;
@@ -258,58 +240,24 @@ namespace Ship_Game
                 var bCursor = new Vector2((orbitalResourcesSub.Menu.X + 25), 350f);
                 foreach (ScrollList.Entry e in OrbitSL.VisibleExpandedEntries)
                 {
-                    if (e.item is Ship ship)
+                    if (e.item is Troop t)
                     {
-                        if (ship.TroopList.Count == 0)
-                            continue;
-                        Troop t = ship.TroopList[0];
+                        Color nameColor = Color.LightGray;
+                        Color statsColor = nameColor;
                         if (e.Hovered)
                         {
-                            bCursor.Y = e.Y;
-                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
+                            nameColor  = Color.Gold;
+                            statsColor = Color.Orange;
                         }
-                        else
-                        {
-                            bCursor.Y = e.Y;
-                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
-                            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
-                        }
-                    }
-                    else if (e.item is Troop t)
-                    {
-                        if (e.Hovered)
-                        {
-                            bCursor.Y = e.Y;
-                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                            tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
-                        }
-                        else
-                        {
-                            bCursor.Y = e.Y;
-                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
-                            tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
-                        }
+
+                        DrawTroopAsset(batch, bCursor, t, e.Y, nameColor, statsColor);
                     }
                     e.CheckHover(Input.CursorPosition);
                 }
-
-                LandAll.Visible = OrbitSL.NumEntries > 0;
             }
 
             LaunchAll.Draw(batch);
+            LandAll.Draw(batch);
 
             foreach (PlanetGridSquare pgs in ReversedList)
             {
@@ -531,15 +479,10 @@ namespace Ship_Game
             GameAudio.TroopLand();
             foreach (ScrollList.Entry e in OrbitSL.AllEntries)
             {
-                if (e.item is Ship ship)
-                    ship.AI.OrderLandAllTroops(p);
-
-                else if (e.item is Troop troop)
-                {
-                    troop.HostShip.TroopList.Remove(troop);
-                    troop.AssignTroopToTile(p);
-                }
+                if (e.item is Troop troop)
+                    troop.TryLandTroop(p);
             }
+
             OrbitSL.Reset();
         }
 
@@ -587,7 +530,7 @@ namespace Ship_Game
                 else
                 {
                     Troop troop = ResourceManager.CreateTroop("Wyvern", EmpireManager.Remnants);
-                    if (!troop.AssignTroopToTile(p))
+                    if (!troop.TryLandTroop(p))
                         return false; // eek-eek
                 }
             }
@@ -605,70 +548,51 @@ namespace Ship_Game
                 HoveredSquare = pgs;
             }
 
-            LandAll.Enabled = OrbitSL.NumEntries > 0;
-            LaunchAll.Enabled = p.TroopsHere.Any(t => t.Loyalty == Empire.Universe.player && t.CanMove);
+            UpdateLaunchAllButton(p.TroopsHere.Count(t => t.Loyalty == Empire.Universe.player && t.CanMove));
             OrbitSL.HandleInput(input);
+
             foreach (ScrollList.Entry e in OrbitSL.AllExpandedEntries)
             {
-                if (!e.CheckHover(Input.CursorPosition))
+                if (e != null && !e.CheckHover(Input.CursorPosition))
                     continue;
 
-                selector = e.CreateSelector();
-                if (input.LeftMouseClick)
+                if (input.LeftMouseHeld())
                     draggedTroop = e;
-            }
-
-            if (draggedTroop != null && input.LeftMouseClick)
-            {
-                bool foundPlace = false;
-                foreach (PlanetGridSquare pgs in p.TilesList)
+                else if (input.LeftMouseDoubleClick)
                 {
-                    if (!pgs.ClickRect.HitTest(Input.CursorPosition))
-                        continue;
-
-                    if (!(draggedTroop.item is Ship) || (draggedTroop.item as Ship).TroopList.Count <= 0)
+                    ScrollList.Entry clickedTroop = e;
+                    if (clickedTroop != null && clickedTroop.item is Troop troop && troop.TryLandTroop(p))
                     {
-                        if (!(draggedTroop.item is Troop) || (pgs.building != null || pgs.TroopsHere.Count != 0) && (pgs.building == null || pgs.building.CombatStrength != 0 || pgs.TroopsHere.Count != 0))
-                            continue;
-
                         GameAudio.TroopLand();
-                        pgs.TroopsHere.Add(draggedTroop.item as Troop);
-                        pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.UpdateMoveActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.ResetLaunchTimer();
-                        pgs.SingleTroop.ResetAttackTimer();
-                        pgs.SingleTroop.ResetMoveTimer();
-
-                        p.TroopsHere.Add(draggedTroop.item as Troop);
-                        (draggedTroop.item as Troop).SetPlanet(p);
-                        OrbitSL.Remove(draggedTroop);
-                        (draggedTroop.item as Troop).HostShip.TroopList.Remove(draggedTroop.item as Troop);
-                        foundPlace = true;
-                        draggedTroop = null;
+                        OrbitSL.Remove(clickedTroop);
+                        OrbitalAssetsTimer = 0;
                     }
                     else
-                    {
-                        if ((pgs.BuildingOnTile || pgs.TroopsAreOnTile) && (pgs.NoBuildingOnTile || pgs.CombatBuildingOnTile || pgs.TroopsAreOnTile))
-                            continue;
+                        GameAudio.NegativeClick();
+                }
 
+            }
+
+            if (draggedTroop != null && !input.LeftMouseHeld())
+            {
+                bool troopLanded = false;
+                foreach (PlanetGridSquare pgs in p.TilesList)
+                {
+                    if (!pgs.ClickRect.HitTest(Input.CursorPosition) || !pgs.NoTroopsOnTile || pgs.CombatBuildingOnTile)
+                        continue;
+
+                    if (draggedTroop.item is Troop troop && troop.TryLandTroop(p, pgs))
+                    {
                         GameAudio.TroopLand();
-                        pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
-                        pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.UpdateMoveActions(-pgs.SingleTroop.MaxStoredActions);
-                        pgs.SingleTroop.ResetLaunchTimer();
-                        pgs.SingleTroop.ResetAttackTimer();
-                        pgs.SingleTroop.ResetMoveTimer();
-                        p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
-                        (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
-                        pgs.CheckAndTriggerEvent(p, pgs.SingleTroop.Loyalty);
                         OrbitSL.Remove(draggedTroop);
-                        (draggedTroop.item as Ship).QueueTotalRemoval();
-                        foundPlace = true;
+                        troopLanded  = true;
                         draggedTroop = null;
+                        OrbitalAssetsTimer = 0;
+                        break;
                     }
                 }
 
-                if (!foundPlace)
+                if (!troopLanded)
                 {
                     draggedTroop = null;
                     GameAudio.NegativeClick();
@@ -694,7 +618,7 @@ namespace Ship_Game
 
                     if (!pgs.TroopClickRect.HitTest(Input.CursorPosition))
                         pgs.ShowAttackHover = false;
-                    else if (ActiveTile.TroopsHere.Count <= 0)
+                    else if (ActiveTile.NoTroopsOnTile)
                     {
                         if (ActiveTile.NoBuildingOnTile || ActiveTile.building.CombatStrength <= 0 || !ActiveTile.building.CanAttack || p.Owner == null || p.Owner != EmpireManager.Player)
                             continue;
@@ -827,41 +751,9 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        private void ResetTroopList()
-        {
-            OrbitSL.Reset();
-            for (int i = 0; i < p.ParentSystem.ShipList.Count; i++)
-            {
-                Ship ship = p.ParentSystem.ShipList[i];
-                if (p.Center.Distance(ship.Center) >= 15000f || ship.loyalty != EmpireManager.Player)
-                    continue;
-
-                if (ship.shipData.Role == ShipData.RoleName.troop && !Empire.Universe.MasterShipList.IsPendingRemoval(ship))
-                    OrbitSL.AddItem(ship);
-                else if (ship.Carrier.HasTroopBays || ship.Carrier.HasTransporters)
-                {
-                    int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                    foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
-                        landingLimit += module.TransporterTroopLanding;
-
-                    for (int x = 0; x < ship.TroopList.Count && landingLimit > 0; x++)
-                    {
-                        if (ship.TroopList[x].Loyalty == ship.loyalty)
-                        {
-                            OrbitSL.AddItem(ship.TroopList[x]);
-                            landingLimit--;
-                        }
-                    }
-                }
-            }
-        }
-
         public void StartCombat(PlanetGridSquare attacker, PlanetGridSquare defender)
         {
-            Combat c = new Combat
-            {
-                AttackTile = attacker
-            };
+            Combat c = new Combat { AttackTile = attacker };
 
             if (attacker.TroopsHere.Count <= 0)
             {
@@ -880,10 +772,7 @@ namespace Ship_Game
 
         public static void StartCombat(PlanetGridSquare attacker, PlanetGridSquare defender, Planet p)
         {
-            Combat c = new Combat
-            {
-                AttackTile = attacker
-            };
+            Combat c = new Combat { AttackTile = attacker };
 
             if (attacker.TroopsAreOnTile)
                 attacker.SingleTroop.DoAttack();
@@ -892,91 +781,14 @@ namespace Ship_Game
             p.ActiveCombats.Add(c);
         }
 
-        public static bool TroopCanAttackSquare(PlanetGridSquare ourTile, PlanetGridSquare tileToAttack, Planet p)
-        {
-            if (ourTile == null)
-                return false;
-
-            if (ourTile.TroopsHere.Count != 0)
-            {
-                foreach (PlanetGridSquare planetGridSquare1 in p.TilesList)
-                {
-                    if (ourTile != planetGridSquare1) continue;
-                    foreach (PlanetGridSquare planetGridSquare2 in p.TilesList)
-                    {
-                        if (planetGridSquare2 != ourTile && planetGridSquare2 == tileToAttack)
-                        {
-                            //Added by McShooterz: Prevent troops from firing on own buildings
-                            if (planetGridSquare2.TroopsHere.Count == 0 &&
-                                (planetGridSquare2.building == null ||
-                                 (planetGridSquare2.building != null &&
-                                  planetGridSquare2.building.CombatStrength == 0) ||
-                                 p.Owner?.IsEmpireAttackable(ourTile.SingleTroop.Loyalty) == false
-                                ))
-                                return false;
-                            int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
-                            int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
-                            if (planetGridSquare2.TroopsHere.Count > 0)
-                            {
-                                if (planetGridSquare1.TroopsHere.Count != 0 &&
-                                    num1 <= planetGridSquare1.SingleTroop.Range &&
-                                    (num2 <= planetGridSquare1.SingleTroop.Range &&
-                                     planetGridSquare2.SingleTroop.Loyalty.IsEmpireAttackable(ourTile.SingleTroop.Loyalty)
-                                    ))
-                                    return true;
-                            }
-                            else if (planetGridSquare2.building != null &&
-                                     planetGridSquare2.building.CombatStrength > 0 &&
-                                     (num1 <= planetGridSquare1.SingleTroop.Range &&
-                                      num2 <= planetGridSquare1.SingleTroop.Range))
-                            {
-                                if (p.Owner == null)
-                                    return false;
-                                if (p.Owner?.IsEmpireAttackable(ourTile.SingleTroop.Loyalty) == true)
-                                    return true;
-                            }
-                        }
-                    }
-                }
-            }
-            else if (ourTile.building != null && ourTile.building.CombatStrength > 0)
-            {
-                foreach (PlanetGridSquare planetGridSquare1 in p.TilesList)
-                {
-                    if (ourTile == planetGridSquare1)
-                    {
-                        foreach (PlanetGridSquare planetGridSquare2 in p.TilesList)
-                        {
-                            if (planetGridSquare2 != ourTile && planetGridSquare2 == tileToAttack)
-                            {
-                                //Added by McShooterz: Prevent buildings from firing on buildings
-                                if (planetGridSquare2.TroopsHere.Count == 0)
-                                    return false;
-                                int num1 = Math.Abs(planetGridSquare1.x - planetGridSquare2.x);
-                                int num2 = Math.Abs(planetGridSquare1.y - planetGridSquare2.y);
-                                if (planetGridSquare2.TroopsHere.Count > 0)
-                                {
-                                    if (num1 <= 1 && num2 <= 1 &&
-                                        p.Owner?.IsEmpireAttackable(planetGridSquare2.SingleTroop.Loyalty) == true)
-                                        return true;
-                                }
-                                else if (planetGridSquare2.building != null && planetGridSquare2.building.CombatStrength > 0 && (num1 <= 1 && num2 <= 1))
-                                    return p.Owner != null;
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
         public override void Update(float elapsedTime)
         {
             if (ResetNextFrame)
             {
-                ResetTroopList();
-                ResetNextFrame = false;
+                OrbitalAssetsTimer = 2;
+                ResetNextFrame     = false;
             }
+            UpdateOrbitalAssets(elapsedTime);
 
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
@@ -996,6 +808,91 @@ namespace Ship_Game
             }
             p.ActiveCombats.ApplyPendingRemovals();
             base.Update(elapsedTime);
+        }
+
+        public void UpdateOrbitalAssets(float elapsedTime)
+        {
+            OrbitalAssetsTimer -= elapsedTime;
+            if (OrbitalAssetsTimer.Greater(0))
+                return;
+
+            OrbitalAssetsTimer = 2;
+            OrbitSL.Reset();
+            using (EmpireManager.Player.GetShips().AcquireReadLock())
+                foreach (Ship ship in EmpireManager.Player.GetShips())
+                {
+                    if (ship == null)
+                        continue;
+
+                    if (Vector2.Distance(p.Center, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f)
+                        continue;
+
+                    if (ship.shipData.Role != ShipData.RoleName.troop) 
+                    {
+                        if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
+                            continue; // if the ship has no troop bays and there is no other means of landing them (like a spaceport)
+                         
+                        int landingLimit = LandingLimit(ship);
+                        for (int i = 0; i < ship.TroopList.Count && landingLimit > 0; i++)
+                        {
+                            if (ship.TroopList[i] != null && ship.TroopList[i].Loyalty == ship.loyalty)
+                            {
+                                OrbitSL.AddItem(ship.TroopList[i]);
+                                landingLimit--;
+                            }
+                        }
+                    }
+                    else if (ship.AI.State != AI.AIState.Rebase && ship.AI.State != AI.AIState.AssaultPlanet)
+                        OrbitSL.AddItem(ship.TroopList[0]); // this the default 1 troop ship
+                }
+
+            UpdateLandAllButton(OrbitSL.NumEntries);
+        }
+
+        private int LandingLimit(Ship ship)
+        {
+            int landingLimit;
+            if (p.HasSpacePort && p.Owner == ship.loyalty)
+                landingLimit = ship.TroopList.Count;  // fbedard: Allows to unload all troops if there is a shipyard
+            else
+            {
+                landingLimit  = ship.Carrier.AllActiveTroopBays.Count(bay => bay.hangarTimer <= 0);
+                landingLimit += ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1).Sum(m => m.TransporterTroopLanding);
+            }
+            return landingLimit;
+        }
+
+        private void UpdateLandAllButton(int numTroops)
+        {
+            string text;
+            if (numTroops > 0)
+            {
+                LandAll.Enabled = true;
+                text            = $"Land All ({Math.Min(OrbitSL.NumEntries, p.FreeTiles)})";
+            }
+            else
+            {
+                LandAll.Enabled = false;
+                text            = "Land All";
+            }
+
+            LandAll.Text = text;
+        }
+
+        private void UpdateLaunchAllButton(int numTroopsCanLaunch)
+        {
+            string text;
+            if (numTroopsCanLaunch > 0)
+            {
+                LaunchAll.Enabled = true;
+                text              = $"Launch All ({numTroopsCanLaunch})";
+            }
+            else
+            {
+                LaunchAll.Enabled = false;
+                text              = "Launch All";
+            }
+            LaunchAll.Text = text;
         }
 
         public void AddExplosion(Rectangle grid, int size)
