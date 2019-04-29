@@ -1,11 +1,11 @@
+using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-	public sealed class Technology
+    public sealed class Technology
     {
         public string UID;
         public string IconPath;
@@ -279,6 +279,7 @@ namespace Ship_Game
                     case "Allow Assimilation":
                         techTypes.AddUnique(TechnologyType.GroundCombat); break;
                     case "Cryogenic Suspension":
+                        techTypes.AddUnique(TechnologyType.ShipGeneral); break;
                     case "Increased Lifespans":
                     case "Population Growth Bonus":
                     case "Set Population Growth Min":
@@ -312,7 +313,7 @@ namespace Ship_Game
                     case "Repair Bonus":
                     case "Kulrathi Might":
                     case "Armor Explosion Reduction":
-                        techTypes.AddUnique(TechnologyType.ShipDefense); break;
+                        techTypes.AddUnique(TechnologyType.ShipGeneral); break;
                     case "Armor Piercing":
                     case "Armor Phasing":
                     case "Weapon_Speed":
@@ -326,9 +327,9 @@ namespace Ship_Game
                     case "Weapon_HP":
                     case "Weapon_ShieldPenetration":
                     case "Weapon_ArmourPenetration":
-                        techTypes.AddUnique(TechnologyType.ShipWeapons); break;
-                    default:
                         techTypes.AddUnique(TechnologyType.ShipGeneral); break;
+                    default:
+                        techTypes.AddUnique(TechnologyType.General); break;
                 }
             }
 

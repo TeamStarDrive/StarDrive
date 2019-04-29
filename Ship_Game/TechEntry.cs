@@ -85,10 +85,11 @@ namespace Ship_Game
 
         public bool IsShipTech()
         {
-            if (IsTechnologyType(TechnologyType.ShipDefense)) return true;
-            if (IsTechnologyType(TechnologyType.ShipGeneral)) return true;
+   
+            if (IsTechnologyType(TechnologyType.ShipDefense)) return true;            
             if (IsTechnologyType(TechnologyType.ShipHull))    return true;
             if (IsTechnologyType(TechnologyType.ShipWeapons)) return true;
+            if (IsTechnologyType(TechnologyType.ShipGeneral)) return true;
             return false;
         }
 
