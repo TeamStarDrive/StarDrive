@@ -541,7 +541,7 @@ namespace Ship_Game
         public int TechCost(Ship ship)
         {
             float costAccumulator = 0;
-            return TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));            
+            return TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
         }
 
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
@@ -836,10 +836,7 @@ namespace Ship_Game
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             ResearchStrategy = ResourceManager.GetEconomicStrategy(data.EconomicPersonality.Name);
             InitColonyRankModifier();
-<<<<<<< working copy
-=======
             CreateThrusterColors();
->>>>>>> merge rev
         }
 
         bool WeCanUseThisLater(TechEntry tech)
