@@ -38,7 +38,7 @@ namespace Ship_Game
         public bool AllowInfantry;
 
         public int CrippledTurns;
-        public int TotalDefensiveStrength { get; private set; } 
+        public int TotalDefensiveStrength { get; private set; }
 
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
@@ -77,7 +77,18 @@ namespace Ship_Game
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int MaxBuildings   => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
+        // FB - free tiles always leaves 1 free spot for invasions
+        public int FreeTiles      => (TilesList.Count(t => t.TroopsHere.Count < t.MaxAllowedTroops && !t.CombatBuildingOnTile) - 1)
+                                     .Clamped(0, MaxBuildings);
 
+        public int FreeTilesWithRebaseOnTheWay
+        {
+            get {
+                int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
+                                          .Count(s => s.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this));
+                return (FreeTiles - rebasingTroops).Clamped(0, MaxBuildings);
+            }
+        }
         void CreateManagers()
         {
             TroopManager    = new TroopManager(this);
@@ -886,6 +897,13 @@ namespace Ship_Game
                 }
             }
             return events;
+        }
+
+        // Bump out an enemy troop to make room available (usually for spawned troops via events)
+        public bool BumpOutTroop(Empire empire)
+        {
+            Troop randomEnemyTroop = TroopsHere.Filter(t => t.Loyalty != empire).RandItem();
+            return randomEnemyTroop.Launch() != null;
         }
 
         public int TotalInvadeInjure   => BuildingList.Sum(b => b.InvadeInjurePoints);

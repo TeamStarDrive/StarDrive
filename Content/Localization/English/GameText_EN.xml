@@ -199,7 +199,7 @@
     </Token>
     <Token>
       <Index>51</Index>
-      <Text>Dumb races suffer a 35% penalty to reseach efforts due to their slow grasp of complex ideas</Text>
+      <Text>Dumb races suffer a 35% penalty to research efforts due to their slow grasp of complex ideas</Text>
     </Token>
     <Token>
       <Index>52</Index>
@@ -369,7 +369,7 @@
     </Token>
     <Token>
       <Index>95</Index>
-      <Text>Pre-Warp races discovered an ancient alien vessel buried in the polar ice of their homeworld.  They begin the game with a powerful alien cruiser, but possess no starfaring technologies and no starbase for ship construction</Text>
+      <Text>Pre-Warp races discovered an ancient alien vessel buried in the polar ice of their homeworld.  They begin the game with a powerful alien cruiser, but possess no star faring technologies and no starbase for ship construction</Text>
     </Token>
     <Token>
       <Index>96</Index>
@@ -773,7 +773,7 @@
     <Token>
       <Index>189</Index>
       <Text>Deep Space near</Text>
-      <!-- 187 + 189 = Moving to Deep Speace Near (solar system name) -->
+      <!-- 187 + 189 = Moving to Deep Space Near (solar system name) -->
     </Token>
     <Token>
       <Index>190</Index>
@@ -950,7 +950,7 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
     </Token>
     <Token>
       <Index>234</Index>
-      <Text>Opens a panel displaying any troops you have in orbit, whether they are on shuttles or garrisoned aboard ships. You can drag troops from this panel to the battlefield. Troops will be unable to act for 10 seconds when they land</Text>
+      <Text>Opens a panel displaying any troops you have in orbit, whether they are on shuttles. If this is your colony and you have a space port, troops garrisoned in ships (even if these ships do not have assault bays), they will be displayed here as well. You can drag a troop from this list to available tiles to land it or just double click on it to land it on a random tile.</Text>
     </Token>
     <Token>
       <Index>235</Index>
@@ -991,7 +991,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>243</Index>
-      <Text>Activates all saboteurs simultaneously. The saboteurs will destroy the ship's largest powerplant, likely crippling or destroying the vessel</Text>
+      <Text>Activates all saboteurs simultaneously. The saboteurs will destroy the ship's largest power plant, likely crippling or destroying the vessel</Text>
     </Token>
     <Token>
       <Index>244</Index>
@@ -1406,7 +1406,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>379</Index>
-      <Text>Governor will focus entirely on maximimzing production, importing food and exporting production. Labor focused entirely on industry.</Text>
+      <Text>Governor will focus entirely on maximizing production, importing food and exporting production. Labor focused entirely on industry.</Text>
     </Token>
     <Token>
       <Index>380</Index>
@@ -1489,7 +1489,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>404</Index>
-      <Text>Aeroponics is the use of a hydro-atomized spray to deliver nutrients to plants suspended in the air. This technique offers excellent plant growth and elminates the need for soil while at the same time minimizing pathogen risks. +1 flat bonus to Food production.</Text>
+      <Text>Aeroponics is the use of a hydro-atomized spray to deliver nutrients to plants suspended in the air. This technique offers excellent plant growth and eliminates the need for soil while at the same time minimizing pathogen risks. +1 flat bonus to Food production.</Text>
     </Token>
     <Token>
       <Index>405</Index>
@@ -1682,7 +1682,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>456</Index>
-      <Text>Manned and automated rovers provide indispensible labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus.</Text>
+      <Text>Manned and automated rovers provide indispensable labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus.</Text>
     </Token>
     <Token>
       <Index>457</Index>
@@ -1748,7 +1748,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>474</Index>
-      <Text>Xeno mines are the first real step toward's exploiting a planet's mineral deposits, creating +0.5 production per colonist assigned to industrial tasks.</Text>
+      <Text>Xeno mines are the first real step towards exploiting a planet's mineral deposits, creating +0.5 production per colonist assigned to industrial tasks.</Text>
     </Token>
     <Token>
       <Index>475</Index>
@@ -1896,7 +1896,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>535</Index>
-      <Text>Researching this technology will allow us to build certain armored components that can take more hits than their unarmored versons.</Text>
+      <Text>Researching this technology will allow us to build certain armored components that can take more hits than their unarmored versions.</Text>
     </Token>
     <Token>
       <Index>536</Index>
@@ -1952,7 +1952,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>549</Index>
-      <Text>Grants missile weapon (such as rockets, guided missiles, and torpedos) a 25% chance to dodge intercepting fire.</Text>
+      <Text>Grants missile weapon (such as rockets, guided missiles, and torpedoes) a 25% chance to dodge intercepting fire.</Text>
     </Token>
     <Token>
       <Index>550</Index>
@@ -2000,7 +2000,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>561</Index>
-      <Text>Energy shields are a requirement for any Captain expecting to engage in combat.  These devices extend an absorbant energy field towards projectiles entering its sphere of protection. Shields 'recharge' by shedding the energy captured. Shields vary in strength, recharge rate, and protection radius</Text>
+      <Text>Energy shields are a requirement for any Captain expecting to engage in combat.  These devices extend an absorbent energy field towards projectiles entering its sphere of protection. Shields 'recharge' by shedding the energy captured. Shields vary in strength, recharge rate, and protection radius</Text>
     </Token>
     <Token>
       <Index>562</Index>
@@ -2453,7 +2453,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>675</Index>
-      <Text>Subspatial Dynamics</Text>
+      <Text>Sub-spatial Dynamics</Text>
     </Token>
     <Token>
       <Index>676</Index>
@@ -4553,7 +4553,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1775</Index>
-      <Text>This densely populated planet is covered with megacities and suburbs from one end of the globe to the other. It is a flourishing world of science and industry, though its once-majestic wildnerness has all bit disappeared in the wake of development. </Text>
+      <Text>This densely populated planet is covered with megacities and suburbs from one end of the globe to the other. It is a flourishing world of science and industry, though its once-majestic wilderness has all bit disappeared in the wake of development. </Text>
     </Token>
     <Token>
       <Index>1776</Index>
@@ -4695,6 +4695,34 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1946</Index>
+      <Text>Build a Platform (the strongest your empire has available) orbiting this planet.The number in parentheses is the number of Platforms this planet already has in orbit.</Text>
+    </Token>
+    <Token>
+      <Index>1947</Index>
+      <Text>Build a Station (the strongest your empire has available) orbiting this planet.The number in parentheses is the number of Stations this planet already has in orbit.</Text>
+    </Token>
+    <Token>
+      <Index>1948</Index>
+      <Text>Build a Shipyard orbiting this planet.The number in parentheses is the number of Shipyards this planet already has in orbit.</Text>
+    </Token>
+    <Token>
+      <Index>1949</Index>
+      <Text>Rebase a single troop from another planet or another free troop ship to this planet. You can send multiple troops, if available, that way.</Text>
+    </Token>
+    <Token>
+      <Index>1950</Index>
+      <Text>Launch a single random troop from this planet to space. Note than you can launch any troop you want by left clicking on the troop icon in the grid below.</Text>
+    </Token>
+    <Token>
+      <Index>1951</Index>
+      <Text>Land all troops listed in the orbital assets. The number in parentheses is the actual number which can currently land on this planet (free space)</Text>
+    </Token>
+    <Token>
+      <Index>1952</Index>
+      <Text>Launch to space all troops which can currently move (total number in parentheses)</Text>
+    </Token>
+    <Token>
       <Index>1953</Index>
       <Text>The Governor is exporting production. Only some percentage of it's net production will be allocated to the build queue if freighters are exporting production from this planet. If there is no demand or this planet is building more than 5 things, it will allocate it's storage to the building queue as well.</Text>
     </Token>
@@ -4724,11 +4752,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1960</Index>
-      <Text>Governor Manages Defense Orbitals</Text>
+      <Text>Governor Manages Orbitals</Text>
     </Token>
     <Token>
       <Index>1961</Index>
-      <Text>The Governor will build Stations, Shipyards and Platforms based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire</Text>
+      <Text>The Governor will build Stations, Shipyards and Platforms based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire. You will see a list of each orbital type (if your empire can build that type) below the colony grid specifying how many orbitals the planet has vs. how many the Governor is planning to have, based on colony value.</Text>
     </Token>
     <Token>
       <Index>1962</Index>
@@ -5806,7 +5834,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2227</Index>
-      <Text>Your empire will automatically create and deploy colony ships to desireable planets. Colony ships will not be dispatched to planets with a known nearby enemy presence</Text>
+      <Text>Your empire will automatically create and deploy colony ships to desirable planets. Colony ships will not be dispatched to planets with a known nearby enemy presence</Text>
     </Token>
     <Token>
       <Index>2228</Index>
@@ -7271,7 +7299,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5041</Index>
-      <Text>A large and efficient cruiser-class afterburner engine for making long range sublight burns</Text>
+      <Text>A large and efficient cruiser-class afterburner engine for making long range sub-light burns</Text>
     </Token>
     <Token>
       <Index>5042</Index>
@@ -7295,7 +7323,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5047</Index>
-      <Text>The pinnacle of sublight engine technology, these engines are meant for the largest of ships</Text>
+      <Text>The pinnacle of sub-light engine technology, these engines are meant for the largest of ships</Text>
     </Token>
     <Token>
       <Index>5048</Index>
@@ -7303,7 +7331,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5049</Index>
-      <Text>A monstrous and powerful engine for sublight combat maneuvers</Text>
+      <Text>A monstrous and powerful engine for sub-light combat maneuvers</Text>
     </Token>
     <Token>
       <Index>5051</Index>
@@ -7311,7 +7339,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5052</Index>
-      <Text>A titanic afterburner for sublight acceleration</Text>
+      <Text>A titanic afterburner for sub-light acceleration</Text>
     </Token>
     <Token>
       <Index>5053</Index>

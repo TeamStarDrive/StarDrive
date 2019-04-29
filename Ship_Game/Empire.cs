@@ -96,6 +96,9 @@ namespace Ship_Game
         public bool canBuildBombers;
         public bool canBuildTroopShips;
         public bool canBuildSupportShips;
+        public bool CanBuildPlatforms;
+        public bool CanBuildStations;
+        public bool CanBuildShipyards;
         public float currentMilitaryStrength;
         public Color ThrustColor0;
         public Color ThrustColor1;
@@ -153,7 +156,8 @@ namespace Ship_Game
                 ?? FindNearestRallyPoint(position);
         }
 
-        public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
+        public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
+        public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
 
         public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p =>
             p.HasSpacePort && !p.EnemyInRange()
@@ -2157,8 +2161,11 @@ namespace Ship_Game
                         for (int index = 0; index < planet.PopulationBillion; ++index)
                         {
                             Troop troop = EmpireManager.CreateRebelTroop(rebels);
-                            troop.AssignTroopToTile(
-                                planet);
+                            if (planet.FreeTiles == 0 && !planet.BumpOutTroop(EmpireManager.Corsairs)
+                                                      && !troop.TryLandTroop(planet)) // Let's say the rebels are pirates :)
+                            {
+                                troop.Launch(planet); // launch the rebels
+                            }
                         }
                     }
 
