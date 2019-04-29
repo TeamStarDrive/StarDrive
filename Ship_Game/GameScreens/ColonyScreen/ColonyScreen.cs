@@ -158,9 +158,6 @@ namespace Ship_Game
             LaunchAllTroops.Tooltip   = Localizer.Token(1952);
             LaunchSingleTroop.Tooltip = Localizer.Token(1950);
             CallTroops.Tooltip        = Localizer.Token(1949);
-            LaunchAllTroops.Style     = ButtonStyle.BigDip;
-            LaunchSingleTroop.Style   = ButtonStyle.BigDip;
-            CallTroops.Style          = ButtonStyle.BigDip;
 
             BuildShipyard = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Build Shipyard", OnBuildShipyardClick);
             BuildStation  = Button(theMenu9.X + theMenu9.Width - LaunchAllTroops.Rect.Width - 185,

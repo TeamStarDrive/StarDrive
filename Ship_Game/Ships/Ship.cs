@@ -2435,8 +2435,9 @@ namespace Ship_Game.Ships
                 case ShipData.RoleName.capital:   empire.canBuildCapitals      = true; break;
                 case ShipData.RoleName.platform:  empire.CanBuildPlatforms     = true; break;
                 case ShipData.RoleName.station:   empire.CanBuildStations      = true; break;
-                default: if (shipData.IsShipyard) empire.CanBuildShipyards     = true; break;
             }
+            if (shipData.IsShipyard)
+                empire.CanBuildShipyards = true;
         }
 
         // @todo autocalculate during ship instance init

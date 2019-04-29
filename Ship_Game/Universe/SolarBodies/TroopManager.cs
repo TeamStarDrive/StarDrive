@@ -12,7 +12,7 @@ namespace Ship_Game
         private readonly Planet Ground;
 
         private Empire Owner           => Ground.Owner;
-        public bool RecentCombat       => InCombatTimer > 0.0f;
+        public bool RecentCombat       => InCombatTimer > 0.0f || TroopsHereAreEnemies(Ground.Owner);
         private bool NoTroopsOnPlanet  => Ground.TroopsHere.Count <= 0;
         private bool TroopsAreOnPlanet => Ground.TroopsHere.Count > 0;
 
@@ -461,6 +461,9 @@ namespace Ship_Game
             using (TroopList.AcquireReadLock())
                 foreach (Troop t in TroopList)
                 {
+                    if (t.Loyalty == empire)
+                        continue;
+
                     if (!empire.TryGetRelations(t.Loyalty, out Relationship trouble) || trouble.AtWar)
                     {
                         enemies = true;

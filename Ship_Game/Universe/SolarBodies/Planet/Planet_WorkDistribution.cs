@@ -69,6 +69,9 @@ namespace Ship_Game
                 AssignCoreWorldProduction(1f - Food.Percent); // then we optimize production
             }
 
+            if (ConstructionQueue.Count > 0)
+                Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * EvaluateProductionQueue());
+
             Res.AutoBalanceWorkers(); // rest goes to research
         }
 
@@ -138,13 +141,13 @@ namespace Ship_Game
         float EvaluateProductionQueue()
         {
             var item = ConstructionQueue.FirstOrDefault();
-            if (item == null) return 0;
+            if (item == null)       return 0;
             if (item.IsPlayerAdded) return 1;
 
             // colony level ranges from 1 worst to 5 best.
             // this should give a range from 0 - .25f
             float colonyDevelopmentBonus = (5 - Level) * 0.05f;
-            float colonyTypeBonus = 0;
+            float colonyTypeBonus        = 0;
             switch (colonyType)
             {
                 case ColonyType.Industrial: colonyTypeBonus = 0.05f; break;
@@ -159,36 +162,20 @@ namespace Ship_Game
                 {
                     case BuildingCategory.General:
                     case BuildingCategory.Storage:
-                    case BuildingCategory.Shipyard:
-                        workerPercentage += Owner.ResearchStrategy.IndustryRatio;
-                        break;
-                    case BuildingCategory.Production:
-                        workerPercentage += Owner.ResearchStrategy.IndustryRatio;
-                        break;
+                    case BuildingCategory.Shipyard:   workerPercentage += Owner.ResearchStrategy.IndustryRatio;  break;
+                    case BuildingCategory.Production: workerPercentage += Owner.ResearchStrategy.IndustryRatio;  break;
                     case BuildingCategory.Finance:
-                    case BuildingCategory.Food:                        
-                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio;
-                        break;
+                    case BuildingCategory.Food:       workerPercentage += Owner.ResearchStrategy.ExpansionRatio; break;
                     case BuildingCategory.Defense:
                     case BuildingCategory.Military:
-                    case BuildingCategory.Sensor:
-                        workerPercentage += Owner.ResearchStrategy.MilitaryRatio;
-                        break;
-                    case BuildingCategory.Science:
-                        workerPercentage += Owner.ResearchStrategy.ResearchRatio;                        
-                        break;
+                    case BuildingCategory.Sensor:     workerPercentage += Owner.ResearchStrategy.MilitaryRatio;  break;
+                    case BuildingCategory.Science:    workerPercentage += Owner.ResearchStrategy.ResearchRatio;  break;
                     case BuildingCategory.Population:
                     case BuildingCategory.Terraforming:
                     case BuildingCategory.Growth:
-                    case BuildingCategory.Biosphere:
-                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio;
-                        break;
-                    case BuildingCategory.Victory:
-                        workerPercentage = 0.75f;
-                        break;
-                    default:
-                        workerPercentage += 0.2f;
-                        break;
+                    case BuildingCategory.Biosphere:  workerPercentage += Owner.ResearchStrategy.ExpansionRatio; break;
+                    case BuildingCategory.Victory:    workerPercentage = 0.75f;                                  break;
+                    default:                          workerPercentage += 0.2f;                                  break;
                 }
                 if (item.Building.IsCapitalOrOutpost)
                     workerPercentage = 1.0f;
@@ -198,19 +185,10 @@ namespace Ship_Game
             {
                 switch (item.sData.Role)
                 {
-                    case ShipData.RoleName.freighter:
-                        workerPercentage += Owner.ResearchStrategy.IndustryRatio;
-                        break;
-                    case ShipData.RoleName.station:                    
-                        workerPercentage += Owner.ResearchStrategy.IndustryRatio;
-                        break;
-                    case ShipData.RoleName.construction:
-                        workerPercentage += Owner.ResearchStrategy.ExpansionRatio;
-                        break;
-                    default:                        
-                        workerPercentage += Owner.ResearchStrategy.MilitaryRatio;
-                        break;
-
+                    case ShipData.RoleName.freighter:    workerPercentage += Owner.ResearchStrategy.IndustryRatio;  break;
+                    case ShipData.RoleName.station:      workerPercentage += Owner.ResearchStrategy.IndustryRatio;  break;
+                    case ShipData.RoleName.construction: workerPercentage += Owner.ResearchStrategy.ExpansionRatio; break;
+                    default:                             workerPercentage += Owner.ResearchStrategy.MilitaryRatio;  break;
                 }
             }
 
