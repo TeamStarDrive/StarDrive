@@ -32,10 +32,7 @@ namespace Ship_Game.AI
             if (distance < EscortTarget.Radius + 300f)
             {
                 if (Owner.TroopList.Count > 0)
-                {
-                    EscortTarget.TroopList.Add(Owner.TroopList[0]);
-                    Owner.QueueTotalRemoval();
-                }
+                    Owner.TroopList[0].LandOnShip(EscortTarget);
             }
             else if (distance > 10000f && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip)
                 OrderReturnToHangar();
@@ -311,11 +308,13 @@ namespace Ship_Game.AI
                         Owner.Speed > 200 ? Owner.Speed * 0.90f : Owner.velocityMaximum);
                 else
                     ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime);
-                if (distCenter < goal.TargetPlanet.ObjectRadius &&
-                    Owner.TroopList[0].AssignTroopToTile(goal.TargetPlanet))
-                    Owner.QueueTotalRemoval();
+
+                if (distCenter < goal.TargetPlanet.ObjectRadius)
+                    Owner.TroopList[0].TryLandTroop(goal.TargetPlanet);
+
                 return;
             }
+            // FB @todo - change to FreeTiles
             if (Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0
                 || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
             {
@@ -339,18 +338,9 @@ namespace Ship_Game.AI
         void DoRebase(ShipGoal goal)
         {
             if (Owner.TroopList.Count == 0)
-            {
-                Owner.QueueTotalRemoval(); // vanish the ship
-            }
-            else if (Owner.TroopList[0].AssignTroopToTile(goal.TargetPlanet))
-            {
-                Owner.TroopList.Clear();
-                Owner.QueueTotalRemoval(); // vanish the ship
-            }
-            else
-            {
+                Owner.QueueTotalRemoval(); // troops not found, vanish the ship
+            else if (!Owner.TroopList[0].TryLandTroop(goal.TargetPlanet))
                 ClearOrders();
-            }
         }
 
         void DoRefit(ShipGoal goal)
@@ -545,8 +535,8 @@ namespace Ship_Game.AI
                     OrderRebaseToNearest();
                     return;
                 }
-                EscortTarget.TroopList.Add(Owner.TroopList[0]);
-                Owner.QueueTotalRemoval(); // vanish the ship
+
+                Owner.TroopList[0].LandOnShip(EscortTarget);
             }
         }
 

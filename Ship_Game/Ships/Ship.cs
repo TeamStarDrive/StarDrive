@@ -175,6 +175,9 @@ namespace Ship_Game.Ships
             return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
         }
 
+
+        public bool IsDefaultTroopTransport => loyalty.data.DefaultAssaultShuttle == Name || loyalty.data.DefaultTroopShip == Name;
+
         public bool IsFreighter
         {
             get
@@ -2420,14 +2423,21 @@ namespace Ship_Game.Ships
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {
-            empire.canBuildBombers      = empire.canBuildBombers      || DesignRole == ShipData.RoleName.bomber;
-            empire.canBuildCarriers     = empire.canBuildCarriers     || DesignRole == ShipData.RoleName.carrier;
-            empire.canBuildSupportShips = empire.canBuildSupportShips || DesignRole == ShipData.RoleName.support;
-            empire.canBuildTroopShips   = empire.canBuildTroopShips   || DesignRole == ShipData.RoleName.troopShip;
-            empire.canBuildCorvettes    = empire.canBuildCorvettes    || DesignRole == ShipData.RoleName.corvette;
-            empire.canBuildFrigates     = empire.canBuildFrigates     || DesignRole == ShipData.RoleName.frigate;
-            empire.canBuildCruisers     = empire.canBuildCruisers     || DesignRole == ShipData.RoleName.cruiser;
-            empire.canBuildCapitals     = empire.canBuildCapitals     || DesignRole == ShipData.RoleName.capital;
+            switch (DesignRole)
+            {
+                case ShipData.RoleName.bomber:    empire.canBuildBombers       = true; break;
+                case ShipData.RoleName.carrier:   empire.canBuildCarriers      = true; break;
+                case ShipData.RoleName.support:   empire.canBuildSupportShips  = true; break;
+                case ShipData.RoleName.troopShip: empire.canBuildTroopShips    = true; break;
+                case ShipData.RoleName.corvette:  empire.canBuildCorvettes     = true; break;
+                case ShipData.RoleName.frigate:   empire.canBuildFrigates      = true; break;
+                case ShipData.RoleName.cruiser:   empire.canBuildCruisers      = true; break;
+                case ShipData.RoleName.capital:   empire.canBuildCapitals      = true; break;
+                case ShipData.RoleName.platform:  empire.CanBuildPlatforms     = true; break;
+                case ShipData.RoleName.station:   empire.CanBuildStations      = true; break;
+            }
+            if (shipData.IsShipyard)
+                empire.CanBuildShipyards = true;
         }
 
         // @todo autocalculate during ship instance init

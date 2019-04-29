@@ -36,8 +36,12 @@ namespace Ship_Game
         private EmpireUIOverlay eui;
         private ToggleButton LeftColony;
         private ToggleButton RightColony;
-        private UIButton launchTroops;
-        private UIButton SendTroops;  //fbedard
+        private UIButton LaunchAllTroops;
+        private UIButton LaunchSingleTroop;
+        private UIButton BuildPlatform;
+        private UIButton BuildStation;
+        private UIButton BuildShipyard;
+        private UIButton CallTroops;  //fbedard
         private DropOptions<int> GovernorDropdown;
         public CloseButton close;
         private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
@@ -51,6 +55,10 @@ namespace Ship_Game
         private ProgressBar ProdStorage;
         private Rectangle FoodStorageIcon;
         private Rectangle ProfStorageIcon;
+        private float ButtonUpdateTimer;   // updates buttons once per second
+        private string PlatformsStats = "Platforms:";
+        private string StationsStats  = "Stations:";
+        private string ShipyardsStats = "Shipyards:";
 
         ColonySliderGroup Sliders;
 
@@ -139,9 +147,36 @@ namespace Ship_Game
             pFacilities = new Submenu(theMenu9);
             pFacilities.AddTab(Localizer.Token(333));
 
-            launchTroops = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Launch Troops", OnLaunchTroopsClicked);
-            SendTroops = Button(theMenu9.X + theMenu9.Width - launchTroops.Rect.Width - 185,
-                                theMenu9.Y - 5, "Send Troops", OnSendTroopsClicked);
+            ButtonUpdateTimer = 1;
+            LaunchAllTroops   = Button(theMenu8.X + theMenu8.Width - 175, theMenu8.Y - 5, "Launch All Troops", OnLaunchTroopsClicked);
+            LaunchSingleTroop = Button(theMenu8.X + theMenu8.Width - LaunchAllTroops.Rect.Width - 185,
+                                       theMenu8.Y - 5, "Launch Single Troop", OnLaunchSingleTroopClicked);
+
+            CallTroops        = Button(theMenu8.X + theMenu8.Width - LaunchSingleTroop.Rect.Width - 365,
+                                       theMenu8.Y - 5, "Call Troops", OnSendTroopsClicked);
+
+            LaunchAllTroops.Tooltip   = Localizer.Token(1952);
+            LaunchSingleTroop.Tooltip = Localizer.Token(1950);
+            CallTroops.Tooltip        = Localizer.Token(1949);
+
+            BuildShipyard = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Build Shipyard", OnBuildShipyardClick);
+            BuildStation  = Button(theMenu9.X + theMenu9.Width - LaunchAllTroops.Rect.Width - 185,
+                                   theMenu9.Y - 5, "Build Station", OnBuildStationClick);
+
+            BuildPlatform = Button(theMenu9.X + theMenu9.Width - LaunchSingleTroop.Rect.Width - 365,
+                                   theMenu9.Y - 5, "Build Platform", OnBuildPlatformClick);
+
+            BuildShipyard.Tooltip = Localizer.Token(1948);
+            BuildStation.Tooltip  = Localizer.Token(1947);
+            BuildPlatform.Tooltip = Localizer.Token(1946);
+            BuildShipyard.Style   = ButtonStyle.BigDip;
+            BuildStation.Style    = ButtonStyle.BigDip;
+            BuildPlatform.Style   = ButtonStyle.BigDip;
+            BuildPlatform.Visible = false;
+            BuildStation.Visible  = false;
+            BuildShipyard.Visible = false;
+            UpdateGovOrbitalStats();
+            UpdateButtons();
 
             //new ScrollList(pFacilities, 40);
             var theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (theMenu3.Height - 60)));
@@ -187,10 +222,10 @@ namespace Ship_Game
                 GovernorDropdown.ActiveIndex = GetIndex(p);
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                GovOrbitals  = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + Font12.LineSpacing + 3,
+                GovOrbitals  = new UICheckBox(this, rectangle4.X - 3, rectangle5.Y + Font12.LineSpacing + 5,
                     () => p.GovOrbitals, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
 
-                GovMilitia   = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y + (Font12.LineSpacing + 3) * 2,
+                GovMilitia   = new UICheckBox(this, rectangle4.X - 3, rectangle5.Y + (Font12.LineSpacing + 5) * 2,
                     () => p.GovMilitia, Fonts.Arial12Bold, Localizer.Token(1956), 1957);
             }
             else
@@ -254,18 +289,6 @@ namespace Ship_Game
             }
 
             pFacilities.Draw(batch);
-            launchTroops.Visible = P.Owner == Empire.Universe.player && P.TroopsHere.Count > 0;
-
-            //fbedard: Display button
-            if (P.Owner == Empire.Universe.player)
-            {
-                int troopsLanding = P.Owner.GetShips()
-                    .Where(troop => troop.TroopList.Count > 0)
-                    .Where(ai => ai.AI.State != AIState.Resupply && ai.AI.State != AIState.Orbit)
-                    .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
-
-                SendTroops.Text = troopsLanding > 0 ? "Landing: " + troopsLanding : "Send Troops";
-            }
             DrawDetailInfo(new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35));
             build.Draw(batch);
             queue.Draw(batch);
@@ -461,7 +484,7 @@ namespace Ship_Game
             GovernorDropdown.Draw(batch); // draw dropdown on top of other text
             if (P.Owner.isPlayer && GovernorDropdown.ActiveIndex != 0)
             {
-                // only for non Core colonies
+                // only for Governor colonies
                 GovOrbitals.Draw(batch); 
                 GovMilitia.Draw(batch);
             }
@@ -496,7 +519,9 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
             }
-            
+
+            DrawOrbitalStats(batch);
+
             base.Draw(batch);
 
             if (ScreenManager.NumScreens == 2)
@@ -511,6 +536,39 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(74);
         }
 
+        void DrawOrbitalStats(SpriteBatch batch)
+        {
+            if (P.Owner != EmpireManager.Player)
+                return;
+
+            if (P.colonyType == Planet.ColonyType.Colony || P.colonyType != Planet.ColonyType.Colony && !P.GovOrbitals)
+            {
+                // Show build buttons
+                BuildPlatform.Visible = P.Owner.CanBuildPlatforms && P.HasSpacePort;
+                BuildStation.Visible  = P.Owner.CanBuildStations && P.HasSpacePort;
+                BuildShipyard.Visible = P.Owner.CanBuildShipyards && P.HasSpacePort;
+            }
+            else if (P.GovOrbitals)
+            {
+                BuildPlatform.Visible = false;
+                BuildStation.Visible  = false;
+                BuildShipyard.Visible = false;
+
+                // Draw Governor current / wanted orbitals
+                Vector2 platformsStatVec = new Vector2(BuildPlatform.X + 30, BuildPlatform.Y + 5);
+                Vector2 stationsStatVec  = new Vector2(BuildStation.X + 30, BuildStation.Y + 5);
+                Vector2 shipyardsStatVec = new Vector2(BuildShipyard.X + 30, BuildShipyard.Y + 5);
+                if (P.Owner.CanBuildPlatforms)
+                    batch.DrawString(Font12, PlatformsStats, platformsStatVec, Color.White);
+
+                if (P.Owner.CanBuildStations)
+                    batch.DrawString(Font12, StationsStats, stationsStatVec, Color.White);
+
+                if (P.Owner.CanBuildShipyards)
+                    batch.DrawString(Font12, ShipyardsStats, shipyardsStatVec, Color.White);
+            }
+
+        }
 
         Color TextColor { get; } = new Color(255, 239, 208);
 
@@ -1003,12 +1061,9 @@ namespace Ship_Game
                 if (input.RightMouseClick && pgs.SingleTroop.Loyalty == EmpireManager.Player)
                 {
                     GameAudio.TroopTakeOff();
-                    Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.SingleTroop);
-                    P.TroopsHere.Remove(pgs.SingleTroop);
-                    pgs.SingleTroop.SetPlanet(null);
-                    pgs.TroopsHere.Clear();
+                    pgs.SingleTroop.Launch(pgs);
                     ClickedTroop = true;
-                    DetailInfo = null;
+                    DetailInfo   = null;
                 }
 
                 return true;
@@ -1168,12 +1223,54 @@ namespace Ship_Game
             }
         }
 
+        void OnBuildPlatformClick(UIButton b)
+        {
+            if (BuildOrbital(P.Owner.BestPlatformWeCanBuild))
+                GameAudio.AffirmativeClick();
+            else
+                GameAudio.NegativeClick();
+        }
+
+        void OnBuildStationClick(UIButton b)
+        {
+            if (BuildOrbital(P.Owner.BestStationWeCanBuild))
+                GameAudio.AffirmativeClick();
+            else
+                GameAudio.NegativeClick();
+        }
+
+        void OnBuildShipyardClick(UIButton b)
+        {
+            string shipyardName = ResourceManager.ShipsDict[P.Owner.data.DefaultShipyard].Name;
+            Ship shipyard = ResourceManager.GetShipTemplate(shipyardName);
+            if (BuildOrbital(shipyard))
+                GameAudio.AffirmativeClick();
+            else
+                GameAudio.NegativeClick();
+        }
+
+        bool BuildOrbital(Ship orbital)
+        {
+            if (orbital == null || IsOutOfOrbitalsLimit(orbital))
+                return false;
+            
+            P.ConstructionQueue.Add(new QueueItem(P)
+            {
+                isShip = true,
+                sData  = orbital.shipData,
+                Cost   = orbital.GetCost(P.Owner)
+            });
+
+            return true;
+        }
+
         void OnSendTroopsClicked(UIButton b)
         {
             if (eui.empire.GetTroopShipForRebase(out Ship troopShip, P))
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderRebase(P, true);
+                UpdateButtons();
             }
             else
                 GameAudio.NegativeClick();
@@ -1184,7 +1281,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (!pgs.TroopsAreOnTile || pgs.SingleTroop.Loyalty != EmpireManager.Player)
+                if (!pgs.TroopsAreOnTile || pgs.SingleTroop.Loyalty != EmpireManager.Player || !pgs.SingleTroop.CanMove)
                     continue;
 
                 play = true;
@@ -1196,6 +1293,22 @@ namespace Ship_Game
             if (play)
             {
                 GameAudio.TroopTakeOff();
+                UpdateButtons();
+            }
+            else
+                GameAudio.NegativeClick();
+        }
+
+        void OnLaunchSingleTroopClicked(UIButton b)
+        {
+            if (P.TroopsHere.Count == 0)
+                GameAudio.NegativeClick();
+            else
+            {
+                Troop troop = P.TroopsHere.RandItem();
+                troop.Launch();
+                GameAudio.TroopTakeOff();
+                UpdateButtons();
             }
         }
 
@@ -1300,6 +1413,8 @@ namespace Ship_Game
                     }
                 }
             }
+
+            UpdateButtonTimer(elapsedTime);
         }
 
         void HandleSliders(InputState input)
@@ -1323,6 +1438,64 @@ namespace Ship_Game
         void DrawSliders(SpriteBatch batch)
         {
             Sliders.Draw(batch);
+        }
+
+        void UpdateButtonTimer(float elapsedTime)
+        {
+            ButtonUpdateTimer -= elapsedTime;
+            if (ButtonUpdateTimer.Greater(0))
+                return;
+
+            ButtonUpdateTimer = 1;
+            UpdateButtons();
+            UpdateGovOrbitalStats();
+        }
+
+        void UpdateGovOrbitalStats()
+        {
+            if (P.Owner != Empire.Universe.player || !P.GovOrbitals || P.colonyType == Planet.ColonyType.Colony)
+                return;
+
+            Planet.WantedOrbitals wantedOrbitals = P.GovernorWantedOrbitals();
+            PlatformsStats = $"Platforms: {P.NumPlatforms}/{wantedOrbitals.Platforms}";
+            StationsStats  = $"Stations: {P.NumStations}/{wantedOrbitals.Stations}";
+            ShipyardsStats = $"Shipyards: {P.NumShipyards}/{wantedOrbitals.Shipyards}";
+        }
+
+        void UpdateButtons()
+        {
+            // fbedard: Display button
+            if (P.Owner == Empire.Universe.player)
+            {
+                int troopsLanding = P.Owner.GetShips()
+                    .Filter(s => s.TroopList.Count > 0 && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
+                    .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
+
+                if (troopsLanding > 0)
+                {
+                    CallTroops.Text = $"Incoming Troops: {troopsLanding}";
+                    CallTroops.Style = ButtonStyle.Military;
+                }
+                else
+                {
+                    CallTroops.Text = "Call Troops";
+                    CallTroops.Style = ButtonStyle.BigDip;
+                }
+
+                UpdateButtonText(LaunchAllTroops, P.TroopsHere.Count(t => t.CanMove), "Launch All Troops");
+                UpdateButtonText(BuildPlatform, P.NumPlatforms, "Build Platform");
+                UpdateButtonText(BuildStation, P.NumStations, "Build Station");
+                UpdateButtonText(BuildShipyard, P.NumShipyards, "Build Shipyard");
+            }
+
+            CallTroops.Visible        = P.Owner == Empire.Universe.player;
+            LaunchAllTroops.Visible   = CallTroops.Visible && P.TroopsHere.Count > 1;
+            LaunchSingleTroop.Visible = CallTroops.Visible && P.TroopsHere.Count > 0;
+        }
+
+        void UpdateButtonText(UIButton button, int value, string defaultText)
+        {
+            button.Text = value > 0 ? $"{defaultText} ({value})" : defaultText;
         }
     }
 }
