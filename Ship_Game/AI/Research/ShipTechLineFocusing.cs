@@ -102,7 +102,7 @@ namespace Ship_Game.AI.Research
             var researchableShips = new Array<Ship>();
             foreach (Ship shortTermBest in racialShips)
             {
-                // don't try to research ships we have all the tech for. 
+                // don't try to research ships we have all the tech for.
                 if (shortTermBest.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Any() == false) continue;
                 // Don't build ships intended for carriers if there arent any carriers.
                 if (!OwnerEmpire.canBuildCarriers && shortTermBest.shipData.CarrierShip)
@@ -123,10 +123,10 @@ namespace Ship_Game.AI.Research
         private Array<Ship> FilterRacialShips()
         {
             var racialShips = new Array<Ship>();
-            foreach (Ship shortTermBest in ResourceManager.ShipsDict.Values) 
+            foreach (Ship shortTermBest in ResourceManager.ShipsDict.Values)
             {
 
-                //restrict to to ships available to this empire. 
+                //restrict to to ships available to this empire.
                 string shipStyle = shortTermBest?.shipData?.ShipStyle ?? shortTermBest?.shipData?.BaseHull?.ShipStyle;
                 if (shipStyle.IsEmpty())
                 {
@@ -190,31 +190,29 @@ namespace Ship_Game.AI.Research
             int keyChosen = sortedShips.Keys.First();
 
             int x = (int)(sortedShips.Count / indexDivisor);
-            float rand = RandomMath.AvgRandomBetween(.001f, 1f);
+
             foreach (var role in sortedShips)
             {
                 float chance = (float)x++ / sortedShips.Count ;
+                float rand = RandomMath.AvgRandomBetween(.001f, 1f);
 
-               
                 if (rand > chance) continue;
                 return role.Key;
             }
             return keyChosen;
         }
 
-        string[] Neededtechs(HashSet<string> CurrentshipTechs, HashSet<string> techToFilter) =>
-            techToFilter.Except(OwnerEmpire.ShipTechs).Except(CurrentshipTechs).ToArray();
-
         private bool GetLineFocusedShip(Array<Ship> researchableShips, HashSet<string> shipTechs)
         {
             // Bucket ships by how many techs they have that are not already researched
-            researchableShips.Sort(s => s.shipData.TechScore / ((int)OwnerEmpire.MaxResearchPotential * 100));
-            SortedList<int, Array<Ship>> techSorter = TechSorter(researchableShips, shipTechs);
-
+            SortedList<int, Array<Ship>> techCountSorter = TechCountSorter(researchableShips,shipTechs);
             //Bail if there aren't any ships to research
-            if (techSorter.Count == 0)
+            if (techCountSorter.Count == 0)
                 return false;
-            int techKey = PickRandomKey(techSorter, 1.4f);
+            int techCountKey = PickRandomKey(techCountSorter, 1.5f);
+
+            SortedList<int, Array<Ship>> techSorter = TechCostSorter(techCountSorter[techCountKey]);
+            int techKey = PickRandomKey(techSorter, 1.5f);
 
             /* This is part that chooses the  hull
             takes the first entry from the least techs needed list.
@@ -258,16 +256,16 @@ namespace Ship_Game.AI.Research
                         case ShipData.RoleName.freighter: return 0;
                         case ShipData.RoleName.colony:
                         case ShipData.RoleName.supply:
-                        case ShipData.RoleName.troop:                        
+                        case ShipData.RoleName.troop:
                         case ShipData.RoleName.troopShip:
                         case ShipData.RoleName.support:
-                        case ShipData.RoleName.bomber:                        
                         case ShipData.RoleName.carrier: return 3;
                         case ShipData.RoleName.gunboat:
                         case ShipData.RoleName.corvette:  return 4;
+                        case ShipData.RoleName.bomber:
                         case ShipData.RoleName.frigate:
-                        case ShipData.RoleName.destroyer: 
-                        case ShipData.RoleName.cruiser: return 1;                        
+                        case ShipData.RoleName.destroyer:
+                        case ShipData.RoleName.cruiser: return 1;
                         case ShipData.RoleName.capital:   return 2;
                         default: return (int)s.DesignRole;
                     }
@@ -304,18 +302,29 @@ namespace Ship_Game.AI.Research
             return costSorter;
         }
 
-        private SortedList<int, Array<Ship>> TechSorter(Array<Ship> researchableShips, HashSet<string> shipTechs)
+        private SortedList<int, Array<Ship>> TechCostSorter(Array<Ship> shipsToSort)
         {
-            var techSorter = BucketShips(researchableShips,
+            var techSorter = BucketShips(shipsToSort,
                 shortTermBest =>
                 {
+                    int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 20 : 50;
                     var techCost = OwnerEmpire.TechCost(shortTermBest);
-                    techCost /= (int)(OwnerEmpire.MaxResearchPotential + 1) * 100;
-                    return techCost;                    
+                    techCost /= (int)(OwnerEmpire.MaxResearchPotential + 1) * costNormalizer;
+                    return techCost;
                 });
             return techSorter;
         }
-
+        private SortedList<int, Array<Ship>> TechCountSorter(Array<Ship> shipsToSort, HashSet<string> shipTechs)
+        {
+            var techSorter = BucketShips(shipsToSort,
+                shortTermBest =>
+                {
+                    int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 2 : 3;
+                    var techCount = shortTermBest.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Count() / costNormalizer;
+                    return techCount;
+                });
+            return techSorter;
+        }
         private HashSet<string> FindBestShip(string modifier, Array<TechEntry> availableTechs, string command)
         {
             HashSet<string> shipTechs       = new HashSet<string>();
@@ -323,7 +332,7 @@ namespace Ship_Game.AI.Research
 
             foreach (TechEntry techEntry in availableTechs)
             {
-                if (techEntry.IsShipTech())
+                if (techEntry.IsShipTech() && (techEntry.Tech.ModulesUnlocked.NotEmpty || techEntry.Tech.HullsUnlocked.NotEmpty))
                     shipTechs.Add(techEntry.UID);
                 else
                     nonShipTechs.Add(techEntry.UID);
@@ -331,7 +340,7 @@ namespace Ship_Game.AI.Research
             //if not researching shiptechs then dont research any shiptechs.
             if (!modifier.Contains("Ship"))
                 return nonShipTechs;
-            
+
             // if we have a best ship already then use that and return.
             // But only if not using a script
             if (BestCombatShip != null && command == "RANDOM")
@@ -350,7 +359,7 @@ namespace Ship_Game.AI.Research
             //now find a new ship to research that uses most of the tech we already have.
             GetLineFocusedShip(researchableShips, shipTechs);
             if (BestCombatShip != null)
-                return UseBestShipTechs(shipTechs, nonShipTechs);            
+                return UseBestShipTechs(shipTechs, nonShipTechs);
             return shipTechs;
         }
 
@@ -395,7 +404,7 @@ namespace Ship_Game.AI.Research
                     // repeater compensator. This needs some deeper logic.
                     // I current just say if you research one level.
                     // Dont research any more.
-                    if (test.MaxLevel > 1 && test.Level > 1) continue;                    
+                    if (test.MaxLevel > 1 && test.Level > 1) continue;
                     bestShipTechs.Add(test);
                 }
             }

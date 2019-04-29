@@ -4,7 +4,7 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>220</Cost>
   <RootNode>0</RootNode>
-  <Name>Ship Assault</Name>
+  <Name>ShipboardAssault</Name>
   <NameIndex>654</NameIndex>
   <DescriptionIndex>655</DescriptionIndex>
   <LongDescription>Feeding, housing, and equipping marines in deep space requires precise logistical planning. Marines can carry assaults out on enemy vessels if their ship is equipped with an assault shuttle bay.  </LongDescription>
