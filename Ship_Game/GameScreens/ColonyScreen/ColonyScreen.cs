@@ -1479,7 +1479,7 @@ namespace Ship_Game
                 else
                 {
                     CallTroops.Text = "Call Troops";
-                    CallTroops.Style = ButtonStyle.BigDip;
+                    CallTroops.Style = ButtonStyle.Default;
                 }
 
                 UpdateButtonText(LaunchAllTroops, P.TroopsHere.Count(t => t.CanMove), "Launch All Troops");
