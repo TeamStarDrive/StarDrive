@@ -4,6 +4,7 @@ using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
 using System;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Ships
 {
@@ -176,10 +177,10 @@ namespace Ship_Game.Ships
         void UpdateThrusters()
         {
             foreach (Thruster thruster in ThrusterList)
-                UpdateThruster(thruster);
+                UpdateThruster(thruster, loyalty.ThrustColor0, loyalty.ThrustColor1);
         }
 
-        void UpdateThruster(Thruster thruster)
+        void UpdateThruster(Thruster thruster, Color thrust0, Color thrust1)
         {
             thruster.SetPosition();
             float velocityPercent = Velocity.Length() / velocityMaximum;
@@ -189,7 +190,7 @@ namespace Ship_Game.Ships
                 {
                     if (thruster.heat < velocityPercent)
                         thruster.heat += 0.06f;
-                    thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos);
+                    thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos, thrust0, thrust1);
                 }
                 else
                 {
@@ -197,13 +198,13 @@ namespace Ship_Game.Ships
                         thruster.heat += 0.06f;
                     if (thruster.heat > 0.600000023841858)
                         thruster.heat = 0.6f;
-                    thruster.Update(Direction3D, thruster.heat, 1.0f / 500.0f, Empire.Universe.CamPos);
+                    thruster.Update(Direction3D, thruster.heat, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
                 }
             }
             else
             {
                 thruster.heat = 0.01f;
-                thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos);
+                thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
             }
         }
 

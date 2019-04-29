@@ -22,6 +22,7 @@ namespace Ship_Game.AI
         AwaitingOffenseOrders,
         Resupply,
         Rebase,
+        RebaseToShip,
         Bombard,
         Boarding,
         ReturnToHangar,

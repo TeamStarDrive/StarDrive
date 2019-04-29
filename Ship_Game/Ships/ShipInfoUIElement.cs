@@ -502,10 +502,15 @@ namespace Ship_Game.Ships
                         break;
                     case ResupplyReason.LowOrdnanceNonCombat:
                     case ResupplyReason.LowOrdnanceCombat:      text = "Ammo Reserves Critical";           break;
-                    case ResupplyReason.LowTroops:              text = "Need Troops";                      break;
                     case ResupplyReason.NoCommand:              text = "No Command, Cannot Attack";        break;
                     case ResupplyReason.FighterReactorsDamaged: text = "Reactors Damaged";                 break;
                     case ResupplyReason.LowHealth:              text = "Structural Integrity Compromised"; break;
+                    case ResupplyReason.LowTroops:
+                        text                 = "Need Troops";
+                        int numTroopRebasing = ship.NumTroopsRebasingHere;
+                        if (numTroopRebasing > 0)
+                            text += " (" + numTroopRebasing + " on route)";
+                        break;
                 }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, color);
@@ -712,16 +717,15 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(tpass);
             }
-            /* // FB: removed this until we decide what to do with this button
-            if (Ship.shield_max > 0f)
+            if (Ship.Carrier.AllTroopBays.Length > 0)
             {
-                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.ShieldToggle, 18)
+                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.SendTroops, 18)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.ShieldsUp, (bool x) => Ship.ShieldsUp = x)
+                    ValueToModify = new Ref<bool>(() => Ship.Carrier.SendTroopsToShip)
                 };
                 Orders.Add(ob);
             }
-            */
+            
             if (Ship.Carrier.AllFighterHangars.Length > 0)
             {
                 OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)

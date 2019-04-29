@@ -97,6 +97,8 @@ namespace Ship_Game
         public bool canBuildTroopShips;
         public bool canBuildSupportShips;
         public float currentMilitaryStrength;
+        public Color ThrustColor0;
+        public Color ThrustColor1;
         public float MaxResearchPotential    = 10;
         public float MaxColonyValue          { get; private set; }
         public Ship BestPlatformWeCanBuild   { get; private set; }
@@ -694,7 +696,19 @@ namespace Ship_Game
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
             InitColonyRankModifier();
+            CreateThrusterColors();
             EmpireAI = new EmpireAI(this);
+        }
+
+        private void CreateThrusterColors()
+        {
+            ThrustColor0 = new Color(data.ThrustColor0R, data.ThrustColor0G, data.ThrustColor0B);
+            ThrustColor1 = new Color(data.ThrustColor1R, data.ThrustColor1G, data.ThrustColor1B);
+            if (ThrustColor0 == Color.Black)
+                ThrustColor0 = Color.LightBlue;
+
+            if (ThrustColor1 == Color.Black)
+                ThrustColor1 = Color.OrangeRed;
         }
 
         private void ResetTechsUsableByShips(Array<Ship> ourShips, bool unlockBonuses)
@@ -822,6 +836,10 @@ namespace Ship_Game
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             ResearchStrategy = ResourceManager.GetEconomicStrategy(data.EconomicPersonality.Name);
             InitColonyRankModifier();
+<<<<<<< working copy
+=======
+            CreateThrusterColors();
+>>>>>>> merge rev
         }
 
         bool WeCanUseThisLater(TechEntry tech)
@@ -1572,6 +1590,56 @@ namespace Ship_Game
                 }
             }
             return false;
+        }
+
+        public bool GetTroopShipForRebase(out Ship troopShip, Planet planet)
+        {
+            troopShip = null;
+            // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
+            return NearestFreeTroopShip(out troopShip, planet.Center) || LaunchNearestTroopForRebase(out troopShip, planet.Center, planet.Name);
+        }
+
+        public bool GetTroopShipForRebase(out Ship troopShip, Ship ship)
+        {
+            troopShip = null;
+            // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
+            return NearestFreeTroopShip(out troopShip, ship.Center) || LaunchNearestTroopForRebase(out troopShip, ship.Center);
+        }
+
+        private bool NearestFreeTroopShip(out Ship troopShip, Vector2 objectCenter)
+        {
+            troopShip = null;
+            Array<Ship> troopShips;
+            using (OwnedShips.AcquireReadLock())
+                troopShips = new Array<Ship>(OwnedShips
+                    .Where(troopship => troopship.Name == data.DefaultTroopShip
+                                        && troopship.TroopList.Count > 0
+                                        && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
+                                        && troopship.fleet == null && !troopship.InCombat)
+                    .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
+
+            if (troopShips.Count > 0)
+                troopShip = troopShips.First();
+
+            return troopShip != null;
+        }
+
+        private bool LaunchNearestTroopForRebase(out Ship troopShip, Vector2 objectCenter, string planetName = "")
+        {
+            troopShip = null;
+            Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
+                .Where(p => p.TroopsHere.Count > 0 && !p.CombatNearPlanet && !p.RecentCombat && p.Name != planetName)
+                .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
+
+            if (candidatePlanets.Count == 0)
+                return false;
+
+            var troops = candidatePlanets.First().TroopsHere;
+            using (troops.AcquireWriteLock())
+            {
+                troopShip = troops.First().Launch();
+                return troopShip != null;
+            }
         }
 
         public float GetTotalPop()
