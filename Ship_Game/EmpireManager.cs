@@ -178,7 +178,7 @@ namespace Ship_Game
             empire.Initialize();
             return empire;
         }
-        
+
         public static Empire CreateRebelsFromEmpireData(IEmpireData readOnlyData, Empire parent)
         {
             EmpireData data = readOnlyData.CreateInstance();

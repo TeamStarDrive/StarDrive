@@ -1,5 +1,6 @@
 using System;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 
 namespace Ship_Game
@@ -202,6 +203,14 @@ namespace Ship_Game
         //FB: default assault and supply shuttles - it is not mandatory since we have a default boarding / supply shuttles in the game
         [Serialize(92)] public string DefaultAssaultShuttle;
         [Serialize(93)] public string DefaultSupplyShuttle;
+
+        // FB - Thruster Colors
+        [Serialize(94)] public byte ThrustColor0R;
+        [Serialize(95)] public byte ThrustColor0G;
+        [Serialize(96)] public byte ThrustColor0B;
+        [Serialize(97)] public byte ThrustColor1R;
+        [Serialize(98)] public byte ThrustColor1G;
+        [Serialize(99)] public byte ThrustColor1B;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
 

@@ -596,7 +596,7 @@ namespace Ship_Game
             HandleInput();
             thruster.tscale = tscale;
             thruster.WorldPos = new Vector3(tPos.X, tPos.Y, 30f);
-            thruster.Update(new Vector3(0f, -1f, 0f), heat, 0.002f, camPos);
+            thruster.Update(new Vector3(0f, -1f, 0f), heat, 0.002f, camPos, Color.LightBlue, Color.OrangeRed);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 

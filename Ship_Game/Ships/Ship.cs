@@ -1718,13 +1718,24 @@ namespace Ship_Game.Ships
         public int NumPlayerTroopsOnShip  => TroopList.Count(troop => troop.Loyalty == EmpireManager.Player);
         public int NumAiTroopsOnShip      => TroopList.Count(troop => troop.Loyalty != EmpireManager.Player);
 
-        private void UpdateTroops() //FB: this is the weirdest implemetations i've ever seen. Anyway i refactored it a bit
+        public int NumTroopsRebasingHere
         {
-            Array<Troop> ownTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty == loyalty));
+            get
+            {
+                using (loyalty.GetShips().AcquireReadLock())
+                {
+                    return loyalty.GetShips().Filter(s => s.AI.State == AIState.RebaseToShip && s.AI.EscortTarget == this).Length;
+                }
+            }
+        }
+
+        private void UpdateTroops() //FB: this is the weirdest implementations i've ever seen. Anyway i refactored it a bit
+        {
+            Array<Troop> ownTroops   = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty == loyalty));
             Array<Troop> enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty != loyalty));
 
             HealTroops();
-            int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1); // leave a garrion of 1 if ship without barracks was boarded
+            int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1); // leave a garrison of 1 if a ship without barracks was boarded
             if (!InCombat && enemyTroops.Count <= 0 && ownTroops.Count > troopThreshold)
                 DisengageExcessTroops(ownTroops.Count - troopThreshold);
 
@@ -1869,11 +1880,11 @@ namespace Ship_Game.Ships
                 if (assaultShip.Velocity.Length() > assaultShip.velocityMaximum)
                     assaultShip.Velocity = Vector2.Normalize(assaultShip.Velocity) * assaultShip.Speed;
 
-                Ship friendlyTroopShiptoRebase = FindClosestAllyToRebase(assaultShip);
+                Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
 
                 bool rebaseSucceeded = false;
-                if (friendlyTroopShiptoRebase != null)
-                    rebaseSucceeded = friendlyTroopShiptoRebase.Carrier.RebaseAssaultShip(assaultShip);
+                if (friendlyTroopShipToRebase != null)
+                    rebaseSucceeded = friendlyTroopShipToRebase.Carrier.RebaseAssaultShip(assaultShip);
 
                 if (!rebaseSucceeded) // did not found a friendly troopship to rebase to
                     assaultShip.AI.OrderRebaseToNearest();

@@ -319,7 +319,7 @@ namespace Ship_Game
                     ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(defender.TroopClickRect, 4);
                 }
                 if (attacker.TroopsAreOnTile)
-                    attacker.SingleTroop.AddKill(); // FB - for now multi troops on same tile is not supported
+                    attacker.SingleTroop.LevelUp(); // FB - for now multi troops on same tile is not supported
             }
             else if (defender.CombatBuildingOnTile)
             {
