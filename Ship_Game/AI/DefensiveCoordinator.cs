@@ -128,7 +128,7 @@ namespace Ship_Game.AI
                 if (p.Owner != Us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(Us))
                 {
                     p.TroopsHere.ApplyPendingRemovals();
-                    foreach (Troop troop in p.TroopsHere.Where(loyalty => loyalty.Loyalty == Us))
+                    foreach (Troop troop in p.TroopsHere.Filter(loyalty => loyalty != null && loyalty.Loyalty == Us))
                     {
                         p.TroopsHere.QueuePendingRemoval(troop);
                         troop.Launch();
