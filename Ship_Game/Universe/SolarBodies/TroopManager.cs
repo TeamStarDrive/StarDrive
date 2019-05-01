@@ -22,6 +22,9 @@ namespace Ship_Game
         public int NumEmpireTroops(Empire us)     => TroopList.Count(t => t.Loyalty == us);
         public int NumDefendingTroopCount         => NumEmpireTroops(Owner);
         public bool WeHaveTroopsHere(Empire us)   => TroopList.Any(t => t.Loyalty == us);
+        public bool WeAreInvadingHere(Empire us)  => WeHaveTroopsHere(us) && Ground.Owner != us;
+        public bool ForeignTroopHere(Empire us)   => TroopList.Any(t => t.Loyalty != null && t.Loyalty != us);
+        public bool MightBeAWarZone(Empire us)    => RecentCombat || Ground.SpaceCombatNearPlanet || ForeignTroopHere(us);
 
         private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
@@ -243,6 +246,7 @@ namespace Ship_Game
                 Troop troop = TroopList[x];
                 if (troop == null)
                     continue;
+
                 if (troop.Strength <= 0)
                 {
                     list.Add(troop);

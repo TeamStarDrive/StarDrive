@@ -402,31 +402,14 @@ namespace Ship_Game
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                var troopShips = new Array<Ship>(screen.player.GetShips()
-                     .Where(troop => troop.TroopList.Count > 0
-                         && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
-                         && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Center)));
-                var planetTroops = new Array<Planet>(screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, p.Center)));
-                if (troopShips.Count > 0)
+
+                if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, p))
                 {
                     GameAudio.EchoAffirmative();
-                    troopShips.First().AI.OrderAssaultPlanet(p);
-                }
-                else if (planetTroops.Count > 0)
-                {
-                    {
-                        Ship troop = planetTroops.First().TroopsHere.First().Launch();
-                        if (troop != null)
-                        {
-                            GameAudio.EchoAffirmative();                              
-                            troop.AI.OrderAssaultPlanet(p);
-                        }
-                    }
+                    troopShip.AI.OrderAssaultPlanet(p);
                 }
                 else
-                {
                     GameAudio.BlipClick();
-                }
             }
 
             if (Inspect.Hover)
