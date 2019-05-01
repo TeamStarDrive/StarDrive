@@ -114,6 +114,8 @@ namespace Ship_Game
         [Serialize(92)] public int Burrowers;
         [Serialize(93)] public float SpyModifier;
 
+        [Serialize(94)] public float ResearchTaxMod;
+
         public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
         public float MaintMultiplier => 1f + MaintMod; // Ex: 1.25
 

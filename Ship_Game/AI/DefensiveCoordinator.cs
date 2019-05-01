@@ -368,9 +368,9 @@ namespace Ship_Game.AI
         private int RebaseIdleTroops(Array<Ship> troopShips)
         {
             int totalRebasedTroops = 0;
-            for (int x = troopShips.Count - 1; x >= 0; x--)
+            for (int i = troopShips.Count - 1; i >= 0; i--)
             {
-                Ship troopShip = troopShips[x];
+                Ship troopShip = troopShips[i];
 
                 SolarSystem solarSystem = GetNearestSystemNeedingTroops(troopShip.Center);
 
@@ -381,15 +381,17 @@ namespace Ship_Game.AI
 
                 defenseSystem.TroopStrengthNeeded--;
                 defenseSystem.TroopCount++;
-                troopShips.RemoveAtSwapLast(x);
+                troopShips.RemoveAtSwapLast(i);
 
                 Planet target = defenseSystem.OurPlanets
-                    .FindMinFiltered(p => p.GetGroundLandingSpots() > 0,
+                    .FindMinFiltered(p => !p.MightBeAWarZone(Us) && p.GetGroundLandingSpots() > 0,
                         planet => planet.CountEmpireTroops(planet.Owner) / defenseSystem.PlanetTroopMin(planet));
 
-                if (target == null) continue;
-                troopShip.AI.OrderRebase(target, true);
-                totalRebasedTroops++;
+                if (target != null)
+                {
+                    troopShip.AI.OrderRebase(target, true);
+                    totalRebasedTroops++;
+                }
             }
             return totalRebasedTroops;
         }

@@ -287,26 +287,24 @@ namespace Ship_Game
             using (screen.EmpireUI.empire.GetShips().AcquireReadLock())
             {
                 troopShips = new Array<Ship>(screen.EmpireUI.empire.GetShips()
-                    .Where(troop => troop.TroopList.Count > 0
-                                    && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
-                                    && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Center)));
+                    .Filter(s => s.TroopList.Count > 0
+                                    && (s.AI.State == AIState.AwaitingOrders || s.AI.State == AIState.Orbit)
+                                    && s.fleet == null && !s.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Center)));
             }
 
             var planetTroops = new Array<Planet>(screen.EmpireUI.empire.GetPlanets()
-                .Where(troops => troops.TroopsHere.Count > 1)
-                .OrderBy(distance => Vector2.Distance(distance.Center, planet.Center))
-                .Where(p => p.Name != planet.Name));
+                .Filter(p => p.Name != planet.Name && p.TroopsHere.Count > 0)
+                .OrderBy(distance => Vector2.Distance(distance.Center, planet.Center)));
 
             if (troopShips.Count > 0)
             {
                 GameAudio.EchoAffirmative();
                 troopShips.First().AI.OrderAssaultPlanet(planet);
             }
-            else
-            if (planetTroops.Count > 0)
+            else if (planetTroops.Count > 0)
             {
                 {
-                    Ship troop = planetTroops.First().TroopsHere.First().Launch();
+                    Ship troop = planetTroops.First().TroopsHere.First(t => t.Loyalty == EmpireManager.Player).Launch();
                     if (troop != null)
                     {
                         GameAudio.EchoAffirmative();
@@ -315,9 +313,7 @@ namespace Ship_Game
                 }
             }
             else
-            {
                 GameAudio.BlipClick();
-            }
         }
 
         private void OnColonizeClicked(UIButton b)
