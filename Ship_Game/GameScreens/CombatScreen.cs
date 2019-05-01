@@ -825,11 +825,11 @@ namespace Ship_Game
                     if (Vector2.Distance(p.Center, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f)
                         continue;
 
-                    if (ship.shipData.Role != ShipData.RoleName.troop) 
+                    if (ship.shipData.Role != ShipData.RoleName.troop)
                     {
                         if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
                             continue; // if the ship has no troop bays and there is no other means of landing them (like a spaceport)
-                         
+
                         int landingLimit = LandingLimit(ship);
                         for (int i = 0; i < ship.TroopList.Count && landingLimit > 0; i++)
                         {
@@ -840,8 +840,12 @@ namespace Ship_Game
                             }
                         }
                     }
-                    else if (ship.AI.State != AI.AIState.Rebase && ship.AI.State != AI.AIState.AssaultPlanet)
+                    else if (ship.AI.State != AI.AIState.Rebase
+                             && ship.AI.State != AI.AIState.RebaseToShip
+                             && ship.AI.State != AI.AIState.AssaultPlanet)
+                    {
                         OrbitSL.AddItem(ship.TroopList[0]); // this the default 1 troop ship
+                    }
                 }
 
             UpdateLandAllButton(OrbitSL.NumEntries);
