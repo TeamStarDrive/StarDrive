@@ -584,11 +584,7 @@ namespace Ship_Game.AI.Tasks
                     foreach (Troop t in toLaunch)
                     {
                         Ship troopship = t.Launch();
-
-                        if (troopship == null)
-                            continue;
-
-                        troopship.AI.OrderRebaseToNearest();
+                        troopship?.AI.OrderRebaseToNearest();
                     }
                     toLaunch.Clear();
                 }

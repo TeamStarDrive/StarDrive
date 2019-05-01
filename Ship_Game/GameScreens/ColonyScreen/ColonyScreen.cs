@@ -1305,7 +1305,7 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
             else
             {
-                Troop troop = P.TroopsHere.RandItem();
+                Troop troop = P.TroopsHere.Filter(t => t.Loyalty == EmpireManager.Player).RandItem();
                 troop.Launch();
                 GameAudio.TroopTakeOff();
                 UpdateButtons();
