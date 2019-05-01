@@ -1489,8 +1489,9 @@ namespace Ship_Game
             }
 
             CallTroops.Visible        = P.Owner == Empire.Universe.player;
-            LaunchAllTroops.Visible   = CallTroops.Visible && P.TroopsHere.Count > 1;
-            LaunchSingleTroop.Visible = CallTroops.Visible && P.TroopsHere.Count > 0;
+            int numTroopsCanLaunch    = P.TroopsHere.Count(t => t.Loyalty == EmpireManager.Player && t.CanMove);
+            LaunchSingleTroop.Visible = CallTroops.Visible && numTroopsCanLaunch > 0;
+            LaunchAllTroops.Visible   = CallTroops.Visible && numTroopsCanLaunch > 1;
         }
 
         void UpdateButtonText(UIButton button, int value, string defaultText)

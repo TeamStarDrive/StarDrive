@@ -119,9 +119,11 @@ namespace Ship_Game.AI
                 Remove(ship);
         }
 
-
-        void CalculateSystemImportance()
+        void ClearEmptyPlanetsOfTroops()
         {
+            if (Us == EmpireManager.Player)
+                return;
+
             foreach (Planet p in Empire.Universe.PlanetsDict.Values)
                 //@TODO move this to planet. this is removing troops without any safety
             {
@@ -130,11 +132,8 @@ namespace Ship_Game.AI
                     p.TroopsHere.ApplyPendingRemovals();
                     foreach (Troop troop in p.TroopsHere.Filter(loyalty => loyalty != null && loyalty.Loyalty == Us))
                     {
-                        p.TroopsHere.QueuePendingRemoval(troop);
                         troop.Launch();
                     }
-
-                    p.TroopsHere.ApplyPendingRemovals();
                 }
                 else if (p.Owner == Us) //This should stay here.
                 {
@@ -142,7 +141,10 @@ namespace Ship_Game.AI
                     DefenseDict.Add(p.ParentSystem, new SystemCommander(Us, p.ParentSystem));
                 }
             }
+        }
 
+        void CalculateSystemImportance()
+        {
             TotalValue = 0;
 
             foreach (var kv in DefenseDict.ToArray())
@@ -285,6 +287,7 @@ namespace Ship_Game.AI
             int rebasedTroops      = 0;
             if (!Us.isPlayer)
                 rebasedTroops      = RebaseIdleTroops(troops.TroopShips);
+
             TroopsToTroopsWantedRatio          = (troops.TotalCurrentTroops + rebasedTroops) / (float) troops.TotalTroopWanted;
 
             if (Us.isPlayer) return;
@@ -332,15 +335,15 @@ namespace Ship_Game.AI
                     int currentTroops = kv.Value.TroopCount;
                     for (int i = TroopShips.Count - 1; i >= 0; i--)
                     {
-                        Ship troop = TroopShips[i];
+                        Ship troopShip = TroopShips[i];
 
-                        if (troop == null || troop.TroopList.Count <= 0)
+                        if (troopShip == null || troopShip.TroopList.Count <= 0)
                         {
                             TroopShips.RemoveAtSwapLast(i);
                             continue;
                         }
 
-                        ShipAI troopAI = troop.AI;
+                        ShipAI troopAI = troopShip.AI;
                         if (troopAI == null)
                         {
                             TroopShips.RemoveAtSwapLast(i);
@@ -398,6 +401,7 @@ namespace Ship_Game.AI
 
         public void ManageForcePool()
         {
+            ClearEmptyPlanetsOfTroops();
             CalculateSystemImportance();
             ManageShips();
             ManageTroops();
