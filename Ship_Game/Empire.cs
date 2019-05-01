@@ -1613,7 +1613,7 @@ namespace Ship_Game
             Array<Ship> troopShips;
             using (OwnedShips.AcquireReadLock())
                 troopShips = new Array<Ship>(OwnedShips
-                    .Where(troopship => troopship.Name == data.DefaultTroopShip
+                    .Filter(troopship => troopship.Name == data.DefaultTroopShip
                                         && troopship.TroopList.Count > 0
                                         && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
                                         && troopship.fleet == null && !troopship.InCombat)
@@ -1629,7 +1629,7 @@ namespace Ship_Game
         {
             troopShip = null;
             Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
-                .Where(p => p.TroopsHere.Count > 0 && !p.CombatNearPlanet && !p.RecentCombat && p.Name != planetName)
+                .Filter(p => p.AnyOfOurTroops(this) && !p.MightBeAWarZone(this) && p.Name != planetName)
                 .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
             if (candidatePlanets.Count == 0)
@@ -1638,7 +1638,7 @@ namespace Ship_Game
             var troops = candidatePlanets.First().TroopsHere;
             using (troops.AcquireWriteLock())
             {
-                troopShip = troops.First().Launch();
+                troopShip = troops.First(t => t.Loyalty == this).Launch();
                 return troopShip != null;
             }
         }

@@ -50,7 +50,7 @@ namespace Ship_Game
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
         public float SensorRange { get; private set; }
-        public bool CombatNearPlanet { get; private set; }
+        public bool SpaceCombatNearPlanet { get; private set; }
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
@@ -69,6 +69,8 @@ namespace Ship_Game
         public float GetGroundStrength(Empire empire)   => TroopManager.GroundStrength(empire);
         public int GetPotentialGroundTroops()           => TroopManager.GetPotentialGroundTroops();
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
+        public bool WeAreInvadingHere(Empire empire)    => TroopManager.WeAreInvadingHere(empire);
+        public bool MightBeAWarZone(Empire empire)      => TroopManager.MightBeAWarZone(empire);
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
@@ -256,8 +258,8 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
-            CombatNearPlanet = EnemyInRange();
-            if (CombatNearPlanet)
+            SpaceCombatNearPlanet = EnemyInRange();
+            if (SpaceCombatNearPlanet)
                 UpdateSpaceCombatBuildings(elapsedTime);
 
             UpdatePlanetaryProjectiles(elapsedTime);

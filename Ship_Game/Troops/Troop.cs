@@ -340,6 +340,9 @@ namespace Ship_Game
 
         private Ship LaunchToSpace(PlanetGridSquare tile)
         {
+            if (!CanMove)
+                return null;
+
             tile.TroopsHere.Clear();
             HostPlanet.TroopsHere.Remove(this);
             Ship troopShip = CreateShipForTroop(HostPlanet);
