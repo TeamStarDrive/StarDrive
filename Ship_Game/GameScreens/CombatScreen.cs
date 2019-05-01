@@ -496,11 +496,9 @@ namespace Ship_Game
 
                 try
                 {
+
                     pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
-                    pgs.SingleTroop.UpdateMoveActions(-pgs.SingleTroop.MaxStoredActions);
-                    pgs.SingleTroop.ResetLaunchTimer();
                     pgs.SingleTroop.ResetAttackTimer();
-                    pgs.SingleTroop.ResetMoveTimer();
                     play = true;
                     pgs.SingleTroop.Launch(pgs);
                 }

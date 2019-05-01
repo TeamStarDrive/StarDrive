@@ -151,7 +151,7 @@ namespace Ship_Game.AI.Tasks
                 Ship launched = t.Launch();
                 if (launched == null)
                 {
-                    Log.Error($"CreateFleet: Troop launched from planet became null");
+                    Log.Warning($"CreateFleet: Troop launched from planet became null (or could not be launched since it cant move)");
                     continue;
                 }
                 newFleet.AddShip(launched);
