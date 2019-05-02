@@ -55,9 +55,9 @@ namespace Ship_Game.Ships
         public ShipModule[] AllActiveHangars   => AllHangars.Filter(module => module.Active);
         public bool HasActiveHangars           => AllHangars.Any(module => module.Active); // FB: this changes dynamically
         public bool HasTransporters            => AllTransporters.Length > 0;
-        public bool CanInvadeOrBoard           => HasTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
         public ShipModule[] AllActiveTroopBays => AllTroopBays.Filter(module => module.Active);
         public int NumActiveHangars            => AllHangars.Count(hangar => hangar.Active);
+        public bool CanLaunchTroops            => HasTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
 
         // this will return the number of assault shuttles ready to launch (regardless of troopcount)
         public int AvailableAssaultShuttles => AllTroopBays.Count(hangar => hangar.Active && hangar.hangarTimer <= 0 && hangar.GetHangarShip() == null);
@@ -89,7 +89,7 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null || !CanInvadeOrBoard)
+                if (Owner == null || !CanLaunchTroops)
                     return 0;
 
                 return Owner.TroopList.Count + LaunchedAssaultShuttles;
@@ -317,7 +317,7 @@ namespace Ship_Game.Ships
         {
         get
             {
-                if (Owner == null || !CanInvadeOrBoard)
+                if (Owner == null || !CanLaunchTroops)
                     return 0;
 
                 int assaultSpots = NumTroopsInShipAndInSpace;
@@ -539,7 +539,7 @@ namespace Ship_Game.Ships
 
         public bool AssaultTargetShip(Ship targetShip)
         {
-            if (CanInvadeOrBoard && targetShip != null)
+            if (Owner.CanInvadeOrBoard && targetShip != null)
             {
                 float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
                 float enemyStrength = targetShip.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
