@@ -151,7 +151,7 @@ namespace Ship_Game.AI
                     {
                         Planet target =
                             assimilate.System.PlanetList.Find(owner => owner.Owner != OwnerEmpire && owner.Owner != null);
-                        if (target != null && (assimilate.Carrier.HasTroopBays || assimilate.Carrier.HasAssaultTransporters))
+                        if (target != null && (assimilate.Carrier.HasActiveTroopBays || assimilate.Carrier.HasAssaultTransporters))
                             if (assimilate.TroopList.Count > assimilate.Carrier.NumActiveHangars)
                                 assimilate.AI.OrderAssaultPlanet(target);
                     }

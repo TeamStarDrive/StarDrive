@@ -534,7 +534,7 @@ namespace Ship_Game.Ships
             }
 
             DrawHorizontalValues(Ship.TroopCapacity, Color.White, ref troopPos);
-            if (Ship.Carrier.HasTroopBays)
+            if (Ship.Carrier.HasActiveTroopBays)
                 DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles, Color.CadetBlue, ref troopPos);
         }
 
@@ -737,7 +737,7 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
-            if (Ship.Carrier.HasTroopBays)
+            if (Ship.Carrier.HasActiveTroopBays)
             {
                 OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
                 {
@@ -747,7 +747,7 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
-            if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.AllFighterHangars.Length > 0))
+            if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasActiveTroopBays || Ship.Carrier.AllFighterHangars.Length > 0))
             {
                 OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
                 {

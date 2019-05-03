@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
         public readonly bool HasHangars;
         public readonly bool HasSupplyBays;
         public readonly bool HasFighterBays;
-        public readonly bool HasTroopBays;
+        public readonly bool HasActiveTroopBays;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
         public bool SendTroopsToShip;
@@ -33,7 +33,7 @@ namespace Ship_Game.Ships
             HasHangars              = AllHangars.Length > 0;
             HasSupplyBays           = AllSupplyBays.Length > 0;
             HasFighterBays          = AllFighterHangars.Length > 0;
-            HasTroopBays            = AllTroopBays.Length > 0;
+            HasActiveTroopBays      = AllActiveTroopBays.Length > 0;
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
             SendTroopsToShip        = true;
@@ -57,7 +57,7 @@ namespace Ship_Game.Ships
         public bool HasTransporters            => AllTransporters.Length > 0;
         public ShipModule[] AllActiveTroopBays => AllTroopBays.Filter(module => module.Active);
         public int NumActiveHangars            => AllHangars.Count(hangar => hangar.Active);
-        public bool CanLaunchTroops            => HasTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
+        public bool CanLaunchTroops            => HasActiveTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
 
         // this will return the number of assault shuttles ready to launch (regardless of troopcount)
         public int AvailableAssaultShuttles => AllTroopBays.Count(hangar => hangar.Active && hangar.hangarTimer <= 0 && hangar.GetHangarShip() == null);
