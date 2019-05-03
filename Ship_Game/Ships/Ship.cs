@@ -1907,7 +1907,7 @@ namespace Ship_Game.Ships
             ship.AI.ScanForCombatTargets(ship, ship.SensorRange); // to find friendlies nearby
             return ship.AI.FriendliesNearby.FindMinFiltered(
                 troopShip => troopShip.Carrier.NumTroopsInShipAndInSpace < troopShip.TroopCapacity
-                && troopShip.Carrier.HasTroopBays,
+                && troopShip.Carrier.HasActiveTroopBays,
                 troopShip => ship.Center.SqDist(troopShip.Center));
         }
 

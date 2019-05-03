@@ -20,7 +20,7 @@ namespace Ship_Game.AI.CombatTactics
             Target = AI.Target as Ship;
 
             Artillery.Execute(elapsedTime, null);
-            if (!Owner.Carrier.HasTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
+            if (!Owner.Carrier.HasActiveTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;
             if (!Owner.loyalty.isFaction && Target?.shipData.Role <= ShipData.RoleName.drone)
                 return;
