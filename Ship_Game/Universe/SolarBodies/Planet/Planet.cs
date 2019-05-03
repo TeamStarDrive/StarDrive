@@ -61,6 +61,8 @@ namespace Ship_Game
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
+        public bool WeCanLandTroopsViaSpacePort(Empire us) => HasSpacePort && Owner == us;
+
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
         public bool AnyOfOurTroops(Empire us)   => TroopManager.WeHaveTroopsHere(us);
@@ -71,7 +73,8 @@ namespace Ship_Game
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
         public bool WeAreInvadingHere(Empire empire)    => TroopManager.WeAreInvadingHere(empire);
         public bool MightBeAWarZone(Empire empire)      => TroopManager.MightBeAWarZone(empire);
-        public bool ForeignTroopHere(Empire empire)     => TroopManager.ForeignTroopHere(empire);
+        public bool ForeignTroopHere(Empire empire)      => TroopManager.ForeignTroopHere(empire);
+
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
@@ -163,6 +166,13 @@ namespace Ship_Game
                 HasRings = true;
                 RingTilt = RandomMath.RandomBetween(-80f, -45f);
             }
+        }
+
+        // This will launch troops without having issues with modifying it's own TroopsHere
+        public void LaunchTroops(Troop[] troopsToLaunch)
+        {
+            foreach (Troop troop in troopsToLaunch)
+                troop.Launch();
         }
 
         public float GravityWellForEmpire(Empire empire)
@@ -356,12 +366,12 @@ namespace Ship_Game
             Vector2 launchVector       = MathExt.RandomOffsetAndDistance(Center, 1000);
             Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire, launchVector, this);
             if (defenseShip == null)
-                Log.Warning($"Could not create defense ship, shipname = {selectedShip}");
+                Log.Warning($"Could not create defense ship, ship name = {selectedShip}");
             else
             {
                 defenseShip.Level = 3;
                 defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.Speed;
-                empire.AddMoney(-defenseShip.GetCost(Owner));
+                empire.AddMoney(-defenseShip.GetCost(Owner) / 10);
             }
         }
 
@@ -376,7 +386,7 @@ namespace Ship_Game
                     building.UpdateCurrentDefenseShips(1, Owner);
                 }
             }
-            Owner.AddMoney(shipCost * shipHealthPercent);
+            Owner.AddMoney((shipCost * shipHealthPercent / 10));
         }
 
         void UpdatePlanetaryProjectiles(float elapsedTime)
