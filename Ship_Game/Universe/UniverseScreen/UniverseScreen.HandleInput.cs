@@ -1041,8 +1041,15 @@ namespace Ship_Game
 
         private void PlanetRightClickTroopShip(Ship ship, Planet planet)
         {
-            if (planet.Owner != null && planet.Owner == player && ship.IsDefaultTroopTransport)
-                ship.AI.OrderRebase(planet, true);
+            if (planet.Owner != null && planet.Owner == player)
+            {
+                if (ship.IsDefaultTroopTransport)
+                    ship.AI.OrderRebase(planet, true); // Rebase to this planet if it is ours and this is a single troop transport
+                else if (planet.ForeignTroopHere(ship.loyalty)) 
+                    ship.AI.OrderLandAllTroops(planet); // If our planet is being invaded, land the troops there
+                else
+                    ship.AI.OrderToOrbit(planet); // Just orbit
+            }
             else if (planet.Habitable && (planet.Owner == null || ship.loyalty.IsEmpireAttackable(planet.Owner)))
                 ship.AI.OrderLandAllTroops(planet); // Land troops on unclaimed planets or enemy planets
             else
