@@ -427,7 +427,7 @@ namespace Ship_Game.Ships
             DrawIconWithTooltip(batch, iconStructure, () => Localizer.Token(1976), mousePos,
                 Color.White, numStatus);
 
-            var textPos              = new Vector2((int)StatusArea.X + 20 + numStatus * 53, (int)StatusArea.Y + 15);
+            var textPos              = new Vector2((int)StatusArea.X + 33 + numStatus * 53, (int)StatusArea.Y + 15);
             float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / ShipResupply.ShipDestroyThreshold) * 100;
             structureIntegrity = Math.Max(1, structureIntegrity);
             batch.DrawString(Fonts.Arial12, structureIntegrity.String(0) + "%", textPos, Color.White);

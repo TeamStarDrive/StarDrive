@@ -855,7 +855,7 @@ namespace Ship_Game
         private int LandingLimit(Ship ship)
         {
             int landingLimit;
-            if (p.HasSpacePort && p.Owner == ship.loyalty)
+            if (p.WeCanLandTroopsViaSpacePort(ship.loyalty))
                 landingLimit = ship.TroopList.Count;  // fbedard: Allows to unload all troops if there is a shipyard
             else
             {

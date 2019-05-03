@@ -2143,6 +2143,13 @@ namespace Ship_Game.Ships
             killedShip.loyalty.TheyKilledOurShip(loyalty, killedShip);
         }
 
+        // This will launch troops without having issues with modifying it's own TroopsHere
+        public void LandTroops(Troop[] troopsToLand, Planet planet)
+        {
+            foreach (Troop troop in troopsToLand)
+                troop.TryLandTroop(planet);
+        }
+
         void ExplodeShip(float size, bool addWarpExplode)
         {
             if (!InFrustum) return;

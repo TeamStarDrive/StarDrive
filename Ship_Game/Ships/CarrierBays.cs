@@ -335,6 +335,9 @@ namespace Ship_Game.Ships
 
         public void AssaultPlanet(Planet planet)
         {
+            if (HasAssaultTransporters)
+                AssaultPlanetWithTransporters(planet);
+
             ScrambleAllAssaultShips();
             foreach (ShipModule bay in AllTroopBays)
             {
@@ -454,7 +457,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void AssaultPlanetWithTransporters(Planet planet)
+        private void AssaultPlanetWithTransporters(Planet planet)
         {
             if (Owner == null)
                 return;
