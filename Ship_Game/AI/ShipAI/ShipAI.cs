@@ -446,7 +446,6 @@ namespace Ship_Game.AI
                 case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, toEvaluate);         break;
                 case Plan.ReturnHome:               DoReturnHome(elapsedTime);                         break;
                 case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                       break;
-                case Plan.AssaultPlanet:            DoAssaultPlanet(elapsedTime, toEvaluate);          break;
             }
 
             return false;
@@ -750,16 +749,6 @@ namespace Ship_Game.AI
                 AwaitOrders(elapsedTime);
             else
                 AwaitOrdersPlayer(elapsedTime);
-            if (Owner.loyalty.isFaction)
-                return;
-            if (Owner.OrdnanceStatus > ShipStatus.Average)
-                return;
-            if (FriendliesNearby.Any(supply => supply.Carrier.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
-                return;
-            var resupplyPlanet = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
-            if (resupplyPlanet == null)
-                return;
-            OrderResupply(resupplyPlanet, true);
         }
 
         public void Dispose()
