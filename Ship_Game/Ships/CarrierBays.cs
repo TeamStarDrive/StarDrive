@@ -284,14 +284,14 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null || Owner.TroopList.IsEmpty)
+                if (Owner == null || !Owner.HasTroops)
                     return false;
 
-                if (Owner.DesignRole == ShipData.RoleName.troop)
+                if (Owner.IsDefaultTroopTransport)
                     return true;
 
                 return AllActiveHangars.Any(sm => sm.IsTroopBay) 
-                       || AllTransporters.Any(sm => sm.TransporterTroopAssault >0);
+                       || AllTransporters.Any(sm => sm.TransporterTroopAssault > 0);
             }
         }
 
@@ -340,7 +340,7 @@ namespace Ship_Game.Ships
             {
                 Ship hangarShip = bay.GetHangarShip();
                 if (hangarShip != null && hangarShip.Active)
-                    hangarShip.AI.OrderAssaultPlanet(planet);
+                    hangarShip.AI.OrderLandAllTroops(planet);
             }
         }
 

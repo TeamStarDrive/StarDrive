@@ -446,6 +446,7 @@ namespace Ship_Game.AI
                 case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, toEvaluate);         break;
                 case Plan.ReturnHome:               DoReturnHome(elapsedTime);                         break;
                 case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                       break;
+                case Plan.AssaultPlanet:            DoAssaultPlanet(elapsedTime, toEvaluate);          break;
             }
 
             return false;
