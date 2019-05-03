@@ -291,15 +291,36 @@ namespace Ship_Game.AI
             }
         }
 
+        void DoAssaultPlanet(float elapsedTime, ShipGoal goal)
+        {
+            ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime);
+            if (Owner.IsDefaultAssaultShuttle)
+            {
+                if (Owner.Center.InRadius(goal.TargetPlanet.Center, goal.TargetPlanet.ObjectRadius + 100f))
+                {
+                    Owner.TroopList[0].TryLandTroop(goal.TargetPlanet);
+                    Owner.AI.OrderReturnToHangar();
+                }
+            }
+            else 
+            {
+                if (Owner.Center.InRadius(goal.TargetPlanet.Center, goal.TargetPlanet.ObjectRadius + 2000f))
+                {
+                    Owner.Carrier.AssaultPlanet(goal.TargetPlanet); // Launch Assault shuttles
+                    if (Owner.HasTroops)
+                        DoOrbit.Orbit(goal.TargetPlanet, elapsedTime);
+                    else
+                        ClearOrders();
+                }
+            }
+        }
+
         void DoLandTroop(float elapsedTime, ShipGoal goal)
         {
-            if (Owner.shipData.Role != ShipData.RoleName.troop || Owner.TroopList.Count == 0)
-                DoOrbit.Orbit(goal.TargetPlanet, elapsedTime); //added by gremlin.
-
             float radius = goal.TargetPlanet.ObjectRadius + Owner.Radius * 2;
             float distCenter = goal.TargetPlanet.Center.Distance(Owner.Center);
 
-            if (Owner.shipData.Role == ShipData.RoleName.troop && Owner.TroopList.Count > 0)
+            if (Owner.TroopList.Count > 0)
             {
                 if (Owner.engineState == Ship.MoveState.Warp && distCenter < 7500f)
                     Owner.HyperspaceReturn();
@@ -449,44 +470,29 @@ namespace Ship_Game.AI
                 return;
             }
             ThrustOrWarpToPosCorrected(Owner.Mothership.Center, elapsedTime);
-            //this looks to need refactor. some of these formulas are... weird
+
             if (Owner.Center.InRadius(Owner.Mothership.Center, Owner.Mothership.Radius + 300f))
             {
                 if (Owner.TroopList.Count == 1)
                     Owner.Mothership.TroopList.Add(Owner.TroopList[0]);
-                if (Owner.shipData.Role == ShipData.RoleName.supply) //fbedard: Supply ship return with Ordinance
+                if (Owner.shipData.Role == ShipData.RoleName.supply) // fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
-                Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd);
 
+                Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
+                // Set up repair and rearm times 
+                float missingHealth   = Owner.HealthMax - Owner.HealthMax;
+                float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
+                float repairTime      = missingHealth / (Owner.Mothership.RepairRate + Owner.RepairRate);
+                float rearmTime       = missingOrdnance / (2 + Owner.Mothership.Level);
                 Owner.QueueTotalRemoval();
                 foreach (ShipModule hangar in Owner.Mothership.Carrier.AllActiveHangars)
                 {
                     if (hangar.GetHangarShip() != Owner)
                         continue;
-                    //added by gremlin: prevent fighters from relaunching immediately after landing.
-                    float ammoReloadTime = Owner.OrdinanceMax * .1f;
-                    float shieldRechargeTime = Owner.shield_max * .1f;
-                    float powerRechargeTime = Owner.PowerStoreMax * .1f;
-                    float rearmTime = Owner.Health;
-                    rearmTime += Owner.Ordinance * .1f;
-                    rearmTime += Owner.PowerCurrent * .1f;
-                    rearmTime += Owner.shield_power * .1f;
-                    rearmTime /= Owner.HealthMax + ammoReloadTime + shieldRechargeTime + powerRechargeTime;
-                    //this was broken now im not sure.
-                    float rearmModifier = hangar.hangarTimerConstant *
-                                           (1.01f - (Owner.Level + hangar.GetParent().Level) /10f);
-                    // fbedard: rearm time from 50% to 150%
-                    rearmTime = (1.01f - rearmTime) * rearmModifier;
-                    if (rearmTime < 0)
-                        rearmTime = 1;
-                    /*CG: if the fighter is fully functional reduce rearm time to very little.
-                    The default 5 minute hangar timer is way too high. It cripples fighter usage.
-                    at 50% that is still 2.5 minutes if the fighter simply launches and returns.
-                    with lag that can easily be 10 or 20 minutes.
-                    at 1.01 that should be 3 seconds for the default hangar.
-                    */
+
                     hangar.SetHangarShip(null);
-                    hangar.hangarTimer = rearmTime;
+                    // FB - Here we are setting the hangar timer according to the R&R time. All no fighters will get a minimum of 5 seconds
+                    hangar.hangarTimer = (repairTime + rearmTime).Clamped(5, hangar.hangarTimerConstant); // cant be over the time to rebuild the ship
                     hangar.HangarShipGuid = Guid.Empty;
                 }
             }

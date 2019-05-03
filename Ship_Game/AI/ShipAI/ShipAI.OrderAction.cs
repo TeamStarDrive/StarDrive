@@ -148,11 +148,11 @@ namespace Ship_Game.AI
 
         public void OrderLandAllTroops(Planet target)
         {
-            if (Owner.Carrier.AnyPlanetAssaultAvailable)
-            {
-                SetPriorityOrderWithClear();
-                AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet);
-            }
+            SetPriorityOrderWithClear();
+            if (Owner.IsDefaultTroopShip && Owner.HasTroops)
+                AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet); // single troop ship
+            else if (Owner.Carrier.AnyPlanetAssaultAvailable)
+                AddPlanetGoal(Plan.AssaultPlanet, target, AIState.AssaultPlanet); //  Multiple troop ship or Assault shuttle
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders)
