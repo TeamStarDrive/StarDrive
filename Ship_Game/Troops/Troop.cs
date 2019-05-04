@@ -343,11 +343,18 @@ namespace Ship_Game
             if (!CanMove)
                 return null;
 
-            tile.TroopsHere.Clear();
-            HostPlanet.TroopsHere.Remove(this);
-            Ship troopShip = CreateShipForTroop(HostPlanet);
-            HostPlanet     = null;
-            return troopShip;
+            using (HostPlanet.TroopsHere.AcquireWriteLock())
+            {
+                using (tile.TroopsHere.AcquireWriteLock())
+                {
+
+                    tile.TroopsHere.Clear();
+                    HostPlanet.TroopsHere.Remove(this);
+                    Ship troopShip = CreateShipForTroop(HostPlanet);
+                    HostPlanet     = null;
+                    return troopShip;
+                }
+            }
         }
 
         private Ship CreateShipForTroop(Planet planet)
@@ -370,7 +377,13 @@ namespace Ship_Game
             return planet.FreeTiles > 0 && AssignTroopToNearestAvailableTile(tile, planet);
         }
 
-        private bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet )
+        // FB - For newly recruited troops (so they will be able to launch or move immediately)
+        public bool PlaceNewTroop(Planet planet)
+        {
+            return planet.FreeTiles > 0 && AssignTroopToTile(planet, resetMove: false);
+        }
+
+        private bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet)
         {
             if (tile.IsTileFree)
                 AssignTroop(planet, tile);
@@ -392,7 +405,7 @@ namespace Ship_Game
             return true;
         }
 
-        private bool AssignTroopToTile(Planet planet)
+        private bool AssignTroopToTile(Planet planet, bool resetMove = true)
         {
             var list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare tile in planet.TilesList)
@@ -405,7 +418,7 @@ namespace Ship_Game
                 return false;
 
             PlanetGridSquare selectedTile = list.RandItem();
-            AssignTroop(planet, selectedTile);
+            AssignTroop(planet, selectedTile, resetMove);
             // some buildings can injure landing troops
             if (Owner != planet.Owner)
                 DamageTroop(planet.TotalInvadeInjure);
@@ -414,15 +427,18 @@ namespace Ship_Game
             return true;
         }
 
-        private void AssignTroop(Planet planet, PlanetGridSquare tile)
+        private void AssignTroop(Planet planet, PlanetGridSquare tile, bool resetMove = true)
         {
             tile.TroopsHere.Add(this);
             planet.TroopsHere.Add(this);
             RemoveHostShip();
             SetPlanet(planet);
-            UpdateMoveActions(-1);
-            ResetMoveTimer();
             facingRight = tile.x < planet.TileMaxX / 2;
+            if (resetMove)
+            {
+                UpdateMoveActions(-1);
+                ResetMoveTimer();
+            }
         }
 
         private void RemoveHostShip()
@@ -444,6 +460,7 @@ namespace Ship_Game
         {
             ship.TroopList.Add(this);
             RemoveHostShip();
+            HostShip = ship; // new host ship since the troop has landed on a new ship
         }
     }
 }

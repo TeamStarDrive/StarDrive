@@ -316,7 +316,8 @@ namespace Ship_Game.Ships
         {
             Ship ship       = CreateShipAtPoint(shipName, owner, point);
             ship.VanityName = troop.DisplayName;
-            ship.TroopList.Add(ResourceManager.CreateTroop(troop.Name, owner));
+            ship.TroopList.Add(troop);
+            troop.SetShip(ship);
             if (ship.shipData.Role == ShipData.RoleName.troop)
                 ship.shipData.ShipCategory = ShipData.Category.Conservative;
             return ship;
@@ -441,7 +442,8 @@ namespace Ship_Game.Ships
                     // If you have  16 barracks and 4 bays, you'll still get 4 tanks and 12 infantry.
                     // logic here is that tanks needs hangarbays and barracks, and infantry just needs barracks.
                 }
-                TroopList.Add(ResourceManager.CreateTroop(type, loyalty));
+                Troop newTroop = ResourceManager.CreateTroop(type, loyalty);
+                newTroop.LandOnShip(this);
             }
         }
 
