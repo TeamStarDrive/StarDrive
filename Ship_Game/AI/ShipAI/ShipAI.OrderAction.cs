@@ -9,12 +9,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        public void OrderAssaultPlanet(Planet planetToAssault)
-        {
-            ClearOrders();
-            AddPlanetGoal(Plan.LandTroop, planetToAssault, AIState.AssaultPlanet);
-        }
-
         public void OrderAllStop()
         {
             ClearWayPoints();

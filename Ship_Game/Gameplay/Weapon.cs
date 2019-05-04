@@ -560,7 +560,9 @@ namespace Ship_Game.Gameplay
                 }
             }
             
-            if (FireTarget != null)
+            // FB: reason for ghost target is that FireTarget is not null even if the mainTarget is dead. 
+            // so i added a check for main target, but this might be only a workaround
+            if (FireTarget != null && mainTarget?.Active == true)
             {
                 if (isBeam)
                     FireBeam(Module.Center, FireTarget.Center, FireTarget);
