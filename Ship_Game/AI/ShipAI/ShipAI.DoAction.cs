@@ -295,7 +295,7 @@ namespace Ship_Game.AI
         {
             Planet planet = goal.TargetPlanet;
             ThrustOrWarpToPosCorrected(planet.Center, elapsedTime);
-            if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, 100);
+            if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, 50);
             else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, 300);
             else                                    LandTroopsViaTroopShip(planet, 2000, elapsedTime);
         }
