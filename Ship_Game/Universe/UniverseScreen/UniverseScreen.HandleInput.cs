@@ -1024,10 +1024,10 @@ namespace Ship_Game
                     GameAudio.AffirmativeClick();
 
                 ship.AI.HasPriorityOrder = true;
-                if      (ship.isColonyShip)     PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
-                else if (ship.CanInvadeOrBoard) PlanetRightClickTroopShip(ship, planet);  // This ship can assault planets
-                else if (ship.HasBombs)         PlanetRightClickBomber(ship, planet);     // This ship can bomb planets
-                else                            ship.AI.OrderToOrbit(planet);             // Default logic of right clicking
+                if      (ship.isColonyShip)                   PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
+                else if (ship.Carrier.AnyAssaultOpsAvailable) PlanetRightClickTroopShip(ship, planet);  // This ship can assault planets
+                else if (ship.HasBombs)                       PlanetRightClickBomber(ship, planet);     // This ship can bomb planets
+                else                                          ship.AI.OrderToOrbit(planet);             // Default logic of right clicking
             }
         }
 
