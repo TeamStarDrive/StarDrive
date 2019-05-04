@@ -179,7 +179,6 @@ namespace Ship_Game.Ships
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
         public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name;
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
-        public bool CanInvadeOrBoard        => HasTroops && (IsDefaultTroopTransport || Carrier.CanLaunchTroops);
 
         public bool HasTroops => TroopList.Count > 0  || Carrier.NumTroopsInShipAndInSpace > 0;
         public bool HasBombs  => BombBays.Count > 0;
