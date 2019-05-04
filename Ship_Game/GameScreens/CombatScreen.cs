@@ -499,8 +499,9 @@ namespace Ship_Game
 
                     pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
                     pgs.SingleTroop.ResetAttackTimer();
-                    play = true;
-                    pgs.SingleTroop.Launch(pgs);
+                    Ship troopShip = pgs.SingleTroop.Launch(pgs);
+                    if (troopShip != null)
+                        play = true;
                 }
                 catch (Exception ex)
                 {

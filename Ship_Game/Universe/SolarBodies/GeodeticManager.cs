@@ -92,7 +92,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
             float repairPool = CalcRepairPool();
-            int garrisonSize = GarrisonSize();
+            int garrisonSize = P.GarrisonSize;
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship         = ParentSystem.ShipList[i];
@@ -111,17 +111,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     }
                 }
             }
-        }
-
-        public int GarrisonSize()
-        {
-            if (!P.Owner.isPlayer)
-                return 0;  // AI manages It's own troops
-
-            if (P.GovMilitia && P.colonyType != Planet.ColonyType.Colony)
-                return 0; // Player Governor will replace garrisoned troops with new ones
-
-            return 5; // Default value for non Governor Player Colonies 
         }
 
         private void SupplyShip(Ship ship)
@@ -167,32 +156,23 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void LoadTroops(Ship ship, int garrisonSize)
         {
-            if (TroopsHere.Count <= garrisonSize || ship.TroopCapacity == 0 || ship.TroopCapacity <= ship.TroopList.Count || ship.InCombat)
+            if (TroopsHere.Count <= garrisonSize || ship.TroopCapacity == 0 
+                                                 || ship.TroopCapacity <= ship.TroopList.Count 
+                                                 || P.MightBeAWarZone(P.Owner))
+            {
                 return;
+            }
 
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
-            using (TroopsHere.AcquireWriteLock())
+            foreach (PlanetGridSquare pgs in TilesList)
             {
-                if ((ship.InCombat && P.EnemyInRange()) 
-                    || TroopsHere.IsEmpty
-                    || TroopsHere.Any(troop => troop.Loyalty != Owner))
-                    return;
+                if (troopCount >= ship.TroopCapacity || TroopsHere.Count <= garrisonSize)
+                    break;
 
-                foreach (PlanetGridSquare pgs in TilesList)
+                if (pgs.TroopsAreOnTile && pgs.SingleTroop.Loyalty == Owner)
                 {
-                    if (troopCount >= ship.TroopCapacity || TroopsHere.Count <= garrisonSize)
-                        break;
-
-                    using (pgs.TroopsHere.AcquireWriteLock())
-                    {
-                        if (pgs.TroopsAreOnTile && pgs.SingleTroop.Loyalty == Owner)
-                        {
-                            Troop troop = pgs.SingleTroop;
-                            ship.TroopList.Add(troop);
-                            pgs.TroopsHere.Clear();
-                            TroopsHere.Remove(troop);
-                        }
-                    }
+                    Ship troopShip = pgs.SingleTroop.Launch();
+                    troopShip?.AI.OrderRebaseToShip(ship);
                 }
             }
         }
