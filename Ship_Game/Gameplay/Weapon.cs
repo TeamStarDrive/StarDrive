@@ -637,7 +637,7 @@ namespace Ship_Game.Gameplay
             Ship newTargetShip = null;
 
             // prefer our main target:
-            if (mainTarget != null && IsTargetAliveAndInRange(mainTarget))
+            if (IsTargetAliveAndInRange(mainTarget) && TargetValid(mainTarget))
             {
                 newTargetShip = mainTarget;
             }
