@@ -143,7 +143,7 @@ namespace Ship_Game.AI
         public void OrderLandAllTroops(Planet target)
         {
             SetPriorityOrderWithClear();
-            if (Owner.Carrier.AnyPlanetAssaultAvailable) // TThis deals also with single Troop Ships / Assault Shuttles
+            if (Owner.Carrier.AnyAssaultOpsAvailable) // TThis deals also with single Troop Ships / Assault Shuttles
                 AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet); 
         }
 
