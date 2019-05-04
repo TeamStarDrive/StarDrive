@@ -835,6 +835,20 @@ namespace Ship_Game
             Construction.AutoApplyProduction(prodSurplus);
         }
 
+        public int GarrisonSize
+        {
+            get
+            {
+                if (!Owner.isPlayer)
+                    return 0;  // AI manages It's own troops
+
+                if (GovMilitia && colonyType != Planet.ColonyType.Colony)
+                    return 0; // Player Governor will replace garrisoned troops with new ones
+
+                return 5; // Default value for non Governor Player Colonies 
+            }
+        }
+
         public bool EnemyInRange()
         {
             if (!ParentSystem.HostileForcesPresent(Owner))
