@@ -1629,7 +1629,9 @@ namespace Ship_Game
         {
             troopShip = null;
             Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
-                .Filter(p => p.AnyOfOurTroops(this) && !p.MightBeAWarZone(this) && p.Name != planetName)
+                .Filter(p => p.CountEmpireTroops(this) > p.GarrisonSize 
+                             && !p.MightBeAWarZone(this) 
+                             && p.Name != planetName)
                 .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
             if (candidatePlanets.Count == 0)

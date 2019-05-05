@@ -517,7 +517,7 @@ namespace Ship_Game.AI
                     for (int x =0; x < Ships.Count; ++x)
                     {
                         var ship = Ships[x];
-                        if (ship.Carrier.AnyPlanetAssaultAvailable)
+                        if (ship.Carrier.AnyAssaultOpsAvailable)
                             RemoveShip(ship);
                     }
                 }
@@ -1127,7 +1127,7 @@ namespace Ship_Game.AI
         bool StillInvasionEffective(MilitaryTask task)
         {
             bool troopsOnPlanet        = task.TargetPlanet.AnyOfOurTroops(Owner);
-            bool invasionTroops               = Ships.Any(troops => troops.Carrier.AnyPlanetAssaultAvailable);
+            bool invasionTroops               = Ships.Any(troops => troops.Carrier.AnyAssaultOpsAvailable);
             bool stillMissionEffective = troopsOnPlanet || invasionTroops;
             if (!stillMissionEffective)
                 DebugInfo(task, $" No Troops on Planet and No Ships.");

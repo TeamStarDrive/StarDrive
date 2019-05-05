@@ -260,7 +260,7 @@ namespace Ship_Game.AI.Tasks
                                 ship.GetStrength() <= 0f
                                 || ship.shipData.Role == ShipData.RoleName.troop ||
                                 ship.Carrier.HasAssaultTransporters ||
-                                ship.Carrier.HasTroopBays
+                                ship.Carrier.HasActiveTroopBays
                                 || ship.Mothership != null
                             )
                                 continue;

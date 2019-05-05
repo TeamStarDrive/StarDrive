@@ -9,12 +9,6 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        public void OrderAssaultPlanet(Planet planetToAssault)
-        {
-            ClearOrders();
-            AddPlanetGoal(Plan.LandTroop, planetToAssault, AIState.AssaultPlanet);
-        }
-
         public void OrderAllStop()
         {
             ClearWayPoints();
@@ -148,11 +142,9 @@ namespace Ship_Game.AI
 
         public void OrderLandAllTroops(Planet target)
         {
-            if (Owner.Carrier.AnyPlanetAssaultAvailable)
-            {
-                SetPriorityOrderWithClear();
-                AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet);
-            }
+            SetPriorityOrderWithClear();
+            if (Owner.Carrier.AnyAssaultOpsAvailable) // TThis deals also with single Troop Ships / Assault Shuttles
+                AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet); 
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders)
