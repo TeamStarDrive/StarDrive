@@ -300,7 +300,7 @@ namespace Ship_Game.AI
             else                                    LandTroopsViaTroopShip(planet, 2000, elapsedTime);
         }
 
-        // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport more additional troops
+        // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
         // Single Troop Ships can land from a longer distance, but the ship vanishes after landing its troop
         void LandTroopsViaSingleTransport(Planet planet, float distance)
         {
@@ -331,7 +331,7 @@ namespace Ship_Game.AI
 
         void DoRebase(ShipGoal goal)
         {
-            if (Owner.TroopList.Count == 0)
+            if (Owner.TroopList.IsEmpty)
                 Owner.QueueTotalRemoval(); // troops not found, vanish the ship
             else if (!Owner.TroopList[0].TryLandTroop(goal.TargetPlanet))
                 ClearOrders();

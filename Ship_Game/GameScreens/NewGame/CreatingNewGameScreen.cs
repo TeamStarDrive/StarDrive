@@ -304,7 +304,7 @@ namespace Ship_Game
                         t.ResearchMod += 0.75f;
                         t.TaxMod += 0.5f;
                         t.ShipCostMod -= 0.2f;
-                        t.ResearchTaxMultiplier = 0.5f;
+                        t.ResearchTaxMultiplier = 0.7f;
                         break;
                     case UniverseData.GameDifficulty.Brutal:
                         e.data.FlatMoneyBonus += 20; // cheaty cheat
@@ -312,7 +312,7 @@ namespace Ship_Game
                         t.ResearchMod = 1.33f;
                         t.TaxMod += 1.0f;
                         t.ShipCostMod -= 0.5f;
-                        t.ResearchTaxMultiplier = 0.25f;
+                        t.ResearchTaxMultiplier = 0.3f;
                         break;
                 }
                 step.Advance();
