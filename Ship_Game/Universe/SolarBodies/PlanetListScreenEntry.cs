@@ -244,7 +244,7 @@ namespace Ship_Game
                 {
                     Ship ship = ships[z];
                     ShipAI ai = ship?.AI;                    
-                    if (ai == null ||  ai.State == AIState.Resupply || ship.TroopList.Count == 0 || ai.OrderQueue.Count == 0) continue;
+                    if (ai == null ||  ai.State == AIState.Resupply || ship.TroopList.IsEmpty || ai.OrderQueue.IsEmpty) continue;
                     if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet))
                         troopsInvading = ship.TroopList.Count;
                 }
