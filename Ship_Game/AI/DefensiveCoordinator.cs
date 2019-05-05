@@ -121,13 +121,10 @@ namespace Ship_Game.AI
 
         void ClearEmptyPlanetsOfTroops()
         {
-            if (Us == EmpireManager.Player)
-                return;
-
             foreach (Planet p in Empire.Universe.PlanetsDict.Values)
                 //@TODO move this to planet.
             {
-                if (p.Owner != Us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(Us))
+                if (Us != EmpireManager.Player && p.Owner != Us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(Us))
                 {
                     Troop[] troopsToLaunch = p.TroopsHere.Filter(t => t != null && t.Loyalty == Us);
                     p.LaunchTroops(troopsToLaunch);
