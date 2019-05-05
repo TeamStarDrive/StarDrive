@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
         public readonly bool HasHangars;
         public readonly bool HasSupplyBays;
         public readonly bool HasFighterBays;
-        public readonly bool HasTroopBays;
+        public readonly bool HasActiveTroopBays;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
         public bool SendTroopsToShip;
@@ -33,7 +33,7 @@ namespace Ship_Game.Ships
             HasHangars              = AllHangars.Length > 0;
             HasSupplyBays           = AllSupplyBays.Length > 0;
             HasFighterBays          = AllFighterHangars.Length > 0;
-            HasTroopBays            = AllTroopBays.Length > 0;
+            HasActiveTroopBays      = AllActiveTroopBays.Length > 0;
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
             SendTroopsToShip        = true;
@@ -55,7 +55,6 @@ namespace Ship_Game.Ships
         public ShipModule[] AllActiveHangars   => AllHangars.Filter(module => module.Active);
         public bool HasActiveHangars           => AllHangars.Any(module => module.Active); // FB: this changes dynamically
         public bool HasTransporters            => AllTransporters.Length > 0;
-        public bool CanInvadeOrBoard           => HasTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
         public ShipModule[] AllActiveTroopBays => AllTroopBays.Filter(module => module.Active);
         public int NumActiveHangars            => AllHangars.Count(hangar => hangar.Active);
 
@@ -84,12 +83,11 @@ namespace Ship_Game.Ships
             }
         }
 
-
         public int NumTroopsInShipAndInSpace
         {
             get
             {
-                if (Owner == null || !CanInvadeOrBoard)
+                if (Owner == null)
                     return 0;
 
                 return Owner.TroopList.Count + LaunchedAssaultShuttles;
@@ -280,18 +278,18 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool AnyPlanetAssaultAvailable
+        public bool AnyAssaultOpsAvailable
         {
             get
             {
-                if (Owner == null || Owner.TroopList.IsEmpty)
+                if (Owner == null || !Owner.HasTroops)
                     return false;
 
-                if (Owner.DesignRole == ShipData.RoleName.troop)
+                if (Owner.IsDefaultTroopTransport)
                     return true;
 
                 return AllActiveHangars.Any(sm => sm.IsTroopBay) 
-                       || AllTransporters.Any(sm => sm.TransporterTroopAssault >0);
+                       || AllTransporters.Any(sm => sm.TransporterTroopAssault > 0);
             }
         }
 
@@ -317,7 +315,7 @@ namespace Ship_Game.Ships
         {
         get
             {
-                if (Owner == null || !CanInvadeOrBoard)
+                if (Owner == null)
                     return 0;
 
                 int assaultSpots = NumTroopsInShipAndInSpace;
@@ -335,12 +333,15 @@ namespace Ship_Game.Ships
 
         public void AssaultPlanet(Planet planet)
         {
+            if (HasAssaultTransporters)
+                AssaultPlanetWithTransporters(planet);
+
             ScrambleAllAssaultShips();
             foreach (ShipModule bay in AllTroopBays)
             {
                 Ship hangarShip = bay.GetHangarShip();
                 if (hangarShip != null && hangarShip.Active)
-                    hangarShip.AI.OrderAssaultPlanet(planet);
+                    hangarShip.AI.OrderLandAllTroops(planet);
             }
         }
 
@@ -454,7 +455,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void AssaultPlanetWithTransporters(Planet planet)
+        private void AssaultPlanetWithTransporters(Planet planet)
         {
             if (Owner == null)
                 return;
@@ -539,7 +540,7 @@ namespace Ship_Game.Ships
 
         public bool AssaultTargetShip(Ship targetShip)
         {
-            if (CanInvadeOrBoard && targetShip != null)
+            if (Owner.Carrier.AnyAssaultOpsAvailable && targetShip != null)
             {
                 float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
                 float enemyStrength = targetShip.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!

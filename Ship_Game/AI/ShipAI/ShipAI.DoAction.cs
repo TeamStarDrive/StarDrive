@@ -61,7 +61,7 @@ namespace Ship_Game.AI
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 CombatState = CombatState.Evade;
 
-            if (Owner.System != null && Owner.Carrier.HasTroopBays)
+            if (Owner.System != null && Owner.Carrier.HasActiveTroopBays)
                 CombatState = CombatState.AssaultShip;
 
             // in range:
@@ -293,51 +293,45 @@ namespace Ship_Game.AI
 
         void DoLandTroop(float elapsedTime, ShipGoal goal)
         {
-            if (Owner.shipData.Role != ShipData.RoleName.troop || Owner.TroopList.Count == 0)
-                DoOrbit.Orbit(goal.TargetPlanet, elapsedTime); //added by gremlin.
+            Planet planet = goal.TargetPlanet;
+            ThrustOrWarpToPosCorrected(planet.Center, elapsedTime);
+            if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, 50);
+            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, 300);
+            else                                    LandTroopsViaTroopShip(planet, 2000, elapsedTime);
+        }
 
-            float radius = goal.TargetPlanet.ObjectRadius + Owner.Radius * 2;
-            float distCenter = goal.TargetPlanet.Center.Distance(Owner.Center);
-
-            if (Owner.shipData.Role == ShipData.RoleName.troop && Owner.TroopList.Count > 0)
+        // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
+        // Single Troop Ships can land from a longer distance, but the ship vanishes after landing its troop
+        void LandTroopsViaSingleTransport(Planet planet, float distance)
+        {
+            if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
             {
-                if (Owner.engineState == Ship.MoveState.Warp && distCenter < 7500f)
-                    Owner.HyperspaceReturn();
-                if (distCenter < radius)
-                    ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime,
-                        Owner.Speed > 200 ? Owner.Speed * 0.90f : Owner.velocityMaximum);
+                Owner.TroopList[0].TryLandTroop(planet); // This will vanish default single Troop Ship
+                if (Owner.IsDefaultAssaultShuttle)
+                    Owner.AI.OrderReturnToHangar();
+            }
+        }
+        
+        // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
+        void LandTroopsViaTroopShip(Planet planet, float distance, float elapsedTime)
+        {
+            if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
+            {
+                if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
+                    Owner.LandTroops(Owner.TroopList.ToArray(), planet); // We can land all our troops without assault bays since its our planet with space port
                 else
-                    ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime);
+                    Owner.Carrier.AssaultPlanet(planet); // Launch Assault shuttles or use Transporters (STSA)
 
-                if (distCenter < goal.TargetPlanet.ObjectRadius)
-                    Owner.TroopList[0].TryLandTroop(goal.TargetPlanet);
-
-                return;
+                if (Owner.HasTroops)
+                    DoOrbit.Orbit(planet, elapsedTime); // Doing orbit with AssaultPlanet state to continue landing troops if possible
+                else
+                    ClearOrders();
             }
-            // FB @todo - change to FreeTiles
-            if (Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0
-                || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
-            {
-                if (Owner.loyalty.isPlayer)
-                    HadPO = true;
-
-                ClearOrders(DefaultAIState);
-                Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
-            }
-            else if (!Owner.Carrier.HasTransporters) // FB: use regular invade
-            {
-                if (distCenter > 7500f)
-                    return;
-                Owner.Carrier.AssaultPlanet(goal.TargetPlanet);
-                Owner.DoOrbit(goal.TargetPlanet);
-            }
-            else if (distCenter < radius)  // STSA with transpoters - this should be checked wit STSA active
-                Owner.Carrier.AssaultPlanetWithTransporters(goal.TargetPlanet);
         }
 
         void DoRebase(ShipGoal goal)
         {
-            if (Owner.TroopList.Count == 0)
+            if (Owner.TroopList.IsEmpty)
                 Owner.QueueTotalRemoval(); // troops not found, vanish the ship
             else if (!Owner.TroopList[0].TryLandTroop(goal.TargetPlanet))
                 ClearOrders();
@@ -449,44 +443,30 @@ namespace Ship_Game.AI
                 return;
             }
             ThrustOrWarpToPosCorrected(Owner.Mothership.Center, elapsedTime);
-            //this looks to need refactor. some of these formulas are... weird
+
             if (Owner.Center.InRadius(Owner.Mothership.Center, Owner.Mothership.Radius + 300f))
             {
                 if (Owner.TroopList.Count == 1)
                     Owner.Mothership.TroopList.Add(Owner.TroopList[0]);
-                if (Owner.shipData.Role == ShipData.RoleName.supply) //fbedard: Supply ship return with Ordinance
+                if (Owner.shipData.Role == ShipData.RoleName.supply) // fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
-                Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd);
 
+                Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
+                // Set up repair and rearm times 
+                float missingHealth   = Owner.HealthMax - Owner.Health;
+                float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
+                float repairTime      = missingHealth / (Owner.Mothership.RepairRate + Owner.RepairRate + Owner.Mothership.Level * 10);
+                float rearmTime       = missingOrdnance / (2 + Owner.Mothership.Level);
+                float shuttlePrepTime = Owner.IsDefaultAssaultShuttle ? 5 : 0;
                 Owner.QueueTotalRemoval();
                 foreach (ShipModule hangar in Owner.Mothership.Carrier.AllActiveHangars)
                 {
                     if (hangar.GetHangarShip() != Owner)
                         continue;
-                    //added by gremlin: prevent fighters from relaunching immediately after landing.
-                    float ammoReloadTime = Owner.OrdinanceMax * .1f;
-                    float shieldRechargeTime = Owner.shield_max * .1f;
-                    float powerRechargeTime = Owner.PowerStoreMax * .1f;
-                    float rearmTime = Owner.Health;
-                    rearmTime += Owner.Ordinance * .1f;
-                    rearmTime += Owner.PowerCurrent * .1f;
-                    rearmTime += Owner.shield_power * .1f;
-                    rearmTime /= Owner.HealthMax + ammoReloadTime + shieldRechargeTime + powerRechargeTime;
-                    //this was broken now im not sure.
-                    float rearmModifier = hangar.hangarTimerConstant *
-                                           (1.01f - (Owner.Level + hangar.GetParent().Level) /10f);
-                    // fbedard: rearm time from 50% to 150%
-                    rearmTime = (1.01f - rearmTime) * rearmModifier;
-                    if (rearmTime < 0)
-                        rearmTime = 1;
-                    /*CG: if the fighter is fully functional reduce rearm time to very little.
-                    The default 5 minute hangar timer is way too high. It cripples fighter usage.
-                    at 50% that is still 2.5 minutes if the fighter simply launches and returns.
-                    with lag that can easily be 10 or 20 minutes.
-                    at 1.01 that should be 3 seconds for the default hangar.
-                    */
+
                     hangar.SetHangarShip(null);
-                    hangar.hangarTimer = rearmTime;
+                    // FB - Here we are setting the hangar timer according to the R&R time. Cant be over the time to rebuild the ship
+                    hangar.hangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, hangar.hangarTimerConstant); 
                     hangar.HangarShipGuid = Guid.Empty;
                 }
             }

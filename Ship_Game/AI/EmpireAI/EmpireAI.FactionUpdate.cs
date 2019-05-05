@@ -149,11 +149,9 @@ namespace Ship_Game.AI
                 {
                     if (assimilate.System != null && assimilate.AI.State == AIState.AwaitingOrders)
                     {
-                        Planet target =
-                            assimilate.System.PlanetList.Find(owner => owner.Owner != OwnerEmpire && owner.Owner != null);
-                        if (target != null && (assimilate.Carrier.HasTroopBays || assimilate.Carrier.HasAssaultTransporters))
-                            if (assimilate.TroopList.Count > assimilate.Carrier.NumActiveHangars)
-                                assimilate.AI.OrderAssaultPlanet(target);
+                        Planet target = assimilate.System.PlanetList.Find(p => p.Owner != OwnerEmpire && p.Owner != null);
+                        if (target != null)
+                            assimilate.AI.OrderLandAllTroops(target);
                     }
                 }
             }

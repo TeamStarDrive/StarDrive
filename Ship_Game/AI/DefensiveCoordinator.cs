@@ -125,19 +125,18 @@ namespace Ship_Game.AI
                 return;
 
             foreach (Planet p in Empire.Universe.PlanetsDict.Values)
-                //@TODO move this to planet. this is removing troops without any safety
+                //@TODO move this to planet.
             {
                 if (p.Owner != Us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(Us))
                 {
-                    p.TroopsHere.ApplyPendingRemovals();
-                    foreach (Troop troop in p.TroopsHere.Filter(loyalty => loyalty != null && loyalty.Loyalty == Us))
-                    {
-                        troop.Launch();
-                    }
+                    Troop[] troopsToLaunch = p.TroopsHere.Filter(t => t != null && t.Loyalty == Us);
+                    p.LaunchTroops(troopsToLaunch);
                 }
                 else if (p.Owner == Us) //This should stay here.
                 {
-                    if (p.ParentSystem == null || DefenseDict.ContainsKey(p.ParentSystem)) continue;
+                    if (p.ParentSystem == null || DefenseDict.ContainsKey(p.ParentSystem))
+                        continue;
+
                     DefenseDict.Add(p.ParentSystem, new SystemCommander(Us, p.ParentSystem));
                 }
             }

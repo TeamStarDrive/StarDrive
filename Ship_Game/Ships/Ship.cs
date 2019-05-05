@@ -176,7 +176,13 @@ namespace Ship_Game.Ships
         }
 
 
-        public bool IsDefaultTroopTransport => loyalty.data.DefaultAssaultShuttle == Name || loyalty.data.DefaultTroopShip == Name;
+        public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
+        public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name;
+        public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
+
+        public bool HasTroops => TroopList.Count > 0  || Carrier.NumTroopsInShipAndInSpace > 0;
+        public bool HasBombs  => BombBays.Count > 0;
+
 
         public bool IsFreighter
         {
@@ -1902,7 +1908,7 @@ namespace Ship_Game.Ships
             ship.AI.ScanForCombatTargets(ship, ship.SensorRange); // to find friendlies nearby
             return ship.AI.FriendliesNearby.FindMinFiltered(
                 troopShip => troopShip.Carrier.NumTroopsInShipAndInSpace < troopShip.TroopCapacity
-                && troopShip.Carrier.HasTroopBays,
+                && troopShip.Carrier.HasActiveTroopBays,
                 troopShip => ship.Center.SqDist(troopShip.Center));
         }
 
@@ -2134,6 +2140,13 @@ namespace Ship_Game.Ships
         {
             loyalty.WeKilledTheirShip(killedShip.loyalty, killedShip);
             killedShip.loyalty.TheyKilledOurShip(loyalty, killedShip);
+        }
+
+        // This will launch troops without having issues with modifying it's own TroopsHere
+        public void LandTroops(Troop[] troopsToLand, Planet planet)
+        {
+            foreach (Troop troop in troopsToLand)
+                troop.TryLandTroop(planet);
         }
 
         void ExplodeShip(float size, bool addWarpExplode)
