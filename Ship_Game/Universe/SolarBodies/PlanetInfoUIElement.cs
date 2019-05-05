@@ -406,7 +406,7 @@ namespace Ship_Game
                 if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, p))
                 {
                     GameAudio.EchoAffirmative();
-                    troopShip.AI.OrderAssaultPlanet(p);
+                    troopShip.AI.OrderLandAllTroops(p);
                 }
                 else
                     GameAudio.BlipClick();

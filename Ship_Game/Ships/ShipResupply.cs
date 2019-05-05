@@ -6,7 +6,7 @@ namespace Ship_Game.Ships
     {
         private readonly Ship Ship;
         public const float OrdnanceThresholdCombat             = 0.1f;
-        public const float OrdnanceThresholdNonCombat          = 0.2f;
+        public const float OrdnanceThresholdNonCombat          = 0.35f;
         public const float OrdnanceThresholdSupplyShipsNear    = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
@@ -148,7 +148,7 @@ namespace Ship_Game.Ships
 
         private bool HighKineticToEnergyRatio()
         {
-            if (Ship.OrdinanceMax < 1 || Ship.Weapons.Count == 0 && Ship.BombBays.IsEmpty)
+            if (Ship.OrdinanceMax < 1 || Ship.Weapons.IsEmpty && Ship.BombBays.IsEmpty)
                 return false;
 
             if (!Ship.InCombat)

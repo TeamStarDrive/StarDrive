@@ -499,8 +499,9 @@ namespace Ship_Game
 
                     pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
                     pgs.SingleTroop.ResetAttackTimer();
-                    play = true;
-                    pgs.SingleTroop.Launch(pgs);
+                    Ship troopShip = pgs.SingleTroop.Launch(pgs);
+                    if (troopShip != null)
+                        play = true;
                 }
                 catch (Exception ex)
                 {
@@ -827,7 +828,7 @@ namespace Ship_Game
 
                     if (ship.shipData.Role != ShipData.RoleName.troop)
                     {
-                        if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
+                        if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasActiveTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
                             continue; // if the ship has no troop bays and there is no other means of landing them (like a spaceport)
 
                         int landingLimit = LandingLimit(ship);
@@ -844,7 +845,8 @@ namespace Ship_Game
                              && ship.AI.State != AI.AIState.RebaseToShip
                              && ship.AI.State != AI.AIState.AssaultPlanet)
                     {
-                        OrbitSL.AddItem(ship.TroopList[0]); // this the default 1 troop ship
+                        if (ship.HasTroops)
+                            OrbitSL.AddItem(ship.TroopList[0]); // this the default 1 troop ship or assault shuttle
                     }
                 }
 
@@ -854,8 +856,8 @@ namespace Ship_Game
         private int LandingLimit(Ship ship)
         {
             int landingLimit;
-            if (p.HasSpacePort && p.Owner == ship.loyalty)
-                landingLimit = ship.TroopList.Count;  // fbedard: Allows to unload all troops if there is a shipyard
+            if (p.WeCanLandTroopsViaSpacePort(ship.loyalty))
+                landingLimit = ship.TroopList.Count;  // fbedard: Allows to unload all troops if there is a space port
             else
             {
                 landingLimit  = ship.Carrier.AllActiveTroopBays.Count(bay => bay.hangarTimer <= 0);

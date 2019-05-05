@@ -1004,72 +1004,71 @@ namespace Ship_Game
 
         void RightClickOnPlanet(Ship ship, Planet planet, bool audio = false)
         {
-            if (planet == null) return;
+            if (planet == null)
+                return;
 
             if (ship.isConstructor)
             {
-                if (!audio)
+                if (audio)
+                {
+                    GameAudio.NegativeClick();
                     return;
-                GameAudio.NegativeClick();
-                return;
+                }
             }
 
-            ship.AI.HasPriorityOrder = true;
-            if (audio)
-                GameAudio.AffirmativeClick();
-            if (ship.isColonyShip)
+            if (Input.IsShiftKeyDown) // Always order orbit if shift is down when right clicking on a planet
+                ship.AI.OrderToOrbit(planet);
+            else
             {
-                if (planet.Owner == null && planet.Habitable)
-                    ship.AI.OrderColonization(planet);
-                else
-                    ship.AI.OrderToOrbit(planet);
+                if (audio)
+                    GameAudio.AffirmativeClick();
+
+                ship.AI.HasPriorityOrder = true;
+                if      (ship.isColonyShip)                   PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
+                else if (ship.Carrier.AnyAssaultOpsAvailable) PlanetRightClickTroopShip(ship, planet);  // This ship can assault planets
+                else if (ship.HasBombs)                       PlanetRightClickBomber(ship, planet);     // This ship can bomb planets
+                else                                          ship.AI.OrderToOrbit(planet);             // Default logic of right clicking
             }
-            else if (ship.DesignRole == ShipData.RoleName.troop ||
-                     (ship.TroopList.Count > 0 && ship.DesignRole == ShipData.RoleName.troopShip))
+        }
+
+        private void PlanetRightClickColonyShip(Ship ship, Planet planet)
+        {
+            if (planet.Owner == null && planet.Habitable)
+                ship.AI.OrderColonization(planet);
+            else
+                ship.AI.OrderToOrbit(planet);
+        }
+
+        private void PlanetRightClickTroopShip(Ship ship, Planet planet)
+        {
+            if (planet.Owner != null && planet.Owner == player)
             {
-                if (planet.Owner != null && planet.Owner == player && (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters))
-                {
-                    if (Input.IsShiftKeyDown)
-                        ship.AI.OrderToOrbit(planet);
-                    else
-                        ship.AI.OrderRebase(planet, true);
-                }
-                else if (planet.Habitable && (planet.Owner == null || ship.loyalty.IsEmpireAttackable(planet.Owner)))
-                {
-                    //add new right click troop and troop ship options on planets
-                    if (Input.IsShiftKeyDown)
-                        ship.AI.OrderToOrbit(planet);
-                    else
-                        ship.AI.OrderLandAllTroops(planet);
-                }
+                if (ship.IsDefaultTroopTransport)
+                    ship.AI.OrderRebase(planet, true); // Rebase to this planet if it is ours and this is a single troop transport
+                else if (planet.ForeignTroopHere(ship.loyalty)) 
+                    ship.AI.OrderLandAllTroops(planet); // If our planet is being invaded, land the troops there
                 else
-                    ship.AI.OrderOrbitPlanet(planet);
+                    ship.AI.OrderToOrbit(planet); // Just orbit
             }
-            else if (ship.BombBays.Count > 0)
+            else if (planet.Habitable && (planet.Owner == null || ship.loyalty.IsEmpireAttackable(planet.Owner)))
+                ship.AI.OrderLandAllTroops(planet); // Land troops on unclaimed planets or enemy planets
+            else
+                ship.AI.OrderToOrbit(planet);
+        }
+
+        private void PlanetRightClickBomber(Ship ship, Planet planet)
+        {
+            float enemies    = planet.GetGroundStrengthOther(player) * 1.5f;
+            float friendlies = planet.GetGroundStrength(player);
+            if (planet.Owner != player)
             {
-                float enemies = planet.GetGroundStrengthOther(player) * 1.5f;
-                float friendlies = planet.GetGroundStrength(player);
-                if (planet.Owner != player)
-                {
-                    if (player.IsEmpireAttackable(planet.Owner))
-                    {
-                        if (Input.IsShiftKeyDown)
-                            ship.AI.OrderBombardPlanet(planet);
-                        else if (enemies > friendlies || planet.Population > 0f)
-                            ship.AI.OrderBombardPlanet(planet);
-                        else
-                            ship.AI.OrderToOrbit(planet);
-                    }
-                    else
-                        ship.AI.OrderToOrbit(planet);
-                }
-                else if (enemies > friendlies && Input.IsShiftKeyDown)
+                if (player.IsEmpireAttackable(planet.Owner) && (enemies > friendlies || planet.Population > 0f))
                     ship.AI.OrderBombardPlanet(planet);
                 else
                     ship.AI.OrderToOrbit(planet);
             }
-            else if (Input.IsShiftKeyDown)
-                ship.AI.OrderToOrbit(planet);
+            else if (enemies > friendlies && Input.IsShiftKeyDown)
+                ship.AI.OrderBombardPlanet(planet);
             else
                 ship.AI.OrderToOrbit(planet);
         }

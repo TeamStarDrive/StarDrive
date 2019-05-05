@@ -244,7 +244,7 @@ namespace Ship_Game
                 {
                     Ship ship = ships[z];
                     ShipAI ai = ship?.AI;                    
-                    if (ai == null ||  ai.State == AIState.Resupply || ship.TroopList.Count == 0 || ai.OrderQueue.Count == 0) continue;
+                    if (ai == null ||  ai.State == AIState.Resupply || ship.TroopList.IsEmpty || ai.OrderQueue.IsEmpty) continue;
                     if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet))
                         troopsInvading = ship.TroopList.Count;
                 }
@@ -283,37 +283,13 @@ namespace Ship_Game
 
         private void OnSendTroopsClicked(UIButton b)
         {
-            Array<Ship> troopShips;
-            using (screen.EmpireUI.empire.GetShips().AcquireReadLock())
-            {
-                troopShips = new Array<Ship>(screen.EmpireUI.empire.GetShips()
-                    .Filter(s => s.TroopList.Count > 0
-                                    && (s.AI.State == AIState.AwaitingOrders || s.AI.State == AIState.Orbit)
-                                    && s.fleet == null && !s.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Center)));
-            }
-
-            var planetTroops = new Array<Planet>(screen.EmpireUI.empire.GetPlanets()
-                .Filter(p => p.Name != planet.Name && p.TroopsHere.Count > 0)
-                .OrderBy(distance => Vector2.Distance(distance.Center, planet.Center)));
-
-            if (troopShips.Count > 0)
+            if (screen.EmpireUI.empire.GetTroopShipForRebase(out Ship troopShip, planet))
             {
                 GameAudio.EchoAffirmative();
-                troopShips.First().AI.OrderAssaultPlanet(planet);
-            }
-            else if (planetTroops.Count > 0)
-            {
-                {
-                    Ship troop = planetTroops.First().TroopsHere.First(t => t.Loyalty == EmpireManager.Player).Launch();
-                    if (troop != null)
-                    {
-                        GameAudio.EchoAffirmative();
-                        troop.AI.OrderAssaultPlanet(planet);
-                    }
-                }
+                troopShip.AI.OrderLandAllTroops(planet);
             }
             else
-                GameAudio.BlipClick();
+                GameAudio.NegativeClick();
         }
 
         private void OnColonizeClicked(UIButton b)
