@@ -14,103 +14,54 @@ namespace Ship_Game
     public sealed class FleetDesignScreen : GameScreen, IListScreen
     {
         public static bool Open;
-
         public Camera2D Camera;
-
         public ShipData ActiveHull;
-
         //private Background bg = new Background();
-
         private StarField StarField;
-
         public EmpireUIOverlay EmpireUI;
-
         private Menu2 TitleBar;
-
         private Menu2 ShipDesigns;
-
         private Vector2 TitlePos;
-
         private Vector2 ShipDesignsTitlePos;
-
         private Menu1 LeftMenu;
-
         private Menu1 RightMenu;
-
         public Fleet SelectedFleet;
-
         private ScrollList FleetSL;
-
         private ScrollList ShipSL;
-
         private CloseButton Close;
-
         private BlueButton RequisitionForces;
-
         private BlueButton SaveDesign;
-
         private BlueButton LoadDesign;
-
         private Rectangle SelectedStuffRect;
-
         private Rectangle OperationsRect;
-
         private Rectangle PrioritiesRect;
-
         private WeightSlider SliderAssist;
-
         private WeightSlider SliderVulture;
-
         private WeightSlider SliderDefend;
-
         private WeightSlider SliderDps;
-
         private WeightSlider SliderArmor;
-
         private WeightSlider SliderShield;
-
         private readonly Array<ToggleButton> OrdersButtons = new Array<ToggleButton>();
-
         private FloatSlider OperationalRadius;
-
         private SizeSlider SliderSize;
-
         private Submenu SubShips;
-
         private BatchRemovalCollection<Ship> AvailableShips = new BatchRemovalCollection<Ship>();
-
         private Vector3 CamPos = new Vector3(0f, 0f, 14000f);
-
         private readonly Map<int, Rectangle> FleetsRects = new Map<int, Rectangle>();
-        
         private readonly Array<ClickableSquad> ClickableSquads = new Array<ClickableSquad>();
-
         private Vector2 CamVelocity = Vector2.Zero;
-
         private float DesiredCamHeight = 14000f;
-
         private Ship ActiveShipDesign;
-
         public int FleetToEdit = -1;
-
         private readonly UITextEntry FleetNameEntry = new UITextEntry();
-
         private Selector StuffSelector;
-
         private Selector OperationsSelector;
-
         private Selector Priorityselector;
-
         private readonly Array<ClickableNode> ClickableNodes = new Array<ClickableNode>();
-
         private Fleet.Squad SelectedSquad;
-
         private Fleet.Squad HoveredSquad;
-
         private Rectangle SelectionBox;
-
         private readonly Array<FleetDataNode> SelectedNodeList = new Array<FleetDataNode>();
-
         private readonly Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
 
         public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)

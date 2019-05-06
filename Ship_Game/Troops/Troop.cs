@@ -438,6 +438,8 @@ namespace Ship_Game
             {
                 UpdateMoveActions(-1);
                 ResetMoveTimer();
+                UpdateAttackActions(-1);
+                AttackTimer = 3f; // Land delay
             }
         }
 
