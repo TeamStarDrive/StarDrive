@@ -354,9 +354,10 @@ namespace Ship_Game
             Perfavg2.Start();
 #if !PLAYERONLY
             DeepSpaceThread(elapsedTime);
+            var realTime = (float)StarDriveGame.Instance.GameTime.ElapsedRealTime.TotalSeconds;
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
-                SolarSystemList[i].Update(!Paused ? 0.01666667f : 0.0f, this);
+                SolarSystemList[i].Update(!Paused ? 0.01666667f : 0.0f, this, realTime);
             }
 #else
             FleetTask DeepSpaceTask = FleetTask.Factory.StartNew(this.DeepSpaceThread);
@@ -544,9 +545,9 @@ namespace Ship_Game
         {
             if (IsExiting)
                 return;
-
+            var realTime = (float)StarDriveGame.Instance.GameTime.ElapsedRealTime.TotalSeconds;
             foreach (SolarSystem system in SolarSystemList)
-                system.Update(elapsedTime, this);
+                system.Update(elapsedTime, this, realTime);
         }
 
         private void HandleGameSpeedChange(InputState input)

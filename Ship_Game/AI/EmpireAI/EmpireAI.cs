@@ -150,9 +150,10 @@ namespace Ship_Game.AI
         public void AssignShipToForce(Ship toAdd)
         {
             toAdd.ClearFleet();
-            if (OwnerEmpire.GetShipsFromOffensePools().Contains(toAdd))
+            if (OwnerEmpire.GetShipsFromOffensePools(true).ContainsRef(toAdd))
             {
                 //@TODO fix the cause of having ships already in forcepool when a ship is being added to the force pool
+                //this is broken. its checking all AO pools and force pool but only removes from force pool. 
                 OwnerEmpire.ForcePoolRemove(toAdd);
             }
 
@@ -162,7 +163,7 @@ namespace Ship_Game.AI
             baseDefensePct = baseDefensePct + 0.15f * numWars;
             if((toAdd.DesignRole < ShipData.RoleName.fighter || toAdd.BaseStrength <=0 
                 || toAdd.WarpThrust <= 0f || toAdd.GetStrength() < toAdd.BaseStrength || !toAdd.BaseCanWarp )
-                && !OwnerEmpire.GetForcePool().Contains(toAdd))
+                && !OwnerEmpire.GetForcePool().ContainsRef(toAdd))
             {
                 OwnerEmpire.GetForcePool().Add(toAdd);
                 return;
