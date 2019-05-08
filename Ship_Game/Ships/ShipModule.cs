@@ -189,7 +189,7 @@ namespace Ship_Game.Ships
         float WeaponRotation;
         public float WeaponRotationSpeed
         {
-            get => WeaponRotation == 0f ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation;
+            get => WeaponRotation.AlmostZero() ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation;
             set => WeaponRotation = value;
         }
         public float WeaponECM = 0;
@@ -204,8 +204,8 @@ namespace Ship_Game.Ships
 
         public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
 
-        // FB: This method was created to deal with modules which have secondary fucntionality. Use this whenever you want to check
-        // moduletypes for calculations. Dont use it when you are looking for main functionality as defined in the xml (for instance - shipdesign screen)
+        // FB: This method was created to deal with modules which have secondary functionality. Use this whenever you want to check
+        // module types for calculations. Dont use it when you are looking for main functionality as defined in the xml (for instance - ship design screen)
         public bool Is(ShipModuleType type)
         {
             if (type == ShipModuleType.PowerPlant)
@@ -221,7 +221,7 @@ namespace Ship_Game.Ships
         public float HealthPercent => Health / ActualMaxHealth;
 
         // Used to configure how good of a target this module is
-        public int ModuleTargettingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules
+        public int ModuleTargetingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules
 
 
         void SetHealth(float newHealth)
@@ -298,7 +298,7 @@ namespace Ship_Game.Ships
                 Mass              = template.Mass,
                 NameIndex         = template.NameIndex,
                 OrdinanceCapacity = template.OrdinanceCapacity,
-                ShieldPower       = template.shield_power_max, //Hmmm... This one is strange -Gretman
+                ShieldPower       = template.shield_power_max, // This one is strange -Gretman
                 XSIZE             = template.XSIZE,
                 YSIZE             = template.YSIZE,
                 IconTexturePath   = template.IconTexturePath,
@@ -387,7 +387,7 @@ namespace Ship_Game.Ships
 
             DynamicHangar = ShipBuilder.GetDynamicHangarOptions(hangarShipUID);
             if (DynamicHangar == DynamicHangarOptions.Static && !Parent.loyalty.isPlayer)
-                DynamicHangar = DynamicHangarOptions.DynamicLaunch; //AI will always get dynamiclaunch.
+                DynamicHangar = DynamicHangarOptions.DynamicLaunch; //AI will always get dynamic launch.
         }
 
         public ShipData.RoleName[] HangarRoles
@@ -658,7 +658,7 @@ namespace Ship_Game.Ships
 
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
-            if (Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
                 if (beam != null) beam.CreateHitParticles(Center3D.Z);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
@@ -777,10 +777,10 @@ namespace Ship_Game.Ships
             }
             if (ActualPowerFlowMax > 0 || PowerRadius > 0)
                 Parent.NeedRecalculate = true;
-            int debriCount = (int)RandomMath.RandomBetween(0, size / 2 + 1);
-            if (debriCount == 0) return;
-            float debriScale = size * 0.033f;
-            SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
+            int debrisCount = (int)RandomMath.RandomBetween(0, size / 2 + 1);
+            if (debrisCount == 0) return;
+            float debrisScale = size * 0.033f;
+            SpaceJunk.SpawnJunk(debrisCount, Center, inSystem, this, 1.0f, debrisScale);
         }
 
         //added by gremlin boarding parties
@@ -982,13 +982,13 @@ namespace Ship_Game.Ships
         void ShieldWarpBehaviorRecharge(float shieldMax, float elapsedTime)
         {
             ShieldsWarpBehavior behavior = Parent.shipData.ShieldsBehavior;
-            if (Parent.engineState == Ship.MoveState.Sublight) // recahrge in sublight
+            if (Parent.engineState == Ship.MoveState.Sublight) // recharge in sub-light
             {
                 if (ShieldUpChance >= 100)
                     ShieldPower = RechargeShields(ShieldPower, shieldMax, elapsedTime);
                 else
                 {
-                    if (ShieldPowerBeforeWarp < 1) // this shield was not diactivated from previous warp
+                    if (ShieldPowerBeforeWarp < 1) // this shield was not deactivated from previous warp
                         ShieldPowerBeforeWarp = ShieldPower;
                     ShieldPower = 0f;
                     ShieldPowerBeforeWarp = RechargeShields(ShieldPowerBeforeWarp, shieldMax, elapsedTime);
@@ -1002,7 +1002,7 @@ namespace Ship_Game.Ships
                 else
                 {
                     ShieldUpChance = 0;
-                    if (ShieldPowerBeforeWarp > 0) // if shield was diactivated from previous warp, discharge the correct value
+                    if (ShieldPowerBeforeWarp > 0) // if shield was deactivated from previous warp, discharge the correct value
                         ShieldPowerBeforeWarp = DischargeShields(behavior, ShieldPowerBeforeWarp);
                     else
                         ShieldPower = DischargeShields(behavior, ShieldPower);
@@ -1084,7 +1084,7 @@ namespace Ship_Game.Ships
             if (Health >= ActualMaxHealth)
                 return repairAmount;
 
-            repairAmount = RepairDifficulty  <= 0 ? repairAmount : repairAmount / RepairDifficulty; //Some modules mightbe more difficult to repiar
+            repairAmount = RepairDifficulty  <= 0 ? repairAmount : repairAmount / RepairDifficulty; //Some modules might be more difficult to repair
             float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamped(0, repairAmount);
             SetHealth(Health + repairAmount );
             VisualizeRepair();
@@ -1094,14 +1094,17 @@ namespace Ship_Game.Ships
 
         public void VisualizeRepair()
         {
-            float modelZ               = Parent.BaseHull.ModelZ;
-            modelZ                     = modelZ.Clamped(0, 200) * -1;
-            Vector3 repairEffectOrigin = Center.ToVec3(modelZ);
-            for (int i = 0; i < 50; i++)
-                Empire.Universe.sparks.AddParticleThreadB(repairEffectOrigin, Vector3.Zero);
+            if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            {
+                float modelZ = Parent.BaseHull.ModelZ;
+                modelZ = modelZ.Clamped(0, 200) * -1;
+                Vector3 repairEffectOrigin = Center.ToVec3(modelZ);
+                for (int i = 0; i < 50; i++)
+                    Empire.Universe.sparks.AddParticleThreadB(repairEffectOrigin, Vector3.Zero);
+            }
         }
 
-        // Used for picking best repair candidate based on main  moduletype (disregard secondary module fucntions)
+        // Used for picking best repair candidate based on main  module type (disregard secondary module functions)
         public int ModulePriority
         {
             get
@@ -1183,7 +1186,7 @@ namespace Ship_Game.Ships
                 def *= shield_recharge_delay > 0 ? 1f / shield_recharge_delay : 1f;
                 def *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shieldsMax / 25) : 1f;
 
-                def *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it applys to the shield bubble.
+                def *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
             }
 
             // FB: all resists are divided by 5 since there are 5-6 weapon types
@@ -1238,8 +1241,8 @@ namespace Ship_Game.Ships
                 off += MaximumHangarShipSize * 10;
             else
             {
-                if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
-                    off += (thangarShip.BaseStrength > 0f) ? thangarShip.BaseStrength : thangarShip.CalculateShipStrength();
+                if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hShip))
+                    off += (hShip.BaseStrength > 0f) ? hShip.BaseStrength : hShip.CalculateShipStrength();
                 else
                     off += 100f;
             }

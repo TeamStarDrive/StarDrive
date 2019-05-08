@@ -188,8 +188,7 @@ namespace Ship_Game
 
         void ApplySolarRadiationDamage(Ship ship)
         {
-            float distance = ship.Center.Distance(Position);
-            if (distance < Sun.RadiationRadius)
+            if (ShipWithinRadiationRadius(ship, out float distance))
             {
                 float damage = SunLayers[0].Intensity * Sun.DamageMultiplier(distance)
                                                       * Sun.RadiationDamage;
@@ -197,10 +196,22 @@ namespace Ship_Game
             }
         }
 
+        private bool ShipWithinRadiationRadius(Ship ship, out float distance)
+        {
+            distance = ship.Center.Distance(Position);
+
+            return distance < Sun.RadiationRadius;
+        }
+
+        // overload for ship info UI or AI maybe
+        public bool ShipWithinRadiationRadius(Ship ship)
+        {
+            float distance = ship.Center.Distance(Position);
+            return distance < Sun.RadiationRadius;
+        }
+
         public Planet IdentifyGravityWell(Ship ship)
         {
-            // FB - should add an option in rules option for friendlies to not ignore gravity wells
-            // for instance - (|| IsInFriendlySpace && !FriendliesIgnoreWells)  or something like that
             if (!Empire.Universe.GravityWells || ship.IsInFriendlySpace)
                 return null;
 
