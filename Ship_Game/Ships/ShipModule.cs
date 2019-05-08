@@ -1094,11 +1094,14 @@ namespace Ship_Game.Ships
 
         public void VisualizeRepair()
         {
-            float modelZ               = Parent.BaseHull.ModelZ;
-            modelZ                     = modelZ.Clamped(0, 200) * -1;
-            Vector3 repairEffectOrigin = Center.ToVec3(modelZ);
-            for (int i = 0; i < 50; i++)
-                Empire.Universe.sparks.AddParticleThreadB(repairEffectOrigin, Vector3.Zero);
+            if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            {
+                float modelZ = Parent.BaseHull.ModelZ;
+                modelZ = modelZ.Clamped(0, 200) * -1;
+                Vector3 repairEffectOrigin = Center.ToVec3(modelZ);
+                for (int i = 0; i < 50; i++)
+                    Empire.Universe.sparks.AddParticleThreadB(repairEffectOrigin, Vector3.Zero);
+            }
         }
 
         // Used for picking best repair candidate based on main  moduletype (disregard secondary module fucntions)
