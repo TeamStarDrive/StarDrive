@@ -485,7 +485,7 @@ namespace Ship_Game.Ships
             if (ship.System == null || !ship.System.ShipWithinRadiationRadius(ship))
                 return;
 
-            var radiationTextPos = new Vector2(Housing.X + 100, Housing.Y - Fonts.Arial12.LineSpacing);
+            var radiationTextPos = new Vector2(Housing.X + 50, Housing.Y - Fonts.Arial12.LineSpacing);
             string text = "Ship is taking radiation damage from a nearby star!";
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, radiationTextPos, Color.Red);
         }
