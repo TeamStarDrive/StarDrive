@@ -186,34 +186,15 @@ namespace Ship_Game.Ships
                     GameAudio.AcceptClick();
                     switch (toggleButton.Action)
                     {
-                        case "attack":
-                            Ship.AI.CombatState = CombatState.AttackRuns;
-                            break;
-                        case "arty":
-                            Ship.AI.CombatState = CombatState.Artillery;
-                            break;
-                        case "hold":
-                            Ship.AI.CombatState = CombatState.HoldPosition;
-                            Ship.AI.OrderAllStop();
-                            break;
-                        case "orbit_left":
-                            Ship.AI.CombatState = CombatState.OrbitLeft;
-                            break;
-                        case "broadside_left":
-                            Ship.AI.CombatState = CombatState.BroadsideLeft;
-                            break;
-                        case "orbit_right":
-                            Ship.AI.CombatState = CombatState.OrbitRight;
-                            break;
-                        case "broadside_right":
-                            Ship.AI.CombatState = CombatState.BroadsideRight;
-                            break;
-                        case "evade":
-                            Ship.AI.CombatState = CombatState.Evade;
-                            break;
-                        case "short":
-                            Ship.AI.CombatState = CombatState.ShortRange;
-                            break;
+                        case "attack":          Ship.AI.CombatState = CombatState.AttackRuns;                           break;
+                        case "arty":            Ship.AI.CombatState = CombatState.Artillery;                            break;
+                        case "orbit_left":      Ship.AI.CombatState = CombatState.OrbitLeft;                            break;
+                        case "broadside_left":  Ship.AI.CombatState = CombatState.BroadsideLeft;                        break;
+                        case "orbit_right":     Ship.AI.CombatState = CombatState.OrbitRight;                           break;
+                        case "broadside_right": Ship.AI.CombatState = CombatState.BroadsideRight;                       break;
+                        case "evade":           Ship.AI.CombatState = CombatState.Evade;                                break;
+                        case "short":           Ship.AI.CombatState = CombatState.ShortRange;                           break;
+                        case "hold":            Ship.AI.CombatState = CombatState.HoldPosition; Ship.AI.OrderAllStop(); break;
                     }
                     if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
                         Ship.AI.State = AIState.AwaitingOrders;
@@ -222,35 +203,16 @@ namespace Ship_Game.Ships
 
                 switch (toggleButton.Action)
                 {
-                    case "attack":
-                        toggleButton.Active = Ship.AI.CombatState == CombatState.AttackRuns;
-                        continue;
-                    case "arty":
-                        toggleButton.Active = Ship.AI.CombatState == CombatState.Artillery;
-                        continue;
-                    case "hold":
-                        toggleButton.Active = Ship.AI.CombatState == CombatState.HoldPosition;
-                        continue;
-                    case "orbit_left":
-                        toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitLeft;
-                        continue;
-                    case "broadside_left":
-                        toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideLeft;
-                        continue;
-                    case "orbit_right":
-                        toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitRight;
-                        continue;
-                    case "broadside_right":
-                        toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideRight;
-                        continue;
-                    case "evade":
-                        toggleButton.Active = Ship.AI.CombatState == CombatState.Evade;
-                        continue;
-                    case "short":
-                        toggleButton.Active = Ship.AI.CombatState == CombatState.ShortRange;
-                        continue;
-                    default:
-                        continue;
+                    case "attack":          toggleButton.Active = Ship.AI.CombatState == CombatState.AttackRuns;     continue;
+                    case "arty":            toggleButton.Active = Ship.AI.CombatState == CombatState.Artillery;      continue;
+                    case "hold":            toggleButton.Active = Ship.AI.CombatState == CombatState.HoldPosition;   continue;
+                    case "orbit_left":      toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitLeft;      continue;
+                    case "broadside_left":  toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideLeft;  continue;
+                    case "orbit_right":     toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitRight;     continue;
+                    case "broadside_right": toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideRight; continue;
+                    case "evade":           toggleButton.Active = Ship.AI.CombatState == CombatState.Evade;          continue;
+                    case "short":           toggleButton.Active = Ship.AI.CombatState == CombatState.ShortRange;     continue;
+                    default:                                                                                         continue;
                 }
             }
         }
@@ -345,11 +307,12 @@ namespace Ship_Game.Ships
             batch.DrawString(Fonts.Arial12Bold, Ship.kills.ToString(), levelPos, Color.White);
             int numStatus = 0;
 
-            // limit data display to non player ships
+            // FB - limit data display to non player ships
             if (HelperFunctions.DataVisibleToPlayer(Ship.loyalty, UniverseData.GameDifficulty.Easy))
             {
                 DrawCarrierStatus(mousePos);
                 DrawResupplyReason(Ship);
+                DrawRadiationDamageWarning(Ship);
                 DrawPack(batch, mousePos, ref numStatus);
                 DrawFTL(batch, mousePos, ref numStatus);
                 DrawInhibited(batch, mousePos, ref numStatus);
@@ -514,9 +477,20 @@ namespace Ship_Game.Ships
                 }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, color);
+
+        }
+
+        void DrawRadiationDamageWarning(Ship ship)
+        {
+            if (ship.System == null || !ship.System.ShipWithinRadiationRadius(ship))
+                return;
+
+            var radiationTextPos = new Vector2(Housing.X + 50, Housing.Y - Fonts.Arial12.LineSpacing);
+            string text = "Ship is taking radiation damage from a nearby star!";
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, radiationTextPos, Color.Red);
         }
         
-        void DrawTroopStatus() // Expanded  by Fat Bastard
+        void DrawTroopStatus() // Expanded by Fat Bastard
         {
             var troopPos     = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             int playerTroops = Ship.NumPlayerTroopsOnShip;
