@@ -55,13 +55,15 @@ namespace Ship_Game
         public Array<string> DefensiveFleets = new Array<string>();
         [XmlIgnore][JsonIgnore] public bool VisibilityUpdated;
 
-        public void Update(float elapsedTime, UniverseScreen universe)
-        {
-            float realTime = (float)StarDriveGame.Instance.GameTime.ElapsedRealTime.TotalSeconds;
+        public void Update(float elapsedTime, UniverseScreen universe, float realTime)
+        {            
             var player = EmpireManager.Player;
 
-            foreach (SunLayerState layer in SunLayers)
+            for (int i = 0; i < SunLayers.Length; i++)
+            {
+                SunLayerState layer = SunLayers[i];
                 layer.Update(elapsedTime);
+            }
 
             foreach (var status in Status)
                 status.Value.Update(realTime);
