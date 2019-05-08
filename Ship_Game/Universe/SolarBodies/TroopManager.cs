@@ -543,11 +543,13 @@ namespace Ship_Game
                 DefendingForces = 0;
                 InvadingForces  = 0;
                 InvadingEmpire  = null;
-                foreach (PlanetGridSquare planetGridSquare in tileList)
+                for (int i = 0; i < tileList.Count; i++)
                 {
+                    PlanetGridSquare planetGridSquare = tileList[i];
                     using (planetGridSquare.TroopsHere.AcquireReadLock())
-                        foreach (Troop troop in planetGridSquare.TroopsHere)
+                        for (int x = 0; x < planetGridSquare.TroopsHere.Count; x++)
                         {
+                            Troop troop = planetGridSquare.TroopsHere[x];
                             if (troop.Loyalty != null && troop.Loyalty != defendingEmpire)
                             {
                                 ++InvadingForces;
@@ -556,6 +558,7 @@ namespace Ship_Game
                             else
                                 ++DefendingForces;
                         }
+
                     if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
                         ++DefendingForces;
                 }
