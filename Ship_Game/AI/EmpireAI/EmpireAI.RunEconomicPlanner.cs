@@ -46,22 +46,17 @@ namespace Ship_Game.AI
 #endif
         }
 
-        private float Income => OwnerEmpire.NetPlanetIncomes
-                                 + OwnerEmpire.TradeMoneyAddedThisTurn
-                                 + OwnerEmpire.data.FlatMoneyBonus
-                                 - OwnerEmpire.TotalShipMaintenance;
-
         private float TreasuryGoal()
         {
             float treasuryGoal = OwnerEmpire.data.treasuryGoal;
             if (!OwnerEmpire.isPlayer || OwnerEmpire.data.AutoTaxes)
             {
                 //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
-                treasuryGoal = Math.Max(OwnerEmpire.NetPlanetIncomes, 0)
+                treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
                                + OwnerEmpire.data.FlatMoneyBonus
                                + OwnerEmpire.TotalShipMaintenance / 5; //more savings than GDP 
             }
-            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 750;
+            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
             treasuryGoal = Math.Max(1000, treasuryGoal);
             return treasuryGoal;
         }
@@ -73,13 +68,13 @@ namespace Ship_Game.AI
 
             const float normalTaxRate = 0.25f;
             float treasuryGoalRatio   = (Math.Max(OwnerEmpire.Money, 100)) / treasuryGoal;
-            float taxRateModifer = 0;
-            if (treasuryGoalRatio > 1)
-                taxRateModifer = -(float)Math.Round((treasuryGoalRatio -1) / 10, 2); // this will decrease tax based on ratio
-            if (treasuryGoalRatio < 1)
-                taxRateModifer = (float)Math.Round((1 / treasuryGoalRatio - 1) / 10, 2); // this will decrease tax based on oppsite ratio
+            float desiredTaxRate;
+            if (treasuryGoalRatio.Greater(1))
+                desiredTaxRate = -(float)Math.Round((treasuryGoalRatio - 1) / 10, 2) + normalTaxRate; // this will decrease tax based on ratio
+            else
+                desiredTaxRate = (float)Math.Round(1 - treasuryGoalRatio, 2); // this will decrease tax based on opposite ratio
 
-            OwnerEmpire.data.TaxRate  = (normalTaxRate + taxRateModifer).Clamped(0.05f,0.95f);
+            OwnerEmpire.data.TaxRate  = (desiredTaxRate).Clamped(0.05f,0.95f);
         }
 
 #if DEBUG
