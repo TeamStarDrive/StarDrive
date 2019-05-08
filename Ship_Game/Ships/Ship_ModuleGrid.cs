@@ -793,7 +793,7 @@ namespace Ship_Game.Ships
             if (level > 1)
             {
                 // Sort Descending (-), so first element is the module with greatest TargettingValue
-                modules.Sort(m => -m.ModuleTargettingValue);
+                modules.Sort(m => -m.ModuleTargetingValue);
             }
 
             // higher levels lower the limit, which causes a better random pick
