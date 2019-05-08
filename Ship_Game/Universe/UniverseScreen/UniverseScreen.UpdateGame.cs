@@ -292,7 +292,7 @@ namespace Ship_Game
                         return empire.EmpireShipCountReserve;
                     }
                 );
-                globalshipCount = MasterShipList.Filter(ship => (ship.loyalty != null && ship.loyalty != player) &&
+                globalshipCount = MasterShipList.Filter(ship => (ship.loyalty != null && !ship.loyalty.isPlayer && !ship.loyalty.isFaction) &&
                                                                   ship.shipData.Role != ShipData.RoleName.troop &&
                                                                   ship.Mothership == null).Length;
             }
