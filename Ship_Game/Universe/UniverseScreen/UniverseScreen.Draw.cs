@@ -1116,6 +1116,19 @@ namespace Ship_Game
 
                 return;
             }
+            if (ship.AI.State == AIState.SystemTrader  && ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal g))
+            {
+                Planet importPlanet = g.Trade.ImportTo;
+                Planet exportPlanet = g.Trade.ExportFrom;
+
+                if (g.Plan == ShipAI.Plan.PickupGoods)
+                {
+                    DrawLineToPlanet(start, exportPlanet.Center, Color.Blue);
+                    DrawLineToPlanet(exportPlanet.Center, importPlanet.Center, Color.Gold);
+                }
+                else
+                    DrawLineToPlanet(start, importPlanet.Center, Color.Gold);
+            }
 
             DrawWayPointLines(ship, Colors.WayPoints(alpha));
         }

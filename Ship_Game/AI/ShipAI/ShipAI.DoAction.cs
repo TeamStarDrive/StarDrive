@@ -183,6 +183,9 @@ namespace Ship_Game.AI
                     var message = new StringBuilder(system.Name); //@todo create global string builder
                     message.Append(" system explored.");
 
+                    if (system.Sun.RadiationDamage > 0)
+                        message.Append("\nThis Star emits radiation which will damage your ship's\nexternal modules or shields if they get close to it.");
+
                     var planetsTypesNumber = new Map<string, int>();
                     if (system.PlanetList.Count > 0)
                     {
