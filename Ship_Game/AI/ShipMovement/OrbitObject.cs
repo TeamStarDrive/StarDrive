@@ -49,7 +49,7 @@ namespace Ship_Game.AI.ShipMovement
         {
             if (Owner.velocityMaximum < 1 || Owner.EnginesKnockedOut)
                 return;
-
+          
             float distance = orbitTarget.Center.Distance(Owner.Center);
             if (distance > 15000f)
             {
