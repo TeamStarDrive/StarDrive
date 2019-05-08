@@ -226,11 +226,10 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < BorderCheck.Count; ++i)
                 {
                     Empire e = BorderCheck[i];
-                    if (e == loyalty || (IsFreighter && loyalty.GetRelations(e).Treaty_Trade)
-                                     || loyalty.GetRelations(e).Treaty_Alliance)
-                    {
+                    if (e == loyalty) return true;
+                    var rel = loyalty.GetRelations(e);
+                    if (rel.Treaty_Alliance || IsFreighter && rel.Treaty_Trade)
                         return true;
-                    }
                 }
                 return false;
             }

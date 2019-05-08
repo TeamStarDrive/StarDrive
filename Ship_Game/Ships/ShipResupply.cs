@@ -109,12 +109,19 @@ namespace Ship_Game.Ships
 
         private bool ResupplyNeededLowOrdnance()
         {
+            if (Ship.OrdinanceMax < 1)
+                return false;
+
             return OrdnanceLow() && HighKineticToEnergyRatio()
                                  && InsufficientOrdnanceProduction();
         }
 
         private bool ResupplyNeededLowTroops()
         {
+            //shortcut if no troops
+            if (Ship.TroopCapacity < 1)
+                return false;
+
             float resupplyTroopThreshold = Ship.Carrier.SendTroopsToShip ? 0.75f : 0.1f;
             if (Ship.AI.HasPriorityTarget)
                 return false;

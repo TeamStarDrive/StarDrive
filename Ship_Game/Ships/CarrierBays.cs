@@ -27,8 +27,8 @@ namespace Ship_Game.Ships
             AllTroopBays      = AllHangars.Filter(module => module.IsTroopBay);
             AllSupplyBays     = AllHangars.Filter(module => module.IsSupplyBay);
             AllTransporters   = AllHangars.Filter(module => module.TransporterOrdnance > 0 || module.TransporterTroopAssault > 0);
-            AllFighterHangars = AllHangars.Filter(module => !module.IsTroopBay 
-                                                              && !module.IsSupplyBay 
+            AllFighterHangars = AllHangars.Filter(module => !module.IsTroopBay
+                                                              && !module.IsSupplyBay
                                                               && module.ModuleType != ShipModuleType.Transporter);
             HasHangars              = AllHangars.Length > 0;
             HasSupplyBays           = AllSupplyBays.Length > 0;
@@ -72,7 +72,8 @@ namespace Ship_Game.Ships
                     return 0;
 
                 float ordnance = 0;
-                for (int i = 0; i < AllFighterHangars.Count(); ++i)
+                //count() is expensive. Its basically a slow conditional for loop. length is just an int
+                for (int i = 0; i < AllFighterHangars.Length; ++i)
                 {
                     ShipModule hangar = AllHangars[i];
                     if (hangar.FighterOut)
@@ -105,7 +106,7 @@ namespace Ship_Game.Ships
                 int maxTroopsForLaunch = Math.Min(Owner.TroopList.Count, AvailableAssaultShuttles);
                 for (int i = 0; i < maxTroopsForLaunch; ++i)
                 {
-                    troopStrength += Owner.TroopList[i].Strength;    
+                    troopStrength += Owner.TroopList[i].Strength;
                 }
                 return troopStrength;
             }
@@ -125,7 +126,7 @@ namespace Ship_Game.Ships
                     if (ship?.Active != true || ship.TroopList.IsEmpty) return 0;
                     return ship.TroopList[0].Strength;
                 });
-                
+
                 return troopStrength;
             }
         }
@@ -288,12 +289,12 @@ namespace Ship_Game.Ships
                 if (Owner.IsDefaultTroopTransport)
                     return true;
 
-                return AllActiveHangars.Any(sm => sm.IsTroopBay) 
+                return AllActiveHangars.Any(sm => sm.IsTroopBay)
                        || AllTransporters.Any(sm => sm.TransporterTroopAssault > 0);
             }
         }
 
-        public float PlanetAssaultStrength 
+        public float PlanetAssaultStrength
         {
             get
             {
@@ -345,7 +346,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool RecallingFighters() 
+        public bool RecallingFighters()
         {
             if (Owner == null || !Owner.RecallFightersBeforeFTL || !HasActiveHangars)
                 return false;
@@ -354,7 +355,7 @@ namespace Ship_Game.Ships
             float jumpDistance                = Owner.Center.Distance(Owner.AI.MovePosition);
             float slowestFighterSpeed         = Owner.Speed * 2;
 
-            RecallingShipsBeforeWarp          = true; 
+            RecallingShipsBeforeWarp          = true;
             if (jumpDistance > 7500f)
             {
                 recallFighters = true;
@@ -466,7 +467,7 @@ namespace Ship_Game.Ships
 
             foreach (Troop to in landed)  //FB: not sure what this flag is for. Should be tested with STSA
             {
-                bool flag = false; // = false;                        
+                bool flag = false; // = false;
                 foreach (ShipModule module in AllActiveTroopBays)
                     if (module.hangarTimer < module.hangarTimerConstant)
                     {
