@@ -117,7 +117,7 @@ namespace Ship_Game
                 for (int y = 0; y < 5; ++y)
                 {
                     // HomeWorld always gets 75% habitable chance per tile
-                    bool habitableTile = RandomMath.RandomBetween(0f, 100f) < 75f;
+                    bool habitableTile = RandomBetween(0f, 100f) < 75f;
                     TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
                 }
             }
@@ -132,19 +132,19 @@ namespace Ship_Game
 
             // reduce the habitable tile chance slightly from base values:
             Range chance = Type.HabitableTileChance;
-            chance.Min = Math.Max(chance.Min - 10, 10);
-            chance.Max = Math.Max(chance.Max - 10, chance.Min);
+            chance.Min   = Math.Max(chance.Min - 10, 10);
+            chance.Max   = Math.Max(chance.Max - 10, chance.Min);
             float habitableChance = chance.Generate();
 
-            // also reduce base value of maxPop, we don't want super-planets
-            Range maxPop = Type.MaxPop;
-            const float maxAllowed = 10000f;
+            // also reduce base value of maxPop, we don't want super-planets, but don't let a better planet have lower pop max than it has now
+            Range maxPop     = Type.MaxPop;
+            float maxAllowed = Math.Max(10000f, MaxPopulationBillion);
             // rescale max value to 10000
             if (maxPop.Max > maxAllowed)
             {
                 float rescale = maxAllowed / maxPop.Max;
-                maxPop.Min *= rescale;
-                maxPop.Max *= rescale;
+                maxPop.Min   *= rescale;
+                maxPop.Max   *= rescale;
             }
             MaxPopBase = maxPop.Generate();
 
@@ -163,7 +163,7 @@ namespace Ship_Game
                     case PlanetCategory.Steppe:
                     case PlanetCategory.Tundra:
                     case PlanetCategory.Terran:
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < habitableChance)
+                        if (RollDice(habitableChance))
                         {
                             pgs.Habitable = true;
                             pgs.Biosphere = false;
