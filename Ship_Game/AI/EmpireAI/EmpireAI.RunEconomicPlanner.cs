@@ -70,11 +70,11 @@ namespace Ship_Game.AI
             float treasuryGoalRatio   = (Math.Max(OwnerEmpire.Money, 100)) / treasuryGoal;
             float desiredTaxRate;
             if (treasuryGoalRatio.Greater(1))
-                desiredTaxRate = -(float)Math.Round((treasuryGoalRatio - 1) / 10, 2) + normalTaxRate; // this will decrease tax based on ratio
+                desiredTaxRate = -(float)Math.Round((treasuryGoalRatio - 1), 2); // this will decrease tax based on ratio
             else
-                desiredTaxRate = (float)Math.Round(1 - treasuryGoalRatio, 2); // this will decrease tax based on opposite ratio
+                desiredTaxRate = (float)Math.Round(1 - treasuryGoalRatio, 2); // this will increase tax based on opposite ratio
 
-            OwnerEmpire.data.TaxRate  = (desiredTaxRate).Clamped(0.05f,0.95f);
+            OwnerEmpire.data.TaxRate  = (normalTaxRate + desiredTaxRate).Clamped(0.05f,0.95f);
         }
 
 #if DEBUG
