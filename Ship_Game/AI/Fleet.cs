@@ -1406,6 +1406,50 @@ namespace Ship_Game.AI
             }
             return shipSpeedLimit;
         }
+
+        public bool FindShipNode(Ship ship, out FleetDataNode node)
+        {
+            node = null;
+            foreach (FleetDataNode n in DataNodes)
+            {
+                if (n.Ship == ship)
+                {
+                    node = n;
+                    break;
+                }
+            }
+
+            return node != null;
+        }
+
+        public bool FindNodeWithGoalGuid(Guid guid, out FleetDataNode node)
+        {
+            node = null;
+            foreach (FleetDataNode n in DataNodes)
+            {
+                if (n.GoalGUID == guid)
+                {
+                    node = n;
+                    break;
+                }
+            }
+
+            return node != null;
+        }
+
+        public void AssignGoalGuid(FleetDataNode node, Guid goalGuid)
+        {
+            using (DataNodes.AcquireWriteLock())
+                node.GoalGUID = goalGuid;
+        }
+
+        public void RemoveGoalGuid(Guid guid)
+        {
+            if (FindNodeWithGoalGuid(guid, out FleetDataNode node))
+                AssignGoalGuid(node, Guid.Empty);
+        }
+
+
         public void Update(float elapsedTime)
         {
             HasRepair = false;
