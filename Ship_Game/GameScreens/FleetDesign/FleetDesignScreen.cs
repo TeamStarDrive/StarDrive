@@ -467,8 +467,8 @@ namespace Ship_Game
                             if (g.guid != node.GoalGUID || g.PlanetBuildingAt == null)
                                 continue;
 
-                            buildingAt = g.type == GoalType.Refit ? $"Refitting at: {g.PlanetBuildingAt.Name}" 
-                                                                  : $"Building at: {g.PlanetBuildingAt.Name}";
+                            buildingAt = g.type == GoalType.Refit ? $"Refitting at:\n{g.PlanetBuildingAt.Name}" 
+                                                                  : $"Building at:\n{g.PlanetBuildingAt.Name}";
                         }
                         if (buildingAt.IsEmpty())
                             buildingAt = "Need spaceport";
