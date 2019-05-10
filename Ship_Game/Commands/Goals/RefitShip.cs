@@ -118,28 +118,18 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             FinishedShip.Level = ShipLevel;
             if (Fleet != null)
             {
-                using (Fleet.DataNodes.AcquireWriteLock())
+                if (Fleet.FindNodeWithGoalGuid(guid, out FleetDataNode node))
                 {
-                    foreach (FleetDataNode node in Fleet.DataNodes)
-                    {
-                        if (node.GoalGUID != guid)
-                            continue;
+                    Fleet.AddExistingShip(FinishedShip, node);
+                    Fleet.AssignGoalGuid(node, Guid.Empty);
+                    if (Fleet.Ships.Count == 0)
+                        Fleet.Position = FinishedShip.Position + RandomMath.Vector2D(3000f);
 
-                        Ship ship     = FinishedShip;
-                        node.Ship     = ship;
-                        node.GoalGUID = Guid.Empty;
+                    if (Fleet.Position == Vector2.Zero)
+                        Fleet.Position = empire.FindNearestRallyPoint(FinishedShip.Center).Center;
 
-                        if (Fleet.Ships.Count == 0)
-                            Fleet.Position = ship.Position + RandomMath.Vector2D(3000f);
-                        if (Fleet.Position == Vector2.Zero)
-                            Fleet.Position = empire.FindNearestRallyPoint(ship.Center).Center;
-
-                        ship.RelativeFleetOffset = node.FleetOffset;
-                        Fleet.AddShip(ship);
-                        ship.AI.SetPriorityOrder(false);
-                        ship.AI.OrderMoveTowardsPosition(Fleet.Position + ship.FleetOffset, ship.fleet.Direction, true, null);
-                        break;
-                    }
+                    FinishedShip.RelativeFleetOffset = node.FleetOffset;
+                    FinishedShip.AI.OrderMoveTowardsPosition(Fleet.Position + FinishedShip.FleetOffset, FinishedShip.fleet.Direction, true, null);
                 }
             }
 
