@@ -51,7 +51,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (Fleet != null)
             {
                 if (Fleet.FindShipNode(OldShip, out FleetDataNode node))
+                {
                     Fleet.AssignGoalGuid(node, guid);
+                    Fleet.AssignShipName(node, ToBuildUID);
+                }
             }
 
             OldShip.ClearFleet();
