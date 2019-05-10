@@ -21,10 +21,10 @@ namespace Ship_Game
 
         public RequisitionScreen(FleetDesignScreen fds) : base(fds)
         {
-            this.Fds = fds;
-            F = fds.SelectedFleet;
-            IsPopup = true;
-            TransitionOnTime = 0.25f;
+            Fds               = fds;
+            F                 = fds.SelectedFleet;
+            IsPopup           = true;
+            TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
         }
 
@@ -34,17 +34,13 @@ namespace Ship_Game
             {
                 if (ship.fleet != null)
                     continue;
+
                 foreach (FleetDataNode node in F.DataNodes)
                 {
                     if (node.ShipName != ship.Name || node.Ship!= null)
-                    {
                         continue;
-                    }
-                    //node.Ship = ship;
-                    //ship.RelativeFleetOffset = node.FleetOffset;
-                    //ship.fleet = f;
-                    
-                    F.AddExistingShip(ship);
+
+                    F.AddExistingShip(ship, node);
 
                     foreach (Array<Fleet.Squad> flank in F.AllFlanks)
                     {
@@ -224,18 +220,6 @@ namespace Ship_Game
                 ToggleOn = true
             };
             UpdateRequisitionStatus();
-            foreach (FleetDataNode node in F.DataNodes)
-            {
-                foreach (Goal g in F.Owner.GetEmpireAI().Goals)
-                {
-                    if (g.guid != node.GoalGUID)
-                    {
-                        continue;
-                    }
-                    RequisitionScreen requisitionScreen = this;
-                    requisitionScreen.NumBeingBuilt = requisitionScreen.NumBeingBuilt + 1;
-                }
-            }
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
@@ -251,6 +235,7 @@ namespace Ship_Game
             {
                 if (ship.fleet != null)
                     continue;
+
                 AvailableShips.Add(ship);
             }
             foreach (Ship ship in AvailableShips)
@@ -259,23 +244,17 @@ namespace Ship_Game
                 {
                     if (node.ShipName != ship.Name || node.Ship != null)
                         continue;
-                    RequisitionScreen requisitionScreen = this;
-                    requisitionScreen.NumThatFit = requisitionScreen.NumThatFit + 1;
+
+                    NumThatFit++;
                     break;
                 }
             }
+
             NumBeingBuilt = 0;
-            foreach (FleetDataNode node in F.DataNodes)
+            foreach (Goal g in F.Owner.GetEmpireAI().Goals)
             {
-                foreach (Goal g in F.Owner.GetEmpireAI().Goals)
-                {
-                    if (g.guid != node.GoalGUID)
-                    {
-                        continue;
-                    }
-                    RequisitionScreen requisitionScreen1 = this;
-                    requisitionScreen1.NumBeingBuilt = requisitionScreen1.NumBeingBuilt + 1;
-                }
+                if (F.GoalGuidExists(g.guid))
+                    NumBeingBuilt++;
             }
         }
     }

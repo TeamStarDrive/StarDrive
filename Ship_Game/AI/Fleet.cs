@@ -105,14 +105,18 @@ namespace Ship_Game.AI
             HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles || (ship.Carrier.HasSupplyBays && ship.Ordinance >= 100);
         }
 
-        public void AddExistingShip(Ship ship) => AddShipToNodes(ship);
-
-        void AddShipToNodes(Ship shiptoadd)
+        public void AddExistingShip(Ship ship, FleetDataNode node)
         {
-            base.AddShip(shiptoadd);
-            shiptoadd.fleet = this;
+            node.Ship = ship;
+            AddShipToNodes(ship);
+        } 
+
+        void AddShipToNodes(Ship shipToAdd)
+        {
+            base.AddShip(shipToAdd);
+            shipToAdd.fleet = this;
             SetSpeed();
-            AddShipToDataNode(shiptoadd);
+            AddShipToDataNode(shipToAdd);
         }
 
 
@@ -252,6 +256,7 @@ namespace Ship_Game.AI
                 Ship s = Ships[i];
                 if (s.InCombat)
                     continue;
+
                 s.AI.OrderAllStop();
                 s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Direction, false);
             }
@@ -259,7 +264,7 @@ namespace Ship_Game.AI
 
         void AddShipToDataNode(Ship ship)
         {
-            FleetDataNode node = DataNodes.Find(s => s.Ship == ship);
+            FleetDataNode node = DataNodes.Find(n => n.Ship == ship);
 
             if (node == null)
             {
@@ -1420,6 +1425,11 @@ namespace Ship_Game.AI
             }
 
             return node != null;
+        }
+
+        public bool GoalGuidExists(Guid guid)
+        {
+            return DataNodes.Any(n => n.GoalGUID == guid);
         }
 
         public bool FindNodeWithGoalGuid(Guid guid, out FleetDataNode node)
