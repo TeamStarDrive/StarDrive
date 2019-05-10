@@ -344,12 +344,13 @@ namespace Ship_Game.Universe.SolarBodies
             if (q.Goal != null)
             {
                 if (q.Goal is BuildConstructionShip)
-                {
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
-                }
 
                 if (q.Goal.Fleet != null)
+                {
+                    q.Goal.Fleet.RemoveGoalGuid(q.Goal.guid);
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
+                }
             }
             P.ConstructionQueue.Remove(q);
             q.OnComplete?.Invoke(success: false);
