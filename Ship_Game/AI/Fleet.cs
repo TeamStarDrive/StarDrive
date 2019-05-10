@@ -1449,6 +1449,11 @@ namespace Ship_Game.AI
                 AssignGoalGuid(node, Guid.Empty);
         }
 
+        public void AssignShipName(FleetDataNode node, string name)
+        {
+            using (DataNodes.AcquireWriteLock())
+                node.ShipName = name;
+        }
 
         public void Update(float elapsedTime)
         {
