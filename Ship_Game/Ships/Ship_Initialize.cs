@@ -189,6 +189,8 @@ namespace Ship_Game.Ships
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.VanityName;
 
+            HealthMax = RecalculateMaxHealth();
+
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
 
