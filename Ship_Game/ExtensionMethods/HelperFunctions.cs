@@ -52,7 +52,7 @@ namespace Ship_Game
             foreach (FleetDataNode node in data.Data)
             {
                 FleetDataNode cloned = node.Clone();
-                cloned.CombatState = cloned.CombatState;
+                cloned.CombatState = node.CombatState;
                 fleet.DataNodes.Add(cloned);
             }
             fleet.Name = data.Name;
