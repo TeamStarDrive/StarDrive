@@ -121,7 +121,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 if (Fleet.FindNodeWithGoalGuid(guid, out FleetDataNode node))
                 {
                     Fleet.AddExistingShip(FinishedShip, node);
-                    Fleet.AssignGoalGuid(node, Guid.Empty);
+                    Fleet.RemoveGoalGuid(node);
                     if (Fleet.Ships.Count == 0)
                         Fleet.Position = FinishedShip.Position + RandomMath.Vector2D(3000f);
 
@@ -129,7 +129,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                         Fleet.Position = empire.FindNearestRallyPoint(FinishedShip.Center).Center;
 
                     FinishedShip.RelativeFleetOffset = node.FleetOffset;
-                    FinishedShip.AI.OrderMoveTowardsPosition(Fleet.Position + FinishedShip.FleetOffset, FinishedShip.fleet.Direction, true, null);
+                    FinishedShip.AI.OrderMoveTowardsPosition(Fleet.Position + FinishedShip.RelativeFleetOffset, Fleet.Direction, true, null);
                 }
             }
 

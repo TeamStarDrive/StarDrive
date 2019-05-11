@@ -1453,6 +1453,12 @@ namespace Ship_Game.AI
                 node.GoalGUID = goalGuid;
         }
 
+        public void RemoveGoalGuid(FleetDataNode node)
+        {
+            if (node != null)
+                AssignGoalGuid(node, Guid.Empty);
+        }
+
         public void RemoveGoalGuid(Guid guid)
         {
             if (FindNodeWithGoalGuid(guid, out FleetDataNode node))
