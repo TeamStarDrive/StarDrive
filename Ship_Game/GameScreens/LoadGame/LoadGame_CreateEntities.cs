@@ -385,11 +385,6 @@ namespace Ship_Game
                         }
                     }
 
-                    foreach (FleetDataNode node in fleetsave.DataNodes)
-                    {
-                        fleet.DataNodes.Add(node);
-                    }
-
                     foreach (FleetDataNode node in fleet.DataNodes)
                     {
                         foreach (Ship ship in fleet.Ships)
