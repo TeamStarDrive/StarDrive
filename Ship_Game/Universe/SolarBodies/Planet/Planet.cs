@@ -467,14 +467,14 @@ namespace Ship_Game
             if (TerraformToAdd.LessOrEqual(0))
                 return;
 
-            TerraformPoints        += TerraformToAdd;
+            TerraformPoints += TerraformToAdd;
             if (MaxFertility.Less(TerraformTargetFertility))
             {
                 AddMaxFertility(TerraformToAdd);
                 MaxFertility = MaxFertility.Clamped(0f, TerraformTargetFertility);
             }
 
-            bool improved           = ImprovePlanetType(TerraformPoints);
+            bool improved = ImprovePlanetType(TerraformPoints);
             if (TerraformPoints.GreaterOrEqual(1)) // scrap Terraformers - their job is done
             {
                 foreach (PlanetGridSquare planetGridSquare in TilesList)

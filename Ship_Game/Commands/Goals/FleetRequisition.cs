@@ -86,7 +86,7 @@ namespace Ship_Game.Commands.Goals
 
                     Fleet.AddShip(ship);
                     ship.AI.SetPriorityOrder(false);
-                    ship.AI.OrderMoveTowardsPosition(Fleet.Position + ship.FleetOffset, ship.fleet.Direction, true, null);
+                    ship.AI.OrderMoveTowardsPosition(Fleet.Position + ship.RelativeFleetOffset, ship.fleet.Direction, true, null);
                     return GoalStep.GoalComplete;
                 } 
             }
