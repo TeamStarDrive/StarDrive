@@ -2560,7 +2560,7 @@ namespace Ship_Game
             for (int i = 0; i < list.Count; i++)
             {
                 Planet planet = list[i];
-                planet.AddFertility(amount);
+                planet.AddMaxFertility(amount);
             }
         }
 
