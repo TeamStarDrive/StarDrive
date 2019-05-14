@@ -580,7 +580,11 @@ namespace Ship_Game.Ships
             Point a = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));
             Point b = WorldToGridLocalPointClipped(worldHitPos + new Vector2(hitRadius));
             if (!ClippedLocalPointInBounds(a) && !ClippedLocalPointInBounds(b))
-                return;
+            {
+                if (!LocalPointInBounds(WorldToGridLocalPoint(worldHitPos)))
+                    return;
+            }
+
 
             ShipModule[] grid = SparseModuleGrid;
             int width = GridWidth;
