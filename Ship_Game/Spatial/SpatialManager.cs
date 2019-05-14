@@ -190,8 +190,9 @@ namespace Ship_Game.Gameplay
                 if (!otherObj.Center.InRadius(thisShip.Center, damageRadius + otherObj.Radius))
                     continue;
 
-                if (otherObj is Ship otherShip)
+                if (otherObj is Ship otherShip && RandomMath.RollDice(12 - otherShip.Level))
                 {
+                    // FB: Ships will be lucky to not get caught in the explosion, based on their level as well
                     ShipModule nearest = otherShip.FindClosestUnshieldedModule(explosionCenter);
                     if (nearest == null)
                         continue;
