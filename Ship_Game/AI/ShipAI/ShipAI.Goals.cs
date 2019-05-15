@@ -304,7 +304,8 @@ namespace Ship_Game.AI
             LandTroop,
             ResupplyEscort,
             RebaseToShip,
-            ReturnHome
+            ReturnHome,
+            DeployOrbital
         }
     }
 }

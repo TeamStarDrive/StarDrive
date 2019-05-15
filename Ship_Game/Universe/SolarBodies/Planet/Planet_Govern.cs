@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
 
@@ -104,9 +105,22 @@ namespace Ship_Game
             return orbitalList;
         }
 
+        private int OrbitalsBeingBuilt(ShipData.RoleName role)
+        {
+            // this also counts construction ships on the way, by checking the empire goals
+            int numOrbitals = 0;
+            foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this))
+            {
+                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship orbital) && orbital.shipData.Role == role)
+                    numOrbitals++;
+            }
+
+            return numOrbitals;
+        }
+
         private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, int colonyRank, float budget)
         {
-            int orbitalsWeHave = orbitalList.Count;
+            int orbitalsWeHave = orbitalList.Count + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
 
@@ -122,7 +136,8 @@ namespace Ship_Game
                 BuildOrbital(role, colonyRank, budget);
                 return;
             }
-            if (orbitalsWeHave > 0)
+
+            if (orbitalList.Count > 0)
                 ReplaceOrbital(orbitalList, role, colonyRank, budget);  // check if we can replace an orbital with a better one
         }
 
@@ -159,9 +174,15 @@ namespace Ship_Game
         // Adds an Orbital to ConstructionQueue
         private void AddOrbital(Ship orbital) 
         {
+
             float cost = orbital.GetCost(Owner);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {cost}, STR: {orbital.BaseStrength}");
+
+            Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
+            Owner.GetEmpireAI().Goals.Add(buildOrbital);
+
+            /*
             ConstructionQueue.Add(new QueueItem(this)
             {
                 isOrbital = true,
@@ -169,6 +190,7 @@ namespace Ship_Game
                 sData = orbital.shipData,
                 Cost = cost
             });
+            */
         }
 
         private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role, int rank, float budget)

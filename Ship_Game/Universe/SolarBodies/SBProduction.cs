@@ -165,6 +165,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return false;
 
             Ship shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true);
+            /*
             if (q.sData.Role == ShipData.RoleName.station || q.sData.Role == ShipData.RoleName.platform)
             {
                 shipAt.Position = FindNewStationLocation();
@@ -172,45 +173,13 @@ namespace Ship_Game.Universe.SolarBodies
                 shipAt.TetherToPlanet(P);
                 P.OrbitalStations.Add(shipAt.guid, shipAt);
             }
-
+            */
             q.Goal?.ReportShipComplete(shipAt);
             if (!Owner.isPlayer)
                 Owner.ForcePoolAdd(shipAt);
             return true;
         }
 
-        bool IsStationAlreadyPresentAt(Vector2 position)
-        {
-            foreach (Ship orbital in P.OrbitalStations.Values)
-            {
-                Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
-                    orbital.Position, orbital.Radius, Color.LightCyan, 10.0f);
-                if (position.InRadius(orbital.Position, orbital.Radius))
-                    return true;
-            }
-            return false;
-        }
-
-        Vector2 FindNewStationLocation()
-        {
-            const int ringLimit = ShipBuilder.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
-            for (int ring = 0; ring < ringLimit; ring++) 
-            {
-                int degrees    = (int)RandomMath.RandomBetween(0f, 9f);
-                float distance = 2000 + 1000 * ring * P.Scale;
-                Vector2 pos    = P.Center + MathExt.PointOnCircle(degrees * 40, distance);
-                if (!IsStationAlreadyPresentAt(pos))
-                    return pos;
-
-                for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
-                {
-                    pos = P.Center + MathExt.PointOnCircle(i * 40, distance);
-                    if (!IsStationAlreadyPresentAt(pos))
-                        return pos;
-                }
-            }
-            return P.Center; // There is a limit on orbitals number
-        }
         // Applies available production to production queue
         public void AutoApplyProduction(float surplusFromPlanet)
         {
@@ -281,12 +250,13 @@ namespace Ship_Game.Universe.SolarBodies
             var qi = new QueueItem(P)
             {
                 isShip        = true,
+                isOrbital     = true,
                 Goal          = goal,
                 NotifyOnEmpty = false,
-                DisplayName = "Construction Ship",
-                QueueNumber = ConstructionQueue.Count,
-                sData       = constructor.shipData,
-                Cost        = platform.GetCost(Owner)
+                DisplayName   = $"Construction Ship ({platform.Name})",
+                QueueNumber   = ConstructionQueue.Count,
+                sData         = constructor.shipData,
+                Cost          = platform.GetCost(Owner)
             };
             if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
@@ -343,7 +313,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
             if (q.Goal != null)
             {
-                if (q.Goal is BuildConstructionShip)
+                if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
 
                 if (q.Goal.Fleet != null)
