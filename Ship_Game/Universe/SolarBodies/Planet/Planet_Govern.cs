@@ -77,7 +77,7 @@ namespace Ship_Game
 
         private void BuildPlatformsAndStations(float budget) // Rewritten by Fat Bastard
         {
-            if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals)
+            if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals || SpaceCombatNearPlanet)
                 return;
 
             var currentPlatforms      = FilterOrbitals(ShipData.RoleName.platform);
