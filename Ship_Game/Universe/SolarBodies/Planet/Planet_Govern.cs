@@ -174,23 +174,11 @@ namespace Ship_Game
         // Adds an Orbital to ConstructionQueue
         private void AddOrbital(Ship orbital) 
         {
-
-            float cost = orbital.GetCost(Owner);
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {cost}, STR: {orbital.BaseStrength}");
+                Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
 
             Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
             Owner.GetEmpireAI().Goals.Add(buildOrbital);
-
-            /*
-            ConstructionQueue.Add(new QueueItem(this)
-            {
-                isOrbital = true,
-                isShip    = true,
-                sData = orbital.shipData,
-                Cost = cost
-            });
-            */
         }
 
         private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role, int rank, float budget)

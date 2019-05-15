@@ -165,15 +165,6 @@ namespace Ship_Game.Universe.SolarBodies
                 return false;
 
             Ship shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true);
-            /*
-            if (q.sData.Role == ShipData.RoleName.station || q.sData.Role == ShipData.RoleName.platform)
-            {
-                shipAt.Position = FindNewStationLocation();
-                shipAt.Center = shipAt.Position;
-                shipAt.TetherToPlanet(P);
-                P.OrbitalStations.Add(shipAt.guid, shipAt);
-            }
-            */
             q.Goal?.ReportShipComplete(shipAt);
             if (!Owner.isPlayer)
                 Owner.ForcePoolAdd(shipAt);
