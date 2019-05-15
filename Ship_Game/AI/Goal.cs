@@ -20,7 +20,8 @@ namespace Ship_Game.AI
         IncreaseFreighters,
         BuildScout,
         FleetRequisition,
-        Refit
+        Refit,
+        BuildOrbital
     }
 
     public enum GoalStep
