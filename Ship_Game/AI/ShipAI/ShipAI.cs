@@ -435,6 +435,7 @@ namespace Ship_Game.AI
                 case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                      break;
                 case Plan.DoCombat:                 DoCombat(elapsedTime);                             break;
                 case Plan.DeployStructure:          DoDeploy(toEvaluate);                              break;
+                case Plan.DeployOrbital:            DoDeployOrbital(toEvaluate);                       break;
                 case Plan.PickupGoods:              PickupGoods.Execute(elapsedTime, toEvaluate);      break;
                 case Plan.DropOffGoods:             DropOffGoods.Execute(elapsedTime, toEvaluate);     break;
                 case Plan.ReturnToHangar:           DoReturnToHangar(elapsedTime);                     break;
