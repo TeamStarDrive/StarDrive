@@ -93,6 +93,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         {
             float repairPool = CalcRepairPool();
             int garrisonSize = P.GarrisonSize;
+            bool spaceCombat = P.SpaceCombatNearPlanet;
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship         = ParentSystem.ShipList[i];
@@ -105,9 +106,10 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 {
                     if (ship.Position.InRadius(Center, 5000f) || ship.GetTether() == P)
                     {
-                        LoadTroops(ship, garrisonSize);
                         SupplyShip(ship);
                         RepairShip(ship, repairPool);
+                        if (!spaceCombat)
+                            LoadTroops(ship, garrisonSize);
                     }
                 }
             }
