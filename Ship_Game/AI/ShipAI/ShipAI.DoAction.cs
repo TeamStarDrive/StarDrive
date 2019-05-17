@@ -132,16 +132,18 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Ship platform = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
-            if (platform == null)
+            Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
+            if (orbital == null)
                 return;
 
-            AddStructureToRoadsList(g, platform);
+            AddStructureToRoadsList(g, orbital);
 
             if (g.Goal.TetherTarget != Guid.Empty)
             {
-                platform.TetherToPlanet(Empire.Universe.PlanetsDict[g.Goal.TetherTarget]);
-                platform.TetherOffset = g.Goal.TetherOffset;
+                Planet planetToTether = Empire.Universe.PlanetsDict[g.Goal.TetherTarget];
+                orbital.TetherToPlanet(planetToTether);
+                orbital.TetherOffset = g.Goal.TetherOffset;
+                planetToTether.OrbitalStations.Add(orbital.guid, orbital);
             }
             Owner.QueueTotalRemoval();
         }
