@@ -226,17 +226,22 @@ namespace Ship_Game.Ships
 
         void SetHealth(float newHealth)
         {
-            float maxHealth = ActualMaxHealth;
-            newHealth = newHealth.Clamped(0, maxHealth);
+            float maxHealth    = ActualMaxHealth;
+            newHealth          = newHealth.Clamped(0, maxHealth);
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
+            if (Active && Health < 1)
+            {
+                Die(LastDamagedBy, false);
+                Parent.shipStatusChanged = true;
+            }
+
             Parent.AddShipHealth(healthChange);
         }
 
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
-
 
         ShipModule() : base(GameObjectType.ShipModule)
         {
@@ -740,7 +745,6 @@ namespace Ship_Game.Ships
         {
             ++DebugInfoScreen.ModulesDied;
 
-            SetHealth(0f);
             ShieldPower = 0f;
             var center = new Vector3(Center.X, Center.Y, -100f);
 
@@ -755,7 +759,6 @@ namespace Ship_Game.Ships
                 }
             }
 
-            //base.Die(source, cleanupOnly); // @note This is probably not needed
             Active = false;
             Parent.UpdateExternalSlots(this, becameActive: false);
             int size = Area;
@@ -943,11 +946,6 @@ namespace Ship_Game.Ships
                 Parent.shipStatusChanged = true;
                 Parent.UpdateExternalSlots(this, becameActive: true);
                 Parent.NeedRecalculate = true;
-            }
-            else if (Active && Health <= 0.1f)
-            {
-                Die(LastDamagedBy, false);
-                Parent.shipStatusChanged = true;
             }
 
             if (Active && ModuleType == ShipModuleType.Hangar)
