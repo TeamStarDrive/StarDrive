@@ -224,7 +224,7 @@ namespace Ship_Game
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, int colonyRank, float budget)
         {
-            Ship orbital         = GetBestOrbital(role, budget);
+            Ship orbital = GetBestOrbital(role, budget);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"Orbitals Budget: {budget}");
 
