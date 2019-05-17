@@ -76,15 +76,15 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             for (int ring = 0; ring < ringLimit; ring++)
             {
                 int degrees    = (int)RandomMath.RandomBetween(0f, 9f);
-                float distance = 2000 + 1000 * ring * PlanetBuildingAt.Scale;
+                float distance = 2000 + (1000 * ring * PlanetBuildingAt.Scale);
                 Vector2 pos    = PlanetBuildingAt.Center + MathExt.PointOnCircle(degrees * 40, distance);
-                if (!IsOrbitalAlreadyPresentAt(pos) && !IsOrbitalPlannedAt(pos))
+                if (BuildPositionFree(pos))
                     return pos;
 
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
                 {
                     pos = PlanetBuildingAt.Center + MathExt.PointOnCircle(i * 40, distance);
-                    if (!IsOrbitalAlreadyPresentAt(pos))
+                    if (BuildPositionFree(pos))
                         return pos;
                 }
             }
@@ -92,13 +92,18 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             return PlanetBuildingAt.Center; // There is a limit on orbitals number
         }
 
+        bool BuildPositionFree(Vector2 position)
+        {
+            return !IsOrbitalAlreadyPresentAt(position) && !IsOrbitalPlannedAt(position);
+        }
+
         bool IsOrbitalAlreadyPresentAt(Vector2 position)
         {
             foreach (Ship orbital in PlanetBuildingAt.OrbitalStations.Values)
             {
                 Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
-                    orbital.Position, orbital.Radius, Color.LightCyan, 10.0f);
-                if (position.InRadius(orbital.Position, orbital.Radius))
+                    orbital.Position, 1000, Color.LightCyan, 10.0f);
+                if (position.InRadius(orbital.Position, 1000))
                     return true;
             }
 
@@ -108,12 +113,13 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         // Checks if a Construction Ship is due to deploy a structure at a point
         bool IsOrbitalPlannedAt(Vector2 position)
         {
-            foreach (Ship ship in empire.GetShips())
+            foreach (Ship ship in empire.GetShips().Filter(s => s.isConstructor))
             {
-                ShipAI.ShipGoal g = ship.AI.OrderQueue.PeekFirst;
-                if (g != null && g.Plan == ShipAI.Plan.DeployOrbital && g.Goal.PlanetBuildingAt == PlanetBuildingAt)
+                if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) && g.Goal.PlanetBuildingAt == PlanetBuildingAt)
                 {
-                    if (position.InRadius(g.Goal.BuildPosition, 400))
+                    Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
+                        g.Goal.BuildPosition, 1000, Color.LightCyan, 10.0f);
+                    if (position.InRadius(g.Goal.BuildPosition, 1000))
                         return true;
                 }
             }
