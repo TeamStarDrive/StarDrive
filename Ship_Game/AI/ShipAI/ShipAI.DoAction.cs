@@ -132,18 +132,48 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Ship platform = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
-            if (platform == null)
+            Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
+            if (orbital == null)
                 return;
 
-            AddStructureToRoadsList(g, platform);
+            AddStructureToRoadsList(g, orbital);
 
             if (g.Goal.TetherTarget != Guid.Empty)
             {
-                platform.TetherToPlanet(Empire.Universe.PlanetsDict[g.Goal.TetherTarget]);
-                platform.TetherOffset = g.Goal.TetherOffset;
+                Planet planetToTether = Empire.Universe.PlanetsDict[g.Goal.TetherTarget];
+                orbital.TetherToPlanet(planetToTether);
+                orbital.TetherOffset = g.Goal.TetherOffset;
+                planetToTether.OrbitalStations.Add(orbital.guid, orbital);
             }
             Owner.QueueTotalRemoval();
+        }
+
+        void DoDeployOrbital(ShipGoal g)
+        {
+            if (g.Goal == null)
+            {
+                Log.Info($"There was no goal for Construction ship deploying orbital");
+                OrderScrapShip();
+                return;
+            }
+
+            Planet target = g.Goal.PlanetBuildingAt;
+            if (target.Owner != Owner.loyalty) // FB - Planet owner has changed
+            {
+                OrderScrapShip();
+                return;
+            }
+
+            Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
+            if (orbital != null)
+            {
+                orbital.Center = g.Goal.BuildPosition;
+                orbital.TetherToPlanet(target);
+                target.OrbitalStations.Add(orbital.guid, orbital);
+                Owner.QueueTotalRemoval();
+            }
+
+            OrderScrapShip();
         }
 
         void AddStructureToRoadsList(ShipGoal g, Ship platform)
