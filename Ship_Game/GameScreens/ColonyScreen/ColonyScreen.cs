@@ -1251,16 +1251,10 @@ namespace Ship_Game
 
         bool BuildOrbital(Ship orbital)
         {
-            if (orbital == null || IsOutOfOrbitalsLimit(orbital))
+            if (orbital == null || P.IsOutOfOrbitalsLimit(orbital))
                 return false;
-            
-            P.ConstructionQueue.Add(new QueueItem(P)
-            {
-                isShip = true,
-                sData  = orbital.shipData,
-                Cost   = orbital.GetCost(P.Owner)
-            });
 
+            P.AddOrbital(orbital);
             return true;
         }
 
