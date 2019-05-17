@@ -28,7 +28,7 @@ namespace Ship_Game
 
             Food.Percent = 0;
             Prod.Percent = 0;
-            Res.Percent  = 0;
+            Res.Percent = 0;
 
             ColonyBudget budget = AllocateColonyBudget();
             switch (colonyType) // New resource management by Gretman 
@@ -78,13 +78,18 @@ namespace Ship_Game
 
         private void BuildPlatformsAndStations(float budget) // Rewritten by Fat Bastard
         {
-            if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals || SpaceCombatNearPlanet)
+            if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals
+                                                || SpaceCombatNearPlanet
+                                                || !HasSpacePort
+                                                || RecentCombat)
+            {
                 return;
+            }
 
-            var currentPlatforms      = FilterOrbitals(ShipData.RoleName.platform);
-            var currentStations       = FilterOrbitals(ShipData.RoleName.station);
-            int rank                  = FindColonyRank(log: true);
-            var wantedOrbitals        = new WantedOrbitals(rank);
+            var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
+            var currentStations = FilterOrbitals(ShipData.RoleName.station);
+            int rank = FindColonyRank(log: true);
+            var wantedOrbitals = new WantedOrbitals(rank);
 
             BuildShipyardIfAble(wantedOrbitals.Shipyards);
             BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank, budget);
@@ -109,13 +114,28 @@ namespace Ship_Game
         {
             // this also counts construction ships on the way, by checking the empire goals
             int numOrbitals = 0;
-            foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this))
+            foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
+                                                                     || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
             {
                 if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship orbital) && orbital.shipData.Role == role)
                     numOrbitals++;
             }
 
             return numOrbitals;
+        }
+
+        private int ShipyardsBeingBuilt()
+        {
+            //int shipyardsInQ = ConstructionQueue.Count(q => q.isShip && q.sData.IsShipyard);
+            int shipyardsInQ = 0;
+            foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
+                                                                     || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
+            {
+                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.shipData.IsShipyard)
+                    shipyardsInQ++;
+            }
+
+            return shipyardsInQ;
         }
 
         private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, int colonyRank, float budget)
@@ -159,7 +179,7 @@ namespace Ship_Game
 
         private void BuildOrbital(ShipData.RoleName role, int colonyRank, float budget)
         {
-            if (OrbitalsInTheWorks || !HasSpacePort)
+            if (OrbitalsInTheWorks)
                 return;
 
             Ship orbital = PickOrbitalToBuild(role, colonyRank, budget);
@@ -172,7 +192,7 @@ namespace Ship_Game
         private int TimeVsCostThreshold => 50 + (int)(Owner.Money / 1000);
 
         // Adds an Orbital to ConstructionQueue
-        private void AddOrbital(Ship orbital) 
+        public void AddOrbital(Ship orbital) 
         {
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
@@ -319,32 +339,25 @@ namespace Ship_Game
 
         private void BuildShipyardIfAble(int numWantedShipyards)
         {
-            if (numWantedShipyards == 0 || RecentCombat || !HasSpacePort || OrbitalsInTheWorks)
-                return;
-
-            if (NumShipyards >= numWantedShipyards
-                || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
-                return;
-
-            int shipyardsInQ = ConstructionQueue.Count(q => q.isShip && q.sData.IsShipyard);
-            float cost       = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner);
-            if (!LogicalBuiltTimecVsCost(cost, 30))
-                return;
-
-            if (NumShipyards + shipyardsInQ < numWantedShipyards)
+            if (numWantedShipyards == 0 || OrbitalsInTheWorks 
+                                        || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
             {
-                ConstructionQueue.Add(new QueueItem(this)
+                return;
+            }
+
+            if (NumShipyards + ShipyardsBeingBuilt() < numWantedShipyards)
+            {
+                string shipyardName = Owner.data.DefaultShipyard;
+                if (ResourceManager.GetShipTemplate(shipyardName, out Ship shipyard)
+                    && LogicalBuiltTimecVsCost(shipyard.GetCost(Owner), 50))
                 {
-                    isShip    = true,
-                    sData     = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
-                    Cost      = cost
-                });
+                    AddOrbital(shipyard);
+                }
             }
         }
 
         public void BuildMilitia()
         {
-            // Only for player empires, if they choose to build militia
             if (!Owner.isPlayer || !GovMilitia || colonyType == ColonyType.Colony)
                 return;
             if (CanBuildInfantry)
@@ -485,6 +498,19 @@ namespace Ship_Game
         {
             int rank = FindColonyRank();
             return new WantedOrbitals(rank);
+        }
+
+        public bool IsOutOfOrbitalsLimit(Ship ship)
+        {
+            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role);
+            int numShipyards = OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt();
+            if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
+                return true;
+
+            if (numShipyards >= ShipBuilder.ShipYardsLimit && ship.shipData.IsShipyard)
+                return true;
+
+            return false;
         }
     }
 }

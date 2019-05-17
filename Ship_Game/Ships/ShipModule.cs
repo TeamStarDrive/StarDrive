@@ -226,22 +226,22 @@ namespace Ship_Game.Ships
 
         void SetHealth(float newHealth)
         {
-            float maxHealth = ActualMaxHealth;
-            newHealth = newHealth.Clamped(0, maxHealth);
+            float maxHealth    = ActualMaxHealth;
+            newHealth          = newHealth.Clamped(0, maxHealth);
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
-            if (Health < 1)
+            if (Active && Health < 1)
             {
                 Die(LastDamagedBy, false);
                 Parent.shipStatusChanged = true;
             }
+
             Parent.AddShipHealth(healthChange);
         }
 
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
-
 
         ShipModule() : base(GameObjectType.ShipModule)
         {
