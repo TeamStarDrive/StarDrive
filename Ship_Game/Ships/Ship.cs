@@ -1617,7 +1617,7 @@ namespace Ship_Game.Ships
                     ReturnHome();
 
                 // Repair
-                if (Health < HealthMax)
+                if (Health.Less(HealthMax))
                 {
                     if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair))
                     {
