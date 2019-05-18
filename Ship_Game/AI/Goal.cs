@@ -20,7 +20,8 @@ namespace Ship_Game.AI
         IncreaseFreighters,
         BuildScout,
         FleetRequisition,
-        Refit
+        Refit,
+        BuildOrbital
     }
 
     public enum GoalStep
@@ -84,6 +85,7 @@ namespace Ship_Game.AI
                 case IncreaseFreighters.ID:     return new IncreaseFreighters();
                 case MarkForColonization.ID:    return new MarkForColonization();
                 case RefitShip.ID:              return new RefitShip();
+                case BuildOrbital.ID:           return new BuildOrbital();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
 
@@ -77,13 +78,18 @@ namespace Ship_Game
 
         private void BuildPlatformsAndStations(float budget) // Rewritten by Fat Bastard
         {
-            if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals)
+            if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals
+                                                || SpaceCombatNearPlanet
+                                                || !HasSpacePort
+                                                || RecentCombat)
+            {
                 return;
+            }
 
-            var currentPlatforms      = FilterOrbitals(ShipData.RoleName.platform);
-            var currentStations       = FilterOrbitals(ShipData.RoleName.station);
-            int rank                  = FindColonyRank(log: true);
-            var wantedOrbitals        = new WantedOrbitals(rank);
+            var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
+            var currentStations  = FilterOrbitals(ShipData.RoleName.station);
+            int rank             = FindColonyRank(log: true);
+            var wantedOrbitals   = new WantedOrbitals(rank);
 
             BuildShipyardIfAble(wantedOrbitals.Shipyards);
             BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank, budget);
@@ -104,9 +110,37 @@ namespace Ship_Game
             return orbitalList;
         }
 
+        private int OrbitalsBeingBuilt(ShipData.RoleName role)
+        {
+            // this also counts construction ships on the way, by checking the empire goals
+            int numOrbitals = 0;
+            foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
+                                                                     || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
+            {
+                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship orbital) && orbital.shipData.Role == role)
+                    numOrbitals++;
+            }
+
+            return numOrbitals;
+        }
+
+        private int ShipyardsBeingBuilt()
+        {
+            //int shipyardsInQ = ConstructionQueue.Count(q => q.isShip && q.sData.IsShipyard);
+            int shipyardsInQ = 0;
+            foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
+                                                                     || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
+            {
+                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.shipData.IsShipyard)
+                    shipyardsInQ++;
+            }
+
+            return shipyardsInQ;
+        }
+
         private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, int colonyRank, float budget)
         {
-            int orbitalsWeHave = orbitalList.Count;
+            int orbitalsWeHave = orbitalList.Count + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
 
@@ -122,7 +156,8 @@ namespace Ship_Game
                 BuildOrbital(role, colonyRank, budget);
                 return;
             }
-            if (orbitalsWeHave > 0)
+
+            if (orbitalList.Count > 0)
                 ReplaceOrbital(orbitalList, role, colonyRank, budget);  // check if we can replace an orbital with a better one
         }
 
@@ -144,7 +179,7 @@ namespace Ship_Game
 
         private void BuildOrbital(ShipData.RoleName role, int colonyRank, float budget)
         {
-            if (OrbitalsInTheWorks || !HasSpacePort)
+            if (OrbitalsInTheWorks)
                 return;
 
             Ship orbital = PickOrbitalToBuild(role, colonyRank, budget);
@@ -157,18 +192,13 @@ namespace Ship_Game
         private int TimeVsCostThreshold => 50 + (int)(Owner.Money / 1000);
 
         // Adds an Orbital to ConstructionQueue
-        private void AddOrbital(Ship orbital) 
+        public void AddOrbital(Ship orbital) 
         {
-            float cost = orbital.GetCost(Owner);
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {cost}, STR: {orbital.BaseStrength}");
-            ConstructionQueue.Add(new QueueItem(this)
-            {
-                isOrbital = true,
-                isShip    = true,
-                sData = orbital.shipData,
-                Cost = cost
-            });
+                Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
+
+            Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
+            Owner.GetEmpireAI().Goals.Add(buildOrbital);
         }
 
         private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role, int rank, float budget)
@@ -194,7 +224,7 @@ namespace Ship_Game
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, int colonyRank, float budget)
         {
-            Ship orbital         = GetBestOrbital(role, budget);
+            Ship orbital = GetBestOrbital(role, budget);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"Orbitals Budget: {budget}");
 
@@ -254,22 +284,22 @@ namespace Ship_Game
             {
                 switch (rank)
                 {
-                    case 1:  Platforms = 0;  Stations  = 0;  Shipyards = 0; break;
-                    case 2:  Platforms = 0;  Stations  = 0;  Shipyards = 0; break;
-                    case 3:  Platforms = 3;  Stations  = 0;  Shipyards = 0; break;
-                    case 4:  Platforms = 5;  Stations  = 0;  Shipyards = 0; break;
-                    case 5:  Platforms = 7;  Stations  = 0;  Shipyards = 0; break;
-                    case 6:  Platforms = 2;  Stations  = 1;  Shipyards = 1; break;
-                    case 7:  Platforms = 3;  Stations  = 2;  Shipyards = 1; break;
-                    case 8:  Platforms = 5;  Stations  = 2;  Shipyards = 1; break;
-                    case 9:  Platforms = 2;  Stations  = 3;  Shipyards = 1; break;
-                    case 10: Platforms = 5;  Stations  = 3;  Shipyards = 2; break;
-                    case 11: Platforms = 5;  Stations  = 4;  Shipyards = 2; break;
-                    case 12: Platforms = 2;  Stations  = 5;  Shipyards = 2; break;
-                    case 13: Platforms = 5;  Stations  = 6;  Shipyards = 2; break;
-                    case 14: Platforms = 9;  Stations  = 7;  Shipyards = 2; break;
-                    case 15: Platforms = 12; Stations  = 8;  Shipyards = 2; break;
-                    default: Platforms = 0;  Stations  = 0;  Shipyards = 0; break;
+                    case 1:  Platforms = 0;  Stations = 0;  Shipyards = 0; break;
+                    case 2:  Platforms = 0;  Stations = 0;  Shipyards = 0; break;
+                    case 3:  Platforms = 3;  Stations = 0;  Shipyards = 0; break;
+                    case 4:  Platforms = 5;  Stations = 0;  Shipyards = 0; break;
+                    case 5:  Platforms = 7;  Stations = 0;  Shipyards = 0; break;
+                    case 6:  Platforms = 2;  Stations = 1;  Shipyards = 1; break;
+                    case 7:  Platforms = 3;  Stations = 2;  Shipyards = 1; break;
+                    case 8:  Platforms = 5;  Stations = 2;  Shipyards = 1; break;
+                    case 9:  Platforms = 2;  Stations = 3;  Shipyards = 1; break;
+                    case 10: Platforms = 5;  Stations = 3;  Shipyards = 2; break;
+                    case 11: Platforms = 5;  Stations = 4;  Shipyards = 2; break;
+                    case 12: Platforms = 2;  Stations = 5;  Shipyards = 2; break;
+                    case 13: Platforms = 5;  Stations = 6;  Shipyards = 2; break;
+                    case 14: Platforms = 9;  Stations = 7;  Shipyards = 2; break;
+                    case 15: Platforms = 12; Stations = 8;  Shipyards = 2; break;
+                    default: Platforms = 0;  Stations = 0;  Shipyards = 0; break;
                 }
             }
         }
@@ -309,32 +339,25 @@ namespace Ship_Game
 
         private void BuildShipyardIfAble(int numWantedShipyards)
         {
-            if (numWantedShipyards == 0 || RecentCombat || !HasSpacePort || OrbitalsInTheWorks)
-                return;
-
-            if (NumShipyards >= numWantedShipyards
-                || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
-                return;
-
-            int shipyardsInQ = ConstructionQueue.Count(q => q.isShip && q.sData.IsShipyard);
-            float cost       = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner);
-            if (!LogicalBuiltTimecVsCost(cost, 30))
-                return;
-
-            if (NumShipyards + shipyardsInQ < numWantedShipyards)
+            if (numWantedShipyards == 0 || OrbitalsInTheWorks 
+                                        || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
             {
-                ConstructionQueue.Add(new QueueItem(this)
+                return;
+            }
+
+            if (NumShipyards + ShipyardsBeingBuilt() < numWantedShipyards)
+            {
+                string shipyardName = Owner.data.DefaultShipyard;
+                if (ResourceManager.GetShipTemplate(shipyardName, out Ship shipyard)
+                    && LogicalBuiltTimecVsCost(shipyard.GetCost(Owner), 50))
                 {
-                    isShip    = true,
-                    sData     = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
-                    Cost      = cost
-                });
+                    AddOrbital(shipyard);
+                }
             }
         }
 
         public void BuildMilitia()
         {
-            // Only for player empires, if they choose to build militia
             if (!Owner.isPlayer || !GovMilitia || colonyType == ColonyType.Colony)
                 return;
             if (CanBuildInfantry)
@@ -475,6 +498,19 @@ namespace Ship_Game
         {
             int rank = FindColonyRank();
             return new WantedOrbitals(rank);
+        }
+
+        public bool IsOutOfOrbitalsLimit(Ship ship)
+        {
+            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role);
+            int numShipyards = OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt();
+            if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
+                return true;
+
+            if (numShipyards >= ShipBuilder.ShipYardsLimit && ship.shipData.IsShipyard)
+                return true;
+
+            return false;
         }
     }
 }

@@ -66,19 +66,6 @@ namespace Ship_Game
             }
         }
 
-        public bool IsOutOfOrbitalsLimit(Ship ship)
-        {
-            int numOrbitals  = P.OrbitalStations.Count + P.NumOrbitalsInTheWorks;
-            int numShipyards = P.OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + P.NumShipYardsInTheWorks;
-            if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
-                return true;
-
-            if (numShipyards >= ShipBuilder.ShipYardsLimit && ship.shipData.IsShipyard)
-                return true;
-
-            return false;
-        }
-
         void PopulateRecruitableTroops()
         {
             string[] troopTypes = P.Owner.GetTroopsWeCanBuild();
@@ -459,20 +446,26 @@ namespace Ship_Game
         {
             for (int i = 0; i < repeat; i++)
             {
-                if (IsOutOfOrbitalsLimit(ship))
+                if (P.IsOutOfOrbitalsLimit(ship))
                 {
                     GameAudio.NegativeClick();
                     return;
                 }
 
-                P.ConstructionQueue.Add(new QueueItem(P)
+                if (ship.IsPlatformOrStation || ship.shipData.IsShipyard)
+                    P.AddOrbital(ship);
+                else
                 {
-                    isShip          = true,
-                    isOrbital       = ship.IsPlatformOrStation,
-                    sData           = ship.shipData,
-                    Cost            = ship.GetCost(P.Owner),
-                    ProductionSpent = 0f
-                });
+                    P.ConstructionQueue.Add(new QueueItem(P)
+                    {
+                        isShip = true,
+                        isOrbital = ship.IsPlatformOrStation,
+                        sData = ship.shipData,
+                        Cost = ship.GetCost(P.Owner),
+                        ProductionSpent = 0f
+                    });
+
+                }
             }
             GameAudio.AcceptClick();
         }
