@@ -80,7 +80,10 @@ namespace Ship_Game.AI
             Vector2 pos = goal.BuildPosition;
             Vector2 dir = Owner.Center.DirectionToTarget(pos);
             OrderMoveTowardsPosition(pos, dir, true, null);
-            AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f);
+            if (goal.type == GoalType.DeepSpaceConstruction) // deep space structures
+                AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f);
+            else // orbitals for planet defense
+                AddShipGoal(Plan.DeployOrbital, pos, dir, goal, goal.ToBuildUID, 0f);
         }
 
         public void OrderExplore()

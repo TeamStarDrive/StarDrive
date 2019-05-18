@@ -460,19 +460,20 @@ namespace Ship_Game
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                                 ? Color.White
                                 : Color.Yellow));
-                        string buildingat = "";
+
+                        string buildingAt = "";
                         foreach (Goal g in SelectedFleet.Owner.GetEmpireAI().Goals)
                         {
-                            if (!(g.guid == node.GoalGUID) || g.PlanetBuildingAt == null)
-                            {
+                            if (g.guid != node.GoalGUID || g.PlanetBuildingAt == null)
                                 continue;
-                            }
-                            buildingat = g.PlanetBuildingAt.Name;
+
+                            buildingAt = g.type == GoalType.Refit ? $"Refitting at:\n{g.PlanetBuildingAt.Name}" 
+                                                                  : $"Building at:\n{g.PlanetBuildingAt.Name}";
                         }
-                        batch.DrawString(Fonts.Arial8Bold,
-                            (!string.IsNullOrEmpty(buildingat)
-                                ? string.Concat("Building at:\n", buildingat)
-                                : "Need spaceport"), pPos + new Vector2(5f, -5f), Color.White);
+                        if (buildingAt.IsEmpty())
+                            buildingAt = "Need spaceport";
+
+                        batch.DrawString(Fonts.Arial8Bold, buildingAt, pPos + new Vector2(5f, -5f), Color.White);
                     }
                 }
                 else

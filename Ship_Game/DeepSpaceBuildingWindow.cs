@@ -229,14 +229,25 @@ namespace Ship_Game
             Ray pickRay = new Ray(nearPoint, direction);
             float k = -pickRay.Position.Z / pickRay.Direction.Z;
             Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-            Goal buildstuff = new BuildConstructionShip(pickedPosition.ToVec2(), itemToBuild.Name, EmpireManager.Player);
-            if (TargetPlanet != Guid.Empty)
+
+            bool okToBuild = TargetPlanet == Guid.Empty
+                              || TargetPlanet != Guid.Empty && !Empire.Universe.PlanetsDict[TargetPlanet].IsOutOfOrbitalsLimit(itemToBuild);
+
+            if (okToBuild)
             {
-                buildstuff.TetherOffset = TetherOffset;
-                buildstuff.TetherTarget = TargetPlanet;
+                Goal buildStuff = new BuildConstructionShip(pickedPosition.ToVec2(), itemToBuild.Name, EmpireManager.Player);
+                if (TargetPlanet != Guid.Empty)
+                {
+                    buildStuff.TetherOffset = TetherOffset;
+                    buildStuff.TetherTarget = TargetPlanet;
+                }
+
+                EmpireManager.Player.GetEmpireAI().Goals.Add(buildStuff);
+                GameAudio.EchoAffirmative();
             }
-            EmpireManager.Player.GetEmpireAI().Goals.Add(buildstuff);
-            GameAudio.EchoAffirmative();
+            else
+                GameAudio.NegativeClick();
+            
             lock (GlobalStats.ClickableItemLocker)
             {
                 screen.UpdateClickableItems();

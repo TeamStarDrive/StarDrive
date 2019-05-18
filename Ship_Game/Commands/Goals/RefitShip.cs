@@ -48,6 +48,15 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;  // No planet to refit the ship was found
             }
 
+            if (Fleet != null)
+            {
+                if (Fleet.FindShipNode(OldShip, out FleetDataNode node))
+                {
+                    Fleet.AssignGoalGuid(node, guid);
+                    Fleet.AssignShipName(node, ToBuildUID);
+                }
+            }
+
             OldShip.ClearFleet();
             OldShip.AI.OrderRefitTo(PlanetBuildingAt, this);
             return GoalStep.GoToNextStep;
@@ -56,7 +65,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         GoalStep WaitForOldShipAtPlanet()
         {
             if (!OldShipOnPlan)
+            {
+                RemoveGoalFromFleet();
                 return GoalStep.GoalFailed;
+            }
 
             if (OldShip.Center.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 150f))
                 return GoalStep.GoToNextStep;
@@ -67,11 +79,17 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         GoalStep BuildNewShip()
         {
             if (!OldShipWaitingForRefit)
+            {
+                RemoveGoalFromFleet();
                 return GoalStep.GoalFailed;
+            }
 
             Ship newShip = ResourceManager.GetShipTemplate(ToBuildUID, false);
             if (newShip == null)
-                return GoalStep.GoalFailed; // Could not find ship to build in ship dictionary
+            {
+                RemoveGoalFromFleet();
+                return GoalStep.GoalFailed;  // Could not find ship to build in ship dictionary
+            }
 
             var qi = new QueueItem(PlanetBuildingAt)
             {
@@ -89,7 +107,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         GoalStep AddShipDataAndFleet()
         {
             if (FinishedShip == null)
+            {
+                RemoveGoalFromFleet();
                 return GoalStep.GoalFailed;
+            }
 
             if (VanityName != null)
                 FinishedShip.VanityName = VanityName;
@@ -97,9 +118,19 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             FinishedShip.Level = ShipLevel;
             if (Fleet != null)
             {
-                Fleet.AddExistingShip(FinishedShip);
-                FinishedShip.AI.SetPriorityOrder(false);
-                FinishedShip.AI.OrderMoveTowardsPosition(Fleet.Position + FinishedShip.FleetOffset, FinishedShip.fleet.Direction, true, null);
+                if (Fleet.FindNodeWithGoalGuid(guid, out FleetDataNode node))
+                {
+                    Fleet.AddExistingShip(FinishedShip, node);
+                    Fleet.RemoveGoalGuid(node);
+                    if (Fleet.Ships.Count == 0)
+                        Fleet.Position = FinishedShip.Position + RandomMath.Vector2D(3000f);
+
+                    if (Fleet.Position == Vector2.Zero)
+                        Fleet.Position = empire.FindNearestRallyPoint(FinishedShip.Center).Center;
+
+                    FinishedShip.RelativeFleetOffset = node.FleetOffset;
+                    FinishedShip.AI.OrderMoveTowardsPosition(Fleet.Position + FinishedShip.RelativeFleetOffset, Fleet.Direction, true, null);
+                }
             }
 
             return GoalStep.GoalComplete;
@@ -125,6 +156,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
                 return OldShip.AI.State == AIState.HoldPosition || OldShip.DoingRefit;
             }
+        }
+
+        void RemoveGoalFromFleet()
+        {
+            Fleet?.RemoveGoalGuid(guid);
         }
     }
 }

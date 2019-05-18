@@ -385,11 +385,6 @@ namespace Ship_Game
                         }
                     }
 
-                    foreach (FleetDataNode node in fleetsave.DataNodes)
-                    {
-                        fleet.DataNodes.Add(node);
-                    }
-
                     foreach (FleetDataNode node in fleet.DataNodes)
                     {
                         foreach (Ship ship in fleet.Ships)
@@ -537,7 +532,7 @@ namespace Ship_Game
                         }
                     }
 
-                    if (sg.Plan == ShipAI.Plan.DeployStructure)
+                    if (sg.Plan == ShipAI.Plan.DeployStructure || sg.Plan == ShipAI.Plan.DeployOrbital)
                         ship.isConstructor = true;
 
                     ship.AI.AddGoalFromSave(sg, data);

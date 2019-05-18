@@ -147,7 +147,7 @@ namespace Ship_Game.AI.CombatTactics
             int salvosRemaining = Owner.Weapons.Sum(w => w.SalvosToFire);
             if (salvosRemaining != 0) return false;
 
-            float cooldownTime = Owner.Weapons.Average(w => w.CooldownTimer);
+            float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Average(w => w.CooldownTimer);
             if (cooldownTime <= 0f) return false;
 
             float averageSpeed = Owner.Weapons.Average(w => w.ProjectileSpeed);

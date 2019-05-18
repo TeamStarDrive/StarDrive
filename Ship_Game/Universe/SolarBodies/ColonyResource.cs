@@ -253,12 +253,15 @@ namespace Ship_Game.Universe.SolarBodies
         // revenue after maintenance was deducted
         public float NetRevenue { get; private set; }
 
+        // Maximum Revenue from this planet if Tax is 100%
+        public float PotentialRevenue { get; private set; }
+
         public ColonyMoney(Planet planet) { Planet = planet; }
 
         public float NetRevenueGain(Building b)
         {
             float newPopulation = b.MaxPopIncrease/1000f;
-            float grossIncome = newPopulation*IncomePerColonist*TaxRate;
+            float grossIncome   = newPopulation * IncomePerColonist * TaxRate;
             return grossIncome - b.Maintenance;
         }
 
@@ -267,22 +270,25 @@ namespace Ship_Game.Universe.SolarBodies
             // Base tax rate comes from current empire tax %
             TaxRate = Planet.Owner.data.TaxRate;
 
-            Maintenance = 0f;
-            IncomePerColonist = 1f;
+            Maintenance             = 0f;
+            IncomePerColonist       = 1f;
             float taxRateMultiplier = 1f + Planet.Owner.data.Traits.TaxMod;
             foreach (Building b in Planet.BuildingList)
             {
                 IncomePerColonist += b.CreditsPerColonist;
                 taxRateMultiplier += b.PlusTaxPercentage;
-                Maintenance += b.Maintenance;
+                Maintenance       += b.Maintenance;
             }
 
             // And finally we adjust local TaxRate by the bonus multiplier
-            TaxRate *= taxRateMultiplier;
+            TaxRate     *= taxRateMultiplier;
             Maintenance *= Planet.Owner.data.Traits.MaintMultiplier;
 
             GrossRevenue = Planet.PopulationBillion * IncomePerColonist * TaxRate;
             NetRevenue   = GrossRevenue - Maintenance;
+
+            // Needed for empire treasury goal
+            PotentialRevenue = Planet.PopulationBillion * IncomePerColonist * taxRateMultiplier;
         }
     }
 }

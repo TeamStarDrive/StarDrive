@@ -467,11 +467,15 @@ namespace Ship_Game
             if (TerraformToAdd.LessOrEqual(0))
                 return;
 
-            TerraformPoints        += TerraformToAdd; 
-            AddMaxFertility(TerraformToAdd);
-            MaxFertility            = MaxFertility.Clamped(0f, TerraformTargetFertility);
-            bool improved           = ImprovePlanetType(TerraformPoints);
-            if (TerraformPoints.AlmostEqual(1)) // scrap Terraformers - their job is done
+            TerraformPoints += TerraformToAdd;
+            if (MaxFertility.Less(TerraformTargetFertility))
+            {
+                AddMaxFertility(TerraformToAdd);
+                MaxFertility = MaxFertility.Clamped(0f, TerraformTargetFertility);
+            }
+
+            bool improved = ImprovePlanetType(TerraformPoints);
+            if (TerraformPoints.GreaterOrEqual(1)) // scrap Terraformers - their job is done
             {
                 foreach (PlanetGridSquare planetGridSquare in TilesList)
                 {
@@ -854,9 +858,10 @@ namespace Ship_Game
             if (!ParentSystem.HostileForcesPresent(Owner))
                 return false;
 
+            float distance = GravityWellRadius.Clamped(7500, 15000);
             foreach (Ship ship in ParentSystem.ShipList)
             {
-                if (Owner.IsEmpireAttackable(ship.loyalty) && ship.InRadius(Center, SensorRange))
+                if (Owner.IsEmpireAttackable(ship.loyalty) && ship.InRadius(Center, distance))
                     return true;
             }
             return false;
