@@ -580,7 +580,11 @@ namespace Ship_Game.Ships
             Point a = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));
             Point b = WorldToGridLocalPointClipped(worldHitPos + new Vector2(hitRadius));
             if (!ClippedLocalPointInBounds(a) && !ClippedLocalPointInBounds(b))
-                return;
+            {
+                if (!LocalPointInBounds(WorldToGridLocalPoint(worldHitPos)))
+                    return;
+            }
+
 
             ShipModule[] grid = SparseModuleGrid;
             int width = GridWidth;
@@ -793,7 +797,7 @@ namespace Ship_Game.Ships
             if (level > 1)
             {
                 // Sort Descending (-), so first element is the module with greatest TargettingValue
-                modules.Sort(m => -m.ModuleTargettingValue);
+                modules.Sort(m => -m.ModuleTargetingValue);
             }
 
             // higher levels lower the limit, which causes a better random pick

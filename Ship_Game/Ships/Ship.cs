@@ -347,20 +347,28 @@ namespace Ship_Game.Ships
                 ShipModule module = ModuleSlotList[i];
                 if (!module.isExternal) // only apply radiation to outer modules
                     continue;
+
                 if (IsCoveredByShield(module, out ShipModule shield))
                 {
-                    // only damage shields once, depending on their radius
+                    // only damage shields once, depending on their radius and their energy resistance
                     if (!damagedShields.Contains(shield))
                     {
-                        float damageAbsorb = 0.5f; // @todo Radiation Resistance
+                        float damageAbsorb = 1 - shield.shield_energy_resist;
                         shield.Damage(damageCauser, damage * damageAbsorb * shield.ShieldHitRadius);
                         damagedShields.Add(shield);
                     }
                 }
                 else
                 {
-                    // again, damage also depends on module radius
-                    module.Damage(damageCauser, damage * module.Radius);
+                    // again, damage also depends on module radius and their energy resistance
+                    float damageAbsorb = 1 - module.EnergyResist;
+                    module.Damage(damageCauser, damage * damageAbsorb * module.Radius);
+                    if (InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                    {
+                        // visualize radiation hits on external modules
+                        for (int j = 0; j < 50; j++)
+                            Empire.Universe.sparks.AddParticleThreadB(module.GetCenter3D, Vector3.Zero);
+                    }
                 }
             }
         }
@@ -1609,7 +1617,7 @@ namespace Ship_Game.Ships
                     ReturnHome();
 
                 // Repair
-                if (Health < HealthMax)
+                if (Health.Less(HealthMax))
                 {
                     if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair))
                     {

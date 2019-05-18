@@ -71,6 +71,7 @@ namespace Ship_Game
         private bool InitializedHostilesDict;
         public float NetPlanetIncomes { get; private set; }
         public float GrossPlanetIncome { get; private set; }
+        public float PotentialIncome { get; private set; }
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
         public float MoneyLastTurn;
         public int AllTimeTradeIncome;
@@ -1391,12 +1392,14 @@ namespace Ship_Game
             NetPlanetIncomes              = 0;
             GrossPlanetIncome             = 0;
             ExcessGoodsMoneyAddedThisTurn = 0;
+            PotentialIncome               = 0;
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
                 {
                     planet.UpdateIncomes(false);
                     NetPlanetIncomes              += planet.Money.NetRevenue;
                     GrossPlanetIncome             += planet.Money.GrossRevenue;
+                    PotentialIncome               += planet.Money.PotentialRevenue;
                     ExcessGoodsMoneyAddedThisTurn += planet.ExcessGoodsIncome;
                 }
         }
@@ -2557,7 +2560,7 @@ namespace Ship_Game
             for (int i = 0; i < list.Count; i++)
             {
                 Planet planet = list[i];
-                planet.AddFertility(amount);
+                planet.AddMaxFertility(amount);
             }
         }
 
