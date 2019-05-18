@@ -62,11 +62,11 @@ namespace Ship_Game
             {
                 DrawRectangle(highlighted.ModuleRect, Color.DarkOrange, 1.25f);
 
-                if (Input.LeftMouseHeld())
+                if (IsSymmetricDesignMode)
                 {
                     if (GetMirrorSlotStruct(highlighted, out SlotStruct mirrored))
                     {
-                        DrawRectangle(mirrored.ModuleRect, Color.DarkOrange.Alpha(0.33f), 1.25f);
+                        DrawRectangle(mirrored.ModuleRect, Color.DarkOrange.Alpha(0.66f), 1.25f);
                     }
                 }
             }
@@ -108,7 +108,8 @@ namespace Ship_Game
             }
         }
 
-        static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, SlotStruct slot, Rectangle r, ShipModule template = null)
+        static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, 
+            SlotStruct slot, Rectangle r, ShipModule template = null, float alpha = 1)
         {
             SpriteEffects effects = SpriteEffects.None;
             float rotation        = 0f;
@@ -151,7 +152,7 @@ namespace Ship_Game
                     break;
                 }
             }
-            spriteBatch.Draw(texture, r, Color.White, rotation, Vector2.Zero, effects, 1f);
+            spriteBatch.Draw(texture, r, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
         }
 
         void DrawTacticalOverlays(SpriteBatch batch)
@@ -294,16 +295,73 @@ namespace Ship_Game
                           (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
                           (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
             DrawModuleTex(ActiveModState, spriteBatch, null, r, moduleTemplate);
-            if (!(ActiveModule.shield_power_max > 0f))
+            int mirrorX = DrawActiveMirrorModule(spriteBatch, moduleTemplate, r.X);
+
+            if (ActiveModule.shield_power_max.AlmostZero())
                 return;
 
+            Vector2 normalizeShieldCircle;;
             var center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y);
             if (ActiveModState == ModuleOrientation.Normal || ActiveModState == ModuleOrientation.Rear)
-                center += new Vector2(moduleTemplate.XSIZE * 16 / 2f, moduleTemplate.YSIZE * 16 / 2f);
+                normalizeShieldCircle = new Vector2(moduleTemplate.XSIZE * 16 / 2f, moduleTemplate.YSIZE * 16 / 2f);
             else
-                center += new Vector2(moduleTemplate.YSIZE * 16 / 2f, moduleTemplate.XSIZE * 16 / 2f);
+                normalizeShieldCircle = new Vector2(moduleTemplate.YSIZE * 16 / 2f, moduleTemplate.XSIZE * 16 / 2f);
 
+            center += normalizeShieldCircle;
             DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
+            if (IsSymmetricDesignMode)
+            {
+                Vector2 mirrorCenter = new Vector2(mirrorX, Input.CursorPosition.Y);
+                mirrorCenter += normalizeShieldCircle;
+                DrawCircle(mirrorCenter, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen.Alpha(0.5f));
+            }
+        }
+
+        int  DrawActiveMirrorModule(SpriteBatch spriteBatch, ShipModule moduleTemplate, int activeModuleX)
+        {
+            if (!IsSymmetricDesignMode)
+                return 0;
+
+            int effectiveWidth = ActiveModState == ModuleOrientation.Left || ActiveModState == ModuleOrientation.Right
+                               ? moduleTemplate.YSIZE
+                               : moduleTemplate.XSIZE;
+
+            int res          = GlobalStats.XRES / 2;
+            int zoomOffset   = (int)(effectiveWidth * 16 * (2.65 - Camera.Zoom)); // 2.65 is maximum zoom
+            int cameraOffset = (int)(res - CameraPosition.X * Camera.Zoom);
+            int mirrorX      = (int)(cameraOffset + (cameraOffset - Input.CursorPosition.X - 40 * effectiveWidth));
+            mirrorX         += zoomOffset;
+
+            if (MirroredModulesTooClose(mirrorX, activeModuleX, effectiveWidth))
+                return 0;
+
+            // Log.Info($"x: {Input.CursorPosition.X} Zoom: {Camera.Zoom} Mirror: {x} Camera: {CameraPosition.X}");
+            var rMir = new Rectangle(mirrorX, (int)Input.CursorPosition.Y,
+            (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
+            (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
+            ModuleOrientation orientation;
+            switch (ActiveModState)
+            {
+                case ModuleOrientation.Left:  orientation = ModuleOrientation.Right; break;
+                case ModuleOrientation.Right: orientation = ModuleOrientation.Left;  break;
+                default:                      orientation = ActiveModState;          break;
+            }
+
+            DrawModuleTex(orientation, spriteBatch, null, rMir, moduleTemplate, 0.5f);
+            return mirrorX;
+        }
+
+        bool MirroredModulesTooClose(int mirrorX, int activeModuleX, int effectiveWidth)
+        {
+            if (mirrorX > activeModuleX)
+            {
+                if (mirrorX + 20 * (2.65 - Camera.Zoom) - (activeModuleX + (effectiveWidth - 1) * 24) < 0)
+                    return true;
+            }
+            else if (activeModuleX + 20 * (2.65 - Camera.Zoom) - (mirrorX + (effectiveWidth + 1) * 24) < 0)
+                return true;
+
+            return false;
         }
 
         void DrawDebug()
