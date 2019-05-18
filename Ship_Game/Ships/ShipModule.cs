@@ -346,11 +346,11 @@ namespace Ship_Game.Ships
             module.Initialize(slot.Position, isTemplate);
             if (fromSave)
             {
-                module.SetHealth(slot.Health);
-                module.Active         = slot.Health > 0.01f;
-                module.ShieldPower    = slot.ShieldPower;
-                module.ShieldUpChance = slot.ShieldUpChance;
+                module.Active                = slot.Health > 0.01f;
+                module.ShieldPower           = slot.ShieldPower;
+                module.ShieldUpChance        = slot.ShieldUpChance;
                 module.ShieldPowerBeforeWarp = slot.ShieldPowerBeforeWarp;
+                module.SetHealth(slot.Health);
             }
             return module;
         }
