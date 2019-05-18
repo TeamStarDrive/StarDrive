@@ -313,7 +313,7 @@ namespace Ship_Game
             {
                 Vector2 mirrorCenter = new Vector2(mirrorX, Input.CursorPosition.Y);
                 mirrorCenter += normalizeShieldCircle;
-                DrawCircle(mirrorCenter, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
+                DrawCircle(mirrorCenter, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen.Alpha(0.5f));
             }
         }
 
@@ -347,7 +347,7 @@ namespace Ship_Game
                 default:                      orientation = ActiveModState;          break;
             }
 
-            DrawModuleTex(orientation, spriteBatch, null, rMir, moduleTemplate, 0.66f);
+            DrawModuleTex(orientation, spriteBatch, null, rMir, moduleTemplate, 0.5f);
             return mirrorX;
         }
 
