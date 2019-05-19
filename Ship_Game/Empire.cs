@@ -2624,8 +2624,6 @@ namespace Ship_Game
                 return true;
             if (rel.Treaty_NAPact)
                 return false;
-            if (target != null && rel.Treaty_Trade && target is Ship ship && ship.IsFreighter)
-                return false;
             if (isFaction || targetEmpire.isFaction)
                 return true;
             if (rel.TotalAnger > 50)
