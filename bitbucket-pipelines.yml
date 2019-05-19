@@ -8,6 +8,8 @@
 pipelines:
   default:
     - step:
+        name: Staging
+        deployment: Test
         script:
           - ls
           - cd Deploy
