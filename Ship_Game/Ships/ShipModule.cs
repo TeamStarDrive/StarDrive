@@ -586,7 +586,7 @@ namespace Ship_Game.Ships
                 damageRemainder = 0f;
                 if (source != null) EvtDamageInflicted(source, 0f);
                 {
-                    Deflect(source); // FB: the projectile was deflected from the module due to deflection value
+                    Deflect(source); // FB: the projectile was deflected
                     return; 
                 }
             }
@@ -605,7 +605,7 @@ namespace Ship_Game.Ships
 
         private void Deflect(GameplayObject source)
         {
-            if (!Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            if (!Parent.InFrustum || Empire.Universe?.viewState > UniverseScreen.UnivScreenState.ShipView)
                 return;
 
             if (!(source is Projectile proj))

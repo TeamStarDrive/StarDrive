@@ -252,7 +252,7 @@ namespace Ship_Game.Gameplay
             Loyalty              = empire;
             Deflected            = true;
             Vector2 newDirection = RandomMath.RandomDirection();
-            float momentumLoss   = 11 - RandomMath.RollDie(6);
+            float momentumLoss   = 9 - RandomMath.RollDie(6);
             Duration            *= momentumLoss / 10;
             Speed               *= momentumLoss / 10;
             Velocity             = Speed * newDirection;
