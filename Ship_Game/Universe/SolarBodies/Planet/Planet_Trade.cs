@@ -39,7 +39,7 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportFood)
                     return 0;
 
-                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(0, 7);
+                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(1, 7);
             }
         }
 
