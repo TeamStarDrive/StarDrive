@@ -247,7 +247,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void Deflect(Empire empire, Vector3 deflectPoint)
+        public void Deflect(Empire empire, Vector3 deflectionPoint)
         {
             Loyalty              = empire;
             Deflected            = true;
@@ -258,7 +258,7 @@ namespace Ship_Game.Gameplay
             Velocity             = Speed * newDirection;
             Rotation             = Velocity.Normalized().ToRadians();
             if (RandomMath.RollDie(2) == 2)
-                Empire.Universe.beamflashes.AddParticleThreadB(GetBackgroundPos(deflectPoint), Vector3.Zero);
+                Empire.Universe.beamflashes.AddParticleThreadB(GetBackgroundPos(deflectionPoint), Vector3.Zero);
         }
 
         public override Vector2 JammingError()
