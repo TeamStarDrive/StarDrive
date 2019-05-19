@@ -231,7 +231,7 @@ namespace Ship_Game.Ships
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
-            if (Active && Health < 1)
+            if (Active && Health.AlmostZero())
             {
                 Die(LastDamagedBy, false);
                 Parent.shipStatusChanged = true;
