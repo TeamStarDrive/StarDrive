@@ -2399,7 +2399,7 @@ namespace Ship_Game
                     s.AI.ClearOrders();
                 }
 
-                if (IsCybernetic)
+                if (IsCybernetic) // FB: this is not needed if governors are on. They wil deal with this
                 {
                     foreach (Planet planet in OwnedPlanets)
                     {
@@ -2623,6 +2623,8 @@ namespace Ship_Game
             if(!rel.Known || rel.AtWar)
                 return true;
             if (rel.Treaty_NAPact)
+                return false;
+            if (target != null && rel.Treaty_Trade && target is Ship ship && ship.IsFreighter)
                 return false;
             if (isFaction || targetEmpire.isFaction)
                 return true;
