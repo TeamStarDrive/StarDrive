@@ -2399,7 +2399,7 @@ namespace Ship_Game
                     s.AI.ClearOrders();
                 }
 
-                if (IsCybernetic) // FB: this is not needed if governors are on. They wil deal with this
+                if (IsCybernetic)
                 {
                     foreach (Planet planet in OwnedPlanets)
                     {
