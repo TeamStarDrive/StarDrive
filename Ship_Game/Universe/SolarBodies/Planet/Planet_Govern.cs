@@ -144,7 +144,7 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
 
-            if (orbitalsWeHave > orbitalsWeWant)
+            if (orbitalList.NotEmpty && orbitalsWeHave > orbitalsWeWant)
             {
                 Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
                 ScrapOrbital(weakest); // remove this old garbage

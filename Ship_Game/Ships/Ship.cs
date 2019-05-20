@@ -1,8 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using SgMotion.Controllers;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Debug;
@@ -190,7 +187,7 @@ namespace Ship_Game.Ships
             {
                 if (isColonyShip || isConstructor || CargoSpaceMax < 1f)
                     return false;
-                return shipData.Role == ShipData.RoleName.freighter
+                return DesignRole == ShipData.RoleName.freighter
                     || shipData.ShipCategory == ShipData.Category.Civilian
                     || shipData.ShipCategory == ShipData.Category.Unclassified;
             }
@@ -388,15 +385,15 @@ namespace Ship_Game.Ships
                 return true;
 
             if ((DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troop)
-                && System != null && attacker.GetOwnedSystems().Contains(System))
+                && System != null && attacker.GetOwnedSystems().ContainsRef(System))
                 return true;
 
             // the below does a search for being inborders so its expensive.
-            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
+            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker
+                    , AI.State == AIState.SystemTrader)
                 && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(this))
             {
-                //if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");
-                return true;
+                    return true;
             }
             return false;
         }
