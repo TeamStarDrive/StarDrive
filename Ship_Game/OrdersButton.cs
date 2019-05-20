@@ -273,54 +273,25 @@ namespace Ship_Game
             {
                 //this.Hover = true;
                 ToolTip.CreateTooltip(ID_tip);
-                if (SimpleToggle && input.InGameSelect)
+                if (SimpleToggle && input.InGameSelect || input.RightMouseClick)
                 {
                     GameAudio.AcceptClick();
                     switch (orderType)
                     {
-                        /*
-                         FB @todo this one is not working for groups. Need to check this
-                         when selecting multiple freighters, the manual trade buttons are not drawn. 
-
                         case OrderType.TradeFood:
-                            {
-                                for (int i = 0; i < ShipList.Count; i++)
-                                {
-                                    ShipList[i].TransportingFood = !ShipList[i].TransportingFood;
-                                }
-
-                                return true;
-                            }
+                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].TransportingFood       = !input.RightMouseClick; return true;
                         case OrderType.TradeProduction:
-                        {
-                                for (int i = 0; i < ShipList.Count; i++)
-                                {
-                                    ShipList[i].TransportingProduction = !ShipList[i].TransportingProduction;
-                                }
-                            return true;
-                        }*/
+                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].TransportingProduction = !input.RightMouseClick; return true;
                         case OrderType.PassTran:
-                        {
-                            return true;
-                        }
+                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].TransportingColonists  = !input.RightMouseClick; return true;
+                        case OrderType.Explore:
+                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].AI.OrderExplore();                               return true;
+                        case OrderType.OrderResupply:
+                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].Supply.ResupplyFromButton();                     return true;
+                        case OrderType.Scrap:
+                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].AI.OrderScrapShip();                             return true;
                         case OrderType.TroopToggle:
                         {
-                            return true;
-                        }
-                        case OrderType.Explore:
-                        {
-                            for (int i = 0; i < ShipList.Count; i++)
-                            {
-                                ShipList[i].AI.OrderExplore();
-                            }
-                            return true;
-                        }
-                        case OrderType.OrderResupply:
-                        {
-                            for (int i = 0; i < ShipList.Count; i++)
-                            {
-                                ShipList[i].Supply.ResupplyFromButton();
-                            }
                             return true;
                         }
                         case OrderType.EmpireDefense:
@@ -345,14 +316,6 @@ namespace Ship_Game
                                         ship.AI.SystemToDefendGuid = Guid.Empty;
                                     }
                                 }
-                            }
-                            return true;
-                        }
-                        case OrderType.Scrap:
-                        {
-                            for (int i = 0; i < ShipList.Count; i++)
-                            {
-                                ShipList[i].AI.OrderScrapShip();
                             }
                             return true;
                         }
