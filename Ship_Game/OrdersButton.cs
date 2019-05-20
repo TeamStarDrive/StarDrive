@@ -276,55 +276,28 @@ namespace Ship_Game
                 if (SimpleToggle && input.InGameSelect || input.RightMouseClick)
                 {
                     GameAudio.AcceptClick();
-                    switch (orderType)
+                    for (int i = 0; i < ShipList.Count; i++)
                     {
-                        case OrderType.TradeFood:
-                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].TransportingFood       = !input.RightMouseClick; return true;
-                        case OrderType.TradeProduction:
-                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].TransportingProduction = !input.RightMouseClick; return true;
-                        case OrderType.PassTran:
-                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].TransportingColonists  = !input.RightMouseClick; return true;
-                        case OrderType.Explore:
-                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].AI.OrderExplore();                               return true;
-                        case OrderType.OrderResupply:
-                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].Supply.ResupplyFromButton();                     return true;
-                        case OrderType.Scrap:
-                            for (int i = 0; i < ShipList.Count; i++) ShipList[i].AI.OrderScrapShip();                             return true;
-                        case OrderType.TroopToggle:
+                        Ship ship = ShipList[i];
+                        switch (orderType)
                         {
-                            return true;
-                        }
-                        case OrderType.EmpireDefense:
-                        {
-                            for (int i = 0; i < ShipList.Count; i++)
-                            {
-                                Ship ship = ShipList[i];
-                                lock (ship)
-                                {
-                                    if (!EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
-                                    {
-                                        EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
-                                        ship.AI.ClearOrders();
-                                        ship.AI.SystemToDefend = null;
-                                        ship.AI.SystemToDefendGuid = Guid.Empty;
-                                    }
-                                    else
-                                    {
-                                        EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Remove(ship);
-                                        ship.AI.ClearOrders();
-                                        ship.AI.SystemToDefend = null;
-                                        ship.AI.SystemToDefendGuid = Guid.Empty;
-                                    }
-                                }
-                            }
-                            return true;
-                        }
-                        default:
-                        {
-                            return true;
+                            case OrderType.TradeFood:       ship.TransportingFood         = !input.RightMouseClick; break;
+                            case OrderType.TradeProduction: ship.TransportingProduction   = !input.RightMouseClick; break;
+                            case OrderType.PassTran:        ship.TransportingColonists    = !input.RightMouseClick; break;
+                            case OrderType.FighterToggle:   ship.FightersOut              = !input.RightMouseClick; break;
+                            case OrderType.FighterRecall:   ship.RecallFightersBeforeFTL  = !input.RightMouseClick; break;
+                            case OrderType.TroopToggle:     ship.TroopsOut                = !input.RightMouseClick; break;
+                            case OrderType.SendTroops:      ship.Carrier.SendTroopsToShip = !input.RightMouseClick; break;
+                            case OrderType.Explore:         ship.AI.OrderExplore();                                 break;
+                            case OrderType.OrderResupply:   ship.Supply.ResupplyFromButton();                       break;
+                            case OrderType.Scrap:           ship.AI.OrderScrapShip();                               break;
+                            case OrderType.EmpireDefense:   AddOrRemoveFromForcePool(ship);                         break;
                         }
                     }
+
+                    return true;
                 }
+
                 if (input.InGameSelect)
                 {
                     GameAudio.AcceptClick();
@@ -342,6 +315,27 @@ namespace Ship_Game
                 }
             }
             return hovering;
+        }
+
+        void AddOrRemoveFromForcePool(Ship ship)
+        {
+            lock (ship)
+            {
+                if (!EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
+                {
+                    EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
+                    ship.AI.ClearOrders();
+                    ship.AI.SystemToDefend = null;
+                    ship.AI.SystemToDefendGuid = Guid.Empty;
+                }
+                else
+                {
+                    EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Remove(ship);
+                    ship.AI.ClearOrders();
+                    ship.AI.SystemToDefend = null;
+                    ship.AI.SystemToDefendGuid = Guid.Empty;
+                }
+            }
         }
     }
 }

@@ -691,16 +691,24 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(tpass);
             }
-            if (Ship.Carrier.AllTroopBays.Length > 0)
+            if (Ship.Carrier.HasTroopBays)
             {
                 OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.SendTroops, 18)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.Carrier.SendTroopsToShip)
                 };
                 Orders.Add(ob);
+
+                OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
+                {
+                    ValueToModify = new Ref<bool>(() => Ship.TroopsOut, x => {
+                        Ship.TroopsOut = !Ship.TroopsOut;
+                    })
+                };
+                Orders.Add(ob2);
             }
             
-            if (Ship.Carrier.AllFighterHangars.Length > 0)
+            if (Ship.Carrier.HasFighterBays)
             {
                 OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
                 {
@@ -711,17 +719,8 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
-            if (Ship.Carrier.HasActiveTroopBays)
-            {
-                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
-                {
-                    ValueToModify = new Ref<bool>(() => Ship.TroopsOut, x => {
-                        Ship.TroopsOut = !Ship.TroopsOut;
-                    })
-                };
-                Orders.Add(ob);
-            }
-            if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasActiveTroopBays || Ship.Carrier.AllFighterHangars.Length > 0))
+
+            if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.HasFighterBays))
             {
                 OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
                 {
