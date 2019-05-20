@@ -15,6 +15,7 @@ namespace Ship_Game.Ships
         public readonly bool HasHangars;
         public readonly bool HasSupplyBays;
         public readonly bool HasFighterBays;
+        public readonly bool HasTroopBays;
         public readonly bool HasActiveTroopBays;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
@@ -34,6 +35,7 @@ namespace Ship_Game.Ships
             HasSupplyBays           = AllSupplyBays.Length > 0;
             HasFighterBays          = AllFighterHangars.Length > 0;
             HasActiveTroopBays      = AllActiveTroopBays.Length > 0;
+            HasTroopBays            = AllTroopBays.Length > 0;
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
             SendTroopsToShip        = true;
