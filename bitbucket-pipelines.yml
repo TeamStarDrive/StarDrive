@@ -8,7 +8,15 @@
 pipelines:
   default:
     - step:
+        name: Staging
+        deployment: Test
         script:
+          - curl -sL https://sentry.io/get-cli/ | bash
+          - export SENTRY_AUTH_TOKEN=$SENTRY_ORGANIZATION
+            export SENTRY_ORG=$SENTRY_ORGANIZATION
+            VERSION=$(sentry-cli releases propose-version)
+            sentry-cli releases new -p project1 -p project2 $VERSION
+            sentry-cli releases set-commits --auto $VERSION
           - ls
           - cd Deploy
           - chmod 777 notify-sentry-of-release.bash
