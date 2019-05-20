@@ -5610,7 +5610,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2172</Index>
-      <Text>Orders this ship to transport colonists from your high population worlds to your low population worlds. Starving or dwindling food reserves will not get new colonists until food reserves/production gets better.</Text>
+      <Text>Manual Trade: Orders this Freighter to transport colonists from your high population worlds to your low population worlds. Starving or dwindling food reserves will not get new colonists until food reserves/production gets better. If this is a group of freighters. Right Clicking on it will order all of them to stop colonists transport.</Text>
     </Token>
     <Token>
       <Index>2173</Index>
@@ -6378,21 +6378,17 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>3063</Index>
       <Text>We require that you take control of the following colonies: </Text>
     </Token>
-
-
-
-
     <Token>
       <Index>248</Index>
       <Text>Click to rush production from this colony's storage. \n \n A single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available. \n \n Construction cannot be rushed if there are ground invaders on your colony.</Text>
     </Token>
     <Token>
       <Index>215</Index>
-      <Text>Orders this ship to transport food. This ship will transport food from exporting planets to importing plants</Text>
+      <Text>Manual Trade: Orders this freighter to transport food. This ship will transport food from exporting planets to importing plants. If this is a group of freighters, Right Clicking on it will order all of them to stop food transport.</Text>
     </Token>
     <Token>
       <Index>216</Index>
-      <Text>Orders this ship to transport production. This ship will transport production from exporting planets to importing plants</Text>
+      <Text>Manual Trade: Orders this freighter to transport production. This ship will transport production from exporting planets to importing plants If this is a group of freighters, Right Clicking on it will order all of them to stop production transport.</Text>
     </Token>
     <Token>
       <Index>356</Index>
