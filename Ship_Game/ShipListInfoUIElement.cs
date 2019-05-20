@@ -418,73 +418,116 @@ namespace Ship_Game
         {
             Orders.Clear();
             this.isFleet = isFleet;
-            ShipList = shipList;
+            ShipList     = shipList;
             SelectedShipsSL.Reset();
             SelectedShipEntry entry = new SelectedShipEntry();
-            bool AllResupply = true;
-            AllShipsMine = true;
-            bool AllFreighters = true;
-            bool AllCombat = true;
+            bool allResupply        = true;
+            AllShipsMine            = true;
+            bool allFreighters      = true;
+            bool allCombat          = true;
+            bool carriersHere       = false;
+            bool troopShipsHere     = false;
+
             for (int i = 0; i < shipList.Count; i++)
             {
-                Ship ship = shipList[i];
+                Ship ship              = shipList[i];
                 SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), ship.GetTacticalIcon())
                 {
                     IsToggle = false,
                     ReferenceObject = ship,
                     BaseColor = ship.loyalty.EmpireColor
                 };
+
                 if (entry.ShipButtons.Count < 8)
-                {
                     entry.ShipButtons.Add(button);
-                }
+
                 if (entry.ShipButtons.Count == 8 || i == shipList.Count - 1)
                 {
                     SelectedShipsSL.AddItem(entry);
                     entry = new SelectedShipEntry();
                 }
-                if (ship.AI.State != AIState.Resupply)
+
+                if (ship.AI.State != AIState.Resupply)    allResupply    = false;
+                if (ship.loyalty != EmpireManager.Player) AllShipsMine   = false;
+                if (!ship.IsFreighter)                    allFreighters  = false;
+                if (ship.Carrier.HasFighterBays)          carriersHere   = true;
+                if (ship.Carrier.HasTroopBays)            troopShipsHere = true;
+                if (ship.DesignRole < ShipData.RoleName.carrier || ship.shipData.ShipCategory == ShipData.Category.Civilian 
+                                                                || ship.AI.State == AIState.Colonize 
+                                                                || ship.Mothership != null)
                 {
-                    AllResupply = false;
+                    allCombat = false;
                 }
-                if (ship.loyalty != EmpireManager.Player)
-                {
-                    AllShipsMine = false;
-                }
-                if (!ship.IsFreighter)
-                {
-                    AllFreighters = false;
-                }
-                if (ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.AI.State == AIState.Colonize || ship.Mothership != null)
-                {
-                    AllCombat = false;
-                }
+
             }
+
             OrdersButton resupply = new OrdersButton(shipList, Vector2.Zero, OrderType.OrderResupply, 149)
             {
                 SimpleToggle = true,
-                Active = AllResupply
+                Active = allResupply
             };
             Orders.Add(resupply);
 
-
-            if (AllCombat)
+            if (allCombat)
             {
-            OrdersButton SystemDefense = new OrdersButton(shipList, Vector2.Zero, OrderType.EmpireDefense, 150)
-            {
-                SimpleToggle = true,
-                Active = false
-            };
-            Orders.Add(SystemDefense);
-            OrdersButton Explore = new OrdersButton(shipList, Vector2.Zero, OrderType.Explore, 136)
-            {
-                SimpleToggle = true,
-                Active = false
-            };
-            Orders.Add(Explore);
+                OrdersButton SystemDefense = new OrdersButton(shipList, Vector2.Zero, OrderType.EmpireDefense, 150)
+                {
+                    SimpleToggle = true,
+                    Active = false
+                };
+                Orders.Add(SystemDefense);
+                OrdersButton Explore = new OrdersButton(shipList, Vector2.Zero, OrderType.Explore, 136)
+                {
+                    SimpleToggle = true,
+                    Active = false
+                };
+                Orders.Add(Explore);
             }
 
-            if (AllFreighters)
+            if (carriersHere)
+            {
+                OrdersButton launchFighters = new OrdersButton(shipList, Vector2.Zero, OrderType.FighterToggle, 19)
+                {
+                    SimpleToggle = true,
+                    Active = false
+                };
+                Orders.Add(launchFighters);
+                OrdersButton waitForFighters = new OrdersButton(shipList, Vector2.Zero, OrderType.FighterRecall, 146)
+                {
+                    SimpleToggle = true,
+                    Active = true
+                };
+                Orders.Add(waitForFighters);
+            }
+
+            if (troopShipsHere)
+            {
+                OrdersButton launchTroops = new OrdersButton(shipList, Vector2.Zero, OrderType.TroopToggle, 225)
+                {
+                    SimpleToggle = true,
+                    Active = true
+                };
+                Orders.Add(launchTroops);
+
+                OrdersButton sendTroops = new OrdersButton(shipList, Vector2.Zero, OrderType.SendTroops, 18)
+                {
+                    SimpleToggle = true,
+                    Active = true
+                };
+                Orders.Add(sendTroops);
+
+                if (!carriersHere)
+                {
+                    OrdersButton waitForTroops = new OrdersButton(shipList, Vector2.Zero, OrderType.FighterRecall, 146)
+                    {
+                        SimpleToggle = true,
+                        Active = true
+                    };
+                    Orders.Add(waitForTroops);
+                }
+            }
+
+            if (allFreighters)
             {
                 //OrdersButton ao = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15)
                 //{
