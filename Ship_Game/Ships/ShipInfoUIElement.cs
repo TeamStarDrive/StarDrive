@@ -671,7 +671,7 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ao);
             }
-            if (Ship.CargoSpaceMax > 0f && Ship.shipData.Role != ShipData.RoleName.troop && Ship.AI.State != AIState.Colonize && Ship.shipData.Role != ShipData.RoleName.station && Ship.Mothership == null)
+            if (Ship.IsFreighter)
             {
                 OrdersButton tf = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
                 {

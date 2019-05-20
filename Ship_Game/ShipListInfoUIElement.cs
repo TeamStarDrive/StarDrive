@@ -451,8 +451,7 @@ namespace Ship_Game
                 {
                     AllShipsMine = false;
                 }
-                //if (ship.CargoSpace_Max == 0f)
-                if (ship.CargoSpaceMax == 0f || ship.shipData.Role == ShipData.RoleName.troop || ship.AI.State == AIState.Colonize || ship.shipData.Role == ShipData.RoleName.station || ship.Mothership != null)
+                if (!ship.IsFreighter)
                 {
                     AllFreighters = false;
                 }
