@@ -157,7 +157,7 @@ namespace Ship_Game
                 sliding_element.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (sliding_element.Open ? 20 - columns : 0));
                 foreach (OrdersButton ob in Orders)
                 {
-                    Rectangle r = ob.clickRect;
+                    Rectangle r = ob.ClickRect;
                     r.X = r.X - (int)(transitionOffset * 300f);
                     ob.Draw(ScreenManager, r);
                 }
@@ -550,7 +550,7 @@ namespace Ship_Game
                     SimpleToggle = true
                 };
                 Orders.Add(transportColonists);
-                OrdersButton allowInterEmpireTrade = new OrdersButton(shipList, Vector2.Zero, OrderType.AllowInterEmpireTrade, 252)
+                OrdersButton allowInterEmpireTrade = new OrdersButton(shipList, Vector2.Zero, OrderType.AllowInterTrade, 252)
                 {
                     SimpleToggle = true
                 };
@@ -575,8 +575,8 @@ namespace Ship_Game
                     ex++;
                     y = 0;
                 }
-                ob.clickRect.X = ElementRect.X + ElementRect.Width + 2 + 52 * ex;
-                ob.clickRect.Y = sliding_element.Housing.Y + 15 + y * 52;
+                ob.ClickRect.X = ElementRect.X + ElementRect.Width + 2 + 52 * ex;
+                ob.ClickRect.Y = sliding_element.Housing.Y + 15 + y * 52;
                 y++;
             }
         }
