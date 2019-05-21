@@ -1466,7 +1466,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>394</Index>
-      <Text>Governor will control production levels as a core system but not specialize any construction</Text>
+      <Text>Governor will control production levels as a core system, but will not build any structure</Text>
     </Token>
     
     

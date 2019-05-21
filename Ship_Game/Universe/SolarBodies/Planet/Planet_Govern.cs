@@ -126,7 +126,6 @@ namespace Ship_Game
 
         private int ShipyardsBeingBuilt()
         {
-            //int shipyardsInQ = ConstructionQueue.Count(q => q.isShip && q.sData.IsShipyard);
             int shipyardsInQ = 0;
             foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
                                                                      || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
@@ -147,7 +146,10 @@ namespace Ship_Game
             if (orbitalList.NotEmpty && orbitalsWeHave > orbitalsWeWant)
             {
                 Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
-                ScrapOrbital(weakest); // remove this old garbage
+                if (weakest != null)
+                    ScrapOrbital(weakest); // remove this old garbage
+                else
+                    Log.Warning($"BuildOrScrapOrbitals: Weakest orbital is null even though orbitalList is not empty. Ignoring Scrap");
                 return;
             }
 
