@@ -49,7 +49,16 @@ namespace Ship_Game.Ships
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
         public bool isColonyShip;
-        public bool isConstructor;
+        public bool IsConstructor
+        {
+            get => DesignRole == ShipData.RoleName.construction;
+            set
+            {
+                if (value)
+                    DesignRole = ShipData.RoleName.construction;
+                else DesignRole = GetDesignRole();
+            }
+        }
         private Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
@@ -185,11 +194,7 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (isColonyShip || isConstructor || CargoSpaceMax < 1f)
-                    return false;
-                return DesignRole == ShipData.RoleName.freighter
-                    || shipData.ShipCategory == ShipData.Category.Civilian
-                    || shipData.ShipCategory == ShipData.Category.Unclassified;
+                return DesignRole == ShipData.RoleName.freighter && shipData.ShipCategory == ShipData.Category.Civilian;
             }
         }
 
@@ -268,7 +273,7 @@ namespace Ship_Game.Ships
             if (DesignRole == ShipData.RoleName.support)
                 return ResourceManager.Texture("TacticalIcons/symbol_supply");
 
-            if (isConstructor)
+            if (IsConstructor)
                 return ResourceManager.Texture("TacticalIcons/symbol_construction");
 
             string roleName = DesignRole.ToString();
@@ -1940,10 +1945,11 @@ namespace Ship_Game.Ships
 
         public bool IsCandidateFreighterBuild()
         {
+            return IsFreighter;
             if (shipData.Role != ShipData.RoleName.freighter
                 || CargoSpaceMax < 1f
                 || isColonyShip
-                || isConstructor)
+                || IsConstructor)
                 return false; // definitely not a freighter
 
             // only Civilian or Unclassified may be freighter candidates
