@@ -36,6 +36,7 @@ namespace Ship_Game.Ships
                 ThrusterList.Add(new Thruster(this, t.Scale, t.Position));
             InitializeStatus(fromSave);
             InitializeThrusters();
+            DesignRole = GetDesignRole();
         }
 
         protected Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)

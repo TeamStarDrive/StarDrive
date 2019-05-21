@@ -190,13 +190,8 @@ namespace Ship_Game.Ships
         public bool HasBombs  => BombBays.Count > 0;
 
 
-        public bool IsFreighter
-        {
-            get
-            {
-                return DesignRole == ShipData.RoleName.freighter && shipData.ShipCategory == ShipData.Category.Civilian;
-            }
-        }
+        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter 
+                                   && shipData.ShipCategory == ShipData.Category.Civilian;
 
         public bool IsIdleFreighter => IsFreighter
                                        && AI != null
