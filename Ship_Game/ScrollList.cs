@@ -142,9 +142,9 @@ namespace Ship_Game
             bool ItemPredicate(Entry e) => e.item == o;
 
             if (!RemoveSubItem(ItemPredicate))
-                Entries.RemoveFirstIf(ItemPredicate);
+                Entries.RemoveFirst(ItemPredicate);
 
-            if (ExpandedEntries.RemoveFirstIf(ItemPredicate))
+            if (ExpandedEntries.RemoveFirst(ItemPredicate))
                 UpdateListElements();
         }
 
@@ -153,9 +153,9 @@ namespace Ship_Game
             bool ItemPredicate(Entry e) => e.item is T item && predicate(item);
 
             if (!RemoveSubItem(ItemPredicate))
-                Entries.RemoveFirstIf(ItemPredicate);
+                Entries.RemoveFirst(ItemPredicate);
 
-            if (ExpandedEntries.RemoveFirstIf(ItemPredicate))
+            if (ExpandedEntries.RemoveFirst(ItemPredicate))
                 UpdateListElements();
         }
 
@@ -716,7 +716,7 @@ namespace Ship_Game
                 foreach (Entry sub in SubEntries)
                     if (sub.RemoveFirstSubIf(predicate)) return true;
 
-                return SubEntries.RemoveFirstIf(predicate);
+                return SubEntries.RemoveFirst(predicate);
             }
 
             public void ExpandSubEntries(Array<Entry> entries)
