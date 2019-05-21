@@ -170,7 +170,7 @@ namespace Ship_Game.Ships
         {
             foreach (OrdersButton ob in Orders)
             {
-                Rectangle r = ob.clickRect;
+                Rectangle r = ob.ClickRect;
                 r.X = r.X - (int)(transitionOffset * 300f);
                 ob.Draw(ScreenManager, r);
             }
@@ -688,7 +688,7 @@ namespace Ship_Game.Ships
                     ValueToModify = new Ref<bool>(() => Ship.TransportingColonists)
                 };
                 Orders.Add(transportColonists);
-                OrdersButton allowInterEmpireTrade = new OrdersButton(Ship, Vector2.Zero, OrderType.AllowInterEmpireTrade, 252)
+                OrdersButton allowInterEmpireTrade = new OrdersButton(Ship, Vector2.Zero, OrderType.AllowInterTrade, 252)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.AllowInterEmpireTrade)
                 };
@@ -778,8 +778,8 @@ namespace Ship_Game.Ships
                     ex++;
                     y = 0;
                 }
-                ob.clickRect.X = ElementRect.X + ElementRect.Width + 2 + 52 * ex;
-                ob.clickRect.Y = SlidingElement.Housing.Y + 15 + y * 52;
+                ob.ClickRect.X = ElementRect.X + ElementRect.Width + 2 + 52 * ex;
+                ob.ClickRect.Y = SlidingElement.Housing.Y + 15 + y * 52;
                 y++;
             }
         }

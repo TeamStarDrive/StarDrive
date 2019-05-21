@@ -15,6 +15,6 @@ namespace Ship_Game
 		EmpireDefense,
         Scrap,
         Refit,
-        AllowInterEmpireTrade
+        AllowInterTrade
 	}
 }
