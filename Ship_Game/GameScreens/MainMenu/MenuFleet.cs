@@ -160,7 +160,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 ship.Update(gameTime, screen);
             
             // if all ship AI's have finished, create a new one
-            FleetShips.RemoveAllIf(ship => ship.AI.Finished);
+            FleetShips.RemoveAll(ship => ship.AI.Finished);
             if (FleetShips.IsEmpty)
                 CreateShips(screen);
         }

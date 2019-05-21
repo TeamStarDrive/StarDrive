@@ -314,7 +314,7 @@ namespace Ship_Game
             CamDestination.Z = 4200000f * GameScale;
         }
 
-        private void DefaultZoomPoints()
+        void DefaultZoomPoints()
         {
             snappingToShip = false;
             ViewingShip = false;
@@ -336,7 +336,7 @@ namespace Ship_Game
                     GetZfromScreenState(UnivScreenState.SystemView));
         }
 
-        private void ChaseCame()
+        void ChaseCam()
         {
             if (!ViewingShip)
             {
