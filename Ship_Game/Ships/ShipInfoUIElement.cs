@@ -666,7 +666,7 @@ namespace Ship_Game.Ships
                 {
                     ValueToModify = new Ref<bool>(() => Screen.DefiningAO, x => {
                         Screen.DefiningAO = x;
-                        Screen.AORect = new Rectangle(0, 0, 0, 0);
+                        Screen.AORect = Rectangle.Empty;
                     })
                 };
                 Orders.Add(ao);

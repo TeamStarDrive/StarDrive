@@ -315,8 +315,8 @@ namespace Ship_Game
             return true;
         }
 
-        // Removes a single occurance of item matching predicate
-        public bool RemoveFirstIf(Predicate<T> predicate)
+        // Removes the first single occurence of item matching predicate
+        public bool RemoveFirst(Predicate<T> predicate)
         {
             int i = FirstIndexOf(predicate);
             if (i < 0) return false;
@@ -324,18 +324,13 @@ namespace Ship_Game
             return true;
         }
 
-        // Removes all items matching the predicate
-        public bool RemoveAllIf(Predicate<T> predicate)
+        // Removes the last single occurence of item matching predicate
+        public bool RemoveLast(Predicate<T> predicate)
         {
-            bool itemsWereRemoved = false;
-            for (int i = Count-1; i >= 0; --i)
-            {
-                if (!predicate(Items[i]))
-                    continue;
-                RemoveAt(i);
-                itemsWereRemoved = true;
-            }
-            return itemsWereRemoved;
+            int i = LastIndexOf(predicate);
+            if (i < 0) return false;
+            RemoveAt(i);
+            return true;
         }
 
         // does a fast removal by swapping the item with the last element in the array
@@ -366,6 +361,15 @@ namespace Ship_Game
             int count = Count;
             T[] items = Items;
             for (int i = 0; i < count; ++i)
+                if (predicate(items[i])) return i;
+            return -1;
+        }
+        
+        public int LastIndexOf(Predicate<T> predicate)
+        {
+            int count = Count;
+            T[] items = Items;
+            for (int i = count - 1; i >= 0; --i)
                 if (predicate(items[i])) return i;
             return -1;
         }

@@ -170,8 +170,8 @@ namespace Ship_Game
         public float AdjustCamTimer;
         public bool SnapBackToSystem;
         public AutomationWindow aw;
-        public bool DefiningAO;
-        public Rectangle AORect;
+        public bool DefiningAO; // are we defining a new AO?
+        public Rectangle AORect; // used for showing current AO Rect definition
         public bool showingDSBW;
 
         public bool showingFTLOverlay;
@@ -182,10 +182,8 @@ namespace Ship_Game
         public bool ShowShipNames;
         float Memory;
         public bool Paused = true; // always start paused
-        public bool SkipRightOnce;
         public bool NoEliminationVictory;
         bool UseRealLights = true;
-        bool NeedARelease;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
         int FBTimer;
