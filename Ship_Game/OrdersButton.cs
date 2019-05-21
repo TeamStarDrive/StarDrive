@@ -7,7 +7,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public sealed class OrdersButton
+    public sealed class OrdersButton // Cleaned Up by Fat Bastard - May, 22 2019
     {
         private readonly OrderType OrderType;
         public Ref<bool> ValueToModify;
@@ -19,7 +19,7 @@ namespace Ship_Game
         public Array<Ship> ShipList = new Array<Ship>();
         public bool Active;
 
-        public OrdersButton(Ship ship, Vector2 location, OrderType ot, int tipId)
+        public OrdersButton(Vector2 location, OrderType ot, int tipId)
         {
             IdTip     = tipId;
             OrderType = ot;
@@ -41,112 +41,20 @@ namespace Ship_Game
             if (SimpleToggle)
             {
                 screenManager.SpriteBatch.Draw(!r.HitTest(mousePos)
-                        ? ResourceManager.Texture("SelectionBox/button_action_disabled")
-                        : ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
-
-                Rectangle iconRect;
-                switch (OrderType)
-                {
-                    case OrderType.FighterToggle:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_Fighters"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.FighterRecall:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_FighterRecall"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.SendTroops:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/UI_SendTroops"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.DefineAO:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_AO"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.TradeFood:
-                    {
-                        var icon = ResourceManager.Texture("NewUI/icon_food");
-                        iconRect = new Rectangle(r.X + r.Width / 2 - icon.Width / 2, r.Y + r.Height / 2 - icon.Height / 2, icon.Width, icon.Height);
-                        screenManager.SpriteBatch.Draw(icon, iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.TradeProduction:
-                    {
-                        var icon = ResourceManager.Texture("NewUI/icon_production");
-                        iconRect = new Rectangle(r.X + r.Width / 2 - icon.Width / 2, r.Y + r.Height / 2 - icon.Height / 2, icon.Width, icon.Height);
-                        screenManager.SpriteBatch.Draw(icon, iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.TransportColonists:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_passtran").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_passtran").Height / 2, ResourceManager.Texture("UI/icon_passtran").Width, ResourceManager.Texture("UI/icon_passtran").Height);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_passtran"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.TroopToggle:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - 13, r.Y + r.Height / 2 - 14, 23, 28);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.Explore:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_explore").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_explore").Height / 2, ResourceManager.Texture("UI/icon_explore").Width, ResourceManager.Texture("UI/icon_explore").Height);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_explore"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.OrderResupply:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - 16, r.Y + r.Height / 2 - 16, 32, 32);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/Ordnance"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.EmpireDefense:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_shield").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_shield").Height / 2, ResourceManager.Texture("UI/icon_shield").Width, ResourceManager.Texture("UI/icon_shield").Height);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.Scrap:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_planetslist").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_planetslist").Height / 2, ResourceManager.Texture("UI/icon_planetslist").Width, ResourceManager.Texture("UI/icon_planetslist").Height);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_planetslist"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.Refit:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_dsbw").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_dsbw").Height / 2, ResourceManager.Texture("UI/icon_dsbw").Width, ResourceManager.Texture("UI/icon_dsbw").Height);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_dsbw"), iconRect, Color.White);
-                        return;
-                    }
-                    case OrderType.AllowInterTrade:
-                    {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        screenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_intertrade"), iconRect, Color.White);
-                        return;
-                    }
-                    default:
-                    {
-                        return;
-                    }
-                }
+                    ? ResourceManager.Texture("SelectionBox/button_action_disabled")
+                    : ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
             }
-            if (r.HitTest(mousePos))
-                screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
-            else if (RightClickValueToModify != null && !RightClickValueToModify.Value)
-                screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.LightPink);
-            else if (!ValueToModify.Value)
-                screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.White);
             else
-                screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action"), r, Color.White);
+            {
+                if (r.HitTest(mousePos))
+                    screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
+                else if (RightClickValueToModify != null && !RightClickValueToModify.Value)
+                    screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.LightPink);
+                else if (!ValueToModify.Value)
+                    screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.White);
+                else
+                    screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action"), r, Color.White);
+            }
 
             switch (OrderType)
             {
@@ -196,18 +104,18 @@ namespace Ship_Game
                     Ship ship = ShipList[i];
                     switch (OrderType)
                     {
-                        case OrderType.TradeFood: ship.TransportingFood = !input.RightMouseClick; break;
-                        case OrderType.TradeProduction: ship.TransportingProduction = !input.RightMouseClick; break;
-                        case OrderType.TransportColonists: ship.TransportingColonists = !input.RightMouseClick; break;
-                        case OrderType.AllowInterTrade: ship.AllowInterEmpireTrade = !input.RightMouseClick; break;
-                        case OrderType.FighterToggle: ship.FightersOut = !input.RightMouseClick; break;
-                        case OrderType.FighterRecall: ship.RecallFightersBeforeFTL = !input.RightMouseClick; break;
-                        case OrderType.TroopToggle: ship.TroopsOut = !input.RightMouseClick; break;
-                        case OrderType.SendTroops: ship.Carrier.SendTroopsToShip = !input.RightMouseClick; break;
-                        case OrderType.Explore: ship.AI.OrderExplore(); break;
-                        case OrderType.OrderResupply: ship.Supply.ResupplyFromButton(); break;
-                        case OrderType.Scrap: ship.AI.OrderScrapShip(); break;
-                        case OrderType.EmpireDefense: AddOrRemoveFromForcePool(ship); break;
+                        case OrderType.TradeFood:          ship.TransportingFood         = !input.RightMouseClick; break;
+                        case OrderType.TradeProduction:    ship.TransportingProduction   = !input.RightMouseClick; break;
+                        case OrderType.TransportColonists: ship.TransportingColonists    = !input.RightMouseClick; break;
+                        case OrderType.AllowInterTrade:    ship.AllowInterEmpireTrade    = !input.RightMouseClick; break;
+                        case OrderType.FighterToggle:      ship.FightersOut              = !input.RightMouseClick; break;
+                        case OrderType.FighterRecall:      ship.RecallFightersBeforeFTL  = !input.RightMouseClick; break;
+                        case OrderType.TroopToggle:        ship.TroopsOut                = !input.RightMouseClick; break;
+                        case OrderType.SendTroops:         ship.Carrier.SendTroopsToShip = !input.RightMouseClick; break;
+                        case OrderType.Explore:            ship.AI.OrderExplore();                                 break;
+                        case OrderType.OrderResupply:      ship.Supply.ResupplyFromButton();                       break;
+                        case OrderType.Scrap:              ship.AI.OrderScrapShip();                               break;
+                        case OrderType.EmpireDefense:      AddOrRemoveFromForcePool(ship);                         break;
                     }
                 }
                 return true;

@@ -654,7 +654,7 @@ namespace Ship_Game.Ships
             }
             if (Ship.shipData.Role > ShipData.RoleName.station)
             {
-                OrdersButton resupply = new OrdersButton(Ship, Vector2.Zero, OrderType.OrderResupply, 149)
+                OrdersButton resupply = new OrdersButton(Vector2.Zero, OrderType.OrderResupply, 149)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingResupply, x => Ship.DoingResupply = x)
                 };
@@ -662,7 +662,7 @@ namespace Ship_Game.Ships
             }
             if (Ship.shipData.Role != ShipData.RoleName.troop && Ship.AI.State != AIState.Colonize && Ship.shipData.Role != ShipData.RoleName.station && Ship.Mothership == null)
             {
-                OrdersButton ao = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineAO, 15)
+                OrdersButton ao = new OrdersButton(Vector2.Zero, OrderType.DefineAO, 15)
                 {
                     ValueToModify = new Ref<bool>(() => Screen.DefiningAO, x => {
                         Screen.DefiningAO = x;
@@ -673,22 +673,22 @@ namespace Ship_Game.Ships
             }
             if (Ship.IsFreighter)
             {
-                OrdersButton tradeFood = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
+                OrdersButton tradeFood = new OrdersButton(Vector2.Zero, OrderType.TradeFood, 16)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingFood)
                 };
                 Orders.Add(tradeFood);
-                OrdersButton tradeProduction = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, 17)
+                OrdersButton tradeProduction = new OrdersButton(Vector2.Zero, OrderType.TradeProduction, 17)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingProduction)
                 };
                 Orders.Add(tradeProduction);
-                OrdersButton transportColonists = new OrdersButton(Ship, Vector2.Zero, OrderType.TransportColonists, 137)
+                OrdersButton transportColonists = new OrdersButton(Vector2.Zero, OrderType.TransportColonists, 137)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingColonists)
                 };
                 Orders.Add(transportColonists);
-                OrdersButton allowInterEmpireTrade = new OrdersButton(Ship, Vector2.Zero, OrderType.AllowInterTrade, 252)
+                OrdersButton allowInterEmpireTrade = new OrdersButton(Vector2.Zero, OrderType.AllowInterTrade, 252)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.AllowInterEmpireTrade)
                 };
@@ -696,13 +696,13 @@ namespace Ship_Game.Ships
             }
             if (Ship.Carrier.HasTroopBays)
             {
-                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.SendTroops, 18)
+                OrdersButton ob = new OrdersButton(Vector2.Zero, OrderType.SendTroops, 18)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.Carrier.SendTroopsToShip)
                 };
                 Orders.Add(ob);
 
-                OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
+                OrdersButton ob2 = new OrdersButton(Vector2.Zero, OrderType.TroopToggle, 225)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TroopsOut, x => {
                         Ship.TroopsOut = !Ship.TroopsOut;
@@ -713,7 +713,7 @@ namespace Ship_Game.Ships
             
             if (Ship.Carrier.HasFighterBays)
             {
-                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
+                OrdersButton ob = new OrdersButton(Vector2.Zero, OrderType.FighterToggle, 19)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.FightersOut, x =>
                     {
@@ -725,7 +725,7 @@ namespace Ship_Game.Ships
 
             if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.HasFighterBays))
             {
-                OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
+                OrdersButton ob2 = new OrdersButton(Vector2.Zero, OrderType.FighterRecall, 146)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.RecallFightersBeforeFTL, x =>
                         {
@@ -739,12 +739,12 @@ namespace Ship_Game.Ships
 
             if (Ship.shipData.Role >= ShipData.RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
-                var exp = new OrdersButton(Ship, Vector2.Zero, OrderType.Explore, 136)
+                var exp = new OrdersButton(Vector2.Zero, OrderType.Explore, 136)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingExplore, x => Ship.DoingExplore = x)
                 };
                 Orders.Add(exp);
-                var systemDefense = new OrdersButton(Ship, Vector2.Zero, OrderType.EmpireDefense, 150)
+                var systemDefense = new OrdersButton(Vector2.Zero, OrderType.EmpireDefense, 150)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingSystemDefense, x => Ship.DoingSystemDefense = x),
                     Active = false
@@ -753,14 +753,14 @@ namespace Ship_Game.Ships
             }
             if (Ship.Mothership == null)
             {
-                var rf = new OrdersButton(Ship, Vector2.Zero, OrderType.Refit, 158)
+                var rf = new OrdersButton(Vector2.Zero, OrderType.Refit, 158)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingRefit, x => Ship.DoingRefit = x),
                     Active = false
                 };
                 Orders.Add(rf);
                 //Added by McShooterz: scrap order
-                var sc = new OrdersButton(Ship, Vector2.Zero, OrderType.Scrap, 157)
+                var sc = new OrdersButton(Vector2.Zero, OrderType.Scrap, 157)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingScrap, x => Ship.DoingScrap = x),
                     Active = false
