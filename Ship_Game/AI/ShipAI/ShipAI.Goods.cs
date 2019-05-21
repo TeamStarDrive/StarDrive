@@ -118,7 +118,7 @@ namespace Ship_Game.AI
         // Note that there are more scrap logic for freighters (idle timeout and idle ones when a new tech is researched
         void CheckAndScrap1To10() 
         {
-            if (!Owner.loyalty.AutoFreighters || !RandomMath.RollDice(10))
+            if (Owner.loyalty.ManualTrade || !RandomMath.RollDice(10))
                 return;
 
             if (Owner.loyalty.IdleFreighters.Length == 0)
