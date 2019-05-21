@@ -283,6 +283,7 @@ namespace Ship_Game
                     sdata.TransportingFood       = ship.TransportingFood;
                     sdata.TransportingProduction = ship.TransportingProduction;
                     sdata.TransportingColonists  = ship.TransportingColonists;
+                    sdata.AllowInterEmpireTrade  = ship.AllowInterEmpireTrade;
                     sdata.AISave = new ShipAISave
                     {
                         State      = ship.AI.State
@@ -742,6 +743,7 @@ namespace Ship_Game
             [Serialize(27)] public bool TransportingFood;
             [Serialize(28)] public bool TransportingProduction;
             [Serialize(29)] public bool TransportingColonists;
+            [Serialize(30)] public bool AllowInterEmpireTrade;
         }
 
         public class SolarSystemSaveData

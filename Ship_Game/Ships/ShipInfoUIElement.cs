@@ -673,23 +673,26 @@ namespace Ship_Game.Ships
             }
             if (Ship.IsFreighter)
             {
-                OrdersButton tf = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
+                OrdersButton tradeFood = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingFood)
-                    //RightClickValueToModify = new Ref<bool>(() => Ship.TransportingFood, x => Ship.TransportingFood = x)
                 };
-                Orders.Add(tf);
-                OrdersButton tp = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, 17)
+                Orders.Add(tradeFood);
+                OrdersButton tradeProduction = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, 17)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingProduction)
-                    //RightClickValueToModify = new Ref<bool>(() => Ship.TransportingProduction, x => Ship.TransportingProduction = x)
                 };
-                Orders.Add(tp);
-                OrdersButton tpass = new OrdersButton(Ship, Vector2.Zero, OrderType.PassTran, 137)
+                Orders.Add(tradeProduction);
+                OrdersButton transportColonists = new OrdersButton(Ship, Vector2.Zero, OrderType.TransportColonists, 137)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingColonists)
                 };
-                Orders.Add(tpass);
+                Orders.Add(transportColonists);
+                OrdersButton allowInterEmpireTrade = new OrdersButton(Ship, Vector2.Zero, OrderType.AllowInterEmpireTrade, 252)
+                {
+                    ValueToModify = new Ref<bool>(() => Ship.AllowInterEmpireTrade)
+                };
+                Orders.Add(allowInterEmpireTrade);
             }
             if (Ship.Carrier.HasTroopBays)
             {

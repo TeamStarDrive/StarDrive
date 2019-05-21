@@ -8,12 +8,13 @@ namespace Ship_Game
 		DefineAO,
 		TradeFood,
 		TradeProduction,
-		PassTran,
+		TransportColonists,
 		TroopToggle,
 		Explore,
 		OrderResupply,
 		EmpireDefense,
         Scrap,
-        Refit
+        Refit,
+        AllowInterEmpireTrade
 	}
 }
