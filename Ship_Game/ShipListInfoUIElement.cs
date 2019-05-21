@@ -535,30 +535,35 @@ namespace Ship_Game
                 //  Active = false
                 //};
                 //this.Orders.Add(ao);
-                OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 16)
+                OrdersButton tradeFood = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 16)
                 {
                     SimpleToggle = true
                 };
-                Orders.Add(tf);
-                OrdersButton tp = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeProduction, 16)
+                Orders.Add(tradeFood);
+                OrdersButton tradeProduction = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeProduction, 16)
                 {
                     SimpleToggle = true
                 };
-                Orders.Add(tp);
-                OrdersButton tpass = new OrdersButton(shipList, Vector2.Zero, OrderType.PassTran, 152)
+                Orders.Add(tradeProduction);
+                OrdersButton transportColonists = new OrdersButton(shipList, Vector2.Zero, OrderType.TransportColonists, 152)
                 {
                     SimpleToggle = true
                 };
-                Orders.Add(tpass);
+                Orders.Add(transportColonists);
+                OrdersButton allowInterEmpireTrade = new OrdersButton(shipList, Vector2.Zero, OrderType.AllowInterEmpireTrade, 252)
+                {
+                    SimpleToggle = true
+                };
+                Orders.Add(allowInterEmpireTrade);
             }
 
             //Added by McShooterz: fleet scrap button
-            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
+            OrdersButton scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
             {
                 SimpleToggle = true,
                 Active = false
             };
-            Orders.Add(Scrap);
+            Orders.Add(scrap);
 
             int ex = 0;
             int y = 0;

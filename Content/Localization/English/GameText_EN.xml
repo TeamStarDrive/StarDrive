@@ -4695,6 +4695,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1945</Index>
+      <Text>Manual Trade: Allow this Freighter to participate in Inter-Empire trade operations. Note that this is not available for Colonists transport. If this is a group of freighters. Right Clicking on it will order all of them to cancel future Inter-Empire trade operations.</Text>
+    </Token>
+    <Token>
       <Index>1946</Index>
       <Text>Build a Platform (the strongest your empire has available) orbiting this planet.The number in parentheses is the number of Platforms this planet already has in orbit.</Text>
     </Token>
@@ -5610,7 +5614,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2172</Index>
-      <Text>Manual Trade: Orders this Freighter to transport colonists from your high population worlds to your low population worlds. Starving or dwindling food reserves will not get new colonists until food reserves/production gets better. If this is a group of freighters. Right Clicking on it will order all of them to stop colonists transport.</Text>
+      <Text>Manual Trade: Orders this Freighter to transport colonists from your high population worlds to your low population worlds. Starving or dwindling food reserves will not get new colonists until food reserves/production gets better. If this is a group of freighters. Right Clicking on it will order all of them to stop future colonists transport operations.</Text>
     </Token>
     <Token>
       <Index>2173</Index>
@@ -6384,11 +6388,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>215</Index>
-      <Text>Manual Trade: Orders this freighter to transport food. This ship will transport food from exporting planets to importing plants. If this is a group of freighters, Right Clicking on it will order all of them to stop food transport.</Text>
+      <Text>Manual Trade: Orders this freighter to transport food. This ship will transport food from exporting planets to importing plants. If this is a group of freighters, Right Clicking on it will order all of them to stop future food transport operations.</Text>
     </Token>
     <Token>
       <Index>216</Index>
-      <Text>Manual Trade: Orders this freighter to transport production. This ship will transport production from exporting planets to importing plants If this is a group of freighters, Right Clicking on it will order all of them to stop production transport.</Text>
+      <Text>Manual Trade: Orders this freighter to transport production. This ship will transport production from exporting planets to importing plants If this is a group of freighters, Right Clicking on it will order all of them to stop future production transport operations.</Text>
     </Token>
     <Token>
       <Index>356</Index>
