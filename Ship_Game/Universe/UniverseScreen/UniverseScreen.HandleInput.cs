@@ -563,7 +563,7 @@ namespace Ship_Game
 
         bool AttackSpecificShip(Ship ship, Ship target)
         {
-            if (ship.isConstructor ||
+            if (ship.IsConstructor ||
                 ship.shipData.Role == ShipData.RoleName.supply)
             {
                 GameAudio.NegativeClick();
@@ -693,7 +693,7 @@ namespace Ship_Game
         bool ShipPieMenu(Ship ship)
         {
             if (ship == null || ship != SelectedShip || SelectedShip.Mothership != null ||
-                SelectedShip.isConstructor) return false;
+                SelectedShip.IsConstructor) return false;
 
             LoadShipMenuNodes(ship.loyalty == player ? 1 : 0);
             if (!pieMenu.Visible)
@@ -727,7 +727,7 @@ namespace Ship_Game
         bool UnselectableShip(Ship ship = null)
         {
             ship = ship ?? SelectedShip;
-            if (!ship.isConstructor && ship.shipData.Role != ShipData.RoleName.supply) return false;
+            if (!ship.IsConstructor && ship.shipData.Role != ShipData.RoleName.supply) return false;
             GameAudio.NegativeClick();
             return true;
         }
@@ -1007,7 +1007,7 @@ namespace Ship_Game
             if (planet == null)
                 return;
 
-            if (ship.isConstructor)
+            if (ship.IsConstructor)
             {
                 if (audio)
                 {
@@ -1360,7 +1360,7 @@ namespace Ship_Game
             bool flag = false;
             foreach (Ship ship in player.GetShips())
             {
-                if (ship.isConstructor && ship.AI.OrderQueue.NotEmpty)
+                if (ship.IsConstructor && ship.AI.OrderQueue.NotEmpty)
                 {
                     for (int index = 0; index < ship.AI.OrderQueue.Count; ++index)
                     {
@@ -1411,7 +1411,7 @@ namespace Ship_Game
                 foreach (Ship ship in SelectedShipList)
                 {
                     ship.ClearFleet();
-                    if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
+                    if (ship.loyalty == player && !ship.IsConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
                     {
                         ship.AI.ClearOrdersAndWayPoints();
                         ship.AI.ClearPriorityOrder();
