@@ -111,7 +111,7 @@ namespace Ship_Game
                         ScreenManager.SpriteBatch.Draw(icon, iconRect, Color.White);
                         return;
                     }
-                    case OrderType.PassTran:
+                    case OrderType.TransportColonists:
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_passtran").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_passtran").Height / 2, ResourceManager.Texture("UI/icon_passtran").Width, ResourceManager.Texture("UI/icon_passtran").Height);
                         ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_passtran"), iconRect, Color.White);
@@ -151,6 +151,12 @@ namespace Ship_Game
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_dsbw").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_dsbw").Height / 2, ResourceManager.Texture("UI/icon_dsbw").Width, ResourceManager.Texture("UI/icon_dsbw").Height);
                         ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_dsbw"), iconRect, Color.White);
+                        return;
+                    }
+                    case OrderType.AllowInterEmpireTrade:
+                    {
+                        iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/UI_SendTroops"), iconRect, Color.White);
                         return;
                     }
                     default:
@@ -213,7 +219,7 @@ namespace Ship_Game
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), iconRect, Color.White);
                     return;
                 }
-                case OrderType.PassTran:
+                case OrderType.TransportColonists:
                 {
                     iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_passtran").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_passtran").Height / 2, ResourceManager.Texture("UI/icon_passtran").Width, ResourceManager.Texture("UI/icon_passtran").Height);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_passtran"), iconRect, Color.White);
@@ -255,6 +261,12 @@ namespace Ship_Game
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_dsbw"), iconRect, Color.White);
                     return;
                 }
+                case OrderType.AllowInterEmpireTrade:
+                {
+                    iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/UI_SendTroops"), iconRect, Color.White);
+                    return;
+                }
                 default:
                 {
                     return;
@@ -281,17 +293,18 @@ namespace Ship_Game
                         Ship ship = ShipList[i];
                         switch (orderType)
                         {
-                            case OrderType.TradeFood:       ship.TransportingFood         = !input.RightMouseClick; break;
-                            case OrderType.TradeProduction: ship.TransportingProduction   = !input.RightMouseClick; break;
-                            case OrderType.PassTran:        ship.TransportingColonists    = !input.RightMouseClick; break;
-                            case OrderType.FighterToggle:   ship.FightersOut              = !input.RightMouseClick; break;
-                            case OrderType.FighterRecall:   ship.RecallFightersBeforeFTL  = !input.RightMouseClick; break;
-                            case OrderType.TroopToggle:     ship.TroopsOut                = !input.RightMouseClick; break;
-                            case OrderType.SendTroops:      ship.Carrier.SendTroopsToShip = !input.RightMouseClick; break;
-                            case OrderType.Explore:         ship.AI.OrderExplore();                                 break;
-                            case OrderType.OrderResupply:   ship.Supply.ResupplyFromButton();                       break;
-                            case OrderType.Scrap:           ship.AI.OrderScrapShip();                               break;
-                            case OrderType.EmpireDefense:   AddOrRemoveFromForcePool(ship);                         break;
+                            case OrderType.TradeFood:             ship.TransportingFood         = !input.RightMouseClick; break;
+                            case OrderType.TradeProduction:       ship.TransportingProduction   = !input.RightMouseClick; break;
+                            case OrderType.TransportColonists:    ship.TransportingColonists    = !input.RightMouseClick; break;
+                            case OrderType.AllowInterEmpireTrade: ship.AllowInterEmpireTrade    = !input.RightMouseClick; break;
+                            case OrderType.FighterToggle:         ship.FightersOut              = !input.RightMouseClick; break;
+                            case OrderType.FighterRecall:         ship.RecallFightersBeforeFTL  = !input.RightMouseClick; break;
+                            case OrderType.TroopToggle:           ship.TroopsOut                = !input.RightMouseClick; break;
+                            case OrderType.SendTroops:            ship.Carrier.SendTroopsToShip = !input.RightMouseClick; break;
+                            case OrderType.Explore:               ship.AI.OrderExplore();                                 break;
+                            case OrderType.OrderResupply:         ship.Supply.ResupplyFromButton();                       break;
+                            case OrderType.Scrap:                 ship.AI.OrderScrapShip();                               break;
+                            case OrderType.EmpireDefense:         AddOrRemoveFromForcePool(ship);                         break;
                         }
                     }
 

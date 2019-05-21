@@ -1265,5 +1265,10 @@
       <Title>Troop Weapon Range</Title>
       <Data>1965</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>252</TIP_ID>
+      <Title>Allow Inter-Empire Trade</Title>
+      <Data>1945</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

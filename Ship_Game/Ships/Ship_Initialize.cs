@@ -185,6 +185,7 @@ namespace Ship_Game.Ships
             TransportingFood       = save.TransportingFood;
             TransportingProduction = save.TransportingProduction;
             TransportingColonists  = save.TransportingColonists;
+            AllowInterEmpireTrade  = save.AllowInterEmpireTrade;
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.VanityName;

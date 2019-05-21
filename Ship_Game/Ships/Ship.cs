@@ -166,6 +166,7 @@ namespace Ship_Game.Ships
         public bool TransportingColonists  { get; set; }
         public bool TransportingFood       { get; set; }
         public bool TransportingProduction { get; set; }
+        public bool AllowInterEmpireTrade  { get; set; } = true;
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
