@@ -144,7 +144,8 @@ namespace Ship_Game
             foreach (Planet importPlanet in importingPlanets)
             {
                 // Check if the closest freighter has the goods we need
-                if (FoundFreighterWithCargo(importPlanet, goods, out Ship closestIdleFreighter))
+                bool interTrade = this != importPlanet.Owner;
+                if (FoundFreighterWithCargo(importPlanet, goods, interTrade, out Ship closestIdleFreighter))
                     closestIdleFreighter.AI.SetupFreighterPlan(importPlanet, goods);
                 else
                 {
@@ -153,7 +154,7 @@ namespace Ship_Game
                     if (exportPlanet == null) // no more exporting planets
                         continue; // Continue since other planets might find a freighter with cargo and no need for export planet
 
-                    if (FindClosestIdleFreighter(exportPlanet, goods, out closestIdleFreighter)
+                    if (FindClosestIdleFreighter(exportPlanet, goods, interTrade, out closestIdleFreighter)
                         && InterEmpireTradeDistanceOk(closestIdleFreighter, importPlanet, exportPlanet))
                     {
                         closestIdleFreighter.AI.SetupFreighterPlan(exportPlanet, importPlanet, goods);
@@ -173,33 +174,35 @@ namespace Ship_Game
             return freighter.GetAstrogateTimeBetween(importPlanet, exportPlanet) < 30;
         }
 
-        private bool FindClosestIdleFreighter(Planet planet, Goods goods, out Ship freighter)
+        private bool FindClosestIdleFreighter(Planet planet, Goods goods, bool interTrade,out Ship freighter)
         {
             if (!isPlayer || AutoFreighters)
                 freighter = IdleFreighters.FindClosestTo(planet);
             else
-                freighter = ClosestIdleFreighterManual(planet, goods);
+                freighter = ClosestIdleFreighterManual(planet, goods, interTrade);
 
             return freighter != null;
         }
 
-        private bool FoundFreighterWithCargo(Planet planet, Goods goods, out Ship freighter)
+        private bool FoundFreighterWithCargo(Planet planet, Goods goods, bool interTrade, out Ship freighter)
         {
             freighter = null;
-            if (this != planet.Owner)
+            if (interTrade)
                 return false; // Not for in Inter Empire Trade
 
-            FindClosestIdleFreighter(planet, goods, out freighter);
+            FindClosestIdleFreighter(planet, goods, false, out freighter);
             return freighter != null && freighter.GetCargo(goods) > 5f;
         }
 
-        private Ship ClosestIdleFreighterManual(Planet planet, Goods goods)
+        private Ship ClosestIdleFreighterManual(Planet planet, Goods goods, bool interTrade)
         {
+            Ship[] freighterList = interTrade ? IdleFreighters.Filter(s => s.AllowInterEmpireTrade) : IdleFreighters;
+
             switch (goods)
             {
-                case Goods.Production: return IdleFreighters.FindClosestTo(planet, s => s.TransportingProduction);
-                case Goods.Food:       return IdleFreighters.FindClosestTo(planet, s => s.TransportingFood);
-                default:               return IdleFreighters.FindClosestTo(planet, s => s.TransportingColonists);
+                case Goods.Production: return freighterList.FindClosestTo(planet, s => s.TransportingProduction);
+                case Goods.Food:       return freighterList.FindClosestTo(planet, s => s.TransportingFood);
+                default:               return freighterList.FindClosestTo(planet, s => s.TransportingColonists);
             }
         }
 

@@ -156,7 +156,7 @@ namespace Ship_Game
                     case OrderType.AllowInterEmpireTrade:
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/UI_SendTroops"), iconRect, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_intertrade"), iconRect, Color.White);
                         return;
                     }
                     default:
@@ -264,7 +264,7 @@ namespace Ship_Game
                 case OrderType.AllowInterEmpireTrade:
                 {
                     iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/UI_SendTroops"), iconRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_intertrade"), iconRect, Color.White);
                     return;
                 }
                 default:
