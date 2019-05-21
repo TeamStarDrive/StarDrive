@@ -29,6 +29,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int TotalFreighters      => OwnedShips.Count(s => s.IsFreighter);
         [XmlIgnore][JsonIgnore] public Ship[] IdleFreighters    => OwnedShips.Filter(s => s.IsIdleFreighter);
         [XmlIgnore][JsonIgnore] public int AverageTradeIncome   => AllTimeTradeIncome / TurnCount;
+        [XmlIgnore][JsonIgnore] public bool ManualTrade         => isPlayer && !AutoFreighters;
 
         public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
 
@@ -100,7 +101,7 @@ namespace Ship_Game
 
         void UpdateFreighterTimersAndScrap()
         {
-            if (isPlayer && !AutoFreighters)
+            if (ManualTrade)
                 return;
 
             Ship[] ownedFreighters = OwnedShips.Filter(s => s.IsFreighter);
@@ -176,10 +177,8 @@ namespace Ship_Game
 
         private bool FindClosestIdleFreighter(Planet planet, Goods goods, bool interTrade,out Ship freighter)
         {
-            if (!isPlayer || AutoFreighters)
-                freighter = IdleFreighters.FindClosestTo(planet);
-            else
-                freighter = ClosestIdleFreighterManual(planet, goods, interTrade);
+            freighter = ManualTrade ? ClosestIdleFreighterManual(planet, goods, interTrade) 
+                                    : IdleFreighters.FindClosestTo(planet);
 
             return freighter != null;
         }
@@ -208,7 +207,7 @@ namespace Ship_Game
 
         private void BuildFreighter()
         {
-            if (isPlayer && !AutoFreighters)
+            if (ManualTrade)
                 return;
 
             if (FreighterCap > TotalFreighters + FreightersBeingBuilt && MaxFreightersInQueue > FreightersBeingBuilt)
@@ -271,7 +270,7 @@ namespace Ship_Game
         // FB - scrap idle freighter to make room for improved ones
         public void TriggerFreightersScrap()
         {
-            if (isPlayer && !AutoFreighters)
+            if (ManualTrade)
                 return;
 
             Ship betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
