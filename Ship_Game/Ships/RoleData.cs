@@ -1,6 +1,6 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Ship_Game.Ships
 {
@@ -84,14 +84,14 @@ namespace Ship_Game.Ships
                     if (HullRole > ShipData.RoleName.freighter)
                     {
                         if (Ship == null || Ship.shipData.ShipCategory == ShipData.Category.Civilian
-                            && SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Storage) >= 0.5f)
+                            && SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
                             return ShipData.RoleName.freighter;
                     }
                     // freighter hull will be set to civilian if useable as freighter.
                     // if not useable as freighter it will set the cat to Unclassified
                     else if (HullRole == ShipData.RoleName.freighter)
                     {
-                        if (SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Storage) >= 0.01f)
+                        if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.01f)
                         {
                             if (Ship != null)
                                 Ship.shipData.ShipCategory = ShipData.Category.Civilian;
