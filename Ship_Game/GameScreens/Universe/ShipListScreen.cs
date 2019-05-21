@@ -408,7 +408,7 @@ namespace Ship_Game
                     case 5: return ship.shipData.Role == ShipData.RoleName.capital || ship.shipData.Role == ShipData.RoleName.carrier;
                     case 6: return ship.fleet != null;
                     case 7: return ship.IsPlayerDesign;
-                    case 8: return ship.isConstructor || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian;
+                    case 8: return ship.IsConstructor || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian;
                     case 9: return ship.shipData.Role <= ShipData.RoleName.construction;
                     case 10: return ship.shipData.Role == ShipData.RoleName.corvette || ship.shipData.Role == ShipData.RoleName.gunboat;
                     case 11: return ship.fleet == null && ship.shipData.Role > ShipData.RoleName.station;

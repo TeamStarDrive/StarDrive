@@ -88,7 +88,7 @@ namespace Ship_Game
             }
             else if (SelectedShip != null && SelectedShip.loyalty == player)
             {
-                if (SelectedShip.isConstructor || SelectedShip.shipData.Role == ShipData.RoleName.supply)
+                if (SelectedShip.IsConstructor || SelectedShip.shipData.Role == ShipData.RoleName.supply)
                 {
                     if (SelectedShip != null && previousSelection != SelectedShip) // fbedard
                         previousSelection = SelectedShip;
@@ -217,7 +217,7 @@ namespace Ship_Game
             if (SelectedFleet != null || SelectedItem != null || SelectedShip != null || SelectedPlanet != null ||
                 SelectedShipList.Count != 0)
                 return;
-            if (shipClicked == null || shipClicked.Mothership != null || shipClicked.isConstructor)
+            if (shipClicked == null || shipClicked.Mothership != null || shipClicked.IsConstructor)
                 return;
             if (SelectedShip != null && previousSelection != SelectedShip && SelectedShip != shipClicked)
                 previousSelection = SelectedShip;

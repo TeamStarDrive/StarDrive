@@ -526,7 +526,7 @@ namespace Ship_Game.Ships
                 switch (module.ModuleType)
                 {
                     case ShipModuleType.Construction:
-                        isConstructor = true;
+                        IsConstructor = true;
                         shipData.Role = ShipData.RoleName.construction;
                         break;
                     case ShipModuleType.PowerConduit:

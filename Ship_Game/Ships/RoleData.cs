@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
         {
             if (Ship != null)
             {
-                if (Ship.isConstructor)
+                if (Ship.IsConstructor)
                     return ShipData.RoleName.construction;
 
                 if (Ship.isColonyShip || Modules.Any(ShipModuleType.Colony))
@@ -74,6 +74,37 @@ namespace Ship_Game.Ships
 
                 if (SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Hangar && (m.IsSupplyBay || m.IsTroopBay)) > 0.1f)
                     return ShipData.RoleName.support;
+                // check freighter role. If ship is unclassified or is not a freighter hull and is classified civilian
+                // check for useability as freighter.
+                // small issue is that ships that are classified civilian will behave as civilian ships.
+                //currently the category can not be set here while in the shipyard.
+                if (Ship == null || Ship.shipData.ShipCategory <= ShipData.Category.Civilian)
+                {
+                    // non freighter hull must be set to civilian to be set as frieghters.
+                    if (HullRole > ShipData.RoleName.freighter)
+                    {
+                        if (Ship == null || Ship.shipData.ShipCategory == ShipData.Category.Civilian
+                            && SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Storage) >= 0.5f)
+                            return ShipData.RoleName.freighter;
+                    }
+                    // freighter hull will be set to civilian if useable as freighter.
+                    // if not useable as freighter it will set the cat to Unclassified
+                    else if (HullRole == ShipData.RoleName.freighter)
+                    {
+                        if (SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Storage) >= 0.01f)
+                        {
+                            if (Ship != null)
+                                Ship.shipData.ShipCategory = ShipData.Category.Civilian;
+                            return ShipData.RoleName.freighter;
+                        }
+                        if (Ship?.shipData.ShipCategory == ShipData.Category.Civilian)
+                        {
+
+                            Ship.shipData.ShipCategory = ShipData.Category.Unclassified;
+                            Log.Warning($"Freighter {Ship.Name} category was reverted to unclassified as it cant be used as civilian ship");
+                        }
+                    }
+                }
             }
 
             float pSpecial = SurfaceAreaPercentOf(m =>
@@ -144,7 +175,7 @@ namespace Ship_Game.Ships
             return Modules.SurfaceArea(moduleType) / (float)SurfaceArea;
         }
 
-        public static void CreateDesignRoleToolTip(ShipData.RoleName designRole, Rectangle designRoleRect) 
+        public static void CreateDesignRoleToolTip(ShipData.RoleName designRole, Rectangle designRoleRect)
             => CreateDesignRoleToolTip(designRole, Fonts.Arial12, designRoleRect, true);
 
         public static void CreateDesignRoleToolTip(ShipData.RoleName role, SpriteFont roleFont, Rectangle designRoleRect, bool alwaysShow = false)
