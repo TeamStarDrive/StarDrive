@@ -196,10 +196,10 @@ namespace Ship_Game
                 ship =>
                 {
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.ConstructionModule)
-                        return ship.ShipGoodToBuild(EmpireManager.Player) && (ship.isConstructor || ship.Name == playerData.DefaultConstructor);
+                        return ship.ShipGoodToBuild(EmpireManager.Player) && (ship.IsConstructor || ship.Name == playerData.DefaultConstructor);
 
                     return ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && ship.CargoSpaceMax > 0f && 
-                            (ship.isConstructor || ship.shipData.Role == ShipData.RoleName.freighter);
+                            (ship.IsConstructor || ship.shipData.Role == ShipData.RoleName.freighter);
                 });
 
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 
