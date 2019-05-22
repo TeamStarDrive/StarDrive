@@ -15,6 +15,7 @@ namespace Ship_Game
 		EmpireDefense,
         Scrap,
         Refit,
-        AllowInterTrade
+        AllowInterTrade,
+        DefineTradeRoutes
 	}
 }

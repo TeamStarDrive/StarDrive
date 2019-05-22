@@ -171,6 +171,7 @@ namespace Ship_Game
         public bool SnapBackToSystem;
         public AutomationWindow aw;
         public bool DefiningAO; // are we defining a new AO?
+        public bool DefiningTradeRoutes; // are we defining  trade routes for a freighter?
         public Rectangle AORect; // used for showing current AO Rect definition
         public bool showingDSBW;
 
