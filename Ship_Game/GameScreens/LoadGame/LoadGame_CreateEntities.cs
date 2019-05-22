@@ -533,7 +533,7 @@ namespace Ship_Game
                     }
 
                     if (sg.Plan == ShipAI.Plan.DeployStructure || sg.Plan == ShipAI.Plan.DeployOrbital)
-                        ship.isConstructor = true;
+                        ship.IsConstructor = true;
 
                     ship.AI.AddGoalFromSave(sg, data);
                 }
