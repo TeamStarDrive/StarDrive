@@ -505,7 +505,7 @@ namespace Ship_Game
             }
         }
 
-        public void DrawShipAO()
+        public void DrawShipAOAndTradeRoutes()
         {
             if (DefiningAO && Input.LeftMouseDown)
                 DrawRectangleProjected(AORect, Color.Orange);
@@ -514,7 +514,7 @@ namespace Ship_Game
             {
                 string title = DefiningAO ? Localizer.Token(1411) + " (ESC to exit)" : Localizer.Token(1943);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, title,
-                    new Vector2(SelectedStuffRect.X, SelectedStuffRect.Y - Fonts.Pirulen16.LineSpacing - 2), Color.White);
+                    new Vector2(SelectedStuffRect.X, SelectedStuffRect.Y - Fonts.Pirulen20.LineSpacing - 2), Color.Red);
 
                 foreach (Rectangle ao in SelectedShip.AreaOfOperation)
                     DrawRectangleProjected(ao, Color.Red, new Color(Color.Red, 50));
@@ -522,10 +522,11 @@ namespace Ship_Game
                 // Draw Specific Trade Routes to planets
                 if (SelectedShip.IsFreighter)
                 {
-                    foreach (Planet planet in SelectedShip.TradeRoutes)
+                    foreach (Guid planetGuid in SelectedShip.TradeRoutes)
                     {
-                        Color lineColor = planet.Owner?.EmpireColor ?? Color.Gray;
-                        DrawLineToPlanet(SelectedShip.Center, planet.Center, lineColor);
+                        Planet planet = PlanetsDict[planetGuid];
+                        if (planet.Owner != null)
+                            DrawLineToPlanet(SelectedShip.Center, planet.Center, planet.Owner.EmpireColor);
                     }
                 }
             }
@@ -548,7 +549,7 @@ namespace Ship_Game
             RenderBackdrop();
             ScreenManager.SpriteBatch.Begin();
 
-            DrawShipAO();
+            DrawShipAOAndTradeRoutes();
             SelectShipLinesToDraw();
             ScreenManager.SpriteBatch.End();
             DrawBombs();

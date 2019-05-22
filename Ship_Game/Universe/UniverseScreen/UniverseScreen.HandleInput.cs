@@ -1105,6 +1105,7 @@ namespace Ship_Game
             if (!DefiningTradeRoutes)
                 return false;
 
+            DefiningTradeRoutes = !DefiningAO;
             HandleScrolls(input); // allow exclusive scrolling during Trade Route define
             if (!LookingAtPlanet && HandleGUIClicks(input))
                 return true;
@@ -1150,6 +1151,7 @@ namespace Ship_Game
             if (!DefiningAO)
                 return false;
 
+            DefiningAO = !DefiningTradeRoutes;
             HandleScrolls(input); // allow exclusive scrolling during AO define
             if (!LookingAtPlanet && HandleGUIClicks(input))
                 return true;
