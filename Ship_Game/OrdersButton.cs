@@ -34,48 +34,48 @@ namespace Ship_Game
             ClickRect = new Rectangle((int)location.X, (int)location.Y, 48, 48);
         }
 
-        public void Draw(ScreenManager screenManager, Rectangle r)
+        public void Draw(ScreenManager sm, Rectangle rect)
         {
             MouseState state = Mouse.GetState();
             Vector2 mousePos = new Vector2(Mouse.GetState().X, state.Y);
             if (SimpleToggle)
             {
-                screenManager.SpriteBatch.Draw(!r.HitTest(mousePos)
+                sm.SpriteBatch.Draw(!rect.HitTest(mousePos)
                     ? ResourceManager.Texture("SelectionBox/button_action_disabled")
-                    : ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
+                    : ResourceManager.Texture("SelectionBox/button_action_hover"), rect, Color.White);
             }
             else
             {
-                if (r.HitTest(mousePos))
-                    screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
+                if (rect.HitTest(mousePos))
+                    sm.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_hover"), rect, Color.White);
                 else if (RightClickValueToModify != null && !RightClickValueToModify.Value)
-                    screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.LightPink);
+                    sm.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), rect, Color.LightPink);
                 else if (!ValueToModify.Value)
-                    screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.White);
+                    sm.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), rect, Color.White);
                 else
-                    screenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action"), r, Color.White);
+                    sm.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action"), rect, Color.White);
             }
 
             switch (OrderType)
             {
-                case OrderType.FighterToggle:      DrawButton(screenManager, r, ResourceManager.Texture("OrderButtons/UI_Fighters"));      break;
-                case OrderType.FighterRecall:      DrawButton(screenManager, r, ResourceManager.Texture("OrderButtons/UI_FighterRecall")); break;
-                case OrderType.SendTroops:         DrawButton(screenManager, r, ResourceManager.Texture("NewUI/UI_SendTroops"));           break;
-                case OrderType.DefineAO:           DrawButton(screenManager, r, ResourceManager.Texture("OrderButtons/UI_AO"));            break;
-                case OrderType.TradeFood:          DrawButton(screenManager, r, ResourceManager.Texture("NewUI/icon_food"));               break;
-                case OrderType.TradeProduction:    DrawButton(screenManager, r, ResourceManager.Texture("NewUI/icon_production"));         break;
-                case OrderType.TransportColonists: DrawButton(screenManager, r, ResourceManager.Texture("UI/icon_passtran"));              break;
-                case OrderType.TroopToggle:        DrawButton(screenManager, r, ResourceManager.Texture("UI/icon_troop"));                 break;
-                case OrderType.Explore:            DrawButton(screenManager, r, ResourceManager.Texture("UI/icon_explore"));               break;
-                case OrderType.OrderResupply:      DrawButton(screenManager, r, ResourceManager.Texture("Modules/Ordnance"));              break;
-                case OrderType.EmpireDefense:      DrawButton(screenManager, r, ResourceManager.Texture("UI/icon_shield"));                break;
-                case OrderType.Scrap:              DrawButton(screenManager, r, ResourceManager.Texture("UI/icon_planetslist"));           break;
-                case OrderType.Refit:              DrawButton(screenManager, r, ResourceManager.Texture("UI/icon_dsbw"));                  break;
-                case OrderType.AllowInterTrade:    DrawButton(screenManager, r, ResourceManager.Texture("NewUI/icon_intertrade"));         break;
+                case OrderType.FighterToggle:      DrawButton(sm, rect, ResourceManager.Texture("OrderButtons/UI_Fighters"));      break;
+                case OrderType.FighterRecall:      DrawButton(sm, rect, ResourceManager.Texture("OrderButtons/UI_FighterRecall")); break;
+                case OrderType.SendTroops:         DrawButton(sm, rect, ResourceManager.Texture("NewUI/UI_SendTroops"));           break;
+                case OrderType.DefineAO:           DrawButton(sm, rect, ResourceManager.Texture("OrderButtons/UI_AO"));            break;
+                case OrderType.TradeFood:          DrawButton(sm, rect, ResourceManager.Texture("NewUI/icon_food"));               break;
+                case OrderType.TradeProduction:    DrawButton(sm, rect, ResourceManager.Texture("NewUI/icon_production"));         break;
+                case OrderType.TransportColonists: DrawButton(sm, rect, ResourceManager.Texture("UI/icon_passtran"));              break;
+                case OrderType.TroopToggle:        DrawButton(sm, rect, ResourceManager.Texture("UI/icon_troop"));                 break;
+                case OrderType.Explore:            DrawButton(sm, rect, ResourceManager.Texture("UI/icon_explore"));               break;
+                case OrderType.OrderResupply:      DrawButton(sm, rect, ResourceManager.Texture("Modules/Ordnance"));              break;
+                case OrderType.EmpireDefense:      DrawButton(sm, rect, ResourceManager.Texture("UI/icon_shield"));                break;
+                case OrderType.Scrap:              DrawButton(sm, rect, ResourceManager.Texture("UI/icon_planetslist"));           break;
+                case OrderType.Refit:              DrawButton(sm, rect, ResourceManager.Texture("UI/icon_dsbw"));                  break;
+                case OrderType.AllowInterTrade:    DrawButton(sm, rect, ResourceManager.Texture("NewUI/icon_intertrade"));         break;
             }
         }
 
-        private void DrawButton(ScreenManager screenManager, Rectangle rect, SubTexture tex)
+        private void DrawButton(ScreenManager sm, Rectangle rect, SubTexture tex)
         {
             int texWidth       = Math.Min(32, tex.Width);
             int texHeight      = Math.Min(32, tex.Height);
@@ -84,7 +84,7 @@ namespace Ship_Game
                                                texWidth,
                                                texHeight);
 
-            screenManager.SpriteBatch.Draw(tex, iconRect, Color.White);
+            sm.SpriteBatch.Draw(tex, iconRect, Color.White);
         }
 
         public bool HandleInput(InputState input, ScreenManager sm)

@@ -106,13 +106,15 @@ namespace Ship_Game.AI
             return test;
         }
 
-        bool InsideAreaOfOperation(Planet planet)
+        public bool InsideAreaOfOperation(Planet planet)
         {
-            if (Owner.AreaOfOperation.Count == 0)
+            if (Owner.AreaOfOperation.IsEmpty)
                 return true;
+
             foreach (Rectangle ao in Owner.AreaOfOperation)
                 if (ao.HitTest(planet.Center))
                     return true;
+
             return false;
         }
 
