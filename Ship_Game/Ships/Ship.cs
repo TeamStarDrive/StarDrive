@@ -40,7 +40,7 @@ namespace Ship_Game.Ships
         public Vector2 RelativeFleetOffset;
         private ShipModule[] Shields;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
-        public Array<Planet> TradeRoutes  = new Array<Planet>();
+        public Array<Guid> TradeRoutes  = new Array<Guid>();
         public CarrierBays Carrier;
         public ShipResupply Supply;
         public bool shipStatusChanged;
@@ -258,9 +258,12 @@ namespace Ship_Game.Ships
 
         public bool AddTradeRoute(Planet planet)
         {
-            if (planet.Owner == loyalty)
+            if (planet.Owner == null)
+                return false;
+            
+            if (planet.Owner == loyalty || loyalty.GetRelations(planet.Owner).Treaty_Trade)
             {
-                TradeRoutes.AddUniqueRef(planet);
+                TradeRoutes.AddUnique(planet.guid);
                 return true;
             }
 
@@ -269,7 +272,23 @@ namespace Ship_Game.Ships
 
         public void RemoveTradeRoute(Planet planet)
         {
-            TradeRoutes.Remove(planet);
+            TradeRoutes.Remove(planet.guid);
+        }
+
+        public void RefreshTradeRoutes()
+        {
+            if (!loyalty.isPlayer)
+                return; // Trade routes are available only for players
+
+            foreach (Guid planetGuid in TradeRoutes)
+            {
+                Planet planet = Empire.Universe.PlanetsDict[planetGuid];
+                if (planet.Owner == loyalty)
+                    continue;
+
+                if (planet.Owner == null || !loyalty.GetRelations(planet.Owner).Treaty_Trade)
+                    RemoveTradeRoute(planet);
+            }
         }
 
         public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
