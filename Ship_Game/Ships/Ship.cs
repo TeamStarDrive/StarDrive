@@ -40,6 +40,7 @@ namespace Ship_Game.Ships
         public Vector2 RelativeFleetOffset;
         private ShipModule[] Shields;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
+        public Array<Planet> TradeRoutes  = new Array<Planet>();
         public CarrierBays Carrier;
         public ShipResupply Supply;
         public bool shipStatusChanged;
@@ -49,16 +50,6 @@ namespace Ship_Game.Ships
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
         public bool isColonyShip;
-        public bool IsConstructor
-        {
-            get => DesignRole == ShipData.RoleName.construction;
-            set
-            {
-                if (value)
-                    DesignRole = ShipData.RoleName.construction;
-                else DesignRole = GetDesignRole();
-            }
-        }
         private Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
@@ -182,7 +173,6 @@ namespace Ship_Game.Ships
             return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
         }
 
-
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
         public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name;
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
@@ -200,6 +190,12 @@ namespace Ship_Game.Ships
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit;
+
+        public bool IsConstructor
+        {
+            get => DesignRole == ShipData.RoleName.construction;
+            set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
+        }
 
         public bool IsInNeutralSpace
         {
@@ -258,6 +254,22 @@ namespace Ship_Game.Ships
             percent = percent.Clamped(0f, 1f);
             foreach (ShipModule module in ModuleSlotList)
                 module.DebugDamage(percent);
+        }
+
+        public bool AddTradeRoute(Planet planet)
+        {
+            if (planet.Owner == loyalty)
+            {
+                TradeRoutes.AddUniqueRef(planet);
+                return true;
+            }
+
+            return false;
+        }
+
+        public void RemoveTradeRoute(Planet planet)
+        {
+            TradeRoutes.Remove(planet);
         }
 
         public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";

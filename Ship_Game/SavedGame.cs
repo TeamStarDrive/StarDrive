@@ -276,6 +276,7 @@ namespace Ship_Game
                     sdata.FightersLaunched = ship.FightersLaunched;
                     sdata.TroopsLaunched   = ship.TroopsLaunched;
                     sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
+                    sdata.TradeRoutes      = ship.TradeRoutes;
 
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
@@ -744,6 +745,7 @@ namespace Ship_Game
             [Serialize(28)] public bool TransportingProduction;
             [Serialize(29)] public bool TransportingColonists;
             [Serialize(30)] public bool AllowInterEmpireTrade;
+            [Serialize(31)] public Array<Planet> TradeRoutes;
         }
 
         public class SolarSystemSaveData
