@@ -35,8 +35,8 @@ namespace Ship_Game
             {
                 case ColonyType.TradeHub:
                     AssignCoreWorldWorkers();
-                    DetermineFoodState(0.15f, 0.95f); // Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
-                    DetermineProdState(0.15f, 0.95f);
+                    DetermineFoodState(0.4f, 0.6f); 
+                    DetermineProdState(0.4f, 0.6f);
                     break;
                 case ColonyType.Core:
                     AssignCoreWorldWorkers();
