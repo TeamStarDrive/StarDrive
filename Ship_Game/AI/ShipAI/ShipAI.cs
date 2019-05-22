@@ -99,11 +99,9 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public float TimeToTarget(Planet target)
+        public bool InTradingZones(Planet planet)
         {
-            if (target == null) return 0;
-            float test = Math.Max(1,Vector2.Distance(target.Center, Owner.Center) / Owner.GetmaxFTLSpeed);
-            return test;
+            return (Owner.TradeRoutes.Any(guid => guid == planet.guid) && InsideAreaOfOperation(planet));
         }
 
         public bool InsideAreaOfOperation(Planet planet)
