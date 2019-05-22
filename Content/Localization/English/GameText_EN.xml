@@ -876,13 +876,8 @@
     </Token>
     <Token>
       <Index>214</Index>
-      <Text>Allows you to customize an "Area of Operations" or "AO" for a ship. Freighters will only trade within their AO, allowing you to define custom trade routes. Combat ships will patrol their AO and engage any enemies in their AO.
-
-Drag a selection box around the area of the galaxy you want to define as the AO. You can define more than 1 AO per ship. Right click the AO to delete it.
-      </Text>
-      <!-- Maintain the line formatting here -->
+      <Text>Allows you to customize an "Area of Operations" or "AO" for a freighter. Freighters will only trade within their AO (both Manual and Auto Trade), allowing you to define custom trade areas. Drag a selection box around the area of the galaxy you want to define as the AO. You can define more than one AO per ship. Right click the AO to delete it. Esc key or right clicking on this button will exit AO creation mode.</Text>
     </Token>
-
     <Token>
       <Index>217</Index>
       <Text>Send Troops to this ship if it's troop number is less than 75% of the maximum. If you toggle this off, the ship will go to resupply when troop number is less than 10% of the maximum</Text>
@@ -895,7 +890,6 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
       <Index>219</Index>
       <Text>Indicates how much food this planet will produce per assigned colonist per turn (a turn is .1 StarDate). Some building or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time.</Text>
     </Token>
-
     <Token>
       <Index>221</Index>
       <Text>Indicates how much research this planet will produce per assigned colonist per turn (a turn is .1 StarDate)</Text>
@@ -1523,8 +1517,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>412</Index>
       <Text>Cloning Center</Text>
     </Token>
-
-
     <Token>
       <Index>415</Index>
       <Text>Crash Site</Text>
@@ -4695,6 +4687,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1943</Index>
+      <Text>Assign Trade Routes (Esc to exit)</Text>
+    </Token>
+    <Token>
+      <Index>1944</Index>
+      <Text>Define a specific list of planets this freighter will export and import resources. You need to define at least 2 in order to commence trade. You can create export trade routes to your trade allies as well. Left Click on a planet to add it to the trade route list. Right Click on a planet to remove it from the list. Esc or click on the trade routes button to exit the trade routes mode.</Text>
+    </Token>
+    <Token>
       <Index>1945</Index>
       <Text>Manual Trade: Allow this Freighter to participate in Inter-Empire trade operations. Note that this is not available for Colonists transport. If this is a group of freighters. Right Clicking on it will order all of them to cancel future Inter-Empire trade operations.</Text>
     </Token>
@@ -6405,7 +6405,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>239</Index>
-      <Text>Randomly places an Agent on an enemy colony, providing several key benefits. \n \n Most importantly, the Agent gives you an additional 10% to effectivenes of your espionage investments. The more Agents you have, the faster you will be able to gain intelligence penetration. \n \n Second, Agents give you the ability to inspect the colony where they are placed as if the colony were your own. </Text>
+      <Text>Randomly places an Agent on an enemy colony, providing several key benefits. \n \n Most importantly, the Agent gives you an additional 10% to effectiveness of your espionage investments. The more Agents you have, the faster you will be able to gain intelligence penetration. \n \n Second, Agents give you the ability to inspect the colony where they are placed as if the colony were your own. </Text>
     </Token>
     <Token>
       <Index>1606</Index>

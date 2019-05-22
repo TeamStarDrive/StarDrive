@@ -505,6 +505,37 @@ namespace Ship_Game
             }
         }
 
+        public void DrawShipAO()
+        {
+            if (DefiningAO && Input.LeftMouseDown)
+                DrawRectangleProjected(AORect, Color.Orange);
+
+            if ((DefiningAO || DefiningTradeRoutes) && SelectedShip != null)
+            {
+                string title = DefiningAO ? Localizer.Token(1411) + " (ESC to exit)" : Localizer.Token(1943);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, title,
+                    new Vector2(SelectedStuffRect.X, SelectedStuffRect.Y - Fonts.Pirulen16.LineSpacing - 2), Color.White);
+
+                foreach (Rectangle ao in SelectedShip.AreaOfOperation)
+                    DrawRectangleProjected(ao, Color.Red, new Color(Color.Red, 50));
+
+                // Draw Specific Trade Routes to planets
+                if (SelectedShip.IsFreighter)
+                {
+                    foreach (Planet planet in SelectedShip.TradeRoutes)
+                    {
+                        Color lineColor = planet.Owner?.EmpireColor ?? Color.Gray;
+                        DrawLineToPlanet(SelectedShip.Center, planet.Center, lineColor);
+                    }
+                }
+            }
+            else
+            {
+                DefiningAO          = false;
+                DefiningTradeRoutes = false;
+            }
+        }
+
         public void Render(GameTime gameTime)
         {
             if (Frustum == null)
@@ -516,22 +547,8 @@ namespace Ship_Game
 
             RenderBackdrop();
             ScreenManager.SpriteBatch.Begin();
-            if (DefiningAO && Input.LeftMouseDown)
-            {
-                DrawRectangleProjected(AORect, Color.Orange);
-            }
-            if (DefiningAO && SelectedShip != null)
-            {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, Localizer.Token(1411) + " (ESC to stop)",
-                    new Vector2(SelectedStuffRect.X, SelectedStuffRect.Y - Fonts.Pirulen16.LineSpacing - 2), Color.White);
 
-                foreach (Rectangle ao in SelectedShip.AreaOfOperation)
-                    DrawRectangleProjected(ao, Color.Red, new Color(Color.Red, 50));
-            }
-            else
-            {
-                DefiningAO = false;
-            }
+            DrawShipAO();
             SelectShipLinesToDraw();
             ScreenManager.SpriteBatch.End();
             DrawBombs();

@@ -217,6 +217,12 @@ namespace Ship_Game.Ships
                     AreaOfOperation.Add(aoRect);
             }
 
+            if (save.TradeRoutes != null)
+            {
+                foreach (Planet planet in save.TradeRoutes)
+                    TradeRoutes.Add(planet);
+            }
+
             InitializeAIFromAISave(save.AISave);
             LoadFood(save.FoodCount);
             LoadProduction(save.ProdCount);
