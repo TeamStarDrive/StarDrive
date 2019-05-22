@@ -178,7 +178,7 @@ namespace Ship_Game.Ships
 
         private void OrderButtonInput(InputState input)
         {
-            if (Ship.loyalty != EmpireManager.Player || Ship.isConstructor) return;
+            if (Ship.loyalty != EmpireManager.Player || Ship.IsConstructor) return;
             foreach (ToggleButton toggleButton in CombatStatusButtons)
             {
                 if (toggleButton.HandleInput(input))

@@ -651,11 +651,15 @@ namespace Ship_Game.Gameplay
             turnsSinceLastContact += 1;
         }
 
-        public bool AttackForBorderViolation(DTrait personality)
+        public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader = true)
         {
             if (Treaty_OpenBorders) return false;
              float borderAnger = Anger_FromShipsInOurBorders * (Anger_MilitaryConflict * .1f) + Anger_TerritorialConflict;
-            if (Treaty_Trade) borderAnger *= .2f;
+            if (isTrader)
+            {
+                if (Treaty_Trade) borderAnger *= .2f;
+                else if (DoWeShareATradePartner(targetEmpire, attackingEmpire)) borderAnger *= .5f;
+            }
 
             return borderAnger + 10 > (personality?.Territorialism  ?? EmpireManager.Player.data.BorderTolerance);
         }
@@ -683,6 +687,18 @@ namespace Ship_Game.Gameplay
                 return;
             
             ActiveWar.StrengthKilled += theirShip.BaseStrength;
+        }
+
+        public static bool DoWeShareATradePartner(Empire them, Empire us)
+        {
+            var theirTrade = EmpireManager.GetTradePartners(them);
+            var ourTrade = EmpireManager.GetTradePartners(them);
+            foreach (var trade in theirTrade)
+            {
+                if (ourTrade.ContainsRef(trade))
+                    return true;
+            }
+            return false;
         }
 
         public void Dispose()
