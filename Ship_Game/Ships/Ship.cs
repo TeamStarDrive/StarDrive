@@ -1,8 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using SgMotion.Controllers;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Debug;
@@ -52,7 +49,16 @@ namespace Ship_Game.Ships
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
         public bool isColonyShip;
-        public bool isConstructor;
+        public bool IsConstructor
+        {
+            get => DesignRole == ShipData.RoleName.construction;
+            set
+            {
+                if (value)
+                    DesignRole = ShipData.RoleName.construction;
+                else DesignRole = GetDesignRole();
+            }
+        }
         private Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
@@ -185,17 +191,8 @@ namespace Ship_Game.Ships
         public bool HasBombs  => BombBays.Count > 0;
 
 
-        public bool IsFreighter
-        {
-            get
-            {
-                if (isColonyShip || isConstructor || CargoSpaceMax < 1f)
-                    return false;
-                return shipData.Role == ShipData.RoleName.freighter
-                    || shipData.ShipCategory == ShipData.Category.Civilian
-                    || shipData.ShipCategory == ShipData.Category.Unclassified;
-            }
-        }
+        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter 
+                                   && shipData.ShipCategory == ShipData.Category.Civilian;
 
         public bool IsIdleFreighter => IsFreighter
                                        && AI != null
@@ -272,7 +269,7 @@ namespace Ship_Game.Ships
             if (DesignRole == ShipData.RoleName.support)
                 return ResourceManager.Texture("TacticalIcons/symbol_supply");
 
-            if (isConstructor)
+            if (IsConstructor)
                 return ResourceManager.Texture("TacticalIcons/symbol_construction");
 
             string roleName = DesignRole.ToString();
@@ -389,15 +386,15 @@ namespace Ship_Game.Ships
                 return true;
 
             if ((DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troop)
-                && System != null && attacker.GetOwnedSystems().Contains(System))
+                && System != null && attacker.GetOwnedSystems().ContainsRef(System))
                 return true;
 
             // the below does a search for being inborders so its expensive.
-            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
+            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker
+                    , AI.State == AIState.SystemTrader)
                 && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(this))
             {
-                //if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");
-                return true;
+                    return true;
             }
             return false;
         }
@@ -1944,10 +1941,11 @@ namespace Ship_Game.Ships
 
         public bool IsCandidateFreighterBuild()
         {
+            return IsFreighter;
             if (shipData.Role != ShipData.RoleName.freighter
                 || CargoSpaceMax < 1f
                 || isColonyShip
-                || isConstructor)
+                || IsConstructor)
                 return false; // definitely not a freighter
 
             // only Civilian or Unclassified may be freighter candidates

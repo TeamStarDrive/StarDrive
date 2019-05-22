@@ -57,7 +57,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep OrderDeepSpaceBuild()
         {
             FinishedShip.AI.OrderDeepSpaceBuild(this);
-            FinishedShip.isConstructor = true;
+            FinishedShip.IsConstructor = true;
             FinishedShip.VanityName = "Construction Ship";
             return GoalStep.GoToNextStep;
         }

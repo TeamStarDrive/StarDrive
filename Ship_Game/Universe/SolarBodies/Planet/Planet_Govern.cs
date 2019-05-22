@@ -102,7 +102,7 @@ namespace Ship_Game
             foreach (Ship orbital in OrbitalStations.Values)
             {
                 if (orbital.shipData.Role == role && !orbital.shipData.IsShipyard  // shipyards are not defense stations
-                                                  && !orbital.isConstructor)
+                                                  && !orbital.IsConstructor)
                 {
                     orbitalList.Add(orbital);
                 }

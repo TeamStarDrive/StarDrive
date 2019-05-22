@@ -478,7 +478,7 @@ namespace Ship_Game.AI
                 if (
                     (Owner.shipData.Role == ShipData.RoleName.freighter ||
                      Owner.shipData.ShipCategory == ShipData.Category.Civilian) && Owner.CargoSpaceMax > 0 ||
-                    Owner.DesignRole == ShipData.RoleName.scout || Owner.isConstructor ||
+                    Owner.DesignRole == ShipData.RoleName.scout || Owner.IsConstructor ||
                     Owner.DesignRole == ShipData.RoleName.troop || IgnoreCombat || State == AIState.Resupply ||
                     State == AIState.ReturnToHangar || State == AIState.Colonize ||
                     Owner.DesignRole == ShipData.RoleName.supply)
