@@ -61,7 +61,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         GoalStep OrderDeployOrbital()
         {
             BuildPosition              = FindNewOrbitalLocation();
-            FinishedShip.isConstructor = true;
+            FinishedShip.IsConstructor = true;
             FinishedShip.VanityName    = "Construction Ship";
             FinishedShip.AI.OrderDeepSpaceBuild(this);
             return GoalStep.GoToNextStep;
@@ -117,7 +117,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         // Checks if a Construction Ship is due to deploy a structure at a point
         bool IsOrbitalPlannedAt(Vector2 position)
         {
-            foreach (Ship ship in empire.GetShips().Filter(s => s.isConstructor))
+            foreach (Ship ship in empire.GetShips().Filter(s => s.IsConstructor))
             {
                 if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) && g.Goal.PlanetBuildingAt == PlanetBuildingAt)
                 {

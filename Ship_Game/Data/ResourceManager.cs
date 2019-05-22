@@ -41,7 +41,7 @@ namespace Ship_Game
      *                                Caching is also done at this level. All Disposable objects are recorded.
      *
      * Layer 3: XNA ContentManager & RawContentLoader -- Loads XNB files and also provides .png / .fbx / .obj support.
-     *                                
+     *
      */
     public sealed class ResourceManager // Refactored by RedFox
     {
@@ -1012,7 +1012,7 @@ namespace Ship_Game
         {
             LoadNumberedModels(JunkModels, "Model/SpaceJunk/", "spacejunk");
         }
-        
+
         static readonly Array<Model> AsteroidModels = new Array<Model>();
         public static int NumAsteroidModels => AsteroidModels.Count;
         public static Model GetAsteroidModel(int asteroidId)
@@ -1395,7 +1395,7 @@ namespace Ship_Game
                 TechTree[fileUid] = tech;
 
                 // categorize extra techs
-                Technology.GetTechnologyTypesFromUnlocks(tech, tech.TechnologyTypes);                
+                Technology.GetTechnologyTypesFromUnlocks(tech, tech.TechnologyTypes);
             }
 
             foreach (Technology tech in TechTree.Values)

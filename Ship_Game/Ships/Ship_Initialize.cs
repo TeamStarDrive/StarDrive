@@ -36,6 +36,7 @@ namespace Ship_Game.Ships
                 ThrusterList.Add(new Thruster(this, t.Scale, t.Position));
             InitializeStatus(fromSave);
             InitializeThrusters();
+            DesignRole = GetDesignRole();
         }
 
         protected Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
@@ -527,7 +528,7 @@ namespace Ship_Game.Ships
                 switch (module.ModuleType)
                 {
                     case ShipModuleType.Construction:
-                        isConstructor = true;
+                        IsConstructor = true;
                         shipData.Role = ShipData.RoleName.construction;
                         break;
                     case ShipModuleType.PowerConduit:
