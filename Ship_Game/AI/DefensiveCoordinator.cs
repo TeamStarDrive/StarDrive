@@ -67,9 +67,14 @@ namespace Ship_Game.AI
 
         public Planet AssignIdleShips(Ship ship)
         {
-            return DefenseDict.TryGetValue(ship.AI.SystemToDefend, out SystemCommander systemCommander)
-                ? systemCommander.AssignIdleDuties(ship)
-                : DefenseDict.First().Value.AssignIdleDuties(ship);
+            if (DefenseDict.Count == 0)
+            {
+                Log.Error($"Ship {ship.AI.SystemToDefend} not in defensive dictionary");
+                return null;
+            }
+            if (DefenseDict.TryGetValue(ship.AI.SystemToDefend, out SystemCommander systemCommander))
+                return systemCommander.AssignIdleDuties(ship);
+            return DefenseDict.First().Value.AssignIdleDuties(ship);
         }
 
         public void Remove(Ship ship)
