@@ -99,9 +99,17 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public bool IsValidTradeRoute(Planet planet)
+        {
+            if (Owner.TradeRoutes.Count < 2)
+                return true; // need at least 2 routes for it to filter
+
+            return Owner.TradeRoutes.Any(guid => guid == planet.guid);
+        }
+
         public bool InTradingZones(Planet planet)
         {
-            return (Owner.TradeRoutes.Any(guid => guid == planet.guid) && InsideAreaOfOperation(planet));
+            return IsValidTradeRoute(planet) || InsideAreaOfOperation(planet);
         }
 
         public bool InsideAreaOfOperation(Planet planet)
