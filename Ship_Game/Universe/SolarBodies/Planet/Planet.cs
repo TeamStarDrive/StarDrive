@@ -32,9 +32,10 @@ namespace Ship_Game
         public TroopManager TroopManager;
         public SpaceStation Station = new SpaceStation(null);
 
-        public bool GovBuildings = true;
-        public bool GovOrbitals  = true;
-        public bool GovMilitia   = false;
+        public bool GovBuildings       = true;
+        public bool GovOrbitals        = true;
+        public bool GovMilitia         = false;
+        public bool DontScrapBuildings = false;
         public bool AllowInfantry;
 
         public int CrippledTurns;
@@ -87,6 +88,7 @@ namespace Ship_Game
         public int FreeTiles      => (TilesList.Count(t => t.TroopsHere.Count < t.MaxAllowedTroops && !t.CombatBuildingOnTile) - 1)
                                      .Clamped(0, MaxBuildings);
 
+        public bool NoGovernorAndNotTradeHub => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
         public int FreeTilesWithRebaseOnTheWay
         {
             get {

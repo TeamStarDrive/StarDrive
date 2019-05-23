@@ -69,12 +69,12 @@ namespace Ship_Game
         {
             get
             {
-                if (TradeBlocked || !ImportFood || !ShortOnFood())
+                if (TradeBlocked || !ImportFood || (!ShortOnFood() && NoGovernorAndNotTradeHub))
                     return 0;
 
-                int foodIncomeSlots  = ((int)(1 - Food.NetIncome));
+                int foodIncomeSlots  = (int)(1 - Food.NetIncome);
                 int foodStorageRatio = (int)((1 - Storage.FoodRatio) * 3);
-                return (foodIncomeSlots + foodStorageRatio).Clamped(0, 5);
+                return (foodIncomeSlots + foodStorageRatio).Clamped(0, 6);
             }
         }
 
