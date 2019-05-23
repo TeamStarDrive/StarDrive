@@ -4687,6 +4687,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1941</Index>
+      <Text>Governor Will Not Scrap Buildings</Text>
+    </Token>
+    <Token>
+      <Index>1942</Index>
+      <Text>Normally, Governors operate within a budget limit which it tied to your empire's money and will start scrapping buildings if money becomes tight. Checking this box will not allow Governors to scrap buildings. You will have to be careful with your Money.</Text>
+    </Token>
+    <Token>
       <Index>1943</Index>
       <Text>Assign Trade Routes (Esc to exit)</Text>
     </Token>

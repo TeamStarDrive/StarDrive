@@ -99,18 +99,18 @@ namespace Ship_Game
                 p.SpecialDescription = psdata.SpecialDescription;
 
             p.Scale = psdata.Scale > 0f ? psdata.Scale : RandomMath.RandomBetween(1f, 2f);
-            p.colonyType  = psdata.ColonyType;
-            p.GovOrbitals = psdata.GovOrbitals;
-            p.GovMilitia  = psdata.GovMilitia;
-
-            p.NumShipyards     = psdata.NumShipyards;
-            p.FS               = psdata.FoodState;
-            p.PS               = psdata.ProdState;
-            p.Food.PercentLock = psdata.FoodLock;
-            p.Prod.PercentLock = psdata.ProdLock;
-            p.Res.PercentLock  = psdata.ResLock;
-            p.OrbitalRadius    = psdata.OrbitalDistance;
-            p.MaxPopBase       = psdata.PopulationMax;
+            p.colonyType         = psdata.ColonyType;
+            p.GovOrbitals        = psdata.GovOrbitals;
+            p.GovMilitia         = psdata.GovMilitia;
+            p.DontScrapBuildings = psdata.DontScrapBuildings;
+            p.NumShipyards       = psdata.NumShipyards;
+            p.FS                 = psdata.FoodState;
+            p.PS                 = psdata.ProdState;
+            p.Food.PercentLock   = psdata.FoodLock;
+            p.Prod.PercentLock   = psdata.ProdLock;
+            p.Res.PercentLock    = psdata.ResLock;
+            p.OrbitalRadius      = psdata.OrbitalDistance;
+            p.MaxPopBase         = psdata.PopulationMax;
 
             p.SetFertility(psdata.Fertility, psdata.MaxFertility);
 
