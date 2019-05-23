@@ -4700,11 +4700,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1944</Index>
-      <Text>Define a specific list of planets this freighter will export and import resources. You need to define at least 2 in order to commence trade. You can create export trade routes to your trade allies as well. Left Click on a planet to add it to the trade route list. Right Click on a planet to remove it from the list. Esc or click on the trade routes button to exit the trade routes mode.</Text>
+      <Text>Choose a list of planets that selected freighters will visit exclusively. At least 2 planets are needed, and may contain allied planets for exporting to. Left click a planet to add it, Right click to remove it. Click the button again or press ESC to return to play</Text>
     </Token>
     <Token>
       <Index>1945</Index>
-      <Text>Manual Trade: Allow this Freighter to participate in Inter-Empire trade operations. Note that this is not available for Colonists transport. If this is a group of freighters. Right Clicking on it will order all of them to cancel future Inter-Empire trade operations.</Text>
+      <Text>Manual Trade: Allow selected freighters to trade with other empires. Right Clicking on this button will cancel this for the selected group of freighters. Note: Colonists cannot be traded between empires.</Text>
     </Token>
     <Token>
       <Index>1946</Index>

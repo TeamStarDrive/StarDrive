@@ -661,7 +661,7 @@ namespace Ship_Game.Ships
                 Orders.Add(ao);
                 OrdersButton tradeFood = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.TransportingFood)
+                    ValueToModify = new Ref<bool>(() => Ship.TransportingFood),
                 };
                 Orders.Add(tradeFood);
                 OrdersButton tradeProduction = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, 17)
