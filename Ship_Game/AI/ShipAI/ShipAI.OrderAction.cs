@@ -147,7 +147,7 @@ namespace Ship_Game.AI
         {
             SetPriorityOrderWithClear();
             if (Owner.Carrier.AnyAssaultOpsAvailable) // TThis deals also with single Troop Ships / Assault Shuttles
-                AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet); 
+                AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet);
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders)
@@ -165,7 +165,7 @@ namespace Ship_Game.AI
             GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, clearOrders, Owner.Speed);
         }
 
-        void GenerateOrdersFromWayPoints(Vector2 position, Vector2 finalDirection, 
+        void GenerateOrdersFromWayPoints(Vector2 position, Vector2 finalDirection,
                                          Planet targetPlanet, bool clearOrders, float speedLimit)
         {
             if (!finalDirection.IsUnitVector())
@@ -539,8 +539,11 @@ namespace Ship_Game.AI
                 if (SystemToDefend != null)
                 {
                     Planet p = Owner.loyalty.GetEmpireAI().DefensiveCoordinator.AssignIdleShips(Owner);
-                    DoOrbit.Orbit(p, elapsedTime);
-                    AwaitClosest = p;
+                    if (p != null)
+                    {
+                        DoOrbit.Orbit(p, elapsedTime);
+                        AwaitClosest = p;
+                    }
                     return;
                 }
 
