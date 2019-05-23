@@ -39,8 +39,9 @@ namespace Ship_Game.AI
                     exportPlanet.Population += Owner.UnloadColonists();
 
                     // food amount estimated the import planet needs
-                    float maxFoodLoad = importPlanet.Storage.Max - importPlanet.FoodHere;
-                    maxFoodLoad       = (maxFoodLoad - importPlanet.Food.NetIncome * eta).Clamped(0, exportPlanet.Storage.Max * 0.5f);
+                    float maxFoodLoad   = importPlanet.Storage.Max - importPlanet.FoodHere;
+                    float foodLoadLimit = Owner.loyalty.ManualTrade ? 1 : 0.5f; // should be set as an option for the player in future trade window.
+                    maxFoodLoad         = (maxFoodLoad - importPlanet.Food.NetIncome * eta).Clamped(0, exportPlanet.Storage.Max * foodLoadLimit);
                     if (maxFoodLoad.AlmostZero())
                     {
                         AI.CancelTradePlan(exportPlanet); // import planet food is good by now
@@ -53,7 +54,8 @@ namespace Ship_Game.AI
                 case Goods.Production:
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
-                    float maxProdLoad        = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 0.25f);
+                    float prodLoadLimit      = Owner.loyalty.ManualTrade ? 1 : 0.25f; // should be set as an option for the player in future trade window.
+                    float maxProdLoad        = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * prodLoadLimit);
                     exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
                     freighterTooSmall        = Owner.CargoSpaceMax.Less(maxProdLoad);
                     break;
