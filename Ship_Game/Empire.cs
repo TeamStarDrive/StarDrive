@@ -543,11 +543,7 @@ namespace Ship_Game
             }
             return (int)costAccumulator;
         }
-        public int TechCost(Ship ship)
-        {
-            float costAccumulator = 0;
-            return TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
-        }
+        public int TechCost(Ship ship) => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
 
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 

@@ -190,7 +190,7 @@ namespace Ship_Game.Ships
         public bool HasBombs  => BombBays.Count > 0;
 
 
-        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter 
+        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter
                                    && shipData.ShipCategory == ShipData.Category.Civilian;
 
         public bool IsIdleFreighter => IsFreighter
@@ -1938,19 +1938,7 @@ namespace Ship_Game.Ships
             return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
         }
 
-        public bool IsCandidateFreighterBuild()
-        {
-            return IsFreighter;
-            if (shipData.Role != ShipData.RoleName.freighter
-                || CargoSpaceMax < 1f
-                || isColonyShip
-                || IsConstructor)
-                return false; // definitely not a freighter
-
-            // only Civilian or Unclassified may be freighter candidates
-            return shipData.ShipCategory == ShipData.Category.Civilian ||
-                   shipData.ShipCategory == ShipData.Category.Unclassified;
-        }
+        public bool IsCandidateFreighterBuild() => IsFreighter;
 
         public int RefitCost(Ship newShip)
         {
