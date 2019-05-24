@@ -522,17 +522,16 @@ namespace Ship_Game
             }
             if (DefiningAO && SelectedShip != null)
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, Localizer.Token(1411),
-                    new Vector2(SelectedStuffRect.X,
-                        SelectedStuffRect.Y - Fonts.Pirulen16.LineSpacing - 2), Color.White);
-                for (int index = 0; index < SelectedShip.AreaOfOperation.Count; index++)
-                {
-                    Rectangle rectangle = SelectedShip.AreaOfOperation[index];
-                    DrawRectangleProjected(rectangle, Color.Red, new Color(Color.Red, 50));
-                }
+                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, Localizer.Token(1411) + " (ESC to stop)",
+                    new Vector2(SelectedStuffRect.X, SelectedStuffRect.Y - Fonts.Pirulen16.LineSpacing - 2), Color.White);
+
+                foreach (Rectangle ao in SelectedShip.AreaOfOperation)
+                    DrawRectangleProjected(ao, Color.Red, new Color(Color.Red, 50));
             }
             else
+            {
                 DefiningAO = false;
+            }
             SelectShipLinesToDraw();
             ScreenManager.SpriteBatch.End();
             DrawBombs();
