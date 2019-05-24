@@ -341,6 +341,10 @@ namespace Ship_Game
 
         private void BuildShipyardIfAble(int numWantedShipyards)
         {
+            if (NumShipyards > numWantedShipyards)
+            {
+                Log.Error($"BuildShipyardIfAble: NumShipyards ({NumShipyards}) is bigger than numWantedShipyards ({numWantedShipyards})");
+            }
             if (numWantedShipyards == 0 || OrbitalsInTheWorks 
                                         || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
             {

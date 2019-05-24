@@ -127,7 +127,16 @@ namespace Ship_Game
             return "(IMPORT ALL)";
         }
 
-
+        public float StorageRatio(Goods goods)
+        {
+            switch (goods)
+            {
+                case Goods.Food:       return Storage.FoodRatio;
+                case Goods.Production: return Storage.ProdRatio;
+                case Goods.Colonists:  return PopulationRatio;
+                default:               return 1;
+            }
+        }
 
         public float GetGoodAmount(string good) => Storage.GetGoodAmount(good);
         public void AddGood(string goodId, int amount) => Storage.AddCommodity(goodId, amount);

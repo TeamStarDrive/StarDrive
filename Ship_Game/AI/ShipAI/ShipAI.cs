@@ -109,7 +109,7 @@ namespace Ship_Game.AI
 
         public bool InTradingZones(Planet planet)
         {
-            return IsValidTradeRoute(planet) || InsideAreaOfOperation(planet);
+            return IsValidTradeRoute(planet) && InsideAreaOfOperation(planet);
         }
 
         public bool InsideAreaOfOperation(Planet planet)
