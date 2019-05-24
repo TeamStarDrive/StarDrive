@@ -262,25 +262,23 @@ namespace Ship_Game
             }
 
             HandleEdgeDetection(input);
-            if (DefiningAO)
-            {
-                DefineAO(input);
-                return false;
-            }
+            if (HandleDragAORect(input))
+                return true;
 
-            for (int index = SelectedShipList.Count - 1; index >= 0; --index)
+            for (int i = SelectedShipList.Count - 1; i >= 0; --i)
             {
-                Ship ship = SelectedShipList[index];
+                Ship ship = SelectedShipList[i];
                 if (ship?.Active != true)
                     SelectedShipList.RemoveSwapLast(ship);
             }
+
             // CG: previous target code.
             if (previousSelection != null && input.PreviousTarget)
                 PreviousTargetSelection(input);
 
             // fbedard: Set camera chase on ship
             if (input.ChaseCam)
-                ChaseCame();
+                ChaseCam();
 
             ShowTacticalCloseup = input.TacticalIcons;
 
@@ -321,11 +319,7 @@ namespace Ship_Game
             if (!LookingAtPlanet)
             {
                 if (HandleGUIClicks(input))
-                {
-                    SkipRightOnce = true;
-                    NeedARelease  = true;
                     return true;
-                }
             }
             else
             {
@@ -360,27 +354,31 @@ namespace Ship_Game
                 ResetToolTipTimer(ref ShowingSysTooltip);
 
             if (!LookingAtPlanet)
+            {
                 HandleInputNotLookingAtPlanet(input);
+            }
             else
+            {
                 HandleInputLookingAtPlanet(input);
+            }
 
-            if (input.InGameSelect && !pickedSomethingThisFrame &&
-                (!input.IsShiftKeyDown && !pieMenu.Visible))
+            if (input.InGameSelect && !pickedSomethingThisFrame && (!input.IsShiftKeyDown && !pieMenu.Visible))
                 HandleFleetButtonClick(input);
 
-            cState = SelectedShip != null || SelectedShipList.Count > 0
-                ? CursorState.Move
-                : CursorState.Normal;
+            cState = SelectedShip != null || SelectedShipList.Count > 0 ? CursorState.Move : CursorState.Normal;
             if (SelectedShip == null && SelectedShipList.Count <= 0)
                 return false;
+
             for (int i = 0; i < ClickableShipsList.Count; i++)
             {
                 ClickableShip clickableShip = ClickableShipsList[i];
                 if (input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
                     cState = CursorState.Follow;
             }
+
             if (cState == CursorState.Follow)
                 return false;
+
             lock (GlobalStats.ClickableSystemsLock)
             {
                 for (int i = 0; i < ClickPlanetList.Count; i++)
@@ -1099,57 +1097,51 @@ namespace Ship_Game
             }
         }
 
-        void DefineAO(InputState input)
+        bool HandleDragAORect(InputState input)
         {
-            HandleScrolls(input);
-            if (SelectedShip == null)
+            if (!DefiningAO)
+                return false;
+
+            HandleScrolls(input); // allow exclusive scrolling during AO define
+            if (!LookingAtPlanet && HandleGUIClicks(input))
+                return true;
+
+            if (input.RightMouseClick) // erase existing AOs
+            {
+                Vector2 cursorWorld = UnprojectToWorldPosition(input.CursorPosition);
+                SelectedShip.AreaOfOperation.RemoveFirst(ao => ao.HitTest(cursorWorld));
+                return true;
+            }
+
+            // no ship selection? abort
+            // Easier out from defining an AO. Used to have to left and Right click at the same time.    -Gretman
+            if (SelectedShip == null || input.Escaped)
             {
                 DefiningAO = false;
-                return;
+                return true;
             }
-            if (input.Escaped) //Easier out from defining an AO. Used to have to left and Right click at the same time.    -Gretman
+
+            if (input.LeftMouseHeld(0.1f))
             {
-                DefiningAO = false;
-                return;
+                Vector2 start = UnprojectToWorldPosition(input.StartLeftHold);
+                Vector2 end   = UnprojectToWorldPosition(input.EndLeftHold);
+                AORect = new Rectangle((int)Math.Min(start.X, end.X),  (int)Math.Min(start.Y, end.Y), 
+                                       (int)Math.Abs(end.X - start.X), (int)Math.Abs(end.Y - start.Y));
             }
-            if (input.RightMouseClick)
-                for (int index = 0; index < SelectedShip.AreaOfOperation.Count; ++index)
+            else if ((AORect.Width+AORect.Height) > 1000 && input.LeftMouseReleased)
+            {
+                if (AORect.Width >= 5000 && AORect.Height >= 5000)
                 {
-                    if (SelectedShip.AreaOfOperation[index].HitTest(UnprojectToWorldPosition(input.CursorPosition)))
-                        SelectedShip.AreaOfOperation.Remove(SelectedShip.AreaOfOperation[index]);
+                    GameAudio.EchoAffirmative();
+                    SelectedShip.AreaOfOperation.Add(AORect);
                 }
-
-            Vector2 start;
-            Vector2 end;
-            if (input.LeftMouseHeld(0) && input.MouseDrag)
-            {
-                start  = UnprojectToWorldPosition(input.StartLeftHold);
-                end    = UnprojectToWorldPosition(input.CursorPosition);
-                AORect = new Rectangle((int) start.X, (int) start.Y, (int) (end.X - start.X), (int) (end.Y - start.Y));
-                return;
+                else
+                {
+                    GameAudio.NegativeClick(); // eek-eek! AO not big enough!
+                }
+                AORect = Rectangle.Empty;
             }
-            if (!input.LeftMouseHeldDown)
-            {
-                AORect = new Rectangle();
-                return;
-            }
-            start  = UnprojectToWorldPosition(input.StartLeftHold);
-            end    = UnprojectToWorldPosition(input.EndLeftHold);
-            AORect = new Rectangle((int) start.X, (int) start.Y, (int) (end.X - start.X), (int) (end.Y - start.Y));
-
-
-            if (AORect.X > end.X)
-                AORect.X = (int)end.X;
-            if (AORect.Y > end.Y)
-                AORect.Y = (int)end.Y;
-
-            AORect.Width = Math.Abs(AORect.Width);
-            AORect.Height = Math.Abs(AORect.Height);
-
-            if (AORect.Width <= 5000 || AORect.Height <= 5000) return;
-
-            GameAudio.EchoAffirmative();
-            SelectedShip.AreaOfOperation.Add(AORect);
+            return true;
         }
 
         void InputClickableItems(InputState input)
