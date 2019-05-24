@@ -66,6 +66,7 @@ namespace Ship_Game.Gameplay
         public bool ErrorSet = false;
         public bool FlashExplode;
         bool InFrustum;
+        private bool Deflected;
    
 
         public Ship Owner { get; protected set; }
@@ -244,6 +245,20 @@ namespace Ship_Game.Gameplay
                     FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(100f, Center, -ZStart);
                     break;
             }
+        }
+
+        public void Deflect(Empire empire, Vector3 deflectionPoint)
+        {
+            Loyalty              = empire;
+            Deflected            = true;
+            Vector2 newDirection = RandomMath.RandomDirection();
+            float momentumLoss   = 9 - RandomMath.RollDie(6);
+            Duration            *= momentumLoss / 10;
+            Speed               *= momentumLoss / 10;
+            Velocity             = Speed * newDirection;
+            Rotation             = Velocity.Normalized().ToRadians();
+            if (RandomMath.RollDie(2) == 2)
+                Empire.Universe.beamflashes.AddParticleThreadB(GetBackgroundPos(deflectionPoint), Vector3.Zero);
         }
 
         public override Vector2 JammingError()
@@ -676,7 +691,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             
-            DieNextFrame = true;
+            DieNextFrame = !Deflected;
             return true;
         }
 

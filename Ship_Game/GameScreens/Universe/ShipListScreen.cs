@@ -329,7 +329,6 @@ namespace Ship_Game
 
                 Empire.Universe.SelectedShipList.Clear();
                 Empire.Universe.returnToShip = false;
-                Empire.Universe.SkipRightOnce = true;
                 if (SelectedShip !=null)
                 {                   
                     Empire.Universe.SelectedFleet = null;
@@ -359,7 +358,6 @@ namespace Ship_Game
                 ExitScreen();
                 Empire.Universe.SelectedShipList.Clear();
                 Empire.Universe.returnToShip = false;
-                Empire.Universe.SkipRightOnce = true;
                 if (SelectedShip !=null)
                 {                   
                     Empire.Universe.SelectedFleet  = null;

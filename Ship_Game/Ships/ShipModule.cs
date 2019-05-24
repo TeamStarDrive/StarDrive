@@ -585,7 +585,10 @@ namespace Ship_Game.Ships
             {
                 damageRemainder = 0f;
                 if (source != null) EvtDamageInflicted(source, 0f);
-                return; // damage was deflected. FB - if we want to do projectile deflection draw. need to return false here
+                {
+                    Deflect(source); // FB: the projectile was deflected
+                    return; 
+                }
             }
 
             DebugDamageCircle();
@@ -598,6 +601,20 @@ namespace Ship_Game.Ships
             if (source != null) EvtDamageInflicted(source, absorbedDamage);
 
             damageRemainder = (int)(damageAmount - absorbedDamage);
+        }
+
+        private void Deflect(GameplayObject source)
+        {
+            if (!Parent.InFrustum || Empire.Universe?.viewState > UniverseScreen.UnivScreenState.ShipView)
+                return;
+
+            if (!(source is Projectile proj))
+                return;
+
+            if (proj.Explodes || proj.Duration < 0)
+                return;
+
+            proj.Deflect(Parent.loyalty, Center3D);
         }
 
         public void DebugDamage(float percent)
