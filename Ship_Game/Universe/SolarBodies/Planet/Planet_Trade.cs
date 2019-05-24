@@ -69,7 +69,13 @@ namespace Ship_Game
         {
             get
             {
-                if (TradeBlocked || !ImportFood || (!ShortOnFood() && NoGovernorAndNotTradeHub))
+                if (TradeBlocked || !ImportFood)
+                    return 0;
+
+                if (NoGovernorAndNotTradeHub && Storage.FoodRatio > 0.5f)
+                    return 0;  // for players with no governor or with trade hub - only 50% storage or less will open slots
+
+                if (!ShortOnFood())
                     return 0;
 
                 int foodIncomeSlots  = (int)(1 - Food.NetIncome);

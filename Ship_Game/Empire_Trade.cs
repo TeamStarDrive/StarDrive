@@ -126,7 +126,8 @@ namespace Ship_Game
 
         private void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList)
         {
-            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0);
+            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
+                                                        .OrderBy(p => p.StorageRatio(goods)).ToArray();
             if (importingPlanets.Length == 0)
                 return;
 

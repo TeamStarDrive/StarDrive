@@ -126,7 +126,7 @@ namespace Ship_Game
             }
 
             ToolTip.CreateTooltip(IdTip);
-            if (SimpleToggle && input.InGameSelect || input.RightMouseClick)
+            if (SimpleToggle && (input.InGameSelect || input.RightMouseClick))
             {
                 GameAudio.AcceptClick();
                 for (int i = 0; i < ShipList.Count; i++)
@@ -163,6 +163,8 @@ namespace Ship_Game
                 GameAudio.AcceptClick();
                 if (RightClickValueToModify != null)
                     RightClickValueToModify.Value = !RightClickValueToModify.Value;
+                else if (ValueToModify.Value)
+                    ValueToModify.Value = !ValueToModify.Value; // this button has single functionality, so right click disables it as well
 
                 return true;
             }
