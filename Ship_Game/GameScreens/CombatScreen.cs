@@ -34,7 +34,6 @@ namespace Ship_Game
         private Array<PointSet> pointsList   = new Array<PointSet>();
         private bool ResetNextFrame;
         public PlanetGridSquare ActiveTile;
-        private Selector selector;
         private float OrbitalAssetsTimer; // 2 seconds per update
 
         ScrollList.Entry draggedTroop;
@@ -537,7 +536,6 @@ namespace Ship_Game
             if (ActiveTile != null && tInfo.HandleInput(input))
                 selectedSomethingThisFrame = true;
 
-            selector      = null;
             HoveredSquare = null;
             foreach (PlanetGridSquare pgs in p.TilesList)
             {

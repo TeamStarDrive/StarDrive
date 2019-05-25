@@ -182,7 +182,7 @@ namespace Ship_Game
         private bool FindClosestIdleFreighter(Ship[] freighterList, Planet planet, Goods goods, out Ship freighter)
         {
             freighter = ManualTrade ? ClosestIdleFreighterManual(freighterList, planet, goods) 
-                                    : IdleFreighters.FindClosestTo(planet);
+                                    : freighterList.FindClosestTo(planet);
 
             return freighter != null;
         }
