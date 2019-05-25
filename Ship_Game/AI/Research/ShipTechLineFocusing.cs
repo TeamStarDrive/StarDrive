@@ -400,7 +400,6 @@ namespace Ship_Game.AI.Research
             {
                 if (OwnerEmpire.TryGetTechEntry(shipTech, out TechEntry test))
                 {
-                    bool skipRepeater = false;
                     // repeater compensator. This needs some deeper logic.
                     // I current just say if you research one level.
                     // Dont research any more.
