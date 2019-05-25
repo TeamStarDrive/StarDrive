@@ -4,7 +4,6 @@ namespace Ship_Game.AI.CombatTactics
 {
     internal sealed class Evade : ShipAIPlan
     {
-        GameplayObject Target;
         public Evade(ShipAI ai) : base(ai)
         {
         }
