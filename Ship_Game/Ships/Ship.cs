@@ -1941,15 +1941,6 @@ namespace Ship_Game.Ships
         public bool IsCandidateFreighterBuild()
         {
             return IsFreighter;
-            if (shipData.Role != ShipData.RoleName.freighter
-                || CargoSpaceMax < 1f
-                || isColonyShip
-                || IsConstructor)
-                return false; // definitely not a freighter
-
-            // only Civilian or Unclassified may be freighter candidates
-            return shipData.ShipCategory == ShipData.Category.Civilian ||
-                   shipData.ShipCategory == ShipData.Category.Unclassified;
         }
 
         public int RefitCost(Ship newShip)
