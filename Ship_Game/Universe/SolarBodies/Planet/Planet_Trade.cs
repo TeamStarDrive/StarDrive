@@ -76,7 +76,7 @@ namespace Ship_Game
                     return 0;  // for players with no governor or with trade hub - only 50% storage or less will open slots
 
                 if (!ShortOnFood())
-                    return 0;
+                    return 0; // for auto trade, the planet also needs to be short on food
 
                 int foodIncomeSlots  = (int)(1 - Food.NetIncome);
                 int foodStorageRatio = (int)((1 - Storage.FoodRatio) * 3);

@@ -262,7 +262,7 @@ namespace Ship_Game.Ships
         // Refactored by RedFox - Normal Shipyard ship creation
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit)
         {
-            return CreateShipAt(shipName, owner, p, Vector2.Zero, doOrbit);
+            return CreateShipAt(shipName, owner, p, RandomMath.Vector2D(100), doOrbit);
         }
 
         // Added by McShooterz: for refit to keep name

@@ -1114,7 +1114,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>308</Index>
-      <Text>Automatic Freighters</Text>
+      <Text>Automatic Trade</Text>
     </Token>
     <Token>
       <Index>309</Index>
@@ -4704,7 +4704,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1945</Index>
-      m<Text>Manual Trade: Allow selected freighters to trade with other empires. Right Click to turn it off. Note: Colonists cannot be traded between empires.</Text>
+      <Text>Manual Trade: Allow selected freighters to trade with other empires. Right Click to turn it off. Note: Colonists cannot be traded between empires.</Text>
     </Token>
     <Token>
       <Index>1946</Index>
@@ -4760,7 +4760,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1959</Index>
-      <Text>The Best freighters available for your Empire will be built for import/export needs</Text>
+      <Text>If Auto Trade is checked, the Best freighters available for your Empire will be built for import/export needs.</Text>
     </Token>
     <Token>
       <Index>1960</Index>
