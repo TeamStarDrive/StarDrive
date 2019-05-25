@@ -201,7 +201,7 @@ namespace Ship_Game.AI
         {
             float troopMin = MinPlanetTroopLevel * planet.Level / SystemDevelopmentlevel;
 
-            return troopMin;
+            return Math.Max(1, troopMin);
         }
 
         public void CalculateTroopNeeds()

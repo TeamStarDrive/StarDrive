@@ -541,24 +541,15 @@ namespace Ship_Game
             }
             return (int)costAccumulator;
         }
-        public int TechCost(Ship ship)
-        {
-            return TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
-        }
 
-        public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
-
-        public float GetProjectedResearchNextTurn()
-            => OwnedPlanets.Sum(p=> p.Res.NetIncome);
-
-        public TechEntry CurrentResearch
-            => ResearchTopic.NotEmpty() ? TechnologyDict[ResearchTopic] : TechEntry.None;
+        public int TechCost(Ship ship)              => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
+        public bool HasTechEntry(string uid)        => TechnologyDict.ContainsKey(uid);
+        public float GetProjectedResearchNextTurn() => OwnedPlanets.Sum(p=> p.Res.NetIncome);
+        public TechEntry CurrentResearch            => ResearchTopic.NotEmpty() ? TechnologyDict[ResearchTopic] : TechEntry.None;
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
-
-        public IReadOnlyList<Planet> GetPlanets() => OwnedPlanets;
-
-        public int NumPlanets => OwnedPlanets.Count;
+        public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
+        public int NumPlanets                               => OwnedPlanets.Count;
 
         public SolarSystem[] GetBorderSystems(Empire them)
         {

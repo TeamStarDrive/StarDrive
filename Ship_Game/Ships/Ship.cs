@@ -181,7 +181,7 @@ namespace Ship_Game.Ships
         public bool HasBombs  => BombBays.Count > 0;
 
 
-        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter 
+        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter
                                    && shipData.ShipCategory == ShipData.Category.Civilian;
 
         public bool IsIdleFreighter => IsFreighter
@@ -196,6 +196,8 @@ namespace Ship_Game.Ships
             get => DesignRole == ShipData.RoleName.construction;
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
+
+        public bool IsCandidateForTradingBuild => IsFreighter && !IsConstructor;
 
         public bool IsInNeutralSpace
         {
@@ -1968,11 +1970,6 @@ namespace Ship_Game.Ships
 
             // For faster , cheaper ships vs big and maybe slower ships
             return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
-        }
-
-        public bool IsCandidateForTradingBuild()
-        {
-            return IsFreighter && !IsConstructor;
         }
 
         public int RefitCost(Ship newShip)
