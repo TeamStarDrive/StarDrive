@@ -40,7 +40,6 @@ namespace Ship_Game.Ships
         public Vector2 RelativeFleetOffset;
         private ShipModule[] Shields;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
-        public Array<Guid> TradeRoutes  = new Array<Guid>();
         public CarrierBays Carrier;
         public ShipResupply Supply;
         public bool shipStatusChanged;
@@ -150,7 +149,6 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int FixedTrackingPower;
-        public float TradeTimer = 300;
         public bool ShipInitialized;
         public float maxFTLSpeed;
         public float NormalWarpThrust;
@@ -160,10 +158,6 @@ namespace Ship_Game.Ships
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost    { get; private set; }
         public Planet HomePlanet { get; private set; }
-        public bool TransportingColonists  { get; set; }
-        public bool TransportingFood       { get; set; }
-        public bool TransportingProduction { get; set; }
-        public bool AllowInterEmpireTrade  { get; set; } 
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
@@ -181,23 +175,11 @@ namespace Ship_Game.Ships
         public bool HasBombs  => BombBays.Count > 0;
 
 
-        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter
-                                   && shipData.ShipCategory == ShipData.Category.Civilian;
-
-        public bool IsIdleFreighter => IsFreighter
-                                       && AI != null
-                                       && !AI.HasPriorityOrder
-                                       && AI.State != AIState.SystemTrader
-                                       && AI.State != AIState.Flee
-                                       && AI.State != AIState.Refit;
-
         public bool IsConstructor
         {
             get => DesignRole == ShipData.RoleName.construction;
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
-
-        public bool IsCandidateForTradingBuild => IsFreighter && !IsConstructor;
 
         public bool IsInNeutralSpace
         {
@@ -258,39 +240,16 @@ namespace Ship_Game.Ships
                 module.DebugDamage(percent);
         }
 
-        public bool AddTradeRoute(Planet planet)
+        public bool InsideAreaOfOperation(Planet planet)
         {
-            if (planet.Owner == null)
-                return false;
-            
-            if (planet.Owner == loyalty || loyalty.GetRelations(planet.Owner).Treaty_Trade)
-            {
-                TradeRoutes.AddUnique(planet.guid);
+            if (AreaOfOperation.IsEmpty)
                 return true;
-            }
+
+            foreach (Rectangle ao in AreaOfOperation)
+                if (ao.HitTest(planet.Center))
+                    return true;
 
             return false;
-        }
-
-        public void RemoveTradeRoute(Planet planet)
-        {
-            TradeRoutes.Remove(planet.guid);
-        }
-
-        public void RefreshTradeRoutes()
-        {
-            if (!loyalty.isPlayer)
-                return; // Trade routes are available only for players
-
-            foreach (Guid planetGuid in TradeRoutes)
-            {
-                Planet planet = Empire.Universe.PlanetsDict[planetGuid];
-                if (planet.Owner == loyalty)
-                    continue;
-
-                if (planet.Owner == null || !loyalty.GetRelations(planet.Owner).Treaty_Trade)
-                    RemoveTradeRoute(planet);
-            }
         }
 
         public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
@@ -422,7 +381,7 @@ namespace Ship_Game.Ships
                 && System != null && attacker.GetOwnedSystems().ContainsRef(System))
                 return true;
 
-            // the below does a search for being inborders so its expensive.
+            // the below does a search for being in borders so its expensive.
             if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker
                     , AI.State == AIState.SystemTrader)
                 && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(this))
@@ -1960,16 +1919,6 @@ namespace Ship_Game.Ships
         {
             return empire.data.DefaultSupplyShuttle.IsEmpty() ? empire.SupplyShuttle.Name
                                                               : empire.data.DefaultSupplyShuttle;
-        }
-
-        public float BestFreighterValue(Empire empire, float fastVsBig)
-        {
-            float warpK          = maxFTLSpeed / 1000;
-            float movementWeight = warpK + GetSTLSpeed() / 10 + rotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
-            float cargoWeight    = CargoSpaceMax.Clamped(0,80) - (float)SurfaceArea / 25;
-
-            // For faster , cheaper ships vs big and maybe slower ships
-            return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
         }
 
         public int RefitCost(Ship newShip)
