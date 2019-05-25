@@ -74,11 +74,15 @@ namespace Ship_Game
         {
             get
             {
-                if (ShortOnFood() || Population > 1000f)
+                bool needFood = ShortOnFood();
+                if (needFood && Population > 2000f)
                     return GoodState.EXPORT;
 
-                if (!ShortOnFood() && MaxPopulation > 1000f && PopulationRatio < 0.75f)
+                if (!needFood && MaxPopulation > 200f && PopulationRatio < 0.8f)
                     return GoodState.IMPORT;
+
+                if (MaxPopulation > 2000 && PopulationRatio > 0.9f)
+                    return GoodState.EXPORT;
 
                 return GoodState.STORE;
             }
