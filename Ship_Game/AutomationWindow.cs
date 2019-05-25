@@ -187,7 +187,7 @@ namespace Ship_Game
             EmpireData playerData = Universe.player.data;
 
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
-                ship => ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && !ship.shipData.IsShipyard && ship.CargoSpaceMax > 0f);
+                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsFreighter);
 
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.isColonyShip);
@@ -198,8 +198,8 @@ namespace Ship_Game
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.ConstructionModule)
                         return ship.ShipGoodToBuild(EmpireManager.Player) && (ship.IsConstructor || ship.Name == playerData.DefaultConstructor);
 
-                    return ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && ship.CargoSpaceMax > 0f && 
-                            (ship.IsConstructor || ship.shipData.Role == ShipData.RoleName.freighter);
+                    // Note: only freighter hulls can serve as constructors
+                    return ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsFreighter && ship.shipData.Role == ShipData.RoleName.freighter;
                 });
 
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 

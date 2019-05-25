@@ -193,7 +193,7 @@ namespace Ship_Game.AI
             {
                 if (ResourceManager.GetShipTemplate(shipId, out Ship ship))
                 {
-                    if (!ship.IsCandidateFreighterBuild())
+                    if (!ship.IsCandidateForTradingBuild())
                         continue;
 
                     freighters.Add(ship);
