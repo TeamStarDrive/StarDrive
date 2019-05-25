@@ -931,7 +931,7 @@ namespace Ship_Game
             {
                 UpdateShipsWeCanBuild();
                 EmpireAI.TriggerRefit();
-                TriggerFreightersScrap();
+                TriggerFreightersRefit();
                 data.ResearchQueue.Remove(techEntry.UID);
             }
         }

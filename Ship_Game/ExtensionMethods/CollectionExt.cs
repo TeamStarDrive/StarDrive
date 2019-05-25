@@ -64,9 +64,6 @@ namespace Ship_Game
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Any<T>(this Array<T> list, Predicate<T> match) => list.Find(match) != null;
-
         public static int Count<T>(this Array<T> list, Predicate<T> match)
         {
             int n = 0;
