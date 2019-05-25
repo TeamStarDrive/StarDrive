@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI
@@ -116,8 +112,8 @@ namespace Ship_Game.AI
         }
 
         // 1 out of 10 trades - check if there is better suited freighter model available and we have idle
-        // freighters which can cover the scrap
-        // Note that there are more scrap logic for freighters (idle timeout and idle ones when a new tech is researched
+        // freighters which can cover for that freighter when it is refitted
+        // Note that there is additional refit logic for freighters (idle ones when a new tech is researched)
         void CheckAndScrap1To10() 
         {
             if (Owner.loyalty.ManualTrade || !RandomMath.RollDice(10))
@@ -128,7 +124,7 @@ namespace Ship_Game.AI
 
             Ship betterFreighter = ShipBuilder.PickFreighter(Owner.loyalty, Owner.loyalty.FastVsBigFreighterRatio);
             if (betterFreighter != null && betterFreighter.Name != Owner.Name)
-                AI.OrderScrapShip();
+                Owner.loyalty.GetEmpireAI().Goals.Add(new RefitShip(Owner, betterFreighter.Name, Owner.loyalty));
         }
     }
 

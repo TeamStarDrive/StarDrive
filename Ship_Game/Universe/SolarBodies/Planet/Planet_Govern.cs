@@ -91,7 +91,7 @@ namespace Ship_Game
             int rank             = FindColonyRank(log: true);
             var wantedOrbitals   = new WantedOrbitals(rank);
 
-            BuildShipyardIfAble(wantedOrbitals.Shipyards);
+            BuildOrScrapShipyard(wantedOrbitals.Shipyards);
             BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank, budget);
             BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank, budget);
         }
@@ -339,19 +339,16 @@ namespace Ship_Game
             return rank.Clamped(0, 15);
         }
 
-        private void BuildShipyardIfAble(int numWantedShipyards)
+        private void BuildOrScrapShipyard(int numWantedShipyards)
         {
-            if (NumShipyards > numWantedShipyards)
-            {
-                Log.Warning($"BuildShipyardIfAble: NumShipyards ({NumShipyards}) is bigger than numWantedShipyards ({numWantedShipyards})");
-            }
-            if (numWantedShipyards == 0 || OrbitalsInTheWorks 
+            if (numWantedShipyards == 0 || OrbitalsInTheWorks
                                         || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
             {
                 return;
             }
 
-            if (NumShipyards + ShipyardsBeingBuilt() < numWantedShipyards)
+            int totalShipyards = NumShipyards + ShipyardsBeingBuilt();
+            if (totalShipyards < numWantedShipyards)
             {
                 string shipyardName = Owner.data.DefaultShipyard;
                 if (ResourceManager.GetShipTemplate(shipyardName, out Ship shipyard)

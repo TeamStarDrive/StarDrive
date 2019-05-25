@@ -280,7 +280,7 @@ namespace Ship_Game
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
 
-                    if (ship.TradeRoutes.NotEmpty)
+                    if (ship.TradeRoutes?.NotEmpty == true)
                     {
                         sdata.TradeRoutes = new Array<Guid>();
                         foreach (Guid planetGuid in ship.TradeRoutes)
@@ -671,6 +671,8 @@ namespace Ship_Game
             [Serialize(8)] public float RefitCost;
             [Serialize(9)] public Vector2 pgsVector;
             [Serialize(10)] public bool isPlayerAdded;
+            [Serialize(11)] public Array<Guid> TradeRoutes;
+            [Serialize(12)] public RectangleData[] AreaOfOperation;
         }
 
         public struct RingSave
