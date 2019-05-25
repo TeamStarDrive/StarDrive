@@ -233,7 +233,7 @@ namespace Ship_Game
             if (orbital == null)
                 return null;
 
-            if (LogicalBuiltTimecVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
+            if (LogicalBuiltTimeVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
                 return orbital;
 
             // we cannot build the best in the empire, lets try building something cheaper for now
@@ -269,7 +269,7 @@ namespace Ship_Game
             return orbital;
         }
 
-        private bool LogicalBuiltTimecVsCost(float cost, int threshold)
+        private bool LogicalBuiltTimeVsCost(float cost, int threshold)
         {
             float netCost = (Math.Max(cost - Storage.Prod, 0)) * ShipBuildingModifier;
             float ratio   = netCost / Prod.NetMaxPotential;
@@ -343,7 +343,7 @@ namespace Ship_Game
         {
             if (NumShipyards > numWantedShipyards)
             {
-                Log.Error($"BuildShipyardIfAble: NumShipyards ({NumShipyards}) is bigger than numWantedShipyards ({numWantedShipyards})");
+                Log.Warning($"BuildShipyardIfAble: NumShipyards ({NumShipyards}) is bigger than numWantedShipyards ({numWantedShipyards})");
             }
             if (numWantedShipyards == 0 || OrbitalsInTheWorks 
                                         || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
@@ -355,7 +355,7 @@ namespace Ship_Game
             {
                 string shipyardName = Owner.data.DefaultShipyard;
                 if (ResourceManager.GetShipTemplate(shipyardName, out Ship shipyard)
-                    && LogicalBuiltTimecVsCost(shipyard.GetCost(Owner), 50))
+                    && LogicalBuiltTimeVsCost(shipyard.GetCost(Owner), 50))
                 {
                     AddOrbital(shipyard);
                 }
