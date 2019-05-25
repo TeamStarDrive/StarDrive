@@ -504,7 +504,15 @@ namespace Ship_Game
                 if (match(item))
                     return item;
             }
-            return default(T);
+            return default;
+        }
+        
+        public bool Any(Predicate<T> match)
+        {
+            for (int i = 0; i < Count; i++)
+                if (match(Items[i]))
+                    return true;
+            return false;
         }
 
         public void AddRange(ICollection<T> collection)
