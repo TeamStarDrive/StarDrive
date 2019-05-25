@@ -193,7 +193,7 @@ namespace Ship_Game
             if (planet.Owner != this)
                 return false; // Not for in Inter Empire Trade
 
-            FindClosestIdleFreighter(freighterList.Filter(s => s.AI.InTradingZones(planet)), planet, goods, out freighter);
+            FindClosestIdleFreighter(freighterList.Filter(s => s.InTradingZones(planet)), planet, goods, out freighter);
             return freighter != null && freighter.GetCargo(goods) > 5f;
         }
 
@@ -212,7 +212,7 @@ namespace Ship_Game
             bool interTrade      = importPlanet.Owner != exportPlanet.Owner;
             Ship[] freighterList = interTrade ? IdleFreighters.Filter(s => s.AllowInterEmpireTrade) : IdleFreighters;
 
-            return freighterList.Filter(s => s.AI.InTradingZones(importPlanet) && s.AI.InTradingZones(exportPlanet));
+            return freighterList.Filter(s => s.InTradingZones(importPlanet) && s.InTradingZones(exportPlanet));
         }
 
         private void BuildFreighter()

@@ -99,31 +99,6 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public bool IsValidTradeRoute(Planet planet)
-        {
-            if (Owner.TradeRoutes.Count < 2)
-                return true; // need at least 2 routes for it to filter
-
-            return Owner.TradeRoutes.Any(guid => guid == planet.guid);
-        }
-
-        public bool InTradingZones(Planet planet)
-        {
-            return IsValidTradeRoute(planet) && InsideAreaOfOperation(planet);
-        }
-
-        public bool InsideAreaOfOperation(Planet planet)
-        {
-            if (Owner.AreaOfOperation.IsEmpty)
-                return true;
-
-            foreach (Rectangle ao in Owner.AreaOfOperation)
-                if (ao.HitTest(planet.Center))
-                    return true;
-
-            return false;
-        }
-
         void ScrapShip(float elapsedTime, ShipGoal goal)
         {
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius * 3)
