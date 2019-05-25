@@ -475,14 +475,18 @@ namespace Ship_Game.AI
         {
             get
             {
-                if (
-                    (Owner.shipData.Role == ShipData.RoleName.freighter ||
-                     Owner.shipData.ShipCategory == ShipData.Category.Civilian) && Owner.CargoSpaceMax > 0 ||
-                    Owner.DesignRole == ShipData.RoleName.scout || Owner.IsConstructor ||
-                    Owner.DesignRole == ShipData.RoleName.troop || IgnoreCombat || State == AIState.Resupply ||
-                    State == AIState.ReturnToHangar || State == AIState.Colonize ||
-                    Owner.DesignRole == ShipData.RoleName.supply)
+                if (IgnoreCombat || Owner.IsFreighter
+                                 || Owner.DesignRole == ShipData.RoleName.supply 
+                                 || Owner.DesignRole == ShipData.RoleName.scout
+                                 || Owner.DesignRole == ShipData.RoleName.troop
+                                 || State == AIState.Resupply 
+                                 || State == AIState.ReturnToHangar 
+                                 || State == AIState.Colonize
+                                 || Owner.IsConstructor)
+                {
                     return true;
+                }
+
                 return false;
             }
         }
