@@ -75,7 +75,6 @@ namespace Ship_Game
                 case OrderType.AllowInterTrade:    DrawButton(sm, rect, ResourceManager.Texture("NewUI/icon_intertrade"));         break;
                 case OrderType.DefineTradeRoutes:  DrawTradeRoutesButton(sm, rect, Ship);                                          break;
                 case OrderType.DefineAO:           DrawAOButton(sm, rect, Ship);                                                   break;
-
             }
         }
 

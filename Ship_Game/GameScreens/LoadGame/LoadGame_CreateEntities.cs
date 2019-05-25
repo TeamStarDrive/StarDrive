@@ -298,10 +298,18 @@ namespace Ship_Game
                     if (!ResourceManager.ShipsDict.ContainsKey(qisave.UID))
                         continue;
 
-                    Ship shipTemplate = ResourceManager.GetShipTemplate(qisave.UID);
-                    qi.sData = shipTemplate.shipData;
-                    qi.DisplayName = qisave.DisplayName;
-                    qi.Cost = shipTemplate.GetCost(p.Owner);
+                    Ship shipTemplate  = ResourceManager.GetShipTemplate(qisave.UID);
+                    qi.sData           = shipTemplate.shipData;
+                    qi.DisplayName     = qisave.DisplayName;
+                    qi.Cost            = shipTemplate.GetCost(p.Owner);
+                    qi.TradeRoutes     = qisave.TradeRoutes;
+
+
+                    if (qisave.AreaOfOperation != null)
+                    {
+                        foreach (Rectangle aoRect in qisave.AreaOfOperation)
+                            qi.AreaOfOperation.Add(aoRect);
+                    }
 
                     if (qi.sData.HasFixedCost)
                     {

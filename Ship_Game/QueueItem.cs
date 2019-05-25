@@ -18,7 +18,8 @@ namespace Ship_Game
         public ShipData sData;
         public Building Building;
         public string TroopType;
-
+        public Array<Guid> TradeRoutes         = new Array<Guid>();
+        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         public Rectangle rect;
         public Rectangle removeRect;
         public int QueueNumber;
@@ -95,8 +96,10 @@ namespace Ship_Game
                 DisplayName = DisplayName,
                 isTroop     = isTroop,
                 ProgressTowards = ProductionSpent,
-                isPlayerAdded   = IsPlayerAdded
-            };
+                isPlayerAdded   = IsPlayerAdded,
+                TradeRoutes     = TradeRoutes,
+                AreaOfOperation = AreaOfOperation.Select(r => new RectangleData(r))
+        };
             if (qi.IsRefit)    qi.RefitCost = Cost;
             if (qi.isBuilding) qi.UID = Building.Name;
             if (qi.isShip)     qi.UID = sData.Name;
