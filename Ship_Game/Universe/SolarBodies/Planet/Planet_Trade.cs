@@ -39,7 +39,8 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportFood)
                     return 0;
 
-                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(1, 7);
+                int min = Storage.FoodRatio > 0.75f ? 1 : 0;
+                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(min, 7);
             }
         }
 
@@ -50,7 +51,8 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportProd)
                     return 0;
 
-                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(1, 7);
+                int min = Storage.ProdRatio > 0.75f ? 1 : 0;
+                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, 7);
             }
         }
 

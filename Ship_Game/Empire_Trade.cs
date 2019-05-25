@@ -277,8 +277,8 @@ namespace Ship_Game
             TradeMoneyAddedThisTurn = 0; // Reset Trade Money for the next turn.
         }
 
-        // FB - scrap idle freighter to make room for improved ones
-        public void TriggerFreightersScrap()
+        // FB - Refit idle freighters to better ones, if unlocked
+        public void TriggerFreightersRefit()
         {
             if (ManualTrade)
                 return;
@@ -292,7 +292,7 @@ namespace Ship_Game
                 if (betterFreighter.Name == idleFreighter.Name)
                     continue;
 
-                idleFreighter.AI.OrderScrapShip();
+                GetEmpireAI().Goals.Add(new RefitShip(idleFreighter, betterFreighter.Name, this));
             }
         }
     }

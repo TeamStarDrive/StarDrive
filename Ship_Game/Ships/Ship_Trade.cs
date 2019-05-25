@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
         public bool TransportingFood       { get; set; }
         public bool TransportingProduction { get; set; }
         public bool AllowInterEmpireTrade  { get; set; }
-        public Array<Guid> TradeRoutes = new Array<Guid>();
+        public Array<Guid> TradeRoutes     { get; set; } = new Array<Guid>();
 
         public bool IsCandidateForTradingBuild => IsFreighter && !IsConstructor;
 
@@ -65,7 +65,12 @@ namespace Ship_Game.Ships
             if (TradeRoutes.Count < 2)
                 return true; // need at least 2 routes or AO for it to filter
 
-            return TradeRoutes.Any(g => g == planet.guid);
+            foreach (Guid g in TradeRoutes)
+            {
+                if (g == planet.guid)
+                    return true;
+            }
+            return false;
         }
 
         public bool InTradingZones(Planet planet)
@@ -84,6 +89,11 @@ namespace Ship_Game.Ships
 
             // For faster , cheaper ships vs big and maybe slower ships
             return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
+        }
+
+        public void DownloadTradeRoutes(Array<Guid> tradeRoutes)
+        {
+            TradeRoutes = tradeRoutes;
         }
     }
 }

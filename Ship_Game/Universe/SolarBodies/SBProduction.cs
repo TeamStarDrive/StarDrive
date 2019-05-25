@@ -172,6 +172,9 @@ namespace Ship_Game.Universe.SolarBodies
                 shipAt.VanityName = "Construction Ship";
             }
 
+            shipAt.DownloadTradeRoutes(q.TradeRoutes);
+            shipAt.AreaOfOperation = q.AreaOfOperation;
+
             if (!Owner.isPlayer)
                 Owner.ForcePoolAdd(shipAt);
             return true;
