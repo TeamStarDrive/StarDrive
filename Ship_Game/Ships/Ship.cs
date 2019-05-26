@@ -1938,14 +1938,7 @@ namespace Ship_Game.Ships
             return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
         }
 
-<<<<<<< working copy
         public bool IsCandidateFreighterBuild() => IsFreighter;
-=======
-        public bool IsCandidateFreighterBuild()
-        {
-            return IsFreighter;
-        }
->>>>>>> merge rev
 
         public int RefitCost(Ship newShip)
         {
