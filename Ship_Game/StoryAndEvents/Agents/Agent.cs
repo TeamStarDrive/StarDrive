@@ -418,8 +418,7 @@ namespace Ship_Game
                                     if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, Localizer.Token(6056), Target);
                                 }
                                 //Added by McShooterz: new acquire method, unlocks targets bonuses as well
-                                //Owner.UnlockTech(theUID);
-                                us.AcquireTech(theUID, Target);
+                                us.AcquireTech(theUID, Target, TechUnlockType.Spy);
                                 if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6031)), us);
                                 TechStolen++;
                                 break;
@@ -435,7 +434,7 @@ namespace Ship_Game
                                 }
                                 //Added by McShooterz: new acquire method, unlocks targets bonuses as well
                                 //Owner.UnlockTech(theUID);
-                                us.AcquireTech(theUID, Target);
+                                us.AcquireTech(theUID, Target, TechUnlockType.Spy);
                                 Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
                                 if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6042)), us);
                                 TechStolen++;
