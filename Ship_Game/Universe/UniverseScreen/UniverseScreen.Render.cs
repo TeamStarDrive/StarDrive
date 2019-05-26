@@ -505,6 +505,13 @@ namespace Ship_Game
             }
         }
 
+        public void DrawZones(SpriteFont font, string text, ref int cursorY, Color color)
+        {
+            Vector2 rect = new Vector2(SelectedStuffRect.X, cursorY);
+            ScreenManager.SpriteBatch.DrawString(font, text, rect, color);
+            cursorY += font.LineSpacing + 2;
+        }
+
         public void DrawShipAOAndTradeRoutes()
         {
             if (DefiningAO && Input.LeftMouseDown)
@@ -512,9 +519,17 @@ namespace Ship_Game
 
             if ((DefiningAO || DefiningTradeRoutes) && SelectedShip != null)
             {
-                string title = DefiningAO ? Localizer.Token(1411) + " (ESC to exit)" : Localizer.Token(1943);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, title,
-                    new Vector2(SelectedStuffRect.X, SelectedStuffRect.Y - Fonts.Pirulen20.LineSpacing - 2), Color.Red);
+                string title  = DefiningAO ? Localizer.Token(1411) + " (ESC to exit)" : Localizer.Token(1943);
+                int cursorY   = 100;
+                int numAo     = SelectedShip.AreaOfOperation.Count;
+                int numRoutes = SelectedShip.TradeRoutes.Count;
+
+                DrawZones(Fonts.Pirulen20, title, ref cursorY, Color.Red);
+                if (numAo > 0)
+                    DrawZones(Fonts.Pirulen16, $"Current Area of Operation Number: {numAo}", ref cursorY, Color.Pink);
+
+                if (numRoutes > 0)
+                    DrawZones(Fonts.Pirulen16, $"Current Trade Routes Number: {numRoutes}", ref cursorY, Color.White);
 
                 foreach (Rectangle ao in SelectedShip.AreaOfOperation)
                     DrawRectangleProjected(ao, Color.Red, new Color(Color.Red, 50));
@@ -526,7 +541,10 @@ namespace Ship_Game
                     {
                         Planet planet = PlanetsDict[planetGuid];
                         if (planet.Owner != null)
+                        {
                             DrawLineToPlanet(SelectedShip.Center, planet.Center, planet.Owner.EmpireColor);
+                            DrawZones(Fonts.Arial14Bold, $"- {planet.Name}", ref cursorY, planet.Owner.EmpireColor);
+                        }
                     }
                 }
             }
