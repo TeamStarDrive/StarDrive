@@ -62,7 +62,7 @@ namespace Ship_Game
                 if (numUnlocks > 3) break;
                 if (techTemplate.ModulesUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
                     techTemplate.ModulesUnlocked[i].Type == null || 
-                    techTemplate.ModulesUnlocked[i].Type == EmpireManager.Player.AcquiredFrom(Entry))
+                    EmpireManager.Player.AcquiredFrom(Entry).ContainsRef(techTemplate.ModulesUnlocked[i].Type))
                 {
                     UnlockItem unlock  = new UnlockItem();
                     unlock.module      = ResourceManager.GetModuleTemplate(techTemplate.ModulesUnlocked[i].ModuleUID);
@@ -78,7 +78,7 @@ namespace Ship_Game
                 if (numUnlocks > 3) break;
                 if (techTemplate.BonusUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
                     techTemplate.BonusUnlocked[i].Type == null ||
-                    techTemplate.BonusUnlocked[i].Type == EmpireManager.Player.AcquiredFrom(Entry))
+                    EmpireManager.Player.AcquiredFrom(Entry).ContainsRef(techTemplate.BonusUnlocked[i].Type))
                 {
                     UnlockItem unlock = new UnlockItem
                     {
@@ -94,8 +94,8 @@ namespace Ship_Game
 			{
                 if (numUnlocks > 3) break;
                 if (techTemplate.BuildingsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
-                    techTemplate.BuildingsUnlocked[i].Type == null || 
-                    techTemplate.BuildingsUnlocked[i].Type == EmpireManager.Player.AcquiredFrom(Entry))
+                    techTemplate.BuildingsUnlocked[i].Type == null ||
+                    EmpireManager.Player.AcquiredFrom(Entry).ContainsRef(techTemplate.BuildingsUnlocked[i].Type))
                 {
                     UnlockItem unlock = new UnlockItem();
                     unlock.building = ResourceManager.BuildingsDict[techTemplate.BuildingsUnlocked[i].Name];
@@ -110,8 +110,8 @@ namespace Ship_Game
 			{
                 if (numUnlocks > 3) break;
 				if (techTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.data.Traits.ShipType || 
-                    techTemplate.HullsUnlocked[i].ShipType == null || 
-                    techTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.AcquiredFrom(Entry))
+                    techTemplate.HullsUnlocked[i].ShipType == null ||
+                    EmpireManager.Player.AcquiredFrom(Entry).ContainsRef(techTemplate.HullsUnlocked[i].ShipType))
 				{
 					UnlockItem unlock = new UnlockItem
 					{
@@ -129,8 +129,8 @@ namespace Ship_Game
                 if (numUnlocks > 3) break;
                 if (techTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType || 
                     techTemplate.TroopsUnlocked[i].Type == "ALL" || 
-                    techTemplate.TroopsUnlocked[i].Type == null || 
-                    techTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.AcquiredFrom(Entry))
+                    techTemplate.TroopsUnlocked[i].Type == null ||
+                    EmpireManager.Player.AcquiredFrom(Entry).ContainsRef(techTemplate.TroopsUnlocked[i].Type))
 				{
 					UnlockItem unlock = new UnlockItem();
 					unlock.troop       = ResourceManager.GetTroopTemplate(techTemplate.TroopsUnlocked[i].Name);

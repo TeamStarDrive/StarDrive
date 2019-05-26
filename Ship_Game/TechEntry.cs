@@ -14,8 +14,9 @@ namespace Ship_Game
         [Serialize(2)] public bool Discovered;
         [Serialize(3)] public bool Unlocked;
         [Serialize(4)] public int Level;
-        [Serialize(5)] public string AcquiredFrom = "";
+        [Serialize(5)] public string AcquiredFrom { set => WasAcquiredFrom.Add(value); }
         [Serialize(6)] public bool shipDesignsCanuseThis = true;
+        [Serialize(7)] public Array<string> WasAcquiredFrom = new Array<string> { };
 
         [XmlIgnore][JsonIgnore]
         public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
@@ -108,6 +109,30 @@ namespace Ship_Game
             }
         }
 
+        public bool SpiedBy(Empire them) => WasAcquiredFrom.ContainsRef(them.data.Traits.ShipType);
+
+        public bool CanBeTakenFrom(Empire them)
+        {
+            return NeedsThemToRevealContent(them) && !Unlocked; // Tech.RootNode != 1 && (!Tech.Secret || Tech.Discovered);
+        }
+
+        public bool NeedsThemToRevealContent(Empire empire)
+        {
+            if (IsHidden(empire)) return true;
+            bool hulls = Tech.HullsUnlocked.Any(item => !CheckSource(item.ShipType, empire));
+            bool buildings = Tech.BuildingsUnlocked.Any(item => !CheckSource(item.Type, empire));
+            bool troops = Tech.TroopsUnlocked.Any(item => !CheckSource(item.Type, empire));
+            bool modules = Tech.ModulesUnlocked.Any(item => !CheckSource(item.Type, empire));
+            return hulls || buildings || troops || modules;
+
+        }
+
+        public bool CanBeGivenTo(Empire them)
+        {            
+            return Unlocked && Tech.RootNode != 1 &&
+                   (!Tech.Secret || Tech.Discovered);
+        }
+
         float LookAheadCost(TechnologyType techType, Empire empire)
         {
             if (!Discovered) return 0;
@@ -135,7 +160,7 @@ namespace Ship_Game
                 return true;
             if (unlockType == "ALL")
                 return true;
-            if (unlockType == AcquiredFrom)
+            if (WasAcquiredFrom.ContainsRef(unlockType))
                 return true;
             if (unlockType == empire.data.Traits.ShipType)
                 return true;
@@ -144,21 +169,29 @@ namespace Ship_Game
             return false;
         }
 
-        public Array<string> UnLockHulls(Empire empire)
+        public Array<string> GetUnLockableHulls(Empire empire)
         {
-            var techHulls = Tech.HullsUnlocked;
-            if (techHulls.IsEmpty) return null;
+            var techHulls = Tech.HullsUnlocked;            
             var hullList = new Array<string>();
+            if (techHulls.IsEmpty) return hullList;
 
             foreach (Technology.UnlockedHull unlockedHull in techHulls)
             {
                 if (!CheckSource(unlockedHull.ShipType, empire))
                     continue;
 
-                empire.UnlockEmpireHull(unlockedHull.Name, UID);
                 hullList.Add(unlockedHull.Name);
-
             }
+            return hullList;
+        }
+
+        public Array<string> UnLockHulls(Empire empire)
+        {
+            var hullList = GetUnLockableHulls(empire);
+            if (hullList.IsEmpty) return null;
+
+            foreach(var hull in hullList) empire.UnlockEmpireHull(hull, UID);
+            
             empire.UpdateShipsWeCanBuild(hullList);
             return hullList;
         }
@@ -293,6 +326,18 @@ namespace Ship_Game
             UnLockHulls(empire);
             UnlockBuildings(empire);
             UnlockBonus(empire);
+            return true;
+        }
+
+        public bool UnlockFromSpy(Empire empire)
+        {
+            if (!WasAcquiredFrom.ContainsRef(empire.data.Traits.ShipType))
+                return false;
+            DoRevealedTechs(empire);
+            UnlockModules(empire);
+            UnlockTroops(empire);
+            UnLockHulls(empire);
+            UnlockBuildings(empire);
             return true;
         }
 
@@ -499,7 +544,7 @@ namespace Ship_Game
             {
                 //Added by McShooterz: Race Specific bonus
                 string type = unlockedBonus.Type;
-                if (type != null && type != data.Traits.ShipType && type != AcquiredFrom)
+                if (type != null && type != data.Traits.ShipType && !WasAcquiredFrom.ContainsRef(type))
                     continue;
 
                 if (unlockedBonus.Tags.Count <= 0)
