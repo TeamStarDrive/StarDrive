@@ -199,7 +199,7 @@ namespace Ship_Game
                         return ship.ShipGoodToBuild(EmpireManager.Player) && (ship.IsConstructor || ship.Name == playerData.DefaultConstructor);
 
                     // Note: only freighter hulls can serve as constructors
-                    return ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsFreighter && ship.shipData.Role == ShipData.RoleName.freighter;
+                    return ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsFreighter && ship.shipData.HullRole == ShipData.RoleName.freighter;
                 });
 
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 
