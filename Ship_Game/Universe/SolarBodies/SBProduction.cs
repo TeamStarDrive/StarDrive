@@ -173,7 +173,11 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             shipAt.DownloadTradeRoutes(q.TradeRoutes);
-            shipAt.AreaOfOperation = q.AreaOfOperation;
+            shipAt.AreaOfOperation        = q.AreaOfOperation;
+            shipAt.TransportingColonists  = q.TransportingColonists;
+            shipAt.TransportingFood       = q.TransportingFood;
+            shipAt.TransportingProduction = q.TransportingProduction;
+            shipAt.AllowInterEmpireTrade  = q.AllowInterEmpireTrade;
 
             if (!Owner.isPlayer)
                 Owner.ForcePoolAdd(shipAt);
