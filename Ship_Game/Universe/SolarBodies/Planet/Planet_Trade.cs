@@ -185,5 +185,20 @@ namespace Ship_Game
                 }
             }
         }
+
+        public float ExportableFood(Planet importPlanet, float eta)
+        {
+            float maxFoodLoad   = importPlanet.Storage.Max - importPlanet.FoodHere;
+            float foodLoadLimit = Owner.GoodsLimits(Goods.Food);
+            maxFoodLoad         = (maxFoodLoad - importPlanet.Food.NetIncome * eta).Clamped(0, Storage.Max * foodLoadLimit);
+            return maxFoodLoad;
+        }
+
+        public float ExportableProd(Planet importPlanet)
+        {
+            float prodLoadLimit = Owner.GoodsLimits(Goods.Production);
+            float maxProdLoad   = ProdHere.Clamped(0f, Storage.Max * prodLoadLimit);
+            return maxProdLoad;
+        }
     }
 }

@@ -61,7 +61,7 @@ namespace Ship_Game.AI
         {
             Owner.InCombatTimer = 15f;
             ClearOrdersAndWayPoints();
-            AddPlanetGoal(Plan.Bombard, toBombard, AIState.Bombard, priority: true);
+            AddBombPlanetGoal(toBombard);
         }
 
         public void OrderColonization(Planet toColonize, Goal g = null)
@@ -98,7 +98,7 @@ namespace Ship_Game.AI
         public void OrderExterminatePlanet(Planet toBombard)
         {
             ClearOrdersAndWayPoints();
-            AddPlanetGoal(Plan.Exterminate, toBombard, AIState.Exterminate);
+            AddExterminateGoal(toBombard);
         }
 
         public void OrderFindExterminationTarget()
@@ -146,8 +146,8 @@ namespace Ship_Game.AI
         public void OrderLandAllTroops(Planet target)
         {
             SetPriorityOrderWithClear();
-            if (Owner.Carrier.AnyAssaultOpsAvailable) // TThis deals also with single Troop Ships / Assault Shuttles
-                AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet);
+            if (Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
+                AddLandTroopGoal(target);
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders)
@@ -319,7 +319,7 @@ namespace Ship_Game.AI
 
             OrderMoveTowardsPosition(p.Center, Vectors.Up, false, p);
             IgnoreCombat = true;
-            AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
+            AddRebaseGoal(p);
         }
 
         public void OrderRebaseToNearest()
@@ -338,7 +338,7 @@ namespace Ship_Game.AI
             OrderMoveTowardsPosition(planet.Center, Vectors.Up, false, planet);
             IgnoreCombat = true;
 
-            AddPlanetGoal(Plan.Rebase, planet, AIState.Rebase, priority: true);
+            AddRebaseGoal(planet);
         }
 
         public void OrderRebaseToShip(Ship ship)
@@ -409,7 +409,7 @@ namespace Ship_Game.AI
             }
 
             OrderMoveTowardsPosition(OrbitTarget.Center, Vectors.Up, true, OrbitTarget);
-            AddPlanetGoal(Plan.Scrap, OrbitTarget, AIState.Scrap);
+            AddScrapGoal(OrbitTarget);
         }
 
         public void OrderSystemDefense(SolarSystem system)

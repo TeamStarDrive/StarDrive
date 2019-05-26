@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
         public bool TransportingFood       { get; set; }
         public bool TransportingProduction { get; set; }
         public bool AllowInterEmpireTrade  { get; set; }
-        public Array<Guid> TradeRoutes     { get; set; } = new Array<Guid>();
+        public Array<Guid> TradeRoutes     { get; private set; } = new Array<Guid>();
 
         public bool IsCandidateForTradingBuild => IsFreighter && !IsConstructor;
 
