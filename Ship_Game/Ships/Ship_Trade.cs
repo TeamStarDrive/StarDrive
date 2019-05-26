@@ -75,7 +75,10 @@ namespace Ship_Game.Ships
 
         public bool InTradingZones(Planet planet)
         {
-            if (TradeRoutes.Count >= 2 && AreaOfOperation.NotEmpty) // ship has both AO trade routes, so check this or that.
+            if (!loyalty.isPlayer)
+                return true; // only player ships can have trade AO or trade routes
+
+            if (TradeRoutes?.Count >= 2 && AreaOfOperation.NotEmpty) // ship has both AO trade routes, so check this or that.
                 return IsValidTradeRoute(planet) || InsideAreaOfOperation(planet);
 
             return IsValidTradeRoute(planet) && InsideAreaOfOperation(planet);
