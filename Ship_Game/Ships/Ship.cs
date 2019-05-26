@@ -1927,6 +1927,13 @@ namespace Ship_Game.Ships
                 return 0;
 
             float oldShipCost = GetCost(loyalty);
+
+            // FB: Refit works normally only for ship of the same hull. But freighters can be replaced to other hulls by the auto trade.
+            // So replacement cost is higher, the old ship cost is halved, just like scrapping it.
+
+            if (shipData.Hull == newShip.shipData.Hull)
+                oldShipCost /= 2;
+
             float newShipCost = newShip.GetCost(loyalty);
             int cost          = Math.Max((int)(newShipCost - oldShipCost), 0);
             return cost + (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace;

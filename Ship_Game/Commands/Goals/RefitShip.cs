@@ -98,7 +98,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 Goal            = this,
                 isShip          = true,
                 TradeRoutes     = OldShip.TradeRoutes,
-                AreaOfOperation = OldShip.AreaOfOperation
+                AreaOfOperation = OldShip.AreaOfOperation,
+                TransportingColonists  = OldShip.TransportingColonists,
+                TransportingFood       = OldShip.TransportingFood,
+                TransportingProduction = OldShip.TransportingProduction,
+                AllowInterEmpireTrade  = OldShip.AllowInterEmpireTrade
             };
 
             PlanetBuildingAt.ConstructionQueue.Add(qi);
