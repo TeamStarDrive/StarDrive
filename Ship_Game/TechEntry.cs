@@ -16,7 +16,7 @@ namespace Ship_Game
         [Serialize(4)] public int Level;
         [Serialize(5)] public string AcquiredFrom { set => WasAcquiredFrom.Add(value); }
         [Serialize(6)] public bool shipDesignsCanuseThis = true;
-        [Serialize(7)] public Array<string> WasAcquiredFrom = new Array<string> { };
+        [Serialize(7)] public Array<string> WasAcquiredFrom;
 
         [XmlIgnore][JsonIgnore]
         public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
@@ -48,6 +48,7 @@ namespace Ship_Game
         {
             UID = uid;
             ResolveTech();
+            WasAcquiredFrom = new Array<string> { };
         }
 
         public void ResolveTech()
@@ -109,20 +110,24 @@ namespace Ship_Game
             }
         }
 
-        public bool SpiedBy(Empire them) => WasAcquiredFrom.ContainsRef(them.data.Traits.ShipType);
+        public bool SpiedBy(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
 
         public bool CanBeTakenFrom(Empire them)
         {
-            return NeedsThemToRevealContent(them) && !Unlocked; // Tech.RootNode != 1 && (!Tech.Secret || Tech.Discovered);
+            bool hidden = NeedsThemToRevealContent(them);
+            return hidden && !Unlocked; // Tech.RootNode != 1 && (!Tech.Secret || Tech.Discovered);
         }
 
         public bool NeedsThemToRevealContent(Empire empire)
         {
-            if (IsHidden(empire)) return true;
-            bool hulls = Tech.HullsUnlocked.Any(item => !CheckSource(item.ShipType, empire));
-            bool buildings = Tech.BuildingsUnlocked.Any(item => !CheckSource(item.Type, empire));
-            bool troops = Tech.TroopsUnlocked.Any(item => !CheckSource(item.Type, empire));
-            bool modules = Tech.ModulesUnlocked.Any(item => !CheckSource(item.Type, empire));
+            if (SpiedBy(empire)) return false;
+            if (IsHidden(empire) ) return true;
+            if (Tech.HullsUnlocked.IsEmpty && Tech.BuildingsUnlocked.IsEmpty && Tech.TroopsUnlocked.IsEmpty && Tech.ModulesUnlocked.IsEmpty)
+                return false;
+            bool hulls = !Tech.HullsUnlocked.Any(item => !CheckSource(item.ShipType, empire));
+            bool buildings = !Tech.BuildingsUnlocked.Any(item => !CheckSource(item.Type, empire));
+            bool troops = !Tech.TroopsUnlocked.Any(item => !CheckSource(item.Type, empire));
+            bool modules = !Tech.ModulesUnlocked.Any(item => !CheckSource(item.Type, empire));
             return hulls || buildings || troops || modules;
 
         }
