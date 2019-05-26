@@ -560,7 +560,14 @@ namespace Ship_Game
             }
             return (int)costAccumulator;
         }
+<<<<<<< working copy
         public int TechCost(Ship ship) => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
+=======
+        public int TechCost(Ship ship)
+        {
+            return TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
+        }
+>>>>>>> merge rev
 
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 
