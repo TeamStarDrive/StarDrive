@@ -530,7 +530,7 @@ namespace Ship_Game
             if (EmpireManager.Player.HasDiscovered(uid) && EmpireManager.Player.HavePreReq(uid))
             {
                 if (tech.BonusUnlocked.Count == 0 && !EmpireManager.Player.HasUnlocked(uid))
-                    EmpireManager.Player.UnlockTech(uid);
+                    EmpireManager.Player.UnlockTech(uid, TechUnlockType.Normal);
 
                 foreach (Technology child in tech.Children)
                     UnlockTreeNoBonus(child);
