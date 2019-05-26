@@ -1616,7 +1616,7 @@ namespace Ship_Game.Ships
                         ApplyAllRepair(repair, Level);
                     }
                 }
-
+                UpdateResupply();
                 UpdateTroops();
                 updateTimer = 1f;
             }
@@ -1666,6 +1666,22 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
 
             UpdateEnginesAndVelocity(deltaTime);
+        }
+
+        public void UpdateResupply()
+        {
+            if (Health < 1f)
+                return;
+
+            ResupplyReason resupplyReason = Supply.Resupply();
+            if (resupplyReason != ResupplyReason.NotNeeded && Mothership?.Active == true)
+            {
+                AI.OrderReturnToHangar(); // dealing with hangar ships needing resupply
+                return;
+            }
+
+            if (!loyalty.isFaction)
+                AI.ProcessResupply(resupplyReason);
         }
 
         private void SetShipsVisibleByPlayer()

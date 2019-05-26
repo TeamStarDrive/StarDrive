@@ -156,29 +156,11 @@ namespace Ship_Game.AI
 
             AIStateRebase();
             UpdateCombatStateAI(elapsedTime);
-            UpdateResupplyAI();
-
             if (!Owner.isTurning)
                 Owner.RestoreYBankRotation();
         }
 
-        void UpdateResupplyAI()
-        {
-            if (Owner.Health < 0.1f)
-                return;
-
-            ResupplyReason resupplyReason = Owner.Supply.Resupply();
-            if (resupplyReason != ResupplyReason.NotNeeded && Owner.Mothership?.Active == true)
-            {
-                OrderReturnToHangar(); // dealing with hangar ships needing resupply
-                return;
-            }
-
-            if (!Owner.loyalty.isFaction)
-                ProcessResupply(resupplyReason);
-        }
-
-        void ProcessResupply(ResupplyReason resupplyReason)
+        public void ProcessResupply(ResupplyReason resupplyReason)
         {
             Planet nearestRallyPoint = null;
             switch (resupplyReason)
