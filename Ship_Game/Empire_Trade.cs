@@ -295,5 +295,29 @@ namespace Ship_Game
                 GetEmpireAI().Goals.Add(new RefitShip(idleFreighter, betterFreighter.Name, this));
             }
         }
+
+        public float GoodsLimits(Goods goods) // this will be replaced with exposed  variable for the players in the trade window
+        {
+            float limit = 1; // it is a multiplier
+            switch (goods)
+            {
+                case Goods.Food:       limit = ManualTrade ? 1 : 0.5f;  break;
+                case Goods.Production: limit = ManualTrade ? 1 : 0.25f; break;
+            }
+            return limit;
+        }
+
+        // 1 out of 10 trades - check if there is better suited freighter model available and we have idle
+        // freighters which can cover for that freighter when it is refitted
+        // Note that there is additional refit logic for freighters (idle ones when a new tech is researched)
+        public void CheckAndRefit1To10(Ship freighter)
+        {
+            if (IdleFreighters.Length == 0 || ManualTrade || !RandomMath.RollDice(10))
+                return;
+
+            Ship betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
+            if (betterFreighter != null && betterFreighter.Name != freighter.Name)
+                GetEmpireAI().Goals.Add(new RefitShip(freighter, betterFreighter.Name, this));
+        }
     }
 }
