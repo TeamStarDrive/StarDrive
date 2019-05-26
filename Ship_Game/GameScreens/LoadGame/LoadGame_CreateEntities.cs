@@ -303,8 +303,11 @@ namespace Ship_Game
                     qi.DisplayName     = qisave.DisplayName;
                     qi.Cost            = shipTemplate.GetCost(p.Owner);
                     qi.TradeRoutes     = qisave.TradeRoutes;
-
-
+                    qi.TransportingColonists  = qisave.TransportingColonists;
+                    qi.TransportingFood       = qisave.TransportingFood;
+                    qi.TransportingProduction = qisave.TransportingProduction;
+                    qi.AllowInterEmpireTrade  = qisave.AllowInterEmpireTrade;
+                        
                     if (qisave.AreaOfOperation != null)
                     {
                         foreach (Rectangle aoRect in qisave.AreaOfOperation)
