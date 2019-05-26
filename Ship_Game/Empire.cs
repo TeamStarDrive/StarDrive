@@ -522,7 +522,7 @@ namespace Ship_Game
             foreach (var kv in TechnologyDict)
             {
                 TechEntry tech = kv.Value;
-                if (tech.CanBeGivenTo(them)) 
+                if (tech.CanBeGivenTo(them))
                     tradeTechs.Add(tech);
             }
             return tradeTechs;
@@ -560,14 +560,8 @@ namespace Ship_Game
             }
             return (int)costAccumulator;
         }
-<<<<<<< working copy
+
         public int TechCost(Ship ship) => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
-=======
-        public int TechCost(Ship ship)
-        {
-            return TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
-        }
->>>>>>> merge rev
 
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 
@@ -964,6 +958,7 @@ namespace Ship_Game
         {
             switch (techUnlockType)
             {
+                case TechUnlockType.Diplomacy:
                 case TechUnlockType.Normal:
                         if (techEntry.Unlock(this))
                         {
@@ -972,7 +967,6 @@ namespace Ship_Game
                         }
                         break;
 
-                case TechUnlockType.Diplomacy:
                 case TechUnlockType.Spy:
                         if (techEntry.UnlockFromSpy(empire))
                             UpdateForNewTech();
@@ -1671,8 +1665,8 @@ namespace Ship_Game
         {
             troopShip = null;
             Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
-                .Filter(p => p.CountEmpireTroops(this) > p.GarrisonSize 
-                             && !p.MightBeAWarZone(this) 
+                .Filter(p => p.CountEmpireTroops(this) > p.GarrisonSize
+                             && !p.MightBeAWarZone(this)
                              && p.Name != planetName)
                 .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
