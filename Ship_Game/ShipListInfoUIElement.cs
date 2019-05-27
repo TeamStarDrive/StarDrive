@@ -11,59 +11,31 @@ namespace Ship_Game
     public sealed class ShipListInfoUIElement : UIElement
     {
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
-
-        private Array<TippedItem> ToolTipItems = new Array<TippedItem>();
-
-        private Rectangle SliderRect;
-
-        private Rectangle clickRect;
-
-        private UniverseScreen screen;
-
+        private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+        private Rectangle ClickRect;
+        private readonly UniverseScreen Screen;
         private Array<Ship> ShipList = new Array<Ship>();
-
-        private Selector sel;
-
+        private readonly Selector Selector;
         public Rectangle LeftRect;
-
         public Rectangle RightRect;
-
         public Rectangle ShipInfoRect;
-
-        private ScrollList SelectedShipsSL;
-
+        private readonly ScrollList SelectedShipsSL;
         public Rectangle Power;
-
         public Rectangle Shields;
-
         public Rectangle Ordnance;
-
         private ProgressBar pBar;
-
         private ProgressBar sBar;
-
         private ProgressBar oBar;
-
-        public ToggleButton gridbutton;
-
-        private Rectangle Housing;
-
-        private SlidingElement sliding_element;
-
+        public ToggleButton GridButton;
+        private readonly Rectangle Housing;
+        private readonly SlidingElement SlidingElement;
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
-
         private Ship HoveredShip;
-
-        private Rectangle DefenseRect;
-
-        private Rectangle TroopRect;
-
-        private bool isFleet;
-
+        private readonly Rectangle DefenseRect;
+        private readonly Rectangle TroopRect;
+        private bool IsFleet;
         private bool AllShipsMine = true;
-
         private bool ShowModules = true;
-
         private Ship HoveredShipLast;
         private float HoverOff;
         private string fmt = "0";
@@ -71,15 +43,15 @@ namespace Ship_Game
         public ShipListInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
             Housing = r;
-            this.screen = screen;
+            this.Screen = screen;
             ScreenManager = sm;
             ElementRect = r;
-            sel = new Selector(r, Color.Black);
+            Selector = new Selector(r, Color.Black);
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            SliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
+            Rectangle sliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
             LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
-            sliding_element = new SlidingElement(SliderRect);
+            SlidingElement = new SlidingElement(sliderRect);
             RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
             float spacing = LeftRect.Height - 26 - 96;
             Power = new Rectangle(RightRect.X, LeftRect.Y + 12, 20, 20);
@@ -102,11 +74,11 @@ namespace Ship_Game
             float screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
             var gridPos = new Vector2(Housing.X + 16f, screenHeight - 45f);
-            gridbutton = new ToggleButton(gridPos, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
+            GridButton = new ToggleButton(gridPos, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
                 Active = true
             };
-            clickRect = new Rectangle(ElementRect.X + ElementRect.Width - 16, ElementRect.Y + ElementRect.Height / 2 - 11, 11, 22);
+            ClickRect = new Rectangle(ElementRect.X + ElementRect.Width - 16, ElementRect.Y + ElementRect.Height / 2 - 11, 11, 22);
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
             
 
@@ -148,22 +120,22 @@ namespace Ship_Game
 
         public override void Draw(GameTime gameTime)
         {
-            if (screen.SelectedShipList == null) return;  //fbedard
+            if (Screen.SelectedShipList == null) return;  //fbedard
 
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
             if (AllShipsMine)
             {
-                sliding_element.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (sliding_element.Open ? 20 - columns : 0));
+                SlidingElement.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
                 foreach (OrdersButton ob in Orders)
                 {
-                    Rectangle r = ob.clickRect;
+                    Rectangle r = ob.ClickRect;
                     r.X = r.X - (int)(transitionOffset * 300f);
                     ob.Draw(ScreenManager, r);
                 }
             }
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
-            string text = (!isFleet || ShipList.Count <= 0 || ShipList.First.fleet == null) ? "Multiple Ships" : ShipList.First.fleet.Name;
+            string text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.fleet == null) ? "Multiple Ships" : ShipList.First.fleet.Name;
             var namePos = new Vector2(Housing.X + 41, Housing.Y + 64);
             SelectedShipsSL.Draw(ScreenManager.SpriteBatch);
 
@@ -183,7 +155,7 @@ namespace Ship_Game
                 HoverOff += (float)gameTime.ElapsedGameTime.TotalSeconds;
                 if (HoverOff > 0.5f)
                 {
-                    text = (!isFleet || ShipList.Count <= 0 || ShipList.First.fleet == null ? "Multiple Ships" : ShipList.First.fleet.Name);
+                    text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.fleet == null ? "Multiple Ships" : ShipList.First.fleet.Name);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, text, namePos, tColor);
                     float fleetOrdnance = 0f;
                     float fleetOrdnanceMax = 0f;
@@ -236,7 +208,7 @@ namespace Ship_Game
                 float mechanicalBoardingDefense = HoveredShip.MechanicalBoardingDefense + HoveredShip.TroopBoardingDefense;
                 spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(fmt), defPos, Color.White);
                 text = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
-                Vector2 ShipStatus = new Vector2(sel.Rect.X + sel.Rect.Width - 170, Housing.Y + 68);
+                Vector2 ShipStatus = new Vector2(Selector.Rect.X + Selector.Rect.Width - 170, Housing.Y + 68);
                 text = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
                 HelperFunctions.ClampVectorToInt(ref ShipStatus);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, tColor);
@@ -253,32 +225,32 @@ namespace Ship_Game
             {
                 button.Draw(ScreenManager);
             }
-            gridbutton.Draw(ScreenManager);
+            GridButton.Draw(ScreenManager);
         }
 
         public override bool HandleInput(InputState input)
         {
-            if (screen.SelectedShipList == null)
+            if (Screen.SelectedShipList == null)
                 return false;  // fbedard
 
             foreach (ScrollList.Entry e in SelectedShipsSL.VisibleEntries)
             {
                 if (((SelectedShipEntry) e.item).AllButtonsActive)
                     continue;
-                SetShipList(ShipList, isFleet);
+                SetShipList(ShipList, IsFleet);
                 break;
             }
 
-            if (screen.SelectedShipList.Count == 0 || screen.SelectedShipList.Count == 1)
+            if (Screen.SelectedShipList.Count == 0 || Screen.SelectedShipList.Count == 1)
                 return false;
             if (ShipList == null || ShipList.Count == 0)
                 return false;
 
-            if (gridbutton.HandleInput(input))
+            if (GridButton.HandleInput(input))
             {
                 GameAudio.AcceptClick();
                 ShowModules = !ShowModules;
-                gridbutton.Active = ShowModules;
+                GridButton.Active = ShowModules;
                 return true;
             }
             if (AllShipsMine)
@@ -304,9 +276,9 @@ namespace Ship_Game
                     }
                 }
                 
-                if (sliding_element.HandleInput(input))
+                if (SlidingElement.HandleInput(input))
                 {
-                    if (!sliding_element.Open)
+                    if (!SlidingElement.Open)
                     {
                         State = ElementState.TransitionOff;
                     }
@@ -319,27 +291,27 @@ namespace Ship_Game
                 
                 if (State == ElementState.Open)
                 {
-                    bool orderhover = false;
+                    bool orderHover = false;
                     foreach (OrdersButton ob in Orders)
                     {
                         if (!ob.HandleInput(input, ScreenManager))
                         {
                             continue;
                         }
-                        orderhover = true;
+                        orderHover = true;
                     }
-                    if (orderhover)
+                    if (orderHover)
                     {
                         //this.screen.SelectedFleet.Ships.thisLock.EnterReadLock();      //Enter and Exit lock removed to stop crash -Gretman
-                        if (screen.SelectedFleet != null && screen.SelectedFleet.Ships.Count >0 && screen.SelectedFleet.Ships[0] != null)
+                        if (Screen.SelectedFleet != null && Screen.SelectedFleet.Ships.Count >0 && Screen.SelectedFleet.Ships[0] != null)
                         {
                             bool flag = true;                            
-                            foreach (Ship ship2 in screen.SelectedFleet.Ships)
+                            foreach (Ship ship2 in Screen.SelectedFleet.Ships)
                                 if (ship2.AI.State != AIState.Resupply)
                                     flag = false;
                             
                             if (flag)
-                                screen.SelectedFleet.Position = screen.SelectedFleet.Ships[0].AI.OrbitTarget.Center;  //fbedard: center fleet on resupply planet
+                                Screen.SelectedFleet.Position = Screen.SelectedFleet.Ships[0].AI.OrbitTarget.Center;  //fbedard: center fleet on resupply planet
                             
                         }
                         //this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
@@ -374,20 +346,20 @@ namespace Ship_Game
                         // added by gremlin filter by selected ship in shiplist.
                         if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                         {
-                            foreach(Ship filter in screen.SelectedShipList)
+                            foreach(Ship filter in Screen.SelectedShipList)
                             {
                                 if (filter.shipData.Role != HoveredShip.shipData.Role)
-                                    screen.SelectedShipList.QueuePendingRemoval(filter);
+                                    Screen.SelectedShipList.QueuePendingRemoval(filter);
                             }
-                            screen.SelectedShipList.ApplyPendingRemovals();
-                            SetShipList(screen.SelectedShipList, false);
+                            Screen.SelectedShipList.ApplyPendingRemovals();
+                            SetShipList(Screen.SelectedShipList, false);
                             continue;
                         }
 
-                        screen.SelectedFleet = null;
-                        screen.SelectedShipList.Clear();
-                        screen.SelectedShip = HoveredShip;  //fbedard: multi-select
-                        screen.ShipInfoUIElement.SetShip(HoveredShip);
+                        Screen.SelectedFleet = null;
+                        Screen.SelectedShipList.Clear();
+                        Screen.SelectedShip = HoveredShip;  //fbedard: multi-select
+                        Screen.ShipInfoUIElement.SetShip(HoveredShip);
                         return true;
                     }
                 }
@@ -399,7 +371,7 @@ namespace Ship_Game
             }
             if (ElementRect.HitTest(input.CursorPosition))
                 return true;
-            if (sliding_element.ButtonHousing.HitTest(input.CursorPosition))
+            if (SlidingElement.ButtonHousing.HitTest(input.CursorPosition))
                 return true;
             return false;
         }
@@ -417,106 +389,141 @@ namespace Ship_Game
         public void SetShipList(Array<Ship> shipList, bool isFleet)
         {
             Orders.Clear();
-            this.isFleet = isFleet;
-            ShipList = shipList;
+            IsFleet      = isFleet;
+            ShipList     = shipList;
             SelectedShipsSL.Reset();
             SelectedShipEntry entry = new SelectedShipEntry();
-            bool AllResupply = true;
-            AllShipsMine = true;
-            bool AllFreighters = true;
-            bool AllCombat = true;
+            bool allResupply        = true;
+            AllShipsMine            = true;
+            bool allFreighters      = true;
+            bool allCombat          = true;
+            bool carriersHere       = false;
+            bool troopShipsHere     = false;
+
             for (int i = 0; i < shipList.Count; i++)
             {
-                Ship ship = shipList[i];
+                Ship ship              = shipList[i];
                 SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), ship.GetTacticalIcon())
                 {
                     IsToggle = false,
                     ReferenceObject = ship,
                     BaseColor = ship.loyalty.EmpireColor
                 };
+
                 if (entry.ShipButtons.Count < 8)
-                {
                     entry.ShipButtons.Add(button);
-                }
+
                 if (entry.ShipButtons.Count == 8 || i == shipList.Count - 1)
                 {
                     SelectedShipsSL.AddItem(entry);
                     entry = new SelectedShipEntry();
                 }
-                if (ship.AI.State != AIState.Resupply)
+
+                if (ship.AI.State != AIState.Resupply)    allResupply    = false;
+                if (ship.loyalty != EmpireManager.Player) AllShipsMine   = false;
+                if (!ship.IsFreighter)                    allFreighters  = false;
+                if (ship.Carrier.HasFighterBays)          carriersHere   = true;
+                if (ship.Carrier.HasTroopBays)            troopShipsHere = true;
+                if (ship.DesignRole < ShipData.RoleName.carrier || ship.shipData.ShipCategory == ShipData.Category.Civilian 
+                                                                || ship.AI.State == AIState.Colonize 
+                                                                || ship.Mothership != null)
                 {
-                    AllResupply = false;
+                    allCombat = false;
                 }
-                if (ship.loyalty != EmpireManager.Player)
-                {
-                    AllShipsMine = false;
-                }
-                //if (ship.CargoSpace_Max == 0f)
-                if (ship.CargoSpaceMax == 0f || ship.shipData.Role == ShipData.RoleName.troop || ship.AI.State == AIState.Colonize || ship.shipData.Role == ShipData.RoleName.station || ship.Mothership != null)
-                {
-                    AllFreighters = false;
-                }
-                if (ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.AI.State == AIState.Colonize || ship.Mothership != null)
-                {
-                    AllCombat = false;
-                }
+
             }
+
             OrdersButton resupply = new OrdersButton(shipList, Vector2.Zero, OrderType.OrderResupply, 149)
             {
                 SimpleToggle = true,
-                Active = AllResupply
+                Active = allResupply
             };
             Orders.Add(resupply);
 
-
-            if (AllCombat)
-            {
-            OrdersButton SystemDefense = new OrdersButton(shipList, Vector2.Zero, OrderType.EmpireDefense, 150)
-            {
-                SimpleToggle = true,
-                Active = false
-            };
-            Orders.Add(SystemDefense);
-            OrdersButton Explore = new OrdersButton(shipList, Vector2.Zero, OrderType.Explore, 136)
-            {
-                SimpleToggle = true,
-                Active = false
-            };
-            Orders.Add(Explore);
+            if (allCombat)
+            {  
+                OrdersButton explore = new OrdersButton(shipList, Vector2.Zero, OrderType.Explore, 136)
+                {
+                    SimpleToggle = true,
+                    Active = false
+                };
+                Orders.Add(explore);
             }
 
-            if (AllFreighters)
+            if (carriersHere)
             {
-                //OrdersButton ao = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15)
-                //{
-                //  SimpleToggle = true,
-                //  Active = false
-                //};
-                //this.Orders.Add(ao);
-                OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 16)
+                OrdersButton launchFighters = new OrdersButton(shipList, Vector2.Zero, OrderType.FighterToggle, 19)
+                {
+                    SimpleToggle = true,
+                    Active = false
+                };
+                Orders.Add(launchFighters);
+                OrdersButton waitForFighters = new OrdersButton(shipList, Vector2.Zero, OrderType.FighterRecall, 146)
+                {
+                    SimpleToggle = true,
+                    Active = true
+                };
+                Orders.Add(waitForFighters);
+            }
+
+            if (troopShipsHere)
+            {
+                OrdersButton launchTroops = new OrdersButton(shipList, Vector2.Zero, OrderType.TroopToggle, 225)
+                {
+                    SimpleToggle = true,
+                    Active = true
+                };
+                Orders.Add(launchTroops);
+
+                OrdersButton sendTroops = new OrdersButton(shipList, Vector2.Zero, OrderType.SendTroops, 18)
+                {
+                    SimpleToggle = true,
+                    Active = true
+                };
+                Orders.Add(sendTroops);
+
+                if (!carriersHere)
+                {
+                    OrdersButton waitForTroops = new OrdersButton(shipList, Vector2.Zero, OrderType.FighterRecall, 146)
+                    {
+                        SimpleToggle = true,
+                        Active = true
+                    };
+                    Orders.Add(waitForTroops);
+                }
+            }
+
+            if (allFreighters)
+            {
+                OrdersButton tradeFood = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 16)
                 {
                     SimpleToggle = true
                 };
-                Orders.Add(tf);
-                OrdersButton tp = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeProduction, 16)
+                Orders.Add(tradeFood);
+                OrdersButton tradeProduction = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeProduction, 16)
                 {
                     SimpleToggle = true
                 };
-                Orders.Add(tp);
-                OrdersButton tpass = new OrdersButton(shipList, Vector2.Zero, OrderType.PassTran, 152)
+                Orders.Add(tradeProduction);
+                OrdersButton transportColonists = new OrdersButton(shipList, Vector2.Zero, OrderType.TransportColonists, 152)
                 {
                     SimpleToggle = true
                 };
-                Orders.Add(tpass);
+                Orders.Add(transportColonists);
+                OrdersButton allowInterEmpireTrade = new OrdersButton(shipList, Vector2.Zero, OrderType.AllowInterTrade, 252)
+                {
+                    SimpleToggle = true
+                };
+                Orders.Add(allowInterEmpireTrade);
             }
 
             //Added by McShooterz: fleet scrap button
-            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
+            OrdersButton scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
             {
                 SimpleToggle = true,
                 Active = false
             };
-            Orders.Add(Scrap);
+            Orders.Add(scrap);
 
             int ex = 0;
             int y = 0;
@@ -528,8 +535,8 @@ namespace Ship_Game
                     ex++;
                     y = 0;
                 }
-                ob.clickRect.X = ElementRect.X + ElementRect.Width + 2 + 52 * ex;
-                ob.clickRect.Y = sliding_element.Housing.Y + 15 + y * 52;
+                ob.ClickRect.X = ElementRect.X + ElementRect.Width + 2 + 52 * ex;
+                ob.ClickRect.Y = SlidingElement.Housing.Y + 15 + y * 52;
                 y++;
             }
         }

@@ -147,11 +147,12 @@ namespace Ship_Game.AI.Tasks
             {
                 if (ForceStrength > EnemyTroopStrength * 1.5f)
                     break;
-                if (t.Loyalty == null) continue;
+                if (t.Loyalty == null || !t.CanMove)
+                    continue;
                 Ship launched = t.Launch();
                 if (launched == null)
                 {
-                    Log.Warning($"CreateFleet: Troop launched from planet became null (or could not be launched since it cant move)");
+                    Log.Warning($"CreateFleet: Troop launched from planet became null");
                     continue;
                 }
                 newFleet.AddShip(launched);

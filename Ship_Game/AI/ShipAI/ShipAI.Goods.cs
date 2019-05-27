@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI
@@ -17,6 +13,12 @@ namespace Ship_Game.AI
         {
             Planet exportPlanet = g.Trade.ExportFrom;
             Planet importPlanet = g.Trade.ImportTo;
+            if (exportPlanet.Owner == null) // colony was wiped out
+            {
+                AI.CancelTradePlan();
+                return;
+            }
+
             if (AI.WaitForBlockadeRemoval(g, exportPlanet, elapsedTime))
                 return;
 
@@ -39,8 +41,7 @@ namespace Ship_Game.AI
                     exportPlanet.Population += Owner.UnloadColonists();
 
                     // food amount estimated the import planet needs
-                    float maxFoodLoad = importPlanet.Storage.Max - importPlanet.FoodHere;
-                    maxFoodLoad       = (maxFoodLoad - importPlanet.Food.NetIncome * eta).Clamped(0, exportPlanet.Storage.Max * 0.5f);
+                    float maxFoodLoad = exportPlanet.ExportableFood(importPlanet, eta);
                     if (maxFoodLoad.AlmostZero())
                     {
                         AI.CancelTradePlan(exportPlanet); // import planet food is good by now
@@ -53,7 +54,13 @@ namespace Ship_Game.AI
                 case Goods.Production:
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
-                    float maxProdLoad        = exportPlanet.ProdHere.Clamped(0f, exportPlanet.Storage.Max * 0.25f);
+                    float maxProdLoad        = exportPlanet.ExportableProd(importPlanet);
+                    if (maxProdLoad.AlmostZero())
+                    {
+                        AI.CancelTradePlan(exportPlanet); // there is nothing to load, wft?
+                        return;
+                    }
+
                     exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
                     freighterTooSmall        = Owner.CargoSpaceMax.Less(maxProdLoad);
                     break;
@@ -85,6 +92,14 @@ namespace Ship_Game.AI
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
             Planet importPlanet = g.Trade.ImportTo;
+            Planet exportPlanet = g.Trade.ExportFrom;
+
+            if (importPlanet.Owner == null) // colony was wiped out
+            {
+                AI.CancelTradePlan(exportPlanet);
+                return;
+            }
+
             if (AI.WaitForBlockadeRemoval(g, importPlanet, elapsedTime))
                 return;
 
@@ -110,23 +125,7 @@ namespace Ship_Game.AI
                 toOrbit = Owner.loyalty.FindNearestRallyPoint(Owner.Center); // get out of here!
 
             AI.CancelTradePlan(toOrbit);
-            CheckAndScrap1To10();
-        }
-
-        // 1 out of 10 trades - check if there is better suited freighter model available and we have idle
-        // freighters which can cover the scrap
-        // Note that there are more scrap logic for freighters (idle timeout and idle ones when a new tech is researched
-        void CheckAndScrap1To10() 
-        {
-            if (!Owner.loyalty.AutoFreighters || !RandomMath.RollDice(10))
-                return;
-
-            if (Owner.loyalty.IdleFreighters.Length == 0)
-                return;
-
-            Ship betterFreighter = ShipBuilder.PickFreighter(Owner.loyalty, Owner.loyalty.FastVsBigFreighterRatio);
-            if (betterFreighter != null && betterFreighter.Name != Owner.Name)
-                AI.OrderScrapShip();
+            Owner.loyalty.CheckForRefitFreighter(Owner, 10);
         }
     }
 

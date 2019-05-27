@@ -93,10 +93,17 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             var qi = new QueueItem(PlanetBuildingAt)
             {
-                sData  = newShip.shipData,
-                Cost   = OldShip.RefitCost(newShip),
-                Goal   = this,
-                isShip = true
+                sData           = newShip.shipData,
+                Cost            = OldShip.RefitCost(newShip),
+                Goal            = this,
+                isShip          = true,
+                isRefit         = true,
+                TradeRoutes     = OldShip.TradeRoutes,
+                AreaOfOperation = OldShip.AreaOfOperation,
+                TransportingColonists  = OldShip.TransportingColonists,
+                TransportingFood       = OldShip.TransportingFood,
+                TransportingProduction = OldShip.TransportingProduction,
+                AllowInterEmpireTrade  = OldShip.AllowInterEmpireTrade
             };
 
             PlanetBuildingAt.ConstructionQueue.Add(qi);

@@ -280,9 +280,19 @@ namespace Ship_Game
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
 
+                    if (ship.TradeRoutes?.NotEmpty == true)
+                    {
+                        sdata.TradeRoutes = new Array<Guid>();
+                        foreach (Guid planetGuid in ship.TradeRoutes)
+                        {
+                            sdata.TradeRoutes.Add(planetGuid);
+                        }
+                    }
+
                     sdata.TransportingFood       = ship.TransportingFood;
                     sdata.TransportingProduction = ship.TransportingProduction;
                     sdata.TransportingColonists  = ship.TransportingColonists;
+                    sdata.AllowInterEmpireTrade  = ship.AllowInterEmpireTrade;
                     sdata.AISave = new ShipAISave
                     {
                         State      = ship.AI.State
@@ -636,6 +646,7 @@ namespace Ship_Game
             [Serialize(35)] public bool GovOrbitals;
             [Serialize(36)] public bool GovMilitia;
             [Serialize(37)] public int NumShipyards;
+            [Serialize(38)] public bool DontScrapBuildings;
         }
 
         public struct ProjectileSaveData
@@ -660,6 +671,12 @@ namespace Ship_Game
             [Serialize(8)] public float RefitCost;
             [Serialize(9)] public Vector2 pgsVector;
             [Serialize(10)] public bool isPlayerAdded;
+            [Serialize(11)] public Array<Guid> TradeRoutes;
+            [Serialize(12)] public RectangleData[] AreaOfOperation;
+            [Serialize(13)] public bool TransportingColonists;
+            [Serialize(14)] public bool TransportingFood;
+            [Serialize(15)] public bool TransportingProduction;
+            [Serialize(16)] public bool AllowInterEmpireTrade;
         }
 
         public struct RingSave
@@ -742,6 +759,8 @@ namespace Ship_Game
             [Serialize(27)] public bool TransportingFood;
             [Serialize(28)] public bool TransportingProduction;
             [Serialize(29)] public bool TransportingColonists;
+            [Serialize(30)] public bool AllowInterEmpireTrade;
+            [Serialize(31)] public Array<Guid> TradeRoutes;
         }
 
         public class SolarSystemSaveData

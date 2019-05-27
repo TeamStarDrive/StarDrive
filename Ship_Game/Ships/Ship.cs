@@ -49,16 +49,6 @@ namespace Ship_Game.Ships
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
         public bool isColonyShip;
-        public bool IsConstructor
-        {
-            get => DesignRole == ShipData.RoleName.construction;
-            set
-            {
-                if (value)
-                    DesignRole = ShipData.RoleName.construction;
-                else DesignRole = GetDesignRole();
-            }
-        }
         private Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
@@ -159,7 +149,6 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int FixedTrackingPower;
-        public float TradeTimer = 300;
         public bool ShipInitialized;
         public float maxFTLSpeed;
         public float NormalWarpThrust;
@@ -169,9 +158,6 @@ namespace Ship_Game.Ships
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost    { get; private set; }
         public Planet HomePlanet { get; private set; }
-        public bool TransportingColonists  { get; set; }
-        public bool TransportingFood       { get; set; }
-        public bool TransportingProduction { get; set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
@@ -181,7 +167,6 @@ namespace Ship_Game.Ships
             return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
         }
 
-
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
         public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name;
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
@@ -190,15 +175,11 @@ namespace Ship_Game.Ships
         public bool HasBombs  => BombBays.Count > 0;
 
 
-        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter
-                                   && shipData.ShipCategory == ShipData.Category.Civilian;
-
-        public bool IsIdleFreighter => IsFreighter
-                                       && AI != null
-                                       && !AI.HasPriorityOrder
-                                       && AI.State != AIState.SystemTrader
-                                       && AI.State != AIState.Flee
-                                       && AI.State != AIState.Refit;
+        public bool IsConstructor
+        {
+            get => DesignRole == ShipData.RoleName.construction;
+            set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
+        }
 
         public bool IsInNeutralSpace
         {
@@ -257,6 +238,18 @@ namespace Ship_Game.Ships
             percent = percent.Clamped(0f, 1f);
             foreach (ShipModule module in ModuleSlotList)
                 module.DebugDamage(percent);
+        }
+
+        public bool InsideAreaOfOperation(Planet planet)
+        {
+            if (AreaOfOperation.IsEmpty)
+                return true;
+
+            foreach (Rectangle ao in AreaOfOperation)
+                if (ao.HitTest(planet.Center))
+                    return true;
+
+            return false;
         }
 
         public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
@@ -388,7 +381,7 @@ namespace Ship_Game.Ships
                 && System != null && attacker.GetOwnedSystems().ContainsRef(System))
                 return true;
 
-            // the below does a search for being inborders so its expensive.
+            // the below does a search for being in borders so its expensive.
             if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker
                     , AI.State == AIState.SystemTrader)
                 && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(this))
@@ -1623,7 +1616,7 @@ namespace Ship_Game.Ships
                         ApplyAllRepair(repair, Level);
                     }
                 }
-
+                UpdateResupply();
                 UpdateTroops();
                 updateTimer = 1f;
             }
@@ -1673,6 +1666,22 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
 
             UpdateEnginesAndVelocity(deltaTime);
+        }
+
+        public void UpdateResupply()
+        {
+            if (Health < 1f)
+                return;
+
+            ResupplyReason resupplyReason = Supply.Resupply();
+            if (resupplyReason != ResupplyReason.NotNeeded && Mothership?.Active == true)
+            {
+                AI.OrderReturnToHangar(); // dealing with hangar ships needing resupply
+                return;
+            }
+
+            if (!loyalty.isFaction)
+                AI.ProcessResupply(resupplyReason);
         }
 
         private void SetShipsVisibleByPlayer()
@@ -1928,24 +1937,18 @@ namespace Ship_Game.Ships
                                                               : empire.data.DefaultSupplyShuttle;
         }
 
-        public float BestFreighterValue(Empire empire, float fastVsBig)
-        {
-            float warpK          = maxFTLSpeed / 1000;
-            float movementWeight = warpK + GetSTLSpeed() / 10 + rotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
-            float cargoWeight    = CargoSpaceMax.Clamped(0,80) - (float)SurfaceArea / 25;
-
-            // For faster , cheaper ships vs big and maybe slower ships
-            return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
-        }
-
-        public bool IsCandidateFreighterBuild() => IsFreighter;
-
         public int RefitCost(Ship newShip)
         {
             if (loyalty.isFaction)
                 return 0;
 
             float oldShipCost = GetCost(loyalty);
+
+            // FB: Refit works normally only for ship of the same hull. But freighters can be replaced to other hulls by the auto trade.
+            // So replacement cost is higher, the old ship cost is halved, just like scrapping it.
+            if (shipData.Hull != newShip.shipData.Hull)
+                oldShipCost /= 2;
+
             float newShipCost = newShip.GetCost(loyalty);
             int cost          = Math.Max((int)(newShipCost - oldShipCost), 0);
             return cost + (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace;
@@ -1958,7 +1961,10 @@ namespace Ship_Game.Ships
                 if (engineState == MoveState.Warp
                     || AI.State == AIState.Refit
                     || AI.State == AIState.Resupply)
-                        return ShipStatus.NotApplicable;
+                {
+                    return ShipStatus.NotApplicable;
+                }
+
                 Health = Health.Clamped(0, HealthMax);
                 return ToShipStatus(Health, HealthMax);
             }

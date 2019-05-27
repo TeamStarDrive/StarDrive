@@ -876,13 +876,8 @@
     </Token>
     <Token>
       <Index>214</Index>
-      <Text>Allows you to customize an "Area of Operations" or "AO" for a ship. Freighters will only trade within their AO, allowing you to define custom trade routes. Combat ships will patrol their AO and engage any enemies in their AO.
-
-Drag a selection box around the area of the galaxy you want to define as the AO. You can define more than 1 AO per ship. Right click the AO to delete it.
-      </Text>
-      <!-- Maintain the line formatting here -->
+      <Text>Allows you to customize an "Area of Operations" or "AO" for a freighter. Freighters will only trade within their AO (both Manual and Auto Trade), allowing you to define custom trade areas. Drag a selection box around the area of the galaxy you want to define as the AO. You can define more than one AO per ship. Right click the AO to delete it. Esc key or right clicking on this button will exit AO creation mode.</Text>
     </Token>
-
     <Token>
       <Index>217</Index>
       <Text>Send Troops to this ship if it's troop number is less than 75% of the maximum. If you toggle this off, the ship will go to resupply when troop number is less than 10% of the maximum</Text>
@@ -895,7 +890,6 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
       <Index>219</Index>
       <Text>Indicates how much food this planet will produce per assigned colonist per turn (a turn is .1 StarDate). Some building or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time.</Text>
     </Token>
-
     <Token>
       <Index>221</Index>
       <Text>Indicates how much research this planet will produce per assigned colonist per turn (a turn is .1 StarDate)</Text>
@@ -1120,7 +1114,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>308</Index>
-      <Text>Automatic Freighters</Text>
+      <Text>Automatic Trade</Text>
     </Token>
     <Token>
       <Index>309</Index>
@@ -1466,7 +1460,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>394</Index>
-      <Text>Governor will control production levels as a core system but not specialize any construction</Text>
+      <Text>Governor will control production levels as a core system, but will not build any structure</Text>
     </Token>
     
     
@@ -1523,8 +1517,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>412</Index>
       <Text>Cloning Center</Text>
     </Token>
-
-
     <Token>
       <Index>415</Index>
       <Text>Crash Site</Text>
@@ -4695,6 +4687,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1941</Index>
+      <Text>Governor Will Not Scrap Buildings</Text>
+    </Token>
+    <Token>
+      <Index>1942</Index>
+      <Text>Normally, Governors operate within a budget limit which it tied to your empire's money and will start scrapping buildings if money becomes tight. Checking this box will not allow Governors to scrap buildings. You will have to be careful with your Money.</Text>
+    </Token>
+    <Token>
+      <Index>1943</Index>
+      <Text>Assign Trade Routes (Esc to exit)</Text>
+    </Token>
+    <Token>
+      <Index>1944</Index>
+      <Text>Choose a list of planets that selected freighters will visit exclusively. At least 2 planets are needed, and may contain allied planets for exporting to. Left click a planet to add it, Right click to remove it. Click the button again or press ESC to return to play</Text>
+    </Token>
+    <Token>
+      <Index>1945</Index>
+      <Text>Manual Trade: Allow selected freighters to trade with other empires. Right Click to turn it off. Note: Colonists cannot be traded between empires.</Text>
+    </Token>
+    <Token>
       <Index>1946</Index>
       <Text>Build a Platform (the strongest your empire has available) orbiting this planet.The number in parentheses is the number of Platforms this planet already has in orbit.</Text>
     </Token>
@@ -4748,7 +4760,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1959</Index>
-      <Text>The Best freighters available for your Empire will be built for import/export needs</Text>
+      <Text>If Auto Trade is checked, the Best freighters available for your Empire will be built for import/export needs.</Text>
     </Token>
     <Token>
       <Index>1960</Index>
@@ -5610,7 +5622,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2172</Index>
-      <Text>Orders this ship to transport colonists from your high population worlds to your low population worlds. Starving or dwindling food reserves will not get new colonists until food reserves/production gets better.</Text>
+      <Text>Manual Trade: Orders this Freighter to transport colonists from your high population worlds to your low population worlds. Starving or dwindling food reserves will not get new colonists until food reserves/production gets better. Right Click to turn this off.</Text>
     </Token>
     <Token>
       <Index>2173</Index>
@@ -6378,21 +6390,17 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>3063</Index>
       <Text>We require that you take control of the following colonies: </Text>
     </Token>
-
-
-
-
     <Token>
       <Index>248</Index>
       <Text>Click to rush production from this colony's storage. \n \n A single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available. \n \n Construction cannot be rushed if there are ground invaders on your colony.</Text>
     </Token>
     <Token>
       <Index>215</Index>
-      <Text>Orders this ship to transport food. This ship will transport food from exporting planets to importing plants</Text>
+      <Text>Manual Trade: Orders this freighter to transport food. This ship will transport food from exporting planets to importing plants. Right click to turn this off.</Text>
     </Token>
     <Token>
       <Index>216</Index>
-      <Text>Orders this ship to transport production. This ship will transport production from exporting planets to importing plants</Text>
+      <Text>Manual Trade: Orders this freighter to transport production. This ship will transport production from exporting planets to importing plants If this is a group of freighters. Right click to turn this off.</Text>
     </Token>
     <Token>
       <Index>356</Index>
@@ -6405,7 +6413,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>239</Index>
-      <Text>Randomly places an Agent on an enemy colony, providing several key benefits. \n \n Most importantly, the Agent gives you an additional 10% to effectivenes of your espionage investments. The more Agents you have, the faster you will be able to gain intelligence penetration. \n \n Second, Agents give you the ability to inspect the colony where they are placed as if the colony were your own. </Text>
+      <Text>Randomly places an Agent on an enemy colony, providing several key benefits. \n \n Most importantly, the Agent gives you an additional 10% to effectiveness of your espionage investments. The more Agents you have, the faster you will be able to gain intelligence penetration. \n \n Second, Agents give you the ability to inspect the colony where they are placed as if the colony were your own. </Text>
     </Token>
     <Token>
       <Index>1606</Index>

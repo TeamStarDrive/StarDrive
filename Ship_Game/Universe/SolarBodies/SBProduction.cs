@@ -166,6 +166,19 @@ namespace Ship_Game.Universe.SolarBodies
 
             Ship shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true);
             q.Goal?.ReportShipComplete(shipAt);
+            if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
+            {
+                shipAt.IsConstructor = true;
+                shipAt.VanityName = "Construction Ship";
+            }
+
+            shipAt.DownloadTradeRoutes(q.TradeRoutes);
+            shipAt.AreaOfOperation        = q.AreaOfOperation;
+            shipAt.TransportingColonists  = q.TransportingColonists;
+            shipAt.TransportingFood       = q.TransportingFood;
+            shipAt.TransportingProduction = q.TransportingProduction;
+            shipAt.AllowInterEmpireTrade  = q.AllowInterEmpireTrade;
+
             if (!Owner.isPlayer)
                 Owner.ForcePoolAdd(shipAt);
             return true;

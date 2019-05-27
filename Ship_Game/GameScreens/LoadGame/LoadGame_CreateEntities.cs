@@ -99,18 +99,18 @@ namespace Ship_Game
                 p.SpecialDescription = psdata.SpecialDescription;
 
             p.Scale = psdata.Scale > 0f ? psdata.Scale : RandomMath.RandomBetween(1f, 2f);
-            p.colonyType  = psdata.ColonyType;
-            p.GovOrbitals = psdata.GovOrbitals;
-            p.GovMilitia  = psdata.GovMilitia;
-
-            p.NumShipyards     = psdata.NumShipyards;
-            p.FS               = psdata.FoodState;
-            p.PS               = psdata.ProdState;
-            p.Food.PercentLock = psdata.FoodLock;
-            p.Prod.PercentLock = psdata.ProdLock;
-            p.Res.PercentLock  = psdata.ResLock;
-            p.OrbitalRadius    = psdata.OrbitalDistance;
-            p.MaxPopBase       = psdata.PopulationMax;
+            p.colonyType         = psdata.ColonyType;
+            p.GovOrbitals        = psdata.GovOrbitals;
+            p.GovMilitia         = psdata.GovMilitia;
+            p.DontScrapBuildings = psdata.DontScrapBuildings;
+            p.NumShipyards       = psdata.NumShipyards;
+            p.FS                 = psdata.FoodState;
+            p.PS                 = psdata.ProdState;
+            p.Food.PercentLock   = psdata.FoodLock;
+            p.Prod.PercentLock   = psdata.ProdLock;
+            p.Res.PercentLock    = psdata.ResLock;
+            p.OrbitalRadius      = psdata.OrbitalDistance;
+            p.MaxPopBase         = psdata.PopulationMax;
 
             p.SetFertility(psdata.Fertility, psdata.MaxFertility);
 
@@ -298,10 +298,21 @@ namespace Ship_Game
                     if (!ResourceManager.ShipsDict.ContainsKey(qisave.UID))
                         continue;
 
-                    Ship shipTemplate = ResourceManager.GetShipTemplate(qisave.UID);
-                    qi.sData = shipTemplate.shipData;
-                    qi.DisplayName = qisave.DisplayName;
-                    qi.Cost = shipTemplate.GetCost(p.Owner);
+                    Ship shipTemplate  = ResourceManager.GetShipTemplate(qisave.UID);
+                    qi.sData           = shipTemplate.shipData;
+                    qi.DisplayName     = qisave.DisplayName;
+                    qi.Cost            = shipTemplate.GetCost(p.Owner);
+                    qi.TradeRoutes     = qisave.TradeRoutes;
+                    qi.TransportingColonists  = qisave.TransportingColonists;
+                    qi.TransportingFood       = qisave.TransportingFood;
+                    qi.TransportingProduction = qisave.TransportingProduction;
+                    qi.AllowInterEmpireTrade  = qisave.AllowInterEmpireTrade;
+                        
+                    if (qisave.AreaOfOperation != null)
+                    {
+                        foreach (Rectangle aoRect in qisave.AreaOfOperation)
+                            qi.AreaOfOperation.Add(aoRect);
+                    }
 
                     if (qi.sData.HasFixedCost)
                     {
