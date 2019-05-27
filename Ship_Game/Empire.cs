@@ -934,9 +934,6 @@ namespace Ship_Game
                 tech.SetDiscovered(this);
         }
 
-        public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevealedTechs(this);
-        public void SetEmpireTechRevealed(TechEntry techEntry) => techEntry.DoRevealedTechs(this);
-
         public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
         {
             foreach (Ship ship in OwnedShips)
@@ -946,15 +943,12 @@ namespace Ship_Game
             }
         }
 
-        public void UnlockTech(string techId, TechUnlockType techUnlockType) => UnlockTech(techId, techUnlockType, this);
-        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType) => UnlockTech(techEntry, techUnlockType, this);
-
-        public void UnlockTech(string techId, TechUnlockType techUnlockType, Empire empire)
+        public void UnlockTech(string techId, TechUnlockType techUnlockType, Empire empire = null)
         {
             UnlockTech(GetTechEntry(techId), techUnlockType, empire);
         }
 
-        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire empire)
+        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire empire = null) 
         {
             switch (techUnlockType)
             {
@@ -968,7 +962,7 @@ namespace Ship_Game
                         break;
 
                 case TechUnlockType.Spy:
-                        if (techEntry.UnlockFromSpy(empire))
+                        if (techEntry.UnlockTechContentOnly(this, empire))
                             UpdateForNewTech();
                         break;
             }
@@ -981,23 +975,18 @@ namespace Ship_Game
             TriggerFreightersScrap();
         }
 
+        public void AssimilateTech(Empire servantEmpire)
+        {
+            Empire masterEmpire = this;
+            foreach (TechEntry masterTech in masterEmpire.TechEntries)
+                masterTech.UnlockByConquest(this, servantEmpire);
+        }
+
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
         public void AcquireTech(string techID, Empire target, TechUnlockType techUnlockType)
         {
-            //acquiredFrom here should be an array.
-            TechnologyDict[techID].WasAcquiredFrom.AddUniqueRef(target.data.Traits.ShipType);
+            TechnologyDict[techID].WasAcquiredFrom.AddUnique(target.data.Traits.ShipType);
             UnlockTech(techID, techUnlockType, target);
-        }
-
-        public void UnlockHullsSave(TechEntry techEntry, string servantEmpireShipType)
-        {
-            techEntry.ConqueredSource.Add(servantEmpireShipType);
-            techEntry.UnlockTroops(this);
-            techEntry.UnLockHulls(this);
-            techEntry.UnlockModules(this);
-            techEntry.UnlockBuildings(this);
-
-            UpdateShipsWeCanBuild();
         }
 
         private void AssessHostilePresence()
@@ -2382,6 +2371,7 @@ namespace Ship_Game
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
+            AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
             {
                 if (techEntry.Unlocked)
