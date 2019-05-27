@@ -190,7 +190,7 @@ namespace Ship_Game.Ships
         public bool HasBombs  => BombBays.Count > 0;
 
 
-        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter 
+        public bool IsFreighter => DesignRole == ShipData.RoleName.freighter
                                    && shipData.ShipCategory == ShipData.Category.Civilian;
 
         public bool IsIdleFreighter => IsFreighter
@@ -1938,10 +1938,7 @@ namespace Ship_Game.Ships
             return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
         }
 
-        public bool IsCandidateFreighterBuild()
-        {
-            return IsFreighter;
-        }
+        public bool IsCandidateFreighterBuild() => IsFreighter;
 
         public int RefitCost(Ship newShip)
         {
