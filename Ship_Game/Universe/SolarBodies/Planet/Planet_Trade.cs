@@ -39,7 +39,8 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportFood)
                     return 0;
 
-                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(1, 7);
+                int min = Storage.FoodRatio > 0.75f ? 1 : 0;
+                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(min, 7);
             }
         }
 
@@ -50,7 +51,8 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportProd)
                     return 0;
 
-                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(1, 7);
+                int min = Storage.ProdRatio > 0.75f ? 1 : 0;
+                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, 7);
             }
         }
 
@@ -69,12 +71,18 @@ namespace Ship_Game
         {
             get
             {
-                if (TradeBlocked || !ImportFood || !ShortOnFood())
+                if (TradeBlocked || !ImportFood)
                     return 0;
 
-                int foodIncomeSlots  = ((int)(1 - Food.NetIncome));
+                if (NoGovernorAndNotTradeHub && Storage.FoodRatio > 0.5f)
+                    return 0;  // for players with no governor or with trade hub - only 50% storage or less will open slots
+
+                if (!ShortOnFood())
+                    return 0; // for auto trade, the planet also needs to be short on food
+
+                int foodIncomeSlots  = (int)(1 - Food.NetIncome);
                 int foodStorageRatio = (int)((1 - Storage.FoodRatio) * 3);
-                return (foodIncomeSlots + foodStorageRatio).Clamped(0, 5);
+                return (foodIncomeSlots + foodStorageRatio).Clamped(0, 6);
             }
         }
 
@@ -176,6 +184,21 @@ namespace Ship_Game
                     ship.AI.CancelTradePlan(ship.loyalty.FindNearestRallyPoint(ship.Center));
                 }
             }
+        }
+
+        public float ExportableFood(Planet importPlanet, float eta)
+        {
+            float maxFoodLoad   = importPlanet.Storage.Max - importPlanet.FoodHere;
+            float foodLoadLimit = Owner?.GoodsLimits(Goods.Food) ?? 0;
+            maxFoodLoad         = (maxFoodLoad - importPlanet.Food.NetIncome * eta).Clamped(0, Storage.Max * foodLoadLimit);
+            return maxFoodLoad;
+        }
+
+        public float ExportableProd(Planet importPlanet)
+        {
+            float prodLoadLimit = Owner?.GoodsLimits(Goods.Production) ?? 0;
+            float maxProdLoad   = ProdHere.Clamped(0f, Storage.Max * prodLoadLimit);
+            return maxProdLoad;
         }
     }
 }

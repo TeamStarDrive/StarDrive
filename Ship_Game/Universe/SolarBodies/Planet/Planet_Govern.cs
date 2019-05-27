@@ -35,8 +35,8 @@ namespace Ship_Game
             {
                 case ColonyType.TradeHub:
                     AssignCoreWorldWorkers();
-                    DetermineFoodState(0.15f, 0.95f); // Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
-                    DetermineProdState(0.15f, 0.95f);
+                    DetermineFoodState(0.15f, 0.15f); 
+                    DetermineProdState(0.15f, 0.15f);
                     break;
                 case ColonyType.Core:
                     AssignCoreWorldWorkers();
@@ -91,7 +91,7 @@ namespace Ship_Game
             int rank             = FindColonyRank(log: true);
             var wantedOrbitals   = new WantedOrbitals(rank);
 
-            BuildShipyardIfAble(wantedOrbitals.Shipyards);
+            BuildOrScrapShipyard(wantedOrbitals.Shipyards);
             BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank, budget);
             BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank, budget);
         }
@@ -126,7 +126,6 @@ namespace Ship_Game
 
         private int ShipyardsBeingBuilt()
         {
-            //int shipyardsInQ = ConstructionQueue.Count(q => q.isShip && q.sData.IsShipyard);
             int shipyardsInQ = 0;
             foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
                                                                      || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
@@ -140,14 +139,17 @@ namespace Ship_Game
 
         private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, int colonyRank, float budget)
         {
-            int orbitalsWeHave = orbitalList.Count + OrbitalsBeingBuilt(role);
+            int orbitalsWeHave = orbitalList.Filter(o => !o.shipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
 
             if (orbitalList.NotEmpty && orbitalsWeHave > orbitalsWeWant)
             {
                 Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
-                ScrapOrbital(weakest); // remove this old garbage
+                if (weakest != null)
+                    ScrapOrbital(weakest); // remove this old garbage
+                else
+                    Log.Warning($"BuildOrScrapOrbitals: Weakest orbital is null even though orbitalList is not empty. Ignoring Scrap");
                 return;
             }
 
@@ -231,7 +233,7 @@ namespace Ship_Game
             if (orbital == null)
                 return null;
 
-            if (LogicalBuiltTimecVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
+            if (LogicalBuiltTimeVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
                 return orbital;
 
             // we cannot build the best in the empire, lets try building something cheaper for now
@@ -267,7 +269,7 @@ namespace Ship_Game
             return orbital;
         }
 
-        private bool LogicalBuiltTimecVsCost(float cost, int threshold)
+        private bool LogicalBuiltTimeVsCost(float cost, int threshold)
         {
             float netCost = (Math.Max(cost - Storage.Prod, 0)) * ShipBuildingModifier;
             float ratio   = netCost / Prod.NetMaxPotential;
@@ -337,19 +339,20 @@ namespace Ship_Game
             return rank.Clamped(0, 15);
         }
 
-        private void BuildShipyardIfAble(int numWantedShipyards)
+        private void BuildOrScrapShipyard(int numWantedShipyards)
         {
-            if (numWantedShipyards == 0 || OrbitalsInTheWorks 
+            if (numWantedShipyards == 0 || OrbitalsInTheWorks
                                         || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
             {
                 return;
             }
 
-            if (NumShipyards + ShipyardsBeingBuilt() < numWantedShipyards)
+            int totalShipyards = NumShipyards + ShipyardsBeingBuilt();
+            if (totalShipyards < numWantedShipyards)
             {
                 string shipyardName = Owner.data.DefaultShipyard;
                 if (ResourceManager.GetShipTemplate(shipyardName, out Ship shipyard)
-                    && LogicalBuiltTimecVsCost(shipyard.GetCost(Owner), 50))
+                    && LogicalBuiltTimeVsCost(shipyard.GetCost(Owner), 50))
                 {
                     AddOrbital(shipyard);
                 }

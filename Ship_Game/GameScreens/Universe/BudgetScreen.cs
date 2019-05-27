@@ -99,13 +99,13 @@ namespace Ship_Game.GameScreens
             income.SetTotalFooter(() => Player.GrossIncome); // "Total"
 
             // Costs tab
-            SummaryPanel costs  = Add(new SummaryPanel(321, costRect, new Color(27, 22, 25)));
+            SummaryPanel costs  = Add(new SummaryPanel(315, costRect, new Color(27, 22, 25)));
             costs.AddItem(316, () => -Player.TotalBuildingMaintenance); // "Building Maint."
             costs.AddItem(317, () => -Player.TotalShipMaintenance);     // "Ship Maint."
             costs.SetTotalFooter(() => -Player.BuildingAndShipMaint);   // "Total"
 
             // Trade tab
-            SummaryPanel trade  = Add(new SummaryPanel(315, tradeRect, new Color(30, 26, 19)));
+            SummaryPanel trade  = Add(new SummaryPanel(321, tradeRect, new Color(30, 26, 19)));
             trade.AddItem(322, () => Player.AverageTradeIncome); // "Mercantilism (Avg)"
             trade.AddItem(323, () => Player.TotalTradeTreatiesIncome());   // "Trade Treaties"
             var traders = Player.AllRelations.Where(kv => kv.Value.Treaty_Trade)
