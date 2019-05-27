@@ -13,6 +13,12 @@ namespace Ship_Game.AI
         {
             Planet exportPlanet = g.Trade.ExportFrom;
             Planet importPlanet = g.Trade.ImportTo;
+            if (exportPlanet.Owner == null) // colony was wiped out
+            {
+                AI.CancelTradePlan();
+                return;
+            }
+
             if (AI.WaitForBlockadeRemoval(g, exportPlanet, elapsedTime))
                 return;
 
@@ -49,6 +55,12 @@ namespace Ship_Game.AI
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
                     float maxProdLoad        = exportPlanet.ExportableProd(importPlanet);
+                    if (maxProdLoad.AlmostZero())
+                    {
+                        AI.CancelTradePlan(exportPlanet); // there is nothing to load, wft?
+                        return;
+                    }
+
                     exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
                     freighterTooSmall        = Owner.CargoSpaceMax.Less(maxProdLoad);
                     break;
@@ -80,6 +92,14 @@ namespace Ship_Game.AI
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
             Planet importPlanet = g.Trade.ImportTo;
+            Planet exportPlanet = g.Trade.ExportFrom;
+
+            if (importPlanet.Owner == null) // colony was wiped out
+            {
+                AI.CancelTradePlan(exportPlanet);
+                return;
+            }
+
             if (AI.WaitForBlockadeRemoval(g, importPlanet, elapsedTime))
                 return;
 
