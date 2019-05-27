@@ -230,6 +230,8 @@ namespace Ship_Game
             {
                 foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
                 {
+                    foreach (var empire in EmpireManager.Empires)
+                        EmpireManager.Player.UnlockTech(techEntry, TechUnlockType.Spy, empire);
                     techEntry.Unlock(EmpireManager.Player);
                 }
                 ReloadContent();
@@ -530,7 +532,7 @@ namespace Ship_Game
             if (EmpireManager.Player.HasDiscovered(uid) && EmpireManager.Player.HavePreReq(uid))
             {
                 if (tech.BonusUnlocked.Count == 0 && !EmpireManager.Player.HasUnlocked(uid))
-                    EmpireManager.Player.UnlockTech(uid);
+                    EmpireManager.Player.UnlockTech(uid, TechUnlockType.Normal);
 
                 foreach (Technology child in tech.Children)
                     UnlockTreeNoBonus(child);

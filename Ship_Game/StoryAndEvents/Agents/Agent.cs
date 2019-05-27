@@ -395,16 +395,8 @@ namespace Ship_Game
                             return;
 
                         var potentialUIDs = new Array<string>();
-                        foreach (TechEntry tech in Target.TechEntries)
-                        {
-                            //Added by McShooterz: Root nodes cannot be stolen
-                            if (tech.Unlocked && us.HavePreReq(tech.UID) &&
-                                !us.HasUnlocked(tech) &&
-                                tech.Tech.RootNode != 1)
-                            {
-                                potentialUIDs.Add(tech.UID);
-                            }
-                        }
+
+                        foreach(var tech in Target.GetEmpireAI().TradableTechs(us)) potentialUIDs.Add(tech.UID);
 
                         if (potentialUIDs.Count != 0)
                         {
@@ -418,8 +410,7 @@ namespace Ship_Game
                                     if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, Localizer.Token(6056), Target);
                                 }
                                 //Added by McShooterz: new acquire method, unlocks targets bonuses as well
-                                //Owner.UnlockTech(theUID);
-                                us.AcquireTech(theUID, Target);
+                                us.AcquireTech(theUID, Target, TechUnlockType.Spy);
                                 if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6031)), us);
                                 TechStolen++;
                                 break;
@@ -435,7 +426,7 @@ namespace Ship_Game
                                 }
                                 //Added by McShooterz: new acquire method, unlocks targets bonuses as well
                                 //Owner.UnlockTech(theUID);
-                                us.AcquireTech(theUID, Target);
+                                us.AcquireTech(theUID, Target, TechUnlockType.Spy);
                                 Target.GetRelations(us).DamageRelationship(Target, us, "Caught Spying", 20f, null);
                                 if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6042)), us);
                                 TechStolen++;

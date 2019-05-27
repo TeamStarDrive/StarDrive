@@ -14,7 +14,12 @@ using System.Xml.Serialization;
 namespace Ship_Game
 {
     using static ShipBuilder;
-
+    public enum TechUnlockType
+    {
+        Normal,
+        Spy,
+        Diplomacy
+    }
     public sealed partial class Empire : IDisposable
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
@@ -508,6 +513,18 @@ namespace Ship_Game
             return TechnologyDict.TryGetValue(uid, out techEntry);
         }
 
+        public Array<TechEntry> TechsAvailableForTrade(Empire them)
+        {
+            var tradeTechs = new Array<TechEntry>();
+            foreach (var kv in TechnologyDict)
+            {
+                TechEntry tech = kv.Value;
+                if (tech.CanBeGivenTo(them))
+                    tradeTechs.Add(tech);
+            }
+            return tradeTechs;
+        }
+
         public Array<TechEntry> CurrentTechsResearchable()
         {
             var availableTechs = new Array<TechEntry>();
@@ -523,14 +540,14 @@ namespace Ship_Game
             return availableTechs;
         }
 
-        public bool HasUnlocked(string uid)        => GetTechEntry(uid).Unlocked;
-        public bool HasUnlocked(TechEntry tech)    => GetTechEntry(tech).Unlocked;
-        public bool HasDiscovered(string techId)   => GetTechEntry(techId).Discovered;
-        public float TechProgress(TechEntry tech)  => GetTechEntry(tech).Progress;
-        public float TechCost(TechEntry tech)      => GetTechEntry(tech).TechCost;
-        public float TechCost(string techID)       => GetTechEntry(techID).TechCost;
-        public string AcquiredFrom(TechEntry tech) => GetTechEntry(tech).AcquiredFrom;
-        public string AcquiredFrom(string techId)  => GetTechEntry(techId).AcquiredFrom;
+        public bool HasUnlocked(string uid)       => GetTechEntry(uid).Unlocked;
+        public bool HasUnlocked(TechEntry tech)   => GetTechEntry(tech).Unlocked;
+        public bool HasDiscovered(string techId)  => GetTechEntry(techId).Discovered;
+        public float TechProgress(TechEntry tech) => GetTechEntry(tech).Progress;
+        public float TechCost(TechEntry tech)     => GetTechEntry(tech).TechCost;
+        public float TechCost(string techID)      => GetTechEntry(techID).TechCost;
+        public Array<string> AcquiredFrom(TechEntry tech) => GetTechEntry(tech).WasAcquiredFrom;
+        public Array<string> AcquiredFrom(string techId)  => GetTechEntry(techId).WasAcquiredFrom;
 
         public int TechCost(IEnumerable<string> techID)// => GetTechEntry(techID).TechCost;
         {
@@ -908,9 +925,6 @@ namespace Ship_Game
                 tech.SetDiscovered(this);
         }
 
-        public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevealedTechs(this);
-        public void SetEmpireTechRevealed(TechEntry techEntry) => techEntry.DoRevealedTechs(this);
-
         public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
         {
             foreach (Ship ship in OwnedShips)
@@ -920,39 +934,58 @@ namespace Ship_Game
             }
         }
 
-        public void UnlockTech(string techId)
+        public void UnlockTech(string techId, TechUnlockType techUnlockType, Empire empire = null)
         {
-            UnlockTech(GetTechEntry(techId));
+            UnlockTech(GetTechEntry(techId), techUnlockType, empire);
         }
 
-        public void UnlockTech(TechEntry techEntry)
+        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire empire = null) 
         {
-            if (techEntry.Unlock(this))
+            switch (techUnlockType)
             {
-                UpdateShipsWeCanBuild();
-                EmpireAI.TriggerRefit();
-                TriggerFreightersRefit();
-                data.ResearchQueue.Remove(techEntry.UID);
+                case TechUnlockType.Diplomacy:
+                    if (techEntry.UnlockFromDiplomacy(this, empire))
+                    {
+                        UpdateForNewTech();
+                        data.ResearchQueue.Remove(techEntry.UID);
+                    }
+                    break;
+
+                case TechUnlockType.Normal:
+                    if (techEntry.Unlock(this))
+                    {
+                        UpdateForNewTech();
+                        data.ResearchQueue.Remove(techEntry.UID);
+                    }
+                    break;
+
+                case TechUnlockType.Spy:
+                    if (techEntry.UnlockFromSpy(this, empire))
+                        UpdateForNewTech();
+                    if (techEntry.Unlocked) 
+                        data.ResearchQueue.Remove(techEntry.UID);
+                    break;
             }
         }
 
-        //Added by McShooterz: this is for techs obtain via espionage or diplomacy
-        public void AcquireTech(string techID, Empire target)
+        void UpdateForNewTech()
         {
-            //acquiredFrom here should be an array.
-            TechnologyDict[techID].AcquiredFrom = target.data.Traits.ShipType;
-            UnlockTech(techID);
+            UpdateShipsWeCanBuild();
+            EmpireAI.TriggerRefit();
+            TriggerFreightersRefit();
         }
 
-        public void UnlockHullsSave(TechEntry techEntry, string servantEmpireShipType)
+        public void AssimilateTech(Empire servantEmpire)
         {
-            techEntry.ConqueredSource.Add(servantEmpireShipType);
-            techEntry.UnlockTroops(this);
-            techEntry.UnLockHulls(this);
-            techEntry.UnlockModules(this);
-            techEntry.UnlockBuildings(this);
+            Empire masterEmpire = this;
+            foreach (TechEntry masterTech in masterEmpire.TechEntries)
+                masterTech.UnlockByConquest(this, servantEmpire);
+        }
 
-            UpdateShipsWeCanBuild();
+        //Added by McShooterz: this is for techs obtain via espionage or diplomacy
+        public void AcquireTech(string techID, Empire target, TechUnlockType techUnlockType)
+        {            
+            UnlockTech(techID, techUnlockType, target);
         }
 
         private void AssessHostilePresence()
@@ -1620,8 +1653,8 @@ namespace Ship_Game
         {
             troopShip = null;
             Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
-                .Filter(p => p.CountEmpireTroops(this) > p.GarrisonSize 
-                             && !p.MightBeAWarZone(this) 
+                .Filter(p => p.CountEmpireTroops(this) > p.GarrisonSize
+                             && !p.MightBeAWarZone(this)
                              && p.Name != planetName)
                 .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
@@ -2238,7 +2271,7 @@ namespace Ship_Game
 
             research -= techCost - tech.Progress;
             tech.Progress = techCost;
-            UnlockTech(ResearchTopic);
+            UnlockTech(ResearchTopic, TechUnlockType.Normal, this);
             if (isPlayer)
                 Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
             data.ResearchQueue.Remove(ResearchTopic);
@@ -2336,10 +2369,11 @@ namespace Ship_Game
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
+            AssimilateTech(target);
             foreach (TechEntry techEntry in target.TechEntries)
             {
                 if (techEntry.Unlocked)
-                    AcquireTech(techEntry.UID, target);
+                    AcquireTech(techEntry.UID, target, TechUnlockType.Normal);
             }
             foreach (KeyValuePair<string, bool> kv in target.GetHDict())
             {
