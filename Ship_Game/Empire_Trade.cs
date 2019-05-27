@@ -1,16 +1,10 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Ship_Game.AI;
-using Ship_Game.AI.Budget;
 using Ship_Game.Commands.Goals;
-using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Xml.Serialization;
 
 namespace Ship_Game
@@ -277,7 +271,7 @@ namespace Ship_Game
             TradeMoneyAddedThisTurn = 0; // Reset Trade Money for the next turn.
         }
 
-        // FB - Refit idle freighters to better ones, if unlocked
+        // FB - Refit some idle freighters to better ones, if unlocked
         public void TriggerFreightersRefit()
         {
             if (ManualTrade)
@@ -288,12 +282,7 @@ namespace Ship_Game
                 return;
 
             foreach (Ship idleFreighter in IdleFreighters)
-            {
-                if (betterFreighter.Name == idleFreighter.Name)
-                    continue;
-
-                GetEmpireAI().Goals.Add(new RefitShip(idleFreighter, betterFreighter.Name, this));
-            }
+                CheckForRefitFreighter(idleFreighter, 20, betterFreighter);
         }
 
         public float GoodsLimits(Goods goods) // this will be replaced with exposed  variable for the players in the trade window
@@ -307,15 +296,15 @@ namespace Ship_Game
             return limit;
         }
 
-        // 1 out of 10 trades - check if there is better suited freighter model available and we have idle
-        // freighters which can cover for that freighter when it is refitted
-        // Note that there is additional refit logic for freighters (idle ones when a new tech is researched)
-        public void CheckAndRefit1To10(Ship freighter)
+        // Percentage to check if there is better suited freighter model available
+        public void CheckForRefitFreighter(Ship freighter, int percentage, Ship betterFreighter = null)
         {
-            if (IdleFreighters.Length == 0 || ManualTrade || !RandomMath.RollDice(10))
+            if (ManualTrade || !RandomMath.RollDice(percentage))
                 return;
 
-            Ship betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
+             if (betterFreighter == null)
+                 betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
+
             if (betterFreighter != null && betterFreighter.Name != freighter.Name)
                 GetEmpireAI().Goals.Add(new RefitShip(freighter, betterFreighter.Name, this));
         }
