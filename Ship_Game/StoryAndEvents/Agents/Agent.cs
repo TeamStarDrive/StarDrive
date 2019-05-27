@@ -395,16 +395,8 @@ namespace Ship_Game
                             return;
 
                         var potentialUIDs = new Array<string>();
-                        foreach (TechEntry tech in Target.TechEntries)
-                        {
-                            //Added by McShooterz: Root nodes cannot be stolen
-                            if (tech.Unlocked && us.HavePreReq(tech.UID) &&
-                                !us.HasUnlocked(tech) &&
-                                tech.Tech.RootNode != 1)
-                            {
-                                potentialUIDs.Add(tech.UID);
-                            }
-                        }
+
+                        foreach(var tech in Target.GetEmpireAI().TradableTechs(us)) potentialUIDs.Add(tech.UID);
 
                         if (potentialUIDs.Count != 0)
                         {
