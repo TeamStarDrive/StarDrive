@@ -579,11 +579,8 @@ namespace Ship_Game
                     continue;
                 Empire servantEmpire = e;
                 Empire masterEmpire = EmpireManager.GetEmpireByName(servantEmpire.data.AbsorbedBy);
-                foreach (TechEntry masterTech in masterEmpire.TechEntries)
-                {
-                    if (masterTech.Unlocked)
-                        masterEmpire.UnlockHullsSave(masterTech, servantEmpire.data.Traits.ShipType);
-                }
+                
+                masterEmpire.AssimilateTech(servantEmpire);
             }
         }
 

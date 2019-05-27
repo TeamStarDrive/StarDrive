@@ -258,10 +258,10 @@ namespace Ship_Game
             if (count == 0)
                 return;
             // nulls all references/structfields to avoid GC leaks
-            Array.Clear(Items, 0, count); 
+            Array.Clear(Items, 0, count);
             Count = 0;
         }
-        
+
         public void ClearAndDispose()
         {
             int count = Count;
@@ -364,7 +364,7 @@ namespace Ship_Game
                 if (predicate(items[i])) return i;
             return -1;
         }
-        
+
         public int LastIndexOf(Predicate<T> predicate)
         {
             int count = Count;
@@ -506,7 +506,7 @@ namespace Ship_Game
             }
             return default;
         }
-        
+
         public bool Any(Predicate<T> match)
         {
             for (int i = 0; i < Count; i++)
@@ -562,7 +562,7 @@ namespace Ship_Game
             Array.Sort(Items, 0, Count, new Comparer(comparison));
         }
 
-        
+
         public T[] Sorted(Comparison<T> comparison)
         {
             T[] items = ToArray();
@@ -693,9 +693,9 @@ namespace Ship_Game
         {
             throw new InvalidOperationException("You are trying to convert Array<T> to Array<T>. Are you trying to Clone() the Array<T>?");
         }
-        
+
         /////////// IList interface /////////
-        
+
         object IList.this[int index]  { get => this[index]; set => this[index] = (T)value; }
         int IList.Add(object value)
         {
