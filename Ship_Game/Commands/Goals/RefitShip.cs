@@ -97,6 +97,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 Cost            = OldShip.RefitCost(newShip),
                 Goal            = this,
                 isShip          = true,
+                isRefit         = true,
                 TradeRoutes     = OldShip.TradeRoutes,
                 AreaOfOperation = OldShip.AreaOfOperation,
                 TransportingColonists  = OldShip.TransportingColonists,

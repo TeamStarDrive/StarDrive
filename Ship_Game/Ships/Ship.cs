@@ -1946,8 +1946,7 @@ namespace Ship_Game.Ships
 
             // FB: Refit works normally only for ship of the same hull. But freighters can be replaced to other hulls by the auto trade.
             // So replacement cost is higher, the old ship cost is halved, just like scrapping it.
-
-            if (shipData.Hull == newShip.shipData.Hull)
+            if (shipData.Hull != newShip.shipData.Hull)
                 oldShipCost /= 2;
 
             float newShipCost = newShip.GetCost(loyalty);
@@ -1962,7 +1961,10 @@ namespace Ship_Game.Ships
                 if (engineState == MoveState.Warp
                     || AI.State == AIState.Refit
                     || AI.State == AIState.Resupply)
-                        return ShipStatus.NotApplicable;
+                {
+                    return ShipStatus.NotApplicable;
+                }
+
                 Health = Health.Clamped(0, HealthMax);
                 return ToShipStatus(Health, HealthMax);
             }
