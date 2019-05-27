@@ -115,25 +115,25 @@ namespace Ship_Game
 
         public bool CanBeTakenFrom(Empire them)
         {
-            bool hidden = NeedsThemToRevealContent(them);
-            return hidden || !Unlocked; // Tech.RootNode != 1 && (!Tech.Secret || Tech.Discovered);
+            bool hidden = !SpiedFrom(them) && NeedsThemToRevealContent(them);
+            return hidden || !Unlocked;  //Tech.RootNode != 1 && (!Tech.Secret || Tech.Discovered);
         }
 
         public bool NeedsThemToRevealContent(Empire empire)
         {
-            if (SpiedFrom(empire)) return false;
-            bool hulls = Tech.HullsUnlocked.Any(item => item.ShipType == empire.data.Traits.ShipType);
+            bool hulls     = Tech.HullsUnlocked.Any(item => item.ShipType == empire.data.Traits.ShipType);
             bool buildings = Tech.BuildingsUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
-            bool troops = Tech.TroopsUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
-            bool modules = Tech.ModulesUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
-            return hulls || buildings || troops || modules;
+            bool troops    = Tech.TroopsUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
+            bool modules   = Tech.ModulesUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
+            bool bonus     = Tech.BonusUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
+            return hulls || buildings || troops || modules || bonus;
 
         }
 
         public bool CanBeGivenTo(Empire them)
         {
-            return Unlocked && Tech.RootNode != 1 &&
-                   (!Tech.Secret || Tech.Discovered) && them.HavePreReq(UID);
+            return Unlocked && (Tech.RootNode == 1 || them.HavePreReq(UID)) &&
+                   (!Tech.Secret || Tech.Discovered) ;
         }
 
         float LookAheadCost(TechnologyType techType, Empire empire)
@@ -299,9 +299,9 @@ namespace Ship_Game
             Unlocked = false;
         }
 
-        public bool Unlock(Empire empire)
+        public bool Unlock(Empire us, Empire them = null)
         {
-            if (!SetDiscovered(empire))
+            if (!SetDiscovered(us))
                 return false;
             if (Tech.MaxLevel > 1)
             {
@@ -322,8 +322,9 @@ namespace Ship_Game
                 Progress = Tech.ActualCost;
                 Unlocked = true;
             }
-            UnlockTechContentOnly(empire, empire);
-            TriggerAnyEvents(empire);
+            them = them ?? us;
+            UnlockTechContentOnly(us, them);
+            TriggerAnyEvents(us);
             return true;
         }
 
@@ -339,9 +340,10 @@ namespace Ship_Game
             }
         }
 
-        public bool UnlockTechContentOnly(Empire us, Empire them)
+        bool UnlockTechContentOnly(Empire us, Empire them)
         {
             DoRevealedTechs(us);
+            UnlockBonus(us, them);
             UnlockModules(us, them);
             UnlockTroops(us, them);
             UnLockHulls(us, them);
@@ -349,6 +351,30 @@ namespace Ship_Game
             return true;
         }
 
+        public bool UnlockFromSpy(Empire us, Empire them)
+        {
+            if (WasAcquiredFrom.Contains(them.data.Traits.ShipType)) return false;
+            WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
+            if (!NeedsThemToRevealContent(them) && Tech.BonusUnlocked.NotEmpty
+                                                && Tech.BuildingsUnlocked.IsEmpty
+                                                && Tech.ModulesUnlocked.IsEmpty
+                                                && Tech.HullsUnlocked.IsEmpty && Tech.TroopsUnlocked.IsEmpty)
+                Unlock(us);
+            else
+                UnlockTechContentOnly(us, them);
+            return true;
+        }
+        public bool UnlockFromDiplomacy(Empire us, Empire them)
+        {
+            if (!Unlocked)
+                Unlock(us);
+            else if (!WasAcquiredFrom.Contains(them.data.Traits.ShipType))
+            {
+                WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
+                UnlockTechContentOnly(us, them);
+            }
+            return true;
+        }
         public void UnlockFromSave(Empire empire)
         {
             Progress = TechCost;
@@ -535,11 +561,12 @@ namespace Ship_Game
             return entries;
         }
 
-        public void UnlockBonus(Empire empire)
+        public void UnlockBonus(Empire empire, Empire them)
         {
-            var data = empire.data;
             if (Tech.BonusUnlocked.Count < 1)
                 return;
+            var theirData = them.data;
+            var theirShipType = theirData.Traits.ShipType;
             //update ship stats if a bonus was unlocked
 
             empire.TriggerAllShipStatusUpdate();
@@ -548,7 +575,15 @@ namespace Ship_Game
             {
                 //Added by McShooterz: Race Specific bonus
                 string type = unlockedBonus.Type;
-                if (type != null && type != data.Traits.ShipType && !WasAcquiredFrom.ContainsRef(type))
+
+                bool bonusRestrictedToThem = type != null && type == theirShipType;
+                bool bonusRestrictedToUs = empire == them && bonusRestrictedToThem;
+                bool bonusComesFromOtherEmpireAndNotRestrictedToThem = empire != them && !bonusRestrictedToThem;
+
+                if (!bonusRestrictedToUs && bonusRestrictedToThem && !WasAcquiredFrom.Contains(theirShipType))
+                    continue;
+
+                if (bonusComesFromOtherEmpireAndNotRestrictedToThem)
                     continue;
 
                 if (unlockedBonus.Tags.Count <= 0)
@@ -558,7 +593,7 @@ namespace Ship_Game
                 }
                 foreach (string index in unlockedBonus.Tags)
                 {
-                    var tagmod = data.WeaponTags[index];
+                    var tagmod = theirData.WeaponTags[index];
                     switch (unlockedBonus.BonusType)
                     {
                         case "Weapon_Speed"            : tagmod.Speed             += unlockedBonus.Bonus; continue;
