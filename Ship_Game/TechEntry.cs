@@ -14,7 +14,7 @@ namespace Ship_Game
         [Serialize(2)] public bool Discovered;
         [Serialize(3)] public bool Unlocked;
         [Serialize(4)] public int Level;
-        [Serialize(5)] public string AcquiredFrom { set => WasAcquiredFrom.Add(value); }
+        [Serialize(5)] public string AcquiredFrom { private get; set; }
         [Serialize(6)] public bool shipDesignsCanuseThis = true;
         [Serialize(7)] public Array<string> WasAcquiredFrom;
 
@@ -37,9 +37,11 @@ namespace Ship_Game
         readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new Dictionary<TechnologyType, float>();
 
         public static readonly TechEntry None = new TechEntry("");
-        
+
         public TechEntry()
         {
+            WasAcquiredFrom = new Array<string>();
+            if(AcquiredFrom.NotEmpty()) WasAcquiredFrom.Add(AcquiredFrom);
             foreach (TechnologyType techType in Enum.GetValues(typeof(TechnologyType)))
                 TechTypeCostLookAhead.Add(techType, 0);
         }
@@ -48,7 +50,6 @@ namespace Ship_Game
         {
             UID = uid;
             ResolveTech();
-            WasAcquiredFrom = new Array<string> { };
         }
 
         public void ResolveTech()
@@ -87,8 +88,8 @@ namespace Ship_Game
 
         public bool IsShipTech()
         {
-   
-            if (IsTechnologyType(TechnologyType.ShipDefense)) return true;            
+
+            if (IsTechnologyType(TechnologyType.ShipDefense)) return true;
             if (IsTechnologyType(TechnologyType.ShipHull))    return true;
             if (IsTechnologyType(TechnologyType.ShipWeapons)) return true;
             if (IsTechnologyType(TechnologyType.ShipGeneral)) return true;
@@ -110,32 +111,29 @@ namespace Ship_Game
             }
         }
 
-        public bool SpiedBy(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
+        public bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
 
         public bool CanBeTakenFrom(Empire them)
         {
             bool hidden = NeedsThemToRevealContent(them);
-            return hidden && !Unlocked; // Tech.RootNode != 1 && (!Tech.Secret || Tech.Discovered);
+            return hidden || !Unlocked; // Tech.RootNode != 1 && (!Tech.Secret || Tech.Discovered);
         }
 
         public bool NeedsThemToRevealContent(Empire empire)
         {
-            if (SpiedBy(empire)) return false;
-            if (IsHidden(empire) ) return true;
-            if (Tech.HullsUnlocked.IsEmpty && Tech.BuildingsUnlocked.IsEmpty && Tech.TroopsUnlocked.IsEmpty && Tech.ModulesUnlocked.IsEmpty)
-                return false;
-            bool hulls = !Tech.HullsUnlocked.Any(item => !CheckSource(item.ShipType, empire));
-            bool buildings = !Tech.BuildingsUnlocked.Any(item => !CheckSource(item.Type, empire));
-            bool troops = !Tech.TroopsUnlocked.Any(item => !CheckSource(item.Type, empire));
-            bool modules = !Tech.ModulesUnlocked.Any(item => !CheckSource(item.Type, empire));
+            if (SpiedFrom(empire)) return false;
+            bool hulls = Tech.HullsUnlocked.Any(item => item.ShipType == empire.data.Traits.ShipType);
+            bool buildings = Tech.BuildingsUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
+            bool troops = Tech.TroopsUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
+            bool modules = Tech.ModulesUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
             return hulls || buildings || troops || modules;
 
         }
 
         public bool CanBeGivenTo(Empire them)
-        {            
+        {
             return Unlocked && Tech.RootNode != 1 &&
-                   (!Tech.Secret || Tech.Discovered);
+                   (!Tech.Secret || Tech.Discovered) && them.HavePreReq(UID);
         }
 
         float LookAheadCost(TechnologyType techType, Empire empire)
@@ -145,7 +143,7 @@ namespace Ship_Game
             //if current tech == wanted type return this techs cost
             if (!Unlocked && Tech.TechnologyTypes.Contains(techType))
                 return TechCost;
-            
+
             //look through all leadtos and find a future tech with this type.
             //return the cost to get to this tech
             float cost = 0;
@@ -165,7 +163,7 @@ namespace Ship_Game
                 return true;
             if (unlockType == "ALL")
                 return true;
-            if (WasAcquiredFrom.ContainsRef(unlockType))
+            if (WasAcquiredFrom.Contains(unlockType))
                 return true;
             if (unlockType == empire.data.Traits.ShipType)
                 return true;
@@ -176,7 +174,7 @@ namespace Ship_Game
 
         public Array<string> GetUnLockableHulls(Empire empire)
         {
-            var techHulls = Tech.HullsUnlocked;            
+            var techHulls = Tech.HullsUnlocked;
             var hullList = new Array<string>();
             if (techHulls.IsEmpty) return hullList;
 
@@ -190,14 +188,14 @@ namespace Ship_Game
             return hullList;
         }
 
-        public Array<string> UnLockHulls(Empire empire)
+        public Array<string> UnLockHulls(Empire us, Empire them)
         {
-            var hullList = GetUnLockableHulls(empire);
+            var hullList = GetUnLockableHulls(them);
             if (hullList.IsEmpty) return null;
 
-            foreach(var hull in hullList) empire.UnlockEmpireHull(hull, UID);
-            
-            empire.UpdateShipsWeCanBuild(hullList);
+            foreach(var hull in hullList) us.UnlockEmpireHull(hull, UID);
+
+            us.UpdateShipsWeCanBuild(hullList);
             return hullList;
         }
 
@@ -227,31 +225,31 @@ namespace Ship_Game
             return modulesUnlocked;
         }
 
-        public void UnlockModules(Empire empire)
+        public void UnlockModules(Empire us, Empire them)
         {
             //Added by McShooterz: Race Specific modules
-            foreach (Technology.UnlockedMod unlockedMod in GetUnlockableModules(empire))
-                empire.UnlockEmpireShipModule(unlockedMod.ModuleUID, UID);
+            foreach (Technology.UnlockedMod unlockedMod in GetUnlockableModules(them))
+                us.UnlockEmpireShipModule(unlockedMod.ModuleUID, UID);
         }
 
-        public void UnlockTroops(Empire empire) //  Array<Technology.UnlockedTroop> unlockedTroops, string shipType, string techType = null)
+        public void UnlockTroops(Empire us, Empire them)
         {
             foreach (Technology.UnlockedTroop unlockedTroop in Tech.TroopsUnlocked)
             {
-                if (!CheckSource(unlockedTroop.Type, empire))
+                if (!CheckSource(unlockedTroop.Type, them))
                     continue;
 
-                empire.UnlockEmpireTroop(unlockedTroop.Name);
+                us.UnlockEmpireTroop(unlockedTroop.Name);
 
             }
         }
-        public void UnlockBuildings(Empire empire)
+        public void UnlockBuildings(Empire us, Empire them)
         {
             foreach (Technology.UnlockedBuilding unlockedBuilding in Tech.BuildingsUnlocked)
             {
-                if (!CheckSource(unlockedBuilding.Type, empire))
+                if (!CheckSource(unlockedBuilding.Type, them))
                     continue;
-                empire.UnlockEmpireBuilding(unlockedBuilding.Name);
+                us.UnlockEmpireBuilding(unlockedBuilding.Name);
             }
         }
         public bool TriggerAnyEvents(Empire empire)
@@ -324,25 +322,30 @@ namespace Ship_Game
                 Progress = Tech.ActualCost;
                 Unlocked = true;
             }
-            DoRevealedTechs(empire);
+            UnlockTechContentOnly(empire, empire);
             TriggerAnyEvents(empire);
-            UnlockModules(empire);
-            UnlockTroops(empire);
-            UnLockHulls(empire);
-            UnlockBuildings(empire);
-            UnlockBonus(empire);
             return true;
         }
 
-        public bool UnlockFromSpy(Empire empire)
+        public void UnlockByConquest(Empire us, Empire them)
         {
-            if (!WasAcquiredFrom.ContainsRef(empire.data.Traits.ShipType))
-                return false;
-            DoRevealedTechs(empire);
-            UnlockModules(empire);
-            UnlockTroops(empire);
-            UnLockHulls(empire);
-            UnlockBuildings(empire);
+            ConqueredSource.Add(them.data.Traits.ShipType);
+            if (!Unlocked )
+                Unlock(us);
+            if (!WasAcquiredFrom.Contains(them.data.Traits.ShipType))
+            {
+                WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
+                UnlockTechContentOnly(us, them);
+            }
+        }
+
+        public bool UnlockTechContentOnly(Empire us, Empire them)
+        {
+            DoRevealedTechs(us);
+            UnlockModules(us, them);
+            UnlockTroops(us, them);
+            UnLockHulls(us, them);
+            UnlockBuildings(us, them);
             return true;
         }
 
@@ -350,11 +353,7 @@ namespace Ship_Game
         {
             Progress = TechCost;
             Unlocked = true;
-            DoRevealedTechs(empire);
-            UnlockModules(empire);
-            UnlockTroops(empire);
-            UnLockHulls(empire);
-            UnlockBuildings(empire);
+            UnlockTechContentOnly(empire, empire);
         }
 
         public void LoadShipModelsFromDiscoveredTech(Empire empire)
