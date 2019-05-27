@@ -26,4 +26,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("b38aad3b-18b8-41a8-b758-0e5614dafc49")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows=true)]
 
-[assembly: AssemblyInformationalVersion("Fat_Bastard/Venus_BugfixesAndMore_1678")]
+[assembly: AssemblyInformationalVersion("develop_1687")]
