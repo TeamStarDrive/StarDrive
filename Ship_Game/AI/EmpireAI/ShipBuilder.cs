@@ -90,7 +90,8 @@ namespace Ship_Game.AI
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost) 
-                                                && ship.GetMaintCost(empire).LessOrEqual(maintBudget));
+                                                && ship.GetMaintCost(empire).LessOrEqual(maintBudget)
+                                                && !ship.shipData.IsShipyard);
 
             if (potentialShips.Length == 0)
                 return null;
@@ -193,7 +194,7 @@ namespace Ship_Game.AI
             {
                 if (ResourceManager.GetShipTemplate(shipId, out Ship ship))
                 {
-                    if (!ship.IsCandidateFreighterBuild())
+                    if (!ship.IsCandidateForTradingBuild)
                         continue;
 
                     freighters.Add(ship);

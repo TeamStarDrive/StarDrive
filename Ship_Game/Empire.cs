@@ -115,7 +115,7 @@ namespace Ship_Game
         public int ColonyRankModifier        { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
-        private float leftoverResearch;
+        private float LeftoverResearch;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
         [XmlIgnore][JsonIgnore] public int granularity = 0;
         [XmlIgnore][JsonIgnore] public int AtWarCount;
@@ -137,6 +137,10 @@ namespace Ship_Game
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
 
+        public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
+        public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
+        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange());
+
         public void AddMoney(float moneyDiff)
         {
             Money += moneyDiff;
@@ -144,7 +148,7 @@ namespace Ship_Game
 
         public void TriggerAllShipStatusUpdate()
         {
-            foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag.
+            foreach (Ship ship in OwnedShips) //@todo can make a global ship unlock flag.
                 ship.shipStatusChanged = true;
         }
 
@@ -161,13 +165,6 @@ namespace Ship_Game
                 ?? SpacePorts.FindMin(p => position.SqDist(p.Center))
                 ?? FindNearestRallyPoint(position);
         }
-
-        public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
-        public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-
-        public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p =>
-            p.HasSpacePort && !p.EnemyInRange()
-        );
 
         public bool FindClosestSpacePort(Vector2 position, out Planet closest)
         {
@@ -551,6 +548,7 @@ namespace Ship_Game
         public float TechCost(string techID)      => GetTechEntry(techID).TechCost;
         public Array<string> AcquiredFrom(TechEntry tech) => GetTechEntry(tech).WasAcquiredFrom;
         public Array<string> AcquiredFrom(string techId)  => GetTechEntry(techId).WasAcquiredFrom;
+
         public int TechCost(IEnumerable<string> techID)// => GetTechEntry(techID).TechCost;
         {
             float costAccumulator = 0;
@@ -561,21 +559,14 @@ namespace Ship_Game
             return (int)costAccumulator;
         }
 
-        public int TechCost(Ship ship) => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
-
-        public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
-
-        public float GetProjectedResearchNextTurn()
-            => OwnedPlanets.Sum(p=> p.Res.NetIncome);
-
-        public TechEntry CurrentResearch
-            => ResearchTopic.NotEmpty() ? TechnologyDict[ResearchTopic] : TechEntry.None;
+        public int TechCost(Ship ship)              => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
+        public bool HasTechEntry(string uid)        => TechnologyDict.ContainsKey(uid);
+        public float GetProjectedResearchNextTurn() => OwnedPlanets.Sum(p=> p.Res.NetIncome);
+        public TechEntry CurrentResearch            => ResearchTopic.NotEmpty() ? TechnologyDict[ResearchTopic] : TechEntry.None;
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
-
-        public IReadOnlyList<Planet> GetPlanets() => OwnedPlanets;
-
-        public int NumPlanets => OwnedPlanets.Count;
+        public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
+        public int NumPlanets                               => OwnedPlanets.Count;
 
         public SolarSystem[] GetBorderSystems(Empire them)
         {
@@ -981,7 +972,7 @@ namespace Ship_Game
         {
             UpdateShipsWeCanBuild();
             EmpireAI.TriggerRefit();
-            TriggerFreightersScrap();
+            TriggerFreightersRefit();
         }
 
         public void AssimilateTech(Empire servantEmpire)
@@ -1883,7 +1874,6 @@ namespace Ship_Game
                     }
                 }
             BorderNodes.ApplyPendingRemovals();
-
         }
 
         private void SetBordersByPlanet(bool empireKnown)
@@ -2262,7 +2252,7 @@ namespace Ship_Game
                     return;
             }
 
-            float research = Research + leftoverResearch;
+            float research = Research + LeftoverResearch;
             TechEntry tech = CurrentResearch;
             if (tech.UID.IsEmpty())
                 return;
@@ -2275,7 +2265,7 @@ namespace Ship_Game
             if (techCost - tech.Progress > research)
             {
                 tech.Progress += research;
-                leftoverResearch = 0f;
+                LeftoverResearch = 0f;
                 return;
             }
 
@@ -2293,7 +2283,7 @@ namespace Ship_Game
             else
                 ResearchTopic = "";
 
-            leftoverResearch = research;
+            LeftoverResearch = research;
         }
 
         private void UpdateRelationships()

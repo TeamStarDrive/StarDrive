@@ -31,6 +31,7 @@ namespace Ship_Game
         private Submenu queue;
         private UICheckBox GovOrbitals;
         private UICheckBox GovMilitia;
+        private UICheckBox DontScrapBuildings;
         private UITextEntry PlanetName = new UITextEntry();
         private Rectangle PlanetIcon;
         private EmpireUIOverlay eui;
@@ -227,6 +228,9 @@ namespace Ship_Game
 
                 GovMilitia   = new UICheckBox(this, rectangle4.X - 3, rectangle5.Y + (Font12.LineSpacing + 5) * 2,
                     () => p.GovMilitia, Fonts.Arial12Bold, Localizer.Token(1956), 1957);
+
+                DontScrapBuildings = new UICheckBox(this, rectangle4.X + 240, rectangle5.Y + (Font12.LineSpacing + 5),
+                    () => p.DontScrapBuildings, Fonts.Arial12Bold, Localizer.Token(1941), 1942);
             }
             else
             {
@@ -487,6 +491,8 @@ namespace Ship_Game
                 // only for Governor colonies
                 GovOrbitals.Draw(batch); 
                 GovMilitia.Draw(batch);
+                if (P.colonyType != Planet.ColonyType.TradeHub) // not for trade hubs, which do not build structures anyway
+                    DontScrapBuildings.Draw(batch); 
             }
 
             if (GlobalStats.HardcoreRuleset)
@@ -972,6 +978,7 @@ namespace Ship_Game
             pFacilities.HandleInputNoReset(input);
             GovOrbitals.HandleInput(input);
             GovMilitia.HandleInput(input);
+            DontScrapBuildings.HandleInput(input);
 
             if (HandleCycleColoniesLeftRight(input))
                 return true;
