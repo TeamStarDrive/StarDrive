@@ -230,6 +230,8 @@ namespace Ship_Game
             {
                 foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
                 {
+                    foreach (var empire in EmpireManager.Empires)
+                        EmpireManager.Player.UnlockTech(techEntry, TechUnlockType.Spy, empire);
                     techEntry.Unlock(EmpireManager.Player);
                 }
                 ReloadContent();

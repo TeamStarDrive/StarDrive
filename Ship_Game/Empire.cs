@@ -953,18 +953,27 @@ namespace Ship_Game
             switch (techUnlockType)
             {
                 case TechUnlockType.Diplomacy:
+                    if (techEntry.UnlockFromDiplomacy(this, empire))
+                    {
+                        UpdateForNewTech();
+                        data.ResearchQueue.Remove(techEntry.UID);
+                    }
+                    break;
+
                 case TechUnlockType.Normal:
-                        if (techEntry.Unlock(this))
-                        {
-                            UpdateForNewTech();
-                            data.ResearchQueue.Remove(techEntry.UID);
-                        }
-                        break;
+                    if (techEntry.Unlock(this))
+                    {
+                        UpdateForNewTech();
+                        data.ResearchQueue.Remove(techEntry.UID);
+                    }
+                    break;
 
                 case TechUnlockType.Spy:
-                        if (techEntry.UnlockTechContentOnly(this, empire))
-                            UpdateForNewTech();
-                        break;
+                    if (techEntry.UnlockFromSpy(this, empire))
+                        UpdateForNewTech();
+                    if (techEntry.Unlocked) 
+                        data.ResearchQueue.Remove(techEntry.UID);
+                    break;
             }
         }
 
@@ -984,8 +993,7 @@ namespace Ship_Game
 
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
         public void AcquireTech(string techID, Empire target, TechUnlockType techUnlockType)
-        {
-            TechnologyDict[techID].WasAcquiredFrom.AddUnique(target.data.Traits.ShipType);
+        {            
             UnlockTech(techID, techUnlockType, target);
         }
 
