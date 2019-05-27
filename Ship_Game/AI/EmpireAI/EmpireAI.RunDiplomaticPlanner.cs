@@ -417,17 +417,7 @@ namespace Ship_Game.AI {
                         if (Relationship.Value.TurnsKnown >= FirstDemand && !Relationship.Value.Treaty_NAPact &&
                             !Relationship.Value.HaveRejectedDemandTech && !Relationship.Value.XenoDemandedTech)
                         {
-                            var potentialDemands = new Array<string>();
-                            foreach (TechEntry tech in Relationship.Key.TechEntries)
-                            {
-                                //Added by McShooterz: prevent root nodes from being demanded, and secret but not discovered
-                                if (tech.Unlocked && !OwnerEmpire.HasUnlocked(tech) &&
-                                    tech.Tech.RootNode != 1 &&
-                                    (!tech.Tech.Secret || tech.Tech.Discovered))
-                                {
-                                    potentialDemands.Add(tech.UID);
-                                }
-                            }
+                            Array<TechEntry> potentialDemands = TradableTechs(Relationship.Key);
                             if (potentialDemands.Count > 0)
                             {
                                 int Random = (int) RandomMath.RandomBetween(0f, potentialDemands.Count + 0.75f);
@@ -435,9 +425,9 @@ namespace Ship_Game.AI {
                                 {
                                     Random = potentialDemands.Count - 1;
                                 }
-                                string TechToDemand = potentialDemands[Random];
+                                TechEntry TechToDemand = potentialDemands[Random];
                                 Offer DemandTech = new Offer();
-                                DemandTech.TechnologiesOffered.Add(TechToDemand);
+                                DemandTech.TechnologiesOffered.Add(TechToDemand.UID);
                                 Relationship.Value.XenoDemandedTech = true;
                                 Offer TheirDemand = new Offer
                                 {
@@ -473,6 +463,18 @@ namespace Ship_Game.AI {
                     }
                 }
             }
+        }
+
+        public Array<TechEntry> TradableTechs(Empire them)
+        {
+            var tradableTechs = new Array<TechEntry>();
+            foreach (TechEntry tech in OwnerEmpire.TechsAvailableForTrade(them))
+            {
+                if (them.GetTechEntry(tech).CanBeTakenFrom(OwnerEmpire))
+                    tradableTechs.Add(tech);
+            }
+
+            return tradableTechs;
         }
 
         private void DoAggressiveRelations()

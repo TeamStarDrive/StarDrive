@@ -749,14 +749,14 @@ namespace Ship_Game
             var layout = new DiplomacyItemsLayout(list, rect);
 
             layout.AddRelationItems(empire.GetRelations(other));
-
+            Array<TechEntry> tradableTech = empire.GetEmpireAI().TradableTechs(other);
             layout.AddCategory(1217, () =>
             {
-                foreach (TechEntry entry in empire.TechEntries)
+                foreach (TechEntry entry in tradableTech)
                 {
                     // Added by McShooterz: prevent root nodes from being traded
-                    if (entry.Unlocked && !other.HasUnlocked(entry) &&
-                        other.HavePreReq(entry.UID) && !entry.IsRoot)
+                    //if (entry.Unlocked && !other.HasUnlocked(entry) &&
+                    //    other.HavePreReq(entry.UID) && !entry.IsRoot)
                     {
                         Technology tech = entry.Tech;
                         layout.AddSubItem($"{Localizer.Token(tech.NameIndex)}: {(int) tech.ActualCost}", "Tech", entry.UID);

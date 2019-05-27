@@ -238,7 +238,7 @@ namespace Ship_Game.AI
             {
                 //Added by McShooterz:
                 //Them.UnlockTech(tech);
-                Them.AcquireTech(tech, us);
+                Them.AcquireTech(tech, us, TechUnlockType.Diplomacy);
                 if (Empire.Universe.PlayerEmpire == us)
                 {
                     continue;
@@ -254,8 +254,7 @@ namespace Ship_Game.AI
             foreach (string tech in ToUs.TechnologiesOffered)
             {
                 //Added by McShooterz:
-                //us.UnlockTech(tech);
-                us.AcquireTech(tech, Them);
+                us.AcquireTech(tech, Them, TechUnlockType.Diplomacy);
                 if (Empire.Universe.PlayerEmpire == Them)
                 {
                     continue;
@@ -605,7 +604,7 @@ namespace Ship_Game.AI
             }
             foreach (string tech in FromUs.TechnologiesOffered)
             {
-                Them.UnlockTech(tech);
+                Them.UnlockTech(tech, TechUnlockType.Diplomacy);
                 if (Empire.Universe.PlayerEmpire == us)
                 {
                     continue;
@@ -619,7 +618,7 @@ namespace Ship_Game.AI
             }
             foreach (string tech in ToUs.TechnologiesOffered)
             {
-                us.UnlockTech(tech);
+                us.UnlockTech(tech, TechUnlockType.Diplomacy);
                 if (Empire.Universe.PlayerEmpire == Them)
                 {
                     continue;
