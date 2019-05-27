@@ -189,14 +189,14 @@ namespace Ship_Game
         public float ExportableFood(Planet importPlanet, float eta)
         {
             float maxFoodLoad   = importPlanet.Storage.Max - importPlanet.FoodHere;
-            float foodLoadLimit = Owner.GoodsLimits(Goods.Food);
+            float foodLoadLimit = Owner?.GoodsLimits(Goods.Food) ?? 0;
             maxFoodLoad         = (maxFoodLoad - importPlanet.Food.NetIncome * eta).Clamped(0, Storage.Max * foodLoadLimit);
             return maxFoodLoad;
         }
 
         public float ExportableProd(Planet importPlanet)
         {
-            float prodLoadLimit = Owner.GoodsLimits(Goods.Production);
+            float prodLoadLimit = Owner?.GoodsLimits(Goods.Production) ?? 0;
             float maxProdLoad   = ProdHere.Clamped(0f, Storage.Max * prodLoadLimit);
             return maxProdLoad;
         }
