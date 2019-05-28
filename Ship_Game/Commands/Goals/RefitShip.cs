@@ -41,13 +41,16 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (ToBuildUID == null)
                 return GoalStep.GoalFailed;  // No better ship is available
 
+            if (OldShip.AI.State == AIState.Refit)
+                RemoveOldRefitGoal();
+
             PlanetBuildingAt = empire.RallyShipYardNearestTo(OldShip.Center);
             if (PlanetBuildingAt == null)
             {
                 OldShip.AI.ClearOrders();
                 return GoalStep.GoalFailed;  // No planet to refit the ship was found
             }
-
+            
             if (Fleet != null)
             {
                 if (Fleet.FindShipNode(OldShip, out FleetDataNode node))
@@ -168,6 +171,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         void RemoveGoalFromFleet()
         {
             Fleet?.RemoveGoalGuid(guid);
+        }
+
+        void RemoveOldRefitGoal()
+        {
+            if (OldShip.AI.FindGoal(ShipAI.Plan.Refit, out ShipAI.ShipGoal shipGoal))
+                OldShip.loyalty.GetEmpireAI().RemoveGoal(GoalType.Refit, g => g.OldShip == OldShip);
         }
     }
 }
