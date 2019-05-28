@@ -25,7 +25,7 @@ curl https://app.getsentry.com/api/0/projects/${SENTRY_ORGANIZATION}/${SENTRY_PR
 -H "Content-Type:application/json" \
 -d '
 {
-	"version": "develop_1687",
+	"version": "BlackBox : develop_1687",
 	"refs": [{
 		"repository": "sd-blackbox",
 		"commit": "093d4a5"
