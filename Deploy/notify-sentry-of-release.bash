@@ -18,19 +18,17 @@ fi
 if [ -z "${SENTRY_PROJECT}" ]; then
     SENTRY_PROJECT=${BITBUCKET_REPO_SLUG}
 fi
-if [-z "${BITBUCKET_COMMIT}"]; then
-    BITBUCKET_COMMIT = "0"
-fi	
+
 curl https://app.getsentry.com/api/0/projects/${SENTRY_ORGANIZATION}/${SENTRY_PROJECT}/releases/ \
 -H "Authorization: Bearer ${SENTRY_API_KEY}" \
 -X POST \
 -H "Content-Type:application/json" \
 -d '
 {
-	"version": "${BITBUCKET_COMMIT}",
+	"version": "develop_1687",
 	"refs": [{
 		"repository": "sd-blackbox",
-		"commit": "${BITBUCKET_COMMIT}"
+		"commit": "093d4a5"
 	}],
 	"projects": ["\"${SENTRY_PROJECT}\""]
 }
