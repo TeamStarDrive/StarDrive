@@ -643,7 +643,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded) // might remove the isplayeradded
+                if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded)
                     continue;
 
                 int desiredMilitary  = DesiredMilitaryBuildings;
@@ -693,6 +693,9 @@ namespace Ship_Game
 
         bool ScrapBuilding(float budget, float scoreThreshold = float.MaxValue)
         {
+            if (Owner.isPlayer && DontScrapBuildings)
+                return false;  // Player decided not to allow governors to scrap buildings
+
             Building worstBuilding = ChooseWorstBuilding(BuildingList, budget, out float worstWeHave, scoreThreshold);
             if (worstBuilding == null)
                 return false;

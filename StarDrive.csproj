@@ -332,6 +332,7 @@
     <Compile Include="Ship_Game\PathFinder\NodeVector.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_Trade.cs" />
     <Compile Include="Ship_Game\Ships\IShipTemplate.cs" />
     <Compile Include="Ship_Game\Ships\RoleData.cs" />
     <Compile Include="Ship_Game\Ships\EmpireShipBonuses.cs" />
@@ -1756,6 +1757,18 @@
     </Content>
     <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\icon_intertrade.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\icon_routes.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\icon_routes_Active.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\UI_AO_Active.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\UI_SendTroops.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
