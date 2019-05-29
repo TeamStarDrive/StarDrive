@@ -57,6 +57,13 @@ namespace Ship_Game
             Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;
         }
 
+        public float AddToProgress(float amount)
+        {
+            var leftOver = amount - (Tech.ActualCost - Progress);
+            Progress = Math.Min(Progress + amount, Tech.ActualCost);
+            return leftOver;
+        }
+
         public bool UnlocksFoodBuilding => GoodsBuildingUnlocked(Goods.Food);
         bool GoodsBuildingUnlocked(Goods good)
         {
@@ -116,7 +123,7 @@ namespace Ship_Game
         public bool CanBeTakenFrom(Empire them)
         {
             bool hidden = !SpiedFrom(them) && NeedsThemToRevealContent(them);
-            return hidden || !Unlocked;  //Tech.RootNode != 1 && (!Tech.Secret || Tech.Discovered);
+            return hidden || Unlocked; //hidden ||  add hidden back to allow racial tech unlock
         }
 
         public bool NeedsThemToRevealContent(Empire empire)
@@ -340,10 +347,10 @@ namespace Ship_Game
             }
         }
 
-        bool UnlockTechContentOnly(Empire us, Empire them)
+        bool UnlockTechContentOnly(Empire us, Empire them, bool bonusUnlock = true)
         {
             DoRevealedTechs(us);
-            UnlockBonus(us, them);
+            if (bonusUnlock) UnlockBonus(us, them);
             UnlockModules(us, them);
             UnlockTroops(us, them);
             UnLockHulls(us, them);
@@ -353,7 +360,13 @@ namespace Ship_Game
 
         public bool UnlockFromSpy(Empire us, Empire them)
         {
+            if (RandomMath.RollDice(50))
+            {
+                AddToProgress(Tech.ActualCost * 0.25f);
+                return false;
+            }
             if (WasAcquiredFrom.Contains(them.data.Traits.ShipType)) return false;
+
             WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
             if (!NeedsThemToRevealContent(them) && Tech.BonusUnlocked.NotEmpty
                                                 && Tech.BuildingsUnlocked.IsEmpty
@@ -375,11 +388,11 @@ namespace Ship_Game
             }
             return true;
         }
-        public void UnlockFromSave(Empire empire)
+        public void UnlockFromSave(Empire us)
         {
             Progress = TechCost;
             Unlocked = true;
-            UnlockTechContentOnly(empire, empire);
+            UnlockTechContentOnly(us, us, false);
         }
 
         public void LoadShipModelsFromDiscoveredTech(Empire empire)
