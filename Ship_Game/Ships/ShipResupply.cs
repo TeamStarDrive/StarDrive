@@ -10,9 +10,9 @@ namespace Ship_Game.Ships
         public const float OrdnanceThresholdSupplyShipsNear    = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
-        private const int OrdnanceProductionThresholdPriority  = 200;
-        private const int OrdnanceProductionThresholdNonCombat = 100;
-        private const int OrdnanceProductionThresholdCombat    = 50;
+        private const int OrdnanceProductionThresholdPriority  = 400;
+        private const int OrdnanceProductionThresholdNonCombat = 150;
+        private const int OrdnanceProductionThresholdCombat    = 75;
 
         public const float ResupplyShuttleOrdnanceThreshold    = 0.5f;
         public const float ShipDestroyThreshold                = 0.5f;
@@ -182,7 +182,7 @@ namespace Ship_Game.Ships
                 return true;
 
             if (Ship.OrdinanceMax < 1)
-                return false; // doesnt care about ordnance since it has no storage for ordnance
+                return false; // does not care about ordnance since it has no storage for ordnance
 
             int productionThreshold;
 
@@ -192,7 +192,7 @@ namespace Ship_Game.Ships
                 productionThreshold = Ship.InCombat ? OrdnanceProductionThresholdCombat
                                                     : OrdnanceProductionThresholdNonCombat;
 
-            return Ship.OrdinanceMax / Ship.OrdAddedPerSecond > productionThreshold;
+            return (Ship.OrdinanceMax - Ship.Ordinance) / Ship.OrdAddedPerSecond > productionThreshold;
         }
 
         private bool HangarShipReactorsDamaged()
