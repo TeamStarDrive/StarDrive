@@ -290,7 +290,7 @@ namespace Ship_Game
                                 return string.Concat(text, Localizer.Token(189), " ", system.Name);
                             return Localizer.Token(174);
                         }
-                        if (last.Plan == ShipAI.Plan.DeployStructure)
+                        if (last.Plan == ShipAI.Plan.DeployStructure || last.Plan == ShipAI.Plan.DeployOrbital)
                         {
                             text = string.Concat(text, Localizer.Token(188));
                             if (last.Goal != null && ResourceManager.GetShipTemplate(last.Goal.ToBuildUID, out Ship toBuild))

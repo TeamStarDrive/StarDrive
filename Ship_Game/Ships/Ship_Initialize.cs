@@ -186,6 +186,8 @@ namespace Ship_Game.Ships
             TransportingFood       = save.TransportingFood;
             TransportingProduction = save.TransportingProduction;
             TransportingColonists  = save.TransportingColonists;
+            AllowInterEmpireTrade  = save.AllowInterEmpireTrade;
+            TradeRoutes            = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.VanityName;
@@ -260,7 +262,7 @@ namespace Ship_Game.Ships
         // Refactored by RedFox - Normal Shipyard ship creation
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit)
         {
-            return CreateShipAt(shipName, owner, p, Vector2.Zero, doOrbit);
+            return CreateShipAt(shipName, owner, p, RandomMath.Vector2D(100), doOrbit);
         }
 
         // Added by McShooterz: for refit to keep name

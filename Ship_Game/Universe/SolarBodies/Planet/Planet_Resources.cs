@@ -74,11 +74,15 @@ namespace Ship_Game
         {
             get
             {
-                if (ShortOnFood() || Population > 1000f)
+                bool needFood = ShortOnFood();
+                if (needFood && Population > 2000f)
                     return GoodState.EXPORT;
 
-                if (!ShortOnFood() && MaxPopulation > 1000f && PopulationRatio < 0.75f)
+                if (!needFood && MaxPopulation > 200f && PopulationRatio < 0.8f)
                     return GoodState.IMPORT;
+
+                if (MaxPopulation > 2000 && PopulationRatio > 0.9f)
+                    return GoodState.EXPORT;
 
                 return GoodState.STORE;
             }
@@ -127,7 +131,16 @@ namespace Ship_Game
             return "(IMPORT ALL)";
         }
 
-
+        public float StorageRatio(Goods goods)
+        {
+            switch (goods)
+            {
+                case Goods.Food:       return Storage.FoodRatio;
+                case Goods.Production: return Storage.ProdRatio;
+                case Goods.Colonists:  return PopulationRatio;
+                default:               return 1;
+            }
+        }
 
         public float GetGoodAmount(string good) => Storage.GetGoodAmount(good);
         public void AddGood(string goodId, int amount) => Storage.AddCommodity(goodId, amount);

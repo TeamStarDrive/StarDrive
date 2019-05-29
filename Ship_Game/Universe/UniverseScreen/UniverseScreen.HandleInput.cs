@@ -265,6 +265,9 @@ namespace Ship_Game
             if (HandleDragAORect(input))
                 return true;
 
+            if (HandleTradeRoutesDefinition(input))
+                return true;
+
             for (int i = SelectedShipList.Count - 1; i >= 0; --i)
             {
                 Ship ship = SelectedShipList[i];
@@ -1097,11 +1100,58 @@ namespace Ship_Game
             }
         }
 
+        bool HandleTradeRoutesDefinition(InputState input)
+        {
+            if (!DefiningTradeRoutes)
+                return false;
+
+            DefiningTradeRoutes = !DefiningAO;
+            HandleScrolls(input); // allow exclusive scrolling during Trade Route define
+            if (!LookingAtPlanet && HandleGUIClicks(input))
+                return true;
+
+            if (input.LeftMouseClick || input.RightMouseClick)
+                InputPlanetsForTradeRoutes(input); // add or remove a planet from the list
+
+            if (SelectedShip == null || input.Escaped) // exit the trade routes mode
+            {
+                DefiningTradeRoutes = false;
+                return true;
+            }
+            return true;
+        }
+
+        void InputPlanetsForTradeRoutes(InputState input)
+        {
+            if (viewState > UnivScreenState.SystemView)
+                return;
+
+            foreach (ClickablePlanets planets in ClickPlanetList)
+            {
+                if (input.CursorPosition.InRadius(planets.ScreenPos, planets.Radius))
+                {
+                    if (input.LeftMouseClick)
+                    {
+                        if (SelectedShip.AddTradeRoute(planets.planetToClick))
+                            GameAudio.AcceptClick();
+                        else
+                            GameAudio.NegativeClick();
+                    }
+                    else
+                    {
+                        SelectedShip.RemoveTradeRoute(planets.planetToClick);
+                        GameAudio.AffirmativeClick();
+                    }
+                }
+            }
+        }
+
         bool HandleDragAORect(InputState input)
         {
             if (!DefiningAO)
                 return false;
 
+            DefiningAO = !DefiningTradeRoutes;
             HandleScrolls(input); // allow exclusive scrolling during AO define
             if (!LookingAtPlanet && HandleGUIClicks(input))
                 return true;

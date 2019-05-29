@@ -655,13 +655,14 @@ namespace Ship_Game
                     ColonyType           = planet.colonyType,
                     GovOrbitals          = planet.GovOrbitals,
                     GovMilitia           = planet.GovMilitia,
+                    DontScrapBuildings   = planet.DontScrapBuildings,
                     NumShipyards         = planet.NumShipyards,
                     SpecialDescription   = planet.SpecialDescription,
-                    IncomingFreighters = planet.IncomingFreighterIds,
-                    OutgoingFreighters = planet.OutgoingFreighterIds,
-                    StationsList       = planet.OrbitalStations.Where(kv => kv.Value.Active)
-                                                                    .Select(kv => kv.Key).ToArray(),
-                    ExploredBy = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
+                    IncomingFreighters   = planet.IncomingFreighterIds,
+                    OutgoingFreighters   = planet.OutgoingFreighterIds,
+                    StationsList         = planet.OrbitalStations.Where(kv => kv.Value.Active)
+                                                                 .Select(kv => kv.Key).ToArray(),
+                    ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
                 };
 
                 if (planet.Owner != null)

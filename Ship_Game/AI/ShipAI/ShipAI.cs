@@ -99,23 +99,6 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public float TimeToTarget(Planet target)
-        {
-            if (target == null) return 0;
-            float test = Math.Max(1,Vector2.Distance(target.Center, Owner.Center) / Owner.GetmaxFTLSpeed);
-            return test;
-        }
-
-        bool InsideAreaOfOperation(Planet planet)
-        {
-            if (Owner.AreaOfOperation.Count == 0)
-                return true;
-            foreach (Rectangle ao in Owner.AreaOfOperation)
-                if (ao.HitTest(planet.Center))
-                    return true;
-            return false;
-        }
-
         void ScrapShip(float elapsedTime, ShipGoal goal)
         {
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius * 3)
@@ -173,29 +156,11 @@ namespace Ship_Game.AI
 
             AIStateRebase();
             UpdateCombatStateAI(elapsedTime);
-            UpdateResupplyAI();
-
             if (!Owner.isTurning)
                 Owner.RestoreYBankRotation();
         }
 
-        void UpdateResupplyAI()
-        {
-            if (Owner.Health < 0.1f)
-                return;
-
-            ResupplyReason resupplyReason = Owner.Supply.Resupply();
-            if (resupplyReason != ResupplyReason.NotNeeded && Owner.Mothership?.Active == true)
-            {
-                OrderReturnToHangar(); // dealing with hangar ships needing resupply
-                return;
-            }
-
-            if (!Owner.loyalty.isFaction)
-                ProcessResupply(resupplyReason);
-        }
-
-        void ProcessResupply(ResupplyReason resupplyReason)
+        public void ProcessResupply(ResupplyReason resupplyReason)
         {
             Planet nearestRallyPoint = null;
             switch (resupplyReason)
