@@ -84,11 +84,11 @@ namespace Ship_Game.Debug
                 {
                     if (ship?.Active != true) continue;
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
-                    if (empire.GetForcePool().Contains(ship)) continue;
+                    if (empire.Contains(ship)) continue;
 
                     foreach (AO ao in empire.GetEmpireAI().AreasOfOperations)
                     {
-                        if (ao.GetOffensiveForcePool().Contains(ship) || ao.GetWaitingShips().Contains(ship) || ao.GetCoreFleet() == ship.fleet)
+                        if (ao.OffensiveForcePoolContains(ship) || ao.WaitingShipsContains(ship) || ao.GetCoreFleet() == ship.fleet)
                         {
                             ShipsInAoPool++;
                             flag = true;
