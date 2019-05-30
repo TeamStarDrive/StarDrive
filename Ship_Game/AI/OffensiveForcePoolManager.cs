@@ -32,18 +32,19 @@ namespace Ship_Game.AI
                 areasOfOperation.ThreatLevel = 0;
                 areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Center, areasOfOperation.Radius, Owner, 50000);
 
-                int min =(int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) * .1f) +100;
+                int min =(int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) * 0.1f) + 100;
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
             }
             
             Planet[] aoPlanets = GetAOPlanets(out HashSet<SolarSystem> aoSystems);
-
             if (aoPlanets.Length == Owner.GetPlanets().Count)
                 return;
+
             var ownedPlanets = Owner.GetPlanets().ToArray();
             Planet[] planets = ownedPlanets.UniqueExclude(aoPlanets);
-            if (planets == null || planets.Length == 0) return;
+            if (planets.Length == 0)
+                return;
 
             IOrderedEnumerable<Planet> maxProductionPotential =
                 from planet in planets

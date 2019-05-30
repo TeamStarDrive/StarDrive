@@ -612,7 +612,7 @@ namespace Ship_Game
 
         public Array<Ship> GetShipsFromOffensePools(bool onlyAO = false)
         {
-            Array<Ship> ships = new Array<Ship>();
+            var ships = new Array<Ship>();
             foreach (AO ao in GetEmpireAI().AreasOfOperations)
                 ships.AddRange(ao.GetOffensiveForcePool());
 
@@ -625,14 +625,10 @@ namespace Ship_Game
 
         public void AddShip(Ship s)
         {
-            switch (s.Name) {
-                case "Subspace Projector":
-                    OwnedProjectors.Add(s);
-                    break;
-                default:
-                    OwnedShips.Add(s);
-                    break;
-            }
+            if (s.IsSubspaceProjector)
+                OwnedProjectors.Add(s);
+            else
+                OwnedShips.Add(s);
         }
 
         public void AddShipNextFrame(Ship s) => ShipsToAdd.Add(s);
@@ -1051,8 +1047,7 @@ namespace Ship_Game
                         DoFirstContact(nearby.loyalty);
 
                     inSensorRadius = true;
-                    if (node.SourceObject is Ship shipKey &&
-                        (shipKey.inborders || shipKey.Name == "Subspace Projector") ||
+                    if (node.SourceObject is Ship shipKey && (shipKey.inborders || shipKey.IsSubspaceProjector) ||
                         node.SourceObject is SolarSystem || node.SourceObject is Planet)
                     {
                         border = true;
@@ -2452,13 +2447,14 @@ namespace Ship_Game
 
         public void ForcePoolAdd(Ship s)
         {
-            if (s.shipData.Role <= ShipData.RoleName.freighter ||
-                s.shipData.ShipCategory == ShipData.Category.Civilian)
-                return;
-            EmpireAI.AssignShipToForce(s);
+            if (s.shipData.Role > ShipData.RoleName.freighter && s.shipData.ShipCategory != ShipData.Category.Civilian)
+            {
+                EmpireAI.AssignShipToForce(s);
+            }
         }
 
-        public void ForcePoolRemove(Ship s) => ForcePool.RemoveSwapLast(s);
+        public void ForcePoolRemove(Ship s) => ForcePool.RemoveRef(s);
+        public bool Contains(Ship s) => ForcePool.ContainsRef(s);
 
         public Array<Ship> GetForcePool() => ForcePool;
 
@@ -2617,22 +2613,19 @@ namespace Ship_Game
             data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
         }
+
         public void RemoveShip(Ship ship)
         {
-            if (ship.Name == "Subspace Projector") // @todo Really??? Haha..
-            {
-                OwnedProjectors.Remove(ship);
-            }
+            if (ship.IsSubspaceProjector)
+                OwnedProjectors.RemoveRef(ship);
             else
-            {
-                OwnedShips.Remove(ship);
-            }
+                OwnedShips.RemoveRef(ship);
+
             GetEmpireAI().DefensiveCoordinator.Remove(ship);
 
             ship.AI.ClearOrders();
             ship.ClearFleet();
         }
-
 
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {

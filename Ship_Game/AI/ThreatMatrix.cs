@@ -284,7 +284,7 @@ namespace Ship_Game.AI
             foreach (var kv in Pins)
             {
                 if (kv.Value.InBorders)
-                    if (kv.Value.Ship?.Name == "Subspace Projector"  && kv.Value.Ship.Active)
+                    if (kv.Value.Ship?.IsSubspaceProjector == true && kv.Value.Ship.Active)
                         continue;
                     kv.Value.InBorders = false;
             }

@@ -419,16 +419,18 @@ namespace Ship_Game
 
             bool rebuildPathingMap = false; // REBUILD WHAT??? Pathing map.
             if (IsActive)
+            {
                 for (int i = 0; i < EmpireManager.Empires.Count; i++)
                 {
-                    var empire = EmpireManager.Empires[i];
+                    Empire empire = EmpireManager.Empires[i];
 
                     empire.ResetForcePool();
-
                     empire.AddShipsToForcePoolFromShipsToAdd();
 
                     rebuildPathingMap = empire.UpdateContactsAndBorders(0.01666667f);
                 }
+            }
+
             if (rebuildPathingMap)
                 DoPathingMapRebuild();
 
