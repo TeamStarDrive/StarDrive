@@ -43,13 +43,15 @@ namespace Ship_Game
             ConstructionSubMenu.AddTab("Build Menu");
             SL = new ScrollList(ConstructionSubMenu, 40);
 
-            //The Doctor: Ensure Subspace Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
+            //The Doctor: Ensure Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
             var buildables = EmpireManager.Player.structuresWeCanBuild;
             foreach (string s in buildables)
             {
-                if (s != "Subspace Projector") continue;
-                SL.AddItem(ResourceManager.ShipsDict[s], false, false);
-                break;
+                if (s == "Subspace Projector")
+                {
+                    SL.AddItem(ResourceManager.ShipsDict[s], false, false);
+                    break;
+                }
             }
             foreach (string s in buildables)
             {
@@ -64,18 +66,18 @@ namespace Ship_Game
             Rectangle r = ConstructionSubMenu.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
-            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(ScreenManager.SpriteBatch);
-            ConstructionSubMenu.Draw(ScreenManager.SpriteBatch);
-            SL.Draw(ScreenManager.SpriteBatch);
-            Vector2 bCursor = new Vector2(ConstructionSubMenu.Menu.X + 20, ConstructionSubMenu.Menu.Y + 45);
-            float x = Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
+            var sel = new Selector(r, new Color(0, 0, 0, 210));
+
+            SpriteBatch batch = ScreenManager.SpriteBatch;
+            sel.Draw(batch);
+            ConstructionSubMenu.Draw(batch);
+            SL.Draw(batch);
+            var bCursor = new Vector2(ConstructionSubMenu.Menu.X + 20, ConstructionSubMenu.Menu.Y + 45);
 
             SubTexture projector = ResourceManager.Texture("ShipIcons/subspace_projector");
             SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
 
-            Vector2 mousePos = new Vector2(x, state.Y);
+            Vector2 mousePos = Mouse.GetState().Pos();
             foreach (ScrollList.Entry e in SL.VisibleEntries)
             {
                 bCursor.Y = e.Y;
@@ -83,51 +85,49 @@ namespace Ship_Game
                 var ship = e.Get<Ship>();
                 if (e.Hovered)
                 {
-                    ScreenManager.SpriteBatch.Draw(
-                        ship.Name == "Subspace Projector"
-                            ? projector
-                            : ship.shipData.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
+                    batch.Draw(ship.IsSubspaceProjector ? projector
+                              : ship.shipData.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
 
 
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     string name = ship.Name;
                     SpriteFont nameFont = Fonts.Arial10;
-                    ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
+                    batch.DrawString(nameFont, name, tCursor, Color.White);
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
                     
                     string cost = ship.GetCost(EmpireManager.Player).ToString("F2");
                     string upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
                     
-                    Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, iconProd.Width, iconProd.Height);
-                    ScreenManager.SpriteBatch.Draw(iconProd, prodiconRect, Color.White);
+                    var prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, iconProd.Width, iconProd.Height);
+                    batch.Draw(iconProd, prodiconRect, Color.White);
 
                     tCursor = new Vector2(prodiconRect.X - 60, prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), tCursor, Color.Salmon);
+                    batch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), tCursor, Color.Salmon);
 
                     tCursor = new Vector2(prodiconRect.X + 26, prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost, tCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, cost, tCursor, Color.White);
 
-                    e.DrawPlusEdit(ScreenManager.SpriteBatch);
+                    e.DrawPlusEdit(batch);
                 }
                 else
                 {
-                    if (ship.Name == "Subspace Projector")
+                    if (ship.IsSubspaceProjector)
                     {
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ShipIcons/subspace_projector"), new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        batch.Draw(ResourceManager.Texture("ShipIcons/subspace_projector"), new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
                     else
                     {
-                        ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     string name = ship.Name;
                     SpriteFont nameFont = Fonts.Arial10;
-                    ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
+                    batch.DrawString(nameFont, name, tCursor, Color.White);
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
 
@@ -135,20 +135,20 @@ namespace Ship_Game
                     string upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
 
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), prodiconRect, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_production"), prodiconRect, Color.White);
 
                     tCursor = new Vector2(prodiconRect.X - 60, prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), tCursor, Color.Salmon);
+                    batch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), tCursor, Color.Salmon);
 
                     tCursor = new Vector2(prodiconRect.X + 26, prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost, tCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, cost, tCursor, Color.White);
 
-                    e.DrawPlusEdit(ScreenManager.SpriteBatch);
+                    e.DrawPlusEdit(batch);
                 }
             }
             if (selector != null)
             {
-                selector.Draw(ScreenManager.SpriteBatch);
+                selector.Draw(batch);
             }
             if (itemToBuild != null)
             {
@@ -184,11 +184,11 @@ namespace Ship_Game
                         }
                         TetherOffset = pp - p.planetToClick.Center;
                         TargetPlanet = p.planetToClick.guid;
-                        ScreenManager.SpriteBatch.DrawLine(p.ScreenPos, mousePos, new Color(255, 165, 0, 150), 3f);
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name), new Vector2(mousePos.X, mousePos.Y + 34f), Color.White);
+                        batch.DrawLine(p.ScreenPos, mousePos, new Color(255, 165, 0, 150), 3f);
+                        batch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name), new Vector2(mousePos.X, mousePos.Y + 34f), Color.White);
                     }
                 }
-                ScreenManager.SpriteBatch.Draw(platform, mousePos, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+                batch.Draw(platform, mousePos, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
             }
         }
 

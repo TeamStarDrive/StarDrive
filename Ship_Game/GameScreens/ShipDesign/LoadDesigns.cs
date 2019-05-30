@@ -271,7 +271,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                             || ship.Value.shipData.IsShipyard
                             || !EmpireManager.Player.WeCanBuildThis(ship.Key)
                             || Localizer.GetRole(ship.Value.DesignRole, EmpireManager.Player) != (e.item as ModuleHeader).Text
-                            || (Empire.Universe?.Debug != true && ship.Value.Name == "Subspace Projector")
+                            || (Empire.Universe?.Debug != true && ship.Value.IsSubspaceProjector)
                             || ResourceManager.ShipRoles[ship.Value.shipData.Role].Protected)
                         {
                             continue;

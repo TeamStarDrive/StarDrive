@@ -14,14 +14,14 @@ namespace Ship_Game.AI
     {
         public static readonly Planet[] NoPlanets = new Planet[0];
 
-        [XmlIgnore][JsonIgnore] private Planet CoreWorld;
-        [XmlIgnore][JsonIgnore] private Array<Ship> OffensiveForcePool                = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] private Fleet CoreFleet                               = new Fleet();
-        [XmlIgnore][JsonIgnore] private readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] private Planet[] PlanetsInAo                          = NoPlanets;
-        [XmlIgnore][JsonIgnore] private Planet[] OurPlanetsInAo                       = NoPlanets;
-        [XmlIgnore][JsonIgnore] public Vector2 Center                                 => CoreWorld.Center;
-        [XmlIgnore][JsonIgnore] private Empire Owner                                  => CoreWorld.Owner;
+        [XmlIgnore][JsonIgnore] Planet CoreWorld;
+        [XmlIgnore][JsonIgnore] Array<Ship> OffensiveForcePool                = new Array<Ship>();
+        [XmlIgnore][JsonIgnore] Fleet CoreFleet                               = new Fleet();
+        [XmlIgnore][JsonIgnore] readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
+        [XmlIgnore][JsonIgnore] Planet[] PlanetsInAo                          = NoPlanets;
+        [XmlIgnore][JsonIgnore] Planet[] OurPlanetsInAo                       = NoPlanets;
+        [XmlIgnore][JsonIgnore] public Vector2 Center                         => CoreWorld.Center;
+        [XmlIgnore][JsonIgnore] Empire Owner                                  => CoreWorld.Owner;
 
         [Serialize(0)] public int ThreatLevel;
         [Serialize(1)] public Guid CoreWorldGuid;
@@ -36,8 +36,21 @@ namespace Ship_Game.AI
         public Planet GetPlanet()                          => CoreWorld;
         public Planet[] GetPlanets()                       => OurPlanetsInAo;
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
-        public IReadOnlyList<Ship> GetWaitingShips()       => ShipsWaitingForCoreFleet;
         [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; }           = true;
+
+        public float OffensiveForcePoolStrength
+        {
+            get
+            {
+                float strength = 0f;
+                for (int i = 0; i < OffensiveForcePool.Count; ++i)
+                    strength += OffensiveForcePool[i].GetStrength();
+                return strength;
+            }
+        }
+        public int NumOffensiveForcePoolShips => OffensiveForcePool.Count;
+        public bool OffensiveForcePoolContains(Ship s) => OffensiveForcePool.ContainsRef(s);
+        public bool WaitingShipsContains(Ship s)       => ShipsWaitingForCoreFleet.ContainsRef(s);
 
         public AO()
         {
@@ -84,7 +97,7 @@ namespace Ship_Game.AI
                 || ship.DesignRole == ShipData.RoleName.troopShip 
                 || ship.DesignRole == ShipData.RoleName.support)
                 return false;
-            if (OffensiveForcePool.Contains(ship))
+            if (OffensiveForcePool.ContainsRef(ship))
             {
                 Log.Warning("offensive forcepool already contains this ship. not adding");
                 foreach (var ao in Owner.GetEmpireAI().AreasOfOperations)
@@ -105,7 +118,7 @@ namespace Ship_Game.AI
                 return true;
             }
 
-            if (ShipsWaitingForCoreFleet.Contains(ship))
+            if (ShipsWaitingForCoreFleet.ContainsRef(ship))
                 Log.Error("ships waiting for corefleet already contains this ship");
 
             ShipsWaitingForCoreFleet.Add(ship);            
@@ -234,7 +247,7 @@ namespace Ship_Game.AI
                     ShipsWaitingForCoreFleet.RemoveAtSwapLast(i);
                     Log.Error("ship {0} in fleet {1}", ship.Name, ship.fleet.Name);
                 }
-                if (OffensiveForcePool.Contains(ship))
+                if (OffensiveForcePool.ContainsRef(ship))
                     Log.Error("warning. Ship in offensive and waiting {0} ", CoreWorld.Name);
                 
             }
@@ -323,7 +336,7 @@ namespace Ship_Game.AI
                     foreach (AO ao in Owner.GetEmpireAI().AreasOfOperations)
                     {
                         if (ao == this) continue;
-                        if (ao.GetOffensiveForcePool().Contains(ship))
+                        if (ao.OffensiveForcePoolContains(ship))
                             Log.Info($"Ship {ship.Name} in another AO {ao.GetPlanet().Name}");
                     }
                 fleetShips.AddShip(ship);
