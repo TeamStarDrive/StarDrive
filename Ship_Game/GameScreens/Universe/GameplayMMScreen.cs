@@ -43,13 +43,8 @@ namespace Ship_Game
             batch.Begin();
             if (SavedGame.IsSaving)
             {
-                GameTime gameTime = StarDriveGame.Instance.GameTime;
-                TimeSpan totalGameTime = gameTime.TotalGameTime;
-                float f = (float)Math.Sin(totalGameTime.TotalSeconds);
-                f = Math.Abs(f) * 255f;
-                Color flashColor = new Color(255, 255, 255, (byte)f);
-                Vector2 pausePos = new Vector2(ScreenManager.Center().X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
-                batch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
+                var pausePos = new Vector2(ScreenManager.Center().X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
+                batch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, CurrentFlashColor);
             }
             window.Draw(batch);
 

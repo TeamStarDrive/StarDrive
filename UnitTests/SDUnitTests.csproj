@@ -75,6 +75,7 @@
     <Compile Include="Collections\TestArrayT.cs" />
     <Compile Include="Collections\TestCollectionExt.cs" />
     <Compile Include="LinearAlgebra\TestIntersectAlgorithms.cs" />
+    <Compile Include="LinearAlgebra\TestRadMath.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />

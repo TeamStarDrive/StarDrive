@@ -78,11 +78,9 @@ namespace Ship_Game
                 selectionIndex = 0;
                 while (selectionIndex * angleDivision < angle)
                 {
-                    PieMenu pieMenu = this;
-                    pieMenu.selectionIndex = pieMenu.selectionIndex + 1;
+                    selectionIndex += 1;
                 }
-                PieMenu pieMenu1 = this;
-                pieMenu1.selectionIndex = pieMenu1.selectionIndex - 1;
+                selectionIndex -= 1;
             }
         }
 
@@ -94,17 +92,14 @@ namespace Ship_Game
             }
             Vector2 center = Position;
             float scale = t.CurrentPosition * ScaleFactor;
-            float currentAngle = 1.57079637f;
-            float angleIncrement = 6.28318548f / RootNode.Children.Count;
+            float currentAngle = RadMath.HalfPI;
+            float angleIncrement = RadMath.TwoPI / RootNode.Children.Count;
             for (int i = 0; i < RootNode.Children.Count; i++)
             {
-                Vector2 imagePos = center + (scale * Radius * new Vector2((float)Math.Cos(currentAngle), -(float)Math.Sin(currentAngle)));
+                Vector2 imagePos = center + (scale * Radius * (currentAngle-RadMath.HalfPI).RadiansToDirection());
                 int imageSize = (int)(scale * 30f);
+
                 Color drawColor = Color.White;
-                if (currentAngle <= 0f)
-                {
-                    currentAngle = currentAngle + 6.28318548f;
-                }
                 if (i == selectionIndex)
                 {
                     drawColor = Color.Red;
@@ -117,7 +112,10 @@ namespace Ship_Game
                 {
                     spriteBatch.DrawString(font, RootNode.Children[i].Text, imagePos + new Vector2(-font.MeasureString(RootNode.Children[i].Text).X / 2f, imageSize), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
                 }
-                currentAngle = currentAngle - angleIncrement;
+
+                if (currentAngle <= 0f)
+                    currentAngle += RadMath.TwoPI;
+                currentAngle -= angleIncrement;
             }
         }
 

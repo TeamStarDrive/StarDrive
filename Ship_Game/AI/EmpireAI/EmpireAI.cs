@@ -163,7 +163,7 @@ namespace Ship_Game.AI
             baseDefensePct = baseDefensePct + 0.15f * numWars;
             if((toAdd.DesignRole < ShipData.RoleName.fighter || toAdd.BaseStrength <=0 
                 || toAdd.WarpThrust <= 0f || toAdd.GetStrength() < toAdd.BaseStrength || !toAdd.BaseCanWarp )
-                && !OwnerEmpire.GetForcePool().ContainsRef(toAdd))
+                && !OwnerEmpire.ForcePoolContains(toAdd))
             {
                 OwnerEmpire.GetForcePool().Add(toAdd);
                 return;
