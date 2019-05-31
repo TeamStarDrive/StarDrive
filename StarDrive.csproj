@@ -5094,7 +5094,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
+    <PostBuildEvent>REM call "$(DevEnvDir)..\tools\vsdevcmd.bat"
+REM echo Enable LARGEADDRESSAWARE
+REM editbin /LARGEADDRESSAWARE /NOLOGO "$(TargetPath)"
+if "$(ConfigurationName)" == "Deploy"  $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>cd $(ProjectDir) &amp;&amp; if "$(ConfigurationName)" == "Deploy"   powershell -ExecutionPolicy ByPass  -file Deploy\Config\UpdateAssemblyInfo.ps1</PreBuildEvent>
