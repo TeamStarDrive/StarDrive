@@ -189,11 +189,11 @@ namespace Ship_Game
             float relativeTime = CurrentTime - Delay;
             if (AnimPattern == AnimPattern.Sine)
             {
-                ratio = ratio*(float)Math.Sin(relativeTime);
+                ratio *= RadMath.Sin(relativeTime);
             }
             else if (AnimPattern == AnimPattern.Cosine)
             {
-                ratio = ratio*(float)Math.Cos(relativeTime);
+                ratio *= RadMath.Cos(relativeTime);
             }
 
             Animation = ratio;

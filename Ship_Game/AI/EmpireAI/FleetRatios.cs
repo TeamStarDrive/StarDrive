@@ -134,6 +134,7 @@ namespace Ship_Game.AI
         {
             if (!ship.ShipIsGoodForGoals())
                 return false;
+
             if (ship.fleet != null)
             {
                 Log.Warning($"FleetRatios: attempting to add a ship already in a fleet '{ship.fleet.Name}'. removing from fleet");

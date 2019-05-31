@@ -84,8 +84,8 @@ namespace Ship_Game
 
             for (float theta = step; theta < 6.28318530717959f; theta += step)
             {
-                var current = new Vector2(posOnScreen.X + radius * (float)Cos(theta), 
-                    posOnScreen.Y + radius * (float)Sin(theta));
+                var current = new Vector2(posOnScreen.X + radius * RadMath.Cos(theta), 
+                                          posOnScreen.Y + radius * RadMath.Sin(theta));
                 DrawLine(spriteBatch, previous, current, color, thickness);
                 previous = current;
             }

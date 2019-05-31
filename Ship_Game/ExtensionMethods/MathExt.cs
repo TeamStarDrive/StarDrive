@@ -247,16 +247,10 @@ namespace Ship_Game
             return degrees * ((float)PI / 180.0f);
         }
 
-        // Converts rotation radians into a 2D direction vector
-        public static Vector2 RadiansToDirection(this float radians)
-        {
-            return new Vector2((float)Sin(radians), -(float)Cos(radians));
-        }
-
         // Converts rotation radians into a 3D direction vector, with Z = 0
         public static Vector3 RadiansToDirection3D(this float radians)
         {
-            return new Vector3((float)Sin(radians), -(float)Cos(radians), 0f);
+            return new Vector3(radians.RadiansToDirection(), 0f);
         }
 
         // Rotates an existing direction vector by another direction vector
@@ -265,13 +259,6 @@ namespace Ship_Game
         public static Vector2 RotateDirection(this Vector2 direction, Vector2 relativeDirection)
         {
             return (direction.ToRadians() + relativeDirection.ToRadians()).RadiansToDirection();
-        }
-
-        // Converts an angle value to a 2D direction vector
-        public static Vector2 AngleToDirection(this float degrees)
-        {
-            double rads = degrees * (PI / 180.0);
-            return new Vector2((float)Sin(rads), -(float)Cos(rads));
         }
 
         public static Vector2 FindStrafeVectorFromTarget(this GameplayObject ship, float distance, Vector2 direction)
@@ -551,23 +538,20 @@ namespace Ship_Game
         // Input angle is given in degrees
         public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)
         {
-            double rads = degrees * (PI / 180.0);
-            return center + new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
+            return center + degrees.AngleToDirection() * circleRadius;
         }
 
         // Generates a new point on a circular radius from position
         // Input angle is given in radians
         public static Vector2 PointFromRadians(this Vector2 center, float radians, float circleRadius)
         {
-            return center + new Vector2((float)Sin(radians), (float)-Cos(radians)) * circleRadius;
+            return center + radians.RadiansToDirection() * circleRadius;
         }
 
         // @todo This is just an alias for PointFromAngle... which one to keep?
         public static Vector2 PointOnCircle(this Vector2 center, float degrees, float circleRadius)
         {
-            // @note manual inlining instead of calling PointFromAngle
-            double rads = degrees * (PI / 180.0);
-            return center + new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
+            return center + degrees.AngleToDirection() * circleRadius;
         }
 
         public static Vector2 GenerateRandomPointOnCircle(this Vector2 center, float radius)
@@ -578,16 +562,15 @@ namespace Ship_Game
 
         public static Vector2 PointOnCircle(float degrees, float circleRadius)
         {
-            double rads = degrees * (PI / 180.0);
-            return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
+            return degrees.AngleToDirection() * circleRadius;
         }
 
 
         // takes self and rotates it around the center pivot by some radians
         public static Vector2 RotateAroundPoint(this Vector2 self, Vector2 center, float radians)
         {
-            float s = (float)Sin(radians);
-            float c = (float)Cos(radians);
+            float s = RadMath.Sin(radians);
+            float c = RadMath.Cos(radians);
             return new Vector2(c * (self.X - center.X) - s * (self.Y - center.Y) + center.X,
                                s * (self.X - center.X) + c * (self.Y - center.Y) + center.Y);
         }
