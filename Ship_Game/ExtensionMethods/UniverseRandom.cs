@@ -40,18 +40,6 @@ namespace Ship_Game
             return angle.RadiansToDirection();
 		}
 
-		public static Vector2 RandomDirection(float minimumAngle, float maximumAngle)
-		{
-			float angle = RandomBetween(minimumAngle.ToRadians(), maximumAngle.ToRadians()) - 1.57079637f;
-			return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
-		}
-                
-        // Generates a Vector2 with X Y in range [-radius, +radius]
-        public static Vector2 Vector2D(float radius)
-        {
-            return new Vector2(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius));
-        }
-
         // Generates a Vector3 with X Y Z in range [-radius, +radius]
         public static Vector3 Vector3D(float radius)
         {

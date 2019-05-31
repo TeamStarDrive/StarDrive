@@ -124,10 +124,10 @@ namespace Ship_Game
 
         public void SetPosition()
         {
-            double angle = (offsetAngle.ToRadians() + Parent.Rotation + 1.57079637f);
+            float angle = (offsetAngle.ToRadians() + Parent.Rotation + 1.57079637f);
             float distance = distanceToParentCenter;
-            ThrusterCenter.Y = Parent.Center.Y + distance * -(float)Math.Sin(angle);
-            ThrusterCenter.X = Parent.Center.X + distance * -(float)Math.Cos(angle);
+            ThrusterCenter.Y = Parent.Center.Y + distance * -RadMath.Sin(angle);
+            ThrusterCenter.X = Parent.Center.X + distance * -RadMath.Cos(angle);
             float xDistance = 256f - XMLPos.X;
             float zPos = (float)Math.Sin(Parent.yRotation) * xDistance + 15f;
             WorldPos = new Vector3(ThrusterCenter, zPos);
