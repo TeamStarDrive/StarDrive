@@ -21,7 +21,10 @@ namespace Ship_Game
         public const float  HalfPI  = 3.14159265358979f * 0.5f; // 90 degrees
         public const double HalfPID = 3.14159265358979  * 0.5;   // 90 degrees
 
-        const int TableSize = 500000;
+        public const float InvTwoPI = 1.0f / TwoPI;
+        public const float InvHalfPI = 1.0f / HalfPI;
+
+        const int TableSize = 10000;
         const float TableSizeF = TableSize;
         const double TableSizeD = TableSize;
 
@@ -52,9 +55,9 @@ namespace Ship_Game
             // cosine is symmetrical, so always use abs value
             if (radians < 0.0f) radians = -radians;
 
-            float r = radians / TwoPI;
+            float r = radians * InvTwoPI;
             r -= (int)r; // clamp [0,1] using integer flooring
-            int idx = (int) (TableSizeF * r);
+            int idx = (int)(TableSizeF * r);
             return CosTable[idx];
         }
 
@@ -75,7 +78,7 @@ namespace Ship_Game
         // Conversion is done using a lookup table, which gives roughly 3.5x perf increase
         public static Vector2 RadiansToDirection(this float radians)
         {
-            float r = radians / TwoPI;
+            float r = radians * InvTwoPI;
             r -= (int)r; // clamp [-1, +1] using integer flooring
 
             // for correct direction index, we need to invert the relative pos
