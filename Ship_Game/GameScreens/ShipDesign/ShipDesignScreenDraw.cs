@@ -246,22 +246,21 @@ namespace Ship_Game
         {
             SubTexture arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
 
-            float multiplier = w.Range / 2500f;
-            var texOrigin = new Vector2(250f, 250f);
-            var size = new Vector2(500f, 500f) * multiplier;
+            var texOrigin  = new Vector2(250f, 250f);
+            var size       = new Vector2(500f, 500f);
             Rectangle rect = slot.Center.ToRect((int)size.X, (int)size.Y);
 
             float radians = slot.Module.Facing.ToRadians();
             batch.Draw(arcTexture, rect, color.Alpha(0.75f), radians, texOrigin, SpriteEffects.None, 1f);
 
             Vector2 direction = radians.RadiansToDirection();
-            Vector2 start = slot.Center;
-            Vector2 end = start + direction * w.Range*0.75f;
+            Vector2 start     = slot.Center;
+            Vector2 end       = start + direction * 1250;
             batch.DrawLine(start, end, color.Alpha(0.1f), 5);
 
             Vector2 textPos = start.LerpTo(end, 0.16f);
-            float textRot = radians + (float)(Math.PI/2);
-            Vector2 offset = direction.RightVector() * 14f;
+            float textRot   = radians + (float)(Math.PI / 2);
+            Vector2 offset  = direction.RightVector() * 6f;
             if (direction.X > 0f)
             {
                 textRot -= (float)Math.PI;
@@ -269,11 +268,11 @@ namespace Ship_Game
             }
 
             string rangeText = $"Range: {w.Range.String(0)}";
-            float textWidth = Fonts.Arial20Bold.TextWidth(rangeText);
+            float textWidth  = Fonts.Arial8Bold.TextWidth(rangeText);
 
-            batch.DrawString(Fonts.Arial20Bold, rangeText,
-                textPos+offset, color.Alpha(0.2f),
-                textRot, new Vector2(textWidth/2, 10f), 1f, SpriteEffects.None, 1f);
+            batch.DrawString(Fonts.Arial8Bold, rangeText,
+                textPos + offset, color.Alpha(0.4f),
+                textRot, new Vector2(textWidth / 2, 10f), 1f, SpriteEffects.None, 1f);
         }
 
         void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot)
