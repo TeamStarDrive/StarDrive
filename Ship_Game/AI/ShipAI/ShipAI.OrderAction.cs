@@ -480,7 +480,7 @@ namespace Ship_Game.AI
                 HasPriorityOrder = false;
             if (AwaitClosest != null)
             {
-                DoOrbit.Orbit(AwaitClosest, elapsedTime);
+                Orbit.Orbit(AwaitClosest, elapsedTime);
                 return;
             }
             SolarSystem home = Owner.System;
@@ -488,7 +488,7 @@ namespace Ship_Game.AI
             {
                 if (SystemToDefend != null)
                 {
-                    DoOrbit.Orbit(SystemToDefend.PlanetList[0], elapsedTime);
+                    Orbit.Orbit(SystemToDefend.PlanetList[0], elapsedTime);
                     AwaitClosest = SystemToDefend.PlanetList[0];
                     return;
                 }
@@ -541,7 +541,7 @@ namespace Ship_Game.AI
                     Planet p = Owner.loyalty.GetEmpireAI().DefensiveCoordinator.AssignIdleShips(Owner);
                     if (p != null)
                     {
-                        DoOrbit.Orbit(p, elapsedTime);
+                        Orbit.Orbit(p, elapsedTime);
                         AwaitClosest = p;
                     }
                     return;
@@ -549,7 +549,7 @@ namespace Ship_Game.AI
 
                 if (AwaitClosest != null)
                 {
-                    DoOrbit.Orbit(AwaitClosest, elapsedTime);
+                    Orbit.Orbit(AwaitClosest, elapsedTime);
                     return;
                 }
                 AwaitClosest = Owner.loyalty.GetEmpireAI().GetKnownPlanets()
