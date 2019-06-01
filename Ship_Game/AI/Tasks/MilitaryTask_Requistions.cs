@@ -290,7 +290,7 @@ namespace Ship_Game.AI.Tasks
             AO closestAO = FindClosestAO(MinimumTaskForceStrength);
             
 
-            if (closestAO == null || closestAO.GetOffensiveForcePool().Count == 0)
+            if (closestAO == null || closestAO.NumOffensiveForcePoolShips == 0)
             {
                 EndTask();
                 return;
@@ -518,7 +518,7 @@ namespace Ship_Game.AI.Tasks
         private void RequisitionExplorationForce()
         {
             AO closestAO = FindClosestAO();
-            if (closestAO == null || closestAO.GetOffensiveForcePool().Count < 1)
+            if (closestAO == null || closestAO.NumOffensiveForcePoolShips < 1)
             {
                 //EndTask();
                 return;
@@ -577,9 +577,9 @@ namespace Ship_Game.AI.Tasks
 
         private void RequisitionForces()
         {
-            var sorted = Owner.GetEmpireAI().AreasOfOperations
-                .OrderByDescending(ao => ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= MinimumTaskForceStrength)
-                .ThenBy(ao => Vector2.Distance(AO, ao.Center)).ToArray();
+            AO[] sorted = Owner.GetEmpireAI().AreasOfOperations
+                .OrderByDescending(ao => ao.OffensiveForcePoolStrength >= MinimumTaskForceStrength)
+                .ThenBy(ao => AO.Distance(ao.Center)).ToArray();
 
             if (sorted.Length == 0)
                 return;

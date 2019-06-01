@@ -239,7 +239,7 @@ namespace Ship_Game
             // we cannot build the best in the empire, lets try building something cheaper for now
             float maxCost = (Prod.NetMaxPotential / 2 * (50 + colonyRank) + Storage.Prod) / ShipBuildingModifier;
             orbital       = GetBestOrbital(role, budget, maxCost);
-            return orbital == null || orbital.Name == "Subspace Projector" ? null : orbital;
+            return orbital == null || orbital.IsSubspaceProjector ? null : orbital;
         }
 
         // This returns the best orbital the empire can build
