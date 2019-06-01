@@ -356,7 +356,7 @@ namespace Ship_Game.AI
                     Owner.Carrier.AssaultPlanet(planet); // Launch Assault shuttles or use Transporters (STSA)
 
                 if (Owner.HasTroops)
-                    DoOrbit.Orbit(planet, elapsedTime); // Doing orbit with AssaultPlanet state to continue landing troops if possible
+                    Orbit.Orbit(planet, elapsedTime); // Doing orbit with AssaultPlanet state to continue landing troops if possible
                 else
                     ClearOrders();
             }
@@ -633,7 +633,7 @@ namespace Ship_Game.AI
                     Owner.QueueTotalRemoval();
                     return;
                 }
-                DoOrbit.Orbit(EscortTarget, elapsedTime);
+                Orbit.Orbit(EscortTarget, elapsedTime);
             }
         }
     }

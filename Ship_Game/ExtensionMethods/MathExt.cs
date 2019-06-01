@@ -55,6 +55,9 @@ namespace Ship_Game
     //   +Z is out of the screen
     public static class MathExt
     {
+        // PI/2, 90 degrees
+        public const double HalfPI = 3.14159265358979 * 0.5;
+
         // clamp a value between [min, max]: min <= value <= max
         public static float Clamped(this float value, float min, float max)
         {
@@ -206,53 +209,6 @@ namespace Ship_Game
 
         public static bool IsDiagonalTo(this Point a, Point b) => Abs(b.X - a.X) > 0 && Abs(b.Y - a.Y) > 0;
 
-
-        // Converts a radian float to degrees
-        public static float ToDegrees(this float radians)
-        {
-            return radians * (180.0f / (float)PI);
-        }
-
-        // Converts a degree float to radians
-        public static float ToRadians(this float degrees)
-        {
-            return degrees * ((float)PI / 180.0f);
-        }
-
-        // Converts a direction vector to radians
-        public static float ToRadians(this Vector2 direction)
-        {
-            if (direction.X == 0f && direction.Y == 0f)
-                return 0f; // Up
-            return (float)(PI - Atan2(direction.X, direction.Y));
-        }
-
-        
-        public static float RadiansUp    = 0f;
-        public static float RadiansRight = (float)PI*0.5f;
-        public static float RadiansDown  = (float)PI;
-        public static float RadiansLeft  = (float)PI + (float)PI*0.5f;
-
-        // Converts a direction vector to degrees
-        public static float ToDegrees(this Vector2 direction)
-        {
-            if (direction.X == 0f && direction.Y == 0f)
-                return 0f; // Up
-            return (float)(180 - Atan2(direction.X, direction.Y) * 180.0 / PI);
-        }
-
-        // Converts a Vector3 with XYZ degrees into Vector3 XYZ radians
-        public static Vector3 DegsToRad(this Vector3 degrees)
-        {
-            return degrees * ((float)PI / 180.0f);
-        }
-
-        // Converts rotation radians into a 3D direction vector, with Z = 0
-        public static Vector3 RadiansToDirection3D(this float radians)
-        {
-            return new Vector3(radians.RadiansToDirection(), 0f);
-        }
-
         // Rotates an existing direction vector by another direction vector
         // For this we convert to radians, yielding:
         // newAngle = angle1 + angle2
@@ -288,8 +244,6 @@ namespace Ship_Game
                 return Vectors.Up; // UP
             return new Vector2(dx / len, dy / len);
         }
-
-        
 
         public static Vector2 Acceleration(this Vector2 startVel, Vector2 endVel, float deltaTime)
         {
@@ -342,7 +296,7 @@ namespace Ship_Game
             float r2 = radius + rayRadius;
             float dx = center.X - closest.X;
             float dy = center.Y - closest.Y;
-            return dx*dx + dy*dy <= r2*r2;
+            return (dx*dx + dy*dy) <= r2*r2;
         }
 
         // @return TRUE and out distance from rayStart to the point of intersection,
@@ -569,8 +523,8 @@ namespace Ship_Game
         // takes self and rotates it around the center pivot by some radians
         public static Vector2 RotateAroundPoint(this Vector2 self, Vector2 center, float radians)
         {
-            float s = RadMath.Sin(radians);
-            float c = RadMath.Cos(radians);
+            float s = (float)Math.Sin(radians);
+            float c = (float)Math.Cos(radians);
             return new Vector2(c * (self.X - center.X) - s * (self.Y - center.Y) + center.X,
                                s * (self.X - center.X) + c * (self.Y - center.Y) + center.Y);
         }

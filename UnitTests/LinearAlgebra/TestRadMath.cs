@@ -10,7 +10,12 @@ namespace UnitTests.LinearAlgebra
     [TestClass]
     public class TestRadMath
     {
-        const float Tolerance = 0.001f;
+        const float Tolerance = 0.01f;
+
+        public TestRadMath()
+        {
+            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
+        }
 
         [TestMethod]
         public void FastSin()
@@ -138,6 +143,140 @@ namespace UnitTests.LinearAlgebra
                 "RadMath RadsToDir implementation MUST be faster than Original");
 
             Console.WriteLine($"RadMath RadsToDir is {s2.Elapsed.TotalSeconds / s1.Elapsed.TotalSeconds:0.0}x faster");
+        }
+
+        
+        [TestMethod]
+        public void ToNormalizedRadians()
+        {
+            Assert.AreEqual(0f, (0f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(1f, (1f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(1f, (-1f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(3f, (3f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(3f, (-3f).ToNormalizedRadians(), Tolerance);
+            
+            Assert.AreEqual(8f % RadMath.TwoPI, (8f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(8f % RadMath.TwoPI, (-8f).ToNormalizedRadians(), Tolerance);
+
+            Assert.AreEqual(64f % RadMath.TwoPI, (64f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(64f % RadMath.TwoPI, (-64f).ToNormalizedRadians(), Tolerance);
+        }
+
+        
+        [TestMethod]
+        public void OrbitalRotate()
+        {
+            Vector2 c = Vector2.Zero;
+            var pos = new Vector2(0, -100);
+            float step = 5f.ToRadians();
+
+            Console.WriteLine("OrbitalRotate: [-4PI to 4PI]");
+            for (float angle = RadMath.PI*-4; angle < RadMath.PI*4; angle += step)
+            {
+                Assert.That.Equal(0.1f, pos.RotateAroundPoint(c, angle), RadMath.OrbitalRotate(c, pos, 100, angle));
+            }
+
+            Console.WriteLine("OrbitalRotate: integrate [0 to 4PI]");
+            // guarantee max precision of 1 unit across 2 full orbits
+            Vector2 orbitalPos = pos;
+            for (float angle = 0f; angle < RadMath.TwoPI*2; angle += step)
+            {
+                Assert.That.Equal(1f, pos.RotateAroundPoint(c, angle), orbitalPos);
+                orbitalPos = RadMath.OrbitalRotate(c, orbitalPos, 100, step);
+            }
+        }
+
+        static Vector2 OriginalOrbitPos(Vector2 orbitAround, float orbitalAngle, float orbitRadius)
+        {
+            return orbitAround.PointOnCircle(orbitalAngle, orbitRadius);
+        }
+
+        [TestMethod]
+        public void TestOrbitalRotatePerf()
+        {
+            var center = new Vector2(0,0);
+            float orbitRadius = 100f;
+            float orbitStep = 5f;
+            float orbitStepRads = orbitStep.ToRadians();
+
+            Stopwatch s1 = Stopwatch.StartNew();
+            Vector2 orbitPos = center + Vectors.Up*orbitRadius;
+            for (int i = 0; i < 5000000; ++i)
+            {
+                orbitPos = RadMath.OrbitalRotate(center, orbitPos, orbitRadius, orbitStepRads);
+            }
+            s1.Stop();
+            Console.WriteLine($"RadMath OrbitalRotate: {s1.ElapsedMilliseconds}ms {orbitPos}");
+
+            Stopwatch s2 = Stopwatch.StartNew();
+            float orbitalAngle = 0f;
+            for (int i = 0; i < 5000000; ++i)
+            {
+                orbitPos = OriginalOrbitPos(center, orbitalAngle, orbitRadius);
+                orbitalAngle += orbitStep;
+            }
+            s2.Stop();
+            Console.WriteLine($"Original OrbitalRotate: {s2.ElapsedMilliseconds}ms {orbitPos}");
+
+            Assert.IsTrue(s1.Elapsed.TotalSeconds < s2.Elapsed.TotalSeconds,
+                "RadMath OrbitalRotate implementation MUST be faster than Original");
+
+            Console.WriteLine($"RadMath OrbitalRotate is {s2.Elapsed.TotalSeconds / s1.Elapsed.TotalSeconds:0.0}x faster");
+        }
+
+        [TestMethod]
+        public void OrbitalOffsetRotate()
+        {
+            var pos = new Vector2(0, -100);
+            float step = 5f.ToRadians();
+
+            Console.WriteLine("OrbitalOffsetRotate: [-4PI to 4PI]");
+            for (float a = RadMath.PI*-4; a < RadMath.PI*4; a += step)
+            {
+                Assert.That.Equal(0.1f, pos.RotateAroundPoint(Vector2.Zero, a), RadMath.OrbitalOffsetRotate(pos, 100, a));
+            }
+
+            Console.WriteLine("OrbitalOffsetRotate: integrate [0 to 4PI]");
+            // guarantee max precision of 1 unit across 2 full orbits
+            Vector2 orbitalPos = pos;
+            for (float a = 0f; a < RadMath.TwoPI*2; a += step)
+            {
+                Assert.That.Equal(1f, pos.RotateAroundPoint(Vector2.Zero, a), orbitalPos);
+                orbitalPos = RadMath.OrbitalOffsetRotate(orbitalPos, 100, step);
+            }
+        }
+        
+        [TestMethod]
+        public void TestOrbitalOffsetRotatePerf()
+        {
+            var center = new Vector2(0,0);
+            float orbitRadius = 100f;
+            float orbitStep = 5f;
+            float orbitStepRads = orbitStep.ToRadians();
+
+            Stopwatch s1 = Stopwatch.StartNew();
+            Vector2 orbitPos = center + Vectors.Up*orbitRadius;
+            for (int i = 0; i < 5000000; ++i)
+            {
+                orbitPos = RadMath.OrbitalOffsetRotate(orbitPos, orbitRadius, orbitStepRads);
+            }
+            s1.Stop();
+            Console.WriteLine($"RadMath OrbitalOffsetRotate: {s1.ElapsedMilliseconds}ms {orbitPos}");
+
+            Stopwatch s2 = Stopwatch.StartNew();
+            float orbitalAngle = 0f;
+            for (int i = 0; i < 5000000; ++i)
+            {
+                orbitPos = OriginalOrbitPos(center, orbitalAngle, orbitRadius);
+                orbitalAngle += orbitStep;
+            }
+            s2.Stop();
+            Console.WriteLine($"Original OriginalOrbitPos: {s2.ElapsedMilliseconds}ms {orbitPos}");
+
+            Assert.IsTrue(s1.Elapsed.TotalSeconds < s2.Elapsed.TotalSeconds,
+                "RadMath OrbitalOffsetRotate implementation MUST be faster than Original");
+
+            Console.WriteLine($"RadMath OrbitalOffsetRotate is {s2.Elapsed.TotalSeconds / s1.Elapsed.TotalSeconds:0.0}x faster");
         }
     }
 }

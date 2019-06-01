@@ -79,7 +79,7 @@ namespace Ship_Game.AI.CombatTactics
 
             float dot = Owner.Direction.Dot(AI.Target.Velocity.Normalized());
             float rotation = dot > -0.25f // we are chasing them, so only disengage left or right
-                ? (RandomMath.RollDice(50) ? MathExt.RadiansLeft : MathExt.RadiansRight)
+                ? (RandomMath.RollDice(50) ? RadMath.RadiansLeft : RadMath.RadiansRight)
                 : RandomMath.RandomBetween(-1.57f, 1.57f); // from -90 to +90 degrees
 
             DisengageStart = AI.Target.Center;
