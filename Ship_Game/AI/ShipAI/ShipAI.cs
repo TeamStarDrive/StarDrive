@@ -207,6 +207,7 @@ namespace Ship_Game.AI
                     nearestRallyPoint = Owner.loyalty.RallyPoints.FindMax(p => p.TroopsHere.Count);
                     break;
                 case ResupplyReason.NotNeeded:
+                    TerminateResupplyIfDone();
                     return;
             }
             HasPriorityOrder = true;
@@ -249,6 +250,8 @@ namespace Ship_Game.AI
             DequeueCurrentOrder();
             Owner.AI.State = AIState.AwaitingOrders;
             Owner.AI.IgnoreCombat = false;
+            if (Owner.fleet != null)
+                OrderMoveTowardsPosition(Owner.fleet.Position + Owner.RelativeFleetOffset, Owner.fleet.Direction, true, null);
         }
 
         void UpdateCombatStateAI(float elapsedTime)
