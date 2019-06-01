@@ -1,9 +1,10 @@
 #include <rpp/vec.h>
 #include <cmath>
+using rpp::Vector2;
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
-DLLEXPORT rpp::Vector2 __stdcall RadiansToDirection(float radians)
+DLLEXPORT Vector2 __stdcall RadiansToDirection(float radians)
 {
     // @note This should invoke x86 FSINCOS instruction
     float s = sin(radians);
@@ -11,35 +12,27 @@ DLLEXPORT rpp::Vector2 __stdcall RadiansToDirection(float radians)
     return { s, -c };
 }
 
-DLLEXPORT rpp::Vector2 __stdcall OrbitalRotate(
-    const rpp::Vector2& center, const rpp::Vector2& orbitPos,
-    float orbitRadius, float radians)
+DLLEXPORT Vector2 __stdcall RotateAroundPoint(const Vector2& self, const Vector2& center, float radians)
 {
-    // current orbital normal
-    float normalX = (orbitPos.x - center.x);
-    float normalY = (orbitPos.y - center.y);
-    
-    // get the delta rotation sin/cos
-    // @note This should invoke x86 FSINCOS instruction
     float s = sin(radians);
     float c = cos(radians);
-
-    // new delta vector
-    float dx = c*normalX - s*normalY;
-    float dy = s*normalX + c*normalY;
-
-    // extra orbital precision, this is needed to prevent orbital decay
-    float invLen = orbitRadius / sqrt(dx*dx + dy*dy);
-
-    return { center.x + dx*invLen, 
-             center.y + dy*invLen };
+    float dx = (self.x - center.x);
+    float dy = (self.y - center.y);
+    return { center.x + c*dx - s*dy, 
+             center.y + s*dx + c*dy };
 }
 
-DLLEXPORT rpp::Vector2 __stdcall OrbitalOffsetRotate(
-    rpp::Vector2 offset, float orbitRadius, float radians)
+DLLEXPORT Vector2 __stdcall RotatePoint(Vector2 self, float radians)
+{
+    float s = sin(radians);
+    float c = cos(radians);
+    return { c*self.x - s*self.y, 
+             s*self.x + c*self.y };
+}
+
+DLLEXPORT Vector2 __stdcall OrbitalOffsetRotate(Vector2 offset, float orbitRadius, float radians)
 {
     // get the delta rotation sin/cos
-    // @note This should invoke x86 FSINCOS instruction
     float s = sin(radians);
     float c = cos(radians);
 

@@ -153,10 +153,13 @@ namespace Ship_Game
             return degrees * DegreeToRadian;
         }
 
-        // @note Assumes orbitPos is very close to orbit line
-        // @note Radians should be small, for example PI/12
+        // Takes self and rotates it around the center pivot by some radians
         [DllImport("SDNative.dll")]
-        public static extern Vector2 OrbitalRotate(in Vector2 center, in Vector2 orbitPos, float orbitRadius, float radians);
+        public static extern Vector2 RotateAroundPoint(this in Vector2 self, in Vector2 center, float radians);
+
+        // Takes self and rotates it around world center [0,0] by some radians
+        [DllImport("SDNative.dll")]
+        public static extern Vector2 RotatePoint(this Vector2 self, float radians);
 
         // This only deals with a local orbit offset, independent from orbit center
         [DllImport("SDNative.dll")]

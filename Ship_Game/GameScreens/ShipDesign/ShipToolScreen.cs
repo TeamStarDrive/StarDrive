@@ -591,7 +591,10 @@ namespace Ship_Game
         {
             ScreenManager.editor.Update(gameTime);
             Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
-            view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+            view = Matrix.CreateTranslation(0f, 0f, 0f)
+                 * Matrix.CreateRotationY(RadMath.PI)
+                 * Matrix.CreateRotationX(0f)
+                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             designInputState.Update(gameTime);
             HandleInput();
             thruster.tscale = tscale;

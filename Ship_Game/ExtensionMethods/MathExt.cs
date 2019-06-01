@@ -519,17 +519,6 @@ namespace Ship_Game
             return degrees.AngleToDirection() * circleRadius;
         }
 
-
-        // takes self and rotates it around the center pivot by some radians
-        public static Vector2 RotateAroundPoint(this Vector2 self, Vector2 center, float radians)
-        {
-            float s = (float)Math.Sin(radians);
-            float c = (float)Math.Cos(radians);
-            return new Vector2(c * (self.X - center.X) - s * (self.Y - center.Y) + center.X,
-                               s * (self.X - center.X) + c * (self.Y - center.Y) + center.Y);
-        }
-
-
         // Returns true if a is almost equal to b, within float epsilon error margin
         public static bool AlmostEqual(this float a, float b)
         {
