@@ -73,9 +73,14 @@ namespace Ship_Game.AI.ShipMovement
             if (Owner.engineState == Ship.MoveState.Warp && distance < 7500f)
                 Owner.HyperspaceReturn();
 
-            // don't update orbits while not viewing this system
-            if (!orbitTarget.ParentSystem.isVisible)
+            bool visible = orbitTarget.ParentSystem.isVisible
+                        && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView;
+            if (!visible) // don't update orbits in invisible systems
+            {
+                // MAGIC STOP ships when orbiting off screen
+                Owner.Velocity = Vector2.Zero;
                 return;
+            }
 
             UpdateOrbitPos(orbitTarget.Center, radius, elapsedTime);
 
