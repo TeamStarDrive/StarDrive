@@ -736,27 +736,19 @@ namespace Ship_Game
             foreach (var entry in TechnologyDict.OrderBy(hulls => hulls.Value.Tech.HullsUnlocked.Count > 0))
             {
                 AddToShipTechLists(entry.Value);
-                if (!entry.Value.Unlocked)
-                    continue;
-
-                entry.Value.Unlocked = false;
-                if (unlockBonuses)
-                    entry.Value.Unlock(this);
-                else
-                    entry.Value.UnlockFromSave(this);
-
+                entry.Value.UnlockFromSave(this, unlockBonuses);
             }
 
-            foreach (TechEntry techEntry in TechnologyDict.Values)
-            {
-                bool hullsNotRoot = techEntry.Tech.HullsUnlocked.Count > 0 && techEntry.Tech.RootNode != 1;
-                if (!hullsNotRoot || !techEntry.Unlocked) continue;
-                techEntry.Unlocked = false;
-                if (unlockBonuses)
-                    techEntry.Unlock(this);
-                else
-                    techEntry.UnlockFromSave(this);
-            }
+            //foreach (TechEntry techEntry in TechnologyDict.Values)
+            //{
+            //    bool hullsNotRoot = techEntry.Tech.HullsUnlocked.Count > 0 && techEntry.Tech.RootNode != 1;
+            //    if (!hullsNotRoot || !techEntry.Unlocked) continue;
+            //    techEntry.Unlocked = false;
+            //    if (unlockBonuses)
+            //        techEntry.Unlock(this);
+            //    else
+            //        techEntry.UnlockFromSave(this, unlockBonuses);
+            //}
         }
 
         private void InitTechs()
