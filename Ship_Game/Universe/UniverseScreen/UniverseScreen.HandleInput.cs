@@ -774,10 +774,7 @@ namespace Ship_Game
                 ShipPieMenu(SelectedShip);
             }
 
-            Vector2 vector2 = input.CursorPosition - pieMenu.Position;
-            vector2.Y *= -1f;
-            Vector2 selectionVector = vector2 / pieMenu.Radius;
-            pieMenu.HandleInput(input, selectionVector);
+            pieMenu.HandleInput(input);
             if (!input.LeftMouseClick || pieMenu.Visible)
                 return;
 

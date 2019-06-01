@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Ship_Game
 {
@@ -18,5 +19,4 @@ namespace Ship_Game
         public bool NotEmpty => Len > 0;
         public override string ToString() { return AsString; }
     }
-
 }

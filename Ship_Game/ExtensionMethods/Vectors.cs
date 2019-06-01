@@ -273,8 +273,6 @@ namespace Ship_Game
             return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : new Vector3();
         }
 
-
-
         
         // True if this given position is within the radius of Circle [center,radius]
         public static bool InRadius(this Vector2 position, Vector2 center, float radius)
@@ -289,7 +287,6 @@ namespace Ship_Game
             => position.SqDist(center) > radius*radius;
         public static bool OutsideRadius(this Vector3 position, Vector3 center, float radius)
             => position.SqDist(center) > radius*radius;
-
 
         
         // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f

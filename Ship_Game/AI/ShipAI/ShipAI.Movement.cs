@@ -12,7 +12,6 @@ namespace Ship_Game.AI
         public Vector2 MovePosition;
         public Planet OrbitTarget;
 
-        float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
         readonly WayPoints WayPoints = new WayPoints();
 
         public bool HasWayPoints => WayPoints.Count > 0;
@@ -91,6 +90,9 @@ namespace Ship_Game.AI
         {
             if (Owner.EnginesKnockedOut)
                 return;
+
+            if (position.LengthSquared() < 4.0f)
+                Log.Error($"SubLightMoveTowardsPosition: invalid position {position}");
 
             if (speedLimit <= 0f)
                 speedLimit = Owner.Speed;
