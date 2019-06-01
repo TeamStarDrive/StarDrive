@@ -917,7 +917,7 @@ namespace Ship_Game
             }
 
             // show the object placement/build circle
-            if (showingDSBW && dsbw.itemToBuild != null && dsbw.itemToBuild.Name == "Subspace Projector" &&
+            if (showingDSBW && dsbw.itemToBuild != null && dsbw.itemToBuild.IsSubspaceProjector &&
                 AdjustCamTimer <= 0f)
             {
                 Vector2 center = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
@@ -997,11 +997,12 @@ namespace Ship_Game
 
         private void DrawTacticalIcon(Ship ship)
         {
-            if (LookingAtPlanet || ship.IsPlatform && (
-                    (!showingFTLOverlay && viewState == UnivScreenState.GalaxyView) ||
-                    (showingFTLOverlay && ship.Name != "Subspace Projector")))
-                return;
-            ship.DrawTacticalIcon(this, viewState);
+            if (!LookingAtPlanet && (!ship.IsPlatform ||
+                                     ((showingFTLOverlay || viewState != UnivScreenState.GalaxyView) &&
+                                      (!showingFTLOverlay || ship.IsSubspaceProjector))))
+            {
+                ship.DrawTacticalIcon(this, viewState);
+            }
         }
 
         void DrawBombs()

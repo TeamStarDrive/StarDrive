@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Ship_Game
 {
@@ -118,7 +118,7 @@ namespace Ship_Game
 
         public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which) : base(parent)
         {
-            float TheirOpinionOfUs;            
+            float TheirOpinionOfUs;
             e.GetRelations(us).turnsSinceLastContact = 0;
             them = e;
             playerEmpire = us;
@@ -394,7 +394,7 @@ namespace Ship_Game
                 TheirText = GetDialogue(TheirOpinionOfUs);
             }
         }
-        
+
         public static void Stole1stColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim");
         public static void Stole2ndColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim 2");
         public static void Stole3rdColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim 3");
@@ -537,7 +537,7 @@ namespace Ship_Game
                         pos.Y = pos.Y + (Fonts.Pirulen16.LineSpacing + 15);
                         pos.X = pos.X - 8f;
                     //};*/
-                   
+
                     pos.Y = pos.Y + (Fonts.Pirulen16.LineSpacing + 15);
                     pos.X = pos.X - 8f;
                     pos.Y = pos.Y + (Fonts.Pirulen16.LineSpacing + 15);
@@ -684,7 +684,7 @@ namespace Ship_Game
             //        VideoPlaying.Dispose();
             //    }
             //}
-            //VideoPlaying = null;            
+            //VideoPlaying = null;
             base.ExitScreen();
             Dispose();
         }
@@ -1150,10 +1150,10 @@ namespace Ship_Game
             StatementsSL = new ScrollList(sub, Fonts.Consolas18.LineSpacing + 2, true);
 
             PlayVideo(them.data.Traits.VideoPath);
-            GameAudio.PauseGenericMusic();            
-            PlayEmpireMusic(them,WarDeclared);                
-            
-            
+            GameAudio.PauseGenericMusic();
+            PlayEmpireMusic(them,WarDeclared);
+
+
             TextCursor = new Vector2(DialogRect.X + 5, DialogRect.Y + 5);
         }
 
@@ -1588,7 +1588,7 @@ namespace Ship_Game
                             if (!keyValuePair.Key.isFaction && keyValuePair.Value.AtWar)
                                 warTargets.Add(keyValuePair.Key);
 
-                            if (!keyValuePair.Key.isFaction && keyValuePair.Value.GetStrength() > 75.0 && 
+                            if (!keyValuePair.Key.isFaction && keyValuePair.Value.GetStrength() > 75.0 &&
                                 playerEmpire.TryGetRelations(keyValuePair.Key, out Relationship relations) && relations.AtWar)
                                 list2.Add(keyValuePair.Key);
                         }
@@ -1729,47 +1729,55 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            if (VideoPlaying != null)
+            //HACK there is am issue here where VideoPlayer is null. catching and logging.
+            try
             {
-                if (IsActive)
+                if (VideoPlaying != null && !VideoPlaying.IsDisposed)
                 {
-                    if (VideoPlaying.State == MediaState.Paused)
+                    if (IsActive)
                     {
-                        VideoPlaying.Resume();
-                    }
-                    if (!them.data.ModRace)
-                    {
-                        if (MusicPlaying.IsPaused)
+                        if (VideoPlaying.State == MediaState.Paused)
                         {
-                            MusicPlaying.Resume();
+                            VideoPlaying.Resume();
                         }
-                        else if (MusicPlaying.IsStopped)
+                        if (!them.data.ModRace)
                         {
-                            if (them.data.MusicCue.NotEmpty())
+                            if (MusicPlaying.IsPaused)
                             {
-                                MusicPlaying = GameAudio.PlayMusic(WarDeclared ? "Stardrive_Combat 1c_114BPM" : them.data.MusicCue);
+                                MusicPlaying.Resume();
+                            }
+                            else if (MusicPlaying.IsStopped)
+                            {
+                                if (them.data.MusicCue.NotEmpty())
+                                {
+                                    MusicPlaying = GameAudio.PlayMusic(WarDeclared ? "Stardrive_Combat 1c_114BPM" : them.data.MusicCue);
+                                }
                             }
                         }
                     }
-                }
-                else
-                {
-                    if (VideoPlaying.State == MediaState.Playing)
+                    else
                     {
-                        VideoPlaying.Pause();
-                    }
-                    if (!them.data.ModRace && MusicPlaying.IsPlaying)
-                    {
-                        MusicPlaying.Pause();
+                        if (VideoPlaying.State == MediaState.Playing)
+                        {
+                            VideoPlaying.Pause();
+                        }
+                        if (!them.data.ModRace && MusicPlaying.IsPlaying)
+                        {
+                            MusicPlaying.Pause();
+                        }
                     }
                 }
+
+                if (Discuss != null) Discuss.ToggleOn = dState == DialogState.Discuss;
+
+                Negotiate.ToggleOn = dState == DialogState.Negotiate;
+
+                base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
             }
-
-            if (Discuss != null) Discuss.ToggleOn = dState == DialogState.Discuss;
-
-            Negotiate.ToggleOn = dState == DialogState.Negotiate;
-
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            catch(Exception ex)
+            {
+                Log.Error($"Diplomacy screen video failure during screen update.");
+            }
         }
 
         private enum DialogState

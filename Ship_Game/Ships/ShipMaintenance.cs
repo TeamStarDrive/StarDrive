@@ -29,9 +29,10 @@ namespace Ship_Game.Ships
 
             float maint = GetBaseMainCost(role, ship.GetCost(empire), empire);
 
-            // Subspace Projectors do not get any more modifiers
-            if (ship.Name == "Subspace Projector")
+            // Projectors do not get any more modifiers
+            if (ship.IsSubspaceProjector)
                 return maint;
+
             //added by gremlin shipyard exploit fix
             if (ship.IsTethered)
             {
