@@ -57,10 +57,12 @@ namespace Ship_Game
             Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;
         }
 
-        public float AddToProgress(float amount)
+        public float AddToProgress(float amount, Empire us)
         {
             var leftOver = amount - (Tech.ActualCost - Progress);
             Progress = Math.Min(Progress + amount, Tech.ActualCost);
+            if (Progress >= Tech.ActualCost)
+                Unlock(us);
             return leftOver;
         }
 
@@ -118,15 +120,15 @@ namespace Ship_Game
             }
         }
 
-        public bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
+        bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
 
         public bool CanBeTakenFrom(Empire them)
         {
-            bool hidden = !SpiedFrom(them) && NeedsThemToRevealContent(them);
-            return hidden || Unlocked; //hidden ||  add hidden back to allow racial tech unlock
+            bool hidden = !SpiedFrom(them) && ContentRestrictedTo(them);
+            return hidden || !Unlocked; //hidden ||  add hidden back to allow racial tech unlock
         }
 
-        public bool NeedsThemToRevealContent(Empire empire)
+        bool ContentRestrictedTo(Empire empire)
         {
             bool hulls     = Tech.HullsUnlocked.Any(item => item.ShipType == empire.data.Traits.ShipType);
             bool buildings = Tech.BuildingsUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
@@ -360,19 +362,19 @@ namespace Ship_Game
 
         public bool UnlockFromSpy(Empire us, Empire them)
         {
-            if (RandomMath.RollDice(50))
+            if (!Unlocked && RandomMath.RollDice(50))
             {
-                AddToProgress(Tech.ActualCost * 0.25f);
+                AddToProgress(Tech.ActualCost * 0.25f, us);
                 return false;
             }
             if (WasAcquiredFrom.Contains(them.data.Traits.ShipType)) return false;
 
             WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
-            if (!NeedsThemToRevealContent(them) && Tech.BonusUnlocked.NotEmpty
+            if (!ContentRestrictedTo(them) && Tech.BonusUnlocked.NotEmpty
                                                 && Tech.BuildingsUnlocked.IsEmpty
                                                 && Tech.ModulesUnlocked.IsEmpty
                                                 && Tech.HullsUnlocked.IsEmpty && Tech.TroopsUnlocked.IsEmpty)
-                Unlock(us);
+            { Unlock(us);}
             else
                 UnlockTechContentOnly(us, them);
             return true;
@@ -388,11 +390,40 @@ namespace Ship_Game
             }
             return true;
         }
-        public void UnlockFromSave(Empire us)
+
+        void UnlockFromSave(Empire us, Empire them, bool contentOnly)
         {
-            Progress = TechCost;
-            Unlocked = true;
-            UnlockTechContentOnly(us, us, false);
+            if (!contentOnly)
+            {
+                Progress = TechCost;
+                Unlocked = true;
+            }
+            UnlockTechContentOnly(us, them, false);
+        }
+
+        void UnlockAcquiredContent(Empire us)
+        {
+            foreach (var empireName in WasAcquiredFrom)
+            {
+                var them = EmpireManager.GetEmpireByName(empireName);
+                if (them != null)
+                    UnlockFromSave(us, them, true);
+            }
+        }
+
+        public void UnlockFromSave(Empire us, bool unlockBonuses)
+        {
+            UnlockAcquiredContent(us);
+
+            if (Unlocked)
+            {
+
+                Unlocked = false;
+                if (unlockBonuses)
+                    Unlock(us);
+                else
+                    UnlockFromSave(us, us, false);
+            }
         }
 
         public void LoadShipModelsFromDiscoveredTech(Empire empire)
