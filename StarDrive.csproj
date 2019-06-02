@@ -309,6 +309,7 @@
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShip.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShipAI.cs" />
+    <Compile Include="Ship_Game\GameScreens\ScreenMediaPlayer.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MenuFleet.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionLabel.cs" />
