@@ -99,10 +99,7 @@ namespace Ship_Game
                 const string begin = "Click to Continue!";
                 cursor.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(begin).X / 2f;
 
-                float f = (float)Math.Sin(StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds);
-                f = Math.Abs(f) * 255f;
-                var flashColor = new Color(255, 255, 255, (byte)f);
-                batch.DrawString(Fonts.Pirulen16, begin, cursor, flashColor);
+                batch.DrawString(Fonts.Pirulen16, begin, cursor, CurrentFlashColor);
             }
             batch.End();
         }

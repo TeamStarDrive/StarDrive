@@ -138,40 +138,22 @@ namespace Ship_Game
             }
         }
 
-        private bool CheckKey(InputKeys key, InputState input)
+        bool CheckKey(InputKeys key, InputState input)
         {
             if (key == InputKeys.Back && boop == 0)
                 return input.IsKeyDown(key);
             return input.KeyPressed(key);
         }
 
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public void Draw(SpriteFont font, SpriteBatch spriteBatch, Vector2 pos, GameTime gameTime, Color c)
         {
-            spriteBatch.DrawRectangle(ClickableArea, Color.Orange);
-            Vector2 cursor = new Vector2(ClickableArea.X + 5, ClickableArea.Y + 2);
-            spriteBatch.DrawString(Fonts.Arial12Bold, Text, cursor, Color.Orange);
-            cursor.X = cursor.X + Fonts.Arial12Bold.MeasureString(Text).X;
+            spriteBatch.DrawString(font, Text, pos, c);
+            pos.X = pos.X + font.MeasureString(Text).X;
             if (HandlingInput)
             {
-                TimeSpan totalGameTime = gameTime.TotalGameTime;
-                float f = (float)Math.Sin(totalGameTime.TotalSeconds);
-                f = Math.Abs(f) * 255f;
-                Color flashColor = new Color(255, 255, 255, (byte)f);
-                spriteBatch.DrawString(Fonts.Arial12Bold, "|", cursor, flashColor);
-            }
-        }
-
-        public void Draw(SpriteFont Font, SpriteBatch spriteBatch, Vector2 pos, GameTime gameTime, Color c)
-        {
-            spriteBatch.DrawString(Font, Text, pos, c);
-            pos.X = pos.X + Font.MeasureString(Text).X;
-            if (HandlingInput)
-            {
-                TimeSpan totalGameTime = gameTime.TotalGameTime;
-                float f = (float)Math.Sin(totalGameTime.TotalSeconds);
-                f = Math.Abs(f) * 255f;
-                Color flashColor = new Color(255, 255, 255, (byte)f);
-                spriteBatch.DrawString(Font, "|", pos, flashColor);
+                float f = Math.Abs(RadMath.Sin(gameTime.TotalGameTime.TotalSeconds)) * 255f;
+                var flashColor = new Color(255, 255, 255, (byte)f);
+                spriteBatch.DrawString(font, "|", pos, flashColor);
             }
         }
 

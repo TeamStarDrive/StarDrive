@@ -548,8 +548,8 @@ namespace Ship_Game
             {
                 float num2 = (float)Math.Pow(Data.Size.X - 0.0850000008940697 * Data.Size.X, index / (float)numOfStars);
                 float num3 = index * num1 + rotation;
-                float x = vector2.X + (float)Math.Cos(num3) * num2;
-                float y = vector2.Y + (float)Math.Sin(num3) * num2;
+                float x = vector2.X + RadMath.Cos(num3) * num2;
+                float y = vector2.Y + RadMath.Sin(num3) * num2;
                 Vector2 sysPos = new Vector2(RandomMath.RandomBetween(-10000f, 10000f) * index, (float)(RandomMath.RandomBetween(-10000f, 10000f) * (double)index / 4.0));
                 sysPos = new Vector2(x, y) + sysPos;
                 if (SystemPosOK(sysPos))
@@ -649,10 +649,7 @@ namespace Ship_Game
                 string token = Localizer.Token(2108);
                 position.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(token).X / 2f;
 
-                GameTime gameTime = StarDriveGame.Instance.GameTime;
-                var color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 
-                    (byte)(Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * byte.MaxValue));
-                batch.DrawString(Fonts.Pirulen16, token, position, color);
+                batch.DrawString(Fonts.Pirulen16, token, position, CurrentFlashColor);
             }
 
             batch.End();

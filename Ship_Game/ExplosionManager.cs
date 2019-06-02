@@ -201,7 +201,7 @@ namespace Ship_Game
 
             // y = cos(x * PI/2)  gives a nice curvy falloff
             // from 1.0 to 0.0
-            float a = (float)Math.Cos(relTime * Math.PI*0.5f);
+            float a = RadMath.Cos(relTime * RadMath.HalfPI);
             if (screen < 2) // Low-res explosion marker
             {
                 r.Width = r.Height = 1;

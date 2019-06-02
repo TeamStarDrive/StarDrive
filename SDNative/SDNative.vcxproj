@@ -177,6 +177,7 @@
     <ClCompile Include="SdMesh\SdMeshGroup.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
+    <ClCompile Include="util\math_utils.cpp" />
     <ClCompile Include="util\save_image.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -223,6 +223,17 @@ namespace Ship_Game
             return false;
         }
 
+        // Gets the current cursor blinking mask color [255,255,255,a]
+        public Color CurrentFlashColor
+        {
+            get
+            {
+                double totalGameTime = StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds;
+                float f = Math.Abs(RadMath.Sin(totalGameTime)) * 255f;
+                return new Color(255, 255, 255, (byte)f);
+            }
+        }
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         readonly Array<UIElementV2> BackElements = new Array<UIElementV2>();

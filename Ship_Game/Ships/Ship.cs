@@ -1629,8 +1629,8 @@ namespace Ship_Game.Ships
                 {
                     UpdatedModulesOnce = deltaTime > 0;
 
-                    float cos = (float)Math.Cos(Rotation);
-                    float sin = (float)Math.Sin(Rotation);
+                    float cos = RadMath.Cos(Rotation);
+                    float sin = RadMath.Sin(Rotation);
                     float tan = (float)Math.Tan(yRotation);
                     for (int i = 0; i < ModuleSlotList.Length; ++i)
                     {
