@@ -5485,7 +5485,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2138</Index>
-      <Text>Indicates this troop's experience level. For each level of experience, a troop gains a 10% bonus to its base attack statistics.</Text>
+      <Text>Indicates this troop's experience level. For each level of experience, a troop gains a 10% bonus to its base attack statistics and evade planetary bombardment.</Text>
     </Token>
     <Token>
       <Index>2139</Index>
