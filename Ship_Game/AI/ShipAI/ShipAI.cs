@@ -284,7 +284,6 @@ namespace Ship_Game.AI
                 for (int x = 0; x < Owner.Weapons.Count; x++)
                     Owner.Weapons[x].ClearFireTarget();
 
-
                 if (Owner.Carrier.HasHangars && Owner.loyalty != Empire.Universe.player)
                 {
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
