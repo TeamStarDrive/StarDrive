@@ -553,16 +553,21 @@ namespace Ship_Game.Gameplay
 
             if (ShouldPickNewTarget())
             {
+                TargetChangeTimer = 0.1f * Math.Max(Module.XSIZE, Module.YSIZE);
+                // cumulative bonuses for turrets, PD and true PD weapons
+                if (isTurret) TargetChangeTimer *= 0.5f;
+                if (Tag_PD)   TargetChangeTimer *= 0.5f;
+                if (TruePD)   TargetChangeTimer *= 0.25f;
+
                 ClearFireTarget();
+
                 if (!PickProjectileTarget(enemyProjectiles))
                 {
                     PickShipTarget(mainTarget, enemyShips);
                 }
             }
             
-            // FB: reason for ghost target is that FireTarget is not null even if the mainTarget is dead. 
-            // so i added a check for main target, but this might be only a workaround
-            if (FireTarget != null && mainTarget?.Active == true)
+            if (FireTarget != null)
             {
                 if (isBeam)
                     FireBeam(Module.Center, FireTarget.Center, FireTarget);
@@ -573,31 +578,19 @@ namespace Ship_Game.Gameplay
 
         bool IsTargetAliveAndInRange(GameplayObject target)
         {
-            if (target == null || !target.Active || (target is Ship ship && ship.dying))
-                return false;
-            return Owner.IsTargetInFireArcRange(this, target);
+            return target != null && target.Active && target.Health > 0.0f &&
+                   (!(target is Ship ship) || !ship.dying)
+                   && Owner.IsTargetInFireArcRange(this, target);
         }
 
+        // @return TRUE if firing logic should pick a new firing target
         bool ShouldPickNewTarget()
         {
             // Reasons for this weapon not to choose a new target
-            if (TargetChangeTimer > 0f // not ready yet
-                || IsRepairDrone // TODO: is this correct?
-                || isRepairBeam  // TODO: repair beams are managed by repair drone ai?
-                || SalvosToFire > 0) // we are still firing salvos
-                return false;
-
-            if (!IsTargetAliveAndInRange(FireTarget))
-            {
-                FireTarget = null;
-                TargetChangeTimer = 0.1f * Math.Max(Module.XSIZE, Module.YSIZE);
-                // cumulative bonuses for turrets, PD and true PD weapons
-                if (isTurret) TargetChangeTimer *= 0.5f;
-                if (Tag_PD)   TargetChangeTimer *= 0.5f;
-                if (TruePD)   TargetChangeTimer *= 0.25f;
-                return true;
-            }
-            return false; // Target is ok
+            return TargetChangeTimer <= 0f // ready to change targets
+                && !IsRepairDrone // TODO: is this correct?
+                && !isRepairBeam // TODO: repair beams are managed by repair drone ai?
+                && !IsTargetAliveAndInRange(FireTarget); // Target is dead or out of range
         }
 
         public bool TargetValid(GameplayObject fireTarget)
