@@ -130,30 +130,30 @@ namespace Ship_Game
         }
 
         // Same as Vector3.RightVector; but Z axis is set manually
-        public static Vector3 RightVector2D(this Vector3 direction, float z)
+        public static Vector3 RightVector2D(this in Vector3 direction, float z)
         {
             return new Vector3(-direction.Y, direction.X, z);
         }
 
         // shipUpVector is required to correctly calculate the result
-        public static Vector3 RightVector(this Vector3 direction, in Vector3 shipUpVector)
+        public static Vector3 RightVector(this in Vector3 direction, in Vector3 shipUpVector)
         {
             return Vector3.Cross(direction, shipUpVector);
         }
 
-        public static Vector3 LeftVector(this Vector3 direction, in Vector3 shipUpVector)
+        public static Vector3 LeftVector(this in Vector3 direction, in Vector3 shipUpVector)
         {
             return -Vector3.Cross(direction, shipUpVector);
         }
 
         // shipUpVector is required to correctly calculate the result
-        public static Vector3 UpVector(this Vector3 direction, in Vector3 shipUpVector)
+        public static Vector3 UpVector(this in Vector3 direction, in Vector3 shipUpVector)
         {
             var right = RightVector(direction, shipUpVector);
             return Vector3.Cross(right, direction);
         }
 
-        public static Vector3 DownVector(this Vector3 direction, in Vector3 shipUpVector)
+        public static Vector3 DownVector(this in Vector3 direction, in Vector3 shipUpVector)
         {
             var right = RightVector(direction, shipUpVector);
             return -Vector3.Cross(right, direction);
@@ -164,13 +164,13 @@ namespace Ship_Game
          * Assuming `radians` is an Euler XYZ rotation triplet in Radians,
          * Rotate `point` around (0,0,0)
          */
-        public static Vector3 RotateVector(this Vector3 radians, in Vector3 point)
+        public static Vector3 RotateVector(this in Vector3 radians, in Vector3 point)
         {
             return Vector3.Transform(point, radians.RadiansToRotMatrix());
         }
 
         // "ArcDot" ?
-        public static float RadiansFromAxis(this Vector3 dir, in Vector3 axis)
+        public static float RadiansFromAxis(this in Vector3 dir, in Vector3 axis)
         {
             float theta = (float)Acos( dir.Dot(axis) );
             return theta;
@@ -213,7 +213,7 @@ namespace Ship_Game
         }
 
         // Squared distance between two Vector3's
-        public static float SqDist(this Vector3 a, Vector3 b)
+        public static float SqDist(this in Vector3 a, in Vector3 b)
         {
             float dx = a.X - b.X;
             float dy = a.Y - b.Y;
@@ -242,7 +242,7 @@ namespace Ship_Game
         // Gets the accurate distance from source point a to destination b
         // This is slower than Vector3.SqDist()
 
-        public static float Distance(this Vector3 a, Vector3 b)
+        public static float Distance(this in Vector3 a, in Vector3 b)
         {
             float dx = a.X - b.X;
             float dy = a.Y - b.Y;
@@ -254,6 +254,14 @@ namespace Ship_Game
         public static float Dot(this Vector2 a, Vector2 b) => a.X*b.X + a.Y*b.Y;
         public static float Dot(this Vector3 a, Vector3 b) => a.X*b.X + a.Y*b.Y + a.Z*b.Z;
 
+        public static Vector3 Cross(this in Vector3 a, in Vector3 b)
+        {
+            Vector3 v;
+            v.X = (a.Y * b.Z - a.Z * b.Y);
+            v.Y = (a.Z * b.X - a.X * b.Z);
+            v.Z = (a.X * b.Y - a.Y * b.X);
+            return v;
+        }
 
         public static Vector2 Normalized(this Vector2 v)
         {
@@ -273,13 +281,11 @@ namespace Ship_Game
             return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : new Vector3();
         }
 
-
-
         
         // True if this given position is within the radius of Circle [center,radius]
         public static bool InRadius(this Vector2 position, Vector2 center, float radius)
             => position.SqDist(center) <= radius*radius;
-        public static bool InRadius(this Vector3 position, Vector3 center, float radius)
+        public static bool InRadius(this Vector3 position, in Vector3 center, float radius)
             => position.SqDist(center) <= radius*radius;
         public static bool InRadius(this Vector3 position, Vector2 center, float radius)
             => position.SqDist(center.ToVec3()) <= radius*radius;
@@ -287,9 +293,8 @@ namespace Ship_Game
         // Reverse of WithinRadius, returns true if position is outside of Circle [center,radius]
         public static bool OutsideRadius(this Vector2 position, Vector2 center, float radius)
             => position.SqDist(center) > radius*radius;
-        public static bool OutsideRadius(this Vector3 position, Vector3 center, float radius)
+        public static bool OutsideRadius(this Vector3 position, in Vector3 center, float radius)
             => position.SqDist(center) > radius*radius;
-
 
         
         // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f

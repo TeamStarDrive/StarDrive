@@ -59,19 +59,9 @@ namespace Ship_Game
 		public bool HandleInput(InputState input)
 		{
 			bool retVal = pieMenu.Visible;
-			if (CurrentCursorMode != CursorMode.GamePad)
-			{
-				Vector2 selDir = position - pieMenu.Position;
-				selDir.Y = selDir.Y * -1f;
-				selDir = selDir / pieMenu.Radius;
-				pieMenu.HandleInput(input, selDir);
-			}
-			else
-			{
-				pieMenu.HandleInput(input);
-			}
+            pieMenu.HandleInput(input);
 			deltaMovement = input.GamepadCurr.ThumbSticks.Left;
-			deltaMovement.Y = deltaMovement.Y * -1f;
+			deltaMovement.Y *= -1f;
 			return retVal;
 		}
 

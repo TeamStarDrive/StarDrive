@@ -115,9 +115,9 @@ namespace Particle3DSample
 
             velocity *= Settings.EmitterVelocitySensitivity;
             float horizontalVelocity = Settings.MinHorizontalVelocity.LerpTo(Settings.MaxHorizontalVelocity, (float)random.NextDouble());
-            double horizontalAngle = random.NextDouble() * 6.28318548202515;
-            velocity.X += horizontalVelocity * (float)Math.Cos(horizontalAngle);
-            velocity.Z += horizontalVelocity * (float)Math.Sin(horizontalAngle);
+            float horizontalAngle = (float)random.NextDouble() * 6.28318548202515f;
+            velocity.X += horizontalVelocity * RadMath.Cos(horizontalAngle);
+            velocity.Z += horizontalVelocity * RadMath.Sin(horizontalAngle);
             velocity.Y += Settings.MinVerticalVelocity.LerpTo(Settings.MaxVerticalVelocity, (float)random.NextDouble());
             Particles[FirstFreeParticle].Position = position;
             Particles[FirstFreeParticle].Velocity = velocity;

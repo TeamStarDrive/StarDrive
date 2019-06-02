@@ -130,6 +130,9 @@
     <ClCompile Include="SdMesh\SdMeshGroup.cpp">
       <Filter>src\SdMesh</Filter>
     </ClCompile>
+    <ClCompile Include="util\math_utils.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">

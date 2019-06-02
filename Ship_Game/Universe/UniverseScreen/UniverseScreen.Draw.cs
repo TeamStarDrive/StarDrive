@@ -579,36 +579,27 @@ namespace Ship_Game
 
             if (Paused)
             {
-                batch.DrawString(Fonts.Pirulen16, Localizer.Token(4005),
-                    new Vector2(
-                        graphics.PresentationParameters.BackBufferWidth / 2f -
-                        Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f, 45f), Color.White);
+                var textPos = new Vector2(ScreenWidth / 2f - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f, 45f);
+                batch.DrawString(Fonts.Pirulen16, Localizer.Token(4005), textPos, Color.White);
             }
             if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
             {
-                batch.DrawString(Fonts.Pirulen16, "Hyperspace Flux",
-                    new Vector2(
-                        graphics.PresentationParameters.BackBufferWidth / 2f -
-                        Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f,
-                        45 + Fonts.Pirulen16.LineSpacing + 2), Color.Yellow);
+                var textPos = new Vector2(ScreenWidth / 2f - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f,
+                                          45 + Fonts.Pirulen16.LineSpacing + 2);
+                batch.DrawString(Fonts.Pirulen16, "Hyperspace Flux", textPos, Color.Yellow);
             }
             if (IsActive && SavedGame.IsSaving)
             {
-                batch.DrawString(Fonts.Pirulen16, "Saving...",
-                    new Vector2(
-                        graphics.PresentationParameters.BackBufferWidth / 2f -
-                        Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f,
-                        45 + Fonts.Pirulen16.LineSpacing * 2 + 4),
-                    new Color(255, 255, 255, (float) Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * 255f));
+                var textPos = new Vector2(ScreenWidth / 2f - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f,
+                                          45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
+                batch.DrawString(Fonts.Pirulen16, "Saving...", textPos, CurrentFlashColor);
             }
 
             if (IsActive && (GameSpeed != 1f)) //don't show "1.0x"
             {
                 string speed = GameSpeed.ToString("0.0##") + "x";
-                var speedTextPos = new Vector2(
-                    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth -
-                    Fonts.Pirulen16.MeasureString(speed).X - 13f, 64f);
-                batch.DrawString(Fonts.Pirulen16, speed, speedTextPos, Color.White);
+                var textPos = new Vector2(ScreenWidth - Fonts.Pirulen16.MeasureString(speed).X - 13f, 64f);
+                batch.DrawString(Fonts.Pirulen16, speed, textPos, Color.White);
             }
 
             if (Debug) ShowDebugGameInfo();
@@ -796,12 +787,13 @@ namespace Ship_Game
                         }
                         catch { }
                     }
-                    byte buttonFlashTimer = (byte)(Math.Abs((float) Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * 200f);
+
+                    byte buttonFlashTimer = (byte)(Math.Abs(RadMath.Sin(gameTime.TotalGameTime.TotalSeconds)) * 200f);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
                         fleetButton.ClickRect,
-                        inCombat
-                            ? new Color(byte.MaxValue, 0,  0,  buttonFlashTimer)
-                            : new Color( 0,  0,  0,  80));
+                        inCombat ? new Color(255, 0,  0,  buttonFlashTimer)
+                                 : new Color( 0,  0,  0,  80));
+
                     buttonSelector.Draw(ScreenManager.SpriteBatch);
                     ScreenManager.SpriteBatch.Draw(
                         ResourceManager.Texture("FleetIcons/" + fleetButton.Fleet.FleetIconIndex), housing,
