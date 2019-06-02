@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Ship_Game.GameScreens;
 
 namespace Ship_Game
 {
@@ -112,7 +113,7 @@ namespace Ship_Game
 
         public Empire empToDiscuss;
 
-        //private int cNum;
+        ScreenMediaPlayer RacialVideo;
 
         private string TheirText;
 
@@ -427,30 +428,22 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             string text;
-            Vector2 Position;
+            Vector2 position;
             Vector2 drawCurs;
             if (!IsActive)
-            {
                 return;
-            }
+
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 4 / 5);
-            ScreenManager.SpriteBatch.Begin();
-            if (!string.IsNullOrEmpty(them.data.Traits.VideoPath))
+            batch.Begin();
+            if (RacialVideo.IsPlaying)
             {
-                if (VideoPlaying.State != MediaState.Stopped)
+                Color color = Color.White;
+                if (WarDeclared || playerEmpire.GetRelations(them).AtWar)
                 {
-                    VideoTexture = VideoPlaying.GetTexture();
+                    color.B = 100;
+                    color.G = 100;
                 }
-                if (VideoTexture != null)
-                {
-                    Color color = Color.White;
-                    if (WarDeclared || playerEmpire.GetRelations(them).AtWar)
-                    {
-                        color.B = 100;
-                        color.G = 100;
-                    }
-                    ScreenManager.SpriteBatch.Draw(VideoTexture, Portrait,null, color);
-                }
+                RacialVideo.Draw(batch, color);
             }
             else
             {
@@ -500,9 +493,9 @@ namespace Ship_Game
                 {
                     var selector = new Selector(DialogRect, new Color(0, 0, 0, 220));
                     text = parseText(TheirText, (DialogRect.Width - 25), Fonts.Consolas18);
-                    Position = new Vector2((ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
-                    HelperFunctions.ClampVectorToInt(ref Position);
-                    DrawDropShadowText(text, Position, Fonts.Consolas18);
+                    position = new Vector2((ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    HelperFunctions.ClampVectorToInt(ref position);
+                    DrawDropShadowText(text, position, Fonts.Consolas18);
                     goto case DialogState.Choosing;
                 }
                 case DialogState.Choosing:
@@ -599,8 +592,8 @@ namespace Ship_Game
                 {
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/AcceptReject"), AccRejRect, Color.White);
                     text = parseText(TheirText, DialogRect.Width - 20, Fonts.Consolas18);
-                    Position = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
-                    DrawDropShadowText(text, Position, Fonts.Consolas18);
+                    position = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    DrawDropShadowText(text, position, Fonts.Consolas18);
                     Accept.DrawWithShadow(batch);
                     Reject.DrawWithShadow(batch);
                     goto case DialogState.Choosing;
@@ -609,9 +602,9 @@ namespace Ship_Game
                 {
                     Selector selector2 = new Selector(DialogRect, new Color(0, 0, 0, 220));
                     text = parseText(TheirText, DialogRect.Width - 20, Fonts.Consolas18);
-                    Position = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
-                    HelperFunctions.ClampVectorToInt(ref Position);
-                    DrawDropShadowText(text, Position, Fonts.Consolas18);
+                    position = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    HelperFunctions.ClampVectorToInt(ref position);
+                    DrawDropShadowText(text, position, Fonts.Consolas18);
                     goto case DialogState.Choosing;
                 }
                 default:
@@ -1149,10 +1142,7 @@ namespace Ship_Game
             var sub = new Submenu(blerdybloo);
             StatementsSL = new ScrollList(sub, Fonts.Consolas18.LineSpacing + 2, true);
 
-            PlayVideo(them.data.Traits.VideoPath);
-            GameAudio.PauseGenericMusic();
-            PlayEmpireMusic(them,WarDeclared);
-
+            PlayRaceVideoAndMusic();
 
             TextCursor = new Vector2(DialogRect.X + 5, DialogRect.Y + 5);
         }
@@ -1727,57 +1717,28 @@ namespace Ship_Game
             }
         }
 
+        void PlayRaceVideoAndMusic()
+        {
+            if (RacialVideo == null)
+                RacialVideo = new ScreenMediaPlayer(TransientContent);
+            RacialVideo.PlayVideoAndMusic(them, WarDeclared);
+            RacialVideo.Rect = Portrait;
+        }
+
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            //HACK there is am issue here where VideoPlayer is null. catching and logging.
-            try
-            {
-                if (VideoPlaying != null && !VideoPlaying.IsDisposed)
-                {
-                    if (IsActive)
-                    {
-                        if (VideoPlaying.State == MediaState.Paused)
-                        {
-                            VideoPlaying.Resume();
-                        }
-                        if (!them.data.ModRace)
-                        {
-                            if (MusicPlaying.IsPaused)
-                            {
-                                MusicPlaying.Resume();
-                            }
-                            else if (MusicPlaying.IsStopped)
-                            {
-                                if (them.data.MusicCue.NotEmpty())
-                                {
-                                    MusicPlaying = GameAudio.PlayMusic(WarDeclared ? "Stardrive_Combat 1c_114BPM" : them.data.MusicCue);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (VideoPlaying.State == MediaState.Playing)
-                        {
-                            VideoPlaying.Pause();
-                        }
-                        if (!them.data.ModRace && MusicPlaying.IsPlaying)
-                        {
-                            MusicPlaying.Pause();
-                        }
-                    }
-                }
+            RacialVideo.Update(this);
 
-                if (Discuss != null) Discuss.ToggleOn = dState == DialogState.Discuss;
+            if (Discuss != null) Discuss.ToggleOn = dState == DialogState.Discuss;
+            Negotiate.ToggleOn = dState == DialogState.Negotiate;
 
-                Negotiate.ToggleOn = dState == DialogState.Negotiate;
+            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+        }
 
-                base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-            }
-            catch(Exception ex)
-            {
-                Log.Error($"Diplomacy screen video failure during screen update.");
-            }
+        protected override void Destroy()
+        {
+            RacialVideo.Dispose();
+            base.Destroy();
         }
 
         private enum DialogState
