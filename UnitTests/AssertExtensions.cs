@@ -12,6 +12,15 @@ namespace UnitTests
 {
     public static class AssertExtensions
     {
+        public static void Equal(this Assert assert, float tolerance, float expected, float actual)
+        {
+            if (expected.AlmostEqual(actual, tolerance))
+            {
+                return; // OK
+            }
+            throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
+        }
+
         public static void Equal(this Assert assert, float tolerance, in Vector2 expected, in Vector2 actual)
         {
             if (expected.X.AlmostEqual(actual.X, tolerance) &&

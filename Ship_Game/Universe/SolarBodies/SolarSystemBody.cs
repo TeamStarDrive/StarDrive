@@ -285,8 +285,6 @@ namespace Ship_Game
 
         protected void UpdatePosition(float elapsedTime)
         {
-            
-        
             PosUpdateTimer -= elapsedTime;
             if (!Empire.Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.isVisible))
             {

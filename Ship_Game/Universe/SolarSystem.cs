@@ -68,10 +68,10 @@ namespace Ship_Game
             foreach (var status in Status)
                 status.Value.Update(realTime);
 
-            bool viewing = false;
+            bool systemOnScreen = false;
             if (universe.Frustum.Contains(Position, Radius))
             {
-                viewing = true;
+                systemOnScreen = true;
             }
             else if (universe.viewState <= UniverseScreen.UnivScreenState.ShipView) // WTF is this doing?
             {
@@ -87,13 +87,10 @@ namespace Ship_Game
                                           ray.Position.Y + num * ray.Direction.Y, 0.0f);
                 var pos = new Vector2(vector3.X, vector3.Y);
                 if (rect.HitTest(pos))
-                    viewing = true;
+                    systemOnScreen = true;
             }
 
-            if (IsExploredBy(player) && viewing)
-            {
-                isVisible = (universe.viewState <= UniverseScreen.UnivScreenState.SectorView);
-            }
+            isVisible = systemOnScreen && (universe.viewState <= UniverseScreen.UnivScreenState.SectorView) && IsExploredBy(player);
 
             if (isVisible && universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {

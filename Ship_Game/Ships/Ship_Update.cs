@@ -182,7 +182,7 @@ namespace Ship_Game.Ships
 
         void UpdateThruster(Thruster thruster, Color thrust0, Color thrust1)
         {
-            thruster.SetPosition();
+            thruster.UpdatePosition();
             float velocityPercent = Velocity.Length() / velocityMaximum;
             if (isThrusting)
             {
@@ -198,7 +198,7 @@ namespace Ship_Game.Ships
                         thruster.heat += 0.06f;
                     if (thruster.heat > 0.600000023841858)
                         thruster.heat = 0.6f;
-                    thruster.Update(Direction3D, thruster.heat, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
+                    thruster.Update(Direction3D, thruster.heat, 0.002f, Empire.Universe.CamPos, thrust0, thrust1);
                 }
             }
             else

@@ -216,8 +216,8 @@ namespace Ship_Game.Universe.SolarBodies
                 PulseTimer += deltaTime;
 
                 // sine-wave pattern
-                float progress = (PulseTimer/Info.PulsePeriod)*(float)Math.PI*2; // tick every second
-                Intensity = (1.0f + (float)Math.Sin(progress))*0.5f; // convert to positive [0.0-1.0] scale
+                float progress = (PulseTimer/Info.PulsePeriod)*RadMath.TwoPI; // tick every second
+                Intensity = (1.0f + RadMath.Sin(progress))*0.5f; // convert to positive [0.0-1.0] scale
 
                 ScaleIntensity = Info.PulseScale.Min.LerpTo(Info.PulseScale.Max, Intensity);
                 ColorIntensity = Info.PulseColor.Min.LerpTo(Info.PulseColor.Max, Intensity);

@@ -379,13 +379,11 @@ namespace Ship_Game.Ships
 
 
 
-
         // Converts a world position to a grid local position (such as [16f,32f])
         public Vector2 WorldToGridLocal(Vector2 worldPoint)
         {
             Vector2 offset = worldPoint - Center;
-            Vector2 rotated = offset.RotateAroundPoint(Vector2.Zero, -Rotation);
-            return rotated - GridOrigin;
+            return offset.RotatePoint(-Rotation) - GridOrigin;
         }
 
         public Point WorldToGridLocalPoint(Vector2 worldPoint)
@@ -430,7 +428,7 @@ namespace Ship_Game.Ships
         public Vector2 GridLocalToWorld(Vector2 localPoint)
         {
             Vector2 centerLocal = GridOrigin + localPoint;
-            return centerLocal.RotateAroundPoint(Vector2.Zero, Rotation) + Center;
+            return centerLocal.RotatePoint(Rotation) + Center;
         }
 
         public Vector2 GridLocalPointToWorld(Point gridLocalPoint)

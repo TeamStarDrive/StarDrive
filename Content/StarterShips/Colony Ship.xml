@@ -20,15 +20,15 @@
   <ThrusterList>
     <ThrusterZone>
       <Position>
-        <X>232</X>
-        <Y>344</Y>
+        <X>236</X>
+        <Y>340</Y>
       </Position>
       <scale>30</scale>
     </ThrusterZone>
     <ThrusterZone>
       <Position>
-        <X>264</X>
-        <Y>328</Y>
+        <X>260</X>
+        <Y>340</Y>
       </Position>
       <scale>30</scale>
     </ThrusterZone>
