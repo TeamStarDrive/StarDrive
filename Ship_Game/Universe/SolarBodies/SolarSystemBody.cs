@@ -85,12 +85,18 @@ namespace Ship_Game
             if (!Target.TroopsAreOnTile)
                 return;
 
-            Troop troop = Target.SingleTroop;
-            troop.DamageTroop(damage);
-            if (Target.SingleTroop.Strength <= 0)
+            Troop troop        = Target.SingleTroop;
+            int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
+
+            // Try to hit the troop, high level troops have better chance to evade
+            if (RandomMath.RollDice(troopHitChance))
             {
-                Surface.TroopsHere.Remove(Target.SingleTroop);
-                Target.TroopsHere.Clear();
+                troop.DamageTroop(damage);
+                if (Target.SingleTroop.Strength <= 0)
+                {
+                    Surface.TroopsHere.Remove(Target.SingleTroop);
+                    Target.TroopsHere.Clear();
+                }
             }
         }
 
