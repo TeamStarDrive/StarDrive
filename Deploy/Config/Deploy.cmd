@@ -11,8 +11,8 @@ for /f "delims=" %%b in ('%1\deploy\TortoiseHg\hg id -b') do set name=%%b
 set name=%name:release/=%
 set name=%name:/=_%
 
-REM Get current tagdistance `222`
-for /f %%r in ('%1deploy\TortoiseHg\hg log -r . --template {latesttagdistance}') do set hgrev=%%r
+REM Get current revision `7912`
+for /f %%r in ('%1deploy\TortoiseHg\hg log -r . --template {rev}') do set hgrev=%%r
 set hgrev="%name%_%hgrev%"
 echo %hgrev% > version.txt
 
