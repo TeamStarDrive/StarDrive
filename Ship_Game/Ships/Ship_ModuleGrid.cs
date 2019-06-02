@@ -794,7 +794,7 @@ namespace Ship_Game.Ships
 
             if (level > 1)
             {
-                // Sort Descending (-), so first element is the module with greatest TargettingValue
+                // Sort Descending (-), so first element is the module with greatest TargetingValue
                 modules.Sort(m => -m.ModuleTargetingValue);
             }
 
