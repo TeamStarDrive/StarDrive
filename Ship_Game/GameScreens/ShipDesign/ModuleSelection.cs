@@ -418,7 +418,7 @@ namespace Ship_Game
                 DrawWeaponStats(modTitlePos, mod, mod.InstalledWeapon, starty);
             }
         }
-        private void DrawStat(ref Vector2 cursor, string text, float stat, int toolTipId, bool isPercent = false)
+        void DrawStat(ref Vector2 cursor, string text, float stat, int toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
@@ -672,7 +672,7 @@ namespace Ship_Game
             float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
             DrawStat(ref cursor, "Pwr Dmg", powerDamage, 186);
 
-            DrawStat(ref cursor, Localizer.Token(130), m.FieldOfFire, 88);
+            DrawStat(ref cursor, Localizer.Token(130), m.FieldOfFire.ToDegrees(), 88);
             DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, 89);
 
 

@@ -953,44 +953,28 @@ namespace Ship_Game
                 if (!ship.Active)
                     continue;
 
-                var symbol = ship.GetTacticalIcon();
+                SubTexture symbol = ship.GetTacticalIcon();
 
                 float num = ship.SurfaceArea / (30f + symbol.Width);
                 float scale = num * 4000f / CamHeight;
                 if (scale > 1.0f) scale = 1f;
                 else if (scale <= 0.1f)
                     scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView
-                        ? 0.15f
-                        : 0.08f;
+                        ? 0.15f : 0.08f;
 
                 DrawTextureProjected(symbol, ship.projectedPosition, scale, CurrentGroup.ProjectedDirection.ToRadians(),
                     new Color(0, 255, 0, 100));
             }
         }
 
-        public void DrawWeaponArc(ShipModule module, Vector2 posOnScreen, float rotation)
-        {
-            Color color = GetWeaponArcColor(module.InstalledWeapon);
-            SubTexture arc = GetArcTexture(module.FieldOfFire);
-            float arcLength = ProjectToScreenSize(module.InstalledWeapon.Range);
-            DrawTextureSized(arc, posOnScreen, rotation, arcLength, arcLength, color);
-        }
-
-        public void DrawWeaponArc(Ship parent, ShipModule module)
-        {
-            float rotation = parent.Rotation + module.Facing.ToRadians();
-            Vector2 posOnScreen = ProjectToScreenPosition(module.Center);
-            DrawWeaponArc(module, posOnScreen, rotation);
-        }
-
-        private void DrawOverlay(Ship ship)
+        void DrawOverlay(Ship ship)
         {
             if (ship.InFrustum && !ship.dying && !LookingAtPlanet && ShowShipNames &&
                 viewState <= UnivScreenState.SystemView)
                 ship.DrawModulesOverlay(this);
         }
 
-        private void DrawTacticalIcon(Ship ship)
+        void DrawTacticalIcon(Ship ship)
         {
             if (!LookingAtPlanet && (!ship.IsPlatform ||
                                      ((showingFTLOverlay || viewState != UnivScreenState.GalaxyView) &&

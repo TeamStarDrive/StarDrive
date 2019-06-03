@@ -60,7 +60,7 @@ namespace Ship_Game.GameScreens.Sandbox
 
                 foreach (Weapon weapon in Weapons)
                 {
-                    weapon.Module.FieldOfFire = 120f;
+                    weapon.Module.FieldOfFire = RadMath.TwoPI/3f;
                     weapon.fireDelay = 0.5f;
                     weapon.Range = 4000f;
                     PredictResults.Clear();
