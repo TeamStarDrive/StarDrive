@@ -644,6 +644,7 @@ namespace Ship_Game.AI
                 OrderQueue.RemoveLast();
         }
 
+
         void PrioritizePlayerCommands()
         {
             if (Owner.loyalty == Empire.Universe.player &&

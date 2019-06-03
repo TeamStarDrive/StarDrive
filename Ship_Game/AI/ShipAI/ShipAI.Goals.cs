@@ -56,8 +56,7 @@ namespace Ship_Game.AI
         {
             if (clearOrders)
                 ClearOrders(State, true);
-            else
-                HasPriorityOrder = true;
+            HasPriorityOrder  = true;
             Intercepting      = false;
             HasPriorityTarget = false;
         }
