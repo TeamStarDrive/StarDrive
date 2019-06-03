@@ -212,7 +212,7 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Goods.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAIPlan.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\ShipAIMovement.cs" />
-    <Compile Include="Ship_Game\AI\ShipMovement\OrbitObject.cs" />
+    <Compile Include="Ship_Game\AI\ShipMovement\OrbitPlan.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
@@ -292,6 +292,7 @@
     <Compile Include="Ship_Game\Data\Mesh\MeshUtil.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MiscExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NumberExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\RadMath.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SDNative.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
@@ -308,6 +309,7 @@
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShip.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShipAI.cs" />
+    <Compile Include="Ship_Game\GameScreens\ScreenMediaPlayer.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MenuFleet.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionLabel.cs" />

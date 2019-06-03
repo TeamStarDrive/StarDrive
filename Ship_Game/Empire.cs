@@ -2446,7 +2446,7 @@ namespace Ship_Game
         }
 
         public void ForcePoolRemove(Ship s) => ForcePool.RemoveRef(s);
-        public bool Contains(Ship s) => ForcePool.ContainsRef(s);
+        public bool ForcePoolContains(Ship s) => ForcePool.ContainsRef(s);
 
         public Array<Ship> GetForcePool() => ForcePool;
 
@@ -2687,11 +2687,8 @@ namespace Ship_Game
             {
                 Ship[] forcePool = ForcePool.ToArray();
                 ForcePool.Clear();
-                for (int j = forcePool.Length - 1; j >= 0; j--)
-                {
-                    Ship ship = forcePool[j];
-                    ForcePoolAdd(ship);
-                }
+                for (int i = 0; i < forcePool.Length; ++i)
+                    ForcePoolAdd(forcePool[i]);
             }
         }
 

@@ -31,6 +31,9 @@ namespace Ship_Game
         //New Build Logic by Gretman, modified by FB
         void BuildAndScrapBuildings(float budget)
         {
+            if (RecentCombat)
+                return; // Do not build / scrap when in combat
+
             int totalBuildings = TotalBuildings;
             if (budget < -0.1f)
             {

@@ -667,16 +667,15 @@ namespace Ship_Game
             [Serialize(4)] public bool isTroop;
             [Serialize(5)] public bool isShip;
             [Serialize(6)] public string DisplayName;
-            [Serialize(7)] public bool IsRefit;
-            [Serialize(8)] public float RefitCost;
-            [Serialize(9)] public Vector2 pgsVector;
-            [Serialize(10)] public bool isPlayerAdded;
-            [Serialize(11)] public Array<Guid> TradeRoutes;
-            [Serialize(12)] public RectangleData[] AreaOfOperation;
-            [Serialize(13)] public bool TransportingColonists;
-            [Serialize(14)] public bool TransportingFood;
-            [Serialize(15)] public bool TransportingProduction;
-            [Serialize(16)] public bool AllowInterEmpireTrade;
+            [Serialize(7)] public float Cost;
+            [Serialize(8)] public Vector2 pgsVector;
+            [Serialize(9)] public bool isPlayerAdded;
+            [Serialize(10)] public Array<Guid> TradeRoutes;
+            [Serialize(11)] public RectangleData[] AreaOfOperation;
+            [Serialize(12)] public bool TransportingColonists;
+            [Serialize(13)] public bool TransportingFood;
+            [Serialize(14)] public bool TransportingProduction;
+            [Serialize(15)] public bool AllowInterEmpireTrade;
         }
 
         public struct RingSave
