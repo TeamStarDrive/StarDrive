@@ -16,25 +16,27 @@ namespace Ship_Game
         private Rectangle NotificationArea;
 
         private static readonly object NotificationLocker = new object();
-        private BatchRemovalCollection<Notification> NotificationList = 
+        private BatchRemovalCollection<Notification> NotificationList =
             new BatchRemovalCollection<Notification>();
         private float Timer;
         public bool HitTest => NotificationArea.HitTest(Screen.Input.CursorPosition);
+        // i think we should refactor this into base and parent classes. I think it would be better to use the new goal system
+        // style. More flexible i think.
         public NotificationManager(ScreenManager screenManager, UniverseScreen screen)
         {
             Screen        = screen;
             ScreenManager = screenManager;
 
             var presentParams = screenManager.GraphicsDevice.PresentationParameters;
-            NotificationArea  = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70, 
+            NotificationArea  = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70,
                                              presentParams.BackBufferHeight - 70 - 275);
             MaxEntriesToDisplay = NotificationArea.Height / 70;
         }
 
         private Rectangle GetNotificationRect(int index)
         {
-            return new Rectangle(NotificationArea.X,
-                NotificationArea.Y + NotificationArea.Height - (index+1) * 70, 64, 64);
+            int yPos = (NotificationArea.Y + NotificationArea.Height - index * 70 - 70).Clamped(70, NotificationArea.Height );
+            return new Rectangle(NotificationArea.X, yPos, 64, 64);
         }
         private Rectangle DefaultNotificationRect => GetNotificationRect(NotificationList.Count);
         private Rectangle DefaultClickRect => new Rectangle(NotificationArea.X, NotificationArea.Y, 64, 64);
@@ -43,7 +45,7 @@ namespace Ship_Game
         {
             notify.ClickRect = DefaultClickRect;
             notify.DestinationRect = DefaultNotificationRect;
-            
+
             foreach (string cue in soundCueStrings)
                 GameAudio.PlaySfxAsync(cue);
 
@@ -360,14 +362,15 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
-        private void UpdateAllPositions()
+        private void UpdateAllPositions(bool resetTransitionTime)
         {
+            var sortedNotification = NotificationList;//.Sorted(n => -n.DestinationRect.Y);
             for (int i = 0; i < NotificationList.Count; i++)
             {
-                Notification n          = NotificationList[i];
+                Notification n          = sortedNotification[i];
                 n.DestinationRect       = GetNotificationRect(i);
                 n.ClickRect.X           = NotificationArea.X;
-                n.transitionElapsedTime = 0f;
+                n.transitionElapsedTime = resetTransitionTime ? 0f : n.transitionElapsedTime;
             }
         }
 
@@ -377,7 +380,7 @@ namespace Ship_Game
             {
                 if (NotificationList.Count >= MaxEntriesToDisplay)  //fbedard: remove excess notifications
                 {
-                    for (int i = 0; i < NotificationList.Count; i++)
+                    for (int i = NotificationList.Count - 1; i >= 0; i--)
                     {
                         Notification n = NotificationList[i];
                         if (n.Action == "LoadEvent" || n.Pause) continue;
@@ -385,7 +388,7 @@ namespace Ship_Game
                         break;
                     }
                     NotificationList.ApplyPendingRemovals();
-                    UpdateAllPositions();
+                    UpdateAllPositions(false);
                 }
 
                 for (int i = 0; i < NotificationList.Count && i <= MaxEntriesToDisplay; i++)
@@ -486,22 +489,22 @@ namespace Ship_Game
                 }
                 NotificationList.ApplyPendingRemovals();
                 if (recalculate)
-                    UpdateAllPositions();
+                    UpdateAllPositions(true);
             }
             return retValue;
         }
 
         public void ReSize()
         {
-            NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70, 
+            NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70,
                                              ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 250);
             lock (NotificationLocker)
-                UpdateAllPositions();
+                UpdateAllPositions(true);
         }
 
         public void SnapToTechScreen()
         {
-            
+
         }
 
         public void SnapToCombat(Planet p)
@@ -531,7 +534,7 @@ namespace Ship_Game
             if (p != null) Screen.SelectedPlanet = p;
             Screen.SelectedSystem = system;
            // Screen.mouseWorldPos = p == null ? system.Position : p.Position;
-            Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView); 
+            Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView);
         }
 
         public void SnapToSystem(SolarSystem system)
@@ -580,19 +583,23 @@ namespace Ship_Game
                 Timer = date;
                 TriggerExplorationEvent(ResourceManager.EventsDict[dateString]);
             }
-            
+
             lock (NotificationLocker)
             {
                 foreach (Notification n in NotificationList)
                 {
-                    n.transitionElapsedTime = n.transitionElapsedTime + elapsedTime;
-                    float amount = (float)Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
-                    n.ClickRect.Y = (int)MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount);
+                    //if (n.ClickRect.Y != n.DestinationRect.Y)
+                    {
+                        n.transitionElapsedTime = n.transitionElapsedTime + elapsedTime;
+                        float amount = (float)Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
+                        n.ClickRect.Y = (int)Math.Ceiling(MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount));
+                    }
                     // ADDED BY SHAHMATT (pause game when there are any notifications)
                     //if (GlobalStats.PauseOnNotification && this.Screen.viewState > UniverseScreen.UnivScreenState.SystemView && n.ClickRect.Y >= n.DestinationRect.Y)
                     //fbedard : Add filter to pause
                     if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
                         Screen.Paused = true;
+
                 }
             }
         }
