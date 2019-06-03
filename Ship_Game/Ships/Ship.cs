@@ -2548,7 +2548,8 @@ namespace Ship_Game.Ships
         // prefers VanityName, otherwise uses Name
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
-        public override string ToString() => $"Ship Id={Id} '{ShipName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
+        public override string ToString() =>
+            $"Ship Id={Id} '{ShipName}' Pos {Position} {System} Loyalty {loyalty} Role {DesignRole}" ;
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
