@@ -62,7 +62,10 @@ namespace Ship_Game.AI
             TrackProjectiles.Clear();
             if (Owner.Mothership != null)
                 TrackProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
-            if (Owner.TrackingPower <= 0 || !hasPointDefense) return;
+            
+            if (Owner.TrackingPower <= 0 || !hasPointDefense)
+                return;
+
             // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
             foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.maxWeaponsRange))
             {
@@ -103,7 +106,9 @@ namespace Ship_Game.AI
                     }
                 }
             }
+
             UpdateTrackedProjectiles();
+
             if (Target is Ship target)
             {
                 if (target.loyalty == Owner.loyalty)
@@ -177,6 +182,7 @@ namespace Ship_Game.AI
 
                 NearByShips.Add(sw);
             }
+
             if (Target is Ship shipTarget)
             {
                 if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
@@ -217,8 +223,8 @@ namespace Ship_Game.AI
             }
 
             Ship targetShip = null;
-            if (sortedList2.Any())
-                targetShip = sortedList2.ElementAt(0).Ship;
+            if (sortedList2.Length > 0)
+                targetShip = sortedList2[0].Ship;
 
             if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars)
                 return targetShip;
@@ -395,7 +401,8 @@ namespace Ship_Game.AI
                     return;
             }
 
-            if (Target != null && !Owner.InCombat)
+            // we have a combat target, but we're not in combat state?
+            if (Target != null && State != AIState.Combat)
             {
                 Owner.InCombatTimer = 15f;
                 if (!HasPriorityOrder)

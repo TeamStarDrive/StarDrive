@@ -1015,13 +1015,14 @@ namespace Ship_Game
             }
 
             if (Input.IsShiftKeyDown) // Always order orbit if shift is down when right clicking on a planet
+            {
                 ship.AI.OrderToOrbit(planet);
+            }
             else
             {
                 if (audio)
                     GameAudio.AffirmativeClick();
 
-                ship.AI.HasPriorityOrder = true;
                 if      (ship.isColonyShip)                   PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
                 else if (ship.Carrier.AnyAssaultOpsAvailable) PlanetRightClickTroopShip(ship, planet);  // This ship can assault planets
                 else if (ship.HasBombs)                       PlanetRightClickBomber(ship, planet);     // This ship can bomb planets
