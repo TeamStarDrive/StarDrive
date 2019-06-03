@@ -308,31 +308,41 @@ namespace Ship_Game
             Unlocked = false;
         }
 
-        public bool Unlock(Empire us, Empire them = null)
+        bool TrySetUnlocked()
         {
-            if (!SetDiscovered(us))
-                return false;
+            bool unlockedHere = false;
             if (Tech.MaxLevel > 1)
             {
                 Level++;
                 if (Level == Tech.MaxLevel)
                 {
-                    Progress = TechCost ;
+                    Progress = TechCost;
                     Unlocked = true;
+                    unlockedHere = true;
                 }
                 else
                 {
-                    Unlocked = false;
-                    Progress = 0;
+                    Unlocked    = false;
+                    Progress    = 0;
+                    unlockedHere = true;
                 }
             }
-            else
+            else if (!Unlocked)
             {
-                Progress = Tech.ActualCost;
-                Unlocked = true;
+                Progress    = Tech.ActualCost;
+                Unlocked    = true;
+                unlockedHere = true;
             }
+            return unlockedHere;
+        }
+
+        public bool Unlock(Empire us, Empire them = null)
+        {
+            if (!SetDiscovered(us))
+                return false;
+
             them = them ?? us;
-            UnlockTechContentOnly(us, them);
+            UnlockTechContentOnly(us, them, TrySetUnlocked());
             TriggerAnyEvents(us);
             return true;
         }
@@ -611,8 +621,8 @@ namespace Ship_Game
                 return;
             var theirData = them.data;
             var theirShipType = theirData.Traits.ShipType;
-            //update ship stats if a bonus was unlocked
 
+            //update ship stats if a bonus was unlocked
             empire.TriggerAllShipStatusUpdate();
 
             foreach (Technology.UnlockedBonus unlockedBonus in Tech.BonusUnlocked)
