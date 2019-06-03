@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using Ship_Game.Audio;
 using Ship_Game.Data;
@@ -23,6 +24,7 @@ namespace Ship_Game
         public Viewport Viewport { get; private set; }
         public bool IsLoaded  { get; private set; }
         public bool IsExiting { get; private set; }
+        public int MainThreadId { get; private set; }
 
         public new GameContentManager Content { get; }
         public static GameContentManager GameContent => Instance?.Content;
@@ -42,6 +44,8 @@ namespace Ship_Game
 
         public StarDriveGame()
         {
+            MainThreadId = Thread.CurrentThread.ManagedThreadId;
+
             // need to set base Content, to ensure proper content disposal
             base.Content = Content = new GameContentManager(Services, "Game");
 

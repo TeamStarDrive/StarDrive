@@ -371,14 +371,14 @@ namespace Ship_Game
             {
                 if (Empire.Universe.PlayerEmpire.GetRelations(Owner).Treaty_NAPact)
                 {
-                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded NA Pact", ParentSystem));
+                    DiplomacyScreen.Show(Owner, "Invaded NA Pact", ParentSystem);
                     Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
                     Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 50f;
                     Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 50f;
                 }
                 else
                 {
-                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Owner, Empire.Universe.PlayerEmpire, "Invaded Start War", ParentSystem));
+                    DiplomacyScreen.Show(Owner, "Invaded Start War", ParentSystem);
                     Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
                     Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 25f;
                     Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 25f;

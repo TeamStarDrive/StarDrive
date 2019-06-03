@@ -320,13 +320,15 @@ namespace Ship_Game
                 {
                     if (SelectedShip.loyalty.data.Traits.Name == e.Faction && player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
                     {
-                        ScreenManager.AddScreen(new EncounterPopup(this, player, SelectedShip.loyalty, null, e));
+                        EncounterPopup.Show(this, player, SelectedShip.loyalty, e);
                         break;
                     }
                 }
             }
             else
-                ScreenManager.AddScreen(new DiplomacyScreen(this, SelectedShip.loyalty, player, "Greeting"));
+            {
+                DiplomacyScreen.Show(SelectedShip.loyalty, player, "Greeting");
+            }
         }
 
         void CreateProjectionMatrix()

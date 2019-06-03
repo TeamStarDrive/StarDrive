@@ -60,7 +60,7 @@ namespace Ship_Game
             batch.End();
         }
 
-        private void OnLoadClicked()
+        void OnLoadClicked()
         {
             if (activeFile != null)
             {

@@ -294,7 +294,7 @@ namespace Ship_Game
             {
                 UniverseScreen u = Empire.Universe;
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
-                u.ScreenManager.AddScreen(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true));
+                u.ScreenManager.AddScreenDeferred(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true));
             }
         }
     }
