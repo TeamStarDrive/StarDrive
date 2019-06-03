@@ -826,25 +826,6 @@ namespace Ship_Game
             return Arc15;
         }
 
-        public Color GetWeaponArcColor(Weapon weapon)
-        {
-            if (weapon.WeaponType == "Flak" || weapon.WeaponType == "Vulcan")
-                return Color.Yellow;
-            if (weapon.WeaponType == "Laser" || weapon.WeaponType == "HeavyLaser")
-                return Color.Red;
-            if (weapon.WeaponType == "PhotonCannon")
-                return Color.Blue;
-            return new Color(255, 165, 0, 100);
-            //color = new Color(255, 0, 0, 75); // full red is kinda too strong :|
-        }
-
-
-        // @todo fleetIconScreenRadius could be replaced with clickableFleet.ClickRadius ????
-
-
-        //This will likely only work with "this UI\planetNamePointer" texture
-        //Other textures might work but would need the x and y offset adjusted.
-
         public void QueueGameplayObjectRemoval(GameplayObject gameplayObject)
         {
             if (gameplayObject == null) return;
