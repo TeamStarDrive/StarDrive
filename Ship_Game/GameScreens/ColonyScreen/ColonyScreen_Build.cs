@@ -508,7 +508,7 @@ namespace Ship_Game
                         if (input.LeftMouseClick)
                         {
                             var sdScreen = new ShipDesignScreen(Empire.Universe, eui);
-                            ScreenManager.AddScreen(sdScreen);
+                            ScreenManager.AddScreenDeferred(sdScreen);
                             sdScreen.ChangeHull(e.Get<Ship>().shipData);
                             return true;
                         }

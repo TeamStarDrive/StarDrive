@@ -49,7 +49,7 @@ namespace Ship_Game
         public void RefitTo()
         {
             if (SelectedShip != null)
-                ScreenManager.AddScreen(new RefitToWindow(this, SelectedShip));
+                ScreenManager.AddScreenDeferred(new RefitToWindow(this, SelectedShip));
         }
 
         private void LoadShipMenuNodes(int which)

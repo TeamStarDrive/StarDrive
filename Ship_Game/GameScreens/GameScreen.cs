@@ -432,8 +432,9 @@ namespace Ship_Game
             var messageBox = new MessageBoxScreen(screen, localId, okText, cancelledText);
             messageBox.Cancelled += cancelled;
             messageBox.Accepted += accepted;
-            ScreenManager.AddScreen(messageBox);            
+            ScreenManager.AddScreenDeferred(messageBox);            
         }
+
         public void ExitMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localId)
         {
             MakeMessageBox(screen, cancelled, accepted, localId, "Save", "Exit");

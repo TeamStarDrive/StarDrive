@@ -943,8 +943,9 @@ namespace Ship_Game
             //showExecuteButton = false;
             if (SelectedEmpire != EmpireManager.Player && !SelectedEmpire.data.Defeated && Contact.HandleInput(input))
             {
-                ScreenManager.AddScreen(new DiplomacyScreen(this, SelectedEmpire, EmpireManager.Player, "Greeting"));
+                ScreenManager.AddScreenDeferred(new DiplomacyScreen(this, SelectedEmpire, EmpireManager.Player, "Greeting"));
             }
+
             foreach (RaceEntry race in Races)
             {
                 if (EmpireManager.Player == race.e || !EmpireManager.Player.GetRelations(race.e).Known)

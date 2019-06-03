@@ -107,7 +107,6 @@ namespace Ship_Game.Ships
         public float ShipMass;
         public int TroopCapacity;
         public float OrdAddedPerSecond;
-        public AudioHandle DroneSfx = new AudioHandle();
         public float ShieldRechargeTimer;
         public bool InCombat;
         public float xRotation;
@@ -544,7 +543,7 @@ namespace Ship_Game.Ships
         public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
-            set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
+            set => Empire.Universe.ScreenManager.AddScreenDeferred(new RefitToWindow(Empire.Universe, this));
         }
 
         public bool IsWithinPlanetaryGravityWell
@@ -2265,7 +2264,8 @@ namespace Ship_Game.Ships
             if (BaseHull.EventOnDeath != null)
             {
                 var evt = ResourceManager.EventsDict[BaseHull.EventOnDeath];
-                Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
+                Empire.Universe.ScreenManager.AddScreenDeferred(
+                    new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
             QueueTotalRemoval();
 
