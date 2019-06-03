@@ -328,8 +328,6 @@ namespace Ship_Game
 
         public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
 
-
-
         
         // Angle degrees from origin to tgt; result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
