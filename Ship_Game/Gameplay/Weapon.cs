@@ -376,7 +376,7 @@ namespace Ship_Game.Gameplay
         {
             if (target != null)
             {
-                if (ProjectedImpactPoint(target, out Vector2 pip) && CheckFireArc(pip))
+                if (ProjectedImpactPoint(target, out Vector2 pip) && Owner.IsInsideFiringArc(this, pip))
                 {
                     firePos = pip;
                     return true;
@@ -384,7 +384,7 @@ namespace Ship_Game.Gameplay
             }
 
             // if no target OR pip was not in arc, check if targetPos itself is in arc
-            if (CheckFireArc(targetPos))
+            if (Owner.IsInsideFiringArc(this, targetPos))
             {
                 firePos = targetPos;
                 return true;
@@ -654,13 +654,6 @@ namespace Ship_Game.Gameplay
             {
                 FireTarget = newTargetShip.GetRandomInternalModule(this);
             }
-        }
-
-        bool CheckFireArc(Vector2 targetPos, GameplayObject maybeTarget = null)
-        {
-            return maybeTarget != null
-                ? Owner.IsTargetInFireArcRange(this, maybeTarget)
-                : Owner.IsInsideFiringArc(this, targetPos);
         }
 
         public Vector2 ProjectedBeamPoint(Vector2 source, Vector2 destination, GameplayObject target = null)
