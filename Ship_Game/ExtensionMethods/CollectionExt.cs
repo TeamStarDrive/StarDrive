@@ -34,6 +34,14 @@ namespace Ship_Game
             return -1;
         }
 
+        public static int IndexOf<T>(this IReadOnlyList<T> list, Predicate<T> predicate)
+        {
+            for (int i = 0, n = list.Count; i < n; ++i)
+                if (predicate(list[i]))
+                    return i;
+            return -1;
+        }
+
         // @return First item found or NULL if nothing passes the predicate
         public static T Find<T>(this T[] items, Predicate<T> predicate) where T : class
         {
